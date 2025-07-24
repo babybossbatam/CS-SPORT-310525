@@ -783,6 +783,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         sessionStorage.removeItem(cacheKey);
       } else {
         // Use cache only for past dates (more than 1 day old)
+```text
         const maxAge = 2 * 60 * 1000; // 2 minutes max for any cached data
 
         if (age < maxAge) {
@@ -941,44 +942,51 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               }
               });
 
-              // Use leagueFixtures as primary data source and group matches by league ID
-              const matchesByLeague = useMemo(() => {
-              const result: Record<number, { league: any; matches: FixtureData[] }> = {};
+              // Use leagueFixtures as primary data source and group matches by league ID with deduplication
+  const matchesByLeague = useMemo(() => {
+    const result: Record<number, { league: any; matches: FixtureData[] }> = {};
+    const seenMatchIds = new Set<number>(); // Track seen match IDs to prevent duplicates
 
-              // Process leagueFixtures map to create the grouped structure
-              leagueFixtures.forEach((fixtures, leagueId) => {
-              if (fixtures && fixtures.length > 0) {
-              // Debug logging for league 908
-              if (leagueId === 908) {
-              console.log(`🔍 [MyNewLeague] League 908 fixtures before filtering:`, {
-              totalFixtures: fixtures.length,
-              selectedDate,
-              fixtures: fixtures.map(f => ({
+    // Process leagueFixtures map to create the grouped structure
+    leagueFixtures.forEach((fixtures, leagueId) => {
+      if (fixtures && fixtures.length > 0) {
+        // Debug logging for league 908
+        if (leagueId === 908) {
+          console.log(`🔍 [MyNewLeague] League 908 fixtures before filtering:`, {
+            totalFixtures: fixtures.length,
+            selectedDate,
+            fixtures: fixtures.map(f => ({
               id: f.fixture.id,
               date: f.fixture.date,
               localDate: new Date(f.fixture.date).toLocaleDateString('en-CA'),
               status: f.fixture.status.short,
               teams: `${f.teams.home.name} vs ${f.teams.away.name}`
-              }))
-              });
-              }
+            }))
+          });
+        }
 
-              // Filter fixtures by selected date using timezone-aware filtering with postponed match handling
-              const filteredFixtures = fixtures.filter(fixture => {
-              const fixtureDate = fixture.fixture?.date;
-              if (!fixtureDate) return false;
+        // Filter fixtures by selected date using timezone-aware filtering with postponed match handling
+        const filteredFixtures = fixtures.filter(fixture => {
+          const fixtureDate = fixture.fixture?.date;
+          if (!fixtureDate) return false;
 
-              const currentStatus = fixture.fixture.status.short;
-              const fixtureUTCDate = new Date(fixtureDate);
-              const fixtureLocalDate = fixtureUTCDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format
-              const now = new Date();
+          // Check for duplicate match IDs first
+          if (seenMatchIds.has(fixture.fixture.id)) {
+            console.log(`🚫 [DUPLICATE PREVENTION] Skipping duplicate match ID ${fixture.fixture.id}: ${fixture.teams.home.name} vs ${fixture.teams.away.name} in league ${leagueId}`);
+            return false;
+          }
 
-              // Special handling for matches that are past their scheduled time but still showing NS status
-              if (currentStatus === 'NS' && fixtureUTCDate.getTime() < now.getTime()) {
-              const hoursPassed = (now.getTime() - fixtureUTCDate.getTime()) / (1000 * 60 * 60);
+          const currentStatus = fixture.fixture.status.short;
+          const fixtureUTCDate = new Date(fixtureDate);
+          const fixtureLocalDate = fixtureUTCDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+          const now = new Date();
 
-              // If match is more than 3 hours past scheduled time and still NS, treat as tomorrow's match
-              if (hoursPassed > 3) {
+          // Special handling for matches that are past their scheduled time but still showing NS status
+          if (currentStatus === 'NS' && fixtureUTCDate.getTime() < now.getTime()) {
+            const hoursPassed = (now.getTime() - fixtureUTCDate.getTime()) / (1000 * 60 * 60);
+
+            // If match is more than 3 hours past scheduled time and still NS, treat as tomorrow's match
+            if (hoursPassed > 3) {
               const tomorrow = new Date(now);
               tomorrow.setDate(tomorrow.getDate() + 1);
               const tomorrowDate = tomorrow.toLocaleDateString('en-CA');
@@ -994,52 +1002,60 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                   shouldInclude
                 });
               }
-              return shouldInclude;
-              }
-              }
 
-              const matches = fixtureLocalDate === selectedDate;
-              if (leagueId === 908) {
-              console.log(`🔍 [MyNewLeague] League 908 date filtering:`, {
+              if (shouldInclude) {
+                seenMatchIds.add(fixture.fixture.id); // Mark as seen
+              }
+              return shouldInclude;
+            }
+          }
+
+          const matches = fixtureLocalDate === selectedDate;
+          if (leagueId === 908) {
+            console.log(`🔍 [MyNewLeague] League 908 date filtering:`, {
               fixtureId: fixture.fixture.id,
               teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
               fixtureLocalDate,
               selectedDate,
               matches,
               status: currentStatus
-              });
-              }
-
-              return matches;
-              });
-
-              if (leagueId === 908) {
-              console.log(`🔍 [MyNewLeague] League 908 after filtering:`, {
-              filteredCount: filteredFixtures.length,
-              willBeIncluded: filteredFixtures.length > 0
-              });
-              }
-
-              if (filteredFixtures.length > 0) {
-              result[leagueId] = {
-                league: filteredFixtures[0].league,
-                matches: filteredFixtures,
-              };
-            }
+            });
           }
+
+          if (matches) {
+            seenMatchIds.add(fixture.fixture.id); // Mark as seen
+          }
+          return matches;
         });
 
-        console.log(`📊 [MyNewLeague] Processed matchesByLeague:`, {
-              totalLeagues: Object.keys(result).length,
-              totalMatches: Object.values(result).reduce((sum, group) => sum + group.matches.length, 0),
-              selectedDate,
-              leagueFixturesSize: leagueFixtures.size,
-              hasLeague908: !!result[908],
-              league908Matches: result[908]?.matches.length || 0
-              });
+        if (leagueId === 908) {
+          console.log(`🔍 [MyNewLeague] League 908 after filtering:`, {
+            filteredCount: filteredFixtures.length,
+            willBeIncluded: filteredFixtures.length > 0
+          });
+        }
 
-              return result;
-              }, [leagueFixtures, selectedDate]);
+        if (filteredFixtures.length > 0) {
+          result[leagueId] = {
+            league: filteredFixtures[0].league,
+            matches: filteredFixtures,
+          };
+        }
+      }
+    });
+
+    console.log(`📊 [MyNewLeague] Processed matchesByLeague with deduplication:`, {
+      totalLeagues: Object.keys(result).length,
+      totalMatches: Object.values(result).reduce((sum, group) => sum + group.matches.length, 0),
+      uniqueMatchIds: seenMatchIds.size,
+      selectedDate,
+      leagueFixturesSize: leagueFixtures.size,
+      hasLeague908: !!result[908],
+      league908Matches: result[908]?.matches.length || 0
+    });
+
+    return result;
+  }, [leagueFixtures, selectedDate]);
 
               // Auto-expand all leagues by default when data changes and ensure loading state is cleared
               useEffect(() => {
@@ -1258,7 +1274,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
   isGoalFlash: boolean;
   isStarred: boolean;
   onStarToggle: (matchId: number) => void;
-  onMatchClick?: (matchId: number, homeTeamName: string, awayTeamName: string) => void;
+  onMatchClick?: (matchId: number, homeTeamName, awayTeamName) => void;
   leagueContext: { name: string; country: string; }
   }) => {
   // Track match phase without React state
@@ -1661,8 +1677,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                   return (
                     <div
                       className="match-time-display"
-                      style={{ fontSize: "0.882em" }}
-                    >
+                      style={{ fontSize: "0.882em" }}                    >
                       {formatMatchTimeWithTimezone(matchDate)}
                     </div>
                   );
