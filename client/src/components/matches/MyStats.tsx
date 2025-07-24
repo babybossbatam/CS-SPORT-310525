@@ -280,10 +280,10 @@ const MyStats: React.FC<MyStatsProps> = ({
   return (
     <>
       {/* Team Headers */}
-       <span className="flex text-sm  font-bold  border-b py-3 ">Top Stats</span>
+       <span className="flex text-sm  font-semibold  border-b py-3 ">Top Stats</span>
       
       {/* Statistics with bars - Real API data */}
-      <div className="space-y-1 ">
+      <div className="space-y-1 -mx-2">
         {/* Always visible stats (first 4) */}
         <StatRowWithBars 
           label="Ball Possession" 
@@ -340,24 +340,6 @@ const MyStats: React.FC<MyStatsProps> = ({
         )}
       </div>
 
-      {/* Expand/Collapse Button */}
-      <div className=" mt-2 -mx-6">
-        <button
-          onClick={onToggleExpanded}
-          className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 hover:bg-gray-100 font-medium py-2 -mb-4 px-4 transition-colors duration-200"
-        >
-          <span>{isExpanded ? 'Show Less' : 'See All'}</span>
-          {isExpanded ? (
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-            </svg>
-          ) : (
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          )}
-        </button>
-      </div>
     </>
   );
 };
