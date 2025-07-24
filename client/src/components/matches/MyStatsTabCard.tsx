@@ -580,10 +580,10 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
         </div>
 
         {/* Expand/Collapse Button */}
-        <div className="mt-4 flex justify-center">
+        <div className="mt-4 -mx-4">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center justify-center gap-2 text-sm text-gray-600 hover:bg-gray-200 font-medium py-2  transition-colors duration-200"
+            className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 hover:bg-gray-100 font-medium py-3 px-4 transition-colors duration-200"
           >
             <span>{isExpanded ? 'Show Less' : 'See All'}</span>
             {isExpanded ? (
