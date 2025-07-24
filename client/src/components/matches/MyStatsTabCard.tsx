@@ -584,16 +584,13 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) =
         <div className="mt-4 -mx-4">
           <button
             onClick={() => {
-              // Always ensure Stats tab is active first
+              // Always ensure Stats tab is active first - this will hide MyMatchTabCard and show MyStatsTabCard
               if (onTabChange) {
                 onTabChange('stats');
               }
               
-              // Always expand when "See All" is clicked
-              // This handles both scenarios:
-              // 1. Coming from another tab -> switch to Stats and expand
-              // 2. Already on Stats tab -> expand if collapsed, or collapse if expanded
-              setIsExpanded(!isExpanded);
+              // Always expand when "See All" is clicked to show all statistics
+              setIsExpanded(true);
             }}
             className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 hover:bg-gray-100 font-medium py-1 -mb-4 px-4 transition-colors duration-200"
           >
