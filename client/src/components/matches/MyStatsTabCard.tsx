@@ -238,15 +238,19 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) =
           </CardContent>
         </Card>
 
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold mb-4">Shot Statistics</h3>
-          <MyShots
-            homeStats={homeStats}
-            awayStats={awayStats}
-            homeTeam={homeTeam}
-            awayTeam={awayTeam}
-          />
-        </div>
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle>Shot Statistics</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <MyShots
+              homeStats={homeStats}
+              awayStats={awayStats}
+              homeTeam={homeTeam}
+              awayTeam={awayTeam}
+            />
+          </CardContent>
+        </Card>
       </CardContent>
     </Card>
   );
