@@ -90,7 +90,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) =
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Stats</CardTitle>
+          <CardTitle className="text-xs">Stats</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="">
