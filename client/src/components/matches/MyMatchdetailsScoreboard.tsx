@@ -10,7 +10,7 @@ import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
 import MyMatchStats from "./MyMatchStats";
-import MyStatsTabCard from "./MyStatsTabCard";
+
 
 // Add CSS for cleaner pulse effect
 const pulseStyles = `
@@ -692,12 +692,6 @@ const MyMatchdetailsScoreboard = ({
       </Card>
 
       {/* Tab content will be rendered by parent component */}
-      {activeTab === 'stats' && (
-            <MyStatsTabCard 
-              match={displayMatch} 
-              onTabChange={handleTabChange}
-            />
-          )}
 
       </Card>
     </>
