@@ -326,23 +326,43 @@ class SelectiveMatchUpdater {
 // Export singleton instance
 export const selectiveMatchUpdater = new SelectiveMatchUpdater();
 
-// Hook for React components
+// Hook for React components - completely avoids React state to prevent queue issues
 export const useSelectiveMatchUpdate = (matchId: number, initialMatch: any) => {
-  // Use refs to avoid React's state queue issues
+  // Use refs exclusively to avoid React's state queue
   const matchStateRef = useRef({
     goals: initialMatch.goals,
     status: initialMatch.fixture.status
   });
   
-  const [, forceUpdate] = useState({});
   const isMountedRef = useRef(true);
   const unsubscribeRef = useRef<(() => void) | null>(null);
+  const lastUpdateRef = useRef<number>(0);
+  const updateCallbacksRef = useRef<Set<() => void>>(new Set());
 
-  // Force re-render function that's safe from React queue issues
+  // Register an update callback without using React state
+  const registerUpdateCallback = useCallback((callback: () => void) => {
+    updateCallbacksRef.current.add(callback);
+    return () => {
+      updateCallbacksRef.current.delete(callback);
+    };
+  }, []);
+
+  // Trigger updates without React state
   const triggerUpdate = useCallback(() => {
-    if (isMountedRef.current) {
+    if (isMountedRef.current && updateCallbacksRef.current.size > 0) {
       try {
-        forceUpdate({});
+        const now = Date.now();
+        // Throttle updates to prevent excessive re-renders
+        if (now - lastUpdateRef.current > 100) {
+          lastUpdateRef.current = now;
+          updateCallbacksRef.current.forEach(callback => {
+            try {
+              callback();
+            } catch (error) {
+              console.warn(`⚠️ [SelectiveUpdate] Update callback error for match ${matchId}:`, error);
+            }
+          });
+        }
       } catch (error) {
         console.warn(`⚠️ [SelectiveUpdate] Failed to trigger update for match ${matchId}:`, error);
       }
@@ -392,8 +412,12 @@ export const useSelectiveMatchUpdate = (matchId: number, initialMatch: any) => {
             status: updatedData.status || matchStateRef.current.status
           };
 
-          // Safely trigger re-render using setTimeout to avoid React queue conflicts
-          setTimeout(triggerUpdate, 0);
+          // Use requestAnimationFrame for smoother updates
+          requestAnimationFrame(() => {
+            if (isMountedRef.current) {
+              triggerUpdate();
+            }
+          });
         }
       } catch (error) {
         console.warn(`⚠️ [SelectiveUpdate] Error updating match ${matchId}:`, error);
@@ -412,6 +436,7 @@ export const useSelectiveMatchUpdate = (matchId: number, initialMatch: any) => {
           console.warn(`⚠️ [SelectiveUpdate] Error during cleanup for match ${matchId}:`, error);
         }
       }
+      updateCallbacksRef.current.clear();
     };
   }, [matchId, triggerUpdate]);
 
@@ -419,8 +444,13 @@ export const useSelectiveMatchUpdate = (matchId: number, initialMatch: any) => {
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
+      updateCallbacksRef.current.clear();
     };
   }, []);
 
-  return matchStateRef.current;
+  // Return state getter and update registration function
+  return {
+    getState: () => matchStateRef.current,
+    registerUpdateCallback
+  };
 };

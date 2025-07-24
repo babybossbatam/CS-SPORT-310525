@@ -1225,7 +1225,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               </Card>
               );
 
-              // Optimized MatchCard component with minimal re-renders - only update scores and status
+              // Optimized MatchCard component with state-free selective updates
   const MatchCard = ({ 
   matchId,
   homeTeamName,
@@ -1261,52 +1261,51 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
   onMatchClick?: (matchId: number, homeTeamName: string, awayTeamName: string) => void;
   leagueContext: { name: string; country: string; }
   }) => {
-  // Simple state tracking without excessive checks
-  const [liveGoals, setLiveGoals] = useState(initialMatch.goals);
-  const [liveStatus, setLiveStatus] = useState(initialMatch.fixture.status);
-  const [matchPhase, setMatchPhase] = useState<'upcoming' | 'live' | 'ended'>(() => {
+  // Track match phase without React state
+  const matchPhaseRef = useRef<'upcoming' | 'live' | 'ended'>(() => {
     const status = initialMatch.fixture.status.short;
     if (['NS', 'TBD'].includes(status)) return 'upcoming';
     if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) return 'ended';
     return 'live';
   });
 
+  // Force re-render mechanism without useState
+  const [renderKey, setRenderKey] = useState(0);
+  const forceRender = useCallback(() => {
+    setRenderKey(prev => prev + 1);
+  }, []);
+
   // Only use selective updates for live matches
-  const isCurrentlyLive = matchPhase === 'live';
-  const matchUpdate = isCurrentlyLive ? useSelectiveMatchUpdate(matchId, initialMatch) : null;
+  const isCurrentlyLive = matchPhaseRef.current === 'live';
+  const selectiveUpdate = isCurrentlyLive ? useSelectiveMatchUpdate(matchId, initialMatch) : null;
 
-  // Handle match state transitions with minimal re-renders
+  // Register for updates from selective update system
   useEffect(() => {
-    if (!matchUpdate) return;
+    if (!selectiveUpdate) return;
 
-    const newStatus = matchUpdate.status?.short;
-    const newGoals = matchUpdate.goals;
+    const unregister = selectiveUpdate.registerUpdateCallback(() => {
+      const newState = selectiveUpdate.getState();
+      const newStatus = newState.status?.short;
 
-    // Only update if there are actual changes
-    if (newStatus && newStatus !== liveStatus.short) {
-      console.log(`🔄 [MatchCard ${matchId}] Status transition: ${liveStatus.short} → ${newStatus}`);
-      setLiveStatus(matchUpdate.status);
-
-      // Handle phase transitions
+      // Update phase based on new status
       if (['NS', 'TBD'].includes(newStatus)) {
-        setMatchPhase('upcoming');
+        matchPhaseRef.current = 'upcoming';
       } else if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(newStatus)) {
-        setMatchPhase('ended');
+        matchPhaseRef.current = 'ended';
       } else {
-        setMatchPhase('live');
+        matchPhaseRef.current = 'live';
       }
-    }
 
-    // Only update goals if they actually changed
-    if (newGoals && (newGoals.home !== liveGoals.home || newGoals.away !== liveGoals.away)) {
-      console.log(`⚽ [MatchCard ${matchId}] Goals update: ${liveGoals.home}-${liveGoals.away} → ${newGoals.home}-${newGoals.away}`);
-      setLiveGoals(newGoals);
-    }
-  }, [matchUpdate, matchId, liveStatus.short, liveGoals.home, liveGoals.away]);
+      // Trigger re-render
+      forceRender();
+    });
+
+    return unregister;
+  }, [selectiveUpdate, forceRender]);
 
   // Time-based transition check for upcoming matches
   useEffect(() => {
-    if (matchPhase !== 'upcoming') return;
+    if (matchPhaseRef.current !== 'upcoming') return;
 
     const checkTransition = () => {
       const now = new Date();
@@ -1316,17 +1315,29 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
       // If match should have started (with 5-minute tolerance), transition to live
       if (minutesSinceKickoff >= -2) {
         console.log(`⏰ [MatchCard ${matchId}] Time-based transition to live (${minutesSinceKickoff.toFixed(1)}min since kickoff)`);
-        setMatchPhase('live');
+        matchPhaseRef.current = 'live';
+        forceRender();
       }
     };
 
     const interval = setInterval(checkTransition, 30000); // Check every 30 seconds
     return () => clearInterval(interval);
-  }, [matchPhase, matchDate, matchId]);
+  }, [matchDate, matchId, forceRender]);
 
-  // Use current live data or fallback to initial data
-  const currentGoals = liveGoals;
-  const currentStatus = liveStatus;
+  // Get current state from selective updates or use initial data
+  const getCurrentState = () => {
+    if (selectiveUpdate) {
+      return selectiveUpdate.getState();
+    }
+    return {
+      goals: initialMatch.goals,
+      status: initialMatch.fixture.status
+    };
+  };
+
+  const currentState = getCurrentState();
+  const currentGoals = currentState.goals;
+  const currentStatus = currentState.status;
 
               // For display purposes, always show the correct status
               const displayStatus = currentStatus.short;
