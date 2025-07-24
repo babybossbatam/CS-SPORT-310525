@@ -3,6 +3,7 @@ import MatchPrediction from './MatchPrediction';
 import MyHighlights from './MyHighlights';
 import MyLiveAction from './MyLiveAction';
 import MyMatchEventNew from './MyMatchEventNew';
+import MyStatsTabCard from './MyStatsTabCard';
 
 import MyShotmap from './MyShotmap';
 import MyKeyPlayer from './MyKeyPlayer';
@@ -106,6 +107,9 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
           awayTeam={match.teams?.away?.name}
           matchData={match}
           theme="light"
+        />
+         <MyStatsTabCard 
+          match={match}
         />
       </div>
 
