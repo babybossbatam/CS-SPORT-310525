@@ -75,20 +75,29 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
   const { data: allFixtures, isLoading, error } = useQuery({
     queryKey: ['myNewLeague2', 'allFixtures'],
     queryFn: async () => {
+      console.log(`🎯 [MyNewLeague2] Fetching fixtures for ${leagueIds.length} leagues:`, leagueIds);
+      
       const promises = leagueIds.map(async (leagueId) => {
         try {
           const response = await fetch(`/api/leagues/${leagueId}/fixtures`);
-          if (!response.ok) return [];
+          if (!response.ok) {
+            console.log(`❌ [MyNewLeague2] Failed to fetch league ${leagueId}: ${response.status}`);
+            return [];
+          }
           const data = await response.json();
-          return data.response || [];
+          const fixtures = data.response || [];
+          console.log(`✅ [MyNewLeague2] League ${leagueId}: ${fixtures.length} fixtures`);
+          return fixtures;
         } catch (error) {
-          console.error(`Error fetching league ${leagueId}:`, error);
+          console.error(`❌ [MyNewLeague2] Error fetching league ${leagueId}:`, error);
           return [];
         }
       });
       
       const results = await Promise.all(promises);
-      return results.flat();
+      const flatResults = results.flat();
+      console.log(`🔄 [MyNewLeague2] Total fixtures fetched: ${flatResults.length}`);
+      return flatResults;
     },
     staleTime: 5 * 60 * 1000,
     refetchInterval: 30 * 1000,
@@ -96,7 +105,15 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
 
   // Group fixtures by league without any filtering
   const fixturesByLeague = useMemo(() => {
-    if (!allFixtures?.length) return {};
+    console.log(`🔍 [MyNewLeague2] Processing fixtures:`, {
+      allFixturesLength: allFixtures?.length || 0,
+      allFixtures: allFixtures?.slice(0, 3) // Show first 3 for debugging
+    });
+
+    if (!allFixtures?.length) {
+      console.log(`❌ [MyNewLeague2] No fixtures available`);
+      return {};
+    }
 
     const grouped: { [key: number]: { league: any; fixtures: FixtureData[] } } = {};
 
@@ -116,6 +133,12 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
     // Sort fixtures by date within each league
     Object.values(grouped).forEach(group => {
       group.fixtures.sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime());
+    });
+
+    console.log(`✅ [MyNewLeague2] Grouped fixtures:`, {
+      leagueCount: Object.keys(grouped).length,
+      leagueIds: Object.keys(grouped),
+      totalFixtures: Object.values(grouped).reduce((sum, group) => sum + group.fixtures.length, 0)
     });
 
     return grouped;
