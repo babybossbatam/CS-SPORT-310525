@@ -138,10 +138,13 @@ const POPULAR_LEAGUES = [
   { id: 667, name: "Friendlies Clubs", country: "World" },
 ];
 
-// Define featured leagues
+// Define featured leagues (UEFA Europa Conference League ID 848 explicitly excluded)
 const FEATURED_MATCH_LEAGUE_IDS = [
   39, 140, 135, 78, 61, 2, 3, 5, 1, 4, 15, 38, 9, 16
 ];
+
+// Explicitly excluded leagues
+const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [848]; // UEFA Europa Conference League
 const PRIORITY_LEAGUE_IDS = [15, 38, 22]; // FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup
 
 interface FeaturedMatch {
@@ -445,6 +448,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const leagueName = fixture.league?.name?.toLowerCase() || "";
                     const country = fixture.league?.country?.toLowerCase() || "";
 
+                    // EXPLICIT EXCLUSION: UEFA Europa Conference League
+                    const isExplicitlyExcluded = EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league?.id);
+
                     // Exclude women's competitions
                     const isWomensCompetition = leagueName.includes("women") || 
                       leagueName.includes("femenina") || 
@@ -454,7 +460,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     // Exclude Oberliga leagues (German regional leagues)
                     const isOberligaLeague = leagueName.includes("oberliga");
 
-                    const shouldInclude = hasValidTeams && isNotLive && !isWomensCompetition && !isOberligaLeague;
+                    const shouldInclude = hasValidTeams && isNotLive && !isWomensCompetition && !isOberligaLeague && !isExplicitlyExcluded;
 
                     if (shouldInclude) {
                       console.log(
@@ -904,6 +910,12 @@ id: fixture.teams.away.id,
         for (const dateInfo of dates) {
           const fixturesForDay = uniqueFixtures
             .filter((fixture) => {
+              // EXPLICIT EXCLUSION: Never show UEFA Europa Conference League (ID 848)
+              if (fixture.league.id === 848) {
+                console.log(`🚫 [EXPLICIT EXCLUSION] UEFA Europa Conference League match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                return false;
+              }
+              
               const matchDate = new Date(fixture.fixture.date);
               const year = matchDate.getFullYear();
               const month = String(matchDate.getMonth() + 1).padStart(2, "0");
@@ -1015,9 +1027,60 @@ id: fixture.teams.away.id,
     [maxMatches],
   );
 
+  // Function to clear all related caches for UEFA Europa Conference League
+  const clearUefaConferenceCaches = useCallback(() => {
+    try {
+      // Clear fixture cache
+      fixtureCache.clearCache();
+      
+      // Clear all localStorage entries that might contain Conference League data
+      const keys = Object.keys(localStorage);
+      const conferenceLeagueKeys = keys.filter(key => 
+        key.includes('848') || 
+        key.includes('conference') || 
+        key.includes('fixtures_date') ||
+        key.startsWith('finished_fixtures_') ||
+        key.startsWith('league-fixtures-')
+      );
+      
+      conferenceLeagueKeys.forEach(key => {
+        try {
+          localStorage.removeItem(key);
+        } catch (error) {
+          console.warn(`Failed to clear cache key: ${key}`, error);
+        }
+      });
+      
+      // Clear sessionStorage as well
+      const sessionKeys = Object.keys(sessionStorage);
+      const sessionConferenceKeys = sessionKeys.filter(key => 
+        key.includes('848') || 
+        key.includes('conference') ||
+        key.startsWith('league-fixtures-')
+      );
+      
+      sessionConferenceKeys.forEach(key => {
+        try {
+          sessionStorage.removeItem(key);
+        } catch (error) {
+          console.warn(`Failed to clear session cache key: ${key}`, error);
+        }
+      });
+      
+      console.log(`🧹 [CacheClean] Cleared ${conferenceLeagueKeys.length + sessionConferenceKeys.length} cache entries for UEFA Europa Conference League`);
+    } catch (error) {
+      console.error('Error clearing UEFA Conference League caches:', error);
+    }
+  }, []);
+
   useEffect(() => {
-    // Initial fetch with force refresh
-    fetchFeaturedMatches(true);
+    // Clear caches first to ensure we don't show stale data
+    clearUefaConferenceCaches();
+    
+    // Initial fetch with force refresh after clearing caches
+    setTimeout(() => {
+      fetchFeaturedMatches(true);
+    }, 100);
   }, []); // Only run once on mount
 
   // Separate effect for live match refresh interval
