@@ -328,13 +328,15 @@ export const selectiveMatchUpdater = new SelectiveMatchUpdater();
 
 // Hook for React components
 export const useSelectiveMatchUpdate = (matchId: number, initialMatch: any) => {
-  const [matchState, setMatchState] = useState({
+  const [matchState, setMatchState] = useState(() => ({
     goals: initialMatch.goals,
     status: initialMatch.fixture.status
-  });
+  }));
 
   useEffect(() => {
     if (!matchId) return;
+
+    let isMounted = true;
 
     console.log(`🎯 [SelectiveUpdate] Subscribing to match ${matchId}:`, {
       teams: `${initialMatch.teams?.home?.name} vs ${initialMatch.teams?.away?.name}`,
@@ -344,22 +346,42 @@ export const useSelectiveMatchUpdate = (matchId: number, initialMatch: any) => {
 
     // Subscribe to updates for this specific match
     const unsubscribe = selectiveMatchUpdater.subscribe(matchId, (updatedData) => {
-      console.log(`🔄 [SelectiveUpdate] Received update for match ${matchId}:`, {
-        teams: `${initialMatch.teams?.home?.name} vs ${initialMatch.teams?.away?.name}`,
-        newStatus: updatedData.fixture?.status?.short,
-        newGoals: updatedData.goals ? `${updatedData.goals.home}-${updatedData.goals.away}` : 'none',
-        oldStatus: initialMatch.fixture.status.short,
-        oldGoals: `${initialMatch.goals.home}-${initialMatch.goals.away}`,
-        updatedData
-      });
+      // Only update state if component is still mounted
+      if (!isMounted) {
+        console.log(`🚫 [SelectiveUpdate] Skipping update for unmounted component (match ${matchId})`);
+        return;
+      }
 
-      setMatchState({
-        goals: updatedData.goals || initialMatch.goals,
-        status: updatedData.fixture?.status || initialMatch.fixture.status
-      });
+      try {
+        console.log(`🔄 [SelectiveUpdate] Received update for match ${matchId}:`, {
+          teams: `${initialMatch.teams?.home?.name} vs ${initialMatch.teams?.away?.name}`,
+          newStatus: updatedData.status?.short,
+          newGoals: updatedData.goals ? `${updatedData.goals.home}-${updatedData.goals.away}` : 'none',
+          oldStatus: initialMatch.fixture.status.short,
+          oldGoals: `${initialMatch.goals.home}-${initialMatch.goals.away}`,
+          updatedData
+        });
+
+        // Use functional update to avoid stale closures
+        setMatchState(prevState => ({
+          goals: updatedData.goals || prevState.goals,
+          status: updatedData.status || prevState.status
+        }));
+      } catch (error) {
+        console.warn(`⚠️ [SelectiveUpdate] Error updating match ${matchId}:`, error);
+      }
     });
 
-    return unsubscribe;
+    return () => {
+      isMounted = false;
+      if (unsubscribe) {
+        try {
+          unsubscribe();
+        } catch (error) {
+          console.warn(`⚠️ [SelectiveUpdate] Error during cleanup for match ${matchId}:`, error);
+        }
+      }
+    };
   }, [matchId]);
 
   return matchState;
