@@ -334,7 +334,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     }
   }, [getCacheKey, isMatchOldEnded]);
 
-  
+
 
   // Enhanced data fetching function for initial load and non-live data
   const fetchLeagueData = useCallback(async (isUpdate = false) => {
@@ -1158,83 +1158,111 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               </Card>
               );
 
-              // Optimized MatchCard component with selective updates - no memoization needed
-              const MatchCard = ({ 
-              matchId,
-              homeTeamName,
-              awayTeamName,
-              homeTeamId,
-              awayTeamId,
-              initialMatch,
-              matchDate,
-              penaltyHome,
-              penaltyAway,
-              isHalftimeFlash, 
-              isFulltimeFlash, 
-              isGoalFlash, 
-              isStarred, 
-              onStarToggle, 
-              onMatchClick,
-              leagueContext
-              }: {
-              matchId: number;
-              homeTeamName: string;
-              awayTeamName: string;
-              homeTeamId: number;
-              awayTeamId: number;
-              initialMatch: any;
-              matchDate: string;
-              penaltyHome: number | null;
-              penaltyAway: number | null;
-              isHalftimeFlash: boolean;
-              isFulltimeFlash: boolean;
-              isGoalFlash: boolean;
-              isStarred: boolean;
-              onStarToggle: (matchId: number) => void;
-              onMatchClick?: (matchId: number, homeTeamName: string, awayTeamName: string) => void;
-              leagueContext: { name: string; country: string; }
-              }) => {
-              // First, get basic status to determine if we need selective updates
-              const currentStatus = initialMatch.fixture.status.short;
-              const basicIsLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(currentStatus);
+              // Optimized MatchCard component with minimal re-renders - only update scores and status
+  const MatchCard = ({ 
+  matchId,
+  homeTeamName,
+  awayTeamName,
+  homeTeamId,
+  awayTeamId,
+  initialMatch,
+  matchDate,
+  penaltyHome,
+  penaltyAway,
+  isHalftimeFlash, 
+  isFulltimeFlash, 
+  isGoalFlash, 
+  isStarred, 
+  onStarToggle, 
+  onMatchClick,
+  leagueContext
+  }: {
+  matchId: number;
+  homeTeamName: string;
+  awayTeamName: string;
+  homeTeamId: number;
+  awayTeamId: number;
+  initialMatch: any;
+  matchDate: string;
+  penaltyHome: number | null;
+  penaltyAway: number | null;
+  isHalftimeFlash: boolean;
+  isFulltimeFlash: boolean;
+  isGoalFlash: boolean;
+  isStarred: boolean;
+  onStarToggle: (matchId: number) => void;
+  onMatchClick?: (matchId: number, homeTeamName: string, awayTeamName: string) => void;
+  leagueContext: { name: string; country: string; }
+  }) => {
+  // Simple state tracking without excessive checks
+  const [liveGoals, setLiveGoals] = useState(initialMatch.goals);
+  const [liveStatus, setLiveStatus] = useState(initialMatch.fixture.status);
+  const [matchPhase, setMatchPhase] = useState<'upcoming' | 'live' | 'ended'>(() => {
+    const status = initialMatch.fixture.status.short;
+    if (['NS', 'TBD'].includes(status)) return 'upcoming';
+    if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) return 'ended';
+    return 'live';
+  });
 
-              // Use selective updates only for truly live matches
-              const matchState = basicIsLiveMatch ? useSelectiveMatchUpdate(matchId, initialMatch) : { goals: initialMatch.goals, status: initialMatch.fixture.status };
+  // Only use selective updates for live matches
+  const isCurrentlyLive = matchPhase === 'live';
+  const matchUpdate = isCurrentlyLive ? useSelectiveMatchUpdate(matchId, initialMatch) : null;
 
-              // Now check if match is actually finished based on updated status
-              const updatedStatus = matchState.status?.short || currentStatus;
-              const isActuallyFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(updatedStatus);
+  // Handle match state transitions with minimal re-renders
+  useEffect(() => {
+    if (!matchUpdate) return;
 
-              // Enhanced live match detection - exclude finished matches
-              const isLiveMatch = !isActuallyFinished && ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(updatedStatus);
+    const newStatus = matchUpdate.status?.short;
+    const newGoals = matchUpdate.goals;
 
-              // Check if match data is stale - but don't show stale indicator for finished matches
-              const matchDateTime = new Date(initialMatch.fixture.date);
-              const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
-              const isStaleData = false; // Remove stale data indicator to avoid confusion
+    // Only update if there are actual changes
+    if (newStatus && newStatus !== liveStatus.short) {
+      console.log(`🔄 [MatchCard ${matchId}] Status transition: ${liveStatus.short} → ${newStatus}`);
+      setLiveStatus(matchUpdate.status);
 
-              // Debug logging for match updates
-              console.log(`🔄 [MatchCard ${matchId}] Update check:`, {
-              teams: `${homeTeamName} vs ${awayTeamName}`,
-              initialStatus: initialMatch.fixture.status.short,
-              initialGoals: `${initialMatch.goals.home}-${initialMatch.goals.away}`,
-              updatedStatus: matchState.status?.short,
-              updatedGoals: matchState.goals ? `${matchState.goals.home}-${matchState.goals.away}` : 'none',
-              isLiveMatch,
-              hasUpdates: !!matchState.status
-              });
+      // Handle phase transitions
+      if (['NS', 'TBD'].includes(newStatus)) {
+        setMatchPhase('upcoming');
+      } else if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(newStatus)) {
+        setMatchPhase('ended');
+      } else {
+        setMatchPhase('live');
+      }
+    }
 
-              // Use updated data if available, otherwise fallback to initial data
-              const currentGoals = (matchState.goals && (matchState.goals.home !== null || matchState.goals.away !== null)) 
-              ? matchState.goals 
-              : initialMatch.goals;
+    // Only update goals if they actually changed
+    if (newGoals && (newGoals.home !== liveGoals.home || newGoals.away !== liveGoals.away)) {
+      console.log(`⚽ [MatchCard ${matchId}] Goals update: ${liveGoals.home}-${liveGoals.away} → ${newGoals.home}-${newGoals.away}`);
+      setLiveGoals(newGoals);
+    }
+  }, [matchUpdate, matchId, liveStatus.short, liveGoals.home, liveGoals.away]);
 
-              // Prioritize finished status - if match is actually finished, show finished status
-              const currentMatchStatus = isActuallyFinished ? updatedStatus : (matchState.status?.short || initialMatch.fixture.status.short);
-              const currentStatusObj = isActuallyFinished ? { short: updatedStatus, elapsed: null } : (matchState.status || initialMatch.fixture.status);
+  // Time-based transition check for upcoming matches
+  useEffect(() => {
+    if (matchPhase !== 'upcoming') return;
+
+    const checkTransition = () => {
+      const now = new Date();
+      const matchTime = new Date(matchDate);
+      const minutesSinceKickoff = (now.getTime() - matchTime.getTime()) / (1000 * 60);
+
+      // If match should have started (with 5-minute tolerance), transition to live
+      if (minutesSinceKickoff >= -2) {
+        console.log(`⏰ [MatchCard ${matchId}] Time-based transition to live (${minutesSinceKickoff.toFixed(1)}min since kickoff)`);
+        setMatchPhase('live');
+      }
+    };
+
+    const interval = setInterval(checkTransition, 30000); // Check every 30 seconds
+    return () => clearInterval(interval);
+  }, [matchPhase, matchDate, matchId]);
+
+  // Use current live data or fallback to initial data
+  const currentGoals = liveGoals;
+  const currentStatus = liveStatus;
 
               // For display purposes, always show the correct status
-              const displayStatus = currentMatchStatus;
+              const displayStatus = currentStatus.short;
 
               const handleMatchClick = () => {
               if (onMatchClick) {
@@ -1290,20 +1318,20 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               {/* Top Grid: Match Status */}
               <div className="match-status-top" style={{ minHeight: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               {(() => {
-                const status = currentMatchStatus;
-                const elapsed = currentStatusObj.elapsed;
+                const status = displayStatus;
+                const elapsed = currentStatus.elapsed;
 
                 // Check if match finished more than 4 hours ago
                 const matchDateTime = new Date(matchDate);
                 const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
                 const isStaleFinishedMatch = (["FT", "AET", "PEN"].includes(status) && hoursOld > 4) || 
-                                             (isActuallyFinished && hoursOld > 4) ||
+                                             (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status) && hoursOld > 4) ||
                                              (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
 
                 // Show live status only for truly live matches (not finished and not stale)
                 // Skip showing elapsed time for stale matches (more than 4 hours old)
                 if (
-                  !isActuallyFinished && 
+                  !['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status) && 
                   !isStaleFinishedMatch &&
                   hoursOld <= 4 &&
                   [
@@ -1408,7 +1436,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                   currentGoals.home !== null &&
                   currentGoals.away !== null &&
                   currentGoals.home > currentGoals.away &&
-                  ["FT", "AET", "PEN"].includes(currentMatchStatus)
+                  ["FT", "AET", "PEN"].includes(displayStatus)
                     ? "winner"
                     : ""
                 }`}
@@ -1442,7 +1470,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               {/* Score/Time Center */}
               <div className="match-score-container">
                 {(() => {
-                  const status = currentMatchStatus;
+                  const status = displayStatus;
 
                   // Live matches - show current score
                   if (
@@ -1586,7 +1614,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                   currentGoals.home !== null &&
                   currentGoals.away !== null &&
                   currentGoals.away > currentGoals.home &&
-                  ["FT", "AET", "PEN"].includes(currentMatchStatus)
+                  ["FT", "AET", "PEN"].includes(displayStatus)
                     ? "winner"
                     : ""
                 }`}
@@ -1605,7 +1633,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               {/* Bottom Grid: Penalty Result Status */}
               <div className="match-penalty-bottom">
               {(() => {
-                const isPenaltyMatch = status === "PEN";
+                const isPenaltyMatch = displayStatus === "PEN";
                 const hasPenaltyScores =
                   penaltyHome !== null &&
                   penaltyHome !== undefined &&
