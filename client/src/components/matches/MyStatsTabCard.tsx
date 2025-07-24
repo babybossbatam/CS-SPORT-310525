@@ -29,39 +29,115 @@ interface MyShotsProps {
   awayTeam: any;
 }
 
-// New MyShots Component
-const MyShots: React.FC<MyShotsProps> = ({ homeStats, awayStats, homeTeam, awayTeam }) => {
-  const getStatValue = (stats: TeamStats | null, type: string): number | string | undefined => {
-    const stat = stats?.statistics.find((s) => s.type === type);
-    return stat?.value;
-  };
+// StatRowWithBars component for MyShots
+interface StatRowWithBarsProps {
+  label: string;
+  homeValue: string | number;
+  awayValue: string | number;
+  homeTeam?: any;
+  awayTeam?: any;
+}
 
-  const homeBlockedShots = getStatValue(homeStats, 'Blocked Shots') || 0;
-  const awayBlockedShots = getStatValue(awayStats, 'Blocked Shots') || 0;
-  const homeShotsInsidebox = getStatValue(homeStats, 'Shots insidebox') || 0;
-  const awayShotsInsidebox = getStatValue(awayStats, 'Shots insidebox') || 0;
-  const homeShotsOutsidebox = getStatValue(homeStats, 'Shots outsidebox') || 0;
-  const awayShotsOutsidebox = getStatValue(awayStats, 'Shots outsidebox') || 0;
-
+const StatRowWithBars: React.FC<StatRowWithBarsProps> = ({ 
+  label, 
+  homeValue, 
+  awayValue, 
+  homeTeam, 
+  awayTeam 
+}) => {
+  const homeNum = parseFloat(String(homeValue)) || 0;
+  const awayNum = parseFloat(String(awayValue)) || 0;
+  const total = homeNum + awayNum;
+  
+  const homePercentage = total > 0 ? (homeNum / total) * 100 : 50;
+  const awayPercentage = total > 0 ? (awayNum / total) * 100 : 50;
 
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <div>
-        <h4 className="font-medium text-sm text-center">{homeTeam?.name}</h4>
-        <ul className="space-y-2">
-          <li>Blocked Shots: {homeBlockedShots}</li>
-          <li>Shots insidebox: {homeShotsInsidebox}</li>
-          <li>Shots outsidebox: {homeShotsOutsidebox}</li>
-        </ul>
+    <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+      {/* Home team value and logo */}
+      <div className="flex items-center space-x-2 w-16 justify-end">
+        <span className="text-sm font-medium">{homeValue}</span>
+        {homeTeam?.logo && (
+          <img 
+            src={homeTeam.logo} 
+            alt={homeTeam.name}
+            className="w-4 h-4 object-contain"
+          />
+        )}
       </div>
-      <div>
-        <h4 className="font-medium text-sm text-center">{awayTeam?.name}</h4>
-        <ul className="space-y-2">
-          <li>Blocked Shots: {awayBlockedShots}</li>
-          <li>Shots insidebox: {awayShotsInsidebox}</li>
-          <li>Shots outsidebox: {awayShotsOutsidebox}</li>
-        </ul>
+
+      {/* Center section with bars and label */}
+      <div className="flex-1 mx-4">
+        <div className="text-xs text-center text-gray-600 mb-1">{label}</div>
+        <div className="flex items-center h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-blue-500 transition-all duration-300"
+            style={{ width: `${homePercentage}%` }}
+          />
+          <div 
+            className="h-full bg-red-500 transition-all duration-300"
+            style={{ width: `${awayPercentage}%` }}
+          />
+        </div>
       </div>
+
+      {/* Away team logo and value */}
+      <div className="flex items-center space-x-2 w-16">
+        {awayTeam?.logo && (
+          <img 
+            src={awayTeam.logo} 
+            alt={awayTeam.name}
+            className="w-4 h-4 object-contain"
+          />
+        )}
+        <span className="text-sm font-medium">{awayValue}</span>
+      </div>
+    </div>
+  );
+};
+
+// New MyShots Component
+const MyShots: React.FC<MyShotsProps> = ({ homeStats, awayStats, homeTeam, awayTeam }) => {
+  const getStatValue = (stats: TeamStats | null, type: string, alternatives: string[] = []): string => {
+    // First try the exact type
+    let stat = stats?.statistics.find((s) => s.type === type);
+    
+    // If not found, try alternatives
+    if (!stat && alternatives.length > 0) {
+      for (const alt of alternatives) {
+        stat = stats?.statistics.find((s) => s.type === alt);
+        if (stat) break;
+      }
+    }
+    
+    return stat ? String(stat.value) : '0';
+  };
+
+  return (
+    <div className="space-y-0">
+      <StatRowWithBars 
+        label="Blocked Shots" 
+        homeValue={getStatValue(homeStats, 'Blocked Shots', ['Blocked shots'])}
+        awayValue={getStatValue(awayStats, 'Blocked Shots', ['Blocked shots'])}
+        homeTeam={homeTeam}
+        awayTeam={awayTeam}
+      />
+      
+      <StatRowWithBars 
+        label="Shots Inside Box" 
+        homeValue={getStatValue(homeStats, 'Shots insidebox', ['Shots inside box'])}
+        awayValue={getStatValue(awayStats, 'Shots insidebox', ['Shots inside box'])}
+        homeTeam={homeTeam}
+        awayTeam={awayTeam}
+      />
+      
+      <StatRowWithBars 
+        label="Shots Outside Box" 
+        homeValue={getStatValue(homeStats, 'Shots outsidebox', ['Shots outside box'])}
+        awayValue={getStatValue(awayStats, 'Shots outsidebox', ['Shots outside box'])}
+        homeTeam={homeTeam}
+        awayTeam={awayTeam}
+      />
     </div>
   );
 };
