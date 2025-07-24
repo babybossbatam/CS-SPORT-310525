@@ -155,4 +155,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   );
 };
 
+MyWorldTeamLogo.displayName = 'MyWorldTeamLogo';
+
 export default MyWorldTeamLogo;
