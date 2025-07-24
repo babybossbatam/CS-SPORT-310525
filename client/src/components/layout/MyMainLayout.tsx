@@ -26,91 +26,50 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
 
-  // Apply smart time filtering to fixtures
+  // Apply UTC date filtering to fixtures
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length || !selectedDate) return [];
 
     console.log(
-      `🔍 [MyMainLayout] Processing ${fixtures.length} fixtures for date: ${selectedDate}`,
+      `🔍 [MyMainLayout UTC] Processing ${fixtures.length} fixtures for date: ${selectedDate}`,
     );
 
-    // Determine what type of date is selected
-    const today = new Date();
-    const todayString = format(today, "yyyy-MM-dd");
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowString = format(tomorrow, "yyyy-MM-dd");
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayString = format(yesterday, "yyyy-MM-dd");
-
+    // Use UTC dates throughout - no timezone conversion
+    const todayUTC = new Date();
+    const todayUTCString = todayUTC.toISOString().split('T')[0]; // YYYY-MM-DD in UTC
+    
     const filtered = fixtures.filter((fixture) => {
-      // Apply smart time filtering with selected date context
       if (fixture.fixture.date && fixture.fixture.status?.short) {
-        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-          fixture.fixture.date,
-          fixture.fixture.status.short,
-          selectedDate + "T12:00:00Z", // Pass selected date as context
-        );
+        // Extract UTC date from fixture date (no timezone conversion)
+        const fixtureUTCDate = new Date(fixture.fixture.date);
+        const fixtureDateString = fixtureUTCDate.toISOString().split('T')[0]; // YYYY-MM-DD in UTC
 
-        // Check if this match should be included based on the selected date
-        const shouldInclude = (() => {
-          // For today's view, exclude any matches that are from previous days
-          if (selectedDate === todayString) {
-            if (smartResult.label === "today") return true;
-
-            // Additional check: exclude matches from previous dates regardless of status
-            const fixtureDate = new Date(fixture.fixture.date);
-            const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
-
-            if (fixtureDateString < selectedDate) {
-              console.log(
-                `❌ [MyMainLayout DATE FILTER] Excluding yesterday match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${fixtureDateString} < ${selectedDate})`,
-              );
-              return false;
-            }
-
-            return false;
-          }
-
-          if (
-            selectedDate === tomorrowString &&
-            smartResult.label === "tomorrow"
-          )
-            return true;
-          if (
-            selectedDate === yesterdayString &&
-            smartResult.label === "yesterday"
-          )
-            return true;
-
-          // Handle custom dates
-          if (
-            selectedDate !== todayString &&
-            selectedDate !== tomorrowString &&
-            selectedDate !== yesterdayString
-          ) {
-            if (smartResult.label === "custom" && smartResult.isWithinTimeRange)
-              return true;
-          }
-
-          return false;
-        })();
+        // Simple UTC date matching
+        const shouldInclude = fixtureDateString === selectedDate;
 
         if (!shouldInclude) {
           console.log(
-            `❌ [MyMainLayout SMART FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+            `❌ [MyMainLayout UTC FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
             {
-              fixtureDate: fixture.fixture.date,
-              status: fixture.fixture.status.short,
-              reason: smartResult.reason,
-              label: smartResult.label,
+              fixtureUTCDate: fixture.fixture.date,
+              extractedUTCDate: fixtureDateString,
               selectedDate,
-              isWithinTimeRange: smartResult.isWithinTimeRange,
+              status: fixture.fixture.status.short,
+              reason: 'UTC date mismatch'
             },
           );
           return false;
         }
+
+        console.log(
+          `✅ [MyMainLayout UTC FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+          {
+            fixtureUTCDate: fixture.fixture.date,
+            extractedUTCDate: fixtureDateString,
+            selectedDate,
+            status: fixture.fixture.status.short
+          },
+        );
 
         return true;
       }
@@ -119,7 +78,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
     });
 
     console.log(
-      `✅ [MyMainLayout] After smart filtering: ${filtered.length} matches for ${selectedDate}`,
+      `✅ [MyMainLayout UTC] After UTC filtering: ${filtered.length} matches for ${selectedDate}`,
     );
     return filtered;
   }, [fixtures, selectedDate]);

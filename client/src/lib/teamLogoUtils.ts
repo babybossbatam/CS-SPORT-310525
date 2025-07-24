@@ -1,4 +1,3 @@
-
 export const getTeamLogoClassName = (
   baseSize: string = 'w-6 h-6',
   countryContext?: string,
@@ -43,43 +42,10 @@ export function checkTeamLogoCache(teamId: number | string, teamName: string): v
   import('./logoCache').then(({ teamLogoCache }) => {
     const cacheKey = `team_${teamId}_${teamName}`;
     const cached = teamLogoCache.getCached(cacheKey);
-    
+
     if (cached) {
       const age = Math.round((Date.now() - cached.timestamp) / 1000 / 60);
       console.log(`🔍 Team Logo Cache status for ${teamName}:`, {
-
-
-/**
- * Clear MyWorldTeamLogo circular flag computation cache
- */
-export function clearMyWorldTeamLogoCache(): void {
-  // Note: This would need to be imported from MyWorldTeamLogo component
-  // For now, we'll add global cache clearing
-  if (typeof window !== 'undefined') {
-    (window as any).myWorldTeamLogoCache = {
-      clear: () => {
-        console.log('🧹 [MyWorldTeamLogo] Cache cleared manually');
-        // The circularFlagCache would need to be exposed globally for this to work
-      },
-      stats: () => {
-        console.log('📊 [MyWorldTeamLogo] Cache stats would be displayed here');
-      }
-    };
-  }
-}
-
-/**
- * Debug MyWorldTeamLogo cache status
- */
-export function debugMyWorldTeamLogoCache(teamName: string, leagueContext?: any): void {
-  console.log(`🔍 [MyWorldTeamLogo] Debug cache status for ${teamName}:`, {
-    teamName,
-    leagueContext,
-    cacheKey: `${teamName}_${leagueContext?.name?.toLowerCase() || ""}_${leagueContext?.country || ""}`,
-    timestamp: new Date().toISOString()
-  });
-}
-
         key: cacheKey,
         url: cached.url,
         source: cached.source,
@@ -116,5 +82,55 @@ export function getTeamLogoCacheStats(): void {
   import('./logoCache').then(({ teamLogoCache }) => {
     const stats = teamLogoCache.getStats();
     console.log('🏟️ Team Logo Cache Stats:', stats);
+  });
+}
+
+// Cache for computed shouldUseCircularFlag results
+const circularFlagCache = new Map<string, { result: boolean; timestamp: number }>();
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+
+// UTC date utilities (no timezone conversion)
+export function formatUTCDate(date: Date | string, formatType = 'date'): string {
+  const utcDate = typeof date === 'string' ? new Date(date) : date;
+
+  if (formatType === 'time') {
+    return utcDate.toISOString().substring(11, 16); // HH:MM in UTC
+  }
+
+  return utcDate.toISOString().split('T')[0]; // YYYY-MM-DD in UTC
+}
+
+export function getCurrentUTCDateString(): string {
+  return new Date().toISOString().split('T')[0];
+}
+
+/**
+ * Clear MyWorldTeamLogo circular flag computation cache
+ */
+export function clearMyWorldTeamLogoCache(): void {
+  // Note: This would need to be imported from MyWorldTeamLogo component
+  // For now, we'll add global cache clearing
+  if (typeof window !== 'undefined') {
+    (window as any).myWorldTeamLogoCache = {
+      clear: () => {
+        console.log('🧹 [MyWorldTeamLogo] Cache cleared manually');
+        // The circularFlagCache would need to be exposed globally for this to work
+      },
+      stats: () => {
+        console.log('📊 [MyWorldTeamLogo] Cache stats would be displayed here');
+      }
+    };
+  }
+}
+
+/**
+ * Debug MyWorldTeamLogo cache status
+ */
+export function debugMyWorldTeamLogoCache(teamName: string, leagueContext?: any): void {
+  console.log(`🔍 [MyWorldTeamLogo] Debug cache status for ${teamName}:`, {
+    teamName,
+    leagueContext,
+    cacheKey: `${teamName}_${leagueContext?.name?.toLowerCase() || ""}_${leagueContext?.country || ""}`,
+    timestamp: new Date().toISOString()
   });
 }

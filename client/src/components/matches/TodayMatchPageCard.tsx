@@ -172,6 +172,24 @@ export const TodayMatchPageCard = ({
     onMatchCardClick?.(fixture);
   };
 
+  // Using native UTC methods instead of date-fns to avoid timezone conversion
+
+  // Format match time for display in UTC (no timezone conversion)
+  const formatMatchTime = (dateString: string | null | undefined) => {
+    if (!dateString || typeof dateString !== "string") return "--:--";
+
+    try {
+      // Parse and display in UTC - no timezone conversion
+      const utcDate = new Date(dateString);
+      if (isNaN(utcDate.getTime())) return "--:--";
+
+      // Return UTC time formatted as HH:MM
+      return utcDate.toISOString().substring(11, 16);
+    } catch (error) {
+      console.error("Error formatting match time:", error);
+      return "--:--";
+    }
+  };
 
 
   return (
