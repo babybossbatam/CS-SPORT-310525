@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronDown, ChevronUp, ChevronRight } from 'lucide-react';
@@ -57,7 +56,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) =
       try {
         setLoading(true);
         setError(null);
-        
+
         // Fetch stats for both teams
         const [homeResponse, awayResponse] = await Promise.all([
           fetch(`/api/fixtures/${fixtureId}/statistics?team=${homeTeam.id}`),
@@ -84,14 +83,14 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) =
     fetchMatchStats();
   }, [fixtureId, homeTeam?.id, awayTeam?.id, isUpcoming]);
 
-  
+
 
   // If it's an upcoming match, show the preview
   if (isUpcoming) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Match Statistics</CardTitle>
+          <CardTitle>Stats</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="p-4">
@@ -139,7 +138,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) =
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-center">Match Statistics</CardTitle>
+          <CardTitle className="text-center">Stats</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
           <div className="text-center text-gray-500 py-8">
@@ -156,7 +155,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) =
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-center">Match Statistics</CardTitle>
+          <CardTitle className="text-center">Stats</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
           <div className="text-center text-gray-500 py-8">
@@ -172,7 +171,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) =
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-center">Match Statistics</CardTitle>
+        <CardTitle>Stats</CardTitle>
       </CardHeader>
       <CardContent className="p-4">
         <MyStats
@@ -186,7 +185,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) =
             if (onTabChange) {
               onTabChange('stats');
             }
-            
+
             // Always expand when "See All" is clicked to show all statistics
             setIsExpanded(true);
           }}
