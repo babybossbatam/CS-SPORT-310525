@@ -144,7 +144,7 @@ const FEATURED_MATCH_LEAGUE_IDS = [
 ];
 
 // Explicitly excluded leagues
-const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [848]; // UEFA Europa Conference League
+const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [848, 169]; // UEFA Europa Conference League, Regionalliga - Bayern
 const PRIORITY_LEAGUE_IDS = [15, 38, 22]; // FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup
 
 interface FeaturedMatch {
@@ -457,10 +457,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       leagueName.includes("feminine") ||
                       leagueName.includes("feminin");
 
-                    // Exclude Oberliga leagues (German regional leagues)
+                    // Exclude Oberliga and Regionalliga leagues (German regional leagues)
                     const isOberligaLeague = leagueName.includes("oberliga");
+                    const isRegionalligaLeague = leagueName.includes("regionalliga");
 
-                    const shouldInclude = hasValidTeams && isNotLive && !isWomensCompetition && !isOberligaLeague && !isExplicitlyExcluded;
+                    const shouldInclude = hasValidTeams && isNotLive && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !isExplicitlyExcluded;
 
                     if (shouldInclude) {
                       console.log(
@@ -484,6 +485,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     } else if (isOberligaLeague) {
                       console.log(
                         `❌ [MyHomeFeaturedMatchNew] Excluding Oberliga league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isRegionalligaLeague) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Regionalliga league:`,
                         {
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
@@ -794,10 +803,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 ("feminine") ||
                       leagueName.includes("feminin");
 
-                    // Exclude Oberliga leagues (German regional leagues)
+                    // Exclude Oberliga and Regionalliga leagues (German regional leagues)
                     const isOberligaLeague = leagueName.includes("oberliga");
+                    const isRegionalligaLeague = leagueName.includes("regionalliga");
 
-                      return hasValidTeams && isNotLive && isNotDuplicate && !isWomensCompetition && !isOberligaLeague;
+                      return hasValidTeams && isNotLive && isNotDuplicate && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague;
                     })
                     .slice(0, 5) // Limit to prevent overwhelming
                     .map((fixture: any) => ({
@@ -1037,7 +1047,9 @@ id: fixture.teams.away.id,
       const keys = Object.keys(localStorage);
       const conferenceLeagueKeys = keys.filter(key => 
         key.includes('848') || 
+        key.includes('169') ||
         key.includes('conference') || 
+        key.includes('regionalliga') ||
         key.includes('fixtures_date') ||
         key.startsWith('finished_fixtures_') ||
         key.startsWith('league-fixtures-')
@@ -1055,7 +1067,9 @@ id: fixture.teams.away.id,
       const sessionKeys = Object.keys(sessionStorage);
       const sessionConferenceKeys = sessionKeys.filter(key => 
         key.includes('848') || 
+        key.includes('169') ||
         key.includes('conference') ||
+        key.includes('regionalliga') ||
         key.startsWith('league-fixtures-')
       );
       
@@ -1067,7 +1081,7 @@ id: fixture.teams.away.id,
         }
       });
       
-      console.log(`🧹 [CacheClean] Cleared ${conferenceLeagueKeys.length + sessionConferenceKeys.length} cache entries for UEFA Europa Conference League`);
+      console.log(`🧹 [CacheClean] Cleared ${conferenceLeagueKeys.length + sessionConferenceKeys.length} cache entries for UEFA Europa Conference League and Regionalliga leagues`);
     } catch (error) {
       console.error('Error clearing UEFA Conference League caches:', error);
     }
