@@ -534,16 +534,44 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         setIsLoading(true);
         setError(null);
 
-        // Smart fetching: Use date-based API for efficiency
-        console.log(`🎯 [MyNewLeague] Smart fetching for date: ${selectedDate}`);
+        // Calculate ±1 day dates for comprehensive fetching
+        const currentDate = new Date(selectedDate);
+        const previousDay = new Date(currentDate);
+        previousDay.setDate(previousDay.getDate() - 1);
+        const nextDay = new Date(currentDate);
+        nextDay.setDate(nextDay.getDate() + 1);
 
-        const response = await fetch(`/api/fixtures/date/${selectedDate}?all=true`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch fixtures for ${selectedDate}`);
+        const datesToFetch = [
+          previousDay.toISOString().split('T')[0],
+          selectedDate,
+          nextDay.toISOString().split('T')[0]
+        ];
+
+        console.log(`🎯 [MyNewLeague] Extended fetching for dates: ${datesToFetch.join(', ')} (±1 day around ${selectedDate})`);
+
+        // Fetch fixtures for all three dates
+        const allDateFixtures = [];
+        
+        for (const dateToFetch of datesToFetch) {
+          try {
+            console.log(`📡 [MyNewLeague] Fetching fixtures for: ${dateToFetch}`);
+            const response = await fetch(`/api/fixtures/date/${dateToFetch}?all=true`);
+            
+            if (response.ok) {
+              const dateFixtures = await response.json();
+              if (Array.isArray(dateFixtures)) {
+                console.log(`✅ [MyNewLeague] Got ${dateFixtures.length} fixtures for ${dateToFetch}`);
+                allDateFixtures.push(...dateFixtures);
+              }
+            } else {
+              console.warn(`⚠️ [MyNewLeague] Failed to fetch fixtures for ${dateToFetch}: ${response.status}`);
+            }
+          } catch (dateError) {
+            console.error(`❌ [MyNewLeague] Error fetching ${dateToFetch}:`, dateError);
+          }
         }
 
-        const allDateFixtures = await response.json();
-        console.log(`📊 [MyNewLeague] Got ${allDateFixtures.length} total fixtures for ${selectedDate}`);
+        console.log(`📊 [MyNewLeague] Total fixtures from ±1 day fetch: ${allDateFixtures.length} fixtures`);
 
         // Group fixtures by league and filter for our target leagues with timezone awareness
         const leagueFixturesMap = new Map();
@@ -563,92 +591,110 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
           );
         }
 
+        // Group fixtures by their actual match date and filter by league
+        const fixturesByDate = new Map(); // Map<date, fixtures[]>
+        
         allDateFixtures.forEach(fixture => {
           const leagueId = fixture.league?.id;
           if (leagueIds.includes(leagueId)) {
-            // Apply timezone-aware date filtering
             const fixtureDate = fixture.fixture?.date;
             if (fixtureDate) {
               const fixtureUTCDate = new Date(fixtureDate);
               const fixtureLocalDate = fixtureUTCDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
-
-              // Handle postponed matches and regular date matching
               const currentStatus = fixture.fixture.status.short;
               const now = new Date();
-              let shouldInclude = false;
-              let isPostponed = false;
 
-              // ALWAYS include live matches regardless of date
+              // Determine the actual match date (considering postponed matches)
+              let actualMatchDate = fixtureLocalDate;
+              let matchCategory = 'regular';
+
+              // ALWAYS include live matches regardless of original date
               const isLiveMatch = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(currentStatus);
 
-
               if (isLiveMatch) {
-                shouldInclude = true;
-                console.log(`🔴 [LIVE MATCH PRIORITY] Including live match from league ${leagueId}: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-                  status: currentStatus,
-                  fixtureDate,
-                  league: fixture.league?.name
+                // Live matches are always considered for "today" regardless of their scheduled date
+                actualMatchDate = selectedDate;
+                matchCategory = 'live';
+                console.log(`🔴 [LIVE MATCH GROUPING] Live match grouped to ${selectedDate}: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                  originalDate: fixtureLocalDate,
+                  groupedDate: actualMatchDate,
+                  status: currentStatus
                 });
               } else {
-                // Special handling for matches that are past their scheduled time but still showing NS status
+                // Handle postponed matches
                 if (currentStatus === 'NS' && fixtureUTCDate.getTime() < now.getTime()) {
                   const hoursPassed = (now.getTime() - fixtureUTCDate.getTime()) / (1000 * 60 * 60);
 
-                  // If match is more than 3 hours past scheduled time and still NS, treat as tomorrow's match
                   if (hoursPassed > 3) {
+                    // Postponed match - could be rescheduled
                     const tomorrow = new Date(now);
                     tomorrow.setDate(tomorrow.getDate() + 1);
                     const tomorrowDate = tomorrow.toLocaleDateString('en-CA');
-
-                    shouldInclude = fixtureLocalDate === tomorrowDate || selectedDate === tomorrowDate;
-                    isPostponed = shouldInclude;
+                    
+                    if (fixtureLocalDate === tomorrowDate || selectedDate === tomorrowDate) {
+                      actualMatchDate = tomorrowDate;
+                      matchCategory = 'postponed';
+                      console.log(`🔄 [POSTPONED MATCH GROUPING] Postponed match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                        originalDate: fixtureLocalDate,
+                        groupedDate: actualMatchDate,
+                        hoursPassed: hoursPassed.toFixed(1)
+                      });
+                    }
                   }
                 }
-
-                // Regular date matching for non-postponed matches
-                if (!shouldInclude) {
-                  shouldInclude = fixtureLocalDate === selectedDate;
-                }
               }
 
-              if (shouldInclude) {
-                if (!leagueFixturesMap.has(leagueId)) {
-                  leagueFixturesMap.set(leagueId, []);
-                }
-                leagueFixturesMap.get(leagueId).push(fixture);
-
-                if (leagueId === 908) {
-                  console.log(`🌍 [SMART FETCH TIMEZONE] Including league 908: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-                    fixtureUTCTime: fixtureDate,
-                    fixtureLocalDate,
-                    selectedDate,
-                    league: fixture.league?.name,
-                    isPostponed,
-                    status: currentStatus,
-                    isLive: isLiveMatch
-                  });
-                } else {
-                  console.log(`🌍 [SMART FETCH TIMEZONE] Including: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-                    fixtureUTCTime: fixtureDate,
-                    fixtureLocalDate,
-                    selectedDate,
-                    league: fixture.league?.name,
-                    isPostponed,
-                    status: currentStatus,
-                    isLive: isLiveMatch
-                  });
-                }
-              } else if (leagueId === 908) {
-                console.log(`❌ [SMART FETCH TIMEZONE] Excluding league 908: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-                  fixtureUTCTime: fixtureDate,
-                  fixtureLocalDate,
-                  selectedDate,
-                  league: fixture.league?.name,
-                  status: currentStatus,
-                  reason: isLiveMatch ? 'Should not exclude live match!' : 'Date filter mismatch'
+              // Store fixture with its actual match date
+              if (!fixturesByDate.has(actualMatchDate)) {
+                fixturesByDate.set(actualMatchDate, {
+                  live: [],
+                  regular: [],
+                  postponed: []
                 });
               }
-              }
+
+              fixturesByDate.get(actualMatchDate)[matchCategory].push({
+                ...fixture,
+                originalDate: fixtureLocalDate,
+                actualDate: actualMatchDate,
+                category: matchCategory
+              });
+
+              console.log(`📅 [DATE GROUPING] Fixture grouped: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                league: fixture.league?.name,
+                originalDate: fixtureLocalDate,
+                actualDate: actualMatchDate,
+                category: matchCategory,
+                status: currentStatus
+              });
+            }
+          }
+        });
+
+        // Now filter and organize fixtures for the selected date
+        const selectedDateFixtures = fixturesByDate.get(selectedDate) || { live: [], regular: [], postponed: [] };
+        
+        // Combine all fixtures for the selected date (prioritize live, then regular, then postponed)
+        const combinedFixtures = [
+          ...selectedDateFixtures.live,
+          ...selectedDateFixtures.regular,
+          ...selectedDateFixtures.postponed
+        ];
+
+        console.log(`📊 [DATE GROUPING SUMMARY] Selected date ${selectedDate}:`, {
+          liveMatches: selectedDateFixtures.live.length,
+          regularMatches: selectedDateFixtures.regular.length,
+          postponedMatches: selectedDateFixtures.postponed.length,
+          totalForSelectedDate: combinedFixtures.length
+        });
+
+        // Group by league for the selected date
+        combinedFixtures.forEach(fixture => {
+          const leagueId = fixture.league?.id;
+          if (!leagueFixturesMap.has(leagueId)) {
+            leagueFixturesMap.set(leagueId, []);
+          }
+          leagueFixturesMap.get(leagueId).push(fixture);
               }
               });
 
@@ -980,8 +1026,6 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               league: filteredFixtures[0].league,
               matches: filteredFixtures,
               };
-              }
-              }
               });
 
               console.log(`📊 [MyNewLeague] Processed matchesByLeague:`, {
