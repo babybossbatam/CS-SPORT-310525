@@ -153,6 +153,8 @@ export const TodayMatchPageCard = ({
       teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
       league: fixture.league?.name,
       country: fixture.league?.country,
+      homeTeamId: fixture.teams?.home?.id,
+      awayTeamId: fixture.teams?.away?.id,
       source: 'TodayMatchPageCard'
     });
     onMatchCardClick?.(fixture);

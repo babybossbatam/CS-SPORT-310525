@@ -47,6 +47,39 @@ export function checkTeamLogoCache(teamId: number | string, teamName: string): v
     if (cached) {
       const age = Math.round((Date.now() - cached.timestamp) / 1000 / 60);
       console.log(`🔍 Team Logo Cache status for ${teamName}:`, {
+
+
+/**
+ * Clear MyWorldTeamLogo circular flag computation cache
+ */
+export function clearMyWorldTeamLogoCache(): void {
+  // Note: This would need to be imported from MyWorldTeamLogo component
+  // For now, we'll add global cache clearing
+  if (typeof window !== 'undefined') {
+    (window as any).myWorldTeamLogoCache = {
+      clear: () => {
+        console.log('🧹 [MyWorldTeamLogo] Cache cleared manually');
+        // The circularFlagCache would need to be exposed globally for this to work
+      },
+      stats: () => {
+        console.log('📊 [MyWorldTeamLogo] Cache stats would be displayed here');
+      }
+    };
+  }
+}
+
+/**
+ * Debug MyWorldTeamLogo cache status
+ */
+export function debugMyWorldTeamLogoCache(teamName: string, leagueContext?: any): void {
+  console.log(`🔍 [MyWorldTeamLogo] Debug cache status for ${teamName}:`, {
+    teamName,
+    leagueContext,
+    cacheKey: `${teamName}_${leagueContext?.name?.toLowerCase() || ""}_${leagueContext?.country || ""}`,
+    timestamp: new Date().toISOString()
+  });
+}
+
         key: cacheKey,
         url: cached.url,
         source: cached.source,
