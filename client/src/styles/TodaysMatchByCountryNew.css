@@ -126,8 +126,6 @@
     "penalty";
   min-height: 50px;
   width: 100%;
-  background: transparent !important;
-  background-color: transparent !important;
 }
 
 /* Top grid for status - EXACTLY like TodayPopularFootballLeaguesNew */
@@ -136,9 +134,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 24px;
-  height: 24px;
-  padding: 0.25rem;
+  min-height: 20px;
 }
 
 /* Middle grid for main content - EXACTLY like TodayPopularFootballLeaguesNew */
@@ -152,7 +148,7 @@
   justify-items: center;
   align-content: center;
   width: 100%;
-  padding: 0 8px;
+  padding: 8px 8px 0 8px;
 }
 
 /* Bottom grid for penalty results */
@@ -162,6 +158,7 @@
   justify-content: center;
   align-items: center;
   min-height: 20px;
+  padding-bottom: 4px;
 }
 
 /* Team name containers - Grid areas - EXACTLY like MyLogoPositioning */
@@ -273,7 +270,26 @@
   place-self: center;
 }
 
-/* Additional score styling for consistency */
+/* Match score and time display */
+.country-matches-container .match-score-container {
+  grid-area: score;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  text-align: center;
+}
+
+.country-matches-container .match-score-display {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .country-matches-container .score-number {
   font-family: 'Mont', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
@@ -281,6 +297,13 @@
 .country-matches-container .score-separator {
   font-family: 'Mont', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-weight: 400;
+}
+
+.country-matches-container .match-time-display {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  font-family: 'Mont', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* Match status labels */

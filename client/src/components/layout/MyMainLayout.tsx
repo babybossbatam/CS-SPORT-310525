@@ -13,14 +13,12 @@ interface MyMainLayoutProps {
   fixtures: any[];
   loading?: boolean;
   children?: React.ReactNode;
-  dateRange?: 'single' | 'extended'; // New prop to control date range
 }
 
 const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   fixtures,
   loading = false,
   children,
-  dateRange = 'single',
 }) => {
   const user = useSelector((state: RootState) => state.user);
   const { currentFixture } = useSelector((state: RootState) => state.fixtures);
@@ -28,107 +26,103 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
 
-  // Apply filtering with ±2 days range and original timezone preservation
+  // Apply smart time filtering to fixtures
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length || !selectedDate) return [];
 
-    // Ensure selectedDate is in UTC format (YYYY-MM-DD)
-    const utcSelectedDate = selectedDate.includes('T') ? selectedDate.substring(0, 10) : selectedDate;
-
     console.log(
-      `🔍 [MyMainLayout] Processing ${fixtures.length} fixtures for UTC date range around: ${utcSelectedDate} (mode: ${dateRange})`,
+      `🔍 [MyMainLayout] Processing ${fixtures.length} fixtures for date: ${selectedDate}`,
     );
 
-    if (dateRange === 'single') {
-      // Original single-date filtering with UTC format
-      const filtered = fixtures.filter((fixture) => {
-        if (fixture.fixture.date && fixture.fixture.status?.short) {
-          const fixtureUTCDate = fixture.fixture.date.substring(0, 10);
-          return fixtureUTCDate === utcSelectedDate;
-        }
-        return false;
-      });
-      
-      console.log(`✅ [MyMainLayout] Single date: ${filtered.length} matches for UTC ${utcSelectedDate}`);
-      return filtered;
-    }
-
-    // Extended date range: ±2 days with UTC format
-    const selectedDateObj = new Date(utcSelectedDate + 'T00:00:00Z');
-    const twoDaysBefore = new Date(selectedDateObj);
-    twoDaysBefore.setDate(twoDaysBefore.getDate() - 2);
-    const twoDaysAfter = new Date(selectedDateObj);
-    twoDaysAfter.setDate(twoDaysAfter.getDate() + 2);
-
-    const startDateString = format(twoDaysBefore, "yyyy-MM-dd");
-    const endDateString = format(twoDaysAfter, "yyyy-MM-dd");
-
-    console.log(
-      `📅 [MyMainLayout] Extended range: ${startDateString} to ${endDateString} (center: ${utcSelectedDate})`,
-    );
+    // Determine what type of date is selected
+    const today = new Date();
+    const todayString = format(today, "yyyy-MM-dd");
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowString = format(tomorrow, "yyyy-MM-dd");
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayString = format(yesterday, "yyyy-MM-dd");
 
     const filtered = fixtures.filter((fixture) => {
-      if (!fixture.fixture.date || !fixture.fixture.status?.short) return false;
-
-      // Extract UTC date part only (YYYY-MM-DD) - no timezone conversion
-      const fixtureUTCDate = fixture.fixture.date.substring(0, 10);
-      
-      // Check if fixture falls within the ±2 days range
-      const isInRange = fixtureUTCDate >= startDateString && fixtureUTCDate <= endDateString;
-
-      if (isInRange) {
-        // Calculate days difference from selected date
-        const fixtureDate = new Date(fixtureUTCDate + 'T00:00:00Z');
-        const daysDiff = Math.round((fixtureDate.getTime() - selectedDateObj.getTime()) / (1000 * 60 * 60 * 24));
-        
-        let dayLabel = '';
-        if (daysDiff === -2) dayLabel = '2 days ago';
-        else if (daysDiff === -1) dayLabel = 'Yesterday';
-        else if (daysDiff === 0) dayLabel = 'Today';
-        else if (daysDiff === 1) dayLabel = 'Tomorrow';
-        else if (daysDiff === 2) dayLabel = 'In 2 days';
-
-        console.log(
-          `✅ [MyMainLayout EXTENDED] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-          {
-            originalDateTime: fixture.fixture.date,
-            utcDate: fixtureUTCDate,
-            selectedDate,
-            daysDiff,
-            dayLabel,
-            status: fixture.fixture.status.short,
-            timezone: 'UTC (original from API)'
-          },
+      // Apply smart time filtering with selected date context
+      if (fixture.fixture.date && fixture.fixture.status?.short) {
+        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+          fixture.fixture.date,
+          fixture.fixture.status.short,
+          selectedDate + "T12:00:00Z", // Pass selected date as context
         );
-      } else {
-        console.log(
-          `❌ [MyMainLayout EXTENDED] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-          {
-            utcDate: fixtureUTCDate,
-            selectedDate,
-            rangeStart: startDateString,
-            rangeEnd: endDateString,
-            reason: "Outside ±2 days range"
-          },
-        );
+
+        // Check if this match should be included based on the selected date
+        const shouldInclude = (() => {
+          // For today's view, exclude any matches that are from previous days
+          if (selectedDate === todayString) {
+            if (smartResult.label === "today") return true;
+
+            // Additional check: exclude matches from previous dates regardless of status
+            const fixtureDate = new Date(fixture.fixture.date);
+            const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
+
+            if (fixtureDateString < selectedDate) {
+              console.log(
+                `❌ [MyMainLayout DATE FILTER] Excluding yesterday match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${fixtureDateString} < ${selectedDate})`,
+              );
+              return false;
+            }
+
+            return false;
+          }
+
+          if (
+            selectedDate === tomorrowString &&
+            smartResult.label === "tomorrow"
+          )
+            return true;
+          if (
+            selectedDate === yesterdayString &&
+            smartResult.label === "yesterday"
+          )
+            return true;
+
+          // Handle custom dates
+          if (
+            selectedDate !== todayString &&
+            selectedDate !== tomorrowString &&
+            selectedDate !== yesterdayString
+          ) {
+            if (smartResult.label === "custom" && smartResult.isWithinTimeRange)
+              return true;
+          }
+
+          return false;
+        })();
+
+        if (!shouldInclude) {
+          console.log(
+            `❌ [MyMainLayout SMART FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+            {
+              fixtureDate: fixture.fixture.date,
+              status: fixture.fixture.status.short,
+              reason: smartResult.reason,
+              label: smartResult.label,
+              selectedDate,
+              isWithinTimeRange: smartResult.isWithinTimeRange,
+            },
+          );
+          return false;
+        }
+
+        return true;
       }
 
-      return isInRange;
+      return false;
     });
 
     console.log(
-      `✅ [MyMainLayout] Extended filtering: ${filtered.length} matches in range ${startDateString} to ${endDateString}`,
+      `✅ [MyMainLayout] After smart filtering: ${filtered.length} matches for ${selectedDate}`,
     );
-    
-    // Sort by original UTC date/time for better organization
-    const sorted = filtered.sort((a, b) => {
-      const dateA = new Date(a.fixture.date);
-      const dateB = new Date(b.fixture.date);
-      return dateA.getTime() - dateB.getTime();
-    });
-
-    return sorted;
-  }, [fixtures, selectedDate, dateRange]);
+    return filtered;
+  }, [fixtures, selectedDate]);
 
   const handleMatchClick = (matchId: number) => {
     navigate(`/match/${matchId}`);
@@ -150,29 +144,6 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Left column (5 columns) */}
         <div className="lg:col-span-5 space-y-4">
-          {/* Debug info for extended date range */}
-          {dateRange === 'extended' && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-              <h3 className="text-sm font-semibold text-blue-800 mb-2">
-                Extended Date Range Debug (±2 days from {selectedDate.includes('T') ? selectedDate.substring(0, 10) : selectedDate} UTC)
-              </h3>
-              <div className="text-xs text-blue-600 space-y-1">
-                <p>• Total fixtures processed: {fixtures?.length || 0}</p>
-                <p>• Fixtures in range: {filteredFixtures.length}</p>
-                <p>• Original timezone: UTC (as received from API)</p>
-                <p>• Range: {selectedDate && (() => {
-                  const utcSelectedDate = selectedDate.includes('T') ? selectedDate.substring(0, 10) : selectedDate;
-                  const selectedDateObj = new Date(utcSelectedDate + 'T00:00:00Z');
-                  const twoDaysBefore = new Date(selectedDateObj);
-                  twoDaysBefore.setDate(twoDaysBefore.getDate() - 2);
-                  const twoDaysAfter = new Date(selectedDateObj);
-                  twoDaysAfter.setDate(twoDaysAfter.getDate() + 2);
-                  return `${format(twoDaysBefore, "yyyy-MM-dd")} to ${format(twoDaysAfter, "yyyy-MM-dd")}`;
-                })()}</p>
-              </div>
-            </div>
-          )}
-
           {/* Render children if provided, otherwise show TodayMatchPageCard */}
           {children ? (
             <div>

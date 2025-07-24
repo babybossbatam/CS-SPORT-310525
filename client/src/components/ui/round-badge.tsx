@@ -152,7 +152,7 @@ export function RoundBadge({
   let badgeClass = "text-xs px-2 py-1 font-medium border";
 
   if (isLive) {
-    badgeClass += " border-red-500 text-red-600 bg-red-50";
+    badgeClass += " border-red-500 text-red-600 bg-red-50 animate-pulse";
   } else if (isFinished) {
     badgeClass += " border-gray-500 text-gray-600 bg-gray-50";
   } else {

@@ -83,6 +83,7 @@ const POPULAR_LEAGUES = [
   { id: 61, name: "Ligue 1", country: "France" },
   { id: 2, name: "UEFA Champions League", country: "Europe" },
   { id: 3, name: "UEFA Europa League", country: "Europe" },
+  { id: 848, name: "UEFA Conference League", country: "Europe" },
   { id: 5, name: "UEFA Nations League", country: "Europe" },
   { id: 1, name: "World Cup", country: "World" },
   { id: 4, name: "Euro Championship", country: "World" },
@@ -95,7 +96,7 @@ const POPULAR_LEAGUES = [
 
 // Define featured leagues
 const FEATURED_MATCH_LEAGUE_IDS = [
-  39, 140, 135, 78, 61, 2, 3, 5, 1, 4, 15, 38, 9, 16,
+  39, 140, 135, 78, 61, 2, 3, 848, 5, 1, 4, 15, 38, 9, 16,
 ];
 const PRIORITY_LEAGUE_IDS = [15, 38, 22]; // FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup
 
@@ -164,7 +165,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }
   `;
 
-
+  // Inject styles if not already present
+  React.useEffect(() => {
+    const styleId = 'truePulse-animation';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = truePulseStyle;
+      document.head.appendChild(style);
+    }
+  }, []);
   const [, navigate] = useLocation();
   const [featuredMatches, setFeaturedMatches] = useState<DayMatches[]>([]);
   const [isLoading, setIsLoading] = useState(true);

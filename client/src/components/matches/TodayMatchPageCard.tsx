@@ -14,14 +14,12 @@ import TodayMatchByTime from "./TodayMatchByTime";
 import MyNewPopularLeague from "./MyNewPopularLeague";
 import EnhancementLeague from "./EnhancementLeague";
 import MyNewLeague from "./MyNewLeague";
-
 import { useCachedQuery } from "@/lib/cachingHelper";
 
 import { format, parseISO, addDays, subDays } from "date-fns";
 import {
   formatYYYYMMDD,
   getCurrentUTCDateString,
-  getCurrentUTCDateTimeString,
 } from "@/lib/dateUtilsUpdated";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import {
@@ -147,7 +145,7 @@ export const TodayMatchPageCard = ({
     refetchInterval: 30000,
   });
 
-  console.log(`📊 [TodayMatchPageCard] Rendering for date: ${selectedDate} (UTC format, server compatible)`);
+  console.log(`📊 [TodayMatchPageCard] Rendering for date: ${selectedDate}`);
 
   const handleMatchCardClick = (fixture: any) => {
     console.log('🎯 [TodayMatchPageCard] Match card clicked:', {
@@ -388,7 +386,7 @@ export const TodayMatchPageCard = ({
         <>
           <MyNewLeague
             selectedDate={selectedDate}
-            timeFilterActive={true}
+            timeFilterActive={false}
             showTop10={false}
             liveFilterActive={liveFilterActive}
             onMatchCardClick={handleMatchCardClick}

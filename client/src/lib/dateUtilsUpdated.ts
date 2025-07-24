@@ -190,21 +190,8 @@ export function getDateTimeRange(dateString: string) {
 // Get current date in client's timezone
 export const getCurrentClientDateString = (): string => {
   const now = new Date();
-  return now.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
+  return format(now, 'yyyy-MM-dd');
 };
-
-// Convert any date string to local timezone date string
-export function convertToLocalDateString(dateString: string): string {
-  try {
-    const date = new Date(dateString);
-    if (!isValid(date)) return dateString;
-    
-    return date.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
-  } catch (error) {
-    console.error('Error converting to local date string:', error);
-    return dateString;
-  }
-}
 
 // Convert UTC fixture time to client's local date
 export function getFixtureClientDate(utcDateString: string): string {
