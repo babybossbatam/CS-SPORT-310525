@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, ChevronRight } from 'lucide-react';
 
 interface MyStatsTabCardProps {
   match?: any;
@@ -583,13 +583,13 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
         <div className="mt-4 flex justify-center">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex-1 items-center  text-sm text-gray-600 hover:bg-gray-200 font-medium py-2   hover:bg-blue-50 transition-colors duration-200"
+            className="flex items-center justify-center gap-2 text-sm text-gray-600 hover:bg-blue-50 font-medium py-2 px-4 rounded-md transition-colors duration-200"
           >
             <span>{isExpanded ? 'Show Less' : 'See All'}</span>
             {isExpanded ? (
               <ChevronUp className="h-4 w-4" />
             ) : (
-              <ChevronDown className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4" />
             )}
           </button>
         </div>
