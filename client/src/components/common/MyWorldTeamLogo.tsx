@@ -23,7 +23,7 @@ interface MyWorldTeamLogoProps {
   showNextMatchOverlay?: boolean;
 }
 
-const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = React.memo(({
+const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   teamName,
   teamLogo,
   alt,
@@ -175,8 +175,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = React.memo(({
       />
     </div>
   );
-});
+};
 
 MyWorldTeamLogo.displayName = 'MyWorldTeamLogo';
 
-export default MyWorldTeamLogo;
+export default React.memo(MyWorldTeamLogo);
