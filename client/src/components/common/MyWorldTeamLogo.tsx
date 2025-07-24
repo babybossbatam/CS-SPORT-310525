@@ -25,7 +25,7 @@ interface MyWorldTeamLogoProps {
   isLiveMatch?: boolean; // Add explicit live match flag
 }
 
-const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = React.memo(({
+const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   teamName,
   teamLogo,
   alt,
@@ -165,7 +165,10 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = React.memo(({
       />
     </div>
   );
-}, (prevProps, nextProps) => {
+};
+
+// Memoized version of the component to prevent unnecessary re-renders during live matches
+const MemoizedMyWorldTeamLogo = React.memo(MyWorldTeamLogo, (prevProps, nextProps) => {
   // During live matches, only re-render if essential props change
   if (prevProps.isLiveMatch || nextProps.isLiveMatch || 
       (prevProps.matchStatus && ["LIVE", "LIV", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(prevProps.matchStatus)) ||
@@ -185,4 +188,4 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = React.memo(({
   return false;
 });
 
-export default MyWorldTeamLogo;
+export default MemoizedMyWorldTeamLogo;
