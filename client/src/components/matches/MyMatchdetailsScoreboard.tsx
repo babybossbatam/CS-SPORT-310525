@@ -312,7 +312,7 @@ const MyMatchdetailsScoreboard = ({
   const getStatusBadge = (status: string) => {
     // Always prioritize the actual match data status to avoid confusion
     const actualStatus = displayMatch.fixture.status.short;
-    
+
     // Only use live status if it matches the actual status or is a valid progression
     let currentStatus = actualStatus;
     if (liveStatus || currentLiveStatus) {
@@ -325,7 +325,7 @@ const MyMatchdetailsScoreboard = ({
         currentStatus = liveStatusToUse;
       }
     }
-    
+
     const isEndedMatch = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(currentStatus);
 
     // Check if it's a finished match and determine the appropriate label
@@ -363,7 +363,7 @@ const MyMatchdetailsScoreboard = ({
                                 // For LIVE, LIV, 1H, 2H - use validated elapsed time from the actual match data
                                 // Priority: Use the passed match data elapsed time (most reliable source)
                                 const validatedElapsed = displayMatch.fixture.status.elapsed;
-                                
+
                                 // Only use real-time elapsed if it's reasonably close to API elapsed (within 5 minutes)
                                 let currentElapsed = validatedElapsed;
                                 if (realTimeElapsed !== null && validatedElapsed !== null) {
@@ -691,7 +691,12 @@ const MyMatchdetailsScoreboard = ({
       </Card>
 
       {/* Tab content will be rendered by parent component */}
-
+      {activeTab === 'stats' && (
+            <MyStatsTabCard 
+              match={displayMatch} 
+              onTabChange={handleTabChange}
+            />
+          )}
 
       </Card>
     </>
