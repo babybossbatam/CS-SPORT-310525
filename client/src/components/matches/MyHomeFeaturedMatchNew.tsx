@@ -138,7 +138,7 @@ const POPULAR_LEAGUES = [
   { id: 667, name: "Friendlies Clubs", country: "World" },
 ];
 
-// Define featured leagues (UEFA Europa Conference League ID 848 explicitly excluded)
+// Define featured leagues (UEFA Europa Conference League ID 848 and Regionalliga - Bayern ID 169 explicitly excluded)
 const FEATURED_MATCH_LEAGUE_IDS = [
   39, 140, 135, 78, 61, 2, 3, 5, 1, 4, 15, 38, 9, 16
 ];
@@ -448,7 +448,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const leagueName = fixture.league?.name?.toLowerCase() || "";
                     const country = fixture.league?.country?.toLowerCase() || "";
 
-                    // EXPLICIT EXCLUSION: UEFA Europa Conference League
+                    // EXPLICIT EXCLUSION: UEFA Europa Conference League and Regionalliga - Bayern
                     const isExplicitlyExcluded = EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league?.id);
 
                     // Exclude women's competitions
@@ -920,9 +920,14 @@ id: fixture.teams.away.id,
         for (const dateInfo of dates) {
           const fixturesForDay = uniqueFixtures
             .filter((fixture) => {
-              // EXPLICIT EXCLUSION: Never show UEFA Europa Conference League (ID 848)
+              // EXPLICIT EXCLUSION: Never show UEFA Europa Conference League (ID 848) or Regionalliga - Bayern (ID 169)
               if (fixture.league.id === 848) {
                 console.log(`🚫 [EXPLICIT EXCLUSION] UEFA Europa Conference League match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                return false;
+              }
+              
+              if (fixture.league.id === 169) {
+                console.log(`🚫 [EXPLICIT EXCLUSION] Regionalliga - Bayern match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
                 return false;
               }
               
