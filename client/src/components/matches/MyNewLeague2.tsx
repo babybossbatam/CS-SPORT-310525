@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useCallback, useRef, lazy, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -89,12 +88,64 @@ interface FixtureData {
 interface MyNewLeague2Props {
   selectedDate: string;
   onMatchCardClick?: (fixture: any) => void;
+  match?: any;
 }
 
-const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
+const MyNewLeague2 = ({
   selectedDate,
   onMatchCardClick,
-}) => {
+  match,
+}: MyNewLeague2Props) => {
+
+  // Sample match data for demonstration (similar to MyMatchdetailsScoreboard)
+  const sampleMatch = {
+    fixture: {
+      id: 1100311,
+      date: "2025-06-11T21:00:00+00:00",
+      status: { short: "NS", long: "Not Started" },
+      venue: { name: "Estadio Nacional de Lima", city: "Lima" },
+      referee: "Andres Rojas, Colombia",
+    },
+    league: {
+      id: 135,
+      name: "World Cup - Qualification South America",
+      country: "World",
+      round: "Group Stage - 16",
+    },
+    teams: {
+      home: {
+        id: 2382,
+        name: "Portugal U21",
+        logo: "https://media.api-sports.io/football/teams/2382.png",
+      },
+      away: {
+        id: 768,
+        name: "France U21",
+        logo: "https://media.api-sports.io/football/teams/768.png",
+      },
+    },
+    goals: {
+      home: null,
+      away: null,
+    },
+    score: {
+      halftime: { home: null, away: null },
+      fulltime: { home: null, away: null },
+    },
+  };
+
+  // Use passed match data or fallback to sample (like MyMatchdetailsScoreboard)
+  const displayMatch = match || sampleMatch;
+
+  // Debug: Log the match data being received
+  console.log("🎯 [MyNewLeague2] Received match data:", {
+    hasMatch: !!match,
+    fixtureId: displayMatch?.fixture?.id,
+    teams: `${displayMatch?.teams?.home?.name} vs ${displayMatch?.teams?.away?.name}`,
+    status: displayMatch?.fixture?.status?.short,
+    league: displayMatch?.league?.name,
+  });
+
   const [, navigate] = useLocation();
   const [collapsedLeagues, setCollapsedLeagues] = useState<Set<number>>(new Set());
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
@@ -108,7 +159,7 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
     queryKey: ['myNewLeague2', 'allFixtures'],
     queryFn: async () => {
       console.log(`🎯 [MyNewLeague2] Fetching fixtures for ${leagueIds.length} leagues:`, leagueIds);
-      
+
       const promises = leagueIds.map(async (leagueId) => {
         try {
           const response = await fetch(`/api/leagues/${leagueId}/fixtures`);
@@ -125,10 +176,10 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
           return { leagueId, fixtures: [], error: error.message };
         }
       });
-      
+
       const results = await Promise.all(promises);
       const allFixtures = results.flatMap(result => result.fixtures);
-      
+
       // Log detailed results
       console.log(`🔄 [MyNewLeague2] Fetch results:`, {
         totalLeagues: results.length,
@@ -140,7 +191,7 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
           error: r.error 
         }))
       });
-      
+
       return allFixtures;
     },
     staleTime: 5 * 60 * 1000,
@@ -176,21 +227,21 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
       // Apply date filtering - extract date from fixture and compare with selected date
       const fixtureDate = new Date(fixture.fixture.date);
       const fixtureDateString = format(fixtureDate, 'yyyy-MM-dd');
-      
+
       // Only include fixtures that match the selected date
       if (fixtureDateString !== selectedDate) {
         return;
       }
 
       const leagueId = fixture.league.id;
-      
+
       if (!grouped[leagueId]) {
         grouped[leagueId] = {
           league: fixture.league,
           fixtures: []
         };
       }
-      
+
       grouped[leagueId].fixtures.push(fixture);
     });
 
@@ -201,7 +252,7 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
 
     const groupedKeys = Object.keys(grouped);
     const totalValidFixtures = Object.values(grouped).reduce((sum, group) => sum + group.fixtures.length, 0);
-    
+
     console.log(`✅ [MyNewLeague2] Date filtered fixtures for ${selectedDate}:`, {
       originalFixtures: allFixtures?.length || 0,
       filteredFixtures: totalValidFixtures,
@@ -395,7 +446,7 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
         .sort(([aId], [bId]) => {
           // Define priority order - same as MyNewLeague
           const priorityOrder = [38, 15, 2, 11, 71, 22, 72, 73, 75, 233, 667, 253];
-          
+
           const aIndex = priorityOrder.indexOf(Number(aId));
           const bIndex = priorityOrder.indexOf(Number(bId));
 
@@ -825,7 +876,8 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
                                         </span>
                                         <span className="score-separator">-</span>
                                         <span className="score-number">
-                                          {fixture.goals.away ?? 0}
+                                          {```text
+fixture.goals.away ?? 0}
                                         </span>
                                       </div>
                                     );
