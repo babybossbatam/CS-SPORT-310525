@@ -609,539 +609,357 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
           setLoading(false);
         }, 10000); // 10 second timeout
 
-        console.log(`🎯 [MyNewLeague] Fetching fixtures with expanded date range for: ${selectedDate}`);
+              // Smart fetching: Use date-based API for efficiency
+                    console.log(
+                      `🎯 [MyNewLeague] Smart fetching for date: ${selectedDate}`,
+                    );
 
-        // Calculate date range: yesterday to tomorrow in UTC to ensure we get all relevant matches
-        const selectedDateObj = new Date(selectedDate + 'T12:00:00Z');
-        const yesterday = new Date(selectedDateObj.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        const tomorrow = new Date(selectedDateObj.getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                    const response = await fetch(
+                      `/api/fixtures/date/${selectedDate}?all=true`,
+                    );
+                    if (!response.ok) {
+                      throw new Error(`Failed to fetch fixtures for ${selectedDate}`);
+                    }
 
-        console.log(`📅 [MyNewLeague] Date range: ${yesterday} to ${tomorrow} (selected: ${selectedDate})`);
+                    const allDateFixtures = await response.json();
+                    console.log(
+                      `📊 [MyNewLeague] Got ${allDateFixtures.length} total fixtures for ${selectedDate}`,
+                    );
 
-        // Fetch fixtures for all three days to account for timezone differences
-        const datePromises = [yesterday, selectedDate, tomorrow].map(async (date) => {
-          try {
-            const response = await fetch(`/api/fixtures/date/${date}?all=true`);
-            if (!response.ok) {
-              console.warn(`Failed to fetch fixtures for ${date}`);
-              return [];
-            }
-            const fixtures = await response.json();
-            console.log(`📊 [MyNewLeague] Got ${fixtures.length} fixtures for ${date}`);
-            return fixtures;
-          } catch (error) {
-            console.warn(`Error fetching fixtures for ${date}:`, error);
-            return [];
-          }
-        });
+                    // Group fixtures by league and filter for our target leagues with timezone awareness
+                    const leagueFixturesMap = new Map();
 
-        const allFixturesArrays = await Promise.all(datePromises);
-        const allDateFixtures = allFixturesArrays.flat();
+                    // Debug logging for target leagues including 886 and 2
+                    const targetLeagues = [886, 2, 908];
+                    targetLeagues.forEach((targetLeagueId) => {
+                      const targetLeagueFixtures = allDateFixtures.filter(
+                        (f: FixtureData) => f.league?.id === targetLeagueId,
+                      );
+                      if (targetLeagueFixtures.length > 0) {
+                        console.log(
+                          `🔍 [MyNewLeague] Found ${targetLeagueFixtures.length} league ${targetLeagueId} fixtures in allDateFixtures:`,
+                          targetLeagueFixtures.map((f) => ({
+                            id: f.fixture.id,
+                            date: f.fixture.date,
+                            localDate: new Date(f.fixture.date).toLocaleDateString("en-CA"),
+                            utcDate: f.fixture.date.substring(0, 10),
+                            selectedDate,
+                            dateMatches: f.fixture.date.substring(0, 10) === selectedDate,
+                            status: f.fixture.status.short,
+                            teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
+                            league: f.league.name,
+                          })),
+                        );
+                      }
+                    });
 
-        console.log(`📊 [MyNewLeague] Total fixtures across date range: ${allDateFixtures.length}`);
+                    allDateFixtures.forEach((fixture: FixtureData) => {
+                      const leagueId = fixture.league?.id;
+                      if (leagueIds.includes(leagueId)) {
+                        // Simple UTC date filtering
+                        const fixtureUTCDate = fixture.fixture?.date?.substring(0, 10);
 
-        // Group fixtures by league and filter for our target leagues with timezone awareness
-        const leagueFixturesMap = new Map();
+                        // Log detailed filtering for problematic leagues
+                        if ([886, 2, 908].includes(leagueId)) {
+                          console.log(
+                            `🔍 [MyNewLeague] Filtering league ${leagueId} fixture:`,
+                            {
+                              fixtureId: fixture.fixture.id,
+                              teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                              originalDate: fixture.fixture.date,
+                              fixtureUTCDate,
+                              selectedDate,
+                              utcMatches: fixtureUTCDate === selectedDate,
+                              willInclude: fixtureUTCDate === selectedDate,
+                            },
+                          );
+                        }
 
-        allDateFixtures.forEach((fixture: FixtureData) => {
-          const leagueId = fixture.league?.id;
-          if (leagueIds.includes(leagueId)) {
-            // Convert fixture time to local timezone and get the local date
-            const fixtureDateTime = new Date(fixture.fixture.date);
-            const fixtureLocalDate = fixtureDateTime.toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
+                        // Include only if UTC date matches selected date
+                        if (fixtureUTCDate === selectedDate) {
+                          if (!leagueFixturesMap.has(leagueId)) {
+                            leagueFixturesMap.set(leagueId, []);
+                          }
+                          leagueFixturesMap.get(leagueId).push(fixture);
+                        }
+                      }
+                    });
 
-            // Log detailed filtering for problematic leagues
-            if ([886, 2, 908].includes(leagueId)) {
+                    // Convert to the expected format
+                    const promises = leagueIds.map(async (leagueId) => {
+                      const fixtures = leagueFixturesMap.get(leagueId) || [];
+                      console.log(
+                        `✅ [MyNewLeague] League ${leagueId}: Found ${fixtures.length} fixtures for ${selectedDate}`,
+                      );
+                      return { leagueId, fixtures };
+                    });
+
+                    const results = await Promise.all(promises);
+
+                    const newLeagueFixtures = new Map();
+                    results.forEach(({ leagueId, fixtures }) => {
+                      newLeagueFixtures.set(leagueId, fixtures);
+                    });
+
+                    // Debug logging for league 908 before setting state
+                    if (newLeagueFixtures.has(908)) {
+                      console.log(
+                        `🔍 [MyNewLeague] Setting league 908 fixtures in state:`,
+                        {
+                          count: newLeagueFixtures.get(908)?.length || 0,
+                          fixtures:
+                            newLeagueFixtures.get(908)?.map((f) => ({
+                              id: f.fixture.id,
+                              date: f.fixture.date,
+                              status: f.fixture.status.short,
+                              teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
+                            })) || [],
+                        },
+                      );
+                    } else {
+                      console.log(
+                        `❌ [MyNewLeague] League 908 NOT found in newLeagueFixtures for date ${selectedDate}`,
+                      );
+                    }
+
+                    setLeagueFixtures(newLeagueFixtures);
+
+                    // Cache the results with date validation
+                    sessionStorage.setItem(
+                      `league-fixtures-${selectedDate}`,
+                      JSON.stringify({
+                        data: Array.from(newLeagueFixtures.entries()),
+                        timestamp: Date.now(),
+                        date: selectedDate, // Include date for validation
+                      }),
+                    );
+                  } catch (error) {
+                    console.error(
+                      "❌ [MyNewLeague] Error fetching league fixtures:",
+                      error,
+                    );
+                    setError("Failed to load matches");
+                  } finally {
+                    setIsLoading(false);
+
+                    // Ensure loading is cleared even on error
+                    setTimeout(() => {
+                      setLoading(false);
+                    }, 100);
+                  }
+                };
+
+                // Check cache first for non-live data with stricter validation
+                const cacheKey = `league-fixtures-${selectedDate}`;
+                const cached = sessionStorage.getItem(cacheKey);
+
+                if (cached && !liveFilterActive) {
+                  try {
+                    const { data, timestamp, date: cachedDateKey } = JSON.parse(cached);
+                    const age = Date.now() - timestamp;
+
+                    // Validate cached date matches exactly
+                    if (cachedDateKey && cachedDateKey !== selectedDate) {
+                      console.log(
+                        `🚨 [MyNewLeague] Session cache date mismatch - clearing: ${cachedDateKey} !== ${selectedDate}`,
+                      );
+                      sessionStorage.removeItem(cacheKey);
+                    } else {
+                      // Much shorter cache times to prevent stale data
+                      // For today: 30 seconds max
+                      // For other dates: 2 minutes max
+                      const maxAge =
+                        selectedDate === new Date().toISOString().split("T")[0]
+                          ? 30000
+                          : 120000;
+
+                      if (age < maxAge) {
+                        console.log(
+                          `💾 [MyNewLeague] Using cached data for ${selectedDate} (age: ${Math.round(age / 1000)}s)`,
+                        );
+                        setLeagueFixtures(new Map(data));
+                        setIsLoading(false);
+                        return;
+                      } else {
+                        console.log(
+                          `⏰ [MyNewLeague] Session cache expired for ${selectedDate} (age: ${Math.round(age / 1000)}s)`,
+                        );
+                        sessionStorage.removeItem(cacheKey);
+                      }
+                    }
+                  } catch (error) {
+                    console.warn("Failed to parse session cache:", error);
+                    sessionStorage.removeItem(cacheKey);
+                  }
+                }
+
+                fetchAllLeagueFixtures();
+              }, [selectedDate, showTop10, liveFilterActive]);
+
+              // Comprehensive cache cleanup on date change and component mount
+              useEffect(() => {
+                const cleanupOldCache = () => {
+                  try {
+                    const keys = Object.keys(localStorage);
+                    const cacheKeys = keys.filter(
+                      (key) =>
+                        key.startsWith("ended_matches_") ||
+                        key.startsWith("finished_fixtures_"),
+                    );
+
+                    let cleanedCount = 0;
+                    const today = new Date().toISOString().slice(0, 10);
+
+                    cacheKeys.forEach((key) => {
+                      try {
+                        const cached = localStorage.getItem(key);
+                        if (cached) {
+                          const { timestamp, date: cachedDate } = JSON.parse(cached);
+                          const cacheAge = Date.now() - timestamp;
+
+                          // More aggressive cleanup - remove cache older than 24 hours for recent dates
+                          const maxAge =
+                            cachedDate >= today ? 1 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+
+                          if (cacheAge > maxAge) {
+                            localStorage.removeItem(key);
+                            cleanedCount++;
+                            console.log(
+                              `🗑️ [MyNewLeague] Removed stale cache: ${key} (age: ${Math.round(cacheAge / 60000)}min)`,
+                            );
+                          }
+                        }
+                      } catch (error) {
+                        // Remove corrupted cache entries
+                        localStorage.removeItem(key);
+                        cleanedCount++;
+                      }
+                    });
+
+                    if (cleanedCount > 0) {
+                      console.log(
+                        `🧹 [MyNewLeague] Cleaned up ${cleanedCount} old cache entries`,
+                      );
+                    }
+                  } catch (error) {
+                    console.error("Error cleaning up cache:", error);
+                  }
+                };
+
+                cleanupOldCache();
+              }, [selectedDate]); // Re-run when selected date changes
+
+              // Immediate cache clearing when date changes to prevent cross-date contamination
+              useEffect(() => {
+                const clearAllRelatedCache = () => {
+                  try {
+                    console.log(
+                      `🔄 [MyNewLeague] Performing immediate cache clear for date change to ${selectedDate}`,
+                    );
+
+                    // Clear all fixture-related caches immediately
+                    fixtureCache.clearCache();
+
+                    // Clear ALL localStorage entries for leagues and matches (aggressive cleanup)
+                    const keys = Object.keys(localStorage);
+                    const allCacheKeys = keys.filter(
+                      (key) =>
+                        key.startsWith("ended_matches_") ||
+                        key.startsWith("finished_fixtures_") ||
+                        key.startsWith("league-fixtures-") ||
+                        key.startsWith("match-data-"),
+                    );
+
+                    let clearedCount = 0;
+                    allCacheKeys.forEach((key) => {
+                      try {
+                        localStorage.removeItem(key);
+                        clearedCount++;
+                      } catch (error) {
+                        console.warn(`Failed to clear cache key: ${key}`, error);
+                      }
+                    });
+
+                    // Clear sessionStorage as well
+                    const sessionKeys = Object.keys(sessionStorage);
+                    const sessionCacheKeys = sessionKeys.filter(
+                      (key) =>
+                        key.startsWith("league-fixtures-") || key.startsWith("match-data-"),
+                    );
+
+                    sessionCacheKeys.forEach((key) => {
+                      try {
+                        sessionStorage.removeItem(key);
+                        clearedCount++;
+                      } catch (error) {
+                        console.warn(`Failed to clear session cache key: ${key}`, error);
+                      }
+                    });
+
+                    // Reset component state to ensure fresh data
+                    setLeagueFixtures(new Map());
+                    setIsLoading(true);
+
+                    console.log(
+                      `🧹 [MyNewLeague] Cleared ${clearedCount} cache entries for date ${selectedDate}`,
+                    );
+                  } catch (error) {
+                    console.error("Error clearing all related cache:", error);
+                  }
+                };
+
+                clearAllRelatedCache();
+              }, [selectedDate]);
+
+              // Remove conflicting data fetch - using leagueFixtures from the new effect above
+
+              // Debug logging
+              console.log("MyNewLeague - All fixtures:", fixtures.length);
+
+              // Enhanced debugging for specific leagues
+              const friendliesFixtures = fixtures.filter((f) => f.league.id === 667);
+              const iraqiFixtures = fixtures.filter((f) => f.league.id === 233);
+              const copaArgentinaFixtures = fixtures.filter((f) => f.league.id === 128);
+
               console.log(
-                `🔍 [MyNewLeague] Processing league ${leagueId} fixture:`,
-                {
-                  fixtureId: fixture.fixture.id,
-                  teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                  originalUTCDate: fixture.fixture.date,
-                  fixtureLocalDate,
-                  selectedDate,
-                  localDateMatches: fixtureLocalDate === selectedDate,
-                  status: fixture.fixture.status.short,
-                },
+                "🏆 [MyNewLeague FRIENDLIES] Total Friendlies fixtures:",
+                friendliesFixtures.length,
               );
-            }
+              console.log(
+                "🇮🇶 [MyNewLeague IRAQI] Total Iraqi League fixtures:",
+                iraqiFixtures.length,
+              );
+              // Adding loadingTimeout and clear it when loading is done or cache is hit.
 
-            // Store all fixtures regardless of date for now - we'll filter by date category later
-            if (!leagueFixturesMap.has(leagueId)) {
-              leagueFixturesMap.set(leagueId, []);
-            }
-            leagueFixturesMap.get(leagueId).push(fixture);
-          }
-        });
+              console.log(
+                "🇦🇷 [MyNewLeague COPA ARG] Total Copa Argentina fixtures:",
+                copaArgentinaFixtures.length,
+              );
 
-        // Convert to the expected format
-        const promises = leagueIds.map(async (leagueId) => {
-          const fixtures = leagueFixturesMap.get(leagueId) || [];
-          console.log(
-            `✅ [MyNewLeague] League ${leagueId}: Found ${fixtures.length} fixtures in date range`,
-          );
-          return { leagueId, fixtures };
-        });
-
-        const results = await Promise.all(promises);
-
-        const newLeagueFixtures = new Map();
-        results.forEach(({ leagueId, fixtures }) => {
-          newLeagueFixtures.set(leagueId, fixtures);
-        });
-
-        // Debug logging for league 908 before setting state
-        if (newLeagueFixtures.has(908)) {
-          console.log(
-            `🔍 [MyNewLeague] Setting league 908 fixtures in state:`,
-            {
-              count: newLeagueFixtures.get(908)?.length || 0,
-              fixtures:
-                newLeagueFixtures.get(908)?.map((f) => ({
-                  id: f.fixture.id,
-                  date: f.fixture.date,
-                  localDate: new Date(f.fixture.date).toLocaleDateString('en-CA'),
-                  status: f.fixture.status.short,
-                  teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
-                })) || [],
-            },
-          );
-        }
-
-        setLeagueFixtures(newLeagueFixtures);
-
-        // Cache the results with date validation
-        sessionStorage.setItem(
-          `league-fixtures-${selectedDate}`,
-          JSON.stringify({
-            data: Array.from(newLeagueFixtures.entries()),
-            timestamp: Date.now(),
-            date: selectedDate, // Include date for validation
-          }),
-        );
-
-        clearTimeout(loadingTimeout);
-      } catch (error) {
-        console.error(
-          "❌ [MyNewLeague] Error fetching league fixtures:",
-          error,
-        );
-        setError("Failed to load matches");
-      } finally {
-        setIsLoading(false);
-
-        // Ensure loading is cleared even on error
-        setTimeout(() => {
-          setLoading(false);
-        }, 100);
-      }
-    };
-
-    // Check cache first for non-live data with stricter validation
-    const cacheKey = `league-fixtures-${selectedDate}`;
-    const cached = sessionStorage.getItem(cacheKey);
-
-    if (cached && !liveFilterActive) {
-      try {
-        const { data, timestamp, date: cachedDateKey } = JSON.parse(cached);
-        const age = Date.now() - timestamp;
-
-        // Validate cached date matches exactly
-        if (cachedDateKey && cachedDateKey !== selectedDate) {
-          console.log(
-            `🚨 [MyNewLeague] Session cache date mismatch - clearing: ${cachedDateKey} !== ${selectedDate}`,
-          );
-          sessionStorage.removeItem(cacheKey);
-        } else {
-          // Much shorter cache times to prevent stale data
-          // For today: 30 seconds max
-          // For other dates: 2 minutes max
-          const maxAge =
-            selectedDate === new Date().toLocaleDateString('en-CA')
-              ? 30000
-              : 120000;
-
-          if (age < maxAge) {
-            console.log(
-              `💾 [MyNewLeague] Using cached data for ${selectedDate} (age: ${Math.round(age / 1000)}s)`,
-            );
-            setLeagueFixtures(new Map(data));
-            setIsLoading(false);
-            return;
-          } else {
-            console.log(
-              `⏰ [MyNewLeague] Session cache expired for ${selectedDate} (age: ${Math.round(age / 1000)}s)`,
-            );
-            sessionStorage.removeItem(cacheKey);
-          }
-        }
-      } catch (error) {
-        console.warn("Failed to parse session cache:", error);
-        sessionStorage.removeItem(cacheKey);
-      }
-    }
-
-    fetchAllLeagueFixtures();
-  }, [selectedDate, showTop10, liveFilterActive]);
-
-  // Comprehensive cache cleanup on date change and component mount
-  useEffect(() => {
-    const cleanupOldCache = () => {
-      try {
-        const keys = Object.keys(localStorage);
-        const cacheKeys = keys.filter(
-          (key) =>
-            key.startsWith("ended_matches_") ||
-            key.startsWith("finished_fixtures_"),
-        );
-
-        let cleanedCount = 0;
-        const today = new Date().toISOString().slice(0, 10);
-
-        cacheKeys.forEach((key) => {
-          try {
-            const cached = localStorage.getItem(key);
-            if (cached) {
-              const { timestamp, date: cachedDate } = JSON.parse(cached);
-              const cacheAge = Date.now() - timestamp;
-
-              // More aggressive cleanup - remove cache older than 24 hours for recent dates
-              const maxAge =
-                cachedDate >= today ? 1 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
-
-              if (cacheAge > maxAge) {
-                localStorage.removeItem(key);
-                cleanedCount++;
-                console.log(
-                  `🗑️ [MyNewLeague] Removed stale cache: ${key} (age: ${Math.round(cacheAge / 60000)}min)`,
-                );
-              }
-            }
-          } catch (error) {
-            // Remove corrupted cache entries
-            localStorage.removeItem(key);
-            cleanedCount++;
-          }
-        });
-
-        if (cleanedCount > 0) {
-          console.log(
-            `🧹 [MyNewLeague] Cleaned up ${cleanedCount} old cache entries`,
-          );
-        }
-      } catch (error) {
-        console.error("Error cleaning up cache:", error);
-      }
-    };
-
-    cleanupOldCache();
-  }, [selectedDate]); // Re-run when selected date changes
-
-  // Immediate cache clearing when date changes to prevent cross-date contamination
-  useEffect(() => {
-    const clearAllRelatedCache = () => {
-      try {
-        console.log(
-          `🔄 [MyNewLeague] Performing immediate cache clear for date change to ${selectedDate}`,
-        );
-
-        // Clear all fixture-related caches immediately
-        fixtureCache.clearCache();
-
-        // Clear ALL localStorage entries for leagues and matches (aggressive cleanup)
-        const keys = Object.keys(localStorage);
-        const allCacheKeys = keys.filter(
-          (key) =>
-            key.startsWith("ended_matches_") ||
-            key.startsWith("finished_fixtures_") ||
-            key.startsWith("league-fixtures-") ||
-            key.startsWith("match-data-"),
-        );
-
-        let clearedCount = 0;
-        allCacheKeys.forEach((key) => {
-          try {
-            localStorage.removeItem(key);
-            clearedCount++;
-          } catch (error) {
-            console.warn(`Failed to clear cache key: ${key}`, error);
-          }
-        });
-
-        // Clear sessionStorage as well
-        const sessionKeys = Object.keys(sessionStorage);
-        const sessionCacheKeys = sessionKeys.filter(
-          (key) =>
-            key.startsWith("league-fixtures-") || key.startsWith("match-data-"),
-        );
-
-        sessionCacheKeys.forEach((key) => {
-          try {
-            sessionStorage.removeItem(key);
-            clearedCount++;
-          } catch (error) {
-            console.warn(`Failed to clear session cache key: ${key}`, error);
-          }
-        });
-
-        // Reset component state to ensure fresh data
-        setLeagueFixtures(new Map());
-        setIsLoading(true);
-
-        console.log(
-          `🧹 [MyNewLeague] Cleared ${clearedCount} cache entries for date ${selectedDate}`,
-        );
-      } catch (error) {
-        console.error("Error clearing all related cache:", error);
-      }
-    };
-
-    clearAllRelatedCache();
-  }, [selectedDate]);
-
-  // Remove conflicting data fetch - using leagueFixtures from the new effect above
-
-  // Debug logging
-  console.log("MyNewLeague - All fixtures:", fixtures.length);
-
-  // Enhanced debugging for specific leagues
-  const friendliesFixtures = fixtures.filter((f) => f.league.id === 667);
-  const iraqiFixtures = fixtures.filter((f) => f.league.id === 233);
-  const copaArgentinaFixtures = fixtures.filter((f) => f.league.id === 128);
-
-  console.log(
-    "🏆 [MyNewLeague FRIENDLIES] Total Friendlies fixtures:",
-    friendliesFixtures.length,
-  );
-  console.log(
-    "🇮🇶 [MyNewLeague IRAQI] Total Iraqi League fixtures:",
-    iraqiFixtures.length,
-  );
-  // Adding loadingTimeout and clear it when loading is done or cache is hit.
-
-  console.log(
-    "🇦🇷 [MyNewLeague COPA ARG] Total Copa Argentina fixtures:",
-    copaArgentinaFixtures.length,
-  );
-
-  // Debug logging for leagueFixtures data
-  console.log(`📊 [MyNewLeague] LeagueFixtures data:`, {
-    leagueFixturesSize: leagueFixtures.size,
-    selectedDate,
-    totalMatchesAcrossLeagues: Array.from(leagueFixtures.values()).reduce(
-      (total, fixtures) => total + fixtures.length,
-      0,
-    ),
-  });
-
-  // Debug specific leagues
-  leagueFixtures.forEach((fixtures, leagueId) => {
-    if (fixtures.length > 0) {
-      console.log(
-        `🎯 [MyNewLeague] League ${leagueId}: ${fixtures.length} fixtures`,
-      );
-      // Log first few fixtures for debugging
-      fixtures.slice(0, 3).forEach((f) => {
-        console.log(
-          `  - ${f.teams.home.name} vs ${f.teams.away.name} (${f.fixture.status.short})`,
-        );
-      });
-    }
-  });
-
-  // Function to categorize matches by date relative to selected date using local timezone
-  const getDateCategory = useCallback((fixtureDate: string, selectedDate: string) => {
-    // Convert fixture UTC time to local timezone
-    const fixtureDateTime = new Date(fixtureDate);
-    const fixtureLocalDate = fixtureDateTime.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
-    
-    // Convert selected date to local timezone for comparison (assuming selectedDate is in local timezone format)
-    const selectedDateLocal = selectedDate;
-
-    console.log(`🕐 [DateCategory] Local timezone analysis:`, {
-      fixtureDate,
-      fixtureLocalDate,
-      selectedDate,
-      selectedDateLocal,
-      kickOffTime: fixtureDateTime.toLocaleString(),
-    });
-
-    // Simple date comparison - if fixture's local date matches selected date, it's "today"
-    if (fixtureLocalDate === selectedDateLocal) {
-      console.log(`📅 [DateCategory] Match on selected date`);
-      return 'today';
-    }
-
-    // Calculate yesterday and tomorrow relative to selected date
-    const selectedDateObj = new Date(selectedDate + 'T12:00:00');
-    const selectedTomorrowLocal = new Date(selectedDateObj.getTime() + 24 * 60 * 60 * 1000).toLocaleDateString('en-CA');
-    const selectedYesterdayLocal = new Date(selectedDateObj.getTime() - 24 * 60 * 60 * 1000).toLocaleDateString('en-CA');
-
-    if (fixtureLocalDate === selectedTomorrowLocal) {
-      console.log(`📅 [DateCategory] Tomorrow match: ${fixtureLocalDate}`);
-      return 'tomorrow';
-    }
-    if (fixtureLocalDate === selectedYesterdayLocal) {
-      console.log(`📅 [DateCategory] Yesterday match: ${fixtureLocalDate}`);
-      return 'yesterday';
-    }
-
-    console.log(`📅 [DateCategory] Other date match: ${fixtureLocalDate}`);
-    return 'other';
-  }, []);
-
-  // Use leagueFixtures as primary data source and group matches by date category and league
-  const matchesByDateAndLeague = useMemo(() => {
-    const result: Record<string, Record<number, { league: any; matches: FixtureData[] }>> = {
-      today: {},
-      tomorrow: {},
-      yesterday: {},
-      other: {}
-    };
-
-    // Process leagueFixtures map to create the grouped structure
-    leagueFixtures.forEach((fixtures, leagueId) => {
-      if (fixtures && fixtures.length > 0) {
-        // Debug logging for problematic leagues including 886 and 2
-        if ([886, 2, 908].includes(leagueId)) {
-          console.log(
-            `🔍 [MyNewLeague] League ${leagueId} fixtures before filtering:`,
-            {
-              totalFixtures: fixtures.length,
-              selectedDate,
-              fixtures: fixtures.map((f) => ({
-                id: f.fixture.id,
-                date: f.fixture.date,
-                localDate: new Date(f.fixture.date).toLocaleDateString("en-CA"),
-                utcDate: f.fixture.date.substring(0, 10),
-                status: f.fixture.status.short,
-                teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
-              })),
-            },
-          );
-        }
-
-        // Enhanced date filtering with timezone consideration and categorization
-        const categorizedFixtures: Record<string, FixtureData[]> = {
-          today: [],
-          tomorrow: [],
-          yesterday: [],
-          other: []
-        };
-
-        fixtures.forEach((fixture) => {
-          const fixtureDate = fixture.fixture?.date;
-          if (!fixtureDate) return;
-
-          // Convert fixture to local timezone for comparison
-          const fixtureDateTime = new Date(fixtureDate);
-          const fixtureLocalDate = fixtureDateTime.toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
-
-          // Log detailed filtering for problematic leagues
-          if ([886, 2, 908].includes(leagueId)) {
-            console.log(
-              `🔍 [MyNewLeague] League ${leagueId} fixture filtering (LOCAL TZ):`,
-              {
-                fixtureId: fixture.fixture.id,
-                teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                originalUTCDate: fixtureDate,
-                fixtureLocalDate,
+              // Debug logging for leagueFixtures data
+              console.log(`📊 [MyNewLeague] LeagueFixtures data:`, {
+                leagueFixturesSize: leagueFixtures.size,
                 selectedDate,
-                localDateMatches: fixtureLocalDate === selectedDate,
-              },
-            );
-          }
+                totalMatchesAcrossLeagues: Array.from(leagueFixtures.values()).reduce(
+                  (total, fixtures) => total + fixtures.length,
+                  0,
+                ),
+              });
 
-          // Get date category for this fixture and filter accordingly
-          const dateCategory = getDateCategory(fixtureDate, selectedDate);
-          
-          // Only include fixtures that belong to today, tomorrow, or yesterday relative to selected date
-          if (['today', 'tomorrow', 'yesterday'].includes(dateCategory)) {
-            categorizedFixtures[dateCategory].push(fixture);
-
-            if ([886, 2, 908].includes(leagueId)) {
-              console.log(`📅 [MyNewLeague] Fixture categorized as: ${dateCategory}`);
-            }
-          } else {
-            if ([886, 2, 908].includes(leagueId)) {
-              console.log(`🚫 [MyNewLeague] Fixture excluded - category: ${dateCategory}, localDate: ${fixtureLocalDate}, selectedDate: ${selectedDate}`);
-            }
-          }
-        });
-
-        // Add categorized fixtures to result
-        Object.entries(categorizedFixtures).forEach(([category, categoryFixtures]) => {
-          if (categoryFixtures.length > 0) {
-            if (!result[category][leagueId]) {
-              result[category][leagueId] = {
-                league: categoryFixtures[0].league,
-                matches: []
-              };
-            }
-            result[category][leagueId].matches.push(...categoryFixtures);
-          }
-        });
-
-        if ([886, 2, 908].includes(leagueId)) {
-          console.log(`🔍 [MyNewLeague] League ${leagueId} categorization:`, {
-            today: categorizedFixtures.today.length,
-            tomorrow: categorizedFixtures.tomorrow.length,
-            yesterday: categorizedFixtures.yesterday.length,
-            other: categorizedFixtures.other.length,
-          });
-        }
-      }
-    });
-
-    // Log categorization results
-    const totalMatches = Object.values(result).reduce(
-      (sum, dateCategory) => sum + Object.values(dateCategory).reduce(
-        (categorySum, group) => categorySum + group.matches.length, 0
-      ), 0
-    );
-
-    console.log(`🌍 [MyNewLeague] Date categorization complete:`, {
-      selectedDate,
-      totalMatches,
-      breakdown: {
-        today: Object.values(result.today).reduce((sum, group) => sum + group.matches.length, 0),
-        tomorrow: Object.values(result.tomorrow).reduce((sum, group) => sum + group.matches.length, 0),
-        yesterday: Object.values(result.yesterday).reduce((sum, group) => sum + group.matches.length, 0),
-        other: Object.values(result.other).reduce((sum, group) => sum + group.matches.length, 0),
-      }
-    });
-
-    return result;
-  }, [leagueFixtures, selectedDate, getDateCategory]);
-
-  // Legacy compatibility - combine all dates for backwards compatibility
-  const matchesByLeague = useMemo(() => {
-    const combined: Record<number, { league: any; matches: FixtureData[] }> = {};
-
-    Object.values(matchesByDateAndLeague).forEach(dateCategory => {
-      Object.entries(dateCategory).forEach(([leagueId, leagueData]) => {
-        const id = parseInt(leagueId);
-        if (!combined[id]) {
-          combined[id] = { league: leagueData.league, matches: [] };
-        }
-        combined[id].matches.push(...leagueData.matches);
-      });
-    });
-
-    console.log(`📊 [MyNewLeague] Legacy compatibility - combined matches:`, {
-      totalLeagues: Object.keys(combined).length,
-      totalMatches: Object.values(combined).reduce(
-        (sum, group) => sum + group.matches.length,
-        0,
-      ),
-      selectedDate,
-      leagueFixturesSize: leagueFixtures.size,
-      hasLeague908: !!combined[908],
-      league908Matches: combined[908]?.matches.length || 0,
-    });
-
-    return combined;
-  }, [matchesByDateAndLeague]);
+              // Debug specific leagues
+              leagueFixtures.forEach((fixtures, leagueId) => {
+                if (fixtures.length > 0) {
+                  console.log(
+                    `🎯 [MyNewLeague] League ${leagueId}: ${fixtures.length} fixtures`,
+                  );
+                  // Log first few fixtures for debugging
+                  fixtures.slice(0, 3).forEach((f) => {
+                    console.log(
+                      `  - ${f.teams.home.name} vs ${f.teams.away.name} (${f.fixture.status.short})`,
+                    );
+                  });
+                }
+              });
 
   // Auto-expand all leagues by default when data changes and ensure loading state is cleared
   useEffect(() => {

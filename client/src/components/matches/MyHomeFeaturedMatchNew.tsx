@@ -164,16 +164,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }
   `;
 
-  // Inject styles if not already present
-  React.useEffect(() => {
-    const styleId = 'truePulse-animation';
-    if (!document.getElementById(styleId)) {
-      const style = document.createElement('style');
-      style.id = styleId;
-      style.textContent = truePulseStyle;
-      document.head.appendChild(style);
-    }
-  }, []);
+
   const [, navigate] = useLocation();
   const [featuredMatches, setFeaturedMatches] = useState<DayMatches[]>([]);
   const [isLoading, setIsLoading] = useState(true);

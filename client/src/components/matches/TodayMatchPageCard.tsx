@@ -388,9 +388,9 @@ export const TodayMatchPageCard = ({
         <>
           <MyNewLeague
             selectedDate={selectedDate}
-            timeFilterActive={false}
+            timeFilterActive={true}
             showTop10={false}
-            liveFilterActive={liveFilterActive}erActive}
+            liveFilterActive={liveFilterActive}
             onMatchCardClick={handleMatchCardClick}
             useUTCOnly={true}
           />
