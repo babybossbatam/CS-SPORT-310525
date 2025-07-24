@@ -783,7 +783,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         sessionStorage.removeItem(cacheKey);
       } else {
         // Use cache only for past dates (more than 1 day old)
-```text
+
         const maxAge = 2 * 60 * 1000; // 2 minutes max for any cached data
 
         if (age < maxAge) {
