@@ -884,33 +884,37 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 <div className="penalty-home-side">
                   {penalty.event && isHome && (
                     <>
-                      <div className="penalty-player-avatar">
-                        <MyAvatarInfo
-                          playerId={penalty.event.player?.id}
-                          playerName={penalty.event.player?.name}
-                          matchId={fixtureId}
-                          teamId={penalty.event.team?.id}
-                          size="sm"
-                          className="shadow-sm border-gray-300"
-                        />
+                      <div className="penalty-home-player-info">
+                        <div className="penalty-player-avatar">
+                          <MyAvatarInfo
+                            playerId={penalty.event.player?.id}
+                            playerName={penalty.event.player?.name}
+                            matchId={fixtureId}
+                            teamId={penalty.event.team?.id}
+                            size="sm"
+                            className="shadow-sm border-gray-300"
+                          />
+                        </div>
+                        <span className="penalty-player-name">
+                          {penalty.event.player?.name}
+                        </span>
                       </div>
-                      <span className="penalty-player-name">
-                        {penalty.event.player?.name}
-                      </span>
-                      <div className="penalty-result-icon">
-                        {wasScored ? (
-                          <img
-                            src="/assets/matchdetaillogo/penalty.svg"
-                            alt="Penalty Scored"
-                            className="w-5 h-5"
-                          />
-                        ) : (
-                          <img
-                            src="/assets/matchdetaillogo/missed-penalty.svg"
-                            alt="Penalty Missed"
-                            className="w-5 h-5"
-                          />
-                        )}
+                      <div className="penalty-home-icon">
+                        <div className="penalty-result-icon">
+                          {wasScored ? (
+                            <img
+                              src="/assets/matchdetaillogo/penalty.svg"
+                              alt="Penalty Scored"
+                              className="w-5 h-5"
+                            />
+                          ) : (
+                            <img
+                              src="/assets/matchdetaillogo/missed-penalty.svg"
+                              alt="Penalty Missed"
+                              className="w-5 h-5"
+                            />
+                          )}
+                        </div>
                       </div>
                     </>
                   )}
@@ -927,33 +931,37 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 <div className="penalty-away-side">
                   {penalty.event && isAway && (
                     <>
-                      <div className="penalty-result-icon">
-                        {wasScored ? (
-                          <img
-                            src="/assets/matchdetaillogo/penalty.svg"
-                            alt="Penalty Scored"
-                            className="w-5 h-5"
-                          />
-                        ) : (
-                          <img
-                            src="/assets/matchdetaillogo/missed-penalty.svg"
-                            alt="Penalty Missed"
-                            className="w-5 h-5"
-                          />
-                        )}
+                      <div className="penalty-away-icon">
+                        <div className="penalty-result-icon">
+                          {wasScored ? (
+                            <img
+                              src="/assets/matchdetaillogo/penalty.svg"
+                              alt="Penalty Scored"
+                              className="w-5 h-5"
+                            />
+                          ) : (
+                            <img
+                              src="/assets/matchdetaillogo/missed-penalty.svg"
+                              alt="Penalty Missed"
+                              className="w-5 h-5"
+                            />
+                          )}
+                        </div>
                       </div>
-                      <span className="penalty-player-name">
-                        {penalty.event.player?.name}
-                      </span>
-                      <div className="penalty-player-avatar">
-                        <MyAvatarInfo
-                          playerId={penalty.event.player?.id}
-                          playerName={penalty.event.player?.name}
-                          matchId={fixtureId}
-                          teamId={penalty.event.team?.id}
-                          size="sm"
-                          className="shadow-sm border-gray-300"
-                        />
+                      <div className="penalty-away-player-info">
+                        <span className="penalty-player-name">
+                          {penalty.event.player?.name}
+                        </span>
+                        <div className="penalty-player-avatar">
+                          <MyAvatarInfo
+                            playerId={penalty.event.player?.id}
+                            playerName={penalty.event.player?.name}
+                            matchId={fixtureId}
+                            teamId={penalty.event.team?.id}
+                            size="sm"
+                            className="shadow-sm border-gray-300"
+                          />
+                        </div>
                       </div>
                     </>
                   )}

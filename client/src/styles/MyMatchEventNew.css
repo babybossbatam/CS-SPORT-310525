@@ -100,21 +100,41 @@
 .penalty-home-side {
   display: flex;
   align-items: center;
-  gap: 8px;
-  justify-content: flex-start;
+  justify-content: space-between;
+  width: 100%;
 }
-.penalty-home-icon {
+
+.penalty-home-player-info {
   display: flex;
   align-items: center;
   gap: 8px;
+  justify-content: flex-start;
+}
+
+.penalty-home-icon {
+  display: flex;
+  align-items: center;
   justify-content: flex-end;
 }
 
 .penalty-away-side {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.penalty-away-player-info {
+  display: flex;
+  align-items: center;
   gap: 8px;
   justify-content: flex-end;
+}
+
+.penalty-away-icon {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .penalty-center {
@@ -220,7 +240,7 @@
   gap: 10px;
   align-items: center;
   padding-right: 24px;
-  
+
 }
 
 .match-event-home-player-info {
@@ -323,7 +343,7 @@
   gap: 13px;
   align-items: center;
   padding-right: 2px;
-  
+
 
 }
 
@@ -343,7 +363,7 @@
   justify-content: flex-end;
   text-align: right;
    gap: 25px;
-  
+
 }
 
 /* Match event icons with enhanced styling */
@@ -366,7 +386,7 @@
 }
 
 .match-event-icon:hover {
-  
+
   z-index: 20;
 }
 
@@ -431,10 +451,10 @@
   width: 100%;
   margin-top: 0px;
   margin-bottom: 0px;
-  
+
   padding: 1px 8px;
-  
- 
+
+
   background: #d1d1d1;
 
 }
@@ -456,8 +476,8 @@
   text-align: center;
   min-width: 60px;
   padding: 0 12px;
-  
-  
+
+
   justify-self: center;
 }
 
@@ -693,13 +713,13 @@
     width: 20px;
     height: 20px;
     font-size: 10px;
-    
+
   }
 
   .match-event-home-side,
   .match-event-away-side {
     padding: 0 4px;
-    
+
   }
 
   .match-event-event-title {
