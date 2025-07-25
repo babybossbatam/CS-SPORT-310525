@@ -944,6 +944,7 @@ export const rapidApiService = {
           data: playerStats,
 timestamp: now,
         });
+        ```text
         console.log(`✅ [RapidAPI] Found player statistics for fixture ${fixtureId}, teams: ${playerStats.length}`);
         return playerStats;
       }
@@ -999,6 +1000,49 @@ timestamp: now,
       return [];
     } catch (error) {
       console.error(`❌ [RapidAPI] Error fetching statistics for fixture ${fixtureId}:`, error);
+      if (cached?.data) {
+        console.log("Using cached data due to API error");
+        return cached.data;
+      }
+      console.error("API request failed and no cache available");
+      return null;
+    }
+  },
+
+  async getHeadToHead(homeTeamId: number, awayTeamId: number): Promise<any> {
+    const cacheKey = `h2h-${homeTeamId}-${awayTeamId}`;
+    const cached = playersCache.get(cacheKey);
+
+    const now = Date.now();
+    if (cached && now - cached.timestamp < STATIC_DATA_CACHE_DURATION) {
+      console.log(`📊 [RapidAPI] Using cached head-to-head data for teams: ${homeTeamId} vs ${awayTeamId}`);
+      return cached.data;
+    }
+
+    try {
+      console.log(`📊 [RapidAPI] Fetching head-to-head data for teams: ${homeTeamId} vs ${awayTeamId}`);
+
+      const response = await apiClient.get("/fixtures/headtohead", {
+        params: {
+          h2h: `${homeTeamId}-${awayTeamId}`
+        },
+      });
+
+      console.log(`✅ [RapidAPI] Found ${response.data?.response?.length || 0} head-to-head matches`);
+
+      if (response.data?.response) {
+        const h2hData = response.data.response;
+        playersCache.set(cacheKey, {
+          data: h2hData,
+          timestamp: now,
+        });
+        return h2hData;
+      }
+
+      console.log(`📊 [RapidAPI] No head-to-head data found for teams: ${homeTeamId} vs ${awayTeamId}`);
+      return [];
+    } catch (error) {
+      console.error('❌ [RapidAPI] Error fetching head-to-head data:', error);
       if (cached?.data) {
         console.log("Using cached data due to API error");
         return cached.data;

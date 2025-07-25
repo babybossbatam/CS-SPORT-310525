@@ -49,24 +49,36 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
   const awayTeam = match?.teams?.away;
 
   useEffect(() => {
-    if (!actualHomeTeamId || !actualAwayTeamId) return;
+    if (!actualHomeTeamId || !actualAwayTeamId) {
+      console.log('🔍 [MyH2HNew] Missing team IDs:', { actualHomeTeamId, actualAwayTeamId });
+      return;
+    }
 
     const fetchH2HData = async () => {
       try {
         setLoading(true);
         setError(null);
 
+        console.log(`🔄 [MyH2HNew] Fetching H2H data for teams: ${actualHomeTeamId} vs ${actualAwayTeamId}`);
+
         const response = await fetch(`/api/fixtures/headtohead/${actualHomeTeamId}-${actualAwayTeamId}`);
         
         if (!response.ok) {
-          throw new Error('Failed to fetch head-to-head data');
+          const errorText = await response.text();
+          console.error(`❌ [MyH2HNew] API error (${response.status}):`, errorText);
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
         }
 
         const data = await response.json();
-        setH2hData(data?.response || []);
+        console.log('📊 [MyH2HNew] Received H2H data:', data);
+        
+        const h2hMatches = data?.response || [];
+        console.log(`✅ [MyH2HNew] Processing ${h2hMatches.length} H2H matches`);
+        
+        setH2hData(h2hMatches);
       } catch (err) {
-        console.error('Error fetching H2H data:', err);
-        setError('Failed to load head-to-head data');
+        console.error('❌ [MyH2HNew] Error fetching H2H data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load head-to-head data');
       } finally {
         setLoading(false);
       }
@@ -88,13 +100,33 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
     );
   }
 
-  if (error || !h2hData.length) {
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center text-gray-500">
+            <div className="text-2xl mb-2">❌</div>
+            <p className="text-sm font-medium text-red-600 mb-2">Error Loading H2H Data</p>
+            <p className="text-xs text-gray-400">{error}</p>
+            <p className="text-xs text-gray-400 mt-1">
+              Teams: {actualHomeTeamId} vs {actualAwayTeamId}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!h2hData.length) {
     return (
       <Card>
         <CardContent className="p-6">
           <div className="text-center text-gray-500">
             <div className="text-2xl mb-2">📊</div>
-            <p className="text-sm">{error || 'No head-to-head data available'}</p>
+            <p className="text-sm">No head-to-head data available</p>
+            <p className="text-xs text-gray-400 mt-1">
+              Teams: {homeTeam?.name} vs {awayTeam?.name}
+            </p>
           </div>
         </CardContent>
       </Card>
