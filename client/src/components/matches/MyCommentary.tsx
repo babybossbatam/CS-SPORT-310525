@@ -548,7 +548,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                           </div>
                         </div>
 
-                        {/* Final Penalty Score */}
+                        {/* Full Time Score Before Penalties */}
                         <div
                           key={`penalty-final-${index}`}
                           className="commentary-event-container"
@@ -568,15 +568,12 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             <div className="flex-1">
                               <div className="flex items-center gap-2 -ml-3 -mt-1.5 text-xs font-medium">
                                 <img
-                                  src="/assets/matchdetaillogo/penalty.svg"
-                                  alt="Final Penalties"
+                                  src="/assets/matchdetaillogo/clock.png"
+                                  alt="Full Time"
                                   className="w-4 h-4 opacity-80 flex-shrink-0"
                                 />
-                                <span className="text-lg font-bold text-green-600">
-                                  {finalPenaltyScore.home} - {finalPenaltyScore.away}
-                                </span>
-                                <span className="text-xs text-gray-600 font-medium">
-                                  (Penalties)
+                                <span className="text-lg font-bold text-gray-900">
+                                  {(event as any).score?.split(' - ')[0]} - {(event as any).score?.split(' - ')[1]}
                                 </span>
                               </div>
                             </div>
