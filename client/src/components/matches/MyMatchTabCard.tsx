@@ -136,7 +136,7 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
         />
       </div>
       {/* Match Statistics */}
-      <Card>
+      <Card className="py-1">
         <div className="">
           <MyStatsCard match={match} />
         </div>
