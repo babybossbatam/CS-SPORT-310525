@@ -319,31 +319,9 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               .map((event, index) => {
                 const timeDisplay = `${event.time.extra ? `+${event.time.extra}` : ""}`;
 
-                // Handle period score markers
+                // Handle period score markers - removed display
                 if (event.type === "period_score") {
-                  return (
-                    <div
-                      key={`period-score-${index}`}
-                      className="commentary-event-container"
-                    >
-                      <div className="flex items-center    py-1  mb-1">
-                        <div className="text-sm font-semibold text-gray-700 ">
-                          +{event.time.extra}
-                          {event.time.elapsed}'
-                        </div>
-                        <div className="text-lg font-bold text-gray-900 ml-4">
-                          <img
-                            src="/assets/matchdetaillogo/clock.png"
-                            alt="clock"
-                            className=" w-4 h-4 opacity-80 flex-shrink-0 "
-                          />
-                        </div>
-                        <span className="text-lg font-bold text-gray-900 ml-2">
-                          {event.score}
-                        </span>
-                      </div>
-                    </div>
-                  );
+                  return null;
                 }
 
                 // Handle period markers
