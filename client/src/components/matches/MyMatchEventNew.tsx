@@ -1080,7 +1080,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       if (isMatchEnded || fullTimeEvents.length > 0) {
                         markers.push({
-                          time: { elapsed: 119 },
+                          time: { elapsed: 121.5 },
                           type: "period_score",
                           detail: "End of 90 Minutes",
                           score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
