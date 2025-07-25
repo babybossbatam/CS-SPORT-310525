@@ -1103,7 +1103,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       ) {
                         const halftimeScore = calculateHalftimeScore();
                         markers.push({
-                          time: { elapsed: 45 },
+                          time: { elapsed: 45.5 },
                           type: "period_score",
                           detail: "Halftime",
                           score: `${halftimeScore.homeHalftimeScore} - ${halftimeScore.awayHalftimeScore}`,
@@ -1732,7 +1732,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       if (hasSecondHalfEvents) {
                         const halftimeScore = calculateHalftimeScore();
                         markers.push({
-                          time: { elapsed: 45 },
+                          time: { elapsed: 45.5 },
                           type: "period_score",
                           detail: "Halftime",
                           score: `${halftimeScore.homeHalftimeScore} - ${halftimeScore.awayHalftimeScore}`,
