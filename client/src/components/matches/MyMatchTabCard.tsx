@@ -8,6 +8,7 @@ import MyKeyPlayer from './MyKeyPlayer';
 import MyStats from './MyStats';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import MyStatsTabCard from './MyStatsTabCard';
+import MyH2HNew from './MyH2HNew';
 
 interface MyMatchTabCardProps {
   match: any;
@@ -135,24 +136,27 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
           awayTeam={match.teams?.away?.name}
         />
       </div>
-
       {/* Match Statistics */}
-      <Card className="space-y-2">
-      <div className="">
-        <MyStatsTabCard match={match} />
-
-      </div>
+      <Card className="">
+        <div className="space-y-2 mx-2">
+          <MyStatsCard match={match} />
+        </div>
 
         {/* See All Stats Button */}
-        <div className="mt-4 text-center">
+        <div className="text-center">
           <button
             onClick={() => onTabChange && onTabChange("stats")}
-            className=" w-full py-2 text-gray-700  hover:bg-gray-200 transition-colors duration-200 font-medium text-xs"
+            className="w-full py-1 text-gray-700 hover:bg-gray-200 transition-colors duration-200 font-medium text-xs border-t"
           >
             See All Stats
           </button>
         </div>
-        </Card>
+      </Card>
+
+      {/* Head to Head */}
+      <div className="space-y-2">
+        <MyH2HNew match={match} />
+      </div>
     </>
   );
 };
@@ -258,21 +262,16 @@ const MyStatsCard = ({ match }: { match: any }) => {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xs">Stats</CardTitle>
-      </CardHeader>
-      <CardContent className="p-4">
-        <MyStats
-          homeStats={homeStats}
-          awayStats={awayStats}
-          homeTeam={homeTeam}
-          awayTeam={awayTeam}
-          isExpanded={isExpanded}
-          onToggleExpanded={() => setIsExpanded(!isExpanded)}
-        />
-      </CardContent>
-    </Card>
+    <CardContent className="p-4">
+      <MyStats
+        homeStats={homeStats}
+        awayStats={awayStats}
+        homeTeam={homeTeam}
+        awayTeam={awayTeam}
+        isExpanded={isExpanded}
+        onToggleExpanded={() => setIsExpanded(!isExpanded)}
+      />
+    </CardContent>
   );
 };
 

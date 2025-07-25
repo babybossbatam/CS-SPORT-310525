@@ -113,32 +113,30 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
         hasProps: { propHomeWin, propDraw, propAwayWin }
       });
 
-      if (!homeTeam?.id || !awayTeam?.id) {
-        console.log('⚠️ [MatchPrediction] Missing team IDs, using fallback prediction');
-        // If no team IDs, use default probabilities and generate basic stats
-        const defaultStats: TeamStats = {
-          form: 'N/A',
-          goalsScored: 0,
-          goalsConceded: 0,
-          cleanSheets: 0,
-          avgPossession: 50,
-          matchesPlayed: 0,
-          wins: 0,
-          draws: 0,
-          losses: 0,
-        };
-        
-        const fallbackPrediction = {
-          homeWinProbability: propHomeWin ?? 33,
-          drawProbability: propDraw ?? 34,
-          awayWinProbability: propAwayWin ?? 33,
-          confidence: 50,
-          homeTeamStats: defaultStats,
-          awayTeamStats: defaultStats,
-        };
+      // If we have props but no fixture ID, use props
+      if ((!fixtureId || !homeTeam?.id || !awayTeam?.id) && (propHomeWin || propDraw || propAwayWin)) {
+        console.log('📊 [MatchPrediction] Using prop data due to missing IDs');
+        setPredictionData({
+          homeWinProbability: propHomeWin || 0,
+          drawProbability: propDraw || 0,
+          awayWinProbability: propAwayWin || 0,
+          confidence: 70,
+          homeTeamStats: {
+            form: 'N/A', goalsScored: 0, goalsConceded: 0, cleanSheets: 0,
+            avgPossession: 50, matchesPlayed: 0, wins: 0, draws: 0, losses: 0,
+          },
+          awayTeamStats: {
+            form: 'N/A', goalsScored: 0, goalsConceded: 0, cleanSheets: 0,
+            avgPossession: 50, matchesPlayed: 0, wins: 0, draws: 0, losses: 0,
+          },
+        });
+        setIsLoading(false);
+        return;
+      }
 
-        console.log('✅ [MatchPrediction] Set fallback prediction:', fallbackPrediction);
-        setPredictionData(fallbackPrediction);
+      if (!fixtureId) {
+        console.log('⚠️ [MatchPrediction] Missing fixture ID, cannot fetch prediction data');
+        setPredictionData(null);
         setIsLoading(false);
         return;
       }
@@ -155,7 +153,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
         // Add predictions fetch if fixtureId is available - prioritize this over manual calculations
         if (fixtureId) {
           console.log(`📊 [MatchPrediction] Fetching predictions for fixture: ${fixtureId}`);
-          fetchPromises.push(fetch(`/api/fixtures/${fixtureId}/predictions`));
+          fetchPromises.push(fetch(`/api/predictions/${fixtureId}`));
         }
 
         const responses = await Promise.all(fetchPromises);
@@ -206,19 +204,50 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
         let apiPredictions = null;
         if (predictionsResponse && predictionsResponse.ok) {
           try {
-            const predictionsData = await predictionsResponse.json();
+            const responseText = await predictionsResponse.text();
+            console.log('📊 [MatchPrediction] Raw predictions response text:', responseText.substring(0, 200));
+            
+            // Check if response is HTML (error page) instead of JSON
+            if (responseText.startsWith('<!DOCTYPE') || responseText.startsWith('<html')) {
+              console.error('❌ [MatchPrediction] Received HTML response instead of JSON');
+              throw new Error('Server returned HTML instead of JSON');
+            }
+            
+            const predictionsData = JSON.parse(responseText);
             console.log('📊 [MatchPrediction] RapidAPI Predictions response:', predictionsData);
             
             if (predictionsData.success && predictionsData.data && predictionsData.data.length > 0) {
               const prediction = predictionsData.data[0];
+              console.log('🎯 [MatchPrediction] Processing prediction object:', prediction);
               
               if (prediction.predictions && prediction.predictions.percent) {
-                const homePercent = parseInt(prediction.predictions.percent.home?.replace('%', '') || '0');
-                const drawPercent = parseInt(prediction.predictions.percent.draw?.replace('%', '') || '0');
-                const awayPercent = parseInt(prediction.predictions.percent.away?.replace('%', '') || '0');
+                // Handle both string percentages like "45%" and direct numbers
+                let homePercent = 0;
+                let drawPercent = 0;
+                let awayPercent = 0;
+
+                if (typeof prediction.predictions.percent.home === 'string') {
+                  homePercent = parseInt(prediction.predictions.percent.home.replace('%', '') || '0');
+                } else if (typeof prediction.predictions.percent.home === 'number') {
+                  homePercent = prediction.predictions.percent.home;
+                }
+
+                if (typeof prediction.predictions.percent.draw === 'string') {
+                  drawPercent = parseInt(prediction.predictions.percent.draw.replace('%', '') || '0');
+                } else if (typeof prediction.predictions.percent.draw === 'number') {
+                  drawPercent = prediction.predictions.percent.draw;
+                }
+
+                if (typeof prediction.predictions.percent.away === 'string') {
+                  awayPercent = parseInt(prediction.predictions.percent.away.replace('%', '') || '0');
+                } else if (typeof prediction.predictions.percent.away === 'number') {
+                  awayPercent = prediction.predictions.percent.away;
+                }
                 
-                // Only use predictions if we have valid data (not all zeros)
-                if (homePercent > 0 || drawPercent > 0 || awayPercent > 0) {
+                console.log('🎯 [MatchPrediction] Parsed percentages:', { homePercent, drawPercent, awayPercent });
+                
+                // Use predictions if we have any valid data (including 0%)
+                if (homePercent >= 0 && drawPercent >= 0 && awayPercent >= 0) {
                   apiPredictions = {
                     homeWinProbability: homePercent,
                     drawProbability: drawPercent,
@@ -228,8 +257,55 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
                   };
                   
                   console.log('✅ [MatchPrediction] Using RapidAPI predictions:', apiPredictions);
+                } else {
+                  console.log('⚠️ [MatchPrediction] Invalid percentage values:', { homePercent, drawPercent, awayPercent });
+                }
+              } else {
+                console.log('⚠️ [MatchPrediction] Missing predictions.percent structure:', prediction);
+              }
+            } else if (predictionsData.success && predictionsData.data) {
+              // Handle case where data is a single object instead of array
+              const prediction = Array.isArray(predictionsData.data) ? predictionsData.data[0] : predictionsData.data;
+              console.log('🎯 [MatchPrediction] Processing single prediction object:', prediction);
+              
+              if (prediction && prediction.predictions && prediction.predictions.percent) {
+                let homePercent = 0;
+                let drawPercent = 0;
+                let awayPercent = 0;
+
+                const percentData = prediction.predictions.percent;
+                
+                if (typeof percentData.home === 'string') {
+                  homePercent = parseInt(percentData.home.replace('%', '') || '0');
+                } else if (typeof percentData.home === 'number') {
+                  homePercent = percentData.home;
+                }
+
+                if (typeof percentData.draw === 'string') {
+                  drawPercent = parseInt(percentData.draw.replace('%', '') || '0');
+                } else if (typeof percentData.draw === 'number') {
+                  drawPercent = percentData.draw;
+                }
+
+                if (typeof percentData.away === 'string') {
+                  awayPercent = parseInt(percentData.away.replace('%', '') || '0');
+                } else if (typeof percentData.away === 'number') {
+                  awayPercent = percentData.away;
+                }
+
+                if (homePercent >= 0 && drawPercent >= 0 && awayPercent >= 0) {
+                  apiPredictions = {
+                    homeWinProbability: homePercent,
+                    drawProbability: drawPercent,
+                    awayWinProbability: awayPercent,
+                    confidence: 95,
+                    source: 'rapidapi-predictions'
+                  };
+                  console.log('✅ [MatchPrediction] Using single prediction object:', apiPredictions);
                 }
               }
+            } else {
+              console.log('⚠️ [MatchPrediction] Invalid API response structure:', predictionsData);
             }
           } catch (predictionsError) {
             console.error('❌ [MatchPrediction] Error processing RapidAPI predictions:', predictionsError);
@@ -240,6 +316,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
         let finalProbabilities = null;
         if (apiPredictions) {
           finalProbabilities = apiPredictions;
+          console.log('✅ [MatchPrediction] Using API predictions as final data:', finalProbabilities);
         } else if (propHomeWin && propDraw && propAwayWin) {
           finalProbabilities = {
             homeWinProbability: propHomeWin,
@@ -248,9 +325,11 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
             confidence: 70,
             source: 'props'
           };
+          console.log('✅ [MatchPrediction] Using prop predictions as final data:', finalProbabilities);
         } else {
           // No predictions available
           finalProbabilities = null;
+          console.log('❌ [MatchPrediction] No predictions available from any source');
         }
 
         if (finalProbabilities) {
@@ -280,35 +359,16 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
             },
           });
         } else {
-          // No prediction data available
+          // No prediction data available - set to null instead of fallback values
           setPredictionData(null);
         }
         
       } catch (error) {
         console.error('❌ [MatchPrediction] Error fetching prediction data:', error);
-        setError('Failed to load prediction data');
+        setError(error instanceof Error ? error.message : 'Failed to load prediction data');
         
-        // Use fallback data
-        const fallbackStats: TeamStats = {
-          form: 'N/A',
-          goalsScored: 0,
-          goalsConceded: 0,
-          cleanSheets: 0,
-          avgPossession: 50,
-          matchesPlayed: 0,
-          wins: 0,
-          draws: 0,
-          losses: 0,
-        };
-        
-        setPredictionData({
-          homeWinProbability: propHomeWin ?? 33,
-          drawProbability: propDraw ?? 34,
-          awayWinProbability: propAwayWin ?? 33,
-          confidence: 50,
-          homeTeamStats: fallbackStats,
-          awayTeamStats: fallbackStats,
-        });
+        // Don't use fallback data - set to null to show proper no-data state
+        setPredictionData(null);
       } finally {
         setIsLoading(false);
       }
@@ -361,17 +421,27 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
     );
   }
 
-  if (error && !predictionData) {
+  // Show error state when data loading fails
+  if (error && !isLoading) {
     return (
       <Card className="w-full shadow-md">
         <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-bold">Match Prediction</CardTitle>
+          <CardTitle className="text-lg font-bold flex items-center">
+            Match Prediction
+            <span className="ml-2 text-red-500">⚠️</span>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-32">
             <div className="text-center">
-              <p className="text-sm text-red-500 mb-2">{error}</p>
-              <p className="text-xs text-gray-500">Using fallback data</p>
+              <div className="text-red-500 text-2xl mb-2">❌</div>
+              <h3 className="text-lg font-medium mb-2 text-red-600">Failed to Load Prediction</h3>
+              <p className="text-sm text-gray-600 mb-2">
+                Unable to fetch match prediction data
+              </p>
+              <p className="text-xs text-gray-400">
+                {error || 'Unknown error occurred'}
+              </p>
             </div>
           </div>
         </CardContent>
@@ -382,23 +452,20 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
   const homeStats = predictionData?.homeTeamStats;
   const awayStats = predictionData?.awayTeamStats;
 
-  // Show message when no prediction data is available
-  if (!isLoading && (!predictionData || !homeWinProbability || !drawProbability || !awayWinProbability)) {
+  // Only show prediction component when we have real data
+  if (!isLoading && (!predictionData || (!homeWinProbability && homeWinProbability !== 0 && !drawProbability && drawProbability !== 0 && !awayWinProbability && awayWinProbability !== 0))) {
     return (
-      <Card className="w-full shadow-md bg-white">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm text-gray-600 font-normal">Predictions</CardTitle>
+      <Card className="w-full shadow-md">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg font-bold">Match Prediction</CardTitle>
         </CardHeader>
-        <CardContent className="pt-0">
-          <div className="text-center mb-6">
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4">Who will win?</h3>
-            <div className="flex flex-col items-center justify-center py-8">
-              <div className="text-gray-500 mb-2">📊</div>
-              <p className="text-gray-500 text-sm">
-                Prediction data not available for this match
-              </p>
-              <p className="text-gray-400 text-xs mt-1">
-                {!fixtureId ? 'No fixture ID provided' : 'No prediction data found from RapidAPI'}
+        <CardContent>
+          <div className="flex items-center justify-center h-32">
+            <div className="text-center">
+              <div className="text-gray-400 text-2xl mb-2">📊</div>
+              <h3 className="text-lg font-medium mb-2 text-gray-600">No Prediction Available</h3>
+              <p className="text-sm text-gray-500">
+                Prediction data is not available for this match
               </p>
             </div>
           </div>
