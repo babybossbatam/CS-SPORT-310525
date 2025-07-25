@@ -255,24 +255,46 @@ const MyNewLeague2 = ({
 
         // Define status priorities
         const getStatusPriority = (status: string) => {
+          // Debug individual status classification
+          if (group.league?.name === "Serie A") {
+            console.log(`🔍 [Status Classification] Status: ${status}`);
+          }
+          
           // Priority 1: Live matches
           if (["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+            if (group.league?.name === "Serie A") {
+              console.log(`✅ [Status Classification] ${status} -> LIVE (Priority 1)`);
+            }
             return 1;
           }
           // Priority 2: Upcoming matches
           if (["NS", "TBD"].includes(status)) {
+            if (group.league?.name === "Serie A") {
+              console.log(`✅ [Status Classification] ${status} -> UPCOMING (Priority 2)`);
+            }
             return 2;
           }
           // Priority 3: Ended matches
           if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+            if (group.league?.name === "Serie A") {
+              console.log(`✅ [Status Classification] ${status} -> ENDED (Priority 3)`);
+            }
             return 3;
           }
           // Priority 4: Other statuses
+          if (group.league?.name === "Serie A") {
+            console.log(`⚠️ [Status Classification] ${status} -> OTHER (Priority 4)`);
+          }
           return 4;
         };
 
         const aPriority = getStatusPriority(aStatus);
         const bPriority = getStatusPriority(bStatus);
+
+        // Debug logging for sorting
+        if (group.league?.name === "Serie A") {
+          console.log(`🔄 [Sorting] ${a.teams.home.name} vs ${a.teams.away.name} (${aStatus}, P${aPriority}) vs ${b.teams.home.name} vs ${b.teams.away.name} (${bStatus}, P${bPriority})`);
+        }
 
         // Primary sort: by status priority
         if (aPriority !== bPriority) {
