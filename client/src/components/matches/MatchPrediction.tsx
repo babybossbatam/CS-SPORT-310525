@@ -114,31 +114,9 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
       });
 
       if (!homeTeam?.id || !awayTeam?.id) {
-        console.log('⚠️ [MatchPrediction] Missing team IDs, using fallback prediction');
-        // If no team IDs, use default probabilities and generate basic stats
-        const defaultStats: TeamStats = {
-          form: 'N/A',
-          goalsScored: 0,
-          goalsConceded: 0,
-          cleanSheets: 0,
-          avgPossession: 50,
-          matchesPlayed: 0,
-          wins: 0,
-          draws: 0,
-          losses: 0,
-        };
-        
-        const fallbackPrediction = {
-          homeWinProbability: propHomeWin ?? 33,
-          drawProbability: propDraw ?? 34,
-          awayWinProbability: propAwayWin ?? 33,
-          confidence: 50,
-          homeTeamStats: defaultStats,
-          awayTeamStats: defaultStats,
-        };
-
-        console.log('✅ [MatchPrediction] Set fallback prediction:', fallbackPrediction);
-        setPredictionData(fallbackPrediction);
+        console.log('⚠️ [MatchPrediction] Missing team IDs, cannot fetch prediction data');
+        // If no team IDs, don't show predictions - set to null
+        setPredictionData(null);
         setIsLoading(false);
         return;
       }
@@ -280,7 +258,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
             },
           });
         } else {
-          // No prediction data available
+          // No prediction data available - set to null instead of fallback values
           setPredictionData(null);
         }
         
@@ -288,27 +266,8 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
         console.error('❌ [MatchPrediction] Error fetching prediction data:', error);
         setError('Failed to load prediction data');
         
-        // Use fallback data
-        const fallbackStats: TeamStats = {
-          form: 'N/A',
-          goalsScored: 0,
-          goalsConceded: 0,
-          cleanSheets: 0,
-          avgPossession: 50,
-          matchesPlayed: 0,
-          wins: 0,
-          draws: 0,
-          losses: 0,
-        };
-        
-        setPredictionData({
-          homeWinProbability: propHomeWin ?? 33,
-          drawProbability: propDraw ?? 34,
-          awayWinProbability: propAwayWin ?? 33,
-          confidence: 50,
-          homeTeamStats: fallbackStats,
-          awayTeamStats: fallbackStats,
-        });
+        // Don't use fallback data - set to null to show proper no-data state
+        setPredictionData(null);
       } finally {
         setIsLoading(false);
       }
