@@ -333,11 +333,19 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   return -1;
                 }
 
-                // Put Full Time marker at the top after Half Time
-                if (a.type === "period_end" && a.detail === "Full Time")
+                // Put Full Time marker at the top after Half Time, but before penalty shootout
+                if (a.type === "period_end" && a.detail === "Full Time") {
+                  // Full Time should appear before penalty events (> 110 minutes)
+                  if (b.time.elapsed > 110) return -1;
+                  // But after regular match events
                   return -1;
-                if (b.type === "period_end" && b.detail === "Full Time")
+                }
+                if (b.type === "period_end" && b.detail === "Full Time") {
+                  // Full Time should appear before penalty events (> 110 minutes)
+                  if (a.time.elapsed > 110) return 1;
+                  // But after regular match events
                   return 1;
+                }
 
                 // Period score markers should appear before penalty shootout events
                 if (a.type === "period_score" && b.time.elapsed > 110) return -1;
