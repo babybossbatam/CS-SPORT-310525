@@ -14,27 +14,30 @@ router.get('/:fixtureId', async (req, res) => {
 
     console.log(`🔮 [Predictions] Fetching prediction for fixture: ${fixtureId}`);
 
-    const response = await fetch(`https://api-football-v1.p.rapidapi.com/v3/predictions?fixture=${fixtureId}`, {
+    const url = `https://api-football-v1.p.rapidapi.com/v3/predictions?fixture=${fixtureId}`;
+    const options = {
       method: 'GET',
       headers: {
         'x-rapidapi-key': '18df86e6b3msha3430096f8da518p1ffd93jsnc21a6cf7f527',
         'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
       }
-    });
+    };
 
+    const response = await fetch(url, options);
+    
     if (!response.ok) {
       throw new Error(`RapidAPI request failed: ${response.status} ${response.statusText}`);
     }
 
-    const data = await response.json();
+    const result = await response.text();
+    const data = JSON.parse(result);
 
     console.log(`✅ [Predictions] Successfully fetched prediction for fixture: ${fixtureId}`);
     res.json(data);
 
   } catch (error) {
     console.error('❌ [Predictions] Error:', error);
-    res.status(200).json({ 
-      response: [],
+    res.status(500).json({ 
       error: 'Failed to fetch prediction data',
       details: error instanceof Error ? error.message : 'Unknown error'
     });
