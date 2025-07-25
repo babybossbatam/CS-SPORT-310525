@@ -40,15 +40,15 @@
 
 
 
-/* Five-grid layout container for proper positioning */
+/* Three-grid layout container */
 .match-event-three-grid-container {
   display: grid;
-  grid-template-columns: 1fr auto 80px auto 1fr;
-  grid-template-areas: "home-player-info home-icon time-center away-icon away-player-info";
+  grid-template-columns: 1fr 80px 1fr;
+  grid-template-areas: "home-side time-center away-side";
   grid-template-rows: 60px;
   align-items: center;
   width: 100%;
-  gap: 8px;
+  gap: 3px;
   padding: 0px 8px;
   min-height: 60px;
   max-height: 60px;
@@ -97,13 +97,11 @@
   padding: 8px 0;
 }
 
-/* Home team penalty layout - player info left, icon right */
 .penalty-home-side {
-  display: grid;
-  grid-template-columns: 1fr auto;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   width: 100%;
-  gap: 12px;
 }
 
 .penalty-home-player-info {
@@ -111,23 +109,19 @@
   align-items: center;
   gap: 8px;
   justify-content: flex-start;
-  grid-column: 1;
 }
 
 .penalty-home-icon {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  grid-column: 2;
 }
 
-/* Away team penalty layout - icon left, player info right */
 .penalty-away-side {
-  display: grid;
-  grid-template-columns: auto 1fr;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   width: 100%;
-  gap: 12px;
 }
 
 .penalty-away-player-info {
@@ -135,14 +129,12 @@
   align-items: center;
   gap: 8px;
   justify-content: flex-end;
-  grid-column: 2;
 }
 
 .penalty-away-icon {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  grid-column: 1;
 }
 
 .penalty-center {
@@ -240,26 +232,33 @@
   letter-spacing: 0.5px;
 }
 
-/* Home team player info (grid area 1) */
-.match-event-home-player-info {
-  grid-area: home-player-info;
-  display: flex;
+/* Home team events (left side) */
+.match-event-home-side {
+  grid-area: home-side;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
   align-items: center;
-  gap: 8px;
-  justify-content: flex-start;
-  text-align: left;
-  padding-right: 8px;
+  padding-right: 24px;
+
 }
 
-/* Home team icon (grid area 2) */
+.match-event-home-player-info {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  justify-content: flex-start;
+  text-align: left;
+}
+
 .match-event-home-icon-column {
-  grid-area: home-icon;
   display: flex;
   justify-content: flex-end;
   align-items: center;
   height: 40px;
-  width: 24px;
+   width: 24px;
   min-height: 40px;
+  margin-right: -20px;
 }
 
 /* Time display (center) */
@@ -287,7 +286,7 @@
   transform: scale(1.05);
 }
 
-/* Time center - Fixed positioning in middle grid area */
+/* Simplified center grid for time only */
 .match-event-time-center-simple {
   grid-area: time-center;
   position: relative;
@@ -297,9 +296,9 @@
   height: 40px;
   min-height: 40px;
   max-height: 40px;
-  width: 80px;
-  min-width: 80px;
-  max-width: 80px;
+  width: 72px;
+  min-width: 72px;
+  max-width: 72px;
   padding: 0;
   border-radius: 12px;
   transition: none;
@@ -307,7 +306,6 @@
   flex-shrink: 0;
   flex-grow: 0;
   place-self: center;
-  z-index: 10;
 }
 
 .match-event-time-center-simple:hover {
@@ -330,33 +328,42 @@
   line-height: 1;
   white-space: nowrap;
   height: 40px;
-  width: 80px;
-  min-width: 80px;
-  max-width: 80px;
+  width: 72px;
+  min-width: 72px;
+  max-width: 72px;
   flex-shrink: 0;
   flex-grow: 0;
 }
 
-/* Away team icon (grid area 4) */
+/* Away team events (right side) */
+.match-event-away-side {
+  grid-area: away-side;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 13px;
+  align-items: center;
+  padding-right: 2px;
+
+
+}
+
 .match-event-away-icon-column {
-  grid-area: away-icon;
   display: flex;
   justify-content: flex-start;
   align-items: center;
   height: 40px;
-  width: 24px;
+   width: 24px;
   min-height: 40px;
+  margin-right: -20px;
 }
 
-/* Away team player info (grid area 5) */
 .match-event-away-player-info {
-  grid-area: away-player-info;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   text-align: right;
-  gap: 8px;
-  padding-left: 8px;
+   gap: 25px;
+
 }
 
 /* Match event icons with enhanced styling */
@@ -656,7 +663,7 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .match-event-three-grid-container {
-    grid-template-columns: 1fr auto 60px auto 1fr;
+    grid-template-columns: 1fr 60px 1fr;
     gap: 4px;
     padding: 4px 4px;
     min-height: 50px;
@@ -709,14 +716,10 @@
 
   }
 
-  .match-event-home-side {
-    padding-right: 8px;
-    gap: 8px;
-  }
-  
+  .match-event-home-side,
   .match-event-away-side {
-    padding-left: 8px;
-    gap: 8px;
+    padding: 0 4px;
+
   }
 
   .match-event-event-title {
