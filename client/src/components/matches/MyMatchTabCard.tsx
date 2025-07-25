@@ -135,15 +135,13 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
           awayTeam={match.teams?.away?.name}
         />
       </div>
-       <Card>
       {/* Match Statistics */}
-      <div className="">
-        <MyStatsCard match={match} />
-      </div>
-         
+      <Card>
+        <div className="">
+          <MyStatsCard match={match} />
+        </div>
 
-      {/* See All Stats Button */}
-     
+        {/* See All Stats Button */}
         <div className="text-center">
           <button
             onClick={() => onTabChange && onTabChange("stats")}
@@ -269,7 +267,7 @@ const MyStatsCard = ({ match }: { match: any }) => {
           onToggleExpanded={() => setIsExpanded(!isExpanded)}
         />
       </CardContent>
- 
+
     </Card>
   );
 };
