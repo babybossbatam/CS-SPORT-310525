@@ -10,7 +10,6 @@ import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
 import MyMatchStats from "./MyMatchStats";
-import MatchPrediction from "./MatchPrediction";
 
 
 // Add CSS for cleaner pulse effect
@@ -692,18 +691,7 @@ const MyMatchdetailsScoreboard = ({
         </div>
       </Card>
 
-      {/* Tab content */}
-      {activeTab === 'match' && (
-        <div className="p-4 space-y-4">
-          <MatchPrediction
-            homeTeam={displayMatch.teams.home}
-            awayTeam={displayMatch.teams.away}
-            fixtureId={displayMatch.fixture.id}
-            leagueId={displayMatch.league.id}
-            season={new Date().getFullYear()}
-          />
-        </div>
-      )}
+      {/* Tab content will be rendered by parent component */}
 
       </Card>
     </>
