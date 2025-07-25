@@ -303,7 +303,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   const bIsYellow = b.detail?.toLowerCase().includes("yellow");
                   const aIsRed = a.detail?.toLowerCase().includes("red");
                   const bIsRed = b.detail?.toLowerCase().includes("red");
-                  
+
                   // If one is yellow and other is red for same player, red comes first (top), yellow below
                   if (aIsYellow && bIsRed) return 1;  // Yellow goes below red
                   if (aIsRed && bIsYellow) return -1; //
@@ -393,12 +393,17 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                           })
                         : { time: { elapsed: 45, extra: 0 } };
 
-                    const halftimeEndTime =
-                      Math.max(lastFirstHalfEvent.time.elapsed, 45) +
-                      (lastFirstHalfEvent.time.elapsed >= 45
-                        ? lastFirstHalfEvent.time.extra || 0
-                        : 0);
-                    const halftimeScore = calculateScoreAtTime(halftimeEndTime);
+                    const halftimeEndTime = {
+                      elapsed: Math.max(lastFirstHalfEvent.time.elapsed, 45),
+                      extra:
+                        lastFirstHalfEvent.time.elapsed >= 45
+                          ? lastFirstHalfEvent.time.extra || 0
+                          : 0,
+                    };
+
+                    const halftimeScore = calculateScoreAtTime(
+                      halftimeEndTime.elapsed + halftimeEndTime.extra,
+                    );
 
                     return (
                       <div
@@ -435,38 +440,8 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                     );
                   }
 
-                  // Handle "Half Time"
-                  if (event.detail === "Half Time") {
-                    // Calculate Half Time period end (45 minutes + any extra time)
-                    const halftimeEvents = events.filter(
-                      (e) => e.time.elapsed <= 45,
-                    );
-                    const lastFirstHalfEvent =
-                      halftimeEvents.length > 0
-                        ? halftimeEvents.reduce((latest, current) => {
-                            const currentTotal =
-                              current.time.elapsed + (current.time.extra || 0);
-                            const latestTotal =
-                              latest.time.elapsed + (latest.time.extra || 0);
-                            return currentTotal > latestTotal
-                              ? current
-                              : latest;
-                          })
-                        : { time: { elapsed: 45, extra: 0 } };
-
-                    // Use the time from the last event in first half or default to 45 minutes
-                    const halftimeEndTime = {
-                      elapsed: Math.max(lastFirstHalfEvent.time.elapsed, 45),
-                      extra:
-                        lastFirstHalfEvent.time.elapsed >= 45
-                          ? lastFirstHalfEvent.time.extra || 0
-                          : 0,
-                    };
-
-                    const halftimeScore = calculateScoreAtTime(
-                      halftimeEndTime.elapsed + halftimeEndTime.extra,
-                    );
-
+                  // Handle "Penalty Shootout begins"
+                  if (event.detail === "Penalty Shootout begins") {
                     return (
                       <div
                         key={`period-${index}`}
@@ -474,33 +449,24 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       >
                         <div className="flex gap-3">
                           {/* Time Column */}
-                          <div className="flex flex-col items-center min-w-[50px]">
-                            {/* Extra time display at top if present */}
-                            {halftimeEndTime.extra > 0 && (
-                              <div className="text-xs font-medium text-red-500 leading-tight">
-                                +{halftimeEndTime.extra}'
-                              </div>
-                            )}
-                            <div className="text-gray-800 text-sm font-medium leading-tight">
-                              {halftimeEndTime.elapsed}'
+                          <div className="flex flex-col items-center min-w-[45px]">
+                            <div className="w-4 h-6 flex items-center justify-center">
+                              <img
+                                src="/assets/matchdetaillogo/penalty.svg"
+                                alt="Penalty Shootout"
+                                className="w-4 h-4"
+                              />
                             </div>
                             {index < allCommentaryItems.length - 1 && (
-                              <div className="w-0.5 h-4 bg-gray-600"></div>
+                              <div className="w-0.5 h-4 bg-gray-800 ml-1"></div>
                             )}
                           </div>
 
                           {/* Content Column */}
                           <div className="flex-1">
-                            <div className="flex items-center gap-2 -ml-3 -mt-1.5 text-xs font-medium">
-                              <img
-                                src="/assets/matchdetaillogo/clock.png"
-                                alt="Half Time"
-                                className="w-4 h-4 opacity-80 flex-shrink-0"
-                              />
-                              <span className="text-lg font-bold text-gray-900">
-                                {halftimeScore.homeScore} -{" "}
-                                {halftimeScore.awayScore}
-                              </span>
+                            <div className="flex items-center gap-2 -ml-3 text-sm text-gray-700 leading-relaxed mt-0.5">
+                              <div>Penalty Shootout begins</div>
+                              <span>{event.score}</span>
                             </div>
                           </div>
                         </div>
@@ -748,7 +714,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 } else {
                                   return (
                                     <>
-                                      
+
                                       <img
                                         src="/assets/matchdetaillogo/blue ball.svg"
                                         alt="Goal"
@@ -757,7 +723,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                       <span className="text-green-500 font-bold text-sm tracking-wider">
                                         Goal
                                       </span>
-                                     
+
                                       <span className="text-lg font-bold text-green-400">
                                         {(() => {
                                           const scoreAfterGoal = calculateScoreAtTime(
@@ -772,7 +738,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 }
                               })()}
                               <div className="ml-auto flex items-center gap-2">
-                               
+
                                 <MyWorldTeamLogo
                                   teamName={event.team?.name || ""}
                                   teamLogo={`/api/team-logo/square/${event.team?.id || "fallback"}?size=24`}
@@ -800,7 +766,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                     {event.team?.name}
                                   </span>
                                 </div>
-                                
+
                               </div>
 
                               {/* Enhanced Commentary Description */}
@@ -867,10 +833,10 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                       </span>
                                       <span className="text-gray-500 text-xs">
                                         {event.team?.name}
-                                       
+
                                       </span>
                                     </div>
-                                    
+
                                   </div>
 
                                   <div className="text-sm text-gray-700 leading-relaxed -ml-3    ">
@@ -913,7 +879,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                     teamLogo={`/api/team-logo/square/${event.team?.id || "fallback"}?size=24`}
                                     alt={event.team?.name}
                                     size="24px"
-                                    className="w-6 h-6"
+                                  className="w-6 h-6"
                                   />
                                 </div>
                             </div>
