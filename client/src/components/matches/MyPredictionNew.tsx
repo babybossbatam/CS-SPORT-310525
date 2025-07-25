@@ -302,24 +302,27 @@ const MyPredictionNew: React.FC<MyPredictionNewProps> = ({ match, fixtureId }) =
 
   const { predictions, teams } = predictionData;
 
-  // Helper function to get form trend icon
-  const getFormIcon = (form: string) => {
-    const wins = (form.match(/W/g) || []).length;
-    const losses = (form.match(/L/g) || []).length;
+  // Helper function to get form trend icon based on percentage
+  const getFormIcon = (formPercentage: string) => {
+    const percentage = parseInt(formPercentage?.replace('%', '') || '0');
     
-    if (wins > losses) return <TrendingUp className="w-4 h-4 text-green-500" />;
-    if (losses > wins) return <TrendingDown className="w-4 h-4 text-red-500" />;
+    if (percentage >= 60) return <TrendingUp className="w-4 h-4 text-green-500" />;
+    if (percentage <= 30) return <TrendingDown className="w-4 h-4 text-red-500" />;
     return <Minus className="w-4 h-4 text-gray-500" />;
   };
 
-  // Helper function to get form color
-  const getFormColor = (form: string) => {
-    const wins = (form.match(/W/g) || []).length;
-    const losses = (form.match(/L/g) || []).length;
+  // Helper function to get form color based on percentage
+  const getFormColor = (formPercentage: string) => {
+    const percentage = parseInt(formPercentage?.replace('%', '') || '0');
     
-    if (wins > losses) return 'text-green-600';
-    if (losses > wins) return 'text-red-600';
+    if (percentage >= 60) return 'text-green-600';
+    if (percentage <= 30) return 'text-red-600';
     return 'text-gray-600';
+  };
+
+  // Helper function to parse percentage strings
+  const parsePercentage = (percentStr: string) => {
+    return parseInt(percentStr?.replace('%', '') || '0');
   };
 
   return (
@@ -361,11 +364,11 @@ const MyPredictionNew: React.FC<MyPredictionNewProps> = ({ match, fixtureId }) =
               <div className="w-24 bg-gray-200 rounded-full h-2">
                 <div 
                   className="bg-blue-500 h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${predictions.percent.home}%` }}
+                  style={{ width: `${parsePercentage(predictions.percent.home)}%` }}
                 />
               </div>
               <span className="text-sm font-semibold min-w-[3rem] text-right">
-                {predictions.percent.home}%
+                {predictions.percent.home}
               </span>
             </div>
           </div>
@@ -382,11 +385,11 @@ const MyPredictionNew: React.FC<MyPredictionNewProps> = ({ match, fixtureId }) =
               <div className="w-24 bg-gray-200 rounded-full h-2">
                 <div 
                   className="bg-gray-500 h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${predictions.percent.draw}%` }}
+                  style={{ width: `${parsePercentage(predictions.percent.draw)}%` }}
                 />
               </div>
               <span className="text-sm font-semibold min-w-[3rem] text-right">
-                {predictions.percent.draw}%
+                {predictions.percent.draw}
               </span>
             </div>
           </div>
@@ -405,11 +408,11 @@ const MyPredictionNew: React.FC<MyPredictionNewProps> = ({ match, fixtureId }) =
               <div className="w-24 bg-gray-200 rounded-full h-2">
                 <div 
                   className="bg-red-500 h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${predictions.percent.away}%` }}
+                  style={{ width: `${parsePercentage(predictions.percent.away)}%` }}
                 />
               </div>
               <span className="text-sm font-semibold min-w-[3rem] text-right">
-                {predictions.percent.away}%
+                {predictions.percent.away}
               </span>
             </div>
           </div>
@@ -438,7 +441,7 @@ const MyPredictionNew: React.FC<MyPredictionNewProps> = ({ match, fixtureId }) =
           
           <div className="bg-gray-50 rounded-lg p-3 text-center">
             <div className="text-sm text-gray-600 mb-1">Under/Over</div>
-            <div className="font-bold text-lg">{predictions.under_over}</div>
+            <div className="font-bold text-lg">{predictions.under_over || 'N/A'}</div>
           </div>
         </div>
 
@@ -458,9 +461,14 @@ const MyPredictionNew: React.FC<MyPredictionNewProps> = ({ match, fixtureId }) =
             </div>
             <div className="flex items-center space-x-2">
               {getFormIcon(teams.home.last_5.form)}
-              <span className={`text-sm font-mono ${getFormColor(teams.home.last_5.form)}`}>
-                {teams.home.last_5.form}
+              <span className={`text-sm ${getFormColor(teams.home.last_5.form)}`}>
+                Form: {teams.home.last_5.form}
               </span>
+              {teams.home.league?.form && (
+                <span className="text-xs text-gray-500 font-mono">
+                  ({teams.home.league.form.slice(-5)})
+                </span>
+              )}
             </div>
           </div>
 
@@ -476,9 +484,14 @@ const MyPredictionNew: React.FC<MyPredictionNewProps> = ({ match, fixtureId }) =
             </div>
             <div className="flex items-center space-x-2">
               {getFormIcon(teams.away.last_5.form)}
-              <span className={`text-sm font-mono ${getFormColor(teams.away.last_5.form)}`}>
-                {teams.away.last_5.form}
+              <span className={`text-sm ${getFormColor(teams.away.last_5.form)}`}>
+                Form: {teams.away.last_5.form}
               </span>
+              {teams.away.league?.form && (
+                <span className="text-xs text-gray-500 font-mono">
+                  ({teams.away.league.form.slice(-5)})
+                </span>
+              )}
             </div>
           </div>
         </div>
