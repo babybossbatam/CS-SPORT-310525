@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface MyH2HNewProps {
   homeTeamId?: number;
@@ -45,6 +45,8 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
 
   const actualHomeTeamId = homeTeamId || match?.teams?.home?.id;
   const actualAwayTeamId = awayTeamId || match?.teams?.away?.id;
+  const homeTeam = match?.teams?.home;
+  const awayTeam = match?.teams?.away;
 
   useEffect(() => {
     if (!actualHomeTeamId || !actualAwayTeamId) return;
@@ -54,7 +56,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
         setLoading(true);
         setError(null);
 
-        const response = await fetch(`/api/fixtures/headtohead?h2h=${actualHomeTeamId}-${actualAwayTeamId}`);
+        const response = await fetch(`/api/fixtures/headtohead/${actualHomeTeamId}-${actualAwayTeamId}`);
         
         if (!response.ok) {
           throw new Error('Failed to fetch head-to-head data');
@@ -76,10 +78,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
   if (loading) {
     return (
       <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium">Head to Head</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4">
+        <CardContent className="p-6">
           <div className="text-center text-gray-500">
             <div className="text-2xl mb-2">⏳</div>
             <p className="text-sm">Loading head-to-head data...</p>
@@ -92,10 +91,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
   if (error || !h2hData.length) {
     return (
       <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium">Head to Head</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4">
+        <CardContent className="p-6">
           <div className="text-center text-gray-500">
             <div className="text-2xl mb-2">📊</div>
             <p className="text-sm">{error || 'No head-to-head data available'}</p>
@@ -104,9 +100,6 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
       </Card>
     );
   }
-
-  // Get recent 5 matches
-  const recentMatches = h2hData.slice(0, 5);
 
   // Calculate statistics
   const homeWins = h2hData.filter(match => 
@@ -121,71 +114,70 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
 
   const draws = h2hData.filter(match => match.goals.home === match.goals.away).length;
 
+  // Get the most recent match for displaying match info
+  const recentMatch = h2hData[0];
+  const matchDate = match?.fixture?.date ? new Date(match.fixture.date).toLocaleDateString() : '';
+  const competition = match?.league?.name || 'Competition';
+
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-sm font-medium">Head to Head</CardTitle>
-      </CardHeader>
-      <CardContent className="p-4">
-        {/* Statistics Summary */}
-        <div className="flex items-center justify-between mb-4 text-sm">
-          <div className="text-center">
-            <div className="font-semibold text-blue-600">{homeWins}</div>
-            <div className="text-gray-500">Wins</div>
+      <CardContent className="p-6">
+        {/* Team Logos and Names */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col items-center">
+            <img 
+              src={homeTeam?.logo} 
+              alt={homeTeam?.name}
+              className="w-16 h-16 object-contain mb-2"
+            />
+            <h3 className="text-sm font-medium text-center">{homeTeam?.name}</h3>
           </div>
-          <div className="text-center">
-            <div className="font-semibold text-gray-600">{draws}</div>
-            <div className="text-gray-500">Draws</div>
-          </div>
-          <div className="text-center">
-            <div className="font-semibold text-red-600">{awayWins}</div>
-            <div className="text-gray-500">Wins</div>
+          
+          <div className="flex flex-col items-center">
+            <img 
+              src={awayTeam?.logo} 
+              alt={awayTeam?.name}
+              className="w-16 h-16 object-contain mb-2"
+            />
+            <h3 className="text-sm font-medium text-center">{awayTeam?.name}</h3>
           </div>
         </div>
 
-        {/* Recent Matches */}
-        <div className="space-y-2">
-          <h4 className="text-xs font-medium text-gray-700 mb-2">Recent Matches</h4>
-          {recentMatches.map((match, index) => (
-            <div key={match.fixture.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
-              <div className="flex items-center space-x-2 flex-1">
-                <img 
-                  src={match.teams.home.logo} 
-                  alt={match.teams.home.name}
-                  className="w-4 h-4 object-contain"
-                />
-                <span className="text-xs text-gray-700 truncate">
-                  {match.teams.home.name}
-                </span>
-              </div>
-              
-              <div className="flex items-center space-x-2 mx-4">
-                <span className="text-xs font-medium">
-                  {match.goals.home} - {match.goals.away}
-                </span>
-              </div>
-              
-              <div className="flex items-center space-x-2 flex-1 justify-end">
-                <span className="text-xs text-gray-700 truncate">
-                  {match.teams.away.name}
-                </span>
-                <img 
-                  src={match.teams.away.logo} 
-                  alt={match.teams.away.name}
-                  className="w-4 h-4 object-contain"
-                />
-              </div>
+        {/* Statistics - Wins, Draws, Wins */}
+        <div className="flex items-center justify-center mb-6">
+          <div className="flex items-center space-x-8">
+            <div className="text-center">
+              <div className="text-4xl font-bold text-gray-900">{homeWins}</div>
+              <div className="text-sm text-gray-500">Wins</div>
             </div>
-          ))}
+            
+            <div className="text-center">
+              <div className="text-4xl font-bold text-gray-900">{draws}</div>
+              <div className="text-sm text-gray-500">Draws</div>
+            </div>
+            
+            <div className="text-center">
+              <div className="text-4xl font-bold text-gray-900">{awayWins}</div>
+              <div className="text-sm text-gray-500">Wins</div>
+            </div>
+          </div>
         </div>
 
-        {h2hData.length > 5 && (
-          <div className="text-center mt-3">
-            <span className="text-xs text-gray-500">
-              Showing {recentMatches.length} of {h2hData.length} matches
+        {/* Match Date and Competition */}
+        <div className="text-center border-t pt-4">
+          <div className="text-sm text-gray-600 mb-1">{matchDate}</div>
+          <div className="text-sm text-gray-500">{competition}</div>
+          <div className="flex items-center justify-center mt-2">
+            <span className="text-lg font-medium">
+              {homeTeam?.name} vs {awayTeam?.name}
             </span>
           </div>
-        )}
+        </div>
+
+        {/* Total matches info */}
+        <div className="text-center mt-3 text-xs text-gray-400">
+          Based on {h2hData.length} previous meetings
+        </div>
       </CardContent>
     </Card>
   );
