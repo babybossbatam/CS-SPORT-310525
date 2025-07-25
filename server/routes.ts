@@ -3403,7 +3403,7 @@ app.get('/api/fixtures/:fixtureId/statistics', async (req, res) => {
 });
 
 // Get head-to-head data
-app.get('/api/fixtures/headtohead/:teamIds', async (req, res) => {
+apiRouter.get('/fixtures/headtohead/:teamIds', async (req, res) => {
   const { teamIds } = req.params;
 
   if (!teamIds || !teamIds.includes('-')) {
@@ -3417,10 +3417,19 @@ app.get('/api/fixtures/headtohead/:teamIds', async (req, res) => {
       return res.status(400).json({ error: 'Invalid team IDs' });
     }
 
+    console.log(`📊 [H2H API] Fetching head-to-head data for teams: ${homeTeamId} vs ${awayTeamId}`);
+
     const h2hData = await rapidApiService.getHeadToHead(homeTeamId, awayTeamId);
-    res.json(h2hData);
+    
+    if (h2hData) {
+      console.log(`✅ [H2H API] Successfully fetched ${h2hData.length || 0} head-to-head matches`);
+      res.json({ response: h2hData });
+    } else {
+      console.log(`📊 [H2H API] No head-to-head data found for teams: ${homeTeamId} vs ${awayTeamId}`);
+      res.json({ response: [] });
+    }
   } catch (error) {
-    console.error('Error fetching head-to-head data:', error);
+    console.error('❌ [H2H API] Error fetching head-to-head data:', error);
     res.status(500).json({ error: 'Failed to fetch head-to-head data' });
   }
 });
