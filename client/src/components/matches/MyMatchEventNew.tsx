@@ -81,105 +81,118 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   } | null>(null);
   const [showPlayerModal, setShowPlayerModal] = useState(false);
 
-  const fetchMatchEvents = useCallback(async (retryCount = 0) => {
-    if (!fixtureId) {
-      setError("No fixture ID provided");
-      setIsLoading(false);
-      return;
-    }
-
-    const maxRetries = 3;
-    const retryDelay = Math.min(1000 * Math.pow(2, retryCount), 5000); // Exponential backoff, max 5s
-
-    try {
-      console.log(
-        `📊 [MyMatchEventNew] Fetching events for fixture: ${fixtureId}${retryCount > 0 ? ` (retry ${retryCount}/${maxRetries})` : ''}`,
-      );
-
-      // Add timeout to prevent hanging requests
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => {
-        try {
-          if (!controller.signal.aborted) {
-            controller.abort('Request timeout');
-          }
-        } catch (error) {
-          // Silently handle any abort errors during timeout
-        }
-      }, 10000); // 10 second timeout
-
-      const response = await fetch(`/api/fixtures/${fixtureId}/events`, {
-        signal: controller.signal,
-        headers: {
-          'Cache-Control': 'no-cache',
-        },
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const eventData = await response.json();
-      console.log(`✅ [MyMatchEventNew] Received ${eventData.length} events`);
-
-      // Debug: Log all events to see what we're getting
-      console.log("🔍 [Event Debug] All events from API:", eventData);
-
-      // Debug: Check for penalty-related events
-      const penaltyRelatedEvents = eventData.filter((event: any) => {
-        const detail = event.detail?.toLowerCase() || "";
-        const type = event.type?.toLowerCase() || "";
-        return (
-          detail.includes("penalty") ||
-          type.includes("penalty") ||
-          detail.includes("shootout")
-        );
-      });
-      console.log(
-        "🔍 [Event Debug] Penalty-related events:",
-        penaltyRelatedEvents,
-      );
-
-      setEvents(eventData || []);
-      setLastUpdated(new Date());
-      setError(null);
-    } catch (error) {
-      console.error(`❌ [MyMatchEventNew] Error fetching events (attempt ${retryCount + 1}):`, error);
-      
-      // Check if it's an abort error (timeout)
-      if (error instanceof Error && error.name === 'AbortError') {
-        console.log(`⏱️ [MyMatchEventNew] Request timeout for fixture ${fixtureId}`);
-      }
-      
-      // Check if it's a network error that might be temporary
-      const isNetworkError = error instanceof Error && (
-        error.message.includes('fetch') ||
-        error.message.includes('Failed to fetch') ||
-        error.message.includes('NetworkError') ||
-        error.name === 'AbortError'
-      );
-
-      // Retry logic for network errors
-      if (isNetworkError && retryCount < maxRetries) {
-        console.log(`🔄 [MyMatchEventNew] Retrying in ${retryDelay}ms...`);
-        setTimeout(() => {
-          fetchMatchEvents(retryCount + 1);
-        }, retryDelay);
+  const fetchMatchEvents = useCallback(
+    async (retryCount = 0) => {
+      if (!fixtureId) {
+        setError("No fixture ID provided");
+        setIsLoading(false);
         return;
       }
 
-      // Set error after all retries exhausted or for non-network errors
-      const errorMessage = error instanceof Error ? error.message : "Failed to fetch events";
-      setError(retryCount >= maxRetries ? `${errorMessage} (after ${maxRetries} retries)` : errorMessage);
-    } finally {
-      // Only set loading to false if we're not retrying
-      if (retryCount >= maxRetries || !error) {
-        setIsLoading(false);
+      const maxRetries = 3;
+      const retryDelay = Math.min(1000 * Math.pow(2, retryCount), 5000); // Exponential backoff, max 5s
+
+      try {
+        console.log(
+          `📊 [MyMatchEventNew] Fetching events for fixture: ${fixtureId}${retryCount > 0 ? ` (retry ${retryCount}/${maxRetries})` : ""}`,
+        );
+
+        // Add timeout to prevent hanging requests
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+          try {
+            if (!controller.signal.aborted) {
+              controller.abort("Request timeout");
+            }
+          } catch (error) {
+            // Silently handle any abort errors during timeout
+          }
+        }, 10000); // 10 second timeout
+
+        const response = await fetch(`/api/fixtures/${fixtureId}/events`, {
+          signal: controller.signal,
+          headers: {
+            "Cache-Control": "no-cache",
+          },
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const eventData = await response.json();
+        console.log(`✅ [MyMatchEventNew] Received ${eventData.length} events`);
+
+        // Debug: Log all events to see what we're getting
+        console.log("🔍 [Event Debug] All events from API:", eventData);
+
+        // Debug: Check for penalty-related events
+        const penaltyRelatedEvents = eventData.filter((event: any) => {
+          const detail = event.detail?.toLowerCase() || "";
+          const type = event.type?.toLowerCase() || "";
+          return (
+            detail.includes("penalty") ||
+            type.includes("penalty") ||
+            detail.includes("shootout")
+          );
+        });
+        console.log(
+          "🔍 [Event Debug] Penalty-related events:",
+          penaltyRelatedEvents,
+        );
+
+        setEvents(eventData || []);
+        setLastUpdated(new Date());
+        setError(null);
+      } catch (error) {
+        console.error(
+          `❌ [MyMatchEventNew] Error fetching events (attempt ${retryCount + 1}):`,
+          error,
+        );
+
+        // Check if it's an abort error (timeout)
+        if (error instanceof Error && error.name === "AbortError") {
+          console.log(
+            `⏱️ [MyMatchEventNew] Request timeout for fixture ${fixtureId}`,
+          );
+        }
+
+        // Check if it's a network error that might be temporary
+        const isNetworkError =
+          error instanceof Error &&
+          (error.message.includes("fetch") ||
+            error.message.includes("Failed to fetch") ||
+            error.message.includes("NetworkError") ||
+            error.name === "AbortError");
+
+        // Retry logic for network errors
+        if (isNetworkError && retryCount < maxRetries) {
+          console.log(`🔄 [MyMatchEventNew] Retrying in ${retryDelay}ms...`);
+          setTimeout(() => {
+            fetchMatchEvents(retryCount + 1);
+          }, retryDelay);
+          return;
+        }
+
+        // Set error after all retries exhausted or for non-network errors
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to fetch events";
+        setError(
+          retryCount >= maxRetries
+            ? `${errorMessage} (after ${maxRetries} retries)`
+            : errorMessage,
+        );
+      } finally {
+        // Only set loading to false if we're not retrying
+        if (retryCount >= maxRetries || !error) {
+          setIsLoading(false);
+        }
       }
-    }
-  }, [fixtureId]);
+    },
+    [fixtureId],
+  );
 
   useEffect(() => {
     // Add small delay to prevent rapid mounting/unmounting issues
@@ -469,7 +482,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   const isDarkTheme = useMemo(() => theme === "dark", [theme]);
   const groupedEvents = useMemo(() => groupEventsByPeriod(events), [events]);
-  
+
   // Get current scores from API data - moved here to ensure it's called consistently
   const getCurrentScores = useMemo(() => {
     if (matchData?.goals) {
@@ -494,25 +507,28 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     [],
   );
 
-  const handlePlayerClick = useCallback((
-    playerId?: number,
-    teamId?: number,
-    playerName?: string,
-    playerImage?: string,
-  ) => {
-    if (playerId && playerName) {
-      // Get the actual image URL from MyAvatarInfo component
-      const imageUrl =
-        playerImage || getPlayerImage(playerId, playerName, teamId);
-      setSelectedPlayer({
-        id: playerId,
-        name: playerName,
-        teamId,
-        image: imageUrl,
-      });
-      setShowPlayerModal(true);
-    }
-  }, [getPlayerImage]);
+  const handlePlayerClick = useCallback(
+    (
+      playerId?: number,
+      teamId?: number,
+      playerName?: string,
+      playerImage?: string,
+    ) => {
+      if (playerId && playerName) {
+        // Get the actual image URL from MyAvatarInfo component
+        const imageUrl =
+          playerImage || getPlayerImage(playerId, playerName, teamId);
+        setSelectedPlayer({
+          id: playerId,
+          name: playerName,
+          teamId,
+          image: imageUrl,
+        });
+        setShowPlayerModal(true);
+      }
+    },
+    [getPlayerImage],
+  );
 
   // Handle early returns after all hooks are defined
   if (error && showErrors) {
@@ -534,7 +550,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   if (events.length === 0 && !isLoading) {
     const matchStatus = matchData?.fixture?.status?.short;
     const isUpcoming = ["NS", "TBD"].includes(matchStatus);
-    
+
     if (isUpcoming) {
       return null; // Hide the component completely
     }
@@ -823,8 +839,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
         // Create mock event with more realistic player names
         const mockPlayerNames = [
-          "Everson", "Gabriel Menino", "Bernard", "Gustavo Scarpa", "Hulk", "Aderbar Santos",
-          "Aldair Zarate", "Jefferson Mena", "Carlos Henao", "Diego Chavez", "Felipe Mora", "Lucas Silva"
+          "Everson",
+          "Gabriel Menino",
+          "Bernard",
+          "Gustavo Scarpa",
+          "Hulk",
+          "Aderbar Santos",
+          "Aldair Zarate",
+          "Jefferson Mena",
+          "Carlos Henao",
+          "Diego Chavez",
+          "Felipe Mora",
+          "Lucas Silva",
         ];
 
         const mockEvent = {
@@ -864,7 +890,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         {/* Header */}
         <div className="penalty-shootout-header">
           <span className="text-sm font-semibold text-gray-800">Penalties</span>
-          <span className="text-lg font-bold text-gray-800">{homeScore} - {awayScore}</span>
+          <span className="text-lg font-bold text-gray-800">
+            {homeScore} - {awayScore}
+          </span>
         </div>
 
         {/* Penalty sequence */}
@@ -963,8 +991,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   };
 
-  
-
   return (
     <Card
       className={`${className} ${isDarkTheme ? "bg-gray-800 text-white border-gray-700" : "bg-white border-gray-200"}`}
@@ -1033,15 +1059,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             {/* Render content based on active tab */}
             {activeTab === "all" && (
               <>
-                {/* Show penalty shootout only if match actually ended with penalties */}
-                {matchData?.fixture?.status?.short === "PEN" &&
-                  matchData?.score?.penalty?.home !== null &&
-                  matchData?.score?.penalty?.away !== null && (
-                    <PenaltyShootoutDisplay
-                      homeScore={matchData.score.penalty.home}
-                      awayScore={matchData.score.penalty.away}
-                    />
-                  )}
+               
 
                 {/* All events in chronological order with period score markers */}
                 {(() => {
@@ -1088,7 +1106,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       if (isMatchEnded || fullTimeEvents.length > 0) {
                         markers.push({
-                          time: { elapsed: 119 },
+                          time: { elapsed: 90 },
                           type: "period_score",
                           detail: "End of 90 Minutes",
                           score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
@@ -1719,7 +1737,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       if (isMatchEnded || fullTimeGoals.length > 0) {
                         markers.push({
-                          time: { elapsed: 119 },
+                          time: { elapsed: 90 },
                           type: "period_score",
                           detail: "End of 90 Minutes",
                           score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
