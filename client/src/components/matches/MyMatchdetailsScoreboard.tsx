@@ -10,10 +10,6 @@ import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
 import MyMatchStats from "./MyMatchStats";
-import MyTrendsTabsCard from './MyTrendsTabsCard';
-import MyHeadtoheadTabsCard from './MyHeadtoheadTabsCard';
-import MyLineupsTabsCard from './MyLineupsTabsCard';
-
 
 
 // Add CSS for cleaner pulse effect
@@ -684,7 +680,6 @@ const MyMatchdetailsScoreboard = ({
           >
             Head to Head
           </button>
-
           {activeTab === 'highlights' && (
               <MyHighlights
                 match={displayMatch}
@@ -697,34 +692,6 @@ const MyMatchdetailsScoreboard = ({
       </Card>
 
       {/* Tab content will be rendered by parent component */}
-      {activeTab === "h2h" && (
-            <MyHeadtoheadTabsCard match={displayMatch} />
-          )}
-
-{/* Prediction Tab Content */}
-        {activeTab === 'prediction' && (
-          <div className="space-y-4">
-            {(() => {
-              const fixtureIdToPass = match?.fixture?.id;
-              console.log('🏟️ [MyMatchdetailsScoreboard] Passing fixture ID to MyPredictionNew:', {
-                fixtureId: fixtureIdToPass,
-                fixtureIdType: typeof fixtureIdToPass,
-                matchObject: match ? {
-                  hasFixture: !!match.fixture,
-                  fixtureKeys: match.fixture ? Object.keys(match.fixture) : null,
-                  fixtureStatus: match.fixture?.status,
-                  teams: {
-                    home: match.teams?.home?.name,
-                    away: match.teams?.away?.name
-                  }
-                } : 'No match object',
-                timestamp: new Date().toISOString()
-              });
-
-              return <MyPredictionNew match={match} fixtureId={fixtureIdToPass} />;
-            })()}
-          </div>
-        )}
 
       </Card>
     </>

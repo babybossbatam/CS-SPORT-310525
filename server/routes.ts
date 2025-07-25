@@ -820,8 +820,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             country: {
               name: "Germany",
               code: "DE",
-              ```python
- flag: "https://media.api-sports.io/flags/de.svg",
+              flag: "https://media.api-sports.io/flags/de.svg",
             },
           },
           {
@@ -3295,68 +3294,11 @@ error) {
   app.use('/api/fixtures', selectiveUpdatesRoutes);
 
   // Predictions routes
-  app.use('/api/predictions', predictionsRoutes);
+  app.use('/api', predictionsRoutes);
 
 // Test route for debugging
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is running!' });
-});
-
-// Head-to-head endpoint
-app.get('/api/fixtures/headtohead', async (req, res) => {
-  try {
-    const { h2h } = req.query;
-
-    if (!h2h || typeof h2h !== 'string') {
-      return res.status(400).json({ 
-        error: 'Invalid h2h parameter. Expected format: teamId1-teamId2' 
-      });
-    }
-
-    const [team1Id, team2Id] = h2h.split('-');
-
-    if (!team1Id || !team2Id || isNaN(Number(team1Id)) || isNaN(Number(team2Id))) {
-      return res.status(400).json({ 
-        error: 'Invalid team IDs in h2h parameter' 
-      });
-    }
-
-    console.log(`🤝 [H2H API] Fetching head-to-head for teams: ${team1Id} vs ${team2Id}`);
-
-    // Try to fetch from RapidAPI
-    const response = await fetch(
-      `https://api-football-v1.p.rapidapi.com/v3/fixtures/headtohead?h2h=${team1Id}-${team2Id}`,
-      {
-        method: 'GET',
-        headers: {
-          'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
-          'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
-        }
-      }
-    );
-
-    if (!response.ok) {
-      console.error(`❌ [H2H API] RapidAPI error for teams ${team1Id}-${team2Id}:`, response.status);
-      return res.json({ 
-        response: [],
-        error: 'No head-to-head data available'
-      });
-    }
-
-    const data = await response.json();
-
-    console.log(`✅ [H2H API] Successfully fetched H2H data for teams ${team1Id}-${team2Id}`);
-
-    res.json(data);
-
-  } catch (error) {
-    console.error(`❌ [H2H API] Error fetching head-to-head data:`, error);
-    res.json({ 
-      response: [],
-      error: 'Failed to fetch head-to-head data',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
 });
 
 // Shots endpoint for match shot data
@@ -3370,26 +3312,23 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
       });
     }
 
-    console.log(`🎯 [Shots API] Fetching shots for fixture: ${fixtureId}`);
-
     // Try to fetch from RapidAPI
     const response = await fetch(
       `https://api-football-v1.p.rapidapi.com/v3/fixtures/statistics?fixture=${fixtureId}`,
       {
         method: 'GET',
         headers: {
-          'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
+          'X-RapidAPI-Key': process.env.RAPIDAPI_KEY || '',
           'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
         }
       }
     );
 
     if (!response.ok) {
-      console.error(`❌ [Shots API] RapidAPI error for fixture ${fixtureId}:`, response.status);
-      return res.json({ 
-        fixture: fixtureId,
-        shots: [],
-        error: 'No shot data available'
+      console.error(`RapidAPI shots error for fixture ${fixtureId}:`, response.status);
+      return res.status(500).json({ 
+        error: 'Failed to fetch shot data',
+        details: `API responded with status ${response.status}`
       });
     }
 
@@ -3404,19 +3343,15 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
       ) || []
     })) || [];
 
-    console.log(`✅ [Shots API] Successfully fetched shots for fixture ${fixtureId}`);
-
     res.json({
       fixture: fixtureId,
       shots: shotsData
     });
 
   } catch (error) {
-    console.error(`❌ [Shots API] Error fetching shots for fixture ${fixtureId}:`, error);
-    res.json({ 
-      fixture: fixtureId,
-      shots: [],
-      error: 'Failed to fetch shot data',
+    console.error(`Error fetching shots for fixture ${fixtureId}:`, error);
+    res.status(500).json({ 
+      error: 'Internal server error',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
