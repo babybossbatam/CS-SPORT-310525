@@ -136,8 +136,8 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
         />
       </div>
       {/* Match Statistics */}
-      <Card className="py-1">
-        <div className="">
+      <Card className="">
+        <div className="space-y-2 mx-2">
           <MyStatsCard match={match} />
         </div>
 
@@ -145,7 +145,7 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
         <div className="text-center">
           <button
             onClick={() => onTabChange && onTabChange("stats")}
-            className="w-full py-2 text-gray-700 hover:bg-gray-200 transition-colors duration-200 font-medium text-xs"
+            className="w-full py-1 text-gray-700 hover:bg-gray-200 transition-colors duration-200 font-medium text-xs border-t"
           >
             See All Stats
           </button>
