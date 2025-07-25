@@ -133,7 +133,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
         // Add predictions fetch if fixtureId is available - prioritize this over manual calculations
         if (fixtureId) {
           console.log(`📊 [MatchPrediction] Fetching predictions for fixture: ${fixtureId}`);
-          fetchPromises.push(fetch(`/api/fixtures/${fixtureId}/predictions`));
+          fetchPromises.push(fetch(`/api/predictions/${fixtureId}`));
         }
 
         const responses = await Promise.all(fetchPromises);
