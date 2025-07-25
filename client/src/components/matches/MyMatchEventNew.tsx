@@ -1354,8 +1354,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       )}
                                   </div>
                                 </div>
-                              </div>
+                              </>
                             )}
+                          </div>
 
                           {/* Grid Area 2: Home Team Icon */}
                           {isHome && (
