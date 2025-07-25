@@ -70,12 +70,19 @@ const MyPredictionCard: React.FC<MyPredictionCardProps> = ({
 
         const response = await fetch(`/api/predictions/${fixtureId}`);
         if (!response.ok) {
-          throw new Error('Failed to fetch predictions');
+          const errorText = await response.text();
+          console.error('Predictions API error:', response.status, errorText);
+          throw new Error(`Failed to fetch predictions: ${response.status}`);
         }
 
         const data = await response.json();
-        if (data && data.length > 0) {
+        console.log('Predictions API response:', data);
+        
+        if (data && Array.isArray(data) && data.length > 0) {
           setPredictionData(data[0]);
+        } else if (data && !Array.isArray(data)) {
+          // Handle single object response
+          setPredictionData(data);
         } else {
           setError('No prediction data available');
         }

@@ -41,9 +41,11 @@ router.get('/:fixtureId', async (req, res) => {
     });
 
     if (!data.response || data.response.length === 0) {
+      console.log(`⚠️ [Predictions] No predictions found for fixture ${fixtureId}:`, data);
       return res.status(404).json({ 
         error: 'No predictions available for this fixture',
-        fixtureId: fixtureId
+        fixtureId: fixtureId,
+        apiResponse: data
       });
     }
 

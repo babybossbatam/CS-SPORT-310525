@@ -34,7 +34,7 @@ import keyPlayersRoutes from './routes/365scoresKeyPlayersRoutes';
 import playersRoutes from './routes/playersRoutes';
 import selectiveLiveRoutes from './routes/selectiveLiveRoutes';
 import selectiveUpdatesRoutes from './routes/selectiveUpdatesRoutes';
-import predictionsRoutes from './routes/predictionsRoutes.js';
+import predictionsRoutes from './routes/predictionsRoutes';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -820,7 +820,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             country: {
               name: "Germany",
               code: "DE",
-              flag: "https://media.api-sports.io/flags/de.svg",
+              flag:```python
+ "https://media.api-sports.io/flags/de.svg",
             },
           },
           {
