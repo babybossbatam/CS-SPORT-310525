@@ -208,60 +208,80 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
             console.log('📊 [MatchPrediction] Raw predictions response text:', responseText.substring(0, 200));
             
             // Check if response is HTML (error page) instead of JSON
-            if (responseText.startsWith('<!DOCTYPE') || responseText.startsWith('<html')) {
+            if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
               console.error('❌ [MatchPrediction] Received HTML response instead of JSON');
-              throw new Error('Server returned HTML error page - API may be down or rate limited');
+              throw new Error('Server returned HTML error page - prediction service unavailable');
+            }
+
+            // Check for empty response
+            if (!responseText.trim()) {
+              console.error('❌ [MatchPrediction] Empty response from server');
+              throw new Error('Empty response from prediction service');
             }
             
             const predictionsData = JSON.parse(responseText);
-            console.log('📊 [MatchPrediction] RapidAPI Predictions response:', predictionsData);
+            console.log('📊 [MatchPrediction] Parsed predictions response:', predictionsData);
             
-            if (predictionsData.success && predictionsData.data && predictionsData.data.length > 0) {
-              const prediction = predictionsData.data[0];
-              console.log('🎯 [MatchPrediction] Processing prediction object:', prediction);
+            // Check if we have a successful response with data
+            if (predictionsData.success && predictionsData.data) {
+              console.log('📊 [MatchPrediction] Predictions data structure:', predictionsData);
               
-              if (prediction.predictions && prediction.predictions.percent) {
-                // Handle both string percentages like "45%" and direct numbers
-                let homePercent = 0;
-                let drawPercent = 0;
-                let awayPercent = 0;
-
-                if (typeof prediction.predictions.percent.home === 'string') {
-                  homePercent = parseInt(prediction.predictions.percent.home.replace('%', '') || '0');
-                } else if (typeof prediction.predictions.percent.home === 'number') {
-                  homePercent = prediction.predictions.percent.home;
-                }
-
-                if (typeof prediction.predictions.percent.draw === 'string') {
-                  drawPercent = parseInt(prediction.predictions.percent.draw.replace('%', '') || '0');
-                } else if (typeof prediction.predictions.percent.draw === 'number') {
-                  drawPercent = prediction.predictions.percent.draw;
-                }
-
-                if (typeof prediction.predictions.percent.away === 'string') {
-                  awayPercent = parseInt(prediction.predictions.percent.away.replace('%', '') || '0');
-                } else if (typeof prediction.predictions.percent.away === 'number') {
-                  awayPercent = prediction.predictions.percent.away;
-                }
+              const predictionsList = Array.isArray(predictionsData.data) ? predictionsData.data : [predictionsData.data];
+              
+              if (predictionsList.length > 0) {
+                const prediction = predictionsList[0];
+                console.log('🎯 [MatchPrediction] Processing prediction object:', prediction);
                 
-                console.log('🎯 [MatchPrediction] Parsed percentages:', { homePercent, drawPercent, awayPercent });
-                
-                // Use predictions if we have any valid data (including 0%)
-                if (homePercent >= 0 && drawPercent >= 0 && awayPercent >= 0) {
-                  apiPredictions = {
-                    homeWinProbability: homePercent,
-                    drawProbability: drawPercent,
-                    awayWinProbability: awayPercent,
-                    confidence: 95, // High confidence for RapidAPI predictions
-                    source: 'rapidapi-predictions'
-                  };
+                if (prediction && prediction.predictions && prediction.predictions.percent) {
+                  // Handle both string percentages like "45%" and direct numbers
+                  let homePercent = 0;
+                  let drawPercent = 0;
+                  let awayPercent = 0;
+
+                  const percentData = prediction.predictions.percent;
                   
-                  console.log('✅ [MatchPrediction] Using RapidAPI predictions:', apiPredictions);
+                  // Parse home percentage
+                  if (typeof percentData.home === 'string') {
+                    homePercent = parseInt(percentData.home.replace('%', '') || '0');
+                  } else if (typeof percentData.home === 'number') {
+                    homePercent = percentData.home;
+                  }
+
+                  // Parse draw percentage  
+                  if (typeof percentData.draw === 'string') {
+                    drawPercent = parseInt(percentData.draw.replace('%', '') || '0');
+                  } else if (typeof percentData.draw === 'number') {
+                    drawPercent = percentData.draw;
+                  }
+
+                  // Parse away percentage
+                  if (typeof percentData.away === 'string') {
+                    awayPercent = parseInt(percentData.away.replace('%', '') || '0');
+                  } else if (typeof percentData.away === 'number') {
+                    awayPercent = percentData.away;
+                  }
+                  
+                  console.log('🎯 [MatchPrediction] Parsed percentages:', { homePercent, drawPercent, awayPercent });
+                  
+                  // Use predictions if we have any valid data (including 0%)
+                  if (homePercent >= 0 && drawPercent >= 0 && awayPercent >= 0 && (homePercent + drawPercent + awayPercent) > 0) {
+                    apiPredictions = {
+                      homeWinProbability: homePercent,
+                      drawProbability: drawPercent,
+                      awayWinProbability: awayPercent,
+                      confidence: 95, // High confidence for RapidAPI predictions
+                      source: 'rapidapi-predictions'
+                    };
+                    
+                    console.log('✅ [MatchPrediction] Using RapidAPI predictions:', apiPredictions);
+                  } else {
+                    console.log('⚠️ [MatchPrediction] Invalid percentage values:', { homePercent, drawPercent, awayPercent });
+                  }
                 } else {
-                  console.log('⚠️ [MatchPrediction] Invalid percentage values:', { homePercent, drawPercent, awayPercent });
+                  console.log('⚠️ [MatchPrediction] Missing predictions.percent structure:', prediction);
                 }
               } else {
-                console.log('⚠️ [MatchPrediction] Missing predictions.percent structure:', prediction);
+                console.log('⚠️ [MatchPrediction] No prediction data in response');
               }
             } else if (predictionsData.success && predictionsData.data) {
               // Handle case where data is a single object instead of array
@@ -314,9 +334,26 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           }
         } else if (predictionsResponse && !predictionsResponse.ok) {
           console.error(`❌ [MatchPrediction] HTTP error: ${predictionsResponse.status}`);
-          const errorText = await predictionsResponse.text();
-          console.log('❌ [MatchPrediction] Error response body:', errorText.substring(0, 200));
-          setError(`Prediction service error (${predictionsResponse.status}): ${errorText.includes('HTML') ? 'Service temporarily down' : 'API error'}`);
+          try {
+            const errorText = await predictionsResponse.text();
+            console.log('❌ [MatchPrediction] Error response body:', errorText.substring(0, 200));
+            
+            let errorMessage = 'Prediction service error';
+            if (predictionsResponse.status === 404) {
+              errorMessage = 'No predictions available for this match';
+            } else if (predictionsResponse.status === 403) {
+              errorMessage = 'Prediction service access denied';
+            } else if (predictionsResponse.status >= 500) {
+              errorMessage = 'Prediction service temporarily unavailable';
+            } else if (errorText.includes('<!DOCTYPE') || errorText.includes('<html')) {
+              errorMessage = 'Server error - service temporarily down';
+            }
+            
+            setError(`${errorMessage} (${predictionsResponse.status})`);
+          } catch (textError) {
+            console.error('❌ [MatchPrediction] Failed to read error response:', textError);
+            setError(`Prediction service error (${predictionsResponse.status})`);
+          }
         }
 
         // Only use props as fallback if no RapidAPI data available

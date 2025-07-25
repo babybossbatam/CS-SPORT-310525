@@ -34,7 +34,7 @@ import keyPlayersRoutes from './routes/365scoresKeyPlayersRoutes';
 import playersRoutes from './routes/playersRoutes';
 import selectiveLiveRoutes from './routes/selectiveLiveRoutes';
 import selectiveUpdatesRoutes from './routes/selectiveUpdatesRoutes';
-import predictionsRoutes from './routes/predictionsRoutes';
+import predictionsRoutes from './routes/predictionsRoutes.js';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
