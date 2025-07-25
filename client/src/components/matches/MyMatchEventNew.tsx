@@ -147,12 +147,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       setError(null);
     } catch (error) {
       console.error(`❌ [MyMatchEventNew] Error fetching events (attempt ${retryCount + 1}):`, error);
-      
+
       // Check if it's an abort error (timeout)
       if (error instanceof Error && error.name === 'AbortError') {
         console.log(`⏱️ [MyMatchEventNew] Request timeout for fixture ${fixtureId}`);
       }
-      
+
       // Check if it's a network error that might be temporary
       const isNetworkError = error instanceof Error && (
         error.message.includes('fetch') ||
@@ -469,7 +469,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   const isDarkTheme = useMemo(() => theme === "dark", [theme]);
   const groupedEvents = useMemo(() => groupEventsByPeriod(events), [events]);
-  
+
   // Get current scores from API data - moved here to ensure it's called consistently
   const getCurrentScores = useMemo(() => {
     if (matchData?.goals) {
@@ -534,7 +534,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   if (events.length === 0 && !isLoading) {
     const matchStatus = matchData?.fixture?.status?.short;
     const isUpcoming = ["NS", "TBD"].includes(matchStatus);
-    
+
     if (isUpcoming) {
       return null; // Hide the component completely
     }
@@ -886,14 +886,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     <>
                       <div className="penalty-home-player-info">
                         <div className="penalty-player-avatar">
-                          <MyAvatarInfo
-                            playerId={penalty.event.player?.id}
-                            playerName={penalty.event.player?.name}
-                            matchId={fixtureId}
-                            teamId={penalty.event.team?.id}
-                            size="sm"
-                            className="shadow-sm border-gray-300"
-                          />
+                          <div className="w-6 h-6 border-2 border-gray-300 rounded-full overflow-hidden relative cursor-pointer hover:scale-105 transition-transform shadow-sm">
+                            <img
+                              src="/assets/matchdetaillogo/fallback_player.png"
+                              alt={penalty.event.player?.name || 'Player'}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = "/assets/matchdetaillogo/fallback_player.png";
+                              }}
+                            />
+                          </div>
                         </div>
                         <span className="penalty-player-name">
                           {penalty.event.player?.name}
@@ -905,7 +908,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             <img
                               src="/assets/matchdetaillogo/penalty.svg"
                               alt="Penalty Scored"
-                              className="w-5 h-5"
+                              className="w-5 h-5"```text
                             />
                           ) : (
                             <img
@@ -953,14 +956,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           {penalty.event.player?.name}
                         </span>
                         <div className="penalty-player-avatar">
-                          <MyAvatarInfo
-                            playerId={penalty.event.player?.id}
-                            playerName={penalty.event.player?.name}
-                            matchId={fixtureId}
-                            teamId={penalty.event.team?.id}
-                            size="sm"
-                            className="shadow-sm border-gray-300"
-                          />
+                          <div className="w-6 h-6 border-2 border-gray-300 rounded-full overflow-hidden relative cursor-pointer hover:scale-105 transition-transform shadow-sm">
+                            <img
+                              src="/assets/matchdetaillogo/fallback_player.png"
+                              alt={penalty.event.player?.name || 'Player'}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = "/assets/matchdetaillogo/fallback_player.png";
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
                     </>
@@ -974,7 +980,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   };
 
-  
+
 
   return (
     <Card
@@ -1044,7 +1050,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             {/* Render content based on active tab */}
             {activeTab === "all" && (
               <>
-                
+
                 {/* All events in chronological order with period score markers */}
                 {(() => {
                   const sortedEvents = [...events].sort(
@@ -1149,7 +1155,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                   // Filter out events with elapsed time > 110' from regular display (they go to penalty section)
                   const filteredEvents = sortedEvents.filter(event => event.time.elapsed <= 110);
-                  
+
                   // Combine filtered events and period markers safely
                   const allItems = [...filteredEvents, ...periodMarkers].sort(
                     (a, b) => {
