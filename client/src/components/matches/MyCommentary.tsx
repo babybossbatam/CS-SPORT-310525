@@ -952,41 +952,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               </div>
 
                               {/* Enhanced Commentary Description */}
-                              <div className="text-sm text-gray-700 leading-relaxed -ml-3   ">
-                                {(() => {
-                                  const detail =
-                                    event.detail?.toLowerCase() || "";
-                                  const playerName =
-                                    event.player?.name || "Unknown Player";
-                                  const teamName =
-                                    event.team?.name || "Unknown Team";
-
-                                  if (detail.includes("penalty")) {
-                                    if (detail.includes("missed")) {
-                                      return `💔 ${playerName} steps up to the penalty spot but fails to convert! The goalkeeper makes a crucial save or the ball goes wide. What a missed opportunity for ${teamName}!`;
-                                    } else {
-                                      return `🎯 ${playerName} confidently steps up to take the penalty and finds the back of the net! Cool, calm, and collected from the spot. ${teamName} capitalize on their chance!`;
-                                    }
-                                  } else if (detail.includes("own goal")) {
-                                    return `😬 Unfortunately for ${playerName} and ${teamName}, this one goes into their own net! Sometimes these things happen in football - a moment of misfortune that changes the game.`;
-                                  } else {
-                                    const goalCelebrations = [
-                                      `🔥 What a strike from ${playerName}! The ball flies into the net with precision and power!`,
-                                      `⚡ ${playerName} finds the perfect moment to strike! A brilliant finish that sends the crowd wild!`,
-                                      `🎯 ${playerName} shows excellent composure in front of goal! A clinical finish that makes all the difference!`,
-                                      `💫 Magical moment from ${playerName}! The ball nestles beautifully into the corner of the net!`,
-                                    ];
-                                    return (
-                                      goalCelebrations[
-                                        Math.floor(
-                                          Math.random() *
-                                            goalCelebrations.length,
-                                        )
-                                      ] + ` ${teamName} are celebrating!`
-                                    );
-                                  }
-                                })()}
-                              </div>
+                              
 
                               {/* Enhanced Assist section */}
                               {event.assist?.name && (
