@@ -135,6 +135,18 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               (e) => e.time.elapsed >= 45,
             );
 
+            // Check for penalty shootout events
+            const penaltyShootoutEvents = events.filter((e) => {
+              const detail = e.detail?.toLowerCase() || "";
+              const type = e.type?.toLowerCase() || "";
+              return (
+                (detail.includes("penalty") || type === "penalty") &&
+                e.time.elapsed > 110
+              );
+            });
+
+            const hasPenaltyShootout = penaltyShootoutEvents.length > 0;
+
             if (hasEventsInFirstHalf) {
               // Add "First Half begins" marker
               allCommentaryItems.push({
@@ -206,6 +218,31 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 },
                 type: "period_end",
                 detail: "Full Time",
+                team: { name: "", logo: "" },
+                player: { name: "" },
+              } as any);
+            }
+
+            // Add "Penalty Shootout begins" marker if there are penalty events
+            if (hasPenaltyShootout) {
+              // Find the time when penalty shootout should begin (after full time)
+              const fullTimeEvents = events.filter((e) => e.time.elapsed <= 120);
+              const lastRegularEvent = fullTimeEvents.length > 0 
+                ? fullTimeEvents.reduce((latest, current) => {
+                    const currentTotal = current.time.elapsed + (current.time.extra || 0);
+                    const latestTotal = latest.time.elapsed + (latest.time.extra || 0);
+                    return currentTotal > latestTotal ? current : latest;
+                  })
+                : { time: { elapsed: 120, extra: 0 } };
+
+              const penaltyStartTime = Math.max(lastRegularEvent.time.elapsed, 120);
+              const scoreAtPenaltyStart = calculateScoreAtTime(penaltyStartTime + (lastRegularEvent.time.extra || 0));
+
+              allCommentaryItems.push({
+                time: { elapsed: penaltyStartTime + 1 },
+                type: "penalty_start",
+                detail: "Penalty Shootout begins",
+                score: `${scoreAtPenaltyStart.homeScore} - ${scoreAtPenaltyStart.awayScore}`,
                 team: { name: "", logo: "" },
                 player: { name: "" },
               } as any);
@@ -319,6 +356,19 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               .map((event, index) => {
                 const timeDisplay = `${event.time.extra ? `+${event.time.extra}` : ""}`;
 
+                // Handle penalty shootout event numbering
+                let displayTime = event.time.elapsed;
+                if (event.time.elapsed > 110) {
+                  // This is a penalty shootout event, show sequential numbering
+                  const penaltyIndex = penaltyShootoutEvents.findIndex(p => 
+                    p.time.elapsed === event.time.elapsed && 
+                    p.player?.name === event.player?.name
+                  );
+                  if (penaltyIndex !== -1) {
+                    displayTime = penaltyIndex + 1;
+                  }
+                }
+
                 // Handle period score markers - removed display
                 if (event.type === "period_score") {
                   return null;
@@ -329,7 +379,8 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   event.type === "period_start" ||
                   event.type === "period_end" ||
                   event.type === "period_marker" ||
-                  event.type === "half_time"
+                  event.type === "half_time" ||
+                  event.type === "penalty_start"
                 ) {
                   // Handle "First Half begins" / "Kick Off"
                   if (event.detail === "First Half begins") {
@@ -367,6 +418,43 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             </div>
                             <div className="text-xs text-gray-600 mt-1 -ml-3">
                               First Half begins.
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Handle "Penalty Shootout begins"
+                  if (event.detail === "Penalty Shootout begins") {
+                    return (
+                      <div
+                        key={`period-${index}`}
+                        className="commentary-event-container"
+                      >
+                        <div className="flex gap-3">
+                          {/* Time Column */}
+                          <div className="flex flex-col items-center min-w-[45px]">
+                            <div className="w-4 h-6 flex items-center justify-center">
+                              <img
+                                src="/assets/matchdetaillogo/penalty.svg"
+                                alt="Penalty Shootout"
+                                className="w-4 h-4"
+                              />
+                            </div>
+                            {index < allCommentaryItems.length - 1 && (
+                              <div className="w-0.5 h-4 bg-gray-800 ml-1"></div>
+                            )}
+                          </div>
+
+                          {/* Content Column */}
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 -ml-3 text-sm text-gray-700 leading-relaxed mt-0.5">
+                              <div>Penalty Shootout begins</div>
+                              <span>
+                                {homeTeam}: {(event as any).score?.split(' - ')[0]},{" "}
+                                {awayTeam}: {(event as any).score?.split(' - ')[1]}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -687,7 +775,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             marginBottom: "2px",
                           }}
                         >
-                          {event.time.elapsed}'
+                          {event.time.elapsed > 110 ? displayTime : `${displayTime}'`}
                         </div>
 
                         {index < allCommentaryItems.length - 1 && (
