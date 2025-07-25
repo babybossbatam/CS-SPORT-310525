@@ -413,10 +413,6 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
     );
   }
 
-  // Don't render anything if no real data is available
-    return null;
-  }
-
   return (
     <Card className="w-full shadow-md bg-white">
       <CardHeader className="pb-3">
