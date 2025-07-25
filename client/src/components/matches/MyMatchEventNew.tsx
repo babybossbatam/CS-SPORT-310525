@@ -81,118 +81,105 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   } | null>(null);
   const [showPlayerModal, setShowPlayerModal] = useState(false);
 
-  const fetchMatchEvents = useCallback(
-    async (retryCount = 0) => {
-      if (!fixtureId) {
-        setError("No fixture ID provided");
-        setIsLoading(false);
+  const fetchMatchEvents = useCallback(async (retryCount = 0) => {
+    if (!fixtureId) {
+      setError("No fixture ID provided");
+      setIsLoading(false);
+      return;
+    }
+
+    const maxRetries = 3;
+    const retryDelay = Math.min(1000 * Math.pow(2, retryCount), 5000); // Exponential backoff, max 5s
+
+    try {
+      console.log(
+        `📊 [MyMatchEventNew] Fetching events for fixture: ${fixtureId}${retryCount > 0 ? ` (retry ${retryCount}/${maxRetries})` : ''}`,
+      );
+
+      // Add timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        try {
+          if (!controller.signal.aborted) {
+            controller.abort('Request timeout');
+          }
+        } catch (error) {
+          // Silently handle any abort errors during timeout
+        }
+      }, 10000); // 10 second timeout
+
+      const response = await fetch(`/api/fixtures/${fixtureId}/events`, {
+        signal: controller.signal,
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const eventData = await response.json();
+      console.log(`✅ [MyMatchEventNew] Received ${eventData.length} events`);
+
+      // Debug: Log all events to see what we're getting
+      console.log("🔍 [Event Debug] All events from API:", eventData);
+
+      // Debug: Check for penalty-related events
+      const penaltyRelatedEvents = eventData.filter((event: any) => {
+        const detail = event.detail?.toLowerCase() || "";
+        const type = event.type?.toLowerCase() || "";
+        return (
+          detail.includes("penalty") ||
+          type.includes("penalty") ||
+          detail.includes("shootout")
+        );
+      });
+      console.log(
+        "🔍 [Event Debug] Penalty-related events:",
+        penaltyRelatedEvents,
+      );
+
+      setEvents(eventData || []);
+      setLastUpdated(new Date());
+      setError(null);
+    } catch (error) {
+      console.error(`❌ [MyMatchEventNew] Error fetching events (attempt ${retryCount + 1}):`, error);
+      
+      // Check if it's an abort error (timeout)
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log(`⏱️ [MyMatchEventNew] Request timeout for fixture ${fixtureId}`);
+      }
+      
+      // Check if it's a network error that might be temporary
+      const isNetworkError = error instanceof Error && (
+        error.message.includes('fetch') ||
+        error.message.includes('Failed to fetch') ||
+        error.message.includes('NetworkError') ||
+        error.name === 'AbortError'
+      );
+
+      // Retry logic for network errors
+      if (isNetworkError && retryCount < maxRetries) {
+        console.log(`🔄 [MyMatchEventNew] Retrying in ${retryDelay}ms...`);
+        setTimeout(() => {
+          fetchMatchEvents(retryCount + 1);
+        }, retryDelay);
         return;
       }
 
-      const maxRetries = 3;
-      const retryDelay = Math.min(1000 * Math.pow(2, retryCount), 5000); // Exponential backoff, max 5s
-
-      try {
-        console.log(
-          `📊 [MyMatchEventNew] Fetching events for fixture: ${fixtureId}${retryCount > 0 ? ` (retry ${retryCount}/${maxRetries})` : ""}`,
-        );
-
-        // Add timeout to prevent hanging requests
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => {
-          try {
-            if (!controller.signal.aborted) {
-              controller.abort("Request timeout");
-            }
-          } catch (error) {
-            // Silently handle any abort errors during timeout
-          }
-        }, 10000); // 10 second timeout
-
-        const response = await fetch(`/api/fixtures/${fixtureId}/events`, {
-          signal: controller.signal,
-          headers: {
-            "Cache-Control": "no-cache",
-          },
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const eventData = await response.json();
-        console.log(`✅ [MyMatchEventNew] Received ${eventData.length} events`);
-
-        // Debug: Log all events to see what we're getting
-        console.log("🔍 [Event Debug] All events from API:", eventData);
-
-        // Debug: Check for penalty-related events
-        const penaltyRelatedEvents = eventData.filter((event: any) => {
-          const detail = event.detail?.toLowerCase() || "";
-          const type = event.type?.toLowerCase() || "";
-          return (
-            detail.includes("penalty") ||
-            type.includes("penalty") ||
-            detail.includes("shootout")
-          );
-        });
-        console.log(
-          "🔍 [Event Debug] Penalty-related events:",
-          penaltyRelatedEvents,
-        );
-
-        setEvents(eventData || []);
-        setLastUpdated(new Date());
-        setError(null);
-      } catch (error) {
-        console.error(
-          `❌ [MyMatchEventNew] Error fetching events (attempt ${retryCount + 1}):`,
-          error,
-        );
-
-        // Check if it's an abort error (timeout)
-        if (error instanceof Error && error.name === "AbortError") {
-          console.log(
-            `⏱️ [MyMatchEventNew] Request timeout for fixture ${fixtureId}`,
-          );
-        }
-
-        // Check if it's a network error that might be temporary
-        const isNetworkError =
-          error instanceof Error &&
-          (error.message.includes("fetch") ||
-            error.message.includes("Failed to fetch") ||
-            error.message.includes("NetworkError") ||
-            error.name === "AbortError");
-
-        // Retry logic for network errors
-        if (isNetworkError && retryCount < maxRetries) {
-          console.log(`🔄 [MyMatchEventNew] Retrying in ${retryDelay}ms...`);
-          setTimeout(() => {
-            fetchMatchEvents(retryCount + 1);
-          }, retryDelay);
-          return;
-        }
-
-        // Set error after all retries exhausted or for non-network errors
-        const errorMessage =
-          error instanceof Error ? error.message : "Failed to fetch events";
-        setError(
-          retryCount >= maxRetries
-            ? `${errorMessage} (after ${maxRetries} retries)`
-            : errorMessage,
-        );
-      } finally {
-        // Only set loading to false if we're not retrying
-        if (retryCount >= maxRetries || !error) {
-          setIsLoading(false);
-        }
+      // Set error after all retries exhausted or for non-network errors
+      const errorMessage = error instanceof Error ? error.message : "Failed to fetch events";
+      setError(retryCount >= maxRetries ? `${errorMessage} (after ${maxRetries} retries)` : errorMessage);
+    } finally {
+      // Only set loading to false if we're not retrying
+      if (retryCount >= maxRetries || !error) {
+        setIsLoading(false);
       }
-    },
-    [fixtureId],
-  );
+    }
+  }, [fixtureId]);
 
   useEffect(() => {
     // Add small delay to prevent rapid mounting/unmounting issues
@@ -482,7 +469,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   const isDarkTheme = useMemo(() => theme === "dark", [theme]);
   const groupedEvents = useMemo(() => groupEventsByPeriod(events), [events]);
-
+  
   // Get current scores from API data - moved here to ensure it's called consistently
   const getCurrentScores = useMemo(() => {
     if (matchData?.goals) {
@@ -507,28 +494,25 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     [],
   );
 
-  const handlePlayerClick = useCallback(
-    (
-      playerId?: number,
-      teamId?: number,
-      playerName?: string,
-      playerImage?: string,
-    ) => {
-      if (playerId && playerName) {
-        // Get the actual image URL from MyAvatarInfo component
-        const imageUrl =
-          playerImage || getPlayerImage(playerId, playerName, teamId);
-        setSelectedPlayer({
-          id: playerId,
-          name: playerName,
-          teamId,
-          image: imageUrl,
-        });
-        setShowPlayerModal(true);
-      }
-    },
-    [getPlayerImage],
-  );
+  const handlePlayerClick = useCallback((
+    playerId?: number,
+    teamId?: number,
+    playerName?: string,
+    playerImage?: string,
+  ) => {
+    if (playerId && playerName) {
+      // Get the actual image URL from MyAvatarInfo component
+      const imageUrl =
+        playerImage || getPlayerImage(playerId, playerName, teamId);
+      setSelectedPlayer({
+        id: playerId,
+        name: playerName,
+        teamId,
+        image: imageUrl,
+      });
+      setShowPlayerModal(true);
+    }
+  }, [getPlayerImage]);
 
   // Handle early returns after all hooks are defined
   if (error && showErrors) {
@@ -550,7 +534,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   if (events.length === 0 && !isLoading) {
     const matchStatus = matchData?.fixture?.status?.short;
     const isUpcoming = ["NS", "TBD"].includes(matchStatus);
-
+    
     if (isUpcoming) {
       return null; // Hide the component completely
     }
@@ -839,18 +823,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
         // Create mock event with more realistic player names
         const mockPlayerNames = [
-          "Everson",
-          "Gabriel Menino",
-          "Bernard",
-          "Gustavo Scarpa",
-          "Hulk",
-          "Aderbar Santos",
-          "Aldair Zarate",
-          "Jefferson Mena",
-          "Carlos Henao",
-          "Diego Chavez",
-          "Felipe Mora",
-          "Lucas Silva",
+          "Everson", "Gabriel Menino", "Bernard", "Gustavo Scarpa", "Hulk", "Aderbar Santos",
+          "Aldair Zarate", "Jefferson Mena", "Carlos Henao", "Diego Chavez", "Felipe Mora", "Lucas Silva"
         ];
 
         const mockEvent = {
@@ -890,9 +864,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         {/* Header */}
         <div className="penalty-shootout-header">
           <span className="text-sm font-semibold text-gray-800">Penalties</span>
-          <span className="text-lg font-bold text-gray-800">
-            {homeScore} - {awayScore}
-          </span>
+          <span className="text-lg font-bold text-gray-800">{homeScore} - {awayScore}</span>
         </div>
 
         {/* Penalty sequence */}
@@ -991,6 +963,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   };
 
+  
+
   return (
     <Card
       className={`${className} ${isDarkTheme ? "bg-gray-800 text-white border-gray-700" : "bg-white border-gray-200"}`}
@@ -1059,7 +1033,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             {/* Render content based on active tab */}
             {activeTab === "all" && (
               <>
-               
+                {/* Show penalty shootout only if match actually ended with penalties */}
+                {matchData?.fixture?.status?.short === "PEN" &&
+                  matchData?.score?.penalty?.home !== null &&
+                  matchData?.score?.penalty?.away !== null && (
+                    <PenaltyShootoutDisplay
+                      homeScore={matchData.score.penalty.home}
+                      awayScore={matchData.score.penalty.away}
+                    />
+                  )}
 
                 {/* All events in chronological order with period score markers */}
                 {(() => {
@@ -1106,7 +1088,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       if (isMatchEnded || fullTimeEvents.length > 0) {
                         markers.push({
-                          time: { elapsed: 90 },
+                          time: { elapsed: 119 },
                           type: "period_score",
                           detail: "End of 90 Minutes",
                           score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
@@ -1233,666 +1215,451 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     },
                   );
 
-                  // Group events by elapsed time (including extra time)
-                  const groupedByTime = new Map();
-                  const nonEventItems = [];
-                  
-                  allItems.forEach((item, index) => {
-                    if (item.type === "period_score" || item.type === "penalty_shootout") {
-                      nonEventItems.push({ item, index });
-                    } else {
-                      const timeKey = `${item.time.elapsed}-${item.time.extra || 0}`;
-                      if (!groupedByTime.has(timeKey)) {
-                        groupedByTime.set(timeKey, []);
-                      }
-                      groupedByTime.get(timeKey).push({ item, index });
-                    }
-                  });
-
-                  // Create the final display array
-                  const displayItems = [];
-                  
-                  // Add non-event items first (period markers, penalties)
-                  nonEventItems.forEach(({ item, index }) => {
-                    if (item.type === "period_score") {
-                      displayItems.push(
+                  return allItems.map((event, index) => {
+                    // Handle period score markers safely
+                    if (event.type === "period_score") {
+                      return (
                         <div
-                          key={item.id || `period-score-${index}`}
+                          key={event.id || `period-score-${index}`}
                           className="match-event-container "
                         >
                           <div className="period-score-marker">
                             <div className="period-score-label">
-                              {item.detail || "Period Marker"}
+                              {event.detail || "Period Marker"}
                             </div>
                             <div className="period-score-display">
-                              {item.score || "0 - 0"}
+                              {event.score || "0 - 0"}
                             </div>
                           </div>
                         </div>
                       );
-                    } else if (item.type === "penalty_shootout") {
-                      displayItems.push(
+                    }
+                    // Render PenaltyShootoutDisplay if the event is a penalty shootout
+                    if (event.type === "penalty_shootout") {
+                      return (
                         <div
-                          key={item.id || `penalty-shootout-${index}`}
+                          key={event.id || `penalty-shootout-${index}`}
                           className="match-event-container"
                         >
                           <PenaltyShootoutDisplay homeScore={4} awayScore={3} />
                         </div>
                       );
                     }
+
+                    // For own goals, show on the side of the team that benefits (opposite of scoring team)
+                    const isOwnGoal = event.detail
+                      ?.toLowerCase()
+                      .includes("own goal");
+                    const isHome = isOwnGoal
+                      ? event.team?.name !== homeTeam
+                      : event.team?.name === homeTeam;
+
+                    return (
+                      <div
+                        key={`event-${index}`}
+                        className="match-event-container"
+                      >
+                        {/* Three-grid layout container */}
+                        <div className="match-event-three-grid-container">
+                          {/* Left Grid: Home Team Events */}
+                          <div className="match-event-home-side">
+                            {isHome && (
+                              <>
+                                {/* Column 1: Player Info */}
+                                <div className="match-event-home-player-info">
+                                  <div className="flex items-center gap-1">
+                                    <div
+                                      className="cursor-pointer hover:scale-105 transition-transform"
+                                      onClick={() =>
+                                        handlePlayerClick(
+                                          event.player?.id,
+                                          event.team.id,
+                                          event.player?.name,
+                                        )
+                                      }
+                                    >
+                                      <MyAvatarInfo
+                                        playerId={event.player?.id}
+                                        playerName={event.player?.name}
+                                        matchId={fixtureId}
+                                        teamId={event.team?.id}
+                                        size="md"
+                                        className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
+                                      />
+                                    </div>
+
+                                    {event.type === "subst" &&
+                                      event.assist?.name && (
+                                        <div
+                                          className="-ml-4 -mr-2 relative z-20 cursor-pointer hover:scale-105 transition-transform"
+                                          onClick={() =>
+                                            handlePlayerClick(
+                                              event.assist?.id,
+                                              event.team.id,
+                                              event.assist?.name,
+                                            )
+                                          }
+                                        >
+                                          <MyAvatarInfo
+                                            playerId={event.assist?.id}
+                                            playerName={event.assist?.name}
+                                            matchId={fixtureId}
+                                            teamId={event.team?.id}
+                                            size="md"
+                                            className="shadow-sm border-red-300"
+                                          />
+                                        </div>
+                                      )}
+                                  </div>
+
+                                  <div className="text-left">
+                                    {event.type === "subst" &&
+                                    event.assist?.name ? (
+                                      <>
+                                        <div className="text-xs font-medium text-green-600">
+                                          {event.assist.name}
+                                        </div>
+                                        <div className="text-xs font-medium text-red-600">
+                                          {event.player?.name ||
+                                            "Unknown Player"}
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <div className="text-xs font-medium text-gray-700">
+                                        {event.player?.name || "Unknown Player"}
+                                      </div>
+                                    )}
+                                    {event.type === "goal" &&
+                                      event.assist?.name && (
+                                        <div className="text-xs text-gray-600">
+                                          (Assist: {event.assist.name})
+                                        </div>
+                                      )}
+                                    {event.type !== "subst" &&
+                                      event.type !== "Card" &&
+                                      event.type !== "Goal" && (
+                                        <div className="text-xs text-gray-400">
+                                          {event.type === "foul" ||
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("foul")
+                                            ? `Foul by ${event.player?.name || "Unknown Player"}`
+                                            : event.detail || event.type}
+                                        </div>
+                                      )}
+                                  </div>
+                                </div>
+
+                                {/* Column 2: Event Icon */}
+                                <div className="match-event-home-icon-column">
+                                  <div
+                                    className={`match-event-icon ${
+                                      event.type === "goal"
+                                        ? "goal"
+                                        : event.type === "card"
+                                          ? "card"
+                                          : "substitution"
+                                    } relative group`}
+                                    style={{ marginRight: "-8px" }}
+                                    title={getEventDescription(event)}
+                                  >
+                                    {event.type === "subst" ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/substitution.svg"
+                                        alt="Substitution"
+                                        className="w-4 h-4   duration-200 "
+                                      />
+                                    ) : event.type === "Goal" ? (
+                                      (() => {
+                                        const detail =
+                                          event.detail?.toLowerCase() || "";
+                                        if (detail.includes("penalty")) {
+                                          if (detail.includes("missed")) {
+                                            return (
+                                              <img
+                                                src="/assets/matchdetaillogo/missed-penalty.svg"
+                                                alt="Missed Penalty"
+                                                className="w-4 h-4  "
+                                              />
+                                            );
+                                          } else {
+                                            return (
+                                              <img
+                                                src="/assets/matchdetaillogo/penalty.svg"
+                                                alt="Penalty Goal"
+                                                className="w-4 h-4  "
+                                              />
+                                            );
+                                          }
+                                        } else if (
+                                          detail.includes("own goal")
+                                        ) {
+                                          return (
+                                            <img
+                                              src="/assets/matchdetaillogo/soccer-logo.svg"
+                                              alt="Own Goal"
+                                              className="w-4 h-4 "
+                                            />
+                                          );
+                                        } else {
+                                          return (
+                                            <img
+                                              src="/assets/matchdetaillogo/soccer-ball.svg"
+                                              alt="Goal"
+                                              className="w-4 h-4 "
+                                            />
+                                          );
+                                        }
+                                      })()
+                                    ) : event.type === "Card" ? (
+                                      <img
+                                        src={
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("yellow")
+                                            ? "/assets/matchdetaillogo/card-icon.svg"
+                                            : "/assets/matchdetaillogo/red-card-icon.svg"
+                                        }
+                                        alt={
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("yellow")
+                                            ? "Yellow Card"
+                                            : "Red Card"
+                                        }
+                                        title={
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("yellow")
+                                            ? "Yellow Card"
+                                            : "Red Card"
+                                        }
+                                        className="w-4 h-8 "
+                                      />
+                                    ) : (
+                                      <span className="text-xs">
+                                        {getEventIcon(event.type, event.detail)}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </>
+                            )}
+                          </div>
+
+                          {/* Center Grid: Time display only */}
+                          <div className="match-event-time-center-simple">
+                            {/* Middle: Time display - show elapsed time in black and extra time in red */}
+                            <div
+                              className="match-event-time-display"
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flexDirection: "row",
+                                height: "100%",
+                              }}
+                            >
+                              <span style={{ color: "black", lineHeight: "1" }}>
+                                {event.time?.elapsed}'
+                              </span>
+                              {event.time?.extra && (
+                                <span style={{ color: "red", lineHeight: "1" }}>
+                                  +{event.time.extra}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Right Grid: Away Team Events */}
+                          <div className="match-event-away-side">
+                            {!isHome && (
+                              <>
+                                {/* Column 1: Event Icon */}
+                                <div className="match-event-away-icon-column">
+                                  <div
+                                    className={`match-event-icon ${
+                                      event.type === "Goal"
+                                        ? "Goal"
+                                        : event.type === "Card"
+                                          ? "Card"
+                                          : "Substitution"
+                                    }`}
+                                    style={{ marginRight: "-8px" }}
+                                    title={getEventDescription(event)}
+                                  >
+                                    {event.type === "subst" ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/substitution.svg"
+                                        alt="Substitution"
+                                        className="w-4 h-4 "
+                                      />
+                                    ) : event.type === "Goal" ? (
+                                      (() => {
+                                        const detail =
+                                          event.detail?.toLowerCase() || "";
+                                        if (detail.includes("penalty")) {
+                                          if (detail.includes("missed")) {
+                                            return (
+                                              <img
+                                                src="/assets/matchdetaillogo/missed-penalty.svg"
+                                                alt="Missed Penalty"
+                                                className="w-4 h-4 "
+                                              />
+                                            );
+                                          } else {
+                                            return (
+                                              <img
+                                                src="/assets/matchdetaillogo/penalty.svg"
+                                                alt="Penalty Goal"
+                                                className="w-4 h-4 "
+                                              />
+                                            );
+                                          }
+                                        } else if (
+                                          detail.includes("own goal")
+                                        ) {
+                                          return (
+                                            <img
+                                              src="/assets/matchdetaillogo/soccer-logo.svg"
+                                              alt="Own Goal"
+                                              className="w-4 h-4 "
+                                            />
+                                          );
+                                        } else {
+                                          return (
+                                            <img
+                                              src="/assets/matchdetaillogo/soccer-ball.svg"
+                                              alt="Goal"
+                                              className="w-4 h-4 "
+                                            />
+                                          );
+                                        }
+                                      })()
+                                    ) : event.type === "Card" ? (
+                                      <img
+                                        src={
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("yellow")
+                                            ? "/assets/matchdetaillogo/card-icon.svg"
+                                            : "/assets/matchdetaillogo/red-card-icon.svg"
+                                        }
+                                        alt={
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("yellow")
+                                            ? "Yellow Card"
+                                            : "Red Card"
+                                        }
+                                        title={
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("yellow")
+                                            ? "Yellow Card"
+                                            : "Red Card"
+                                        }
+                                        className="w-4 h-4 "
+                                      />
+                                    ) : (
+                                      <span className="text-xs">
+                                        {getEventIcon(event.type, event.detail)}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Column 2: Player Info */}
+                                <div className="match-event-away-player-info">
+                                  <div className="text-right w-36">
+                                    {event.type === "subst" &&
+                                    event.assist?.name ? (
+                                      <>
+                                        <div className="text-xs font-medium text-green-600 text-right">
+                                          {event.assist.name}
+                                        </div>
+                                        <div className="text-xs font-medium text-red-600 text-right">
+                                          {event.player?.name ||
+                                            "Unknown Player"}
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <div className="text-xs font-medium text-gray-700 text-right">
+                                        {event.player?.name || "Unknown Player"}
+                                      </div>
+                                    )}
+                                    {event.type === "goal" &&
+                                      event.assist?.name && (
+                                        <div className="text-xs text-gray-600 text-right">
+                                          (Assist: {event.assist.name})
+                                        </div>
+                                      )}
+                                    {event.type !== "subst" &&
+                                      event.type !== "Card" &&
+                                      event.type !== "Goal" && (
+                                        <div className="text-xs text-gray-400 text-right">
+                                          {event.type === "foul" ||
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("foul")
+                                            ? `Foul by ${event.player?.name || "Unknown Player"}`
+                                            : event.detail || event.type}
+                                        </div>
+                                      )}
+                                  </div>
+
+                                  <div className="flex items-center gap-1">
+                                    {event.type === "subst" &&
+                                      event.assist?.name && (
+                                        <div
+                                          className="-ml-4 -mr-3 relative z-20 cursor-pointer hover:scale-105 transition-transform"
+                                          onClick={() =>
+                                            handlePlayerClick(
+                                              event.assist?.id,
+                                              event.team.id,
+                                              event.assist?.name,
+                                            )
+                                          }
+                                        >
+                                          <MyAvatarInfo
+                                            playerId={event.assist?.id}
+                                            playerName={event.assist?.name}
+                                            matchId={fixtureId}
+                                            teamId={event.team?.id}
+                                            size="md"
+                                            className="shadow-sm border-red-300"
+                                          />
+                                        </div>
+                                      )}
+
+                                    <div
+                                      className="cursor-pointer hover:scale-105 transition-transform"
+                                      onClick={() =>
+                                        handlePlayerClick(
+                                          event.player?.id,
+                                          event.team.id,
+                                          event.player?.name,
+                                        )
+                                      }
+                                    >
+                                      <MyAvatarInfo
+                                        playerId={event.player?.id}
+                                        playerName={event.player?.name}
+                                        matchId={fixtureId}
+                                        teamId={event.team?.id}
+                                        size="md"
+                                        className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
                   });
-
-                  // Add grouped events
-                  Array.from(groupedByTime.entries())
-                    .sort(([aTimeKey], [bTimeKey]) => {
-                      const [aElapsed, aExtra] = aTimeKey.split('-').map(Number);
-                      const [bElapsed, bExtra] = bTimeKey.split('-').map(Number);
-                      const aTotalTime = aElapsed + aExtra;
-                      const bTotalTime = bElapsed + bExtra;
-                      return bTotalTime - aTotalTime; // Descending order
-                    })
-                    .forEach(([timeKey, events]) => {
-                      if (events.length === 1) {
-                        // Single event at this time
-                        const { item: event, index } = events[0];
-                        const isOwnGoal = event.detail?.toLowerCase().includes("own goal");
-                        const isHome = isOwnGoal
-                          ? event.team?.name !== homeTeam
-                          : event.team?.name === homeTeam;
-
-                        displayItems.push(
-                          <div
-                            key={`single-event-${index}`}
-                            className="match-event-container"
-                          >
-                            {/* Single event display - same as before */}
-                            <div className="match-event-three-grid-container">
-                              {/* Left Grid: Home Team Events */}
-                              <div className="match-event-home-side">
-                                {isHome && (
-                                  <>
-                                    {/* Column 1: Player Info */}
-                                    <div className="match-event-home-player-info">
-                                      <div className="flex items-center gap-1">
-                                        <div
-                                          className="cursor-pointer hover:scale-105 transition-transform"
-                                          onClick={() =>
-                                            handlePlayerClick(
-                                              event.player?.id,
-                                              event.team.id,
-                                              event.player?.name,
-                                            )
-                                          }
-                                        >
-                                          <MyAvatarInfo
-                                            playerId={event.player?.id}
-                                            playerName={event.player?.name}
-                                            matchId={fixtureId}
-                                            teamId={event.team?.id}
-                                            size="md"
-                                            className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
-                                          />
-                                        </div>
-
-                                        {event.type === "subst" &&
-                                          event.assist?.name && (
-                                            <div
-                                              className="-ml-4 -mr-2 relative z-20 cursor-pointer hover:scale-105 transition-transform"
-                                              onClick={() =>
-                                                handlePlayerClick(
-                                                  event.assist?.id,
-                                                  event.team.id,
-                                                  event.assist?.name,
-                                                )
-                                              }
-                                            >
-                                              <MyAvatarInfo
-                                                playerId={event.assist?.id}
-                                                playerName={event.assist?.name}
-                                                matchId={fixtureId}
-                                                teamId={event.team?.id}
-                                                size="md"
-                                                className="shadow-sm border-red-300"
-                                              />
-                                            </div>
-                                          )}
-                                      </div>
-
-                                      <div className="text-left">
-                                        {event.type === "subst" &&
-                                        event.assist?.name ? (
-                                          <>
-                                            <div className="text-xs font-medium text-green-600">
-                                              {event.assist.name}
-                                            </div>
-                                            <div className="text-xs font-medium text-red-600">
-                                              {event.player?.name ||
-                                                "Unknown Player"}
-                                            </div>
-                                          </>
-                                        ) : (
-                                          <div className="text-xs font-medium text-gray-700">
-                                            {event.player?.name || "Unknown Player"}
-                                          </div>
-                                        )}
-                                        {event.type === "goal" &&
-                                          event.assist?.name && (
-                                            <div className="text-xs text-gray-600">
-                                              (Assist: {event.assist.name})
-                                            </div>
-                                          )}
-                                        {event.type !== "subst" &&
-                                          event.type !== "Card" &&
-                                          event.type !== "Goal" && (
-                                            <div className="text-xs text-gray-400">
-                                              {event.type === "foul" ||
-                                              event.detail
-                                                ?.toLowerCase()
-                                                .includes("foul")
-                                                ? `Foul by ${event.player?.name || "Unknown Player"}`
-                                                : event.detail || event.type}
-                                            </div>
-                                          )}
-                                      </div>
-                                    </div>
-
-                                    {/* Column 2: Event Icon */}
-                                    <div className="match-event-home-icon-column">
-                                      <div
-                                        className={`match-event-icon ${
-                                          event.type === "goal"
-                                            ? "goal"
-                                            : event.type === "card"
-                                              ? "card"
-                                              : "substitution"
-                                        } relative group`}
-                                        style={{ marginRight: "-8px" }}
-                                        title={getEventDescription(event)}
-                                      >
-                                        {event.type === "subst" ? (
-                                          <img
-                                            src="/assets/matchdetaillogo/substitution.svg"
-                                            alt="Substitution"
-                                            className="w-4 h-4   duration-200 "
-                                          />
-                                        ) : event.type === "Goal" ? (
-                                          (() => {
-                                            const detail =
-                                              event.detail?.toLowerCase() || "";
-                                            if (detail.includes("penalty")) {
-                                              if (detail.includes("missed")) {
-                                                return (
-                                                  <img
-                                                    src="/assets/matchdetaillogo/missed-penalty.svg"
-                                                    alt="Missed Penalty"
-                                                    className="w-4 h-4  "
-                                                  />
-                                                );
-                                              } else {
-                                                return (
-                                                  <img
-                                                    src="/assets/matchdetaillogo/penalty.svg"
-                                                    alt="Penalty Goal"
-                                                    className="w-4 h-4  "
-                                                  />
-                                                );
-                                              }
-                                            } else if (
-                                              detail.includes("own goal")
-                                            ) {
-                                              return (
-                                                <img
-                                                  src="/assets/matchdetaillogo/soccer-logo.svg"
-                                                  alt="Own Goal"
-                                                  className="w-4 h-4 "
-                                                />
-                                              );
-                                            } else {
-                                              return (
-                                                <img
-                                                  src="/assets/matchdetaillogo/soccer-ball.svg"
-                                                  alt="Goal"
-                                                  className="w-4 h-4 "
-                                                />
-                                              );
-                                            }
-                                          })()
-                                        ) : event.type === "Card" ? (
-                                          <img
-                                            src={
-                                              event.detail
-                                                ?.toLowerCase()
-                                                .includes("yellow")
-                                                ? "/assets/matchdetaillogo/card-icon.svg"
-                                                : "/assets/matchdetaillogo/red-card-icon.svg"
-                                            }
-                                            alt={
-                                              event.detail
-                                                ?.toLowerCase()
-                                                .includes("yellow")
-                                                ? "Yellow Card"
-                                                : "Red Card"
-                                            }
-                                            title={
-                                              event.detail
-                                                ?.toLowerCase()
-                                                .includes("yellow")
-                                                ? "Yellow Card"
-                                                : "Red Card"
-                                            }
-                                            className="w-4 h-8 "
-                                          />
-                                        ) : (
-                                          <span className="text-xs">
-                                            {getEventIcon(event.type, event.detail)}
-                                          </span>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </>
-                                )}
-                              </div>
-
-                              {/* Center Grid: Time display only */}
-                              <div className="match-event-time-center-simple">
-                                {/* Middle: Time display - show elapsed time in black and extra time in red */}
-                                <div
-                                  className="match-event-time-display"
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    flexDirection: "row",
-                                    height: "100%",
-                                  }}
-                                >
-                                  <span style={{ color: "black", lineHeight: "1" }}>
-                                    {event.time?.elapsed}'
-                                  </span>
-                                  {event.time?.extra && (
-                                    <span style={{ color: "red", lineHeight: "1" }}>
-                                      +{event.time.extra}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Right Grid: Away Team Events */}
-                              <div className="match-event-away-side">
-                                {!isHome && (
-                                  <>
-                                    {/* Column 1: Event Icon */}
-                                    <div className="match-event-away-icon-column">
-                                      <div
-                                        className={`match-event-icon ${
-                                          event.type === "Goal"
-                                            ? "Goal"
-                                            : event.type === "Card"
-                                              ? "Card"
-                                              : "Substitution"
-                                        }`}
-                                        style={{ marginRight: "-8px" }}
-                                        title={getEventDescription(event)}
-                                      >
-                                        {event.type === "subst" ? (
-                                          <img
-                                            src="/assets/matchdetaillogo/substitution.svg"
-                                            alt="Substitution"
-                                            className="w-4 h-4 "
-                                          />
-                                        ) : event.type === "Goal" ? (
-                                          (() => {
-                                            const detail =
-                                              event.detail?.toLowerCase() || "";
-                                            if (detail.includes("penalty")) {
-                                              if (detail.includes("missed")) {
-                                                return (
-                                                  <img
-                                                    src="/assets/matchdetaillogo/missed-penalty.svg"
-                                                    alt="Missed Penalty"
-                                                    className="w-4 h-4 "
-                                                  />
-                                                );
-                                              } else {
-                                                return (
-                                                  <img
-                                                    src="/assets/matchdetaillogo/penalty.svg"
-                                                    alt="Penalty Goal"
-                                                    className="w-4 h-4 "
-                                                  />
-                                                );
-                                              }
-                                            } else if (
-                                              detail.includes("own goal")
-                                            ) {
-                                              return (
-                                                <img
-                                                  src="/assets/matchdetaillogo/soccer-logo.svg"
-                                                  alt="Own Goal"
-                                                  className="w-4 h-4 "
-                                                />
-                                              );
-                                            } else {
-                                              return (
-                                                <img
-                                                  src="/assets/matchdetaillogo/soccer-ball.svg"
-                                                  alt="Goal"
-                                                  className="w-4 h-4 "
-                                                />
-                                              );
-                                            }
-                                          })()
-                                        ) : event.type === "Card" ? (
-                                          <img
-                                            src={
-                                              event.detail
-                                                ?.toLowerCase()
-                                                .includes("yellow")
-                                                ? "/assets/matchdetaillogo/card-icon.svg"
-                                                : "/assets/matchdetaillogo/red-card-icon.svg"
-                                            }
-                                            alt={
-                                              event.detail
-                                                ?.toLowerCase()
-                                                .includes("yellow")
-                                                ? "Yellow Card"
-                                                : "Red Card"
-                                            }
-                                            title={
-                                              event.detail
-                                                ?.toLowerCase()
-                                                .includes("yellow")
-                                                ? "Yellow Card"
-                                                : "Red Card"
-                                            }
-                                            className="w-4 h-4 "
-                                          />
-                                        ) : (
-                                          <span className="text-xs">
-                                            {getEventIcon(event.type, event.detail)}
-                                          </span>
-                                        )}
-                                      </div>
-                                    </div>
-
-                                    {/* Column 2: Player Info */}
-                                    <div className="match-event-away-player-info">
-                                      <div className="text-right w-36">
-                                        {event.type === "subst" &&
-                                        event.assist?.name ? (
-                                          <>
-                                            <div className="text-xs font-medium text-green-600 text-right">
-                                              {event.assist.name}
-                                            </div>
-                                            <div className="text-xs font-medium text-red-600 text-right">
-                                              {event.player?.name ||
-                                                "Unknown Player"}
-                                            </div>
-                                          </>
-                                        ) : (
-                                          <div className="text-xs font-medium text-gray-700 text-right">
-                                            {event.player?.name || "Unknown Player"}
-                                          </div>
-                                        )}
-                                        {event.type === "goal" &&
-                                          event.assist?.name && (
-                                            <div className="text-xs text-gray-600 text-right">
-                                              (Assist: {event.assist.name})
-                                            </div>
-                                          )}
-                                        {event.type !== "subst" &&
-                                          event.type !== "Card" &&
-                                          event.type !== "Goal" && (
-                                            <div className="text-xs text-gray-400 text-right">
-                                              {event.type === "foul" ||
-                                              event.detail
-                                                ?.toLowerCase()
-                                                .includes("foul")
-                                                ? `Foul by ${event.player?.name || "Unknown Player"}`
-                                                : event.detail || event.type}
-                                            </div>
-                                          )}
-                                      </div>
-
-                                      <div className="flex items-center gap-1">
-                                        {event.type === "subst" &&
-                                          event.assist?.name && (
-                                            <div
-                                              className="-ml-4 -mr-3 relative z-20 cursor-pointer hover:scale-105 transition-transform"
-                                              onClick={() =>
-                                                handlePlayerClick(
-                                                  event.assist?.id,
-                                                  event.team.id,
-                                                  event.assist?.name,
-                                                )
-                                              }
-                                            >
-                                              <MyAvatarInfo
-                                                playerId={event.assist?.id}
-                                                playerName={event.assist?.name}
-                                                matchId={fixtureId}
-                                                teamId={event.team?.id}
-                                                size="md"
-                                                className="shadow-sm border-red-300"
-                                              />
-                                            </div>
-                                          )}
-
-                                        <div
-                                          className="cursor-pointer hover:scale-105 transition-transform"
-                                          onClick={() =>
-                                            handlePlayerClick(
-                                              event.player?.id,
-                                              event.team.id,
-                                              event.player?.name,
-                                            )
-                                          }
-                                        >
-                                          <MyAvatarInfo
-                                            playerId={event.player?.id}
-                                            playerName={event.player?.name}
-                                            matchId={fixtureId}
-                                            teamId={event.team?.id}
-                                            size="md"
-                                            className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      } else {
-                        // Multiple events at the same time - combine them
-                        const homeEvents = events.filter(({ item }) => {
-                          const isOwnGoal = item.detail?.toLowerCase().includes("own goal");
-                          return isOwnGoal ? item.team?.name !== homeTeam : item.team?.name === homeTeam;
-                        });
-                        const awayEvents = events.filter(({ item }) => {
-                          const isOwnGoal = item.detail?.toLowerCase().includes("own goal");
-                          return isOwnGoal ? item.team?.name === homeTeam : item.team?.name !== homeTeam;
-                        });
-
-                        displayItems.push(
-                          <div
-                            key={`combined-events-${timeKey}`}
-                            className="match-event-container"
-                          >
-                            <div className="match-event-three-grid-container">
-                              {/* Left Grid: Home Team Events */}
-                              <div className="match-event-home-side">
-                                {homeEvents.map(({ item: event, index }) => (
-                                  <div key={`home-${index}`} className="mb-2 last:mb-0">
-                                    <div className="match-event-home-player-info">
-                                      <div className="flex items-center gap-1">
-                                        <div
-                                          className="cursor-pointer hover:scale-105 transition-transform"
-                                          onClick={() =>
-                                            handlePlayerClick(
-                                              event.player?.id,
-                                              event.team.id,
-                                              event.player?.name,
-                                            )
-                                          }
-                                        >
-                                          <MyAvatarInfo
-                                            playerId={event.player?.id}
-                                            playerName={event.player?.name}
-                                            matchId={fixtureId}
-                                            teamId={event.team?.id}
-                                            size="sm"
-                                            className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
-                                          />
-                                        </div>
-                                        
-                                        <div className="match-event-icon">
-                                          {event.type === "subst" ? (
-                                            <img
-                                              src="/assets/matchdetaillogo/substitution.svg"
-                                              alt="Substitution"
-                                              className="w-3 h-3"
-                                            />
-                                          ) : event.type === "Goal" ? (
-                                            <img
-                                              src="/assets/matchdetaillogo/soccer-ball.svg"
-                                              alt="Goal"
-                                              className="w-3 h-3"
-                                            />
-                                          ) : event.type === "Card" ? (
-                                            <img
-                                              src={
-                                                event.detail?.toLowerCase().includes("yellow")
-                                                  ? "/assets/matchdetaillogo/card-icon.svg"
-                                                  : "/assets/matchdetaillogo/red-card-icon.svg"
-                                              }
-                                              alt={
-                                                event.detail?.toLowerCase().includes("yellow")
-                                                  ? "Yellow Card"
-                                                  : "Red Card"
-                                              }
-                                              className="w-3 h-6"
-                                            />
-                                          ) : (
-                                            <span className="text-xs">
-                                              {getEventIcon(event.type, event.detail)}
-                                            </span>
-                                          )}
-                                        </div>
-                                      </div>
-                                      
-                                      <div className="text-left">
-                                        <div className="text-xs font-medium text-gray-700">
-                                          {event.player?.name || "Unknown Player"}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-
-                              {/* Center Grid: Time display only */}
-                              <div className="match-event-time-center-simple">
-                                <div
-                                  className="match-event-time-display"
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    flexDirection: "row",
-                                    height: "100%",
-                                  }}
-                                >
-                                  <span style={{ color: "black", lineHeight: "1" }}>
-                                    {events[0].item.time?.elapsed}'
-                                  </span>
-                                  {events[0].item.time?.extra && (
-                                    <span style={{ color: "red", lineHeight: "1" }}>
-                                      +{events[0].item.time.extra}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Right Grid: Away Team Events */}
-                              <div className="match-event-away-side">
-                                {awayEvents.map(({ item: event, index }) => (
-                                  <div key={`away-${index}`} className="mb-2 last:mb-0">
-                                    <div className="match-event-away-player-info">
-                                      <div className="text-right">
-                                        <div className="text-xs font-medium text-gray-700">
-                                          {event.player?.name || "Unknown Player"}
-                                        </div>
-                                      </div>
-                                      
-                                      <div className="flex items-center gap-1">
-                                        <div className="match-event-icon">
-                                          {event.type === "subst" ? (
-                                            <img
-                                              src="/assets/matchdetaillogo/substitution.svg"
-                                              alt="Substitution"
-                                              className="w-3 h-3"
-                                            />
-                                          ) : event.type === "Goal" ? (
-                                            <img
-                                              src="/assets/matchdetaillogo/soccer-ball.svg"
-                                              alt="Goal"
-                                              className="w-3 h-3"
-                                            />
-                                          ) : event.type === "Card" ? (
-                                            <img
-                                              src={
-                                                event.detail?.toLowerCase().includes("yellow")
-                                                  ? "/assets/matchdetaillogo/card-icon.svg"
-                                                  : "/assets/matchdetaillogo/red-card-icon.svg"
-                                              }
-                                              alt={
-                                                event.detail?.toLowerCase().includes("yellow")
-                                                  ? "Yellow Card"
-                                                  : "Red Card"
-                                              }
-                                              className="w-3 h-6"
-                                            />
-                                          ) : (
-                                            <span className="text-xs">
-                                              {getEventIcon(event.type, event.detail)}
-                                            </span>
-                                          )}
-                                        </div>
-                                        
-                                        <div
-                                          className="cursor-pointer hover:scale-105 transition-transform"
-                                          onClick={() =>
-                                            handlePlayerClick(
-                                              event.player?.id,
-                                              event.team.id,
-                                              event.player?.name,
-                                            )
-                                          }
-                                        >
-                                          <MyAvatarInfo
-                                            playerId={event.player?.id}
-                                            playerName={event.player?.name}
-                                            matchId={fixtureId}
-                                            teamId={event.team?.id}
-                                            size="sm"
-                                            className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      }
-                    });
-
-                  return displayItems;
                 })()}
 
                 {/* Show MyCommentary for All tab */}
@@ -1952,7 +1719,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       if (isMatchEnded || fullTimeGoals.length > 0) {
                         markers.push({
-                          time: { elapsed: 90 },
+                          time: { elapsed: 119 },
                           type: "period_score",
                           detail: "End of 90 Minutes",
                           score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
