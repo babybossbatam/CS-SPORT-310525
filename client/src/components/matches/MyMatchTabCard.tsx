@@ -135,14 +135,14 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
           awayTeam={match.teams?.away?.name}
         />
       </div>
-
+       <Card>
       {/* Match Statistics */}
-      <div className="space-y-2">
+      <div className="">
         <MyStatsCard match={match} />
       </div>
 
       {/* See All Stats Button */}
-      <Card>
+     
         <div className="text-center">
           <button
             onClick={() => onTabChange && onTabChange("stats")}
