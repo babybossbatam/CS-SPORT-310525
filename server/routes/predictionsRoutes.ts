@@ -9,7 +9,10 @@ router.get('/:fixtureId', async (req, res) => {
     const { fixtureId } = req.params;
 
     if (!fixtureId) {
-      return res.status(400).json({ error: 'Fixture ID is required' });
+      return res.json({ 
+        response: [],
+        error: 'Fixture ID is required' 
+      });
     }
 
     console.log(`🔮 [Predictions] Fetching prediction for fixture: ${fixtureId}`);
@@ -26,18 +29,41 @@ router.get('/:fixtureId', async (req, res) => {
     const response = await fetch(url, options);
     
     if (!response.ok) {
-      throw new Error(`RapidAPI request failed: ${response.status} ${response.statusText}`);
+      console.error(`❌ [Predictions] RapidAPI error for fixture ${fixtureId}:`, response.status);
+      return res.json({ 
+        response: [],
+        error: 'No prediction data available',
+        status: response.status
+      });
     }
 
     const result = await response.text();
-    const data = JSON.parse(result);
+    
+    // Check if response is HTML (error page) instead of JSON
+    if (result.trim().startsWith('<!DOCTYPE') || result.trim().startsWith('<html')) {
+      console.error(`❌ [Predictions] Received HTML response instead of JSON for fixture ${fixtureId}`);
+      return res.json({ 
+        response: [],
+        error: 'Prediction service temporarily unavailable'
+      });
+    }
 
-    console.log(`✅ [Predictions] Successfully fetched prediction for fixture: ${fixtureId}`);
-    res.json(data);
+    try {
+      const data = JSON.parse(result);
+      console.log(`✅ [Predictions] Successfully fetched prediction for fixture: ${fixtureId}`);
+      res.json(data);
+    } catch (parseError) {
+      console.error(`❌ [Predictions] JSON parse error for fixture ${fixtureId}:`, parseError);
+      return res.json({ 
+        response: [],
+        error: 'Invalid response format from prediction service'
+      });
+    }
 
   } catch (error) {
     console.error('❌ [Predictions] Error:', error);
-    res.status(500).json({ 
+    res.json({ 
+      response: [],
       error: 'Failed to fetch prediction data',
       details: error instanceof Error ? error.message : 'Unknown error'
     });

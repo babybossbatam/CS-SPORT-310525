@@ -114,7 +114,19 @@ const MyPredictionNew: React.FC<MyPredictionNewProps> = ({ match, fixtureId }) =
           throw new Error(`Failed to fetch prediction: ${response.status} ${response.statusText}`);
         }
 
-        const data = await response.json();
+        const responseText = await response.text();
+        
+        // Check if response is HTML (error page) instead of JSON
+        if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
+          throw new Error('Prediction service temporarily unavailable');
+        }
+
+        let data;
+        try {
+          data = JSON.parse(responseText);
+        } catch (parseError) {
+          throw new Error('Invalid response format from prediction service');
+        }
         
         if (data.error) {
           throw new Error(data.error);

@@ -3328,7 +3328,7 @@ app.get('/api/fixtures/headtohead', async (req, res) => {
       {
         method: 'GET',
         headers: {
-          'X-RapidAPI-Key': process.env.RAPIDAPI_KEY || '',
+          'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
           'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
         }
       }
@@ -3336,7 +3336,7 @@ app.get('/api/fixtures/headtohead', async (req, res) => {
 
     if (!response.ok) {
       console.error(`❌ [H2H API] RapidAPI error for teams ${team1Id}-${team2Id}:`, response.status);
-      return res.status(200).json({ 
+      return res.json({ 
         response: [],
         error: 'No head-to-head data available'
       });
@@ -3350,7 +3350,7 @@ app.get('/api/fixtures/headtohead', async (req, res) => {
 
   } catch (error) {
     console.error(`❌ [H2H API] Error fetching head-to-head data:`, error);
-    res.status(200).json({ 
+    res.json({ 
       response: [],
       error: 'Failed to fetch head-to-head data',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -3377,7 +3377,7 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
       {
         method: 'GET',
         headers: {
-          'X-RapidAPI-Key': process.env.RAPIDAPI_KEY || '',
+          'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
           'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
         }
       }
@@ -3385,7 +3385,7 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
 
     if (!response.ok) {
       console.error(`❌ [Shots API] RapidAPI error for fixture ${fixtureId}:`, response.status);
-      return res.status(200).json({ 
+      return res.json({ 
         fixture: fixtureId,
         shots: [],
         error: 'No shot data available'
@@ -3412,7 +3412,7 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
 
   } catch (error) {
     console.error(`❌ [Shots API] Error fetching shots for fixture ${fixtureId}:`, error);
-    res.status(200).json({ 
+    res.json({ 
       fixture: fixtureId,
       shots: [],
       error: 'Failed to fetch shot data',
