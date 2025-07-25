@@ -94,6 +94,23 @@ const MyPredictionNew: React.FC<MyPredictionNewProps> = ({ match, fixtureId }) =
   // Extract fixture ID from props or match object
   const extractedFixtureId = fixtureId || match?.fixture?.id;
 
+  // Debug logging for fixture ID analysis
+  console.log('🔮 [MyPredictionNew] Component initialized with:', {
+    fixtureIdProp: fixtureId,
+    matchObject: match,
+    matchFixtureId: match?.fixture?.id,
+    extractedFixtureId: extractedFixtureId,
+    fixtureIdType: typeof extractedFixtureId,
+    matchStructure: match ? {
+      hasFixture: !!match.fixture,
+      fixtureKeys: match.fixture ? Object.keys(match.fixture) : null,
+      teams: match.teams ? {
+        home: match.teams.home?.name,
+        away: match.teams.away?.name
+      } : null
+    } : 'No match object'
+  });
+
   useEffect(() => {
     const fetchPrediction = async () => {
       if (!extractedFixtureId) {
@@ -106,43 +123,116 @@ const MyPredictionNew: React.FC<MyPredictionNewProps> = ({ match, fixtureId }) =
         setLoading(true);
         setError(null);
 
-        console.log(`🔮 [MyPredictionNew] Fetching prediction for fixture: ${extractedFixtureId}`);
+        console.log(`🔮 [MyPredictionNew] Starting prediction fetch process:`, {
+          extractedFixtureId,
+          fixtureIdType: typeof extractedFixtureId,
+          timestamp: new Date().toISOString(),
+          requestUrl: `/api/predictions/${extractedFixtureId}`
+        });
 
         const response = await fetch(`/api/predictions/${extractedFixtureId}`);
         
+        console.log(`🔮 [MyPredictionNew] API Response received:`, {
+          status: response.status,
+          statusText: response.statusText,
+          ok: response.ok,
+          headers: {
+            contentType: response.headers.get('content-type'),
+            contentLength: response.headers.get('content-length')
+          },
+          url: response.url
+        });
+        
         if (!response.ok) {
+          console.error(`❌ [MyPredictionNew] HTTP Error:`, {
+            status: response.status,
+            statusText: response.statusText,
+            fixtureId: extractedFixtureId
+          });
           throw new Error(`Failed to fetch prediction: ${response.status} ${response.statusText}`);
         }
 
         const responseText = await response.text();
         
+        console.log(`🔮 [MyPredictionNew] Raw response received:`, {
+          responseLength: responseText.length,
+          responseStart: responseText.substring(0, 200),
+          isHTML: responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html'),
+          fixtureId: extractedFixtureId
+        });
+        
         // Check if response is HTML (error page) instead of JSON
         if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
+          console.error(`❌ [MyPredictionNew] Received HTML instead of JSON:`, {
+            fixtureId: extractedFixtureId,
+            responsePreview: responseText.substring(0, 500)
+          });
           throw new Error('Prediction service temporarily unavailable');
         }
 
         let data;
         try {
           data = JSON.parse(responseText);
+          console.log(`✅ [MyPredictionNew] JSON parsed successfully:`, {
+            fixtureId: extractedFixtureId,
+            dataKeys: Object.keys(data),
+            hasResponse: !!data.response,
+            responseType: Array.isArray(data.response) ? 'array' : typeof data.response,
+            responseLength: Array.isArray(data.response) ? data.response.length : 'not array',
+            hasError: !!data.error,
+            errorMessage: data.error
+          });
         } catch (parseError) {
+          console.error(`❌ [MyPredictionNew] JSON parse error:`, {
+            fixtureId: extractedFixtureId,
+            parseError: parseError instanceof Error ? parseError.message : parseError,
+            responseText: responseText.substring(0, 1000)
+          });
           throw new Error('Invalid response format from prediction service');
         }
         
         if (data.error) {
+          console.error(`❌ [MyPredictionNew] API returned error:`, {
+            fixtureId: extractedFixtureId,
+            error: data.error,
+            fullData: data
+          });
           throw new Error(data.error);
         }
 
         if (!data.response || data.response.length === 0) {
+          console.warn(`⚠️ [MyPredictionNew] No prediction data:`, {
+            fixtureId: extractedFixtureId,
+            hasResponse: !!data.response,
+            responseLength: data.response?.length,
+            fullData: data
+          });
           throw new Error('No prediction data available for this match');
         }
 
         // Handle both array and single object responses
         const predictionResponse = Array.isArray(data.response) ? data.response[0] : data.response;
+        
+        console.log(`✅ [MyPredictionNew] Prediction processing successful:`, {
+          fixtureId: extractedFixtureId,
+          predictionKeys: predictionResponse ? Object.keys(predictionResponse) : null,
+          hasPredictions: !!predictionResponse?.predictions,
+          hasTeams: !!predictionResponse?.teams,
+          homeTeam: predictionResponse?.teams?.home?.name,
+          awayTeam: predictionResponse?.teams?.away?.name
+        });
+        
         setPredictionData(predictionResponse);
         console.log(`✅ [MyPredictionNew] Prediction data loaded for fixture: ${extractedFixtureId}`);
 
       } catch (err) {
-        console.error(`❌ [MyPredictionNew] Error fetching prediction:`, err);
+        console.error(`❌ [MyPredictionNew] Complete error analysis:`, {
+          fixtureId: extractedFixtureId,
+          errorType: err instanceof Error ? err.constructor.name : typeof err,
+          errorMessage: err instanceof Error ? err.message : String(err),
+          errorStack: err instanceof Error ? err.stack : null,
+          timestamp: new Date().toISOString()
+        });
         setError(err instanceof Error ? err.message : 'Failed to load prediction');
       } finally {
         setLoading(false);

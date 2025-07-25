@@ -7,15 +7,38 @@ const router = express.Router();
 router.get('/:fixtureId', async (req, res) => {
   try {
     const { fixtureId } = req.params;
+    
+    console.log(`🔮 [Predictions] Route hit with full request details:`, {
+      fixtureId,
+      fixtureIdType: typeof fixtureId,
+      params: req.params,
+      query: req.query,
+      url: req.url,
+      method: req.method,
+      headers: {
+        userAgent: req.headers['user-agent'],
+        contentType: req.headers['content-type']
+      },
+      timestamp: new Date().toISOString()
+    });
 
     if (!fixtureId) {
+      console.error(`❌ [Predictions] No fixture ID provided`);
       return res.json({ 
         response: [],
         error: 'Fixture ID is required' 
       });
     }
 
-    console.log(`🔮 [Predictions] Fetching prediction for fixture: ${fixtureId}`);
+    if (fixtureId.trim() === '' || fixtureId === 'undefined' || fixtureId === 'null') {
+      console.error(`❌ [Predictions] Invalid fixture ID:`, { fixtureId, type: typeof fixtureId });
+      return res.json({ 
+        response: [],
+        error: 'Invalid fixture ID provided' 
+      });
+    }
+
+    console.log(`🔮 [Predictions] Starting API request for fixture: ${fixtureId}`);
 
     const url = `https://api-football-v1.p.rapidapi.com/v3/predictions?fixture=${fixtureId}`;
     const options = {
@@ -26,18 +49,55 @@ router.get('/:fixtureId', async (req, res) => {
       }
     };
 
+    console.log(`🔮 [Predictions] Making RapidAPI request:`, {
+      url,
+      fixtureId,
+      requestOptions: {
+        method: options.method,
+        headers: {
+          'x-rapidapi-host': options.headers['x-rapidapi-host'],
+          'x-rapidapi-key': options.headers['x-rapidapi-key'].substring(0, 10) + '...'
+        }
+      }
+    });
+
     const response = await fetch(url, options);
     
+    console.log(`🔮 [Predictions] RapidAPI response received:`, {
+      fixtureId,
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok,
+      headers: {
+        contentType: response.headers.get('content-type'),
+        contentLength: response.headers.get('content-length'),
+        server: response.headers.get('server')
+      }
+    });
+    
     if (!response.ok) {
-      console.error(`❌ [Predictions] RapidAPI error for fixture ${fixtureId}:`, response.status);
+      console.error(`❌ [Predictions] RapidAPI HTTP error:`, {
+        fixtureId,
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url
+      });
       return res.json({ 
         response: [],
         error: 'No prediction data available',
-        status: response.status
+        status: response.status,
+        statusText: response.statusText
       });
     }
 
     const result = await response.text();
+    
+    console.log(`🔮 [Predictions] Raw API response:`, {
+      fixtureId,
+      responseLength: result.length,
+      responseStart: result.substring(0, 200),
+      isHTML: result.trim().startsWith('<!DOCTYPE') || result.trim().startsWith('<html')
+    });
     
     // Check if response is HTML (error page) instead of JSON
     if (result.trim().startsWith('<!DOCTYPE') || result.trim().startsWith('<html')) {
@@ -50,13 +110,49 @@ router.get('/:fixtureId', async (req, res) => {
 
     try {
       const data = JSON.parse(result);
-      console.log(`✅ [Predictions] Successfully fetched prediction for fixture: ${fixtureId}`);
+      
+      console.log(`✅ [Predictions] JSON parsed successfully:`, {
+        fixtureId,
+        dataKeys: Object.keys(data),
+        hasResponse: !!data.response,
+        responseLength: data.response?.length,
+        hasResults: data.results,
+        hasPaging: !!data.paging,
+        hasErrors: !!data.errors,
+        errors: data.errors
+      });
+      
+      if (data.response && data.response.length > 0) {
+        console.log(`✅ [Predictions] Prediction data found:`, {
+          fixtureId,
+          predictionCount: data.response.length,
+          firstPrediction: {
+            hasFixture: !!data.response[0]?.fixture,
+            hasTeams: !!data.response[0]?.teams,
+            hasPredictions: !!data.response[0]?.predictions,
+            homeTeam: data.response[0]?.teams?.home?.name,
+            awayTeam: data.response[0]?.teams?.away?.name
+          }
+        });
+      } else {
+        console.warn(`⚠️ [Predictions] No prediction data in response:`, {
+          fixtureId,
+          fullResponse: data
+        });
+      }
+      
+      console.log(`✅ [Predictions] Sending response to client for fixture: ${fixtureId}`);
       res.json(data);
     } catch (parseError) {
-      console.error(`❌ [Predictions] JSON parse error for fixture ${fixtureId}:`, parseError);
+      console.error(`❌ [Predictions] JSON parse error:`, {
+        fixtureId,
+        parseError: parseError instanceof Error ? parseError.message : parseError,
+        rawResponse: result.substring(0, 1000)
+      });
       return res.json({ 
         response: [],
-        error: 'Invalid response format from prediction service'
+        error: 'Invalid response format from prediction service',
+        parseError: parseError instanceof Error ? parseError.message : String(parseError)
       });
     }
 
