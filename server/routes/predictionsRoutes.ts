@@ -9,32 +9,39 @@ router.get('/predictions/:fixtureId', async (req, res) => {
 
     console.log(`📊 [Predictions] Fetching predictions for fixture: ${fixtureId}`);
 
-    const request = require('request');
+    // Using fetch instead of request library for ES module compatibility
+    // const request = require('request'); // This causes "require is not defined" error
 
-    const options = {
-      method: 'GET',
-      url: 'https://api-football-v1.p.rapidapi.com/v3/predictions',
-      qs: { fixture: fixtureId }, // Using the dynamic fixture ID from request parameter
-      headers: {
-        'x-rapidapi-key': '18df86e6b3msha3430096f8da518p1ffd93jsnc21a6cf7f527',
-        'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
-      }
-    };
+    const url = new URL('https://api-football-v1.p.rapidapi.com/v3/predictions');
+    url.searchParams.append('fixture', fixtureId.toString());
 
-    request(options, function (error: any, response: any, body: any) {
-      if (error) {
-        console.error('❌ [Predictions] Request error:', error);
-        return res.status(500).json({ 
+    try {
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'x-rapidapi-key': '18df86e6b3msha3430096f8da518p1ffd93jsnc21a6cf7f527',
+          'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
+        }
+      });
+
+      // Check HTTP status
+      if (!response.ok) {
+        console.error(`❌ [Predictions] HTTP error: ${response.status}`);
+        const errorText = await response.text();
+        console.log('❌ [Predictions] Error response body:', errorText.substring(0, 200));
+        return res.status(response.status).json({ 
           success: false, 
-          error: 'Failed to fetch predictions',
+          error: `API returned status ${response.status}`,
           data: null 
         });
       }
 
+      const responseText = await response.text();
+      
       // Check if response is HTML (error page)
-      if (typeof body === 'string' && (body.startsWith('<!DOCTYPE') || body.startsWith('<html'))) {
+      if (responseText.startsWith('<!DOCTYPE') || responseText.startsWith('<html')) {
         console.error('❌ [Predictions] Received HTML response instead of JSON');
-        console.log('❌ [Predictions] HTML response:', body.substring(0, 200));
+        console.log('❌ [Predictions] HTML response:', responseText.substring(0, 200));
         return res.status(500).json({ 
           success: false, 
           error: 'API returned HTML error page',
@@ -42,19 +49,8 @@ router.get('/predictions/:fixtureId', async (req, res) => {
         });
       }
 
-      // Check HTTP status
-      if (response.statusCode !== 200) {
-        console.error(`❌ [Predictions] HTTP error: ${response.statusCode}`);
-        console.log('❌ [Predictions] Response body:', body);
-        return res.status(response.statusCode).json({ 
-          success: false, 
-          error: `API returned status ${response.statusCode}`,
-          data: null 
-        });
-      }
-
       try {
-        const data = JSON.parse(body);
+        const data = JSON.parse(responseText);
         console.log(`✅ [Predictions] Successfully fetched predictions for fixture ${fixtureId}:`, data);
         
         // Return in expected format
@@ -65,14 +61,21 @@ router.get('/predictions/:fixtureId', async (req, res) => {
         });
       } catch (parseError) {
         console.error('❌ [Predictions] JSON parse error:', parseError);
-        console.log('❌ [Predictions] Raw response body:', body.substring(0, 200));
+        console.log('❌ [Predictions] Raw response body:', responseText.substring(0, 200));
         res.status(500).json({ 
           success: false, 
           error: 'Invalid JSON response from API',
           data: null 
         });
       }
-    });
+    } catch (fetchError) {
+      console.error('❌ [Predictions] Fetch error:', fetchError);
+      return res.status(500).json({ 
+        success: false, 
+        error: 'Failed to fetch predictions',
+        data: null 
+      });
+    }
 
   } catch (error) {
     console.error('❌ [Predictions] Route error:', error);
