@@ -1033,15 +1033,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             {/* Render content based on active tab */}
             {activeTab === "all" && (
               <>
-                {/* Show penalty shootout only if match actually ended with penalties */}
-                {matchData?.fixture?.status?.short === "PEN" &&
-                  matchData?.score?.penalty?.home !== null &&
-                  matchData?.score?.penalty?.away !== null && (
-                    <PenaltyShootoutDisplay
-                      homeScore={matchData.score.penalty.home}
-                      awayScore={matchData.score.penalty.away}
-                    />
-                  )}
+               
 
                 {/* All events in chronological order with period score markers */}
                 {(() => {
@@ -1100,10 +1092,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       // Add "Halftime" marker if there are events in both halves
                       const firstHalfEvents = events.filter(
-                        (e) => e.time?.elapsed >= 1 && e.time?.elapsed <= 45,
+                        (e) => e.time?.elapsed >= 1 && e.time?.elapsed <= 45.5,
                       );
                       const secondHalfEvents = events.filter(
-                        (e) => e.time?.elapsed > 45,
+                        (e) => e.time?.elapsed > 45.5,
                       );
                       if (
                         firstHalfEvents.length > 0 &&
@@ -1714,12 +1706,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         matchStatus,
                       );
                       const fullTimeGoals = goalEvents.filter(
-                        (e) => e.time?.elapsed >= 90,
+                        (e) => e.time?.elapsed > 90,
                       );
 
                       if (isMatchEnded || fullTimeGoals.length > 0) {
                         markers.push({
-                          time: { elapsed: 119 },
+                          time: { elapsed: 90 },
                           type: "period_score",
                           detail: "End of 90 Minutes",
                           score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
