@@ -1,93 +1,45 @@
-
 import express from 'express';
 
 const router = express.Router();
 
 // Get predictions for a specific fixture
-router.get('/fixtures/:fixtureId/predictions', async (req, res) => {
+router.get('/predictions/:fixtureId', async (req, res) => {
   try {
     const { fixtureId } = req.params;
-    
-    // Validate fixture ID
-    if (!fixtureId || isNaN(Number(fixtureId))) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid fixture ID provided',
-        data: []
-      });
-    }
-    
-    console.log(`📊 [Predictions API] Fetching predictions for fixture: ${fixtureId}`);
-    
-    const apiKey = process.env.RAPID_API_KEY || process.env.RAPIDAPI_KEY || '';
-    
-    if (!apiKey) {
-      console.error('❌ [Predictions API] RapidAPI key not found in environment variables');
-      return res.status(500).json({
-        success: false,
-        message: 'API key not configured',
-        data: []
-      });
-    }
 
-    const response = await fetch(`https://api-football-v1.p.rapidapi.com/v3/predictions?fixture=${fixtureId}`, {
+    console.log(`📊 [Predictions] Fetching predictions for fixture: ${fixtureId}`);
+
+    const request = require('request');
+
+    const options = {
       method: 'GET',
+      url: 'https://api-football-v1.p.rapidapi.com/v3/predictions',
+      qs: { fixture: fixtureId }, // Using the dynamic fixture ID from request parameter
       headers: {
-        'X-RapidAPI-Key': apiKey,
-        'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com',
-        'Content-Type': 'application/json'
+        'x-rapidapi-key': '18df86e6b3msha3430096f8da518p1ffd93jsnc21a6cf7f527',
+        'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
+      }
+    };
+
+    request(options, function (error: any, response: any, body: any) {
+      if (error) {
+        console.error('❌ [Predictions] Error:', error);
+        return res.status(500).json({ error: 'Failed to fetch predictions' });
+      }
+
+      try {
+        const data = JSON.parse(body);
+        console.log(`✅ [Predictions] Successfully fetched predictions for fixture ${fixtureId}`);
+        res.json(data);
+      } catch (parseError) {
+        console.error('❌ [Predictions] JSON parse error:', parseError);
+        res.status(500).json({ error: 'Invalid response format' });
       }
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`❌ [Predictions API] HTTP ${response.status}: ${response.statusText}`, errorText);
-      
-      if (response.status === 401) {
-        return res.status(500).json({
-          success: false,
-          message: 'API authentication failed - please check API key configuration',
-          data: []
-        });
-      }
-      
-      if (response.status === 429) {
-        return res.status(429).json({
-          success: false,
-          message: 'API rate limit exceeded - please try again later',
-          data: []
-        });
-      }
-      
-      return res.status(500).json({
-        success: false,
-        message: `API error: ${response.statusText}`,
-        data: []
-      });
-    }
-
-    const data = await response.json();
-    
-    console.log(`✅ [Predictions API] Retrieved ${data.response?.length || 0} predictions for fixture ${fixtureId}`);
-    
-    // Enhanced response structure to match your existing component expectations
-    const formattedResponse = {
-      success: true,
-      data: data.response || [],
-      message: `Found ${data.response?.length || 0} predictions`,
-      fixtureId: fixtureId
-    };
-    
-    res.json(formattedResponse);
 
   } catch (error) {
-    console.error('❌ [Predictions API] Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch predictions',
-      data: [],
-      error: error.message
-    });
+    console.error('❌ [Predictions] Route error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
