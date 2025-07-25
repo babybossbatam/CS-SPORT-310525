@@ -56,6 +56,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
     // Process each goal event
     goalEvents.forEach((event) => {
       const isOwnGoal = event.detail?.toLowerCase().includes("own goal");
+      const isMissedPenalty = event.detail?.toLowerCase().includes("missed");
       const eventIsHomeTeam = isHomeTeam(event);
 
       console.log("Goal event debug:", {
@@ -63,11 +64,21 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
         team: event.team?.name,
         detail: event.detail,
         isOwnGoal,
+        isMissedPenalty,
         eventIsHomeTeam,
         homeTeam,
         awayTeam,
         time: event.time.elapsed + (event.time.extra || 0),
       });
+
+      // Skip missed penalties - they shouldn't count as goals
+      if (isMissedPenalty) {
+        console.log("Missed penalty - not counting as goal", {
+          player: event.player?.name,
+          detail: event.detail,
+        });
+        return;
+      }
 
       if (isOwnGoal) {
         // Own goal: award to the opposing team
