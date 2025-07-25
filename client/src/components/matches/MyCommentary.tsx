@@ -199,22 +199,11 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               latestEvent.time.elapsed > 70;
 
             if (shouldShow90Marker) {
-              // Find the actual end time of the match (latest event time)
-              const finalMatchEvent = events.reduce((latest, current) => {
-                const currentTotal =
-                  current.time.elapsed + (current.time.extra || 0);
-                const latestTotal =
-                  latest.time.elapsed + (latest.time.extra || 0);
-                return currentTotal > latestTotal ? current : latest;
-              });
-
-              const finalElapsed = finalMatchEvent.time.elapsed;
-              const finalExtra = finalMatchEvent.time.extra || 0;
-
+              // Set Full Time marker to appear at 118' elapsed time
               allCommentaryItems.push({
                 time: {
-                  elapsed: finalElapsed,
-                  extra: finalExtra > 0 ? finalExtra : undefined,
+                  elapsed: 118,
+                  extra: undefined,
                 },
                 type: "period_end",
                 detail: "Full Time",
