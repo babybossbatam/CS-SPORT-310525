@@ -140,6 +140,7 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
       <div className="">
         <MyStatsCard match={match} />
       </div>
+         
 
       {/* See All Stats Button */}
      
@@ -258,10 +259,7 @@ const MyStatsCard = ({ match }: { match: any }) => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-xs">Stats</CardTitle>
-      </CardHeader>
-      <CardContent className="p-4">
+      <CardContent className="-mx-2">
         <MyStats
           homeStats={homeStats}
           awayStats={awayStats}
@@ -271,6 +269,7 @@ const MyStatsCard = ({ match }: { match: any }) => {
           onToggleExpanded={() => setIsExpanded(!isExpanded)}
         />
       </CardContent>
+ 
     </Card>
   );
 };
