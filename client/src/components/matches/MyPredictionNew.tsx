@@ -124,7 +124,9 @@ const MyPredictionNew: React.FC<MyPredictionNewProps> = ({ match, fixtureId }) =
           throw new Error('No prediction data available for this match');
         }
 
-        setPredictionData(data.response[0]);
+        // Handle both array and single object responses
+        const predictionResponse = Array.isArray(data.response) ? data.response[0] : data.response;
+        setPredictionData(predictionResponse);
         console.log(`✅ [MyPredictionNew] Prediction data loaded for fixture: ${extractedFixtureId}`);
 
       } catch (err) {

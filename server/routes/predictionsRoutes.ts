@@ -33,7 +33,8 @@ router.get('/:fixtureId', async (req, res) => {
 
   } catch (error) {
     console.error('❌ [Predictions] Error:', error);
-    res.status(500).json({ 
+    res.status(200).json({ 
+      response: [],
       error: 'Failed to fetch prediction data',
       details: error instanceof Error ? error.message : 'Unknown error'
     });
