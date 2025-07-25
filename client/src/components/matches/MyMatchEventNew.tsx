@@ -927,6 +927,19 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 <div className="penalty-away-side">
                   {penalty.event && isAway && (
                     <>
+                      <span className="penalty-player-name">
+                        {penalty.event.player?.name}
+                      </span>
+                      <div className="penalty-player-avatar">
+                        <MyAvatarInfo
+                          playerId={penalty.event.player?.id}
+                          playerName={penalty.event.player?.name}
+                          matchId={fixtureId}
+                          teamId={penalty.event.team?.id}
+                          size="sm"
+                          className="shadow-sm border-gray-300"
+                        />
+                      </div>
                       <div className="penalty-result-icon">
                         {wasScored ? (
                           <img
@@ -941,19 +954,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             className="w-5 h-5"
                           />
                         )}
-                      </div>
-                      <span className="penalty-player-name">
-                        {penalty.event.player?.name}
-                      </span>
-                      <div className="penalty-player-avatar">
-                        <MyAvatarInfo
-                          playerId={penalty.event.player?.id}
-                          playerName={penalty.event.player?.name}
-                          matchId={fixtureId}
-                          teamId={penalty.event.team?.id}
-                          size="sm"
-                          className="shadow-sm border-gray-300"
-                        />
                       </div>
                     </>
                   )}
