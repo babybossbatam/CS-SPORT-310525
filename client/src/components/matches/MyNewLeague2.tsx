@@ -599,7 +599,7 @@ const MyNewLeague2 = ({
         .sort(([aId], [bId]) => {
           // Define priority order - same as MyNewLeague
           const priorityOrder = [
-            38, 15, 2, 3, 5, 22, 11, 71, 72, 667, 848, 73, 75, 233, 253,
+            38, 15, 2, 5, 22, 11, 71, 72, 667, 3, 848, 73, 75, 233, 253,
           ];
 
           const aIndex = priorityOrder.indexOf(Number(aId));
