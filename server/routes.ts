@@ -3421,8 +3421,8 @@ apiRouter.get('/fixtures/headtohead/:teamIds', async (req, res) => {
 
     const h2hData = await rapidApiService.getHeadToHead(homeTeamId, awayTeamId);
     
-    if (h2hData) {
-      console.log(`✅ [H2H API] Successfully fetched ${h2hData.length || 0} head-to-head matches`);
+    if (h2hData && Array.isArray(h2hData) && h2hData.length > 0) {
+      console.log(`✅ [H2H API] Successfully fetched ${h2hData.length} head-to-head matches`);
       res.json({ response: h2hData });
     } else {
       console.log(`📊 [H2H API] No head-to-head data found for teams: ${homeTeamId} vs ${awayTeamId}`);
