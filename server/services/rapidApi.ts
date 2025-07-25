@@ -942,9 +942,10 @@ export const rapidApiService = {
         const playerStats = response.data.response;
         playersCache.set(cacheKey, {
           data: playerStats,
-          timestamp: now,
+timestamp: now,
         });
-        console.log(`[RapidAPI] Found player statistics for fixture ${fixtureId}, teams: ${playerStats.length}`);
+        ```text
+        console.log(`✅ [RapidAPI] Found player statistics for fixture ${fixtureId}, teams: ${playerStats.length}`);
         return playerStats;
       }
 
