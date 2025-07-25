@@ -765,6 +765,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     awayScore: number;
   }) => {
     // Get penalty events from the match events, sorted by time (ascending for proper order)
+    // Include all events with elapsed time > 110' in penalty shootout section
     const penaltyEvents = events
       .filter((event) => {
         const detail = event.detail?.toLowerCase() || "";
@@ -777,7 +778,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           detail.includes("shootout") ||
           type.includes("shootout") ||
           // Check if it's after 90 minutes (likely penalty shootout)
-          (event.time.elapsed >= 90 && detail.includes("penalty"))
+          (event.time.elapsed >= 90 && detail.includes("penalty")) ||
+          // Include all events with elapsed time > 110' (extra time events)
+          event.time.elapsed > 110
         );
       })
       .sort((a, b) => a.time.elapsed - b.time.elapsed);
@@ -1136,8 +1139,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                   const periodMarkers = createPeriodMarkers();
 
-                  // Combine events and period markers safely
-                  const allItems = [...sortedEvents, ...periodMarkers].sort(
+                  // Filter out events with elapsed time > 110' from regular display (they go to penalty section)
+                  const filteredEvents = sortedEvents.filter(event => event.time.elapsed <= 110);
+                  
+                  // Combine filtered events and period markers safely
+                  const allItems = [...filteredEvents, ...periodMarkers].sort(
                     (a, b) => {
                       // Special priority for penalty shootout - put it at the very top
                       if (a.type === "penalty_shootout") return -1;
