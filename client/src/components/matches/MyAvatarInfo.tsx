@@ -39,10 +39,10 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   const FALLBACK_PLAYER_IMAGE = '/assets/matchdetaillogo/fallback_player.png';
 
   const sizeClasses = {
-    sm: 'w-6 h-6',
-    md: 'w-9 h-9',
-    lg: 'w-12 h-12',
-    'md-commentary': 'w-7 h-7'  // 2px smaller than md for commentary
+    sm: 'w-7 h-7',
+    md: 'w-10 h-10',
+    lg: 'w-14 h-14',
+    'md-commentary': 'w-8 h-8'  // 2px smaller than md for commentary
   };
 
   const fetchPlayerData = async (playerIdToFetch: number, isMounted = true) => {
