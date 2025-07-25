@@ -184,7 +184,16 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
         let apiPredictions = null;
         if (predictionsResponse && predictionsResponse.ok) {
           try {
-            const predictionsData = await predictionsResponse.json();
+            const responseText = await predictionsResponse.text();
+            console.log('📊 [MatchPrediction] Raw predictions response text:', responseText.substring(0, 200));
+            
+            // Check if response is HTML (error page) instead of JSON
+            if (responseText.startsWith('<!DOCTYPE') || responseText.startsWith('<html')) {
+              console.error('❌ [MatchPrediction] Received HTML response instead of JSON');
+              throw new Error('Server returned HTML instead of JSON');
+            }
+            
+            const predictionsData = JSON.parse(responseText);
             console.log('📊 [MatchPrediction] RapidAPI Predictions response:', predictionsData);
             
             if (predictionsData.success && predictionsData.data && predictionsData.data.length > 0) {

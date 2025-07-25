@@ -8,6 +8,15 @@ router.get('/fixtures/:fixtureId/predictions', async (req, res) => {
   try {
     const { fixtureId } = req.params;
     
+    // Validate fixture ID
+    if (!fixtureId || isNaN(Number(fixtureId))) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid fixture ID provided',
+        data: []
+      });
+    }
+    
     console.log(`📊 [Predictions API] Fetching predictions for fixture: ${fixtureId}`);
     
     const apiKey = process.env.RAPID_API_KEY || process.env.RAPIDAPI_KEY || '';
@@ -25,7 +34,8 @@ router.get('/fixtures/:fixtureId/predictions', async (req, res) => {
       method: 'GET',
       headers: {
         'X-RapidAPI-Key': apiKey,
-        'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
+        'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com',
+        'Content-Type': 'application/json'
       }
     });
 
@@ -60,18 +70,23 @@ router.get('/fixtures/:fixtureId/predictions', async (req, res) => {
     
     console.log(`✅ [Predictions API] Retrieved ${data.response?.length || 0} predictions for fixture ${fixtureId}`);
     
-    res.json({
+    // Enhanced response structure to match your existing component expectations
+    const formattedResponse = {
       success: true,
       data: data.response || [],
-      message: `Found ${data.response?.length || 0} predictions`
-    });
+      message: `Found ${data.response?.length || 0} predictions`,
+      fixtureId: fixtureId
+    };
+    
+    res.json(formattedResponse);
 
   } catch (error) {
     console.error('❌ [Predictions API] Error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch predictions',
-      data: []
+      data: [],
+      error: error.message
     });
   }
 });
