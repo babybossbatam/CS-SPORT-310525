@@ -113,9 +113,29 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
         hasProps: { propHomeWin, propDraw, propAwayWin }
       });
 
-      if (!homeTeam?.id || !awayTeam?.id) {
-        console.log('⚠️ [MatchPrediction] Missing team IDs, cannot fetch prediction data');
-        // If no team IDs, don't show predictions - set to null
+      // If we have props but no fixture ID, use props
+      if ((!fixtureId || !homeTeam?.id || !awayTeam?.id) && (propHomeWin || propDraw || propAwayWin)) {
+        console.log('📊 [MatchPrediction] Using prop data due to missing IDs');
+        setPredictionData({
+          homeWinProbability: propHomeWin || 0,
+          drawProbability: propDraw || 0,
+          awayWinProbability: propAwayWin || 0,
+          confidence: 70,
+          homeTeamStats: {
+            form: 'N/A', goalsScored: 0, goalsConceded: 0, cleanSheets: 0,
+            avgPossession: 50, matchesPlayed: 0, wins: 0, draws: 0, losses: 0,
+          },
+          awayTeamStats: {
+            form: 'N/A', goalsScored: 0, goalsConceded: 0, cleanSheets: 0,
+            avgPossession: 50, matchesPlayed: 0, wins: 0, draws: 0, losses: 0,
+          },
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      if (!fixtureId) {
+        console.log('⚠️ [MatchPrediction] Missing fixture ID, cannot fetch prediction data');
         setPredictionData(null);
         setIsLoading(false);
         return;
@@ -133,7 +153,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
         // Add predictions fetch if fixtureId is available - prioritize this over manual calculations
         if (fixtureId) {
           console.log(`📊 [MatchPrediction] Fetching predictions for fixture: ${fixtureId}`);
-          fetchPromises.push(fetch(`/api/fixtures/${fixtureId}/predictions`));
+          fetchPromises.push(fetch(`/api/predictions/${fixtureId}`));
         }
 
         const responses = await Promise.all(fetchPromises);
@@ -242,6 +262,47 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
                 }
               } else {
                 console.log('⚠️ [MatchPrediction] Missing predictions.percent structure:', prediction);
+              }
+            } else if (predictionsData.success && predictionsData.data) {
+              // Handle case where data is a single object instead of array
+              const prediction = Array.isArray(predictionsData.data) ? predictionsData.data[0] : predictionsData.data;
+              console.log('🎯 [MatchPrediction] Processing single prediction object:', prediction);
+              
+              if (prediction && prediction.predictions && prediction.predictions.percent) {
+                let homePercent = 0;
+                let drawPercent = 0;
+                let awayPercent = 0;
+
+                const percentData = prediction.predictions.percent;
+                
+                if (typeof percentData.home === 'string') {
+                  homePercent = parseInt(percentData.home.replace('%', '') || '0');
+                } else if (typeof percentData.home === 'number') {
+                  homePercent = percentData.home;
+                }
+
+                if (typeof percentData.draw === 'string') {
+                  drawPercent = parseInt(percentData.draw.replace('%', '') || '0');
+                } else if (typeof percentData.draw === 'number') {
+                  drawPercent = percentData.draw;
+                }
+
+                if (typeof percentData.away === 'string') {
+                  awayPercent = parseInt(percentData.away.replace('%', '') || '0');
+                } else if (typeof percentData.away === 'number') {
+                  awayPercent = percentData.away;
+                }
+
+                if (homePercent >= 0 && drawPercent >= 0 && awayPercent >= 0) {
+                  apiPredictions = {
+                    homeWinProbability: homePercent,
+                    drawProbability: drawPercent,
+                    awayWinProbability: awayPercent,
+                    confidence: 95,
+                    source: 'rapidapi-predictions'
+                  };
+                  console.log('✅ [MatchPrediction] Using single prediction object:', apiPredictions);
+                }
               }
             } else {
               console.log('⚠️ [MatchPrediction] Invalid API response structure:', predictionsData);

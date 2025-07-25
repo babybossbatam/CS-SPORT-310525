@@ -24,16 +24,31 @@ router.get('/predictions/:fixtureId', async (req, res) => {
     request(options, function (error: any, response: any, body: any) {
       if (error) {
         console.error('❌ [Predictions] Error:', error);
-        return res.status(500).json({ error: 'Failed to fetch predictions' });
+        return res.status(500).json({ 
+          success: false, 
+          error: 'Failed to fetch predictions',
+          data: null 
+        });
       }
 
       try {
         const data = JSON.parse(body);
-        console.log(`✅ [Predictions] Successfully fetched predictions for fixture ${fixtureId}`);
-        res.json(data);
+        console.log(`✅ [Predictions] Successfully fetched predictions for fixture ${fixtureId}:`, data);
+        
+        // Return in expected format
+        res.json({
+          success: true,
+          data: data.response || data,
+          error: null
+        });
       } catch (parseError) {
         console.error('❌ [Predictions] JSON parse error:', parseError);
-        res.status(500).json({ error: 'Invalid response format' });
+        console.log('❌ [Predictions] Raw response body:', body.substring(0, 200));
+        res.status(500).json({ 
+          success: false, 
+          error: 'Invalid response format',
+          data: null 
+        });
       }
     });
 
