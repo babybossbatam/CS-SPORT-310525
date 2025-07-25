@@ -785,15 +785,17 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       <div className="flex gap-3">
                         {/* Time Column */}
                         <div className="flex flex-col items-center min-w-[50px]">
-                          {/* Display time as 90' + extra time format for Full Time */}
+                          {/* Extra time display at top if present */}
+                          {event.time.extra && event.time.extra > 0 && (
+                            <div className="text-xs font-medium text-red-500 leading-tight">
+                              +{event.time.extra}'
+                            </div>
+                          )}
                           <div className="text-gray-800 text-sm font-medium leading-tight">
-                            {event.time.extra && event.time.extra > 0 
-                              ? `90' + ${event.time.extra}'`
-                              : `${event.time.elapsed}'`
-                            }
+                            {event.time.elapsed}'
                           </div>
                           {index < allCommentaryItems.length - 1 && (
-                            <div className="w-0.5 h-8 bg-gray-600"></div>
+                            <div className="w-0.5 h-4 bg-gray-600"></div>
                           )}
                         </div>
 
