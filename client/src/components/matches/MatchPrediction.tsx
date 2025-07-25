@@ -360,14 +360,60 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
     );
   }
 
-  // Don't show error state - only show when we have real data
+  // Show error state when data loading fails
+  if (error && !isLoading) {
+    return (
+      <Card className="w-full shadow-md">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg font-bold flex items-center">
+            Match Prediction
+            <span className="ml-2 text-red-500">⚠️</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center h-32">
+            <div className="text-center">
+              <div className="text-red-500 text-2xl mb-2">❌</div>
+              <h3 className="text-lg font-medium mb-2 text-red-600">Failed to Load Prediction</h3>
+              <p className="text-sm text-gray-600 mb-2">
+                Unable to fetch match prediction data
+              </p>
+              <p className="text-xs text-gray-400">
+                {error || 'Unknown error occurred'}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const homeStats = predictionData?.homeTeamStats;
   const awayStats = predictionData?.awayTeamStats;
 
   // Only show prediction component when we have real data
   if (!isLoading && (!predictionData || (!homeWinProbability && homeWinProbability !== 0 && !drawProbability && drawProbability !== 0 && !awayWinProbability && awayWinProbability !== 0))) {
-    // Don't render anything if no real data is available
+    return (
+      <Card className="w-full shadow-md">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg font-bold">Match Prediction</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center h-32">
+            <div className="text-center">
+              <div className="text-gray-400 text-2xl mb-2">📊</div>
+              <h3 className="text-lg font-medium mb-2 text-gray-600">No Prediction Available</h3>
+              <p className="text-sm text-gray-500">
+                Prediction data is not available for this match
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Don't render anything if no real data is available
     return null;
   }
 
