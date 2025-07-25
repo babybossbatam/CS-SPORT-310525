@@ -279,6 +279,10 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 if (b.type === "period_end" && b.detail === "Full Time")
                   return 1;
 
+                // Period score markers should appear before penalty shootout events
+                if (a.type === "period_score" && b.time.elapsed > 110) return -1;
+                if (b.type === "period_score" && a.time.elapsed > 110) return 1;
+
                 // First sort by elapsed time (descending)
                 if (a.time.elapsed !== b.time.elapsed) {
                   return b.time.elapsed - a.time.elapsed;
@@ -307,9 +311,9 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                 // For events at the same time, prioritize period markers to appear first
                 const aPriority =
-                  a.type === "period_end" || a.type === "period_marker" ? 1 : 0;
+                  a.type === "period_end" || a.type === "period_marker" || a.type === "period_score" ? 1 : 0;
                 const bPriority =
-                  b.type === "period_end" || b.type === "period_marker" ? 1 : 0;
+                  b.type === "period_end" || b.type === "period_marker" || b.type === "period_score" ? 1 : 0;
                 return bPriority - aPriority;
               }) // Sort by time, most recent first, then by extra time
               .map((event, index) => {
