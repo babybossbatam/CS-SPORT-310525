@@ -1207,32 +1207,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     },
                   );
 
-                  // Group events by elapsed time first
-                  const groupedByTime = allItems.reduce((acc, event) => {
-                    // Handle non-event items (period markers, penalty shootouts)
-                    if (event.type === "period_score" || event.type === "penalty_shootout") {
-                      acc.push([event]);
-                      return acc;
-                    }
-
-                    const timeKey = `${event.time?.elapsed || 0}_${event.time?.extra || 0}`;
-                    const existingGroup = acc.find(group => {
-                      const firstEvent = group[0];
-                      if (firstEvent.type === "period_score" || firstEvent.type === "penalty_shootout") {
-                        return false;
-                      }
-                      const firstTimeKey = `${firstEvent.time?.elapsed || 0}_${firstEvent.time?.extra || 0}`;
-                      return firstTimeKey === timeKey;
-                    });
-
-                    if (existingGroup) {
-                      existingGroup.push(event);
-                    } else {
-                      acc.push([event]);
-                    }
-
-                    return acc;
-                  }, [] as (MatchEvent | any)[][]);
+                  // Don't group events - display each event separately to avoid overlapping
+                  const groupedByTime = allItems.map(event => [event]);
 
                   return groupedByTime.map((eventGroup, groupIndex) => {
                     const firstEvent = eventGroup[0];
