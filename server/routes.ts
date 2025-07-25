@@ -819,8 +819,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
             country: {
               name: "Germany",
-              ```
-code: "DE",
+              code: "DE",
               flag: "https://media.api-sports.io/flags/de.svg",
             },
           },
@@ -3420,7 +3419,7 @@ apiRouter.get('/fixtures/headtohead/:teamIds', async (req, res) => {
     console.log(`📊 [H2H API] Fetching head-to-head data for teams: ${homeTeamId} vs ${awayTeamId}`);
 
     const h2hData = await rapidApiService.getHeadToHead(homeTeamId, awayTeamId);
-    
+
     if (h2hData && Array.isArray(h2hData) && h2hData.length > 0) {
       console.log(`✅ [H2H API] Successfully fetched ${h2hData.length} head-to-head matches`);
       res.json({ response: h2hData });
