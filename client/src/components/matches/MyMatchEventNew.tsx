@@ -147,12 +147,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       setError(null);
     } catch (error) {
       console.error(`❌ [MyMatchEventNew] Error fetching events (attempt ${retryCount + 1}):`, error);
-      
+
       // Check if it's an abort error (timeout)
       if (error instanceof Error && error.name === 'AbortError') {
         console.log(`⏱️ [MyMatchEventNew] Request timeout for fixture ${fixtureId}`);
       }
-      
+
       // Check if it's a network error that might be temporary
       const isNetworkError = error instanceof Error && (
         error.message.includes('fetch') ||
@@ -469,7 +469,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   const isDarkTheme = useMemo(() => theme === "dark", [theme]);
   const groupedEvents = useMemo(() => groupEventsByPeriod(events), [events]);
-  
+
   // Get current scores from API data - moved here to ensure it's called consistently
   const getCurrentScores = useMemo(() => {
     if (matchData?.goals) {
@@ -534,7 +534,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   if (events.length === 0 && !isLoading) {
     const matchStatus = matchData?.fixture?.status?.short;
     const isUpcoming = ["NS", "TBD"].includes(matchStatus);
-    
+
     if (isUpcoming) {
       return null; // Hide the component completely
     }
@@ -918,7 +918,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   <div className="match-event-module-stages-time-yellow-circle-penalty">
                     {penalty.number}P
                   </div>
-                </div>
+                </div>```text
 
                 {/* Away team penalty info (right side) */}
                 <div className="penalty-away-side">
@@ -963,7 +963,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   };
 
-  
+
 
   return (
     <Card
@@ -1033,7 +1033,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             {/* Render content based on active tab */}
             {activeTab === "all" && (
               <>
-               
+
 
                 {/* All events in chronological order with period score markers */}
                 {(() => {
@@ -1441,7 +1441,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                           {/* Center Grid: Time display only */}
                           <div className="match-event-time-center-simple">
-                            {/* Middle: Time display - show elapsed time in black and extra time in red */}
+                            {/* Middle: Time display - show penalty number for penalty shootout events, otherwise show elapsed time */}
                             <div
                               className="match-event-time-display"
                               style={{
@@ -1452,14 +1452,32 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 height: "100%",
                               }}
                             >
-                              <span style={{ color: "black", lineHeight: "1" }}>
-                                {event.time?.elapsed}'
-                              </span>
-                              {event.time?.extra && (
-                                <span style={{ color: "red", lineHeight: "1" }}>
-                                  +{event.time.extra}
-                                </span>
-                              )}
+                              {(() => {
+                                // Check if this is a penalty shootout event (elapsed time >= 120)
+                                if (event.time?.elapsed >= 120) {
+                                  // Calculate penalty number based on elapsed time
+                                  const penaltyNumber = event.time.elapsed - 119;
+                                  return (
+                                    <span style={{ color: "black", lineHeight: "1" }}>
+                                      {penaltyNumber}P
+                                    </span>
+                                  );
+                                } else {
+                                  // Regular match time display
+                                  return (
+                                    <>
+                                      <span style={{ color: "black", lineHeight: "1" }}>
+                                        {event.time?.elapsed}'
+                                      </span>
+                                      {event.time?.extra && (
+                                        <span style={{ color: "red", lineHeight: "1" }}>
+                                          +{event.time.extra}
+                                        </span>
+                                      )}
+                                    </>
+                                  );
+                                }
+                              })()}
                             </div>
                           </div>
 
@@ -1841,7 +1859,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               {event.detail || "Period Marker"}
                             </div>
                             <div className="period-score-display">
-                              {event.score || "0 - 0"}
+                              {event.score ||"0 - 0"}
                             </div>
                           </div>
                           {/* Show "No Top Events" for halftime if no goals in first half */}
@@ -2059,7 +2077,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                           {/* Center Grid: Time display only */}
                           <div className="match-event-time-center-simple">
-                            {/* Middle: Time display - show elapsed time in black and extra time in red */}
+                            {/* Middle: Time display - show penalty number for penalty shootout events, otherwise show elapsed time */}
                             <div
                               className="match-event-time-display"
                               style={{
@@ -2070,14 +2088,32 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 height: "100%",
                               }}
                             >
-                              <span style={{ color: "black", lineHeight: "1" }}>
-                                {event.time?.elapsed}'
-                              </span>
-                              {event.time?.extra && (
-                                <span style={{ color: "red", lineHeight: "1" }}>
-                                  +{event.time.extra}
-                                </span>
-                              )}
+                              {(() => {
+                                // Check if this is a penalty shootout event (elapsed time >= 120)
+                                if (event.time?.elapsed >= 120) {
+                                  // Calculate penalty number based on elapsed time
+                                  const penaltyNumber = event.time.elapsed - 119;
+                                  return (
+                                    <span style={{ color: "black", lineHeight: "1" }}>
+                                      {penaltyNumber}P
+                                    </span>
+                                  );
+                                } else {
+                                  // Regular match time display
+                                  return (
+                                    <>
+                                      <span style={{ color: "black", lineHeight: "1" }}>
+                                        {event.time?.elapsed}'
+                                      </span>
+                                      {event.time?.extra && (
+                                        <span style={{ color: "red", lineHeight: "1" }}>
+                                          +{event.time.extra}
+                                        </span>
+                                      )}
+                                    </>
+                                  );
+                                }
+                              })()}
                             </div>
                           </div>
 
