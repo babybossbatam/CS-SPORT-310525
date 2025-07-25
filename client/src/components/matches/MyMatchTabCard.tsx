@@ -256,19 +256,16 @@ const MyStatsCard = ({ match }: { match: any }) => {
   }
 
   return (
-    <Card>
-      <CardContent className="-mx-2">
-        <MyStats
-          homeStats={homeStats}
-          awayStats={awayStats}
-          homeTeam={homeTeam}
-          awayTeam={awayTeam}
-          isExpanded={isExpanded}
-          onToggleExpanded={() => setIsExpanded(!isExpanded)}
-        />
-      </CardContent>
-
-    </Card>
+    <CardContent className="p-4">
+      <MyStats
+        homeStats={homeStats}
+        awayStats={awayStats}
+        homeTeam={homeTeam}
+        awayTeam={awayTeam}
+        isExpanded={isExpanded}
+        onToggleExpanded={() => setIsExpanded(!isExpanded)}
+      />
+    </CardContent>
   );
 };
 
