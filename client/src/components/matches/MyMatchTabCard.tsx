@@ -149,7 +149,7 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
             onClick={() => onTabChange && onTabChange("stats")}
             className=" w-full py-2 text-gray-700  hover:bg-gray-200 transition-colors duration-200 font-medium text-xs"
           >
-            See All  
+            See All
           </button>
         </div>
         </Card>
