@@ -7,12 +7,14 @@ import MyShotmap from './MyShotmap';
 import MyKeyPlayer from './MyKeyPlayer';
 import MyStats from './MyStats';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import MyStatsTabCard from './MyStatsTabCard';
 
 interface MyMatchTabCardProps {
   match: any;
+  onTabChange?: (tab: string) => void;
 }
 
-const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
+const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
   if (!match) return null;
 
   return (
@@ -135,9 +137,22 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
       </div>
 
       {/* Match Statistics */}
-      <div className="space-y-2">
-        <MyStatsCard match={match} />
+      <Card className="space-y-2">
+      <div className="">
+        <MyStatsTabCard match={match} />
+
       </div>
+
+        {/* See All Stats Button */}
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => onTabChange && onTabChange("stats")}
+            className=" w-full py-2 text-gray-700  hover:bg-gray-200 transition-colors duration-200 font-medium text-xs"
+          >
+            See All Stats
+          </button>
+        </div>
+        </Card>
     </>
   );
 };

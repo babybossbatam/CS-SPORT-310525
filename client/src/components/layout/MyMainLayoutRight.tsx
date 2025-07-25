@@ -39,7 +39,11 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
 
       {/* Tab Content */}
       {activeTab === "match" && (
-        <MyMatchTabCard match={selectedFixture} />
+        <>
+          <MyMatchTabCard match={selectedFixture} onTabChange={setActiveTab} />
+          
+         
+        </>
       )}
 
       {activeTab === "stats" && (

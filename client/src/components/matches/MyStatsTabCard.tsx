@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronDown, ChevronUp, ChevronRight } from "lucide-react";
 import MyStats from "./MyStats";
 import MyShots from "./MyShots";
+import MyPass from "./MyPass";
+import MyDiscipline from "./MyDiscipline";
 
 interface MyStatsTabCardProps {
   match?: any;
@@ -171,13 +173,11 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({
 
   // For live/finished matches, show real statistics with bars
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       {/* Main Statistics Card */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-xs">Stats</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4">
+       
+        <CardContent className="">
           <MyStats
             homeStats={homeStats}
             awayStats={awayStats}
@@ -202,6 +202,52 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({
        
         <CardContent className="py-2">
           <MyShots
+            homeStats={homeStats}
+            awayStats={awayStats}
+            homeTeam={homeTeam}
+            awayTeam={awayTeam}
+            isExpanded={isExpanded}
+            onToggleExpanded={() => {
+              // Always ensure Stats tab is active first - this will hide MyMatchTabCard and show MyStatsTabCard
+              if (onTabChange) {
+                onTabChange("stats");
+              }
+
+              // Always expand when "See All" is clicked to show all statistics
+              setIsExpanded(true);
+            }}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Pass Statistics Card */}
+      <Card>
+
+        <CardContent className="py-2">
+          <MyPass
+            homeStats={homeStats}
+            awayStats={awayStats}
+            homeTeam={homeTeam}
+            awayTeam={awayTeam}
+            isExpanded={isExpanded}
+            onToggleExpanded={() => {
+              // Always ensure Stats tab is active first - this will hide MyMatchTabCard and show MyStatsTabCard
+              if (onTabChange) {
+                onTabChange("stats");
+              }
+
+              // Always expand when "See All" is clicked to show all statistics
+              setIsExpanded(true);
+            }}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Pass Statistics Card */}
+      <Card>
+
+        <CardContent className="py-2">
+          <MyDiscipline
             homeStats={homeStats}
             awayStats={awayStats}
             homeTeam={homeTeam}
