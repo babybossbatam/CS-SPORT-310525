@@ -8,7 +8,7 @@ import MyStats from './MyStats';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import MyStatsTabCard from './MyStatsTabCard';
 import MyH2HNew from './MyH2HNew';
-import MyPredictionNew from './MyPredictionNew';
+
 import MyPredictionCard from './MyPredictionCard';
 
 interface MyMatchTabCardProps {
@@ -86,14 +86,6 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
                   />
                 </div>
 
-                {/* Match Prediction */}
-                <div className="space-y-2">
-                  <MyPredictionNew 
-                    match={match}
-                    fixtureId={match.fixture?.id}
-                  />
-                </div>
-
                 {/* Highlights */}
                 <div className="space-y-2">
                   <MyHighlights 
@@ -134,14 +126,6 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
                     fixtureId={match.fixture?.id}
                     homeTeam={match.teams?.home}
                     awayTeam={match.teams?.away}
-                  />
-                </div>
-
-                {/* Match Prediction */}
-                <div className="space-y-2">
-                  <MyPredictionNew 
-                    match={match}
-                    fixtureId={match.fixture?.id}
                   />
                 </div>
 
