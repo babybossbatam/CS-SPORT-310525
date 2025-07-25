@@ -1012,15 +1012,15 @@ timestamp: now,
   async getHeadToHead(homeTeamId: number, awayTeamId: number): Promise<any> {
     const cacheKey = `h2h-${homeTeamId}-${awayTeamId}`;
     const cached = playersCache.get(cacheKey);
-    const now = Date.now();
 
+    const now = Date.now();
     if (cached && now - cached.timestamp < STATIC_DATA_CACHE_DURATION) {
-      console.log(`✅ [RapidAPI] Using cached head-to-head data for teams: ${homeTeamId} vs ${awayTeamId}`);
+      console.log(`📊 [RapidAPI] Using cached head-to-head data for teams: ${homeTeamId} vs ${awayTeamId}`);
       return cached.data;
     }
 
     try {
-      console.log(`🔄 [RapidAPI] Fetching head-to-head data for teams: ${homeTeamId} vs ${awayTeamId}`);
+      console.log(`📊 [RapidAPI] Fetching head-to-head data for teams: ${homeTeamId} vs ${awayTeamId}`);
 
       const response = await apiClient.get("/fixtures/headtohead", {
         params: {
@@ -1028,19 +1028,14 @@ timestamp: now,
         },
       });
 
-      console.log(`✅ [RapidAPI] H2H API Response:`, {
-        status: response.status,
-        hasResponse: !!response.data?.response,
-        matchCount: response.data?.response?.length || 0
-      });
+      console.log(`✅ [RapidAPI] Found ${response.data?.response?.length || 0} head-to-head matches`);
 
-      if (response.data?.response && Array.isArray(response.data.response)) {
+      if (response.data?.response) {
         const h2hData = response.data.response;
         playersCache.set(cacheKey, {
           data: h2hData,
           timestamp: now,
         });
-        console.log(`✅ [RapidAPI] Cached ${h2hData.length} head-to-head matches`);
         return h2hData;
       }
 
@@ -1048,20 +1043,12 @@ timestamp: now,
       return [];
     } catch (error) {
       console.error('❌ [RapidAPI] Error fetching head-to-head data:', error);
-      if (axios.isAxiosError(error)) {
-        console.error('❌ [RapidAPI] Axios error details:', {
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data
-        });
-      }
-
       if (cached?.data) {
         console.log("Using cached data due to API error");
         return cached.data;
       }
       console.error("API request failed and no cache available");
-      return [];
+      return null;
     }
   },
 
