@@ -1,4 +1,12 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef, lazy, Suspense } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+  lazy,
+  Suspense,
+} from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Star, ChevronDown, ChevronUp } from "lucide-react";
@@ -14,23 +22,30 @@ import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
 
 // Lazy load the team logo component for better performance
-const LazyTeamLogo = lazy(() => Promise.resolve({ 
-  default: ({ teamName, logoUrl, size, leagueContext }: { 
-    teamName: string; 
-    logoUrl: string; 
-    size: string;
-    leagueContext?: { name: string; country: string; };
-  }) => (
-    <MyWorldTeamLogo
-      teamName={teamName}
-      teamLogo={logoUrl}
-      alt={teamName}
-      size={size}
-      className="popular-leagues-size"
-      leagueContext={leagueContext}
-    />
-  )
-}));
+const LazyTeamLogo = lazy(() =>
+  Promise.resolve({
+    default: ({
+      teamName,
+      logoUrl,
+      size,
+      leagueContext,
+    }: {
+      teamName: string;
+      logoUrl: string;
+      size: string;
+      leagueContext?: { name: string; country: string };
+    }) => (
+      <MyWorldTeamLogo
+        teamName={teamName}
+        teamLogo={logoUrl}
+        alt={teamName}
+        size={size}
+        className="popular-leagues-size"
+        leagueContext={leagueContext}
+      />
+    ),
+  }),
+);
 
 interface FixtureData {
   fixture: {
@@ -96,7 +111,6 @@ const MyNewLeague2 = ({
   onMatchCardClick,
   match,
 }: MyNewLeague2Props) => {
-
   // Sample match data for demonstration (similar to MyMatchdetailsScoreboard)
   const sampleMatch = {
     fixture: {
@@ -147,49 +161,71 @@ const MyNewLeague2 = ({
   });
 
   const [, navigate] = useLocation();
-  const [collapsedLeagues, setCollapsedLeagues] = useState<Set<number>>(new Set());
+  const [collapsedLeagues, setCollapsedLeagues] = useState<Set<number>>(
+    new Set(),
+  );
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
-  const [expandedLeagues, setExpandedLeagues] = useState<Set<string>>(new Set());
+  const [expandedLeagues, setExpandedLeagues] = useState<Set<string>>(
+    new Set(),
+  );
 
   // League IDs without any filtering - removed duplicates
-  const leagueIds = [38, 15, 2, 10, 11, 848, 886, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 531, 940, 908, 1169, 23, 1077, 253, 850, 893, 921, 130, 128, 493, 239, 265, 237, 235, 743];
+  const leagueIds = [
+    38, 15, 2, 10, 11, 848, 886, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667,
+    531, 940, 908, 1169, 23, 1077, 253, 850, 893, 921, 130, 128, 493, 239, 265,
+    237, 235, 743,
+  ];
 
   // Fetch fixtures for all leagues
-  const { data: allFixtures, isLoading, error } = useQuery({
-    queryKey: ['myNewLeague2', 'allFixtures'],
+  const {
+    data: allFixtures,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["myNewLeague2", "allFixtures"],
     queryFn: async () => {
-      console.log(`🎯 [MyNewLeague2] Fetching fixtures for ${leagueIds.length} leagues:`, leagueIds);
+      console.log(
+        `🎯 [MyNewLeague2] Fetching fixtures for ${leagueIds.length} leagues:`,
+        leagueIds,
+      );
 
       const promises = leagueIds.map(async (leagueId) => {
         try {
           const response = await fetch(`/api/leagues/${leagueId}/fixtures`);
           if (!response.ok) {
-            console.log(`❌ [MyNewLeague2] Failed to fetch league ${leagueId}: ${response.status} ${response.statusText}`);
+            console.log(
+              `❌ [MyNewLeague2] Failed to fetch league ${leagueId}: ${response.status} ${response.statusText}`,
+            );
             return { leagueId, fixtures: [], error: `HTTP ${response.status}` };
           }
           const data = await response.json();
           const fixtures = data.response || data || [];
-          console.log(`✅ [MyNewLeague2] League ${leagueId}: ${fixtures.length} fixtures`);
+          console.log(
+            `✅ [MyNewLeague2] League ${leagueId}: ${fixtures.length} fixtures`,
+          );
           return { leagueId, fixtures, error: null };
         } catch (error) {
-          console.error(`❌ [MyNewLeague2] Error fetching league ${leagueId}:`, error);
+          console.error(
+            `❌ [MyNewLeague2] Error fetching league ${leagueId}:`,
+            error,
+          );
           return { leagueId, fixtures: [], error: error.message };
         }
       });
 
       const results = await Promise.all(promises);
-      const allFixtures = results.flatMap(result => result.fixtures);
+      const allFixtures = results.flatMap((result) => result.fixtures);
 
       // Log detailed results
       console.log(`🔄 [MyNewLeague2] Fetch results:`, {
         totalLeagues: results.length,
-        successfulFetches: results.filter(r => r.fixtures.length > 0).length,
+        successfulFetches: results.filter((r) => r.fixtures.length > 0).length,
         totalFixtures: allFixtures.length,
-        leagueBreakdown: results.map(r => ({ 
-          league: r.leagueId, 
-          fixtures: r.fixtures.length, 
-          error: r.error 
-        }))
+        leagueBreakdown: results.map((r) => ({
+          league: r.leagueId,
+          fixtures: r.fixtures.length,
+          error: r.error,
+        })),
       });
 
       return allFixtures;
@@ -200,33 +236,45 @@ const MyNewLeague2 = ({
 
   // Group fixtures by league with date filtering
   const fixturesByLeague = useMemo(() => {
-    console.log(`🔍 [MyNewLeague2] Processing fixtures for date ${selectedDate}:`, {
-      allFixturesLength: allFixtures?.length || 0,
-      sampleFixtures: allFixtures?.slice(0, 3)?.map(f => ({
-        id: f?.fixture?.id,
-        league: f?.league?.name,
-        teams: `${f?.teams?.home?.name} vs ${f?.teams?.away?.name}`,
-        date: f?.fixture?.date
-      }))
-    });
+    console.log(
+      `🔍 [MyNewLeague2] Processing fixtures for date ${selectedDate}:`,
+      {
+        allFixturesLength: allFixtures?.length || 0,
+        sampleFixtures: allFixtures?.slice(0, 3)?.map((f) => ({
+          id: f?.fixture?.id,
+          league: f?.league?.name,
+          teams: `${f?.teams?.home?.name} vs ${f?.teams?.away?.name}`,
+          date: f?.fixture?.date,
+        })),
+      },
+    );
 
     if (!allFixtures?.length) {
       console.log(`❌ [MyNewLeague2] No fixtures available`);
       return {};
     }
 
-    const grouped: { [key: number]: { league: any; fixtures: FixtureData[] } } = {};
+    const grouped: { [key: number]: { league: any; fixtures: FixtureData[] } } =
+      {};
 
     allFixtures.forEach((fixture: FixtureData, index) => {
       // Validate fixture structure
-      if (!fixture || !fixture.league || !fixture.teams || !fixture.fixture?.date) {
-        console.warn(`⚠️ [MyNewLeague2] Invalid fixture at index ${index}:`, fixture);
+      if (
+        !fixture ||
+        !fixture.league ||
+        !fixture.teams ||
+        !fixture.fixture?.date
+      ) {
+        console.warn(
+          `⚠️ [MyNewLeague2] Invalid fixture at index ${index}:`,
+          fixture,
+        );
         return;
       }
 
       // Apply date filtering - extract date from fixture and compare with selected date
       const fixtureDate = new Date(fixture.fixture.date);
-      const fixtureDateString = format(fixtureDate, 'yyyy-MM-dd');
+      const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
 
       // Only include fixtures that match the selected date
       if (fixtureDateString !== selectedDate) {
@@ -238,7 +286,7 @@ const MyNewLeague2 = ({
       if (!grouped[leagueId]) {
         grouped[leagueId] = {
           league: fixture.league,
-          fixtures: []
+          fixtures: [],
         };
       }
 
@@ -246,7 +294,7 @@ const MyNewLeague2 = ({
     });
 
     // Sort fixtures by priority within each league: Live > Upcoming > Ended
-    Object.values(grouped).forEach(group => {
+    Object.values(grouped).forEach((group) => {
       group.fixtures.sort((a, b) => {
         const aStatus = a.fixture.status.short;
         const bStatus = b.fixture.status.short;
@@ -256,7 +304,11 @@ const MyNewLeague2 = ({
         // Define status priorities
         const getStatusPriority = (status: string) => {
           // Priority 1: Live matches (highest priority)
-          if (["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+          if (
+            ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+              status,
+            )
+          ) {
             return 1;
           }
           // Priority 2: Upcoming matches (second priority)
@@ -264,7 +316,11 @@ const MyNewLeague2 = ({
             return 2;
           }
           // Priority 3: Ended matches (third priority)
-          if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+          if (
+            ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(
+              status,
+            )
+          ) {
             return 3;
           }
           // Priority 4: Other/unknown statuses (lowest priority)
@@ -307,26 +363,34 @@ const MyNewLeague2 = ({
     });
 
     const groupedKeys = Object.keys(grouped);
-    const totalValidFixtures = Object.values(grouped).reduce((sum, group) => sum + group.fixtures.length, 0);
+    const totalValidFixtures = Object.values(grouped).reduce(
+      (sum, group) => sum + group.fixtures.length,
+      0,
+    );
 
-    console.log(`✅ [MyNewLeague2] Date filtered fixtures for ${selectedDate}:`, {
-      originalFixtures: allFixtures?.length || 0,
-      filteredFixtures: totalValidFixtures,
-      leagueCount: groupedKeys.length,
-      leagueIds: groupedKeys,
-      leagueDetails: Object.entries(grouped).map(([id, data]) => ({
-        id: Number(id),
-        name: data.league.name,
-        fixtures: data.fixtures.length
-      }))
-    });
+    console.log(
+      `✅ [MyNewLeague2] Date filtered fixtures for ${selectedDate}:`,
+      {
+        originalFixtures: allFixtures?.length || 0,
+        filteredFixtures: totalValidFixtures,
+        leagueCount: groupedKeys.length,
+        leagueIds: groupedKeys,
+        leagueDetails: Object.entries(grouped).map(([id, data]) => ({
+          id: Number(id),
+          name: data.league.name,
+          fixtures: data.fixtures.length,
+        })),
+      },
+    );
 
     return grouped;
   }, [allFixtures, selectedDate]);
 
   // Auto-expand all leagues by default when data changes
   useEffect(() => {
-    const leagueKeys = Object.keys(fixturesByLeague).map(leagueId => `league-${leagueId}`);
+    const leagueKeys = Object.keys(fixturesByLeague).map(
+      (leagueId) => `league-${leagueId}`,
+    );
     setExpandedLeagues(new Set(leagueKeys));
   }, [Object.keys(fixturesByLeague).length]);
 
@@ -356,12 +420,12 @@ const MyNewLeague2 = ({
   }, []);
 
   const handleMatchClick = (fixture: FixtureData) => {
-    console.log('🎯 [MyNewLeague2] Match card clicked:', {
+    console.log("🎯 [MyNewLeague2] Match card clicked:", {
       fixtureId: fixture.fixture?.id,
       teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
       league: fixture.league?.name,
       status: fixture.fixture?.status?.short,
-      source: 'MyNewLeague2'
+      source: "MyNewLeague2",
     });
 
     // Call the callback to pass match data to parent component first (like MyNewLeague does)
@@ -374,14 +438,24 @@ const MyNewLeague2 = ({
   };
 
   // Lazy loading team logo component with skeleton fallback
-  const TeamLogo = ({ teamName, logoUrl, size, leagueContext }: {
+  const TeamLogo = ({
+    teamName,
+    logoUrl,
+    size,
+    leagueContext,
+  }: {
     teamName: string;
     logoUrl: string;
     size: string;
-    leagueContext?: { name: string; country: string; };
+    leagueContext?: { name: string; country: string };
   }) => (
     <Suspense fallback={<Skeleton className={`h-8 w-8 rounded`} />}>
-      <LazyTeamLogo teamName={teamName} logoUrl={logoUrl} size={size} leagueContext={leagueContext} />
+      <LazyTeamLogo
+        teamName={teamName}
+        logoUrl={logoUrl}
+        size={size}
+        leagueContext={leagueContext}
+      />
     </Suspense>
   );
 
@@ -397,7 +471,10 @@ const MyNewLeague2 = ({
 
         {/* Multiple League Cards Skeleton */}
         {[1, 2, 3, 4].map((i) => (
-          <Card key={i} className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing">
+          <Card
+            key={i}
+            className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing"
+          >
             <div className="w-full flex items-center gap-2 p-2 bg-white border-b border-gray-200">
               <Skeleton className="h-5 w-5 rounded-full" />
               <Skeleton className="w-6 h-6 rounded-full" />
@@ -412,23 +489,43 @@ const MyNewLeague2 = ({
                 <div key={j} className="country-matches-container">
                   <div className="match-card-container">
                     <div className="match-three-grid-container">
-                      <div className="match-status-top" style={{ minHeight: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                      <div
+                        className="match-status-top"
+                        style={{
+                          minHeight: "20px",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
                         <Skeleton className="h-4 w-16 rounded" />
                       </div>
                       <div className="match-content-container">
-                        <div className="home-team-name" style={{ textAlign: "right" }}>
+                        <div
+                          className="home-team-name"
+                          style={{ textAlign: "right" }}
+                        >
                           <Skeleton className="h-4 w-24" />
                         </div>
-                        <div className="home-team-logo-container" style={{ padding: "0 0.6rem" }}>
+                        <div
+                          className="home-team-logo-container"
+                          style={{ padding: "0 0.6rem" }}
+                        >
                           <Skeleton className="h-8 w-8 rounded" />
                         </div>
                         <div className="match-score-container">
                           <Skeleton className="h-6 w-12" />
                         </div>
-                        <div className="away-team-logo-container" style={{ padding: "0 0.5rem" }}>
+                        <div
+                          className="away-team-logo-container"
+                          style={{ padding: "0 0.5rem" }}
+                        >
                           <Skeleton className="h-8 w-8 rounded" />
                         </div>
-                        <div className="away-team-name" style={{ textAlign: "left" }}>
+                        <div
+                          className="away-team-name"
+                          style={{ textAlign: "left" }}
+                        >
                           <Skeleton className="h-4 w-24" />
                         </div>
                       </div>
@@ -476,7 +573,7 @@ const MyNewLeague2 = ({
             <div className="text-center text-gray-500">
               <div>No matches found</div>
               <div className="text-xs mt-2">
-                Searched {leagueIds.length} leagues: {leagueIds.join(', ')}
+                Searched {leagueIds.length} leagues: {leagueIds.join(", ")}
               </div>
               <div className="text-xs mt-1">
                 Raw fixtures count: {allFixtures?.length || 0}
@@ -501,7 +598,9 @@ const MyNewLeague2 = ({
       {leagueEntries
         .sort(([aId], [bId]) => {
           // Define priority order - same as MyNewLeague
-          const priorityOrder = [38, 15, 2, 11, 3, 5, 71, 22, 72, 73, 75, 233, 667, 253];
+          const priorityOrder = [
+            38, 15, 2, 3, 5, 22, 11, 71, 72, 667, 848, 73, 75, 233, 253,
+          ];
 
           const aIndex = priorityOrder.indexOf(Number(aId));
           const bIndex = priorityOrder.indexOf(Number(bId));
@@ -574,29 +673,53 @@ const MyNewLeague2 = ({
                     </span>
 
                     {(() => {
-                      const liveMatchesInLeague = fixtures.filter((match: any) => {
-                        const status = match.fixture.status.short;
-                        const isActuallyFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status);
-                        const isLiveStatus = ["LIVE", "1H", "HT", "2H", "ET","BT", "P", "INT"].includes(status);
+                      const liveMatchesInLeague = fixtures.filter(
+                        (match: any) => {
+                          const status = match.fixture.status.short;
+                          const isActuallyFinished = [
+                            "FT",
+                            "AET",
+                            "PEN",
+                            "AWD",
+                            "WO",
+                            "ABD",
+                            "CANC",
+                            "SUSP",
+                          ].includes(status);
+                          const isLiveStatus = [
+                            "LIVE",
+                            "1H",
+                            "HT",
+                            "2H",
+                            "ET",
+                            "BT",
+                            "P",
+                            "INT",
+                          ].includes(status);
 
-                        // Check if match is stale (more than 4 hours old)
-                        const matchDate = new Date(match.fixture.date);
-                        const hoursOld = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
-                        const isStale = hoursOld > 4;
+                          // Check if match is stale (more than 4 hours old)
+                          const matchDate = new Date(match.fixture.date);
+                          const hoursOld =
+                            (Date.now() - matchDate.getTime()) /
+                            (1000 * 60 * 60);
+                          const isStale = hoursOld > 4;
 
-                        // Only consider it live if it has live status AND is not finished AND is not stale
-                        return isLiveStatus && !isActuallyFinished && !isStale;
-                      }).length;
+                          // Only consider it live if it has live status AND is not finished AND is not stale
+                          return (
+                            isLiveStatus && !isActuallyFinished && !isStale
+                          );
+                        },
+                      ).length;
 
                       if (liveMatchesInLeague > 0) {
                         return (
-                          <span 
+                          <span
                             className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-semibold"
                             style={{
-                              minWidth: '50px',
-                              textAlign: 'center',
-                              animation: 'none',
-                              transition: 'none'
+                              minWidth: "50px",
+                              textAlign: "center",
+                              animation: "none",
+                              transition: "none",
                             }}
                           >
                             {liveMatchesInLeague} LIVE
@@ -638,11 +761,8 @@ const MyNewLeague2 = ({
                     };
 
                     return (
-                      <div
-                        key={matchId}
-                        className="country-matches-container"
-                      >
-                        <div 
+                      <div key={matchId} className="country-matches-container">
+                        <div
                           className="match-card-container group"
                           data-fixture-id={matchId}
                           onClick={() => handleMatchClick(fixture)}
@@ -677,33 +797,76 @@ const MyNewLeague2 = ({
                           {/* Match content container */}
                           <div className="match-three-grid-container">
                             {/* Top Grid: Match Status */}
-                            <div className="match-status-top" style={{ minHeight: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            <div
+                              className="match-status-top"
+                              style={{
+                                minHeight: "20px",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                              }}
+                            >
                               {(() => {
                                 const status = fixture.fixture.status.short;
                                 const elapsed = fixture.fixture.status.elapsed;
 
                                 // Check if match finished more than 4 hours ago
-                                const matchDateTime = new Date(fixture.fixture.date);
-                                const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
-                                const isStaleFinishedMatch = (["FT", "AET", "PEN"].includes(status) && hoursOld > 4) || 
-                                                             (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status) && hoursOld > 4) ||
-                                                             (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
+                                const matchDateTime = new Date(
+                                  fixture.fixture.date,
+                                );
+                                const hoursOld =
+                                  (Date.now() - matchDateTime.getTime()) /
+                                  (1000 * 60 * 60);
+                                const isStaleFinishedMatch =
+                                  (["FT", "AET", "PEN"].includes(status) &&
+                                    hoursOld > 4) ||
+                                  ([
+                                    "FT",
+                                    "AET",
+                                    "PEN",
+                                    "AWD",
+                                    "WO",
+                                    "ABD",
+                                    "CANC",
+                                    "SUSP",
+                                  ].includes(status) &&
+                                    hoursOld > 4) ||
+                                  (hoursOld > 4 &&
+                                    [
+                                      "LIVE",
+                                      "1H",
+                                      "2H",
+                                      "HT",
+                                      "ET",
+                                      "BT",
+                                      "P",
+                                      "INT",
+                                    ].includes(status));
 
                                 // Show live status only for truly live matches (not finished and not stale)
                                 if (
-                                  !['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status) && 
+                                  ![
+                                    "FT",
+                                    "AET",
+                                    "PEN",
+                                    "AWD",
+                                    "WO",
+                                    "ABD",
+                                    "CANC",
+                                    "SUSP",
+                                  ].includes(status) &&
                                   !isStaleFinishedMatch &&
                                   hoursOld <= 4 &&
                                   [
                                     "LIVE",
-                                    "LIV", 
+                                    "LIV",
                                     "1H",
                                     "HT",
                                     "2H",
                                     "ET",
                                     "BT",
                                     "P",
-                                    "INT"
+                                    "INT",
                                   ].includes(status)
                                 ) {
                                   let displayText = "";
@@ -717,7 +880,10 @@ const MyNewLeague2 = ({
                                   } else if (status === "ET") {
                                     if (elapsed) {
                                       const extraTime = elapsed - 90;
-                                      displayText = extraTime > 0 ? `90' + ${extraTime}'` : `${elapsed}'`;
+                                      displayText =
+                                        extraTime > 0
+                                          ? `90' + ${extraTime}'`
+                                          : `${elapsed}'`;
                                     } else {
                                       displayText = "Extra Time";
                                     }
@@ -726,11 +892,15 @@ const MyNewLeague2 = ({
                                   } else if (status === "INT") {
                                     displayText = "Interrupted";
                                   } else {
-                                    displayText = elapsed ? `${elapsed}'` : "LIVE";
+                                    displayText = elapsed
+                                      ? `${elapsed}'`
+                                      : "LIVE";
                                   }
 
                                   return (
-                                    <div className={`match-status-label ${statusClass}`}>
+                                    <div
+                                      className={`match-status-label ${statusClass}`}
+                                    >
                                       {displayText}
                                     </div>
                                   );
@@ -747,16 +917,17 @@ const MyNewLeague2 = ({
                                     "ABD",
                                     "CANC",
                                     "SUSP",
-                                  ].includes(status) || isStaleFinishedMatch
+                                  ].includes(status) ||
+                                  isStaleFinishedMatch
                                 ) {
                                   return (
-                                    <div 
+                                    <div
                                       className="match-status-label status-ended"
                                       style={{
-                                        minWidth: '60px',
-                                        textAlign: 'center',
-                                        transition: 'none',
-                                        animation: 'none'
+                                        minWidth: "60px",
+                                        textAlign: "center",
+                                        transition: "none",
+                                        animation: "none",
                                       }}
                                     >
                                       {status === "FT" || isStaleFinishedMatch
@@ -770,13 +941,13 @@ const MyNewLeague2 = ({
 
                                 if (status === "TBD") {
                                   return (
-                                    <div 
+                                    <div
                                       className="match-status-label status-upcoming"
                                       style={{
-                                        minWidth: '60px',
-                                        textAlign: 'center',
-                                        transition: 'none',
-                                        animation: 'none'
+                                        minWidth: "60px",
+                                        textAlign: "center",
+                                        transition: "none",
+                                        animation: "none",
                                       }}
                                     >
                                       Time TBD
@@ -796,7 +967,9 @@ const MyNewLeague2 = ({
                                   fixture.goals.home !== null &&
                                   fixture.goals.away !== null &&
                                   fixture.goals.home > fixture.goals.away &&
-                                  ["FT", "AET", "PEN"].includes(fixture.fixture.status.short)
+                                  ["FT", "AET", "PEN"].includes(
+                                    fixture.fixture.status.short,
+                                  )
                                     ? "winner"
                                     : ""
                                 }`}
@@ -807,7 +980,8 @@ const MyNewLeague2 = ({
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {shortenTeamName(fixture.teams.home.name) || "Unknown Team"}
+                                {shortenTeamName(fixture.teams.home.name) ||
+                                  "Unknown Team"}
                               </div>
 
                               {/* Home team logo */}
@@ -838,14 +1012,14 @@ const MyNewLeague2 = ({
                                       "LIVE",
                                       "LIV",
                                       "1H",
-                                      "HT", 
+                                      "HT",
                                       "2H",
                                       "ET",
                                       "BT",
                                       "P",
                                       "INT",
                                       "45",
-                                      "90"
+                                      "90",
                                     ].includes(status)
                                   ) {
                                     return (
@@ -853,7 +1027,9 @@ const MyNewLeague2 = ({
                                         <span className="score-number">
                                           {fixture.goals.home ?? 0}
                                         </span>
-                                        <span className="score-separator">-</span>
+                                        <span className="score-separator">
+                                          -
+                                        </span>
                                         <span className="score-number">
                                           {fixture.goals.away ?? 0}
                                         </span>
@@ -879,7 +1055,9 @@ const MyNewLeague2 = ({
                                         <span className="score-number">
                                           {fixture.goals.home ?? 0}
                                         </span>
-                                        <span className="score-separator">-</span>
+                                        <span className="score-separator">
+                                          -
+                                        </span>
                                         <span className="score-number">
                                           {fixture.goals.away ?? 0}
                                         </span>
@@ -890,9 +1068,13 @@ const MyNewLeague2 = ({
                                   // Upcoming matches - show kick-off time
                                   if (status === "NS" || status === "TBD") {
                                     // Check if match should have started already (more than 2 hours ago)
-                                    const matchTime = new Date(fixture.fixture.date);
+                                    const matchTime = new Date(
+                                      fixture.fixture.date,
+                                    );
                                     const now = new Date();
-                                    const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+                                    const hoursAgo =
+                                      (now.getTime() - matchTime.getTime()) /
+                                      (1000 * 60 * 60);
 
                                     // If match is more than 2 hours overdue, show as postponed/cancelled
                                     if (hoursAgo > 2) {
@@ -907,11 +1089,12 @@ const MyNewLeague2 = ({
                                     }
 
                                     // Use simplified local time formatting
-                                    const localTime = matchTime.toLocaleTimeString('en-US', {
-                                      hour: '2-digit',
-                                      minute: '2-digit',
-                                      hour12: false
-                                    });
+                                    const localTime =
+                                      matchTime.toLocaleTimeString("en-US", {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        hour12: false,
+                                      });
 
                                     return (
                                       <div
@@ -924,16 +1107,20 @@ const MyNewLeague2 = ({
                                   }
 
                                   // Fallback for any unhandled status - show time or score if available
-                                  if (fixture.goals.home !== null || fixture.goals.away !== null) {
+                                  if (
+                                    fixture.goals.home !== null ||
+                                    fixture.goals.away !== null
+                                  ) {
                                     return (
                                       <div className="match-score-display">
                                         <span className="score-number">
                                           {fixture.goals.home ?? 0}
                                         </span>
-                                        <span className="score-separator">-</span>
+                                        <span className="score-separator">
+                                          -
+                                        </span>
                                         <span className="score-number">
-                                          {
-fixture.goals.away ?? 0}
+                                          {fixture.goals.away ?? 0}
                                         </span>
                                       </div>
                                     );
@@ -945,7 +1132,9 @@ fixture.goals.away ?? 0}
                                       className="match-time-display"
                                       style={{ fontSize: "0.882em" }}
                                     >
-                                      {formatMatchTimeWithTimezone(fixture.fixture.date)}
+                                      {formatMatchTimeWithTimezone(
+                                        fixture.fixture.date,
+                                      )}
                                     </div>
                                   );
                                 })()}
@@ -974,7 +1163,9 @@ fixture.goals.away ?? 0}
                                   fixture.goals.home !== null &&
                                   fixture.goals.away !== null &&
                                   fixture.goals.away > fixture.goals.home &&
-                                  ["FT", "AET", "PEN"].includes(fixture.fixture.status.short)
+                                  ["FT", "AET", "PEN"].includes(
+                                    fixture.fixture.status.short,
+                                  )
                                     ? "winner"
                                     : ""
                                 }`}
@@ -986,16 +1177,20 @@ fixture.goals.away ?? 0}
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {shortenTeamName(fixture.teams.away.name) || "Unknown Team"}
+                                {shortenTeamName(fixture.teams.away.name) ||
+                                  "Unknown Team"}
                               </div>
                             </div>
 
                             {/* Bottom Grid: Penalty Result Status */}
                             <div className="match-penalty-bottom">
                               {(() => {
-                                const isPenaltyMatch = fixture.fixture.status.short === "PEN";
-                                const penaltyHome = fixture.score?.penalty?.home;
-                                const penaltyAway = fixture.score?.penalty?.away;
+                                const isPenaltyMatch =
+                                  fixture.fixture.status.short === "PEN";
+                                const penaltyHome =
+                                  fixture.score?.penalty?.home;
+                                const penaltyAway =
+                                  fixture.score?.penalty?.away;
                                 const hasPenaltyScores =
                                   penaltyHome !== null &&
                                   penaltyHome !== undefined &&
@@ -1010,7 +1205,10 @@ fixture.goals.away ?? 0}
 
                                   return (
                                     <div className="penalty-result-display">
-                                      <span className="penalty-winner" style={{ background: 'transparent' }}>
+                                      <span
+                                        className="penalty-winner"
+                                        style={{ background: "transparent" }}
+                                      >
                                         {winnerText}
                                       </span>
                                     </div>
