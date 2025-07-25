@@ -198,6 +198,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
             
             if (predictionsData.success && predictionsData.data && predictionsData.data.length > 0) {
               const prediction = predictionsData.data[0];
+              console.log('🎯 [MatchPrediction] Processing prediction object:', prediction);
               
               if (prediction.predictions && prediction.predictions.percent) {
                 // Handle both string percentages like "45%" and direct numbers
@@ -225,8 +226,8 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
                 
                 console.log('🎯 [MatchPrediction] Parsed percentages:', { homePercent, drawPercent, awayPercent });
                 
-                // Use predictions if we have any valid data
-                if (homePercent >= 0 || drawPercent >= 0 || awayPercent >= 0) {
+                // Use predictions if we have any valid data (including 0%)
+                if (homePercent >= 0 && drawPercent >= 0 && awayPercent >= 0) {
                   apiPredictions = {
                     homeWinProbability: homePercent,
                     drawProbability: drawPercent,
@@ -236,8 +237,14 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
                   };
                   
                   console.log('✅ [MatchPrediction] Using RapidAPI predictions:', apiPredictions);
+                } else {
+                  console.log('⚠️ [MatchPrediction] Invalid percentage values:', { homePercent, drawPercent, awayPercent });
                 }
+              } else {
+                console.log('⚠️ [MatchPrediction] Missing predictions.percent structure:', prediction);
               }
+            } else {
+              console.log('⚠️ [MatchPrediction] Invalid API response structure:', predictionsData);
             }
           } catch (predictionsError) {
             console.error('❌ [MatchPrediction] Error processing RapidAPI predictions:', predictionsError);
@@ -248,6 +255,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
         let finalProbabilities = null;
         if (apiPredictions) {
           finalProbabilities = apiPredictions;
+          console.log('✅ [MatchPrediction] Using API predictions as final data:', finalProbabilities);
         } else if (propHomeWin && propDraw && propAwayWin) {
           finalProbabilities = {
             homeWinProbability: propHomeWin,
@@ -256,9 +264,11 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
             confidence: 70,
             source: 'props'
           };
+          console.log('✅ [MatchPrediction] Using prop predictions as final data:', finalProbabilities);
         } else {
           // No predictions available
           finalProbabilities = null;
+          console.log('❌ [MatchPrediction] No predictions available from any source');
         }
 
         if (finalProbabilities) {
@@ -372,7 +382,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
   const awayStats = predictionData?.awayTeamStats;
 
   // Show message when no prediction data is available
-  if (!isLoading && (!predictionData || (homeWinProbability === undefined && drawProbability === undefined && awayWinProbability === undefined))) {
+  if (!isLoading && (!predictionData || (!homeWinProbability && homeWinProbability !== 0 && !drawProbability && drawProbability !== 0 && !awayWinProbability && awayWinProbability !== 0))) {
     return (
       <Card className="w-full shadow-md bg-white">
         <CardHeader className="pb-3">
