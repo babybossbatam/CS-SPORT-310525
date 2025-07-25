@@ -495,38 +495,94 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                   // Handle "Penalty Shootout begins"
                   if (event.detail === "Penalty Shootout begins") {
-                    return (
-                      <div
-                        key={`period-${index}`}
-                        className="commentary-event-container"
-                      >
-                        <div className="flex gap-3">
-                          {/* Time Column */}
-                          <div className="flex flex-col items-center min-w-[45px]">
-                            <div className="w-4 h-6 flex items-center justify-center">
-                              <img
-                                src="/assets/matchdetaillogo/penalty.svg"
-                                alt="Penalty Shootout"
-                                className="w-4 h-4"
-                              />
-                            </div>
-                            {index < allCommentaryItems.length - 1 && (
-                              <div className="w-0.5 h-4 bg-gray-800 ml-1"></div>
-                            )}
-                          </div>
+                    // Calculate final penalty score
+                    const finalPenaltyScore = (() => {
+                      let homeGoals = 0;
+                      let awayGoals = 0;
+                      
+                      penaltyShootoutEvents.forEach((penaltyEvent) => {
+                        const detail = penaltyEvent.detail?.toLowerCase() || "";
+                        const wasScored = !detail.includes("missed");
+                        
+                        if (wasScored) {
+                          if (isHomeTeam(penaltyEvent)) {
+                            homeGoals++;
+                          } else {
+                            awayGoals++;
+                          }
+                        }
+                      });
+                      
+                      return { home: homeGoals, away: awayGoals };
+                    })();
 
-                          {/* Content Column */}
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 -ml-3 text-sm text-gray-700 leading-relaxed mt-0.5">
-                              <div>Penalty Shootout begins</div>
-                              <span>
-                                {homeTeam}: {(event as any).score?.split(' - ')[0]},{" "}
-                                {awayTeam}: {(event as any).score?.split(' - ')[1]}
-                              </span>
+                    return (
+                      <>
+                        <div
+                          key={`period-${index}`}
+                          className="commentary-event-container"
+                        >
+                          <div className="flex gap-3">
+                            {/* Time Column */}
+                            <div className="flex flex-col items-center min-w-[45px]">
+                              <div className="w-4 h-6 flex items-center justify-center">
+                                <img
+                                  src="/assets/matchdetaillogo/penalty.svg"
+                                  alt="Penalty Shootout"
+                                  className="w-4 h-4"
+                                />
+                              </div>
+                              <div className="w-0.5 h-4 bg-gray-800 ml-1"></div>
+                            </div>
+
+                            {/* Content Column */}
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 -ml-3 text-sm text-gray-700 leading-relaxed mt-0.5">
+                                <div>Penalty Shootout begins</div>
+                                <span>
+                                  {homeTeam}: {(event as any).score?.split(' - ')[0]},{" "}
+                                  {awayTeam}: {(event as any).score?.split(' - ')[1]}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
+
+                        {/* Final Penalty Score */}
+                        <div
+                          key={`penalty-final-${index}`}
+                          className="commentary-event-container"
+                        >
+                          <div className="flex gap-3">
+                            {/* Time Column */}
+                            <div className="flex flex-col items-center min-w-[50px]">
+                              <div className="text-gray-800 text-sm font-medium leading-tight">
+                                FT
+                              </div>
+                              {index < allCommentaryItems.length - 1 && (
+                                <div className="w-0.5 h-4 bg-gray-600"></div>
+                              )}
+                            </div>
+
+                            {/* Content Column */}
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 -ml-3 -mt-1.5 text-xs font-medium">
+                                <img
+                                  src="/assets/matchdetaillogo/penalty.svg"
+                                  alt="Final Penalties"
+                                  className="w-4 h-4 opacity-80 flex-shrink-0"
+                                />
+                                <span className="text-lg font-bold text-green-600">
+                                  {finalPenaltyScore.home} - {finalPenaltyScore.away}
+                                </span>
+                                <span className="text-xs text-gray-600 font-medium">
+                                  (Penalties)
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </>
                     );
                   }
 
