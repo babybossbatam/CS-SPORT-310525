@@ -253,7 +253,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               const halftimeScore = calculateScoreAtTime(halftimeEndTime);
 
               allCommentaryItems.push({
-                time: { elapsed: penaltyStartTime },
+                time: { elapsed: penaltyStartTime - 1 },
                 type: "penalty_second_half_begins",
                 detail: "Second Half begins",
                 score: `${halftimeScore.homeScore} - ${halftimeScore.awayScore}`,
@@ -262,7 +262,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               } as any);
 
               allCommentaryItems.push({
-                time: { elapsed: penaltyStartTime + 1 },
+                time: { elapsed: penaltyStartTime },
                 type: "penalty_start",
                 detail: "Penalty Shootout begins",
                 score: `${scoreAtPenaltyStart.homeScore} - ${scoreAtPenaltyStart.awayScore}`,
