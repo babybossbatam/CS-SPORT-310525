@@ -63,7 +63,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
     propHomeWin,
     propDraw,
     propAwayWin,
-    fixtureId,
+    fixtureId: fixtureId ? `${fixtureId} (${typeof fixtureId})` : 'NOT PROVIDED',
     leagueId,
     season
   });
@@ -209,7 +209,31 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
             const predictionsData = await predictionsResponse.json();
             console.log('📊 [MatchPrediction] RapidAPI Predictions response:', predictionsData);
             
-            if (predictionsData.success && predictionsData.data && predictionsData.data.length > 0) {
+            // Handle new API response format with response array
+            if (predictionsData.response && Array.isArray(predictionsData.response) && predictionsData.response.length > 0) {
+              const prediction = predictionsData.response[0];
+              
+              if (prediction.predictions && prediction.predictions.percent) {
+                const homePercent = parseInt(prediction.predictions.percent.home?.replace('%', '') || '0');
+                const drawPercent = parseInt(prediction.predictions.percent.draw?.replace('%', '') || '0');
+                const awayPercent = parseInt(prediction.predictions.percent.away?.replace('%', '') || '0');
+                
+                // Only use predictions if we have valid data (not all zeros)
+                if (homePercent > 0 || drawPercent > 0 || awayPercent > 0) {
+                  apiPredictions = {
+                    homeWinProbability: homePercent,
+                    drawProbability: drawPercent,
+                    awayWinProbability: awayPercent,
+                    confidence: 95, // High confidence for RapidAPI predictions
+                    source: 'rapidapi-predictions'
+                  };
+                  
+                  console.log('✅ [MatchPrediction] Using RapidAPI predictions:', apiPredictions);
+                }
+              }
+            }
+            // Fallback to old format for backward compatibility
+            else if (predictionsData.success && predictionsData.data && predictionsData.data.length > 0) {
               const prediction = predictionsData.data[0];
               
               if (prediction.predictions && prediction.predictions.percent) {
