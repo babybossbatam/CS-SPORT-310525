@@ -136,101 +136,76 @@ const MyPredictionCard: React.FC<MyPredictionCardProps> = ({
   const totalVotes = 293; // You can calculate this or make it dynamic
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="text-lg font-bold">Predictions</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <Card className="w-full bg-white">
+      <CardContent className="p-6">
         <div className="space-y-6">
-          {/* Who Will Win? */}
+          {/* Header */}
+          <div className="text-left">
+            <h3 className="text-xl font-semibold text-gray-900">Predictions</h3>
+          </div>
+
+          {/* Who Will Win Section */}
           <div className="text-center">
-            <h3 className="text-xl font-semibold mb-4">Who Will Win?</h3>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Who Will Win?</h2>
             <p className="text-gray-500 text-sm mb-6">Total Votes: {totalVotes}</p>
           </div>
 
-          {/* Prediction Bar */}
+          {/* Progress Bar - matches the design with correct proportions */}
           <div className="space-y-4">
-            {/* Progress Bar */}
             <div className="flex w-full h-2 bg-gray-200 rounded-full overflow-hidden">
               <div 
-                className="bg-gray-600 h-full" 
+                className="bg-gray-600 h-full transition-all duration-300" 
                 style={{ width: `${homePercent}%` }}
               />
               <div 
-                className="bg-gray-400 h-full" 
+                className="bg-gray-400 h-full transition-all duration-300" 
                 style={{ width: `${drawPercent}%` }}
               />
               <div 
-                className="bg-blue-500 h-full" 
+                className="bg-blue-500 h-full transition-all duration-300" 
                 style={{ width: `${awayPercent}%` }}
               />
             </div>
 
-            {/* Team Info and Percentages */}
-            <div className="flex justify-between items-center">
-              {/* Home Team */}
-              <div className="flex flex-col items-start flex-1">
-                <div className="text-lg font-semibold text-gray-800">
+            {/* Team percentages and names below progress bar */}
+            <div className="flex justify-between items-center pt-2">
+              {/* Home Team - Left */}
+              <div className="flex flex-col items-start flex-1 max-w-[30%]">
+                <div className="text-xl font-bold text-gray-900 mb-1">
                   {homePercent}%
                 </div>
-                <div className="flex items-center gap-2">
-                  {homeTeam?.logo && (
-                    <img 
-                      src={homeTeam.logo} 
-                      alt={homeTeam.name}
-                      className="w-5 h-5 object-contain"
-                    />
-                  )}
-                  <span className="text-sm text-gray-600 truncate max-w-[120px]">
-                    {homeTeam?.name || predictionData.teams.home.name}
-                  </span>
+                <div className="text-sm text-gray-700 font-medium truncate max-w-full">
+                  {homeTeam?.name || predictionData.teams.home.name}
                 </div>
               </div>
 
-              {/* Draw */}
-              <div className="flex flex-col items-center mx-4">
-                <div className="text-lg font-semibold text-gray-800">
+              {/* Draw - Center */}
+              <div className="flex flex-col items-center mx-8">
+                <div className="text-xl font-bold text-gray-900 mb-1">
                   {drawPercent}%
                 </div>
-                <span className="text-sm text-gray-600">Draw</span>
+                <div className="text-sm text-gray-700 font-medium">
+                  Draw
+                </div>
               </div>
 
-              {/* Away Team */}
-              <div className="flex flex-col items-end flex-1">
-                <div className="text-lg font-semibold text-blue-600">
+              {/* Away Team - Right */}
+              <div className="flex flex-col items-end flex-1 max-w-[30%]">
+                <div className="text-xl font-bold text-blue-600 mb-1">
                   {awayPercent}%
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-blue-600 truncate max-w-[120px]">
-                    {awayTeam?.name || predictionData.teams.away.name}
-                  </span>
-                  {awayTeam?.logo && (
-                    <img 
-                      src={awayTeam.logo} 
-                      alt={awayTeam.name}
-                      className="w-5 h-5 object-contain"
-                    />
-                  )}
+                <div className="text-sm text-blue-600 font-medium truncate max-w-full text-right">
+                  {awayTeam?.name || predictionData.teams.away.name}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Advice */}
+          {/* Additional prediction info if available */}
           {predictionData.predictions.advice && (
-            <div className="text-center">
-              <p className="text-sm text-gray-600 font-medium">
+            <div className="text-center pt-4 border-t border-gray-100">
+              <p className="text-sm text-gray-600 italic">
                 {predictionData.predictions.advice}
-              </p>
-            </div>
-          )}
-
-          {/* Winner Info */}
-          {predictionData.predictions.winner && (
-            <div className="text-center bg-gray-50 rounded-lg p-3">
-              <p className="text-sm text-gray-700">
-                <span className="font-semibold">Prediction: </span>
-                {predictionData.predictions.winner.name} - {predictionData.predictions.winner.comment}
               </p>
             </div>
           )}

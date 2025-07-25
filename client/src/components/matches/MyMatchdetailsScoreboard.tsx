@@ -13,6 +13,7 @@ import MyMatchStats from "./MyMatchStats";
 import MyTrendsTabsCard from './MyTrendsTabsCard';
 import MyHeadtoheadTabsCard from './MyHeadtoheadTabsCard';
 import MyLineupsTabsCard from './MyLineupsTabsCard';
+import MyPredictionCard from './MyPredictionCard';
 
 
 
@@ -684,6 +685,11 @@ const MyMatchdetailsScoreboard = ({
           >
             Head to Head
           </button>
+          <button className={`flex-0 py-0 px-4 text-sm font-normal ${activeTab === 'prediction' ? 'text-gray-600 border-b border-blue-500' : 'text-gray-500 hover:text-gray-700'} pb-0`}
+           onClick={() => handleTabChange("prediction")}
+          >
+            Predictions
+          </button>
 
           {activeTab === 'highlights' && (
               <MyHighlights
@@ -705,8 +711,8 @@ const MyMatchdetailsScoreboard = ({
         {activeTab === 'prediction' && (
           <div className="space-y-4">
             {(() => {
-              const fixtureIdToPass = match?.fixture?.id;
-              console.log('🏟️ [MyMatchdetailsScoreboard] Passing fixture ID to MyPredictionNew:', {
+              const fixtureIdToPass = match?.fixture?.id || displayMatch?.fixture?.id;
+              console.log('🏟️ [MyMatchdetailsScoreboard] Passing fixture ID to MyPredictionCard:', {
                 fixtureId: fixtureIdToPass,
                 fixtureIdType: typeof fixtureIdToPass,
                 matchObject: match ? {
@@ -718,10 +724,16 @@ const MyMatchdetailsScoreboard = ({
                     away: match.teams?.away?.name
                   }
                 } : 'No match object',
+                homeTeam: match?.teams?.home || displayMatch?.teams?.home,
+                awayTeam: match?.teams?.away || displayMatch?.teams?.away,
                 timestamp: new Date().toISOString()
               });
 
-              return <MyPredictionNew match={match} fixtureId={fixtureIdToPass} />;
+              return <MyPredictionCard 
+                fixtureId={fixtureIdToPass} 
+                homeTeam={match?.teams?.home || displayMatch?.teams?.home}
+                awayTeam={match?.teams?.away || displayMatch?.teams?.away}
+              />;
             })()}
           </div>
         )}
