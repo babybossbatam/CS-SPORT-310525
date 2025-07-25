@@ -821,7 +821,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           wasScored = penaltyNumber <= awayPenalties;
         }
 
-        // Create mock event
+        // Create mock event with more realistic player names
+        const mockPlayerNames = [
+          "Everson", "Gabriel Menino", "Bernard", "Gustavo Scarpa", "Hulk", "Aderbar Santos",
+          "Aldair Zarate", "Jefferson Mena", "Carlos Henao", "Diego Chavez", "Felipe Mora", "Lucas Silva"
+        ];
+
         const mockEvent = {
           time: { elapsed: 120 + i },
           team: {
@@ -831,8 +836,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           },
           player: {
             id: 1000 + i,
-            name:
-              i === 1 ? "Malik Tillman" : i === 2 ? "F. Calvo" : `Player ${i}`,
+            name: mockPlayerNames[i - 1] || `Player ${i}`,
           },
           type: "penalty",
           detail: wasScored ? "Penalty" : "Penalty missed",
@@ -856,138 +860,104 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     }
 
     return (
-      <div className="penalty-shootout-timeline">
-        <div className="penalty-timeline-header">
-          <span className="text-sm font-bold text-gray-700">
-            Penalty Shootout
-          </span>
+      <div className="penalty-shootout-container">
+        {/* Header */}
+        <div className="penalty-shootout-header">
+          <span className="text-sm font-semibold text-gray-800">Penalties</span>
+          <span className="text-lg font-bold text-gray-800">{homeScore} - {awayScore}</span>
         </div>
 
-        <div className="penalty-timeline-container">
-          {penaltySequence.reverse().map((penalty, index) => {
+        {/* Penalty sequence */}
+        <div className="penalty-shootout-list">
+          {penaltySequence.map((penalty, index) => {
             const isHome = penalty.event ? isHomeTeam(penalty.event) : false;
             const isAway = penalty.event ? !isHomeTeam(penalty.event) : false;
+            const detail = penalty.event?.detail?.toLowerCase() || "";
+            const wasScored = !detail.includes("missed");
 
             return (
-              <div key={penalty.number} className="penalty-timeline-item">
-                {/* Penalty event with player info */}
-                <div className="flex items-center justify-between w-full">
-                  {/* Home team penalty info (left side) */}
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    {penalty.event && isHome ? (
-                      <>
-                        <div className="penalty-player-info penalty-player-info-home">
-                          {/* <MyPlayerProfilePicture
-                            playerId={penalty.event.player?.id}
-                            playerName={penalty.event.player?.name}
-                            size="md"
-                            teamType="home"
-                            className="flex-shrink-0"
-                          /> */}
-                          <div className="flex flex-col min-w-0 ml-2">
-                            <span className="penalty-player-name text-xs font-medium text-left truncate">
-                              {penalty.event.player?.name}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1 ml-2">
-                          {(() => {
-                            const detail =
-                              penalty.event.detail?.toLowerCase() || "";
-                            if (detail.includes("missed")) {
-                              return (
-                                <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-                                  <span className="text-white text-xs font-bold">
-                                    X
-                                  </span>
-                                </div>
-                              );
-                            } else {
-                              return (
-                                <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                                  <span className="text-white text-xs font-bold">
-                                    ✓
-                                  </span>
-                                </div>
-                              );
-                            }
-                          })()}
-                        </div>
-                      </>
-                    ) : (
-                      <div className="flex-1"></div>
-                    )}
-                  </div>
+              <div key={penalty.number} className="penalty-shootout-row">
+                {/* Home team penalty info (left side) */}
+                <div className="penalty-home-side">
+                  {penalty.event && isHome && (
+                    <>
+                      <div className="penalty-player-avatar">
+                        <MyAvatarInfo
+                          playerId={penalty.event.player?.id}
+                          playerName={penalty.event.player?.name}
+                          matchId={fixtureId}
+                          teamId={penalty.event.team?.id}
+                          size="sm"
+                          className="shadow-sm border-gray-300"
+                        />
+                      </div>
+                      <span className="penalty-player-name">
+                        {penalty.event.player?.name}
+                      </span>
+                      <div className="penalty-result-icon">
+                        {wasScored ? (
+                          <img
+                            src="/assets/matchdetaillogo/penalty.svg"
+                            alt="Penalty Scored"
+                            className="w-5 h-5"
+                          />
+                        ) : (
+                          <img
+                            src="/assets/matchdetaillogo/missed-penalty.svg"
+                            alt="Penalty Missed"
+                            className="w-5 h-5"
+                          />
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
 
-                  {/* Center - Penalty number indicator */}
-                  <div className="penalty-number-indicator mx-4 flex-shrink-0">
-                    <div className="w-10 h-10 bg-orange-400 rounded-full flex items-center justify-center text-white font-bold text-sm border-2 border-orange-300">
-                      {penalty.number}P
-                    </div>
-                  </div>
-
-                  {/* Away team penalty info (right side) */}
-                  <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
-                    {penalty.event && isAway ? (
-                      <>
-                        <div className="flex items-center gap-1 mr-2">
-                          {(() => {
-                            const detail =
-                              penalty.event.detail?.toLowerCase() || "";
-                            if (detail.includes("missed")) {
-                              return (
-                                <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-                                  <span className="text-white text-xs font-bold">
-                                    X
-                                  </span>
-                                </div>
-                              );
-                            } else {
-                              return (
-                                <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                                  <span className="text-white text-xs font-bold">
-                                    ✓
-                                  </span>
-                                </div>
-                              );
-                            }
-                          })()}
-                        </div>
-                        <div className="penalty-player-info penalty-player-info-away">
-                          <div className="flex flex-col minw-0 mr-2">
-                            <span className="penalty-player-name text-xs font-medium text-right truncate">
-                              {penalty.event.player?.name}
-                            </span>
-                          </div>
-                          {/* <MyPlayerProfilePicture
-                            playerId={penalty.event.player?.id}
-                            playerName={penalty.event.player?.name}
-                            size="md"
-                            teamType="away"
-                            className="flex-shrink-0"
-                          /> */}
-                        </div>
-                      </>
-                    ) : (
-                      <div className="flex-1"></div>
-                    )}
+                {/* Center - Penalty number */}
+                <div className="penalty-center">
+                  <div className="match-event-module-stages-time-yellow-circle-penalty">
+                    {penalty.number}P
                   </div>
                 </div>
 
-                {/* Connecting line */}
-                {index < penaltySequence.length - 1 && (
-                  <div className="penalty-connecting-line"></div>
-                )}
+                {/* Away team penalty info (right side) */}
+                <div className="penalty-away-side">
+                  {penalty.event && isAway && (
+                    <>
+                      <div className="penalty-result-icon">
+                        {wasScored ? (
+                          <img
+                            src="/assets/matchdetaillogo/penalty.svg"
+                            alt="Penalty Scored"
+                            className="w-5 h-5"
+                          />
+                        ) : (
+                          <img
+                            src="/assets/matchdetaillogo/missed-penalty.svg"
+                            alt="Penalty Missed"
+                            className="w-5 h-5"
+                          />
+                        )}
+                      </div>
+                      <span className="penalty-player-name">
+                        {penalty.event.player?.name}
+                      </span>
+                      <div className="penalty-player-avatar">
+                        <MyAvatarInfo
+                          playerId={penalty.event.player?.id}
+                          playerName={penalty.event.player?.name}
+                          matchId={fixtureId}
+                          teamId={penalty.event.team?.id}
+                          size="sm"
+                          className="shadow-sm border-gray-300"
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             );
           })}
-        </div>
-
-        {/* Final score indicator at bottom */}
-        <div className="penalty-final-score">
-          <div className="text-xs text-gray-500 text-center">
-            Final: {homeScore} - {awayScore}
-          </div>
         </div>
       </div>
     );
