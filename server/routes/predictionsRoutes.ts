@@ -1,4 +1,3 @@
-
 import express from 'express';
 
 const router = express.Router();
@@ -7,7 +6,7 @@ const router = express.Router();
 router.get('/:fixtureId', async (req, res) => {
   try {
     const { fixtureId } = req.params;
-    
+
     console.log(`🔮 [Predictions] Route hit with full request details:`, {
       fixtureId,
       fixtureIdType: typeof fixtureId,
@@ -62,7 +61,7 @@ router.get('/:fixtureId', async (req, res) => {
     });
 
     const response = await fetch(url, options);
-    
+
     console.log(`🔮 [Predictions] RapidAPI response received:`, {
       fixtureId,
       status: response.status,
@@ -74,7 +73,7 @@ router.get('/:fixtureId', async (req, res) => {
         server: response.headers.get('server')
       }
     });
-    
+
     if (!response.ok) {
       console.error(`❌ [Predictions] RapidAPI HTTP error:`, {
         fixtureId,
@@ -91,14 +90,14 @@ router.get('/:fixtureId', async (req, res) => {
     }
 
     const result = await response.text();
-    
+
     console.log(`🔮 [Predictions] Raw API response:`, {
       fixtureId,
       responseLength: result.length,
       responseStart: result.substring(0, 200),
-      isHTML: result.trim().startsWith('<!DOCTYPE') || result.trim().startsWith('<html')
+      isHTML: result.trim().startsWith('<!DOCTYPE') || result.trim().startsWith('<html'))
     });
-    
+
     // Check if response is HTML (error page) instead of JSON
     if (result.trim().startsWith('<!DOCTYPE') || result.trim().startsWith('<html')) {
       console.error(`❌ [Predictions] Received HTML response instead of JSON for fixture ${fixtureId}`);
@@ -110,7 +109,7 @@ router.get('/:fixtureId', async (req, res) => {
 
     try {
       const data = JSON.parse(result);
-      
+
       console.log(`✅ [Predictions] JSON parsed successfully:`, {
         fixtureId,
         dataKeys: Object.keys(data),
@@ -121,26 +120,19 @@ router.get('/:fixtureId', async (req, res) => {
         hasErrors: !!data.errors,
         errors: data.errors
       });
-      
-      if (data.response && data.response.length > 0) {
-        console.log(`✅ [Predictions] Prediction data found:`, {
-          fixtureId,
-          predictionCount: data.response.length,
-          firstPrediction: {
-            hasFixture: !!data.response[0]?.fixture,
-            hasTeams: !!data.response[0]?.teams,
-            hasPredictions: !!data.response[0]?.predictions,
-            homeTeam: data.response[0]?.teams?.home?.name,
-            awayTeam: data.response[0]?.teams?.away?.name
-          }
-        });
-      } else {
+
+      if (!data.response || data.response.length === 0) {
         console.warn(`⚠️ [Predictions] No prediction data in response:`, {
           fixtureId,
           fullResponse: data
         });
+        return res.json({ 
+          response: [],
+          error: 'No prediction data available for this match',
+          fixtureId: fixtureId
+        });
       }
-      
+
       console.log(`✅ [Predictions] Sending response to client for fixture: ${fixtureId}`);
       res.json(data);
     } catch (parseError) {

@@ -233,7 +233,18 @@ const MyPredictionNew: React.FC<MyPredictionNewProps> = ({ match, fixtureId }) =
           errorStack: err instanceof Error ? err.stack : null,
           timestamp: new Date().toISOString()
         });
-        setError(err instanceof Error ? err.message : 'Failed to load prediction');
+
+        // Test if it's a connectivity issue
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load prediction';
+        if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
+          setError('Connection error - Please check your internet connection');
+        } else if (errorMessage.includes('temporarily unavailable')) {
+          setError('Prediction service is temporarily down - Please try again later');
+        } else if (errorMessage.includes('No prediction data')) {
+          setError('No prediction available for this match');
+        } else {
+          setError(errorMessage);
+        }
       } finally {
         setLoading(false);
       }
@@ -272,9 +283,17 @@ const MyPredictionNew: React.FC<MyPredictionNewProps> = ({ match, fixtureId }) =
           <CardTitle className="text-lg font-semibold">Match Prediction</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
-          <div className="flex items-center text-red-600 py-4">
-            <AlertCircle className="w-5 h-5 mr-2" />
-            <span className="text-sm">{error || 'No prediction available'}</span>
+          <div className="flex flex-col items-center text-center py-6">
+            <AlertCircle className="w-8 h-8 text-red-500 mb-3" />
+            <span className="text-sm text-red-600 font-medium mb-2">
+              {error || 'No prediction available'}
+            </span>
+            <span className="text-xs text-gray-500">
+              Fixture ID: {extractedFixtureId}
+            </span>
+            <span className="text-xs text-gray-400 mt-1">
+              This match may not have prediction data available from the API
+            </span>
           </div>
         </CardContent>
       </Card>
