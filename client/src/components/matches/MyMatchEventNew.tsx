@@ -1033,15 +1033,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             {/* Render content based on active tab */}
             {activeTab === "all" && (
               <>
-                {/* Show penalty shootout only if match actually ended with penalties */}
-                {matchData?.fixture?.status?.short === "PEN" &&
-                  matchData?.score?.penalty?.home !== null &&
-                  matchData?.score?.penalty?.away !== null && (
-                    <PenaltyShootoutDisplay
-                      homeScore={matchData.score.penalty.home}
-                      awayScore={matchData.score.penalty.away}
-                    />
-                  )}
+             
 
                 {/* All events in chronological order with period score markers */}
                 {(() => {
