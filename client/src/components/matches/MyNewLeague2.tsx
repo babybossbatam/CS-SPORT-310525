@@ -152,7 +152,7 @@ const MyNewLeague2 = ({
   const [expandedLeagues, setExpandedLeagues] = useState<Set<string>>(new Set());
 
   // League IDs without any filtering - removed duplicates
-  const leagueIds = [38, 15, 2, 10, 11, 848, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 940, 908, 1169, 23, 1077, 253, 850, 893, 921, 886, 130, 128, 493, 239, 265, 237, 235, 743];
+  const leagueIds = [38, 15, 2, 10, 11, 848, 886, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 531, 940, 908, 1169, 23, 1077, 253, 850, 893, 921, 130, 128, 493, 239, 265, 237, 235, 743];
 
   // Fetch fixtures for all leagues
   const { data: allFixtures, isLoading, error } = useQuery({

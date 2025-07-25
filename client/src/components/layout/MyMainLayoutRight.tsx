@@ -42,15 +42,7 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
         <>
           <MyMatchTabCard match={selectedFixture} />
           
-          {/* See All Stats Button */}
-          <div className="mt-4 text-center">
-            <button
-              onClick={() => setActiveTab("stats")}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium text-sm"
-            >
-              See All Stats
-            </button>
-          </div>
+         
         </>
       )}
 
