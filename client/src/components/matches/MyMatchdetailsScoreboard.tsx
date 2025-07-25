@@ -10,6 +10,10 @@ import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
 import MyMatchStats from "./MyMatchStats";
+import MyTrendsTabsCard from './MyTrendsTabsCard';
+import MyHeadtoheadTabsCard from './MyHeadtoheadTabsCard';
+import MyLineupsTabsCard from './MyLineupsTabsCard';
+import MyPredictionNew from './MyPredictionNew';
 
 
 // Add CSS for cleaner pulse effect
@@ -680,6 +684,11 @@ const MyMatchdetailsScoreboard = ({
           >
             Head to Head
           </button>
+          <button className={`flex-0 py-0 px-4 text-sm font-normal ${activeTab === 'prediction' ? 'text-gray-600 border-b border-blue-500' : 'text-gray-500 hover:text-gray-700'} relative pb-0`}
+           onClick={() => handleTabChange("prediction")}
+          >
+            Prediction
+          </button>
           {activeTab === 'highlights' && (
               <MyHighlights
                 match={displayMatch}
@@ -692,7 +701,14 @@ const MyMatchdetailsScoreboard = ({
       </Card>
 
       {/* Tab content will be rendered by parent component */}
+      {activeTab === "h2h" && (
+            <MyHeadtoheadTabsCard match={displayMatch} />
+          )}
 
+          {activeTab === "prediction" && (
+            <MyPredictionNew match={displayMatch} />
+          )}
+        
       </Card>
     </>
   );
