@@ -245,87 +245,9 @@ const MyNewLeague2 = ({
       grouped[leagueId].fixtures.push(fixture);
     });
 
-    // Sort fixtures by status priority: Live > Upcoming > Ended, then by date within each category
+    // Sort fixtures by date within each league
     Object.values(grouped).forEach(group => {
-      group.fixtures.sort((a, b) => {
-        const aStatus = a.fixture.status.short;
-        const bStatus = b.fixture.status.short;
-        const aDate = new Date(a.fixture.date).getTime();
-        const bDate = new Date(b.fixture.date).getTime();
-
-        // Define status priorities
-        const getStatusPriority = (status: string) => {
-          // Debug individual status classification
-          if (group.league?.name === "Serie A") {
-            console.log(`🔍 [Status Classification] Status: ${status}`);
-          }
-          
-          // Priority 1: Live matches
-          if (["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
-            if (group.league?.name === "Serie A") {
-              console.log(`✅ [Status Classification] ${status} -> LIVE (Priority 1)`);
-            }
-            return 1;
-          }
-          // Priority 2: Upcoming matches
-          if (["NS", "TBD"].includes(status)) {
-            if (group.league?.name === "Serie A") {
-              console.log(`✅ [Status Classification] ${status} -> UPCOMING (Priority 2)`);
-            }
-            return 2;
-          }
-          // Priority 3: Ended matches
-          if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
-            if (group.league?.name === "Serie A") {
-              console.log(`✅ [Status Classification] ${status} -> ENDED (Priority 3)`);
-            }
-            return 3;
-          }
-          // Priority 4: Other statuses
-          if (group.league?.name === "Serie A") {
-            console.log(`⚠️ [Status Classification] ${status} -> OTHER (Priority 4)`);
-          }
-          return 4;
-        };
-
-        const aPriority = getStatusPriority(aStatus);
-        const bPriority = getStatusPriority(bStatus);
-
-        // Debug logging for sorting
-        if (group.league?.name === "Serie A") {
-          console.log(`🔄 [Sorting] ${a.teams.home.name} vs ${a.teams.away.name} (${aStatus}, P${aPriority}) vs ${b.teams.home.name} vs ${b.teams.away.name} (${bStatus}, P${bPriority})`);
-        }
-
-        // Primary sort: by status priority
-        if (aPriority !== bPriority) {
-          return aPriority - bPriority;
-        }
-
-        // Secondary sort: within same status category
-        if (aPriority === 1) {
-          // Live matches: sort by elapsed time (shortest elapsed time first)
-          const aElapsed = Number(a.fixture.status.elapsed) || 0;
-          const bElapsed = Number(b.fixture.status.elapsed) || 0;
-          if (aElapsed !== bElapsed) {
-            return aElapsed - bElapsed;
-          }
-          // If same elapsed time, sort by date
-          return aDate - bDate;
-        }
-
-        if (aPriority === 2) {
-          // Upcoming matches: sort by earliest start time first
-          return aDate - bDate;
-        }
-
-        if (aPriority === 3) {
-          // Ended matches: sort by most recent end time first
-          return bDate - aDate;
-        }
-
-        // For other statuses, sort by date (earliest first)
-        return aDate - bDate;
-      });
+      group.fixtures.sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime());
     });
 
     const groupedKeys = Object.keys(grouped);
