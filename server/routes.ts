@@ -820,8 +820,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             country: {
               name: "Germany",
               code: "DE",
-              flag:```python
- "https://media.api-sports.io/flags/de.svg",
+              ```python
+ flag: "https://media.api-sports.io/flags/de.svg",
             },
           },
           {
