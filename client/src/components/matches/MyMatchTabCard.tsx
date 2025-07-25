@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import MatchPrediction from './MatchPrediction';
 import MyHighlights from './MyHighlights';
 import MyLiveAction from './MyLiveAction';
 import MyMatchEventNew from './MyMatchEventNew';
@@ -9,6 +8,7 @@ import MyStats from './MyStats';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import MyStatsTabCard from './MyStatsTabCard';
 import MyH2HNew from './MyH2HNew';
+import MyPredictionNew from './MyPredictionNew';
 
 interface MyMatchTabCardProps {
   match: any;
@@ -21,6 +21,7 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
   return (
     <>
       {/* Match Prediction */}
+      {/*
       <div className="space-y-2">
 
         <MatchPrediction 
@@ -29,6 +30,7 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
           fixtureId={match.fixture?.id}
         />
       </div>
+      */}
 
       {/* Conditional rendering based on match status */}
       {(() => {
@@ -73,27 +75,85 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
           <>
             {/* Show MyHighlights for ended matches */}
             {finalIsEnded && (
-              <div className="space-y-2">
-                <MyHighlights 
-                  homeTeam={match.teams?.home?.name || "Unknown Team"}
-                  awayTeam={match.teams?.away?.name || "Unknown Team"}
-                  leagueName={match.league?.name || "Unknown League"}
-                  matchStatus={match.fixture?.status?.short}
-                  match={match}
-                />
-              </div>
+              <>
+                {/* Match Prediction */}
+                <div className="space-y-2">
+                  <MyPredictionNew 
+                    match={match}
+                    fixtureId={match.fixture?.id}
+                  />
+                </div>
+
+                {/* Highlights */}
+                <div className="space-y-2">
+                  <MyHighlights 
+                    match={match}
+                    matchStatus={match.fixture?.status?.short}
+                    homeTeamData={{
+                      id: match.teams?.home?.id,
+                      name: match.teams?.home?.name,
+                      logo: match.teams?.home?.logo
+                    }}
+                    awayTeamData={{
+                      id: match.teams?.away?.id,
+                      name: match.teams?.away?.name,
+                      logo: match.teams?.away?.logo
+                    }}
+                  />
+                </div>
+
+                {/* Match Events */}
+                <div className="space-y-2">
+                  <MyMatchEventNew 
+                    fixtureId={match.fixture?.id}
+                    homeTeam={match.teams?.home?.name}
+                    awayTeam={match.teams?.away?.name}
+                    matchData={match}
+                    theme="light"
+                  />
+                </div>
+              </>
             )}
 
             {/* Show MyLiveAction only for truly live matches */}
             {finalIsLive && (
-              <div className="space-y-2">
-                <MyLiveAction 
-                  matchId={match.fixture?.id}
-                  homeTeam={match.teams?.home}
-                  awayTeam={match.teams?.away}
-                  status={match.fixture?.status?.short}
-                />
-              </div>
+              <>
+                {/* Match Prediction */}
+                <div className="space-y-2">
+                  <MyPredictionNew 
+                    match={match}
+                    fixtureId={match.fixture?.id}
+                  />
+                </div>
+
+                {/* Highlights */}
+                <div className="space-y-2">
+                  <MyHighlights 
+                    match={match}
+                    matchStatus={match.fixture?.status?.short}
+                    homeTeamData={{
+                      id: match.teams?.home?.id,
+                      name: match.teams?.home?.name,
+                      logo: match.teams?.home?.logo
+                    }}
+                    awayTeamData={{
+                      id: match.teams?.away?.id,
+                      name: match.teams?.away?.name,
+                      logo: match.teams?.away?.logo
+                    }}
+                  />
+                </div>
+
+                {/* Live Action */}
+                <div className="space-y-2">
+                  <MyLiveAction 
+                    matchId={match.fixture?.id}
+                    homeTeam={match.teams?.home}
+                    awayTeam={match.teams?.away}
+                    status={match.fixture?.status?.short}
+                  />
+                </div>
+              </>
             )}
 
             {/* For upcoming matches, neither component is shown */}
@@ -102,6 +162,7 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
       })()}
 
       {/* Match Events */}
+      {/*
       <div className="space-y-2">
 
         <MyMatchEventNew 
@@ -112,7 +173,7 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
           theme="light"
         />
       </div>
-
+      */}
 
 
       {/* Shot Map */}
