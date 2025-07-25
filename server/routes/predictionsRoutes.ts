@@ -133,13 +133,28 @@ router.get('/:fixtureId', async (req, res) => {
         });
       }
 
+      // Validate response structure before sending
+      const firstItem = data.response?.[0];
+      if (!firstItem?.predictions || !firstItem?.teams) {
+        console.warn(`⚠️ [Predictions] Response missing required data:`, {
+          fixtureId,
+          hasPredictions: !!firstItem?.predictions,
+          hasTeams: !!firstItem?.teams,
+          availableKeys: firstItem ? Object.keys(firstItem) : null
+        });
+      }
+
       console.log(`✅ [Predictions] Sending response to client for fixture: ${fixtureId}`, {
         responseStructure: {
           hasResponse: !!data.response,
           responseLength: data.response?.length,
-          firstItemKeys: data.response?.[0] ? Object.keys(data.response[0]) : null,
-          hasPredictions: !!data.response?.[0]?.predictions,
-          hasTeams: !!data.response?.[0]?.teams
+          firstItemKeys: firstItem ? Object.keys(firstItem) : null,
+          hasPredictions: !!firstItem?.predictions,
+          hasTeams: !!firstItem?.teams,
+          hasLeague: !!firstItem?.league,
+          predictionWinner: firstItem?.predictions?.winner?.name,
+          homeTeam: firstItem?.teams?.home?.name,
+          awayTeam: firstItem?.teams?.away?.name
         }
       });
       res.json(data);

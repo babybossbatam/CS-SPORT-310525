@@ -219,8 +219,20 @@ const MyPredictionNew: React.FC<MyPredictionNewProps> = ({ match, fixtureId }) =
           hasPredictions: !!predictionResponse?.predictions,
           hasTeams: !!predictionResponse?.teams,
           homeTeam: predictionResponse?.teams?.home?.name,
-          awayTeam: predictionResponse?.teams?.away?.name
+          awayTeam: predictionResponse?.teams?.away?.name,
+          rawData: predictionResponse
         });
+
+        // Validate required data structure
+        if (!predictionResponse?.predictions || !predictionResponse?.teams) {
+          console.error(`❌ [MyPredictionNew] Invalid prediction data structure:`, {
+            fixtureId: extractedFixtureId,
+            hasPredictions: !!predictionResponse?.predictions,
+            hasTeams: !!predictionResponse?.teams,
+            predictionResponse
+          });
+          throw new Error('Invalid prediction data structure - missing predictions or teams data');
+        }
         
         setPredictionData(predictionResponse);
         console.log(`✅ [MyPredictionNew] Prediction data loaded for fixture: ${extractedFixtureId}`);
@@ -318,6 +330,14 @@ const MyPredictionNew: React.FC<MyPredictionNewProps> = ({ match, fixtureId }) =
     if (percentage >= 60) return 'text-green-600';
     if (percentage <= 30) return 'text-red-600';
     return 'text-gray-600';
+  };
+
+  // Helper function to safely get team form data
+  const getTeamForm = (team: any) => {
+    return {
+      form: team?.last_5?.form || 'N/A',
+      leagueForm: team?.league?.form || null
+    };
   };
 
   // Helper function to parse percentage strings
@@ -460,13 +480,13 @@ const MyPredictionNew: React.FC<MyPredictionNewProps> = ({ match, fixtureId }) =
               <span className="text-sm font-medium">{teams.home.name}</span>
             </div>
             <div className="flex items-center space-x-2">
-              {getFormIcon(teams.home.last_5.form)}
-              <span className={`text-sm ${getFormColor(teams.home.last_5.form)}`}>
-                Form: {teams.home.last_5.form}
+              {getFormIcon(getTeamForm(teams.home).form)}
+              <span className={`text-sm ${getFormColor(getTeamForm(teams.home).form)}`}>
+                Form: {getTeamForm(teams.home).form}
               </span>
-              {teams.home.league?.form && (
+              {getTeamForm(teams.home).leagueForm && (
                 <span className="text-xs text-gray-500 font-mono">
-                  ({teams.home.league.form.slice(-5)})
+                  ({getTeamForm(teams.home).leagueForm.slice(-5)})
                 </span>
               )}
             </div>
@@ -483,13 +503,13 @@ const MyPredictionNew: React.FC<MyPredictionNewProps> = ({ match, fixtureId }) =
               <span className="text-sm font-medium">{teams.away.name}</span>
             </div>
             <div className="flex items-center space-x-2">
-              {getFormIcon(teams.away.last_5.form)}
-              <span className={`text-sm ${getFormColor(teams.away.last_5.form)}`}>
-                Form: {teams.away.last_5.form}
+              {getFormIcon(getTeamForm(teams.away).form)}
+              <span className={`text-sm ${getFormColor(getTeamForm(teams.away).form)}`}>
+                Form: {getTeamForm(teams.away).form}
               </span>
-              {teams.away.league?.form && (
+              {getTeamForm(teams.away).leagueForm && (
                 <span className="text-xs text-gray-500 font-mono">
-                  ({teams.away.league.form.slice(-5)})
+                  ({getTeamForm(teams.away).leagueForm.slice(-5)})
                 </span>
               )}
             </div>
