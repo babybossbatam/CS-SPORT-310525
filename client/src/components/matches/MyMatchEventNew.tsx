@@ -899,13 +899,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           <img
                             src="/assets/matchdetaillogo/penalty.svg"
                             alt="Penalty Scored"
-                            className="w-5 h-5"
+                            className="w-4 h-4"
                           />
                         ) : (
                           <img
                             src="/assets/matchdetaillogo/missed-penalty.svg"
                             alt="Penalty Missed"
-                            className="w-5 h-5"
+                            className="w-4 h-4 "
                           />
                         )}
                       </div>
@@ -918,7 +918,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   <div className="match-event-module-stages-time-yellow-circle-penalty">
                     {penalty.number}P
                   </div>
-                </div>```text
+                </div>
 
                 {/* Away team penalty info (right side) */}
                 <div className="penalty-away-side">
@@ -929,13 +929,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           <img
                             src="/assets/matchdetaillogo/penalty.svg"
                             alt="Penalty Scored"
-                            className="w-5 h-5"
+                            className="w-4 h-4 mr-14"
                           />
                         ) : (
                           <img
                             src="/assets/matchdetaillogo/missed-penalty.svg"
                             alt="Penalty Missed"
-                            className="w-5 h-5"
+                            className="w-4 h-4  mr-14"
                           />
                         )}
                       </div>
@@ -970,11 +970,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       className={`${className} ${isDarkTheme ? "bg-gray-800 text-white border-gray-700" : "bg-white border-gray-200"}`}
     >
       <CardHeader
-        className={`pb-3 ${isDarkTheme ? "bg-gray-700" : "mb-2"} border-b`}
+        className={`pb-3 ${isDarkTheme ? "bg-gray-700" : "mb-6"} border-b`}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="text-md font-semibold">Match Events</h3>
+            <h3 className="text-sm font-semibold">Match Events</h3>
           </div>
         </div>
       </CardHeader>
