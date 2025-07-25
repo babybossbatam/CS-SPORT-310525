@@ -363,7 +363,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   const bIsYellow = b.detail?.toLowerCase().includes("yellow");
                   const aIsRed = a.detail?.toLowerCase().includes("red");
                   const bIsRed = b.detail?.toLowerCase().includes("red");
-                  
+
                   // If one is yellow and other is red for same player, red comes first (top), yellow below
                   if (aIsYellow && bIsRed) return 1;  // Yellow goes below red
                   if (aIsRed && bIsYellow) return -1; //
@@ -896,7 +896,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 } else {
                                   return (
                                     <>
-                                      
+
                                       <img
                                         src="/assets/matchdetaillogo/blue ball.svg"
                                         alt="Goal"
@@ -905,7 +905,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                       <span className="text-green-500 font-bold text-sm tracking-wider">
                                         Goal
                                       </span>
-                                     
+
                                       <span className="text-lg font-bold text-green-400">
                                         {(() => {
                                           const scoreAfterGoal = calculateScoreAtTime(
@@ -920,7 +920,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 }
                               })()}
                               <div className="ml-auto flex items-center gap-2">
-                               
+
                                 <MyWorldTeamLogo
                                   teamName={event.team?.name || ""}
                                   teamLogo={`/api/team-logo/square/${event.team?.id || "fallback"}?size=24`}
@@ -948,7 +948,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                     {event.team?.name}
                                   </span>
                                 </div>
-                                
+
                               </div>
 
                               {/* Enhanced Commentary Description */}
@@ -1015,10 +1015,10 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                       </span>
                                       <span className="text-gray-500 text-xs">
                                         {event.team?.name}
-                                       
+
                                       </span>
                                     </div>
-                                    
+
                                   </div>
 
                                   <div className="text-sm text-gray-700 leading-relaxed -ml-3    ">
