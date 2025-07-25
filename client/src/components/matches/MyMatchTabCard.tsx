@@ -8,6 +8,7 @@ import MyKeyPlayer from './MyKeyPlayer';
 import MyStats from './MyStats';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import MyStatsTabCard from './MyStatsTabCard';
+import MyH2HNew from './MyH2HNew';
 
 interface MyMatchTabCardProps {
   match: any;
@@ -151,6 +152,11 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
           </button>
         </div>
       </Card>
+
+      {/* Head to Head */}
+      <div className="space-y-2">
+        <MyH2HNew match={match} />
+      </div>
     </>
   );
 };
