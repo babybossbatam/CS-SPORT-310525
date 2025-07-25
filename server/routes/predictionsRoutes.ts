@@ -23,10 +23,32 @@ router.get('/predictions/:fixtureId', async (req, res) => {
 
     request(options, function (error: any, response: any, body: any) {
       if (error) {
-        console.error('❌ [Predictions] Error:', error);
+        console.error('❌ [Predictions] Request error:', error);
         return res.status(500).json({ 
           success: false, 
           error: 'Failed to fetch predictions',
+          data: null 
+        });
+      }
+
+      // Check if response is HTML (error page)
+      if (typeof body === 'string' && (body.startsWith('<!DOCTYPE') || body.startsWith('<html'))) {
+        console.error('❌ [Predictions] Received HTML response instead of JSON');
+        console.log('❌ [Predictions] HTML response:', body.substring(0, 200));
+        return res.status(500).json({ 
+          success: false, 
+          error: 'API returned HTML error page',
+          data: null 
+        });
+      }
+
+      // Check HTTP status
+      if (response.statusCode !== 200) {
+        console.error(`❌ [Predictions] HTTP error: ${response.statusCode}`);
+        console.log('❌ [Predictions] Response body:', body);
+        return res.status(response.statusCode).json({ 
+          success: false, 
+          error: `API returned status ${response.statusCode}`,
           data: null 
         });
       }
@@ -46,7 +68,7 @@ router.get('/predictions/:fixtureId', async (req, res) => {
         console.log('❌ [Predictions] Raw response body:', body.substring(0, 200));
         res.status(500).json({ 
           success: false, 
-          error: 'Invalid response format',
+          error: 'Invalid JSON response from API',
           data: null 
         });
       }

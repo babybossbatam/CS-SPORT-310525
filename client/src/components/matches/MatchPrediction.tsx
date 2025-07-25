@@ -210,7 +210,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
             // Check if response is HTML (error page) instead of JSON
             if (responseText.startsWith('<!DOCTYPE') || responseText.startsWith('<html')) {
               console.error('❌ [MatchPrediction] Received HTML response instead of JSON');
-              throw new Error('Server returned HTML instead of JSON');
+              throw new Error('Server returned HTML error page - API may be down or rate limited');
             }
             
             const predictionsData = JSON.parse(responseText);
@@ -309,7 +309,14 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
             }
           } catch (predictionsError) {
             console.error('❌ [MatchPrediction] Error processing RapidAPI predictions:', predictionsError);
+            // Set a more descriptive error message
+            setError(`Prediction service temporarily unavailable: ${predictionsError instanceof Error ? predictionsError.message : 'Unknown error'}`);
           }
+        } else if (predictionsResponse && !predictionsResponse.ok) {
+          console.error(`❌ [MatchPrediction] HTTP error: ${predictionsResponse.status}`);
+          const errorText = await predictionsResponse.text();
+          console.log('❌ [MatchPrediction] Error response body:', errorText.substring(0, 200));
+          setError(`Prediction service error (${predictionsResponse.status}): ${errorText.includes('HTML') ? 'Service temporarily down' : 'API error'}`);
         }
 
         // Only use props as fallback if no RapidAPI data available
