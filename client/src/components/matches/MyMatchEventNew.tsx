@@ -1207,30 +1207,59 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     },
                   );
 
-                  return allItems.map((event, index) => {
+                  // Group events by elapsed time first
+                  const groupedByTime = allItems.reduce((acc, event) => {
+                    // Handle non-event items (period markers, penalty shootouts)
+                    if (event.type === "period_score" || event.type === "penalty_shootout") {
+                      acc.push([event]);
+                      return acc;
+                    }
+
+                    const timeKey = `${event.time?.elapsed || 0}_${event.time?.extra || 0}`;
+                    const existingGroup = acc.find(group => {
+                      const firstEvent = group[0];
+                      if (firstEvent.type === "period_score" || firstEvent.type === "penalty_shootout") {
+                        return false;
+                      }
+                      const firstTimeKey = `${firstEvent.time?.elapsed || 0}_${firstEvent.time?.extra || 0}`;
+                      return firstTimeKey === timeKey;
+                    });
+
+                    if (existingGroup) {
+                      existingGroup.push(event);
+                    } else {
+                      acc.push([event]);
+                    }
+
+                    return acc;
+                  }, [] as (MatchEvent | any)[][]);
+
+                  return groupedByTime.map((eventGroup, groupIndex) => {
+                    const firstEvent = eventGroup[0];
+
                     // Handle period score markers safely
-                    if (event.type === "period_score") {
+                    if (firstEvent.type === "period_score") {
                       return (
                         <div
-                          key={event.id || `period-score-${index}`}
+                          key={firstEvent.id || `period-score-${groupIndex}`}
                           className="match-event-container "
                         >
                           <div className="period-score-marker">
                             <div className="period-score-label">
-                              {event.detail || "Period Marker"}
+                              {firstEvent.detail || "Period Marker"}
                             </div>
                             <div className="period-score-display">
-                              {event.score || "0 - 0"}
+                              {firstEvent.score || "0 - 0"}
                             </div>
                           </div>
                         </div>
                       );
                     }
                     // Render PenaltyShootoutDisplay if the event is a penalty shootout
-                    if (event.type === "penalty_shootout") {
+                    if (firstEvent.type === "penalty_shootout") {
                       return (
                         <div
-                          key={event.id || `penalty-shootout-${index}`}
+                          key={firstEvent.id || `penalty-shootout-${groupIndex}`}
                           className="match-event-container"
                         >
                           <PenaltyShootoutDisplay homeScore={4} awayScore={3} />
@@ -1238,25 +1267,32 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       );
                     }
 
-                    // For own goals, show on the side of the team that benefits (opposite of scoring team)
-                    const isOwnGoal = event.detail
-                      ?.toLowerCase()
-                      .includes("own goal");
-                    const isHome = isOwnGoal
-                      ? event.team?.name !== homeTeam
-                      : event.team?.name === homeTeam;
+                    // Separate home and away events within the group
+                    const homeEvents = eventGroup.filter(event => {
+                      const isOwnGoal = event.detail?.toLowerCase().includes("own goal");
+                      return isOwnGoal
+                        ? event.team?.name !== homeTeam
+                        : event.team?.name === homeTeam;
+                    });
+
+                    const awayEvents = eventGroup.filter(event => {
+                      const isOwnGoal = event.detail?.toLowerCase().includes("own goal");
+                      return isOwnGoal
+                        ? event.team?.name === homeTeam
+                        : event.team?.name !== homeTeam;
+                    });
 
                     return (
                       <div
-                        key={`event-${index}`}
+                        key={`event-group-${groupIndex}`}
                         className="match-event-container"
                       >
                         {/* Three-grid layout container */}
                         <div className="match-event-three-grid-container">
                           {/* Left Grid: Home Team Events */}
                           <div className="match-event-home-side">
-                            {isHome && (
-                              <>
+                            {homeEvents.map((event, eventIndex) => (
+                              <div key={`home-event-${eventIndex}`} className="mb-2 last:mb-0">
                                 {/* Column 1: Player Info */}
                                 <div className="match-event-home-player-info">
                                   <div className="flex items-center gap-1">
@@ -1435,8 +1471,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     )}
                                   </div>
                                 </div>
-                              </>
-                            )}
+                              </div>
+                            ))}
                           </div>
 
                           {/* Center Grid: Time display only */}
@@ -1453,11 +1489,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               }}
                             >
                               <span style={{ color: "black", lineHeight: "1" }}>
-                                {event.time?.elapsed}'
+                                {firstEvent.time?.elapsed}'
                               </span>
-                              {event.time?.extra && (
+                              {firstEvent.time?.extra && (
                                 <span style={{ color: "red", lineHeight: "1" }}>
-                                  +{event.time.extra}
+                                  +{firstEvent.time.extra}
                                 </span>
                               )}
                             </div>
@@ -1465,8 +1501,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                           {/* Right Grid: Away Team Events */}
                           <div className="match-event-away-side">
-                            {!isHome && (
-                              <>
+                            {awayEvents.map((event, eventIndex) => (
+                              <div key={`away-event-${eventIndex}`} className="mb-2 last:mb-0">
                                 {/* Column 1: Event Icon */}
                                 <div className="match-event-away-icon-column">
                                   <div
@@ -1645,8 +1681,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     </div>
                                   </div>
                                 </div>
-                              </>
-                            )}
+                              </div>
+                            ))}
                           </div>
                         </div>
                       </div>
