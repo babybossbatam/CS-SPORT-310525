@@ -263,7 +263,7 @@
   transform: scale(1.05);
 }
 
-/* Simplified center grid for time only */
+/* Simplified center grid for time only (updated for circular display) */
 .match-event-time-center-simple {
   grid-area: time-center;
   position: relative;
@@ -273,11 +273,10 @@
   height: 40px;
   min-height: 40px;
   max-height: 40px;
-  width: 72px;
-  min-width: 72px;
-  max-width: 72px;
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
   padding: 0;
-  border-radius: 12px;
   transition: none;
   background: transparent;
   flex-shrink: 0;
@@ -289,25 +288,24 @@
   border-color: var(--accentPrimary);
 }
 
-/* Center time display - fixed positioning */
+/* Center time display - fixed positioning (copying penalty circle format) */
 .match-event-time-display {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   display: flex;
-  justify-content: center;
   align-items: center;
-  text-align: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: #fbbf24;
+  border-radius: 50%;
+  color: #000;
   font-size: 12px;
-  font-weight: var(--semiBold-font-weight);
-  color: black;
+  font-weight: 600;
+  border: 2px solid #f59e0b;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-align: center;
   line-height: 1;
+  position: relative;
   white-space: nowrap;
-  height: 40px;
-  width: 72px;
-  min-width: 72px;
-  max-width: 72px;
   flex-shrink: 0;
   flex-grow: 0;
 }
