@@ -40,15 +40,15 @@
 
 
 
-/* Three-grid layout container */
+/* Five-grid layout container for proper positioning */
 .match-event-three-grid-container {
   display: grid;
-  grid-template-columns: 1fr 80px 1fr;
-  grid-template-areas: "home-side time-center away-side";
+  grid-template-columns: 1fr auto 80px auto 1fr;
+  grid-template-areas: "home-player-info home-icon time-center away-icon away-player-info";
   grid-template-rows: 60px;
   align-items: center;
   width: 100%;
-  gap: 3px;
+  gap: 8px;
   padding: 0px 8px;
   min-height: 60px;
   max-height: 60px;
@@ -240,33 +240,26 @@
   letter-spacing: 0.5px;
 }
 
-/* Home team events (left side) - Module 1: Player info left, icon right */
-.match-event-home-side {
-  grid-area: home-side;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  align-items: center;
-  padding-right: 20px;
-}
-
+/* Home team player info (grid area 1) */
 .match-event-home-player-info {
+  grid-area: home-player-info;
   display: flex;
   align-items: center;
   gap: 8px;
   justify-content: flex-start;
   text-align: left;
-  grid-column: 1;
+  padding-right: 8px;
 }
 
+/* Home team icon (grid area 2) */
 .match-event-home-icon-column {
+  grid-area: home-icon;
   display: flex;
   justify-content: flex-end;
   align-items: center;
   height: 40px;
   width: 24px;
   min-height: 40px;
-  grid-column: 2;
 }
 
 /* Time display (center) */
@@ -294,7 +287,7 @@
   transform: scale(1.05);
 }
 
-/* Module 2: Time center - Fixed positioning for middle column */
+/* Time center - Fixed positioning in middle grid area */
 .match-event-time-center-simple {
   grid-area: time-center;
   position: relative;
@@ -304,9 +297,9 @@
   height: 40px;
   min-height: 40px;
   max-height: 40px;
-  width: 72px;
-  min-width: 72px;
-  max-width: 72px;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
   padding: 0;
   border-radius: 12px;
   transition: none;
@@ -337,40 +330,33 @@
   line-height: 1;
   white-space: nowrap;
   height: 40px;
-  width: 72px;
-  min-width: 72px;
-  max-width: 72px;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
   flex-shrink: 0;
   flex-grow: 0;
 }
 
-/* Away team events (right side) - Module 3: Icon left, player info right */
-.match-event-away-side {
-  grid-area: away-side;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 12px;
-  align-items: center;
-  padding-left: 20px;
-}
-
+/* Away team icon (grid area 4) */
 .match-event-away-icon-column {
+  grid-area: away-icon;
   display: flex;
   justify-content: flex-start;
   align-items: center;
   height: 40px;
   width: 24px;
   min-height: 40px;
-  grid-column: 1;
 }
 
+/* Away team player info (grid area 5) */
 .match-event-away-player-info {
+  grid-area: away-player-info;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   text-align: right;
   gap: 8px;
-  grid-column: 2;
+  padding-left: 8px;
 }
 
 /* Match event icons with enhanced styling */
@@ -670,7 +656,7 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .match-event-three-grid-container {
-    grid-template-columns: 1fr 60px 1fr;
+    grid-template-columns: 1fr auto 60px auto 1fr;
     gap: 4px;
     padding: 4px 4px;
     min-height: 50px;
