@@ -819,8 +819,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
             country: {
               name: "Germany",
-              ```
-code: "DE",
+              code: "DE",
               flag: "https://media.api-sports.io/flags/de.svg",
             },
           },
@@ -3383,44 +3382,3 @@ async function getCountryFlag(country: string): Promise<string | null> {
     return null;
   }
 }
-
-// Get fixture statistics
-app.get('/api/fixtures/:fixtureId/statistics', async (req, res) => {
-  const { fixtureId } = req.params;
-  const { team } = req.query;
-
-  if (!fixtureId) {
-    return res.status(400).json({ error: 'Fixture ID is required' });
-  }
-
-  try {
-    const statistics = await rapidApiService.getFixtureStatistics(parseInt(fixtureId), team ? parseInt(team as string) : undefined);
-    res.json(statistics);
-  } catch (error) {
-    console.error('Error fetching fixture statistics:', error);
-    res.status(500).json({ error: 'Failed to fetch fixture statistics' });
-  }
-});
-
-// Get head-to-head data
-app.get('/api/fixtures/headtohead/:teamIds', async (req, res) => {
-  const { teamIds } = req.params;
-
-  if (!teamIds || !teamIds.includes('-')) {
-    return res.status(400).json({ error: 'Invalid team IDs format. Expected format: team1Id-team2Id' });
-  }
-
-  try {
-    const [homeTeamId, awayTeamId] = teamIds.split('-').map(id => parseInt(id));
-
-    if (isNaN(homeTeamId) || isNaN(awayTeamId)) {
-      return res.status(400).json({ error: 'Invalid team IDs' });
-    }
-
-    const h2hData = await rapidApiService.getHeadToHead(homeTeamId, awayTeamId);
-    res.json(h2hData);
-  } catch (error) {
-    console.error('Error fetching head-to-head data:', error);
-    res.status(500).json({ error: 'Failed to fetch head-to-head data' });
-  }
-});
