@@ -191,12 +191,33 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
               const prediction = predictionsData.data[0];
               
               if (prediction.predictions && prediction.predictions.percent) {
-                const homePercent = parseInt(prediction.predictions.percent.home?.replace('%', '') || '0');
-                const drawPercent = parseInt(prediction.predictions.percent.draw?.replace('%', '') || '0');
-                const awayPercent = parseInt(prediction.predictions.percent.away?.replace('%', '') || '0');
+                // Handle both string percentages like "45%" and direct numbers
+                let homePercent = 0;
+                let drawPercent = 0;
+                let awayPercent = 0;
+
+                if (typeof prediction.predictions.percent.home === 'string') {
+                  homePercent = parseInt(prediction.predictions.percent.home.replace('%', '') || '0');
+                } else if (typeof prediction.predictions.percent.home === 'number') {
+                  homePercent = prediction.predictions.percent.home;
+                }
+
+                if (typeof prediction.predictions.percent.draw === 'string') {
+                  drawPercent = parseInt(prediction.predictions.percent.draw.replace('%', '') || '0');
+                } else if (typeof prediction.predictions.percent.draw === 'number') {
+                  drawPercent = prediction.predictions.percent.draw;
+                }
+
+                if (typeof prediction.predictions.percent.away === 'string') {
+                  awayPercent = parseInt(prediction.predictions.percent.away.replace('%', '') || '0');
+                } else if (typeof prediction.predictions.percent.away === 'number') {
+                  awayPercent = prediction.predictions.percent.away;
+                }
                 
-                // Only use predictions if we have valid data (not all zeros)
-                if (homePercent > 0 || drawPercent > 0 || awayPercent > 0) {
+                console.log('🎯 [MatchPrediction] Parsed percentages:', { homePercent, drawPercent, awayPercent });
+                
+                // Use predictions if we have any valid data
+                if (homePercent >= 0 || drawPercent >= 0 || awayPercent >= 0) {
                   apiPredictions = {
                     homeWinProbability: homePercent,
                     drawProbability: drawPercent,
@@ -342,7 +363,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
   const awayStats = predictionData?.awayTeamStats;
 
   // Show message when no prediction data is available
-  if (!isLoading && (!predictionData || !homeWinProbability || !drawProbability || !awayWinProbability)) {
+  if (!isLoading && (!predictionData || (homeWinProbability === undefined && drawProbability === undefined && awayWinProbability === undefined))) {
     return (
       <Card className="w-full shadow-md bg-white">
         <CardHeader className="pb-3">
