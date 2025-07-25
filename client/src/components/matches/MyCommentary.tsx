@@ -510,11 +510,9 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                           {/* Content Column */}
                           <div className="flex-1">
                             <div className="flex items-center gap-2 -ml-3 text-sm text-gray-700 leading-relaxed mt-0.5">
-                              <div>Penalty Shootout begins</div>
-                              <span>
-                                {homeTeam}: {(event as any).score?.split(' - ')[0]},{" "}
-                                {awayTeam}: {(event as any).score?.split(' - ')[1]}
-                              </span>
+                              <div>
+                                Penalty Shootout begins {homeTeam} {(event as any).score?.split(' - ')[0]}, {awayTeam} {(event as any).score?.split(' - ')[1]}
+                              </div>
                             </div>
                           </div>
                         </div>
