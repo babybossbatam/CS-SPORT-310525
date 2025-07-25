@@ -1085,7 +1085,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         matchStatus,
                       );
                       const fullTimeEvents = events.filter(
-                        (e) => e.time?.elapsed >= 90,
+                        (e) => e.time?.elapsed >= 119,
                       );
 
                       if (isMatchEnded || fullTimeEvents.length > 0) {
@@ -1719,7 +1719,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         matchStatus,
                       );
                       const fullTimeGoals = goalEvents.filter(
-                        (e) => e.time?.elapsed >= 90,
+                        (e) => e.time?.elapsed >= 119,
                       );
 
                       if (isMatchEnded || fullTimeGoals.length > 0) {
