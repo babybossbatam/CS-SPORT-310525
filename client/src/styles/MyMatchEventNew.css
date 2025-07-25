@@ -97,11 +97,13 @@
   padding: 8px 0;
 }
 
+/* Home team penalty layout - player info left, icon right */
 .penalty-home-side {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  justify-content: space-between;
   width: 100%;
+  gap: 12px;
 }
 
 .penalty-home-player-info {
@@ -109,19 +111,23 @@
   align-items: center;
   gap: 8px;
   justify-content: flex-start;
+  grid-column: 1;
 }
 
 .penalty-home-icon {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  grid-column: 2;
 }
 
+/* Away team penalty layout - icon left, player info right */
 .penalty-away-side {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr;
   align-items: center;
-  justify-content: space-between;
   width: 100%;
+  gap: 12px;
 }
 
 .penalty-away-player-info {
@@ -129,12 +135,14 @@
   align-items: center;
   gap: 8px;
   justify-content: flex-end;
+  grid-column: 2;
 }
 
 .penalty-away-icon {
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  grid-column: 1;
 }
 
 .penalty-center {
@@ -232,23 +240,23 @@
   letter-spacing: 0.5px;
 }
 
-/* Home team events (left side) */
+/* Home team events (left side) - Module 1: Player info left, icon right */
 .match-event-home-side {
   grid-area: home-side;
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
-  padding-right: 24px;
-
+  padding-right: 20px;
 }
 
 .match-event-home-player-info {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 8px;
   justify-content: flex-start;
   text-align: left;
+  grid-column: 1;
 }
 
 .match-event-home-icon-column {
@@ -256,9 +264,9 @@
   justify-content: flex-end;
   align-items: center;
   height: 40px;
-   width: 24px;
+  width: 24px;
   min-height: 40px;
-  margin-right: -20px;
+  grid-column: 2;
 }
 
 /* Time display (center) */
@@ -286,7 +294,7 @@
   transform: scale(1.05);
 }
 
-/* Simplified center grid for time only */
+/* Module 2: Time center - Fixed positioning for middle column */
 .match-event-time-center-simple {
   grid-area: time-center;
   position: relative;
@@ -306,6 +314,7 @@
   flex-shrink: 0;
   flex-grow: 0;
   place-self: center;
+  z-index: 10;
 }
 
 .match-event-time-center-simple:hover {
@@ -335,16 +344,14 @@
   flex-grow: 0;
 }
 
-/* Away team events (right side) */
+/* Away team events (right side) - Module 3: Icon left, player info right */
 .match-event-away-side {
   grid-area: away-side;
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 13px;
+  gap: 12px;
   align-items: center;
-  padding-right: 2px;
-
-
+  padding-left: 20px;
 }
 
 .match-event-away-icon-column {
@@ -352,9 +359,9 @@
   justify-content: flex-start;
   align-items: center;
   height: 40px;
-   width: 24px;
+  width: 24px;
   min-height: 40px;
-  margin-right: -20px;
+  grid-column: 1;
 }
 
 .match-event-away-player-info {
@@ -362,8 +369,8 @@
   align-items: center;
   justify-content: flex-end;
   text-align: right;
-   gap: 25px;
-
+  gap: 8px;
+  grid-column: 2;
 }
 
 /* Match event icons with enhanced styling */
@@ -716,10 +723,14 @@
 
   }
 
-  .match-event-home-side,
+  .match-event-home-side {
+    padding-right: 8px;
+    gap: 8px;
+  }
+  
   .match-event-away-side {
-    padding: 0 4px;
-
+    padding-left: 8px;
+    gap: 8px;
   }
 
   .match-event-event-title {
