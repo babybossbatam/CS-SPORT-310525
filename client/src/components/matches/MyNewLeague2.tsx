@@ -954,7 +954,7 @@ fixture.goals.away ?? 0}
 
                                   return (
                                     <div className="penalty-result-display">
-                                      <span className="penalty-winner">
+                                      <span className="penalty-winner" style={{ background: 'transparent' }}>
                                         {winnerText}
                                       </span>
                                     </div>
