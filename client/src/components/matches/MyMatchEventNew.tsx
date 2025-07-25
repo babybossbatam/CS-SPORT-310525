@@ -1719,12 +1719,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         matchStatus,
                       );
                       const fullTimeGoals = goalEvents.filter(
-                        (e) => e.time?.elapsed >= 118,
+                        (e) => e.time?.elapsed >= 119,
                       );
 
                       if (isMatchEnded || fullTimeGoals.length > 0) {
                         markers.push({
-                          time: { elapsed: 118 },
+                          time: { elapsed: 119 },
                           type: "period_score",
                           detail: "End of 90 Minutes",
                           score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
