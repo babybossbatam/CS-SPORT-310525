@@ -777,6 +777,12 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                     event.time.elapsed + (event.time.extra || 0),
                   );
 
+                  // For matches that go beyond 90 minutes, show as 90' + extra time
+                  const displayTime = {
+                    elapsed: Math.min(event.time.elapsed, 90),
+                    extra: event.time.elapsed > 90 ? (event.time.elapsed - 90) + (event.time.extra || 0) : (event.time.extra || 0)
+                  };
+
                   return (
                     <div
                       key={`period-${index}`}
@@ -786,13 +792,13 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         {/* Time Column */}
                         <div className="flex flex-col items-center min-w-[50px]">
                           {/* Extra time display at top if present */}
-                          {event.time.extra && event.time.extra > 0 && (
+                          {displayTime.extra > 0 && (
                             <div className="text-xs font-medium text-red-500 leading-tight">
-                              +{event.time.extra}'
+                              +{displayTime.extra}'
                             </div>
                           )}
                           <div className="text-gray-800 text-sm font-medium leading-tight">
-                            {event.time.elapsed}'
+                            {displayTime.elapsed}'
                           </div>
                           {index < allCommentaryItems.length - 1 && (
                             <div className="w-0.5 h-4 bg-gray-600"></div>
