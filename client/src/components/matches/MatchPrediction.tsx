@@ -304,7 +304,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
         
       } catch (error) {
         console.error('❌ [MatchPrediction] Error fetching prediction data:', error);
-        setError('Failed to load prediction data');
+        setError(error instanceof Error ? error.message : 'Failed to load prediction data');
         
         // Don't use fallback data - set to null to show proper no-data state
         setPredictionData(null);
@@ -360,50 +360,15 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
     );
   }
 
-  if (error && !predictionData) {
-    return (
-      <Card className="w-full shadow-md">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-bold">Match Prediction</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center h-32">
-            <div className="text-center">
-              <p className="text-sm text-red-500 mb-2">{error}</p>
-              <p className="text-xs text-gray-500">Using fallback data</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Don't show error state - only show when we have real data
 
   const homeStats = predictionData?.homeTeamStats;
   const awayStats = predictionData?.awayTeamStats;
 
-  // Show message when no prediction data is available
+  // Only show prediction component when we have real data
   if (!isLoading && (!predictionData || (!homeWinProbability && homeWinProbability !== 0 && !drawProbability && drawProbability !== 0 && !awayWinProbability && awayWinProbability !== 0))) {
-    return (
-      <Card className="w-full shadow-md bg-white">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm text-gray-600 font-normal">Predictions</CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <div className="text-center mb-6">
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4">Who will win?</h3>
-            <div className="flex flex-col items-center justify-center py-8">
-              <div className="text-gray-500 mb-2">📊</div>
-              <p className="text-gray-500 text-sm">
-                Prediction data not available for this match
-              </p>
-              <p className="text-gray-400 text-xs mt-1">
-                {!fixtureId ? 'No fixture ID provided' : 'No prediction data found from RapidAPI'}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
+    // Don't render anything if no real data is available
+    return null;
   }
 
   return (
