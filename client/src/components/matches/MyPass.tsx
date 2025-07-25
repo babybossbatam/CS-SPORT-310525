@@ -96,9 +96,28 @@ const MyPass: React.FC<MyPassProps> = ({
 
   return (
     <>
-       <span className="flex text-sm  font-semibold  border-b py-3 -mx-2">Passes</span>
+      {/* Team Headers */}
+      <div className="flex items-center justify-between mb-1 pb-1 border-b">
+        <div className="flex items-center space-x-2">
+          <img 
+            src={homeTeam?.logo || "/assets/fallback-logo.png"} 
+            alt={homeTeam?.name}
+            className="w-6 h-6 object-contain"
+          />
+          <span className="text-sm font-semibold truncate max-w-20">{homeTeam?.name}</span>
+        </div>
+        <div className="flex items-center space-x-2">
+          <span className="text-sm font-semibold truncate max-w-20">{awayTeam?.name}</span>
+          <img 
+            src={awayTeam?.logo || "/assets/fallback-logo.png"} 
+            alt={awayTeam?.name}
+            className="w-6 h-6 object-contain"
+          />
+        </div>
+      </div>
+
       {/* Pass Statistics with bars - Real API data */}
-      <div className="space-y-1 -mx-2">
+      <div className="space-y-1">
         {/* Always visible pass stats (first 4) */}
         <StatRowWithBars 
           label="Total Passes" 
@@ -106,35 +125,105 @@ const MyPass: React.FC<MyPassProps> = ({
           awayValue={getStatValue(awayStats.statistics, 'Total passes', ['Passes'])}
         />
         <StatRowWithBars 
-          label="Accuracy (%)" 
+          label="Pass Accuracy" 
           homeValue={formatPercentage(getStatValue(homeStats.statistics, 'Passes %', ['Pass accuracy']))}
           awayValue={formatPercentage(getStatValue(awayStats.statistics, 'Passes %', ['Pass accuracy']))}
         />
         <StatRowWithBars 
-          label="Passes On Target" 
+          label="Passes Accurate" 
           homeValue={getStatValue(homeStats.statistics, 'Passes accurate', ['Accurate passes'])}
           awayValue={getStatValue(awayStats.statistics, 'Passes accurate', ['Accurate passes'])}
         />
-  
+        <StatRowWithBars 
+          label="Key Passes" 
+          homeValue={getStatValue(homeStats.statistics, 'Key passes', ['Key Passes'])}
+          awayValue={getStatValue(awayStats.statistics, 'Key passes', ['Key Passes'])}
+        />
         
         {/* Expandable pass stats */}
         {isExpanded && (
           <>
             <StatRowWithBars 
-              label="Throw-in" 
-              homeValue={getStatValue(homeStats.statistics, 'Throw-in', ['Throw in', 'Throw ins'])}
-              awayValue={getStatValue(awayStats.statistics, 'Throw-in', ['Throw in', 'Throw ins'])}
+              label="Short Passes" 
+              homeValue={getStatValue(homeStats.statistics, 'Short passes', ['Short Passes'])}
+              awayValue={getStatValue(awayStats.statistics, 'Short passes', ['Short Passes'])}
+            />
+            
+            <StatRowWithBars 
+              label="Long Passes" 
+              homeValue={getStatValue(homeStats.statistics, 'Long passes', ['Long Passes'])}
+              awayValue={getStatValue(awayStats.statistics, 'Long passes', ['Long Passes'])}
+            />
+            
+            <StatRowWithBars 
+              label="Crosses" 
+              homeValue={getStatValue(homeStats.statistics, 'Crosses', ['Cross'])}
+              awayValue={getStatValue(awayStats.statistics, 'Crosses', ['Cross'])}
+            />
+            
+            <StatRowWithBars 
+              label="Through Passes" 
+              homeValue={getStatValue(homeStats.statistics, 'Through passes', ['Through Passes'])}
+              awayValue={getStatValue(awayStats.statistics, 'Through passes', ['Through Passes'])}
             />
 
             <StatRowWithBars 
-              label="Goal Kicks" 
-              homeValue={getStatValue(homeStats.statistics, 'Goal kicks', ['Goal Kicks'])}
-              awayValue={getStatValue(awayStats.statistics, 'Goal kicks', ['Goal Kicks'])}
+              label="Forward Passes" 
+              homeValue={getStatValue(homeStats.statistics, 'Forward passes', ['Forward Passes'])}
+              awayValue={getStatValue(awayStats.statistics, 'Forward passes', ['Forward Passes'])}
+            />
+
+            <StatRowWithBars 
+              label="Backward Passes" 
+              homeValue={getStatValue(homeStats.statistics, 'Backward passes', ['Backward Passes'])}
+              awayValue={getStatValue(awayStats.statistics, 'Backward passes', ['Backward Passes'])}
+            />
+
+            <StatRowWithBars 
+              label="Left Side Passes" 
+              homeValue={getStatValue(homeStats.statistics, 'Left side passes', ['Left Side Passes'])}
+              awayValue={getStatValue(awayStats.statistics, 'Left side passes', ['Left Side Passes'])}
+            />
+            
+            <StatRowWithBars 
+              label="Right Side Passes" 
+              homeValue={getStatValue(homeStats.statistics, 'Right side passes', ['Right Side Passes'])}
+              awayValue={getStatValue(awayStats.statistics, 'Right side passes', ['Right Side Passes'])}
+            />
+            
+            <StatRowWithBars 
+              label="Final Third Passes" 
+              homeValue={getStatValue(homeStats.statistics, 'Final third passes', ['Final Third Passes'])}
+              awayValue={getStatValue(awayStats.statistics, 'Final third passes', ['Final Third Passes'])}
+            />
+            
+            <StatRowWithBars 
+              label="Progressive Passes" 
+              homeValue={getStatValue(homeStats.statistics, 'Progressive passes', ['Progressive Passes'])}
+              awayValue={getStatValue(awayStats.statistics, 'Progressive passes', ['Progressive Passes'])}
             />
           </>
         )}
       </div>
 
+      {/* Expand/Collapse Button */}
+      <div className="mt-4 -mx-4">
+        <button
+          onClick={onToggleExpanded}
+          className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 hover:bg-gray-100 font-medium py-1 -mb-4 px-4 transition-colors duration-200"
+        >
+          <span>{isExpanded ? 'Show Less' : 'See All'}</span>
+          {isExpanded ? (
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+            </svg>
+          ) : (
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          )}
+        </button>
+      </div>
     </>
   );
 };

@@ -281,8 +281,8 @@ const MyStats: React.FC<MyStatsProps> = ({
     <>
      
       {/* Statistics with bars - Real API data */}
-      <span className="flex text-sm  font-semibold border-b py-3 -mx-2">Shots</span>
-      <div className="space-y-2">
+      <span className="text-sm font-bold">Shots</span>
+      <div className="space-y-1">
         {/* Always visible stats (first 4) */}
        
         

@@ -280,10 +280,27 @@ const MyStats: React.FC<MyStatsProps> = ({
   return (
     <>
       {/* Team Headers */}
-       <span className="flex text-sm  font-semibold  border-b py-3 ">Top Stats</span>
-      
+      <div className="flex items-center justify-between mb-1 pb-1 border-b">
+        <div className="flex items-center space-x-2">
+          <img 
+            src={homeTeam?.logo || "/assets/fallback-logo.png"} 
+            alt={homeTeam?.name}
+            className="w-6 h-6 object-contain"
+          />
+          <span className="text-sm font-semibold truncate max-w-20">{homeTeam?.name}</span>
+        </div>
+        <div className="flex items-center space-x-2">
+          <span className="text-sm font-semibold truncate max-w-20">{awayTeam?.name}</span>
+          <img 
+            src={awayTeam?.logo || "/assets/fallback-logo.png"} 
+            alt={awayTeam?.name}
+            className="w-6 h-6 object-contain"
+          />
+        </div>
+      </div>
+
       {/* Statistics with bars - Real API data */}
-      <div className="space-y-1 -mx-2">
+      <div className="space-y-1">
         {/* Always visible stats (first 4) */}
         <StatRowWithBars 
           label="Ball Possession" 
@@ -300,7 +317,12 @@ const MyStats: React.FC<MyStatsProps> = ({
           homeValue={getStatValue(homeStats.statistics, 'Total Shots', ['Total shots'])}
           awayValue={getStatValue(awayStats.statistics, 'Total Shots', ['Total shots'])}
         />
-
+        <StatRowWithBars 
+          label="Shots on Goal" 
+          homeValue={getStatValue(homeStats.statistics, 'Shots on Goal', ['Shots on target'])}
+          awayValue={getStatValue(awayStats.statistics, 'Shots on Goal', ['Shots on target'])}
+        />
+        
         {/* Expandable stats */}
         {isExpanded && (
           <>
@@ -310,7 +332,12 @@ const MyStats: React.FC<MyStatsProps> = ({
               awayValue={getStatValue(awayStats.statistics, 'Shots off Goal', ['Shots off target'])}
             />
             
-    
+            <StatRowWithBars 
+              label="Big Chances Created" 
+              homeValue={calculateBigChancesCreated(homeStats.statistics)}
+              awayValue={calculateBigChancesCreated(awayStats.statistics)}
+            />
+            
             <StatRowWithBars 
               label="Corners" 
               homeValue={getStatValue(homeStats.statistics, 'Corner Kicks', ['Corners'])}
@@ -322,6 +349,11 @@ const MyStats: React.FC<MyStatsProps> = ({
               awayValue={getStatValue(awayStats.statistics, 'Offsides', ['Offside'])}
             />
 
+            <StatRowWithBars 
+              label="Passes accurate" 
+              homeValue={getStatValue(homeStats.statistics, 'Passes accurate', ['Accurate passes'])}
+              awayValue={getStatValue(awayStats.statistics, 'Passes accurate', ['Accurate passes'])}
+            />
 
             <StatRowWithBars 
               label="Red Cards" 
@@ -335,11 +367,75 @@ const MyStats: React.FC<MyStatsProps> = ({
               awayValue={calculateAttacks(awayStats.statistics)}
             />
 
-          
+            <StatRowWithBars 
+              label="Blocked Shots" 
+              homeValue={getStatValue(homeStats.statistics, 'Blocked Shots', ['Blocked shots'])}
+              awayValue={getStatValue(awayStats.statistics, 'Blocked Shots', ['Blocked shots'])}
+            />
+            
+            <StatRowWithBars 
+              label="Shots insidebox" 
+              homeValue={getStatValue(homeStats.statistics, 'Shots insidebox', ['Shots inside box'])}
+              awayValue={getStatValue(awayStats.statistics, 'Shots insidebox', ['Shots inside box'])}
+            />
+            
+            <StatRowWithBars 
+              label="Shots outsidebox" 
+              homeValue={getStatValue(homeStats.statistics, 'Shots outsidebox', ['Shots outside box'])}
+              awayValue={getStatValue(awayStats.statistics, 'Shots outsidebox', ['Shots outside box'])}
+            />
+            
+            <StatRowWithBars 
+              label="Fouls" 
+              homeValue={getStatValue(homeStats.statistics, 'Fouls')}
+              awayValue={getStatValue(awayStats.statistics, 'Fouls')}
+            />
+            
+            <StatRowWithBars 
+              label="Yellow Cards" 
+              homeValue={getStatValue(homeStats.statistics, 'Yellow Cards')}
+              awayValue={getStatValue(awayStats.statistics, 'Yellow Cards')}
+            />
+       
+            <StatRowWithBars 
+              label="Goalkeeper Saves" 
+              homeValue={getStatValue(homeStats.statistics, 'Goalkeeper Saves', ['Saves'])}
+              awayValue={getStatValue(awayStats.statistics, 'Goalkeeper Saves', ['Saves'])}
+            />
+            
+            <StatRowWithBars 
+              label="Total passes" 
+              homeValue={getStatValue(homeStats.statistics, 'Total passes', ['Passes'])}
+              awayValue={getStatValue(awayStats.statistics, 'Total passes', ['Passes'])}
+            />
+            
+            <StatRowWithBars 
+              label="Passes %" 
+              homeValue={formatPercentage(getStatValue(homeStats.statistics, 'Passes %', ['Pass accuracy']))}
+              awayValue={formatPercentage(getStatValue(awayStats.statistics, 'Passes %', ['Pass accuracy']))}
+            />
           </>
         )}
       </div>
 
+      {/* Expand/Collapse Button */}
+      <div className="mt-4 -mx-4">
+        <button
+          onClick={onToggleExpanded}
+          className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 hover:bg-gray-100 font-medium py-1 -mb-4 px-4 transition-colors duration-200"
+        >
+          <span>{isExpanded ? 'Show Less' : 'See All'}</span>
+          {isExpanded ? (
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+            </svg>
+          ) : (
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          )}
+        </button>
+      </div>
     </>
   );
 };
