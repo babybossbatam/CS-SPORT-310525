@@ -194,7 +194,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     width: "100%",
     height: "100%",
     objectFit: "contain" as const,
-    borderRadius: "0%"
+    borderRadius: "0%",
+    transform: "scale(0.8)"
   }), []);
 
   if (shouldUseCircularFlag) {
