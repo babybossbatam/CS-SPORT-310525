@@ -169,6 +169,8 @@ const BASKETBALL_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for basketball gam
 const basketballCache = new Map<string, { data: any; timestamp: number }>();
 
 export const basketballApiService = {
+  // Expose the API client for direct testing
+  basketballApiClient,
   /**
    * Get basketball games by date
    */
