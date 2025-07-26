@@ -41,7 +41,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   const sizeClasses = {
     sm: 'w-10 h-10',
     md: 'w-10 h-10',
-    lg: 'w-18 h-18',
+    lg: 'w-14 h-14',
     'md-commentary': 'w-8 h-8'  // 2px smaller than md for commentary
   };
 
