@@ -131,13 +131,13 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     enabled: timeFilterActive,
   });
 
-  // Process and sort fixtures by kick-off time
+  // Process and sort fixtures by match status and kick-off time
   const sortedFixtures = useMemo(() => {
     if (!allFixtures?.length) {
       return [];
     }
 
-    // Filter fixtures for the selected date and sort by kick-off time
+    // Filter fixtures for the selected date
     const filteredFixtures = allFixtures.filter((fixture: FixtureData) => {
       if (!fixture?.league || !fixture?.teams || !fixture?.fixture?.date) {
         return false;
@@ -149,20 +149,55 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       return fixtureDateString === selectedDate;
     });
 
-    // Sort by kick-off time (nearest to farthest)
+    // Sort by match status priority and kick-off time
     const sorted = filteredFixtures.sort((a, b) => {
+      const aStatus = a.fixture.status.short;
+      const bStatus = b.fixture.status.short;
       const aTime = new Date(a.fixture.date).getTime();
       const bTime = new Date(b.fixture.date).getTime();
-      const now = Date.now();
 
-      // Calculate distance from current time
-      const aDistance = Math.abs(aTime - now);
-      const bDistance = Math.abs(bTime - now);
+      // Check match status categories
+      const aLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(aStatus);
+      const bLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(bStatus);
 
-      return aDistance - bDistance;
+      const aUpcoming = ["NS", "TBD"].includes(aStatus);
+      const bUpcoming = ["NS", "TBD"].includes(bStatus);
+
+      const aEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(aStatus);
+      const bEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(bStatus);
+
+      // Priority 1: Live matches first
+      if (aLive && !bLive) return -1;
+      if (!aLive && bLive) return 1;
+
+      // If both are live, sort by kick-off time (earliest first)
+      if (aLive && bLive) {
+        return aTime - bTime;
+      }
+
+      // Priority 2: Upcoming matches second
+      if (aUpcoming && !bUpcoming) return -1;
+      if (!aUpcoming && bUpcoming) return 1;
+
+      // If both are upcoming, sort by kick-off time (earliest first)
+      if (aUpcoming && bUpcoming) {
+        return aTime - bTime;
+      }
+
+      // Priority 3: Ended matches last
+      if (aEnded && !bEnded) return 1;
+      if (!aEnded && bEnded) return -1;
+
+      // If both are ended, sort by kick-off time (most recent first)
+      if (aEnded && bEnded) {
+        return bTime - aTime;
+      }
+
+      // Default: sort by kick-off time
+      return aTime - bTime;
     });
 
-    console.log(`✅ [TodayMatchByTime] Sorted ${sorted.length} fixtures by kick-off time for ${selectedDate}`);
+    console.log(`✅ [TodayMatchByTime] Sorted ${sorted.length} fixtures by status and kick-off time for ${selectedDate}`);
     return sorted;
   }, [allFixtures, selectedDate]);
 
