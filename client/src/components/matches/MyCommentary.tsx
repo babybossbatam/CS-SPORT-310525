@@ -249,6 +249,13 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               const penaltyStartTime = Math.max(lastRegularEvent.time.elapsed, 120);
               const scoreAtPenaltyStart = calculateScoreAtTime(penaltyStartTime + (lastRegularEvent.time.extra || 0));
 
+              console.log("🔍 [Penalty Start Score Debug]:", {
+                penaltyStartTime,
+                lastRegularEventExtra: lastRegularEvent.time.extra,
+                calculatedTime: penaltyStartTime + (lastRegularEvent.time.extra || 0),
+                scoreAtPenaltyStart
+              });
+
               // Add "Second Half begins" section before penalty shootout
               const halftimeEvents = events.filter((e) => e.time.elapsed <= 45);
               const lastFirstHalfEvent = halftimeEvents.length > 0
@@ -510,11 +517,11 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                     const finalPenaltyScore = (() => {
                       let homeGoals = 0;
                       let awayGoals = 0;
-                      
+
                       penaltyShootoutEvents.forEach((penaltyEvent) => {
                         const detail = penaltyEvent.detail?.toLowerCase() || "";
                         const wasScored = !detail.includes("missed");
-                        
+
                         if (wasScored) {
                           if (isHomeTeam(penaltyEvent)) {
                             homeGoals++;
@@ -523,7 +530,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                           }
                         }
                       });
-                      
+
                       return { home: homeGoals, away: awayGoals };
                     })();
 
