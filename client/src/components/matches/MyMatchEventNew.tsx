@@ -53,6 +53,26 @@ interface MatchEvent {
   comments?: string;
 }
 
+interface PeriodMarkerEvent {
+  time: {
+    elapsed: number;
+  };
+  type: string;
+  detail: string;
+  score?: string;
+  team: {
+    name: string;
+    logo: string;
+  };
+  player: {
+    name: string;
+  };
+  id: string;
+  hasFirstHalfGoals?: boolean;
+}
+
+type EventOrMarker = MatchEvent | PeriodMarkerEvent;
+
 const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   fixtureId,
   theme = "light",
@@ -830,11 +850,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           "Aldair Zarate", "Jefferson Mena", "Carlos Henao", "Diego Chavez", "Felipe Mora", "Lucas Silva"
         ];
 
-        const mockEvent = {
+        const mockEvent: MatchEvent = {
           time: { elapsed: 120 + i },
           team: {
             id: isHomePenalty ? 1 : 2,
-            name: isHomePenalty ? homeTeam : awayTeam,
+            name: isHomePenalty ? (homeTeam || "Home Team") : (awayTeam || "Away Team"),
             logo: "",
           },
           player: {
@@ -885,7 +905,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               <div key={round.roundNumber} className="penalty-shootout-row">
                 {/* Home team penalty info (left side) */}
                 <div className="penalty-home-side">
-                  {round.homePenalty?.event && isHomeTeam(round.homePenalty.event) && (
+                  {round.homePenalty?.event && 'team' in round.homePenalty.event && round.homePenalty.event.team && isHomeTeam(round.homePenalty.event as MatchEvent) && (
                     <>
                       <div className="penalty-home-player-info">
                         <div className="penalty-player-avatar">
@@ -921,7 +941,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       </div>
                     </>
                   )}
-                  {round.awayPenalty?.event && isHomeTeam(round.awayPenalty.event) && (
+                  {round.awayPenalty?.event && 'team' in round.awayPenalty.event && round.awayPenalty.event.team && isHomeTeam(round.awayPenalty.event as MatchEvent) && (
                     <>
                       <div className="penalty-home-player-info">
                         <div className="penalty-player-avatar">
@@ -968,7 +988,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                 {/* Away team penalty info (right side) */}
                 <div className="penalty-away-side">
-                  {round.awayPenalty?.event && !isHomeTeam(round.awayPenalty.event) && (
+                  {round.awayPenalty?.event && 'team' in round.awayPenalty.event && round.awayPenalty.event.team && !isHomeTeam(round.awayPenalty.event as MatchEvent) && (
                     <>
                       <div className="penalty-away-icon">
                         <div className="penalty-result-icon">
@@ -1004,7 +1024,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       </div>
                     </>
                   )}
-                  {round.homePenalty?.event && !isHomeTeam(round.homePenalty.event) && (
+                  {round.homePenalty?.event && 'team' in round.homePenalty.event && round.homePenalty.event.team && !isHomeTeam(round.homePenalty.event as MatchEvent) && (
                     <>
                       <div className="penalty-away-icon">
                         <div className="penalty-result-icon">
@@ -1172,7 +1192,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           team: { name: "", logo: "" },
                           player: { name: "" },
                           id: "period-90",
-                        });
+                        } as PeriodMarkerEvent);
                       }
 
                       // Add "Halftime" marker if there are events in both halves
@@ -1195,7 +1215,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           team: { name: "", logo: "" },
                           player: { name: "" },
                           id: "period-45",
-                        });
+                        } as PeriodMarkerEvent);
                       }
 
                       // Add penalty shootout marker only if match actually ended with penalties
@@ -1211,7 +1231,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           team: { name: "", logo: "" },
                           player: { name: "" },
                           id: "penalty-shootout",
-                        });
+                        } as PeriodMarkerEvent);
                       }
                     } catch (error) {
                       console.error("Error creating period markers:", error);
@@ -1226,7 +1246,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   const filteredEvents = sortedEvents.filter(event => event.time.elapsed <= 110);
                   
                   // Combine filtered events and period markers safely
-                  const allItems = [...filteredEvents, ...periodMarkers].sort(
+                  const allItems: EventOrMarker[] = [...filteredEvents, ...periodMarkers].sort(
                     (a, b) => {
                       // Special priority for penalty shootout - put it at the very top
                       if (a.type === "penalty_shootout") return -1;
@@ -1821,7 +1841,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           team: { name: "", logo: "" },
                           player: { name: "" },
                           id: "period-90-top",
-                        });
+                        } as PeriodMarkerEvent);
                       }
 
                       // Always add "Halftime" marker if match has progressed beyond first half
@@ -1843,7 +1863,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           player: { name: "" },
                           id: "period-45-top",
                           hasFirstHalfGoals: firstHalfGoals.length > 0,
-                        });
+                        } as PeriodMarkerEvent);
                       }
                     } catch (error) {
                       console.error(
@@ -1858,7 +1878,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   const periodMarkers = createTopTabPeriodMarkers();
 
                   // Combine goal events and period markers
-                  const allTopItems = [...goalEvents, ...periodMarkers].sort(
+                  const allTopItems: EventOrMarker[] = [...goalEvents, ...periodMarkers].sort(
                     (a, b) => {
                       // Special priority for "End of 90 Minutes" - put it at the very top in Top tab
                       if (
