@@ -1,30 +1,69 @@
 
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import MyAvatarInfo from '@/components/matches/MyAvatarInfo';
+import React, { useState, useRef, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useCachedQuery } from "@/lib/cachingHelper";
+import { useLocation } from "wouter";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import MyAvatarInfo from "@/components/matches/MyAvatarInfo";
 
-interface TopScorer {
-  player: {
-    id: number;
-    name: string;
-    firstname: string;
-    lastname: string;
-    age: number;
-    birth: {
-      date: string;
-      place: string;
-      country: string;
-    };
-    nationality: string;
-    height: string;
-    weight: string;
-    injured: boolean;
-    photo: string;
-  };
-  statistics: Array<{
+// Add CSS to hide scrollbars
+const scrollbarHideStyle = `
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+`;
+
+// Popular basketball leagues list
+const POPULAR_BASKETBALL_LEAGUES = [
+  {
+    id: 12,
+    name: "NBA",
+    logo: "https://media.api-sports.io/basketball/leagues/12.png",
+  },
+  {
+    id: 120,
+    name: "EuroLeague",
+    logo: "https://media.api-sports.io/basketball/leagues/120.png",
+  },
+  {
+    id: 121,
+    name: "Liga ACB",
+    logo: "https://media.api-sports.io/basketball/leagues/121.png",
+  },
+  {
+    id: 122,
+    name: "Lega Basket Serie A",
+    logo: "https://media.api-sports.io/basketball/leagues/122.png",
+  },
+  {
+    id: 123,
+    name: "Bundesliga",
+    logo: "https://media.api-sports.io/basketball/leagues/123.png",
+  },
+  {
+    id: 124,
+    name: "LNB Pro A",
+    logo: "https://media.api-sports.io/basketball/leagues/124.png",
+  },
+];
+
+interface Player {
+  id: number;
+  name: string;
+  photo: string;
+}
+
+interface PlayerStatistics {
+  player: Player;
+  statistics: {
     team: {
       id: number;
       name: string;
@@ -40,71 +79,58 @@ interface TopScorer {
     };
     games: {
       appearences: number;
-      lineups: number;
-      minutes: number;
-      number: number;
       position: string;
-      rating: string;
-      captain: boolean;
-    };
-    substitutes: {
-      in: number;
-      out: number;
-      bench: number;
-    };
-    shots: {
-      total: number;
-      on: number;
     };
     goals: {
       total: number;
-      conceded: number;
-      assists: number;
-      saves: number;
     };
-    passes: {
-      total: number;
-      key: number;
-      accuracy: number;
-    };
-    tackles: {
-      total: number;
-      blocks: number;
-      interceptions: number;
-    };
-    duels: {
-      total: number;
-      won: number;
-    };
-    dribbles: {
-      attempts: number;
-      success: number;
-      past: number;
-    };
-    fouls: {
-      drawn: number;
-      committed: number;
-    };
-    cards: {
-      yellow: number;
-      yellowred: number;
-      red: number;
-    };
-    penalty: {
-      won: number;
-      commited: number;
-      scored: number;
-      missed: number;
-      saved: number;
-    };
-  }>;
+  }[];
 }
 
 const MyBasketTopScorer: React.FC = () => {
-  const { data: topScorers, isLoading, error } = useQuery({
-    queryKey: ['basket-top-scorers'],
-    queryFn: async () => {
-      // Using mock data since basketball API doesn't have top scorers endpoint
+  const [, navigate] = useLocation();
+  const [availableLeagues, setAvailableLeagues] = useState<
+    typeof POPULAR_BASKETBALL_LEAGUES
+  >([]);
+  const [selectedLeague, setSelectedLeague] = useState<number | null>(null);
+  const [contentPosition, setContentPosition] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [contentWidth, setContentWidth] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Initialize available leagues and set default
+  useEffect(() => {
+    setAvailableLeagues(POPULAR_BASKETBALL_LEAGUES);
+    
+    // Set NBA as default league
+    const storedLeague = sessionStorage.getItem("basketTopScorers_selectedLeague");
+    if (storedLeague) {
+      setSelectedLeague(parseInt(storedLeague, 10));
+    } else {
+      setSelectedLeague(12); // NBA
+      sessionStorage.setItem("basketTopScorers_selectedLeague", "12");
+    }
+  }, []);
+
+  // Store selected league in sessionStorage when it changes
+  useEffect(() => {
+    if (selectedLeague) {
+      sessionStorage.setItem("basketTopScorers_selectedLeague", selectedLeague.toString());
+    }
+  }, [selectedLeague]);
+
+  const {
+    data: topScorers,
+    isLoading,
+    error,
+  } = useCachedQuery(
+    [`basket-top-scorers-league-${selectedLeague}`],
+    async () => {
+      if (!selectedLeague) return [];
+
+      console.log(`🏀 [MyBasketTopScorer] Fetching top scorers for league ${selectedLeague}`);
+
+      // For now, using mock data since basketball API doesn't have top scorers endpoint
       // You can replace this with actual API call when available
       const mockTopScorers = [
         {
@@ -114,7 +140,23 @@ const MyBasketTopScorer: React.FC = () => {
             photo: "https://media.api-sports.io/basketball/players/1.png"
           },
           statistics: [{
-            team: { name: "Los Angeles Lakers" },
+            team: { 
+              id: 145,
+              name: "Los Angeles Lakers",
+              logo: "https://media.api-sports.io/basketball/teams/145.png"
+            },
+            league: {
+              id: selectedLeague,
+              name: getCurrentLeague()?.name || "NBA",
+              country: "USA",
+              logo: getCurrentLeague()?.logo || "",
+              flag: "",
+              season: 2025
+            },
+            games: {
+              appearences: 25,
+              position: "Forward"
+            },
             goals: { total: 28 }
           }]
         },
@@ -125,7 +167,23 @@ const MyBasketTopScorer: React.FC = () => {
             photo: "https://media.api-sports.io/basketball/players/2.png"
           },
           statistics: [{
-            team: { name: "Golden State Warriors" },
+            team: { 
+              id: 149,
+              name: "Golden State Warriors",
+              logo: "https://media.api-sports.io/basketball/teams/149.png"
+            },
+            league: {
+              id: selectedLeague,
+              name: getCurrentLeague()?.name || "NBA",
+              country: "USA",
+              logo: getCurrentLeague()?.logo || "",
+              flag: "",
+              season: 2025
+            },
+            games: {
+              appearences: 24,
+              position: "Guard"
+            },
             goals: { total: 26 }
           }]
         },
@@ -136,90 +194,410 @@ const MyBasketTopScorer: React.FC = () => {
             photo: "https://media.api-sports.io/basketball/players/3.png"
           },
           statistics: [{
-            team: { name: "Phoenix Suns" },
+            team: { 
+              id: 164,
+              name: "Phoenix Suns",
+              logo: "https://media.api-sports.io/basketball/teams/164.png"
+            },
+            league: {
+              id: selectedLeague,
+              name: getCurrentLeague()?.name || "NBA",
+              country: "USA",
+              logo: getCurrentLeague()?.logo || "",
+              flag: "",
+              season: 2025
+            },
+            games: {
+              appearences: 23,
+              position: "Forward"
+            },
             goals: { total: 25 }
           }]
         }
       ];
-      
-      return mockTopScorers;
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
 
-  if (isLoading) {
+      return mockTopScorers.sort((a, b) => {
+        const goalsA = a.statistics[0]?.goals?.total || 0;
+        const goalsB = b.statistics[0]?.goals?.total || 0;
+        return goalsB - goalsA;
+      });
+    },
+    {
+      enabled: !!selectedLeague,
+      maxAge: 4 * 60 * 60 * 1000, // 4 hours cache
+      backgroundRefresh: false,
+      retry: 1,
+      staleTime: 2 * 60 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+    },
+  );
+
+  const getCurrentLeagueIndex = () => {
+    return availableLeagues.findIndex((league) => league.id === selectedLeague);
+  };
+
+  const getCurrentLeague = () => {
+    return availableLeagues.find((league) => league.id === selectedLeague);
+  };
+
+  // Calculate dimensions on mount and resize
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (scrollContainerRef.current && availableLeagues.length > 0) {
+        const container = scrollContainerRef.current;
+        const content = container.querySelector("[data-content]") as HTMLElement;
+        if (content) {
+          requestAnimationFrame(() => {
+            setContainerWidth(container.clientWidth);
+            setContentWidth(content.scrollWidth);
+          });
+        }
+      }
+    };
+
+    const initialTimer = setTimeout(updateDimensions, 100);
+    const fallbackTimer = setTimeout(updateDimensions, 300);
+
+    window.addEventListener("resize", updateDimensions);
+
+    return () => {
+      clearTimeout(initialTimer);
+      clearTimeout(fallbackTimer);
+      window.removeEventListener("resize", updateDimensions);
+    };
+  }, [availableLeagues.length]);
+
+  const scrollLeft = () => {
+    if (availableLeagues.length === 0) return;
+
+    const currentIndex = getCurrentLeagueIndex();
+    let nextLeagueId;
+
+    if (currentIndex > 0) {
+      nextLeagueId = availableLeagues[currentIndex - 1].id;
+    } else {
+      nextLeagueId = availableLeagues[availableLeagues.length - 1].id;
+    }
+
+    setSelectedLeague(nextLeagueId);
+    const scrollAmount = 200;
+    setContentPosition((prev) => Math.max(0, prev - scrollAmount));
+  };
+
+  const scrollRight = () => {
+    if (availableLeagues.length === 0) return;
+
+    const currentIndex = getCurrentLeagueIndex();
+    let nextLeagueId;
+
+    if (currentIndex < availableLeagues.length - 1) {
+      nextLeagueId = availableLeagues[currentIndex + 1].id;
+    } else {
+      nextLeagueId = availableLeagues[0].id;
+    }
+
+    setSelectedLeague(nextLeagueId);
+    const scrollAmount = 200;
+    const maxScroll = Math.max(0, contentWidth - containerWidth);
+    setContentPosition((prev) => Math.min(maxScroll, prev + scrollAmount));
+  };
+
+  const canScrollLeft = availableLeagues.length > 0;
+  const canScrollRight = availableLeagues.length > 0;
+
+  // Auto-center selected league in navigation
+  useEffect(() => {
+    if (
+      !scrollContainerRef.current ||
+      !selectedLeague ||
+      availableLeagues.length === 0 ||
+      containerWidth === 0 ||
+      contentWidth === 0
+    ) {
+      return;
+    }
+
+    const centerSelectedLeague = () => {
+      const container = scrollContainerRef.current;
+      if (!container) return;
+
+      const selectedButton = container.querySelector(
+        `[data-league-id="${selectedLeague}"]`,
+      ) as HTMLElement;
+
+      if (selectedButton) {
+        container.offsetHeight;
+        const buttonLeft = selectedButton.offsetLeft;
+        const buttonWidth = selectedButton.offsetWidth;
+        const buttonCenter = buttonLeft + buttonWidth / 2;
+        const viewportCenter = containerWidth / 2;
+        let targetPosition = buttonCenter - viewportCenter;
+        const maxScroll = Math.max(0, contentWidth - containerWidth);
+        targetPosition = Math.max(0, Math.min(maxScroll, targetPosition));
+
+        setContentPosition(targetPosition);
+        return true;
+      }
+      return false;
+    };
+
+    let attempts = 0;
+    const maxAttempts = 5;
+
+    const attemptCentering = () => {
+      attempts++;
+      const success = centerSelectedLeague();
+
+      if (!success && attempts < maxAttempts) {
+        setTimeout(attemptCentering, attempts * 50);
+      }
+    };
+
+    const immediateTimer = setTimeout(attemptCentering, 0);
+    const quickTimer = setTimeout(attemptCentering, 16);
+    const fallbackTimer = setTimeout(attemptCentering, 100);
+
+    return () => {
+      clearTimeout(immediateTimer);
+      clearTimeout(quickTimer);
+      clearTimeout(fallbackTimer);
+    };
+  }, [selectedLeague, availableLeagues.length, containerWidth, contentWidth]);
+
+  if (!selectedLeague) {
     return (
-      <Card className="w-full shadow-md">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-semibold">Top Scorers - Basketball</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {[...Array(5)].map((_, index) => (
-            <div key={index} className="flex items-center space-x-3">
-              <Skeleton className="h-8 w-8 rounded-full" />
+      <div className="bg-white rounded-lg border border-gray-200">
+        <div className="flex items-center justify-between p-4 border-b border-gray-100">
+          <div className="h-4 w-4 bg-gray-200 animate-pulse rounded" />
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-4 bg-gray-200 animate-pulse rounded" />
+            <div className="h-4 w-32 bg-gray-200 animate-pulse rounded" />
+          </div>
+          <div className="h-4 w-4 bg-gray-200 animate-pulse rounded" />
+        </div>
+        <div className="p-4 border-b border-gray-100">
+          <div className="h-5 w-16 bg-gray-200 animate-pulse rounded" />
+        </div>
+        <div className="p-4 space-y-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-full bg-gray-200 animate-pulse" />
               <div className="flex-1 space-y-1">
-                <Skeleton className="h-3 w-24" />
-                <Skeleton className="h-2 w-16" />
+                <div className="h-4 w-32 bg-gray-200 animate-pulse rounded" />
+                <div className="h-3 w-24 bg-gray-200 animate-pulse rounded" />
               </div>
-              <Skeleton className="h-5 w-8" />
+              <div className="text-right">
+                <div className="h-6 w-6 bg-gray-200 animate-pulse rounded" />
+                <div className="h-3 w-8 bg-gray-200 animate-pulse rounded mt-1" />
+              </div>
             </div>
           ))}
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (error || !topScorers?.length) {
-    return (
-      <Card className="w-full shadow-md">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-semibold">Top Scorers - Basketball</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-xs text-gray-500">No basketball scoring data available</p>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card className="w-full shadow-md bg-white">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-semibold text-gray-800">Top Scorers - Basketball</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {topScorers.slice(0, 5).map((scorer: TopScorer, index: number) => {
-          const stats = scorer.statistics[0];
-          const goals = stats?.goals?.total || 0;
-          
-          return (
-            <div key={scorer.player.id} className="flex items-center space-x-3 hover:bg-gray-50 p-1 rounded">
-              <div className="flex items-center space-x-2 flex-1">
-                <span className="text-xs font-medium text-gray-500 w-4">
-                  {index + 1}
-                </span>
-                <MyAvatarInfo
-                  playerId={scorer.player.id}
-                  playerName={scorer.player.name}
-                  size="small"
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-gray-900 truncate">
-                    {scorer.player.name}
-                  </p>
-                  <p className="text-xs text-gray-500 truncate">
-                    {stats?.team?.name || 'Unknown Team'}
-                  </p>
-                </div>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: scrollbarHideStyle }} />
+      <div className="bg-white rounded-md border border-gray-200 overflow-hidden">
+        {/* Points title */}
+        <div className="px-4 py-1 border-b border-gray-100">
+          <h3 className="text-sm font-semibold text-gray-900 text-center">
+            Points
+          </h3>
+        </div>
+
+        {/* Horizontal scrollable league navigation with navigation buttons */}
+        <div className="border-b">
+          <div className="flex items-center">
+            {/* Left navigation button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`h-10 w-8 p-0 ml-1 flex-shrink-0 transition-all ${
+                canScrollLeft
+                  ? "text-gray-700 hover:bg-gray-100"
+                  : "text-gray-300 cursor-not-allowed"
+              }`}
+              onClick={scrollLeft}
+              disabled={!canScrollLeft}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+
+            {/* Scrollable container */}
+            <div
+              ref={scrollContainerRef}
+              className="relative overflow-hidden flex-1"
+            >
+              <div
+                data-content
+                className="flex items-center py-3 gap-6 transition-all duration-400 ease-in-out"
+                style={{
+                  transform: `translateX(-${contentPosition}px)`,
+                  width: "max-content",
+                }}
+              >
+                {availableLeagues.map((league) => (
+                  <button
+                    key={league.id}
+                    data-league-id={league.id}
+                    onClick={() => {
+                      console.log(`🏀 [League Selection] User selected league:`, {
+                        id: league.id,
+                        name: league.name,
+                        previousSelection: selectedLeague,
+                      });
+                      setSelectedLeague(league.id);
+                    }}
+                    className={`flex items-center gap-2 whitespace-nowrap transition-all duration-200 flex-shrink-0 px-3 py-2 min-w-max ${
+                      selectedLeague === league.id
+                        ? "text-gray-700 font-semibold"
+                        : "text-gray-400 hover:text-gray-900"
+                    }`}
+                  >
+                    <div className="w-5 h-5 flex-shrink-0">
+                      <img
+                        src={league.logo}
+                        alt={league.name}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <span className="text-sm font-medium">{league.name}</span>
+                  </button>
+                ))}
               </div>
-              <Badge variant="secondary" className="text-xs font-bold">
-                {goals}
-              </Badge>
             </div>
-          );
-        })}
-      </CardContent>
-    </Card>
+
+            {/* Right navigation button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`h-10 w-8 p-0 mr-1 flex-shrink-0 transition-all ${
+                canScrollRight
+                  ? "text-gray-700 hover:bg-gray-100"
+                  : "text-gray-700 cursor-not-allowed"
+              }`}
+              onClick={scrollRight}
+              disabled={!canScrollRight}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Players list */}
+        <div className="p-4">
+          {isLoading ? (
+            <div className="space-y-3">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-full bg-gray-200 animate-pulse" />
+                  <div className="flex-1 space-y-1">
+                    <div className="h-4 w-32 bg-gray-200 animate-pulse rounded" />
+                    <div className="h-3 w-24 bg-gray-200 animate-pulse rounded" />
+                  </div>
+                  <div className="text-right">
+                    <div className="h-6 w-6 bg-gray-200 animate-pulse rounded" />
+                    <div className="h-3 w-8 bg-gray-200 animate-pulse rounded mt-1" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : error ? (
+            <div className="text-center py-6 text-gray-500">
+              <p className="text-sm">Failed to load top scorers</p>
+              <p className="text-xs text-gray-400 mt-1">
+                for {getCurrentLeague()?.name || "Selected League"}
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                className="text-xs text-blue-600 hover:text-blue-800 mt-2 underline"
+              >
+                Retry
+              </button>
+            </div>
+          ) : topScorers && topScorers.length > 0 ? (
+            <div className="space-y-3">
+              {topScorers.slice(0, 3).map((scorer, index) => {
+                const playerStats = scorer.statistics[0];
+                const points = playerStats?.goals?.total || 0;
+                const position = playerStats?.games?.position || "";
+                const team = playerStats?.team?.name || "";
+
+                return (
+                  <div
+                    key={scorer.player.id}
+                    className="flex items-center gap-3"
+                  >
+                    <Avatar className="h-12 w-12 rounded-full overflow-hidden border border-gray-200">
+                      <AvatarImage
+                        src={scorer.player.photo}
+                        alt={scorer.player.name}
+                        className="object-cover object-center scale-110"
+                      />
+                      <AvatarFallback className="text-xs">
+                        {scorer.player.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .slice(0, 2)}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-sm text-gray-900 truncate">
+                          {scorer.player.name}
+                        </h4>
+                        {position && (
+                          <span className="text-xs text-gray-500 font-medium">
+                            {position.charAt(0).toUpperCase() + position.slice(1)}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 truncate">
+                        {team}
+                      </p>
+                    </div>
+
+                    <div className="text-center flex-shrink-0">
+                      <div className="text-lg font-medium text-gray-900">
+                        {points}
+                      </div>
+                      <div className="text-xs text-gray-500">Points</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-6 text-gray-500">
+              <p className="text-sm">No top scorer data available</p>
+              <p className="text-xs text-gray-400 mt-1">
+                for {getCurrentLeague()?.name || "Selected League"}
+              </p>
+            </div>
+          )}
+
+          {/* Stats link */}
+          {selectedLeague && (
+            <div className="mt-4 pt-3 border-t border-gray-100">
+              <button
+                className="w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium group"
+                onClick={() => navigate(`/league/${selectedLeague}/stats`)}
+              >
+                <span className="hover:underline transition-all duration-200">
+                  {getCurrentLeague()?.name || "Selected League"} Stats
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
   );
 };
 
