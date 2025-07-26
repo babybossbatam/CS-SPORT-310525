@@ -817,7 +817,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               name: "Bundesliga",
               type: "League",
               logo: "https://media.api-sports.io/football/leagues/78.png",
-              country: "Germany",
+              country:```text
+"Germany",
             },
             country: {
               name: "Germany",
@@ -2665,7 +2666,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (matchDetails) {
           res.json({
             success: true,
-```text
             data: matchDetails,
           });
         } else {
@@ -3299,7 +3299,7 @@ error) {
   // Predictions routes
   app.use('/api', predictionsRoutes);
   app.use('/api', basketballRoutes);
-  app.use('/api', basketballStandingsRoutes);
+  app.use('/api/basketball/standings', basketballStandingsRoutes);
 
 // Test route for debugging
 app.get('/api/test', (req, res) => {

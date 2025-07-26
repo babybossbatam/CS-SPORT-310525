@@ -130,97 +130,33 @@ const MyBasketTopScorer: React.FC = () => {
 
       console.log(`🏀 [MyBasketTopScorer] Fetching top scorers for league ${selectedLeague}`);
 
-      // For now, using mock data since basketball API doesn't have top scorers endpoint
-      // You can replace this with actual API call when available
-      const mockTopScorers = [
-        {
-          player: {
-            id: 1,
-            name: "LeBron James",
-            photo: "https://media.api-sports.io/basketball/players/1.png"
-          },
-          statistics: [{
-            team: { 
-              id: 145,
-              name: "Los Angeles Lakers",
-              logo: "https://media.api-sports.io/basketball/teams/145.png"
-            },
-            league: {
-              id: selectedLeague,
-              name: getCurrentLeague()?.name || "NBA",
-              country: "USA",
-              logo: getCurrentLeague()?.logo || "",
-              flag: "",
-              season: 2025
-            },
-            games: {
-              appearences: 25,
-              position: "Forward"
-            },
-            goals: { total: 28 }
-          }]
-        },
-        {
-          player: {
-            id: 2,
-            name: "Stephen Curry",
-            photo: "https://media.api-sports.io/basketball/players/2.png"
-          },
-          statistics: [{
-            team: { 
-              id: 149,
-              name: "Golden State Warriors",
-              logo: "https://media.api-sports.io/basketball/teams/149.png"
-            },
-            league: {
-              id: selectedLeague,
-              name: getCurrentLeague()?.name || "NBA",
-              country: "USA",
-              logo: getCurrentLeague()?.logo || "",
-              flag: "",
-              season: 2025
-            },
-            games: {
-              appearences: 24,
-              position: "Guard"
-            },
-            goals: { total: 26 }
-          }]
-        },
-        {
-          player: {
-            id: 3,
-            name: "Kevin Durant",
-            photo: "https://media.api-sports.io/basketball/players/3.png"
-          },
-          statistics: [{
-            team: { 
-              id: 164,
-              name: "Phoenix Suns",
-              logo: "https://media.api-sports.io/basketball/teams/164.png"
-            },
-            league: {
-              id: selectedLeague,
-              name: getCurrentLeague()?.name || "NBA",
-              country: "USA",
-              logo: getCurrentLeague()?.logo || "",
-              flag: "",
-              season: 2025
-            },
-            games: {
-              appearences: 23,
-              position: "Forward"
-            },
-            goals: { total: 25 }
-          }]
-        }
-      ];
+      try {
+        const response = await fetch(`/api/basketball/standings/top-scorers/${selectedLeague}?season=2024-2025`, {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Cache-Control': 'max-age=7200' // 2 hours cache
+          }
+        });
 
-      return mockTopScorers.sort((a, b) => {
-        const goalsA = a.statistics[0]?.goals?.total || 0;
-        const goalsB = b.statistics[0]?.goals?.total || 0;
-        return goalsB - goalsA;
-      });
+        if (!response.ok) {
+          console.warn(`Failed to fetch basketball top scorers for league ${selectedLeague}: ${response.status}`);
+          return [];
+        }
+
+        const data = await response.json();
+        console.log(`✅ [MyBasketTopScorer] Retrieved ${data.length} top scorers for league ${selectedLeague}`);
+
+        // Sort by points (goals.total in basketball context means points)
+        return data.sort((a: any, b: any) => {
+          const pointsA = a.statistics[0]?.goals?.total || 0;
+          const pointsB = b.statistics[0]?.goals?.total || 0;
+          return pointsB - pointsA;
+        });
+      } catch (error) {
+        console.error(`❌ [MyBasketTopScorer] Error fetching top scorers for league ${selectedLeague}:`, error);
+        return [];
+      }
     },
     {
       enabled: !!selectedLeague,

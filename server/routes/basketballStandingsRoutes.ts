@@ -1,4 +1,3 @@
-
 import express from 'express';
 import { basketballApiService } from '../services/basketballApi';
 
@@ -8,7 +7,7 @@ const router = express.Router();
 router.get('/leagues/:leagueId/standings', async (req, res) => {
   try {
     const { leagueId } = req.params;
-    
+
     // Mock standings data - replace with actual API call when available
     const mockStandings = [
       {
@@ -73,9 +72,22 @@ router.get('/games/:date', async (req, res) => {
   }
 });
 
-// Get basketball top scorers (mock data)
-router.get('/top-scorers', async (req, res) => {
+// Get basketball top scorers by league
+router.get('/top-scorers/:leagueId', async (req, res) => {
   try {
+    const leagueId = parseInt(req.params.leagueId);
+    const { season } = req.query;
+
+    if (isNaN(leagueId)) {
+      return res.status(400).json({ error: 'Invalid league ID' });
+    }
+
+    const seasonStr = season as string || "2024-2025";
+
+    console.log(`🏀 [BasketballStandings] Fetching top scorers for league ${leagueId}, season ${seasonStr}`);
+
+    // For now, return structured mock data that matches the expected format
+    // TODO: Replace with actual basketball API call when player statistics endpoint is available
     const mockTopScorers = [
       {
         player: {
@@ -84,7 +96,20 @@ router.get('/top-scorers', async (req, res) => {
           photo: "https://media.api-sports.io/basketball/players/1.png"
         },
         statistics: [{
-          team: { name: "Los Angeles Lakers" },
+          team: { 
+            id: 145,
+            name: "Los Angeles Lakers",
+            logo: "https://media.api-sports.io/basketball/teams/145.png"
+          },
+          league: {
+            id: leagueId,
+            name: getLeagueName(leagueId),
+            season: parseInt(seasonStr.split('-')[0])
+          },
+          games: {
+            appearences: 25,
+            position: "Forward"
+          },
           goals: { total: 28 }
         }]
       },
@@ -95,7 +120,20 @@ router.get('/top-scorers', async (req, res) => {
           photo: "https://media.api-sports.io/basketball/players/2.png"
         },
         statistics: [{
-          team: { name: "Golden State Warriors" },
+          team: { 
+            id: 149,
+            name: "Golden State Warriors",
+            logo: "https://media.api-sports.io/basketball/teams/149.png"
+          },
+          league: {
+            id: leagueId,
+            name: getLeagueName(leagueId),
+            season: parseInt(seasonStr.split('-')[0])
+          },
+          games: {
+            appearences: 24,
+            position: "Guard"
+          },
           goals: { total: 26 }
         }]
       },
@@ -106,30 +144,134 @@ router.get('/top-scorers', async (req, res) => {
           photo: "https://media.api-sports.io/basketball/players/3.png"
         },
         statistics: [{
-          team: { name: "Phoenix Suns" },
+          team: { 
+            id: 164,
+            name: "Phoenix Suns",
+            logo: "https://media.api-sports.io/basketball/teams/164.png"
+          },
+          league: {
+            id: leagueId,
+            name: getLeagueName(leagueId),
+            season: parseInt(seasonStr.split('-')[0])
+          },
+          games: {
+            appearences: 23,
+            position: "Forward"
+          },
           goals: { total: 25 }
         }]
-      },
+      }
+    ];
+
+    // Filter and adjust data based on league
+    const leagueSpecificScorers = mockTopScorers.map(scorer => ({
+      ...scorer,
+      statistics: scorer.statistics.map(stat => ({
+        ...stat,
+        league: {
+          ...stat.league,
+          id: leagueId,
+          name: getLeagueName(leagueId)
+        }
+      }))
+    }));
+
+    console.log(`✅ [BasketballStandings] Returning ${leagueSpecificScorers.length} top scorers for league ${leagueId}`);
+    res.json(leagueSpecificScorers);
+  } catch (error) {
+    console.error('Error fetching basketball top scorers:', error);
+    res.status(500).json({ error: 'Failed to fetch basketball top scorers' });
+  }
+});
+
+// Helper function to get league name by ID
+function getLeagueName(leagueId: number): string {
+  const leagueNames = {
+    12: "NBA",
+    120: "EuroLeague",
+    121: "Liga ACB",
+    122: "Lega Basket Serie A",
+    123: "Bundesliga",
+    124: "LNB Pro A"
+  };
+  return leagueNames[leagueId as keyof typeof leagueNames] || "Basketball League";
+}
+
+// Get basketball top scorers (legacy endpoint - keep for compatibility)
+router.get('/top-scorers', async (req, res) => {
+  try {
+    // Redirect to NBA (league 12) by default
+    const mockTopScorers = [
       {
         player: {
-          id: 4,
-          name: "Giannis Antetokounmpo",
-          photo: "https://media.api-sports.io/basketball/players/4.png"
+          id: 1,
+          name: "LeBron James",
+          photo: "https://media.api-sports.io/basketball/players/1.png"
         },
         statistics: [{
-          team: { name: "Milwaukee Bucks" },
-          goals: { total: 24 }
+          team: { 
+            id: 145,
+            name: "Los Angeles Lakers",
+            logo: "https://media.api-sports.io/basketball/teams/145.png"
+          },
+          league: {
+            id: 12,
+            name: "NBA",
+            season: 2025
+          },
+          games: {
+            appearences: 25,
+            position: "Forward"
+          },
+          goals: { total: 28 }
         }]
       },
       {
         player: {
-          id: 5,
-          name: "Luka Dončić",
-          photo: "https://media.api-sports.io/basketball/players/5.png"
+          id: 2,
+          name: "Stephen Curry",
+          photo: "https://media.api-sports.io/basketball/players/2.png"
         },
         statistics: [{
-          team: { name: "Dallas Mavericks" },
-          goals: { total: 23 }
+          team: { 
+            id: 149,
+            name: "Golden State Warriors",
+            logo: "https://media.api-sports.io/basketball/teams/149.png"
+          },
+          league: {
+            id: 12,
+            name: "NBA",
+            season: 2025
+          },
+          games: {
+            appearences: 24,
+            position: "Guard"
+          },
+          goals: { total: 26 }
+        }]
+      },
+      {
+        player: {
+          id: 3,
+          name: "Kevin Durant",
+          photo: "https://media.api-sports.io/basketball/players/3.png"
+        },
+        statistics: [{
+          team: { 
+            id: 164,
+            name: "Phoenix Suns",
+            logo: "https://media.api-sports.io/basketball/teams/164.png"
+          },
+          league: {
+            id: 12,
+            name: "NBA",
+            season: 2025
+          },
+          games: {
+            appearences: 23,
+            position: "Forward"
+          },
+          goals: { total: 25 }
         }]
       }
     ];
