@@ -863,7 +863,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     }
 
     return (
-      <div className="penalty-shootout-container">
+      <>
         {/* Penalty sequence - Group by rounds (pairs) */}
         <div className="penalty-shootout-list">
           {(() => {
@@ -1045,7 +1045,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             ));
           })()}
         </div>
-      </div>
+      </>
     );
   };
 
