@@ -941,7 +941,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 }
               });
 
-              console.log(`🔍 [Round ${roundNumber}P at time ${timeKey}] Home: ${homePenalty?.event?.player?.name || 'N/A'}, Away: ${awayPenalty?.event?.player?.name || 'N/A'}`);
+              console.log(`[Round ${roundNumber}P at time ${timeKey}] Home: ${homePenalty?.event?.player?.name || 'N/A'}, Away: ${awayPenalty?.event?.player?.name || 'N/A'}`);
 
               penaltyRounds.push({
                 roundNumber,
