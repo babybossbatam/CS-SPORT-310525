@@ -6,7 +6,7 @@ import { Calendar } from "../ui/calendar";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
-import TodayPopularFootballLeaguesNew from "./TodayPopularFootballLeaguesNew";
+
 import TodaysMatchesByCountryNew from "./TodaysMatchesByCountryNew";
 import LiveMatchForAllCountry from "./LiveMatchForAllCountry";
 import LiveMatchByTime from "./LiveMatchByTime";
@@ -420,13 +420,7 @@ export const TodayMatchPageCard = ({
             onMatchCardClick={handleMatchCardClick}
             useUTCOnly={true}
           />
-          <TodayPopularFootballLeaguesNew
-            selectedDate={selectedDate}
-            timeFilterActive={false}
-            showTop20={false}
-            liveFilterActive={liveFilterActive}
-            onMatchCardClick={onMatchCardClick}
-          />
+          
           <TodaysMatchesByCountryNew
             selectedDate={selectedDate}
             liveFilterActive={liveFilterActive}
