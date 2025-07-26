@@ -361,11 +361,7 @@ const MyNewLeague2 = ({
         return aDate - bDate;
       });
 
-      // Limit Friendlies Clubs (league 667) to top 20 fixtures if more than 20
-      if (group.league.id === 667 && group.fixtures.length > 20) {
-        console.log(`🔄 [MyNewLeague2] Limiting Friendlies Clubs fixtures from ${group.fixtures.length} to top 20`);
-        group.fixtures = group.fixtures.slice(0, 20);
-      }
+     
     });
 
     const groupedKeys = Object.keys(grouped);
