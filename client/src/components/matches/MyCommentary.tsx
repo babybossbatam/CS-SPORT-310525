@@ -492,7 +492,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             <div className="flex flex-col items-center min-w-[45px]">
                               <div className="w-4 h-6 flex items-center justify-center">
                                 <img
-                                  src="/assets/matchdetaillogo/penalty.svg"
+                                  src="/assets/matchdetaillogo/i mark.svg"
                                   alt="Penalty Shootout"
                                   className="w-4 h-4"
                                 />
