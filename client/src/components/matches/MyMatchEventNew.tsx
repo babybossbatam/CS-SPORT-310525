@@ -887,7 +887,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               });
             }
 
-            return rounds.map((round, index) => (
+            return rounds.reverse().map((round, index) => (
               <div key={round.roundNumber} className="penalty-shootout-row">
                 {/* Home team penalty info (left side) */}
                 <div className="penalty-home-side">
