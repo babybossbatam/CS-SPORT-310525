@@ -1,3 +1,4 @@
+
 import axios from "axios";
 
 interface BasketballGame {
@@ -58,15 +59,74 @@ interface BasketballGame {
   };
 }
 
+interface BasketballPlayer {
+  id: number;
+  name: string;
+  firstname: string;
+  lastname: string;
+  birth: {
+    date: string;
+    country: string;
+  };
+  nationality: string;
+  height: string;
+  weight: string;
+  injured: boolean;
+  photo: string;
+}
+
+interface BasketballPlayerStatistics {
+  player: BasketballPlayer;
+  team: {
+    id: number;
+    name: string;
+    logo: string;
+  };
+  league: {
+    id: number;
+    name: string;
+    type: string;
+    season: number;
+    logo: string;
+  };
+  games: {
+    appearences: number;
+    lineups: number;
+    minutes: string;
+    position: string;
+  };
+  points: number;
+  pos: string;
+  min: string;
+  fgm: number;
+  fga: number;
+  fgp: string;
+  ftm: number;
+  fta: number;
+  ftp: string;
+  tpm: number;
+  tpa: number;
+  tpp: string;
+  offReb: number;
+  defReb: number;
+  totReb: number;
+  assists: number;
+  pFouls: number;
+  steals: number;
+  turnovers: number;
+  blocks: number;
+  plusMinus: string;
+}
+
 interface BasketballApiResponse {
   get: string;
   parameters: any;
   errors: any[];
   results: number;
-  response: BasketballGame[];
+  response: any[];
 }
 
-// Initialize Basketball API client
+// Initialize Basketball API client with correct headers
 const apiKey = "81bc62b91b1190622beda24ee23fbd1a";
 
 const basketballApiClient = axios.create({
@@ -75,7 +135,7 @@ const basketballApiClient = axios.create({
     "X-RapidAPI-Key": apiKey,
     "X-RapidAPI-Host": "v1.basketball.api-sports.io",
   },
-  timeout: 10000, // 10 second timeout
+  timeout: 15000, // 15 second timeout
 });
 
 // Add request interceptor for logging
@@ -244,6 +304,9 @@ export const basketballApiService = {
     }
   },
 
+  /**
+   * Get basketball player statistics (top scorers)
+   */
   async getTopScorers(leagueId: number, season: string) {
     try {
       // Extract year from season string (e.g., "2024-2025" -> 2024)
@@ -251,149 +314,56 @@ export const basketballApiService = {
 
       console.log(`🏀 [BasketballAPI] Fetching top scorers for league ${leagueId}, season ${seasonYear}`);
 
-      // Try multiple endpoints to get player statistics
-      let response;
-      
-      try {
-        // First try the players endpoint with statistics
-        response = await basketballApiClient.get("/players", {
-          params: {
-            league: leagueId,
-            season: seasonYear
-          }
-        });
-        
-        if (!response.data?.response || response.data.response.length === 0) {
-          throw new Error("No players data from /players endpoint");
+      // Use the players/statistics endpoint to get player stats
+      const response = await basketballApiClient.get("/players/statistics", {
+        params: {
+          league: leagueId,
+          season: seasonYear
         }
-        
-        console.log(`🏀 [BasketballAPI] Got ${response.data.response.length} players from /players endpoint`);
-        
-        // Now get statistics for these players
-        const playersWithStats = [];
-        
-        for (const playerData of response.data.response.slice(0, 50)) { // Limit to first 50 players to avoid rate limits
-          try {
-            const statsResponse = await basketballApiClient.get("/players/statistics", {
-              params: {
-                id: playerData.id,
-                league: leagueId,
+      });
+
+      if (response.data && response.data.response && response.data.response.length > 0) {
+        const playersStats = response.data.response;
+        console.log(`🏀 [BasketballAPI] Retrieved ${playersStats.length} player statistics`);
+
+        // Sort players by points and get top 10
+        const topScorers = playersStats
+          .filter((playerStat: BasketballPlayerStatistics) => 
+            playerStat.points && playerStat.points > 0
+          )
+          .sort((a: BasketballPlayerStatistics, b: BasketballPlayerStatistics) => 
+            b.points - a.points
+          )
+          .slice(0, 10)
+          .map((playerStat: BasketballPlayerStatistics) => ({
+            player: {
+              id: playerStat.player?.id || 0,
+              name: playerStat.player?.name || 'Unknown Player',
+              photo: playerStat.player?.photo || `https://media.api-sports.io/basketball/players/${playerStat.player?.id}.png`
+            },
+            statistics: [{
+              team: {
+                id: playerStat.team?.id || 0,
+                name: playerStat.team?.name || 'Unknown Team',
+                logo: playerStat.team?.logo || `https://media.api-sports.io/basketball/teams/${playerStat.team?.id}.png`
+              },
+              league: {
+                id: leagueId,
+                name: playerStat.league?.name || 'Basketball League',
                 season: seasonYear
-              }
-            });
-            
-            if (statsResponse.data?.response && statsResponse.data.response.length > 0) {
-              const playerStats = statsResponse.data.response[0];
-              if (playerStats.statistics && playerStats.statistics.length > 0) {
-                playersWithStats.push(playerStats);
-              }
-            }
-          } catch (statsError) {
-            console.warn(`⚠️ [BasketballAPI] Failed to get stats for player ${playerData.id}:`, statsError);
-          }
-        }
-        
-        if (playersWithStats.length === 0) {
-          throw new Error("No player statistics found");
-        }
-        
-        // Sort players by points
-        const sortedPlayers = playersWithStats
-          .filter((player: any) => player.statistics && player.statistics.length > 0)
-          .sort((a: any, b: any) => {
-            const statsA = a.statistics[0];
-            const statsB = b.statistics[0];
-            const pointsA = statsA?.points || 0;
-            const pointsB = statsB?.points || 0;
-            return pointsB - pointsA;
-          })
-          .slice(0, 10) // Get top 10 scorers
-          .map((player: any) => {
-            const stat = player.statistics[0];
-            return {
-              player: {
-                id: player.player?.id || 0,
-                name: player.player?.name || 'Unknown Player',
-                photo: player.player?.photo || `https://media.api-sports.io/basketball/players/${player.player?.id}.png`
               },
-              statistics: [{
-                team: {
-                  id: stat.team?.id || 0,
-                  name: stat.team?.name || 'Unknown Team',
-                  logo: stat.team?.logo || `https://media.api-sports.io/basketball/teams/${stat.team?.id}.png`
-                },
-                league: {
-                  id: leagueId,
-                  name: stat.league?.name || 'Basketball League',
-                  season: seasonYear
-                },
-                games: {
-                  appearences: stat.games?.played || 0,
-                  position: stat.position || 'Player'
-                },
-                goals: { 
-                  total: stat.points || 0  // Basketball uses points instead of goals
-                }
-              }]
-            };
-          });
-
-        console.log(`✅ [BasketballAPI] Retrieved ${sortedPlayers.length} real top scorers for league ${leagueId}`);
-        return sortedPlayers;
-        
-      } catch (playersError) {
-        console.warn(`⚠️ [BasketballAPI] /players endpoint failed, trying direct statistics:`, playersError);
-        
-        // Fallback: try direct statistics endpoint
-        response = await basketballApiClient.get("/players/statistics", {
-          params: {
-            league: leagueId,
-            season: seasonYear
-          }
-        });
-        
-        if (response.data && response.data.response) {
-          const players = response.data.response;
-
-          // Sort players by points
-          const sortedPlayers = players
-            .filter((player: any) => player.statistics && player.statistics.length > 0)
-            .sort((a: any, b: any) => {
-              const pointsA = a.statistics[0]?.points || 0;
-              const pointsB = b.statistics[0]?.points || 0;
-              return pointsB - pointsA;
-            })
-            .slice(0, 10) // Get top 10 scorers
-            .map((player: any) => ({
-              player: {
-                id: player.player?.id || 0,
-                name: player.player?.name || 'Unknown Player',
-                photo: player.player?.photo || `https://media.api-sports.io/basketball/players/${player.player?.id}.png`
+              games: {
+                appearences: playerStat.games?.appearences || 0,
+                position: playerStat.games?.position || playerStat.pos || 'Player'
               },
-              statistics: player.statistics.map((stat: any) => ({
-                team: {
-                  id: stat.team?.id || 0,
-                  name: stat.team?.name || 'Unknown Team',
-                  logo: stat.team?.logo || `https://media.api-sports.io/basketball/teams/${stat.team?.id}.png`
-                },
-                league: {
-                  id: leagueId,
-                  name: stat.league?.name || 'Basketball League',
-                  season: seasonYear
-                },
-                games: {
-                  appearences: stat.games?.played || 0,
-                  position: stat.position || 'Player'
-                },
-                goals: { 
-                  total: stat.points || 0  // Basketball uses points instead of goals
-                }
-              }))
-            }));
+              goals: { 
+                total: playerStat.points || 0  // Basketball uses points instead of goals
+              }
+            }]
+          }));
 
-          console.log(`✅ [BasketballAPI] Retrieved ${sortedPlayers.length} real top scorers for league ${leagueId} (fallback method)`);
-          return sortedPlayers;
-        }
+        console.log(`✅ [BasketballAPI] Retrieved ${topScorers.length} real top scorers for league ${leagueId}`);
+        return topScorers;
       }
 
       console.warn(`⚠️ [BasketballAPI] No player statistics found for league ${leagueId}`);

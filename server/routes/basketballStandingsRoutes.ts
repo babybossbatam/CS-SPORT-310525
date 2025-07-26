@@ -87,7 +87,7 @@ router.get('/top-scorers/:leagueId', async (req, res) => {
     console.log(`🏀 [BasketballStandings] Fetching top scorers for league ${leagueId}, season ${seasonStr}`);
 
     try {
-      // Attempt to fetch real basketball player statistics
+      // Fetch real basketball player statistics using proper basketball API
       const topScorers = await basketballApiService.getTopScorers(leagueId, seasonStr);
       
       if (topScorers && topScorers.length > 0) {
@@ -97,7 +97,7 @@ router.get('/top-scorers/:leagueId', async (req, res) => {
         console.warn(`⚠️ [BasketballStandings] No top scorers data available for league ${leagueId}`);
         return res.status(404).json({ 
           error: 'No top scorers data available',
-          message: `No player statistics found for league ${leagueId} in season ${seasonStr}`,
+          message: `No player statistics found for league ${leagueId} in season ${seasonStr}. This may be because the season hasn't started or the league doesn't have player statistics available.`,
           leagueId,
           season: seasonStr
         });
