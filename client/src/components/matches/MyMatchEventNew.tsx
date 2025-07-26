@@ -167,12 +167,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       setError(null);
     } catch (error) {
       console.error(`❌ [MyMatchEventNew] Error fetching events (attempt ${retryCount + 1}):`, error);
-
+      
       // Check if it's an abort error (timeout)
       if (error instanceof Error && error.name === 'AbortError') {
         console.log(`⏱️ [MyMatchEventNew] Request timeout for fixture ${fixtureId}`);
       }
-
+      
       // Check if it's a network error that might be temporary
       const isNetworkError = error instanceof Error && (
         error.message.includes('fetch') ||
@@ -489,7 +489,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   const isDarkTheme = useMemo(() => theme === "dark", [theme]);
   const groupedEvents = useMemo(() => groupEventsByPeriod(events), [events]);
-
+  
   // Get current scores from API data - moved here to ensure it's called consistently
   const getCurrentScores = useMemo(() => {
     if (matchData?.goals) {
@@ -554,7 +554,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   if (events.length === 0 && !isLoading) {
     const matchStatus = matchData?.fixture?.status?.short;
     const isUpcoming = ["NS", "TBD"].includes(matchStatus);
-
+    
     if (isUpcoming) {
       return null; // Hide the component completely
     }
@@ -887,41 +887,28 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         {/* Penalty sequence - Group by rounds (pairs) */}
         <div className="penalty-shootout-list px-2">
           {(() => {
-            // Sort penalty sequence by elapsed time from highest to lowest first
-            const sortedPenaltySequence = [...penaltySequence].sort((a, b) => {
-              if (!a.event || !b.event || !('time' in a.event) || !('time' in b.event)) return 0;
-              return b.event.time.elapsed - a.event.time.elapsed;
-            });
-
-            console.log("🔍 [Penalty Sort Debug] Sorted penalty sequence by elapsed time:", 
-              sortedPenaltySequence.map(p => ({
-                player: p.event && 'player' in p.event ? p.event.player?.name : 'Unknown',
-                team: p.event && 'team' in p.event ? p.event.team?.name : 'Unknown',
-                elapsed: p.event && 'time' in p.event ? p.event.time.elapsed : 0
-              }))
-            );
-
             // Group penalties into rounds (pairs) - properly alternate teams
             const rounds = [];
-            for (let i = 0; i < sortedPenaltySequence.length; i += 2) {
-              const firstPenalty = sortedPenaltySequence[i];
-              const secondPenalty = sortedPenaltySequence[i + 1];
+            for (let i = 0; i < penaltySequence.length; i += 2) {
+              const firstPenalty = penaltySequence[i];
+              const secondPenalty = penaltySequence[i + 1];
               const roundNumber = Math.floor(i / 2) + 1;
-
+              
               // Determine which penalty belongs to which team based on team name
               let homePenalty = null;
               let awayPenalty = null;
-
+              
               if (firstPenalty && firstPenalty.event && 'team' in firstPenalty.event) {
                 const isFirstHome = firstPenalty.event.team.name === homeTeam;
                 if (isFirstHome) {
                   homePenalty = firstPenalty;
                   awayPenalty = secondPenalty;
                 } else {
-                  awayPenalty = firstPenalty;                  homePenalty = secondPenalty;
+                  awayPenalty = firstPenalty;
+                  homePenalty = secondPenalty;
                 }
               }
-
+              
               rounds.push({
                 roundNumber,
                 homePenalty,
@@ -929,15 +916,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               });
             }
 
-            console.log("🔍 [Penalty Rounds Debug] Final rounds with elapsed times:", 
-              rounds.map((round, idx) => ({
-                roundNumber: round.roundNumber,
-                homeElapsed: round.homePenalty?.event && 'time' in round.homePenalty.event ? round.homePenalty.event.time.elapsed : null,
-                awayElapsed: round.awayPenalty?.event && 'time' in round.awayPenalty.event ? round.awayPenalty.event.time.elapsed : null
-              }))
-            );
-
-            return rounds.map((round, index) => (
+            return rounds.reverse().map((round, index) => (
               <div key={round.roundNumber} className="penalty-shootout-row">
                 {/* Home team penalty info (left side) */}
                 <div className="penalty-home-side">
@@ -1105,7 +1084,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   };
 
-
+  
 
   return (
     <Card
@@ -1175,7 +1154,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             {/* Render content based on active tab */}
             {activeTab === "all" && (
               <>
-
+                
                 {/* All events in chronological order with period score markers */}
                 {(() => {
                   const sortedEvents = [...events].sort(
@@ -1280,7 +1259,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                   // Filter out events with elapsed time > 110' from regular display (they go to penalty section)
                   const filteredEvents = sortedEvents.filter(event => event.time.elapsed <= 110);
-
+                  
                   // Combine filtered events and period markers safely
                   const allItems: EventOrMarker[] = [...filteredEvents, ...periodMarkers].sort(
                     (a, b) => {
@@ -1375,7 +1354,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       // Get actual penalty scores from match data
                       const penaltyHomeScore = matchData?.score?.penalty?.home || 4;
                       const penaltyAwayScore = matchData?.score?.penalty?.away || 3;
-
+                      
                       return (
                         <div
                           key={event.id || `penalty-shootout-${index}`}
@@ -1836,7 +1815,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   const createTopTabPeriodMarkers = () => {
                     const markers = [];
 
-                    try {                      const currentScores = getCurrentScores;
+                    try {
+                      const currentScores = getCurrentScores;
 
                       // Calculate halftime score by counting goals scored up to 45 minutes
                       const calculateHalftimeScore = () => {
