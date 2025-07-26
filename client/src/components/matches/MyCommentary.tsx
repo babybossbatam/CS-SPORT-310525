@@ -247,7 +247,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
             // Add "Penalty Shootout begins" marker if there are penalty events
             if (hasPenaltyShootout) {
               const penaltyStartTime = Math.max(lastRegularEvent.time.elapsed, 120);
-
+              
               // Calculate score ONLY from regular goals (before penalty shootout)
               const scoreAtPenaltyStart = calculateScoreAtTime(120); // Use 120 minutes as cutoff for regular time
 
@@ -259,7 +259,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 note: "Using 120 minutes cutoff for regular goals only"
               });
 
-
+            
 
               allCommentaryItems.push({
                 time: { elapsed: penaltyStartTime },
@@ -446,7 +446,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                     );
                   }
 
-
+                  
 
                   // Handle "Penalty Shootout begins"
                   if (event.detail === "Penalty Shootout begins") {
@@ -503,34 +503,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                           </div>
                         </div>
 
-                        {/* End of Penalties Header */}
-                        <div
-                          key={`penalty-end-header-${index}`}
-                          className="commentary-event-container"
-                        >
-                          <div className="flex gap-3">
-                            {/* Time Column */}
-                            <div className="flex flex-col items-center min-w-[45px]">
-                              <div className="w-4 h-6 flex items-center justify-center">
-                                <img
-                                  src="/assets/matchdetaillogo/i mark.svg"
-                                  alt="End of Penalties"
-                                  className="w-4 h-4"
-                                />
-                              </div>
-                              <div className="w-0.5 h-4 bg-gray-800 ml-1"></div>
-                            </div>
-
-                            {/* Content Column */}
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 -ml-3 text-sm text-gray-700 leading-relaxed mt-0.5">
-                                <div>End of Penalties</div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Final Penalty Score */}
+                        {/* Full Time Score Before Penalties */}
                         <div
                           key={`penalty-final-${index}`}
                           className="commentary-event-container"
@@ -557,12 +530,12 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               <div className="flex items-center gap-2 -ml-3 -mt-1.5 text-xs font-medium">
                                 <img
                                   src="/assets/matchdetaillogo/clock.png"
-                                  alt="Penalty Shootout ends"
+                                  alt="Full Time"
                                   className="w-4 h-4 opacity-80 flex-shrink-0"
                                 />
-                                <div className="text-sm font-bold text-gray-900">
-                                  Penalty Shootout ends, {homeTeam} {(event as any).score?.split(' - ')[0]}({finalPenaltyScore.home}), {awayTeam} {(event as any).score?.split(' - ')[1]}({finalPenaltyScore.away})
-                                </div>
+                                <span className="text-lg font-bold text-gray-900">
+                                  {(event as any).score?.split(' - ')[0]} - {(event as any).score?.split(' - ')[1]}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -883,7 +856,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         )}
 
                         {/* Elapsed time */}
-<div
+                        <div
                           className="text-gray-800 text-sm font-medium leading-tight"
                           style={{
                             marginTop: event.time.extra ? "1px" : "0",
@@ -1196,3 +1169,125 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             {/* Additional comments if any */}
                             {event.comments && (
                               <div className="text-xs text-gray-600 leading-relaxed -ml-3 italic mt-1">
+                                ```text
+                                {event.comments}
+                              </div>
+                            )}
+
+                            {/* Detailed substitution description */}
+                            <div className="text-sm text-gray-700 leading-relaxed -ml-3 mb-4">
+                              {event.assist?.name && event.player?.name
+                                ? `Substitution, ${event.team?.name || "Team"}. ${event.assist.name} replaces ${event.player.name}.`
+                                : eventDescription}
+                            </div>
+                          </div>
+                        ) : event.type === "Var" ? (
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium">
+                              <img
+                                src="/assets/matchdetaillogo/missed-penalty.svg"
+                                alt="VAR"
+                                className="w-4 h-4 opacity-80 flex-shrink-0"
+                              />
+                              <span className="text-gray-700 font-medium">
+                                {event.detail?.includes("Goal")
+                                  ? "Goal Disallowed"
+                                  : `VAR ${event.detail || "Review"}`}
+                              </span>
+                            </div>
+                            {event.player?.name && (
+                              <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium bg-stone-200">
+                                <MyAvatarInfo
+                                  playerId={event.player?.id}
+                                  playerName={event.player?.name}
+                                  size="md-commentary"
+                                  className="border-2 shadow-sm flex-shrink-0"
+                                />
+                                <span className="text-gray-700 font-medium -ml-1">
+                                  {event.player?.name || "Unknown Player"}
+                                </span>
+                              </div>
+                            )}
+                            <div className="text-sm text-gray-700 leading-relaxed -ml-3">
+                              {(() => {
+                                // Enhanced VAR description based on event details
+                                if (
+                                  event.detail
+                                    ?.toLowerCase()
+                                    .includes("goal") &&
+                                  event.detail
+                                    ?.toLowerCase()
+                                    .includes("overturned")
+                                ) {
+                                  return `GOAL OVERTURNED BY VAR: ${event.player?.name || "Player"} (${event.team?.name || "Team"}) scores but the goal is ruled out after a VAR review.`;
+                                } else if (
+                                  event.detail
+                                    ?.toLowerCase()
+                                    .includes("no goal")
+                                ) {
+                                  return `VAR Decision: No Goal ${event.team?.name || "Team"}.`;
+                                } else if (
+                                  event.detail
+                                    ?.toLowerCase()
+                                    .includes("penalty")
+                                ) {
+                                  return `VAR Review: Penalty decision for ${event.team?.name || "Team"}.`;
+                                } else {
+                                  return eventDescription;
+                                }
+                              })()}
+                            </div>
+                            {event.comments && (
+                              <div className="text-xs text-gray-600 leading-relaxed -ml-3 italic mt-1">
+                                {event.comments}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium">
+                              <img
+                                src="/assets/matchdetaillogo/soccer-ball.svg"
+                                alt="Event"
+                                className="w-4 h-4 opacity-80 flex-shrink-0"
+                              />
+                              <span className="text-gray-700 font-medium">
+                                {event.type} - {event.detail || "Match Event"}
+                              </span>
+                            </div>
+                            {event.player?.name && (
+                              <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium bg-gray-200">
+                                <MyAvatarInfo
+                                  playerId={event.player?.id}
+                                  playerName={event.player?.name}
+                                  size="md-commentary"
+                                  className="border-2 shadow-sm flex-shrink-0"
+                                />
+                                <span className="text-gray-700 font-medium -ml-1">
+                                  {event.player?.name || "Unknown Player"}
+                                </span>
+                              </div>
+                            )}
+                            {event.comments && (
+                              <div className="text-xs text-gray-600 leading-relaxed -ml-3 italic">
+                                {event.comments}
+                              </div>
+                            )}
+                            <div className="text-sm text-gray-700 leading-relaxed -ml-3">
+                              {eventDescription}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              });
+          })()}
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default MyCommentary;
