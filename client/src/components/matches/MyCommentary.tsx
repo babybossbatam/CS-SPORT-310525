@@ -477,42 +477,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                     );
                   }
 
-                  // Handle "Second Half begins" before penalty shootout
-                  if (event.type === "penalty_second_half_begins") {
-                    return (
-                      <div
-                        key={`period-${index}`}
-                        className="commentary-event-container"
-                      >
-                        <div className="flex gap-3">
-                          {/* Time Column */}
-                          <div className="flex flex-col items-center min-w-[45px]">
-                            <div className="w-4 h-6 flex items-center justify-center">
-                              <img
-                                src="/assets/matchdetaillogo/i mark.svg"
-                                alt="Second Half"
-                                className="w-4 h-4"
-                              />
-                            </div>
-                            {index < allCommentaryItems.length - 1 && (
-                              <div className="w-0.5 h-4 bg-gray-800 ml-1"></div>
-                            )}
-                          </div>
-
-                          {/* Content Column */}
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 -ml-3 text-sm text-gray-700 leading-relaxed mt-0.5">
-                              <div>Second Half begins</div>
-                              <span>
-                                {homeTeam}: {(event as any).score?.split(' - ')[0]},{" "}
-                                {awayTeam}: {(event as any).score?.split(' - ')[1]}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  }
+                  
 
                   // Handle "Penalty Shootout begins"
                   if (event.detail === "Penalty Shootout begins") {
