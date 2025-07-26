@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useCachedQuery } from "@/lib/cachingHelper";
@@ -21,7 +20,7 @@ const scrollbarHideStyle = `
   }
 `;
 
-// Popular basketball leagues list (updated with correct API IDs)
+// Popular basketball leagues with their API-Football.com basketball IDs
 const POPULAR_BASKETBALL_LEAGUES = [
   {
     id: 12,
@@ -101,7 +100,7 @@ const MyBasketTopScorer: React.FC = () => {
   // Initialize available leagues and set default
   useEffect(() => {
     setAvailableLeagues(POPULAR_BASKETBALL_LEAGUES);
-    
+
     // Set NBA as default league
     const storedLeague = sessionStorage.getItem("basketTopScorers_selectedLeague");
     if (storedLeague) {

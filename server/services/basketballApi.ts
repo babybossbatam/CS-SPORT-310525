@@ -102,14 +102,13 @@ interface BasketballApiResponse {
   response: any[];
 }
 
-// Initialize Basketball API client with correct headers
+// Initialize Basketball API client for API-Football.com
 const apiKey = "81bc62b91b1190622beda24ee23fbd1a";
 
 const basketballApiClient = axios.create({
   baseURL: "https://v1.basketball.api-sports.io",
   headers: {
-    "x-rapidapi-key": apiKey,
-    "x-rapidapi-host": "v1.basketball.api-sports.io",
+    "x-apisports-key": apiKey,
   },
   timeout: 15000, // 15 second timeout
 });
