@@ -532,20 +532,23 @@ const MyBasketTopScorer: React.FC = () => {
                     key={scorer.player.id}
                     className="flex items-center gap-3"
                   >
-                    <Avatar className="h-12 w-12 rounded-full overflow-hidden border border-gray-200">
-                      <AvatarImage
-                        src={scorer.player.photo}
-                        alt={scorer.player.name}
-                        className="object-cover object-center scale-110"
-                      />
-                      <AvatarFallback className="text-xs">
-                        {scorer.player.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .slice(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <div className="relative">
+                      <Avatar className="h-12 w-12 rounded-full overflow-hidden border border-gray-200">
+                        <AvatarImage
+                          src={scorer.player.photo}
+                          alt={scorer.player.name}
+                          className="object-cover object-center scale-110"
+                        />
+                        <AvatarFallback className="text-xs bg-indigo-600 text-white font-medium">
+                          {scorer.player.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .slice(0, 2)
+                            .toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
