@@ -256,6 +256,7 @@ const MyNewLeague2 = ({
 
     const grouped: { [key: number]: { league: any; fixtures: FixtureData[] } } =
       {};
+    const seenFixtures = new Set<number>(); // Track seen fixture IDs to prevent duplicates
 
     allFixtures.forEach((fixture: FixtureData, index) => {
       // Validate fixture structure
@@ -263,11 +264,25 @@ const MyNewLeague2 = ({
         !fixture ||
         !fixture.league ||
         !fixture.teams ||
-        !fixture.fixture?.date
+        !fixture.fixture?.date ||
+        !fixture.fixture?.id
       ) {
         console.warn(
           `⚠️ [MyNewLeague2] Invalid fixture at index ${index}:`,
           fixture,
+        );
+        return;
+      }
+
+      // Check for duplicate fixtures
+      if (seenFixtures.has(fixture.fixture.id)) {
+        console.log(
+          `🔄 [MyNewLeague2] Duplicate fixture detected and skipped:`,
+          {
+            fixtureId: fixture.fixture.id,
+            teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+            league: fixture.league.name,
+          }
         );
         return;
       }
@@ -290,6 +305,8 @@ const MyNewLeague2 = ({
         };
       }
 
+      // Mark this fixture as seen and add it to the group
+      seenFixtures.add(fixture.fixture.id);
       grouped[leagueId].fixtures.push(fixture);
     });
 
