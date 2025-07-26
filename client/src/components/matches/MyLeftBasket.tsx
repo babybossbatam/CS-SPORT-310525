@@ -11,7 +11,7 @@ import { format, parseISO, addDays, subDays } from "date-fns";
 import TodayPopularFootballLeaguesNew from "@/components/matches/TodayPopularFootballLeaguesNew";
 import TodaysMatchesByCountryNew from "@/components/matches/TodaysMatchesByCountryNew";
 import LiveMatchForAllCountry from "@/components/matches/LiveMatchForAllCountry";
-import { apiRequest } from "@/lib/enhancedApiWrapper";
+import { apiRequest } from "@/lib/queryClient";
 import { getCurrentUTCDateString } from "@/lib/dateUtilsUpdated";
 import MyHomeFeaturedMatchNew from "@/components/matches/MyHomeFeaturedMatchNew";
 
