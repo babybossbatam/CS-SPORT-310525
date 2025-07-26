@@ -35,6 +35,7 @@ import playersRoutes from './routes/playersRoutes';
 import selectiveLiveRoutes from './routes/selectiveLiveRoutes';
 import selectiveUpdatesRoutes from './routes/selectiveUpdatesRoutes';
 import predictionsRoutes from './routes/predictionsRoutes';
+import basketballRoutes from "./routes/basketballRoutes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -819,6 +820,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
             country: {
               name: "Germany",
+```text
               code: "DE",
               flag: "https://media.api-sports.io/flags/de.svg",
             },
@@ -3295,6 +3297,7 @@ error) {
 
   // Predictions routes
   app.use('/api', predictionsRoutes);
+  app.use('/api', basketballRoutes);
 
 // Test route for debugging
 app.get('/api/test', (req, res) => {

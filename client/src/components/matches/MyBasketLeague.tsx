@@ -18,6 +18,62 @@ import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import { format, parseISO } from "date-fns";
 
+interface BasketballGame {
+  id: number;
+  date: string;
+  time: string;
+  timestamp: number;
+  timezone: string;
+  status: {
+    long: string;
+    short: string;
+    timer: string;
+  };
+  league: {
+    id: number;
+    name: string;
+    type: string;
+    season: string;
+    logo: string;
+  };
+  country: {
+    id: number;
+    name: string;
+    code: string;
+    flag: string;
+  };
+  teams: {
+    home: {
+      id: number;
+      name: string;
+      logo: string;
+    };
+    away: {
+      id: number;
+      name: string;
+      logo: string;
+    };
+  };
+  scores: {
+    home: {
+      quarter_1: number;
+      quarter_2: number;
+      quarter_3: number;
+      quarter_4: number;
+      over_time: number;
+      total: number;
+    };
+    away: {
+      quarter_1: number;
+      quarter_2: number;
+      quarter_3: number;
+      quarter_4: number;
+      over_time: number;
+      total: number;
+    };
+  };
+}
+
 interface MyBasketLeagueProps {
   selectedDate: string;
   timeFilterActive: boolean;
@@ -37,84 +93,75 @@ export const MyBasketLeague: React.FC<MyBasketLeagueProps> = ({
 }) => {
   const [expandedLeagues, setExpandedLeagues] = useState<Set<number>>(new Set());
 
-  // Popular leagues configuration
-  const popularLeagueIds = [
-    39, 40, 61, 78, 135, 140, 2, 3, 5, 10, 11, 848, 886, 71, 38, 15, 22, 531,
-    72, 73, 75, 76, 253, 233, 667, 850, 893, 921, 130, 128, 493, 239, 265,
-    237, 235, 743, 940, 908, 1169, 23, 1077,
+  // Popular basketball leagues configuration
+  const popularBasketballLeagueIds = [
+    12, // NBA
+    13, // WNBA
+    120, // EuroLeague
+    121, // EuroCup
+    117, // Liga ACB (Spain)
+    118, // Lega Basket Serie A (Italy)
+    119, // Basketball Bundesliga (Germany)
+    122, // LNB Pro A (France)
+    123, // Greek Basket League
+    124, // Turkish Basketball Super League
   ];
 
-  // Fetch fixtures for multiple popular leagues
-  const leagueQueries = useQuery({
-    queryKey: ["popular-leagues-fixtures", selectedDate, popularLeagueIds],
+  // Fetch basketball games for the selected date
+  const basketballQuery = useQuery({
+    queryKey: ["basketball-games", selectedDate],
     queryFn: async () => {
-      console.log(`🔄 [MyBasketLeague] Fetching fixtures for ${popularLeagueIds.length} popular leagues`);
+      console.log(`🏀 [MyBasketLeague] Fetching basketball games for ${selectedDate}`);
       
-      const promises = popularLeagueIds.map(async (leagueId) => {
-        try {
-          const response = await apiRequest("GET", `/api/leagues/${leagueId}/fixtures`);
-          const fixtures = await response.json();
-          
-          // Filter fixtures for the selected date
-          const filteredFixtures = fixtures.filter((fixture: any) => {
-            if (!fixture?.fixture?.date) return false;
-            
-            try {
-              const fixtureDate = new Date(fixture.fixture.date);
-              const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
-              return fixtureDateString === selectedDate;
-            } catch (error) {
-              return false;
-            }
-          });
-
-          return {
-            leagueId,
-            fixtures: filteredFixtures,
-            leagueInfo: filteredFixtures[0]?.league || null,
-          };
-        } catch (error) {
-          console.error(`Error fetching league ${leagueId}:`, error);
-          return { leagueId, fixtures: [], leagueInfo: null };
-        }
-      });
-
-      const results = await Promise.all(promises);
-      return results.filter(result => result.fixtures.length > 0);
+      try {
+        const response = await apiRequest("GET", `/api/basketball/games/date/${selectedDate}`);
+        const games = await response.json();
+        
+        console.log(`🏀 [MyBasketLeague] Retrieved ${games.length} basketball games`);
+        return games as BasketballGame[];
+      } catch (error) {
+        console.error(`Error fetching basketball games:`, error);
+        return [];
+      }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
   });
 
-  const { data: leagueData = [], isLoading } = leagueQueries;
+  const { data: basketballGames = [], isLoading } = basketballQuery;
 
-  // Process and filter leagues
+  // Process and group games by league
   const processedLeagues = useMemo(() => {
-    if (!leagueData || leagueData.length === 0) return [];
+    if (!basketballGames || basketballGames.length === 0) return [];
 
-    return leagueData
-      .filter((league) => {
-        // Apply exclusion filters
-        if (!league.leagueInfo) return false;
-        
-        const shouldExclude = shouldExcludeFromPopularLeagues(
-          league.leagueInfo.name,
-          league.leagueInfo.country
-        );
-        
-        const isRestricted = isRestrictedUSLeague(
-          league.leagueInfo.name,
-          league.leagueInfo.country
-        );
+    // Group games by league
+    const gamesByLeague = basketballGames.reduce((acc, game) => {
+      const leagueId = game.league.id;
+      
+      if (!acc[leagueId]) {
+        acc[leagueId] = {
+          leagueId,
+          leagueInfo: game.league,
+          countryInfo: game.country,
+          games: [],
+        };
+      }
+      
+      acc[leagueId].games.push(game);
+      return acc;
+    }, {} as Record<number, any>);
 
-        return !shouldExclude && !isRestricted;
+    return Object.values(gamesByLeague)
+      .filter((league: any) => {
+        // Apply basic filtering if needed
+        return league.games.length > 0;
       })
-      .sort((a, b) => {
-        // Sort by number of fixtures (more fixtures first)
-        return b.fixtures.length - a.fixtures.length;
+      .sort((a: any, b: any) => {
+        // Sort by number of games (more games first)
+        return b.games.length - a.games.length;
       })
       .slice(0, showTop10 ? 10 : undefined); // Limit to top 10 if requested
-  }, [leagueData, showTop10]);
+  }, [basketballGames, showTop10]);
 
   const toggleLeague = (leagueId: number) => {
     const newExpanded = new Set(expandedLeagues);
@@ -126,19 +173,22 @@ export const MyBasketLeague: React.FC<MyBasketLeagueProps> = ({
     setExpandedLeagues(newExpanded);
   };
 
-  // Auto-expand leagues with live matches or many fixtures
+  // Auto-expand leagues with live games or few games
   useEffect(() => {
     const leaguesToExpand = new Set<number>();
 
     processedLeagues.forEach((league) => {
-      const hasLiveMatches = league.fixtures.some((fixture: any) =>
-        fixture.fixture?.status?.short === "1H" ||
-        fixture.fixture?.status?.short === "2H" ||
-        fixture.fixture?.status?.short === "HT"
+      const hasLiveGames = league.games.some((game: BasketballGame) =>
+        game.status?.short === "LIVE" ||
+        game.status?.short === "1Q" ||
+        game.status?.short === "2Q" ||
+        game.status?.short === "3Q" ||
+        game.status?.short === "4Q" ||
+        game.status?.short === "HT"
       );
 
-      // Expand if has live matches or is a major league with few fixtures
-      if (hasLiveMatches || league.fixtures.length <= 4) {
+      // Expand if has live games or is a major league with few games
+      if (hasLiveGames || league.games.length <= 4) {
         leaguesToExpand.add(league.leagueId);
       }
     });
@@ -146,16 +196,16 @@ export const MyBasketLeague: React.FC<MyBasketLeagueProps> = ({
     setExpandedLeagues(leaguesToExpand);
   }, [processedLeagues]);
 
-  const handleMatchCardClick = (fixture: any) => {
-    console.log('🏆 [MyBasketLeague] Match card clicked:', {
-      fixtureId: fixture.fixture?.id,
-      teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-      league: fixture.league?.name,
-      country: fixture.league?.country,
-      status: fixture.fixture?.status?.short,
+  const handleMatchCardClick = (game: BasketballGame) => {
+    console.log('🏀 [MyBasketLeague] Basketball game clicked:', {
+      gameId: game.id,
+      teams: `${game.teams?.home?.name} vs ${game.teams?.away?.name}`,
+      league: game.league?.name,
+      country: game.country?.name,
+      status: game.status?.short,
       source: 'MyBasketLeague'
     });
-    onMatchCardClick?.(fixture);
+    onMatchCardClick?.(game);
   };
 
   if (isLoading) {
@@ -163,8 +213,8 @@ export const MyBasketLeague: React.FC<MyBasketLeagueProps> = ({
       <Card className="shadow-md">
         <CardContent className="p-6">
           <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-            <span className="ml-3 text-gray-600">Loading popular leagues...</span>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+            <span className="ml-3 text-gray-600">Loading basketball leagues...</span>
           </div>
         </CardContent>
       </Card>
@@ -177,8 +227,8 @@ export const MyBasketLeague: React.FC<MyBasketLeagueProps> = ({
         <CardContent className="p-6 text-center">
           <div className="text-gray-500">
             <Trophy className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <h3 className="text-lg font-medium mb-2">No league matches found</h3>
-            <p className="text-sm">No matches available for the selected date in popular leagues.</p>
+            <h3 className="text-lg font-medium mb-2">No basketball games found</h3>
+            <p className="text-sm">No games available for the selected date in basketball leagues.</p>
           </div>
         </CardContent>
       </Card>
@@ -189,10 +239,13 @@ export const MyBasketLeague: React.FC<MyBasketLeagueProps> = ({
     <div className="space-y-4">
       {processedLeagues.map((league) => {
         const isExpanded = expandedLeagues.has(league.leagueId);
-        const liveMatchCount = league.fixtures.filter((fixture: any) =>
-          fixture.fixture?.status?.short === "1H" ||
-          fixture.fixture?.status?.short === "2H" ||
-          fixture.fixture?.status?.short === "HT"
+        const liveGameCount = league.games.filter((game: BasketballGame) =>
+          game.status?.short === "LIVE" ||
+          game.status?.short === "1Q" ||
+          game.status?.short === "2Q" ||
+          game.status?.short === "3Q" ||
+          game.status?.short === "4Q" ||
+          game.status?.short === "HT"
         ).length;
 
         return (
@@ -205,7 +258,7 @@ export const MyBasketLeague: React.FC<MyBasketLeagueProps> = ({
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
                     <MyCircularFlag
-                      countryName={league.leagueInfo.country}
+                      countryName={league.countryInfo.name}
                       size={20}
                       className="flex-shrink-0"
                     />
@@ -221,23 +274,23 @@ export const MyBasketLeague: React.FC<MyBasketLeagueProps> = ({
                       {league.leagueInfo.name}
                     </span>
                     <span className="text-xs text-gray-500 truncate block">
-                      {league.leagueInfo.country}
+                      {league.countryInfo.name} • {league.leagueInfo.season}
                     </span>
                   </div>
-                  {liveMatchCount > 0 && (
+                  {liveGameCount > 0 && (
                     <div className="flex items-center gap-1 ml-2">
                       <div className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
                       </div>
-                      <span className="text-xs text-red-600 font-medium">
-                        {liveMatchCount} LIVE
+                      <span className="text-xs text-orange-600 font-medium">
+                        {liveGameCount} LIVE
                       </span>
                     </div>
                   )}
                 </div>
                 <div className="flex items-center gap-2 text-xs text-gray-500">
-                  <span>{league.fixtures.length} matches</span>
+                  <span>{league.games.length} games</span>
                   <div className={`transform transition-transform duration-200 ${
                     isExpanded ? 'rotate-180' : ''
                   }`}>
@@ -250,23 +303,75 @@ export const MyBasketLeague: React.FC<MyBasketLeagueProps> = ({
             {isExpanded && (
               <CardContent className="pt-0">
                 <div className="space-y-2">
-                  {league.fixtures.map((fixture: any) => (
+                  {league.games.map((game: BasketballGame) => (
                     <div
-                      key={fixture.fixture.id}
-                      className="match-card-container group"
-                      onClick={() => handleMatchCardClick(fixture)}
+                      key={game.id}
+                      className="match-card-container group cursor-pointer p-3 rounded-lg border hover:bg-gray-50 transition-colors"
+                      onClick={() => handleMatchCardClick(game)}
                     >
-                      <LazyMatchItem
-                        match={fixture}
-                        showLeagueName={false} // Already shown in header
-                        showCountryFlag={false} // Already shown in header
-                        isLive={
-                          fixture.fixture?.status?.short === "1H" ||
-                          fixture.fixture?.status?.short === "2H" ||
-                          fixture.fixture?.status?.short === "HT"
-                        }
-                        onMatchClick={() => handleMatchCardClick(fixture)}
-                      />
+                      <div className="flex items-center justify-between">
+                        {/* Teams and Score */}
+                        <div className="flex items-center gap-3 flex-1">
+                          {/* Home Team */}
+                          <div className="flex items-center gap-2 flex-1">
+                            <LazyImage
+                              src={game.teams.home.logo}
+                              alt={game.teams.home.name}
+                              className="w-6 h-6 object-contain"
+                              fallbackSrc="/assets/fallback-logo.png"
+                            />
+                            <span className="text-sm font-medium truncate">
+                              {game.teams.home.name}
+                            </span>
+                          </div>
+
+                          {/* Score/Status */}
+                          <div className="flex items-center gap-2 px-3">
+                            {game.status?.short === "NS" ? (
+                              <span className="text-xs text-gray-500">
+                                {new Date(game.date).toLocaleTimeString("en-US", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  hour12: false,
+                                })}
+                              </span>
+                            ) : (
+                              <div className="flex items-center gap-1">
+                                <span className="text-sm font-bold">
+                                  {game.scores?.home?.total || 0}
+                                </span>
+                                <span className="text-gray-400">-</span>
+                                <span className="text-sm font-bold">
+                                  {game.scores?.away?.total || 0}
+                                </span>
+                              </div>
+                            )}
+                            
+                            {/* Live indicator */}
+                            {(["LIVE", "1Q", "2Q", "3Q", "4Q", "HT"].includes(game.status?.short)) && (
+                              <div className="flex items-center gap-1">
+                                <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                                <span className="text-xs text-orange-600 font-medium">
+                                  {game.status?.short}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Away Team */}
+                          <div className="flex items-center gap-2 flex-1 justify-end">
+                            <span className="text-sm font-medium truncate">
+                              {game.teams.away.name}
+                            </span>
+                            <LazyImage
+                              src={game.teams.away.logo}
+                              alt={game.teams.away.name}
+                              className="w-6 h-6 object-contain"
+                              fallbackSrc="/assets/fallback-logo.png"
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
