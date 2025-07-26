@@ -19,7 +19,7 @@ class BasketballApiService {
         port: null,
         path: path,
         headers: {
-          'x-rapidapi-key': BASKETBALL_API_KEY,
+          'x-apisports-key': BASKETBALL_API_KEY,
           'x-rapidapi-host': 'v1.basketball.api-sports.io'
         }
       };
