@@ -887,27 +887,52 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         {/* Penalty sequence - Group by rounds (pairs) */}
         <div className="penalty-shootout-list px-2">
           {(() => {
-            // Group penalties into rounds (pairs) - properly alternate teams
+            // Sort penalties by time to get correct chronological order
+            const sortedPenalties = [...penaltySequence].sort((a, b) => {
+              if (a.event && b.event && 'time' in a.event && 'time' in b.event) {
+                return a.event.time.elapsed - b.event.time.elapsed;
+              }
+              return a.number - b.number;
+            });
+
+            console.log("🔍 [Penalty Order Debug] Sorted penalties:", sortedPenalties.map(p => ({
+              number: p.number,
+              player: p.event?.player?.name,
+              team: p.event?.team?.name,
+              time: p.event?.time?.elapsed,
+              detail: p.event?.detail
+            })));
+
+            // Group penalties into rounds (pairs) based on chronological order
+            // In penalty shootouts, teams alternate: first penalty is usually home team
             const rounds = [];
-            for (let i = 0; i < penaltySequence.length; i += 2) {
-              const firstPenalty = penaltySequence[i];
-              const secondPenalty = penaltySequence[i + 1];
+            for (let i = 0; i < sortedPenalties.length; i += 2) {
+              const firstPenalty = sortedPenalties[i];
+              const secondPenalty = sortedPenalties[i + 1];
               const roundNumber = Math.floor(i / 2) + 1;
               
-              // Determine which penalty belongs to which team based on team name
+              // In penalty shootouts, teams alternate starting with home team
+              // So odd-indexed penalties (1st, 3rd, 5th...) are typically home team
+              // Even-indexed penalties (2nd, 4th, 6th...) are typically away team
               let homePenalty = null;
               let awayPenalty = null;
               
+              // Check if first penalty is from home team to determine pattern
               if (firstPenalty && firstPenalty.event && 'team' in firstPenalty.event) {
-                const isFirstHome = firstPenalty.event.team.name === homeTeam;
-                if (isFirstHome) {
+                const isFirstPenaltyHome = firstPenalty.event.team.name === homeTeam;
+                
+                if (isFirstPenaltyHome) {
+                  // Standard pattern: home team goes first
                   homePenalty = firstPenalty;
                   awayPenalty = secondPenalty;
                 } else {
+                  // Away team went first in this shootout
                   awayPenalty = firstPenalty;
                   homePenalty = secondPenalty;
                 }
               }
+              
+              console.log(`🔍 [Round ${roundNumber}] Home: ${homePenalty?.event?.player?.name || 'N/A'}, Away: ${awayPenalty?.event?.player?.name || 'N/A'}`);
               
               rounds.push({
                 roundNumber,
