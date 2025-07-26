@@ -86,8 +86,21 @@ router.get('/top-scorers/:leagueId', async (req, res) => {
 
     console.log(`🏀 [BasketballStandings] Fetching top scorers for league ${leagueId}, season ${seasonStr}`);
 
-    // For now, return structured mock data that matches the expected format
-    // TODO: Replace with actual basketball API call when player statistics endpoint is available
+    try {
+      // Attempt to fetch real basketball player statistics
+      const topScorers = await basketballApiService.getTopScorers(leagueId, seasonStr);
+      
+      if (topScorers && topScorers.length > 0) {
+        console.log(`✅ [BasketballStandings] Returning ${topScorers.length} real top scorers for league ${leagueId}`);
+        return res.json(topScorers);
+      }
+    } catch (apiError) {
+      console.warn(`⚠️ [BasketballStandings] API call failed for league ${leagueId}:`, apiError);
+    }
+
+    // Fallback to mock data if API fails or returns no data
+    console.log(`🔄 [BasketballStandings] Falling back to mock data for league ${leagueId}`);
+    
     const mockTopScorers = [
       {
         player: {
@@ -176,7 +189,7 @@ router.get('/top-scorers/:leagueId', async (req, res) => {
       }))
     }));
 
-    console.log(`✅ [BasketballStandings] Returning ${leagueSpecificScorers.length} top scorers for league ${leagueId}`);
+    console.log(`✅ [BasketballStandings] Returning ${leagueSpecificScorers.length} fallback top scorers for league ${leagueId}`);
     res.json(leagueSpecificScorers);
   } catch (error) {
     console.error('Error fetching basketball top scorers:', error);
