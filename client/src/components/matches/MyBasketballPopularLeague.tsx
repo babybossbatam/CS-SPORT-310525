@@ -170,15 +170,30 @@ const MyBasketballPopularLeague = ({
     new Set(),
   );
 
-  // Basketball league IDs (these would be basketball-specific league IDs)
+  // Basketball league IDs - Popular basketball leagues worldwide
   const basketballLeagueIds = [
-    12, // NBA
+    205, // Specified league
+    290, // Specified league
+    12,  // NBA (specified + popular)
+    13,  // Specified league
+    178, // Specified league
+    376, // Specified league
+    15,  // Specified league
+    17,  // Specified league
+    274, // Specified league
     117, // EuroLeague
     120, // WNBA
     121, // NCAA Basketball
     157, // FIBA World Cup
     159, // FIBA EuroBasket
-    // Add more basketball league IDs as needed
+    116, // Turkish Basketball Super League
+    134, // Spanish Liga ACB
+    135, // Italian Lega Basket Serie A
+    136, // German Basketball Bundesliga
+    137, // French LNB Pro A
+    138, // Greek Basket League
+    139, // Russian VTB United League
+    // Add more popular basketball leagues
   ];
 
   // Fetch fixtures for basketball leagues
@@ -659,9 +674,10 @@ const MyBasketballPopularLeague = ({
       {/* Individual League Cards */}
       {leagueEntries
         .sort(([aId], [bId]) => {
-          // Define priority order for basketball leagues
+          // Define priority order for basketball leagues - specified leagues first
           const priorityOrder = [
-            12, 117, 120, 121, 157, 159, // NBA, EuroLeague, WNBA, NCAA, FIBA World Cup, EuroBasket
+            205, 290, 12, 13, 178, 376, 15, 17, 274, // User specified leagues first
+            117, 120, 121, 157, 159, 116, 134, 135, 136, 137, 138, 139, // Popular leagues
           ];
 
           const aIndex = priorityOrder.indexOf(Number(aId));
