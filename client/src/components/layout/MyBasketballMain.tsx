@@ -11,7 +11,7 @@ import LeagueStandingsFilter from "@/components/leagues/LeagueStandingsFilter";
 import PopularLeaguesList from "@/components/leagues/PopularLeaguesList";
 import PopularTeamsList from "@/components/teams/PopularTeamsList";
 import ScoreDetailsCard from "@/components/matches/ScoreDetailsCard";
-import MyRightContent from "@/components/layout/MyRightContent";
+import MyRightBasket from "@/components/layout/MyRightBasket";
 import MyMatchdetailsScoreboard from "../matches/MyMatchdetailsScoreboard";
 import MatchDetailCard from "@/components/matches/MatchDetailCard";
 import MyHighlights from "@/components/matches/MyHighlights";
@@ -230,7 +230,7 @@ const MyBasketballMain: React.FC<MyBasketballMainProps> = ({ fixtures }) => {
               />
             </>
           ) : (
-            <MyRightContent />
+            <MyRightBasket />
           )}
         </div>
       </div>
