@@ -887,7 +887,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         {/* Penalty sequence - Group by rounds (pairs) */}
         <div className="penalty-shootout-list px-2">
           {(() => {
-            // Sort penalties by time to get correct chronological order
+            // First, sort penalties by time to get correct chronological order
             const sortedPenalties = [...penaltySequence].sort((a, b) => {
               if (a.event && b.event && 'time' in a.event && 'time' in b.event) {
                 return a.event.time.elapsed - b.event.time.elapsed;
@@ -903,42 +903,77 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               detail: p.event?.detail
             })));
 
-            // Group penalties into rounds (pairs) based on chronological order
-            // In penalty shootouts, teams alternate: first penalty is usually home team
-            const rounds = [];
-            for (let i = 0; i < sortedPenalties.length; i += 2) {
-              const firstPenalty = sortedPenalties[i];
-              const secondPenalty = sortedPenalties[i + 1];
-              const roundNumber = Math.floor(i / 2) + 1;
-              
-              // In penalty shootouts, teams alternate starting with home team
-              // So odd-indexed penalties (1st, 3rd, 5th...) are typically home team
-              // Even-indexed penalties (2nd, 4th, 6th...) are typically away team
-              let homePenalty = null;
-              let awayPenalty = null;
-              
-              // Check if first penalty is from home team to determine pattern
-              if (firstPenalty && firstPenalty.event && 'team' in firstPenalty.event) {
-                const isFirstPenaltyHome = firstPenalty.event.team.name === homeTeam;
-                
-                if (isFirstPenaltyHome) {
-                  // Standard pattern: home team goes first
-                  homePenalty = firstPenalty;
-                  awayPenalty = secondPenalty;
-                } else {
-                  // Away team went first in this shootout
-                  awayPenalty = firstPenalty;
-                  homePenalty = secondPenalty;
+            // Group penalties by elapsed time first, then arrange by teams
+            const penaltiesByTime = new Map();
+            sortedPenalties.forEach(penalty => {
+              if (penalty.event && 'time' in penalty.event) {
+                const time = penalty.event.time.elapsed;
+                if (!penaltiesByTime.has(time)) {
+                  penaltiesByTime.set(time, []);
                 }
+                penaltiesByTime.get(time).push(penalty);
               }
-              
-              console.log(`🔍 [Round ${roundNumber}] Home: ${homePenalty?.event?.player?.name || 'N/A'}, Away: ${awayPenalty?.event?.player?.name || 'N/A'}`);
-              
-              rounds.push({
-                roundNumber,
-                homePenalty,
-                awayPenalty
-              });
+            });
+
+            console.log("🔍 [Penalty Time Groups]:", Array.from(penaltiesByTime.entries()).map(([time, penalties]) => ({
+              time,
+              penalties: penalties.map(p => ({ player: p.event?.player?.name, team: p.event?.team?.name }))
+            })));
+
+            // Create rounds by grouping penalties at the same time
+            const rounds = [];
+            let roundNumber = 1;
+            
+            for (const [time, penalties] of penaltiesByTime) {
+              // If there are penalties at the same time, group them in one round
+              if (penalties.length >= 2) {
+                // Find home and away penalties at this time
+                let homePenalty = null;
+                let awayPenalty = null;
+                
+                penalties.forEach(penalty => {
+                  if (penalty.event && 'team' in penalty.event) {
+                    const isHome = penalty.event.team.name === homeTeam;
+                    if (isHome && !homePenalty) {
+                      homePenalty = penalty;
+                    } else if (!isHome && !awayPenalty) {
+                      awayPenalty = penalty;
+                    }
+                  }
+                });
+
+                rounds.push({
+                  roundNumber,
+                  homePenalty,
+                  awayPenalty
+                });
+                
+                console.log(`🔍 [Time ${time}] Round ${roundNumber}: Home: ${homePenalty?.event?.player?.name || 'N/A'}, Away: ${awayPenalty?.event?.player?.name || 'N/A'}`);
+                roundNumber++;
+              } else if (penalties.length === 1) {
+                // Single penalty at this time - determine if it's home or away
+                const penalty = penalties[0];
+                let homePenalty = null;
+                let awayPenalty = null;
+                
+                if (penalty.event && 'team' in penalty.event) {
+                  const isHome = penalty.event.team.name === homeTeam;
+                  if (isHome) {
+                    homePenalty = penalty;
+                  } else {
+                    awayPenalty = penalty;
+                  }
+                }
+
+                rounds.push({
+                  roundNumber,
+                  homePenalty,
+                  awayPenalty
+                });
+                
+                console.log(`🔍 [Time ${time}] Round ${roundNumber}: Home: ${homePenalty?.event?.player?.name || 'N/A'}, Away: ${awayPenalty?.event?.player?.name || 'N/A'}`);
+                roundNumber++;
+              }
             }
 
             return rounds.reverse().map((round, index) => (
