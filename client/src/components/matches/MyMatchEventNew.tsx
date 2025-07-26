@@ -1322,12 +1322,27 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     }
                     // Render PenaltyShootoutDisplay if the event is a penalty shootout
                     if (event.type === "penalty_shootout") {
+                      // Get actual penalty scores from match data
+                      const penaltyHomeScore = matchData?.score?.penalty?.home || 4;
+                      const penaltyAwayScore = matchData?.score?.penalty?.away || 3;
+                      
                       return (
                         <div
                           key={event.id || `penalty-shootout-${index}`}
                           className="match-event-container"
                         >
-                          <PenaltyShootoutDisplay homeScore={4} awayScore={3} />
+                          {/* Penalties header - same style as period markers */}
+                          <div className="match-event-container">
+                            <div className="period-score-marker">
+                              <div className="period-score-label">
+                                Penalties
+                              </div>
+                              <div className="period-score-display">
+                                {penaltyHomeScore} - {penaltyAwayScore}
+                              </div>
+                            </div>
+                          </div>
+                          <PenaltyShootoutDisplay homeScore={penaltyHomeScore} awayScore={penaltyAwayScore} />
                         </div>
                       );
                     }
