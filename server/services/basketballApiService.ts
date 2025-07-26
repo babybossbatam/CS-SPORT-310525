@@ -1,8 +1,7 @@
 
-
 import https from 'https';
 
-const BASKETBALL_API_KEY = '81bc62b91b1190622beda24ee23fbd1a';
+const BASKETBALL_API_KEY = process.env.RAPID_API_KEY || '18df86e6b3msha3430096f8da518p1ffd93jsnc21a6cf7f527';
 
 interface BasketballApiResponse {
   success: boolean;
@@ -24,8 +23,6 @@ class BasketballApiService {
         }
       };
 
-      console.log(`🏀 [BasketballAPI] Making request to: https://v1.basketball.api-sports.io${path}`);
-
       const req = https.request(options, function (res) {
         const chunks: Buffer[] = [];
 
@@ -37,24 +34,15 @@ class BasketballApiService {
           try {
             const body = Buffer.concat(chunks);
             const responseText = body.toString();
-            
-            console.log(`🏀 [BasketballAPI] Response status: ${res.statusCode}`);
-            console.log(`🏀 [BasketballAPI] Response preview: ${responseText.substring(0, 200)}...`);
-            
             const jsonData = JSON.parse(responseText);
 
-            console.log(`✅ [BasketballAPI] Success for ${path}`, {
-              status: res.statusCode,
-              dataLength: jsonData?.response?.length || 0
-            });
-            
+            console.log(`✅ [BasketballAPI] Success for ${path}`);
             resolve({
               success: true,
               data: jsonData
             });
           } catch (error) {
             console.error(`❌ [BasketballAPI] Parse error for ${path}:`, error);
-            console.error(`Raw response: ${body.toString()}`);
             resolve({
               success: false,
               error: 'Failed to parse response'
@@ -82,15 +70,8 @@ class BasketballApiService {
     let response = await this.makeRequest(`/games?league=${leagueId}&season=2024-2025`);
     
     if (!response.success || !response.data?.response?.length) {
-      console.log(`🏀 [BasketballAPI] No fixtures for 2024-2025 season, trying 2024...`);
       // Try alternative season format (2024)
       response = await this.makeRequest(`/games?league=${leagueId}&season=2024`);
-    }
-
-    if (!response.success || !response.data?.response?.length) {
-      console.log(`🏀 [BasketballAPI] No fixtures for 2024 season, trying 2023-2024...`);
-      // Try previous season
-      response = await this.makeRequest(`/games?league=${leagueId}&season=2023-2024`);
     }
 
     if (response.success && response.data?.response) {
@@ -146,19 +127,6 @@ class BasketballApiService {
 
     console.log(`❌ [BasketballAPI] No leagues found`);
     return [];
-  }
-
-  async testConnection(): Promise<boolean> {
-    console.log(`🧪 [BasketballAPI] Testing API connection...`);
-    
-    try {
-      const response = await this.makeRequest('/status');
-      console.log(`🧪 [BasketballAPI] Connection test result:`, response);
-      return response.success;
-    } catch (error) {
-      console.error(`🧪 [BasketballAPI] Connection test failed:`, error);
-      return false;
-    }
   }
 }
 
