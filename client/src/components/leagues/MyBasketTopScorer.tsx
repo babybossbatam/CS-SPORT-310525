@@ -130,6 +130,8 @@ const MyBasketTopScorer: React.FC = () => {
       console.log(`🏀 [MyBasketTopScorer] Fetching top scorers for league ${selectedLeague}`);
 
       try {
+        console.log(`🔍 [MyBasketTopScorer] Making API request to: /api/basketball/standings/top-scorers/${selectedLeague}?season=2024`);
+        
         const response = await fetch(`/api/basketball/standings/top-scorers/${selectedLeague}?season=2024`, {
           headers: {
             'Accept': 'application/json',
@@ -138,20 +140,40 @@ const MyBasketTopScorer: React.FC = () => {
           }
         });
 
+        console.log(`🔍 [MyBasketTopScorer] Response status: ${response.status} ${response.statusText}`);
+
         if (!response.ok) {
-          console.warn(`Failed to fetch basketball top scorers for league ${selectedLeague}: ${response.status}`);
+          const errorData = await response.json().catch(() => ({}));
+          console.warn(`Failed to fetch basketball top scorers for league ${selectedLeague}:`, {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorData
+          });
           return [];
         }
 
         const data = await response.json();
-        console.log(`✅ [MyBasketTopScorer] Retrieved ${data.length} top scorers for league ${selectedLeague}`);
-
-        // Sort by points (goals.total in basketball context means points)
-        return data.sort((a: any, b: any) => {
-          const pointsA = a.statistics[0]?.goals?.total || 0;
-          const pointsB = b.statistics[0]?.goals?.total || 0;
-          return pointsB - pointsA;
+        console.log(`🔍 [MyBasketTopScorer] Raw API response:`, {
+          dataType: typeof data,
+          isArray: Array.isArray(data),
+          dataLength: data?.length,
+          dataKeys: typeof data === 'object' ? Object.keys(data) : 'not object',
+          sampleData: Array.isArray(data) ? data[0] : data
         });
+
+        if (Array.isArray(data)) {
+          console.log(`✅ [MyBasketTopScorer] Retrieved ${data.length} top scorers for league ${selectedLeague}`);
+
+          // Sort by points (goals.total in basketball context means points)
+          return data.sort((a: any, b: any) => {
+            const pointsA = a.statistics[0]?.goals?.total || 0;
+            const pointsB = b.statistics[0]?.goals?.total || 0;
+            return pointsB - pointsA;
+          });
+        } else {
+          console.warn(`⚠️ [MyBasketTopScorer] Expected array but got:`, typeof data, data);
+          return [];
+        }
       } catch (error) {
         console.error(`❌ [MyBasketTopScorer] Error fetching top scorers for league ${selectedLeague}:`, error);
         return [];

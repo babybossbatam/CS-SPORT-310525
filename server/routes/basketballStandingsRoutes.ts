@@ -86,55 +86,40 @@ router.get('/top-scorers/:leagueId', async (req, res) => {
 
     console.log(`🏀 [BasketballStandings] Fetching top scorers for league ${leagueId}, season ${seasonStr}`);
 
-    const topScorers = await basketballApiService.getTopScorers(leagueId, seasonStr);
-    
-    console.log(`✅ [BasketballStandings] Retrieved ${topScorers.length} top scorers for league ${leagueId}`);
-    res.json(topScorers);
-    
-  } catch (error) {
-    console.error(`❌ [BasketballStandings] Error fetching top scorers for league ${req.params.leagueId}:`, error);
-    res.status(500).json({ error: 'Failed to fetch basketball top scorers' });
-  }
-});
-
-// Get basketball standings by league
-router.get('/standings/:leagueId', async (req, res) => {
-  try {
-    const leagueId = parseInt(req.params.leagueId);
-    const { season } = req.query;
-
-    if (isNaN(leagueId)) {
-      return res.status(400).json({ error: 'Invalid league ID' });
-    }
-
-    const seasonStr = season as string || "2024";
-
-    console.log(`🏀 [BasketballStandings] Fetching standings for league ${leagueId}, season ${seasonStr}`);
-
-    const standings = await basketballApiService.getStandings(leagueId, seasonStr);
-    
-    console.log(`✅ [BasketballStandings] Retrieved standings for league ${leagueId}`);
-    res.json(standings);
-    
-  } catch (error) {
-    console.error(`❌ [BasketballStandings] Error fetching standings for league ${req.params.leagueId}:`, error);
-    res.status(500).json({ error: 'Failed to fetch basketball standings' });
-  }`);
-
     try {
-      // Fetch real basketball player statistics using proper basketball API
+      // First, let's test a simple API call to see what we get
+      console.log(`🔍 [API TEST] Testing direct API call to basketball leagues endpoint...`);
+
+      // Test leagues endpoint first
+      const leaguesData = await basketballApiService.getLeagues();
+      console.log(`📊 [API TEST] Leagues response:`, JSON.stringify(leaguesData.slice(0, 3), null, 2));
+
+      // Test games endpoint for this league
+      console.log(`🔍 [API TEST] Testing games endpoint for league ${leagueId}...`);
+      const gamesData = await basketballApiService.getGamesByLeague(leagueId, seasonStr);
+      console.log(`📊 [API TEST] Games response for league ${leagueId}:`, JSON.stringify(gamesData.slice(0, 2), null, 2));
+
+      // Now try to get top scorers
       const topScorers = await basketballApiService.getTopScorers(leagueId, seasonStr);
-      
+      console.log(`📊 [API TEST] Top scorers response for league ${leagueId}:`, JSON.stringify(topScorers, null, 2));
+
       if (topScorers && topScorers.length > 0) {
         console.log(`✅ [BasketballStandings] Returning ${topScorers.length} real top scorers for league ${leagueId}`);
         return res.json(topScorers);
       } else {
         console.warn(`⚠️ [BasketballStandings] No top scorers data available for league ${leagueId}`);
+
+        // Return detailed debug info
         return res.status(404).json({ 
           error: 'No top scorers data available',
-          message: `No player statistics found for league ${leagueId} in season ${seasonStr}. This may be because the season hasn't started or the league doesn't have player statistics available.`,
-          leagueId,
-          season: seasonStr
+          message: `No player statistics found for league ${leagueId} in season ${seasonStr}`,
+          debug: {
+            leagueId,
+            season: seasonStr,
+            leaguesFound: leaguesData.length,
+            gamesFound: gamesData.length,
+            sampleGame: gamesData[0] || null
+          }
         });
       }
     } catch (apiError) {
@@ -142,8 +127,11 @@ router.get('/standings/:leagueId', async (req, res) => {
       return res.status(500).json({ 
         error: 'Failed to fetch basketball top scorers',
         message: `Basketball API error for league ${leagueId}: ${apiError instanceof Error ? apiError.message : 'Unknown error'}`,
-        leagueId,
-        season: seasonStr
+        debug: {
+          leagueId,
+          season: seasonStr,
+          errorDetails: apiError instanceof Error ? apiError.stack : 'Unknown error stack'
+        }
       });
     }
   } catch (error) {
