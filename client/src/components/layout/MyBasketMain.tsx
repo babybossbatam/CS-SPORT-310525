@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, uiActions } from '@/lib/store';
-import MyBasketmainLeft from '@/components/matches/MyBasketmainLeft';
+import TodayMatchPageCard from '@/components/matches/TodayMatchPageCard';
 import MyRightContent from '@/components/layout/MyRightContent';
 import MyRightDetails from '@/components/layout/MyMainLayoutRight';
 
@@ -47,22 +47,11 @@ const MyBasketMain: React.FC<MyBasketMainProps> = ({ fixtures, loading = false, 
     return true;
   });
 
-  const handleMatchClick = (matchId: number) => {
-    console.log('🏀 [MyBasketMain] Basketball match clicked:', matchId);
-    // Find the fixture by ID and set it as selected
-    const fixture = filteredFixtures.find(f => f.fixture?.id === matchId);
-    if (fixture) {
-      setSelectedFixture(fixture);
-    }
+  const handleMatchClick = (fixture: any) => {
+    setSelectedFixture(fixture);
   };
 
   const handleMatchCardClick = (fixture: any) => {
-    console.log('🏀 [MyBasketMain] Basketball match card clicked:', {
-      fixtureId: fixture.fixture?.id,
-      teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-      league: fixture.league?.name,
-      source: 'MyBasketMain'
-    });
     setSelectedFixture(fixture);
   };
 
@@ -78,14 +67,14 @@ const MyBasketMain: React.FC<MyBasketMainProps> = ({ fixtures, loading = false, 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Left column (5 columns) */}
         <div className="lg:col-span-5 space-y-4">
-          {/* Render children if provided, otherwise show MyBasketmainLeft */}
+          {/* Render children if provided, otherwise show TodayMatchPageCard */}
           {children ? (
             <div>
               {children}
             </div>
           ) : (
             <div>
-              <MyBasketmainLeft
+              <TodayMatchPageCard
                 fixtures={filteredFixtures}
                 onMatchClick={handleMatchClick}
                 onMatchCardClick={handleMatchCardClick}
