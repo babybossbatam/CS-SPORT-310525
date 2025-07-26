@@ -19,7 +19,7 @@ class BasketballApiService {
         port: null,
         path: path,
         headers: {
-          'x-rapidapi-key': BASKETBALL_API_KEY,
+          'x-apisports-key': BASKETBALL_API_KEY,
           'x-rapidapi-host': 'v1.basketball.api-sports.io'
         }
       };
@@ -39,13 +39,14 @@ class BasketballApiService {
             const responseText = body.toString();
             
             console.log(`🏀 [BasketballAPI] Response status: ${res.statusCode}`);
-            console.log(`🏀 [BasketballAPI] Response preview: ${responseText.substring(0, 200)}...`);
+            console.log(`🏀 [BasketballAPI] Raw response:`, responseText);
             
             const jsonData = JSON.parse(responseText);
 
             console.log(`✅ [BasketballAPI] Success for ${path}`, {
               status: res.statusCode,
-              dataLength: jsonData?.response?.length || 0
+              dataLength: jsonData?.response?.length || 0,
+              fullResponse: jsonData
             });
             
             resolve({
@@ -152,9 +153,16 @@ class BasketballApiService {
     console.log(`🧪 [BasketballAPI] Testing API connection...`);
     
     try {
-      const response = await this.makeRequest('/status');
+      // Test with a simple leagues endpoint first
+      const response = await this.makeRequest('/leagues');
       console.log(`🧪 [BasketballAPI] Connection test result:`, response);
-      return response.success;
+      
+      if (response.success && response.data) {
+        console.log(`🧪 [BasketballAPI] API working! Sample leagues:`, response.data.response?.slice(0, 3));
+        return true;
+      }
+      
+      return false;
     } catch (error) {
       console.error(`🧪 [BasketballAPI] Connection test failed:`, error);
       return false;

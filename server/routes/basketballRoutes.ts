@@ -115,4 +115,58 @@ router.get('/test', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/basketball/debug/leagues
+ * Debug route to check what leagues are available
+ */
+router.get('/debug/leagues', async (req, res) => {
+  try {
+    console.log(`🔍 [BasketballRoutes] Debug: Fetching all leagues`);
+    
+    const leagues = await basketballApiService.getAllLeagues();
+    
+    res.json({ 
+      success: true,
+      count: leagues.length,
+      leagues: leagues.slice(0, 20), // First 20 leagues
+      apiKey: '81bc62b91b1190622beda24ee23fbd1a'.substring(0, 8) + '...',
+      endpoint: 'v1.basketball.api-sports.io'
+    });
+  } catch (error) {
+    console.error('Error in debug leagues:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+/**
+ * GET /api/basketball/debug/games
+ * Debug route to check games for a specific date
+ */
+router.get('/debug/games', async (req, res) => {
+  try {
+    const { date = '2025-01-26' } = req.query;
+    console.log(`🔍 [BasketballRoutes] Debug: Fetching games for date ${date}`);
+    
+    const games = await basketballApiService.getFixturesByDate(date as string);
+    
+    res.json({ 
+      success: true,
+      date: date,
+      count: games.length,
+      games: games.slice(0, 10), // First 10 games
+      apiKey: '81bc62b91b1190622beda24ee23fbd1a'.substring(0, 8) + '...',
+      endpoint: 'v1.basketball.api-sports.io'
+    });
+  } catch (error) {
+    console.error('Error in debug games:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
 export default router;
