@@ -7,6 +7,7 @@ import { Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { apiRequest } from "@/lib/utils";
 import TodayMatchPageCard from "@/components/matches/TodayMatchPageCard";
+import MyBasketballPopularLeague from './MyBasketballPopularLeague';
 
 interface MyBasketmainLeftProps {
   fixtures?: any[];
@@ -104,6 +105,24 @@ const MyBasketmainLeft: React.FC<MyBasketmainLeftProps> = ({
     refetchOnReconnect: true,
     refetchInterval: 30000,
   });
+
+    // Fetch basketball fixtures
+    const { data: basketballFixtures = [], isLoading: isLoadingBasketball } = useQuery({
+      queryKey: ["basketball-fixtures", selectedDate],
+      queryFn: async () => {
+        console.log(`🏀 [MyBasketmainLeft] Fetching basketball fixtures for date: ${selectedDate}`);
+        const response = await apiRequest(
+          "GET",
+          `/api/basketball/fixtures?date=${selectedDate}`
+        );
+        const data = await response.json();
+        console.log(`🏀 [MyBasketmainLeft] Received ${data.length} basketball fixtures`);
+        return data;
+      },
+      staleTime: 30000,
+      gcTime: 5 * 60 * 1000,
+      refetchOnWindowFocus: false,
+    });
 
   const handleMatchClick = (matchId: number) => {
     console.log('🏀 [MyBasketmainLeft] Basketball match clicked:', matchId);

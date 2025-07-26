@@ -1,4 +1,3 @@
-
 import React, {
   useState,
   useEffect,
@@ -103,15 +102,22 @@ interface FixtureData {
 
 interface MyBasketballPopularLeagueProps {
   selectedDate: string;
-  onMatchCardClick?: (fixture: any) => void; // Callback to pass match data to parent
+  onMatchCardClick?: (fixture: any) => void;
+  fixtures?: any[];
+  isLoading?: boolean;
   match?: any; // Current match data (used for sample display)
 }
 
 const MyBasketballPopularLeague = ({
   selectedDate,
   onMatchCardClick,
+  fixtures: propFixtures,
+  isLoading: propIsLoading,
   match,
 }: MyBasketballPopularLeagueProps) => {
+  // Use fixtures from props if provided, otherwise fetch them
+  const shouldFetch = !propFixtures;
+
   // Sample basketball match data for demonstration
   const sampleMatch = {
     fixture: {
@@ -196,10 +202,10 @@ const MyBasketballPopularLeague = ({
     // Add more popular basketball leagues
   ];
 
-  // Fetch fixtures for basketball leagues
+  // Fetch fixtures for basketball leagues only if not provided via props
   const {
-    data: allFixtures,
-    isLoading,
+    data: fetchedFixtures,
+    isLoading: fetchIsLoading,
     error,
   } = useQuery({
     queryKey: ["basketballPopularLeague", "allFixtures", selectedDate],
@@ -234,7 +240,7 @@ const MyBasketballPopularLeague = ({
       });
 
       const results = await Promise.all(promises);
-      
+
       // Deduplicate at the fetch level
       const allFixturesMap = new Map<number, FixtureData>();
       results.forEach((result) => {
@@ -244,7 +250,7 @@ const MyBasketballPopularLeague = ({
           }
         });
       });
-      
+
       const allFixtures = Array.from(allFixturesMap.values());
 
       // Log detailed results
@@ -266,7 +272,12 @@ const MyBasketballPopularLeague = ({
     refetchInterval: 30 * 1000,
     refetchOnWindowFocus: false,
     retry: 1,
+    enabled: shouldFetch,
   });
+
+  // Use either prop fixtures or fetched fixtures
+  const allFixtures = propFixtures || fetchedFixtures;
+  const isLoading = propIsLoading !== undefined ? propIsLoading : fetchIsLoading;
 
   // Group fixtures by league with date filtering
   const fixturesByLeague = useMemo(() => {
@@ -324,7 +335,7 @@ const MyBasketballPopularLeague = ({
 
       // Create unique matchup key (team IDs + league + date)
       const matchupKey = `${fixture.teams.home.id}-${fixture.teams.away.id}-${fixture.league.id}-${fixture.fixture.date}`;
-      
+
       // Check for duplicate team matchups
       if (seenMatchups.has(matchupKey)) {
         console.log(
@@ -361,7 +372,7 @@ const MyBasketballPopularLeague = ({
       seenFixtures.add(fixture.fixture.id);
       seenMatchups.add(matchupKey);
       grouped[leagueId].fixtures.push(fixture);
-      
+
       console.log(
         `✅ [MyBasketballPopularLeague] Added fixture:`,
         {
@@ -953,6 +964,7 @@ const MyBasketballPopularLeague = ({
                                     displayText = "Q1";
                                   } else if (status === "Q2") {
                                     displayText = "Q2";
+                                    displayText = "Q2";
                                   } else if (status === "Q3") {
                                     displayText = "Q3";
                                   } else if (status === "Q4") {
@@ -1345,7 +1357,7 @@ const MyBasketballPopularLeague = ({
                               {(() => {
                                 const isOvertimeMatch =
                                   fixture.fixture.status.short === "AOT";
-                                
+
                                 if (isOvertimeMatch) {
                                   const winnerText =
                                     fixture.goals.home > fixture.goals.away
