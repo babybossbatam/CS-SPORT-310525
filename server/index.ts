@@ -45,7 +45,23 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-
+// Add CSP headers configuration
+app.use((req, res, next) => {
+  // Set CSP headers to allow necessary scripts while maintaining security
+  res.setHeader(
+    'Content-Security-Policy-Report-Only',
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://replit.com https://*.replit.com https://*.replit.dev; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "font-src 'self' https://fonts.gstatic.com; " +
+    "img-src 'self' data: https: http:; " +
+    "connect-src 'self' https: wss: ws:; " +
+    "worker-src 'self' blob: https://replit.com; " +
+    "object-src 'none'; " +
+    "base-uri 'self';"
+  );
+  next();
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
