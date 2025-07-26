@@ -92,26 +92,39 @@ router.get('/test', async (req, res) => {
     console.log(`🧪 [BasketballRoutes] Testing basketball API connection`);
 
     const isWorking = await basketballApiService.testConnection();
-    
-    if (isWorking) {
-      res.json({ 
-        success: true, 
-        message: 'Basketball API connection successful',
-        endpoint: 'v1.basketball.api-sports.io'
-      });
-    } else {
-      res.status(500).json({ 
-        success: false, 
-        message: 'Basketball API connection failed',
-        endpoint: 'v1.basketball.api-sports.io'
-      });
-    }
+
+    res.json({
+      status: isWorking ? 'success' : 'failed',
+      message: isWorking ? 'Basketball API is working' : 'Basketball API failed',
+      timestamp: new Date().toISOString()
+    });
   } catch (error) {
     console.error('Error testing basketball API:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Failed to test basketball API connection' 
+    res.status(500).json({ error: 'Failed to test basketball API' });
+  }
+});
+
+/**
+ * GET /api/basketball/debug/date/:date
+ * Debug basketball fixtures for a specific date
+ */
+router.get('/debug/date/:date', async (req, res) => {
+  try {
+    const { date } = req.params;
+    console.log(`🔍 [BasketballRoutes] DEBUG: Fetching fixtures for date: ${date}`);
+
+    const fixtures = await basketballApiService.getFixturesByDate(date);
+
+    res.json({
+      date,
+      fixturesCount: fixtures.length,
+      fixtures: fixtures.slice(0, 5), // Show first 5 fixtures
+      sampleFixture: fixtures[0] || null,
+      timestamp: new Date().toISOString()
     });
+  } catch (error) {
+    console.error('Error fetching basketball fixtures for debug:', error);
+    res.status(500).json({ error: 'Failed to fetch basketball fixtures for debug' });
   }
 });
 
@@ -122,9 +135,9 @@ router.get('/test', async (req, res) => {
 router.get('/debug/leagues', async (req, res) => {
   try {
     console.log(`🔍 [BasketballRoutes] Debug: Fetching all leagues`);
-    
+
     const leagues = await basketballApiService.getAllLeagues();
-    
+
     res.json({ 
       success: true,
       count: leagues.length,
@@ -149,9 +162,9 @@ router.get('/debug/games', async (req, res) => {
   try {
     const { date = '2025-01-26' } = req.query;
     console.log(`🔍 [BasketballRoutes] Debug: Fetching games for date ${date}`);
-    
+
     const games = await basketballApiService.getFixturesByDate(date as string);
-    
+
     res.json({ 
       success: true,
       date: date,
@@ -177,7 +190,7 @@ router.get('/debug/raw/:leagueId', async (req, res) => {
   try {
     const leagueId = parseInt(req.params.leagueId);
     console.log(`🔍 [BasketballRoutes] Debug: Raw API test for league ${leagueId}`);
-    
+
     // Test multiple endpoints
     const testEndpoints = [
       `/games?league=${leagueId}`,
@@ -186,7 +199,7 @@ router.get('/debug/raw/:leagueId', async (req, res) => {
       `/games?date=2025-01-26`,
       `/leagues/${leagueId}`
     ];
-    
+
     const results = [];
     for (const endpoint of testEndpoints) {
       try {
@@ -205,7 +218,7 @@ router.get('/debug/raw/:leagueId', async (req, res) => {
         });
       }
     }
-    
+
     res.json({ 
       leagueId,
       testResults: results,

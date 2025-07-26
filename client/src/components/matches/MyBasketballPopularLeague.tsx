@@ -155,6 +155,10 @@ const MyBasketballPopularLeague = ({
     },
   };
 
+  // Sample match data array
+  const sampleMatches = [sampleMatch];
+
+
   // Use passed match data or fallback to sample
   const displayMatch = match || sampleMatch;
 
@@ -274,8 +278,15 @@ const MyBasketballPopularLeague = ({
     enabled: shouldFetch,
   });
 
-  // Use either prop fixtures or fetched fixtures
-  const allFixtures = propFixtures || fetchedFixtures;
+  // Determine which fixtures to use - add sample data if no real data available
+  let allFixtures = propFixtures || fetchedFixtures || [];
+
+  // If no real fixtures available, use sample data for testing
+  if (!allFixtures?.length) {
+    console.log(`🔧 [MyBasketballPopularLeague] No real fixtures found, using sample data for date: ${selectedDate}`);
+    allFixtures = sampleMatches;
+  }
+
   const isLoading = propIsLoading !== undefined ? propIsLoading : fetchIsLoading;
 
   // Fetch available basketball leagues for debugging
@@ -321,90 +332,66 @@ const MyBasketballPopularLeague = ({
       return {};
     }
 
-    const grouped: { [key: number]: { league: any; fixtures: FixtureData[] } } =
-      {};
-    const seenFixtures = new Set<number>(); // Track seen fixture IDs to prevent duplicates
-    const seenMatchups = new Set<string>(); // Track unique team matchups as well
-
-    allFixtures.forEach((fixture: FixtureData, index) => {
-      // Validate fixture structure
-      if (
-        !fixture ||
-        !fixture.league ||
-        !fixture.teams ||
-        !fixture.fixture?.date ||
-        !fixture.fixture?.id
-      ) {
-        console.warn(
-          `⚠️ [MyBasketballPopularLeague] Invalid fixture at index ${index}:`,
-          fixture,
-        );
-        return;
+    // Filter fixtures by selected date and apply smart time filtering
+    const dateFilteredFixtures = allFixtures.filter((fixture) => {
+      if (!fixture?.fixture?.date) {
+        console.log(`⚠️ [MyBasketballPopularLeague] Fixture missing date:`, fixture?.fixture?.id);
+        return false;
       }
 
-      // Check for duplicate fixture IDs
-      if (seenFixtures.has(fixture.fixture.id)) {
-        console.log(
-          `🔄 [MyBasketballPopularLeague] Duplicate fixture ID detected and skipped:`,
-          {
-            fixtureId: fixture.fixture.id,
-            teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-            league: fixture.league.name,
-          },
-        );
-        return;
-      }
+      // Extract date part (YYYY-MM-DD) from fixture date
+      const fixtureDate = fixture.fixture.date.split("T")[0];
+      const matchesDate = fixtureDate === selectedDate;
 
-      // Create unique matchup key (team IDs + league + date)
-      const matchupKey = `${fixture.teams.home.id}-${fixture.teams.away.id}-${fixture.league.id}-${fixture.fixture.date}`;
+      console.log(`📅 [MyBasketballPopularLeague] Date check:`, {
+        fixtureId: fixture.fixture.id,
+        fixtureDate,
+        selectedDate,
+        matchesDate,
+        teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+      });
 
-      // Check for duplicate team matchups
-      if (seenMatchups.has(matchupKey)) {
-        console.log(
-          `🔄 [MyBasketballPopularLeague] Duplicate matchup detected and skipped:`,
-          {
-            fixtureId: fixture.fixture.id,
-            teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-            league: fixture.league.name,
-            matchupKey,
-          },
-        );
-        return;
-      }
+      if (!matchesDate) return false;
 
-      // Apply date filtering - extract date from fixture and compare with selected date
-      const fixtureDate = new Date(fixture.fixture.date);
-      const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
-
-      // Only include fixtures that match the selected date
-      if (fixtureDateString !== selectedDate) {
-        return;
-      }
-
-      const leagueId = fixture.league.id;
-
-      if (!grouped[leagueId]) {
-        grouped[leagueId] = {
-          league: fixture.league,
-          fixtures: [],
-        };
-      }
-
-      // Mark this fixture as seen and add it to the group
-      seenFixtures.add(fixture.fixture.id);
-      seenMatchups.add(matchupKey);
-      grouped[leagueId].fixtures.push(fixture);
-
-      console.log(
-        `✅ [MyBasketballPopularLeague] Added fixture:`,
-        {
-          fixtureId: fixture.fixture.id,
-          teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-          league: fixture.league.name,
-          matchupKey,
-        },
-      );
+      // For basketball, we want to show all matches for the selected date
+      // Skip smart time filtering for now to see all data
+      return true;
     });
+
+
+    console.log(
+      `📊 [MyBasketballPopularLeague] Grouping ${dateFilteredFixtures.length} fixtures by league for ${selectedDate}`,
+      {
+        dateFilteredFixtures: dateFilteredFixtures.map(f => ({
+          id: f.fixture?.id,
+          league: f.league?.name,
+          leagueId: f.league?.id,
+          date: f.fixture?.date,
+          teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
+        }))
+      }
+    );
+
+    const grouped = dateFilteredFixtures.reduce(
+      (acc: { [key: number]: any[] }, fixture) => {
+        const leagueId = fixture.league?.id;
+        if (!leagueId) {
+          console.log(`⚠️ [MyBasketballPopularLeague] Fixture missing league ID:`, fixture);
+          return acc;
+        }
+
+        if (!acc[leagueId]) {
+          acc[leagueId] = [];
+          console.log(`🆕 [MyBasketballPopularLeague] Created new league group:`, {
+            leagueId,
+            leagueName: fixture.league?.name,
+          });
+        }
+        acc[leagueId].push(fixture);
+        return acc;
+      },
+      {},
+    );
 
     // Sort fixtures by priority within each league: Live > Upcoming > Ended
     Object.values(grouped).forEach((group) => {
@@ -954,7 +941,7 @@ const MyBasketballPopularLeague = ({
                                     "WO",
                                     "ABD",
                                     "CANC",
-                                    "SUSP",
+                                    "SUSP",```python
                                   ].includes(status) &&
                                     hoursOld > 4) ||
                                   (hoursOld > 4 &&
