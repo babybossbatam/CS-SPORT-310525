@@ -389,16 +389,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                 // Handle penalty shootout event numbering
                 let displayTime = event.time.elapsed;
-                if (event.time.elapsed > 110) {
-                  // This is a penalty shootout event, show sequential numbering
-                  const penaltyIndex = penaltyShootoutEvents.findIndex(p => 
-                    p.time.elapsed === event.time.elapsed && 
-                    p.player?.name === event.player?.name
-                  );
-                  if (penaltyIndex !== -1) {
-                    displayTime = penaltyIndex + 1;
-                  }
-                }
 
                 // Handle period score markers - removed display
                 if (event.type === "period_score") {
@@ -873,7 +863,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             marginBottom: "2px",
                           }}
                         >
-                          {event.time.elapsed > 110 ? displayTime : `${displayTime}'`}
+                          {event.time.elapsed}'
                         </div>
 
                         {index < allCommentaryItems.length - 1 && (
