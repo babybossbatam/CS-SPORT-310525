@@ -6,7 +6,6 @@ import { storage } from "./storage";
 import { rapidApiService } from "./services/rapidApi";
 
 import soccersApi from "./services/soccersApi";
-import { supabaseService } from "./services/supabase";
 import {
   insertUserSchema,
   insertUserPreferencesSchema,
@@ -820,8 +819,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
             country: {
               name: "Germany",
-```tool_code
-              code: "DE",
+              code:```tool_code
+"DE",
               flag: "https://media.api-sports.io/flags/de.svg",
             },
           },
@@ -1714,7 +1713,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           `Error fetching 365scores league logo for ${req.params.leagueId}:`,
           error,
         );
-        res.status(500).json({ error: "Failed to fetch league logo" });
+        res.status(50).json({ error: "Failed to fetch league logo" });
       }
     },
   );
