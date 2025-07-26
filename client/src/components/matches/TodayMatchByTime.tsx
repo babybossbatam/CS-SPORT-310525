@@ -307,20 +307,17 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
                       {/* Match content container */}
                       <div className="match-three-grid-container">
-                        {/* Top Grid: Match Status and League Info */}
+                        {/* Top Grid: Match Status */}
                         <div
                           className="match-status-top"
                           style={{
                             minHeight: "20px",
                             display: "flex",
-                            justifyContent: "space-between",
+                            justifyContent: "center",
                             alignItems: "center",
                             padding: "0 0.5rem",
                           }}
                         >
-                          <div className="text-xs text-gray-500 truncate" style={{ maxWidth: "50%" }}>
-                            {fixture.league.name}
-                          </div>
                           <div>
                             {(() => {
                               const status = fixture.fixture.status.short;
@@ -360,20 +357,9 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                                 );
                               }
 
-                              // Upcoming matches - show time
+                              // Upcoming matches - don't show time here anymore
                               if (status === "NS" || status === "TBD") {
-                                const matchTime = new Date(fixture.fixture.date);
-                                const localTime = matchTime.toLocaleTimeString("en-US", {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                  hour12: false,
-                                });
-
-                                return (
-                                  <div className="match-status-label status-upcoming" style={{ fontSize: "0.75rem" }}>
-                                    {status === "TBD" ? "TBD" : localTime}
-                                  </div>
-                                );
+                                return null;
                               }
 
                               return null;
