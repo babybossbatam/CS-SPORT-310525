@@ -870,38 +870,83 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           <span className="text-lg font-bold text-gray-800">{homeScore} - {awayScore}</span>
         </div>
 
-        {/* Penalty sequence */}
+        {/* Penalty sequence - Group by rounds (pairs) */}
         <div className="penalty-shootout-list">
-          {penaltySequence.map((penalty, index) => {
-            const isHome = penalty.event ? isHomeTeam(penalty.event) : false;
-            const isAway = penalty.event ? !isHomeTeam(penalty.event) : false;
-            const detail = penalty.event?.detail?.toLowerCase() || "";
-            const wasScored = !detail.includes("missed");
+          {(() => {
+            // Group penalties into rounds (pairs)
+            const rounds = [];
+            for (let i = 0; i < penaltySequence.length; i += 2) {
+              const homePenalty = penaltySequence.find(p => p.number === i + 1);
+              const awayPenalty = penaltySequence.find(p => p.number === i + 2);
+              const roundNumber = Math.floor(i / 2) + 1;
+              
+              rounds.push({
+                roundNumber,
+                homePenalty,
+                awayPenalty
+              });
+            }
 
-            return (
-              <div key={penalty.number} className="penalty-shootout-row">
+            return rounds.map((round, index) => (
+              <div key={round.roundNumber} className="penalty-shootout-row">
                 {/* Home team penalty info (left side) */}
                 <div className="penalty-home-side">
-                  {penalty.event && isHome && (
+                  {round.homePenalty?.event && isHomeTeam(round.homePenalty.event) && (
                     <>
                       <div className="penalty-home-player-info">
                         <div className="penalty-player-avatar">
                           <MyAvatarInfo
-                            playerId={penalty.event.player?.id}
-                            playerName={penalty.event.player?.name}
+                            playerId={round.homePenalty.event.player?.id}
+                            playerName={round.homePenalty.event.player?.name}
                             matchId={fixtureId}
-                            teamId={penalty.event.team?.id}
+                            teamId={round.homePenalty.event.team?.id}
                             size="sm"
                             className="shadow-sm border-gray-300"
                           />
                         </div>
                         <span className="penalty-player-name">
-                          {penalty.event.player?.name}
+                          {round.homePenalty.event.player?.name}
                         </span>
                       </div>
                       <div className="penalty-home-icon">
                         <div className="penalty-result-icon">
-                          {wasScored ? (
+                          {!round.homePenalty.event.detail?.toLowerCase().includes("missed") ? (
+                            <img
+                              src="/assets/matchdetaillogo/penalty.svg"
+                              alt="Penalty Scored"
+                              className="w-5 h-5"
+                            />
+                          ) : (
+                            <img
+                              src="/assets/matchdetaillogo/missed-penalty.svg"
+                              alt="Penalty Missed"
+                              className="w-5 h-5"
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  {round.awayPenalty?.event && isHomeTeam(round.awayPenalty.event) && (
+                    <>
+                      <div className="penalty-home-player-info">
+                        <div className="penalty-player-avatar">
+                          <MyAvatarInfo
+                            playerId={round.awayPenalty.event.player?.id}
+                            playerName={round.awayPenalty.event.player?.name}
+                            matchId={fixtureId}
+                            teamId={round.awayPenalty.event.team?.id}
+                            size="sm"
+                            className="shadow-sm border-gray-300"
+                          />
+                        </div>
+                        <span className="penalty-player-name">
+                          {round.awayPenalty.event.player?.name}
+                        </span>
+                      </div>
+                      <div className="penalty-home-icon">
+                        <div className="penalty-result-icon">
+                          {!round.awayPenalty.event.detail?.toLowerCase().includes("missed") ? (
                             <img
                               src="/assets/matchdetaillogo/penalty.svg"
                               alt="Penalty Scored"
@@ -920,20 +965,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   )}
                 </div>
 
-                {/* Center - Penalty number */}
+                {/* Center - Round number */}
                 <div className="penalty-center">
                   <div className="match-event-module-stages-time-yellow-circle-penalty">
-                    {penalty.number}P
+                    {round.roundNumber}P
                   </div>
                 </div>
 
                 {/* Away team penalty info (right side) */}
                 <div className="penalty-away-side">
-                  {penalty.event && isAway && (
+                  {round.awayPenalty?.event && !isHomeTeam(round.awayPenalty.event) && (
                     <>
                       <div className="penalty-away-icon">
                         <div className="penalty-result-icon">
-                          {wasScored ? (
+                          {!round.awayPenalty.event.detail?.toLowerCase().includes("missed") ? (
                             <img
                               src="/assets/matchdetaillogo/penalty.svg"
                               alt="Penalty Scored"
@@ -950,14 +995,50 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       </div>
                       <div className="penalty-away-player-info">
                         <span className="penalty-player-name">
-                          {penalty.event.player?.name}
+                          {round.awayPenalty.event.player?.name}
                         </span>
                         <div className="penalty-player-avatar">
                           <MyAvatarInfo
-                            playerId={penalty.event.player?.id}
-                            playerName={penalty.event.player?.name}
+                            playerId={round.awayPenalty.event.player?.id}
+                            playerName={round.awayPenalty.event.player?.name}
                             matchId={fixtureId}
-                            teamId={penalty.event.team?.id}
+                            teamId={round.awayPenalty.event.team?.id}
+                            size="sm"
+                            className="shadow-sm border-gray-300"
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  {round.homePenalty?.event && !isHomeTeam(round.homePenalty.event) && (
+                    <>
+                      <div className="penalty-away-icon">
+                        <div className="penalty-result-icon">
+                          {!round.homePenalty.event.detail?.toLowerCase().includes("missed") ? (
+                            <img
+                              src="/assets/matchdetaillogo/penalty.svg"
+                              alt="Penalty Scored"
+                              className="w-5 h-5"
+                            />
+                          ) : (
+                            <img
+                              src="/assets/matchdetaillogo/missed-penalty.svg"
+                              alt="Penalty Missed"
+                              className="w-5 h-5"
+                            />
+                          )}
+                        </div>
+                      </div>
+                      <div className="penalty-away-player-info">
+                        <span className="penalty-player-name">
+                          {round.homePenalty.event.player?.name}
+                        </span>
+                        <div className="penalty-player-avatar">
+                          <MyAvatarInfo
+                            playerId={round.homePenalty.event.player?.id}
+                            playerName={round.homePenalty.event.player?.name}
+                            matchId={fixtureId}
+                            teamId={round.homePenalty.event.team?.id}
                             size="sm"
                             className="shadow-sm border-gray-300"
                           />
@@ -967,8 +1048,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   )}
                 </div>
               </div>
-            );
-          })}
+            ));
+          })()}
         </div>
       </div>
     );
