@@ -1326,9 +1326,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           className="match-event-container"
                         >
                           {/* Penalties header - same style as period markers */}
-                          <div className="match-event-container">
+                          <div className="match-event-container ">
                             <div className="period-score-marker">
-                              <div className="period-score-label">
+                              <div className="period-score-label ">
                                 Penalties
                               </div>
                               <div className="period-score-display">
