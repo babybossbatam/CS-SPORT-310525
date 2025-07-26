@@ -1,4 +1,3 @@
-
 import express from 'express';
 import https from 'https';
 
@@ -121,7 +120,7 @@ const basketballApiService = new BasketballApiService();
 router.get('/leagues/:leagueId/fixtures', async (req, res) => {
   try {
     const leagueId = parseInt(req.params.leagueId);
-    
+
     if (!leagueId || isNaN(leagueId)) {
       return res.status(400).json({ error: 'Valid league ID is required' });
     }
@@ -129,7 +128,7 @@ router.get('/leagues/:leagueId/fixtures', async (req, res) => {
     console.log(`🏀 [BasketballRoutes] Fetching fixtures for league ${leagueId}`);
 
     const fixtures = await basketballApiService.getLeagueFixtures(leagueId);
-    
+
     res.json(fixtures);
   } catch (error) {
     console.error('Error fetching basketball league fixtures:', error);
@@ -146,7 +145,7 @@ router.get('/live', async (req, res) => {
     console.log(`🔴 [BasketballRoutes] Fetching live basketball fixtures`);
 
     const fixtures = await basketballApiService.getLiveFixtures();
-    
+
     res.json(fixtures);
   } catch (error) {
     console.error('Error fetching live basketball fixtures:', error);
@@ -161,7 +160,7 @@ router.get('/live', async (req, res) => {
 router.get('/fixtures', async (req, res) => {
   try {
     const { date } = req.query;
-    
+
     if (!date || typeof date !== 'string') {
       return res.status(400).json({ error: 'Date parameter is required' });
     }
@@ -169,7 +168,7 @@ router.get('/fixtures', async (req, res) => {
     console.log(`🗓️ [BasketballRoutes] Fetching fixtures for date: ${date}`);
 
     const fixtures = await basketballApiService.getFixturesByDate(date);
-    
+
     res.json(fixtures);
   } catch (error) {
     console.error('Error fetching basketball fixtures by date:', error);
