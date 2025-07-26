@@ -83,4 +83,36 @@ router.get('/leagues', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/basketball/test
+ * Test basketball API connection
+ */
+router.get('/test', async (req, res) => {
+  try {
+    console.log(`🧪 [BasketballRoutes] Testing basketball API connection`);
+
+    const isWorking = await basketballApiService.testConnection();
+    
+    if (isWorking) {
+      res.json({ 
+        success: true, 
+        message: 'Basketball API connection successful',
+        endpoint: 'v1.basketball.api-sports.io'
+      });
+    } else {
+      res.status(500).json({ 
+        success: false, 
+        message: 'Basketball API connection failed',
+        endpoint: 'v1.basketball.api-sports.io'
+      });
+    }
+  } catch (error) {
+    console.error('Error testing basketball API:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to test basketball API connection' 
+    });
+  }
+});
+
 export default router;
