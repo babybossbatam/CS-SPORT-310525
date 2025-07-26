@@ -3,7 +3,7 @@ import React, { useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
-import TodayMatchPageCard from "@/components/matches/TodayMatchPageCard";
+import MyLeftBasket from "@/components/matches/MyLeftBasket";
 import TodaysMatchesByCountryNew from "@/components/matches/TodaysMatchesByCountryNew";
 import MyHomeFeaturedMatchNew from "@/components/matches/MyHomeFeaturedMatchNew";
 import HomeTopScorersList from "@/components/leagues/HomeTopScorersList";
@@ -203,9 +203,9 @@ const MyBasketballMain: React.FC<MyBasketballMainProps> = ({ fixtures }) => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Left column (5 columns) */}
         <div className="lg:col-span-5 space-y-4">
-          {/* Basketball-specific TodayMatchPageCard */}
+          {/* Basketball-specific MyLeftBasket */}
           <div className="max-h-full overflow-y-auto">
-            <TodayMatchPageCard
+            <MyLeftBasket
               fixtures={filteredFixtures}
               onMatchClick={handleMatchClick}
               onMatchCardClick={handleMatchCardClick}
