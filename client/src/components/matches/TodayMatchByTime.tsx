@@ -392,8 +392,45 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                                 );
                               }
 
-                              // Upcoming matches - don't show time here anymore
+                              // Postponed/Cancelled matches
+                              if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
+                                return (
+                                  <div className="match-status-label status-postponed">
+                                    {status === "PST" ? "Postponed" : 
+                                     status === "CANC" ? "Cancelled" : 
+                                     status === "ABD" ? "Abandoned" : 
+                                     status === "SUSP" ? "Suspended" : 
+                                     status === "AWD" ? "Awarded" : 
+                                     status === "WO" ? "Walkover" : status}
+                                  </div>
+                                );
+                              }
+
+                              // Check for overdue matches that should be marked as postponed
                               if (status === "NS" || status === "TBD") {
+                                const matchTime = new Date(fixture.fixture.date);
+                                const now = new Date();
+                                const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+
+                                // If match is more than 2 hours overdue, show postponed status
+                                if (hoursAgo > 2) {
+                                  return (
+                                    <div className="match-status-label status-postponed">
+                                      Postponed
+                                    </div>
+                                  );
+                                }
+
+                                // Show TBD status for matches with undefined time
+                                if (status === "TBD") {
+                                  return (
+                                    <div className="match-status-label status-upcoming">
+                                      Time TBD
+                                    </div>
+                                  );
+                                }
+
+                                // For upcoming matches, don't show status in top grid
                                 return null;
                               }
 
@@ -460,7 +497,20 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
                               // Upcoming matches - show kick-off time
                               if (status === "NS" || status === "TBD") {
+                                // Check if match should have started already (more than 2 hours ago)
                                 const matchTime = new Date(fixture.fixture.date);
+                                const now = new Date();
+                                const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+
+                                // If match is more than 2 hours overdue, show as postponed
+                                if (hoursAgo > 2) {
+                                  return (
+                                    <div className="match-time-display text-orange-600" style={{ fontSize: "0.8em" }}>
+                                      Postponed
+                                    </div>
+                                  );
+                                }
+
                                 const localTime = matchTime.toLocaleTimeString("en-US", {
                                   hour: "2-digit",
                                   minute: "2-digit",
