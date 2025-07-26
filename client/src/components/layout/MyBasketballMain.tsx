@@ -197,7 +197,7 @@ const MyBasketballMain: React.FC<MyBasketballMainProps> = ({ fixtures }) => {
 
   return (
     <div
-      className="bg-[#FDFBF7] rounded-lg py-4 pt-16"
+      className="bg-[#FDFBF7] rounded-lg py-4 pt-4"
       style={{ marginLeft: "150px", marginRight: "150px" }}
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
