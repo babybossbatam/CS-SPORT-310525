@@ -952,7 +952,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             });
 
             return penaltyRounds.map((round, index) => (
-              <div key={`${round.timeKey}-${index}`} className="penalty-shootout-row">
+              <div key={round.timeKey + '-' + index} className="penalty-shootout-row">
                 {/* Home team penalty info (left side) */}
                 <div className="penalty-home-side">
                   {round.homePenalty?.event && 'team' in round.homePenalty.event && round.homePenalty.event.team && isHomeTeam(round.homePenalty.event as MatchEvent) && (
