@@ -1,10 +1,12 @@
-
 import React, { useState, useMemo } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO, addDays, subDays } from "date-fns";
 import { Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { apiRequest } from "@/lib/utils";
+import TodayMatchPageCard from "@/components/matches/TodayMatchPageCard";
 
 interface MyBasketmainLeftProps {
   fixtures?: any[];
@@ -17,36 +19,66 @@ const MyBasketmainLeft: React.FC<MyBasketmainLeftProps> = ({
   onMatchClick,
   onMatchCardClick
 }) => {
-  const [selectedDate, setSelectedDate] = useState(() => {
-    const today = new Date();
-    return format(today, "yyyy-MM-dd");
-  });
-  
+  const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
   const [timeFilterActive, setTimeFilterActive] = useState(false);
 
-  // Get current UTC date string
-  const getCurrentUTCDateString = () => {
-    const now = new Date();
-    return format(now, "yyyy-MM-dd");
-  };
+  // Apply UTC date filtering to fixtures - similar to MyMainLayout
+  const filteredFixtures = useMemo(() => {
+    if (!fixtures?.length || !selectedDate) return [];
 
-  // Dedicated date display function for Basketball
-  const getBasketballDisplayName = () => {
-    const today = getCurrentUTCDateString();
-    const yesterday = format(subDays(parseISO(today), 1), "yyyy-MM-dd");
-    const tomorrow = format(addDays(parseISO(today), 1), "yyyy-MM-dd");
+    console.log(
+      `🔍 [MyBasketmainLeft UTC] Processing ${fixtures.length} fixtures for date: ${selectedDate}`,
+    );
 
-    if (selectedDate === today) {
-      return "Today's Basketball Games";
-    } else if (selectedDate === yesterday) {
-      return "Yesterday's Basketball Games";
-    } else if (selectedDate === tomorrow) {
-      return "Tomorrow's Basketball Games";
-    } else {
-      return format(parseISO(selectedDate), "EEE, do MMM");
-    }
-  };
+    // Use UTC dates throughout - no timezone conversion
+    const todayUTC = new Date();
+    const todayUTCString = todayUTC.toISOString().split('T')[0]; // YYYY-MM-DD in UTC
+
+    const filtered = fixtures.filter((fixture) => {
+      if (fixture.fixture.date && fixture.fixture.status?.short) {
+        // Extract UTC date from fixture date (no timezone conversion)
+        const fixtureUTCDate = new Date(fixture.fixture.date);
+        const fixtureDateString = fixtureUTCDate.toISOString().split('T')[0]; // YYYY-MM-DD in UTC
+
+        // Simple UTC date matching
+        const shouldInclude = fixtureDateString === selectedDate;
+
+        if (!shouldInclude) {
+          console.log(
+            `❌ [MyBasketmainLeft UTC FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+            {
+              fixtureUTCDate: fixture.fixture.date,
+              extractedUTCDate: fixtureDateString,
+              selectedDate,
+              status: fixture.fixture.status.short,
+              reason: 'UTC date mismatch'
+            },
+          );
+          return false;
+        }
+
+        console.log(
+          `✅ [MyBasketmainLeft UTC FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+          {
+            fixtureUTCDate: fixture.fixture.date,
+            extractedUTCDate: fixtureDateString,
+            selectedDate,
+            status: fixture.fixture.status.short
+          },
+        );
+
+        return true;
+      }
+
+      return false;
+    });
+
+    console.log(
+      `✅ [MyBasketmainLeft UTC] After UTC filtering: ${filtered.length} matches for ${selectedDate}`,
+    );
+    return filtered;
+  }, [fixtures, selectedDate]);
 
   // Fetch live basketball fixtures
   const { data: liveBasketballFixtures = [], isLoading: isLoadingLive } = useQuery({
@@ -73,6 +105,11 @@ const MyBasketmainLeft: React.FC<MyBasketmainLeftProps> = ({
     refetchInterval: 30000,
   });
 
+  const handleMatchClick = (matchId: number) => {
+    console.log('🏀 [MyBasketmainLeft] Basketball match clicked:', matchId);
+    onMatchClick?.(matchId);
+  };
+
   const handleMatchCardClick = (fixture: any) => {
     console.log('🏀 [MyBasketmainLeft] Basketball match card clicked:', {
       fixtureId: fixture.fixture?.id,
@@ -84,54 +121,7 @@ const MyBasketmainLeft: React.FC<MyBasketmainLeftProps> = ({
   };
 
   return (
-    <>
-      <Card className="bg-white border border-gray-200 rounded-lg shadow-sm mb-4">
-        <div className="flex items-center justify-between p-3 bg-gray-50 border-b border-gray-200">
-          <div className="flex items-center gap-3">
-            <h2 className="text-lg font-semibold text-gray-800">
-              {getBasketballDisplayName()}
-            </h2>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {/* Live button */}
-            <button 
-              onClick={() => {
-                setLiveFilterActive(!liveFilterActive);
-                setTimeFilterActive(false);
-              }}
-              className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium w-fit transition-all duration-200 ${
-                liveFilterActive 
-                  ? 'bg-red-500 text-white hover:bg-red-600' 
-                  : 'bg-gray-300 text-black hover:bg-gray-400'
-              }`}
-            >
-              <div className={`w-2 h-2 rounded-full ${liveFilterActive ? 'bg-white animate-pulse' : 'bg-red-500'}`} />
-              LIVE
-            </button>
-
-            {/* Spacer */}
-            <div className="flex items-center gap-2"></div>
-
-            {/* By time button */}
-            <button 
-              onClick={() => {
-                setTimeFilterActive(!timeFilterActive);
-                setLiveFilterActive(false);
-              }}
-              className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium w-fit transition-all duration-200 ${
-                timeFilterActive 
-                  ? 'bg-gray-400 text-black hover:bg-gray-500' 
-                  : 'bg-gray-300 text-black hover:bg-gray-400'
-              }`}
-            >
-              <Clock className="h-3.5 w-3.5" />
-              By time
-            </button>
-          </div>
-        </div>
-      </Card>
-
+    <div>
       {liveFilterActive ? (
         <div className="bg-white rounded-lg shadow-sm overflow-hidden p-8 text-center">
           <h3 className="text-xl font-bold text-gray-700 mb-4">Live Basketball Games</h3>
@@ -167,26 +157,15 @@ const MyBasketmainLeft: React.FC<MyBasketmainLeftProps> = ({
           )}
         </div>
       ) : (
-        <div className="space-y-4">
-          {/* Basketball News Section */}
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <h3 className="font-semibold text-gray-700 p-3">Basketball News</h3>
-            <div className="px-3 pb-3">
-              <p className="text-gray-600 text-sm">Live Basketball News</p>
-              <p className="text-gray-500 text-xs mt-1">No news available at the moment</p>
-            </div>
-          </div>
-          
-          {/* Coming Soon Message */}
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden p-8 text-center">
-            <h2 className="text-2xl font-bold text-gray-700 mb-4">Basketball Scores Coming Soon</h2>
-            <p className="text-gray-600">
-              We're working on adding basketball scores and statistics. Check back soon for updates on NBA, EuroLeague, and other basketball competitions!
-            </p>
-          </div>
+        <div>
+          <TodayMatchPageCard
+            fixtures={filteredFixtures}
+            onMatchClick={handleMatchClick}
+            onMatchCardClick={handleMatchCardClick}
+          />
         </div>
       )}
-    </>
+    </div>
   );
 };
 
