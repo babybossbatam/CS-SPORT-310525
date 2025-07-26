@@ -234,18 +234,18 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               } as any);
             }
 
+            // Define lastRegularEvent for use throughout the component
+            const fullTimeEvents = events.filter((e) => e.time.elapsed <= 120);
+            const lastRegularEvent = fullTimeEvents.length > 0 
+              ? fullTimeEvents.reduce((latest, current) => {
+                  const currentTotal = current.time.elapsed + (current.time.extra || 0);
+                  const latestTotal = latest.time.elapsed + (latest.time.extra || 0);
+                  return currentTotal > latestTotal ? current : latest;
+                })
+              : { time: { elapsed: 120, extra: 0 } };
+
             // Add "Penalty Shootout begins" marker if there are penalty events
             if (hasPenaltyShootout) {
-              // Find the time when penalty shootout should begin (after full time)
-              const fullTimeEvents = events.filter((e) => e.time.elapsed <= 120);
-              const lastRegularEvent = fullTimeEvents.length > 0 
-                ? fullTimeEvents.reduce((latest, current) => {
-                    const currentTotal = current.time.elapsed + (current.time.extra || 0);
-                    const latestTotal = latest.time.elapsed + (latest.time.extra || 0);
-                    return currentTotal > latestTotal ? current : latest;
-                  })
-                : { time: { elapsed: 120, extra: 0 } };
-
               const penaltyStartTime = Math.max(lastRegularEvent.time.elapsed, 120);
               
               // Calculate score ONLY from regular goals (before penalty shootout)
