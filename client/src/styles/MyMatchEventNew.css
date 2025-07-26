@@ -139,8 +139,25 @@
 
 .penalty-center {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  width: 60px;
+  flex-shrink: 0;
+}
+
+.match-event-module-stages-time-yellow-circle-penalty {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+  background-color: #f59e0b !important;
+  color: white !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  margin: 0 auto !important;
+  text-align: center !important;
 }
 
 .penalty-player-avatar {
@@ -165,21 +182,6 @@
 }
 
 /* Yellow circle for penalty number (matching your design) */
-.match-event-module-stages-time-yellow-circle-penalty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background-color: #fbbf24;
-  border-radius: 50%;
-  color: #000;
-  font-size: 12px;
-  font-weight: 600;
-  border: 2px solid #f59e0b;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
 /* Penalty result indicator */
 .penalty-result {
   display: flex;
