@@ -92,39 +92,26 @@ router.get('/test', async (req, res) => {
     console.log(`🧪 [BasketballRoutes] Testing basketball API connection`);
 
     const isWorking = await basketballApiService.testConnection();
-
-    res.json({
-      status: isWorking ? 'success' : 'failed',
-      message: isWorking ? 'Basketball API is working' : 'Basketball API failed',
-      timestamp: new Date().toISOString()
-    });
+    
+    if (isWorking) {
+      res.json({ 
+        success: true, 
+        message: 'Basketball API connection successful',
+        endpoint: 'v1.basketball.api-sports.io'
+      });
+    } else {
+      res.status(500).json({ 
+        success: false, 
+        message: 'Basketball API connection failed',
+        endpoint: 'v1.basketball.api-sports.io'
+      });
+    }
   } catch (error) {
     console.error('Error testing basketball API:', error);
-    res.status(500).json({ error: 'Failed to test basketball API' });
-  }
-});
-
-/**
- * GET /api/basketball/debug/date/:date
- * Debug basketball fixtures for a specific date
- */
-router.get('/debug/date/:date', async (req, res) => {
-  try {
-    const { date } = req.params;
-    console.log(`🔍 [BasketballRoutes] DEBUG: Fetching fixtures for date: ${date}`);
-
-    const fixtures = await basketballApiService.getFixturesByDate(date);
-
-    res.json({
-      date,
-      fixturesCount: fixtures.length,
-      fixtures: fixtures.slice(0, 5), // Show first 5 fixtures
-      sampleFixture: fixtures[0] || null,
-      timestamp: new Date().toISOString()
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to test basketball API connection' 
     });
-  } catch (error) {
-    console.error('Error fetching basketball fixtures for debug:', error);
-    res.status(500).json({ error: 'Failed to fetch basketball fixtures for debug' });
   }
 });
 
@@ -135,9 +122,9 @@ router.get('/debug/date/:date', async (req, res) => {
 router.get('/debug/leagues', async (req, res) => {
   try {
     console.log(`🔍 [BasketballRoutes] Debug: Fetching all leagues`);
-
+    
     const leagues = await basketballApiService.getAllLeagues();
-
+    
     res.json({ 
       success: true,
       count: leagues.length,
@@ -162,9 +149,9 @@ router.get('/debug/games', async (req, res) => {
   try {
     const { date = '2025-01-26' } = req.query;
     console.log(`🔍 [BasketballRoutes] Debug: Fetching games for date ${date}`);
-
+    
     const games = await basketballApiService.getFixturesByDate(date as string);
-
+    
     res.json({ 
       success: true,
       date: date,
@@ -175,58 +162,6 @@ router.get('/debug/games', async (req, res) => {
     });
   } catch (error) {
     console.error('Error in debug games:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
-    });
-  }
-});
-
-/**
- * GET /api/basketball/debug/raw/:leagueId
- * Debug route to check raw API response for a specific league
- */
-router.get('/debug/raw/:leagueId', async (req, res) => {
-  try {
-    const leagueId = parseInt(req.params.leagueId);
-    console.log(`🔍 [BasketballRoutes] Debug: Raw API test for league ${leagueId}`);
-
-    // Test multiple endpoints
-    const testEndpoints = [
-      `/games?league=${leagueId}`,
-      `/games?league=${leagueId}&season=2024`,
-      `/games?league=${leagueId}&season=2024-2025`,
-      `/games?date=2025-01-26`,
-      `/leagues/${leagueId}`
-    ];
-
-    const results = [];
-    for (const endpoint of testEndpoints) {
-      try {
-        const response = await basketballApiService.makeRequest(endpoint);
-        results.push({
-          endpoint,
-          success: response.success,
-          dataCount: response.data?.response?.length || 0,
-          data: response.data
-        });
-      } catch (error) {
-        results.push({
-          endpoint,
-          success: false,
-          error: error.message
-        });
-      }
-    }
-
-    res.json({ 
-      leagueId,
-      testResults: results,
-      apiKey: '81bc62b91b1190622beda24ee23fbd1a'.substring(0, 8) + '...',
-      endpoint: 'v1.basketball.api-sports.io'
-    });
-  } catch (error) {
-    console.error('Error in debug raw:', error);
     res.status(500).json({ 
       success: false, 
       error: error.message 
