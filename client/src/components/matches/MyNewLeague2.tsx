@@ -361,7 +361,7 @@ const MyNewLeague2 = ({
         return aDate - bDate;
       });
 
-     
+
     });
 
     const groupedKeys = Object.keys(grouped);
@@ -908,6 +908,48 @@ const MyNewLeague2 = ({
                                   );
                                 }
 
+                                // Postponed/Cancelled matches
+                                if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
+                                  return (
+                                    <div className="match-status-label status-postponed">
+                                      {status === "PST" ? "Postponed" : 
+                                       status === "CANC" ? "Cancelled" : 
+                                       status === "ABD" ? "Abandoned" : 
+                                       status === "SUSP" ? "Suspended" : 
+                                       status === "AWD" ? "Awarded" : 
+                                       status === "WO" ? "Walkover" : status}
+                                    </div>
+                                  );
+                                }
+
+                                // Check for overdue matches that should be marked as postponed
+                                if (status === "NS" || status === "TBD") {
+                                  const matchTime = new Date(fixture.fixture.date);
+                                  const now = new Date();
+                                  const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+
+                                  // If match is more than 2 hours overdue, show postponed status
+                                  if (hoursAgo > 2) {
+                                    return (
+                                      <div className="match-status-label status-postponed">
+                                        Postponed
+                                      </div>
+                                    );
+                                  }
+
+                                  // Show TBD status for matches with undefined time
+                                  if (status === "TBD") {
+                                    return (
+                                      <div className="match-status-label status-upcoming">
+                                        Time TBD
+                                      </div>
+                                    );
+                                  }
+
+                                  // For upcoming matches, don't show status in top grid
+                                  return null;
+                                }
+
                                 // Show "Ended" status for finished matches or stale matches
                                 if (
                                   [
@@ -921,7 +963,7 @@ const MyNewLeague2 = ({
                                     "SUSP",
                                   ].includes(status) ||
                                   isStaleFinishedMatch
-                                ) {
+                                ){
                                   return (
                                     <div
                                       className="match-status-label status-ended"
@@ -937,22 +979,6 @@ const MyNewLeague2 = ({
                                         : status === "AET"
                                           ? "After Extra Time"
                                           : status}
-                                    </div>
-                                  );
-                                }
-
-                                if (status === "TBD") {
-                                  return (
-                                    <div
-                                      className="match-status-label status-upcoming"
-                                      style={{
-                                        minWidth: "60px",
-                                        textAlign: "center",
-                                        transition: "none",
-                                        animation: "none",
-                                      }}
-                                    >
-                                      Time TBD
                                     </div>
                                   );
                                 }
