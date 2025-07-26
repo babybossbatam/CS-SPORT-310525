@@ -431,7 +431,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               />
                             </div>
                             {index < allCommentaryItems.length - 1 && (
-                              <div className="w-0.5 h-16 bg-gray-800 ml-1"></div>
+                              <div className="w-0.5 h-8 bg-gray-800 ml-1"></div>
                             )}
                           </div>
 
