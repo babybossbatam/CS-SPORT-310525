@@ -93,104 +93,24 @@ router.get('/top-scorers/:leagueId', async (req, res) => {
       if (topScorers && topScorers.length > 0) {
         console.log(`✅ [BasketballStandings] Returning ${topScorers.length} real top scorers for league ${leagueId}`);
         return res.json(topScorers);
+      } else {
+        console.warn(`⚠️ [BasketballStandings] No top scorers data available for league ${leagueId}`);
+        return res.status(404).json({ 
+          error: 'No top scorers data available',
+          message: `No player statistics found for league ${leagueId} in season ${seasonStr}`,
+          leagueId,
+          season: seasonStr
+        });
       }
     } catch (apiError) {
-      console.warn(`⚠️ [BasketballStandings] API call failed for league ${leagueId}:`, apiError);
+      console.error(`❌ [BasketballStandings] API call failed for league ${leagueId}:`, apiError);
+      return res.status(500).json({ 
+        error: 'Failed to fetch basketball top scorers',
+        message: `Basketball API error for league ${leagueId}: ${apiError instanceof Error ? apiError.message : 'Unknown error'}`,
+        leagueId,
+        season: seasonStr
+      });
     }
-
-    // Fallback to mock data if API fails or returns no data
-    console.log(`🔄 [BasketballStandings] Falling back to mock data for league ${leagueId}`);
-    
-    const mockTopScorers = [
-      {
-        player: {
-          id: 1,
-          name: "LeBron James",
-          photo: "https://media.api-sports.io/basketball/players/1.png"
-        },
-        statistics: [{
-          team: { 
-            id: 145,
-            name: "Los Angeles Lakers",
-            logo: "https://media.api-sports.io/basketball/teams/145.png"
-          },
-          league: {
-            id: leagueId,
-            name: getLeagueName(leagueId),
-            season: parseInt(seasonStr.split('-')[0])
-          },
-          games: {
-            appearences: 25,
-            position: "Forward"
-          },
-          goals: { total: 28 }
-        }]
-      },
-      {
-        player: {
-          id: 2,
-          name: "Stephen Curry",
-          photo: "https://media.api-sports.io/basketball/players/2.png"
-        },
-        statistics: [{
-          team: { 
-            id: 149,
-            name: "Golden State Warriors",
-            logo: "https://media.api-sports.io/basketball/teams/149.png"
-          },
-          league: {
-            id: leagueId,
-            name: getLeagueName(leagueId),
-            season: parseInt(seasonStr.split('-')[0])
-          },
-          games: {
-            appearences: 24,
-            position: "Guard"
-          },
-          goals: { total: 26 }
-        }]
-      },
-      {
-        player: {
-          id: 3,
-          name: "Kevin Durant",
-          photo: "https://media.api-sports.io/basketball/players/3.png"
-        },
-        statistics: [{
-          team: { 
-            id: 164,
-            name: "Phoenix Suns",
-            logo: "https://media.api-sports.io/basketball/teams/164.png"
-          },
-          league: {
-            id: leagueId,
-            name: getLeagueName(leagueId),
-            season: parseInt(seasonStr.split('-')[0])
-          },
-          games: {
-            appearences: 23,
-            position: "Forward"
-          },
-          goals: { total: 25 }
-        }]
-      }
-    ];
-
-    // Filter and adjust data based on league
-    const leagueSpecificScorers = mockTopScorers.map(scorer => ({
-      ...scorer,
-      statistics: scorer.statistics.map(stat => ({
-        ...stat,
-        league: {
-          ...stat.league,
-          id: leagueId,
-          name: getLeagueName(leagueId)
-        }
-      }))
-    }));
-
-    console.log(`✅ [BasketballStandings] Returning ${leagueSpecificScorers.length} fallback top scorers for league ${leagueId}`);
-    res.json(leagueSpecificScorers);
   } catch (error) {
     console.error('Error fetching basketball top scorers:', error);
     res.status(500).json({ error: 'Failed to fetch basketball top scorers' });

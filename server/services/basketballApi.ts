@@ -75,7 +75,32 @@ const basketballApiClient = axios.create({
     "X-RapidAPI-Key": apiKey,
     "X-RapidAPI-Host": "v1.basketball.api-sports.io",
   },
+  timeout: 10000, // 10 second timeout
 });
+
+// Add request interceptor for logging
+basketballApiClient.interceptors.request.use(
+  (config) => {
+    console.log(`🏀 [BasketballAPI] Making request: ${config.method?.toUpperCase()} ${config.url}`, config.params);
+    return config;
+  },
+  (error) => {
+    console.error('🏀 [BasketballAPI] Request error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for logging
+basketballApiClient.interceptors.response.use(
+  (response) => {
+    console.log(`🏀 [BasketballAPI] Response: ${response.status} - ${response.data?.results || 0} results`);
+    return response;
+  },
+  (error) => {
+    console.error('🏀 [BasketballAPI] Response error:', error.response?.status, error.response?.data || error.message);
+    return Promise.reject(error);
+  }
+);
 
 // Cache configuration
 const BASKETBALL_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for basketball games
@@ -226,61 +251,157 @@ export const basketballApiService = {
 
       console.log(`🏀 [BasketballAPI] Fetching top scorers for league ${leagueId}, season ${seasonYear}`);
 
-      const response = await basketballApiClient.get("/players/statistics", {
-        params: {
-          league: leagueId,
-          season: seasonYear
+      // Try multiple endpoints to get player statistics
+      let response;
+      
+      try {
+        // First try the players endpoint with statistics
+        response = await basketballApiClient.get("/players", {
+          params: {
+            league: leagueId,
+            season: seasonYear
+          }
+        });
+        
+        if (!response.data?.response || response.data.response.length === 0) {
+          throw new Error("No players data from /players endpoint");
         }
-      });
-
-      if (response.data && response.data.response) {
-        const players = response.data.response;
-
-        // Sort players by points (assuming the API returns points data)
-        const sortedPlayers = players
+        
+        console.log(`🏀 [BasketballAPI] Got ${response.data.response.length} players from /players endpoint`);
+        
+        // Now get statistics for these players
+        const playersWithStats = [];
+        
+        for (const playerData of response.data.response.slice(0, 50)) { // Limit to first 50 players to avoid rate limits
+          try {
+            const statsResponse = await basketballApiClient.get("/players/statistics", {
+              params: {
+                id: playerData.id,
+                league: leagueId,
+                season: seasonYear
+              }
+            });
+            
+            if (statsResponse.data?.response && statsResponse.data.response.length > 0) {
+              const playerStats = statsResponse.data.response[0];
+              if (playerStats.statistics && playerStats.statistics.length > 0) {
+                playersWithStats.push(playerStats);
+              }
+            }
+          } catch (statsError) {
+            console.warn(`⚠️ [BasketballAPI] Failed to get stats for player ${playerData.id}:`, statsError);
+          }
+        }
+        
+        if (playersWithStats.length === 0) {
+          throw new Error("No player statistics found");
+        }
+        
+        // Sort players by points
+        const sortedPlayers = playersWithStats
           .filter((player: any) => player.statistics && player.statistics.length > 0)
           .sort((a: any, b: any) => {
-            const pointsA = a.statistics[0]?.points || 0;
-            const pointsB = b.statistics[0]?.points || 0;
+            const statsA = a.statistics[0];
+            const statsB = b.statistics[0];
+            const pointsA = statsA?.points || 0;
+            const pointsB = statsB?.points || 0;
             return pointsB - pointsA;
           })
           .slice(0, 10) // Get top 10 scorers
-          .map((player: any) => ({
-            player: {
-              id: player.player?.id || 0,
-              name: player.player?.name || 'Unknown Player',
-              photo: player.player?.photo || `https://media.api-sports.io/basketball/players/${player.player?.id}.png`
-            },
-            statistics: player.statistics.map((stat: any) => ({
-              team: {
-                id: stat.team?.id || 0,
-                name: stat.team?.name || 'Unknown Team',
-                logo: stat.team?.logo || `https://media.api-sports.io/basketball/teams/${stat.team?.id}.png`
+          .map((player: any) => {
+            const stat = player.statistics[0];
+            return {
+              player: {
+                id: player.player?.id || 0,
+                name: player.player?.name || 'Unknown Player',
+                photo: player.player?.photo || `https://media.api-sports.io/basketball/players/${player.player?.id}.png`
               },
-              league: {
-                id: leagueId,
-                name: stat.league?.name || 'Basketball League',
-                season: seasonYear
-              },
-              games: {
-                appearences: stat.games?.played || 0,
-                position: stat.position || 'Player'
-              },
-              goals: { 
-                total: stat.points || 0  // Basketball uses points instead of goals
-              }
-            }))
-          }));
+              statistics: [{
+                team: {
+                  id: stat.team?.id || 0,
+                  name: stat.team?.name || 'Unknown Team',
+                  logo: stat.team?.logo || `https://media.api-sports.io/basketball/teams/${stat.team?.id}.png`
+                },
+                league: {
+                  id: leagueId,
+                  name: stat.league?.name || 'Basketball League',
+                  season: seasonYear
+                },
+                games: {
+                  appearences: stat.games?.played || 0,
+                  position: stat.position || 'Player'
+                },
+                goals: { 
+                  total: stat.points || 0  // Basketball uses points instead of goals
+                }
+              }]
+            };
+          });
 
-        console.log(`✅ [BasketballAPI] Retrieved ${sortedPlayers.length} top scorers for league ${leagueId}`);
+        console.log(`✅ [BasketballAPI] Retrieved ${sortedPlayers.length} real top scorers for league ${leagueId}`);
         return sortedPlayers;
+        
+      } catch (playersError) {
+        console.warn(`⚠️ [BasketballAPI] /players endpoint failed, trying direct statistics:`, playersError);
+        
+        // Fallback: try direct statistics endpoint
+        response = await basketballApiClient.get("/players/statistics", {
+          params: {
+            league: leagueId,
+            season: seasonYear
+          }
+        });
+        
+        if (response.data && response.data.response) {
+          const players = response.data.response;
+
+          // Sort players by points
+          const sortedPlayers = players
+            .filter((player: any) => player.statistics && player.statistics.length > 0)
+            .sort((a: any, b: any) => {
+              const pointsA = a.statistics[0]?.points || 0;
+              const pointsB = b.statistics[0]?.points || 0;
+              return pointsB - pointsA;
+            })
+            .slice(0, 10) // Get top 10 scorers
+            .map((player: any) => ({
+              player: {
+                id: player.player?.id || 0,
+                name: player.player?.name || 'Unknown Player',
+                photo: player.player?.photo || `https://media.api-sports.io/basketball/players/${player.player?.id}.png`
+              },
+              statistics: player.statistics.map((stat: any) => ({
+                team: {
+                  id: stat.team?.id || 0,
+                  name: stat.team?.name || 'Unknown Team',
+                  logo: stat.team?.logo || `https://media.api-sports.io/basketball/teams/${stat.team?.id}.png`
+                },
+                league: {
+                  id: leagueId,
+                  name: stat.league?.name || 'Basketball League',
+                  season: seasonYear
+                },
+                games: {
+                  appearences: stat.games?.played || 0,
+                  position: stat.position || 'Player'
+                },
+                goals: { 
+                  total: stat.points || 0  // Basketball uses points instead of goals
+                }
+              }))
+            }));
+
+          console.log(`✅ [BasketballAPI] Retrieved ${sortedPlayers.length} real top scorers for league ${leagueId} (fallback method)`);
+          return sortedPlayers;
+        }
       }
 
       console.warn(`⚠️ [BasketballAPI] No player statistics found for league ${leagueId}`);
-      return [];
+      throw new Error(`No basketball statistics available for league ${leagueId}`);
+      
     } catch (error) {
       console.error(`❌ [BasketballAPI] Error fetching top scorers for league ${leagueId}:`, error);
-      return [];
+      throw error; // Re-throw to prevent fallback to mock data
     }
   }
 };
