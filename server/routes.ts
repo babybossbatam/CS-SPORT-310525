@@ -820,6 +820,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
             country: {
               name: "Germany",
+```tool_code
               code: "DE",
               flag: "https://media.api-sports.io/flags/de.svg",
             },
@@ -2774,7 +2775,7 @@ error) {
           fixture.lastUpdated = Date.now();
         });
 
-        // Only cache ended matches from the live response
+        //        // Only cache ended matches from the live response
         const endedMatches = fixtures.filter((fixture) =>
           ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC"].includes(
             fixture.fixture.status.short,
@@ -3037,8 +3038,8 @@ error) {
   const httpServer = createServer(app);
 
   // RapidAPI Key and Base URL
-  const RAPIDAPI_KEY = process.env.RAPID_API_KEY || '';
-  const RAPIDAPI_BASE_URL = 'https://api-football-v1.p.rapidapi.com/v3';
+   const RAPIDAPI_KEY = process.env.RAPID_API_KEY || '';
+   const RAPIDAPI_BASE_URL = 'https://api-football-v1.p.rapidapi.com/v3';
 
   // Get fixture by ID
   apiRouter.get("/fixtures/:id", async (req: Request, res: Response) => {
