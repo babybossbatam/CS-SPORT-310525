@@ -182,10 +182,10 @@ const MyNewLeague2 = ({
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["myNewLeague2", "allFixtures"],
+    queryKey: ["myNewLeague2", "allFixtures", selectedDate],
     queryFn: async () => {
       console.log(
-        `🎯 [MyNewLeague2] Fetching fixtures for ${leagueIds.length} leagues:`,
+        `🎯 [MyNewLeague2] Fetching fixtures for ${leagueIds.length} leagues on ${selectedDate}:`,
         leagueIds,
       );
 
@@ -214,13 +214,25 @@ const MyNewLeague2 = ({
       });
 
       const results = await Promise.all(promises);
-      const allFixtures = results.flatMap((result) => result.fixtures);
+      
+      // Deduplicate at the fetch level as well
+      const allFixturesMap = new Map<number, FixtureData>();
+      results.forEach((result) => {
+        result.fixtures.forEach((fixture: FixtureData) => {
+          if (fixture?.fixture?.id && !allFixturesMap.has(fixture.fixture.id)) {
+            allFixturesMap.set(fixture.fixture.id, fixture);
+          }
+        });
+      });
+      
+      const allFixtures = Array.from(allFixturesMap.values());
 
       // Log detailed results
       console.log(`🔄 [MyNewLeague2] Fetch results:`, {
         totalLeagues: results.length,
         successfulFetches: results.filter((r) => r.fixtures.length > 0).length,
         totalFixtures: allFixtures.length,
+        duplicatesRemoved: results.reduce((sum, r) => sum + r.fixtures.length, 0) - allFixtures.length,
         leagueBreakdown: results.map((r) => ({
           league: r.leagueId,
           fixtures: r.fixtures.length,
@@ -232,6 +244,8 @@ const MyNewLeague2 = ({
     },
     staleTime: 5 * 60 * 1000,
     refetchInterval: 30 * 1000,
+    refetchOnWindowFocus: false,
+    retry: 1,
   });
 
   // Group fixtures by league with date filtering
@@ -257,6 +271,7 @@ const MyNewLeague2 = ({
     const grouped: { [key: number]: { league: any; fixtures: FixtureData[] } } =
       {};
     const seenFixtures = new Set<number>(); // Track seen fixture IDs to prevent duplicates
+    const seenMatchups = new Set<string>(); // Track unique team matchups as well
 
     allFixtures.forEach((fixture: FixtureData, index) => {
       // Validate fixture structure
@@ -274,14 +289,31 @@ const MyNewLeague2 = ({
         return;
       }
 
-      // Check for duplicate fixtures
+      // Check for duplicate fixture IDs
       if (seenFixtures.has(fixture.fixture.id)) {
         console.log(
-          `🔄 [MyNewLeague2] Duplicate fixture detected and skipped:`,
+          `🔄 [MyNewLeague2] Duplicate fixture ID detected and skipped:`,
           {
             fixtureId: fixture.fixture.id,
             teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
             league: fixture.league.name,
+          },
+        );
+        return;
+      }
+
+      // Create unique matchup key (team IDs + league + date)
+      const matchupKey = `${fixture.teams.home.id}-${fixture.teams.away.id}-${fixture.league.id}-${fixture.fixture.date}`;
+      
+      // Check for duplicate team matchups
+      if (seenMatchups.has(matchupKey)) {
+        console.log(
+          `🔄 [MyNewLeague2] Duplicate matchup detected and skipped:`,
+          {
+            fixtureId: fixture.fixture.id,
+            teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+            league: fixture.league.name,
+            matchupKey,
           },
         );
         return;
@@ -307,7 +339,18 @@ const MyNewLeague2 = ({
 
       // Mark this fixture as seen and add it to the group
       seenFixtures.add(fixture.fixture.id);
+      seenMatchups.add(matchupKey);
       grouped[leagueId].fixtures.push(fixture);
+      
+      console.log(
+        `✅ [MyNewLeague2] Added fixture:`,
+        {
+          fixtureId: fixture.fixture.id,
+          teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+          league: fixture.league.name,
+          matchupKey,
+        },
+      );
     });
 
     // Sort fixtures by priority within each league: Live > Upcoming > Ended
