@@ -6,7 +6,7 @@ import { format, parseISO, addDays, subDays } from "date-fns";
 import { Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { apiRequest } from "@/lib/utils";
-import TodayMatchPageCard from "@/components/matches/TodayMatchPageCard";
+import TodayBasketballCard from "@/components/matches/TodayBasketballCard";
 import MyBasketballPopularLeague from './MyBasketballPopularLeague';
 
 interface MyBasketmainLeftProps {
@@ -177,7 +177,7 @@ const MyBasketmainLeft: React.FC<MyBasketmainLeftProps> = ({
         </div>
       ) : (
         <div>
-          <TodayMatchPageCard
+          <TodayBasketballCard
             fixtures={filteredFixtures}
             onMatchClick={handleMatchClick}
             onMatchCardClick={handleMatchCardClick}
