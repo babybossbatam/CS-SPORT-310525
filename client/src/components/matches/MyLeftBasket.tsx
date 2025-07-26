@@ -8,12 +8,11 @@ import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
 
-import TodaysMatchesByCountryNew from "./TodaysMatchesByCountryNew";
-import LiveMatchForAllCountry from "./LiveMatchForAllCountry";
-import LiveMatchByTime from "./LiveMatchByTime";
-import TodayMatchByTime from "./TodayMatchByTime";
-import MyNewLeague2 from "./MyNewLeague2";
-import EnhancementLeague from "./EnhancementLeague";
+import LiveBasketByTime from "./LiveBasketByTime";
+import LiveBasketForAllCountry from "./LiveBasketForAllCountry";
+import TodayBasketByTime from "./TodayBasketByTime";
+import MyBasketLeague from "./MyBasketLeague";
+import MyBasketByCountry from "./MyBasketByCountry";
 import { useCachedQuery } from "@/lib/cachingHelper";
 
 import { format, parseISO, addDays, subDays } from "date-fns";
@@ -379,15 +378,16 @@ export const MyLeftBasket = ({
 
       {liveFilterActive && timeFilterActive ? (
         // Combined state: Show live matches grouped by time
-        <LiveMatchByTime
+        <LiveBasketByTime
           liveFilterActive={liveFilterActive}
           timeFilterActive={timeFilterActive}
           liveFixtures={sharedLiveFixtures}
           setLiveFilterActive={setLiveFilterActive}
+          onMatchCardClick={handleMatchCardClick}
         />
       ) : liveFilterActive && !timeFilterActive ? (
-        // Live only - show LiveMatchForAllCountry
-        <LiveMatchForAllCountry
+        // Live only - show LiveBasketForAllCountry
+        <LiveBasketForAllCountry
           liveFilterActive={liveFilterActive}
           timeFilterActive={timeFilterActive}
           liveFixtures={sharedLiveFixtures}
@@ -395,16 +395,17 @@ export const MyLeftBasket = ({
           onMatchCardClick={handleMatchCardClick}
         />
       ) : timeFilterActive && !liveFilterActive ? (
-        // Time only - show new TodayMatchByTime component
-        <TodayMatchByTime
+        // Time only - show TodayBasketByTime component
+        <TodayBasketByTime
           selectedDate={selectedDate}
           timeFilterActive={timeFilterActive}
           liveFilterActive={liveFilterActive}
+          onMatchCardClick={handleMatchCardClick}
         />
       ) : (
         // Neither filter active - show default view
         <>
-          <MyNewLeague2
+          <MyBasketLeague
             selectedDate={selectedDate}
             timeFilterActive={false}
             showTop10={false}
@@ -413,13 +414,12 @@ export const MyLeftBasket = ({
             useUTCOnly={true}
           />
           
-          <TodaysMatchesByCountryNew
+          <MyBasketByCountry
             selectedDate={selectedDate}
             liveFilterActive={liveFilterActive}
             timeFilterActive={timeFilterActive}
-            onMatchCardClick={onMatchCardClick}
+            onMatchCardClick={handleMatchCardClick}
           />
-
         </>
       )
     }
