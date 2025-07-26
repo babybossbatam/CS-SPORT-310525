@@ -82,9 +82,44 @@ router.get('/top-scorers/:leagueId', async (req, res) => {
       return res.status(400).json({ error: 'Invalid league ID' });
     }
 
-    const seasonStr = season as string || "2024-2025";
+    const seasonStr = season as string || "2024";
 
     console.log(`🏀 [BasketballStandings] Fetching top scorers for league ${leagueId}, season ${seasonStr}`);
+
+    const topScorers = await basketballApiService.getTopScorers(leagueId, seasonStr);
+    
+    console.log(`✅ [BasketballStandings] Retrieved ${topScorers.length} top scorers for league ${leagueId}`);
+    res.json(topScorers);
+    
+  } catch (error) {
+    console.error(`❌ [BasketballStandings] Error fetching top scorers for league ${req.params.leagueId}:`, error);
+    res.status(500).json({ error: 'Failed to fetch basketball top scorers' });
+  }
+});
+
+// Get basketball standings by league
+router.get('/standings/:leagueId', async (req, res) => {
+  try {
+    const leagueId = parseInt(req.params.leagueId);
+    const { season } = req.query;
+
+    if (isNaN(leagueId)) {
+      return res.status(400).json({ error: 'Invalid league ID' });
+    }
+
+    const seasonStr = season as string || "2024";
+
+    console.log(`🏀 [BasketballStandings] Fetching standings for league ${leagueId}, season ${seasonStr}`);
+
+    const standings = await basketballApiService.getStandings(leagueId, seasonStr);
+    
+    console.log(`✅ [BasketballStandings] Retrieved standings for league ${leagueId}`);
+    res.json(standings);
+    
+  } catch (error) {
+    console.error(`❌ [BasketballStandings] Error fetching standings for league ${req.params.leagueId}:`, error);
+    res.status(500).json({ error: 'Failed to fetch basketball standings' });
+  }`);
 
     try {
       // Fetch real basketball player statistics using proper basketball API
