@@ -14,8 +14,6 @@ import {
 } from "lucide-react";
 import { format, addDays, parseISO } from "date-fns";
 import { useLocation } from "wouter";
-import { apiRequest } from "@/lib/queryClient";
-import TeamLogo from "./TeamLogo";
 import LazyImage from "../common/LazyImage";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import {
@@ -26,71 +24,34 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { RoundBadge } from "@/components/ui/round-badge";
 
-// Import popular teams data from the same source as PopularTeamsList
-const POPULAR_TEAMS_DATA = [
-  { id: 33, name: 'Manchester United', country: 'England' },
-  { id: 40, name: 'Liverpool', country: 'England' },
-  { id: 50, name: 'Manchester City', country: 'England' },
-  { id: 42, name: 'Arsenal', country: 'England' },
-  { id: 49, name: 'Chelsea', country: 'England' },
-  { id: 541, name: 'Real Madrid', country: 'Spain' },
-  { id: 529, name: 'FC Barcelona', country: 'Spain' },
-  { id: 47, name: 'Tottenham', country: 'England' },
-  { id: 157, name: 'Bayern Munich', country: 'Germany' },
-  { id: 489, name: 'AC Milan', country: 'Italy' },
-  { id: 492, name: 'Inter', country: 'Italy' },
-  { id: 496, name: 'Juventus', country: 'Italy' },
-  { id: 165, name: 'Borussia Dortmund', country: 'Germany' },
-
-  { id: 168, name: 'Bayer Leverkusen', country: 'Germany' },
-  { id: 81, name: 'PSG', country: 'France' },
-  { id: 85, name: 'Lyon', country: 'France' },
-  { id: 212, name: 'Marseille', country: 'France' },
-  { id: 548, name: 'Atletico Madrid', country: 'Spain' },
-  { id: 530, name: 'Sevilla', country: 'Spain' },
-  { id: 532, name: 'Valencia', country: 'Spain' },
-  { id: 533, name: 'Villarreal', country: 'Spain' },
-  { id: 610, name: 'Ajax', country: 'Netherlands' },
-  { id: 194, name: 'PSV', country: 'Netherlands' },
-  { id: 120, name: 'Feyenoord', country: 'Netherlands' },
-  { id: 211, name: 'Porto', country: 'Portugal' },
-  { id: 212, name: 'Benfica', country: 'Portugal' },
-  { id: 228, name: 'Sporting CP', country: 'Portugal' },
-  // Additional popular teams from various leagues
-  { id: 502, name: 'Napoli', country: 'Italy' },
-  { id: 500, name: 'AS Roma', country: 'Italy' },
-  { id: 505, name: 'Lazio', country: 'Italy' },
-
-  // Popular reserve/academy teams
-  { id: 1859, name: 'Bayern München II', country: 'Germany' },
-  { id: 1860, name: 'Borussia Dortmund II', country: 'Germany' },
-  { id: 8572, name: 'Jong PSV', country: 'Netherlands' },
-  { id: 8564, name: 'Jong Ajax', country: 'Netherlands' }
+// Popular basketball teams data
+const POPULAR_BASKETBALL_TEAMS_DATA = [
+  { id: 145, name: 'Los Angeles Lakers', country: 'USA' },
+  { id: 149, name: 'Golden State Warriors', country: 'USA' },
+  { id: 150, name: 'Boston Celtics', country: 'USA' },
+  { id: 155, name: 'Chicago Bulls', country: 'USA' },
+  { id: 142, name: 'Miami Heat', country: 'USA' },
+  { id: 1313, name: 'Real Madrid', country: 'Spain' },
+  { id: 1314, name: 'FC Barcelona', country: 'Spain' },
+  { id: 1329, name: 'Panathinaikos', country: 'Greece' },
+  { id: 1343, name: 'Fenerbahçe', country: 'Turkey' },
+  { id: 1377, name: 'CSKA Moscow', country: 'Russia' }
 ];
 
-const POPULAR_TEAM_IDS = POPULAR_TEAMS_DATA.map(team => team.id);
-const POPULAR_TEAM_NAMES = POPULAR_TEAMS_DATA.map(team => team.name.toLowerCase());
+const POPULAR_BASKETBALL_TEAM_IDS = POPULAR_BASKETBALL_TEAMS_DATA.map(team => team.id);
+const POPULAR_BASKETBALL_TEAM_NAMES = POPULAR_BASKETBALL_TEAMS_DATA.map(team => team.name.toLowerCase());
 
-// Popular team keywords for enhanced matching
-const POPULAR_TEAM_KEYWORDS = [
-  "real madrid", "barcelona", "manchester city", "manchester united", "manchester",
-  "bayern munich", "bayern", "juventus", "psg", "paris saint-germain", "paris saint germain",
-  "liverpool", "arsenal", "chelsea", "atletico madrid", "atletico", "tottenham",
-  "ac milan", "inter milan", "inter", "napoli", "roma", "as roma", 
-  "borussia dortmund", "borussia", "dortmund", "rb leipzig", "leipzig", 
-  "bayer leverkusen", "leverkusen", "lyon", "olympique lyonnais", "marseille",
-  "olympique marseille", "monaco", "as monaco", "sevilla", "valencia", 
-  "villarreal", "ajax", "feyenoord", "psv eindhoven", "psv", "porto", 
-  "fc porto", "benfica", "sl benfica", "sporting cp", "sporting lisbon", "sporting",
-  "fenerbahce", "galatasaray", "besiktas", "trabzonspor", "millwall", "southampton",
-  "elche", "valencia", "newcastle", "west ham", "brighton", "brentford"
+// Popular basketball team keywords for enhanced matching
+const POPULAR_BASKETBALL_TEAM_KEYWORDS = [
+  "lakers", "warriors", "celtics", "bulls", "heat", "real madrid", "barcelona", 
+  "panathinaikos", "fenerbahce", "cska", "euroleague", "nba"
 ];
 
-// Helper function to check if a match involves popular teams
-const isPopularTeamMatch = (homeTeam: string, awayTeam: string, homeTeamId?: number, awayTeamId?: number): boolean => {
+// Helper function to check if a basketball match involves popular teams
+const isPopularBasketballTeamMatch = (homeTeam: string, awayTeam: string, homeTeamId?: number, awayTeamId?: number): boolean => {
   // First check by team ID (most accurate)
   if (homeTeamId && awayTeamId) {
-    const hasPopularTeamById = POPULAR_TEAM_IDS.includes(homeTeamId) || POPULAR_TEAM_IDS.includes(awayTeamId);
+    const hasPopularTeamById = POPULAR_BASKETBALL_TEAM_IDS.includes(homeTeamId) || POPULAR_BASKETBALL_TEAM_IDS.includes(awayTeamId);
     if (hasPopularTeamById) {
       return true;
     }
@@ -100,7 +61,7 @@ const isPopularTeamMatch = (homeTeam: string, awayTeam: string, homeTeamId?: num
   const homeTeamLower = homeTeam.toLowerCase();
   const awayTeamLower = awayTeam.toLowerCase();
 
-  const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(popularTeam => 
+  const hasPopularTeamByName = POPULAR_BASKETBALL_TEAM_NAMES.some(popularTeam => 
     homeTeamLower.includes(popularTeam) || awayTeamLower.includes(popularTeam)
   );
 
@@ -109,7 +70,7 @@ const isPopularTeamMatch = (homeTeam: string, awayTeam: string, homeTeamId?: num
   }
 
   // Enhanced keyword-based matching
-  const hasKeywordMatch = POPULAR_TEAM_KEYWORDS.some(keyword => 
+  const hasKeywordMatch = POPULAR_BASKETBALL_TEAM_KEYWORDS.some(keyword => 
     homeTeamLower.includes(keyword) || awayTeamLower.includes(keyword)
   );
 
@@ -120,54 +81,48 @@ interface MyBasketFeaturedProps {
   maxMatches?: number;
 }
 
-// Popular leagues from PopularLeaguesList.tsx
-const POPULAR_LEAGUES = [
-  { id: 39, name: "Premier League", country: "England" },
-  { id: 140, name: "La Liga", country: "Spain" },
-  { id: 135, name: "Serie A", country: "Italy" },
-  { id: 78, name: "Bundesliga", country: "Germany" },
-  { id: 61, name: "Ligue 1", country: "France" },
-  { id: 2, name: "UEFA Champions League", country: "Europe" },
-  { id: 3, name: "UEFA Europa League", country: "Europe" },
-  { id: 5, name: "UEFA Nations League", country: "Europe" },
-  { id: 1, name: "World Cup", country: "World" },
-  { id: 4, name: "Euro Championship", country: "World" },
-  { id: 15, name: "FIFA Club World Cup", country: "World" },
-  { id: 38, name: "UEFA U21 Championship", country: "World" },
-  { id: 9, name: "Copa America", country: "World" },
-  { id: 16, name: "CONCACAF Gold Cup", country: "World" },
-  { id: 667, name: "Friendlies Clubs", country: "World" },
+// Popular basketball leagues
+const POPULAR_BASKETBALL_LEAGUES = [
+  { id: 12, name: "NBA", country: "USA" },
+  { id: 120, name: "EuroLeague", country: "Europe" },
+  { id: 127, name: "Liga ACB", country: "Spain" },
+  { id: 133, name: "Lega Basket Serie A", country: "Italy" },
+  { id: 132, name: "Bundesliga", country: "Germany" },
+  { id: 134, name: "LNB Pro A", country: "France" },
+  { id: 122, name: "EuroCup", country: "Europe" },
+  { id: 117, name: "CBA", country: "China" },
 ];
 
-// Define featured leagues (UEFA Europa Conference League ID 848 and Regionalliga - Bayern ID 169 explicitly excluded)
-const FEATURED_MATCH_LEAGUE_IDS = [
-  39, 140, 135, 78, 61, 2, 3, 5, 1, 4, 15, 38, 9, 16
+// Define featured basketball leagues
+const FEATURED_BASKETBALL_LEAGUE_IDS = [
+  12, 120, 127, 133, 132, 134, 122, 117
 ];
 
-// Explicitly excluded leagues
-const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [848, 169]; // UEFA Europa Conference League, Regionalliga - Bayern
-const PRIORITY_LEAGUE_IDS = [15, 38, 22]; // FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup
+const PRIORITY_BASKETBALL_LEAGUE_IDS = [12, 120, 122]; // NBA, EuroLeague, EuroCup
 
-interface FeaturedMatch {
-  fixture: {
-    id: number;
-    date: string;
-    status: {
-      short: string;
-      long: string;
-      elapsed?: number;
-    };
-    venue?: {
-      id?: number;
-      name?: string;
-      city?: string;
-    };
+interface FeaturedBasketballGame {
+  id: number;
+  date: string;
+  time: string;
+  timestamp: number;
+  timezone: string;
+  status: {
+    long: string;
+    short: string;
+    timer: string;
   };
   league: {
     id: number;
     name: string;
-    country: string;
+    type: string;
+    season: string;
     logo: string;
+  };
+  country: {
+    id: number;
+    name: string;
+    code: string;
+    flag: string;
   };
   teams: {
     home: {
@@ -181,21 +136,30 @@ interface FeaturedMatch {
       logo: string;
     };
   };
-  goals: {
-    home: number | null;
-    away: number | null;
-  };
-  venue?: {
-    id?: number;
-    name?: string;
-    city?: string;
+  scores: {
+    home: {
+      quarter_1: number;
+      quarter_2: number;
+      quarter_3: number;
+      quarter_4: number;
+      over_time: number;
+      total: number;
+    };
+    away: {
+      quarter_1: number;
+      quarter_2: number;
+      quarter_3: number;
+      quarter_4: number;
+      over_time: number;
+      total: number;
+    };
   };
 }
 
 interface DayMatches {
   date: string;
   label: string;
-  matches: FeaturedMatch[];
+  matches: FeaturedBasketballGame[];
 }
 
 const MyBasketFeatured: React.FC<MyBasketFeaturedProps> = ({
@@ -280,149 +244,169 @@ const MyBasketFeatured: React.FC<MyBasketFeaturedProps> = ({
           },
         ];
 
-        // Use priority leagues from our clean list
-        const priorityLeagueIds = PRIORITY_LEAGUE_IDS;
-        const allFixtures: FeaturedMatch[] = [];
+        // Use priority basketball leagues
+        const priorityLeagueIds = PRIORITY_BASKETBALL_LEAGUE_IDS;
+        const allGames: FeaturedBasketballGame[] = [];
 
         console.log(
-          "🔍 [MyBasketFeatured] Starting fetch with priority leagues:",
+          "🏀 [MyBasketFeatured] Starting fetch with priority basketball leagues:",
           priorityLeagueIds,
         );
         console.log(
-          "🔍 [MyBasketFeatured] All featured league IDs:",
-          FEATURED_MATCH_LEAGUE_IDS,
+          "🏀 [MyBasketFeatured] All featured basketball league IDs:",
+          FEATURED_BASKETBALL_LEAGUE_IDS,
         );
 
-        // Helper function to determine if match is live
-        const isLiveMatch = (status: string) => {
-          return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+        // Helper function to determine if basketball game is live
+        const isLiveBasketballGame = (status: string) => {
+          return ["LIVE", "Q1", "Q2", "Q3", "Q4", "OT", "HT"].includes(
             status,
           );
         };
 
-        // Helper function to determine if match is ended
-        const isEndedMatch = (status: string) => {
+        // Helper function to determine if basketball game is ended
+        const isEndedBasketballGame = (status: string) => {
           return [
             "FT",
-            "AET",
-            "PEN",
-            "AWD",
-            "WO",
-            "ABD",
+            "AOT",
             "CANC",
             "SUSP",
+            "AWD",
+            "WO"
           ].includes(status);
         };
 
-        // Helper function to determine if match is upcoming
-        const isUpcomingMatch = (status: string) => {
+        // Helper function to determine if basketball game is upcoming
+        const isUpcomingBasketballGame = (status: string) => {
           return ["NS", "TBD", "PST"].includes(status);
         };
 
-        // Simple validation - only check for valid team names
-        const isValidMatch = (fixture: any) => {
-          return !!(fixture?.teams?.home?.name && fixture?.teams?.away?.name);
+        // Simple validation for basketball games
+        const isValidBasketballGame = (game: any) => {
+          return !!(game?.teams?.home?.name && game?.teams?.away?.name);
         };
 
-        // Fetch live matches from API for real-time updates
-        let liveFixtures: FeaturedMatch[] = [];
+        // Fetch live basketball games from API for real-time updates
+        let liveGames: FeaturedBasketballGame[] = [];
         try {
           if (forceRefresh) {
             console.log(
-              "🔴 [MyBasketFeatured] Fetching live matches from dedicated endpoint",
+              "🔴 [MyBasketFeatured] Fetching live basketball games",
             );
-            const liveResponse = await apiRequest(
-              "GET",
-              "/api/featured-match/live?skipFilter=true",
-            );
+            const liveResponse = await fetch("/api/basketball/live");
             const liveData = await liveResponse.json();
 
             if (Array.isArray(liveData)) {
               console.log(
-                "🔍 [MyBasketFeatured] Processing live fixtures:",
+                "🏀 [MyBasketFeatured] Processing live basketball games:",
                 liveData.length,
               );
 
-              // First filter by featured leagues, then by valid teams
-              const featuredLiveFixtures = liveData.filter((fixture) =>
-                FEATURED_MATCH_LEAGUE_IDS.includes(fixture.league?.id),
+              // Filter by featured basketball leagues
+              const featuredLiveGames = liveData.filter((game) =>
+                FEATURED_BASKETBALL_LEAGUE_IDS.includes(game.league?.id),
               );
 
               console.log(
-                "🔍 [MyBasketFeatured] Featured live fixtures:",
-                featuredLiveFixtures.length,
+                "🏀 [MyBasketFeatured] Featured live basketball games:",
+                featuredLiveGames.length,
               );
 
-              liveFixtures = featuredLiveFixtures
-                .filter((fixture: any) => {
-                  const isValid = isValidMatch(fixture);
+              liveGames = featuredLiveGames
+                .filter((game: any) => {
+                  const isValid = isValidBasketballGame(game);
                   if (!isValid) {
                     console.log(
-                      "❌ [MyBasketFeatured] Filtered out invalid fixture:",
+                      "❌ [MyBasketFeatured] Filtered out invalid basketball game:",
                       {
-                        home: fixture.teams?.home?.name,
-                        away: fixture.teams?.away?.name,
-                        league: fixture.league?.name,
+                        home: game.teams?.home?.name,
+                        away: game.teams?.away?.name,
+                        league: game.league?.name,
                       },
                     );
                   } else {
                     console.log(
-                      "✅ [MyBasketFeatured] Valid featured live fixture:",
+                      "✅ [MyBasketFeatured] Valid featured live basketball game:",
                       {
-                        home: fixture.teams?.home?.name,
-                        away: fixture.teams?.away?.name,
-                        league: fixture.league?.name,
-                        leagueId: fixture.league?.id,
+                        home: game.teams?.home?.name,
+                        away: game.teams?.away?.name,
+                        league: game.league?.name,
+                        leagueId: game.league?.id,
                       },
                     );
                   }
                   return isValid;
-                })
-                .map((fixture: any) => ({
-                  fixture: {
-                    id: fixture.fixture.id,
-                    date: fixture.fixture.date,
-                    status: fixture.fixture.status,
-                  },
-                  league: {
-                    id: fixture.league.id,
-                    name: fixture.league.name,
-                    country: fixture.league.country,
-                    logo: fixture.league.logo,
-                  },
-                  teams: {
-                    home: {
-                      id: fixture.teams.home.id,
-                      name: fixture.teams.home.name,
-                      logo: fixture.teams.home.logo,
-                    },
-                    away: {
-                      id: fixture.teams.away.id,
-                      name: fixture.teams.away.name,
-                      logo: fixture.teams.away.logo,
-                    },
-                  },
-                  goals: {
-                    home: fixture.goals?.home ?? null,
-                    away: fixture.goals?.away ?? null,
-                  },
-                }));
+                });
             }
             console.log(
-              `✅ [MyBasketFeatured] Found ${liveFixtures.length} live matches (including all live matches regardless of league)`,
+              `✅ [MyBasketFeatured] Found ${liveGames.length} live basketball games`,
             );
           }
         } catch (error) {
           console.error(
-            "❌ [MyBasketFeatured] Error fetching live matches:",
+            "❌ [MyBasketFeatured] Error fetching live basketball games:",
             error,
           );
         }
 
-        allFixtures.push(...liveFixtures);
+        allGames.push(...liveGames);
 
-        // Fetch non-live matches from cached data only on initial load or force refresh
-        if (forceRefresh || allFixtures.length === 0) {
+        // Fetch basketball games from API for each date
+        for (const dateInfo of dates) {
+          try {
+            console.log(
+              `🏀 [MyBasketFeatured] Fetching basketball games for ${dateInfo.label}: ${dateInfo.date}`,
+            );
+
+            const response = await fetch(`/api/basketball/games/${dateInfo.date}`);
+            const games = await response.json();
+
+            if (games?.length) {
+              const validGames = games
+                .filter((game: any) => {
+                  // Must have valid teams
+                  const hasValidTeams = isValidBasketballGame(game);
+                  
+                  // Filter by featured leagues
+                  const isFeaturedLeague = FEATURED_BASKETBALL_LEAGUE_IDS.includes(game.league?.id);
+                  
+                  // Check if involves popular teams
+                  const isPopularTeamGame = isPopularBasketballTeamMatch(
+                    game.teams?.home?.name || "",
+                    game.teams?.away?.name || "",
+                    game.teams?.home?.id,
+                    game.teams?.away?.id
+                  );
+
+                  const shouldInclude = hasValidTeams && (isFeaturedLeague || isPopularTeamGame);
+
+                  if (shouldInclude) {
+                    console.log(
+                      `✅ [MyBasketFeatured] Including basketball game:`,
+                      {
+                        home: game.teams?.home?.name,
+                        away: game.teams?.away?.name,
+                        league: game.league?.name,
+                        status: game.status?.short,
+                      },
+                    );
+                  }
+
+                  return shouldInclude;
+                });
+
+              allGames.push(...validGames);
+            }
+          } catch (error) {
+            console.error(
+              `❌ [MyBasketFeatured] Error fetching basketball games for ${dateInfo.label}:`,
+              error,
+            );
+          }
+        }
+
+        // Fetch non-live games from cached data only on initial load or force refresh
+        if (forceRefresh || allGames.length === 0) {
           // Fetch non-live matches from cached data (priority leagues)
           for (const leagueId of priorityLeagueIds) {
             try {
@@ -852,30 +836,30 @@ const MyBasketFeatured: React.FC<MyBasketFeaturedProps> = ({
           }
         }
 
-        // Remove duplicates based on fixture ID
-        const uniqueFixtures = allFixtures.filter(
-          (fixture, index, self) =>
+        // Remove duplicates based on game ID
+        const uniqueGames = allGames.filter(
+          (game, index, self) =>
             index ===
-            self.findIndex((f) => f.fixture.id === fixture.fixture.id),
+            self.findIndex((g) => g.id === game.id),
         );
 
         console.log(
-          `📋 [MyBasketFeatured] Total unique fixtures found:`,
-          uniqueFixtures.length,
+          `🏀 [MyBasketFeatured] Total unique basketball games found:`,
+          uniqueGames.length,
         );
 
         // Enhanced debug logging with league IDs
-        const fixtureDetails = uniqueFixtures.map((f) => ({
-          id: f.fixture.id,
-          teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
-          league:  f.league.name,
-          leagueId: f.league.id,
-          country: f.league.country,
-          status: f.fixture.status.short,
-          date: f.fixture.date,
+        const gameDetails = uniqueGames.map((g) => ({
+          id: g.id,
+          teams: `${g.teams.home.name} vs ${g.teams.away.name}`,
+          league: g.league.name,
+          leagueId: g.league.id,
+          country: g.country.name,
+          status: g.status.short,
+          date: g.date,
         }));
 
-        console.log(`📋 [MyBasketFeatured] Fixture details with League IDs:`, fixtureDetails);
+        console.log(`🏀 [MyBasketFeatured] Basketball game details with League IDs:`, gameDetails);
 
         // Special debug for Oberliga leagues
         const oberligaMatches = uniqueFixtures.filter(f => 

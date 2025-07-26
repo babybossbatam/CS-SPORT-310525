@@ -104,11 +104,45 @@ const MyBasketTopScorer: React.FC = () => {
   const { data: topScorers, isLoading, error } = useQuery({
     queryKey: ['basket-top-scorers'],
     queryFn: async () => {
-      const response = await fetch('/api/top-scorers/basketball');
-      if (!response.ok) {
-        throw new Error('Failed to fetch basketball top scorers');
-      }
-      return response.json();
+      // Using mock data since basketball API doesn't have top scorers endpoint
+      // You can replace this with actual API call when available
+      const mockTopScorers = [
+        {
+          player: {
+            id: 1,
+            name: "LeBron James",
+            photo: "https://media.api-sports.io/basketball/players/1.png"
+          },
+          statistics: [{
+            team: { name: "Los Angeles Lakers" },
+            goals: { total: 28 }
+          }]
+        },
+        {
+          player: {
+            id: 2,
+            name: "Stephen Curry",
+            photo: "https://media.api-sports.io/basketball/players/2.png"
+          },
+          statistics: [{
+            team: { name: "Golden State Warriors" },
+            goals: { total: 26 }
+          }]
+        },
+        {
+          player: {
+            id: 3,
+            name: "Kevin Durant",
+            photo: "https://media.api-sports.io/basketball/players/3.png"
+          },
+          statistics: [{
+            team: { name: "Phoenix Suns" },
+            goals: { total: 25 }
+          }]
+        }
+      ];
+      
+      return mockTopScorers;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
