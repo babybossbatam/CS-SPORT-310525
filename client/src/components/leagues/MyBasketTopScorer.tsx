@@ -401,7 +401,7 @@ const MyBasketTopScorer: React.FC = () => {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: scrollbarHideStyle }} />
-      <div className="bg-white rounded-md border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-md border border-gray-200 overflow-hidden" data-sport="basketball">
         {/* Points title */}
         <div className="px-4 py-1 border-b border-gray-100">
           <h3 className="text-sm font-semibold text-gray-900 text-center">
@@ -537,6 +537,7 @@ const MyBasketTopScorer: React.FC = () => {
                       playerName={scorer.player.name}
                       size="md"
                       className="border-gray-200"
+                      sport="basketball"
                     />
 
                     <div className="flex-1 min-w-0">
