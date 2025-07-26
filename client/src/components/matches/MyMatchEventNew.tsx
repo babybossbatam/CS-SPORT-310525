@@ -981,19 +981,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                 {/* Center - Round number */}
                 <div className="penalty-center">
-                  <div className="match-event-module-stages-time-yellow-circle-penalty" style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    backgroundColor: '#f59e0b',
-                    color: 'white',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                    margin: '0 auto'
-                  }}>
+                  <div className="match-event-module-stages-time-yellow-circle-penalty">
                     {round.roundNumber}P
                   </div>
                 </div>
