@@ -865,7 +865,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check cache first
-
       const cachedLeague = await storage.getCachedLeague(id.toString());
 
       if (cachedLeague) {
