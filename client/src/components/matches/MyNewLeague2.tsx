@@ -172,8 +172,8 @@ const MyNewLeague2 = ({
   // League IDs without any filtering - removed duplicates
   const leagueIds = [
     38, 15, 2, 10, 11, 848, 886, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667,
-    531, 940, 908, 1169, 23, 1077, 253, 850, 893, 921, 130, 128, 493, 239, 265,
-    237, 235,239,  743,
+    940, 908, 1169, 23, 1077, 253, 850, 893, 921, 130, 128, 493, 239, 265, 237,
+    235, 743,
   ];
 
   // Fetch fixtures for all leagues
@@ -282,7 +282,7 @@ const MyNewLeague2 = ({
             fixtureId: fixture.fixture.id,
             teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
             league: fixture.league.name,
-          }
+          },
         );
         return;
       }
@@ -377,8 +377,6 @@ const MyNewLeague2 = ({
         // For other statuses, sort by date (earliest first)
         return aDate - bDate;
       });
-
-
     });
 
     const groupedKeys = Object.keys(grouped);
@@ -618,7 +616,8 @@ const MyNewLeague2 = ({
         .sort(([aId], [bId]) => {
           // Define priority order - same as MyNewLeague
           const priorityOrder = [
-            38, 15, 2, 5, 22, 10,  11, 71, 72, 667, 3, 848, 73, 75, 239, 233, 253,
+            38, 15, 2, 5, 22, 10, 11, 71, 72, 667, 3, 848, 73, 75, 239, 233,
+            253,
           ];
 
           const aIndex = priorityOrder.indexOf(Number(aId));
@@ -926,24 +925,44 @@ const MyNewLeague2 = ({
                                 }
 
                                 // Postponed/Cancelled matches
-                                if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
+                                if (
+                                  [
+                                    "PST",
+                                    "CANC",
+                                    "ABD",
+                                    "SUSP",
+                                    "AWD",
+                                    "WO",
+                                  ].includes(status)
+                                ) {
                                   return (
                                     <div className="match-status-label status-postponed">
-                                      {status === "PST" ? "Postponed" : 
-                                       status === "CANC" ? "Cancelled" : 
-                                       status === "ABD" ? "Abandoned" : 
-                                       status === "SUSP" ? "Suspended" : 
-                                       status === "AWD" ? "Awarded" : 
-                                       status === "WO" ? "Walkover" : status}
+                                      {status === "PST"
+                                        ? "Postponed"
+                                        : status === "CANC"
+                                          ? "Cancelled"
+                                          : status === "ABD"
+                                            ? "Abandoned"
+                                            : status === "SUSP"
+                                              ? "Suspended"
+                                              : status === "AWD"
+                                                ? "Awarded"
+                                                : status === "WO"
+                                                  ? "Walkover"
+                                                  : status}
                                     </div>
                                   );
                                 }
 
                                 // Check for overdue matches that should be marked as postponed
                                 if (status === "NS" || status === "TBD") {
-                                  const matchTime = new Date(fixture.fixture.date);
+                                  const matchTime = new Date(
+                                    fixture.fixture.date,
+                                  );
                                   const now = new Date();
-                                  const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+                                  const hoursAgo =
+                                    (now.getTime() - matchTime.getTime()) /
+                                    (1000 * 60 * 60);
 
                                   // If match is more than 2 hours overdue, show postponed status
                                   if (hoursAgo > 2) {
@@ -1111,16 +1130,39 @@ const MyNewLeague2 = ({
                                   }
 
                                   // For postponed matches and upcoming matches - show kick-off time
-                                  if (status === "NS" || status === "TBD" || ["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
-                                    const matchTime = new Date(fixture.fixture.date);
+                                  if (
+                                    status === "NS" ||
+                                    status === "TBD" ||
+                                    [
+                                      "PST",
+                                      "CANC",
+                                      "ABD",
+                                      "SUSP",
+                                      "AWD",
+                                      "WO",
+                                    ].includes(status)
+                                  ) {
+                                    const matchTime = new Date(
+                                      fixture.fixture.date,
+                                    );
 
                                     // For postponed/cancelled matches, still show the kick-off time
-                                    if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
-                                      const localTime = matchTime.toLocaleTimeString("en-US", {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                        hour12: false,
-                                      });
+                                    if (
+                                      [
+                                        "PST",
+                                        "CANC",
+                                        "ABD",
+                                        "SUSP",
+                                        "AWD",
+                                        "WO",
+                                      ].includes(status)
+                                    ) {
+                                      const localTime =
+                                        matchTime.toLocaleTimeString("en-US", {
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                          hour12: false,
+                                        });
 
                                       return (
                                         <div
@@ -1134,15 +1176,18 @@ const MyNewLeague2 = ({
 
                                     // Check if match should have started already (more than 2 hours ago) for NS/TBD
                                     const now = new Date();
-                                    const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+                                    const hoursAgo =
+                                      (now.getTime() - matchTime.getTime()) /
+                                      (1000 * 60 * 60);
 
                                     // If match is more than 2 hours overdue, show kick-off time but with postponed styling
                                     if (hoursAgo > 2) {
-                                      const localTime = matchTime.toLocaleTimeString("en-US", {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                        hour12: false,
-                                      });
+                                      const localTime =
+                                        matchTime.toLocaleTimeString("en-US", {
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                          hour12: false,
+                                        });
 
                                       return (
                                         <div
@@ -1155,11 +1200,12 @@ const MyNewLeague2 = ({
                                     }
 
                                     // Use simplified local time formatting for regular upcoming matches
-                                    const localTime = matchTime.toLocaleTimeString("en-US", {
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                      hour12: false,
-                                    });
+                                    const localTime =
+                                      matchTime.toLocaleTimeString("en-US", {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        hour12: false,
+                                      });
 
                                     return (
                                       <div
