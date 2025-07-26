@@ -173,7 +173,7 @@ const MyNewLeague2 = ({
   const leagueIds = [
     38, 15, 2, 10, 11, 848, 886, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667,
     531, 940, 908, 1169, 23, 1077, 253, 850, 893, 921, 130, 128, 493, 239, 265,
-    237, 235, 743,
+    237, 235,239,  743,
   ];
 
   // Fetch fixtures for all leagues
@@ -601,7 +601,7 @@ const MyNewLeague2 = ({
         .sort(([aId], [bId]) => {
           // Define priority order - same as MyNewLeague
           const priorityOrder = [
-            38, 15, 2, 5, 22, 10,  11, 71, 72, 667, 3, 848, 73, 75, 233, 253,
+            38, 15, 2, 5, 22, 10,  11, 71, 72, 667, 3, 848, 73, 75, 239, 233, 253,
           ];
 
           const aIndex = priorityOrder.indexOf(Number(aId));
