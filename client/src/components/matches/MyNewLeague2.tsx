@@ -963,7 +963,7 @@ const MyNewLeague2 = ({
                                     "SUSP",
                                   ].includes(status) ||
                                   isStaleFinishedMatch
-                                ){
+                                ) {
                                   return (
                                     <div
                                       className="match-status-label status-ended"
@@ -1093,36 +1093,56 @@ const MyNewLeague2 = ({
                                     );
                                   }
 
-                                  // Upcoming matches - show kick-off time
-                                  if (status === "NS" || status === "TBD") {
-                                    // Check if match should have started already (more than 2 hours ago)
-                                    const matchTime = new Date(
-                                      fixture.fixture.date,
-                                    );
-                                    const now = new Date();
-                                    const hoursAgo =
-                                      (now.getTime() - matchTime.getTime()) /
-                                      (1000 * 60 * 60);
+                                  // For postponed matches and upcoming matches - show kick-off time
+                                  if (status === "NS" || status === "TBD" || ["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
+                                    const matchTime = new Date(fixture.fixture.date);
 
-                                    // If match is more than 2 hours overdue, show as postponed/cancelled
+                                    // For postponed/cancelled matches, still show the kick-off time
+                                    if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
+                                      const localTime = matchTime.toLocaleTimeString("en-US", {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        hour12: false,
+                                      });
+
+                                      return (
+                                        <div
+                                          className="match-time-display"
+                                          style={{ fontSize: "0.882em" }}
+                                        >
+                                          {localTime}
+                                        </div>
+                                      );
+                                    }
+
+                                    // Check if match should have started already (more than 2 hours ago) for NS/TBD
+                                    const now = new Date();
+                                    const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+
+                                    // If match is more than 2 hours overdue, show kick-off time but with postponed styling
                                     if (hoursAgo > 2) {
+                                      const localTime = matchTime.toLocaleTimeString("en-US", {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        hour12: false,
+                                      });
+
                                       return (
                                         <div
                                           className="match-time-display text-orange-600"
                                           style={{ fontSize: "0.8em" }}
                                         >
-                                          Postponed
+                                          {localTime}
                                         </div>
                                       );
                                     }
 
-                                    // Use simplified local time formatting
-                                    const localTime =
-                                      matchTime.toLocaleTimeString("en-US", {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                        hour12: false,
-                                      });
+                                    // Use simplified local time formatting for regular upcoming matches
+                                    const localTime = matchTime.toLocaleTimeString("en-US", {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      hour12: false,
+                                    });
 
                                     return (
                                       <div
