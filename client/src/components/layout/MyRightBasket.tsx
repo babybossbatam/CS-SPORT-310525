@@ -2,7 +2,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
-import MyHomeFeaturedMatchNew from '@/components/matches/MyHomeFeaturedMatchNew';
+import MyBasketFeatured from '@/components/matches/MyBasketFeatured';
 import HomeTopScorersList from '@/components/leagues/HomeTopScorersList';
 import LeagueStandingsFilter from '@/components/leagues/LeagueStandingsFilter';
 import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
@@ -16,8 +16,8 @@ const MyRightBasket: React.FC = () => {
 
   return (
     <>
-      {/* New optimized featured match component for testing */}
-      <MyHomeFeaturedMatchNew 
+      {/* New basket featured match component */}
+      <MyBasketFeatured 
         selectedDate={selectedDate} 
         maxMatches={8}
       />
