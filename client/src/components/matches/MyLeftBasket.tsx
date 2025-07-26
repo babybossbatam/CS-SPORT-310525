@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Clock } from "lucide-react";
 import { Card, CardHeader, CardContent } from "../ui/card";
@@ -404,23 +403,14 @@ export const MyLeftBasket = ({
         />
       ) : (
         // Neither filter active - show default view
-        <>
+        
           <MyBasketLeague
             selectedDate={selectedDate}
-            timeFilterActive={false}
-            showTop10={false}
-            liveFilterActive={liveFilterActive}
-            onMatchCardClick={handleMatchCardClick}
-            useUTCOnly={true}
-          />
-          
-          <MyBasketByCountry
-            selectedDate={selectedDate}
-            liveFilterActive={liveFilterActive}
+            onMatchCardClick={onMatchCardClick}
             timeFilterActive={timeFilterActive}
-            onMatchCardClick={handleMatchCardClick}
+            liveFilterActive={liveFilterActive}
           />
-        </>
+        
       )
     }
 </>
