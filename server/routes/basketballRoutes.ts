@@ -169,4 +169,56 @@ router.get('/debug/games', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/basketball/debug/raw/:leagueId
+ * Debug route to check raw API response for a specific league
+ */
+router.get('/debug/raw/:leagueId', async (req, res) => {
+  try {
+    const leagueId = parseInt(req.params.leagueId);
+    console.log(`🔍 [BasketballRoutes] Debug: Raw API test for league ${leagueId}`);
+    
+    // Test multiple endpoints
+    const testEndpoints = [
+      `/games?league=${leagueId}`,
+      `/games?league=${leagueId}&season=2024`,
+      `/games?league=${leagueId}&season=2024-2025`,
+      `/games?date=2025-01-26`,
+      `/leagues/${leagueId}`
+    ];
+    
+    const results = [];
+    for (const endpoint of testEndpoints) {
+      try {
+        const response = await basketballApiService.makeRequest(endpoint);
+        results.push({
+          endpoint,
+          success: response.success,
+          dataCount: response.data?.response?.length || 0,
+          data: response.data
+        });
+      } catch (error) {
+        results.push({
+          endpoint,
+          success: false,
+          error: error.message
+        });
+      }
+    }
+    
+    res.json({ 
+      leagueId,
+      testResults: results,
+      apiKey: '81bc62b91b1190622beda24ee23fbd1a'.substring(0, 8) + '...',
+      endpoint: 'v1.basketball.api-sports.io'
+    });
+  } catch (error) {
+    console.error('Error in debug raw:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
 export default router;

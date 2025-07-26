@@ -11,7 +11,7 @@ interface BasketballApiResponse {
 }
 
 class BasketballApiService {
-  private makeRequest(path: string): Promise<BasketballApiResponse> {
+  public makeRequest(path: string): Promise<BasketballApiResponse> {
     return new Promise((resolve) => {
       const options = {
         method: 'GET',
@@ -19,7 +19,7 @@ class BasketballApiService {
         port: null,
         path: path,
         headers: {
-          'x-apisports-key': BASKETBALL_API_KEY,
+          'x-rapidapi-key': BASKETBALL_API_KEY,
           'x-rapidapi-host': 'v1.basketball.api-sports.io'
         }
       };
@@ -79,24 +79,47 @@ class BasketballApiService {
   async getLeagueFixtures(leagueId: number): Promise<any[]> {
     console.log(`🏀 [BasketballAPI] Fetching fixtures for league ${leagueId}`);
 
-    // Try current season first (2024-2025)
-    let response = await this.makeRequest(`/games?league=${leagueId}&season=2024-2025`);
+    // Get current date info for season detection
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
     
-    if (!response.success || !response.data?.response?.length) {
-      console.log(`🏀 [BasketballAPI] No fixtures for 2024-2025 season, trying 2024...`);
-      // Try alternative season format (2024)
-      response = await this.makeRequest(`/games?league=${leagueId}&season=2024`);
+    // Basketball seasons typically run from October to June of the following year
+    const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
+    let seasonYear = currentYear;
+    
+    // If we're in January-June, we're in the second half of the season
+    if (currentMonth >= 1 && currentMonth <= 6) {
+      seasonYear = currentYear - 1;
     }
 
-    if (!response.success || !response.data?.response?.length) {
-      console.log(`🏀 [BasketballAPI] No fixtures for 2024 season, trying 2023-2024...`);
-      // Try previous season
-      response = await this.makeRequest(`/games?league=${leagueId}&season=2023-2024`);
+    const seasonFormats = [
+      `${seasonYear}-${seasonYear + 1}`, // 2024-2025
+      `${seasonYear}`,                    // 2024
+      `${currentYear}`,                   // Current year
+      `${currentYear - 1}`,              // Previous year
+      `2024-2025`,                       // Fallback current season
+      `2024`,                            // Fallback
+      `2023-2024`                        // Previous season fallback
+    ];
+
+    for (const season of seasonFormats) {
+      console.log(`🏀 [BasketballAPI] Trying season ${season} for league ${leagueId}`);
+      const response = await this.makeRequest(`/games?league=${leagueId}&season=${season}`);
+      
+      if (response.success && response.data?.response?.length > 0) {
+        const fixtures = response.data.response;
+        console.log(`✅ [BasketballAPI] Retrieved ${fixtures.length} fixtures for league ${leagueId} in season ${season}`);
+        return fixtures;
+      }
     }
 
+    // If no fixtures found with seasons, try without season parameter
+    console.log(`🏀 [BasketballAPI] No fixtures found with seasons, trying without season for league ${leagueId}`);
+    const response = await this.makeRequest(`/games?league=${leagueId}`);
+    
     if (response.success && response.data?.response) {
       const fixtures = response.data.response;
-      console.log(`✅ [BasketballAPI] Retrieved ${fixtures.length} fixtures for league ${leagueId}`);
+      console.log(`✅ [BasketballAPI] Retrieved ${fixtures.length} fixtures for league ${leagueId} (no season)`);
       return fixtures;
     }
 
