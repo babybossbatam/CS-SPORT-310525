@@ -178,28 +178,27 @@ const MyBasketballPopularLeague = ({
 
   // Basketball league IDs - Popular basketball leagues worldwide
   const basketballLeagueIds = [
-    205, // Specified league
-    290, // Specified league
-    12,  // NBA (specified + popular)
-    13,  // Specified league
-    178, // Specified league
-    376, // Specified league
-    15,  // Specified league
-    17,  // Specified league
-    274, // Specified league
+    12,  // NBA (most popular)
+    120, // WNBA 
     117, // EuroLeague
-    120, // WNBA
+    116, // Turkish Basketball Super League
     121, // NCAA Basketball
     157, // FIBA World Cup
     159, // FIBA EuroBasket
-    116, // Turkish Basketball Super League
     134, // Spanish Liga ACB
     135, // Italian Lega Basket Serie A
     136, // German Basketball Bundesliga
     137, // French LNB Pro A
     138, // Greek Basket League
     139, // Russian VTB United League
-    // Add more popular basketball leagues
+    274, // Additional league
+    178, // Additional league
+    376, // Additional league
+    290, // Additional league
+    205, // Additional league
+    15,  // Additional league
+    17,  // Additional league
+    13,  // Additional league
   ];
 
   // Fetch fixtures for basketball leagues only if not provided via props
@@ -278,6 +277,29 @@ const MyBasketballPopularLeague = ({
   // Use either prop fixtures or fetched fixtures
   const allFixtures = propFixtures || fetchedFixtures;
   const isLoading = propIsLoading !== undefined ? propIsLoading : fetchIsLoading;
+
+  // Fetch available basketball leagues for debugging
+  const { data: availableLeagues } = useQuery({
+    queryKey: ["basketballLeagues"],
+    queryFn: async () => {
+      console.log("🏀 [MyBasketballPopularLeague] Fetching available basketball leagues");
+      try {
+        const response = await fetch('/api/basketball/leagues');
+        if (!response.ok) {
+          console.log(`❌ Failed to fetch basketball leagues: ${response.status}`);
+          return [];
+        }
+        const data = await response.json();
+        console.log(`✅ Retrieved ${data.length} basketball leagues`);
+        return data;
+      } catch (error) {
+        console.error("❌ Error fetching basketball leagues:", error);
+        return [];
+      }
+    },
+    staleTime: 60 * 60 * 1000, // 1 hour
+    enabled: !allFixtures?.length, // Only fetch when no fixtures
+  });
 
   // Group fixtures by league with date filtering
   const fixturesByLeague = useMemo(() => {
@@ -659,12 +681,29 @@ const MyBasketballPopularLeague = ({
         <Card className="mb-4">
           <CardContent className="p-4">
             <div className="text-center text-gray-500">
-              <div>No basketball matches found</div>
-              <div className="text-xs mt-2">
-                Searched {basketballLeagueIds.length} leagues: {basketballLeagueIds.join(", ")}
-              </div>
-              <div className="text-xs mt-1">
-                Raw fixtures count: {allFixtures?.length || 0}
+              <div className="mb-3">No basketball matches found for {selectedDate}</div>
+              <div className="text-xs mt-2 space-y-1">
+                <div>Searched {basketballLeagueIds.length} leagues: {basketballLeagueIds.join(", ")}</div>
+                <div>Raw fixtures count: {allFixtures?.length || 0}</div>
+                {availableLeagues && availableLeagues.length > 0 && (
+                  <div className="mt-3">
+                    <div className="font-semibold text-sm text-gray-700 mb-2">
+                      Available Basketball Leagues ({availableLeagues.length}):
+                    </div>
+                    <div className="max-h-32 overflow-y-auto text-xs">
+                      {availableLeagues.slice(0, 10).map((league: any, index: number) => (
+                        <div key={league.id || index} className="py-1">
+                          ID: {league.id} - {league.name} ({league.country})
+                        </div>
+                      ))}
+                      {availableLeagues.length > 10 && (
+                        <div className="text-gray-400 mt-1">
+                          ...and {availableLeagues.length - 10} more leagues
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>
