@@ -497,20 +497,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
                               // Upcoming matches - show kick-off time
                               if (status === "NS" || status === "TBD") {
-                                // Check if match should have started already (more than 2 hours ago)
                                 const matchTime = new Date(fixture.fixture.date);
-                                const now = new Date();
-                                const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
-
-                                // If match is more than 2 hours overdue, show as postponed
-                                if (hoursAgo > 2) {
-                                  return (
-                                    <div className="match-time-display text-orange-600" style={{ fontSize: "0.8em" }}>
-                                      Postponed
-                                    </div>
-                                  );
-                                }
-
                                 const localTime = matchTime.toLocaleTimeString("en-US", {
                                   hour: "2-digit",
                                   minute: "2-digit",
