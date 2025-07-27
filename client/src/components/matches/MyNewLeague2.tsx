@@ -176,7 +176,10 @@ const MyNewLeague2 = ({
     235, 743,
   ];
 
-  // Fetch fixtures for all leagues
+  // Helper function to add delay between requests
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+  // Fetch fixtures for all leagues with throttling
   const {
     data: allFixtures,
     isLoading,
@@ -189,31 +192,66 @@ const MyNewLeague2 = ({
         leagueIds,
       );
 
-      const promises = leagueIds.map(async (leagueId) => {
-        try {
-          const response = await fetch(`/api/leagues/${leagueId}/fixtures`);
-          if (!response.ok) {
-            console.log(
-              `❌ [MyNewLeague2] Failed to fetch league ${leagueId}: ${response.status} ${response.statusText}`,
-            );
-            return { leagueId, fixtures: [], error: `HTTP ${response.status}` };
+      // Process leagues in batches to avoid rate limiting
+      const batchSize = 3; // Reduce concurrent requests
+      const results: any[] = [];
+      
+      for (let i = 0; i < leagueIds.length; i += batchSize) {
+        const batch = leagueIds.slice(i, i + batchSize);
+        console.log(`🔄 [MyNewLeague2] Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(leagueIds.length/batchSize)}: leagues ${batch.join(', ')}`);
+        
+        const batchPromises = batch.map(async (leagueId, index) => {
+          // Add small delay between requests in the same batch
+          if (index > 0) {
+            await delay(200); // 200ms delay between requests
           }
-          const data = await response.json();
-          const fixtures = data.response || data || [];
-          console.log(
-            `✅ [MyNewLeague2] League ${leagueId}: ${fixtures.length} fixtures`,
-          );
-          return { leagueId, fixtures, error: null };
-        } catch (error) {
-          console.error(
-            `❌ [MyNewLeague2] Error fetching league ${leagueId}:`,
-            error,
-          );
-          return { leagueId, fixtures: [], error: error.message };
-        }
-      });
+          
+          try {
+            const response = await fetch(`/api/leagues/${leagueId}/fixtures`);
+            
+            if (!response.ok) {
+              if (response.status === 429) {
+                console.warn(`⚠️ [MyNewLeague2] Rate limited for league ${leagueId}, will use cached data if available`);
+                return { leagueId, fixtures: [], error: 'Rate limited', rateLimited: true };
+              }
+              console.log(
+                `❌ [MyNewLeague2] Failed to fetch league ${leagueId}: ${response.status} ${response.statusText}`,
+              );
+              return { leagueId, fixtures: [], error: `HTTP ${response.status}` };
+            }
+            
+            const data = await response.json();
+            const fixtures = data.response || data || [];
+            console.log(
+              `✅ [MyNewLeague2] League ${leagueId}: ${fixtures.length} fixtures`,
+            );
+            return { leagueId, fixtures, error: null };
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            
+            // Handle specific fetch errors
+            if (errorMessage.includes('Failed to fetch') || errorMessage.includes('fetch')) {
+              console.warn(`🌐 [MyNewLeague2] Network error for league ${leagueId}: ${errorMessage}`);
+              return { leagueId, fixtures: [], error: 'Network error', networkError: true };
+            }
+            
+            console.error(
+              `❌ [MyNewLeague2] Error fetching league ${leagueId}:`,
+              error,
+            );
+            return { leagueId, fixtures: [], error: errorMessage };
+          }
+        });
 
-      const results = await Promise.all(promises);
+        const batchResults = await Promise.all(batchPromises);
+        results.push(...batchResults);
+        
+        // Add delay between batches to be more API-friendly
+        if (i + batchSize < leagueIds.length) {
+          console.log(`⏳ [MyNewLeague2] Waiting 500ms before next batch...`);
+          await delay(500);
+        }
+      }
       
       // Deduplicate at the fetch level as well
       const allFixturesMap = new Map<number, FixtureData>();
@@ -242,10 +280,24 @@ const MyNewLeague2 = ({
 
       return allFixtures;
     },
-    staleTime: 5 * 60 * 1000,
-    refetchInterval: 30 * 1000,
+    staleTime: 10 * 60 * 1000, // Increase cache time to 10 minutes
+    refetchInterval: 60 * 1000, // Reduce refetch frequency to 1 minute
     refetchOnWindowFocus: false,
-    retry: 1,
+    retry: (failureCount, error) => {
+      // Don't retry on rate limiting or network errors
+      if (error instanceof Error) {
+        const errorMessage = error.message.toLowerCase();
+        if (errorMessage.includes('429') || 
+            errorMessage.includes('rate limit') || 
+            errorMessage.includes('too many requests')) {
+          console.warn(`🚫 [MyNewLeague2] Not retrying due to rate limiting`);
+          return false;
+        }
+      }
+      // Retry up to 2 times for other errors
+      return failureCount < 2;
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 
   // Group fixtures by league with date filtering
@@ -604,12 +656,28 @@ const MyNewLeague2 = ({
   }
 
   if (error) {
+    const isRateLimit = error.message?.toLowerCase().includes('429') || 
+                       error.message?.toLowerCase().includes('rate limit') || 
+                       error.message?.toLowerCase().includes('too many requests');
+    
     return (
       <Card className="mb-4">
         <CardContent className="p-4">
-          <div className="text-center text-red-500">
-            <div>Error loading leagues</div>
-            <div className="text-xs mt-2">{error.message}</div>
+          <div className="text-center">
+            <div className={isRateLimit ? "text-orange-500" : "text-red-500"}>
+              {isRateLimit ? "⚠️ API Rate Limit Reached" : "❌ Error loading leagues"}
+            </div>
+            <div className="text-xs mt-2 text-gray-600">
+              {isRateLimit 
+                ? "Too many requests to the API. Please wait a moment and the data will refresh automatically."
+                : error.message
+              }
+            </div>
+            {isRateLimit && (
+              <div className="text-xs mt-1 text-blue-600">
+                Using cached data where available...
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
