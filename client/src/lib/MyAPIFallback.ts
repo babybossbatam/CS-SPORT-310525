@@ -172,18 +172,27 @@ export function generateLeagueLogoSources(options: LeagueLogoOptions): LogoSourc
     });
   }
 
-  // 2. API-Sports direct URLs if we have a league ID
+  // 2. Server proxy (uses your RapidAPI key) - Higher priority than direct CDN
+  if (cleanLeagueId) {
+    sources.push({
+      url: `/api/league-logo/${cleanLeagueId}`,
+      source: 'server-proxy',
+      priority: 2
+    });
+  }
+
+  // 3. API-Sports direct URLs as fallback (may timeout)
   if (cleanLeagueId) {
     sources.push(
       {
         url: `https://media.api-sports.io/football/leagues/${cleanLeagueId}.png`,
         source: 'api-sports-direct',
-        priority: 2
+        priority: 3
       }
     );
   }
 
-  // 4. API endpoint fallback
+  // 4. API endpoint square fallback
   if (cleanLeagueId) {
     sources.push({
       url: `/api/league-logo/square/${cleanLeagueId}`,
