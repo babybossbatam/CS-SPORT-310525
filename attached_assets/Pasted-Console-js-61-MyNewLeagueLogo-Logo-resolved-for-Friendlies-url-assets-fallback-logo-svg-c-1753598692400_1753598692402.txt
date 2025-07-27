@@ -1,0 +1,1759 @@
+Console.js:61 ✅ [MyNewLeagueLogo] Logo resolved for Friendlies: {url: '/assets/fallback-logo.svg', cached: false, fallbackUsed: true, loadTime: '5423ms'}
+Console.js:61 ⏰ [EnhancedLogoManager] League 71 API-Sports source timed out - using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:330
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🚫 [EnhancedLogoManager] All sources failed for league 71, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:344
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🎨 [MyNewLeagueLogo] Logo Load: {type: 'league', shape: 'normal', url: '/assets/fallback-logo.svg', fallbackUsed: true, loadTime: 5417}
+Console.js:61 ✅ [MyNewLeagueLogo] Logo resolved for Serie A: {url: '/assets/fallback-logo.svg', cached: false, fallbackUsed: true, loadTime: '5417ms'}
+Console.js:61 ⏰ [EnhancedLogoManager] League 72 API-Sports source timed out - using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:330
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🚫 [EnhancedLogoManager] All sources failed for league 72, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:344
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🎨 [MyNewLeagueLogo] Logo Load: {type: 'league', shape: 'normal', url: '/assets/fallback-logo.svg', fallbackUsed: true, loadTime: 5416}
+Console.js:61 ✅ [MyNewLeagueLogo] Logo resolved for Serie B: {url: '/assets/fallback-logo.svg', cached: false, fallbackUsed: true, loadTime: '5416ms'}
+Console.js:61 ⏰ [EnhancedLogoManager] League 667 API-Sports source timed out - using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:330
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🚫 [EnhancedLogoManager] All sources failed for league 667, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:344
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🎨 [MyNewLeagueLogo] Logo Load: {type: 'league', shape: 'normal', url: '/assets/fallback-logo.svg', fallbackUsed: true, loadTime: 5410}
+Console.js:61 ✅ [MyNewLeagueLogo] Logo resolved for Friendlies Clubs: {url: '/assets/fallback-logo.svg', cached: false, fallbackUsed: true, loadTime: '5410ms'}
+Console.js:61 ⏰ [EnhancedLogoManager] League 75 API-Sports source timed out - using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:330
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🚫 [EnhancedLogoManager] All sources failed for league 75, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:344
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🎨 [MyNewLeagueLogo] Logo Load: {type: 'league', shape: 'normal', url: '/assets/fallback-logo.svg', fallbackUsed: true, loadTime: 5408}
+Console.js:61 ✅ [MyNewLeagueLogo] Logo resolved for Serie C: {url: '/assets/fallback-logo.svg', cached: false, fallbackUsed: true, loadTime: '5408ms'}
+Console.js:61 ⏰ [EnhancedLogoManager] League 239 API-Sports source timed out - using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:330
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🚫 [EnhancedLogoManager] All sources failed for league 239, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:344
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🎨 [MyNewLeagueLogo] Logo Load: {type: 'league', shape: 'normal', url: '/assets/fallback-logo.svg', fallbackUsed: true, loadTime: 5407}
+Console.js:61 ✅ [MyNewLeagueLogo] Logo resolved for Primera A: {url: '/assets/fallback-logo.svg', cached: false, fallbackUsed: true, loadTime: '5407ms'}
+Console.js:61 ⏰ [EnhancedLogoManager] League 253 API-Sports source timed out - using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:330
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🚫 [EnhancedLogoManager] All sources failed for league 253, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:344
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🎨 [MyNewLeagueLogo] Logo Load: {type: 'league', shape: 'normal', url: '/assets/fallback-logo.svg', fallbackUsed: true, loadTime: 5558}
+Console.js:61 ✅ [MyNewLeagueLogo] Logo resolved for Major League Soccer: {url: '/assets/fallback-logo.svg', cached: false, fallbackUsed: true, loadTime: '5558ms'}
+Console.js:61 ⏰ [EnhancedLogoManager] League 76 API-Sports source timed out - using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:330
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🚫 [EnhancedLogoManager] All sources failed for league 76, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:344
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🎨 [MyNewLeagueLogo] Logo Load: {type: 'league', shape: 'normal', url: '/assets/fallback-logo.svg', fallbackUsed: true, loadTime: 5558}
+Console.js:61 ✅ [MyNewLeagueLogo] Logo resolved for Serie D: {url: '/assets/fallback-logo.svg', cached: false, fallbackUsed: true, loadTime: '5558ms'}
+Console.js:61 ⏰ [EnhancedLogoManager] League 128 API-Sports source timed out - using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:330
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🚫 [EnhancedLogoManager] All sources failed for league 128, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:344
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🎨 [MyNewLeagueLogo] Logo Load: {type: 'league', shape: 'normal', url: '/assets/fallback-logo.svg', fallbackUsed: true, loadTime: 5557}
+Console.js:61 ✅ [MyNewLeagueLogo] Logo resolved for Liga Profesional Argentina: {url: '/assets/fallback-logo.svg', cached: false, fallbackUsed: true, loadTime: '5557ms'}
+Console.js:61 ⏰ [EnhancedLogoManager] League 235 API-Sports source timed out - using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:330
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🚫 [EnhancedLogoManager] All sources failed for league 235, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:344
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🎨 [MyNewLeagueLogo] Logo Load: {type: 'league', shape: 'normal', url: '/assets/fallback-logo.svg', fallbackUsed: true, loadTime: 5555}
+Console.js:61 ✅ [MyNewLeagueLogo] Logo resolved for Premier League: {url: '/assets/fallback-logo.svg', cached: false, fallbackUsed: true, loadTime: '5555ms'}
+Console.js:61 ⏰ [EnhancedLogoManager] League 265 API-Sports source timed out - using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:330
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🚫 [EnhancedLogoManager] All sources failed for league 265, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+getLeagueLogo @ enhancedLogoManager.ts:344
+await in getLeagueLogo
+(anonymous) @ MyNewLeagueLogo.tsx:59
+mountMemo @ chunk-RPCDYKBN.js?v=9250a75f:12194
+useMemo @ chunk-RPCDYKBN.js?v=9250a75f:12518
+useMemo @ chunk-QCHXOAYK.js?v=9250a75f:1094
+MyNewLeagueLogo @ MyNewLeagueLogo.tsx:39
+renderWithHooks @ chunk-RPCDYKBN.js?v=9250a75f:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=9250a75f:14926
+beginWork @ chunk-RPCDYKBN.js?v=9250a75f:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=9250a75f:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=9250a75f:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=9250a75f:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456Understand this warning
+Console.js:61 🎨 [MyNewLeagueLogo] Logo Load: {type: 'league', shape: 'normal', url: '/assets/fallback-logo.svg', fallbackUsed: true, loadTime: 5556}
+Console.js:61 ✅ [MyNewLeagueLogo] Logo resolved for Primera División: {url: '/assets/fallback-logo.svg', cached: false, fallbackUsed: true, loadTime: '5556ms'}
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 🛑 AbortError detected and suppressed: signal is aborted without reason
+Console.js:61 ✅ [MyNewLeagueLogo] Successfully loaded logo for league 10 from: /assets/fallback-logo.svg
+Console.js:61 ✅ [MyNewLeagueLogo] Successfully loaded logo for league 71 from: /assets/fallback-logo.svg
+media.api-sports.io/football/leagues/3.png:1  GET https://media.api-sports.io/football/leagues/3.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+media.api-sports.io/football/leagues/848.png:1  GET https://media.api-sports.io/football/leagues/848.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+media.api-sports.io/football/leagues/5.png:1  GET https://media.api-sports.io/football/leagues/5.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+media.api-sports.io/football/leagues/1.png:1  GET https://media.api-sports.io/football/leagues/1.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+_app-fa2bbf2ef2a04535.js:18  POST https://replit.com/graphql net::ERR_CONNECTION_TIMED_OUT
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+e.consumeQueue @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+n @ _app-fa2bbf2ef2a04535.js:18
+setTimeout
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+e.scheduleQueueConsumption @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+e.try @ _app-fa2bbf2ef2a04535.js:20
+e.start @ _app-fa2bbf2ef2a04535.js:20
+t.request @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:40
+(anonymous) @ _app-fa2bbf2ef2a04535.js:40
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:40
+e.execute @ _app-fa2bbf2ef2a04535.js:40
+e.getObservableFromLink @ _app-fa2bbf2ef2a04535.js:23
+e.getResultsFromLink @ _app-fa2bbf2ef2a04535.js:23
+v @ _app-fa2bbf2ef2a04535.js:23
+e.fetchQueryByPolicy @ _app-fa2bbf2ef2a04535.js:23
+v @ _app-fa2bbf2ef2a04535.js:23
+e.fetchConcastWithInfo @ _app-fa2bbf2ef2a04535.js:23
+t.fetch @ _app-fa2bbf2ef2a04535.js:20
+t.reobserveAsConcast @ _app-fa2bbf2ef2a04535.js:20
+e.executeQuery @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:23
+v @ _app-fa2bbf2ef2a04535.js:40
+S @ _app-fa2bbf2ef2a04535.js:40
+E @ _app-fa2bbf2ef2a04535.js:40
+n @ _app-fa2bbf2ef2a04535.js:18
+setTimeout
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+_ @ _app-fa2bbf2ef2a04535.js:40
+(anonymous) @ 6242-bebb560c46eaa218.js:1
+(anonymous) @ 8153-3354e9c497198d7c.js:1
+t.trigger @ 8153-3354e9c497198d7c.js:1
+(anonymous) @ 8153-3354e9c497198d7c.js:1
+(anonymous) @ main-bd5a7cc97f1d58f0.js:1
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+Promise.then
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1Understand this error
+_app-fa2bbf2ef2a04535.js:18  POST https://replit.com/graphql net::ERR_CONNECTION_TIMED_OUT
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+e.consumeQueue @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+n @ _app-fa2bbf2ef2a04535.js:18
+setTimeout
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+e.scheduleQueueConsumption @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+e.try @ _app-fa2bbf2ef2a04535.js:20
+e.start @ _app-fa2bbf2ef2a04535.js:20
+t.request @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:40
+(anonymous) @ _app-fa2bbf2ef2a04535.js:40
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:40
+e.execute @ _app-fa2bbf2ef2a04535.js:40
+e.getObservableFromLink @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+s @ _app-fa2bbf2ef2a04535.js:20
+e.mutate @ _app-fa2bbf2ef2a04535.js:23
+e.mutate @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ main-bd5a7cc97f1d58f0.js:1
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+(anonymous) @ main-bd5a7cc97f1d58f0.js:1
+(anonymous) @ main-bd5a7cc97f1d58f0.js:1
+n @ _app-fa2bbf2ef2a04535.js:18Understand this error
+_app-fa2bbf2ef2a04535.js:40  POST https://logs.browser-intake-us5-datadoghq.com/api/v2/logs?ddsource=browser&ddtags=sdk_version%3A4.46.0%2Capi%3Abeacon%2Cenv%3Aproduction%2Cservice%3Awebsite%2Cversion%3Ae94b8644&dd-api-key=pub31a5047a3a4692afb84a423db984dc57&dd-evp-origin-version=4.46.0&dd-evp-origin=browser&dd-request-id=fcecfb09-df94-4720-83a2-bf2195452511 net::ERR_CONNECTION_TIMED_OUT
+(anonymous) @ _app-fa2bbf2ef2a04535.js:40
+sendOnExit @ _app-fa2bbf2ef2a04535.js:40
+e.flush @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e.notify @ _app-fa2bbf2ef2a04535.js:20
+f @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e.notify @ _app-fa2bbf2ef2a04535.js:20
+r.capture @ _app-fa2bbf2ef2a04535.js:20
+d @ _app-fa2bbf2ef2a04535.js:6
+(anonymous) @ _app-fa2bbf2ef2a04535.js:6Understand this error
+_app-fa2bbf2ef2a04535.js:18  POST https://replit.com/graphql net::ERR_CONNECTION_TIMED_OUT
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+e.consumeQueue @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+n @ _app-fa2bbf2ef2a04535.js:18
+setTimeout
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+e.scheduleQueueConsumption @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+e.try @ _app-fa2bbf2ef2a04535.js:20
+e.start @ _app-fa2bbf2ef2a04535.js:20
+t.request @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:40
+(anonymous) @ _app-fa2bbf2ef2a04535.js:40
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:40
+e.execute @ _app-fa2bbf2ef2a04535.js:40
+e.getObservableFromLink @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+s @ _app-fa2bbf2ef2a04535.js:20
+e.mutate @ _app-fa2bbf2ef2a04535.js:23
+e.mutate @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ main-bd5a7cc97f1d58f0.js:1
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+(anonymous) @ main-bd5a7cc97f1d58f0.js:1
+(anonymous) @ main-bd5a7cc97f1d58f0.js:1
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+v @ _app-fa2bbf2ef2a04535.js:23
+S @ _app-fa2bbf2ef2a04535.js:23
+E @ _app-fa2bbf2ef2a04535.js:23
+n @ _app-fa2bbf2ef2a04535.js:18
+setTimeout
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+E @ _app-fa2bbf2ef2a04535.js:23
+n @ _app-fa2bbf2ef2a04535.js:18
+setTimeout
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+_ @ _app-fa2bbf2ef2a04535.js:23
+n @ _app-fa2bbf2ef2a04535.js:18Understand this error
+media.api-sports.io/football/leagues/4.png:1  GET https://media.api-sports.io/football/leagues/4.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+media.api-sports.io/football/leagues/15.png:1  GET https://media.api-sports.io/football/leagues/15.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+media.api-sports.io/football/leagues/38.png:1  GET https://media.api-sports.io/football/leagues/38.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+media.api-sports.io/football/leagues/9.png:1  GET https://media.api-sports.io/football/leagues/9.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+media.api-sports.io/football/leagues/22.png:1  GET https://media.api-sports.io/football/leagues/22.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+media.api-sports.io/football/leagues/143.png:1  GET https://media.api-sports.io/football/leagues/143.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+media.api-sports.io/football/leagues/81.png:1  GET https://media.api-sports.io/football/leagues/81.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+media.api-sports.io/football/leagues/307.png:1  GET https://media.api-sports.io/football/leagues/307.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+Console.js:61 ⏸️ [MyHomeFeaturedMatchNew] No live matches, skipping refresh
+media.api-sports.io/football/leagues/233.png:1  GET https://media.api-sports.io/football/leagues/233.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+media.api-sports.io/football/teams/33.png:1  GET https://media.api-sports.io/football/teams/33.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+Console.js:61 🖼️ [PopularTeamsList] Team logo failed for Manchester United, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+onError @ PopularTeamsList.tsx:103
+callCallback2 @ chunk-RPCDYKBN.js?v=9250a75f:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=9250a75f:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=9250a75f:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=9250a75f:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=9250a75f:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=9250a75f:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=9250a75f:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=9250a75f:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=9250a75f:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=9250a75f:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=9250a75f:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=9250a75f:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=9250a75f:5472Understand this warning
+Console.js:61 ✅ [PopularTeamsList] Team logo loaded for Manchester United
+media.api-sports.io/football/teams/40.png:1  GET https://media.api-sports.io/football/teams/40.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+media.api-sports.io/football/teams/10.png:1  GET https://media.api-sports.io/football/teams/10.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+Console.js:61 🖼️ [PopularTeamsList] Team logo failed for Liverpool, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+onError @ PopularTeamsList.tsx:103
+callCallback2 @ chunk-RPCDYKBN.js?v=9250a75f:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=9250a75f:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=9250a75f:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=9250a75f:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=9250a75f:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=9250a75f:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=9250a75f:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=9250a75f:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=9250a75f:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=9250a75f:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=9250a75f:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=9250a75f:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=9250a75f:5472Understand this warning
+Console.js:61 🖼️ [PopularTeamsList] Team logo failed for England, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+onError @ PopularTeamsList.tsx:103
+callCallback2 @ chunk-RPCDYKBN.js?v=9250a75f:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=9250a75f:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=9250a75f:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=9250a75f:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=9250a75f:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=9250a75f:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=9250a75f:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=9250a75f:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=9250a75f:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=9250a75f:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=9250a75f:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=9250a75f:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=9250a75f:5472Understand this warning
+Console.js:61 ✅ [PopularTeamsList] Team logo loaded for Liverpool
+Console.js:61 ✅ [PopularTeamsList] Team logo loaded for England
+_app-fa2bbf2ef2a04535.js:18  POST https://replit.com/graphql net::ERR_CONNECTION_TIMED_OUT
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+e.consumeQueue @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+n @ _app-fa2bbf2ef2a04535.js:18
+setTimeout
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+e.scheduleQueueConsumption @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+e.try @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+n @ _app-fa2bbf2ef2a04535.js:18
+setTimeout
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+e.scheduleRetry @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+a @ _app-fa2bbf2ef2a04535.js:20
+Promise.then
+c @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+s @ _app-fa2bbf2ef2a04535.js:20
+onError @ _app-fa2bbf2ef2a04535.js:20
+v @ _app-fa2bbf2ef2a04535.js:23
+y @ _app-fa2bbf2ef2a04535.js:23
+t.error @ _app-fa2bbf2ef2a04535.js:23
+error @ _app-fa2bbf2ef2a04535.js:20
+v @ _app-fa2bbf2ef2a04535.js:23
+y @ _app-fa2bbf2ef2a04535.js:23
+t.error @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+u @ _app-fa2bbf2ef2a04535.js:20
+v @ _app-fa2bbf2ef2a04535.js:23
+y @ _app-fa2bbf2ef2a04535.js:23
+t.error @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20Understand this error
+Console.js:61 🎯 [MyNewLeague2] Fetching fixtures for 35 leagues on 2025-07-27: (35) [38, 15, 2, 10, 11, 848, 886, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 940, 908, 1169, 23, 1077, 253, 850, 893, 921, 130, 128, 493, 239, 265, 237, 235, 743]
+Console.js:61 🔄 [MyNewLeague2] Processing batch 1/12: leagues 38, 15, 2
+Console.js:61 ✅ [MyNewLeague2] League 38: 31 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 15: 63 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 2: 62 fixtures
+Console.js:61 ⏳ [MyNewLeague2] Waiting 500ms before next batch...
+_app-fa2bbf2ef2a04535.js:18  POST https://replit.com/graphql net::ERR_CONNECTION_TIMED_OUT
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+e.consumeQueue @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+n @ _app-fa2bbf2ef2a04535.js:18
+setTimeout
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+e.scheduleQueueConsumption @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+e.try @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+n @ _app-fa2bbf2ef2a04535.js:18
+setTimeout
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+e.scheduleRetry @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+a @ _app-fa2bbf2ef2a04535.js:20
+Promise.then
+c @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+s @ _app-fa2bbf2ef2a04535.js:20
+onError @ _app-fa2bbf2ef2a04535.js:20
+v @ _app-fa2bbf2ef2a04535.js:23
+y @ _app-fa2bbf2ef2a04535.js:23
+t.error @ _app-fa2bbf2ef2a04535.js:23
+error @ _app-fa2bbf2ef2a04535.js:20
+v @ _app-fa2bbf2ef2a04535.js:23
+y @ _app-fa2bbf2ef2a04535.js:23
+t.error @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+u @ _app-fa2bbf2ef2a04535.js:20
+v @ _app-fa2bbf2ef2a04535.js:23
+y @ _app-fa2bbf2ef2a04535.js:23
+t.error @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20Understand this error
+_app-fa2bbf2ef2a04535.js:18  POST https://replit.com/graphql net::ERR_CONNECTION_TIMED_OUT
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+e.consumeQueue @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+n @ _app-fa2bbf2ef2a04535.js:18
+setTimeout
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+e.scheduleQueueConsumption @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+e.try @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+n @ _app-fa2bbf2ef2a04535.js:18
+setTimeout
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+e.scheduleRetry @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+a @ _app-fa2bbf2ef2a04535.js:20
+Promise.then
+c @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+s @ _app-fa2bbf2ef2a04535.js:20
+onError @ _app-fa2bbf2ef2a04535.js:20
+v @ _app-fa2bbf2ef2a04535.js:23
+y @ _app-fa2bbf2ef2a04535.js:23
+t.error @ _app-fa2bbf2ef2a04535.js:23
+error @ _app-fa2bbf2ef2a04535.js:20
+v @ _app-fa2bbf2ef2a04535.js:23
+y @ _app-fa2bbf2ef2a04535.js:23
+t.error @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+u @ _app-fa2bbf2ef2a04535.js:20
+v @ _app-fa2bbf2ef2a04535.js:23
+y @ _app-fa2bbf2ef2a04535.js:23
+t.error @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+Promise.catch
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+e.consumeQueue @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+n @ _app-fa2bbf2ef2a04535.js:18
+setTimeout
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+e.scheduleQueueConsumption @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+e.try @ _app-fa2bbf2ef2a04535.js:20
+e.start @ _app-fa2bbf2ef2a04535.js:20
+t.request @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:40
+(anonymous) @ _app-fa2bbf2ef2a04535.js:40
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:40
+e.execute @ _app-fa2bbf2ef2a04535.js:40
+e.getObservableFromLink @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+s @ _app-fa2bbf2ef2a04535.js:20
+e.mutate @ _app-fa2bbf2ef2a04535.js:23
+e.mutate @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ main-bd5a7cc97f1d58f0.js:1
+n @ main-bd5a7cc97f1d58f0.js:1
+u @ main-bd5a7cc97f1d58f0.js:1
+(anonymous) @ main-bd5a7cc97f1d58f0.js:1
+(anonymous) @ main-bd5a7cc97f1d58f0.js:1
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+v @ _app-fa2bbf2ef2a04535.js:23
+S @ _app-fa2bbf2ef2a04535.js:23
+E @ _app-fa2bbf2ef2a04535.js:23
+n @ _app-fa2bbf2ef2a04535.js:18
+setTimeout
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+E @ _app-fa2bbf2ef2a04535.js:23
+n @ _app-fa2bbf2ef2a04535.js:18
+setTimeout
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+_ @ _app-fa2bbf2ef2a04535.js:23
+n @ _app-fa2bbf2ef2a04535.js:18Understand this error
+Console.js:61 🔄 [MyNewLeague2] Processing batch 2/12: leagues 10, 11, 848
+Console.js:61 ✅ [MyNewLeague2] League 10: 198 fixtures
+shared-20e68424b4e4b805fad66b8bbc59d74c.js:1  POST https://r.stripe.com/b net::ERR_CONNECTION_TIMED_OUT
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+(anonymous) @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1Understand this error
+Console.js:61 ✅ [MyNewLeague2] League 11: 128 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 848: 148 fixtures
+Console.js:61 ⏳ [MyNewLeague2] Waiting 500ms before next batch...
+Console.js:61 🔄 [MyNewLeague2] Processing batch 3/12: leagues 886, 71, 3
+Console.js:61 ✅ [MyNewLeague2] League 886: 156 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 71: 380 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 3: 34 fixtures
+Console.js:61 ⏳ [MyNewLeague2] Waiting 500ms before next batch...
+Console.js:61 🔄 [MyNewLeague2] Processing batch 4/12: leagues 5, 531, 22
+_app-fa2bbf2ef2a04535.js:18  POST https://replit.com/graphql net::ERR_CONNECTION_TIMED_OUT
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+e.consumeQueue @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+n @ _app-fa2bbf2ef2a04535.js:18
+setTimeout
+(anonymous) @ _app-fa2bbf2ef2a04535.js:18
+e.scheduleQueueConsumption @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e @ _app-fa2bbf2ef2a04535.js:23
+t.subscribe @ _app-fa2bbf2ef2a04535.js:23
+e.try @ _app-fa2bbf2ef2a04535.js:20
+e.start @ _app-fa2bbf2ef2a04535.js:20
+t.request @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:40
+(anonymous) @ _app-fa2bbf2ef2a04535.js:40
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:40
+e.execute @ _app-fa2bbf2ef2a04535.js:40
+e.getObservableFromLink @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+s @ _app-fa2bbf2ef2a04535.js:20
+e.mutate @ _app-fa2bbf2ef2a04535.js:23
+e.mutate @ _app-fa2bbf2ef2a04535.js:23
+(anonymous) @ _app-fa2bbf2ef2a04535.js:20
+e.wait @ 6242-bebb560c46eaa218.js:1
+c @ 181-d52eb2b630a8d920.js:1
+(anonymous) @ 181-d52eb2b630a8d920.js:1
+n @ _app-fa2bbf2ef2a04535.js:18Understand this error
+Console.js:61 ✅ [MyNewLeague2] League 5: 188 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 531: 1 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 22: 31 fixtures
+Console.js:61 ⏳ [MyNewLeague2] Waiting 500ms before next batch...
+Console.js:61 🔄 [MyNewLeague2] Processing batch 5/12: leagues 72, 73, 75
+Console.js:61 ✅ [MyNewLeague2] League 72: 380 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 73: 108 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 75: 190 fixtures
+Console.js:61 ⏳ [MyNewLeague2] Waiting 500ms before next batch...
+Console.js:61 🔄 [MyNewLeague2] Processing batch 6/12: leagues 76, 233, 667
+Console.js:61 ✅ [MyNewLeague2] League 76: 448 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 233: 225 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 667: 4853 fixtures
+Console.js:61 ⏳ [MyNewLeague2] Waiting 500ms before next batch...
+Console.js:61 🔄 [MyNewLeague2] Processing batch 7/12: leagues 940, 908, 1169
+Console.js:61 ✅ [MyNewLeague2] League 940: 12 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 908: 15 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 1169: 7 fixtures
+Console.js:61 ⏳ [MyNewLeague2] Waiting 500ms before next batch...
+Console.js:61 🔄 [MyNewLeague2] Processing batch 8/12: leagues 23, 1077, 253
+Console.js:61 ✅ [MyNewLeague2] League 23: 6 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 1077: 12 fixtures
+media.api-sports.io/football/teams/50.png:1  GET https://media.api-sports.io/football/teams/50.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+Console.js:61 🖼️ [PopularTeamsList] Team logo failed for Manchester City, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+onError @ PopularTeamsList.tsx:103
+callCallback2 @ chunk-RPCDYKBN.js?v=9250a75f:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=9250a75f:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=9250a75f:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=9250a75f:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=9250a75f:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=9250a75f:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=9250a75f:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=9250a75f:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=9250a75f:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=9250a75f:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=9250a75f:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=9250a75f:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=9250a75f:5472Understand this warning
+Console.js:61 ✅ [PopularTeamsList] Team logo loaded for Manchester City
+Console.js:61 ✅ [MyNewLeague2] League 253: 510 fixtures
+Console.js:61 ⏳ [MyNewLeague2] Waiting 500ms before next batch...
+Console.js:61 🔄 [MyNewLeague2] Processing batch 9/12: leagues 850, 893, 921
+media.api-sports.io/football/teams/42.png:1  GET https://media.api-sports.io/football/teams/42.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+Console.js:61 🖼️ [PopularTeamsList] Team logo failed for Arsenal, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+onError @ PopularTeamsList.tsx:103
+callCallback2 @ chunk-RPCDYKBN.js?v=9250a75f:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=9250a75f:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=9250a75f:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=9250a75f:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=9250a75f:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=9250a75f:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=9250a75f:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=9250a75f:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=9250a75f:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=9250a75f:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=9250a75f:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=9250a75f:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=9250a75f:5472Understand this warning
+Console.js:61 ✅ [PopularTeamsList] Team logo loaded for Arsenal
+Console.js:61 ✅ [MyNewLeague2] League 850: 240 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 893: 78 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 921: 15 fixtures
+Console.js:61 ⏳ [MyNewLeague2] Waiting 500ms before next batch...
+Console.js:61 🔄 [MyNewLeague2] Processing batch 10/12: leagues 130, 128, 493
+Console.js:61 ✅ [MyNewLeague2] League 130: 55 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 128: 495 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 493: 15 fixtures
+Console.js:61 ⏳ [MyNewLeague2] Waiting 500ms before next batch...
+shared-20e68424b4e4b805fad66b8bbc59d74c.js:1  POST https://r.stripe.com/b net::ERR_CONNECTION_TIMED_OUT
+(anonymous) @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+e @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+c @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+(anonymous) @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+setTimeout
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+(anonymous) @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+log @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+log @ controller-with-preconnect-99e9340d25625d3b5fd47ee9904cd4ba.js:1
+pe @ controller-with-preconnect-99e9340d25625d3b5fd47ee9904cd4ba.js:1
+(anonymous) @ controller-with-preconnect-99e9340d25625d3b5fd47ee9904cd4ba.js:1Understand this error
+shared-20e68424b4e4b805fad66b8bbc59d74c.js:1 Uncaught (in promise) FetchError: Error fetching https://r.stripe.com/b: Failed to fetch
+    at shared-20e68424b4e4b805fad66b8bbc59d74c.js:1:218720
+(anonymous) @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+Promise.catch
+(anonymous) @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+e @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+c @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+(anonymous) @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+setTimeout
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+(anonymous) @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+value @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+log @ shared-20e68424b4e4b805fad66b8bbc59d74c.js:1
+log @ controller-with-preconnect-99e9340d25625d3b5fd47ee9904cd4ba.js:1
+pe @ controller-with-preconnect-99e9340d25625d3b5fd47ee9904cd4ba.js:1
+(anonymous) @ controller-with-preconnect-99e9340d25625d3b5fd47ee9904cd4ba.js:1Understand this error
+Console.js:61 🔄 [MyNewLeague2] Processing batch 11/12: leagues 239, 265, 237
+Console.js:61 ✅ [MyNewLeague2] League 239: 417 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 265: 240 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 237: 74 fixtures
+Console.js:61 ⏳ [MyNewLeague2] Waiting 500ms before next batch...
+Console.js:61 🔄 [MyNewLeague2] Processing batch 12/12: leagues 235, 743
+Console.js:61 ✅ [MyNewLeague2] League 235: 240 fixtures
+Console.js:61 ✅ [MyNewLeague2] League 743: 31 fixtures
+Console.js:61 🔄 [MyNewLeague2] Fetch results: {totalLeagues: 35, successfulFetches: 35, totalFixtures: 10086, duplicatesRemoved: 0, leagueBreakdown: Array(35)}
+media.api-sports.io/football/teams/49.png:1  GET https://media.api-sports.io/football/teams/49.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+Console.js:61 🖼️ [PopularTeamsList] Team logo failed for Chelsea, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+onError @ PopularTeamsList.tsx:103
+callCallback2 @ chunk-RPCDYKBN.js?v=9250a75f:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=9250a75f:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=9250a75f:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=9250a75f:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=9250a75f:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=9250a75f:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=9250a75f:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=9250a75f:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=9250a75f:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=9250a75f:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=9250a75f:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=9250a75f:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=9250a75f:5472Understand this warning
+media.api-sports.io/football/teams/541.png:1  GET https://media.api-sports.io/football/teams/541.png net::ERR_CONNECTION_TIMED_OUT
+Image
+setValueForProperty @ chunk-RPCDYKBN.js?v=9250a75f:1270
+setInitialDOMProperties @ chunk-RPCDYKBN.js?v=9250a75f:7462
+setInitialProperties @ chunk-RPCDYKBN.js?v=9250a75f:7595
+finalizeInitialChildren @ chunk-RPCDYKBN.js?v=9250a75f:8345
+completeWork @ chunk-RPCDYKBN.js?v=9250a75f:16293
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=9250a75f:19206
+workLoopConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19189
+renderRootConcurrent @ chunk-RPCDYKBN.js?v=9250a75f:19164
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18678
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+Console.js:61 ✅ [PopularTeamsList] Team logo loaded for Chelsea
+Console.js:61 🖼️ [PopularTeamsList] Team logo failed for Real Madrid, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+onError @ PopularTeamsList.tsx:103
+callCallback2 @ chunk-RPCDYKBN.js?v=9250a75f:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=9250a75f:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=9250a75f:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=9250a75f:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=9250a75f:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=9250a75f:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=9250a75f:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=9250a75f:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=9250a75f:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=9250a75f:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=9250a75f:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=9250a75f:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=9250a75f:5472Understand this warning
+media.api-sports.io/football/teams/529.png:1  GET https://media.api-sports.io/football/teams/529.png net::ERR_CONNECTION_TIMED_OUT
+Image
+commitMount @ chunk-RPCDYKBN.js?v=9250a75f:8412
+commitLayoutEffectOnFiber @ chunk-RPCDYKBN.js?v=9250a75f:17102
+commitLayoutMountEffects_complete @ chunk-RPCDYKBN.js?v=9250a75f:17980
+commitLayoutEffects_begin @ chunk-RPCDYKBN.js?v=9250a75f:17969
+commitLayoutEffects_begin @ chunk-RPCDYKBN.js?v=9250a75f:17950
+commitLayoutEffects @ chunk-RPCDYKBN.js?v=9250a75f:17920
+commitRootImpl @ chunk-RPCDYKBN.js?v=9250a75f:19353
+commitRoot @ chunk-RPCDYKBN.js?v=9250a75f:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=9250a75f:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18718
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+media.api-sports.io/football/teams/47.png:1  GET https://media.api-sports.io/football/teams/47.png net::ERR_CONNECTION_TIMED_OUT
+Image
+commitMount @ chunk-RPCDYKBN.js?v=9250a75f:8412
+commitLayoutEffectOnFiber @ chunk-RPCDYKBN.js?v=9250a75f:17102
+commitLayoutMountEffects_complete @ chunk-RPCDYKBN.js?v=9250a75f:17980
+commitLayoutEffects_begin @ chunk-RPCDYKBN.js?v=9250a75f:17969
+commitLayoutEffects_begin @ chunk-RPCDYKBN.js?v=9250a75f:17950
+commitLayoutEffects @ chunk-RPCDYKBN.js?v=9250a75f:17920
+commitRootImpl @ chunk-RPCDYKBN.js?v=9250a75f:19353
+commitRoot @ chunk-RPCDYKBN.js?v=9250a75f:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=9250a75f:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18718
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+Console.js:61 ✅ [PopularTeamsList] Team logo loaded for Real Madrid
+Console.js:61 🖼️ [PopularTeamsList] Team logo failed for FC Barcelona, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+onError @ PopularTeamsList.tsx:103
+callCallback2 @ chunk-RPCDYKBN.js?v=9250a75f:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=9250a75f:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=9250a75f:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=9250a75f:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=9250a75f:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=9250a75f:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=9250a75f:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=9250a75f:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=9250a75f:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=9250a75f:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=9250a75f:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=9250a75f:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=9250a75f:5472Understand this warning
+Console.js:61 🖼️ [PopularTeamsList] Team logo failed for Tottenham, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+onError @ PopularTeamsList.tsx:103
+callCallback2 @ chunk-RPCDYKBN.js?v=9250a75f:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=9250a75f:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=9250a75f:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=9250a75f:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=9250a75f:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=9250a75f:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=9250a75f:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=9250a75f:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=9250a75f:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=9250a75f:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=9250a75f:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=9250a75f:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=9250a75f:5472Understand this warning
+Console.js:61 ✅ [PopularTeamsList] Team logo loaded for FC Barcelona
+Console.js:61 ✅ [PopularTeamsList] Team logo loaded for Tottenham
+media.api-sports.io/football/teams/157.png:1  GET https://media.api-sports.io/football/teams/157.png net::ERR_CONNECTION_TIMED_OUT
+Image
+commitMount @ chunk-RPCDYKBN.js?v=9250a75f:8412
+commitLayoutEffectOnFiber @ chunk-RPCDYKBN.js?v=9250a75f:17102
+commitLayoutMountEffects_complete @ chunk-RPCDYKBN.js?v=9250a75f:17980
+commitLayoutEffects_begin @ chunk-RPCDYKBN.js?v=9250a75f:17969
+commitLayoutEffects_begin @ chunk-RPCDYKBN.js?v=9250a75f:17950
+commitLayoutEffects @ chunk-RPCDYKBN.js?v=9250a75f:17920
+commitRootImpl @ chunk-RPCDYKBN.js?v=9250a75f:19353
+commitRoot @ chunk-RPCDYKBN.js?v=9250a75f:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=9250a75f:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18718
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
+Console.js:61 🖼️ [PopularTeamsList] Team logo failed for Bayern Munich, using fallback
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ main.tsx:21
+onError @ PopularTeamsList.tsx:103
+callCallback2 @ chunk-RPCDYKBN.js?v=9250a75f:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=9250a75f:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=9250a75f:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=9250a75f:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=9250a75f:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=9250a75f:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=9250a75f:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=9250a75f:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=9250a75f:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=9250a75f:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=9250a75f:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=9250a75f:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=9250a75f:5472Understand this warning
+Console.js:61 ✅ [PopularTeamsList] Team logo loaded for Bayern Munich
+media.api-sports.io/football/leagues/34.png:1  GET https://media.api-sports.io/football/leagues/34.png net::ERR_CONNECTION_TIMED_OUT
+Image
+commitMount @ chunk-RPCDYKBN.js?v=9250a75f:8412
+commitLayoutEffectOnFiber @ chunk-RPCDYKBN.js?v=9250a75f:17102
+commitLayoutMountEffects_complete @ chunk-RPCDYKBN.js?v=9250a75f:17980
+commitLayoutEffects_begin @ chunk-RPCDYKBN.js?v=9250a75f:17969
+commitLayoutEffects_begin @ chunk-RPCDYKBN.js?v=9250a75f:17950
+commitLayoutEffects @ chunk-RPCDYKBN.js?v=9250a75f:17920
+commitRootImpl @ chunk-RPCDYKBN.js?v=9250a75f:19353
+commitRoot @ chunk-RPCDYKBN.js?v=9250a75f:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=9250a75f:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=9250a75f:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=9250a75f:555
+flush @ @tanstack_react-query.js?v=9250a75f:569
+batch @ @tanstack_react-query.js?v=9250a75f:587
+dispatch_fn @ @tanstack_react-query.js?v=9250a75f:996
+setData @ @tanstack_react-query.js?v=9250a75f:696
+onSuccess @ @tanstack_react-query.js?v=9250a75f:897
+resolve @ @tanstack_react-query.js?v=9250a75f:456
+Promise.then
+run @ @tanstack_react-query.js?v=9250a75f:498
+start @ @tanstack_react-query.js?v=9250a75f:536
+fetch @ @tanstack_react-query.js?v=9250a75f:926
+executeFetch_fn @ @tanstack_react-query.js?v=9250a75f:2211
+setOptions @ @tanstack_react-query.js?v=9250a75f:1955
+(anonymous) @ @tanstack_react-query.js?v=9250a75f:3032
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=9250a75f:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=9250a75f:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=9250a75f:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=9250a75f:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=9250a75f:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=9250a75f:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=9250a75f:19447
+(anonymous) @ chunk-RPCDYKBN.js?v=9250a75f:19328
+workLoop @ chunk-RPCDYKBN.js?v=9250a75f:197
+flushWork @ chunk-RPCDYKBN.js?v=9250a75f:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=9250a75f:384Understand this error
