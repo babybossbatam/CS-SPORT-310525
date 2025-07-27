@@ -207,6 +207,15 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
     fallbackUrl
   });
 
+  // Additional debugging for failed cases
+  if (hasError && resolvedLogoUrl === fallbackUrl) {
+    console.warn(`🚨 [MyNewLeagueLogo] League ${leagueId} (${leagueName}) failed all sources:`, {
+      hadApiUrl: !!logoUrl,
+      serverProxyUrl: `/api/league-logo/${leagueId}`,
+      willTryDirectApi: `https://media.api-sports.io/football/leagues/${leagueId}.png`
+    });
+  }
+
   return (
     <div
       className={`league-logo-container ${className}`}
