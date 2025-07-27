@@ -45,7 +45,7 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
   useEffect(() => {
     const loadLogo = async () => {
       if (!leagueId) {
-        setLogoUrl(fallbackUrl);
+        setLogoUrl(fallbackUrl || '/assets/fallback-logo.svg');
         return;
       }
 
@@ -53,20 +53,51 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
       setError(null);
 
       try {
-        // First try to get league information directly from the API
+        // Priority 1: Use server proxy endpoint (most reliable)
         console.log(
-          `🔍 [MyNewLeagueLogo] Fetching league info for league ${leagueId}`,
+          `🔍 [MyNewLeagueLogo] Trying server proxy for league ${leagueId}`,
         );
 
-        const response = await fetch(`/api/leagues/${leagueId}`);
+        const proxyUrl = `/api/league-logo/${leagueId}`;
+        
+        // Test if proxy endpoint works with a quick HEAD request
+        try {
+          const proxyResponse = await fetch(proxyUrl, { 
+            method: 'HEAD',
+            signal: AbortSignal.timeout(3000) // 3 second timeout
+          });
+          
+          if (proxyResponse.ok) {
+            console.log(
+              `✅ [MyNewLeagueLogo] Server proxy working for league ${leagueId}`,
+            );
+            setLogoUrl(proxyUrl);
+            setIsLoading(false);
+            return;
+          }
+        } catch (proxyError) {
+          console.warn(
+            `⚠️ [MyNewLeagueLogo] Server proxy failed for league ${leagueId}:`,
+            proxyError
+          );
+        }
+
+        // Priority 2: Try to get league information from API
+        console.log(
+          `🔍 [MyNewLeagueLogo] Trying API endpoint for league ${leagueId}`,
+        );
+
+        const response = await fetch(`/api/leagues/${leagueId}`, {
+          signal: AbortSignal.timeout(5000) // 5 second timeout
+        });
 
         if (response.ok) {
           const leagueData = await response.json();
           const leagueLogo = leagueData?.league?.logo;
 
-          if (leagueLogo) {
+          if (leagueLogo && !leagueLogo.includes('media.api-sports.io')) {
             console.log(
-              `✅ [MyNewLeagueLogo] Got league logo from API: ${leagueLogo}`,
+              `✅ [MyNewLeagueLogo] Got safe league logo from API: ${leagueLogo}`,
             );
             setLogoUrl(leagueLogo);
             setIsLoading(false);
@@ -74,33 +105,42 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
           }
         }
 
-        // Fallback to enhanced logo manager if API doesn't have logo
+        // Priority 3: Use enhanced logo manager with enhanced options
         console.log(
-          `🔄 [MyNewLeagueLogo] API didn't provide logo, trying enhanced manager`,
-        );
-        const result = await enhancedLogoManager.getLeagueLogo(
-          leagueId,
-          leagueName,
+          `🔄 [MyNewLeagueLogo] Trying enhanced logo manager for league ${leagueId}`,
         );
 
-        if (result.fallbackUsed) {
-          console.log(
-            `🚫 [MyNewLeagueLogo] Using fallback for league ${leagueId}: ${result.url}`,
+        if (enhancedLogoManager) {
+          const result = await enhancedLogoManager.getLeagueLogo(
+            leagueId,
+            leagueName,
           );
-          setLogoUrl(result.url);
-        } else {
-          console.log(
-            `✅ [MyNewLeagueLogo] Using enhanced manager result for league ${leagueId}: ${result.url}`,
-          );
-          setLogoUrl(result.url);
+
+          if (result && result.url) {
+            console.log(
+              `✅ [MyNewLeagueLogo] Enhanced manager result for league ${leagueId}: ${result.url}`,
+            );
+            setLogoUrl(result.url);
+            setIsLoading(false);
+            return;
+          }
         }
+
+        // Final fallback
+        const finalFallback = fallbackUrl || '/assets/fallback-logo.svg';
+        console.log(
+          `🚫 [MyNewLeagueLogo] All methods failed, using fallback for league ${leagueId}: ${finalFallback}`,
+        );
+        setLogoUrl(finalFallback);
+
       } catch (error) {
         console.error(
           `❌ [MyNewLeagueLogo] Error loading logo for league ${leagueId}:`,
           error,
         );
         setError(error instanceof Error ? error.message : "Unknown error");
-        setLogoUrl(fallbackUrl);
+        const finalFallback = fallbackUrl || '/assets/fallback-logo.svg';
+        setLogoUrl(finalFallback);
       } finally {
         setIsLoading(false);
       }

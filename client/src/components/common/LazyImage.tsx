@@ -1,93 +1,84 @@
+import React, { useState, useEffect } from "react";
 
-import React, { useState, useRef, useEffect } from 'react';
-
-interface LazyImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+interface LazyImageProps {
   src: string;
   alt: string;
-  fallbackSrc?: string;
-  placeholder?: React.ReactNode;
-  rootMargin?: string;
-  threshold?: number;
+  title?: string;
+  className?: string;
+  style?: React.CSSProperties;
+  loading?: "lazy" | "eager";
+  onLoad?: () => void;
+  onError?: () => void;
 }
 
 const LazyImage: React.FC<LazyImageProps> = ({
   src,
   alt,
-  fallbackSrc = "/assets/fallback-logo.svg",
-  placeholder,
-  rootMargin = '50px',
-  threshold = 0.1,
-  className = '',
-  ...props
+  title,
+  className = "",
+  style,
+  loading = "lazy",
+  onLoad,
+  onError,
 }) => {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [hasError, setHasError] = useState(false);
-  const imageRef = useRef<HTMLImageElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [imageSrc, setImageSrc] = useState<string>(src);
+  const [hasError, setHasError] = useState<boolean>(false);
+  const [retryCount, setRetryCount] = useState<number>(0);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          setImageSrc(src);
-          observer.disconnect();
-        }
-      },
-      {
-        rootMargin,
-        threshold,
-      }
-    );
-
-    observer.observe(container);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [src, rootMargin, threshold]);
-
-  const handleLoad = () => {
-    setIsLoaded(true);
-  };
+    setImageSrc(src);
+    setHasError(false);
+    setRetryCount(0);
+  }, [src]);
 
   const handleError = () => {
-    if (!hasError && fallbackSrc) {
-      setHasError(true);
-      setImageSrc(fallbackSrc);
+    if (!hasError && retryCount < 2) {
+      console.warn(`🖼️ [LazyImage] Failed to load image: ${imageSrc}, retry ${retryCount + 1}`);
+
+      // If original source contains api-sports.io, try server proxy
+      if (imageSrc.includes('media.api-sports.io') && retryCount === 0) {
+        const leagueMatch = imageSrc.match(/leagues\/(\d+)/);
+        if (leagueMatch) {
+          const leagueId = leagueMatch[1];
+          const proxyUrl = `/api/league-logo/${leagueId}`;
+          console.log(`🔄 [LazyImage] Trying server proxy: ${proxyUrl}`);
+          setImageSrc(proxyUrl);
+          setRetryCount(retryCount + 1);
+          return;
+        }
+      }
+
+      // Final fallback after retries
+      if (retryCount >= 1) {
+        console.warn(`🚫 [LazyImage] All retries failed for: ${src}, using fallback`);
+        setHasError(true);
+        setImageSrc('/assets/fallback-logo.svg');
+        onError?.();
+      } else {
+        setRetryCount(retryCount + 1);
+      }
     }
   };
 
-  const defaultPlaceholder = (
-    <div 
-      className={`bg-transparent animate-pulse flex items-center justify-center ${className}`}
-      style={{ aspectRatio: '1/1' }}
-    >
-      <div className="w-4 h-4 bg-transparent rounded"></div>
-    </div>
-  );
+  const handleLoad = () => {
+    if (hasError) {
+      console.log(`✅ [LazyImage] Recovered and loaded: ${imageSrc}`);
+    }
+    setHasError(false);
+    onLoad?.();
+  };
 
   return (
-    <div ref={containerRef} className={className}>
-      {isVisible && imageSrc ? (
-        <img
-          ref={imageRef}
-          src={imageSrc}
-          alt={alt}
-          className={`transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'} ${className}`}
-          onLoad={handleLoad}
-          onError={handleError}
-          {...props}
-        />
-      ) : (
-        placeholder || defaultPlaceholder
-      )}
-    </div>
+    <img
+      src={imageSrc}
+      alt={alt}
+      title={title}
+      className={className}
+      style={style}
+      loading={loading}
+      onLoad={handleLoad}
+      onError={handleError}
+    />
   );
 };
 
