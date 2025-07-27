@@ -779,15 +779,22 @@ const MyNewLeague2 = ({
                 </button>
 
                 <img
-                  src={`/api/league-logo/square/${leagueIdNum}?size=32&sport=football`}
+                  src={league.logo || `https://media.api-sports.io/football/leagues/${leagueIdNum}.png`}
                   alt={league.name || "Unknown League"}
                   className="w-6 h-6 object-contain rounded-full"
                   style={{ backgroundColor: "transparent" }}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    // Try original API logo as fallback
-                    if (target.src.includes('/api/league-logo/')) {
-                      target.src = league.logo || "/assets/fallback-logo.svg";
+                    // Create a proper fallback chain
+                    if (target.src === league.logo) {
+                      // Try RapidAPI direct URL
+                      target.src = `https://media.api-sports.io/football/leagues/${leagueIdNum}.png`;
+                    } else if (target.src.includes('media.api-sports.io')) {
+                      // Try our API endpoint
+                      target.src = `/api/league-logo/square/${leagueIdNum}?size=32&sport=football`;
+                    } else if (target.src.includes('/api/league-logo/')) {
+                      // Finally use fallback
+                      target.src = "/assets/fallback-logo.svg";
                     } else {
                       target.src = "/assets/fallback-logo.svg";
                     }
@@ -1172,9 +1179,10 @@ const MyNewLeague2 = ({
                                 <TeamLogo
                                   teamName={fixture.teams.home.name}
                                   logoUrl={
-                                    fixture.teams.home.id
-                                      ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
-                                      : "/assets/fallback-logo.svg"
+                                    fixture.teams.home.logo || 
+                                    (fixture.teams.home.id
+                                      ? `https://media.api-sports.io/football/teams/${fixture.teams.home.id}.png`
+                                      : "/assets/fallback-logo.svg")
                                   }
                                   size="34px"
                                   leagueContext={leagueContext}
@@ -1375,9 +1383,10 @@ const MyNewLeague2 = ({
                                 <TeamLogo
                                   teamName={fixture.teams.away.name}
                                   logoUrl={
-                                    fixture.teams.away.id
-                                      ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
-                                      : "/assets/fallback-logo.svg"
+                                    fixture.teams.away.logo || 
+                                    (fixture.teams.away.id
+                                      ? `https://media.api-sports.io/football/teams/${fixture.teams.away.id}.png`
+                                      : "/assets/fallback-logo.svg")
                                   }
                                   size="34px"
                                   leagueContext={leagueContext}
