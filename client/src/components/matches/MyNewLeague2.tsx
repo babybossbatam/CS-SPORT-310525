@@ -733,13 +733,12 @@ const MyNewLeague2 = ({
                   />
                 </button>
 
-                <MyNewLeagueLogo
-                  leagueId={leagueIdNum}
-                  leagueName={league.name}
+                <LazyImage
+                  src={league.logo || `/api/league-logo/${leagueIdNum}` || "/assets/fallback-logo.svg"}
                   alt={league.name || "Unknown League"}
-                  size="24px"
                   className="w-6 h-6 object-contain rounded-full"
-                  fallbackUrl="/assets/fallback-logo.svg"
+                  style={{ backgroundColor: "transparent" }}
+                  loading="lazy"
                 />
                 <div className="flex flex-col flex-1 text-left">
                   <div className="flex items-center gap-2">
