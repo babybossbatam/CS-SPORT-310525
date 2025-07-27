@@ -9,8 +9,13 @@ export interface CachedImageItem {
 
 class ImageCacheManager {
   private cache = new Map<string, CachedImageItem>();
-  private readonly MAX_AGE = 24 * 60 * 60 * 1000; // 24 hours
+  private readonly MAX_AGE = 0; // Force immediate expiry to refetch fresh data
   private readonly MAX_SIZE = 2000;
+
+  constructor() {
+    // Clear all existing cache data
+    this.cache.clear();
+  }
 
   // Get from cache first, return immediately if found
   getCachedImage(key: string): string | null {

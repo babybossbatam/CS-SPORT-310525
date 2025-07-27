@@ -60,11 +60,14 @@ interface FixtureData {
 
 const PopularLeagueStandingsCard = () => {
   const { data } = useQuery({
-    queryKey: ['league-standings', 39], // Premier League ID
+    queryKey: ['league-standings', 39, Date.now()], // Add timestamp to force fresh data
     queryFn: async () => {
-      const response = await apiRequest('GET', '/api/standings?league=39&season=2024');
+      const cacheBuster = `&t=${Date.now()}`;
+      const response = await apiRequest('GET', `/api/standings?league=39&season=2024${cacheBuster}`);
       return response.json();
     },
+    staleTime: 0, // Mark data as stale immediately
+    cacheTime: 0, // Don't cache the data
   });
 
   const standings = data?.league?.standings?.[0]?.slice(0, 10) || [];
