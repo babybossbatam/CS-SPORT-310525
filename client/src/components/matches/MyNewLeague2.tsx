@@ -779,13 +779,18 @@ const MyNewLeague2 = ({
                 </button>
 
                 <img
-                  src={league.logo || "/assets/fallback-logo.svg"}
+                  src={`/api/league-logo/square/${leagueIdNum}?size=32&sport=football`}
                   alt={league.name || "Unknown League"}
                   className="w-6 h-6 object-contain rounded-full"
                   style={{ backgroundColor: "transparent" }}
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                      "/assets/fallback-logo.svg";
+                    const target = e.target as HTMLImageElement;
+                    // Try original API logo as fallback
+                    if (target.src.includes('/api/league-logo/')) {
+                      target.src = league.logo || "/assets/fallback-logo.svg";
+                    } else {
+                      target.src = "/assets/fallback-logo.svg";
+                    }
                   }}
                 />
                 <div className="flex flex-col flex-1 text-left">
