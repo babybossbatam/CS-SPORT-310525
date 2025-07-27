@@ -46,6 +46,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     sm: 'w-10 h-10',
     md: 'w-10 h-10',
     lg: 'w-14 h-14',
+    'md-commentary': 'w-8 h-8'  // 2px smaller than md for commentary
   };
 
   const fetchPlayerData = async (playerIdToFetch: number, isMounted = true) => {
@@ -121,16 +122,17 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         console.log(`⚠️ [MyAvatarInfo] API fallback failed:`, apiError);
       }
 
-      // Final fallback - use initials
-      if (isMounted) {
-        console.log(`📝 [MyAvatarInfo] Using initials for football player ${playerIdToFetch} (${playerName})`);
-        setImageUrl('INITIALS_FALLBACK');
-      }
-    } catch (error) {
-      console.error(`❌ [MyAvatarInfo-${componentId}] Error fetching football player data:`, error);
-      if (isMounted) {
-        setImageUrl('INITIALS_FALLBACK');
-      }
+        // Final fallback - no error, just use initials
+        if (isMounted) {
+          console.log(`📝 [MyAvatarInfo] Using initials for player ${playerIdToFetch} (${playerName})`);
+          setImageUrl(FALLBACK_PLAYER_IMAGE);
+        }
+      } catch (error) {
+        console.error(`❌ [MyAvatarInfo-${componentId}] Error fetching player data:`, error);
+        if (isMounted) {
+          // Don't set error for image loading issues, just use fallback
+          setImageUrl(FALLBACK_PLAYER_IMAGE);
+        }
     } finally {
       if (isMounted) {
         setIsLoading(false);
@@ -260,9 +262,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       <div 
         ref={containerRef}
         className={`${sizeClasses[size]} border-2 border-gray-300 rounded-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%] ${className}`}
-        style={{
-          animation: isVisible ? 'pulse 1.5s infinite' : '',
-        }}
+       
       >
        
       </div>
