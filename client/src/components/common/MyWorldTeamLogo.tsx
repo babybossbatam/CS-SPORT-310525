@@ -50,11 +50,11 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   // Memoized computation with caching for shouldUseCircularFlag
   const shouldUseCircularFlag = useMemo(() => {
     const cacheKey = generateCacheKey(teamName, leagueContext);
-
+    
     // Check cache first
     const cached = circularFlagCache.get(cacheKey);
     const now = Date.now();
-
+    
     if (cached && (now - cached.timestamp) < CACHE_DURATION) {
       console.log(`💾 [MyWorldTeamLogo] Cache hit for shouldUseCircularFlag: ${teamName}`);
       return cached.result;
@@ -62,7 +62,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
     // Compute the result if not cached or expired
     console.log(`🔄 [MyWorldTeamLogo] Computing shouldUseCircularFlag for: ${teamName}`);
-
+    
     const isActualNationalTeam = isNationalTeam({ name: teamName }, leagueContext);
     const isYouthTeam = teamName?.includes("U17") || 
                        teamName?.includes("U19") ||
@@ -146,7 +146,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   const logoUrl = useMemo(async () => {
     if (teamId && teamName) {
       console.log(`🎯 [MyWorldTeamLogo] Fetching logo for team: ${teamName} (ID: ${teamId})`);
-
+      
       const logoResponse = await enhancedLogoManager.getTeamLogo('MyWorldTeamLogo', {
         type: 'team',
         shape: shouldUseCircularFlag ? 'circular' : 'normal',
@@ -164,7 +164,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
       return logoResponse.url;
     }
-
+    
     // Fallback to original teamLogo if no teamId
     console.log(`⚠️ [MyWorldTeamLogo] No teamId provided for ${teamName}, using original logo`);
     return teamLogo || "/assets/fallback-logo.svg";

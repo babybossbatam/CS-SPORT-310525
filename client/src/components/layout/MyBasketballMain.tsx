@@ -2,15 +2,28 @@ import React, { useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
-import MyLeftBasket from "../matches/MyLeftBasket";
+import TodayMatchPageCard from "../matches/TodayMatchPageCard";
+import MyBasketLeague from "../matches/MyBasketLeague";
+import TodaysMatchesByCountryNew from "@/components/matches/TodaysMatchesByCountryNew";
+import MyHomeFeaturedMatchNew from "@/components/matches/MyHomeFeaturedMatchNew";
+import HomeTopScorersList from "@/components/leagues/HomeTopScorersList";
+import LeagueStandingsFilter from "@/components/leagues/LeagueStandingsFilter";
+import PopularLeaguesList from "@/components/leagues/PopularLeaguesList";
+import PopularTeamsList from "@/components/teams/PopularTeamsList";
+import ScoreDetailsCard from "@/components/matches/ScoreDetailsCard";
 import MyRightBasket from "@/components/layout/MyRightBasket";
+import MyMatchdetailsScoreboard from "../matches/MyMatchdetailsScoreboard";
+import MatchDetailCard from "@/components/matches/MatchDetailCard";
+import MyHighlights from "@/components/matches/MyHighlights";
 import MyMatchEvents from "@/components/matches/MyMatchEvents";
+import MyLiveAction from "@/components/matches/MyLiveAction";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 
 import { Card, CardContent } from "@/components/ui/card";
 import MyMainLayoutRight from "@/components/layout/MyMainLayoutRight"; // Import MyMainLayoutRight
 import MyBasketFeatured from '@/components/matches/MyBasketFeatured';
+import MyBasketLeague from '@/components/matches/MyBasketLeague';
 
 interface MyBasketballMainProps {
   fixtures: any[];
@@ -192,9 +205,11 @@ const MyBasketballMain: React.FC<MyBasketballMainProps> = ({ fixtures }) => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Left column (5 columns) */}
         <div className="lg:col-span-5 space-y-4">
-          {/* Basketball-specific MyLeftBasket */}
+          {/* Basketball-specific TodayMatchPageCard */}
           <div className="max-h-full overflow-y-auto">
-            <MyLeftBasket
+            <TodayMatchPageCard
+              fixtures={filteredFixtures}
+              onMatchClick={handleMatchClick}
               onMatchCardClick={handleMatchCardClick}
             />
           </div>

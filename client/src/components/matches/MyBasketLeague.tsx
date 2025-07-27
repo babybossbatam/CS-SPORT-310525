@@ -93,16 +93,18 @@ export const MyBasketLeague: React.FC<MyBasketLeagueProps> = ({
 }) => {
   const [expandedLeagues, setExpandedLeagues] = useState<Set<number>>(new Set());
 
-  // Popular basketball leagues configuration (matching other basketball components)
+  // Popular basketball leagues configuration
   const popularBasketballLeagueIds = [
     12, // NBA
     13, // WNBA
     120, // EuroLeague
-    117, // CBA (China) - from MyBasketPopularLeagues
-    121, // Liga ACB (Spain)
-    122, // Lega Basket Serie A (Italy)  
-    123, // Bundesliga (Germany)
-    124, // LNB Pro A (France)
+    121, // EuroCup
+    117, // Liga ACB (Spain)
+    118, // Lega Basket Serie A (Italy)
+    119, // Basketball Bundesliga (Germany)
+    122, // LNB Pro A (France)
+    123, // Greek Basket League
+    124, // Turkish Basketball Super League
   ];
 
   // Fetch basketball games for the selected date
@@ -114,17 +116,14 @@ export const MyBasketLeague: React.FC<MyBasketLeagueProps> = ({
       try {
         const response = await fetch(`/api/basketball/games/date/${selectedDate}`);
         if (!response.ok) {
-          console.error(`🏀 [MyBasketLeague] API error: ${response.status} ${response.statusText}`);
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const games = await response.json();
         
-        console.log(`🏀 [MyBasketLeague] Retrieved ${games.length} basketball games for ${selectedDate}`);
-        console.log(`🏀 [MyBasketLeague] API Response sample:`, games.slice(0, 2));
+        console.log(`🏀 [MyBasketLeague] Retrieved ${games.length} basketball games`);
         return games as BasketballGame[];
       } catch (error) {
-        console.error(`🏀 [MyBasketLeague] Error fetching basketball games for ${selectedDate}:`, error);
-        console.error(`🏀 [MyBasketLeague] API endpoint: /api/basketball/games/date/${selectedDate}`);
+        console.error(`Error fetching basketball games:`, error);
         return [];
       }
     },

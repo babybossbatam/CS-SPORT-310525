@@ -18,7 +18,7 @@ export interface TeamData {
 /**
  * Generate team logo sources with 365scores support
  */
-export function getTeamLogoSources(team: TeamData, isNationalTeam = false, sport: string = 'football'): TeamLogoSource[] {
+export function getTeamLogoSources(team: TeamData, isNationalTeam = false): TeamLogoSource[] {
   const sources: TeamLogoSource[] = [];
   
   // For national teams or international competitions, prioritize 365scores
@@ -41,43 +41,16 @@ export function getTeamLogoSources(team: TeamData, isNationalTeam = false, sport
 
   // Alternative API sources if team ID is available
   if (team?.id) {
-    // API-Sports alternative - sport-specific
-    const sportEndpoint = sport === 'basketball' ? 'basketball' : 'football';
+    // API-Sports alternative
     sources.push({
-      url: `https://media.api-sports.io/${sportEndpoint}/teams/${team.id}.png`,
+      url: `https://media.api-sports.io/football/teams/${team.id}.png`,
       source: 'api-sports-alternative',
       priority: 3
-
-/**
- * Create a team logo error handler with sport-specific fallbacks
- */
-export function createTeamLogoErrorHandler(team: TeamData, isNationalTeam = false, sport: string = 'football') {
-  return (e: any) => {
-    const target = e.target as HTMLImageElement;
-    const currentSrc = target.src;
-    
-    // Get all available sources for this team and sport
-    const sources = getTeamLogoSources(team, isNationalTeam, sport);
-    
-    // Find current source index
-    const currentIndex = sources.findIndex(source => source.url === currentSrc);
-    
-    // Try next source
-    if (currentIndex < sources.length - 1) {
-      target.src = sources[currentIndex + 1].url;
-    } else {
-      // All sources failed, use fallback
-      target.src = "/assets/fallback-logo.svg";
-    }
-  };
-}
-
     });
 
-    // SportMonks alternative - sport-specific
-    const sportPath = sport === 'basketball' ? 'basketball' : 'soccer';
+    // SportMonks alternative
     sources.push({
-      url: `https://cdn.sportmonks.com/images/${sportPath}/teams/${team.id}.png`,
+      url: `https://cdn.sportmonks.com/images/soccer/teams/${team.id}.png`,
       source: 'sportmonks',
       priority: 4
     });

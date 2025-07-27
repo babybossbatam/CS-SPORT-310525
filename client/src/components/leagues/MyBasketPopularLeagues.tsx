@@ -2,7 +2,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star } from 'lucide-react';
 import MyCircularFlag from '@/components/common/MyCircularFlag';
 
 interface BasketballLeague {
@@ -35,17 +34,8 @@ const popularBasketballLeagues: BasketballLeague[] = [
     current: true
   },
   {
-    id: 1,
-    name: 'FIBA World Cup',
-    country: 'International',
-    logo: 'https://media.api-sports.io/basketball/leagues/1.png',
-    flag: 'https://media.api-sports.io/flags/world.svg',
-    season: 2024,
-    current: true
-  },
-  {
     id: 127,
-    name: 'ACB',
+    name: 'Liga ACB',
     country: 'Spain',
     logo: 'https://media.api-sports.io/basketball/leagues/127.png',
     flag: 'https://media.api-sports.io/flags/es.svg',
@@ -53,11 +43,11 @@ const popularBasketballLeagues: BasketballLeague[] = [
     current: true
   },
   {
-    id: 2,
-    name: 'Olympics Basketball - Men',
-    country: 'Olympics',
-    logo: 'https://media.api-sports.io/basketball/leagues/2.png',
-    flag: 'https://media.api-sports.io/flags/olympic.svg',
+    id: 133,
+    name: 'Lega Basket Serie A',
+    country: 'Italy',
+    logo: 'https://media.api-sports.io/basketball/leagues/133.png',
+    flag: 'https://media.api-sports.io/flags/it.svg',
     season: 2024,
     current: true
   },
@@ -71,26 +61,17 @@ const popularBasketballLeagues: BasketballLeague[] = [
     current: true
   },
   {
-    id: 133,
-    name: 'Lega A',
-    country: 'Italy',
-    logo: 'https://media.api-sports.io/basketball/leagues/133.png',
-    flag: 'https://media.api-sports.io/flags/it.svg',
-    season: 2024,
-    current: true
-  },
-  {
-    id: 143,
-    name: 'BBL',
-    country: 'United Kingdom',
-    logo: 'https://media.api-sports.io/basketball/leagues/143.png',
-    flag: 'https://media.api-sports.io/flags/gb.svg',
+    id: 134,
+    name: 'LNB Pro A',
+    country: 'France',
+    logo: 'https://media.api-sports.io/basketball/leagues/134.png',
+    flag: 'https://media.api-sports.io/flags/fr.svg',
     season: 2024,
     current: true
   },
   {
     id: 122,
-    name: 'Eurobasket',
+    name: 'EuroCup',
     country: 'Europe',
     logo: 'https://media.api-sports.io/basketball/leagues/122.png',
     flag: 'https://media.api-sports.io/flags/eu.svg',
@@ -98,11 +79,11 @@ const popularBasketballLeagues: BasketballLeague[] = [
     current: true
   },
   {
-    id: 134,
-    name: 'LNB Élite',
-    country: 'France',
-    logo: 'https://media.api-sports.io/basketball/leagues/134.png',
-    flag: 'https://media.api-sports.io/flags/fr.svg',
+    id: 117,
+    name: 'CBA',
+    country: 'China',
+    logo: 'https://media.api-sports.io/basketball/leagues/117.png',
+    flag: 'https://media.api-sports.io/flags/cn.svg',
     season: 2024,
     current: true
   }
@@ -117,45 +98,36 @@ const MyBasketPopularLeagues: React.FC = () => {
   return (
     <Card className="w-full shadow-md bg-white">
       <CardHeader className="pb-3">
-        <CardTitle className="text-base font-semibold text-gray-900">
-          Popular Leagues
+        <CardTitle className="text-sm font-semibold text-gray-800">
+          Popular Basketball Leagues
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-1 p-4">
+      <CardContent className="space-y-2">
         {popularBasketballLeagues.map((league) => (
           <div
             key={league.id}
             onClick={() => handleLeagueClick(league.id)}
-            className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors group"
+            className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer transition-colors"
           >
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 flex-shrink-0">
-                <img
-                  src={league.logo}
-                  alt={league.name}
-                  className="w-full h-full object-contain rounded"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
-                  }}
-                />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-900">
+            <div className="flex items-center space-x-2 flex-1">
+              <MyCircularFlag 
+                countryName={league.country}
+                size="small"
+              />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-gray-900 truncate">
                   {league.name}
-                </span>
-                <span className="text-xs text-gray-500">
+                </p>
+                <p className="text-xs text-gray-500">
                   {league.country}
-                </span>
+                </p>
               </div>
             </div>
-            <Star 
-              className="w-5 h-5 text-gray-300 hover:text-blue-500 transition-colors cursor-pointer" 
-              onClick={(e) => {
-                e.stopPropagation();
-                // Handle star click for favorites
-                console.log(`⭐ Starred league: ${league.name}`);
-              }}
-            />
+            {league.current && (
+              <Badge variant="outline" className="text-xs">
+                Active
+              </Badge>
+            )}
           </div>
         ))}
       </CardContent>
