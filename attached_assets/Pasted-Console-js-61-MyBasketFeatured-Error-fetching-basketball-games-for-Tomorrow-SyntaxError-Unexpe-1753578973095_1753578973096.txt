@@ -1,0 +1,49 @@
+Console.js:61 ❌ [MyBasketFeatured] Error fetching basketball games for Tomorrow: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+Mt.forEach.n.<computed> @ Console.js:61Understand this error
+Console.js:61 🏀 [MyBasketFeatured] Fetching basketball games for Day After Tomorrow: 2025-07-29
+Console.js:61 ❌ [MyBasketFeatured] Error fetching basketball games for Day After Tomorrow: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+Mt.forEach.n.<computed> @ Console.js:61Understand this error
+Console.js:61 🏀 [MyBasketFeatured] Fetching basketball games for Wednesday: 2025-07-30
+Console.js:61 ❌ [MyBasketFeatured] Error fetching basketball games for Wednesday: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+Mt.forEach.n.<computed> @ Console.js:61Understand this error
+Console.js:61 🏀 [MyBasketFeatured] Fetching basketball games for Thursday: 2025-07-31
+Console.js:61 ❌ [MyBasketFeatured] Error fetching basketball games for Thursday: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+Mt.forEach.n.<computed> @ Console.js:61Understand this error
+Console.js:61 🔍 [MyBasketFeatured] Fetching cached data for league 12
+Console.js:61 Failed to fetch cached data for league 12: ReferenceError: apiRequest is not defined
+    at MyBasketFeatured.tsx:417:40
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🔍 [MyBasketFeatured] Fetching cached data for league 120
+Console.js:61 Failed to fetch cached data for league 120: ReferenceError: apiRequest is not defined
+    at MyBasketFeatured.tsx:417:40
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🔍 [MyBasketFeatured] Fetching cached data for league 122
+Console.js:61 Failed to fetch cached data for league 122: ReferenceError: apiRequest is not defined
+    at MyBasketFeatured.tsx:417:40
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🔍 [MyBasketFeatured] Fetching Friendlies Clubs fixtures for popular teams
+Console.js:61 Failed to fetch Friendlies Clubs data: ReferenceError: apiRequest is not defined
+    at MyBasketFeatured.tsx:536:40
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🔍 [MyBasketFeatured] Fetching cached data for Today: 2025-07-27
+Console.js:61 ❌ [MyBasketFeatured] Error fetching cached data for Today: ReferenceError: apiRequest is not defined
+    at MyBasketFeatured.tsx:617:32
+Mt.forEach.n.<computed> @ Console.js:61Understand this error
+Console.js:61 🔍 [MyBasketFeatured] Fetching cached data for Tomorrow: 2025-07-28
+Console.js:61 ❌ [MyBasketFeatured] Error fetching cached data for Tomorrow: ReferenceError: apiRequest is not defined
+    at MyBasketFeatured.tsx:617:32
+Mt.forEach.n.<computed> @ Console.js:61Understand this error
+Console.js:61 🔍 [MyBasketFeatured] Fetching cached data for Day After Tomorrow: 2025-07-29
+Console.js:61 ❌ [MyBasketFeatured] Error fetching cached data for Day After Tomorrow: ReferenceError: apiRequest is not defined
+    at MyBasketFeatured.tsx:617:32
+Mt.forEach.n.<computed> @ Console.js:61Understand this error
+Console.js:61 🔍 [MyBasketFeatured] Fetching cached data for Wednesday: 2025-07-30
+Console.js:61 ❌ [MyBasketFeatured] Error fetching cached data for Wednesday: ReferenceError: apiRequest is not defined
+    at MyBasketFeatured.tsx:617:32
+Mt.forEach.n.<computed> @ Console.js:61Understand this error
+Console.js:61 🔍 [MyBasketFeatured] Fetching cached data for Thursday: 2025-07-31
+Console.js:61 ❌ [MyBasketFeatured] Error fetching cached data for Thursday: ReferenceError: apiRequest is not defined
+    at MyBasketFeatured.tsx:617:32
+Mt.forEach.n.<computed> @ Console.js:61Understand this error
+Console.js:61 ❌ [MyBasketFeatured] Error: ReferenceError: allFixtures is not defined
+    at MyBasketFeatured.tsx:754:11
