@@ -112,7 +112,6 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
 }));
 
   // API routes
-  app.use('/api', routes);
   app.use('/api', logoRoutes);
 
   // ALWAYS serve the app on port 5000
