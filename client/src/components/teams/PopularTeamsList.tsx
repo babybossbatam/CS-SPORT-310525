@@ -5,6 +5,7 @@ import { useLocation } from 'wouter';
 import { Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
+import MyWorldTeamLogo from '../common/MyWorldTeamLogo';
 
 // Popular teams with their data
 const popularTeams = [
@@ -94,20 +95,16 @@ const PopularTeamsList = () => {
             className="flex items-center p-3 hover:bg-gray-50 border-b border-gray-100 cursor-pointer"
             onClick={() => navigate(`/team/${team.id}`)}
           >
-            <img 
-              src={
-                team.logo ? `/api/team-logo/${team.id}` : "/assets/fallback-logo.svg"
-              }
-              alt={team.name} 
-              className="w-6 h-6 mr-3"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                console.warn(`🖼️ [PopularTeamsList] Team logo failed for ${team.name}, using fallback`);
-                target.src = '/assets/fallback-logo.svg';
-              }}
-              onLoad={() => {
-                // Optional: Log successful loads
-                console.log(`✅ [PopularTeamsList] Team logo loaded for ${team.name}`);
+            <MyWorldTeamLogo
+              teamId={team.id}
+              teamName={team.name}
+              teamLogo={`/api/team-logo/square/${team.id}?size=24`}
+              alt={team.name}
+              size="24px"
+              className="w-6 h-6 mr-3 rounded-sm"
+              leagueContext={{
+                name: "Popular Teams",
+                country: team.country
               }}
             />
 
