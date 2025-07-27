@@ -307,4 +307,34 @@ export async function getOptimalLogoUrl(
   return fallbackUrl;
 }
 
+// Function to clear specific team logo from cache
+export function clearTeamLogoCache(teamId?: number | string, teamName?: string): void {
+  const isValencia = teamName?.toLowerCase().includes('valencia') || teamId === 532; // Valencia CF team ID
+  
+  if (isValencia) {
+    console.log(`🧹 [logoCache.ts] Clearing Valencia team logo cache - ID: ${teamId}, Name: ${teamName}`);
+  }
+
+  // Generate possible cache keys for the team
+  const possibleKeys = [
+    getTeamLogoCacheKey(teamId, teamName, 'football'),
+    `team_football_${teamId}_${teamName || 'unknown'}`,
+    `team_${teamId}_${teamName || 'unknown'}`,
+    `team_football_${teamId}`,
+    `team_${teamId}`
+  ];
+
+  // Clear from team logo cache
+  possibleKeys.forEach(key => {
+    if (teamLogoCache.getCached(key)) {
+      console.log(`🗑️ [logoCache.ts] Removing cached team logo: ${key}`);
+      teamLogoCache.removeCached(key);
+    }
+  });
+
+  if (isValencia) {
+    console.log(`✅ [logoCache.ts] Valencia team logo cache cleared successfully`);
+  }
+}
+
 export default { teamLogoCache, leagueLogoCache, flagCache };

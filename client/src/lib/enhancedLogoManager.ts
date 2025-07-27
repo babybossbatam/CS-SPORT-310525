@@ -269,7 +269,7 @@ class EnhancedLogoManager {
 
         return {
           url: cached.url,
-          fallbackUsed: cached.fallbackUsed,
+          fallbackUsed,
           loadTime,
           cached: true
         };
@@ -396,13 +396,35 @@ class EnhancedLogoManager {
   }
 
   // Clear cache
-  clearCache(componentName?: string): void {
-    if (componentName) {
-      // Clear cache entries for specific component (not easily filterable here)
-      console.log(`🧹 [EnhancedLogoManager] Cache clear requested for ${componentName}`);
-    } else {
-      this.logoCache.clear();
-      console.log('🧹 [EnhancedLogoManager] Cleared all logo cache');
+  clearCache(): void {
+    this.logoCache.clear();
+    console.log('🧹 [EnhancedLogoManager] Cleared all logo cache');
+  }
+
+  clearTeamCache(teamId?: number | string, teamName?: string): void {
+    const isValencia = teamName?.toLowerCase().includes('valencia') || teamId === 532;
+
+    if (isValencia) {
+      console.log(`🧹 [EnhancedLogoManager] Clearing Valencia team cache - ID: ${teamId}, Name: ${teamName}`);
+    }
+
+    // Generate possible cache keys
+    const possibleKeys = [
+      `team-${teamId}-${teamName}`,
+      `team-${teamId}`,
+      `team-football-${teamId}-${teamName}`,
+      `team-football-${teamId}`
+    ];
+
+    possibleKeys.forEach(key => {
+      if (this.logoCache.has(key)) {
+        console.log(`🗑️ [EnhancedLogoManager] Removing cached team: ${key}`);
+        this.logoCache.delete(key);
+      }
+    });
+
+    if (isValencia) {
+      console.log(`✅ [EnhancedLogoManager] Valencia team cache cleared from enhanced manager`);
     }
   }
 

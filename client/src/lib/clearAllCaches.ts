@@ -1,8 +1,50 @@
 
 // Utility to clear all cached data and force fresh data retrieval
-import { teamLogoCache, leagueLogoCache, flagCache } from './logoCache';
+import { teamLogoCache, leagueLogoCache, flagCache, clearTeamLogoCache } from './logoCache';
 import { enhancedLogoManager } from './enhancedLogoManager';
 import { imageCache } from './imageCache';
+
+// Clear specific team logo cache (Valencia)
+export function clearValenciaTeamCache(): void {
+  console.log('🔄 [clearAllCaches.ts] Clearing Valencia team logo cache...');
+  
+  // Clear from logo cache system
+  clearTeamLogoCache(532, 'Valencia'); // Valencia CF team ID is 532
+  
+  // Clear from enhanced logo manager
+  enhancedLogoManager.clearTeamCache(532, 'Valencia');
+  
+  // Clear from image cache
+  const valenciaKeys = [
+    'team_532_Valencia',
+    'team_football_532_Valencia',
+    'team_532',
+    'team_football_532'
+  ];
+  
+  valenciaKeys.forEach(key => {
+    const cached = imageCache.getCachedImage(key);
+    if (cached) {
+      console.log(`🗑️ [clearAllCaches.ts] Clearing Valencia from image cache: ${key}`);
+      // Force clear by setting empty cache
+      imageCache.setCachedImage(key, '', 'team', 'cleared');
+    }
+  });
+
+  // Force reload Valencia images in DOM
+  const valenciaImages = document.querySelectorAll('img[alt*="Valencia"], img[src*="532"]');
+  valenciaImages.forEach(img => {
+    if (img instanceof HTMLImageElement && img.src) {
+      const originalSrc = img.src;
+      img.src = '';
+      setTimeout(() => {
+        img.src = originalSrc + (originalSrc.includes('?') ? '&' : '?') + 'cache_bust=' + Date.now();
+      }, 100);
+    }
+  });
+
+  console.log('✅ [clearAllCaches.ts] Valencia team logo cache cleared successfully');
+}
 
 export const clearAllCachedData = () => {
   console.log('🧹 [clearAllCaches] Starting comprehensive cache clear...');
