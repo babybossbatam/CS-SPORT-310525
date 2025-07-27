@@ -280,7 +280,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         ref={containerRef}
         className={`${sizeClasses[size]} border-2 border-gray-300 rounded-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%] animate-pulse ${className}`}
         style={{
-          animation: isVisible ? 'pulse 1.5s ease-in-out infinite' : 'shimmer 2s linear infinite',
+          animation: isVisible ? 'pulse 1.5s infinite' : 'shimmer 2s linear infinite',
         }}
       >
         <style jsx>{`
