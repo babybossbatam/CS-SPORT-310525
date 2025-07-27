@@ -275,31 +275,29 @@ class EnhancedLogoManager {
         };
       }
 
-      // Use the API-provided logo URL if available
+      // Use server proxy first, then API-provided URL as fallback
       let logoUrl: string;
       let fallbackUsed = false;
       let successfulSource = '';
 
-      if (request.logoUrl && request.logoUrl.trim() !== '') {
-        // Use the logo URL from the API response
-        logoUrl = request.logoUrl;
-        successfulSource = 'api-provided';
-        console.log(`✅ [EnhancedLogoManager] League ${request.leagueId} using API-provided URL: ${logoUrl}`);
-      } else {
-        // Fallback to constructed URL or server proxy
-        const apiSportsUrl = `https://media.api-sports.io/football/leagues/${request.leagueId}.png`;
-        
-        try {
-          // Try server proxy first for reliability
-          const proxyUrl = `/api/league-logo/${request.leagueId}`;
-          logoUrl = proxyUrl;
-          successfulSource = 'server-proxy';
-          console.log(`📡 [EnhancedLogoManager] League ${request.leagueId} using server proxy: ${proxyUrl}`);
-        } catch (error) {
-          // Fallback to direct API-Sports URL
-          logoUrl = apiSportsUrl;
-          successfulSource = 'direct-api-sports';
-          console.log(`🔗 [EnhancedLogoManager] League ${request.leagueId} using direct API-Sports URL: ${logoUrl}`);
+      // Priority 1: Server proxy (most reliable)
+      try {
+        const proxyUrl = `/api/league-logo/${request.leagueId}`;
+        logoUrl = proxyUrl;
+        successfulSource = 'server-proxy';
+        console.log(`📡 [EnhancedLogoManager] League ${request.leagueId} using server proxy: ${proxyUrl}`);
+      } catch (error) {
+        // Priority 2: API-provided URL (if available and not direct API-Sports)
+        if (request.logoUrl && request.logoUrl.trim() !== '' && !request.logoUrl.includes('media.api-sports.io')) {
+          logoUrl = request.logoUrl;
+          successfulSource = 'api-provided';
+          console.log(`✅ [EnhancedLogoManager] League ${request.leagueId} using API-provided URL: ${logoUrl}`);
+        } else {
+          // Final fallback
+          fallbackUsed = true;
+          logoUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
+          successfulSource = 'fallback';
+          console.warn(`🚫 [EnhancedLogoManager] No reliable source for league ${request.leagueId}, using fallback`);
         }
       }
 

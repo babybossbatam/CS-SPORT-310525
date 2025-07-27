@@ -49,7 +49,7 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
     }
   };
 
-  // Memoized logo URL resolution - simplified and prioritized
+  // Memoized logo URL resolution - prioritize reliable sources
   const resolveLogoUrl = useMemo(() => {
     return new Promise<string>(async (resolve) => {
       if (!leagueId) {
@@ -58,14 +58,7 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
         return;
       }
 
-      // Priority 1: API-provided URL (if valid)
-      if (logoUrl && isValidUrl(logoUrl)) {
-        console.log(`🎯 [MyNewLeagueLogo] Using API-provided logo for ${leagueName || leagueId}: ${logoUrl}`);
-        resolve(logoUrl);
-        return;
-      }
-
-      // Priority 2: Check cache
+      // Priority 1: Check cache first (fastest)
       const cacheKey = generateLeagueCacheKey(leagueId, leagueName);
       const cached = leagueLogoCache.get(cacheKey);
       const now = Date.now();
@@ -76,10 +69,21 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
         return;
       }
 
-      // Priority 3: Try our server proxy endpoint
+      // Priority 2: Server proxy endpoint (most reliable)
       try {
         const proxyUrl = `/api/league-logo/${leagueId}`;
-        const response = await fetch(proxyUrl);
+        console.log(`🔄 [MyNewLeagueLogo] Trying server proxy for league ${leagueId}`);
+        
+        // Test if the proxy URL works by making a HEAD request with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+        
+        const response = await fetch(proxyUrl, { 
+          method: 'HEAD',
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
         
         if (response.ok) {
           console.log(`✅ [MyNewLeagueLogo] Server proxy success for league ${leagueId}`);
@@ -89,37 +93,21 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
           return;
         }
       } catch (error) {
-        console.warn(`⚠️ [MyNewLeagueLogo] Server proxy failed for league ${leagueId}:`, error);
+        console.warn(`⚠️ [MyNewLeagueLogo] Server proxy failed for league ${leagueId}:`, error?.message || 'Unknown error');
       }
 
-      // Priority 4: Enhanced logo manager as fallback
-      try {
-        console.log(`🔍 [MyNewLeagueLogo] Trying enhanced manager for league: ${leagueName || 'Unknown'} (ID: ${leagueId})`);
-        
-        const logoResponse = await enhancedLogoManager.getLeagueLogo('MyNewLeagueLogo', {
-          type: 'league',
-          shape: 'normal',
-          leagueId: leagueId,
-          leagueName: leagueName,
-          logoUrl: logoUrl,
-          fallbackUrl: fallbackUrl
-        });
-
-        // Cache the result
-        leagueLogoCache.set(cacheKey, {
-          result: logoResponse.url,
-          timestamp: now
-        });
-
-        console.log(`✅ [MyNewLeagueLogo] Enhanced manager success for ${leagueName || leagueId}: ${logoResponse.url}`);
-        resolve(logoResponse.url);
-      } catch (error) {
-        console.error(`❌ [MyNewLeagueLogo] Enhanced manager failed for league ${leagueId}:`, error);
-        
-        // Cache the fallback
-        leagueLogoCache.set(cacheKey, { result: fallbackUrl, timestamp: now });
-        resolve(fallbackUrl);
+      // Priority 3: API-provided URL (if valid and not from direct API-Sports)
+      if (logoUrl && isValidUrl(logoUrl) && !logoUrl.includes('media.api-sports.io')) {
+        console.log(`🎯 [MyNewLeagueLogo] Using API-provided logo for ${leagueName || leagueId}: ${logoUrl}`);
+        leagueLogoCache.set(cacheKey, { result: logoUrl, timestamp: now });
+        resolve(logoUrl);
+        return;
       }
+
+      // Priority 4: Final fallback
+      console.warn(`🚫 [MyNewLeagueLogo] All sources failed for league ${leagueId}, using fallback`);
+      leagueLogoCache.set(cacheKey, { result: fallbackUrl, timestamp: now });
+      resolve(fallbackUrl);
     });
   }, [leagueId, leagueName, logoUrl, fallbackUrl]);
 
