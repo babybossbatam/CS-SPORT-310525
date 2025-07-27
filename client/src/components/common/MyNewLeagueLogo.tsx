@@ -38,7 +38,7 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
   const [hasError, setHasError] = useState(false);
 
   // Memoized logo URL resolution using enhancedLogoManager
-  const logoUrl = useMemo(async () => {
+  const resolveLogoUrl = useMemo(async () => {
     if (!leagueId) {
       console.warn(`⚠️ [MyNewLeagueLogo] No leagueId provided for ${leagueName || 'Unknown League'}`);
       return fallbackUrl;
@@ -63,7 +63,7 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
         shape: 'normal',
         leagueId: leagueId,
         leagueName: leagueName,
-        logoUrl: logoUrl,
+        logoUrl: logoUrl, // Now this correctly refers to the prop
         fallbackUrl: fallbackUrl
       });
 
@@ -92,7 +92,7 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
 
       return fallbackUrl;
     }
-  }, [leagueId, leagueName, fallbackUrl]);
+  }, [leagueId, leagueName, logoUrl, fallbackUrl]);
 
   // Resolve logo URL on component mount or when dependencies change
   useEffect(() => {
@@ -103,7 +103,7 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
       setHasError(false);
 
       try {
-        const url = await logoUrl;
+        const url = await resolveLogoUrl;
         if (isMounted) {
           setResolvedLogoUrl(url);
           setIsLoading(false);
@@ -123,7 +123,7 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [logoUrl, fallbackUrl, leagueId]);
+  }, [resolveLogoUrl, fallbackUrl, leagueId]);
 
   // Memoized inline styles
   const containerStyle = useMemo(() => ({
