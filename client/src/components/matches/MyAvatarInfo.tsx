@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 interface Player {
   id: number;
@@ -36,6 +36,9 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   const [imageUrl, setImageUrl] = useState<string>('/assets/matchdetaillogo/fallback_player.png');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Centralized fallback image path
   const FALLBACK_PLAYER_IMAGE = '/assets/matchdetaillogo/fallback_player.png';
@@ -195,7 +198,36 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     }
   };
 
+  // Intersection Observer for lazy loading
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          setShouldLoad(true);
+          observer.disconnect();
+        }
+      },
+      {
+        rootMargin: '50px',
+        threshold: 0.1,
+      }
+    );
+
+    observer.observe(container);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  // Data loading effect - only when component becomes visible
+  useEffect(() => {
+    if (!shouldLoad) return;
+
     let isMounted = true;
 
     const loadPlayerData = async () => {
@@ -217,7 +249,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [playerId, matchId, playerName]);
+  }, [shouldLoad, playerId, matchId, playerName]);
 
   const handleImageError = () => {
     if (imageUrl === FALLBACK_PLAYER_IMAGE) {
@@ -241,9 +273,23 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       .toUpperCase();
   };
 
-  if (isLoading) {
+  // Enhanced loading state with lazy loading
+  if (!isVisible || isLoading) {
     return (
-      <div className={`${sizeClasses[size]} border-2 border-gray-300 rounded-full bg-gray-100 animate-pulse ${className}`} />
+      <div 
+        ref={containerRef}
+        className={`${sizeClasses[size]} border-2 border-gray-300 rounded-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%] animate-pulse ${className}`}
+        style={{
+          animation: isVisible ? 'pulse 1.5s ease-in-out infinite' : 'shimmer 2s linear infinite',
+        }}
+      >
+        <style jsx>{`
+          @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+          }
+        `}</style>
+      </div>
     );
   }
 
@@ -257,6 +303,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
 
   return (
     <div 
+      ref={containerRef}
       key={componentId}
       className={`${sizeClasses[size]} border-2 border-gray-300 rounded-full overflow-hidden relative ${onClick ? 'cursor-pointer hover:scale-105 transition-transform' : ''} ${className}`}
       onClick={handleClick}
