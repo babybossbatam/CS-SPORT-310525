@@ -1868,7 +1868,7 @@ id: fixture.teams.away.id,
                               style={{
                                 cursor: "pointer",
                                 top: "calc(50% - 32px)",
-                                left: "-38px",
+                                left: "-42px",
                                 filter: "contrast(115%) brightness(105%)",
                               }}
                               onClick={(e) => {
@@ -1889,7 +1889,7 @@ id: fixture.teams.away.id,
                                 alt={
                                   currentMatch.teams.home.name || "Home Team"
                                 }
-                                size="64px"
+                                size="70px"
                                 className="w-full h-full object-contain"
                                 leagueContext={{
                                   name: currentMatch.league.name,
