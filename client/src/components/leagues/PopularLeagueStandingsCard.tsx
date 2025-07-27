@@ -59,10 +59,6 @@ interface FixtureData {
 
 
 const PopularLeagueStandingsCard = () => {
-  const leagueContext = {
-    name: league.name,
-    country: league.country,
-  };
   const { data } = useQuery({
     queryKey: ['league-standings', 39], // Premier League ID
     queryFn: async () => {
@@ -72,6 +68,11 @@ const PopularLeagueStandingsCard = () => {
   });
 
   const standings = data?.league?.standings?.[0]?.slice(0, 10) || [];
+  
+  const leagueContext = {
+    name: data?.league?.name || "Premier League",
+    country: data?.league?.country || "England",
+  };
 
   return (
     <Card className="bg-white shadow-md mb-4">
@@ -103,16 +104,16 @@ const PopularLeagueStandingsCard = () => {
                     <div className="flex items-center">
 
                       <MyWorldTeamLogo
-                                                        teamName={standing.teams.name || ""}
-                                                        teamLogo={standing.teams.id
-                                                            ? `/api/team-logo/square/${standing.teams.id}?size=32`
-                                                            : "/assets/fallback-logo.svg"
-                                                        }
-                                                        alt={standing.team.name}
-                                                        size="34px"
-                                                        className="popular-leagues-size"
-                                                        leagueContext={leagueContext}
-                                                      />
+                        teamName={standing.team.name || ""}
+                        teamLogo={standing.team.id
+                          ? `/api/team-logo/square/${standing.team.id}?size=32`
+                          : "/assets/fallback-logo.svg"
+                        }
+                        alt={standing.team.name}
+                        size="34px"
+                        className="popular-leagues-size"
+                        leagueContext={leagueContext}
+                      />
 
                       <span className="text-[0.9em]">{standing.team.name}</span>
                       {standing.rank === 1 && <span className="ml-2">👑</span>}
