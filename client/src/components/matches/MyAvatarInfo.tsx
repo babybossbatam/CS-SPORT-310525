@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import { playerImageCache } from '@/lib/playerImageCache';
 
 interface Player {
   id: number;
@@ -60,96 +61,41 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
 
       console.log(`🔍 [MyAvatarInfo] Fetching player data for ID: ${playerIdToFetch}`);
 
-      // Check if player ID is verified before making API calls
-      try {
-        const verificationResponse = await fetch('/api/players/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ playerId: playerIdToFetch })
-        });
+      // Use the enhanced player image cache system
+      const cachedImageUrl = await playerImageCache.getPlayerImageWithFallback(
+        playerIdToFetch, 
+        playerName, 
+        teamId
+      );
 
-        if (verificationResponse.ok) {
-          const verificationData = await verificationResponse.json();
-          if (!verificationData.verified) {
-            console.log(`⚠️ [MyAvatarInfo] Player ID ${playerIdToFetch} not verified, using fallback`);
-            if (isMounted) {
-              setImageUrl(FALLBACK_PLAYER_IMAGE);
-              return;
-            }
-          }
-        }
-      } catch (verificationError) {
-        console.log(`⚠️ Fetching player data for ID: ${playerIdToFetch}`);
-      }
-
-      // Try multiple image sources directly instead of relying on API
-      const imageUrls = [
-        `https://media.api-sports.io/football/players/${playerIdToFetch}.png`,
-        `https://cdn.resfu.com/img_data/players/medium/${playerIdToFetch}.jpg?size=120x&lossy=1`,
-        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerIdToFetch}`
-      ];
-
-      // Try to load images in order of priority
-      for (const url of imageUrls) {
-        try {
-          const img = new Image();
-          img.crossOrigin = 'anonymous';
-
-          const imageLoaded = await new Promise((resolve) => {
-            img.onload = () => resolve(true);
-            img.onerror = () => resolve(false);
-            img.src = url;
+      if (cachedImageUrl && isMounted) {
+        console.log(`✅ [MyAvatarInfo] Got player image from cache: ${cachedImageUrl}`);
+        
+        // Check if it's an initials fallback
+        if (cachedImageUrl.includes('ui-avatars.com')) {
+          setImageUrl('INITIALS_FALLBACK');
+        } else {
+          setImageUrl(cachedImageUrl);
+          setPlayerData({ 
+            id: playerIdToFetch, 
+            name: playerName || 'Player', 
+            photo: cachedImageUrl 
           });
-
-          if (imageLoaded && isMounted) {
-            console.log(`✅ [MyAvatarInfo] Successfully loaded ${sport} player image for ${playerIdToFetch}: ${url}`);
-            setImageUrl(url);
-            setPlayerData({ id: playerIdToFetch, name: playerName || 'Player', photo: url });
-            return;
-          }
-        } catch (err) {
-          console.log(`⚠️ [MyAvatarInfo] Failed to load image: ${url}`);
-          continue;
         }
+        return;
       }
 
-      // If all direct images fail, try the API as fallback
-      try {
-        const response = await fetch('/api/player-data', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            playerId: playerIdToFetch,
-            season: '2025',
-            sport: sport // Use the sport prop
-          })
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.player && data.player.photo && isMounted) {
-            setImageUrl(data.player.photo);
-            setPlayerData(data.player);
-            return;
-          }
-        }
-      } catch (apiError) {
-        console.log(`⚠️ [MyAvatarInfo] API fallback failed:`, apiError);
+      // Final fallback - no error, just use initials
+      if (isMounted) {
+        console.log(`📝 [MyAvatarInfo] Using initials for player ${playerIdToFetch} (${playerName})`);
+        setImageUrl('INITIALS_FALLBACK');
       }
-
-        // Final fallback - no error, just use initials
-        if (isMounted) {
-          console.log(`📝 [MyAvatarInfo] Using initials for player ${playerIdToFetch} (${playerName})`);
-          setImageUrl(FALLBACK_PLAYER_IMAGE);
-        }
-      } catch (error) {
-        console.error(`❌ [MyAvatarInfo-${componentId}] Error fetching player data:`, error);
-        if (isMounted) {
-          // Don't set error for image loading issues, just use fallback
-          setImageUrl(FALLBACK_PLAYER_IMAGE);
-        }
+    } catch (error) {
+      console.error(`❌ [MyAvatarInfo-${componentId}] Error fetching player data:`, error);
+      if (isMounted) {
+        // Don't set error for image loading issues, just use fallback
+        setImageUrl('INITIALS_FALLBACK');
+      }
     } finally {
       if (isMounted) {
         setIsLoading(false);
