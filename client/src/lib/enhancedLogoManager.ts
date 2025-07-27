@@ -468,7 +468,7 @@ if (typeof window !== 'undefined') {
       event.preventDefault(); // Prevent the error from propagating
       return;
     }
-    
+
     // Call original handler if it exists
     if (originalHandler) {
       originalHandler.call(window, event);
@@ -507,14 +507,14 @@ if (typeof window !== 'undefined') {
           const timeoutId = setTimeout(() => {
             controller.abort('Timeout after 5 seconds');
           }, 5000); // 5 second timeout
-          
+
           const response = await fetch(source, { 
             method: 'HEAD',
             signal: controller.signal
           });
-          
+
           clearTimeout(timeoutId);
-          
+
           const status = response.ok ? '✅ WORKING' : `❌ FAILED (${response.status})`;
           console.log(`  ${i + 1}. ${status} - ${source}`);
           results.push({ source, working: response.ok, status: response.status });

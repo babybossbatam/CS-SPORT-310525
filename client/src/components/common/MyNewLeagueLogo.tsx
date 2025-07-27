@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+
+import React, { useState, useMemo } from 'react';
+import { enhancedLogoManager } from '../../lib/enhancedLogoManager';
+import LazyImage from './LazyImage';
 
 interface MyNewLeagueLogoProps {
   leagueId: number | string;
@@ -20,20 +23,65 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
   style,
   onClick
 }) => {
-  const [currentSrc, setCurrentSrc] = useState('');
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Use server proxy as primary source - it handles all fallback logic server-side
-  const primaryUrl = `/api/league-logo/${leagueId}`;
+  // Memoized logo URL resolution using enhancedLogoManager
+  const logoUrl = useMemo(async () => {
+    if (leagueId && leagueName) {
+      console.log(`🎯 [MyNewLeagueLogo] Fetching logo for league: ${leagueName} (ID: ${leagueId})`);
 
-  // Initialize the source URL
+      const logoResponse = await enhancedLogoManager.getLeagueLogo('MyNewLeagueLogo', {
+        type: 'league',
+        shape: 'normal',
+        leagueId: leagueId,
+        leagueName: leagueName,
+        fallbackUrl: fallbackUrl
+      });
+
+      console.log(`✅ [MyNewLeagueLogo] Logo resolved for ${leagueName}:`, {
+        url: logoResponse.url,
+        cached: logoResponse.cached,
+        fallbackUsed: logoResponse.fallbackUsed,
+        loadTime: logoResponse.loadTime + 'ms'
+      });
+
+      return logoResponse.url;
+    }
+
+    // Fallback to default logo if no leagueId
+    console.log(`⚠️ [MyNewLeagueLogo] No leagueId provided for ${leagueName}, using fallback`);
+    return fallbackUrl;
+  }, [leagueId, leagueName, fallbackUrl]);
+
+  // Use React.Suspense pattern for async logo loading
+  const [resolvedLogoUrl, setResolvedLogoUrl] = React.useState<string>(fallbackUrl);
+
   React.useEffect(() => {
-    setCurrentSrc(primaryUrl);
-    setHasError(false);
-    setIsLoading(true);
-    console.log(`🔍 [MyNewLeagueLogo] Loading league ${leagueId} from: ${primaryUrl}`);
-  }, [leagueId, primaryUrl]);
+    if (logoUrl instanceof Promise) {
+      logoUrl.then(setResolvedLogoUrl);
+    } else {
+      setResolvedLogoUrl(logoUrl);
+    }
+  }, [logoUrl]);
+
+  // Memoized inline styles
+  const containerStyle = useMemo(() => ({
+    width: size,
+    height: size,
+    position: "relative" as const,
+  }), [size]);
+
+  const imageStyle = useMemo(() => ({ 
+    backgroundColor: "transparent",
+    width: "100%",
+    height: "100%",
+    objectFit: "contain" as const,
+    borderRadius: "0%",
+    opacity: isLoading ? 0.7 : 1,
+    transition: 'opacity 0.2s ease-in-out',
+    ...style
+  }), [isLoading, style]);
 
   const handleLoad = () => {
     setIsLoading(false);
@@ -46,31 +94,30 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
     setIsLoading(false);
     if (!hasError) {
       setHasError(true);
-      setCurrentSrc(fallbackUrl);
-      console.warn(`🚫 [MyNewLeagueLogo] Server proxy failed for league ${leagueId}, using fallback: ${fallbackUrl}`);
+      setResolvedLogoUrl(fallbackUrl);
+      console.warn(`🚫 [MyNewLeagueLogo] Logo failed for league ${leagueId}, using fallback: ${fallbackUrl}`);
     }
   };
 
-  const logoStyle: React.CSSProperties = {
-    width: size,
-    height: size,
-    objectFit: 'contain',
-    opacity: isLoading ? 0.7 : 1,
-    transition: 'opacity 0.2s ease-in-out',
-    ...style
-  };
-
+  // For league logos, use regular LazyImage with cached URL
   return (
-    <img
-      src={currentSrc}
-      alt={leagueName || `League ${leagueId}`}
-      className={className}
-      style={logoStyle}
-      onLoad={handleLoad}
-      onError={handleError}
-      onClick={onClick}
-      loading="lazy"
-    />
+    <div
+      className={`league-logo-container ${className}`}
+      style={containerStyle}
+    >
+      <LazyImage
+        src={resolvedLogoUrl}
+        alt={leagueName || `League ${leagueId}`}
+        title={leagueName}
+        className="league-logo"
+        style={imageStyle}
+        fallbackSrc={fallbackUrl}
+        onLoad={handleLoad}
+        onError={handleError}
+        onClick={onClick}
+        loading="lazy"
+      />
+    </div>
   );
 };
 
