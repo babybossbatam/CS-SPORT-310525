@@ -927,13 +927,27 @@ const HomeTopScorersList = () => {
                     key={scorer.player.id}
                     className="flex items-center gap-3"
                   >
-                    <MyAvatarInfo
-                      playerId={scorer.player.id}
-                      playerName={scorer.player.name}
-                      size="md"
-                      className="border border-gray-200"
-                      sport="football"
-                    />
+                    <div className="relative">
+                      <img
+                        src={scorer.player.photo || `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${scorer.player.id}`}
+                        alt={scorer.player.name}
+                        className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          if (!target.src.includes('default.png')) {
+                            target.src = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${scorer.player.id}`;
+                          } else {
+                            // Fallback to initials
+                            const initials = scorer.player.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent) {
+                              parent.innerHTML = `<div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm">${initials}</div>`;
+                            }
+                          }
+                        }}
+                      />
+                    </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
@@ -953,10 +967,10 @@ const HomeTopScorersList = () => {
                     </div>
 
                     <div className="text-center flex-shrink-0">
-                      <div className="text-lg font-md text-gray-900 bg-gray-200">
+                      <div className="text-lg font-bold text-gray-900 bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center">
                         {goals}
                       </div>
-                      <div className="text-xs text-gray-500 ">Goals</div>
+                      <div className="text-xs text-gray-500 mt-1">Goals</div>
                     </div>
                   </div>
                 );

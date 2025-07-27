@@ -1289,6 +1289,57 @@ timestamp: now,
   },
 
   /**
+   * Get top scorers with enhanced photo handling
+   */
+  async getTopScorersWithPhotos(
+    leagueId: number,
+    season: number,
+  ): Promise<any[]> {
+    try {
+      const topScorers = await this.getTopScorers(leagueId, season);
+      
+      // Process and enhance the data with better photo handling
+      return topScorers.map((scorer: any) => {
+        const playerStats = scorer.statistics[0];
+        const goals = playerStats?.goals?.total || 0;
+        
+        // Enhanced photo URL with fallback
+        let photoUrl = scorer.player?.photo;
+        if (!photoUrl || photoUrl.includes('default.png')) {
+          // Use 365Scores CDN as fallback
+          photoUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${scorer.player.id}`;
+        }
+        
+        return {
+          id: scorer.player.id,
+          name: scorer.player.name,
+          photo: photoUrl,
+          position: scorer.player.position || playerStats?.games?.position || 'Unknown',
+          goals: goals,
+          team: {
+            id: playerStats?.team?.id,
+            name: playerStats?.team?.name,
+            logo: playerStats?.team?.logo
+          },
+          league: {
+            id: playerStats?.league?.id,
+            name: playerStats?.league?.name,
+            country: playerStats?.league?.country
+          },
+          stats: {
+            appearances: playerStats?.games?.appearences || 0,
+            assists: playerStats?.assists || 0,
+            rating: playerStats?.games?.rating || '0.0'
+          }
+        };
+      });
+    } catch (error) {
+      console.error(`Error fetching top scorers with photos for league ${leagueId}:`, error);
+      return [];
+    }
+  },
+
+  /**
    * Get league standings by league ID and season
    */
   async getLeagueStandings(leagueId: number, season?: number) {
