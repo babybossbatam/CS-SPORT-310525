@@ -1,6 +1,8 @@
+
 /**
  * Enhanced team logo sources with 365scores integration
  */
+
 export interface TeamLogoSource {
   url: string;
   source: string;
@@ -16,9 +18,9 @@ export interface TeamData {
 /**
  * Generate team logo sources with 365scores support
  */
-export function getTeamLogoSources(team: TeamData, isNationalTeam = false, sport: string = 'football'): TeamLogoSource[] {
+export function getTeamLogoSources(team: TeamData, isNationalTeam = false): TeamLogoSource[] {
   const sources: TeamLogoSource[] = [];
-
+  
   // For national teams or international competitions, prioritize 365scores
   if (isNationalTeam && team?.id) {
     sources.push({
@@ -39,18 +41,16 @@ export function getTeamLogoSources(team: TeamData, isNationalTeam = false, sport
 
   // Alternative API sources if team ID is available
   if (team?.id) {
-    // API-Sports alternative - sport-specific
-    const sportEndpoint = sport === 'basketball' ? 'basketball' : 'football';
+    // API-Sports alternative
     sources.push({
-      url: `https://media.api-sports.io/${sportEndpoint}/teams/${team.id}.png`,
+      url: `https://media.api-sports.io/football/teams/${team.id}.png`,
       source: 'api-sports-alternative',
       priority: 3
     });
 
-    // SportMonks alternative - sport-specific
-    const sportPath = sport === 'basketball' ? 'basketball' : 'soccer';
+    // SportMonks alternative
     sources.push({
-      url: `https://cdn.sportmonks.com/images/${sportPath}/teams/${team.id}.png`,
+      url: `https://cdn.sportmonks.com/images/soccer/teams/${team.id}.png`,
       source: 'sportmonks',
       priority: 4
     });
@@ -76,37 +76,13 @@ export function getTeamLogoSources(team: TeamData, isNationalTeam = false, sport
 }
 
 /**
- * Create a team logo error handler with sport-specific fallbacks
- */
-export function createTeamLogoErrorHandler(team: TeamData, isNationalTeam = false, sport: string = 'football') {
-  return (e: any) => {
-    const target = e.target as HTMLImageElement;
-    const currentSrc = target.src;
-
-    // Get all available sources for this team and sport
-    const sources = getTeamLogoSources(team, isNationalTeam, sport);
-
-    // Find current source index
-    const currentIndex = sources.findIndex(source => source.url === currentSrc);
-
-    // Try next source
-    if (currentIndex < sources.length - 1) {
-      target.src = sources[currentIndex + 1].url;
-    } else {
-      // All sources failed, use fallback
-      target.src = "/assets/fallback-logo.svg";
-    }
-  };
-}
-
-/**
  * Check if team is likely a national team
  */
 export function isNationalTeam(team: TeamData, league?: any): boolean {
   const teamName = team?.name?.toLowerCase() || '';
   const leagueName = league?.name?.toLowerCase() || '';
   const country = league?.country?.toLowerCase() || '';
-
+  
   return (
     teamName.includes('national') ||
     teamName.includes(' u20') ||
@@ -123,4 +99,35 @@ export function isNationalTeam(team: TeamData, league?: any): boolean {
     leagueName.includes('conmebol') ||
     leagueName.includes('nations league')
   );
+}
+
+/**
+ * Create enhanced error handler for team logos
+ */
+export function createTeamLogoErrorHandler(team: TeamData, isNationalTeam = false) {
+  const sources = getTeamLogoSources(team, isNationalTeam);
+  let currentIndex = 0;
+
+  return function handleError(event: any) {
+    const img = event.target as HTMLImageElement;
+    const currentSrc = img.src;
+    
+    // Find current source index
+    const currentSourceIndex = sources.findIndex(source => currentSrc.includes(source.url.split('/').pop() || ''));
+    if (currentSourceIndex >= 0) {
+      currentIndex = currentSourceIndex + 1;
+    } else {
+      currentIndex++;
+    }
+
+    // Try next source
+    if (currentIndex < sources.length) {
+      const nextSource = sources[currentIndex];
+      console.log(`🔄 Team logo fallback: Trying ${nextSource.source} for ${team.name}`);
+      img.src = nextSource.url;
+    } else {
+      console.warn(`❌ All team logo sources failed for ${team.name}, using final fallback`);
+      img.src = '/assets/fallback-logo.png';
+    }
+  };
 }

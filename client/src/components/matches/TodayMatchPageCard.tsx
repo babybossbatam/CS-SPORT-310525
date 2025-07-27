@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Clock } from "lucide-react";
 import { Card, CardHeader, CardContent } from "../ui/card";
@@ -7,11 +6,12 @@ import { Calendar } from "../ui/calendar";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
-
+import TodayPopularFootballLeaguesNew from "./TodayPopularFootballLeaguesNew";
 import TodaysMatchesByCountryNew from "./TodaysMatchesByCountryNew";
 import LiveMatchForAllCountry from "./LiveMatchForAllCountry";
 import LiveMatchByTime from "./LiveMatchByTime";
 import TodayMatchByTime from "./TodayMatchByTime";
+import MyNewLeague from "./MyNewLeague";
 import MyNewLeague2 from "./MyNewLeague2";
 import EnhancementLeague from "./EnhancementLeague";
 import { useCachedQuery } from "@/lib/cachingHelper";
@@ -29,17 +29,17 @@ import {
 
 
 
-interface MyLeftBasketProps {
+interface TodayMatchPageCardProps {
   fixtures: any[];
   onMatchClick: (matchId: number) => void;
   onMatchCardClick?: (fixture: any) => void;
 }
 
-export const MyLeftBasket = ({
+export const TodayMatchPageCard = ({
   fixtures,
   onMatchClick,
   onMatchCardClick,
-}: MyLeftBasketProps) => {
+}: TodayMatchPageCardProps) => {
   const [timeFilterActive, setTimeFilterActive] = useState(false);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -108,8 +108,8 @@ export const MyLeftBasket = ({
     setIsCalendarOpen(false);
   };
 
-  // Dedicated date display function for MyLeftBasket
-  const getMyLeftBasketDisplayName = () => {
+  // Dedicated date display function for TodayMatchPageCard
+  const getTodayMatchPageDisplayName = () => {
     const today = getCurrentUTCDateString();
     const yesterday = format(subDays(parseISO(today), 1), "yyyy-MM-dd");
     const tomorrow = format(addDays(parseISO(today), 1), "yyyy-MM-dd");
@@ -145,23 +145,23 @@ export const MyLeftBasket = ({
     refetchInterval: 30000,
   });
 
-  console.log(`📊 [MyLeftBasket] Rendering for date: ${selectedDate}`);
+  console.log(`📊 [TodayMatchPageCard] Rendering for date: ${selectedDate}`);
 
   const handleMatchCardClick = (fixture: any) => {
-    console.log('🎯 [MyLeftBasket] Match card clicked:', {
+    console.log('🎯 [TodayMatchPageCard] Match card clicked:', {
       fixtureId: fixture.fixture?.id,
       teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
       league: fixture.league?.name,
       country: fixture.league?.country,
       homeTeamId: fixture.teams?.home?.id,
       awayTeamId: fixture.teams?.away?.id,
-      source: 'MyLeftBasket'
+      source: 'TodayMatchPageCard'
     });
     onMatchCardClick?.(fixture);
   };
 
   const handleLiveMatchClick = (fixture: any) => {
-    console.log('🔴 [MyLeftBasket] LIVE Match card clicked from LiveMatchForAllCountry:', {
+    console.log('🔴 [TodayMatchPageCard] LIVE Match card clicked from LiveMatchForAllCountry:', {
       fixtureId: fixture.fixture?.id,
       teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
       league: fixture.league?.name,
@@ -216,7 +216,7 @@ export const MyLeftBasket = ({
               className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md h-full"
             >
               <span className="font-medium">
-                {getMyLeftBasketDisplayName()}
+                {getTodayMatchPageDisplayName()}
               </span>
               <ChevronDown
                 className={`h-4 w-4 transition-transform ${isCalendarOpen ? "rotate-180" : ""}`}
@@ -412,7 +412,21 @@ export const MyLeftBasket = ({
             onMatchCardClick={handleMatchCardClick}
             useUTCOnly={true}
           />
-          
+          <MyNewLeague
+            selectedDate={selectedDate}
+            timeFilterActive={false}
+            showTop10={false}
+            liveFilterActive={liveFilterActive}
+            onMatchCardClick={handleMatchCardClick}
+            useUTCOnly={true}
+          />
+          <TodayPopularFootballLeaguesNew
+            selectedDate={selectedDate}
+            timeFilterActive={false}
+            showTop20={false}
+            liveFilterActive={liveFilterActive}
+            onMatchCardClick={onMatchCardClick}
+          />
           <TodaysMatchesByCountryNew
             selectedDate={selectedDate}
             liveFilterActive={liveFilterActive}
@@ -427,4 +441,4 @@ export const MyLeftBasket = ({
   );
 };
 
-export default MyLeftBasket;
+export default TodayMatchPageCard;

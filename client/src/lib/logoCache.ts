@@ -213,12 +213,12 @@ export const leagueLogoCache = new LogoCache();
 export const flagCache = new LogoCache();
 
 // Cache key generators
-export function getTeamLogoCacheKey(teamId?: number | string, teamName?: string, sport: string = 'football'): string {
-  return `team_${sport}_${teamId || 'unknown'}_${teamName || 'unknown'}`;
+export function getTeamLogoCacheKey(teamId?: number | string, teamName?: string): string {
+  return `team_${teamId || 'unknown'}_${teamName || 'unknown'}`;
 }
 
-export function getLeagueLogoCacheKey(leagueId?: number | string, leagueName?: string, sport: string = 'football'): string {
-  return `league_${sport}_${leagueId || 'unknown'}_${leagueName || 'unknown'}`;
+export function getLeagueLogoCacheKey(leagueId?: number | string, leagueName?: string): string {
+  return `league_${leagueId || 'unknown'}_${leagueName || 'unknown'}`;
 }
 
 export function getFlagCacheKey(countryCode?: string, countryName?: string): string {

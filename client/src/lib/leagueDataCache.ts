@@ -83,11 +83,10 @@ export async function getLeagueLogoWithCache(leagueId: number | string, leagueNa
     }
   }
 
-  // Final fallback - try API endpoint first, then fallback asset
-  const apiFallback = `/api/league-logo/square/${leagueId}`;
-  leagueLogoCache.setCached(cacheKey, apiFallback, 'api-fallback', true);
-  console.warn(`🚫 [getLeagueLogoWithCache] All external sources failed for league ${leagueId}, using API fallback: ${apiFallback}`);
-  return apiFallback;;
+  // Final fallback
+  const fallbackUrl = '/assets/fallback-logo.svg';
+  leagueLogoCache.setCached(cacheKey, fallbackUrl, 'fallback', true);
+  return fallbackUrl;
 }
 
 interface CachedLeagueData {

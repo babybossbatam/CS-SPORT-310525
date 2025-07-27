@@ -13,7 +13,6 @@ interface MyAvatarInfoProps {
   teamId?: number;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
-  sport?: 'football' | 'basketball' | 'auto';
   onClick?: (playerId?: number, teamId?: number, playerName?: string, playerImage?: string) => void;
 }
 
@@ -24,7 +23,6 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   teamId,
   size = 'md',
   className = '',
-  sport = 'auto',
   onClick
 }) => {
   // Create a unique component ID to prevent duplicate rendering issues
@@ -43,7 +41,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   const sizeClasses = {
     sm: 'w-10 h-10',
     md: 'w-10 h-10',
-    lg: 'w-14 h-14',
+    lg: 'w-18 h-18',
     'md-commentary': 'w-8 h-8'  // 2px smaller than md for commentary
   };
 
@@ -56,34 +54,12 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
 
       console.log(`🔍 [MyAvatarInfo] Fetching player data for ID: ${playerIdToFetch}`);
 
-      // Detect if this is for basketball based on prop or context
-      const isBasketballPlayer = sport === 'basketball' || 
-                                 (sport === 'auto' && (
-                                   window.location.pathname.includes('basketball') || 
-                                   document.querySelector('.basketball-context') !== null ||
-                                   playerName?.toLowerCase().includes('basketball') ||
-                                   document.querySelector('[data-sport="basketball"]') !== null
-                                 ));
-
-      // Try multiple image sources based on sport type
-      let imageUrls;
-      
-      if (isBasketballPlayer) {
-        // Basketball-specific image sources
-        imageUrls = [
-          `https://media.api-sports.io/basketball/players/${playerIdToFetch}.png`,
-          `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerIdToFetch}`,
-          `https://cdn.resfu.com/img_data/players/medium/${playerIdToFetch}.jpg?size=120x&lossy=1`,
-          `https://www.basketball-reference.com/req/202106291/images/players/${playerIdToFetch}.jpg`
-        ];
-      } else {
-        // Football-specific image sources (original)
-        imageUrls = [
-          `https://media.api-sports.io/football/players/${playerIdToFetch}.png`,
-          `https://cdn.resfu.com/img_data/players/medium/${playerIdToFetch}.jpg?size=120x&lossy=1`,
-          `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerIdToFetch}`
-        ];
-      }
+      // Try multiple image sources directly instead of relying on API
+      const imageUrls = [
+        `https://media.api-sports.io/football/players/${playerIdToFetch}.png`,
+        `https://cdn.resfu.com/img_data/players/medium/${playerIdToFetch}.jpg?size=120x&lossy=1`,
+        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerIdToFetch}`
+      ];
 
       // Try to load images in order
       for (const url of imageUrls) {
