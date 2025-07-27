@@ -28,16 +28,29 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // If we have a logo URL from fixture data, use it directly
+    // If we have a logo URL from fixture data, use it directly and skip manager
     if (providedLogoUrl && providedLogoUrl.trim() !== '') {
       console.log(`✅ [MyNewLeagueLogo] Using fixture logo for league ${leagueId}: ${providedLogoUrl}`);
       setLogoUrl(providedLogoUrl);
       setIsLoading(false);
+      setError(null);
       return;
     }
 
-    // Only fetch if no logo URL provided and we have a valid league ID
+    // Only fetch via manager if no fixture logo URL is available
     const fetchLogo = async () => {
+      // Wait a bit for fixture data to potentially arrive
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Check again if fixture logo arrived during the wait
+      if (providedLogoUrl && providedLogoUrl.trim() !== '') {
+        console.log(`✅ [MyNewLeagueLogo] Fixture logo arrived during wait for league ${leagueId}: ${providedLogoUrl}`);
+        setLogoUrl(providedLogoUrl);
+        setIsLoading(false);
+        setError(null);
+        return;
+      }
+
       if (!leagueId || leagueId === 'Unknown') {
         setLogoUrl(fallbackUrl);
         setIsLoading(false);
@@ -57,6 +70,7 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
           return;
         }
 
+        console.log(`🔄 [MyNewLeagueLogo] No fixture logo available, fetching via manager for league ${leagueId}`);
         const result = await enhancedLogoManager.getLeagueLogo('MyNewLeagueLogo', {
           type: 'league',
           shape: 'normal',
@@ -68,7 +82,7 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
         if (result.fallbackUsed) {
           console.log(`🚫 [MyNewLeagueLogo] Logo failed for league ${leagueId}, using fallback: ${result.url}`);
         } else {
-          console.log(`✅ [MyNewLeagueLogo] Successfully loaded league ${leagueId} logo`);
+          console.log(`✅ [MyNewLeagueLogo] Successfully loaded league ${leagueId} logo via manager`);
         }
 
         setLogoUrl(result.url);
