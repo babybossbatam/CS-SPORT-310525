@@ -14,6 +14,7 @@ interface MyAvatarInfoProps {
   teamId?: number;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  sport?: 'football' | 'basketball';
   onClick?: (playerId?: number, teamId?: number, playerName?: string, playerImage?: string) => void;
 }
 
@@ -24,6 +25,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   teamId,
   size = 'md',
   className = '',
+  sport = 'football',
   onClick
 }) => {
   // Create a unique component ID to prevent duplicate rendering issues
@@ -56,7 +58,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       setIsLoading(true);
       setError(null);
 
-      console.log(`🔍 [MyAvatarInfo] Fetching football player data for ID: ${playerIdToFetch}`);
+      console.log(`🔍 [MyAvatarInfo] Fetching ${sport} player data for ID: ${playerIdToFetch}`);
 
       // Check if player ID is verified before making API calls
       try {
@@ -80,22 +82,25 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         console.log(`⚠️ [MyAvatarInfo] Could not verify player ID ${playerIdToFetch}`);
       }
 
-      // Football-specific image sources - prioritize quality and accuracy
-      const footballImageUrls = [
-        // Primary source - RapidAPI Football
+      // Sport-specific image sources - prioritize quality and accuracy
+      const imageUrls = sport === 'basketball' ? [
+        // Basketball-specific sources
+        `https://media.api-sports.io/basketball/players/${playerIdToFetch}.png`,
+        `https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/${playerIdToFetch}.png&w=350&h=254`,
+        `https://cdn.nba.com/headshots/nba/latest/1040x760/${playerIdToFetch}.png`,
+        `https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/${playerIdToFetch}.png`,
+      ] : [
+        // Football-specific sources
         `https://media.api-sports.io/football/players/${playerIdToFetch}.png`,
-        // Secondary sources for football players
         `https://img.a.transfermarkt.technology/portrait/big/${playerIdToFetch}-1.jpg?lm=1`,
         `https://resources.premierleague.com/premierleague/photos/players/250x250/p${playerIdToFetch}.png`,
         `https://cdn.resfu.com/img_data/players/medium/${playerIdToFetch}.jpg?size=120x&lossy=1`,
-        // ESPN as backup
         `https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/${playerIdToFetch}.png&w=350&h=254`,
-        // Goal.com as additional backup
         `https://images.goal.com/v3/assets/bltcc7a7ffd2fbf71f5/blt${playerIdToFetch}/player.jpg?auto=webp&format=pjpg&width=3840&quality=60`,
       ];
 
       // Try to load images in order of priority
-      for (const url of footballImageUrls) {
+      for (const url of imageUrls) {
         try {
           const img = new Image();
           img.crossOrigin = 'anonymous';
@@ -107,7 +112,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           });
 
           if (imageLoaded && isMounted) {
-            console.log(`✅ [MyAvatarInfo] Successfully loaded football player image for ${playerIdToFetch}: ${url}`);
+            console.log(`✅ [MyAvatarInfo] Successfully loaded ${sport} player image for ${playerIdToFetch}: ${url}`);
             setImageUrl(url);
             setPlayerData({ id: playerIdToFetch, name: playerName || 'Player', photo: url });
             return;
@@ -128,7 +133,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           body: JSON.stringify({
             playerId: playerIdToFetch,
             season: '2025',
-            sport: 'football' // Explicitly specify football
+            sport: sport // Use the sport prop
           })
         });
 
@@ -166,7 +171,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     if (!isMounted) return;
 
     try {
-      console.log(`🔍 [MyAvatarInfo-${componentId}] Fetching football players from match: ${matchIdToFetch}`);
+      console.log(`🔍 [MyAvatarInfo-${componentId}] Fetching ${sport} players from match: ${matchIdToFetch}`);
 
       const response = await fetch(`/api/fixtures/${matchIdToFetch}/lineups`);
 
@@ -313,7 +318,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       ) : (
         <img
           src={imageUrl}
-          alt={playerName || 'Football Player'}
+          alt={playerName || `${sport === 'basketball' ? 'Basketball' : 'Football'} Player`}
           className="w-full h-full object-cover"
           onError={handleImageError}
         />

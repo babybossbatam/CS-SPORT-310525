@@ -932,6 +932,7 @@ const HomeTopScorersList = () => {
                       playerName={scorer.player.name}
                       size="md"
                       className="border border-gray-200"
+                      sport="football"
                     />
 
                     <div className="flex-1 min-w-0">
