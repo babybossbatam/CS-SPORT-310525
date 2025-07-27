@@ -140,7 +140,23 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
 
   const handleError = () => {
     if (!hasError) {
-      console.warn(`🚫 [MyNewLeagueLogo] Image failed to load for league ${leagueId}, using fallback`);
+      console.warn(`🚫 [MyNewLeagueLogo] Image failed to load for league ${leagueId} (${leagueName || 'Unknown'}), using fallback`);
+      
+      // Try to force refresh the logo from cache in case it was a temporary failure
+      if (enhancedLogoManager && typeof enhancedLogoManager.forceRefreshLeagueLogo === 'function') {
+        enhancedLogoManager.forceRefreshLeagueLogo(leagueId, 'MyNewLeagueLogo-Retry')
+          .then(response => {
+            if (!response.fallbackUsed && response.url !== fallbackUrl) {
+              console.log(`🔄 [MyNewLeagueLogo] Retry successful for league ${leagueId}, new URL: ${response.url}`);
+              setResolvedLogoUrl(response.url);
+              return;
+            }
+          })
+          .catch(error => {
+            console.warn(`🔄 [MyNewLeagueLogo] Retry failed for league ${leagueId}:`, error);
+          });
+      }
+      
       setResolvedLogoUrl(fallbackUrl);
       setHasError(true);
     }

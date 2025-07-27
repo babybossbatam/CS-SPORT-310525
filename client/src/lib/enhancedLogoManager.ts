@@ -252,13 +252,13 @@ class EnhancedLogoManager {
     const cacheKey = `league-${request.leagueId}`;
 
     try {
-      // Check cache first, but skip if it's a fallback that's less than 1 hour old
+      // Check cache first, but skip if it's a fallback that's less than 30 minutes old
       const cached = this.logoCache.get(cacheKey);
       const now = Date.now();
 
       if (cached && (now - cached.timestamp) < this.cacheDuration) {
-        // If cached result is fallback and less than 1 hour old, try fresh fetch
-        if (cached.fallbackUsed && (now - cached.timestamp) < (60 * 60 * 1000)) {
+        // If cached result is fallback and less than 30 minutes old, try fresh fetch
+        if (cached.fallbackUsed && (now - cached.timestamp) < (30 * 60 * 1000)) {
           console.log(`🔄 [EnhancedLogoManager] Retrying fresh fetch for league ${request.leagueId} (cached fallback)`);
         } else {
           const loadTime = Date.now() - startTime;
@@ -281,68 +281,66 @@ class EnhancedLogoManager {
         }
       }
 
-      // Try multiple sources in order of preference
+      // Enhanced logo sources with multiple providers
       const logoSources = [
-        // API endpoint with processing
+        // Primary API endpoint
         `/api/league-logo/square/${request.leagueId}`,
-        // Direct API-Sports URL
+        // 365scores proxy (more reliable than direct external calls)
+        `/api/365scores/leagues/${request.leagueId}/logo`,
+        // SportsRadar proxy
+        `/api/sportsradar/leagues/${request.leagueId}/logo`,
+        // Direct API-Sports URL (as backup)
         `https://media.api-sports.io/football/leagues/${request.leagueId}.png`,
-        // 365scores alternative
+        // 365scores direct (last resort external)
         `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${request.leagueId}`
       ];
 
-      let logoUrl = logoSources[0]; // Start with API endpoint
+      let logoUrl: string | null = null;
       let fallbackUsed = false;
+      let successfulSource = '';
 
-      // For some well-known leagues, use direct URLs
-      const wellKnownLogos: Record<number, string> = {
-        39: `/api/league-logo/square/39`, // Premier League
-        140: `/api/league-logo/square/140`, // La Liga
-        135: `/api/league-logo/square/135`, // Serie A
-        78: `/api/league-logo/square/78`, // Bundesliga
-        61: `/api/league-logo/square/61`, // Ligue 1
-        2: `/api/league-logo/square/2`, // Champions League
-        3: `/api/league-logo/square/3`, // Europa League
-        848: `/api/league-logo/square/848`, // UEFA Europa Conference League
-        15: `/api/league-logo/square/15`, // UEFA Champions League Qualifiers
-        1: `/api/league-logo/square/1`, // World Cup
-        4: `/api/league-logo/square/4`, // Euro Championship
-        5: `/api/league-logo/square/5` // UEFA Nations League
-      };
-
-      if (wellKnownLogos[request.leagueId]) {
-        logoUrl = wellKnownLogos[request.leagueId];
-      }
-
-      // Test the logo URL before caching
-      try {
-        const testResponse = await fetch(logoUrl, { method: 'HEAD' });
-        if (!testResponse.ok) {
-          console.warn(`❌ [EnhancedLogoManager] League ${request.leagueId} primary source failed, trying alternatives`);
-          
-          // Try alternative sources
-          for (const altSource of logoSources.slice(1)) {
-            try {
-              const altResponse = await fetch(altSource, { method: 'HEAD' });
-              if (altResponse.ok) {
-                logoUrl = altSource;
-                console.log(`✅ [EnhancedLogoManager] League ${request.leagueId} found working alternative: ${altSource}`);
+      // For well-known leagues, prioritize our API endpoint
+      const wellKnownLeagues = [39, 140, 135, 78, 61, 2, 3, 848, 15, 1, 4, 5];
+      if (wellKnownLeagues.includes(request.leagueId)) {
+        logoUrl = `/api/league-logo/square/${request.leagueId}`;
+        successfulSource = 'well-known-api';
+      } else {
+        // Try each source in order
+        for (let i = 0; i < logoSources.length; i++) {
+          const source = logoSources[i];
+          try {
+            // For internal API endpoints, assume they work (avoid HEAD requests that might fail)
+            if (source.startsWith('/api/')) {
+              logoUrl = source;
+              successfulSource = `api-source-${i}`;
+              console.log(`🎯 [EnhancedLogoManager] Using API source for league ${request.leagueId}: ${source}`);
+              break;
+            } else {
+              // For external URLs, test them first
+              const testResponse = await fetch(source, { 
+                method: 'HEAD',
+                timeout: 3000 // 3 second timeout
+              });
+              if (testResponse.ok) {
+                logoUrl = source;
+                successfulSource = `external-source-${i}`;
+                console.log(`✅ [EnhancedLogoManager] League ${request.leagueId} working external source: ${source}`);
                 break;
               }
-            } catch {
-              continue;
             }
-          }
-          
-          // If all sources fail, mark as fallback
-          if (!logoUrl || logoUrl === logoSources[0]) {
-            fallbackUsed = true;
-            logoUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
+          } catch (error) {
+            console.warn(`❌ [EnhancedLogoManager] League ${request.leagueId} source failed: ${source}`, error);
+            continue;
           }
         }
-      } catch (error) {
-        console.warn(`⚠️ [EnhancedLogoManager] Could not test league ${request.leagueId} logo URL:`, error);
-        // Continue with the URL but don't mark as fallback yet
+      }
+
+      // If no source worked, use fallback
+      if (!logoUrl) {
+        fallbackUsed = true;
+        logoUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
+        successfulSource = 'fallback';
+        console.warn(`🚫 [EnhancedLogoManager] All sources failed for league ${request.leagueId}, using fallback`);
       }
 
       // Cache the result
@@ -360,7 +358,8 @@ class EnhancedLogoManager {
         leagueId: request.leagueId,
         url: logoUrl,
         fallbackUsed,
-        loadTime
+        loadTime,
+        source: successfulSource
       });
 
       return {
@@ -372,6 +371,8 @@ class EnhancedLogoManager {
     } catch (error) {
       const loadTime = Date.now() - startTime;
       const fallbackUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
+
+      console.error(`❌ [EnhancedLogoManager] League ${request.leagueId} logo fetch failed:`, error);
 
       logLogo(componentName, {
         type: 'league',
@@ -504,6 +505,33 @@ if (typeof window !== 'undefined') {
       });
       console.log(`🧪 League ${leagueId} test result:`, result);
       return result;
+    },
+    testAllSources: async (leagueId: number) => {
+      const sources = [
+        `/api/league-logo/square/${leagueId}`,
+        `/api/365scores/leagues/${leagueId}/logo`,
+        `/api/sportsradar/leagues/${leagueId}/logo`,
+        `https://media.api-sports.io/football/leagues/${leagueId}.png`,
+        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`
+      ];
+      
+      console.log(`🧪 Testing all sources for league ${leagueId}:`);
+      const results = [];
+      
+      for (let i = 0; i < sources.length; i++) {
+        const source = sources[i];
+        try {
+          const response = await fetch(source, { method: 'HEAD' });
+          const status = response.ok ? '✅ WORKING' : `❌ FAILED (${response.status})`;
+          console.log(`  ${i + 1}. ${status} - ${source}`);
+          results.push({ source, working: response.ok, status: response.status });
+        } catch (error) {
+          console.log(`  ${i + 1}. 🚫 ERROR - ${source}`, error);
+          results.push({ source, working: false, error: error.message });
+        }
+      }
+      
+      return results;
     }
   };
 }
