@@ -202,10 +202,7 @@ const MyBasketFeatured: React.FC<MyBasketFeaturedProps> = ({
     }
 
     try {
-      const response = await fetch(`/api/basketball/leagues/${leagueId}/rounds?season=${season}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      const response = await apiRequest("GET", `/api/fixtures/rounds?league=${leagueId}&season=${season}`);
       const rounds = await response.json();
 
       setRoundsCache(prev => ({
@@ -361,12 +358,7 @@ const MyBasketFeatured: React.FC<MyBasketFeaturedProps> = ({
               `🏀 [MyBasketFeatured] Fetching basketball games for ${dateInfo.label}: ${dateInfo.date}`,
             );
 
-            const response = await fetch(`/api/basketball/games/date/${dateInfo.date}`);
-            if (!response.ok) {
-              console.warn(`Basketball API returned ${response.status} for ${dateInfo.date}`);
-              continue;
-            }
-            
+            const response = await fetch(`/api/basketball/games/${dateInfo.date}`);
             const games = await response.json();
 
             if (games?.length) {
@@ -413,21 +405,436 @@ const MyBasketFeatured: React.FC<MyBasketFeaturedProps> = ({
           }
         }
 
-        // For basketball, we primarily rely on live data and API fetching
-        // No need for extensive cached fixture data like football
-        console.log(
-          `🏀 [MyBasketFeatured] Basketball games collected from API: ${allGames.length}`,
-        );
+        // Fetch non-live games from cached data only on initial load or force refresh
+        if (forceRefresh || allGames.length === 0) {
+          // Fetch non-live matches from cached data (priority leagues)
+          for (const leagueId of priorityLeagueIds) {
+            try {
+              console.log(
+                `🔍 [MyBasketFeatured] Fetching cached data for league ${leagueId}`,
+              );
 
-          // Basketball doesn't have friendlies like football
-          console.log(
-            `🏀 [MyBasketFeatured] Skipping friendlies - not applicable for basketball`,
-          );
+              const fixturesResponse = await apiRequest(
+                "GET",
+                `/api/featured-match/leagues/${leagueId}/fixtures?skipFilter=true`,
+              );
+              const fixturesData = await fixturesResponse.json();
 
+              if (Array.isArray(fixturesData)) {
+                const cachedFixtures = fixturesData
+                  .filter((fixture: any) => {
+                    // Must have valid teams and NOT be live (since we already fetched live matches)
+                    const hasValidTeams = isValidMatch(fixture);
+                    const isNotLive = !isLiveMatch(
+                      fixture.fixture.status.short,
+                    );
+
+                    // Exclude women's competitions and Oberliga leagues
+                    const leagueName = fixture.league?.name?.toLowerCase() || "";
+                    const country = fixture.league?.country?.toLowerCase() || "";
+
+                    // EXPLICIT EXCLUSION: UEFA Europa Conference League and Regionalliga - Bayern
+                    const isExplicitlyExcluded = EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league?.id);
+
+                    // Exclude women's competitions
+                    const isWomensCompetition = leagueName.includes("women") || 
+                      leagueName.includes("femenina") || 
+                      leagueName.includes("feminine") ||
+                      leagueName.includes("feminin");
+
+                    // Exclude Oberliga and Regionalliga leagues (German regional leagues)
+                    const isOberligaLeague = leagueName.includes("oberliga");
+                    const isRegionalligaLeague = leagueName.includes("regionalliga");
+
+                    const shouldInclude = hasValidTeams && isNotLive && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !isExplicitlyExcluded;
+
+                    if (shouldInclude) {
+                      console.log(
+                        `✅ [MyBasketFeatured] Including priority league ${leagueId} fixture:`,
+                        {
+                          home: fixture.teams?.home?.name,
+                          away: fixture.teams?.away?.name,
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                          status: fixture.fixture.status.short,
+                        },
+                      );
+                    } else if (isWomensCompetition) {
+                      console.log(
+                        `❌ [MyBasketFeatured] Excluding women's competition:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isOberligaLeague) {
+                      console.log(
+                        `❌ [MyBasketFeatured] Excluding Oberliga league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isRegionalligaLeague) {
+                      console.log(
+                        `❌ [MyBasketFeatured] Excluding Regionalliga league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    }
+
+                    return shouldInclude;
+                  })
+                  .map((fixture: any) => ({
+                    fixture: {
+                      id: fixture.fixture.id,
+                      date: fixture.fixture.date,
+                      status: fixture.fixture.status,
+                    },
+                    league: {
+                      id: fixture.league.id,
+                      name: fixture.league.name,
+                      country: fixture.league.country,
+                      logo: fixture.league.logo,
+                    },
+                    teams: {
+                      home: {
+                        id: fixture.teams.home.id,
+                        name: fixture.teams.home.name,
+                        logo: fixture.teams.home.logo,
+                      },
+                      away: {
+                        id: fixture.teams.away.id,
+                        name: fixture.teams.away.name,
+                        logo: fixture.teams.away.logo,
+                      },
+                    },
+                    goals: {
+                      home: fixture.goals?.home ?? null,
+                      away: fixture.goals?.away ?? null,
+                    },
+                  }));
+
+                allFixtures.push(...cachedFixtures);
+              }
+            } catch (leagueError) {
+              console.warn(
+                `Failed to fetch cached data for league ${leagueId}:`,
+                leagueError,
+              );
+            }
           }
 
-        // Basketball games are ready for processing
-        console.log(`🏀 [MyBasketFeatured] Total basketball games ready for display: ${allGames.length}`);
+          // Fetch popular team friendlies from Friendlies Clubs league (667)
+          try {
+            console.log(
+              `🔍 [MyBasketFeatured] Fetching Friendlies Clubs fixtures for popular teams`,
+            );
+
+            const friendliesResponse = await apiRequest(
+              "GET",
+              `/api/featured-match/leagues/667/fixtures?skipFilter=true`,
+            );
+            const friendliesData = await friendliesResponse.json();
+
+            if (Array.isArray(friendliesData)) {
+              const popularFriendlies = friendliesData
+                .filter((fixture: any) => {
+                  // Must have valid teams and NOT be live
+                  const hasValidTeams = isValidMatch(fixture);
+                  const isNotLive = !isLiveMatch(
+                    fixture.fixture.status.short,
+                  );
+
+                  if (!hasValidTeams || !isNotLive) {
+                    return false;
+                  }
+
+                  // Check if it involves popular teams
+                  const homeTeamId = fixture.teams?.home?.id;
+                  const awayTeamId = fixture.teams?.away?.id;
+                  const homeTeam = fixture.teams?.home?.name || "";
+                  const awayTeam = fixture.teams?.away?.name || "";
+
+                  const isPopular = isPopularTeamMatch(homeTeam, awayTeam, homeTeamId, awayTeamId);
+
+                  if (isPopular) {
+                    console.log(`🎯 [MyBasketFeatured] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                    return true;
+                  }
+
+                  return false;
+                })
+                .map((fixture: any) => ({
+                  fixture: {
+                    id: fixture.fixture.id,
+                    date: fixture.fixture.date,
+                    status: fixture.fixture.status,
+                  },
+                  league: {
+                    id: fixture.league.id,
+                    name: fixture.league.name,
+                    country: fixture.league.country,
+                    logo: fixture.league.logo,
+                  },
+                  teams: {
+                    home: {
+                      id: fixture.teams.home.id,
+                      name: fixture.teams.home.name,
+                      logo: fixture.teams.home.logo,
+                    },
+                    away: {
+                      id: fixture.teams.away.id,
+                      name: fixture.teams.away.name,
+                      logo: fixture.teams.away.logo,
+                    },
+                  },
+                  goals: {
+                    home: fixture.goals?.home ?? null,
+                    away: fixture.goals?.away ?? null,
+                  },
+                }));
+
+              console.log(`🎯 [MyBasketFeatured] Found ${popularFriendlies.length} popular team friendlies`);
+              allFixtures.push(...popularFriendlies);
+            }
+          } catch (friendliesError) {
+            console.warn(
+              `Failed to fetch Friendlies Clubs data:`,
+              friendliesError,
+            );
+          }
+
+          // Fetch non-live matches from cached date-based data
+          for (const dateInfo of dates) {
+            try {
+              console.log(
+                `🔍 [MyBasketFeatured] Fetching cached data for ${dateInfo.label}: ${dateInfo.date}`,
+              );
+
+              const response = await apiRequest(
+                "GET",
+                `/api/featured-match/date/${dateInfo.date}?all=true&skipFilter=true`,
+              );
+              const fixtures = await response.json();
+
+              if (fixtures?.length) {
+                const cachedFixtures = fixtures
+                  .filter((fixture: any) => {
+                    // Must have valid teams, be from popular leagues, not priority leagues, and NOT be live
+                    const hasValidTeams =
+                      fixture.teams?.home?.name && fixture.teams?.away?.name;
+
+                    const leagueName = fixture.league?.name?.toLowerCase() || "";
+                    const country = fixture.league?.country?.toLowerCase() || "";
+
+                    // Exclude women's competitions and Oberliga leagues
+                    const isWomensCompetition = leagueName.includes("women") || 
+                      leagueName.includes("femenina") || 
+                      leagueName.includes("feminine") ||
+                      leagueName.includes("feminin");
+
+                    // Exclude Oberliga leagues (German regional leagues)
+                    const isOberligaLeague = leagueName.includes("oberliga");
+
+                    // Check if it's a popular league or from a popular country
+                    const isPopularLeague = POPULAR_LEAGUES.some(
+                      (league) => league.id === fixture.league?.id,
+                    );
+                    const isFromPopularCountry = POPULAR_LEAGUES.some(
+                      (league) => league.country.toLowerCase() === country,
+                    );
+                    const isPriorityLeague = priorityLeagueIds.includes(
+                      fixture.league?.id,
+                    );
+                    const isNotLive = !isLiveMatch(
+                      fixture.fixture.status.short,
+                    );
+
+                    // Check if it's an international competition
+                    const isInternationalCompetition =
+                      leagueName.includes("champions league") ||
+                      leagueName.includes("europa league") ||
+
+                      leagueName.includes("uefa") ||
+                      leagueName.includes("world cup") ||
+                      leagueName.includes("fifa club world cup") ||
+                      leagueName.includes("fifa") ||
+                      leagueName.includes("conmebol") ||
+                      leagueName.includes("copa america") ||
+                      leagueName.includes("copa libertadores") ||
+                      leagueName.includes("copa sudamericana") ||
+                      leagueName.includes("libertadores") ||
+                      leagueName.includes("sudamericana") ||
+                      (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
+                      (leagueName.includes("international") && !leagueName.includes("women")) ||
+                      country.includes("world") ||
+                      country.includes("europe") ||
+                      country.includes("international");
+
+                    // Check if it's a club friendly with popular teams using the imported popular teams list
+                    const isPopularClubFriendly = () => {
+                      if (leagueName.includes("club friendlies") || 
+                          leagueName.includes("friendlies clubs") ||
+                          fixture.league?.id === 667 ||
+                          (leagueName.includes("friendlies") && !leagueName.includes("international") && !leagueName.includes("women"))) {
+                        const homeTeamId = fixture.teams?.home?.id;
+                        const awayTeamId = fixture.teams?.away?.id;
+                        const homeTeam = fixture.teams?.home?.name || "";
+                        const awayTeam = fixture.teams?.away?.name || "";
+
+                        const isPopular = isPopularTeamMatch(homeTeam, awayTeam, homeTeamId, awayTeamId);
+
+                        if (isPopular) {
+                          console.log(`✅ [MyBasketFeatured] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
+                          return true;
+                        }
+
+                        console.log(`❌ [MyBasketFeatured] Club friendly excluded (no popular teams): ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
+                        return false;
+                      }
+                      return false;
+                    };
+
+                    return (
+                      hasValidTeams &&
+                      (isPopularLeague ||
+                      isFromPopularCountry ||
+                      isInternationalCompetition ||
+                      isPopularClubFriendly()) &&
+                      !isPriorityLeague &&
+                      isNotLive &&
+                      !isWomensCompetition &&
+                      !isOberligaLeague
+                    );
+                  })
+                  .map((fixture: any) => ({
+                    fixture: {
+                      id: fixture.fixture.id,
+                      date: fixture.fixture.date,
+                      status: fixture.fixture.status,
+                    },
+                    league: {
+                      id: fixture.league.id,
+                      name: fixture.league.name,
+                      country: fixture.league.country,
+                      logo: fixture.league.logo,
+                    },
+                    teams: {
+                      home: {
+                        id: fixture.teams.home.id,
+                        name: fixture.teams.home.name,
+                        logo: fixture.teams.home.logo,
+                      },
+                      away: {
+                        id: fixture.teams.away.id,
+                        name: fixture.teams.away.name,
+                        logo: fixture.teams.away.logo,
+                      },
+                    },
+                    goals: {
+                      home: fixture.goals?.home ?? null,
+                      away: fixture.goals?.away ?? null,
+                    },
+                  }));
+
+                allFixtures.push(...cachedFixtures);
+              }
+            } catch (error) {
+              console.error(
+                `❌ [MyBasketFeatured] Error fetching cached data for ${dateInfo.label}:`,
+                error,
+              );
+            }
+          }
+
+          // If we still don't have enough fixtures, expand search to all popular leagues
+          if (allFixtures.length < 3) {
+            console.log(
+              `🔄 [MyBasketFeatured] Only ${allFixtures.length} fixtures found, expanding to all popular leagues`,
+            );
+
+            for (const dateInfo of dates) {
+              try {
+                const response = await apiRequest(
+                  "GET",
+                  `/api/featured-match/date/${dateInfo.date}?all=true&skipFilter=true`,
+                );
+                const fixtures = await response.json();
+
+                if (fixtures?.length) {
+                  const expandedFixtures = fixtures
+                    .filter((fixture: any) => {
+                      const hasValidTeams =
+                        fixture.teams?.home?.name && fixture.teams?.away?.name;
+                      const isNotLive = !isLiveMatch(
+                        fixture.fixture.status.short,
+                      );
+                      const isNotDuplicate = !allFixtures.some(
+                        (existing) =>
+                          existing.fixture.id === fixture.fixture.id,
+                      );
+
+                    // Exclude women's competitions and Oberliga leagues
+                    const leagueName = fixture.league?.name?.toLowerCase() || "";
+                    const country = fixture.league?.country?.toLowerCase() || "";
+
+                    // Exclude women's competitions
+                    const isWomensCompetition = leagueName.includes("women") || 
+                      leagueName.includes("femenina") || 
+                      leagueName.includes("feminine") ||
+                      leagueName.includes("feminin");
+
+                    // Exclude Oberliga and Regionalliga leagues (German regional leagues)
+                    const isOberligaLeague = leagueName.includes("oberliga");
+                    const isRegionalligaLeague = leagueName.includes("regionalliga");
+
+                      return hasValidTeams && isNotLive && isNotDuplicate && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague;
+                    })
+                    .slice(0, 5) // Limit to prevent overwhelming
+                    .map((fixture: any) => ({
+                      fixture: {
+                        id: fixture.fixture.id,
+                        date: fixture.fixture.date,
+                        status: fixture.fixture.status,
+                      },
+                      league: {
+                        id: fixture.league.id,
+                        name: fixture.league.name,
+                        country: fixture.league.country,
+                        logo: fixture.league.logo,
+                      },
+                      teams: {
+                        home: {
+                          id: fixture.teams.home.id,
+                          name: fixture.teams.home.name,
+                          logo: fixture.teams.home.logo,
+                        },
+                        away: {
+                          id: fixture.teams.away.id,
+                          name: fixture.teams.away.name,
+                          logo: fixture.teams.away.logo,
+                        },
+                      },
+                      goals: {
+                        home: fixture.goals?.home ?? null,
+                        away: fixture.goals?.away ?? null,
+                      },
+                    }));
+
+                  allFixtures.push(...expandedFixtures);
+                }
+              } catch (error) {
+                console.error(
+                  `❌ [MyBasketFeatured] Error in expanded search for ${dateInfo.label}:`,
+                  error,
+                );
+              }
+            }
+          }
+        }
 
         // Remove duplicates based on game ID
         const uniqueGames = allGames.filter(
@@ -454,27 +861,100 @@ const MyBasketFeatured: React.FC<MyBasketFeaturedProps> = ({
 
         console.log(`🏀 [MyBasketFeatured] Basketball game details with League IDs:`, gameDetails);
 
-        // Group basketball games by date
+        // Special debug for Oberliga leagues
+        const oberligaMatches = uniqueFixtures.filter(f => 
+          f.league.name?.toLowerCase().includes('oberliga')
+        );
+
+        if (oberligaMatches.length > 0) {
+          console.log(`🎯 [OBERLIGA LEAGUES FOUND] Count: ${oberligaMatches.length}`);
+          oberligaMatches.forEach(match => {
+            console.log(`🏆 [OBERLIGA MATCH]`, {
+              LEAGUE_ID: match.league.id,
+              LEAGUE_NAME: match.league.name,
+              MATCH: `${match.teams.home.name} vs ${match.teams.away.name}`,
+              COUNTRY: match.league.country,
+              STATUS: match.fixture.status.short
+            });
+          });
+        }
+
+        // Special debug for Bayern Süd
+        const bayernSudMatches = uniqueFixtures.filter(f => 
+          f.league.name?.toLowerCase().includes('bayern') && 
+          f.league.name?.toLowerCase().includes('süd')
+        );
+
+        if (bayernSudMatches.length > 0) {
+          console.log(`🏰 [BAYERN SÜD LEAGUES FOUND] Count: ${bayernSudMatches.length}`);
+          bayernSudMatches.forEach(match => {
+            console.log(`⚽ [BAYERN SÜD MATCH]`, {
+              LEAGUE_ID: match.league.id,
+              LEAGUE_NAME: match.league.name,
+              MATCH: `${match.teams.home.name} vs ${match.teams.away.name}`,
+              COUNTRY: match.league.country,
+              STATUS: match.fixture.status.short
+            });
+          });
+        }
+
+        // Group fixtures by date
         const allMatches: DayMatches[] = [];
         for (const dateInfo of dates) {
-          const gamesForDay = uniqueGames
-            .filter((game) => {
-              const gameDate = new Date(game.date);
-              const year = gameDate.getFullYear();
-              const month = String(gameDate.getMonth() + 1).padStart(2, "0");
-              const day = String(gameDate.getDate()).padStart(2, "0");
-              const gameDateString = `${year}-${month}-${day}`;
-              return gameDateString === dateInfo.date;
+          const fixturesForDay = uniqueFixtures
+            .filter((fixture) => {
+              // EXPLICIT EXCLUSION: Never show UEFA Europa Conference League (ID 848) or Regionalliga - Bayern (ID 169)
+              if (fixture.league.id === 848) {
+                console.log(`🚫 [EXPLICIT EXCLUSION] UEFA Europa Conference League match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                return false;
+              }
+              
+              if (fixture.league.id === 169) {
+                console.log(`🚫 [EXPLICIT EXCLUSION] Regionalliga - Bayern match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                return false;
+              }
+              
+              // Additional name-based exclusion for Regionalliga leagues
+              const leagueName = fixture.league?.name?.toLowerCase() || "";
+              if (leagueName.includes('regionalliga') && leagueName.includes('bayern')) {
+                console.log(`🚫 [NAME-BASED EXCLUSION] Regionalliga - Bayern match excluded by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
+                return false;
+              }
+              
+              const matchDate = new Date(fixture.fixture.date);
+              const year = matchDate.getFullYear();
+              const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+              const day = String(matchDate.getDate()).padStart(2, "0");
+              const matchDateString = `${year}-${month}-${day}`;
+              return matchDateString === dateInfo.date;
             })
-            .sort((a: FeaturedBasketballGame, b: FeaturedBasketballGame) => {
-              // Priority sort: live matches first, then by league priority, then by time
-              const aStatus = a.status.short;
-              const bStatus = b.status.short;
+            .sort((a: FeaturedMatch, b: FeaturedMatch) => {
+              // Special priority for specific FIFA Club World Cup match (Inter vs River Plate)
+              const aIsSpecialMatch =
+                a.league.id === 15 &&
+                ((a.teams.home.name === "Inter" &&
+                  a.teams.away.name === "River Plate") ||
+                  (a.teams.home.name === "River Plate" &&
+                    a.teams.away.name === "Inter"));
+              const bIsSpecialMatch =
+                b.league.id === 15 &&
+                ((b.teams.home.name === "Inter" &&
+                  b.teams.away.name === "River Plate") ||
+                  (b.teams.home.name === "River Plate" &&
+                    b.teams.away.name === "Inter"));
 
-              const aLive = isLiveBasketballGame(aStatus);
-              const bLive = isLiveBasketballGame(bStatus);
+              // Special match always comes first
+              if (aIsSpecialMatch && !bIsSpecialMatch) return -1;
+              if (!aIsSpecialMatch && bIsSpecialMatch) return 1;
 
-              // Live matches always come first
+              // Priority sort: live matches first, then by league priority, then by popular team friendlies, then by time
+              const aStatus = a.fixture.status.short;
+              const bStatus = b.fixture.status.short;
+
+              const aLive = isLiveMatch(aStatus);
+              const bLive = isLiveMatch(bStatus);
+
+              // Live matches always come first (after special match)
               if (aLive && !bLive) return -1;
               if (!aLive && bLive) return 1;
 
@@ -487,39 +967,49 @@ const MyBasketFeatured: React.FC<MyBasketFeaturedProps> = ({
               if (aPriority !== -1 && bPriority !== -1)
                 return aPriority - bPriority;
 
-              // Popular team games get priority
-              const aIsPopularTeam = isPopularBasketballTeamMatch(
-                a.teams.home.name,
-                a.teams.away.name,
-                a.teams.home.id,
-                a.teams.away.id
-              );
-              const bIsPopularTeam = isPopularBasketballTeamMatch(
-                b.teams.home.name,
-                b.teams.away.name,
-                b.teams.home.id,
-                b.teams.away.id
-              );
+              // Popular team friendlies get priority over regular matches
+              const aLeagueName = a.league.name?.toLowerCase() || "";
+              const bLeagueName = b.league.name?.toLowerCase() || "";
 
-              if (aIsPopularTeam && !bIsPopularTeam) return -1;
-              if (!aIsPopularTeam && bIsPopularTeam) return 1;
+              const aIsPopularFriendly = (aLeagueName.includes("friendlies") || aLeagueName.includes("friendlies clubs") || a.league.id === 667) && 
+                (POPULAR_TEAM_IDS.includes(a.teams.home.id) || POPULAR_TEAM_IDS.includes(a.teams.away.id));
+              const bIsPopularFriendly = (bLeagueName.includes("friendlies") || bLeagueName.includes("friendlies clubs") || b.league.id === 667) && 
+                (POPULAR_TEAM_IDS.includes(b.teams.home.id) || POPULAR_TEAM_IDS.includes(b.teams.away.id));
+
+              if (aIsPopularFriendly && !bIsPopularFriendly) return -1;
+              if (!aIsPopularFriendly && bIsPopularFriendly) return 1;
+
+              // Calculate popular team score for additional sorting within friendlies
+              const getPopularTeamScore = (match: FeaturedMatch) => {
+                let score = 0;
+                if (POPULAR_TEAM_IDS.includes(match.teams.home.id)) score += 1;
+                if (POPULAR_TEAM_IDS.includes(match.teams.away.id)) score += 1;
+                return score;
+              };
+
+              // If both are popular friendlies, prioritize by number of popular teams
+              if (aIsPopularFriendly && bIsPopularFriendly) {
+                const aScore = getPopularTeamScore(a);
+                const bScore = getPopularTeamScore(b);
+                if (aScore !== bScore) return bScore - aScore; // Higher score first
+              }
 
               // Finally by time
               return (
-                new Date(a.date).getTime() -
-                new Date(b.date).getTime()
+                new Date(a.fixture.date).getTime() -
+                new Date(b.fixture.date).getTime()
               );
             })
             .slice(0, Math.max(5, Math.floor(maxMatches / dates.length)));
 
           console.log(
-            `✅ [MyBasketFeatured] Found ${gamesForDay.length} basketball games for ${dateInfo.label}`,
+            `✅ [MyBasketFeatured] Found ${fixturesForDay.length} featured matches for ${dateInfo.label}`,
           );
 
           allMatches.push({
             date: dateInfo.date,
             label: dateInfo.label,
-            matches: gamesForDay,
+            matches: fixturesForDay,
           });
         }
 

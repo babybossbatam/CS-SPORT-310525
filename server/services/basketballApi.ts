@@ -104,7 +104,6 @@ interface BasketballApiResponse {
 
 // Initialize Basketball API client for API-Football.com
 const apiKey = "81bc62b91b1190622beda24ee23fbd1a";
-const baseURL = "https://v1.basketball.api-sports.io";
 
 const basketballApiClient = axios.create({
   baseURL: "https://v1.basketball.api-sports.io",
@@ -130,43 +129,10 @@ basketballApiClient.interceptors.request.use(
 basketballApiClient.interceptors.response.use(
   (response) => {
     console.log(`🏀 [BasketballAPI] Response: ${response.status} - ${response.data?.results || 0} results`);
-    
-    // Log detailed response for debugging
-    if (response.data) {
-      console.log(`🔍 [BasketballAPI] Full Response Structure:`, {
-        url: response.config?.url,
-        params: response.config?.params,
-        status: response.status,
-        results: response.data?.results,
-        errors: response.data?.errors,
-        responseKeys: Object.keys(response.data),
-        sampleData: response.data?.response ? response.data.response.slice(0, 1) : null
-      });
-      
-      // Log the complete raw response for debugging
-      console.log(`🔍 [BasketballAPI] Raw Response Data:`, JSON.stringify(response.data, null, 2));
-    }
-    
     return response;
   },
   (error) => {
     console.error('🏀 [BasketballAPI] Response error:', error.response?.status, error.response?.data || error.message);
-    
-    // Log full error details
-    if (error.response) {
-      console.log(`🔍 [BasketballAPI] Error Details:`, {
-        status: error.response.status,
-        statusText: error.response.statusText,
-        data: error.response.data,
-        headers: error.response.headers,
-        url: error.config?.url,
-        params: error.config?.params
-      });
-      
-      // Log raw error response
-      console.log(`🔍 [BasketballAPI] Raw Error Response:`, JSON.stringify(error.response.data, null, 2));
-    }
-    
     return Promise.reject(error);
   }
 );
@@ -176,8 +142,6 @@ const BASKETBALL_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for basketball gam
 const basketballCache = new Map<string, { data: any; timestamp: number }>();
 
 export const basketballApiService = {
-  // Expose the API client for direct testing
-  basketballApiClient,
   /**
    * Get basketball games by date
    */
@@ -444,26 +408,9 @@ export const basketballApiService = {
 
       const response = await basketballApiClient.get("/leagues");
 
-      console.log(`🔍 [BasketballAPI] Raw leagues response:`, {
-        status: response.status,
-        dataKeys: Object.keys(response.data || {}),
-        results: response.data?.results,
-        errors: response.data?.errors,
-        sampleLeague: response.data?.response?.[0]
-      });
-
       if (response.data && response.data.response) {
         const leagues = response.data.response;
         console.log(`🏀 [BasketballAPI] Retrieved ${leagues.length} leagues`);
-        
-        // Log some sample leagues for reference
-        console.log(`🔍 [BasketballAPI] Sample leagues:`, leagues.slice(0, 5).map(league => ({
-          id: league.id,
-          name: league.name,
-          country: league.country?.name,
-          season: league.seasons?.[0]
-        })));
-        
         return leagues;
       }
 
@@ -471,39 +418,6 @@ export const basketballApiService = {
     } catch (error) {
       console.error(`❌ [BasketballAPI] Error fetching leagues:`, error);
       return [];
-    }
-  },
-
-  /**
-   * Test API connection and headers
-   */
-  async testConnection(): Promise<any> {
-    try {
-      console.log(`🧪 [BasketballAPI] Testing API connection...`);
-      
-      const response = await basketballApiClient.get("/leagues", {
-        params: { current: true }
-      });
-
-      console.log(`🧪 [BasketballAPI] Connection test result:`, {
-        status: response.status,
-        statusText: response.statusText,
-        headers: response.headers,
-        dataStructure: {
-          hasGet: !!response.data?.get,
-          hasParameters: !!response.data?.parameters,
-          hasErrors: !!response.data?.errors,
-          hasResults: !!response.data?.results,
-          hasResponse: !!response.data?.response,
-          errorsArray: response.data?.errors,
-          resultsCount: response.data?.results
-        }
-      });
-
-      return response.data;
-    } catch (error) {
-      console.error(`❌ [BasketballAPI] Connection test failed:`, error);
-      throw error;
     }
   },
 
