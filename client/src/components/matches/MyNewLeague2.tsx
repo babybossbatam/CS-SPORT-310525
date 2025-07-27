@@ -16,6 +16,7 @@ import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import MyNewLeagueLogo from "../common/MyNewLeagueLogo";
+import LazyImage from "../common/LazyImage";
 import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
