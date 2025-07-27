@@ -281,11 +281,8 @@ class EnhancedLogoManager {
         }
       }
 
-      // Enhanced logo sources with API-Sports only
+      // Use only API-Sports direct URL as the single source
       const logoSources = [
-        // Primary API endpoint
-        `/api/league-logo/square/${request.leagueId}`,
-        // Direct API-Sports URL (as backup)
         `https://media.api-sports.io/football/leagues/${request.leagueId}.png`
       ];
 
@@ -293,39 +290,26 @@ class EnhancedLogoManager {
       let fallbackUsed = false;
       let successfulSource = '';
 
-      // For well-known leagues, prioritize our API endpoint
+      // For well-known leagues, use API-Sports URL directly
       const wellKnownLeagues = [39, 140, 135, 78, 61, 2, 3, 848, 15, 1, 4, 5];
       if (wellKnownLeagues.includes(request.leagueId)) {
-        logoUrl = `/api/league-logo/square/${request.leagueId}`;
-        successfulSource = 'well-known-api';
+        logoUrl = `https://media.api-sports.io/football/leagues/${request.leagueId}.png`;
+        successfulSource = 'well-known-api-sports';
       } else {
-        // Try each source in order
-        for (let i = 0; i < logoSources.length; i++) {
-          const source = logoSources[i];
-          try {
-            // For internal API endpoints, assume they work (avoid HEAD requests that might fail)
-            if (source.startsWith('/api/')) {
-              logoUrl = source;
-              successfulSource = `api-source-${i}`;
-              console.log(`🎯 [EnhancedLogoManager] Using API source for league ${request.leagueId}: ${source}`);
-              break;
-            } else {
-              // For external URLs, test them first
-              const testResponse = await fetch(source, { 
-                method: 'HEAD',
-                timeout: 3000 // 3 second timeout
-              });
-              if (testResponse.ok) {
-                logoUrl = source;
-                successfulSource = `external-source-${i}`;
-                console.log(`✅ [EnhancedLogoManager] League ${request.leagueId} working external source: ${source}`);
-                break;
-              }
-            }
-          } catch (error) {
-            console.warn(`❌ [EnhancedLogoManager] League ${request.leagueId} source failed: ${source}`, error);
-            continue;
+        // Test the single API-Sports source
+        try {
+          const source = logoSources[0];
+          const testResponse = await fetch(source, { 
+            method: 'HEAD',
+            timeout: 3000 // 3 second timeout
+          });
+          if (testResponse.ok) {
+            logoUrl = source;
+            successfulSource = 'api-sports-direct';
+            console.log(`✅ [EnhancedLogoManager] League ${request.leagueId} API-Sports source working: ${source}`);
           }
+        } catch (error) {
+          console.warn(`❌ [EnhancedLogoManager] League ${request.leagueId} API-Sports source failed:`, error);
         }
       }
 
@@ -502,11 +486,10 @@ if (typeof window !== 'undefined') {
     },
     testAllSources: async (leagueId: number) => {
       const sources = [
-        `/api/league-logo/square/${leagueId}`,
         `https://media.api-sports.io/football/leagues/${leagueId}.png`
       ];
       
-      console.log(`🧪 Testing all sources for league ${leagueId}:`);
+      console.log(`🧪 Testing API-Sports source for league ${leagueId}:`);
       const results = [];
       
       for (let i = 0; i < sources.length; i++) {
