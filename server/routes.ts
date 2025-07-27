@@ -3298,7 +3298,7 @@ error) {
 
   // Predictions routes
   app.use('/api', predictionsRoutes);
-  app.use('/api', basketballRoutes);
+  app.use('/api/basketball', basketballRoutes);
   app.use('/api/basketball/standings', basketballStandingsRoutes);
 
 // Test route for debugging
