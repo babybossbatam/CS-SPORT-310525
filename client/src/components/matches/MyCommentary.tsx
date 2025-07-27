@@ -247,7 +247,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
             // Add "Penalty Shootout begins" marker if there are penalty events
             if (hasPenaltyShootout) {
               const penaltyStartTime = Math.max(lastRegularEvent.time.elapsed, 120);
-
+              
               // Calculate score ONLY from regular goals (before penalty shootout)
               const scoreAtPenaltyStart = calculateScoreAtTime(120); // Use 120 minutes as cutoff for regular time
 
@@ -259,7 +259,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 note: "Using 120 minutes cutoff for regular goals only"
               });
 
-
+            
 
               allCommentaryItems.push({
                 time: { elapsed: penaltyStartTime },
@@ -389,8 +389,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                 // Handle penalty shootout event numbering
                 let displayTime = event.time.elapsed;
-                let isPenaltyShootout = false;
-
                 if (event.time.elapsed > 110) {
                   // This is a penalty shootout event, show sequential numbering
                   const penaltyIndex = penaltyShootoutEvents.findIndex(p => 
@@ -399,12 +397,8 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   );
                   if (penaltyIndex !== -1) {
                     displayTime = penaltyIndex + 1;
-                    isPenaltyShootout = true;
                   }
                 }
-
-                // Use event description for regular events
-                const eventDescription = getEventDescription(event);
 
                 // Handle period score markers - removed display
                 if (event.type === "period_score") {
@@ -462,7 +456,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                     );
                   }
 
-
+                  
 
                   // Handle "Penalty Shootout begins"
                   if (event.detail === "Penalty Shootout begins") {
