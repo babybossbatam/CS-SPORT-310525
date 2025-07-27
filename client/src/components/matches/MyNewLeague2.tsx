@@ -4,8 +4,6 @@ import React, {
   useMemo,
   useCallback,
   useRef,
-  lazy,
-  Suspense,
 } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -21,31 +19,7 @@ import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
 
-// Lazy load the team logo component for better performance
-const LazyTeamLogo = lazy(() =>
-  Promise.resolve({
-    default: ({
-      teamName,
-      logoUrl,
-      size,
-      leagueContext,
-    }: {
-      teamName: string;
-      logoUrl: string;
-      size: string;
-      leagueContext?: { name: string; country: string };
-    }) => (
-      <MyWorldTeamLogo
-        teamName={teamName}
-        teamLogo={logoUrl}
-        alt={teamName}
-        size={size}
-        className="popular-leagues-size"
-        leagueContext={leagueContext}
-      />
-    ),
-  }),
-);
+
 
 interface FixtureData {
   fixture: {
@@ -549,27 +523,7 @@ const MyNewLeague2 = ({
     // navigate(`/match/${fixture.fixture.id}`);
   };
 
-  // Lazy loading team logo component with skeleton fallback
-  const TeamLogo = ({
-    teamName,
-    logoUrl,
-    size,
-    leagueContext,
-  }: {
-    teamName: string;
-    logoUrl: string;
-    size: string;
-    leagueContext?: { name: string; country: string };
-  }) => (
-    <Suspense fallback={<Skeleton className={`h-8 w-8 rounded`} />}>
-      <LazyTeamLogo
-        teamName={teamName}
-        logoUrl={logoUrl}
-        size={size}
-        leagueContext={leagueContext}
-      />
-    </Suspense>
-  );
+  
 
   if (isLoading) {
     return (
@@ -1176,15 +1130,16 @@ const MyNewLeague2 = ({
                                 className="home-team-logo-container"
                                 style={{ padding: "0 0.6rem" }}
                               >
-                                <TeamLogo
-                                  teamName={fixture.teams.home.name}
-                                  logoUrl={
-                                    fixture.teams.home.logo || 
-                                    (fixture.teams.home.id
-                                      ? `https://media.api-sports.io/football/teams/${fixture.teams.home.id}.png`
-                                      : "/assets/fallback-logo.svg")
+                                <MyWorldTeamLogo
+                                  teamName={fixture.teams.home.name || ""}
+                                  teamLogo={
+                                    fixture.teams.home.id
+                                      ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
+                                      : "/assets/fallback-logo.svg"
                                   }
+                                  alt={fixture.teams.home.name}
                                   size="34px"
+                                  className="popular-leagues-size"
                                   leagueContext={leagueContext}
                                 />
                               </div>
@@ -1380,15 +1335,16 @@ const MyNewLeague2 = ({
                                 className="away-team-logo-container"
                                 style={{ padding: "0 0.5rem" }}
                               >
-                                <TeamLogo
-                                  teamName={fixture.teams.away.name}
-                                  logoUrl={
-                                    fixture.teams.away.logo || 
-                                    (fixture.teams.away.id
-                                      ? `https://media.api-sports.io/football/teams/${fixture.teams.away.id}.png`
-                                      : "/assets/fallback-logo.svg")
+                                <MyWorldTeamLogo
+                                  teamName={fixture.teams.away.name || ""}
+                                  teamLogo={
+                                    fixture.teams.away.id
+                                      ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
+                                      : "/assets/fallback-logo.svg"
                                   }
+                                  alt={fixture.teams.away.name}
                                   size="34px"
+                                  className="popular-leagues-size"
                                   leagueContext={leagueContext}
                                 />
                               </div>
