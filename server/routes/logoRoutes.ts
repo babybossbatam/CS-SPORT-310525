@@ -14,6 +14,7 @@ router.get('/league-logo/:leagueId', async (req, res) => {
     
     // Try API-Sports media URL
     const apiSportsUrl = `https://media.api-sports.io/football/leagues/${leagueId}.png`;
+    console.log(`📡 [Logo Proxy] Attempting to fetch from: ${apiSportsUrl}`);
     
     // Create a promise-based HTTP request
     const logoData = await new Promise<Buffer>((resolve, reject) => {
@@ -24,6 +25,8 @@ router.get('/league-logo/:leagueId', async (req, res) => {
           'Accept': 'image/png,image/jpeg,image/*,*/*'
         }
       }, (response) => {
+        console.log(`📊 [Logo Proxy] Response status: ${response.statusCode} for league ${leagueId}`);
+        
         if (response.statusCode !== 200) {
           reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
           return;
@@ -33,12 +36,18 @@ router.get('/league-logo/:leagueId', async (req, res) => {
         response.on('data', (chunk) => chunks.push(chunk));
         response.on('end', () => {
           const buffer = Buffer.concat(chunks);
+          console.log(`📦 [Logo Proxy] Received ${buffer.length} bytes for league ${leagueId}`);
           resolve(buffer);
         });
       });
       
-      request.on('error', reject);
+      request.on('error', (error) => {
+        console.error(`🌐 [Logo Proxy] Network error for league ${leagueId}:`, error.message);
+        reject(error);
+      });
+      
       request.on('timeout', () => {
+        console.warn(`⏰ [Logo Proxy] Timeout for league ${leagueId}`);
         request.destroy();
         reject(new Error('Request timeout'));
       });
@@ -48,17 +57,25 @@ router.get('/league-logo/:leagueId', async (req, res) => {
     res.set({
       'Content-Type': 'image/png',
       'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
-      'Content-Length': logoData.length
+      'Content-Length': logoData.length,
+      'Access-Control-Allow-Origin': '*'
     });
     
     res.send(logoData);
-    console.log(`✅ [Logo Proxy] Successfully proxied league logo for ID: ${leagueId}`);
+    console.log(`✅ [Logo Proxy] Successfully proxied league logo for ID: ${leagueId} (${logoData.length} bytes)`);
     
   } catch (error) {
-    console.error(`❌ [Logo Proxy] Failed to fetch league logo for ID: ${leagueId}:`, error);
+    console.error(`❌ [Logo Proxy] Failed to fetch league logo for ID: ${leagueId}:`, error?.message || 'Unknown error');
     
-    // Send fallback logo
-    res.redirect('/assets/fallback-logo.svg');
+    // Instead of redirect, send the fallback image directly
+    try {
+      const fallbackPath = '/assets/fallback-logo.svg';
+      console.log(`🔄 [Logo Proxy] Sending fallback for league ${leagueId}: ${fallbackPath}`);
+      res.redirect(302, fallbackPath);
+    } catch (fallbackError) {
+      console.error(`💥 [Logo Proxy] Even fallback failed for league ${leagueId}:`, fallbackError);
+      res.status(404).send('Logo not found');
+    }
   }
 });
 
