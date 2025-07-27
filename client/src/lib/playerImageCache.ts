@@ -189,9 +189,11 @@ class PlayerImageCache {
     if (playerId) {
       const apiSportsUrl = `https://media.api-sports.io/football/players/${playerId}.png`;
       console.log(`🔍 [PlayerImageCache] Trying primary source (API-Sports.io) for ${playerName}: ${apiSportsUrl}`);
+      console.log(`🔍 [PlayerImageCache] Player details: ID=${playerId}, Name=${playerName}, TeamID=${teamId}`);
       
       // Trust API-Sports.io like top scorer section does
       this.setCachedImage(playerId, playerName, apiSportsUrl, 'api');
+      console.log(`✅ [PlayerImageCache] Cached and returning API-Sports URL: ${apiSportsUrl}`);
       return apiSportsUrl;
     }
 
