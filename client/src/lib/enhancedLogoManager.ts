@@ -1,4 +1,3 @@
-
 import { logLogo } from './centralizedDebugCache';
 import { getCachedTeamLogo } from './MyAPIFallback';
 import { getCountryFlagWithFallbackSync } from './flagUtils';
@@ -41,7 +40,7 @@ class EnhancedLogoManager {
 
       if (cached && (now - cached.timestamp) < this.cacheDuration) {
         const loadTime = Date.now() - startTime;
-        
+
         logLogo(componentName, {
           type: 'team',
           shape: request.shape,
@@ -80,7 +79,7 @@ class EnhancedLogoManager {
         logoUrl = getCachedTeamLogo(request.teamId, sport) || `/api/team-logo/square/${request.teamId}?size=64&sport=${sport}`;
       }
 
-      if (!logoUrl || logoUrl.includes('fallback')) {
+      if (!logoUrl || logoUrl.includes('fallback') || logoUrl.includes('placeholder.com')) {
         logoUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
         fallbackUsed = true;
       }
@@ -145,7 +144,7 @@ class EnhancedLogoManager {
 
       if (cached && (now - cached.timestamp) < this.cacheDuration) {
         const loadTime = Date.now() - startTime;
-        
+
         logLogo(componentName, {
           type: 'flag',
           shape: request.shape,
@@ -262,7 +261,7 @@ class EnhancedLogoManager {
           console.log(`🔄 [EnhancedLogoManager] Retrying fresh fetch for league ${request.leagueId} (cached fallback)`);
         } else {
           const loadTime = Date.now() - startTime;
-          
+
           logLogo(componentName, {
             type: 'league',
             shape: 'normal',
@@ -454,7 +453,7 @@ class EnhancedLogoManager {
     fallbackCount: number;
   } {
     const entries = Array.from(this.logoCache.entries());
-    
+
     return {
       totalEntries: entries.length,
       teamLogos: entries.filter(([key]) => key.startsWith('team-')).length,
@@ -488,10 +487,10 @@ if (typeof window !== 'undefined') {
       const sources = [
         `https://media.api-sports.io/football/leagues/${leagueId}.png`
       ];
-      
+
       console.log(`🧪 Testing API-Sports source for league ${leagueId}:`);
       const results = [];
-      
+
       for (let i = 0; i < sources.length; i++) {
         const source = sources[i];
         try {
@@ -504,7 +503,7 @@ if (typeof window !== 'undefined') {
           results.push({ source, working: false, error: error.message });
         }
       }
-      
+
       return results;
     }
   };

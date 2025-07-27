@@ -167,7 +167,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
     // Fallback to original teamLogo if no teamId
     console.log(`⚠️ [MyWorldTeamLogo] No teamId provided for ${teamName}, using original logo`);
-    return teamLogo || "/assets/fallback-logo.svg";
+    const safeLogo = teamLogo && !teamLogo.includes('placeholder.com') ? teamLogo : "/assets/fallback-logo.svg";
+    return safeLogo;
   }, [teamId, teamName, teamLogo, shouldUseCircularFlag]);
 
   // Use React.Suspense pattern for async logo loading
