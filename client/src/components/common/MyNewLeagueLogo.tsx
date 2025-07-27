@@ -1,5 +1,6 @@
 
-import React, { useState, useMemo } from 'react';
+
+import React, { useState, useEffect, useMemo } from 'react';
 import { enhancedLogoManager } from '../../lib/enhancedLogoManager';
 import LazyImage from './LazyImage';
 
@@ -25,45 +26,61 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
 }) => {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [resolvedLogoUrl, setResolvedLogoUrl] = useState<string>(fallbackUrl);
 
-  // Memoized logo URL resolution using enhancedLogoManager
-  const logoUrl = useMemo(async () => {
-    if (leagueId && leagueName) {
-      console.log(`🎯 [MyNewLeagueLogo] Fetching logo for league: ${leagueName} (ID: ${leagueId})`);
+  // Use useEffect for async logo resolution instead of useMemo
+  useEffect(() => {
+    let isMounted = true;
 
-      const logoResponse = await enhancedLogoManager.getLeagueLogo('MyNewLeagueLogo', {
-        type: 'league',
-        shape: 'normal',
-        leagueId: leagueId,
-        leagueName: leagueName,
-        fallbackUrl: fallbackUrl
-      });
+    const loadLeagueLogo = async () => {
+      if (!leagueId) {
+        console.log(`⚠️ [MyNewLeagueLogo] No leagueId provided for ${leagueName}, using fallback`);
+        setResolvedLogoUrl(fallbackUrl);
+        setIsLoading(false);
+        return;
+      }
 
-      console.log(`✅ [MyNewLeagueLogo] Logo resolved for ${leagueName}:`, {
-        url: logoResponse.url,
-        cached: logoResponse.cached,
-        fallbackUsed: logoResponse.fallbackUsed,
-        loadTime: logoResponse.loadTime + 'ms'
-      });
+      try {
+        console.log(`🎯 [MyNewLeagueLogo] Fetching logo for league: ${leagueName} (ID: ${leagueId})`);
 
-      return logoResponse.url;
-    }
+        const logoResponse = await enhancedLogoManager.getLeagueLogo('MyNewLeagueLogo', {
+          type: 'league',
+          shape: 'normal',
+          leagueId: Number(leagueId),
+          leagueName: leagueName,
+          fallbackUrl: fallbackUrl
+        });
 
-    // Fallback to default logo if no leagueId
-    console.log(`⚠️ [MyNewLeagueLogo] No leagueId provided for ${leagueName}, using fallback`);
-    return fallbackUrl;
+        if (isMounted) {
+          console.log(`✅ [MyNewLeagueLogo] Logo resolved for ${leagueName}:`, {
+            url: logoResponse.url,
+            cached: logoResponse.cached,
+            fallbackUsed: logoResponse.fallbackUsed,
+            loadTime: logoResponse.loadTime + 'ms'
+          });
+
+          setResolvedLogoUrl(logoResponse.url);
+          setHasError(logoResponse.fallbackUsed);
+        }
+      } catch (error) {
+        if (isMounted) {
+          console.warn(`🚫 [MyNewLeagueLogo] Error loading logo for league ${leagueId}:`, error);
+          setResolvedLogoUrl(fallbackUrl);
+          setHasError(true);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadLeagueLogo();
+
+    return () => {
+      isMounted = false;
+    };
   }, [leagueId, leagueName, fallbackUrl]);
-
-  // Use React.Suspense pattern for async logo loading
-  const [resolvedLogoUrl, setResolvedLogoUrl] = React.useState<string>(fallbackUrl);
-
-  React.useEffect(() => {
-    if (logoUrl instanceof Promise) {
-      logoUrl.then(setResolvedLogoUrl);
-    } else {
-      setResolvedLogoUrl(logoUrl);
-    }
-  }, [logoUrl]);
 
   // Memoized inline styles
   const containerStyle = useMemo(() => ({
@@ -122,3 +139,4 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
 };
 
 export default MyNewLeagueLogo;
+
