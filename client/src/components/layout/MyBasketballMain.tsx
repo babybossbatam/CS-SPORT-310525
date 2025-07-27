@@ -23,7 +23,6 @@ import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import MyMainLayoutRight from "@/components/layout/MyMainLayoutRight"; // Import MyMainLayoutRight
 import MyBasketFeatured from '@/components/matches/MyBasketFeatured';
-import MyBasketLeague from '@/components/matches/MyBasketLeague';
 
 interface MyBasketballMainProps {
   fixtures: any[];
