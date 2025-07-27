@@ -39,6 +39,27 @@ export function getTeamLogoSources(team: TeamData, isNationalTeam = false, sport
 
   // Alternative API sources if team ID is available
   if (team?.id) {
+    // Server proxy as primary source (most reliable)
+    sources.push({
+      url: `/api/team-logo/square/${team.id}?size=64&sport=${sport}`,
+      source: 'server-proxy',
+      priority: 1
+    });
+
+    // Server proxy circular version
+    sources.push({
+      url: `/api/team-logo/circular/${team.id}?size=32&sport=${sport}`,
+      source: 'server-proxy-circular',
+      priority: 2
+    });
+
+    // 365scores alternative
+    sources.push({
+      url: `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${team.id}`,
+      source: '365scores',
+      priority: 3
+    });
+
     // API-Sports alternative - sport-specific
     const sportEndpoint = sport === 'basketball' ? 'basketball' : 'football';
     sources.push({
