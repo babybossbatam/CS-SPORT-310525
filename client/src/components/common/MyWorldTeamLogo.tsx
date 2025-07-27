@@ -73,7 +73,11 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     const forceClubLogo = teamName === "ADH Brazil" || teamName === "Valencia";
 
     const leagueName = leagueContext?.name?.toLowerCase() || "";
-    const isFifaClubWorldCup = leagueName.includes("fifa club world cup");
+
+    // Check if this is FIFA Club World Cup (club competition, not national teams)
+    const isFifaClubWorldCup = leagueName.includes("fifa club world cup") ||
+                              leagueName.includes("club world cup") ||
+                              leagueName.includes("fifa club wc");
 
     // More specific friendlies detection
     const isFriendliesClub = leagueName.includes("friendlies clubs") || 
