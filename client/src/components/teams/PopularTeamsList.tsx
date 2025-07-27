@@ -99,7 +99,13 @@ const PopularTeamsList = () => {
               alt={team.name} 
               className="w-6 h-6 mr-3"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = '/assets/fallback-logo.svg';
+                const target = e.target as HTMLImageElement;
+                console.warn(`🖼️ [PopularTeamsList] Team logo failed for ${team.name}, using fallback`);
+                target.src = '/assets/fallback-logo.svg';
+              }}
+              onLoad={() => {
+                // Optional: Log successful loads
+                console.log(`✅ [PopularTeamsList] Team logo loaded for ${team.name}`);
               }}
             />
 

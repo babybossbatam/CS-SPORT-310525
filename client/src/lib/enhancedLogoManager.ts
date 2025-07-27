@@ -295,32 +295,43 @@ class EnhancedLogoManager {
         logoUrl = `https://media.api-sports.io/football/leagues/${request.leagueId}.png`;
         successfulSource = 'well-known-api-sports';
       } else {
-        // Test the single API-Sports source with proper timeout
+        // Test the single API-Sports source with improved timeout handling
         try {
           const source = logoSources[0];
           const controller = new AbortController();
           const timeoutId = setTimeout(() => {
-            controller.abort('Timeout after 3 seconds');
-          }, 3000); // 3 second timeout
+            controller.abort();
+          }, 5000); // Increased to 5 second timeout
           
-          const testResponse = await fetch(source, { 
-            method: 'HEAD',
-            signal: controller.signal
-          });
+          // Use a promise wrapper to catch timeout properly
+          const testResponse = await Promise.race([
+            fetch(source, { 
+              method: 'HEAD',
+              signal: controller.signal,
+              cache: 'no-cache'
+            }),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Timeout after 5 seconds')), 5000)
+            )
+          ]);
           
           clearTimeout(timeoutId);
           
-          if (testResponse.ok) {
+          if (testResponse && testResponse.ok) {
             logoUrl = source;
             successfulSource = 'api-sports-direct';
             console.log(`✅ [EnhancedLogoManager] League ${request.leagueId} API-Sports source working: ${source}`);
+          } else {
+            throw new Error('Response not ok');
           }
         } catch (error) {
-          // Handle both network errors and abort errors silently for timeout
-          if (error.name === 'AbortError') {
-            console.warn(`⏰ [EnhancedLogoManager] League ${request.leagueId} API-Sports source timed out`);
+          // More specific error handling
+          if (error.name === 'AbortError' || error.message?.includes('Timeout')) {
+            console.warn(`⏰ [EnhancedLogoManager] League ${request.leagueId} API-Sports source timed out - using fallback`);
+          } else if (error.message?.includes('ERR_CONNECTION_TIMED_OUT')) {
+            console.warn(`🌐 [EnhancedLogoManager] League ${request.leagueId} Network connection timeout - using fallback`);
           } else {
-            console.warn(`❌ [EnhancedLogoManager] League ${request.leagueId} API-Sports source failed:`, error);
+            console.warn(`❌ [EnhancedLogoManager] League ${request.leagueId} API-Sports source failed - using fallback`);
           }
         }
       }
@@ -362,7 +373,14 @@ class EnhancedLogoManager {
       const loadTime = Date.now() - startTime;
       const fallbackUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
 
-      console.error(`❌ [EnhancedLogoManager] League ${request.leagueId} logo fetch failed:`, error);
+      // Prevent unhandled promise rejections by catching all error types
+      if (error?.name === 'AbortError') {
+        console.warn(`⏰ [EnhancedLogoManager] League ${request.leagueId} aborted - using fallback`);
+      } else if (error?.message?.includes('Timeout')) {
+        console.warn(`⏰ [EnhancedLogoManager] League ${request.leagueId} timeout - using fallback`);
+      } else {
+        console.warn(`❌ [EnhancedLogoManager] League ${request.leagueId} error - using fallback:`, error?.message || 'Unknown error');
+      }
 
       logLogo(componentName, {
         type: 'league',
@@ -370,7 +388,8 @@ class EnhancedLogoManager {
         leagueId: request.leagueId,
         url: fallbackUrl,
         fallbackUsed: true,
-        loadTime
+        loadTime,
+        error: error?.message || 'Network error'
       });
 
       return {
@@ -479,6 +498,25 @@ class EnhancedLogoManager {
 
 // Global instance
 export const enhancedLogoManager = new EnhancedLogoManager();
+
+// Global unhandled promise rejection handler for logo fetching
+if (typeof window !== 'undefined') {
+  const originalHandler = window.onunhandledrejection;
+  window.onunhandledrejection = (event) => {
+    // Handle timeout errors specifically from logo fetching
+    if (event.reason?.message?.includes('Timeout after') && 
+        event.reason?.message?.includes('seconds')) {
+      console.warn('🔇 [EnhancedLogoManager] Suppressed unhandled timeout rejection:', event.reason.message);
+      event.preventDefault(); // Prevent the error from propagating
+      return;
+    }
+    
+    // Call original handler if it exists
+    if (originalHandler) {
+      originalHandler.call(window, event);
+    }
+  };
+}
 
 // Global debug access
 if (typeof window !== 'undefined') {
