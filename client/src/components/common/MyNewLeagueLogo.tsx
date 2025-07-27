@@ -1,57 +1,117 @@
-import React from 'react';
-import LazyImage from './LazyImage';
-
-interface MyNewLeagueLogoProps {
-  leagueId: number | string;
-  leagueName?: string;
-  size?: string;
-  className?: string;
-  style?: React.CSSProperties;
-  onClick?: () => void;
-}
-
-const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
-  leagueId,
-  leagueName = 'Unknown League',
-  size = '24px',
-  className = '',
-  style,
-  onClick
-}) => {
-  // Simple direct server proxy URL - no validation, no fallback complexity
-  const logoUrl = `/api/league-logo/${leagueId}`;
-
-  const containerStyle = {
-    width: size,
-    height: size,
-    position: "relative" as const,
-  };
-
-  const imageStyle = { 
-    backgroundColor: "transparent",
-    width: "100%",
-    height: "100%",
-    objectFit: "contain" as const,
-    borderRadius: "0%",
-    ...style
-  };
-
-  return (
-    <div
-      className={`league-logo-container ${className}`}
-      style={containerStyle}
-      onClick={onClick}
-    >
-      <LazyImage
-        src={logoUrl}
-        alt={leagueName || `League ${leagueId}`}
-        title={leagueName}
-        className="league-logo"
-        style={imageStyle}
-        loading="lazy"
-      />
-    </div>
-  );
-};
-
-export default MyNewLeagueLogo;
+")
+print("import React, { useEffect, useState } from 'react';")
+print("import LazyImage from './LazyImage';")
+print("")
+print("interface MyNewLeagueLogoProps {")
+print("  leagueId: number | string;")
+print("  leagueName?: string;")
+print("  size?: string;")
+print("  className?: string;")
+print("  style?: React.CSSProperties;")
+print("  onClick?: () => void;")
+print("  fallbackUrl?: string;")
+print("  enhancedLogoManager?: any; // Replace 'any' with a more specific type if available")
+print("}")
+print("")
+print("const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({")
+print("  leagueId,")
+print("  leagueName = 'Unknown League',")
+print("  size = '24px',")
+print("  className = '',")
+print("  style,")
+print("  onClick,")
+print("  fallbackUrl = '',")
+print("  enhancedLogoManager,")
+print("}) => {")
+print("  const [logoUrl, setLogoUrl] = useState(fallbackUrl);")
+print("  const [isLoading, setIsLoading] = useState(false);")
+print("  const [error, setError] = useState<string | null>(null);")
+print("")
+print("  const containerStyle = {")
+print("    width: size,")
+print("    height: size,")
+print("    position: \"relative\" as const,")
+print("  };")
+print("")
+print("  const imageStyle = {")
+print("    backgroundColor: \"transparent\",")
+print("    width: \"100%\",")
+print("    height: \"100%\",")
+print("    objectFit: \"contain\" as const,")
+print("    borderRadius: \"0%\",")
+print("    ...style")
+print("  };")
+print("")
+print("  useEffect(() => {")
+print("    const loadLogo = async () => {")
+print("      if (!leagueId) {")
+print("        setLogoUrl(fallbackUrl);")
+print("        return;")
+print("      }")
+print("")
+print("      setIsLoading(true);")
+print("      setError(null);")
+print("")
+print("      try {")
+print("        // First try to get league information directly from the API")
+print("        console.log(`🔍 [MyNewLeagueLogo] Fetching league info for league ${leagueId}`);")
+print("")
+print("        const response = await fetch(`/api/leagues/${leagueId}`);")
+print("")
+print("        if (response.ok) {")
+print("          const leagueData = await response.json();")
+print("          const leagueLogo = leagueData?.league?.logo;")
+print("")
+print("          if (leagueLogo) {")
+print("            console.log(`✅ [MyNewLeagueLogo] Got league logo from API: ${leagueLogo}`);")
+print("            setLogoUrl(leagueLogo);")
+print("            setIsLoading(false);")
+print("            return;")
+print("          }")
+print("        }")
+print("")
+print("        // Fallback to enhanced logo manager if API doesn't have logo")
+print("        console.log(`🔄 [MyNewLeagueLogo] API didn't provide logo, trying enhanced manager`);")
+print("        const result = await enhancedLogoManager.getLeagueLogo(leagueId, leagueName);")
+print("")
+print("        if (result.fallbackUsed) {")
+print("          console.log(`🚫 [MyNewLeagueLogo] Using fallback for league ${leagueId}: ${result.url}`);")
+print("          setLogoUrl(result.url);")
+print("        } else {")
+print("          console.log(`✅ [MyNewLeagueLogo] Using enhanced manager result for league ${leagueId}: ${result.url}`);")
+print("          setLogoUrl(result.url);")
+print("        }")
+print("      } catch (error) {")
+print("        console.error(`❌ [MyNewLeagueLogo] Error loading logo for league ${leagueId}:`, error);")
+print("        setError(error instanceof Error ? error.message : 'Unknown error');")
+print("        setLogoUrl(fallbackUrl);")
+print("      } finally {")
+print("        setIsLoading(false);")
+print("      }")
+print("    };")
+print("")
+print("    loadLogo();")
+print("  }, [leagueId, leagueName, fallbackUrl, enhancedLogoManager]);")
+print("")
+print("  return (")
+print("    <div")
+print("      className={`league-logo-container ${className}`}")
+print("      style={containerStyle}")
+print("      onClick={onClick}")
+print("    >")
+print("      <LazyImage")
+print("        src={logoUrl}")
+print("        alt={leagueName || `League ${leagueId}`}")
+print("        title={leagueName}")
+print("        className=\"league-logo\"")
+print("        style={imageStyle}")
+print("        loading=\"lazy\"")
+print("      />")
+print("      {isLoading && <div>Loading...</div>}")
+print("      {error && <div>Error: {error}</div>}")
+print("    </div>")
+print("  )")
+print("};")
+print("")
+print("export default MyNewLeagueLogo;")
+print("

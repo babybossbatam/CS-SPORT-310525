@@ -816,7 +816,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               id: 78,
               name: "Bundesliga",
               type: "League",
-              logo: "https://media.api-sports.io/football/leagues/78.png",
+              logo: "https://media.api-sports.io/football/leagues```python
+/78.png",
               country: "Germany",
             },
             country: {
@@ -856,7 +857,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // League information endpoint
   apiRouter.get("/leagues/:id", async (req: Request, res: Response) => {
+    try {
+      const leagueId = parseInt(req.params.id);
+
+      if (isNaN(leagueId)) {
+        return res.status(400).json({ message: "Invalid league ID" });
+      }
+
+      console.log(`🔍 [API] Fetching detailed league information for league ${leagueId}`);
+
+      // Use RapidAPI to get league information
+      const leagueData = await rapidApiService.getLeagueById(leagueId);
+
+      if (leagueData) {
+        console.log(`✅ [API] Successfully retrieved league ${leagueId} information`);
+        res.json(leagueData);
+      } else {
+        console.log(`❌ [API] No league data found for ID ${leagueId}`);
+        res.status(404).json({ message: "League not found" });
+      }
+    } catch (error) {
+      console.error(`❌ [API] Error fetching league ${req.params.id}:`, error);
+      res.status(500).json({ 
+        error: "Failed to fetch league information",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // League logo endpoint
+  apiRouter.get("/league-logo/:id", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
 
@@ -1682,7 +1714,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           `https://static.365scores.com/images/leagues/${leagueId}.png`,
         ];
 
-        for (const logoUrl of logoUrls) {
+        for (const logoThis edit adds a new endpoint to fetch detailed league information by ID.
+```python
+Urls of logoUrls) {
           try {
             const response = await fetch(logoUrl, {
               headers: {
