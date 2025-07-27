@@ -2,10 +2,36 @@
 import express, { Request, Response } from "express";
 import { basketballApiService } from "../services/basketballApi";
 
-const basketballRouter = express.Router();
+const router = express.Router();
+
+// Test endpoint to verify basketball routes are working
+router.get("/test", async (req: Request, res: Response) => {
+  try {
+    console.log("🏀 [BasketballRoutes] Test endpoint called");
+    res.json({ 
+      message: "Basketball routes are working!", 
+      timestamp: new Date().toISOString(),
+      availableEndpoints: [
+        '/games/date/:date',
+        '/games/league/:id',
+        '/games/live'
+      ]
+    });
+  } catch (error) {
+    console.error('❌ [BasketballRoutes] Test endpoint error:', error);
+    res.status(500).json({ error: 'Basketball test failed' });
+  }
+});
+
+
+
+import express, { Request, Response } from "express";
+import { basketballApiService } from "../services/basketballApi";
+
+const router = express.Router();
 
 // Get basketball games by date
-basketballRouter.get("/games/date/:date", async (req: Request, res: Response) => {
+router.get("/games/date/:date", async (req: Request, res: Response) => {
   try {
     const { date } = req.params;
 
@@ -27,7 +53,7 @@ basketballRouter.get("/games/date/:date", async (req: Request, res: Response) =>
 });
 
 // Get basketball games by league
-basketballRouter.get("/games/league/:id", async (req: Request, res: Response) => {
+router.get("/games/league/:id", async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id);
     const { season } = req.query;
@@ -51,7 +77,7 @@ basketballRouter.get("/games/league/:id", async (req: Request, res: Response) =>
 });
 
 // Get live basketball games
-basketballRouter.get("/games/live", async (req: Request, res: Response) => {
+router.get("/games/live", async (req: Request, res: Response) => {
   try {
     console.log(`🔴 [BasketballRoutes] Fetching live games`);
 
@@ -65,4 +91,4 @@ basketballRouter.get("/games/live", async (req: Request, res: Response) => {
   }
 });
 
-export default basketballRouter;
+export default router;

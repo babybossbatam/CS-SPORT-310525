@@ -3298,6 +3298,8 @@ error) {
 
   // Predictions routes
   app.use('/api', predictionsRoutes);
+  
+  // Basketball routes
   app.use('/api/basketball', basketballRoutes);
   app.use('/api/basketball/standings', basketballStandingsRoutes);
 
