@@ -105,14 +105,15 @@ const PopularLeagueStandingsCard = () => {
 
                       <MyWorldTeamLogo
                         teamName={standing.team.name || ""}
-                        teamLogo={standing.team.id
+                        teamLogo={standing.team.logo || (standing.team.id
                           ? `/api/team-logo/square/${standing.team.id}?size=32`
                           : "/assets/fallback-logo.svg"
-                        }
+                        )}
                         alt={standing.team.name}
                         size="34px"
                         className="popular-leagues-size"
                         leagueContext={leagueContext}
+                        teamId={standing.team.id}
                       />
 
                       <span className="text-[0.9em]">{standing.team.name}</span>

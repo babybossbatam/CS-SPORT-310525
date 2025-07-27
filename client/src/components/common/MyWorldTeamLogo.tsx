@@ -1,20 +1,18 @@
-import React, { useMemo } from "react";
-import { isNationalTeam } from "@/lib/teamLogoSources";
-import { enhancedLogoManager } from "@/lib/enhancedLogoManager";
-import MyCircularFlag from "./MyCircularFlag";
-import LazyImage from "./LazyImage";
+import React, { useState, useRef, useCallback, useMemo } from 'react';
+import { isNationalTeam, getTeamLogoSources, createTeamLogoErrorHandler } from '../../lib/teamLogoSources';
+import MyCircularFlag from './MyCircularFlag';
+import LazyImage from './LazyImage';
 
 interface MyWorldTeamLogoProps {
-    teamName: string;
-  teamId?: number;
-  teamLogo: string;
+  teamName: string;
+  teamLogo?: string;
   alt?: string;
   size?: string;
   className?: string;
-  moveLeft?: boolean;
+  teamId?: number | string;
   leagueContext?: {
-    name: string;
-    country: string;
+    name?: string;
+    country?: string;
   };
   nextMatchInfo?: {
     opponent: string;
@@ -163,6 +161,11 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       });
 
       return logoResponse.url;
+    } else if (teamId) {
+       const logoSources = getTeamLogoSources({ id: teamId, name: teamName, logo: teamLogo }, shouldUseCircularFlag);
+        if (logoSources.length > 0) {
+          return logoSources[0].url;
+        }
     }
 
     // Fallback to original teamLogo if no teamId
@@ -199,6 +202,25 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     transform: "scale(0.8)"
   }), []);
 
+    const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.target as HTMLImageElement;
+    const currentSrc = target.src;
+
+    // Don't retry if already showing fallback
+    if (currentSrc.includes('/assets/fallback-logo')) {
+      return;
+    }
+
+    // Try different logo sources if teamId is available
+    if (teamId && !currentSrc.includes('/api/team-logo/')) {
+      target.src = `/api/team-logo/square/${teamId}?size=32`;
+      return;
+    }
+
+    // Set fallback image as last resort
+    target.src = '/assets/fallback-logo.svg';
+  }, [teamId]);
+
   if (shouldUseCircularFlag) {
     return (
       <MyCircularFlag
@@ -227,6 +249,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         className="team-logo"
         style={imageStyle}
         fallbackSrc="/assets/fallback-logo.svg"
+        onError={handleImageError}
       />
     </div>
   );
