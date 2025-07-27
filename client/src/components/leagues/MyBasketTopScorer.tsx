@@ -131,18 +131,6 @@ const MyBasketTopScorer: React.FC = () => {
       console.log(`🏀 [MyBasketTopScorer] Fetching top scorers for league ${selectedLeague} from basketball API`);
       
       try {
-        const response = await fetch(`/api/basketball/leagues/${selectedLeague}/topscorers?season=2024-2025`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch top scorers: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log(`🏀 [MyBasketTopScorer] Retrieved ${data.length} top scorers from basketball API`);
-        return data;
-      } catch (error) {
-        console.error(`❌ [MyBasketTopScorer] Error fetching top scorers:`, error);
-        return [];`);
-
-      try {
         const response = await fetch(`/api/basketball/standings/top-scorers/${selectedLeague}?season=2024-2025`, {
           headers: {
             'Accept': 'application/json',
