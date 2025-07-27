@@ -95,37 +95,13 @@ export function generateLogoSources(options: TeamLogoOptions): LogoSource[] {
         priority: 2
       }
     );
-
-    // 3. SportsRadar sources
-    sources.push(
-      {
-        url: `/api/sportsradar/teams/${cleanTeamId}/logo`,
-        source: 'sportsradar-proxy',
-        priority: 3
-      },
-      {
-        url: `https://api.sportradar.com/soccer/production/v4/en/competitors/${cleanTeamId}/profile.png`,
-        source: 'sportsradar-direct-v4',
-        priority: 4
-      },
-      {
-        url: `https://api.sportradar.com/soccer-images/production/competitors/${cleanTeamId}/logo.png`,
-        source: 'sportsradar-images',
-        priority: 5
-      },
-      {
-        url: `https://imagecache.sportradar.com/production/soccer/competitors/${cleanTeamId}/logo.png`,
-        source: 'sportsradar-cache',
-        priority: 6
-      }
-    );
   }
 
-  // 4. Fallback logo
+  // 3. Fallback logo
   sources.push({
     url: '/assets/fallback-logo.svg',
     source: 'fallback',
-    priority: 9
+    priority: 3
   });
 
   return sources.sort((a, b) => a.priority - b.priority);
