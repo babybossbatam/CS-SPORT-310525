@@ -97,7 +97,9 @@ class PlayerImageCache {
 
         // For newer cache entries, do a quick accessibility check
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 1500); // Reduced timeout
+        const timeoutId = setTimeout(() => {
+          controller.abort('Timeout: Image freshness check exceeded 1500ms');
+        }, 1500);
 
         try {
           const response = await fetch(cachedItem.url, { 
@@ -112,7 +114,13 @@ class PlayerImageCache {
           return true;
         } catch (error) {
           clearTimeout(timeoutId);
-          console.log(`⚠️ [PlayerImageCache] Cached image may be stale: ${cachedItem.url}`);
+          
+          // Check if error is due to abort
+          if (error instanceof Error && error.name === 'AbortError') {
+            console.log(`⏱️ [PlayerImageCache] Image freshness check timed out for: ${cachedItem.playerName}`);
+          } else {
+            console.log(`⚠️ [PlayerImageCache] Cached image may be stale: ${cachedItem.url}`, error);
+          }
           
           // If cache is less than 1 hour old and we can't verify, assume it's still good
           const oneHour = 60 * 60 * 1000;
@@ -252,7 +260,9 @@ class PlayerImageCache {
       // For local API endpoints, do a proper validation
       if (url.startsWith('/api/')) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2000);
+        const timeoutId = setTimeout(() => {
+          controller.abort('Timeout: Local API validation exceeded 2000ms');
+        }, 2000);
 
         try {
           const response = await fetch(url, { 
@@ -270,7 +280,12 @@ class PlayerImageCache {
           return { isValid, headers };
         } catch (error) {
           clearTimeout(timeoutId);
-          console.warn(`⚠️ [PlayerImageCache] Local API validation failed for ${url}:`, error);
+          
+          if (error instanceof Error && error.name === 'AbortError') {
+            console.warn(`⏱️ [PlayerImageCache] Local API validation timed out for ${url}`);
+          } else {
+            console.warn(`⚠️ [PlayerImageCache] Local API validation failed for ${url}:`, error);
+          }
           return { isValid: false };
         }
       }
@@ -293,7 +308,9 @@ class PlayerImageCache {
 
       // For untrusted domains, try validation with better error handling
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      const timeoutId = setTimeout(() => {
+        controller.abort('Timeout: External URL validation exceeded 3000ms');
+      }, 3000);
 
       try {
         const response = await fetch(url, { 
@@ -308,12 +325,19 @@ class PlayerImageCache {
       } catch (error) {
         clearTimeout(timeoutId);
         
+        if (error instanceof Error && error.name === 'AbortError') {
+          console.log(`⏱️ [PlayerImageCache] External URL validation timed out for ${url}`);
+        } else {
+          console.warn(`⚠️ [PlayerImageCache] External URL validation failed for ${url}:`, error);
+        }
+        
         // If fetch fails, try a different approach - create an Image element
         return new Promise((resolve) => {
           const img = new Image();
           const imageTimeout = setTimeout(() => {
             img.onload = null;
             img.onerror = null;
+            console.log(`⏱️ [PlayerImageCache] Image element validation timed out for ${url}`);
             resolve({ isValid: false });
           }, 3000);
 
