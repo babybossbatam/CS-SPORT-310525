@@ -1,8 +1,8 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 
 const PopularLeagueStandingsCard = () => {
   const { data } = useQuery({
@@ -12,7 +12,7 @@ const PopularLeagueStandingsCard = () => {
       return response.json();
     },
   });
-  
+
   const standings = data?.league?.standings?.[0]?.slice(0, 10) || [];
 
   return (
@@ -43,7 +43,7 @@ const PopularLeagueStandingsCard = () => {
                   <TableCell className="font-medium text-[0.9em] text-center">{standing.rank}</TableCell>
                   <TableCell className="flex flex-col font-normal">
                     <div className="flex items-center">
-                      <img
+                      <MyWorldTeamLogo
                         src={standing.team.logo}
                         alt={standing.team.name}
                         className="mr-2 h-5 w-5 rounded-full"

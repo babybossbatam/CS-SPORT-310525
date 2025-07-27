@@ -68,7 +68,9 @@ const LazyImage: React.FC<LazyImageProps> = ({
       className={`bg-transparent animate-pulse flex items-center justify-center ${className}`}
       style={{ aspectRatio: '1/1' }}
     >
-      <div className="w-4 h-4 bg-transparent rounded"></div>
+      <div className="w-full h-full bg-gray-200 rounded-full flex items-center justify-center">
+        <div className="w-4 h-4 bg-gray-300 rounded"></div>
+      </div>
     </div>
   );
 
