@@ -299,7 +299,9 @@ class EnhancedLogoManager {
         try {
           const source = logoSources[0];
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+          const timeoutId = setTimeout(() => {
+            controller.abort();
+          }, 3000); // 3 second timeout
           
           const testResponse = await fetch(source, { 
             method: 'HEAD',
@@ -314,7 +316,12 @@ class EnhancedLogoManager {
             console.log(`✅ [EnhancedLogoManager] League ${request.leagueId} API-Sports source working: ${source}`);
           }
         } catch (error) {
-          console.warn(`❌ [EnhancedLogoManager] League ${request.leagueId} API-Sports source failed:`, error);
+          // Handle both network errors and abort errors silently for timeout
+          if (error.name === 'AbortError') {
+            console.warn(`⏰ [EnhancedLogoManager] League ${request.leagueId} API-Sports source timed out`);
+          } else {
+            console.warn(`❌ [EnhancedLogoManager] League ${request.leagueId} API-Sports source failed:`, error);
+          }
         }
       }
 
@@ -501,7 +508,9 @@ if (typeof window !== 'undefined') {
         const source = sources[i];
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+          const timeoutId = setTimeout(() => {
+            controller.abort();
+          }, 5000); // 5 second timeout
           
           const response = await fetch(source, { 
             method: 'HEAD',
@@ -514,8 +523,13 @@ if (typeof window !== 'undefined') {
           console.log(`  ${i + 1}. ${status} - ${source}`);
           results.push({ source, working: response.ok, status: response.status });
         } catch (error) {
-          console.log(`  ${i + 1}. 🚫 ERROR - ${source}`, error);
-          results.push({ source, working: false, error: error.message });
+          if (error.name === 'AbortError') {
+            console.log(`  ${i + 1}. ⏰ TIMEOUT - ${source}`);
+            results.push({ source, working: false, error: 'Timeout' });
+          } else {
+            console.log(`  ${i + 1}. 🚫 ERROR - ${source}`, error);
+            results.push({ source, working: false, error: error.message });
+          }
         }
       }
 
