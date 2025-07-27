@@ -1,0 +1,88 @@
+ [MyNewLeagueLogo] Successfully loaded league 253 logo
+Console.js:61 ✅ [MyNewLeagueLogo] Successfully loaded league 239 logo
+Console.js:61 ✅ [MyNewLeagueLogo] Successfully loaded league 76 logo
+Console.js:61 ✅ [MyNewLeagueLogo] Successfully loaded league 72 logo
+Console.js:61 ✅ [MyNewLeagueLogo] Successfully loaded league 75 logo
+Console.js:61 ✅ [MyNewLeagueLogo] Successfully loaded league 667 logo
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 10, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 71, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 72, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 667, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+media.api-sports.io/football/teams/50.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 39, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+media.api-sports.io/football/teams/33.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+media.api-sports.io/football/teams/541.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+media.api-sports.io/football/teams/40.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+media.api-sports.io/football/teams/10.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+media.api-sports.io/football/teams/42.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 140, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 135, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 78, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+media.api-sports.io/football/leagues/667.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+4.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+15.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+media.api-sports.io/football/leagues/2.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+media.api-sports.io/football/leagues/3.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+media.api-sports.io/football/leagues/848.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 61, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 2, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 3, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 848, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 5, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 1, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 4, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 15, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 38, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 9, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 22, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 81, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 7, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 137, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 45, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 143, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 307, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 233, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+media.api-sports.io/football/teams/49.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+media.api-sports.io/football/teams/529.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+media.api-sports.io/football/teams/157.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+media.api-sports.io/football/teams/47.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+5.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+34.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+39.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+61.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+140.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+135.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+Console.js:61 ⏸️ [MyHomeFeaturedMatchNew] No live matches, skipping refresh
+233.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+78.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+154.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+2489.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+51617.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+307.png:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUTUnderstand this error
+Console.js:61 
