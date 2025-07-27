@@ -36,6 +36,12 @@ export function clearLeagueLogoCache(): void {
   // Clear enhanced logo manager league entries
   enhancedLogoManager.clearCache();
 
+  // Clear enhanced logo manager league cache
+  if (typeof window !== 'undefined' && (window as any).logoManager) {
+    (window as any).logoManager.clearLeague();
+    console.log('🧹 [cacheReset.ts] Cleared enhanced logo manager league cache');
+  }
+
   // Force reload league images
   const leagueImages = document.querySelectorAll('img[alt*="League"], img[src*="league"], img[src*="/api/league-logo"]');
   leagueImages.forEach(img => {
@@ -48,5 +54,5 @@ export function clearLeagueLogoCache(): void {
     }
   });
 
-  console.log('✅ [cacheReset.ts] League logo cache cleared successfully');
+  console.log('✅ [cacheReset.ts] League logo cache clearedd successfully');
 }

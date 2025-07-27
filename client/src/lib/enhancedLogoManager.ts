@@ -252,28 +252,33 @@ class EnhancedLogoManager {
     const cacheKey = `league-${request.leagueId}`;
 
     try {
-      // Check cache first
+      // Check cache first, but skip if it's a fallback that's less than 1 hour old
       const cached = this.logoCache.get(cacheKey);
       const now = Date.now();
 
       if (cached && (now - cached.timestamp) < this.cacheDuration) {
-        const loadTime = Date.now() - startTime;
-        
-        logLogo(componentName, {
-          type: 'league',
-          shape: 'normal',
-          leagueId: request.leagueId,
-          url: cached.url,
-          fallbackUsed: cached.fallbackUsed,
-          loadTime
-        });
+        // If cached result is fallback and less than 1 hour old, try fresh fetch
+        if (cached.fallbackUsed && (now - cached.timestamp) < (60 * 60 * 1000)) {
+          console.log(`🔄 [EnhancedLogoManager] Retrying fresh fetch for league ${request.leagueId} (cached fallback)`);
+        } else {
+          const loadTime = Date.now() - startTime;
+          
+          logLogo(componentName, {
+            type: 'league',
+            shape: 'normal',
+            leagueId: request.leagueId,
+            url: cached.url,
+            fallbackUsed: cached.fallbackUsed,
+            loadTime
+          });
 
-        return {
-          url: cached.url,
-          fallbackUsed: cached.fallbackUsed,
-          loadTime,
-          cached: true
-        };
+          return {
+            url: cached.url,
+            fallbackUsed: cached.fallbackUsed,
+            loadTime,
+            cached: true
+          };
+        }
       }
 
       // Try multiple sources in order of preference
@@ -309,6 +314,37 @@ class EnhancedLogoManager {
         logoUrl = wellKnownLogos[request.leagueId];
       }
 
+      // Test the logo URL before caching
+      try {
+        const testResponse = await fetch(logoUrl, { method: 'HEAD' });
+        if (!testResponse.ok) {
+          console.warn(`❌ [EnhancedLogoManager] League ${request.leagueId} primary source failed, trying alternatives`);
+          
+          // Try alternative sources
+          for (const altSource of logoSources.slice(1)) {
+            try {
+              const altResponse = await fetch(altSource, { method: 'HEAD' });
+              if (altResponse.ok) {
+                logoUrl = altSource;
+                console.log(`✅ [EnhancedLogoManager] League ${request.leagueId} found working alternative: ${altSource}`);
+                break;
+              }
+            } catch {
+              continue;
+            }
+          }
+          
+          // If all sources fail, mark as fallback
+          if (!logoUrl || logoUrl === logoSources[0]) {
+            fallbackUsed = true;
+            logoUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
+          }
+        }
+      } catch (error) {
+        console.warn(`⚠️ [EnhancedLogoManager] Could not test league ${request.leagueId} logo URL:`, error);
+        // Continue with the URL but don't mark as fallback yet
+      }
+
       // Cache the result
       this.logoCache.set(cacheKey, {
         url: logoUrl,
@@ -335,7 +371,7 @@ class EnhancedLogoManager {
       };
     } catch (error) {
       const loadTime = Date.now() - startTime;
-      const fallbackUrl = `/api/league-logo/square/${request.leagueId}`;
+      const fallbackUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
 
       logLogo(componentName, {
         type: 'league',
@@ -406,6 +442,30 @@ class EnhancedLogoManager {
     }
   }
 
+  // Clear league-specific cache
+  clearLeagueCache(leagueId?: number): void {
+    if (leagueId) {
+      const cacheKey = `league-${leagueId}`;
+      this.logoCache.delete(cacheKey);
+      console.log(`🧹 [EnhancedLogoManager] Cleared cache for league ${leagueId}`);
+    } else {
+      // Clear all league caches
+      const leagueKeys = Array.from(this.logoCache.keys()).filter(key => key.startsWith('league-'));
+      leagueKeys.forEach(key => this.logoCache.delete(key));
+      console.log(`🧹 [EnhancedLogoManager] Cleared all league logo cache (${leagueKeys.length} entries)`);
+    }
+  }
+
+  // Force refresh league logo
+  async forceRefreshLeagueLogo(leagueId: number, componentName: string = 'ForceRefresh'): Promise<LogoResponse> {
+    this.clearLeagueCache(leagueId);
+    return await this.getLeagueLogo(componentName, {
+      type: 'league',
+      shape: 'normal',
+      leagueId: leagueId
+    });
+  }
+
   // Get cache stats
   getCacheStats(): {
     totalEntries: number;
@@ -433,6 +493,17 @@ export const enhancedLogoManager = new EnhancedLogoManager();
 if (typeof window !== 'undefined') {
   (window as any).logoManager = {
     stats: () => enhancedLogoManager.getCacheStats(),
-    clear: (componentName?: string) => enhancedLogoManager.clearCache(componentName)
+    clear: (componentName?: string) => enhancedLogoManager.clearCache(componentName),
+    clearLeague: (leagueId?: number) => enhancedLogoManager.clearLeagueCache(leagueId),
+    forceRefresh: (leagueId: number) => enhancedLogoManager.forceRefreshLeagueLogo(leagueId),
+    testLeague: async (leagueId: number) => {
+      const result = await enhancedLogoManager.getLeagueLogo('Test', {
+        type: 'league',
+        shape: 'normal',
+        leagueId: leagueId
+      });
+      console.log(`🧪 League ${leagueId} test result:`, result);
+      return result;
+    }
   };
 }
