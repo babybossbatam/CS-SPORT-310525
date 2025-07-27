@@ -7,7 +7,6 @@ import LazyImage from './LazyImage';
 interface MyNewLeagueLogoProps {
   leagueId: number | string;
   leagueName?: string;
-  logoUrl?: string; // Still accept this for backwards compatibility, but won't use it
   size?: string;
   className?: string;
   fallbackUrl?: string;

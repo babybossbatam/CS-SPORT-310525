@@ -245,7 +245,7 @@ class EnhancedLogoManager {
 
   async getLeagueLogo(
     componentName: string,
-    request: LogoRequest & { leagueId: number; leagueName?: string; logoUrl?: string }
+    request: LogoRequest & { leagueId: number; leagueName?: string }
   ): Promise<LogoResponse> {
     const startTime = Date.now();
     const cacheKey = `league-${request.leagueId}`;
@@ -287,12 +287,8 @@ class EnhancedLogoManager {
         successfulSource = 'server-proxy';
         console.log(`📡 [EnhancedLogoManager] League ${request.leagueId} using server proxy: ${proxyUrl}`);
       } catch (error) {
-        // Priority 2: API-provided URL (if available and not direct API-Sports)
-        if (request.logoUrl && request.logoUrl.trim() !== '' && !request.logoUrl.includes('media.api-sports.io')) {
-          logoUrl = request.logoUrl;
-          successfulSource = 'api-provided';
-          console.log(`✅ [EnhancedLogoManager] League ${request.leagueId} using API-provided URL: ${logoUrl}`);
-        } else {
+        // If server proxy fails, go directly to fallback
+        {
           // Final fallback
           fallbackUsed = true;
           logoUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
