@@ -58,7 +58,9 @@ router.get('/league-logo/:leagueId', async (req, res) => {
       'Content-Type': 'image/png',
       'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
       'Content-Length': logoData.length,
-      'Access-Control-Allow-Origin': '*'
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
     });
     
     res.send(logoData);
