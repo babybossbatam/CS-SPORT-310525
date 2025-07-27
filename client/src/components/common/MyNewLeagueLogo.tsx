@@ -28,29 +28,7 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // If we have a logo URL from fixture data, use it directly and skip manager
-    if (providedLogoUrl && providedLogoUrl.trim() !== '') {
-      console.log(`✅ [MyNewLeagueLogo] Using fixture logo for league ${leagueId}: ${providedLogoUrl}`);
-      setLogoUrl(providedLogoUrl);
-      setIsLoading(false);
-      setError(null);
-      return;
-    }
-
-    // Only fetch via manager if no fixture logo URL is available
     const fetchLogo = async () => {
-      // Wait a bit for fixture data to potentially arrive
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Check again if fixture logo arrived during the wait
-      if (providedLogoUrl && providedLogoUrl.trim() !== '') {
-        console.log(`✅ [MyNewLeagueLogo] Fixture logo arrived during wait for league ${leagueId}: ${providedLogoUrl}`);
-        setLogoUrl(providedLogoUrl);
-        setIsLoading(false);
-        setError(null);
-        return;
-      }
-
       if (!leagueId || leagueId === 'Unknown') {
         setLogoUrl(fallbackUrl);
         setIsLoading(false);
@@ -70,7 +48,23 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
           return;
         }
 
-        console.log(`🔄 [MyNewLeagueLogo] No fixture logo available, fetching via manager for league ${leagueId}`);
+        // Priority 1: Use fixture-provided URL if available and it's a reliable source
+        if (providedLogoUrl && providedLogoUrl.trim() !== '') {
+          // Check if it's a direct API-Sports URL (which often timeout)
+          if (providedLogoUrl.includes('media.api-sports.io')) {
+            console.log(`⚠️ [MyNewLeagueLogo] Fixture URL is API-Sports direct (may timeout), using server proxy instead for league ${leagueId}`);
+            // Skip to server proxy instead of using direct CDN URL
+          } else {
+            console.log(`✅ [MyNewLeagueLogo] Using fixture logo for league ${leagueId}: ${providedLogoUrl}`);
+            setLogoUrl(providedLogoUrl);
+            setIsLoading(false);
+            setError(null);
+            return;
+          }
+        }
+
+        // Priority 2: Use server proxy (most reliable)
+        console.log(`🔄 [MyNewLeagueLogo] Fetching via server proxy for league ${leagueId}`);
         const result = await enhancedLogoManager.getLeagueLogo('MyNewLeagueLogo', {
           type: 'league',
           shape: 'normal',
@@ -82,7 +76,7 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
         if (result.fallbackUsed) {
           console.log(`🚫 [MyNewLeagueLogo] Logo failed for league ${leagueId}, using fallback: ${result.url}`);
         } else {
-          console.log(`✅ [MyNewLeagueLogo] Successfully loaded league ${leagueId} logo via manager`);
+          console.log(`✅ [MyNewLeagueLogo] Successfully loaded league ${leagueId} logo via server proxy`);
         }
 
         setLogoUrl(result.url);
