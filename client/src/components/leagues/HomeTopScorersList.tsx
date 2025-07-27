@@ -922,6 +922,15 @@ const HomeTopScorersList = () => {
                   });
                 }
 
+                // Debug logging for player photos
+                console.log(`🖼️ [TopScorers] Player photo debug:`, {
+                  playerName: scorer.player.name,
+                  playerId: scorer.player.id,
+                  originalPhoto: scorer.player.photo,
+                  fallbackUrl: `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${scorer.player.id}`,
+                  league: getCurrentLeague()?.name
+                });
+
                 return (
                   <div
                     key={scorer.player.id}
@@ -934,10 +943,14 @@ const HomeTopScorersList = () => {
                         className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
+                          console.log(`❌ [TopScorers] Photo failed for ${scorer.player.name}:`, target.src);
+                          
                           if (!target.src.includes('default.png')) {
+                            console.log(`🔄 [TopScorers] Trying 365Scores fallback for ${scorer.player.name}`);
                             target.src = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${scorer.player.id}`;
                           } else {
                             // Fallback to initials
+                            console.log(`🎨 [TopScorers] Using initials fallback for ${scorer.player.name}`);
                             const initials = scorer.player.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
                             target.style.display = 'none';
                             const parent = target.parentElement;
