@@ -454,43 +454,6 @@ const MyBasketFeatured: React.FC<MyBasketFeaturedProps> = ({
 
         console.log(`🏀 [MyBasketFeatured] Basketball game details with League IDs:`, gameDetails);
 
-        // Special debug for Oberliga leagues
-        const oberligaMatches = uniqueFixtures.filter(f => 
-          f.league.name?.toLowerCase().includes('oberliga')
-        );
-
-        if (oberligaMatches.length > 0) {
-          console.log(`🎯 [OBERLIGA LEAGUES FOUND] Count: ${oberligaMatches.length}`);
-          oberligaMatches.forEach(match => {
-            console.log(`🏆 [OBERLIGA MATCH]`, {
-              LEAGUE_ID: match.league.id,
-              LEAGUE_NAME: match.league.name,
-              MATCH: `${match.teams.home.name} vs ${match.teams.away.name}`,
-              COUNTRY: match.league.country,
-              STATUS: match.fixture.status.short
-            });
-          });
-        }
-
-        // Special debug for Bayern Süd
-        const bayernSudMatches = uniqueFixtures.filter(f => 
-          f.league.name?.toLowerCase().includes('bayern') && 
-          f.league.name?.toLowerCase().includes('süd')
-        );
-
-        if (bayernSudMatches.length > 0) {
-          console.log(`🏰 [BAYERN SÜD LEAGUES FOUND] Count: ${bayernSudMatches.length}`);
-          bayernSudMatches.forEach(match => {
-            console.log(`⚽ [BAYERN SÜD MATCH]`, {
-              LEAGUE_ID: match.league.id,
-              LEAGUE_NAME: match.league.name,
-              MATCH: `${match.teams.home.name} vs ${match.teams.away.name}`,
-              COUNTRY: match.league.country,
-              STATUS: match.fixture.status.short
-            });
-          });
-        }
-
         // Group basketball games by date
         const allMatches: DayMatches[] = [];
         for (const dateInfo of dates) {
