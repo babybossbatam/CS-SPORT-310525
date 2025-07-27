@@ -28,10 +28,11 @@ class EnhancedLogoManager {
 
   async getTeamLogo(
     componentName: string,
-    request: LogoRequest & { teamId: number; teamName?: string; shape: 'circular' | 'normal' }
+    request: LogoRequest & { teamId: number; teamName?: string; shape: 'circular' | 'normal'; sport?: string }
   ): Promise<LogoResponse> {
     const startTime = Date.now();
-    const cacheKey = `team-${request.teamId}-${request.shape}`;
+    const sport = request.sport || 'football';
+    const cacheKey = `team-${sport}-${request.teamId}-${request.shape}`;
 
     try {
       // Check cache first
@@ -70,13 +71,13 @@ class EnhancedLogoManager {
         ) : false;
 
         if (isNational) {
-          logoUrl = `/api/team-logo/circular/${request.teamId}?size=32`;
+          logoUrl = `/api/team-logo/circular/${request.teamId}?size=32&sport=${sport}`;
         } else {
-          logoUrl = `/api/team-logo/square/${request.teamId}?size=32`;
+          logoUrl = `/api/team-logo/square/${request.teamId}?size=32&sport=${sport}`;
         }
       } else {
-        // Normal team logo
-        logoUrl = getCachedTeamLogo(request.teamId) || `/api/team-logo/square/${request.teamId}?size=64`;
+        // Normal team logo with sport parameter
+        logoUrl = getCachedTeamLogo(request.teamId, sport) || `/api/team-logo/square/${request.teamId}?size=64&sport=${sport}`;
       }
 
       if (!logoUrl || logoUrl.includes('fallback')) {

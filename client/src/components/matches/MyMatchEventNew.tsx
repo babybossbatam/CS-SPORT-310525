@@ -887,12 +887,27 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         {/* Penalty sequence - Group by rounds (pairs) */}
         <div className="penalty-shootout-list px-2">
           {(() => {
-            // Group penalties into rounds (pairs)
+            // Group penalties into rounds (pairs) - properly alternate teams
             const rounds = [];
             for (let i = 0; i < penaltySequence.length; i += 2) {
-              const homePenalty = penaltySequence.find(p => p.number === i + 1);
-              const awayPenalty = penaltySequence.find(p => p.number === i + 2);
+              const firstPenalty = penaltySequence[i];
+              const secondPenalty = penaltySequence[i + 1];
               const roundNumber = Math.floor(i / 2) + 1;
+              
+              // Determine which penalty belongs to which team based on team name
+              let homePenalty = null;
+              let awayPenalty = null;
+              
+              if (firstPenalty && firstPenalty.event && 'team' in firstPenalty.event) {
+                const isFirstHome = firstPenalty.event.team.name === homeTeam;
+                if (isFirstHome) {
+                  homePenalty = firstPenalty;
+                  awayPenalty = secondPenalty;
+                } else {
+                  awayPenalty = firstPenalty;
+                  homePenalty = secondPenalty;
+                }
+              }
               
               rounds.push({
                 roundNumber,

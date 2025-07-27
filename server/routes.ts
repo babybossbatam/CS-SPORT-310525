@@ -35,6 +35,8 @@ import playersRoutes from './routes/playersRoutes';
 import selectiveLiveRoutes from './routes/selectiveLiveRoutes';
 import selectiveUpdatesRoutes from './routes/selectiveUpdatesRoutes';
 import predictionsRoutes from './routes/predictionsRoutes';
+import basketballRoutes from "./routes/basketballRoutes";
+import basketballStandingsRoutes from "./routes/basketballStandingsRoutes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -3295,6 +3297,8 @@ error) {
 
   // Predictions routes
   app.use('/api', predictionsRoutes);
+  app.use('/api', basketballRoutes);
+  app.use('/api/basketball/standings', basketballStandingsRoutes);
 
 // Test route for debugging
 app.get('/api/test', (req, res) => {
