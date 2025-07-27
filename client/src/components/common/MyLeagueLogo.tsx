@@ -1,79 +1,114 @@
 
-import React, { useState, useEffect } from 'react';
-import { leagueLogoCache, getLeagueLogoCacheKey } from '../../lib/logoCache';
+import React, { useState, useEffect, useMemo } from 'react';
+import { enhancedLogoManager } from '../../lib/enhancedLogoManager';
 
 interface MyLeagueLogoProps {
   leagueId: number;
   leagueName?: string;
   className?: string;
-  size?: number;
   onError?: () => void;
 }
 
-export const MyLeagueLogo: React.FC<MyLeagueLogoProps> = ({
+const MyLeagueLogo: React.FC<MyLeagueLogoProps> = ({
   leagueId,
   leagueName,
-  className = "w-6 h-6",
-  size = 24,
-  onError
+  className = "w-6 h-6 object-contain rounded-full",
+  onError,
 }) => {
-  const [currentSrc, setCurrentSrc] = useState<string>('');
+  const [logoUrl, setLogoUrl] = useState<string>('/assets/fallback-logo.svg');
+  const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const [fallbackIndex, setFallbackIndex] = useState(0);
 
-  // Define fallback sources in priority order
-  const fallbackSources = [
-    `/api/league-logo/square/${leagueId}`,
-    `https://media.api-sports.io/football/leagues/${leagueId}.png`,
-    `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`,
-    '/assets/fallback-logo.svg'
-  ];
-
-  useEffect(() => {
-    // Check cache first
-    const cacheKey = getLeagueLogoCacheKey(leagueId, leagueName);
-    const cached = leagueLogoCache.getCached(cacheKey);
-    
-    if (cached && !cached.url.includes('fallback-logo.svg')) {
-      console.log(`✅ [MyLeagueLogo] Using cached logo for league ${leagueId}: ${cached.url}`);
-      setCurrentSrc(cached.url);
-      return;
+  // Memoized logo URL resolution using enhancedLogoManager
+  const resolveLogoUrl = useMemo(async () => {
+    if (!leagueId) {
+      console.warn(`⚠️ [MyLeagueLogo] No leagueId provided for ${leagueName || 'Unknown League'}`);
+      return '/assets/fallback-logo.svg';
     }
-    
-    // Start with first source if no valid cache
-    console.log(`🔄 [MyLeagueLogo] Loading logo for league ${leagueId} from: ${fallbackSources[0]}`);
-    setCurrentSrc(fallbackSources[0]);
-    setFallbackIndex(0);
-    setHasError(false);
+
+    console.log(`🎯 [MyLeagueLogo] Fetching logo for league: ${leagueName || 'Unknown'} (ID: ${leagueId})`);
+
+    try {
+      const logoResponse = await enhancedLogoManager.getLeagueLogo('MyLeagueLogo', {
+        type: 'league',
+        shape: 'normal',
+        leagueId: leagueId,
+        leagueName: leagueName,
+        fallbackUrl: '/assets/fallback-logo.svg'
+      });
+
+      console.log(`✅ [MyLeagueLogo] Logo resolved for ${leagueName || leagueId}:`, {
+        url: logoResponse.url,
+        cached: logoResponse.cached,
+        fallbackUsed: logoResponse.fallbackUsed,
+        loadTime: logoResponse.loadTime + 'ms'
+      });
+
+      return logoResponse.url;
+    } catch (error) {
+      console.error(`❌ [MyLeagueLogo] Error resolving logo for league ${leagueId}:`, error);
+      return '/assets/fallback-logo.svg';
+    }
   }, [leagueId, leagueName]);
 
+  // Resolve logo URL on component mount or when dependencies change
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchLogo = async () => {
+      setIsLoading(true);
+      setHasError(false);
+
+      try {
+        const url = await resolveLogoUrl;
+        if (isMounted) {
+          setLogoUrl(url);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error(`❌ [MyLeagueLogo] Failed to resolve logo URL for league ${leagueId}:`, error);
+        if (isMounted) {
+          setLogoUrl('/assets/fallback-logo.svg');
+          setHasError(true);
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchLogo();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [resolveLogoUrl]);
+
   const handleError = () => {
-    const nextIndex = fallbackIndex + 1;
-    
-    if (nextIndex < fallbackSources.length && !hasError) {
-      console.log(`🔄 [MyLeagueLogo] Trying fallback ${nextIndex} for league ${leagueId}: ${fallbackSources[nextIndex]}`);
-      setFallbackIndex(nextIndex);
-      setCurrentSrc(fallbackSources[nextIndex]);
-    } else {
-      console.warn(`🚫 [MyLeagueLogo] All sources failed for league ${leagueId}`);
+    if (!hasError) {
+      console.warn(`🚫 [MyLeagueLogo] Image failed to load for league ${leagueId}, using fallback`);
+      setLogoUrl('/assets/fallback-logo.svg');
       setHasError(true);
       onError?.();
     }
   };
 
   const handleLoad = () => {
-    // Cache the successful URL
-    const cacheKey = getLeagueLogoCacheKey(leagueId, leagueName);
-    const isFallback = currentSrc.includes('fallback-logo.svg');
-    
-    leagueLogoCache.setCached(cacheKey, currentSrc, `source-${fallbackIndex}`, !isFallback);
-    
-    console.log(`✅ [MyLeagueLogo] Successfully loaded logo for league ${leagueId} from: ${currentSrc}`);
+    if (!hasError) {
+      console.log(`✅ [MyLeagueLogo] Successfully loaded logo for league ${leagueId} from: ${logoUrl}`);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div 
+        className={`${className} bg-gray-200 animate-pulse`}
+        style={{ backgroundColor: "transparent" }}
+      />
+    );
+  }
 
   return (
     <img
-      src={currentSrc}
+      src={logoUrl}
       alt={leagueName || `League ${leagueId}`}
       className={className}
       style={{ backgroundColor: "transparent" }}
