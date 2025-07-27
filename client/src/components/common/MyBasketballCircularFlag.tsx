@@ -31,10 +31,10 @@ const MyBasketballCircularFlag: React.FC<MyBasketballCircularFlagProps> = ({
 
     // Use provided country name first, then extract from team name
     const targetCountry = countryName || teamName;
+    
+    // First try the utility function
     const countryCode = getCountryCode(targetCountry);
-
     if (countryCode) {
-      // Use Circle Flags from hatscripts.github.io
       return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
     }
 
@@ -43,11 +43,20 @@ const MyBasketballCircularFlag: React.FC<MyBasketballCircularFlagProps> = ({
       // Major basketball countries
       "United States": "us",
       "USA": "us",
+      "Lakers": "us", // Los Angeles Lakers
+      "Warriors": "us", // Golden State Warriors
+      "Celtics": "us", // Boston Celtics
+      "Bulls": "us", // Chicago Bulls
+      "Heat": "us", // Miami Heat
       "Spain": "es",
+      "Real Madrid": "es",
+      "Barcelona": "es",
       "France": "fr",
       "Greece": "gr",
+      "Panathinaikos": "gr",
       "Turkey": "tr",
       "Türkiye": "tr",
+      "Fenerbahçe": "tr",
       "Germany": "de",
       "Italy": "it",
       "Serbia": "rs",
@@ -59,6 +68,7 @@ const MyBasketballCircularFlag: React.FC<MyBasketballCircularFlagProps> = ({
       "Poland": "pl",
       "Czech Republic": "cz",
       "Russia": "ru",
+      "CSKA Moscow": "ru",
       "Israel": "il",
       "Montenegro": "me",
       "Ukraine": "ua",
@@ -118,8 +128,10 @@ const MyBasketballCircularFlag: React.FC<MyBasketballCircularFlagProps> = ({
       }
     }
 
-    // Final fallback
-    return fallbackUrl || "/assets/fallback-logo.svg";
+    // Final fallback - ensure we always return a valid URL
+    const finalFallback = fallbackUrl || "/assets/fallback-logo.svg";
+    console.log(`🏀 [MyBasketballCircularFlag] No country match found for "${teamName}", using fallback: ${finalFallback}`);
+    return finalFallback;
   };
 
   return (
