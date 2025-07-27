@@ -172,105 +172,55 @@ const MyNewLeague2 = ({
   // League IDs without any filtering - removed duplicates
   const leagueIds = [
     38, 15, 2, 10, 11, 848, 886, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667,
-    940, 908, 1169, 23, 1077, 253, 850, 893, 921, 130, 128, 493, 239, 265, 237,
-    235, 743,
+    531, 940, 908, 1169, 23, 1077, 253, 850, 893, 921, 130, 128, 493, 239, 265,
+    237, 235, 743,
   ];
 
-  // Helper function to add delay between requests
-  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-  // Fetch fixtures for all leagues with throttling
+  // Fetch fixtures for all leagues
   const {
     data: allFixtures,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["myNewLeague2", "allFixtures", selectedDate],
+    queryKey: ["myNewLeague2", "allFixtures"],
     queryFn: async () => {
       console.log(
-        `🎯 [MyNewLeague2] Fetching fixtures for ${leagueIds.length} leagues on ${selectedDate}:`,
+        `🎯 [MyNewLeague2] Fetching fixtures for ${leagueIds.length} leagues:`,
         leagueIds,
       );
 
-      // Process leagues in batches to avoid rate limiting
-      const batchSize = 3; // Reduce concurrent requests
-      const results: any[] = [];
-      
-      for (let i = 0; i < leagueIds.length; i += batchSize) {
-        const batch = leagueIds.slice(i, i + batchSize);
-        console.log(`🔄 [MyNewLeague2] Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(leagueIds.length/batchSize)}: leagues ${batch.join(', ')}`);
-        
-        const batchPromises = batch.map(async (leagueId, index) => {
-          // Add small delay between requests in the same batch
-          if (index > 0) {
-            await delay(200); // 200ms delay between requests
-          }
-          
-          try {
-            const response = await fetch(`/api/leagues/${leagueId}/fixtures`);
-            
-            if (!response.ok) {
-              if (response.status === 429) {
-                console.warn(`⚠️ [MyNewLeague2] Rate limited for league ${leagueId}, will use cached data if available`);
-                return { leagueId, fixtures: [], error: 'Rate limited', rateLimited: true };
-              }
-              console.log(
-                `❌ [MyNewLeague2] Failed to fetch league ${leagueId}: ${response.status} ${response.statusText}`,
-              );
-              return { leagueId, fixtures: [], error: `HTTP ${response.status}` };
-            }
-            
-            const data = await response.json();
-            const fixtures = data.response || data || [];
+      const promises = leagueIds.map(async (leagueId) => {
+        try {
+          const response = await fetch(`/api/leagues/${leagueId}/fixtures`);
+          if (!response.ok) {
             console.log(
-              `✅ [MyNewLeague2] League ${leagueId}: ${fixtures.length} fixtures`,
+              `❌ [MyNewLeague2] Failed to fetch league ${leagueId}: ${response.status} ${response.statusText}`,
             );
-            return { leagueId, fixtures, error: null };
-          } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            
-            // Handle specific fetch errors
-            if (errorMessage.includes('Failed to fetch') || errorMessage.includes('fetch')) {
-              console.warn(`🌐 [MyNewLeague2] Network error for league ${leagueId}: ${errorMessage}`);
-              return { leagueId, fixtures: [], error: 'Network error', networkError: true };
-            }
-            
-            console.error(
-              `❌ [MyNewLeague2] Error fetching league ${leagueId}:`,
-              error,
-            );
-            return { leagueId, fixtures: [], error: errorMessage };
+            return { leagueId, fixtures: [], error: `HTTP ${response.status}` };
           }
-        });
-
-        const batchResults = await Promise.all(batchPromises);
-        results.push(...batchResults);
-        
-        // Add delay between batches to be more API-friendly
-        if (i + batchSize < leagueIds.length) {
-          console.log(`⏳ [MyNewLeague2] Waiting 500ms before next batch...`);
-          await delay(500);
+          const data = await response.json();
+          const fixtures = data.response || data || [];
+          console.log(
+            `✅ [MyNewLeague2] League ${leagueId}: ${fixtures.length} fixtures`,
+          );
+          return { leagueId, fixtures, error: null };
+        } catch (error) {
+          console.error(
+            `❌ [MyNewLeague2] Error fetching league ${leagueId}:`,
+            error,
+          );
+          return { leagueId, fixtures: [], error: error.message };
         }
-      }
-      
-      // Deduplicate at the fetch level as well
-      const allFixturesMap = new Map<number, FixtureData>();
-      results.forEach((result) => {
-        result.fixtures.forEach((fixture: FixtureData) => {
-          if (fixture?.fixture?.id && !allFixturesMap.has(fixture.fixture.id)) {
-            allFixturesMap.set(fixture.fixture.id, fixture);
-          }
-        });
       });
-      
-      const allFixtures = Array.from(allFixturesMap.values());
+
+      const results = await Promise.all(promises);
+      const allFixtures = results.flatMap((result) => result.fixtures);
 
       // Log detailed results
       console.log(`🔄 [MyNewLeague2] Fetch results:`, {
         totalLeagues: results.length,
         successfulFetches: results.filter((r) => r.fixtures.length > 0).length,
         totalFixtures: allFixtures.length,
-        duplicatesRemoved: results.reduce((sum, r) => sum + r.fixtures.length, 0) - allFixtures.length,
         leagueBreakdown: results.map((r) => ({
           league: r.leagueId,
           fixtures: r.fixtures.length,
@@ -280,24 +230,8 @@ const MyNewLeague2 = ({
 
       return allFixtures;
     },
-    staleTime: 10 * 60 * 1000, // Increase cache time to 10 minutes
-    refetchInterval: 60 * 1000, // Reduce refetch frequency to 1 minute
-    refetchOnWindowFocus: false,
-    retry: (failureCount, error) => {
-      // Don't retry on rate limiting or network errors
-      if (error instanceof Error) {
-        const errorMessage = error.message.toLowerCase();
-        if (errorMessage.includes('429') || 
-            errorMessage.includes('rate limit') || 
-            errorMessage.includes('too many requests')) {
-          console.warn(`🚫 [MyNewLeague2] Not retrying due to rate limiting`);
-          return false;
-        }
-      }
-      // Retry up to 2 times for other errors
-      return failureCount < 2;
-    },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
+    staleTime: 5 * 60 * 1000,
+    refetchInterval: 30 * 1000,
   });
 
   // Group fixtures by league with date filtering
@@ -322,8 +256,6 @@ const MyNewLeague2 = ({
 
     const grouped: { [key: number]: { league: any; fixtures: FixtureData[] } } =
       {};
-    const seenFixtures = new Set<number>(); // Track seen fixture IDs to prevent duplicates
-    const seenMatchups = new Set<string>(); // Track unique team matchups as well
 
     allFixtures.forEach((fixture: FixtureData, index) => {
       // Validate fixture structure
@@ -331,42 +263,11 @@ const MyNewLeague2 = ({
         !fixture ||
         !fixture.league ||
         !fixture.teams ||
-        !fixture.fixture?.date ||
-        !fixture.fixture?.id
+        !fixture.fixture?.date
       ) {
         console.warn(
           `⚠️ [MyNewLeague2] Invalid fixture at index ${index}:`,
           fixture,
-        );
-        return;
-      }
-
-      // Check for duplicate fixture IDs
-      if (seenFixtures.has(fixture.fixture.id)) {
-        console.log(
-          `🔄 [MyNewLeague2] Duplicate fixture ID detected and skipped:`,
-          {
-            fixtureId: fixture.fixture.id,
-            teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-            league: fixture.league.name,
-          },
-        );
-        return;
-      }
-
-      // Create unique matchup key (team IDs + league + date)
-      const matchupKey = `${fixture.teams.home.id}-${fixture.teams.away.id}-${fixture.league.id}-${fixture.fixture.date}`;
-      
-      // Check for duplicate team matchups
-      if (seenMatchups.has(matchupKey)) {
-        console.log(
-          `🔄 [MyNewLeague2] Duplicate matchup detected and skipped:`,
-          {
-            fixtureId: fixture.fixture.id,
-            teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-            league: fixture.league.name,
-            matchupKey,
-          },
         );
         return;
       }
@@ -389,20 +290,7 @@ const MyNewLeague2 = ({
         };
       }
 
-      // Mark this fixture as seen and add it to the group
-      seenFixtures.add(fixture.fixture.id);
-      seenMatchups.add(matchupKey);
       grouped[leagueId].fixtures.push(fixture);
-      
-      console.log(
-        `✅ [MyNewLeague2] Added fixture:`,
-        {
-          fixtureId: fixture.fixture.id,
-          teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-          league: fixture.league.name,
-          matchupKey,
-        },
-      );
     });
 
     // Sort fixtures by priority within each league: Live > Upcoming > Ended
@@ -656,28 +544,12 @@ const MyNewLeague2 = ({
   }
 
   if (error) {
-    const isRateLimit = error.message?.toLowerCase().includes('429') || 
-                       error.message?.toLowerCase().includes('rate limit') || 
-                       error.message?.toLowerCase().includes('too many requests');
-    
     return (
       <Card className="mb-4">
         <CardContent className="p-4">
-          <div className="text-center">
-            <div className={isRateLimit ? "text-orange-500" : "text-red-500"}>
-              {isRateLimit ? "⚠️ API Rate Limit Reached" : "❌ Error loading leagues"}
-            </div>
-            <div className="text-xs mt-2 text-gray-600">
-              {isRateLimit 
-                ? "Too many requests to the API. Please wait a moment and the data will refresh automatically."
-                : error.message
-              }
-            </div>
-            {isRateLimit && (
-              <div className="text-xs mt-1 text-blue-600">
-                Using cached data where available...
-              </div>
-            )}
+          <div className="text-center text-red-500">
+            <div>Error loading leagues</div>
+            <div className="text-xs mt-2">{error.message}</div>
           </div>
         </CardContent>
       </Card>
@@ -727,8 +599,7 @@ const MyNewLeague2 = ({
         .sort(([aId], [bId]) => {
           // Define priority order - same as MyNewLeague
           const priorityOrder = [
-            38, 15, 2, 5, 22, 10, 11, 71, 72, 667, 3, 848, 73, 75, 239, 233,
-            253,
+            38, 15, 2, 5, 22, 10,  11, 71, 72, 667, 3, 848, 73, 75, 233, 253,
           ];
 
           const aIndex = priorityOrder.indexOf(Number(aId));
@@ -1035,68 +906,6 @@ const MyNewLeague2 = ({
                                   );
                                 }
 
-                                // Postponed/Cancelled matches
-                                if (
-                                  [
-                                    "PST",
-                                    "CANC",
-                                    "ABD",
-                                    "SUSP",
-                                    "AWD",
-                                    "WO",
-                                  ].includes(status)
-                                ) {
-                                  return (
-                                    <div className="match-status-label status-postponed">
-                                      {status === "PST"
-                                        ? "Postponed"
-                                        : status === "CANC"
-                                          ? "Cancelled"
-                                          : status === "ABD"
-                                            ? "Abandoned"
-                                            : status === "SUSP"
-                                              ? "Suspended"
-                                              : status === "AWD"
-                                                ? "Awarded"
-                                                : status === "WO"
-                                                  ? "Walkover"
-                                                  : status}
-                                    </div>
-                                  );
-                                }
-
-                                // Check for overdue matches that should be marked as postponed
-                                if (status === "NS" || status === "TBD") {
-                                  const matchTime = new Date(
-                                    fixture.fixture.date,
-                                  );
-                                  const now = new Date();
-                                  const hoursAgo =
-                                    (now.getTime() - matchTime.getTime()) /
-                                    (1000 * 60 * 60);
-
-                                  // If match is more than 2 hours overdue, show postponed status
-                                  if (hoursAgo > 2) {
-                                    return (
-                                      <div className="match-status-label status-postponed">
-                                        Postponed
-                                      </div>
-                                    );
-                                  }
-
-                                  // Show TBD status for matches with undefined time
-                                  if (status === "TBD") {
-                                    return (
-                                      <div className="match-status-label status-upcoming">
-                                        Time TBD
-                                      </div>
-                                    );
-                                  }
-
-                                  // For upcoming matches, don't show status in top grid
-                                  return null;
-                                }
-
                                 // Show "Ended" status for finished matches or stale matches
                                 if (
                                   [
@@ -1126,6 +935,22 @@ const MyNewLeague2 = ({
                                         : status === "AET"
                                           ? "After Extra Time"
                                           : status}
+                                    </div>
+                                  );
+                                }
+
+                                if (status === "TBD") {
+                                  return (
+                                    <div
+                                      className="match-status-label status-upcoming"
+                                      style={{
+                                        minWidth: "60px",
+                                        textAlign: "center",
+                                        transition: "none",
+                                        animation: "none",
+                                      }}
+                                    >
+                                      Time TBD
                                     </div>
                                   );
                                 }
@@ -1240,77 +1065,30 @@ const MyNewLeague2 = ({
                                     );
                                   }
 
-                                  // For postponed matches and upcoming matches - show kick-off time
-                                  if (
-                                    status === "NS" ||
-                                    status === "TBD" ||
-                                    [
-                                      "PST",
-                                      "CANC",
-                                      "ABD",
-                                      "SUSP",
-                                      "AWD",
-                                      "WO",
-                                    ].includes(status)
-                                  ) {
+                                  // Upcoming matches - show kick-off time
+                                  if (status === "NS" || status === "TBD") {
+                                    // Check if match should have started already (more than 2 hours ago)
                                     const matchTime = new Date(
                                       fixture.fixture.date,
                                     );
-
-                                    // For postponed/cancelled matches, still show the kick-off time
-                                    if (
-                                      [
-                                        "PST",
-                                        "CANC",
-                                        "ABD",
-                                        "SUSP",
-                                        "AWD",
-                                        "WO",
-                                      ].includes(status)
-                                    ) {
-                                      const localTime =
-                                        matchTime.toLocaleTimeString("en-US", {
-                                          hour: "2-digit",
-                                          minute: "2-digit",
-                                          hour12: false,
-                                        });
-
-                                      return (
-                                        <div
-                                          className="match-time-display"
-                                          style={{ fontSize: "0.882em" }}
-                                        >
-                                          {localTime}
-                                        </div>
-                                      );
-                                    }
-
-                                    // Check if match should have started already (more than 2 hours ago) for NS/TBD
                                     const now = new Date();
                                     const hoursAgo =
                                       (now.getTime() - matchTime.getTime()) /
                                       (1000 * 60 * 60);
 
-                                    // If match is more than 2 hours overdue, show kick-off time but with postponed styling
+                                    // If match is more than 2 hours overdue, show as postponed/cancelled
                                     if (hoursAgo > 2) {
-                                      const localTime =
-                                        matchTime.toLocaleTimeString("en-US", {
-                                          hour: "2-digit",
-                                          minute: "2-digit",
-                                          hour12: false,
-                                        });
-
                                       return (
                                         <div
                                           className="match-time-display text-orange-600"
                                           style={{ fontSize: "0.8em" }}
                                         >
-                                          {localTime}
+                                          Postponed
                                         </div>
                                       );
                                     }
 
-                                    // Use simplified local time formatting for regular upcoming matches
+                                    // Use simplified local time formatting
                                     const localTime =
                                       matchTime.toLocaleTimeString("en-US", {
                                         hour: "2-digit",

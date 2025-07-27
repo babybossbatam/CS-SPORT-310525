@@ -389,6 +389,22 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                 // Handle penalty shootout event numbering
                 let displayTime = event.time.elapsed;
+                let isPenaltyShootout = false;
+
+                if (event.time.elapsed > 110) {
+                  // This is a penalty shootout event, show sequential numbering
+                  const penaltyIndex = penaltyShootoutEvents.findIndex(p => 
+                    p.time.elapsed === event.time.elapsed && 
+                    p.player?.name === event.player?.name
+                  );
+                  if (penaltyIndex !== -1) {
+                    displayTime = penaltyIndex + 1;
+                    isPenaltyShootout = true;
+                  }
+                }
+
+                // Use event description for regular events
+                const eventDescription = getEventDescription(event);
 
                 // Handle period score markers - removed display
                 if (event.type === "period_score") {
@@ -421,7 +437,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               />
                             </div>
                             {index < allCommentaryItems.length - 1 && (
-                              <div className="w-0.5 h-16 bg-gray-800 ml-1"></div>
+                              <div className="w-0.5 h-8 bg-gray-800 ml-1"></div>
                             )}
                           </div>
 
@@ -827,7 +843,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               alt="Full Time"
                               className="w-4 h-4 opacity-80 flex-shrink-0"
                             />
-                            <span className="text-xs text-gray-600 mr-2">End of 90 Minutes</span>
                             <span className="text-lg font-bold text-gray-900">
                               {finalScore.homeScore} - {finalScore.awayScore}
                             </span>
@@ -864,7 +879,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             marginBottom: "2px",
                           }}
                         >
-                          {event.time.elapsed}'
+                          {event.time.elapsed > 110 ? displayTime : `${displayTime}'`}
                         </div>
 
                         {index < allCommentaryItems.length - 1 && (
