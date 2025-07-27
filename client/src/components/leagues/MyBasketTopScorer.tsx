@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useCachedQuery } from "@/lib/cachingHelper";
@@ -20,7 +21,7 @@ const scrollbarHideStyle = `
   }
 `;
 
-// Popular basketball leagues with their API-Football.com basketball IDs
+// Popular basketball leagues list
 const POPULAR_BASKETBALL_LEAGUES = [
   {
     id: 12,
@@ -33,24 +34,24 @@ const POPULAR_BASKETBALL_LEAGUES = [
     logo: "https://media.api-sports.io/basketball/leagues/120.png",
   },
   {
-    id: 127,
+    id: 121,
     name: "Liga ACB",
-    logo: "https://media.api-sports.io/basketball/leagues/127.png",
+    logo: "https://media.api-sports.io/basketball/leagues/121.png",
   },
   {
-    id: 133,
+    id: 122,
     name: "Lega Basket Serie A",
-    logo: "https://media.api-sports.io/basketball/leagues/133.png",
+    logo: "https://media.api-sports.io/basketball/leagues/122.png",
   },
   {
-    id: 132,
+    id: 123,
     name: "Bundesliga",
-    logo: "https://media.api-sports.io/basketball/leagues/132.png",
+    logo: "https://media.api-sports.io/basketball/leagues/123.png",
   },
   {
-    id: 134,
+    id: 124,
     name: "LNB Pro A",
-    logo: "https://media.api-sports.io/basketball/leagues/134.png",
+    logo: "https://media.api-sports.io/basketball/leagues/124.png",
   },
 ];
 
@@ -100,7 +101,7 @@ const MyBasketTopScorer: React.FC = () => {
   // Initialize available leagues and set default
   useEffect(() => {
     setAvailableLeagues(POPULAR_BASKETBALL_LEAGUES);
-
+    
     // Set NBA as default league
     const storedLeague = sessionStorage.getItem("basketTopScorers_selectedLeague");
     if (storedLeague) {
@@ -130,7 +131,7 @@ const MyBasketTopScorer: React.FC = () => {
       console.log(`🏀 [MyBasketTopScorer] Fetching top scorers for league ${selectedLeague}`);
 
       try {
-        const response = await fetch(`/api/basketball/standings/top-scorers/${selectedLeague}?season=2024`, {
+        const response = await fetch(`/api/basketball/standings/top-scorers/${selectedLeague}?season=2024-2025`, {
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',

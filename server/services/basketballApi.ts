@@ -59,39 +59,63 @@ interface BasketballGame {
   };
 }
 
-interface BasketballPlayerStats {
-  game: {
-    id: number;
+interface BasketballPlayer {
+  id: number;
+  name: string;
+  firstname: string;
+  lastname: string;
+  birth: {
+    date: string;
+    country: string;
   };
+  nationality: string;
+  height: string;
+  weight: string;
+  injured: boolean;
+  photo: string;
+}
+
+interface BasketballPlayerStatistics {
+  player: BasketballPlayer;
   team: {
     id: number;
+    name: string;
+    logo: string;
   };
-  player: {
+  league: {
     id: number;
     name: string;
+    type: string;
+    season: number;
+    logo: string;
   };
-  type: string; // "starters" or "bench"
-  minutes: string;
-  field_goals: {
-    total: number;
-    attempts: number;
-    percentage: number | null;
+  games: {
+    appearences: number;
+    lineups: number;
+    minutes: string;
+    position: string;
   };
-  threepoint_goals: {
-    total: number;
-    attempts: number;
-    percentage: number | null;
-  };
-  freethrows_goals: {
-    total: number;
-    attempts: number;
-    percentage: number | null;
-  };
-  rebounds: {
-    total: number;
-  };
-  assists: number;
   points: number;
+  pos: string;
+  min: string;
+  fgm: number;
+  fga: number;
+  fgp: string;
+  ftm: number;
+  fta: number;
+  ftp: string;
+  tpm: number;
+  tpa: number;
+  tpp: string;
+  offReb: number;
+  defReb: number;
+  totReb: number;
+  assists: number;
+  pFouls: number;
+  steals: number;
+  turnovers: number;
+  blocks: number;
+  plusMinus: string;
 }
 
 interface BasketballApiResponse {
@@ -102,13 +126,14 @@ interface BasketballApiResponse {
   response: any[];
 }
 
-// Initialize Basketball API client for API-Football.com
+// Initialize Basketball API client with correct headers
 const apiKey = "81bc62b91b1190622beda24ee23fbd1a";
 
 const basketballApiClient = axios.create({
   baseURL: "https://v1.basketball.api-sports.io",
   headers: {
-    "x-apisports-key": apiKey,
+    "X-RapidAPI-Key": apiKey,
+    "X-RapidAPI-Host": "v1.basketball.api-sports.io",
   },
   timeout: 15000, // 15 second timeout
 });
@@ -280,13 +305,13 @@ export const basketballApiService = {
   },
 
   /**
-   * Get basketball player statistics from specific games (for top scorers)
+   * Get basketball player statistics from specific games (top scorers)
    */
   async getTopScorers(leagueId: number, season: string) {
     try {
       console.log(`🏀 [BasketballAPI] Fetching top scorers for league ${leagueId}, season ${season}`);
 
-      // Step 1: Get recent games for this league
+      // Step 1: First get recent games for this league
       const recentGames = await this.getGamesByLeague(leagueId, season);
       
       if (!recentGames || recentGames.length === 0) {
@@ -297,8 +322,8 @@ export const basketballApiService = {
       console.log(`🏀 [BasketballAPI] Found ${recentGames.length} games for league ${leagueId}`);
 
       // Step 2: Get player statistics from multiple recent games
-      const allPlayerStats: BasketballPlayerStats[] = [];
-      const maxGamesToCheck = Math.min(20, recentGames.length); // Check up to 20 recent games
+      const allPlayerStats: any[] = [];
+      const maxGamesToCheck = Math.min(10, recentGames.length); // Check up to 10 recent games
 
       for (let i = 0; i < maxGamesToCheck; i++) {
         const game = recentGames[i];
@@ -312,13 +337,17 @@ export const basketballApiService = {
           });
 
           if (response.data && response.data.response && response.data.response.length > 0) {
-            const gamePlayerStats = response.data.response as BasketballPlayerStats[];
+            const gamePlayerStats = response.data.response;
             console.log(`🏀 [BasketballAPI] Retrieved ${gamePlayerStats.length} player stats for game ${game.id}`);
             
-            // Add valid player stats
-            gamePlayerStats.forEach((playerStat: BasketballPlayerStats) => {
+            // Add game info to each player stat
+            gamePlayerStats.forEach((playerStat: any) => {
               if (playerStat.points && playerStat.points > 0) {
-                allPlayerStats.push(playerStat);
+                allPlayerStats.push({
+                  ...playerStat,
+                  gameId: game.id,
+                  gameDate: game.date
+                });
               }
             });
           }
@@ -336,7 +365,7 @@ export const basketballApiService = {
       // Step 3: Aggregate and sort players by total points
       const playerAggregation = new Map();
       
-      allPlayerStats.forEach((playerStat: BasketballPlayerStats) => {
+      allPlayerStats.forEach((playerStat: any) => {
         const playerId = playerStat.player?.id;
         if (!playerId) return;
 
@@ -344,22 +373,18 @@ export const basketballApiService = {
           const existing = playerAggregation.get(playerId);
           existing.totalPoints += playerStat.points || 0;
           existing.gamesPlayed += 1;
-          existing.totalRebounds += playerStat.rebounds?.total || 0;
-          existing.totalAssists += playerStat.assists || 0;
         } else {
           playerAggregation.set(playerId, {
             player: playerStat.player,
             team: playerStat.team,
             totalPoints: playerStat.points || 0,
-            totalRebounds: playerStat.rebounds?.total || 0,
-            totalAssists: playerStat.assists || 0,
             gamesPlayed: 1,
             lastGameStats: playerStat
           });
         }
       });
 
-      // Step 4: Convert to top scorers format and sort by total points
+      // Step 4: Convert to top scorers format and sort
       const topScorers = Array.from(playerAggregation.values())
         .sort((a: any, b: any) => b.totalPoints - a.totalPoints)
         .slice(0, 10)
@@ -367,13 +392,13 @@ export const basketballApiService = {
           player: {
             id: playerData.player?.id || 0,
             name: playerData.player?.name || 'Unknown Player',
-            photo: `https://media.api-sports.io/basketball/players/${playerData.player?.id}.png`
+            photo: playerData.player?.photo || `https://media.api-sports.io/basketball/players/${playerData.player?.id}.png`
           },
           statistics: [{
             team: {
               id: playerData.team?.id || 0,
               name: playerData.team?.name || 'Unknown Team',
-              logo: `https://media.api-sports.io/basketball/teams/${playerData.team?.id}.png`
+              logo: playerData.team?.logo || `https://media.api-sports.io/basketball/teams/${playerData.team?.id}.png`
             },
             league: {
               id: leagueId,
@@ -382,7 +407,7 @@ export const basketballApiService = {
             },
             games: {
               appearences: playerData.gamesPlayed,
-              position: 'Player' // Basketball API doesn't provide position in player stats
+              position: playerData.lastGameStats?.pos || 'Player'
             },
             goals: { 
               total: playerData.totalPoints  // Total points across games
@@ -396,55 +421,6 @@ export const basketballApiService = {
     } catch (error) {
       console.error(`❌ [BasketballAPI] Error fetching top scorers for league ${leagueId}:`, error);
       throw error; // Re-throw to prevent fallback to mock data
-    }
-  },
-
-  /**
-   * Get basketball leagues
-   */
-  async getLeagues(): Promise<any[]> {
-    try {
-      console.log(`🏀 [BasketballAPI] Fetching basketball leagues...`);
-
-      const response = await basketballApiClient.get("/leagues");
-
-      if (response.data && response.data.response) {
-        const leagues = response.data.response;
-        console.log(`🏀 [BasketballAPI] Retrieved ${leagues.length} leagues`);
-        return leagues;
-      }
-
-      return [];
-    } catch (error) {
-      console.error(`❌ [BasketballAPI] Error fetching leagues:`, error);
-      return [];
-    }
-  },
-
-  /**
-   * Get basketball standings
-   */
-  async getStandings(leagueId: number, season: string): Promise<any[]> {
-    try {
-      console.log(`🏀 [BasketballAPI] Fetching standings for league ${leagueId}, season ${season}`);
-
-      const response = await basketballApiClient.get("/standings", {
-        params: {
-          league: leagueId,
-          season: season,
-        },
-      });
-
-      if (response.data && response.data.response) {
-        const standings = response.data.response;
-        console.log(`🏀 [BasketballAPI] Retrieved ${standings.length} standings entries for league ${leagueId}`);
-        return standings;
-      }
-
-      return [];
-    } catch (error) {
-      console.error(`❌ [BasketballAPI] Error fetching standings for league ${leagueId}:`, error);
-      return [];
     }
   }
 };
