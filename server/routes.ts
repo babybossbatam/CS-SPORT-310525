@@ -37,6 +37,7 @@ import selectiveUpdatesRoutes from './routes/selectiveUpdatesRoutes';
 import predictionsRoutes from './routes/predictionsRoutes';
 import basketballRoutes from "./routes/basketballRoutes";
 import basketballStandingsRoutes from "./routes/basketballStandingsRoutes";
+import playerVerificationRoutes from './routes/playerVerificationRoutes';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -50,6 +51,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/highlights", highlightsRoutes);
   apiRouter.use('/api', playerRoutes);
   apiRouter.use('/api', playerDataRoutes);
+  apiRouter.use('/api', playerVerificationRoutes);
 
   // Health check endpoint
   apiRouter.get("/health", async (_req: Request, res: Response) => {

@@ -58,6 +58,28 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
 
       console.log(`🔍 [MyAvatarInfo] Fetching football player data for ID: ${playerIdToFetch}`);
 
+      // Check if player ID is verified before making API calls
+      try {
+        const verificationResponse = await fetch('/api/players/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ playerId: playerIdToFetch })
+        });
+
+        if (verificationResponse.ok) {
+          const verificationData = await verificationResponse.json();
+          if (!verificationData.verified) {
+            console.log(`⚠️ [MyAvatarInfo] Player ID ${playerIdToFetch} not verified, using fallback`);
+            if (isMounted) {
+              setImageUrl(FALLBACK_PLAYER_IMAGE);
+              return;
+            }
+          }
+        }
+      } catch (verificationError) {
+        console.log(`⚠️ [MyAvatarInfo] Could not verify player ID ${playerIdToFetch}`);
+      }
+
       // Football-specific image sources - prioritize quality and accuracy
       const footballImageUrls = [
         // Primary source - RapidAPI Football
