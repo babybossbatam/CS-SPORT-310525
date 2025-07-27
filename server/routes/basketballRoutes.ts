@@ -22,13 +22,6 @@ router.get("/test", async (req: Request, res: Response) => {
   }
 });
 
-
-
-import express, { Request, Response } from "express";
-import { basketballApiService } from "../services/basketballApi";
-
-const router = express.Router();
-
 // Get basketball games by date
 router.get("/games/date/:date", async (req: Request, res: Response) => {
   try {
@@ -90,24 +83,8 @@ router.get("/games/live", async (req: Request, res: Response) => {
   }
 });
 
-// Get games by date
-router.get('/games/:date', async (req, res) => {
-  try {
-    const { date } = req.params;
-    console.log(`🏀 [BasketballRoutes] Fetching games for date: ${date}`);
-
-    const games = await basketballApiService.getGamesByDate(date);
-
-    console.log(`🏀 [BasketballRoutes] Retrieved ${games.length} games for ${date}`);
-    res.json(games);
-  } catch (error) {
-    console.error(`🏀 [BasketballRoutes] Error fetching games for date:`, error);
-    res.status(500).json({ error: 'Failed to fetch games' });
-  }
-});
-
 // Get games by date (alternative route format)
-router.get('/games/date/:date', async (req, res) => {
+router.get('/games/:date', async (req, res) => {
   try {
     const { date } = req.params;
     console.log(`🏀 [BasketballRoutes] Fetching games for date: ${date}`);
