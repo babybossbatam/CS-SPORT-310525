@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,11 +31,11 @@ export const UnifiedDebugPanel: React.FC<UnifiedDebugPanelProps> = ({
     if (isVisible) {
       // Initial load
       refreshData();
-      
+
       // Set up auto-refresh
       const interval = setInterval(refreshData, 2000);
       setRefreshInterval(interval);
-      
+
       return () => {
         if (interval) clearInterval(interval);
       };
@@ -95,7 +94,7 @@ export const UnifiedDebugPanel: React.FC<UnifiedDebugPanelProps> = ({
             </Button>
           </div>
         </CardHeader>
-        
+
         <CardContent className="p-0 h-full overflow-hidden">
           <Tabs defaultValue="overview" className="h-full flex flex-col">
             <TabsList className="grid w-full grid-cols-5 m-4 mb-0">
@@ -115,21 +114,21 @@ export const UnifiedDebugPanel: React.FC<UnifiedDebugPanelProps> = ({
                       <div className="text-sm text-gray-600">Total API Calls</div>
                     </CardContent>
                   </Card>
-                  
+
                   <Card>
                     <CardContent className="p-4">
                       <div className="text-2xl font-bold text-green-600">{summary.averageHitRate.toFixed(1)}%</div>
                       <div className="text-sm text-gray-600">Avg Hit Rate</div>
                     </CardContent>
                   </Card>
-                  
+
                   <Card>
                     <CardContent className="p-4">
                       <div className="text-2xl font-bold text-purple-600">{summary.totalLogoLoads}</div>
                       <div className="text-sm text-gray-600">Logo Loads</div>
                     </CardContent>
                   </Card>
-                  
+
                   <Card>
                     <CardContent className="p-4">
                       <div className="text-2xl font-bold text-orange-600">{summary.totalFallbacks}</div>

@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import MyLeagueLogo from "../common/MyLeagueLogo";
 
 interface League {
   id: number;
@@ -92,7 +93,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
   const handleLeagueClick = (league: any) => {
     // Create unique identifier for leagues (including qualifiers)
     const uniqueId = league.isQualifiers ? `${league.id}_qualifiers` : league.id;
-    
+
     setSelectedLeagues(prev => {
       const newSelection = new Set(prev);
       if (newSelection.has(uniqueId)) {
@@ -162,7 +163,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
                 : 'border-transparent hover:border-blue-300 hover:bg-blue-50'
             }`}
           >
-            
+
 
             {/* Star toggle button */}
             <button
@@ -191,18 +192,10 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
             </button>
 
             <div className="w-12 h-12 mb-2 flex items-center justify-center">
-              <img
-                src={`/api/league-logo/square/${league.id}?size=48`}
-                alt={league.name}
+              <MyLeagueLogo
+                leagueId={league.id}
+                leagueName={league.name}
                 className="w-full h-full object-contain rounded-lg"
-                onError={(e) => {
-                  // Try fallback sources
-                  if (e.currentTarget.src.includes('/api/league-logo/')) {
-                    e.currentTarget.src = league.logo || '/assets/fallback-logo.png';
-                  } else {
-                    e.currentTarget.src = '/assets/fallback-logo.png';
-                  }
-                }}
               />
             </div>
 
@@ -227,7 +220,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
           <div className="flex items-center space-x-2">
             <span className="text-xs text-gray-500 uppercase">step 2 of 2</span>
           </div>
-         
+
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto ">
@@ -308,24 +301,16 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
                   // Handle regular leagues
                   league = popularLeagues.find(l => l.id === uniqueId && !l.isQualifiers);
                 }
-                
+
                 if (!league) return null;
 
                 return (
                   <div key={uniqueId} className="relative group">
                     <div className="w-8 h-8 flex items-center justify-center">
-                      <img
-                        src={`/api/league-logo/square/${league.id}?size=32`}
-                        alt={league.name}
-                        className="w-full h-full object-contain rounded"
-                        onError={(e) => {
-                          // Try fallback sources
-                          if (e.currentTarget.src.includes('/api/league-logo/')) {
-                            e.currentTarget.src = league.logo || '/assets/fallback-logo.png';
-                          } else {
-                            e.currentTarget.src = '/assets/fallback-logo.png';
-                          }
-                        }}
+                      <MyLeagueLogo
+                        leagueId={league.id}
+                        leagueName={league.name}
+                        className="w-8 h-8 object-contain rounded-full"
                       />
                     </div>
 

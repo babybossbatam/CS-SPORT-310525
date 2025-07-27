@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { leagueLogoCache, getLeagueLogoCacheKey } from '../../lib/logoCache';
 
 interface MyLeagueLogoProps {
   leagueId: number;
@@ -16,31 +17,58 @@ export const MyLeagueLogo: React.FC<MyLeagueLogoProps> = ({
   size = 24,
   onError
 }) => {
-  const [currentSrc, setCurrentSrc] = useState(`/api/league-logo/square/${leagueId}`);
+  const [currentSrc, setCurrentSrc] = useState<string>('');
   const [hasError, setHasError] = useState(false);
+  const [fallbackIndex, setFallbackIndex] = useState(0);
+
+  // Define fallback sources in priority order
+  const fallbackSources = [
+    `/api/league-logo/square/${leagueId}`,
+    `https://media.api-sports.io/football/leagues/${leagueId}.png`,
+    `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`,
+    '/assets/fallback-logo.svg'
+  ];
+
+  useEffect(() => {
+    // Check cache first
+    const cacheKey = getLeagueLogoCacheKey(leagueId, leagueName);
+    const cached = leagueLogoCache.getCached(cacheKey);
+    
+    if (cached && !cached.url.includes('fallback-logo.svg')) {
+      console.log(`✅ [MyLeagueLogo] Using cached logo for league ${leagueId}: ${cached.url}`);
+      setCurrentSrc(cached.url);
+      return;
+    }
+    
+    // Start with first source if no valid cache
+    console.log(`🔄 [MyLeagueLogo] Loading logo for league ${leagueId} from: ${fallbackSources[0]}`);
+    setCurrentSrc(fallbackSources[0]);
+    setFallbackIndex(0);
+    setHasError(false);
+  }, [leagueId, leagueName]);
 
   const handleError = () => {
-    if (!hasError) {
-      // Try alternative sources
-      const fallbackSources = [
-        `https://media.api-sports.io/football/leagues/${leagueId}.png`,
-        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`,
-        '/assets/fallback-logo.svg'
-      ];
-
-      // Find next source that hasn't been tried
-      const currentIndex = fallbackSources.findIndex(src => src === currentSrc);
-      const nextIndex = currentIndex + 1;
-
-      if (nextIndex < fallbackSources.length) {
-        console.log(`🔄 [MyLeagueLogo] Trying fallback ${nextIndex} for league ${leagueId}: ${fallbackSources[nextIndex]}`);
-        setCurrentSrc(fallbackSources[nextIndex]);
-      } else {
-        console.warn(`🚫 [MyLeagueLogo] All sources failed for league ${leagueId}`);
-        setHasError(true);
-        onError?.();
-      }
+    const nextIndex = fallbackIndex + 1;
+    
+    if (nextIndex < fallbackSources.length && !hasError) {
+      console.log(`🔄 [MyLeagueLogo] Trying fallback ${nextIndex} for league ${leagueId}: ${fallbackSources[nextIndex]}`);
+      setFallbackIndex(nextIndex);
+      setCurrentSrc(fallbackSources[nextIndex]);
+    } else {
+      console.warn(`🚫 [MyLeagueLogo] All sources failed for league ${leagueId}`);
+      setHasError(true);
+      onError?.();
     }
+  };
+
+  const handleLoad = () => {
+    // Cache the successful URL
+    const cacheKey = getLeagueLogoCacheKey(leagueId, leagueName);
+    const isFallback = currentSrc.includes('fallback-logo.svg');
+    
+    leagueLogoCache.setCached(cacheKey, currentSrc, `source-${fallbackIndex}`, !isFallback);
+    
+    console.log(`✅ [MyLeagueLogo] Successfully loaded logo for league ${leagueId} from: ${currentSrc}`);
   };
 
   return (
@@ -50,9 +78,7 @@ export const MyLeagueLogo: React.FC<MyLeagueLogoProps> = ({
       className={className}
       style={{ backgroundColor: "transparent" }}
       onError={handleError}
-      onLoad={() => {
-        console.log(`✅ [MyLeagueLogo] Successfully loaded logo for league ${leagueId} from: ${currentSrc}`);
-      }}
+      onLoad={handleLoad}
     />
   );
 };
