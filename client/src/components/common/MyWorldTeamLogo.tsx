@@ -69,8 +69,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                        teamName?.includes("U21") ||
                        teamName?.includes("U23");
 
-    // Specific teams that should ALWAYS use club logos instead of circular flags
-    const forceClubLogo = teamName === "ADH Brazil" || teamName === "Valencia";
+   
 
     const leagueName = leagueContext?.name?.toLowerCase() || "";
 
@@ -103,14 +102,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     const isUefaNationsLeague = leagueName.includes("uefa nations league") || 
                                leagueName.includes("nations league");
 
-    // Debug logging for forced club logo teams
-    if (forceClubLogo) {
-      console.log("🔍 [MyWorldTeamLogo] Forcing club logo for:", {
-        teamName,
-        leagueName,
-        willUseClubLogo: true
-      });
-    }
+   
 
     // Debug logging for Friendlies International
     if (leagueName.includes("friendlies")) {
@@ -139,8 +131,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     // Use circular flag for national teams in international competitions
     // BUT: Force ADH Brazil and Valencia to ALWAYS use club logos regardless of league context
     // AND: Force club logos for standings/domestic league contexts
-    const result = !forceClubLogo && 
-                   !isStandingsContext &&
+    const result = !isStandingsContext &&
                    (isActualNationalTeam || isYouthTeam || isFriendliesInternational || isUefaNationsLeague) && 
                    !isFifaClubWorldCup && 
                    !isFriendliesClub && 
