@@ -102,62 +102,6 @@ interface BasketballApiResponse {
   response: any[];
 }
 
-class BasketballApiService {
-  private apiKey: string;
-  private baseURL: string;
-
-  constructor() {
-    this.apiKey = apiKey;
-    this.baseURL = baseURL;
-  }
-
-  private async makeRequest(endpoint: string, params: Record<string, any> = {}): Promise<any[]> {
-    try {
-      const queryParams = new URLSearchParams(params).toString();
-      const url = `${this.baseURL}${endpoint}${queryParams ? `?${queryParams}` : ''}`;
-      
-      console.log(`🏀 [BasketballAPI] Making request to: ${url}`);
-
-      const response = await fetch(url, {
-        headers: {
-          'X-RapidAPI-Key': this.apiKey,
-          'X-RapidAPI-Host': 'v1.basketball.api-sports.io'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`Basketball API responded with status ${response.status}`);
-      }
-
-      const data: BasketballApiResponse = await response.json();
-      
-      if (data.errors && data.errors.length > 0) {
-        throw new Error(`Basketball API errors: ${data.errors.join(', ')}`);
-      }
-
-      console.log(`🏀 [BasketballAPI] Retrieved ${data.response.length} items`);
-      return data.response;
-    } catch (error) {
-      console.error(`🏀 [BasketballAPI] Error making request to ${endpoint}:`, error);
-      throw error;
-    }
-  }
-
-  async getGamesByDate(date: string): Promise<any[]> {
-    return this.makeRequest('/games', { date });
-  }
-
-  async getGamesByLeague(leagueId: number, season: string): Promise<any[]> {
-    return this.makeRequest('/games', { league: leagueId, season });
-  }
-
-  async getLiveGames(): Promise<any[]> {
-    return this.makeRequest('/games', { live: 'all' });
-  }
-}
-
-export const basketballApiService = new BasketballApiService();
-
 // Initialize Basketball API client for API-Football.com
 const apiKey = "81bc62b91b1190622beda24ee23fbd1a";
 const baseURL = "https://v1.basketball.api-sports.io";
