@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 
 interface MyLeagueLogoProps {
@@ -18,21 +19,26 @@ export const MyLeagueLogo: React.FC<MyLeagueLogoProps> = ({
   const [currentSrc, setCurrentSrc] = useState(`/api/league-logo/square/${leagueId}`);
   const [hasError, setHasError] = useState(false);
 
-  const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    const img = e.currentTarget;
-    console.log(`❌ [MyLeagueLogo] Image failed to load: ${img.src}`);
+  const handleError = () => {
+    if (!hasError) {
+      // Try alternative sources
+      const fallbackSources = [
+        `https://media.api-sports.io/football/leagues/${leagueId}.png`,
+        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`,
+        '/assets/fallback-logo.svg'
+      ];
 
-    if (!img.src.includes('/assets/fallback-logo.svg')) {
-      console.log(`🔄 [MyLeagueLogo] Switching to fallback for league ${leagueId}`);
+      // Find next source that hasn't been tried
+      const currentIndex = fallbackSources.findIndex(src => src === currentSrc);
+      const nextIndex = currentIndex + 1;
 
-      // Try API endpoint first as backup
-      if (!img.src.includes('/api/league-logo/')) {
-        console.log(`🔄 [MyLeagueLogo] Trying API endpoint backup for league ${leagueId}`);
-        img.src = `/api/league-logo/square/${leagueId}`;
+      if (nextIndex < fallbackSources.length) {
+        console.log(`🔄 [MyLeagueLogo] Trying fallback ${nextIndex} for league ${leagueId}: ${fallbackSources[nextIndex]}`);
+        setCurrentSrc(fallbackSources[nextIndex]);
       } else {
-        // If API endpoint also failed, use fallback
-        console.log(`🔄 [MyLeagueLogo] Using final fallback for league ${leagueId}`);
-        img.src = '/assets/fallback-logo.svg';
+        console.warn(`🚫 [MyLeagueLogo] All sources failed for league ${leagueId}`);
+        setHasError(true);
+        onError?.();
       }
     }
   };

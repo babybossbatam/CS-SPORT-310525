@@ -181,28 +181,18 @@ export function generateLeagueLogoSources(options: LeagueLogoOptions): LogoSourc
         priority: 2
       }
     );
-
-    // 3. SportsRadar sources
-    sources.push(
-      {
-        url: `/api/sportsradar/leagues/${cleanLeagueId}/logo`,
-        source: 'sportsradar-proxy',
-        priority: 3
-      },
-      {
-        url: `https://api.sportradar.com/soccer/production/v4/en/tournaments/${cleanLeagueId}/logo.png`,
-        source: 'sportsradar-tournaments',
-        priority: 4
-      },
-      {
-        url: `https://api.sportradar.com/soccer-images/production/tournaments/${cleanLeagueId}/logo.png`,
-        source: 'sportsradar-tournament-images',
-        priority: 5
-      }
-    );
   }
 
-  // 4. Fallback logo
+  // 4. API endpoint fallback
+  if (cleanLeagueId) {
+    sources.push({
+      url: `/api/league-logo/square/${cleanLeagueId}`,
+      source: 'api-endpoint',
+      priority: 8
+    });
+  }
+
+  // 5. Final fallback logo
   sources.push({
     url: '/assets/fallback-logo.svg',
     source: 'fallback',
@@ -215,16 +205,14 @@ export function generateLeagueLogoSources(options: LeagueLogoOptions): LogoSourc
 /**
  * Get cached team logo or fetch with intelligent fallback
  */
-export async function getCachedTeamLogo(teamId: number | string, teamName?: string, originalUrl?: string): Promise<string> {
-  const cacheKey = getTeamLogoCacheKey(teamId, teamName);
-
-  // Check cache first
+export async function getCachedTeamLogo(teamId: number | string, sport: string = 'football'): Promise<string> {
+  const cacheKey = `team-logo-${sport}-${teamId}`;
   const cached = teamLogoCache.getCached(cacheKey);
   if (cached) {
     return cached;
   }
 
-  const sources = generateLogoSources({ teamId, teamName, originalUrl });
+  const sources = generateLogoSources({ teamId });
 
   for (const source of sources) {
     try {
