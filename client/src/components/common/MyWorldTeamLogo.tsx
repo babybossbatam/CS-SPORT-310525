@@ -124,9 +124,23 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       });
     }
 
+    // Check if this is being used in a standings context (club competition)
+    const isStandingsContext = leagueName.includes("standing") || 
+                               leagueName.includes("table") ||
+                               // Popular domestic leagues that should always use club logos
+                               leagueName.includes("premier league") ||
+                               leagueName.includes("la liga") ||
+                               leagueName.includes("serie a") ||
+                               leagueName.includes("bundesliga") ||
+                               leagueName.includes("ligue 1") ||
+                               leagueName.includes("primeira liga") ||
+                               leagueName.includes("eredivisie");
+
     // Use circular flag for national teams in international competitions
     // BUT: Force ADH Brazil and Valencia to ALWAYS use club logos regardless of league context
+    // AND: Force club logos for standings/domestic league contexts
     const result = !forceClubLogo && 
+                   !isStandingsContext &&
                    (isActualNationalTeam || isYouthTeam || isFriendliesInternational || isUefaNationsLeague) && 
                    !isFifaClubWorldCup && 
                    !isFriendliesClub && 
