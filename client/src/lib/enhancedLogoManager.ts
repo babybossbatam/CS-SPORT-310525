@@ -281,18 +281,12 @@ class EnhancedLogoManager {
         }
       }
 
-      // Enhanced logo sources with multiple providers
+      // Enhanced logo sources with API-Sports only
       const logoSources = [
         // Primary API endpoint
         `/api/league-logo/square/${request.leagueId}`,
-        // 365scores proxy (more reliable than direct external calls)
-        `/api/365scores/leagues/${request.leagueId}/logo`,
-        // SportsRadar proxy
-        `/api/sportsradar/leagues/${request.leagueId}/logo`,
         // Direct API-Sports URL (as backup)
-        `https://media.api-sports.io/football/leagues/${request.leagueId}.png`,
-        // 365scores direct (last resort external)
-        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${request.leagueId}`
+        `https://media.api-sports.io/football/leagues/${request.leagueId}.png`
       ];
 
       let logoUrl: string | null = null;
@@ -509,10 +503,7 @@ if (typeof window !== 'undefined') {
     testAllSources: async (leagueId: number) => {
       const sources = [
         `/api/league-logo/square/${leagueId}`,
-        `/api/365scores/leagues/${leagueId}/logo`,
-        `/api/sportsradar/leagues/${leagueId}/logo`,
-        `https://media.api-sports.io/football/leagues/${leagueId}.png`,
-        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`
+        `https://media.api-sports.io/football/leagues/${leagueId}.png`
       ];
       
       console.log(`🧪 Testing all sources for league ${leagueId}:`);
