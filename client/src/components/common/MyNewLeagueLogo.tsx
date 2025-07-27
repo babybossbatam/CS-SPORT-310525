@@ -37,68 +37,90 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
-  // Memoized logo URL resolution - prioritize API-provided logoUrl
-  const resolveLogoUrl = useMemo(async () => {
-    if (!leagueId) {
-      console.warn(`⚠️ [MyNewLeagueLogo] No leagueId provided for ${leagueName || 'Unknown League'}`);
-      return fallbackUrl;
-    }
-
-    // If we have a direct logoUrl from the API, use it immediately
-    if (logoUrl && logoUrl.trim() !== '' && !logoUrl.includes('fallback')) {
-      console.log(`🎯 [MyNewLeagueLogo] Using API-provided logo for ${leagueName || leagueId}: ${logoUrl}`);
-      return logoUrl;
-    }
-
-    const cacheKey = generateLeagueCacheKey(leagueId, leagueName);
-
-    // Check cache for enhanced logo manager results
-    const cached = leagueLogoCache.get(cacheKey);
-    const now = Date.now();
-
-    if (cached && (now - cached.timestamp) < CACHE_DURATION) {
-      console.log(`💾 [MyNewLeagueLogo] Cache hit for league: ${leagueName || leagueId}`);
-      return cached.result;
-    }
-
-    console.log(`🔍 [MyNewLeagueLogo] Fetching logo for league: ${leagueName || 'Unknown'} (ID: ${leagueId})`);
-
+  // Simple URL validation helper
+  const isValidUrl = (url: string): boolean => {
+    if (!url || url.trim() === '') return false;
+    if (url.includes('fallback') || url.includes('undefined') || url.includes('null')) return false;
     try {
-      const logoResponse = await enhancedLogoManager.getLeagueLogo('MyNewLeagueLogo', {
-        type: 'league',
-        shape: 'normal',
-        leagueId: leagueId,
-        leagueName: leagueName,
-        logoUrl: logoUrl, // Pass the API-provided URL
-        fallbackUrl: fallbackUrl
-      });
-
-      // Cache the result
-      leagueLogoCache.set(cacheKey, {
-        result: logoResponse.url,
-        timestamp: now
-      });
-
-      console.log(`✅ [MyNewLeagueLogo] Logo resolved for ${leagueName || leagueId}:`, {
-        url: logoResponse.url,
-        cached: logoResponse.cached,
-        fallbackUsed: logoResponse.fallbackUsed,
-        loadTime: logoResponse.loadTime + 'ms',
-        apiProvided: !!logoUrl
-      });
-
-      return logoResponse.url;
-    } catch (error) {
-      console.error(`❌ [MyNewLeagueLogo] Error resolving logo for league ${leagueId}:`, error);
-      
-      // Cache the fallback result too
-      leagueLogoCache.set(cacheKey, {
-        result: fallbackUrl,
-        timestamp: now
-      });
-
-      return fallbackUrl;
+      new URL(url);
+      return url.startsWith('http://') || url.startsWith('https://');
+    } catch {
+      return false;
     }
+  };
+
+  // Memoized logo URL resolution - simplified and prioritized
+  const resolveLogoUrl = useMemo(() => {
+    return new Promise<string>(async (resolve) => {
+      if (!leagueId) {
+        console.warn(`⚠️ [MyNewLeagueLogo] No leagueId provided for ${leagueName || 'Unknown League'}`);
+        resolve(fallbackUrl);
+        return;
+      }
+
+      // Priority 1: API-provided URL (if valid)
+      if (logoUrl && isValidUrl(logoUrl)) {
+        console.log(`🎯 [MyNewLeagueLogo] Using API-provided logo for ${leagueName || leagueId}: ${logoUrl}`);
+        resolve(logoUrl);
+        return;
+      }
+
+      // Priority 2: Check cache
+      const cacheKey = generateLeagueCacheKey(leagueId, leagueName);
+      const cached = leagueLogoCache.get(cacheKey);
+      const now = Date.now();
+
+      if (cached && (now - cached.timestamp) < CACHE_DURATION) {
+        console.log(`💾 [MyNewLeagueLogo] Cache hit for league: ${leagueName || leagueId}`);
+        resolve(cached.result);
+        return;
+      }
+
+      // Priority 3: Try our server proxy endpoint
+      try {
+        const proxyUrl = `/api/league-logo/${leagueId}`;
+        const response = await fetch(proxyUrl);
+        
+        if (response.ok) {
+          console.log(`✅ [MyNewLeagueLogo] Server proxy success for league ${leagueId}`);
+          // Cache the proxy URL
+          leagueLogoCache.set(cacheKey, { result: proxyUrl, timestamp: now });
+          resolve(proxyUrl);
+          return;
+        }
+      } catch (error) {
+        console.warn(`⚠️ [MyNewLeagueLogo] Server proxy failed for league ${leagueId}:`, error);
+      }
+
+      // Priority 4: Enhanced logo manager as fallback
+      try {
+        console.log(`🔍 [MyNewLeagueLogo] Trying enhanced manager for league: ${leagueName || 'Unknown'} (ID: ${leagueId})`);
+        
+        const logoResponse = await enhancedLogoManager.getLeagueLogo('MyNewLeagueLogo', {
+          type: 'league',
+          shape: 'normal',
+          leagueId: leagueId,
+          leagueName: leagueName,
+          logoUrl: logoUrl,
+          fallbackUrl: fallbackUrl
+        });
+
+        // Cache the result
+        leagueLogoCache.set(cacheKey, {
+          result: logoResponse.url,
+          timestamp: now
+        });
+
+        console.log(`✅ [MyNewLeagueLogo] Enhanced manager success for ${leagueName || leagueId}: ${logoResponse.url}`);
+        resolve(logoResponse.url);
+      } catch (error) {
+        console.error(`❌ [MyNewLeagueLogo] Enhanced manager failed for league ${leagueId}:`, error);
+        
+        // Cache the fallback
+        leagueLogoCache.set(cacheKey, { result: fallbackUrl, timestamp: now });
+        resolve(fallbackUrl);
+      }
+    });
   }, [leagueId, leagueName, logoUrl, fallbackUrl]);
 
   // Resolve logo URL on component mount or when dependencies change
@@ -108,16 +130,6 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
     const fetchLogo = async () => {
       setIsLoading(true);
       setHasError(false);
-
-      // If we have a direct API logoUrl, use it immediately without waiting
-      if (logoUrl && logoUrl.trim() !== '' && !logoUrl.includes('fallback')) {
-        console.log(`⚡ [MyNewLeagueLogo] Immediate display of API logo for ${leagueName || leagueId}: ${logoUrl}`);
-        if (isMounted) {
-          setResolvedLogoUrl(logoUrl);
-          setIsLoading(false);
-        }
-        return;
-      }
 
       try {
         const url = await resolveLogoUrl;
@@ -141,7 +153,7 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [resolveLogoUrl, fallbackUrl, leagueId, logoUrl, leagueName]);
+  }, [resolveLogoUrl, fallbackUrl, leagueId]);
 
   // Memoized inline styles
   const containerStyle = useMemo(() => ({
@@ -165,36 +177,9 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
       console.warn(`🚫 [MyNewLeagueLogo] Failed URL: ${resolvedLogoUrl}`);
       console.warn(`🚫 [MyNewLeagueLogo] API provided URL: ${logoUrl || 'None'}`);
       
-      // If the API-provided URL failed, try the enhanced logo manager
-      if (logoUrl && resolvedLogoUrl === logoUrl) {
-        console.log(`🔄 [MyNewLeagueLogo] API URL failed, trying enhanced logo manager for league ${leagueId}`);
-        
-        if (enhancedLogoManager && typeof enhancedLogoManager.forceRefreshLeagueLogo === 'function') {
-          enhancedLogoManager.forceRefreshLeagueLogo(leagueId, 'MyNewLeagueLogo-Retry')
-            .then(response => {
-              if (!response.fallbackUsed && response.url !== fallbackUrl && response.url !== logoUrl) {
-                console.log(`🔄 [MyNewLeagueLogo] Retry successful for league ${leagueId}, new URL: ${response.url}`);
-                setResolvedLogoUrl(response.url);
-                setHasError(false);
-                return;
-              } else {
-                setResolvedLogoUrl(fallbackUrl);
-                setHasError(true);
-              }
-            })
-            .catch(error => {
-              console.warn(`🔄 [MyNewLeagueLogo] Retry failed for league ${leagueId}:`, error);
-              setResolvedLogoUrl(fallbackUrl);
-              setHasError(true);
-            });
-        } else {
-          setResolvedLogoUrl(fallbackUrl);
-          setHasError(true);
-        }
-      } else {
-        setResolvedLogoUrl(fallbackUrl);
-        setHasError(true);
-      }
+      // Simple fallback - no recursive calls
+      setResolvedLogoUrl(fallbackUrl);
+      setHasError(true);
     }
   };
 
