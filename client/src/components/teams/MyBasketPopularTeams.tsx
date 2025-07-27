@@ -2,8 +2,8 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import MyWorldTeamLogo from '@/components/common/MyWorldTeamLogo';
-import MyCircularFlag from '@/components/common/MyCircularFlag';
+import MyBasketballTeamLogo from '@/components/common/MyBasketballTeamLogo';
+import MyBasketballCircularFlag from '@/components/common/MyBasketballCircularFlag';
 
 interface BasketballTeam {
   id: number;
@@ -126,20 +126,22 @@ const MyBasketPopularTeams: React.FC = () => {
           className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer transition-colors"
         >
           <div className="flex items-center space-x-2 flex-1">
-            <MyWorldTeamLogo 
+            <MyBasketballTeamLogo 
               teamId={team.id}
               teamName={team.name}
               logoUrl={team.logo}
               size="small"
+              country={team.country}
             />
             <div className="flex-1 min-w-0">
               <p className="text-xs font-medium text-gray-900 truncate">
                 {team.name}
               </p>
               <div className="flex items-center space-x-1">
-                <MyCircularFlag 
+                <MyBasketballCircularFlag 
+                  teamName={team.name}
                   countryName={team.country}
-                  size="xs"
+                  size="24px"
                 />
                 <p className="text-xs text-gray-500">
                   {team.league.name}
