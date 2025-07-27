@@ -484,7 +484,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     const isToday = selectedDate === today;
     const isPastDate = selectedDate < today;
     const isFutureDate = selectedDate > today;
-    
+
     // Use cached data flow for:
     // 1. Past dates (ended matches more than 5-6 hours ago)
     // 2. Far future dates (tomorrow and beyond)
@@ -823,7 +823,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   // Handle error state
   if (error) {
     console.error(`❌ [TodayPopularLeagueNew] Query error for ${selectedDate}:`, error);
-    return null; // Let parent component handle error state
+    return null; // Let parentcomponent handle error state
   }
 
   if (!filteredFixtures.length) {
@@ -1111,9 +1111,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                       </button>
 
                       <img
-                        src={
-                          leagueData.league.logo || "/assets/fallback-logo.svg"
-                        }
+                        src={`/api/league-logo/${leagueData.league.id}`}
                         alt={leagueData.league.name || "Unknown League"}
                         className="w-6 h-6 object-contain rounded-full"
                         style={{ backgroundColor: "transparent" }}
@@ -1133,82 +1131,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               logo: leagueData.league.logo,
                               flag: countryData.flag,
                               expectedVenezuelaFlag:
-                                "https://flagcdn.com/w40/ve.png",
-                              flagFromSync:
-                                getCountryFlagWithFallbackSync("Venezuela"),
-                              flagCacheKey: `flag_venezuela`,
-                              countryCodeMapping: "VE", // Should be VE for Venezuela
-                            });
-
-                            // Check if Venezuela flag is wrong (Colombia flag)
-                            if (
-                              countryData.flag &&
-                              (countryData.flag.includes("/co.png") ||
-                                countryData.flag.includes("/co."))
-                            ) {
-                              console.log(
-                                `🚨 Venezuela flag cache corruption detected! Using Colombia flag: ${countryData.flag}`,
-                              );
-                              console.log(
-                                `🔧 Attempting to clear and refresh Venezuela flag...`,
-                              );
-
-                              // Clear the corrupted cache and force refresh
-                              clearVenezuelaFlagCache();
-
-                              // Force refresh the flag asynchronously
-                              forceRefreshVenezuelaFlag()
-                                .then((newFlag) => {
-                                  console.log(
-                                    `✅ Venezuelaflag refreshed to: ${newFlag}`,
-                                  );
-                                  //                                  // Trigger a re-render ifneeded
-                                  window.location.reload();
-                                })
-                                .catch((error) => {
-                                  console.error(
-                                    `❌ Failed to refresh Venezuela flag:`,
-                                    error,
-                                  );
-                                });
-                            }
-
-                            // Force correct Venezuela flag if wrong
-                            if (
-                              !countryData.flag.includes("/ve.png" &&
-                              !countryData.flag.includes("/ve."))
-                            ) {
-                              console.log(
-                                `🔧 Forcing correct Venezuela flag...`,
-                              );
-                              const correctFlag =
-                                "https://flagcdn.com/w40/ve.png";
-                              console.log(
-                                `🇻🇪 Setting Venezuela flag to: ${correctFlag}`,
-                              );
-                              // Force update the flag in the data
-                              countryData.flag = correctFlag;
-                            }
-
-                            // Check if Venezuela flag is cached incorrectly
-                            const debugCountryFlagMapping = (
-                              country: string,
-                            ) => {
-                              console.log(
-                                `🔍 Venezuela Debug - Flag mapping for: "${country}"`,
-                              );
-                              console.log(
-                                `🔍 Venezuela Debug - Country code: VE`,
-                              );
-                              console.log(
-                                `🔍 Venezuela Debug - Expected URL: https://flagcdn.com/w40/ve.png`,
-                              );
-                              console.log(
-                                `🔍 Venezuela Debug - Current flag from countryData: ${countryData.flag}`,
-                              );
-                            };
-                            debugCountryFlagMapping("Venezuela");
-                          }
+                                "https://flagcdn.com/w40/v
                         }}
                       />
                       <div className="flex flex-col flex-1">
