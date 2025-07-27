@@ -1,0 +1,37 @@
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 61, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 2, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 3, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 848, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 5, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 1, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 4, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 15, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 38, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 9, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 22, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 81, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 7, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 137, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 45, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 143, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 307, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🚫 [MyNewLeagueLogo] Logo failed for league 233, using fallback: /assets/fallback-logo.svg
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+media.api-sports.io/football/teams/49.png:1  
