@@ -181,25 +181,6 @@ export function generateLeagueLogoSources(options: LeagueLogoOptions): LogoSourc
         priority: 2
       }
     );
-
-    // 3. SportsRadar sources
-    sources.push(
-      {
-        url: `/api/sportsradar/leagues/${cleanLeagueId}/logo`,
-        source: 'sportsradar-proxy',
-        priority: 3
-      },
-      {
-        url: `https://api.sportradar.com/soccer/production/v4/en/tournaments/${cleanLeagueId}/logo.png`,
-        source: 'sportsradar-tournaments',
-        priority: 4
-      },
-      {
-        url: `https://api.sportradar.com/soccer-images/production/tournaments/${cleanLeagueId}/logo.png`,
-        source: 'sportsradar-tournament-images',
-        priority: 5
-      }
-    );
   }
 
   // 4. API endpoint fallback
