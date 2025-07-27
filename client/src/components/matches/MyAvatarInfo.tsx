@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
 
 interface Player {
   id: number;
@@ -13,7 +14,6 @@ interface MyAvatarInfoProps {
   teamId?: number;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
-  sport?: 'football' | 'basketball' | 'auto';
   onClick?: (playerId?: number, teamId?: number, playerName?: string, playerImage?: string) => void;
 }
 
@@ -24,7 +24,6 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   teamId,
   size = 'md',
   className = '',
-  sport = 'auto',
   onClick
 }) => {
   // Create a unique component ID to prevent duplicate rendering issues
@@ -47,7 +46,6 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     sm: 'w-10 h-10',
     md: 'w-10 h-10',
     lg: 'w-14 h-14',
-    'md-commentary': 'w-8 h-8'  // 2px smaller than md for commentary
   };
 
   const fetchPlayerData = async (playerIdToFetch: number, isMounted = true) => {
@@ -57,39 +55,24 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       setIsLoading(true);
       setError(null);
 
-      console.log(`🔍 [MyAvatarInfo] Fetching player data for ID: ${playerIdToFetch}`);
+      console.log(`🔍 [MyAvatarInfo] Fetching football player data for ID: ${playerIdToFetch}`);
 
-      // Detect if this is for basketball based on prop or context
-      const isBasketballPlayer = sport === 'basketball' || 
-                                 (sport === 'auto' && (
-                                   window.location.pathname.includes('basketball') || 
-                                   document.querySelector('.basketball-context') !== null ||
-                                   playerName?.toLowerCase().includes('basketball') ||
-                                   document.querySelector('[data-sport="basketball"]') !== null
-                                 ));
+      // Football-specific image sources - prioritize quality and accuracy
+      const footballImageUrls = [
+        // Primary source - RapidAPI Football
+        `https://media.api-sports.io/football/players/${playerIdToFetch}.png`,
+        // Secondary sources for football players
+        `https://img.a.transfermarkt.technology/portrait/big/${playerIdToFetch}-1.jpg?lm=1`,
+        `https://resources.premierleague.com/premierleague/photos/players/250x250/p${playerIdToFetch}.png`,
+        `https://cdn.resfu.com/img_data/players/medium/${playerIdToFetch}.jpg?size=120x&lossy=1`,
+        // ESPN as backup
+        `https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/${playerIdToFetch}.png&w=350&h=254`,
+        // Goal.com as additional backup
+        `https://images.goal.com/v3/assets/bltcc7a7ffd2fbf71f5/blt${playerIdToFetch}/player.jpg?auto=webp&format=pjpg&width=3840&quality=60`,
+      ];
 
-      // Try multiple image sources based on sport type
-      let imageUrls;
-      
-      if (isBasketballPlayer) {
-        // Basketball-specific image sources
-        imageUrls = [
-          `https://media.api-sports.io/basketball/players/${playerIdToFetch}.png`,
-          `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerIdToFetch}`,
-          `https://cdn.resfu.com/img_data/players/medium/${playerIdToFetch}.jpg?size=120x&lossy=1`,
-          `https://www.basketball-reference.com/req/202106291/images/players/${playerIdToFetch}.jpg`
-        ];
-      } else {
-        // Football-specific image sources (original)
-        imageUrls = [
-          `https://media.api-sports.io/football/players/${playerIdToFetch}.png`,
-          `https://cdn.resfu.com/img_data/players/medium/${playerIdToFetch}.jpg?size=120x&lossy=1`,
-          `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerIdToFetch}`
-        ];
-      }
-
-      // Try to load images in order
-      for (const url of imageUrls) {
+      // Try to load images in order of priority
+      for (const url of footballImageUrls) {
         try {
           const img = new Image();
           img.crossOrigin = 'anonymous';
@@ -101,7 +84,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           });
 
           if (imageLoaded && isMounted) {
-            console.log(`✅ [MyAvatarInfo] Successfully loaded image for player ${playerIdToFetch}: ${url}`);
+            console.log(`✅ [MyAvatarInfo] Successfully loaded football player image for ${playerIdToFetch}: ${url}`);
             setImageUrl(url);
             setPlayerData({ id: playerIdToFetch, name: playerName || 'Player', photo: url });
             return;
@@ -121,7 +104,8 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           },
           body: JSON.stringify({
             playerId: playerIdToFetch,
-            season: '2025'
+            season: '2025',
+            sport: 'football' // Explicitly specify football
           })
         });
 
@@ -137,16 +121,15 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         console.log(`⚠️ [MyAvatarInfo] API fallback failed:`, apiError);
       }
 
-      // Final fallback - no error, just use initials
+      // Final fallback - use initials
       if (isMounted) {
-        console.log(`📝 [MyAvatarInfo] Using initials for player ${playerIdToFetch} (${playerName})`);
-        setImageUrl(FALLBACK_PLAYER_IMAGE);
+        console.log(`📝 [MyAvatarInfo] Using initials for football player ${playerIdToFetch} (${playerName})`);
+        setImageUrl('INITIALS_FALLBACK');
       }
     } catch (error) {
-      console.error(`❌ [MyAvatarInfo-${componentId}] Error fetching player data:`, error);
+      console.error(`❌ [MyAvatarInfo-${componentId}] Error fetching football player data:`, error);
       if (isMounted) {
-        // Don't set error for image loading issues, just use fallback
-        setImageUrl(FALLBACK_PLAYER_IMAGE);
+        setImageUrl('INITIALS_FALLBACK');
       }
     } finally {
       if (isMounted) {
@@ -159,7 +142,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     if (!isMounted) return;
 
     try {
-      console.log(`🔍 [MyAvatarInfo-${componentId}] Fetching players from match: ${matchIdToFetch}`);
+      console.log(`🔍 [MyAvatarInfo-${componentId}] Fetching football players from match: ${matchIdToFetch}`);
 
       const response = await fetch(`/api/fixtures/${matchIdToFetch}/lineups`);
 
@@ -187,13 +170,13 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       if (playerId && isMounted) {
         await fetchPlayerData(playerId, isMounted);
       } else if (isMounted) {
-        setImageUrl(FALLBACK_PLAYER_IMAGE);
+        setImageUrl('INITIALS_FALLBACK');
       }
     } catch (error) {
       console.error(`❌ [MyAvatarInfo-${componentId}] Error fetching match lineups:`, error);
       if (isMounted) {
         setError('Failed to load player from match');
-        setImageUrl(FALLBACK_PLAYER_IMAGE);
+        setImageUrl('INITIALS_FALLBACK');
       }
     }
   };
@@ -239,7 +222,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         await fetchPlayerFromMatch(matchId, isMounted);
       } else {
         if (isMounted) {
-          setImageUrl(FALLBACK_PLAYER_IMAGE);
+          setImageUrl('INITIALS_FALLBACK');
         }
       }
     };
@@ -253,9 +236,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
 
   const handleImageError = () => {
     if (imageUrl === FALLBACK_PLAYER_IMAGE) {
-      // If fallback image fails, we need to show initials
       console.log(`⚠️ [MyAvatarInfo] Fallback image failed to load, using initials`);
-      // We'll handle this case by updating the render logic
       setImageUrl('INITIALS_FALLBACK');
     } else {
       console.log(`⚠️ [MyAvatarInfo] Image failed to load, using fallback image`);
@@ -278,7 +259,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     return (
       <div 
         ref={containerRef}
-        className={`${sizeClasses[size]} border-2 border-gray-300 rounded-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%]  ${className}`}
+        className={`${sizeClasses[size]} border-2 border-gray-300 rounded-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%] ${className}`}
         style={{
           animation: isVisible ? 'pulse 1.5s infinite' : '',
         }}
@@ -310,7 +291,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       ) : (
         <img
           src={imageUrl}
-          alt={playerName || 'Player'}
+          alt={playerName || 'Football Player'}
           className="w-full h-full object-cover"
           onError={handleImageError}
         />
