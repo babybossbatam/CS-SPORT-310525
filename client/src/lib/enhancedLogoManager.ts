@@ -300,7 +300,7 @@ class EnhancedLogoManager {
           const source = logoSources[0];
           const controller = new AbortController();
           const timeoutId = setTimeout(() => {
-            controller.abort();
+            controller.abort('Timeout after 3 seconds');
           }, 3000); // 3 second timeout
           
           const testResponse = await fetch(source, { 
@@ -509,7 +509,7 @@ if (typeof window !== 'undefined') {
         try {
           const controller = new AbortController();
           const timeoutId = setTimeout(() => {
-            controller.abort();
+            controller.abort('Timeout after 5 seconds');
           }, 5000); // 5 second timeout
           
           const response = await fetch(source, { 
