@@ -48,8 +48,6 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
       setHasError(true);
       setCurrentSrc(fallbackUrl);
       console.warn(`🚫 [MyNewLeagueLogo] Server proxy failed for league ${leagueId}, using fallback: ${fallbackUrl}`);
-    } else {
-      console.error(`💥 [MyNewLeagueLogo] Even fallback failed for league ${leagueId}`);
     }
   };
 
