@@ -276,20 +276,33 @@ class EnhancedLogoManager {
         };
       }
 
-      // Get league logo URL
-      let logoUrl = `https://media.api-sports.io/football/leagues/${request.leagueId}.png`;
+      // Try multiple sources in order of preference
+      const logoSources = [
+        // API endpoint with processing
+        `/api/league-logo/square/${request.leagueId}`,
+        // Direct API-Sports URL
+        `https://media.api-sports.io/football/leagues/${request.leagueId}.png`,
+        // 365scores alternative
+        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${request.leagueId}`
+      ];
+
+      let logoUrl = logoSources[0]; // Start with API endpoint
       let fallbackUsed = false;
 
-      // For some well-known leagues, we might have better URLs
+      // For some well-known leagues, use direct URLs
       const wellKnownLogos: Record<number, string> = {
-        39: 'https://media.api-sports.io/football/leagues/39.png', // Premier League
-        140: 'https://media.api-sports.io/football/leagues/140.png', // La Liga
-        135: 'https://media.api-sports.io/football/leagues/135.png', // Serie A
-        78: 'https://media.api-sports.io/football/leagues/78.png', // Bundesliga
-        61: 'https://media.api-sports.io/football/leagues/61.png', // Ligue 1
-        2: 'https://media.api-sports.io/football/leagues/2.png', // Champions League
-        3: 'https://media.api-sports.io/football/leagues/3.png', // Europa League
-        848: 'https://media.api-sports.io/football/leagues/848.png', // UEFA Europa Conference League
+        39: `/api/league-logo/square/39`, // Premier League
+        140: `/api/league-logo/square/140`, // La Liga
+        135: `/api/league-logo/square/135`, // Serie A
+        78: `/api/league-logo/square/78`, // Bundesliga
+        61: `/api/league-logo/square/61`, // Ligue 1
+        2: `/api/league-logo/square/2`, // Champions League
+        3: `/api/league-logo/square/3`, // Europa League
+        848: `/api/league-logo/square/848`, // UEFA Europa Conference League
+        15: `/api/league-logo/square/15`, // UEFA Champions League Qualifiers
+        1: `/api/league-logo/square/1`, // World Cup
+        4: `/api/league-logo/square/4`, // Euro Championship
+        5: `/api/league-logo/square/5` // UEFA Nations League
       };
 
       if (wellKnownLogos[request.leagueId]) {
@@ -322,7 +335,7 @@ class EnhancedLogoManager {
       };
     } catch (error) {
       const loadTime = Date.now() - startTime;
-      const fallbackUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
+      const fallbackUrl = `/api/league-logo/square/${request.leagueId}`;
 
       logLogo(componentName, {
         type: 'league',

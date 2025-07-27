@@ -202,7 +202,16 @@ export function generateLeagueLogoSources(options: LeagueLogoOptions): LogoSourc
     );
   }
 
-  // 4. Fallback logo
+  // 4. API endpoint fallback
+  if (cleanLeagueId) {
+    sources.push({
+      url: `/api/league-logo/square/${cleanLeagueId}`,
+      source: 'api-endpoint',
+      priority: 8
+    });
+  }
+
+  // 5. Final fallback logo
   sources.push({
     url: '/assets/fallback-logo.svg',
     source: 'fallback',
