@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { enhancedLogoManager } from '../../lib/enhancedLogoManager';
 import LazyImage from './LazyImage';
@@ -7,6 +5,7 @@ import LazyImage from './LazyImage';
 interface MyNewLeagueLogoProps {
   leagueId: number | string;
   leagueName?: string;
+  logoUrl?: string; // Direct logo URL from fixture data
   size?: string;
   className?: string;
   fallbackUrl?: string;
@@ -16,70 +15,74 @@ interface MyNewLeagueLogoProps {
 
 const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
   leagueId,
-  leagueName,
+  leagueName = 'Unknown League',
+  logoUrl: providedLogoUrl, // Logo from fixture response
   size = '24px',
   className = '',
   fallbackUrl = '/assets/fallback-logo.svg',
   style,
   onClick
 }) => {
-  const [hasError, setHasError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [resolvedLogoUrl, setResolvedLogoUrl] = useState<string>(fallbackUrl);
+  const [logoUrl, setLogoUrl] = useState<string>(providedLogoUrl || fallbackUrl);
+  const [isLoading, setIsLoading] = useState(!providedLogoUrl);
+  const [error, setError] = useState<string | null>(null);
 
-  // Use useEffect for async logo resolution instead of useMemo
   useEffect(() => {
-    let isMounted = true;
+    // If we have a logo URL from fixture data, use it directly
+    if (providedLogoUrl && providedLogoUrl.trim() !== '') {
+      console.log(`✅ [MyNewLeagueLogo] Using fixture logo for league ${leagueId}: ${providedLogoUrl}`);
+      setLogoUrl(providedLogoUrl);
+      setIsLoading(false);
+      return;
+    }
 
-    const loadLeagueLogo = async () => {
-      if (!leagueId) {
-        console.log(`⚠️ [MyNewLeagueLogo] No leagueId provided for ${leagueName}, using fallback`);
-        setResolvedLogoUrl(fallbackUrl);
+    // Only fetch if no logo URL provided and we have a valid league ID
+    const fetchLogo = async () => {
+      if (!leagueId || leagueId === 'Unknown') {
+        setLogoUrl(fallbackUrl);
         setIsLoading(false);
         return;
       }
 
-      try {
-        console.log(`🎯 [MyNewLeagueLogo] Fetching logo for league: ${leagueName} (ID: ${leagueId})`);
+      setIsLoading(true);
+      setError(null);
 
-        const logoResponse = await enhancedLogoManager.getLeagueLogo('MyNewLeagueLogo', {
+      try {
+        const numericLeagueId = typeof leagueId === 'string' ? parseInt(leagueId) : leagueId;
+
+        if (isNaN(numericLeagueId)) {
+          console.warn(`🚫 [MyNewLeagueLogo] Invalid league ID: ${leagueId}`);
+          setLogoUrl(fallbackUrl);
+          setIsLoading(false);
+          return;
+        }
+
+        const result = await enhancedLogoManager.getLeagueLogo('MyNewLeagueLogo', {
           type: 'league',
           shape: 'normal',
-          leagueId: Number(leagueId),
-          leagueName: leagueName,
-          fallbackUrl: fallbackUrl
+          leagueId: numericLeagueId,
+          leagueName,
+          fallbackUrl
         });
 
-        if (isMounted) {
-          console.log(`✅ [MyNewLeagueLogo] Logo resolved for ${leagueName}:`, {
-            url: logoResponse.url,
-            cached: logoResponse.cached,
-            fallbackUsed: logoResponse.fallbackUsed,
-            loadTime: logoResponse.loadTime + 'ms'
-          });
+        if (result.fallbackUsed) {
+          console.log(`🚫 [MyNewLeagueLogo] Logo failed for league ${leagueId}, using fallback: ${result.url}`);
+        } else {
+          console.log(`✅ [MyNewLeagueLogo] Successfully loaded league ${leagueId} logo`);
+        }
 
-          setResolvedLogoUrl(logoResponse.url);
-          setHasError(logoResponse.fallbackUsed);
-        }
+        setLogoUrl(result.url);
       } catch (error) {
-        if (isMounted) {
-          console.warn(`🚫 [MyNewLeagueLogo] Error loading logo for league ${leagueId}:`, error);
-          setResolvedLogoUrl(fallbackUrl);
-          setHasError(true);
-        }
+        console.error(`❌ [MyNewLeagueLogo] Error loading logo for league ${leagueId}:`, error);
+        setError(error instanceof Error ? error.message : 'Unknown error');
+        setLogoUrl(fallbackUrl);
       } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       }
     };
 
-    loadLeagueLogo();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [leagueId, leagueName, fallbackUrl]);
+    fetchLogo();
+  }, [leagueId, leagueName, providedLogoUrl, fallbackUrl]);
 
   // Memoized inline styles
   const containerStyle = useMemo(() => ({
@@ -101,18 +104,17 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
 
   const handleLoad = () => {
     setIsLoading(false);
-    if (!hasError) {
+    if (!error) {
       console.log(`✅ [MyNewLeagueLogo] Successfully loaded league ${leagueId} logo`);
     }
   };
 
   const handleError = () => {
     setIsLoading(false);
-    if (!hasError) {
-      setHasError(true);
-      setResolvedLogoUrl(fallbackUrl);
-      console.warn(`🚫 [MyNewLeagueLogo] Logo failed for league ${leagueId}, using fallback: ${fallbackUrl}`);
-    }
+    setError(`Logo failed to load, using fallback: ${fallbackUrl}`);
+    setLogoUrl(fallbackUrl);
+    console.warn(`🚫 [MyNewLeagueLogo] Logo failed for league ${leagueId}, using fallback: ${fallbackUrl}`);
+
   };
 
   // For league logos, use regular LazyImage with cached URL
@@ -120,9 +122,10 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
     <div
       className={`league-logo-container ${className}`}
       style={containerStyle}
+      onClick={onClick}
     >
       <LazyImage
-        src={resolvedLogoUrl}
+        src={logoUrl}
         alt={leagueName || `League ${leagueId}`}
         title={leagueName}
         className="league-logo"
@@ -130,7 +133,6 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
         fallbackSrc={fallbackUrl}
         onLoad={handleLoad}
         onError={handleError}
-        onClick={onClick}
         loading="lazy"
       />
     </div>
@@ -138,4 +140,3 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
 };
 
 export default MyNewLeagueLogo;
-
