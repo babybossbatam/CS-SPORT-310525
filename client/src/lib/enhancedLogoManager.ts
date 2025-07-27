@@ -280,58 +280,62 @@ class EnhancedLogoManager {
         }
       }
 
-      // Use only API-Sports direct URL as the single source
-      const logoSources = [
-        `https://media.api-sports.io/football/leagues/${request.leagueId}.png`
-      ];
-
+      // Skip network requests entirely due to connectivity issues
+      // Use server-side proxy endpoint instead of direct external URLs
       let logoUrl: string | null = null;
       let fallbackUsed = false;
       let successfulSource = '';
 
-      // For well-known leagues, use API-Sports URL directly
+      // For well-known leagues, try server proxy first
       const wellKnownLeagues = [39, 140, 135, 78, 61, 2, 3, 848, 15, 1, 4, 5];
-      if (wellKnownLeagues.includes(request.leagueId)) {
-        logoUrl = `https://media.api-sports.io/football/leagues/${request.leagueId}.png`;
-        successfulSource = 'well-known-api-sports';
-      } else {
-        // Test the single API-Sports source with improved timeout handling
-        try {
-          const source = logoSources[0];
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => {
-            controller.abort();
-          }, 5000); // Increased to 5 second timeout
+      
+      // Try server-side proxy endpoint first (this goes through your own server)
+      try {
+        const proxyUrl = `/api/league-logo/${request.leagueId}`;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+          controller.abort();
+        }, 2000); // Shorter timeout for server requests
+        
+        const testResponse = await Promise.race([
+          fetch(proxyUrl, { 
+            method: 'HEAD',
+            signal: controller.signal,
+            cache: 'no-cache'
+          }),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout after 2 seconds')), 2000)
+          )
+        ]);
+        
+        clearTimeout(timeoutId);
+        
+        if (testResponse && testResponse.ok) {
+          logoUrl = proxyUrl;
+          successfulSource = 'server-proxy';
+          console.log(`✅ [EnhancedLogoManager] League ${request.leagueId} server proxy working: ${proxyUrl}`);
+        } else {
+          throw new Error('Server proxy not available');
+        }
+      } catch (error) {
+        console.warn(`⚠️ [EnhancedLogoManager] League ${request.leagueId} server proxy failed, using fallback`);
+        
+        // For well-known leagues, we can try a few common alternatives
+        if (wellKnownLeagues.includes(request.leagueId)) {
+          // Try some common league logo patterns from different sources
+          const alternativeSources = [
+            `/assets/league-logos/${request.leagueId}.png`,
+            `/assets/league-logos/${request.leagueId}.svg`,
+            `https://www.thesportsdb.com/images/media/league/badge/${request.leagueId}.png`,
+          ];
           
-          // Use a promise wrapper to catch timeout properly
-          const testResponse = await Promise.race([
-            fetch(source, { 
-              method: 'HEAD',
-              signal: controller.signal,
-              cache: 'no-cache'
-            }),
-            new Promise((_, reject) => 
-              setTimeout(() => reject(new Error('Timeout after 5 seconds')), 5000)
-            )
-          ]);
-          
-          clearTimeout(timeoutId);
-          
-          if (testResponse && testResponse.ok) {
-            logoUrl = source;
-            successfulSource = 'api-sports-direct';
-            console.log(`✅ [EnhancedLogoManager] League ${request.leagueId} API-Sports source working: ${source}`);
-          } else {
-            throw new Error('Response not ok');
-          }
-        } catch (error) {
-          // More specific error handling
-          if (error.name === 'AbortError' || error.message?.includes('Timeout')) {
-            console.warn(`⏰ [EnhancedLogoManager] League ${request.leagueId} API-Sports source timed out - using fallback`);
-          } else if (error.message?.includes('ERR_CONNECTION_TIMED_OUT')) {
-            console.warn(`🌐 [EnhancedLogoManager] League ${request.leagueId} Network connection timeout - using fallback`);
-          } else {
-            console.warn(`❌ [EnhancedLogoManager] League ${request.leagueId} API-Sports source failed - using fallback`);
+          // Quick test of local assets (no network needed)
+          for (const altSource of alternativeSources) {
+            if (altSource.startsWith('/assets/')) {
+              logoUrl = altSource;
+              successfulSource = 'local-assets';
+              break;
+            }
           }
         }
       }

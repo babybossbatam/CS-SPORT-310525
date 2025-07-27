@@ -1,4 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
+import routes from './routes';
+import logoRoutes from './routes/logoRoutes';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
@@ -109,6 +111,10 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
     }
   }
 }));
+
+  // API routes
+  app.use('/api', routes);
+  app.use('/api', logoRoutes);
 
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.

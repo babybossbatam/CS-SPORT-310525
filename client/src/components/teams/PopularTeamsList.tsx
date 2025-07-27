@@ -95,7 +95,9 @@ const PopularTeamsList = () => {
             onClick={() => navigate(`/team/${team.id}`)}
           >
             <img 
-              src={team.logo} 
+              src={
+                team.logo ? `/api/team-logo/${team.id}` : "/assets/fallback-logo.svg"
+              }
               alt={team.name} 
               className="w-6 h-6 mr-3"
               onError={(e) => {
