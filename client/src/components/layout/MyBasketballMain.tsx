@@ -23,9 +23,31 @@ import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import MyMainLayoutRight from "@/components/layout/MyMainLayoutRight"; // Import MyMainLayoutRight
 
+import React from 'react';
+import MyBasketFeatured from '@/components/matches/MyBasketFeatured';
+import MyBasketLeague from '@/components/matches/MyBasketLeague';
+
 interface MyBasketballMainProps {
   fixtures: any[];
 }
+
+const MyBasketballMain: React.FC<MyBasketballMainProps> = ({ fixtures }) => {
+  return (
+    <div className="basketball-main-container">
+      {/* Featured Basketball Games */}
+      <div className="mb-6">
+        <MyBasketFeatured maxMatches={6} />
+      </div>
+      
+      {/* Basketball Games by Date */}
+      <div className="mb-6">
+        <MyBasketLeague />
+      </div>
+    </div>
+  );
+};
+
+export default MyBasketballMain;
 
 const MyBasketballMain: React.FC<MyBasketballMainProps> = ({ fixtures }) => {
   const [location, navigate] = useLocation();

@@ -111,10 +111,13 @@ export const MyBasketLeague: React.FC<MyBasketLeagueProps> = ({
   const basketballQuery = useQuery({
     queryKey: ["basketball-games", selectedDate],
     queryFn: async () => {
-      console.log(`🏀 [MyBasketLeague] Fetching basketball games for ${selectedDate}`);
+      console.log(`🏀 [MyBasketLeague] Fetching basketball games for ${selectedDate} from basketball API`);
       
       try {
-        const response = await apiRequest("GET", `/api/basketball/games/date/${selectedDate}`);
+        const response = await fetch(`/api/basketball/games/date/${selectedDate}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const games = await response.json();
         
         console.log(`🏀 [MyBasketLeague] Retrieved ${games.length} basketball games`);

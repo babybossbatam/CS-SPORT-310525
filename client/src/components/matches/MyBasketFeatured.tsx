@@ -291,9 +291,9 @@ const MyBasketFeatured: React.FC<MyBasketFeaturedProps> = ({
         try {
           if (forceRefresh) {
             console.log(
-              "🔴 [MyBasketFeatured] Fetching live basketball games",
+              "🔴 [MyBasketFeatured] Fetching live basketball games from basketball API",
             );
-            const liveResponse = await fetch("/api/basketball/live");
+            const liveResponse = await fetch("/api/basketball/games/live");
             const liveData = await liveResponse.json();
 
             if (Array.isArray(liveData)) {

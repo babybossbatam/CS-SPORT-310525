@@ -65,4 +65,28 @@ basketballRouter.get("/games/live", async (req: Request, res: Response) => {
   }
 });
 
+// Get top scorers for basketball league
+basketballRouter.get("/leagues/:id/topscorers", async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { season } = req.query;
+
+    if (isNaN(id)) {
+      return res.status(400).json({ message: 'Invalid league ID' });
+    }
+
+    const seasonStr = season as string || "2024-2025";
+    
+    console.log(`🏀 [BasketballRoutes] Fetching top scorers for league ${id}, season ${seasonStr}`);
+
+    const topScorers = await basketballApiService.getTopScorers(id, seasonStr);
+    
+    console.log(`✅ [BasketballRoutes] Retrieved ${topScorers.length} top scorers for league ${id}`);
+    res.json(topScorers);
+  } catch (error) {
+    console.error(`❌ [BasketballRoutes] Error fetching top scorers for league ID ${req.params.id}:`, error);
+    res.status(500).json({ message: "Failed to fetch top scorers" });
+  }
+});
+
 export default basketballRouter;
