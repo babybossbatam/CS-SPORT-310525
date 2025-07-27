@@ -25,7 +25,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   teamId,
   size = 'md',
   className = '',
-  sport = 'football',
+
   onClick
 }) => {
   // Create a unique component ID to prevent duplicate rendering issues
@@ -58,7 +58,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       setIsLoading(true);
       setError(null);
 
-      console.log(`🔍 [MyAvatarInfo] Fetching ${sport} player data for ID: ${playerIdToFetch}`);
+      console.log(`🔍 [MyAvatarInfo] Fetching player data for ID: ${playerIdToFetch}`);
 
       // Check if player ID is verified before making API calls
       try {
@@ -82,21 +82,11 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         console.log(`⚠️ [MyAvatarInfo] Could not verify player ID ${playerIdToFetch}`);
       }
 
-      // Sport-specific image sources - prioritize quality and accuracy
-      const imageUrls = sport === 'basketball' ? [
-        // Basketball-specific sources
-        `https://media.api-sports.io/basketball/players/${playerIdToFetch}.png`,
-        `https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/${playerIdToFetch}.png&w=350&h=254`,
-        `https://cdn.nba.com/headshots/nba/latest/1040x760/${playerIdToFetch}.png`,
-        `https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/${playerIdToFetch}.png`,
-      ] : [
-        // Football-specific sources
+      // Try multiple image sources directly instead of relying on API
+      const imageUrls = [
         `https://media.api-sports.io/football/players/${playerIdToFetch}.png`,
-        `https://img.a.transfermarkt.technology/portrait/big/${playerIdToFetch}-1.jpg?lm=1`,
-        `https://resources.premierleague.com/premierleague/photos/players/250x250/p${playerIdToFetch}.png`,
         `https://cdn.resfu.com/img_data/players/medium/${playerIdToFetch}.jpg?size=120x&lossy=1`,
-        `https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/${playerIdToFetch}.png&w=350&h=254`,
-        `https://images.goal.com/v3/assets/bltcc7a7ffd2fbf71f5/blt${playerIdToFetch}/player.jpg?auto=webp&format=pjpg&width=3840&quality=60`,
+        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerIdToFetch}`
       ];
 
       // Try to load images in order of priority

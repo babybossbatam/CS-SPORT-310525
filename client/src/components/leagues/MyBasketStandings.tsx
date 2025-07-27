@@ -77,42 +77,11 @@ const MyBasketStandings: React.FC = () => {
   const { data: standings, isLoading, error } = useQuery({
     queryKey: ['basket-standings', selectedLeagueId],
     queryFn: async () => {
-      // Using mock data since basketball API doesn't have standings endpoint
-      // You can replace this with actual API call when available
-      const mockStandings = [
-        {
-          rank: 1,
-          team: { id: 145, name: "Los Angeles Lakers", logo: "https://media.api-sports.io/basketball/teams/145.png" },
-          all: { played: 25, win: 18, lose: 7 },
-          points: 36
-        },
-        {
-          rank: 2,
-          team: { id: 149, name: "Golden State Warriors", logo: "https://media.api-sports.io/basketball/teams/149.png" },
-          all: { played: 25, win: 17, lose: 8 },
-          points: 34
-        },
-        {
-          rank: 3,
-          team: { id: 150, name: "Boston Celtics", logo: "https://media.api-sports.io/basketball/teams/150.png" },
-          all: { played: 25, win: 16, lose: 9 },
-          points: 32
-        },
-        {
-          rank: 4,
-          team: { id: 155, name: "Chicago Bulls", logo: "https://media.api-sports.io/basketball/teams/155.png" },
-          all: { played: 25, win: 15, lose: 10 },
-          points: 30
-        },
-        {
-          rank: 5,
-          team: { id: 142, name: "Miami Heat", logo: "https://media.api-sports.io/basketball/teams/142.png" },
-          all: { played: 25, win: 14, lose: 11 },
-          points: 28
-        }
-      ];
-      
-      return [mockStandings];
+      const response = await fetch(`/api/basketball/leagues/${selectedLeagueId}/standings`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch basketball standings');
+      }
+      return response.json();
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
     enabled: !!selectedLeagueId,
