@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
+import MyNewLeagueLogo from "../common/MyNewLeagueLogo";
 import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
@@ -732,27 +733,13 @@ const MyNewLeague2 = ({
                   />
                 </button>
 
-                <img
-                  src={league.logo || `https://media.api-sports.io/football/leagues/${leagueIdNum}.png`}
+                <MyNewLeagueLogo
+                  leagueId={leagueIdNum}
+                  leagueName={league.name}
                   alt={league.name || "Unknown League"}
+                  size="24px"
                   className="w-6 h-6 object-contain rounded-full"
-                  style={{ backgroundColor: "transparent" }}
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    // Create a proper fallback chain
-                    if (target.src === league.logo) {
-                      // Try RapidAPI direct URL
-                      target.src = `https://media.api-sports.io/football/leagues/${leagueIdNum}.png`;
-                    } else if (target.src.includes('media.api-sports.io')) {
-                      // Try our API endpoint
-                      target.src = `/api/league-logo/square/${leagueIdNum}?size=32&sport=football`;
-                    } else if (target.src.includes('/api/league-logo/')) {
-                      // Finally use fallback
-                      target.src = "/assets/fallback-logo.svg";
-                    } else {
-                      target.src = "/assets/fallback-logo.svg";
-                    }
-                  }}
+                  fallbackUrl="/assets/fallback-logo.svg"
                 />
                 <div className="flex flex-col flex-1 text-left">
                   <div className="flex items-center gap-2">
