@@ -4,7 +4,7 @@ import { RootState } from '@/lib/store';
 import MyHomeFeaturedMatchNew from '@/components/matches/MyHomeFeaturedMatchNew';
 import HomeTopScorersList from '@/components/leagues/HomeTopScorersList';
 import LeagueStandingsFilter from '@/components/leagues/LeagueStandingsFilter';
-import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
+import PopularLeaguesCard from '@/components/leagues/PopularLeaguesCard';
 import PopularTeamsList from '@/components/teams/PopularTeamsList';
 import ScoreDetailsCard from '@/components/matches/ScoreDetailsCard';
 import MyMainLayoutRight from '@/components/layout/MyMainLayoutRight';
@@ -27,7 +27,7 @@ const MyRightContent: React.FC = () => {
 
       {/* Popular Leagues and Teams sections */}
       <div className="grid grid-cols-2 gap-4">
-        <PopularLeaguesList />
+        <PopularLeaguesCard />
         <div className="w-full shadow-md bg-white">
           <div className="p-4">
             <h3 className="text-sm font-semibold mb-2">Popular Teams</h3>
