@@ -2,7 +2,6 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
 import MyHomeFeaturedMatchNew from '@/components/matches/MyHomeFeaturedMatchNew';
-import FixedScoreboard from '@/components/matches/FixedScoreboard';
 import HomeTopScorersList from '@/components/leagues/HomeTopScorersList';
 import LeagueStandingsFilter from '@/components/leagues/LeagueStandingsFilter';
 import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
@@ -21,9 +20,6 @@ const MyRightContent: React.FC = () => {
         selectedDate={selectedDate} 
         maxMatches={8}
       />
-
-      {/* Fixed Scoreboard component */}
-      <FixedScoreboard />
 
       <HomeTopScorersList />
 
