@@ -295,13 +295,19 @@ class EnhancedLogoManager {
         logoUrl = `https://media.api-sports.io/football/leagues/${request.leagueId}.png`;
         successfulSource = 'well-known-api-sports';
       } else {
-        // Test the single API-Sports source
+        // Test the single API-Sports source with proper timeout
         try {
           const source = logoSources[0];
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+          
           const testResponse = await fetch(source, { 
             method: 'HEAD',
-            timeout: 3000 // 3 second timeout
+            signal: controller.signal
           });
+          
+          clearTimeout(timeoutId);
+          
           if (testResponse.ok) {
             logoUrl = source;
             successfulSource = 'api-sports-direct';
@@ -494,7 +500,16 @@ if (typeof window !== 'undefined') {
       for (let i = 0; i < sources.length; i++) {
         const source = sources[i];
         try {
-          const response = await fetch(source, { method: 'HEAD' });
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+          
+          const response = await fetch(source, { 
+            method: 'HEAD',
+            signal: controller.signal
+          });
+          
+          clearTimeout(timeoutId);
+          
           const status = response.ok ? '✅ WORKING' : `❌ FAILED (${response.status})`;
           console.log(`  ${i + 1}. ${status} - ${source}`);
           results.push({ source, working: response.ok, status: response.status });
