@@ -69,18 +69,27 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
         return;
       }
 
-      // Priority 2: Server proxy endpoint (most reliable)
+      // Priority 2: API-provided URL (if valid and not from direct API-Sports CDN)
+      if (logoUrl && isValidUrl(logoUrl) && !logoUrl.includes('media.api-sports.io')) {
+        console.log(`🎯 [MyNewLeagueLogo] Using API-provided logo for ${leagueName || leagueId}: ${logoUrl}`);
+        leagueLogoCache.set(cacheKey, { result: logoUrl, timestamp: now });
+        resolve(logoUrl);
+        return;
+      }
+
+      // Priority 3: Server proxy endpoint (reliable with longer timeout)
       try {
         const proxyUrl = `/api/league-logo/${leagueId}`;
         console.log(`🔄 [MyNewLeagueLogo] Trying server proxy for league ${leagueId}`);
         
-        // Test if the proxy URL works by making a HEAD request with timeout
+        // Test if the proxy URL works by making a simple fetch with longer timeout
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
         
         const response = await fetch(proxyUrl, { 
-          method: 'HEAD',
-          signal: controller.signal
+          method: 'GET',
+          signal: controller.signal,
+          cache: 'no-cache' // Avoid stale cache
         });
         
         clearTimeout(timeoutId);
@@ -96,12 +105,31 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
         console.warn(`⚠️ [MyNewLeagueLogo] Server proxy failed for league ${leagueId}:`, error?.message || 'Unknown error');
       }
 
-      // Priority 3: API-provided URL (if valid and not from direct API-Sports)
-      if (logoUrl && isValidUrl(logoUrl) && !logoUrl.includes('media.api-sports.io')) {
-        console.log(`🎯 [MyNewLeagueLogo] Using API-provided logo for ${leagueName || leagueId}: ${logoUrl}`);
-        leagueLogoCache.set(cacheKey, { result: logoUrl, timestamp: now });
-        resolve(logoUrl);
-        return;
+      // Priority 4: Try direct API-Sports URL as last resort (may timeout but worth trying)
+      if (leagueId) {
+        try {
+          const directUrl = `https://media.api-sports.io/football/leagues/${leagueId}.png`;
+          console.log(`🔄 [MyNewLeagueLogo] Trying direct API-Sports URL for league ${leagueId}`);
+          
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+          
+          const response = await fetch(directUrl, { 
+            method: 'HEAD',
+            signal: controller.signal,
+            mode: 'no-cors' // Try to bypass CORS issues
+          });
+          
+          clearTimeout(timeoutId);
+          
+          // For no-cors, we can't check response.ok, so we assume success if no error
+          console.log(`✅ [MyNewLeagueLogo] Direct API-Sports success for league ${leagueId}`);
+          leagueLogoCache.set(cacheKey, { result: directUrl, timestamp: now });
+          resolve(directUrl);
+          return;
+        } catch (error) {
+          console.warn(`⚠️ [MyNewLeagueLogo] Direct API-Sports failed for league ${leagueId}:`, error?.message || 'Unknown error');
+        }
       }
 
       // Priority 4: Final fallback
@@ -118,6 +146,14 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
     const fetchLogo = async () => {
       setIsLoading(true);
       setHasError(false);
+
+      // Clear potentially stale cache for this league if we're retrying
+      const cacheKey = generateLeagueCacheKey(leagueId, leagueName);
+      const cached = leagueLogoCache.get(cacheKey);
+      if (cached && cached.result === fallbackUrl) {
+        console.log(`🗑️ [MyNewLeagueLogo] Clearing stale fallback cache for league ${leagueId}`);
+        leagueLogoCache.delete(cacheKey);
+      }
 
       try {
         const url = await resolveLogoUrl;
@@ -141,7 +177,7 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [resolveLogoUrl, fallbackUrl, leagueId]);
+  }, [resolveLogoUrl, fallbackUrl, leagueId, leagueName]);
 
   // Memoized inline styles
   const containerStyle = useMemo(() => ({
@@ -165,7 +201,24 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
       console.warn(`🚫 [MyNewLeagueLogo] Failed URL: ${resolvedLogoUrl}`);
       console.warn(`🚫 [MyNewLeagueLogo] API provided URL: ${logoUrl || 'None'}`);
       
-      // Simple fallback - no recursive calls
+      // Try fallback strategies before giving up
+      if (resolvedLogoUrl.includes('/api/league-logo/') && !resolvedLogoUrl.includes('/square/')) {
+        // If server proxy failed, try the square endpoint
+        const squareUrl = `/api/league-logo/square/${leagueId}`;
+        console.log(`🔄 [MyNewLeagueLogo] Trying square logo endpoint: ${squareUrl}`);
+        setResolvedLogoUrl(squareUrl);
+        return;
+      }
+      
+      if (resolvedLogoUrl.includes('media.api-sports.io') && logoUrl && logoUrl !== resolvedLogoUrl) {
+        // If direct API-Sports failed, try the original API provided URL
+        console.log(`🔄 [MyNewLeagueLogo] Trying original API URL: ${logoUrl}`);
+        setResolvedLogoUrl(logoUrl);
+        return;
+      }
+      
+      // Final fallback
+      console.warn(`🚫 [MyNewLeagueLogo] All sources exhausted, using fallback`);
       setResolvedLogoUrl(fallbackUrl);
       setHasError(true);
     }
