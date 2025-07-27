@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useCachedQuery } from "@/lib/cachingHelper";
 import { useLocation } from "wouter";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import MyAvatarInfo from "../matches/MyAvatarInfo";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
 import { CardContent } from "@/components/ui/card";
@@ -927,20 +927,12 @@ const HomeTopScorersList = () => {
                     key={scorer.player.id}
                     className="flex items-center gap-3"
                   >
-                    <Avatar className="h-12 w-12 rounded-full overflow-hidden border border-gray-200">
-                      <AvatarImage
-                        src={scorer.player.photo}
-                        alt={scorer.player.name}
-                        className="object-cover object-center scale-110"
-                      />
-                      <AvatarFallback className="text-xs">
-                        {scorer.player.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .slice(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <MyAvatarInfo
+                      playerId={scorer.player.id}
+                      playerName={scorer.player.name}
+                      size="md"
+                      className="border border-gray-200"
+                    />
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
