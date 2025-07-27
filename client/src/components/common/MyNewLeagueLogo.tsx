@@ -75,11 +75,25 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
 
         if (result.fallbackUsed) {
           console.log(`🚫 [MyNewLeagueLogo] Logo failed for league ${leagueId}, using fallback: ${result.url}`);
+          setLogoUrl(result.url);
         } else {
-          console.log(`✅ [MyNewLeagueLogo] Successfully loaded league ${leagueId} logo via server proxy`);
+          // Test if the server proxy URL actually works
+          console.log(`🧪 [MyNewLeagueLogo] Testing server proxy URL for league ${leagueId}: ${result.url}`);
+          
+          try {
+            const testResponse = await fetch(result.url, { method: 'HEAD', timeout: 3000 });
+            if (testResponse.ok) {
+              console.log(`✅ [MyNewLeagueLogo] Server proxy URL verified for league ${leagueId}`);
+              setLogoUrl(result.url);
+            } else {
+              console.warn(`⚠️ [MyNewLeagueLogo] Server proxy returned ${testResponse.status} for league ${leagueId}, using fallback`);
+              setLogoUrl(fallbackUrl);
+            }
+          } catch (error) {
+            console.warn(`⚠️ [MyNewLeagueLogo] Server proxy URL test failed for league ${leagueId}:`, error);
+            setLogoUrl(fallbackUrl);
+          }
         }
-
-        setLogoUrl(result.url);
       } catch (error) {
         console.error(`❌ [MyNewLeagueLogo] Error loading logo for league ${leagueId}:`, error);
         setError(error instanceof Error ? error.message : 'Unknown error');
@@ -117,12 +131,23 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
     }
   };
 
-  const handleError = () => {
+  const handleError = (event?: any) => {
     setIsLoading(false);
-    setError(`Logo failed to load, using fallback: ${fallbackUrl}`);
-    setLogoUrl(fallbackUrl);
-    console.warn(`🚫 [MyNewLeagueLogo] Logo failed for league ${leagueId}, using fallback: ${fallbackUrl}`);
-
+    const currentUrl = logoUrl;
+    const errorDetails = event?.target?.src || currentUrl;
+    
+    // Only fall back if we're not already using the fallback
+    if (currentUrl !== fallbackUrl) {
+      setError(`Logo failed to load, using fallback: ${fallbackUrl}`);
+      setLogoUrl(fallbackUrl);
+      console.warn(`🚫 [MyNewLeagueLogo] Image load failed for league ${leagueId}`, {
+        failedUrl: errorDetails,
+        fallingBackTo: fallbackUrl,
+        currentUrl: currentUrl
+      });
+    } else {
+      console.warn(`🚫 [MyNewLeagueLogo] Even fallback failed for league ${leagueId}`);
+    }
   };
 
   // For league logos, use regular LazyImage with cached URL
