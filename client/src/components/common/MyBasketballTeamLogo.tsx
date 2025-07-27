@@ -1,7 +1,7 @@
-
 import React, { useMemo } from "react";
 import MyBasketballCircularFlag from "./MyBasketballCircularFlag";
 import LazyImage from "./LazyImage";
+import { isNationalTeam, getTeamLogoSources, createTeamLogoErrorHandler } from "../../lib/teamLogoSources";
 
 interface MyBasketballTeamLogoProps {
   teamName: string;
@@ -57,11 +57,11 @@ const MyBasketballTeamLogo: React.FC<MyBasketballTeamLogoProps> = ({
   // Memoized computation for shouldUseCircularFlag specific to basketball
   const shouldUseCircularFlag = useMemo(() => {
     const cacheKey = generateCacheKey(teamName, country);
-    
+
     // Check cache first
     const cached = basketballCircularFlagCache.get(cacheKey);
     const now = Date.now();
-    
+
     if (cached && (now - cached.timestamp) < CACHE_DURATION) {
       console.log(`💾 [MyBasketballTeamLogo] Cache hit for shouldUseCircularFlag: ${teamName}`);
       return cached.result;
@@ -69,7 +69,7 @@ const MyBasketballTeamLogo: React.FC<MyBasketballTeamLogoProps> = ({
 
     // Compute the result if not cached or expired
     console.log(`🔄 [MyBasketballTeamLogo] Computing shouldUseCircularFlag for: ${teamName}`);
-    
+
     // Basketball-specific logic for determining when to use circular flags
     const isNationalTeam = teamName?.toLowerCase().includes("national") ||
                           teamName?.toLowerCase().includes("senior") ||
@@ -111,6 +111,15 @@ const MyBasketballTeamLogo: React.FC<MyBasketballTeamLogoProps> = ({
 
     return result;
   }, [teamName, country]);
+
+  // For basketball teams, use team logo sources with basketball sport parameter
+  const getLogoUrl = () => {
+    if (teamId) {
+      const logoSources = getTeamLogoSources({ id: teamId, name: teamName }, false, 'basketball');
+      return logoSources[0]?.url || "/assets/fallback-logo.svg";
+    }
+    return "/assets/fallback-logo.svg";
+  };
 
   // If we should use circular flag (for national teams)
   if (shouldUseCircularFlag) {
@@ -155,12 +164,16 @@ const MyBasketballTeamLogo: React.FC<MyBasketballTeamLogoProps> = ({
           objectFit: "cover",
           borderRadius: "50%",
         }}
-        onError={(e) => {
-          const target = e.target as HTMLImageElement;
-          if (!target.src.includes("/assets/fallback-logo.svg")) {
-            target.src = "/assets/fallback-logo.svg";
-          }
-        }}
+        onError={
+          teamId 
+            ? createTeamLogoErrorHandler({ id: teamId, name: teamName }, false, 'basketball')
+            : (e) => {
+                const target = e.target as HTMLImageElement;
+                if (!target.src.includes("/assets/fallback-logo.svg")) {
+                  target.src = "/assets/fallback-logo.svg";
+                }
+              }
+        }
       />
     </div>
   );

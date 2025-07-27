@@ -215,16 +215,14 @@ export function generateLeagueLogoSources(options: LeagueLogoOptions): LogoSourc
 /**
  * Get cached team logo or fetch with intelligent fallback
  */
-export async function getCachedTeamLogo(teamId: number | string, teamName?: string, originalUrl?: string): Promise<string> {
-  const cacheKey = getTeamLogoCacheKey(teamId, teamName);
-
-  // Check cache first
+export async function getCachedTeamLogo(teamId: number | string, sport: string = 'football'): Promise<string> {
+  const cacheKey = `team-logo-${sport}-${teamId}`;
   const cached = teamLogoCache.getCached(cacheKey);
   if (cached) {
     return cached;
   }
 
-  const sources = generateLogoSources({ teamId, teamName, originalUrl });
+  const sources = generateLogoSources({ teamId });
 
   for (const source of sources) {
     try {

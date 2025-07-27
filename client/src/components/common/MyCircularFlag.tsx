@@ -225,7 +225,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
         }}
         onError={
           !isNational && teamId 
-            ? createTeamLogoErrorHandler({ id: teamId, name: teamName }, false)
+            ? createTeamLogoErrorHandler({ id: teamId, name: teamName }, false, 'football')
             : (e) => {
                 const target = e.target as HTMLImageElement;
                 if (!target.src.includes("/assets/fallback-logo.svg")) {
