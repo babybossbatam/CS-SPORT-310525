@@ -4,7 +4,65 @@ import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 
+interface FixtureData {
+  fixture: {
+    id: number;
+    date: string;
+    status: {
+      short: string;
+      long: string;
+      elapsed?: number;
+    };
+    venue?: {
+      name: string;
+      city: string;
+    };
+  };
+  league: {
+    id: number;
+    name: string;
+    country: string;
+    logo: string;
+    flag: string;
+  };
+  teams: {
+    home: {
+      id: number;
+      name: string;
+      logo: string;
+    };
+    away: {
+      id: number;
+      name: string;
+      logo: string;
+    };
+  };
+  goals: {
+    home: number | null;
+    away: number | null;
+  };
+  score: {
+    halftime: {
+      home: number | null;
+      away: number | null;
+    };
+    fulltime: {
+      home: number | null;
+      away: number | null;
+    };
+    penalty?: {
+      home: number | null;
+      away: number | null;
+    };
+  };
+}
+
+
 const PopularLeagueStandingsCard = () => {
+  const leagueContext = {
+    name: league.name,
+    country: league.country,
+  };
   const { data } = useQuery({
     queryKey: ['league-standings', 39], // Premier League ID
     queryFn: async () => {
@@ -43,14 +101,19 @@ const PopularLeagueStandingsCard = () => {
                   <TableCell className="font-medium text-[0.9em] text-center">{standing.rank}</TableCell>
                   <TableCell className="flex flex-col font-normal">
                     <div className="flex items-center">
+
                       <MyWorldTeamLogo
-                        src={standing.team.logo}
-                        alt={standing.team.name}
-                        className="mr-2 h-5 w-5 rounded-full"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/20?text=T';
-                        }}
-                      />
+                                                        teamName={standing.teams.name || ""}
+                                                        teamLogo={standing.teams.id
+                                                            ? `/api/team-logo/square/${standing.teams.id}?size=32`
+                                                            : "/assets/fallback-logo.svg"
+                                                        }
+                                                        alt={standing.team.name}
+                                                        size="34px"
+                                                        className="popular-leagues-size"
+                                                        leagueContext={leagueContext}
+                                                      />
+
                       <span className="text-[0.9em]">{standing.team.name}</span>
                       {standing.rank === 1 && <span className="ml-2">👑</span>}
                     </div>
