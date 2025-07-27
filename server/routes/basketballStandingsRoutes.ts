@@ -98,6 +98,57 @@ router.get('/top-scorers/:leagueId', async (req, res) => {
       console.log(`📊 [API TEST] Leagues response (first 3):`, JSON.stringify(leaguesData.slice(0, 3), null, 2));
       console.log(`📊 [API TEST] Total leagues found:`, leaguesData.length);
 
+
+// Test route to check basketball API response
+router.get('/test-connection', async (req, res) => {
+  try {
+    console.log(`🧪 [BasketballTest] Testing API-Football.com basketball API connection...`);
+    
+    // Test basic connection
+    const connectionTest = await basketballApiService.testConnection();
+    
+    console.log(`🧪 [BasketballTest] Connection test result:`, connectionTest);
+    
+    // Test getting games for today
+    const today = new Date().toISOString().split('T')[0];
+    console.log(`🧪 [BasketballTest] Testing games for today: ${today}`);
+    
+    const todayGames = await basketballApiService.getGamesByDate(today);
+    console.log(`🧪 [BasketballTest] Today's games result:`, {
+      count: todayGames.length,
+      games: todayGames.slice(0, 3) // First 3 games
+    });
+    
+    // Test getting leagues
+    const leagues = await basketballApiService.getLeagues();
+    console.log(`🧪 [BasketballTest] Leagues result:`, {
+      count: leagues.length,
+      sampleLeagues: leagues.slice(0, 5)
+    });
+    
+    res.json({
+      connectionTest,
+      todayGames: {
+        count: todayGames.length,
+        games: todayGames.slice(0, 5)
+      },
+      leagues: {
+        count: leagues.length,
+        sampleLeagues: leagues.slice(0, 10)
+      }
+    });
+    
+  } catch (error) {
+    console.error('🧪 [BasketballTest] Test failed:', error);
+    res.status(500).json({ 
+      error: 'Basketball API test failed', 
+      details: error.message,
+      stack: error.stack 
+    });
+  }
+});
+
+
       // Step 3: Test games endpoint for this specific league
       console.log(`🔍 [API TEST] Testing games endpoint for league ${leagueId}...`);
       const gamesData = await basketballApiService.getGamesByLeague(leagueId, seasonStr);

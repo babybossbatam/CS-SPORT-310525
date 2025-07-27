@@ -141,6 +141,9 @@ basketballApiClient.interceptors.response.use(
         responseKeys: Object.keys(response.data),
         sampleData: response.data?.response ? response.data.response.slice(0, 1) : null
       });
+      
+      // Log the complete raw response for debugging
+      console.log(`🔍 [BasketballAPI] Raw Response Data:`, JSON.stringify(response.data, null, 2));
     }
     
     return response;
@@ -158,6 +161,9 @@ basketballApiClient.interceptors.response.use(
         url: error.config?.url,
         params: error.config?.params
       });
+      
+      // Log raw error response
+      console.log(`🔍 [BasketballAPI] Raw Error Response:`, JSON.stringify(error.response.data, null, 2));
     }
     
     return Promise.reject(error);
