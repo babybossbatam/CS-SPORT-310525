@@ -245,107 +245,70 @@ class EnhancedLogoManager {
 
   async getLeagueLogo(
     componentName: string,
-    request: LogoRequest & { leagueId: number; leagueName?: string }
+    request: LogoRequest & { leagueId: number; leagueName?: string; logoUrl?: string }
   ): Promise<LogoResponse> {
     const startTime = Date.now();
     const cacheKey = `league-${request.leagueId}`;
 
     try {
-      // Check cache first, but skip if it's a fallback that's less than 30 minutes old
+      // Check cache first
       const cached = this.logoCache.get(cacheKey);
       const now = Date.now();
 
       if (cached && (now - cached.timestamp) < this.cacheDuration) {
-        // If cached result is fallback and less than 30 minutes old, try fresh fetch
-        if (cached.fallbackUsed && (now - cached.timestamp) < (30 * 60 * 1000)) {
-          console.log(`🔄 [EnhancedLogoManager] Retrying fresh fetch for league ${request.leagueId} (cached fallback)`);
-        } else {
-          const loadTime = Date.now() - startTime;
+        const loadTime = Date.now() - startTime;
 
-          logLogo(componentName, {
-            type: 'league',
-            shape: 'normal',
-            leagueId: request.leagueId,
-            url: cached.url,
-            fallbackUsed: cached.fallbackUsed,
-            loadTime
-          });
+        logLogo(componentName, {
+          type: 'league',
+          shape: 'normal',
+          leagueId: request.leagueId,
+          url: cached.url,
+          fallbackUsed: cached.fallbackUsed,
+          loadTime
+        });
 
-          return {
-            url: cached.url,
-            fallbackUsed: cached.fallbackUsed,
-            loadTime,
-            cached: true
-          };
-        }
+        return {
+          url: cached.url,
+          fallbackUsed: cached.fallbackUsed,
+          loadTime,
+          cached: true
+        };
       }
 
-      // Skip network requests entirely due to connectivity issues
-      // Use server-side proxy endpoint instead of direct external URLs
-      let logoUrl: string | null = null;
+      // Use the API-provided logo URL if available
+      let logoUrl: string;
       let fallbackUsed = false;
       let successfulSource = '';
 
-      // For well-known leagues, try server proxy first
-      const wellKnownLeagues = [39, 140, 135, 78, 61, 2, 3, 848, 15, 1, 4, 5];
-      
-      // Try server-side proxy endpoint first (this goes through your own server)
-      try {
-        const proxyUrl = `/api/league-logo/${request.leagueId}`;
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => {
-          controller.abort();
-        }, 2000); // Shorter timeout for server requests
+      if (request.logoUrl && request.logoUrl.trim() !== '') {
+        // Use the logo URL from the API response
+        logoUrl = request.logoUrl;
+        successfulSource = 'api-provided';
+        console.log(`✅ [EnhancedLogoManager] League ${request.leagueId} using API-provided URL: ${logoUrl}`);
+      } else {
+        // Fallback to constructed URL or server proxy
+        const apiSportsUrl = `https://media.api-sports.io/football/leagues/${request.leagueId}.png`;
         
-        const testResponse = await Promise.race([
-          fetch(proxyUrl, { 
-            method: 'HEAD',
-            signal: controller.signal,
-            cache: 'no-cache'
-          }),
-          new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Timeout after 2 seconds')), 2000)
-          )
-        ]);
-        
-        clearTimeout(timeoutId);
-        
-        if (testResponse && testResponse.ok) {
+        try {
+          // Try server proxy first for reliability
+          const proxyUrl = `/api/league-logo/${request.leagueId}`;
           logoUrl = proxyUrl;
           successfulSource = 'server-proxy';
-          console.log(`✅ [EnhancedLogoManager] League ${request.leagueId} server proxy working: ${proxyUrl}`);
-        } else {
-          throw new Error('Server proxy not available');
-        }
-      } catch (error) {
-        console.warn(`⚠️ [EnhancedLogoManager] League ${request.leagueId} server proxy failed, using fallback`);
-        
-        // For well-known leagues, we can try a few common alternatives
-        if (wellKnownLeagues.includes(request.leagueId)) {
-          // Try some common league logo patterns from different sources
-          const alternativeSources = [
-            `/assets/league-logos/${request.leagueId}.png`,
-            `/assets/league-logos/${request.leagueId}.svg`,
-            `https://www.thesportsdb.com/images/media/league/badge/${request.leagueId}.png`,
-          ];
-          
-          // Quick test of local assets (no network needed)
-          for (const altSource of alternativeSources) {
-            if (altSource.startsWith('/assets/')) {
-              logoUrl = altSource;
-              successfulSource = 'local-assets';
-              break;
-            }
-          }
+          console.log(`📡 [EnhancedLogoManager] League ${request.leagueId} using server proxy: ${proxyUrl}`);
+        } catch (error) {
+          // Fallback to direct API-Sports URL
+          logoUrl = apiSportsUrl;
+          successfulSource = 'direct-api-sports';
+          console.log(`🔗 [EnhancedLogoManager] League ${request.leagueId} using direct API-Sports URL: ${logoUrl}`);
         }
       }
 
-      // If no source worked, use fallback
+      // Final fallback if no URL available
       if (!logoUrl) {
         fallbackUsed = true;
         logoUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
         successfulSource = 'fallback';
-        console.warn(`🚫 [EnhancedLogoManager] All sources failed for league ${request.leagueId}, using fallback`);
+        console.warn(`🚫 [EnhancedLogoManager] No logo URL available for league ${request.leagueId}, using fallback`);
       }
 
       // Cache the result
@@ -377,14 +340,7 @@ class EnhancedLogoManager {
       const loadTime = Date.now() - startTime;
       const fallbackUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
 
-      // Prevent unhandled promise rejections by catching all error types
-      if (error?.name === 'AbortError') {
-        console.warn(`⏰ [EnhancedLogoManager] League ${request.leagueId} aborted - using fallback`);
-      } else if (error?.message?.includes('Timeout')) {
-        console.warn(`⏰ [EnhancedLogoManager] League ${request.leagueId} timeout - using fallback`);
-      } else {
-        console.warn(`❌ [EnhancedLogoManager] League ${request.leagueId} error - using fallback:`, error?.message || 'Unknown error');
-      }
+      console.warn(`❌ [EnhancedLogoManager] League ${request.leagueId} error - using fallback:`, error?.message || 'Unknown error');
 
       logLogo(componentName, {
         type: 'league',

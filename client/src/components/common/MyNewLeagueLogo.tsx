@@ -6,6 +6,7 @@ import LazyImage from "./LazyImage";
 interface MyNewLeagueLogoProps {
   leagueId: number;
   leagueName?: string;
+  logoUrl?: string; // API-provided logo URL
   alt?: string;
   size?: string;
   className?: string;
@@ -25,6 +26,7 @@ function generateLeagueCacheKey(leagueId: number, leagueName?: string): string {
 const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
   leagueId,
   leagueName,
+  logoUrl,
   alt,
   size = "32px",
   className = "",
@@ -61,6 +63,7 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
         shape: 'normal',
         leagueId: leagueId,
         leagueName: leagueName,
+        logoUrl: logoUrl,
         fallbackUrl: fallbackUrl
       });
 
