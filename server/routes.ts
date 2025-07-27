@@ -816,8 +816,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               id: 78,
               name: "Bundesliga",
               type: "League",
-              logo: "https://media.api-sports.io/football/leagues```python
-/78.png",
+              logo: "https://media.api-sports.io/football/leagues/78.png",
               country: "Germany",
             },
             country: {
@@ -1714,9 +1713,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           `https://static.365scores.com/images/leagues/${leagueId}.png`,
         ];
 
-        for (const logoThis edit adds a new endpoint to fetch detailed league information by ID.
-```python
-Urls of logoUrls) {
+        for (const logoUrl of logoUrls) {
           try {
             const response = await fetch(logoUrl, {
               headers: {
