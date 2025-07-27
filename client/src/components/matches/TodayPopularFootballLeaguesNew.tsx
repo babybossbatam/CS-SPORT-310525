@@ -1130,8 +1130,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               leagueName: leagueData.league.name,
                               logo: leagueData.league.logo,
                               flag: countryData.flag,
-                              expectedVenezuelaFlag:
-                                "https://flagcdn.com/w40/v
+                              expectedVenezuelaFlag: "https://flagcdn.com/w40/ve.png"
+                            });
+                          }
                         }}
                       />
                       <div className="flex flex-col flex-1">
