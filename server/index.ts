@@ -1,5 +1,4 @@
 import express, { type Request, Response, NextFunction } from "express";
-import routes from './routes';
 import logoRoutes from './routes/logoRoutes';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
