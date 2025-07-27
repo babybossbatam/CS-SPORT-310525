@@ -222,7 +222,20 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   }), []);
 
     const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    // Safety check to prevent undefined target errors
+    if (!e || !e.target) {
+      console.warn('⚠️ [MyWorldTeamLogo] Image error event has no target');
+      return;
+    }
+
     const target = e.target as HTMLImageElement;
+    
+    // Additional safety check for target properties
+    if (!target || typeof target.src !== 'string') {
+      console.warn('⚠️ [MyWorldTeamLogo] Invalid image target');
+      return;
+    }
+
     const currentSrc = target.src;
 
     // Don't retry if already showing fallback
