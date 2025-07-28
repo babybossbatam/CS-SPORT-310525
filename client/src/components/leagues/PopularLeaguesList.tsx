@@ -14,7 +14,7 @@ export const CURRENT_POPULAR_LEAGUES = [
   { id: 39, name: 'Premier League', logo: 'https://media.api-sports.io/football/leagues/39.png', country: 'England', popularity: 95 },
   { id: 2, name: 'UEFA Champions League', logo: 'https://media.api-sports.io/football/leagues/2.png', country: 'Europe', popularity: 92 },
   { id: 140, name: 'La Liga', logo: 'https://media.api-sports.io/football/leagues/140.png', country: 'Spain', popularity: 90 },
-  { id: 1, name: 'World Cup', logo: 'https://media.api-sports.io/football/leagues/1.png', country: 'World', popularity: 88 },
+  { id: 490, name: 'World Cup', logo: 'https://media.api-sports.io/football/leagues/490.png', country: 'World', popularity: 88 },
   { id: 135, name: 'Serie A', logo: 'https://media.api-sports.io/football/leagues/135.png', country: 'Italy', popularity: 85 },
   { id: 78, name: 'Bundesliga', logo: 'https://media.api-sports.io/football/leagues/78.png', country: 'Germany', popularity: 83 },
   { id: 4, name: 'Euro Championship', logo: 'https://media.api-sports.io/football/leagues/4.png', country: 'World', popularity: 82 },
@@ -30,7 +30,7 @@ export const CURRENT_POPULAR_LEAGUES = [
   { id: 81, name: 'DFB Pokal', logo: 'https://media.api-sports.io/football/leagues/81.png', country: 'Germany', popularity: 55 },
   { id: 22, name: 'CONCACAF Gold Cup', logo: 'https://media.api-sports.io/football/leagues/22.png', country: 'World', popularity: 52 },
   { id: 307, name: 'Saudi Pro League', logo: 'https://media.api-sports.io/football/leagues/307.png', country: 'Saudi Arabia', popularity: 50 },
-  { id: 38, name: 'UEFA U21 Championship', logo: 'https://media.api-sports.io/football/leagues/38.png', country: 'World', popularity: 48 },
+  { id: 850, name: 'UEFA U21 Championship', logo: 'https://media.api-sports.io/football/leagues/850.png', country: 'World', popularity: 48 },
   { id: 7, name: 'Asian Cup', logo: 'https://media.api-sports.io/football/leagues/7.png', country: 'World', popularity: 45 },
   { id: 233, name: 'Egyptian Premier League', logo: 'https://media.api-sports.io/football/leagues/233.png', country: 'Egypt', popularity: 42 },
 ];
