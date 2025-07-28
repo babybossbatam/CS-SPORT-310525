@@ -5,6 +5,7 @@ import MyHomeFeaturedMatchNew from '@/components/matches/MyHomeFeaturedMatchNew'
 import HomeTopScorersList from '@/components/leagues/HomeTopScorersList';
 import LeagueStandingsFilter from '@/components/leagues/LeagueStandingsFilter';
 import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
+import MyPopularFootballNewList from '@/components/leagues/MyPopularFootballNewList';
 import PopularTeamsList from '@/components/teams/PopularTeamsList';
 import ScoreDetailsCard from '@/components/matches/ScoreDetailsCard';
 import MyMainLayoutRight from '@/components/layout/MyMainLayoutRight';
@@ -35,6 +36,9 @@ const MyRightContent: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* My Popular Football New List */}
+      <MyPopularFootballNewList />
     </>
 
   );
