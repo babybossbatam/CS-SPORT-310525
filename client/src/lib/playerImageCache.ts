@@ -193,16 +193,24 @@ class PlayerImageCache {
       }
     }
 
-    // Primary: API-Sports.io player images (most reliable, same as top scorer section)
+    // Primary: API-Sports.io player images (validate to ensure correct player)
     if (playerId) {
       const apiSportsUrl = `https://media.api-sports.io/football/players/${playerId}.png`;
       console.log(`🔍 [PlayerImageCache] Trying primary source (API-Sports.io) for ${playerName}: ${apiSportsUrl}`);
       console.log(`🔍 [PlayerImageCache] Player details: ID=${playerId}, Name=${playerName}, TeamID=${teamId}`);
       
-      // Trust API-Sports.io like top scorer section does
-      this.setCachedImage(playerId, playerName, apiSportsUrl, 'api');
-      console.log(`✅ [PlayerImageCache] Cached and returning API-Sports URL: ${apiSportsUrl}`);
-      return apiSportsUrl;
+      try {
+        const validationResult = await this.validateImageUrl(apiSportsUrl);
+        if (validationResult.isValid) {
+          this.setCachedImage(playerId, playerName, apiSportsUrl, 'api', validationResult.headers);
+          console.log(`✅ [PlayerImageCache] Validated and cached API-Sports URL: ${apiSportsUrl}`);
+          return apiSportsUrl;
+        } else {
+          console.log(`⚠️ [PlayerImageCache] API-Sports validation failed for ${playerName}, trying alternatives`);
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerImageCache] API-Sports validation error for ${playerName}:`, error);
+      }
     }
 
     // Secondary: Resfu.com player database
@@ -521,6 +529,20 @@ class PlayerImageCache {
       averageAge: entries.length > 0 ? Math.round(totalAge / entries.length / 1000 / 60) : 0 // in minutes
     };
   }
+
+  // Clear wrong cached images for specific players (useful for fixing mismatched photos)
+  clearWrongPlayerImage(playerId?: number, playerName?: string): void {
+    const key = this.getCacheKey(playerId, playerName);
+    const cached = this.cache.get(key);
+    
+    if (cached) {
+      this.cache.delete(key);
+      console.log(`🗑️ [PlayerImageCache] Cleared potentially wrong image for player: ${playerName} (${playerId})`);
+      console.log(`🔄 [PlayerImageCache] Previous cached URL: ${cached.url}`);
+    } else {
+      console.log(`ℹ️ [PlayerImageCache] No cached image found for player: ${playerName} (${playerId})`);
+    }
+  }
 }
 
 // Export singleton instance
@@ -590,6 +612,10 @@ export const refreshPlayerImageFunc = async (playerId?: number, playerName?: str
 
 export const batchLoadPlayerImagesFunc = async (teamId?: number, leagueId?: number): Promise<void> => {
   return playerImageCache.batchLoadPlayerImages(teamId, leagueId);
+};
+
+export const clearWrongPlayerImageFunc = (playerId?: number, playerName?: string): void => {
+  return playerImageCache.clearWrongPlayerImage(playerId, playerName);
 };
 
 export default playerImageCache;
