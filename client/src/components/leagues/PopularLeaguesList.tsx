@@ -162,11 +162,128 @@ const PopularLeaguesList = () => {
                 className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors"
                 onClick={() => navigate(`/league/${league.id}`)}
               >
-                <LazyImage
+                <img
                   src={cachedLogos.get(league.id) || `/api/league-logo/${league.id}`}
                   alt={league.name}
                   title={league.name}
                   className="w-5 h-5 object-contain"
+                  loading="lazy"
+                  onLoad={() => {
+                    // Don't cache or log success for fallback images
+                    const imageSrc = cachedLogos.get(league.id) || `/api/league-logo/${league.id}`;
+                    const isFallbackImage =
+                      imageSrc.includes("/assets/fallback-logo.svg") ||
+                      imageSrc.includes("fallback") ||
+                      imageSrc.includes("placeholder");
+
+                    if (isFallbackImage) {
+                      console.log(
+                        `⚠️ [PopularLeaguesList] Fallback image loaded, not caching: ${imageSrc}`,
+                      );
+                      return;
+                    }
+
+                    // Enhanced league logo success logging (only for real logos)
+                    const isLeagueLogo =
+                      imageSrc.includes("/api/league-logo/") ||
+                      imageSrc.includes("media.api-sports.io/football/leagues/") ||
+                      imageSrc.includes("imagecache.365scores.com");
+
+                    if (isLeagueLogo) {
+                      // Extract league ID and source for better tracking
+                      let leagueId = "unknown";
+                      let source = "unknown";
+
+                      const apiMatch = imageSrc.match(/\/api\/league-logo\/(?:square\/)?(\d+)/);
+                      const mediaMatch = imageSrc.match(
+                        /media\.api-sports\.io\/football\/leagues\/(\d+)/,
+                      );
+                      const scoresMatch = imageSrc.match(/Competitions\/(\d+)/);
+
+                      if (apiMatch) {
+                        leagueId = apiMatch[1];
+                        source = imageSrc.includes("/square/") ? "api-square" : "api-proxy";
+                      } else if (mediaMatch) {
+                        leagueId = mediaMatch[1];
+                        source = "api-sports-direct";
+                      } else if (scoresMatch) {
+                        leagueId = scoresMatch[1];
+                        source = "365scores";
+                      }
+
+                      console.log(
+                        `🏆 [PopularLeaguesList] League logo loaded successfully (REAL LOGO):`,
+                        {
+                          alt: league.name,
+                          leagueId,
+                          source,
+                          imageSrc,
+                          component: "PopularLeaguesList",
+                        },
+                      );
+                    }
+
+                    // Only cache real, non-fallback images
+                    console.log(
+                      `💾 [PopularLeaguesList] Real logo loaded and ready for caching: ${imageSrc}`,
+                    );
+                  }}
+                  onError={(e) => {
+                    // Safety check to prevent cascading errors
+                    try {
+                      const target = e.target as HTMLImageElement;
+                      const imageSrc = target.src;
+
+                      // Enhanced league logo handling like MyNewLeague2
+                      const isLeagueLogo =
+                        imageSrc.includes("/api/league-logo/") ||
+                        imageSrc.includes("media.api-sports.io/football/leagues/") ||
+                        imageSrc.includes("imagecache.365scores.com");
+
+                      if (isLeagueLogo) {
+                        // Extract league ID for better debugging
+                        let leagueId = "unknown";
+                        const apiMatch = imageSrc.match(
+                          /\/api\/league-logo\/(?:square\/)?(\d+)/,
+                        );
+                        const mediaMatch = imageSrc.match(
+                          /media\.api-sports\.io\/football\/leagues\/(\d+)/,
+                        );
+                        const scoresMatch = imageSrc.match(/Competitions\/(\d+)/);
+
+                        if (apiMatch) leagueId = apiMatch[1];
+                        else if (mediaMatch) leagueId = mediaMatch[1];
+                        else if (scoresMatch) leagueId = scoresMatch[1];
+
+                        console.log(
+                          `🏆 [PopularLeaguesList] League logo error detected for: ${league.name} (ID: ${leagueId})`,
+                          {
+                            imageSrc,
+                            leagueId,
+                          },
+                        );
+
+                        // Try server proxy endpoint first
+                        const cacheBuster = `?t=${Date.now()}`;
+                        const fallbackUrl = `/api/league-logo/${leagueId}${cacheBuster}`;
+                        console.log(
+                          `🔄 [PopularLeaguesList] Trying league logo server proxy: ${fallbackUrl}`,
+                        );
+                        target.src = fallbackUrl;
+                        return;
+                      }
+
+                      // Final fallback
+                      console.warn(
+                        `🚫 [PopularLeaguesList] All retries failed for: ${imageSrc}, using fallback`,
+                      );
+                      target.src = "/assets/fallback-logo.svg";
+                    } catch (error) {
+                      console.warn("⚠️ [PopularLeaguesList] Error in handleError function:", error);
+                      const target = e.target as HTMLImageElement;
+                      target.src = "/assets/fallback-logo.svg";
+                    }
+                  }}
                   loading="lazy"
                   onError={() => {
                     console.log(`🚨 League logo failed for: ${league.name} (ID: ${league.id})`);
