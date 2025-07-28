@@ -317,73 +317,7 @@ router.get('/player-photo-by-name', async (req, res) => {
   }
 });
 
-      // Source 2: Generate URL based on common name patterns
-      async () => {
-        // Clean the name for URL generation
-        const cleanName = name
-          .toLowerCase()
-          .replace(/[^a-z\s]/g, '') // Remove special characters
-          .replace(/\s+/g, '-') // Replace spaces with hyphens
-          .trim();
-
-        // Try TheSportsDB (if they have an image endpoint)
-        const sportsDbUrl = `https://www.thesportsdb.com/images/media/player/thumb/${cleanName}.jpg`;
-
-        try {
-          const response = await fetch(sportsDbUrl, { method: 'HEAD', timeout: 3000 });
-          if (response.ok && response.headers.get('content-type')?.startsWith('image/')) {
-            return sportsDbUrl;
-          }
-        } catch (error) {
-          // Source not available, continue
-        }
-        return null;
-      },
-
-      // Source 3: Try with initials/short name patterns
-      async () => {
-        const nameParts = name.split(' ');
-        if (nameParts.length >= 2) {
-          const firstName = nameParts[0];
-          const lastName = nameParts[nameParts.length - 1];
-          const shortName = `${firstName[0].toLowerCase()}${lastName.toLowerCase()}`;
-
-          // Try various short name patterns that some sites use
-          const patterns = [
-            `https://img.a.transfermarkt.technology/portrait/medium/${shortName}.jpg`,
-            `https://resources.premierleague.com/premierleague/photos/players/250x250/${shortName}.png`,
-          ];
-
-          for (const pattern of patterns) {
-            try {
-              const response = await fetch(pattern, { method: 'HEAD', timeout: 3000 });
-              if (response.ok && response.headers.get('content-type')?.startsWith('image/')) {
-                return pattern;
-              }
-            } catch (error) {
-              continue;
-            }
-          }
-        }
-        return null;
-      }
-    ];
-
-    // Try each source until we find a valid photo
-    for (const searchFunction of searchSources) {
-      try {
-        const photoUrl = await searchFunction();
-        if (photoUrl) {
-          console.log(`✅ [PlayerPhotoByName] Found photo for "${name}": ${photoUrl}`);
-          return res.redirect(photoUrl);
-        }
-      } catch (error) {
-        console.log(`⚠️ [PlayerPhotoByName] Search source failed for "${name}":`, error.message);
-        continue;
-      }
-    }
-
-    // If no photo found, return 404 (client will use initials fallback)
+      // If no photo found, return 404
     console.log(`❌ [PlayerPhotoByName] No photo found for "${name}"`);
     return res.status(404).json({ error: 'Player photo not found' });
 
@@ -393,38 +327,7 @@ router.get('/player-photo-by-name', async (req, res) => {
   }
 });
 
-    const imageUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
-    console.log(`🔗 [PlayerPhoto] Generated image URL: ${imageUrl}`);
-
-    const response = await fetch(imageUrl, {
-      method: 'HEAD',
-      timeout: 5000,
-    });
-
-    console.log(`📡 [PlayerPhoto] Response status: ${response.status}`);
-    console.log(`📡 [PlayerPhoto] Response headers:`, {
-      contentType: response.headers.get('content-type'),
-      contentLength: response.headers.get('content-length'),
-      cacheControl: response.headers.get('cache-control')
-    });
-
-    if (response.ok && response.headers.get('content-type')?.startsWith('image/')) {
-      console.log(`✅ [PlayerPhoto] Found valid image for player ${playerId}, redirecting to: ${imageUrl}`);
-      return res.redirect(imageUrl);
-    }
-
-    // If 365Scores fails, return 404 (client will use initials fallback)
-    console.log(`❌ [PlayerPhoto] No valid image found for player ${playerId} - Status: ${response.status}, ContentType: ${response.headers.get('content-type')}`);
-    res.status(404).json({ error: 'Player photo not found' });
-
-  } catch (error) {
-    console.error(`❌ [PlayerPhoto] Error fetching player ${playerId}:`, error);
-    console.error(`❌ [PlayerPhoto] Error details:`, {
-      message: error.message,
-      code: error.code,
-      type: error.constructor.name
-    });
-    res.status(500).json({ error: 'Failed to fetch player photo' });
+    
 
 // Image URL validation endpoint to avoid CORS issues
 router.get('/validate-image-url', async (req, res) => {
