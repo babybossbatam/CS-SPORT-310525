@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { playerImageCache } from '@/lib/playerImageCache';
 
@@ -72,7 +71,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
 
       if (cachedImageUrl && isMounted) {
         console.log(`✅ [MyAvatarInfo-${componentId}] Got player image from cache: ${cachedImageUrl}`);
-        
+
         // Check if it's an initials fallback
         if (cachedImageUrl.includes('ui-avatars.com')) {
           console.log(`🎨 [MyAvatarInfo-${componentId}] Using UI avatars fallback`);
@@ -240,7 +239,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       teamId,
       fallbackImage: FALLBACK_PLAYER_IMAGE
     });
-    
+
     // Try direct CDN sources first before going to initials
     if (playerId && !imageUrl.includes('365scores') && !imageUrl.includes('api-sports.io')) {
       const directCdnUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`;
@@ -275,9 +274,9 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       <div 
         ref={containerRef}
         className={`${sizeClasses[size]} border-2 border-gray-300 rounded-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%] ${className}`}
-       
+
       >
-       
+
       </div>
     );
   }
