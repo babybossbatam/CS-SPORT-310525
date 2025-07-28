@@ -171,7 +171,23 @@ router.get('/player-photo/:playerId', async (req, res) => {
       console.log(`📡 [PlayerPhoto] Primary source response: ${imageResponse.status}`);
 
       if (imageResponse.ok && imageResponse.headers.get('content-type')?.startsWith('image/')) {
-        console.log(`✅ [PlayerPhoto] Found valid image from primary source for player ${playerId}`);
+        // Check if this is a default/sample image
+        const contentLength = imageResponse.headers.get('content-length');
+        const cacheControl = imageResponse.headers.get('cache-control');
+        
+        // Detect default images by size and cache headers
+        const isDefaultImage = (
+          contentLength === '0' || 
+          parseInt(contentLength || '0') < 500 || // Very small images are likely defaults
+          (cacheControl && cacheControl.includes('max-age=300')) // Short cache indicates default
+        );
+        
+        if (isDefaultImage) {
+          console.log(`⚠️ [PlayerPhoto] Detected default/sample image for player ${playerId} - content-length: ${contentLength}, cache: ${cacheControl}`);
+          return res.status(404).json({ error: 'Only default image available, client should use initials' });
+        }
+        
+        console.log(`✅ [PlayerPhoto] Found valid real image from primary source for player ${playerId} - size: ${contentLength}`);
         
         // Set proper content type
         res.set('Content-Type', imageResponse.headers.get('content-type') || 'image/png');

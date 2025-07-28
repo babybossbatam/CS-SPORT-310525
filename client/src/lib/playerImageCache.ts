@@ -200,12 +200,29 @@ class PlayerImageCache {
       console.log(`🔍 [PlayerImageCache] Using primary source (ID-based proxy) for ${playerName}: ${primaryUrl}`);
       
       try {
-        // Test if the proxy endpoint returns an image
+        // Test if the proxy endpoint returns a real image (not a default/sample)
         const testResponse = await fetch(primaryUrl, { method: 'HEAD' });
         if (testResponse.ok && testResponse.headers.get('content-type')?.startsWith('image/')) {
-          console.log(`✅ [PlayerImageCache] Primary source found image for ${playerName} (${playerId})`);
-          this.setCachedImage(playerId, playerName, primaryUrl, 'api');
-          return primaryUrl;
+          // Check content-length to detect default/sample images
+          const contentLength = testResponse.headers.get('content-length');
+          const cacheControl = testResponse.headers.get('cache-control');
+          
+          // 365Scores returns very small content-length for default images, or short cache times
+          const isLikelyDefaultImage = (
+            contentLength === '0' || 
+            contentLength === null ||
+            parseInt(contentLength || '0') < 500 || // Very small images are likely defaults
+            (cacheControl && cacheControl.includes('max-age=300')) // Short cache time indicates default
+          );
+          
+          if (isLikelyDefaultImage) {
+            console.log(`⚠️ [PlayerImageCache] Detected default/sample image for ${playerName} (${playerId}) - content-length: ${contentLength}, cache: ${cacheControl}`);
+            // Don't cache default images, fall through to initials
+          } else {
+            console.log(`✅ [PlayerImageCache] Primary source found real image for ${playerName} (${playerId}) - size: ${contentLength}`);
+            this.setCachedImage(playerId, playerName, primaryUrl, 'api');
+            return primaryUrl;
+          }
         } else {
           console.log(`⚠️ [PlayerImageCache] Primary source failed for ${playerName}: ${testResponse.status}`);
         }
