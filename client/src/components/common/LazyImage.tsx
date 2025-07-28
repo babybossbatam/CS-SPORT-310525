@@ -96,8 +96,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
           // Extract league ID from various sources
           let leagueId = null;
 
-          // From /api/league-logo/ID
-          const apiMatch = imageSrc.match(/\/api\/league-logo\/(\d+)/);
+          // From /api/league-logo/ID or /api/league-logo/square/ID
+          const apiMatch = imageSrc.match(/\/api\/league-logo\/(?:square\/)?(\d+)/);
           if (apiMatch) {
             leagueId = apiMatch[1];
           }
@@ -110,11 +110,17 @@ const LazyImage: React.FC<LazyImageProps> = ({
             leagueId = mediaMatch[1];
           }
 
+          // From 365scores imagecache
+          const scoresMatch = imageSrc.match(/Competitions\/(\d+)/);
+          if (scoresMatch) {
+            leagueId = scoresMatch[1];
+          }
+
           if (leagueId) {
-            // Try alternative API endpoint with cache buster (MyNewLeague2 pattern)
-            const fallbackUrl = `/api/league-logo/square/${leagueId}${cacheBuster}`;
+            // Try server proxy endpoint first
+            const fallbackUrl = `/api/league-logo/${leagueId}${cacheBuster}`;
             console.log(
-              `🔄 [LazyImage] Trying league logo fallback: ${fallbackUrl}`,
+              `🔄 [LazyImage] Trying league logo server proxy: ${fallbackUrl}`,
             );
             setImageSrc(fallbackUrl);
             setRetryCount(retryCount + 1);
@@ -122,8 +128,27 @@ const LazyImage: React.FC<LazyImageProps> = ({
           }
         }
 
-        // Second retry: Try direct API-Sports URL if not already tried
+        // Second retry: Try square endpoint if not already tried
         if (isLeagueLogo && retryCount === 1) {
+          let leagueId = null;
+
+          const apiMatch = imageSrc.match(
+            /\/api\/league-logo\/(?:square\/)?(\d+)/,
+          );
+          if (apiMatch) {
+            leagueId = apiMatch[1];
+            const squareUrl = `/api/league-logo/square/${leagueId}${cacheBuster}`;
+            console.log(
+              `🔄 [LazyImage] Trying square league logo endpoint: ${squareUrl}`,
+            );
+            setImageSrc(squareUrl);
+            setRetryCount(retryCount + 1);
+            return;
+          }
+        }
+
+        // Third retry: Try direct API-Sports URL
+        if (isLeagueLogo && retryCount === 2) {
           let leagueId = null;
 
           const apiMatch = imageSrc.match(

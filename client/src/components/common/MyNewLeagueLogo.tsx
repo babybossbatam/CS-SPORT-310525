@@ -53,28 +53,19 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
       setError(null);
 
       try {
-        // Priority 1: Use server proxy endpoint (most reliable)
+        // Priority 1: Try server proxy first (most reliable)
         console.log(
           `🔍 [MyNewLeagueLogo] Trying server proxy for league ${leagueId}`,
         );
 
-        const proxyUrl = `/api/league-logo/${leagueId}`;
-
-        // Test if proxy endpoint works with a quick HEAD request
         try {
-          const proxyResponse = await fetch(proxyUrl, {
-            method: "HEAD",
-            signal: AbortSignal.timeout(3000), // 3 second timeout
-          });
-
-          if (proxyResponse.ok) {
-            console.log(
-              `✅ [MyNewLeagueLogo] Server proxy working for league ${leagueId}`,
-            );
-            setLogoUrl(proxyUrl);
-            setIsLoading(false);
-            return;
-          }
+          const proxyUrl = `/api/league-logo/${leagueId}`;
+          console.log(
+            `✅ [MyNewLeagueLogo] Using server proxy for league ${leagueId}: ${proxyUrl}`,
+          );
+          setLogoUrl(proxyUrl);
+          setIsLoading(false);
+          return;
         } catch (proxyError) {
           console.warn(
             `⚠️ [MyNewLeagueLogo] Server proxy failed for league ${leagueId}:`,
