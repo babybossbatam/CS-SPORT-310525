@@ -23,6 +23,22 @@ const MyPopularFootballNewList = () => {
   const user = useSelector((state: RootState) => state.user);
   const [leagueData, setLeagueData] = useState<League[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [failedLogos, setFailedLogos] = useState<Set<number>>(new Set());
+
+  const handleLogoError = (leagueId: number) => {
+    console.log(`🚨 Logo failed for league ID: ${leagueId}, removing from display`);
+    setFailedLogos(prev => new Set([...prev, leagueId]));
+  };
+
+  const handleLogoSuccess = (leagueId: number) => {
+    console.log(`✅ Logo loaded successfully for league ID: ${leagueId}`);
+    // Remove from failed set if it was previously failed
+    setFailedLogos(prev => {
+      const newSet = new Set([...prev]);
+      newSet.delete(leagueId);
+      return newSet;
+    });
+  };
 
   useEffect(() => {
     const fetchPopularLeagues = async () => {
@@ -124,7 +140,9 @@ const MyPopularFootballNewList = () => {
         <CardContent className="p-4">
           <h3 className="text-sm font-semibold mb-2">My Popular Football New List</h3>
           <div className="space-y-2">
-            {leagueData.map((league) => {
+            {leagueData
+              .filter(league => !failedLogos.has(league.id)) // Filter out failed logos
+              .map((league) => {
               const isFavorite = user.preferences.favoriteLeagues.includes(league.id.toString());
 
               return (
@@ -139,12 +157,8 @@ const MyPopularFootballNewList = () => {
                     title={league.name}
                     className="w-5 h-5 object-contain"
                     loading="lazy"
-                    onError={() => {
-                      console.log(`🚨 League logo failed for: ${league.name} (ID: ${league.id})`);
-                    }}
-                    onLoad={() => {
-                      console.log(`✅ League logo loaded for: ${league.name} (ID: ${league.id})`);
-                    }}
+                    onError={() => handleLogoError(league.id)}
+                    onLoad={() => handleLogoSuccess(league.id)}
                   />
                   <div className="ml-3 flex-1">
                     <div className="text-sm">{league.name}</div>
