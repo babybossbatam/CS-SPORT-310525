@@ -36,8 +36,9 @@ import selectiveLiveRoutes from './routes/selectiveLiveRoutes';
 import selectiveUpdatesRoutes from './routes/selectiveUpdatesRoutes';
 import predictionsRoutes from './routes/predictionsRoutes';
 import basketballRoutes from "./routes/basketballRoutes";
-import basketballStandingsRoutes from "./routes/basketballStandingsRoutes";
+import basketballStandingsRoutes from './routes/basketballStandingsRoutes';
 import playerVerificationRoutes from './routes/playerVerificationRoutes';
+import popularLeaguesRoutes from './routes/popularLeaguesRoutes';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -816,6 +817,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           {
             league: {
               id: 78,
+```text
               name: "Bundesliga",
               type: "League",
               logo: "https://media.api-sports.io/football/leagues/78.png",
@@ -1711,7 +1713,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const logoUrls = [
           `https://www.365scores.com/images/leagues/${leagueId}.png`,
           `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`,
-          `https://365scores.com/images/competitions/${leagueId}.png`,
+          `https://365scores.com/images/competitions/${leagueId}.png`,```text
           `https://static.365scores.com/images/leagues/${leagueId}.png`,
         ];
 
@@ -3331,7 +3333,10 @@ error) {
   // Predictions routes
   app.use('/api', predictionsRoutes);
   app.use('/api', basketballRoutes);
-  app.use('/api/basketball/standings', basketballStandingsRoutes);
+  apiRouter.use('/basketball/standings', basketballStandingsRoutes);
+
+  // Popular leagues routes
+  apiRouter.use('/popular-leagues', popularLeaguesRoutes);
 
 // Test route for debugging
 app.get('/api/test', (req, res) => {
