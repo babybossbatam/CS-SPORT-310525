@@ -213,7 +213,22 @@ class PlayerImageCache {
       }
     }
 
-    // Secondary: Resfu.com player database
+    // Secondary: 365scores.com v21 format (most reliable alternative)
+    if (playerId) {
+      const scores365v21Url = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`;
+      try {
+        const validationResult = await this.validateImageUrl(scores365v21Url);
+        if (validationResult.isValid) {
+          console.log(`✅ [PlayerImageCache] 365Scores v21 format worked for ${playerName}: ${scores365v21Url}`);
+          this.setCachedImage(playerId, playerName, scores365v21Url, 'api', validationResult.headers);
+          return scores365v21Url;
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerImageCache] 365Scores v21 validation failed for player ${playerId}`);
+      }
+    }
+
+    // Tertiary: Resfu.com player database
     if (playerId) {
       const resfuUrl = `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`;
       try {
@@ -227,11 +242,10 @@ class PlayerImageCache {
       }
     }
 
-    // Tertiary: 365scores.com image cache using player ID (dynamic format matching)
+    // Quaternary: Other 365scores.com formats (dynamic format matching)
     if (playerId) {
-      // Try multiple 365scores formats based on the examples you provided
+      // Try other 365scores formats as fallback
       const scores365Formats = [
-        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`,
         `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v6/Athletes/${playerId}`,
         `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/Athletes/${playerId}`,
         `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`, // Keep original as fallback
