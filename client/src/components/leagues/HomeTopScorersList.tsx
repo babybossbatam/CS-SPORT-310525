@@ -943,21 +943,21 @@ const HomeTopScorersList = () => {
                         className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          console.log(`❌ [TopScorers] Photo failed for ${scorer.player.name}:`, target.src);
+                          console.log(`❌ [TopScorers] Photo failed for ${scorer.player.name} (ID: ${scorer.player.id}):`, target.src);
                           
-                          // Try multiple photo sources in sequence
+                          // Try multiple photo sources in sequence with better ordering
                           if (target.src.includes('api-sports.io')) {
-                            console.log(`🔄 [TopScorers] Trying 365Scores fallback for ${scorer.player.name}`);
-                            target.src = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${scorer.player.id}`;
-                          } else if (target.src.includes('365scores.com') && !target.src.includes('default.png')) {
-                            console.log(`🔄 [TopScorers] Trying Resfu.com fallback for ${scorer.player.name}`);
+                            console.log(`🔄 [TopScorers] Trying Resfu.com for ${scorer.player.name}`);
                             target.src = `https://cdn.resfu.com/img_data/players/medium/${scorer.player.id}.jpg?size=120x&lossy=1`;
                           } else if (target.src.includes('resfu.com')) {
-                            console.log(`🔄 [TopScorers] Trying 365Scores default for ${scorer.player.name}`);
+                            console.log(`🔄 [TopScorers] Trying 365Scores for ${scorer.player.name}`);
                             target.src = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${scorer.player.id}`;
+                          } else if (target.src.includes('365scores.com') && !target.src.includes('default.png')) {
+                            console.log(`🔄 [TopScorers] Trying alternative API Sports for ${scorer.player.name}`);
+                            target.src = `https://media.api-sports.io/football/players/${scorer.player.id}.png?v=2`;
                           } else {
-                            // Final fallback to initials
-                            console.log(`🎨 [TopScorers] Using initials fallback for ${scorer.player.name}`);
+                            // Final fallback to initials only when all photo sources fail
+                            console.log(`🎨 [TopScorers] All photo sources failed, using initials for ${scorer.player.name}`);
                             const initials = scorer.player.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
                             target.style.display = 'none';
                             const parent = target.parentElement;
