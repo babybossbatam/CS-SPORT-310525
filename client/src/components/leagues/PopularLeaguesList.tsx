@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RootState, userActions } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import MyNewLeagueLogo from '@/components/common/MyNewLeagueLogo';
+import LazyImage from '@/components/common/LazyImage';
 
 
 // Current popular leagues list - matches HomeTopScorersList
@@ -121,13 +121,18 @@ const PopularLeaguesList = () => {
                 className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors"
                 onClick={() => navigate(`/league/${league.id}`)}
               >
-                <MyNewLeagueLogo
-                  leagueId={league.id}
-                  leagueName={league.name}
-                  logoUrl={league.logo}
-                  size="20px"
-                  className="object-contain"
-                  fallbackUrl="/assets/fallback-logo.svg"
+                <LazyImage
+                  src={`/api/league-logo/${league.id}`}
+                  alt={league.name}
+                  title={league.name}
+                  className="w-5 h-5 object-contain"
+                  loading="lazy"
+                  onError={() => {
+                    console.log(`🚨 League logo failed for: ${league.name} (ID: ${league.id})`);
+                  }}
+                  onLoad={() => {
+                    console.log(`✅ League logo loaded for: ${league.name} (ID: ${league.id})`);
+                  }}
                 />
                 <div className="ml-3 flex-1">
                   <div className="text-sm">{league.name}</div>
