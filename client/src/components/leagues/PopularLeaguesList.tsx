@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RootState, userActions } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
+import { enhancedLogoManager } from '@/lib/enhancedLogoManager';
 import LazyImage from '@/components/common/LazyImage';
 
 
@@ -42,11 +43,52 @@ const PopularLeaguesList = () => {
   const user = useSelector((state: RootState) => state.user);
   const [leagueData, setLeagueData] = useState(CURRENT_POPULAR_LEAGUES);
   const [isLoading, setIsLoading] = useState(false);
+  const [cachedLogos, setCachedLogos] = useState(new Map());
+
+  // Function to get cached league logo
+  const getCachedLeagueLogo = async (leagueId: number, leagueName?: string) => {
+    try {
+      const logoResponse = await enhancedLogoManager.getLeagueLogo('PopularLeaguesList', {
+        type: 'league',
+        shape: 'normal',
+        leagueId: leagueId,
+        leagueName: leagueName
+      });
+
+      console.log(`🏆 [PopularLeaguesList] Cached logo for ${leagueName} (${leagueId}):`, {
+        url: logoResponse.url,
+        cached: logoResponse.cached,
+        fallbackUsed: logoResponse.fallbackUsed,
+        loadTime: logoResponse.loadTime + 'ms'
+      });
+
+      return logoResponse.url;
+    } catch (error) {
+      console.warn(`❌ [PopularLeaguesList] Failed to get cached logo for league ${leagueId}:`, error);
+      return `/api/league-logo/${leagueId}`;
+    }
+  };
+
+  // Load cached logos for all leagues
+  const loadCachedLogos = async (leagueList: { id: number; name: string; }[]) => {
+    const logoMap = new Map<number, string>();
+
+    console.log(`🔄 [PopularLeaguesList] Loading cached logos for ${leagueList.length} leagues...`);
+
+    for (const league of leagueList) {
+      const logoUrl = await getCachedLeagueLogo(league.id, league.name);
+      logoMap.set(league.id, logoUrl);
+    }
+
+    console.log(`✅ [PopularLeaguesList] Loaded ${logoMap.size} cached league logos`);
+    setCachedLogos(logoMap);
+  };
 
   useEffect(() => {
     // Sort leagues by popularity score (highest first)
     const sortedLeagues = [...CURRENT_POPULAR_LEAGUES].sort((a, b) => b.popularity - a.popularity);
     setLeagueData(sortedLeagues);
+    loadCachedLogos(sortedLeagues);
     setIsLoading(false);
   }, []);
 
@@ -121,7 +163,7 @@ const PopularLeaguesList = () => {
                 onClick={() => navigate(`/league/${league.id}`)}
               >
                 <LazyImage
-                  src={league.logo || `/api/league-logo/${league.id}`}
+                  src={cachedLogos.get(league.id) || `/api/league-logo/${league.id}`}
                   alt={league.name}
                   title={league.name}
                   className="w-5 h-5 object-contain"
