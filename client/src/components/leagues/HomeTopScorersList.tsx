@@ -936,44 +936,14 @@ const HomeTopScorersList = () => {
                     key={scorer.player.id}
                     className="flex items-center gap-3"
                   >
-                    <div className="relative">
-                      <img
-                        src={scorer.player.photo || `https://media.api-sports.io/football/players/${scorer.player.id}.png`}
-                        alt={scorer.player.name}
-                        className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          console.log(`❌ [TopScorers] Photo failed for ${scorer.player.name} (ID: ${scorer.player.id}):`, target.src);
-                          
-                          // Try multiple photo sources in sequence with enhanced fallback
-                          if (target.src.includes('api-sports.io') && !target.src.includes('v=2')) {
-                            console.log(`🔄 [TopScorers] Trying 365Scores v21 for ${scorer.player.name}`);
-                            target.src = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${scorer.player.id}`;
-                          } else if (target.src.includes('365scores.com') && target.src.includes('v21')) {
-                            console.log(`🔄 [TopScorers] Trying 365Scores v6 format for ${scorer.player.name}`);
-                            target.src = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v6/Athletes/${scorer.player.id}`;
-                          } else if (target.src.includes('365scores.com') && target.src.includes('v6')) {
-                            console.log(`🔄 [TopScorers] Trying Resfu.com for ${scorer.player.name}`);
-                            target.src = `https://cdn.resfu.com/img_data/players/medium/${scorer.player.id}.jpg?size=120x&lossy=1`;
-                          } else if (target.src.includes('resfu.com')) {
-                            console.log(`🔄 [TopScorers] Trying 365Scores version-less format for ${scorer.player.name}`);
-                            target.src = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/Athletes/${scorer.player.id}`;
-                          } else if (target.src.includes('365scores.com') && !target.src.includes('v21') && !target.src.includes('v6') && !target.src.includes('default.png')) {
-                            console.log(`🔄 [TopScorers] Trying alternative API Sports v2 for ${scorer.player.name}`);
-                            target.src = `https://media.api-sports.io/football/players/${scorer.player.id}.png?v=2`;
-                          } else {
-                            // Final fallback to initials only when all photo sources fail
-                            console.log(`🎨 [TopScorers] All photo sources failed, using initials for ${scorer.player.name}`);
-                            const initials = scorer.player.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
-                            target.style.display = 'none';
-                            const parent = target.parentElement;
-                            if (parent) {
-                              parent.innerHTML = `<div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm">${initials}</div>`;
-                            }
-                          }
-                        }}
-                      />
-                    </div>
+                    <MyAvatarInfo
+                      playerId={scorer.player.id}
+                      playerName={scorer.player.name}
+                      teamId={playerStats?.team?.id}
+                      size="md"
+                      className="border-gray-200"
+                      sport="football"
+                    />
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
