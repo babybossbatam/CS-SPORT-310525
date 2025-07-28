@@ -236,12 +236,18 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     console.log(`⚠️ [MyAvatarInfo-${componentId}] Player details:`, {
       playerId,
       playerName,
-      teamId
+      teamId,
+      fallbackImage: FALLBACK_PLAYER_IMAGE
     });
 
-    // Always fall back to initials when image fails (no other sources)
-    console.log(`⚠️ [MyAvatarInfo-${componentId}] Image failed, using initials fallback`);
-    setImageUrl('INITIALS_FALLBACK');
+    // Go directly to initials fallback if primary source fails
+    if (imageUrl === FALLBACK_PLAYER_IMAGE) {
+      console.log(`⚠️ [MyAvatarInfo-${componentId}] Fallback image also failed, using initials`);
+      setImageUrl('INITIALS_FALLBACK');
+    } else {
+      console.log(`⚠️ [MyAvatarInfo-${componentId}] Primary source failed, trying static fallback image: ${FALLBACK_PLAYER_IMAGE}`);
+      setImageUrl(FALLBACK_PLAYER_IMAGE);
+    }
   };
 
   const generateInitials = (name?: string): string => {

@@ -89,7 +89,7 @@ class PlayerImageCache {
         // Check cache age first - if older than 6 hours, consider stale
         const age = Date.now() - cachedItem.timestamp;
         const sixHours = 6 * 60 * 60 * 1000; // 6 hours
-
+        
         if (age > sixHours) {
           console.log(`🔄 [PlayerImageCache] Cache older than 6 hours for: ${cachedItem.playerName} (age: ${Math.round(age / 1000 / 60)} min)`);
           return false;
@@ -109,26 +109,26 @@ class PlayerImageCache {
             mode: 'no-cors' // Avoid CORS issues
           });
           clearTimeout(timeoutId);
-
+          
           console.log(`✅ [PlayerImageCache] Cached image accessible: ${cachedItem.playerName}`);
           return true;
         } catch (error) {
           clearTimeout(timeoutId);
-
+          
           // Check if error is due to abort
           if (error instanceof Error && error.name === 'AbortError') {
             console.log(`⏱️ [PlayerImageCache] Image freshness check timed out for: ${cachedItem.playerName}`);
           } else {
             console.log(`⚠️ [PlayerImageCache] Cached image may be stale: ${cachedItem.url}`, error);
           }
-
+          
           // If cache is less than 1 hour old and we can't verify, assume it's still good
           const oneHour = 60 * 60 * 1000;
           if (age < oneHour) {
             console.log(`✅ [PlayerImageCache] Assuming recent cache is fresh: ${cachedItem.playerName}`);
             return true;
           }
-
+          
           return false;
         }
       }
@@ -137,7 +137,7 @@ class PlayerImageCache {
       return true;
     } catch (error) {
       console.warn(`⚠️ [PlayerImageCache] Error checking image freshness:`, error);
-
+      
       // If there's an error checking freshness, use age-based logic
       const age = Date.now() - cachedItem.timestamp;
       const maxAge = 2 * 60 * 60 * 1000; // 2 hours
@@ -151,7 +151,7 @@ class PlayerImageCache {
     const now = Date.now();
     const periodicRefreshInterval = 30 * 60 * 1000; // 30 minutes
     const shouldPeriodicRefresh = now % periodicRefreshInterval < 60000; // 1-minute window every 30 minutes
-
+    
     if (shouldPeriodicRefresh && !forceRefresh) {
       console.log(`🔄 [PlayerImageCache] Periodic refresh triggered for: ${playerName}`);
       forceRefresh = true;
@@ -159,11 +159,11 @@ class PlayerImageCache {
 
     // Check cache first
     const cached = this.getCachedImage(playerId, playerName);
-
+    
     if (cached && cached.verified && !forceRefresh) {
       // Check if the cached image is still fresh
       const isFresh = await this.isImageFresh(cached);
-
+      
       if (isFresh) {
         console.log(`✅ [PlayerImageCache] Using fresh cached image: ${playerName}`);
         return cached.url;
@@ -194,18 +194,35 @@ class PlayerImageCache {
       }
     }
 
-    // Only use ID-based photo search using our backend proxy (primary source only)
+    // Primary source: ID-based photo search using our backend proxy
     if (playerId) {
-      const idBasedUrl = `/api/player-photo/${playerId}`;
-      console.log(`🔍 [PlayerImageCache] Using primary source (ID-based proxy) for ${playerName}: ${idBasedUrl}`);
-
+      const primaryUrl = `/api/player-photo/${playerId}`;
+      console.log(`🔍 [PlayerImageCache] Using primary source (ID-based proxy) for ${playerName}: ${primaryUrl}`);
+      
       try {
         // Test if the proxy endpoint returns a real image (not a default/sample)
-        const testResponse = await fetch(idBasedUrl, { method: 'HEAD' });
+        const testResponse = await fetch(primaryUrl, { method: 'HEAD' });
         if (testResponse.ok && testResponse.headers.get('content-type')?.startsWith('image/')) {
-          console.log(`✅ [PlayerImageCache] Primary source found real image for ${playerName} (${playerId})`);
-          this.setCachedImage(playerId, playerName, idBasedUrl, 'api');
-          return idBasedUrl;
+          // Check content-length to detect default/sample images
+          const contentLength = testResponse.headers.get('content-length');
+          const cacheControl = testResponse.headers.get('cache-control');
+          
+          // 365Scores returns very small content-length for default images, or short cache times
+          const isLikelyDefaultImage = (
+            contentLength === '0' || 
+            contentLength === null ||
+            parseInt(contentLength || '0') < 500 || // Very small images are likely defaults
+            (cacheControl && cacheControl.includes('max-age=300')) // Short cache time indicates default
+          );
+          
+          if (isLikelyDefaultImage) {
+            console.log(`⚠️ [PlayerImageCache] Detected default/sample image for ${playerName} (${playerId}) - content-length: ${contentLength}, cache: ${cacheControl}`);
+            // Don't cache default images, fall through to initials
+          } else {
+            console.log(`✅ [PlayerImageCache] Primary source found real image for ${playerName} (${playerId}) - size: ${contentLength}`);
+            this.setCachedImage(playerId, playerName, primaryUrl, 'api');
+            return primaryUrl;
+          }
         } else {
           console.log(`⚠️ [PlayerImageCache] Primary source failed for ${playerName}: ${testResponse.status}`);
         }
@@ -214,8 +231,26 @@ class PlayerImageCache {
       }
     }
 
-    // All external sources are now handled by backend proxy
-    console.log(`🔄 [PlayerImageCache] Backend proxy sources exhausted for ${playerName} (${playerId}), using fallback`);
+    // Fallback to name-based search only if no player ID
+    if (!playerId && playerName) {
+      const nameBasedUrl = `/api/player-photo-by-name?name=${encodeURIComponent(playerName)}`;
+      console.log(`🔍 [PlayerImageCache] Trying name-based proxy for ${playerName}: ${nameBasedUrl}`);
+      
+      try {
+        const testResponse = await fetch(nameBasedUrl, { method: 'HEAD' });
+        if (testResponse.ok && testResponse.headers.get('content-type')?.startsWith('image/')) {
+          console.log(`✅ [PlayerImageCache] Name-based proxy found image for ${playerName}`);
+          this.setCachedImage(playerId, playerName, nameBasedUrl, 'api');
+          return nameBasedUrl;
+        } else {
+          console.log(`⚠️ [PlayerImageCache] Name-based proxy failed for ${playerName}: ${testResponse.status}`);
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerImageCache] Name-based proxy error for ${playerName}:`, error);
+      }
+    }
+
+    console.log(`🔄 [PlayerImageCache] Primary source exhausted for ${playerName} (${playerId}), using fallback`);
 
     // Final: Generated initials with colored background (always works)
     const initials = this.generateInitials(playerName);
@@ -254,17 +289,17 @@ class PlayerImageCache {
             signal: controller.signal
           });
           clearTimeout(timeoutId);
-
+          
           const isValid = response.ok;
           const headers = {
             lastModified: response.headers.get('last-modified') || undefined,
             etag: response.headers.get('etag') || undefined,
           };
-
+          
           return { isValid, headers };
         } catch (error) {
           clearTimeout(timeoutId);
-
+          
           if (error instanceof Error && error.name === 'AbortError') {
             console.warn(`⏱️ [PlayerImageCache] Local API validation timed out for ${url}`);
           } else {
@@ -282,7 +317,7 @@ class PlayerImageCache {
             method: 'GET',
             timeout: 3000
           });
-
+          
           if (response.ok) {
             const result = await response.json();
             console.log(`✅ [PlayerImageCache] Backend validation passed for ${url}`);
@@ -303,13 +338,13 @@ class PlayerImageCache {
             'thesportsdb.com',
             'transfermarkt.technology'
           ];
-
+          
           const isTrustedDomain = trustedDomains.some(domain => url.includes(domain));
           if (isTrustedDomain) {
             console.log(`✅ [PlayerImageCache] Falling back to trusted domain assumption for ${url}`);
             return { isValid: true };
           }
-
+          
           return { isValid: false };
         }
       }
@@ -439,14 +474,14 @@ class PlayerImageCache {
   invalidateOldCache(maxAgeMs: number = 2 * 60 * 60 * 1000): number {
     const now = Date.now();
     let invalidatedCount = 0;
-
+    
     for (const [key, item] of this.cache.entries()) {
       if (now - item.timestamp > maxAgeMs) {
         this.cache.delete(key);
         invalidatedCount++;
       }
     }
-
+    
     console.log(`🗑️ [PlayerImageCache] Invalidated ${invalidatedCount} old cache entries`);
     return invalidatedCount;
   }
@@ -455,15 +490,15 @@ class PlayerImageCache {
   getCacheStatus(): { total: number; bySource: Record<string, number>; averageAge: number } {
     const entries = Array.from(this.cache.values());
     const now = Date.now();
-
+    
     const bySource: Record<string, number> = {};
     let totalAge = 0;
-
+    
     entries.forEach(item => {
       bySource[item.source] = (bySource[item.source] || 0) + 1;
       totalAge += (now - item.timestamp);
     });
-
+    
     return {
       total: entries.length,
       bySource,
@@ -475,7 +510,7 @@ class PlayerImageCache {
   clearWrongPlayerImage(playerId?: number, playerName?: string): void {
     const key = this.getCacheKey(playerId, playerName);
     const cached = this.cache.get(key);
-
+    
     if (cached) {
       this.cache.delete(key);
       console.log(`🗑️ [PlayerImageCache] Cleared potentially wrong image for player: ${playerName} (${playerId})`);
