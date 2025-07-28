@@ -297,6 +297,73 @@ router.get('/player-photo-by-name', async (req, res) => {
       type: error.constructor.name
     });
     res.status(500).json({ error: 'Failed to fetch player photo' });
+
+// Image URL validation endpoint to avoid CORS issues
+router.get('/validate-image-url', async (req, res) => {
+  const { url } = req.query;
+
+  if (!url || typeof url !== 'string') {
+    return res.status(400).json({ error: 'Invalid URL parameter' });
+  }
+
+  console.log(`🔍 [ImageValidation] Validating URL: ${url}`);
+
+  try {
+    // Use HEAD request to check if image exists without downloading it
+    const response = await fetch(url, {
+      method: 'HEAD',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept': 'image/*,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Accept-Encoding': 'gzip, deflate',
+        'DNT': '1',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+      },
+      timeout: 5000,
+    });
+
+    console.log(`📡 [ImageValidation] Response status: ${response.status} for ${url}`);
+    console.log(`📡 [ImageValidation] Content-Type: ${response.headers.get('content-type')}`);
+
+    const isValid = response.ok && (
+      response.headers.get('content-type')?.startsWith('image/') ||
+      response.headers.get('content-type')?.includes('image') ||
+      // Some CDNs return different content types for HEAD requests
+      response.status === 200
+    );
+
+    const headers = {
+      lastModified: response.headers.get('last-modified') || undefined,
+      etag: response.headers.get('etag') || undefined,
+      contentType: response.headers.get('content-type') || undefined,
+    };
+
+    if (isValid) {
+      console.log(`✅ [ImageValidation] Valid image found: ${url}`);
+    } else {
+      console.log(`❌ [ImageValidation] Invalid or non-image response: ${url}`);
+    }
+
+    res.json({
+      isValid,
+      headers,
+      status: response.status,
+      url: url
+    });
+
+  } catch (error) {
+    console.error(`❌ [ImageValidation] Error validating ${url}:`, error);
+    res.status(500).json({
+      isValid: false,
+      error: error.message,
+      url: url
+    });
+  }
+});
+
+
   }
 });
 

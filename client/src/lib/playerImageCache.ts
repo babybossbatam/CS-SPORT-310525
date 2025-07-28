@@ -180,8 +180,9 @@ class PlayerImageCache {
       this.forceRefresh(playerId, playerName);
     }
 
-    // If we have team ID, try batch loading first as it's more reliable
-    if (teamId) {
+    // Skip batch loading to reduce API calls and rate limiting
+    // Only try batch loading if we have both playerId and teamId and no other options
+    if (teamId && playerId && !playerName) {
       try {
         await this.batchLoadPlayerImages(teamId);
         const cachedAfterBatch = this.getCachedImage(playerId, playerName);
@@ -189,7 +190,7 @@ class PlayerImageCache {
           return cachedAfterBatch.url;
         }
       } catch (error) {
-        console.warn(`⚠️ [PlayerImageCache] Batch loading failed for team ${teamId}:`, error);
+        console.warn(`⚠️ [PlayerImageCache] Batch loading skipped due to rate limits for team ${teamId}:`, error);
       }
     }
 
@@ -298,7 +299,7 @@ class PlayerImageCache {
       .slice(0, 2) || 'P';
   }
 
-  // Validate image URL and return validation result with headers
+  // Validate image URL using backend proxy to avoid CORS issues
   private async validateImageUrl(url: string): Promise<{ isValid: boolean; headers?: { lastModified?: string; etag?: string } }> {
     try {
       // For local API endpoints, do a proper validation
@@ -334,51 +335,48 @@ class PlayerImageCache {
         }
       }
 
-      // For external URLs, assume they work to avoid CORS issues
-      // Most external image CDNs don't allow HEAD requests from browsers
-      const trustedDomains = [
-        'media.api-sports.io',
-        'resources.premierleague.com',
-        'cdn.resfu.com', 
-        'imagecache.365scores.com',
-        'ui-avatars.com',
-        'thesportsdb.com',
-        'transfermarkt.technology'
-      ];
-
-      const isTrustedDomain = trustedDomains.some(domain => url.includes(domain));
-      
-      if (isTrustedDomain) {
-        console.log(`✅ [PlayerImageCache] Trusted domain for ${url}, assuming valid`);
-        return { isValid: true };
+      // For external URLs, use backend proxy to validate instead of direct browser calls
+      if (url.startsWith('https://')) {
+        try {
+          const proxyValidationUrl = `/api/validate-image-url?url=${encodeURIComponent(url)}`;
+          const response = await fetch(proxyValidationUrl, {
+            method: 'GET',
+            timeout: 3000
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            console.log(`✅ [PlayerImageCache] Backend validation passed for ${url}`);
+            return { isValid: result.isValid || false, headers: result.headers };
+          } else {
+            console.warn(`⚠️ [PlayerImageCache] Backend validation failed for ${url}: ${response.status}`);
+            return { isValid: false };
+          }
+        } catch (error) {
+          console.warn(`⚠️ [PlayerImageCache] Backend validation error for ${url}:`, error);
+          // Fallback to assuming trusted domains are valid
+          const trustedDomains = [
+            'media.api-sports.io',
+            'resources.premierleague.com',
+            'cdn.resfu.com', 
+            'imagecache.365scores.com',
+            'ui-avatars.com',
+            'thesportsdb.com',
+            'transfermarkt.technology'
+          ];
+          
+          const isTrustedDomain = trustedDomains.some(domain => url.includes(domain));
+          if (isTrustedDomain) {
+            console.log(`✅ [PlayerImageCache] Falling back to trusted domain assumption for ${url}`);
+            return { isValid: true };
+          }
+          
+          return { isValid: false };
+        }
       }
 
-      // For untrusted domains, use Image element validation (more reliable than fetch)
-      return new Promise((resolve) => {
-        const img = new Image();
-        const imageTimeout = setTimeout(() => {
-          img.onload = null;
-          img.onerror = null;
-          console.log(`⏱️ [PlayerImageCache] Image validation timed out for ${url}`);
-          resolve({ isValid: false });
-        }, 5000);
-
-        img.onload = () => {
-          clearTimeout(imageTimeout);
-          console.log(`✅ [PlayerImageCache] Image validation passed for ${url}`);
-          resolve({ isValid: true });
-        };
-
-        img.onerror = () => {
-          clearTimeout(imageTimeout);
-          console.warn(`⚠️ [PlayerImageCache] Image validation failed for ${url}`);
-          resolve({ isValid: false });
-        };
-
-        // Set crossOrigin to anonymous to handle CORS better
-        img.crossOrigin = 'anonymous';
-        img.src = url;
-      });
+      // For other URLs, consider them invalid
+      return { isValid: false };
     } catch (error) {
       console.warn(`⚠️ [PlayerImageCache] URL validation failed for ${url}:`, error);
       return { isValid: false };
