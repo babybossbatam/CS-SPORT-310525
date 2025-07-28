@@ -317,18 +317,6 @@ router.get('/player-photo-by-name', async (req, res) => {
   }
 });
 
-      // If no photo found, return 404
-    console.log(`❌ [PlayerPhotoByName] No photo found for "${name}"`);
-    return res.status(404).json({ error: 'Player photo not found' });
-
-  } catch (error) {
-    console.error(`❌ [PlayerPhotoByName] Error searching for player photo "${name}":`, error);
-    return res.status(500).json({ error: 'Failed to search for player photo' });
-  }
-});
-
-    
-
 // Image URL validation endpoint to avoid CORS issues
 router.get('/validate-image-url', async (req, res) => {
   const { url } = req.query;
@@ -395,10 +383,7 @@ router.get('/validate-image-url', async (req, res) => {
 });
 
 
-  }
-});
-
-// Player statistics endpoint
+  // Player statistics endpoint
 router.get('/player-statistics/:playerId', async (req, res) => {
   const { playerId } = req.params;
   const { team, season } = req.query;
