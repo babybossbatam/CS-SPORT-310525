@@ -146,6 +146,18 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       timestamp: now
     });
 
+    // Special debugging for Valencia
+    if (teamName && (teamName.toLowerCase().includes('valencia') || teamName.toLowerCase().includes('spain'))) {
+      console.log(`🇪🇸 [MyWorldTeamLogo] VALENCIA DEBUG - shouldUseCircularFlag:`, {
+        teamName,
+        result,
+        isNationalTeam,
+        leagueContext: leagueContext?.name,
+        country: leagueContext?.country,
+        cacheKey
+      });
+    }
+
     console.log(`💾 [MyWorldTeamLogo] Cached shouldUseCircularFlag result for ${teamName}: ${result}`);
     return result;
   }, [teamName, leagueContext]);
