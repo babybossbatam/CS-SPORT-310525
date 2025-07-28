@@ -1713,7 +1713,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const logoUrls = [
           `https://www.365scores.com/images/leagues/${leagueId}.png`,
           `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`,
-          `https://365scores.com/images/competitions/${leagueId}.png`,```text
+          `https://365scores.com/images/competitions/${leagueId}.png`,
           `https://static.365scores.com/images/leagues/${leagueId}.png`,
         ];
 
