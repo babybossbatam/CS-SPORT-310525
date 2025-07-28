@@ -135,14 +135,9 @@ const PopularLeaguesList = () => {
                 />
                 <div className="ml-3 flex-1">
                   <div className="text-sm">{league.name}</div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500 truncate">
-                      {league.country}
-                    </span>
-                    <span className="text-xs text-blue-600 font-medium">
-                      {league.popularity}%
-                    </span>
-                  </div>
+                  <span className="text-xs text-gray-500 truncate">
+                    {league.country}
+                  </span>
                 </div>
                 <button
                   onClick={(e) => {
