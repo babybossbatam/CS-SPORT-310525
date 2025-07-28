@@ -194,89 +194,48 @@ class PlayerImageCache {
       }
     }
 
-    // Primary: Name-based photo search using our backend endpoint
+    // Primary: Name-based photo search using our backend proxy
     if (playerName) {
       const nameBasedUrl = `/api/player-photo-by-name?name=${encodeURIComponent(playerName)}`;
-      console.log(`🔍 [PlayerImageCache] Trying primary source (name-based search) for ${playerName}: ${nameBasedUrl}`);
+      console.log(`🔍 [PlayerImageCache] Trying primary source (name-based proxy) for ${playerName}: ${nameBasedUrl}`);
       
       try {
-        const validationResult = await this.validateImageUrl(nameBasedUrl);
-        if (validationResult.isValid) {
-          this.setCachedImage(playerId, playerName, nameBasedUrl, 'api', validationResult.headers);
-          console.log(`✅ [PlayerImageCache] Validated and cached name-based URL: ${nameBasedUrl}`);
+        // Test if the proxy endpoint returns an image
+        const testResponse = await fetch(nameBasedUrl, { method: 'HEAD' });
+        if (testResponse.ok && testResponse.headers.get('content-type')?.startsWith('image/')) {
+          console.log(`✅ [PlayerImageCache] Name-based proxy found image for ${playerName}`);
+          this.setCachedImage(playerId, playerName, nameBasedUrl, 'api');
           return nameBasedUrl;
         } else {
-          console.log(`⚠️ [PlayerImageCache] Name-based search failed for ${playerName}, trying ID-based alternatives`);
+          console.log(`⚠️ [PlayerImageCache] Name-based proxy failed for ${playerName}: ${testResponse.status}`);
         }
       } catch (error) {
-        console.log(`⚠️ [PlayerImageCache] Name-based search error for ${playerName}:`, error);
+        console.log(`⚠️ [PlayerImageCache] Name-based proxy error for ${playerName}:`, error);
       }
     }
 
-    // Secondary: API-Sports.io player images (if ID available)
+    // Secondary: ID-based photo search using our backend proxy (if ID available)
     if (playerId) {
-      const apiSportsUrl = `https://media.api-sports.io/football/players/${playerId}.png`;
-      console.log(`🔍 [PlayerImageCache] Trying secondary source (API-Sports.io) for ${playerName}: ${apiSportsUrl}`);
+      const idBasedUrl = `/api/player-photo/${playerId}`;
+      console.log(`🔍 [PlayerImageCache] Trying secondary source (ID-based proxy) for ${playerName}: ${idBasedUrl}`);
       
       try {
-        const validationResult = await this.validateImageUrl(apiSportsUrl);
-        if (validationResult.isValid) {
-          this.setCachedImage(playerId, playerName, apiSportsUrl, 'api', validationResult.headers);
-          console.log(`✅ [PlayerImageCache] Validated and cached API-Sports URL: ${apiSportsUrl}`);
-          return apiSportsUrl;
+        // Test if the proxy endpoint returns an image
+        const testResponse = await fetch(idBasedUrl, { method: 'HEAD' });
+        if (testResponse.ok && testResponse.headers.get('content-type')?.startsWith('image/')) {
+          console.log(`✅ [PlayerImageCache] ID-based proxy found image for ${playerName} (${playerId})`);
+          this.setCachedImage(playerId, playerName, idBasedUrl, 'api');
+          return idBasedUrl;
         } else {
-          console.log(`⚠️ [PlayerImageCache] API-Sports validation failed for ${playerName}, trying alternatives`);
+          console.log(`⚠️ [PlayerImageCache] ID-based proxy failed for ${playerName}: ${testResponse.status}`);
         }
       } catch (error) {
-        console.log(`⚠️ [PlayerImageCache] API-Sports validation error for ${playerName}:`, error);
+        console.log(`⚠️ [PlayerImageCache] ID-based proxy error for ${playerName}:`, error);
       }
     }
 
-    // Tertiary: Multiple name-based external sources
-    if (playerName) {
-      const nameBasedSources = [
-        // Wikipedia/Wikimedia Commons (often has player photos)
-        `https://en.wikipedia.org/api/rest_v1/page/media-list/${encodeURIComponent(playerName.replace(/ /g, '_'))}`,
-        // Try a generic sports photo API (placeholder - would need actual service)
-        `https://www.thesportsdb.com/api/v1/json/1/searchplayers.php?p=${encodeURIComponent(playerName)}`,
-      ];
-
-      for (const nameUrl of nameBasedSources) {
-        try {
-          console.log(`🔍 [PlayerImageCache] Trying name-based source: ${nameUrl}`);
-          // For now, skip these as they need special handling
-          // We'll implement these later if needed
-          continue;
-        } catch (error) {
-          console.log(`⚠️ [PlayerImageCache] Name-based source failed: ${nameUrl}`);
-          continue;
-        }
-      }
-    }
-
-    // Quaternary: ID-based sources as fallback
-    if (playerId) {
-      const idBasedSources = [
-        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`,
-        `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`,
-        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v6/Athletes/${playerId}`,
-        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/Athletes/${playerId}`,
-      ];
-
-      for (const idUrl of idBasedSources) {
-        try {
-          const validationResult = await this.validateImageUrl(idUrl);
-          if (validationResult.isValid) {
-            console.log(`✅ [PlayerImageCache] Found working ID-based source for ${playerName}: ${idUrl}`);
-            this.setCachedImage(playerId, playerName, idUrl, 'api', validationResult.headers);
-            return idUrl;
-          }
-        } catch (error) {
-          console.log(`⚠️ [PlayerImageCache] ID-based source failed for player ${playerId}: ${idUrl}`);
-          continue;
-        }
-      }
-    }
+    // All external sources are now handled by backend proxy
+    console.log(`🔄 [PlayerImageCache] Backend proxy sources exhausted for ${playerName} (${playerId}), using fallback`);
 
     // Final: Generated initials with colored background (always works)
     const initials = this.generateInitials(playerName);

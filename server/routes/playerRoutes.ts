@@ -132,7 +132,7 @@ router.get('/leagues/:leagueId/players/images', async (req, res) => {
   }
 });
 
-// Simplified player photo endpoint using RapidAPI
+// Enhanced player photo proxy endpoint
 router.get('/player-photo/:playerId', async (req, res) => {
   const { playerId } = req.params;
 
@@ -143,13 +143,70 @@ router.get('/player-photo/:playerId', async (req, res) => {
     return res.status(400).json({ error: 'Invalid player ID' });
   }
 
-  console.log(`🔍 [PlayerPhoto] Fetching photo for player ${playerId} using 365Scores CDN`);
-
   try {
-    // Use 365Scores CDN format (primary source used in team batch endpoint)
+    // Set proper headers for image proxy
+    res.set({
+      'Cache-Control': 'public, max-age=86400', // 24 hours cache
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    });
+
+    // Try multiple CDN sources in order
+    const imageSources = [
+      `https://media.api-sports.io/football/players/${playerId}.png`,
+      `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`,
+      `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`,
+      `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`
+    ];
+
+    console.log(`🔍 [PlayerPhoto] Trying ${imageSources.length} sources for player ${playerId}`);
+
+    for (let i = 0; i < imageSources.length; i++) {
+      const imageUrl = imageSources[i];
+      console.log(`🔗 [PlayerPhoto] Trying source ${i + 1}: ${imageUrl}`);
+
+      try {
+        const imageResponse = await fetch(imageUrl, {
+          method: 'GET',
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept': 'image/*,*/*;q=0.8',
+            'Referer': 'https://www.365scores.com/',
+          },
+          timeout: 5000,
+        });
+
+        console.log(`📡 [PlayerPhoto] Source ${i + 1} response: ${imageResponse.status}`);
+
+        if (imageResponse.ok && imageResponse.headers.get('content-type')?.startsWith('image/')) {
+          console.log(`✅ [PlayerPhoto] Found valid image at source ${i + 1} for player ${playerId}`);
+          
+          // Set proper content type
+          res.set('Content-Type', imageResponse.headers.get('content-type') || 'image/png');
+          
+          // Stream the image directly to client
+          const imageBuffer = await imageResponse.buffer();
+          return res.send(imageBuffer);
+        }
+      } catch (sourceError) {
+        console.log(`⚠️ [PlayerPhoto] Source ${i + 1} failed: ${sourceError.message}`);
+        continue;
+      }
+    }
+
+    // If all sources fail, return 404
+    console.log(`❌ [PlayerPhoto] All sources failed for player ${playerId}`);
+    return res.status(404).json({ error: 'Player photo not found in any source' });
+
+  } catch (error) {
+    console.error(`❌ [PlayerPhoto] Error fetching player ${playerId}:`, error);
+    return res.status(500).json({ error: 'Failed to fetch player photo' });
+  }
+});
 
 
-// Name-based player photo search endpoint
+// Enhanced name-based player photo search with proper proxy
 router.get('/player-photo-by-name', async (req, res) => {
   const { name } = req.query;
 
@@ -161,33 +218,105 @@ router.get('/player-photo-by-name', async (req, res) => {
   console.log(`🔍 [PlayerPhotoByName] Searching photo for player name: "${name}"`);
 
   try {
-    // Try multiple name-based photo sources
-    const searchSources = [
-      // Source 1: Try to find player via RapidAPI search first
-      async () => {
-        const searchUrl = `https://api-football-v1.p.rapidapi.com/v3/players?search=${encodeURIComponent(name)}`;
-        const response = await fetch(searchUrl, {
-          headers: {
-            'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
-            'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com',
-          },
-        });
+    // Set CORS headers
+    res.set({
+      'Access-Control-Allow-Origin': '*',
+      'Cache-Control': 'public, max-age=3600', // 1 hour cache for name searches
+    });
 
-        if (response.ok) {
-          const data = await response.json();
-          if (data.response && data.response.length > 0) {
-            const player = data.response[0];
-            if (player.player?.photo && !player.player.photo.includes('default.png')) {
-              return player.player.photo;
-            }
-            // If photo exists but is default, try with player ID
-            if (player.player?.id) {
-              return `https://media.api-sports.io/football/players/${player.player.id}.png`;
-            }
+    // First try: Search via RapidAPI (with rate limiting protection)
+    let foundImageUrl = null;
+    let playerId = null;
+
+    try {
+      console.log(`🔍 [PlayerPhotoByName] Searching RapidAPI for: "${name}"`);
+      const searchUrl = `https://api-football-v1.p.rapidapi.com/v3/players?search=${encodeURIComponent(name)}`;
+      const searchResponse = await fetch(searchUrl, {
+        headers: {
+          'X-RapidAPI-Key': process.env.RAPIDAPI_KEY || process.env.RAPID_API_KEY || '',
+          'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com',
+        },
+        timeout: 5000,
+      });
+
+      if (searchResponse.ok) {
+        const searchData = await searchResponse.json();
+        console.log(`📊 [PlayerPhotoByName] RapidAPI found ${searchData.response?.length || 0} results for "${name}"`);
+        
+        if (searchData.response && searchData.response.length > 0) {
+          const player = searchData.response[0];
+          playerId = player.player?.id;
+          
+          // If we have a direct photo URL from API, try it first
+          if (player.player?.photo && !player.player.photo.includes('default.png')) {
+            foundImageUrl = player.player.photo;
+            console.log(`🎯 [PlayerPhotoByName] Found direct photo URL from API: ${foundImageUrl}`);
           }
         }
-        return null;
-      },
+      } else if (searchResponse.status === 429) {
+        console.log(`⚠️ [PlayerPhotoByName] RapidAPI rate limited, skipping API search`);
+      }
+    } catch (apiError) {
+      console.log(`⚠️ [PlayerPhotoByName] RapidAPI search failed: ${apiError.message}`);
+    }
+
+    // Build list of image URLs to try
+    const imageUrls = [];
+    
+    // Add API-found URL first if available
+    if (foundImageUrl) {
+      imageUrls.push(foundImageUrl);
+    }
+    
+    // Add ID-based URLs if we found a player ID
+    if (playerId) {
+      imageUrls.push(
+        `https://media.api-sports.io/football/players/${playerId}.png`,
+        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`,
+        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`
+      );
+    }
+
+    console.log(`🔗 [PlayerPhotoByName] Trying ${imageUrls.length} image URLs for "${name}"`);
+
+    // Try each image URL
+    for (let i = 0; i < imageUrls.length; i++) {
+      const imageUrl = imageUrls[i];
+      console.log(`🔗 [PlayerPhotoByName] Trying URL ${i + 1}: ${imageUrl}`);
+
+      try {
+        const imageResponse = await fetch(imageUrl, {
+          method: 'GET',
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept': 'image/*,*/*;q=0.8',
+          },
+          timeout: 5000,
+        });
+
+        if (imageResponse.ok && imageResponse.headers.get('content-type')?.startsWith('image/')) {
+          console.log(`✅ [PlayerPhotoByName] Found valid image for "${name}" at URL ${i + 1}`);
+          
+          // Set proper content type and stream image
+          res.set('Content-Type', imageResponse.headers.get('content-type') || 'image/png');
+          const imageBuffer = await imageResponse.buffer();
+          return res.send(imageBuffer);
+        }
+      } catch (urlError) {
+        console.log(`⚠️ [PlayerPhotoByName] URL ${i + 1} failed: ${urlError.message}`);
+        continue;
+      }
+    }
+
+    // If no photo found, return 404
+    console.log(`❌ [PlayerPhotoByName] No photo found for "${name}"`);
+    return res.status(404).json({ error: 'Player photo not found' });
+
+  } catch (error) {
+    console.error(`❌ [PlayerPhotoByName] Error searching for player photo "${name}":`, error);
+    return res.status(500).json({ error: 'Failed to search for player photo' });
+  }
+});
 
       // Source 2: Generate URL based on common name patterns
       async () => {
