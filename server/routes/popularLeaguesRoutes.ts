@@ -43,12 +43,16 @@ popularLeaguesRouter.get("/", async (req: Request, res: Response) => {
     // Check cache first
     const now = Date.now();
     if (cachedPopularLeagues && (now - cacheTimestamp) < CACHE_DURATION) {
-      console.log("💾 [PopularLeagues] Returning cached data");
+      console.log(`💾 [PopularLeagues] Returning cached data (${cachedPopularLeagues.length} leagues)`);
       return res.json(cachedPopularLeagues);
     }
 
+    console.log("🔄 [PopularLeagues] Cache expired or empty, fetching fresh data");
+
     // Fetch all leagues from API to get updated logos and info
     const allLeagues = await rapidApiService.getLeagues();
+    console.log(`📊 [PopularLeagues] Retrieved ${allLeagues?.length || 0} leagues from API`);
+    
     const popularLeaguesData = [];
 
     for (const config of POPULAR_LEAGUES_CONFIG) {
@@ -112,7 +116,14 @@ popularLeaguesRouter.get("/", async (req: Request, res: Response) => {
   } catch (error) {
     console.error("❌ [PopularLeagues] Error fetching popular leagues:", error);
     
+    // If we have cached data, return it even if expired
+    if (cachedPopularLeagues && cachedPopularLeagues.length > 0) {
+      console.log("⚠️ [PopularLeagues] Returning expired cache due to error");
+      return res.json(cachedPopularLeagues);
+    }
+    
     // Return fallback static data in case of API failure
+    console.log("🔄 [PopularLeagues] Using fallback static data");
     const fallbackData = POPULAR_LEAGUES_CONFIG.map(config => ({
       id: config.id,
       name: config.name,
@@ -124,6 +135,10 @@ popularLeaguesRouter.get("/", async (req: Request, res: Response) => {
       type: "League",
       season: new Date().getFullYear()
     })).sort((a, b) => b.popularity - a.popularity);
+
+    // Cache the fallback data
+    cachedPopularLeagues = fallbackData;
+    cacheTimestamp = Date.now();
 
     res.json(fallbackData);
   }

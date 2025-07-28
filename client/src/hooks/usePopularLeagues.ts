@@ -34,10 +34,16 @@ export function usePopularLeagues(): UsePopularLeaguesReturn {
       console.log('🏆 [usePopularLeagues] Fetching popular leagues...');
       
       const response = await apiRequest('GET', '/api/popular-leagues');
-      const data = await response.json();
       
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch popular leagues');
+        throw new Error(`HTTP ${response.status}: Failed to fetch popular leagues`);
+      }
+      
+      const data = await response.json();
+      
+      // Validate data structure
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid response format: expected array');
       }
       
       console.log(`✅ [usePopularLeagues] Successfully fetched ${data.length} leagues`);
@@ -56,7 +62,7 @@ export function usePopularLeagues(): UsePopularLeaguesReturn {
           const cacheAge = Date.now() - parsed.timestamp;
           const maxAge = 24 * 60 * 60 * 1000; // 24 hours
           
-          if (cacheAge < maxAge) {
+          if (cacheAge < maxAge && Array.isArray(parsed.data)) {
             console.log('📦 [usePopularLeagues] Using cached fallback data');
             setLeagues(parsed.data);
             setError(null);

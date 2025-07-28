@@ -121,6 +121,11 @@ const PopularLeaguesList = () => {
           <div className="flex flex-col items-center justify-center py-6 text-center">
             <AlertCircle className="h-8 w-8 text-gray-400 mb-2" />
             <p className="text-sm text-gray-500 mb-2">Failed to load leagues</p>
+            {error && (
+              <p className="text-xs text-gray-400 mb-3 max-w-xs">
+                {error.length > 60 ? `${error.substring(0, 60)}...` : error}
+              </p>
+            )}
             <Button
               variant="outline"
               size="sm"

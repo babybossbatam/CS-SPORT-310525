@@ -2659,7 +2659,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         data: leagues,
         count: leagues.length,
       });
-    } catch (error) {
+    } catch (error){
       console.error("❌ [SoccersAPI] Error fetching leagues:", error);
       res.status(500).json({
         success: false,
