@@ -589,19 +589,115 @@ const HomeTopScorersList = () => {
   const canScrollLeft = availableLeagues.length > 0;
   const canScrollRight = availableLeagues.length > 0;
 
-  // Auto-center selected league in navigation
+  // Auto-center selected league in navigation - Enhanced version
   useEffect(() => {
     if (
       !scrollContainerRef.current ||
       !selectedLeague ||
-      availableLeagues.length === 0 ||
-      containerWidth === 0 ||
-      contentWidth === 0
+      availableLeagues.length === 0
     ) {
       return;
     }
 
     const centerSelectedLeague = () => {
+      const container = scrollContainerRef.current;
+      if (!container) return false;
+
+      const selectedButton = container.querySelector(
+        `[data-league-id="${selectedLeague}"]`,
+      ) as HTMLElement;
+
+      if (selectedButton) {
+        // Get fresh measurements each time
+        const containerRect = container.getBoundingClientRect();
+        const buttonRect = selectedButton.getBoundingClientRect();
+        const contentContainer = container.querySelector('[data-content]') as HTMLElement;
+        
+        if (!contentContainer) return false;
+
+        const currentContainerWidth = containerRect.width;
+        const currentContentWidth = contentContainer.scrollWidth;
+        const buttonRelativeLeft = selectedButton.offsetLeft;
+        const buttonWidth = buttonRect.width;
+
+        // Calculate center position
+        const buttonCenter = buttonRelativeLeft + buttonWidth / 2;
+        const viewportCenter = currentContainerWidth / 2;
+        let targetPosition = buttonCenter - viewportCenter;
+
+        // Ensure we don't scroll beyond boundaries
+        const maxScroll = Math.max(0, currentContentWidth - currentContainerWidth);
+        targetPosition = Math.max(0, Math.min(maxScroll, targetPosition));
+
+        console.log(
+          `🎯 [Enhanced Auto-Center] Centering league: ${getCurrentLeague()?.name}`,
+          {
+            selectedLeague,
+            buttonRelativeLeft,
+            buttonWidth,
+            buttonCenter,
+            viewportCenter,
+            targetPosition,
+            maxScroll,
+            currentContainerWidth,
+            currentContentWidth,
+          },
+        );
+
+        setContentPosition(targetPosition);
+        return true;
+      }
+      return false;
+    };
+
+    // Enhanced timing with multiple attempts and better delays
+    let attempts = 0;
+    const maxAttempts = 8;
+    const delays = [0, 16, 50, 100, 200, 300, 500, 800]; // Progressive delays
+
+    const attemptCentering = () => {
+      const success = centerSelectedLeague();
+      
+      if (!success && attempts < maxAttempts) {
+        const delay = delays[attempts] || 1000;
+        setTimeout(() => {
+          attempts++;
+          attemptCentering();
+        }, delay);
+      }
+    };
+
+    // Start centering process
+    attemptCentering();
+
+    // Backup centering with intersection observer for better reliability
+    if (window.IntersectionObserver) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.target.getAttribute('data-league-id') === selectedLeague.toString()) {
+            setTimeout(centerSelectedLeague, 50);
+          }
+        });
+      });
+
+      const selectedButton = scrollContainerRef.current.querySelector(
+        `[data-league-id="${selectedLeague}"]`,
+      );
+      if (selectedButton) {
+        observer.observe(selectedButton);
+      }
+
+      return () => {
+        observer.disconnect();
+      };
+    }
+  }, [selectedLeague, availableLeagues.length]);
+
+  // Immediate centering for user interactions
+  useEffect(() => {
+    if (!selectedLeague || !scrollContainerRef.current) return;
+
+    const centerImmediately = () => {
       const container = scrollContainerRef.current;
       if (!container) return;
 
@@ -610,109 +706,48 @@ const HomeTopScorersList = () => {
       ) as HTMLElement;
 
       if (selectedButton) {
-        // Force a reflow to ensure DOM is updated
-        container.offsetHeight;
+        const containerRect = container.getBoundingClientRect();
+        const contentContainer = container.querySelector('[data-content]') as HTMLElement;
+        
+        if (!contentContainer) return;
 
-        // Get button's position relative to the content container
+        const currentContainerWidth = containerRect.width;
+        const currentContentWidth = contentContainer.scrollWidth;
         const buttonLeft = selectedButton.offsetLeft;
         const buttonWidth = selectedButton.offsetWidth;
-
-        // Calculate center position
         const buttonCenter = buttonLeft + buttonWidth / 2;
-        const viewportCenter = containerWidth / 2;
-
-        // Calculate how much to scroll to center the button
+        const viewportCenter = currentContainerWidth / 2;
         let targetPosition = buttonCenter - viewportCenter;
 
-        // Ensure we don't scroll beyond boundaries
-        const maxScroll = Math.max(0, contentWidth - containerWidth);
+        const maxScroll = Math.max(0, currentContentWidth - currentContainerWidth);
         targetPosition = Math.max(0, Math.min(maxScroll, targetPosition));
 
         console.log(
-          `🎯 [Auto-Center] Centering league: ${getCurrentLeague()?.name}`,
+          `🎯 [Immediate Center] User interaction centering for: ${getCurrentLeague()?.name}`,
           {
-            selectedLeague,
+            targetPosition,
             buttonLeft,
             buttonWidth,
-            buttonCenter,
-            viewportCenter,
-            targetPosition,
-            maxScroll,
-            containerWidth,
-            contentWidth,
-          },
-        );
-
-        setContentPosition(targetPosition);
-        return true; // Success
-      }
-      return false; // Failed to find button
-    };
-
-    // Enhanced timing strategy with validation
-    let attempts = 0;
-    const maxAttempts = 5;
-
-    const attemptCentering = () => {
-      attempts++;
-      const success = centerSelectedLeague();
-
-      if (!success && attempts < maxAttempts) {
-        // If centering failed, try again with increasing delay
-        setTimeout(attemptCentering, attempts * 50);
-      }
-    };
-
-    // Start centering attempts
-    const immediateTimer = setTimeout(attemptCentering, 0);
-    const quickTimer = setTimeout(attemptCentering, 16); // Next frame
-    const fallbackTimer = setTimeout(attemptCentering, 100);
-
-    return () => {
-      clearTimeout(immediateTimer);
-      clearTimeout(quickTimer);
-      clearTimeout(fallbackTimer);
-    };
-  }, [selectedLeague, availableLeagues.length, containerWidth, contentWidth]);
-
-  // Additional effect to handle centering when league selection changes via user interaction
-  useEffect(() => {
-    if (!selectedLeague || !scrollContainerRef.current) return;
-
-    // Use requestAnimationFrame for smooth centering after state updates
-    const rafId = requestAnimationFrame(() => {
-      const container = scrollContainerRef.current;
-      if (!container) return;
-
-      const selectedButton = container.querySelector(
-        `[data-league-id="${selectedLeague}"]`,
-      ) as HTMLElement;
-
-      if (selectedButton && containerWidth > 0 && contentWidth > 0) {
-        const buttonLeft = selectedButton.offsetLeft;
-        const buttonWidth = selectedButton.offsetWidth;
-        const buttonCenter = buttonLeft + buttonWidth / 2;
-        const viewportCenter = containerWidth / 2;
-        let targetPosition = buttonCenter - viewportCenter;
-
-        const maxScroll = Math.max(0, contentWidth - containerWidth);
-        targetPosition = Math.max(0, Math.min(maxScroll, targetPosition));
-
-        console.log(
-          `🎯 [RAF Auto-Center] Immediate centering for: ${getCurrentLeague()?.name}`,
-          {
-            targetPosition,
+            currentContainerWidth,
+            currentContentWidth,
           },
         );
 
         setContentPosition(targetPosition);
       }
-    });
+    };
+
+    // Use multiple timing strategies for immediate response
+    const rafId = requestAnimationFrame(centerImmediately);
+    const timeoutId = setTimeout(centerImmediately, 0);
+    const fallbackId = setTimeout(centerImmediately, 50);
 
     return () => {
       cancelAnimationFrame(rafId);
+      clearTimeout(timeoutId);
+      clearTimeout(fallbackId);
     };
-  }, [selectedLeague]); // Only depend on selectedLeague for immediate response
+  }, [selectedLeague]);
 
   if (isLoadingLeagues || !selectedLeague) {
     return (
