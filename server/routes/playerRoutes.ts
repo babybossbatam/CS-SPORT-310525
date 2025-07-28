@@ -152,52 +152,41 @@ router.get('/player-photo/:playerId', async (req, res) => {
       'Access-Control-Allow-Headers': 'Content-Type',
     });
 
-    // Try multiple CDN sources in order
-    const imageSources = [
-      `https://media.api-sports.io/football/players/${playerId}.png`,
-      `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`,
-      `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`,
-      `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`
-    ];
+    // Use only primary source: 365Scores CDN
+    const primaryImageUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
+    
+    console.log(`🔗 [PlayerPhoto] Using primary source only: ${primaryImageUrl}`);
 
-    console.log(`🔍 [PlayerPhoto] Trying ${imageSources.length} sources for player ${playerId}`);
+    try {
+      const imageResponse = await fetch(primaryImageUrl, {
+        method: 'GET',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          'Accept': 'image/*,*/*;q=0.8',
+          'Referer': 'https://www.365scores.com/',
+        },
+        timeout: 5000,
+      });
 
-    for (let i = 0; i < imageSources.length; i++) {
-      const imageUrl = imageSources[i];
-      console.log(`🔗 [PlayerPhoto] Trying source ${i + 1}: ${imageUrl}`);
+      console.log(`📡 [PlayerPhoto] Primary source response: ${imageResponse.status}`);
 
-      try {
-        const imageResponse = await fetch(imageUrl, {
-          method: 'GET',
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            'Accept': 'image/*,*/*;q=0.8',
-            'Referer': 'https://www.365scores.com/',
-          },
-          timeout: 5000,
-        });
-
-        console.log(`📡 [PlayerPhoto] Source ${i + 1} response: ${imageResponse.status}`);
-
-        if (imageResponse.ok && imageResponse.headers.get('content-type')?.startsWith('image/')) {
-          console.log(`✅ [PlayerPhoto] Found valid image at source ${i + 1} for player ${playerId}`);
-          
-          // Set proper content type
-          res.set('Content-Type', imageResponse.headers.get('content-type') || 'image/png');
-          
-          // Stream the image directly to client
-          const imageBuffer = await imageResponse.buffer();
-          return res.send(imageBuffer);
-        }
-      } catch (sourceError) {
-        console.log(`⚠️ [PlayerPhoto] Source ${i + 1} failed: ${sourceError.message}`);
-        continue;
+      if (imageResponse.ok && imageResponse.headers.get('content-type')?.startsWith('image/')) {
+        console.log(`✅ [PlayerPhoto] Found valid image from primary source for player ${playerId}`);
+        
+        // Set proper content type
+        res.set('Content-Type', imageResponse.headers.get('content-type') || 'image/png');
+        
+        // Stream the image directly to client
+        const imageBuffer = await imageResponse.buffer();
+        return res.send(imageBuffer);
+      } else {
+        console.log(`❌ [PlayerPhoto] Primary source failed for player ${playerId}: ${imageResponse.status}`);
+        return res.status(404).json({ error: 'Player photo not found in primary source' });
       }
+    } catch (error) {
+      console.log(`❌ [PlayerPhoto] Primary source error for player ${playerId}: ${error.message}`);
+      return res.status(404).json({ error: 'Player photo not found in primary source' });
     }
-
-    // If all sources fail, return 404
-    console.log(`❌ [PlayerPhoto] All sources failed for player ${playerId}`);
-    return res.status(404).json({ error: 'Player photo not found in any source' });
 
   } catch (error) {
     console.error(`❌ [PlayerPhoto] Error fetching player ${playerId}:`, error);
@@ -260,32 +249,14 @@ router.get('/player-photo-by-name', async (req, res) => {
       console.log(`⚠️ [PlayerPhotoByName] RapidAPI search failed: ${apiError.message}`);
     }
 
-    // Build list of image URLs to try
-    const imageUrls = [];
-    
-    // Add API-found URL first if available
-    if (foundImageUrl) {
-      imageUrls.push(foundImageUrl);
-    }
-    
-    // Add ID-based URLs if we found a player ID
+    // Use only primary source if we found a player ID
     if (playerId) {
-      imageUrls.push(
-        `https://media.api-sports.io/football/players/${playerId}.png`,
-        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`,
-        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`
-      );
-    }
-
-    console.log(`🔗 [PlayerPhotoByName] Trying ${imageUrls.length} image URLs for "${name}"`);
-
-    // Try each image URL
-    for (let i = 0; i < imageUrls.length; i++) {
-      const imageUrl = imageUrls[i];
-      console.log(`🔗 [PlayerPhotoByName] Trying URL ${i + 1}: ${imageUrl}`);
+      const primaryImageUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
+      
+      console.log(`🔗 [PlayerPhotoByName] Using primary source for "${name}": ${primaryImageUrl}`);
 
       try {
-        const imageResponse = await fetch(imageUrl, {
+        const imageResponse = await fetch(primaryImageUrl, {
           method: 'GET',
           headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -295,16 +266,17 @@ router.get('/player-photo-by-name', async (req, res) => {
         });
 
         if (imageResponse.ok && imageResponse.headers.get('content-type')?.startsWith('image/')) {
-          console.log(`✅ [PlayerPhotoByName] Found valid image for "${name}" at URL ${i + 1}`);
+          console.log(`✅ [PlayerPhotoByName] Found valid image for "${name}" from primary source`);
           
           // Set proper content type and stream image
           res.set('Content-Type', imageResponse.headers.get('content-type') || 'image/png');
           const imageBuffer = await imageResponse.buffer();
           return res.send(imageBuffer);
+        } else {
+          console.log(`❌ [PlayerPhotoByName] Primary source failed for "${name}": ${imageResponse.status}`);
         }
-      } catch (urlError) {
-        console.log(`⚠️ [PlayerPhotoByName] URL ${i + 1} failed: ${urlError.message}`);
-        continue;
+      } catch (error) {
+        console.log(`⚠️ [PlayerPhotoByName] Primary source error for "${name}": ${error.message}`);
       }
     }
 

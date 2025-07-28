@@ -194,13 +194,32 @@ class PlayerImageCache {
       }
     }
 
-    // Primary: Name-based photo search using our backend proxy
-    if (playerName) {
-      const nameBasedUrl = `/api/player-photo-by-name?name=${encodeURIComponent(playerName)}`;
-      console.log(`🔍 [PlayerImageCache] Trying primary source (name-based proxy) for ${playerName}: ${nameBasedUrl}`);
+    // Primary source: ID-based photo search using our backend proxy
+    if (playerId) {
+      const primaryUrl = `/api/player-photo/${playerId}`;
+      console.log(`🔍 [PlayerImageCache] Using primary source (ID-based proxy) for ${playerName}: ${primaryUrl}`);
       
       try {
         // Test if the proxy endpoint returns an image
+        const testResponse = await fetch(primaryUrl, { method: 'HEAD' });
+        if (testResponse.ok && testResponse.headers.get('content-type')?.startsWith('image/')) {
+          console.log(`✅ [PlayerImageCache] Primary source found image for ${playerName} (${playerId})`);
+          this.setCachedImage(playerId, playerName, primaryUrl, 'api');
+          return primaryUrl;
+        } else {
+          console.log(`⚠️ [PlayerImageCache] Primary source failed for ${playerName}: ${testResponse.status}`);
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerImageCache] Primary source error for ${playerName}:`, error);
+      }
+    }
+
+    // Fallback to name-based search only if no player ID
+    if (!playerId && playerName) {
+      const nameBasedUrl = `/api/player-photo-by-name?name=${encodeURIComponent(playerName)}`;
+      console.log(`🔍 [PlayerImageCache] Trying name-based proxy for ${playerName}: ${nameBasedUrl}`);
+      
+      try {
         const testResponse = await fetch(nameBasedUrl, { method: 'HEAD' });
         if (testResponse.ok && testResponse.headers.get('content-type')?.startsWith('image/')) {
           console.log(`✅ [PlayerImageCache] Name-based proxy found image for ${playerName}`);
@@ -214,28 +233,7 @@ class PlayerImageCache {
       }
     }
 
-    // Secondary: ID-based photo search using our backend proxy (if ID available)
-    if (playerId) {
-      const idBasedUrl = `/api/player-photo/${playerId}`;
-      console.log(`🔍 [PlayerImageCache] Trying secondary source (ID-based proxy) for ${playerName}: ${idBasedUrl}`);
-      
-      try {
-        // Test if the proxy endpoint returns an image
-        const testResponse = await fetch(idBasedUrl, { method: 'HEAD' });
-        if (testResponse.ok && testResponse.headers.get('content-type')?.startsWith('image/')) {
-          console.log(`✅ [PlayerImageCache] ID-based proxy found image for ${playerName} (${playerId})`);
-          this.setCachedImage(playerId, playerName, idBasedUrl, 'api');
-          return idBasedUrl;
-        } else {
-          console.log(`⚠️ [PlayerImageCache] ID-based proxy failed for ${playerName}: ${testResponse.status}`);
-        }
-      } catch (error) {
-        console.log(`⚠️ [PlayerImageCache] ID-based proxy error for ${playerName}:`, error);
-      }
-    }
-
-    // All external sources are now handled by backend proxy
-    console.log(`🔄 [PlayerImageCache] Backend proxy sources exhausted for ${playerName} (${playerId}), using fallback`);
+    console.log(`🔄 [PlayerImageCache] Primary source exhausted for ${playerName} (${playerId}), using fallback`);
 
     // Final: Generated initials with colored background (always works)
     const initials = this.generateInitials(playerName);
