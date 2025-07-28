@@ -57,8 +57,9 @@ router.get('/teams/:teamId/players/images', async (req, res) => {
         // Create cache key for the player
         const cacheKey = `${playerId}_${playerName || 'unknown'}`;
 
-        // Primary CDN source (365Scores) - Updated URL format
-        const imageUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
+        // Primary CDN source (365Scores) - Dynamic format matching observed patterns
+        // Use v21 as primary (most recent version observed), with fallback capability
+        const imageUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`;
         playerImages[cacheKey] = imageUrl;
 
         // Store individual player ID mapping for backward compatibility

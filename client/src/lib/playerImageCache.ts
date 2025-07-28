@@ -219,17 +219,28 @@ class PlayerImageCache {
       }
     }
 
-    // Tertiary: 365scores.com image cache using player ID
+    // Tertiary: 365scores.com image cache using player ID (dynamic format matching)
     if (playerId) {
-      const scores365Url = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
-      try {
-        const validationResult = await this.validateImageUrl(scores365Url);
-        if (validationResult.isValid) {
-          this.setCachedImage(playerId, playerName, scores365Url, 'api', validationResult.headers);
-          return scores365Url;
+      // Try multiple 365scores formats based on the examples you provided
+      const scores365Formats = [
+        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`,
+        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v6/Athletes/${playerId}`,
+        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/Athletes/${playerId}`,
+        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`, // Keep original as fallback
+      ];
+
+      for (const scores365Url of scores365Formats) {
+        try {
+          const validationResult = await this.validateImageUrl(scores365Url);
+          if (validationResult.isValid) {
+            console.log(`✅ [PlayerImageCache] Found working 365scores format for ${playerName}: ${scores365Url}`);
+            this.setCachedImage(playerId, playerName, scores365Url, 'api', validationResult.headers);
+            return scores365Url;
+          }
+        } catch (error) {
+          console.log(`⚠️ [PlayerImageCache] 365scores format failed for player ${playerId}: ${scores365Url}`);
+          continue;
         }
-      } catch (error) {
-        console.log(`⚠️ [PlayerImageCache] 365scores.com validation failed for player ${playerId}`);
       }
     }
 

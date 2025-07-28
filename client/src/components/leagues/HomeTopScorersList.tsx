@@ -953,8 +953,18 @@ const HomeTopScorersList = () => {
                             console.log(`🔄 [TopScorers] Trying 365Scores for ${scorer.player.name}`);
                             target.src = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${scorer.player.id}`;
                           } else if (target.src.includes('365scores.com') && !target.src.includes('default.png')) {
-                            console.log(`🔄 [TopScorers] Trying alternative API Sports for ${scorer.player.name}`);
-                            target.src = `https://media.api-sports.io/football/players/${scorer.player.id}.png?v=2`;
+                            // Try different 365scores versions dynamically
+                            const currentUrl = target.src;
+                            if (currentUrl.includes('/v21/')) {
+                              console.log(`🔄 [TopScorers] Trying v6 format for ${scorer.player.name}`);
+                              target.src = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v6/Athletes/${scorer.player.id}`;
+                            } else if (currentUrl.includes('/v6/')) {
+                              console.log(`🔄 [TopScorers] Trying version-less format for ${scorer.player.name}`);
+                              target.src = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/Athletes/${scorer.player.id}`;
+                            } else {
+                              console.log(`🔄 [TopScorers] Trying alternative API Sports for ${scorer.player.name}`);
+                              target.src = `https://media.api-sports.io/football/players/${scorer.player.id}.png?v=2`;
+                            }
                           } else {
                             // Final fallback to initials only when all photo sources fail
                             console.log(`🎨 [TopScorers] All photo sources failed, using initials for ${scorer.player.name}`);
