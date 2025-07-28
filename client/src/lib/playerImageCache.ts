@@ -194,49 +194,13 @@ class PlayerImageCache {
       }
     }
 
-    // Primary source: ID-based photo search using our backend proxy
-    if (playerId) {
-      const primaryUrl = `/api/player-photo/${playerId}`;
-      console.log(`🔍 [PlayerImageCache] Using primary source (ID-based proxy) for ${playerName}: ${primaryUrl}`);
-      
-      try {
-        // Test if the proxy endpoint returns a real image (not a default/sample)
-        const testResponse = await fetch(primaryUrl, { method: 'HEAD' });
-        if (testResponse.ok && testResponse.headers.get('content-type')?.startsWith('image/')) {
-          // Check content-length to detect default/sample images
-          const contentLength = testResponse.headers.get('content-length');
-          const cacheControl = testResponse.headers.get('cache-control');
-          
-          // 365Scores returns very small content-length for default images, or short cache times
-          const isLikelyDefaultImage = (
-            contentLength === '0' || 
-            contentLength === null ||
-            parseInt(contentLength || '0') < 500 || // Very small images are likely defaults
-            (cacheControl && cacheControl.includes('max-age=300')) // Short cache time indicates default
-          );
-          
-          if (isLikelyDefaultImage) {
-            console.log(`⚠️ [PlayerImageCache] Detected default/sample image for ${playerName} (${playerId}) - content-length: ${contentLength}, cache: ${cacheControl}`);
-            // Don't cache default images, fall through to initials
-          } else {
-            console.log(`✅ [PlayerImageCache] Primary source found real image for ${playerName} (${playerId}) - size: ${contentLength}`);
-            this.setCachedImage(playerId, playerName, primaryUrl, 'api');
-            return primaryUrl;
-          }
-        } else {
-          console.log(`⚠️ [PlayerImageCache] Primary source failed for ${playerName}: ${testResponse.status}`);
-        }
-      } catch (error) {
-        console.log(`⚠️ [PlayerImageCache] Primary source error for ${playerName}:`, error);
-      }
-    }
-
-    // Fallback to name-based search only if no player ID
-    if (!playerId && playerName) {
+    // Primary: Name-based photo search using our backend proxy
+    if (playerName) {
       const nameBasedUrl = `/api/player-photo-by-name?name=${encodeURIComponent(playerName)}`;
-      console.log(`🔍 [PlayerImageCache] Trying name-based proxy for ${playerName}: ${nameBasedUrl}`);
+      console.log(`🔍 [PlayerImageCache] Trying primary source (name-based proxy) for ${playerName}: ${nameBasedUrl}`);
       
       try {
+        // Test if the proxy endpoint returns an image
         const testResponse = await fetch(nameBasedUrl, { method: 'HEAD' });
         if (testResponse.ok && testResponse.headers.get('content-type')?.startsWith('image/')) {
           console.log(`✅ [PlayerImageCache] Name-based proxy found image for ${playerName}`);
@@ -250,7 +214,28 @@ class PlayerImageCache {
       }
     }
 
-    console.log(`🔄 [PlayerImageCache] Primary source exhausted for ${playerName} (${playerId}), using fallback`);
+    // Secondary: ID-based photo search using our backend proxy (if ID available)
+    if (playerId) {
+      const idBasedUrl = `/api/player-photo/${playerId}`;
+      console.log(`🔍 [PlayerImageCache] Trying secondary source (ID-based proxy) for ${playerName}: ${idBasedUrl}`);
+      
+      try {
+        // Test if the proxy endpoint returns an image
+        const testResponse = await fetch(idBasedUrl, { method: 'HEAD' });
+        if (testResponse.ok && testResponse.headers.get('content-type')?.startsWith('image/')) {
+          console.log(`✅ [PlayerImageCache] ID-based proxy found image for ${playerName} (${playerId})`);
+          this.setCachedImage(playerId, playerName, idBasedUrl, 'api');
+          return idBasedUrl;
+        } else {
+          console.log(`⚠️ [PlayerImageCache] ID-based proxy failed for ${playerName}: ${testResponse.status}`);
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerImageCache] ID-based proxy error for ${playerName}:`, error);
+      }
+    }
+
+    // All external sources are now handled by backend proxy
+    console.log(`🔄 [PlayerImageCache] Backend proxy sources exhausted for ${playerName} (${playerId}), using fallback`);
 
     // Final: Generated initials with colored background (always works)
     const initials = this.generateInitials(playerName);
