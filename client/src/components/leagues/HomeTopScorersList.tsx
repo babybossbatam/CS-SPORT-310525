@@ -353,10 +353,17 @@ const HomeTopScorersList = () => {
 
       const data: PlayerStatistics[] = await response.json();
 
-      // Filter for current/recent season data only
+      // Filter for current/recent season data AND ensure players actually played in the selected league
       const freshData = data.filter((scorer) => {
-        const seasonYear = scorer.statistics[0]?.league?.season;
-        if (!seasonYear) return false;
+        const playerStats = scorer.statistics[0];
+        const seasonYear = playerStats?.league?.season;
+        const playerLeagueId = playerStats?.league?.id;
+        
+        // Must have valid season and league data
+        if (!seasonYear || !playerLeagueId) return false;
+        
+        // CRITICAL: Only include players who actually played in the selected league
+        if (playerLeagueId !== selectedLeague) return false;
 
         const currentYear = new Date().getFullYear();
 
