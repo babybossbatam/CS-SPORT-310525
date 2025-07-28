@@ -315,7 +315,7 @@ class PlayerImageCache {
           });
           clearTimeout(timeoutId);
           
-          const isValid = response.ok && response.headers.get('content-type')?.startsWith('image/');
+          const isValid = response.ok;
           const headers = {
             lastModified: response.headers.get('last-modified') || undefined,
             etag: response.headers.get('etag') || undefined,
@@ -334,8 +334,8 @@ class PlayerImageCache {
         }
       }
 
-      // For external URLs, use a more lenient approach
-      // Skip validation for known reliable sources to avoid CORS issues
+      // For external URLs, assume they work to avoid CORS issues
+      // Most external image CDNs don't allow HEAD requests from browsers
       const trustedDomains = [
         'media.api-sports.io',
         'resources.premierleague.com',
@@ -349,60 +349,36 @@ class PlayerImageCache {
       const isTrustedDomain = trustedDomains.some(domain => url.includes(domain));
       
       if (isTrustedDomain) {
-        console.log(`✅ [PlayerImageCache] Trusted domain for ${url}, skipping validation`);
+        console.log(`✅ [PlayerImageCache] Trusted domain for ${url}, assuming valid`);
         return { isValid: true };
       }
 
-      // For untrusted domains, try validation with better error handling
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => {
-        controller.abort('Timeout: External URL validation exceeded 3000ms');
-      }, 3000);
+      // For untrusted domains, use Image element validation (more reliable than fetch)
+      return new Promise((resolve) => {
+        const img = new Image();
+        const imageTimeout = setTimeout(() => {
+          img.onload = null;
+          img.onerror = null;
+          console.log(`⏱️ [PlayerImageCache] Image validation timed out for ${url}`);
+          resolve({ isValid: false });
+        }, 5000);
 
-      try {
-        const response = await fetch(url, { 
-          method: 'HEAD',
-          signal: controller.signal,
-          mode: 'no-cors'
-        });
-        clearTimeout(timeoutId);
+        img.onload = () => {
+          clearTimeout(imageTimeout);
+          console.log(`✅ [PlayerImageCache] Image validation passed for ${url}`);
+          resolve({ isValid: true });
+        };
 
-        console.log(`🔍 [PlayerImageCache] No-CORS validation passed for ${url}`);
-        return { isValid: true };
-      } catch (error) {
-        clearTimeout(timeoutId);
-        
-        if (error instanceof Error && error.name === 'AbortError') {
-          console.log(`⏱️ [PlayerImageCache] External URL validation timed out for ${url}`);
-        } else {
-          console.warn(`⚠️ [PlayerImageCache] External URL validation failed for ${url}:`, error);
-        }
-        
-        // If fetch fails, try a different approach - create an Image element
-        return new Promise((resolve) => {
-          const img = new Image();
-          const imageTimeout = setTimeout(() => {
-            img.onload = null;
-            img.onerror = null;
-            console.log(`⏱️ [PlayerImageCache] Image element validation timed out for ${url}`);
-            resolve({ isValid: false });
-          }, 3000);
+        img.onerror = () => {
+          clearTimeout(imageTimeout);
+          console.warn(`⚠️ [PlayerImageCache] Image validation failed for ${url}`);
+          resolve({ isValid: false });
+        };
 
-          img.onload = () => {
-            clearTimeout(imageTimeout);
-            console.log(`✅ [PlayerImageCache] Image element validation passed for ${url}`);
-            resolve({ isValid: true });
-          };
-
-          img.onerror = () => {
-            clearTimeout(imageTimeout);
-            console.warn(`⚠️ [PlayerImageCache] Image element validation failed for ${url}`);
-            resolve({ isValid: false });
-          };
-
-          img.src = url;
-        });
-      }
+        // Set crossOrigin to anonymous to handle CORS better
+        img.crossOrigin = 'anonymous';
+        img.src = url;
+      });
     } catch (error) {
       console.warn(`⚠️ [PlayerImageCache] URL validation failed for ${url}:`, error);
       return { isValid: false };
