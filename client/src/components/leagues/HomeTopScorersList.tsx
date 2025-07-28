@@ -360,10 +360,25 @@ const HomeTopScorersList = () => {
         const playerLeagueId = playerStats?.league?.id;
         
         // Must have valid season and league data
-        if (!seasonYear || !playerLeagueId) return false;
+        if (!seasonYear || !playerLeagueId) {
+          console.log(`❌ [HomeTopScorers] Filtering out player ${scorer.player?.name} - missing season/league data:`, {
+            seasonYear,
+            playerLeagueId,
+            selectedLeague
+          });
+          return false;
+        }
         
         // CRITICAL: Only include players who actually played in the selected league
-        if (playerLeagueId !== selectedLeague) return false;
+        if (playerLeagueId !== selectedLeague) {
+          console.log(`❌ [HomeTopScorers] Filtering out player ${scorer.player?.name} - wrong league:`, {
+            playerLeagueId,
+            selectedLeague,
+            playerLeagueName: playerStats?.league?.name,
+            selectedLeagueName: availableLeagues.find(l => l.id === selectedLeague)?.name
+          });
+          return false;
+        }
 
         const currentYear = new Date().getFullYear();
 
@@ -371,7 +386,12 @@ const HomeTopScorersList = () => {
         // CONMEBOL WC Qualification runs for 2026 World Cup
         if (selectedLeague === 34) {
           // CONMEBOL WC Qualification
-          return seasonYear >= 2024 && seasonYear <= 2026;
+          const isValidSeason = seasonYear >= 2024 && seasonYear <= 2026;
+          console.log(`🔍 [HomeTopScorers] CONMEBOL WC Qualification season check for ${scorer.player?.name}:`, {
+            seasonYear,
+            isValidSeason
+          });
+          return isValidSeason;
         }
 
         // For other competitions, use standard season logic
@@ -386,7 +406,18 @@ const HomeTopScorersList = () => {
         }
 
         // Include current season and next season for ongoing competitions
-        return seasonYear >= currentSeason && seasonYear <= currentYear + 1;
+        const isValidSeason = seasonYear >= currentSeason && seasonYear <= currentYear + 1;
+        
+        console.log(`🔍 [HomeTopScorers] Season validation for ${scorer.player?.name} in ${playerStats?.league?.name}:`, {
+          seasonYear,
+          currentSeason,
+          currentYear,
+          isValidSeason,
+          playerLeagueId,
+          selectedLeague
+        });
+        
+        return isValidSeason;
       });
 
       return freshData.sort((a, b) => {
