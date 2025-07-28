@@ -213,7 +213,22 @@ class PlayerImageCache {
       }
     }
 
-    // Secondary: 365scores.com v21 format (most reliable alternative)
+    // Secondary: Premier League official player photos (high quality)
+    if (playerId) {
+      const premierLeagueUrl = `https://resources.premierleague.com/premierleague/photos/players/250x250/p${playerId}.png`;
+      try {
+        const validationResult = await this.validateImageUrl(premierLeagueUrl);
+        if (validationResult.isValid) {
+          console.log(`✅ [PlayerImageCache] Premier League official photo worked for ${playerName}: ${premierLeagueUrl}`);
+          this.setCachedImage(playerId, playerName, premierLeagueUrl, 'api', validationResult.headers);
+          return premierLeagueUrl;
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerImageCache] Premier League validation failed for player ${playerId}`);
+      }
+    }
+
+    // Tertiary: 365scores.com v21 format (reliable alternative)
     if (playerId) {
       const scores365v21Url = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`;
       try {
@@ -228,7 +243,7 @@ class PlayerImageCache {
       }
     }
 
-    // Tertiary: Resfu.com player database
+    // Quaternary: Resfu.com player database
     if (playerId) {
       const resfuUrl = `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`;
       try {
@@ -242,7 +257,7 @@ class PlayerImageCache {
       }
     }
 
-    // Quaternary: Other 365scores.com formats (dynamic format matching)
+    // Fifth: Other 365scores.com formats (dynamic format matching)
     if (playerId) {
       // Try other 365scores formats as fallback
       const scores365Formats = [
@@ -327,6 +342,7 @@ class PlayerImageCache {
       // Skip validation for known reliable sources to avoid CORS issues
       const trustedDomains = [
         'media.api-sports.io',
+        'resources.premierleague.com',
         'cdn.resfu.com', 
         'imagecache.365scores.com',
         'ui-avatars.com'
