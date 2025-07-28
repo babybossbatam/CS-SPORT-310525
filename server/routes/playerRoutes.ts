@@ -1,4 +1,3 @@
-
 import express from 'express';
 
 const router = express.Router();
@@ -20,7 +19,7 @@ router.get('/teams/:teamId/players/images', async (req, res) => {
     // Use RapidAPI players endpoint with team ID and current season
     const apiUrl = `https://api-football-v1.p.rapidapi.com/v3/players?team=${teamId}&season=${season}`;
     console.log(`🔗 [BatchPlayerImages] API URL: ${apiUrl}`);
-    
+
     const playersResponse = await fetch(apiUrl, {
       headers: {
         'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com',
@@ -132,7 +131,7 @@ router.get('/leagues/:leagueId/players/images', async (req, res) => {
   }
 });
 
-// Enhanced player photo proxy endpoint
+// Enhanced player photo proxy endpoint - only real photos, no defaults
 router.get('/player-photo/:playerId', async (req, res) => {
   const { playerId } = req.params;
 
@@ -146,58 +145,58 @@ router.get('/player-photo/:playerId', async (req, res) => {
   try {
     // Set proper headers for image proxy
     res.set({
-      'Cache-Control': 'public, max-age=86400', // 24 hours cache
+      'Cache-Control': 'public, max-age=86400', // 24 hours cache for real images only
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET',
       'Access-Control-Allow-Headers': 'Content-Type',
     });
 
-    // Try multiple CDN sources in order
-    const imageSources = [
-      `https://media.api-sports.io/football/players/${playerId}.png`,
-      `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`,
-      `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`,
-      `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`
-    ];
+    // Only use the primary 365Scores source
+    const imageUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`;
+    console.log(`🔗 [PlayerPhoto] Using primary source only: ${imageUrl}`);
 
-    console.log(`🔍 [PlayerPhoto] Trying ${imageSources.length} sources for player ${playerId}`);
+    const imageResponse = await fetch(imageUrl, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept': 'image/*,*/*;q=0.8',
+        'Referer': 'https://www.365scores.com/',
+      },
+      timeout: 5000,
+    });
 
-    for (let i = 0; i < imageSources.length; i++) {
-      const imageUrl = imageSources[i];
-      console.log(`🔗 [PlayerPhoto] Trying source ${i + 1}: ${imageUrl}`);
+    console.log(`📡 [PlayerPhoto] Primary source response: ${imageResponse.status}`);
 
-      try {
-        const imageResponse = await fetch(imageUrl, {
-          method: 'GET',
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            'Accept': 'image/*,*/*;q=0.8',
-            'Referer': 'https://www.365scores.com/',
-          },
-          timeout: 5000,
-        });
+    if (imageResponse.ok && imageResponse.headers.get('content-type')?.startsWith('image/')) {
+      // Check if this is a default/sample image
+      const contentLength = imageResponse.headers.get('content-length');
+      const cacheControl = imageResponse.headers.get('cache-control');
 
-        console.log(`📡 [PlayerPhoto] Source ${i + 1} response: ${imageResponse.status}`);
+      // Detect default images by size and cache headers
+      const isDefaultImage = (
+        contentLength === '0' || 
+        parseInt(contentLength || '0') < 500 || // Very small images are likely defaults
+        (cacheControl && cacheControl.includes('max-age=300')) // Short cache indicates default
+      );
 
-        if (imageResponse.ok && imageResponse.headers.get('content-type')?.startsWith('image/')) {
-          console.log(`✅ [PlayerPhoto] Found valid image at source ${i + 1} for player ${playerId}`);
-          
-          // Set proper content type
-          res.set('Content-Type', imageResponse.headers.get('content-type') || 'image/png');
-          
-          // Stream the image directly to client
-          const imageBuffer = await imageResponse.buffer();
-          return res.send(imageBuffer);
-        }
-      } catch (sourceError) {
-        console.log(`⚠️ [PlayerPhoto] Source ${i + 1} failed: ${sourceError.message}`);
-        continue;
+      if (isDefaultImage) {
+        console.log(`⚠️ [PlayerPhoto] Detected default/sample image for player ${playerId} - content-length: ${contentLength}, cache: ${cacheControl}`);
+        return res.status(404).json({ error: 'Only default image available, client should use initials' });
       }
+
+      console.log(`✅ [PlayerPhoto] Found valid real image from primary source for player ${playerId} - size: ${contentLength}`);
+
+      // Set proper content type
+      res.set('Content-Type', imageResponse.headers.get('content-type') || 'image/png');
+
+      // Stream the image directly to client
+      const imageBuffer = await imageResponse.buffer();
+      return res.send(imageBuffer);
     }
 
-    // If all sources fail, return 404
-    console.log(`❌ [PlayerPhoto] All sources failed for player ${playerId}`);
-    return res.status(404).json({ error: 'Player photo not found in any source' });
+    // If primary source fails, return 404 (client will use initials fallback)
+    console.log(`❌ [PlayerPhoto] No valid image found for player ${playerId} - Status: ${imageResponse.status}, ContentType: ${imageResponse.headers.get('content-type')}`);
+    return res.status(404).json({ error: 'Player photo not found' });
 
   } catch (error) {
     console.error(`❌ [PlayerPhoto] Error fetching player ${playerId}:`, error);
@@ -242,11 +241,11 @@ router.get('/player-photo-by-name', async (req, res) => {
       if (searchResponse.ok) {
         const searchData = await searchResponse.json();
         console.log(`📊 [PlayerPhotoByName] RapidAPI found ${searchData.response?.length || 0} results for "${name}"`);
-        
+
         if (searchData.response && searchData.response.length > 0) {
           const player = searchData.response[0];
           playerId = player.player?.id;
-          
+
           // If we have a direct photo URL from API, try it first
           if (player.player?.photo && !player.player.photo.includes('default.png')) {
             foundImageUrl = player.player.photo;
@@ -262,12 +261,12 @@ router.get('/player-photo-by-name', async (req, res) => {
 
     // Build list of image URLs to try
     const imageUrls = [];
-    
+
     // Add API-found URL first if available
     if (foundImageUrl) {
       imageUrls.push(foundImageUrl);
     }
-    
+
     // Add ID-based URLs if we found a player ID
     if (playerId) {
       imageUrls.push(
@@ -296,7 +295,7 @@ router.get('/player-photo-by-name', async (req, res) => {
 
         if (imageResponse.ok && imageResponse.headers.get('content-type')?.startsWith('image/')) {
           console.log(`✅ [PlayerPhotoByName] Found valid image for "${name}" at URL ${i + 1}`);
-          
+
           // Set proper content type and stream image
           res.set('Content-Type', imageResponse.headers.get('content-type') || 'image/png');
           const imageBuffer = await imageResponse.buffer();
@@ -329,7 +328,7 @@ router.get('/player-photo-by-name', async (req, res) => {
 
         // Try TheSportsDB (if they have an image endpoint)
         const sportsDbUrl = `https://www.thesportsdb.com/images/media/player/thumb/${cleanName}.jpg`;
-        
+
         try {
           const response = await fetch(sportsDbUrl, { method: 'HEAD', timeout: 3000 });
           if (response.ok && response.headers.get('content-type')?.startsWith('image/')) {
@@ -348,7 +347,7 @@ router.get('/player-photo-by-name', async (req, res) => {
           const firstName = nameParts[0];
           const lastName = nameParts[nameParts.length - 1];
           const shortName = `${firstName[0].toLowerCase()}${lastName.toLowerCase()}`;
-          
+
           // Try various short name patterns that some sites use
           const patterns = [
             `https://img.a.transfermarkt.technology/portrait/medium/${shortName}.jpg`,
@@ -531,7 +530,7 @@ router.get('/player-statistics/:playerId', async (req, res) => {
 // Test endpoint to check RapidAPI connectivity
 router.get('/test-rapidapi', async (req, res) => {
   console.log(`🧪 [TestRapidAPI] Testing RapidAPI connectivity...`);
-  
+
   try {
     const apiKey = process.env.RAPIDAPI_KEY || process.env.RAPID_API_KEY;
     console.log(`🔑 [TestRapidAPI] API Key present: ${!!apiKey}`);
