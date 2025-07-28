@@ -88,10 +88,10 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         return;
       }
 
-      // Final fallback - no error, just use initials
+      // Final fallback - use fallback image first, then initials
       if (isMounted) {
-        console.log(`📝 [MyAvatarInfo-${componentId}] No cached URL available, using initials for player ${playerIdToFetch} (${playerName})`);
-        setImageUrl('INITIALS_FALLBACK');
+        console.log(`📝 [MyAvatarInfo-${componentId}] No cached URL available, using fallback image for player ${playerIdToFetch} (${playerName})`);
+        setImageUrl(FALLBACK_PLAYER_IMAGE);
       }
     } catch (error) {
       console.error(`❌ [MyAvatarInfo-${componentId}] Error fetching player data:`, error);
@@ -103,9 +103,9 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         errorStack: error.stack
       });
       if (isMounted) {
-        // Don't set error for image loading issues, just use fallback
-        console.log(`🔄 [MyAvatarInfo-${componentId}] Setting fallback due to error`);
-        setImageUrl('INITIALS_FALLBACK');
+        // Don't set error for image loading issues, just use fallback image
+        console.log(`🔄 [MyAvatarInfo-${componentId}] Setting fallback image due to error`);
+        setImageUrl(FALLBACK_PLAYER_IMAGE);
       }
     } finally {
       if (isMounted) {
@@ -146,13 +146,13 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       if (playerId && isMounted) {
         await fetchPlayerData(playerId, isMounted);
       } else if (isMounted) {
-        setImageUrl('INITIALS_FALLBACK');
+        setImageUrl(FALLBACK_PLAYER_IMAGE);
       }
     } catch (error) {
       console.error(`❌ [MyAvatarInfo-${componentId}] Error fetching match lineups:`, error);
       if (isMounted) {
         setError('Failed to load player from match');
-        setImageUrl('INITIALS_FALLBACK');
+        setImageUrl(FALLBACK_PLAYER_IMAGE);
       }
     }
   };
@@ -215,9 +215,9 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         console.log(`⚽ [MyAvatarInfo-${componentId}] Loading by match ID: ${matchId} and player name: ${playerName}`);
         await fetchPlayerFromMatch(matchId, isMounted);
       } else {
-        console.log(`🎨 [MyAvatarInfo-${componentId}] No player ID or match info, using initials fallback`);
+        console.log(`🎨 [MyAvatarInfo-${componentId}] No player ID or match info, using fallback image`);
         if (isMounted) {
-          setImageUrl('INITIALS_FALLBACK');
+          setImageUrl(FALLBACK_PLAYER_IMAGE);
         }
       }
     };
