@@ -141,13 +141,25 @@ const LazyImage: React.FC<LazyImageProps> = ({
   };
 
   const handleLoad = () => {
-    // Special logging for Valencia/Spain flags
+    // Don't cache or log success for fallback images
+    const isFallbackImage = imageSrc.includes('/assets/fallback-logo.svg') || 
+                           imageSrc.includes('fallback') ||
+                           imageSrc.includes('placeholder');
+    
+    if (isFallbackImage) {
+      console.log(`⚠️ [LazyImage] Fallback image loaded, not caching: ${imageSrc}`);
+      setHasError(false);
+      onLoad?.();
+      return;
+    }
+
+    // Special logging for Valencia/Spain flags (only for real logos)
     const isSpainFlag = imageSrc.includes('/es.svg') || imageSrc.includes('/es.png') || 
                        (alt && alt.toLowerCase().includes('spain')) ||
                        (alt && alt.toLowerCase().includes('valencia'));
     
     if (isSpainFlag) {
-      console.log(`🇪🇸 [LazyImage] VALENCIA/SPAIN FLAG SUCCESS:`, {
+      console.log(`🇪🇸 [LazyImage] VALENCIA/SPAIN FLAG SUCCESS (REAL LOGO):`, {
         imageSrc,
         alt,
         retryCount,
@@ -156,12 +168,12 @@ const LazyImage: React.FC<LazyImageProps> = ({
       });
     }
 
-    // Enhanced league logo success logging (like MyNewLeague2)
+    // Enhanced league logo success logging (only for real logos)
     const isLeagueLogo = imageSrc.includes('/api/league-logo/') || 
                         imageSrc.includes('media.api-sports.io/football/leagues/');
     
     if (isLeagueLogo) {
-      console.log(`🏆 [LazyImage] League logo loaded successfully:`, {
+      console.log(`🏆 [LazyImage] League logo loaded successfully (REAL LOGO):`, {
         alt,
         imageSrc,
         retryCount,
@@ -171,8 +183,11 @@ const LazyImage: React.FC<LazyImageProps> = ({
     }
 
     if (hasError) {
-      console.log(`✅ [LazyImage] Recovered and loaded: ${imageSrc}`);
+      console.log(`✅ [LazyImage] Recovered and loaded real logo: ${imageSrc}`);
     }
+    
+    // Only cache real, non-fallback images
+    console.log(`💾 [LazyImage] Real logo loaded and ready for caching: ${imageSrc}`);
     setHasError(false);
     onLoad?.();
   };
