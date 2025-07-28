@@ -34,6 +34,21 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const handleError = () => {
     // Safety check to prevent cascading errors
     try {
+      // Special logging for Valencia/Spain flags
+      const isSpainFlag = imageSrc.includes('/es.svg') || imageSrc.includes('/es.png') || 
+                         (alt && alt.toLowerCase().includes('spain')) ||
+                         (alt && alt.toLowerCase().includes('valencia'));
+      
+      if (isSpainFlag) {
+        console.log(`🇪🇸 [LazyImage] VALENCIA/SPAIN FLAG ERROR:`, {
+          imageSrc,
+          alt,
+          retryCount,
+          hasError,
+          component: 'LazyImage'
+        });
+      }
+
       if (!hasError && retryCount < 2) {
         console.warn(
           `🖼️ [LazyImage] Failed to load image: ${imageSrc}, retry ${retryCount + 1}`,
@@ -85,6 +100,21 @@ const LazyImage: React.FC<LazyImageProps> = ({
   };
 
   const handleLoad = () => {
+    // Special logging for Valencia/Spain flags
+    const isSpainFlag = imageSrc.includes('/es.svg') || imageSrc.includes('/es.png') || 
+                       (alt && alt.toLowerCase().includes('spain')) ||
+                       (alt && alt.toLowerCase().includes('valencia'));
+    
+    if (isSpainFlag) {
+      console.log(`🇪🇸 [LazyImage] VALENCIA/SPAIN FLAG SUCCESS:`, {
+        imageSrc,
+        alt,
+        retryCount,
+        wasError: hasError,
+        component: 'LazyImage'
+      });
+    }
+
     if (hasError) {
       console.log(`✅ [LazyImage] Recovered and loaded: ${imageSrc}`);
     }
