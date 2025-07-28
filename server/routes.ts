@@ -36,9 +36,8 @@ import selectiveLiveRoutes from './routes/selectiveLiveRoutes';
 import selectiveUpdatesRoutes from './routes/selectiveUpdatesRoutes';
 import predictionsRoutes from './routes/predictionsRoutes';
 import basketballRoutes from "./routes/basketballRoutes";
-import basketballStandingsRoutes from './routes/basketballStandingsRoutes';
+import basketballStandingsRoutes from "./routes/basketballStandingsRoutes";
 import playerVerificationRoutes from './routes/playerVerificationRoutes';
-import popularLeaguesRoutes from './routes/popularLeaguesRoutes';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -817,7 +816,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           {
             league: {
               id: 78,
-```text
               name: "Bundesliga",
               type: "League",
               logo: "https://media.api-sports.io/football/leagues/78.png",
@@ -2659,7 +2657,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         data: leagues,
         count: leagues.length,
       });
-    } catch (error){
+    } catch (error) {
       console.error("❌ [SoccersAPI] Error fetching leagues:", error);
       res.status(500).json({
         success: false,
@@ -3333,10 +3331,7 @@ error) {
   // Predictions routes
   app.use('/api', predictionsRoutes);
   app.use('/api', basketballRoutes);
-  apiRouter.use('/basketball/standings', basketballStandingsRoutes);
-
-  // Popular leagues routes
-  apiRouter.use('/popular-leagues', popularLeaguesRoutes);
+  app.use('/api/basketball/standings', basketballStandingsRoutes);
 
 // Test route for debugging
 app.get('/api/test', (req, res) => {

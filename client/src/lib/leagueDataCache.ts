@@ -97,28 +97,7 @@ interface CachedLeagueData {
 }
 
 const CACHE_KEY = 'popular_leagues_data';
-const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours (reduced for more frequent updates)
-
-// Fetch from new API endpoint
-export async function fetchPopularLeagues(): Promise<LeagueData[]> {
-  try {
-    const response = await fetch('/api/popular-leagues');
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data.map((league: any) => ({
-      id: league.id,
-      name: league.name,
-      logo: league.logo,
-      country: league.country,
-      popularity: league.popularity
-    }));
-  } catch (error) {
-    console.error('Failed to fetch popular leagues from API:', error);
-    throw error;
-  }
-}
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 // Default fallback data (same as your current hardcoded data)
 const DEFAULT_LEAGUES: LeagueData[] = [
