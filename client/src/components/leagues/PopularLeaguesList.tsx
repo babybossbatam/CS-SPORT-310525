@@ -121,7 +121,7 @@ const PopularLeaguesList = () => {
                 onClick={() => navigate(`/league/${league.id}`)}
               >
                 <LazyImage
-                  src={`/api/league-logo/${league.id}`}
+                  src={league.logo}
                   alt={league.name}
                   title={league.name}
                   className="w-5 h-5 object-contain"
