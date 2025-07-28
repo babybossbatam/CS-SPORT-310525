@@ -193,11 +193,29 @@ class PlayerImageCache {
       }
     }
 
-    // Primary: API-Sports.io player images (validate to ensure correct player)
+    // Primary: Name-based photo search using our backend endpoint
+    if (playerName) {
+      const nameBasedUrl = `/api/player-photo-by-name?name=${encodeURIComponent(playerName)}`;
+      console.log(`🔍 [PlayerImageCache] Trying primary source (name-based search) for ${playerName}: ${nameBasedUrl}`);
+      
+      try {
+        const validationResult = await this.validateImageUrl(nameBasedUrl);
+        if (validationResult.isValid) {
+          this.setCachedImage(playerId, playerName, nameBasedUrl, 'api', validationResult.headers);
+          console.log(`✅ [PlayerImageCache] Validated and cached name-based URL: ${nameBasedUrl}`);
+          return nameBasedUrl;
+        } else {
+          console.log(`⚠️ [PlayerImageCache] Name-based search failed for ${playerName}, trying ID-based alternatives`);
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerImageCache] Name-based search error for ${playerName}:`, error);
+      }
+    }
+
+    // Secondary: API-Sports.io player images (if ID available)
     if (playerId) {
       const apiSportsUrl = `https://media.api-sports.io/football/players/${playerId}.png`;
-      console.log(`🔍 [PlayerImageCache] Trying primary source (API-Sports.io) for ${playerName}: ${apiSportsUrl}`);
-      console.log(`🔍 [PlayerImageCache] Player details: ID=${playerId}, Name=${playerName}, TeamID=${teamId}`);
+      console.log(`🔍 [PlayerImageCache] Trying secondary source (API-Sports.io) for ${playerName}: ${apiSportsUrl}`);
       
       try {
         const validationResult = await this.validateImageUrl(apiSportsUrl);
@@ -213,69 +231,47 @@ class PlayerImageCache {
       }
     }
 
-    // Secondary: Premier League official player photos (high quality)
-    if (playerId) {
-      const premierLeagueUrl = `https://resources.premierleague.com/premierleague/photos/players/250x250/p${playerId}.png`;
-      try {
-        const validationResult = await this.validateImageUrl(premierLeagueUrl);
-        if (validationResult.isValid) {
-          console.log(`✅ [PlayerImageCache] Premier League official photo worked for ${playerName}: ${premierLeagueUrl}`);
-          this.setCachedImage(playerId, playerName, premierLeagueUrl, 'api', validationResult.headers);
-          return premierLeagueUrl;
-        }
-      } catch (error) {
-        console.log(`⚠️ [PlayerImageCache] Premier League validation failed for player ${playerId}`);
-      }
-    }
-
-    // Tertiary: 365scores.com v21 format (reliable alternative)
-    if (playerId) {
-      const scores365v21Url = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`;
-      try {
-        const validationResult = await this.validateImageUrl(scores365v21Url);
-        if (validationResult.isValid) {
-          console.log(`✅ [PlayerImageCache] 365Scores v21 format worked for ${playerName}: ${scores365v21Url}`);
-          this.setCachedImage(playerId, playerName, scores365v21Url, 'api', validationResult.headers);
-          return scores365v21Url;
-        }
-      } catch (error) {
-        console.log(`⚠️ [PlayerImageCache] 365Scores v21 validation failed for player ${playerId}`);
-      }
-    }
-
-    // Quaternary: Resfu.com player database
-    if (playerId) {
-      const resfuUrl = `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`;
-      try {
-        const validationResult = await this.validateImageUrl(resfuUrl);
-        if (validationResult.isValid) {
-          this.setCachedImage(playerId, playerName, resfuUrl, 'api', validationResult.headers);
-          return resfuUrl;
-        }
-      } catch (error) {
-        console.log(`⚠️ [PlayerImageCache] Resfu.com validation failed for player ${playerId}`);
-      }
-    }
-
-    // Fifth: Other 365scores.com formats (dynamic format matching)
-    if (playerId) {
-      // Try other 365scores formats as fallback
-      const scores365Formats = [
-        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v6/Athletes/${playerId}`,
-        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/Athletes/${playerId}`,
-        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`, // Keep original as fallback
+    // Tertiary: Multiple name-based external sources
+    if (playerName) {
+      const nameBasedSources = [
+        // Wikipedia/Wikimedia Commons (often has player photos)
+        `https://en.wikipedia.org/api/rest_v1/page/media-list/${encodeURIComponent(playerName.replace(/ /g, '_'))}`,
+        // Try a generic sports photo API (placeholder - would need actual service)
+        `https://www.thesportsdb.com/api/v1/json/1/searchplayers.php?p=${encodeURIComponent(playerName)}`,
       ];
 
-      for (const scores365Url of scores365Formats) {
+      for (const nameUrl of nameBasedSources) {
         try {
-          const validationResult = await this.validateImageUrl(scores365Url);
+          console.log(`🔍 [PlayerImageCache] Trying name-based source: ${nameUrl}`);
+          // For now, skip these as they need special handling
+          // We'll implement these later if needed
+          continue;
+        } catch (error) {
+          console.log(`⚠️ [PlayerImageCache] Name-based source failed: ${nameUrl}`);
+          continue;
+        }
+      }
+    }
+
+    // Quaternary: ID-based sources as fallback
+    if (playerId) {
+      const idBasedSources = [
+        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`,
+        `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`,
+        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v6/Athletes/${playerId}`,
+        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/Athletes/${playerId}`,
+      ];
+
+      for (const idUrl of idBasedSources) {
+        try {
+          const validationResult = await this.validateImageUrl(idUrl);
           if (validationResult.isValid) {
-            console.log(`✅ [PlayerImageCache] Found working 365scores format for ${playerName}: ${scores365Url}`);
-            this.setCachedImage(playerId, playerName, scores365Url, 'api', validationResult.headers);
-            return scores365Url;
+            console.log(`✅ [PlayerImageCache] Found working ID-based source for ${playerName}: ${idUrl}`);
+            this.setCachedImage(playerId, playerName, idUrl, 'api', validationResult.headers);
+            return idUrl;
           }
         } catch (error) {
-          console.log(`⚠️ [PlayerImageCache] 365scores format failed for player ${playerId}: ${scores365Url}`);
+          console.log(`⚠️ [PlayerImageCache] ID-based source failed for player ${playerId}: ${idUrl}`);
           continue;
         }
       }
@@ -345,7 +341,9 @@ class PlayerImageCache {
         'resources.premierleague.com',
         'cdn.resfu.com', 
         'imagecache.365scores.com',
-        'ui-avatars.com'
+        'ui-avatars.com',
+        'thesportsdb.com',
+        'transfermarkt.technology'
       ];
 
       const isTrustedDomain = trustedDomains.some(domain => url.includes(domain));

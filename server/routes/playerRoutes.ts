@@ -147,6 +147,124 @@ router.get('/player-photo/:playerId', async (req, res) => {
 
   try {
     // Use 365Scores CDN format (primary source used in team batch endpoint)
+
+
+// Name-based player photo search endpoint
+router.get('/player-photo-by-name', async (req, res) => {
+  const { name } = req.query;
+
+  if (!name || typeof name !== 'string') {
+    console.log(`❌ [PlayerPhotoByName] Invalid player name provided: ${name}`);
+    return res.status(400).json({ error: 'Invalid player name' });
+  }
+
+  console.log(`🔍 [PlayerPhotoByName] Searching photo for player name: "${name}"`);
+
+  try {
+    // Try multiple name-based photo sources
+    const searchSources = [
+      // Source 1: Try to find player via RapidAPI search first
+      async () => {
+        const searchUrl = `https://api-football-v1.p.rapidapi.com/v3/players?search=${encodeURIComponent(name)}`;
+        const response = await fetch(searchUrl, {
+          headers: {
+            'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
+            'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.response && data.response.length > 0) {
+            const player = data.response[0];
+            if (player.player?.photo && !player.player.photo.includes('default.png')) {
+              return player.player.photo;
+            }
+            // If photo exists but is default, try with player ID
+            if (player.player?.id) {
+              return `https://media.api-sports.io/football/players/${player.player.id}.png`;
+            }
+          }
+        }
+        return null;
+      },
+
+      // Source 2: Generate URL based on common name patterns
+      async () => {
+        // Clean the name for URL generation
+        const cleanName = name
+          .toLowerCase()
+          .replace(/[^a-z\s]/g, '') // Remove special characters
+          .replace(/\s+/g, '-') // Replace spaces with hyphens
+          .trim();
+
+        // Try TheSportsDB (if they have an image endpoint)
+        const sportsDbUrl = `https://www.thesportsdb.com/images/media/player/thumb/${cleanName}.jpg`;
+        
+        try {
+          const response = await fetch(sportsDbUrl, { method: 'HEAD', timeout: 3000 });
+          if (response.ok && response.headers.get('content-type')?.startsWith('image/')) {
+            return sportsDbUrl;
+          }
+        } catch (error) {
+          // Source not available, continue
+        }
+        return null;
+      },
+
+      // Source 3: Try with initials/short name patterns
+      async () => {
+        const nameParts = name.split(' ');
+        if (nameParts.length >= 2) {
+          const firstName = nameParts[0];
+          const lastName = nameParts[nameParts.length - 1];
+          const shortName = `${firstName[0].toLowerCase()}${lastName.toLowerCase()}`;
+          
+          // Try various short name patterns that some sites use
+          const patterns = [
+            `https://img.a.transfermarkt.technology/portrait/medium/${shortName}.jpg`,
+            `https://resources.premierleague.com/premierleague/photos/players/250x250/${shortName}.png`,
+          ];
+
+          for (const pattern of patterns) {
+            try {
+              const response = await fetch(pattern, { method: 'HEAD', timeout: 3000 });
+              if (response.ok && response.headers.get('content-type')?.startsWith('image/')) {
+                return pattern;
+              }
+            } catch (error) {
+              continue;
+            }
+          }
+        }
+        return null;
+      }
+    ];
+
+    // Try each source until we find a valid photo
+    for (const searchFunction of searchSources) {
+      try {
+        const photoUrl = await searchFunction();
+        if (photoUrl) {
+          console.log(`✅ [PlayerPhotoByName] Found photo for "${name}": ${photoUrl}`);
+          return res.redirect(photoUrl);
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerPhotoByName] Search source failed for "${name}":`, error.message);
+        continue;
+      }
+    }
+
+    // If no photo found, return 404 (client will use initials fallback)
+    console.log(`❌ [PlayerPhotoByName] No photo found for "${name}"`);
+    return res.status(404).json({ error: 'Player photo not found' });
+
+  } catch (error) {
+    console.error(`❌ [PlayerPhotoByName] Error searching for player photo "${name}":`, error);
+    return res.status(500).json({ error: 'Failed to search for player photo' });
+  }
+});
+
     const imageUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
     console.log(`🔗 [PlayerPhoto] Generated image URL: ${imageUrl}`);
 
