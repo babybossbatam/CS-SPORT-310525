@@ -69,9 +69,50 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                        teamName?.includes("U21") ||
                        teamName?.includes("U23");
 
-   
-
+    // Special handling for COTIF Tournament - detect club vs national teams
     const leagueName = leagueContext?.name?.toLowerCase() || "";
+    const isCOTIFTournament = leagueName.includes("cotif");
+    
+    // For COTIF Tournament, we need to distinguish between club and national teams
+    if (isCOTIFTournament) {
+      console.log(`🏆 [MyWorldTeamLogo] COTIF Tournament detected for team: ${teamName}`);
+      
+      // Known club teams in COTIF (Valencia, Alboraya, etc.)
+      const isKnownClubTeam = 
+        (teamId === 532 && teamName.toLowerCase().includes("valencia")) ||
+        (teamId === 19922 && teamName.toLowerCase().includes("alboraya")) ||
+        teamName.toLowerCase().includes("valencia") ||
+        teamName.toLowerCase().includes("alboraya") ||
+        teamName.toLowerCase().includes("ud") ||
+        teamName.toLowerCase().includes("fc") ||
+        teamName.toLowerCase().includes("cf") ||
+        teamName.toLowerCase().includes("club");
+      
+      if (isKnownClubTeam) {
+        console.log(`🏟️ [MyWorldTeamLogo] COTIF: ${teamName} identified as club team - using club logo`);
+        const result = false; // Use club logo format
+        circularFlagCache.set(cacheKey, { result, timestamp: now });
+        return result;
+      }
+      
+      // For youth teams in COTIF that are national teams
+      if (isYouthTeam && isActualNationalTeam) {
+        console.log(`🇺🇳 [MyWorldTeamLogo] COTIF: ${teamName} identified as national youth team - using circular flag`);
+        const result = true; // Use circular flag format
+        circularFlagCache.set(cacheKey, { result, timestamp: now });
+        return result;
+      }
+      
+      // Default for COTIF: if it's a recognizable country name, use circular flag
+      if (isActualNationalTeam) {
+        console.log(`🌍 [MyWorldTeamLogo] COTIF: ${teamName} identified as national team - using circular flag`);
+        const result = true;
+        circularFlagCache.set(cacheKey, { result, timestamp: now });
+        return result;
+      }
+    }
+
+    const leagueCountry = leagueContext?.country?.toLowerCase() || "";
 
     // Check if this is FIFA Club World Cup (club competition, not national teams)
     const isFifaClubWorldCup = leagueName.includes("fifa club world cup") ||

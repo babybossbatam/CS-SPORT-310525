@@ -31,10 +31,10 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [nextMatch, setNextMatch] = useState(nextMatchInfo);
-  
+
   // Check if this is a national team or club team
   const isNational = isNationalTeam({ name: teamName });
-  
+
   // For club teams, use team logo sources
   const getLogoUrl = () => {
     if (!isNational && teamId) {
@@ -194,6 +194,10 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       year: "numeric",
     });
   };
+
+    const isKnownClubTeam = !isNational && teamName && !Object.keys(teamCountryPatterns).some(country =>
+    teamName.toLowerCase().includes(country.toLowerCase())
+  );
 
   // For national teams, use the circular flag format
   return (
