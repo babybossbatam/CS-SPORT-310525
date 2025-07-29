@@ -73,6 +73,20 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     const leagueName = leagueContext?.name?.toLowerCase() || "";
     const isCOTIFTournament = leagueName.includes("cotif");
     
+    // Special handling for AFF U23 Championship - always use national team logos
+    const isAFFU23Championship = leagueName.includes("aff u23") || 
+                                leagueName.includes("aff u-23") ||
+                                leagueName.includes("aff under 23") ||
+                                leagueName.includes("aff under-23");
+    
+    // Special handling for AFF U23 Championship - always use circular flags
+    if (isAFFU23Championship) {
+      console.log(`🏆 [MyWorldTeamLogo] AFF U23 Championship detected for team: ${teamName} - forcing circular flag`);
+      const result = true; // Always use circular flag for AFF U23 teams
+      circularFlagCache.set(cacheKey, { result, timestamp: now });
+      return result;
+    }
+
     // For COTIF Tournament, we need to distinguish between club and national teams
     if (isCOTIFTournament) {
       console.log(`🏆 [MyWorldTeamLogo] COTIF Tournament detected for team: ${teamName}`);
