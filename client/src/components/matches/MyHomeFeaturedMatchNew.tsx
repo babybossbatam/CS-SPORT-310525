@@ -472,7 +472,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           away: fixture.teams?.away?.name,
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
-                          status: fixture.fixture.status,
+                          status: fixture.fixture.status.short,
                         },
                       );
                     } else if (isWomensCompetition) {
@@ -813,14 +813,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
                     const isOberligaLeague = leagueName.includes("oberliga");
-                    const isRegionalligaLeague = leagueName.includes("regionalliga") || leagueName.includes("regional liga");
+                    const isRegionalligaLeague = leagueName.includes("regionalliga");
                     const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
 
                       return hasValidTeams && isNotLive && isNotDuplicate && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga;
                     })
                     .slice(0, 5) // Limit to prevent overwhelming
                     .map((fixture: any) => ({
-```text
+
                       fixture: {
                         id: fixture.fixture.id,
                         date: fixture.fixture.date,
