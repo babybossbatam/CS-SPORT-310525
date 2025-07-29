@@ -26,10 +26,44 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const [retryCount, setRetryCount] = useState<number>(0);
 
   useEffect(() => {
-    setImageSrc(src);
-    setHasError(false);
-    setRetryCount(0);
-  }, [src]);
+    // Check for specific teams/leagues that should use local assets immediately
+    const shouldUseLocalAsset = () => {
+      if (alt) {
+        const altLower = alt.toLowerCase();
+
+        // COTIF Tournament league
+        if (altLower.includes("cotif") || altLower.includes("cotif tournament")) {
+          console.log(`🏆 [LazyImage] Using local COTIF Tournament logo from start`);
+          return "/assets/matchdetaillogo/cotif tournament.png";
+        }
+
+        // Valencia team (including U20)
+        if (altLower.includes("valencia") && !altLower.includes("rayo vallecano")) {
+          console.log(`⚽ [LazyImage] Using local Valencia logo from start`);
+          return "/assets/matchdetaillogo/valencia.png";
+        }
+
+        // Alboraya team (including U20)
+        if (altLower.includes("alboraya") || altLower.includes("albaroya")) {
+          console.log(`⚽ [LazyImage] Using local Alboraya logo from start`);
+          return "/assets/matchdetaillogo/alboraya.png";
+        }
+      }
+      return null;
+    };
+
+    const localAssetUrl = shouldUseLocalAsset();
+
+    if (localAssetUrl) {
+      setImageSrc(localAssetUrl);
+      setHasError(false);
+      setRetryCount(0);
+    } else {
+      setImageSrc(src);
+      setHasError(false);
+      setRetryCount(0);
+    }
+  }, [src, alt]);
 
   const handleError = () => {
     // Safety check to prevent cascading errors
