@@ -319,23 +319,29 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                     if (countryName === "World") {
                       return (
                         <div className="flex items-center gap-3">
-                          <MyCountryGroupFlag
-                            teamName="World"
-                            fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
-                            alt="World"
-                            className="country-group-flag-header"
-                          />
+                          <div className="country-flag-circle">
+                            <MyCountryGroupFlag
+                              teamName="World"
+                              fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
+                              alt="World"
+                              className="country-group-flag-header"
+                            />
+                            <div className="gloss"></div>
+                          </div>
                         </div>
                       );
                     }
 
                     return (
                       <div className="flex items-center gap-3">
-                        <MyCountryGroupFlag
-                          teamName={countryName}
-                          alt={countryName}
-                          className=""
-                        />
+                        <div className="country-flag-circle">
+                          <MyCountryGroupFlag
+                            teamName={countryName}
+                            alt={countryName}
+                            className="country-group-flag-header"
+                          />
+                          <div className="gloss"></div>
+                        </div>
                       </div>
                     );
                   })()}
