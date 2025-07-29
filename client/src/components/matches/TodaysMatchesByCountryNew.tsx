@@ -825,7 +825,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           ),
         );
 
-        // Priority: World with live matches first, then World without live, then others alphabetically
+        // Priority: World with live matches first, then World with live, then others alphabetically
         if (aIsWorld && aHasLive && (!bIsWorld || !bHasLive)) return -1;
         if (bIsWorld && bHasLive && (!aIsWorld || !aHasLive)) return 1;
         if (aIsWorld && !bIsWorld) return -1;
@@ -1650,127 +1650,130 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                       {/* Three-grid layout container */}
                                       <div className="match-three-grid-container">
-                                        {/* Top Grid: Match Status */}
+                                        {/* Top grid for match status - EXACTLY like MyNewLeague2 */}
                                         <div className="match-status-top">
                                           {(() => {
-                                            const status =
-                                              match.fixture.status.short;
+                                            const status = match.fixture.status.short;
+                                            const elapsed = match.fixture.status.elapsed;
 
-                                                                           // Live matches status
+                                            // Check if match finished more than 4 hours ago
+                                            const matchDateTime = new Date(match.fixture.date);
+                                            const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
+                                            const isStaleFinishedMatch =
+                                              (["FT", "AET", "PEN"].includes(status) && hoursOld > 4) ||
+                                              (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursOld > 4) ||
+                                              (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
+
+                                            // Show live status only for truly live matches (not finished and not stale)
                                             if (
-                                              [
-                                                "LIVE",
-                                                "LIV",
-                                                "1H",
-                                                "HT",
-                                                "2H",
-                                                "ET",
-                                                "BT",
-                                                "P",
-                                                "INT",
-                                              ].includes(status)
+                                              !["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) &&
+                                              !isStaleFinishedMatch &&
+                                              hoursOld <= 4 &&
+                                              ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
                                             ) {
-                                              // Use original API status and elapsed time without modification
-                                              let displayText = "LIVE";
-                                              const elapsed = match.fixture.status.elapsed;
+                                              let displayText = "";
+                                              let statusClass = "status-live-elapsed";
 
                                               if (status === "HT") {
                                                 displayText = "Halftime";
+                                                statusClass = "status-halftime";
                                               } else if (status === "P") {
                                                 displayText = "Penalties";
                                               } else if (status === "ET") {
-                                                displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
-                                              } else if (elapsed !== null && elapsed !== undefined) {
-                                                displayText = `${elapsed}'`;
+                                                if (elapsed) {
+                                                  const extraTime = elapsed - 90;
+                                                  displayText = extraTime > 0 ? `90' + ${extraTime}'` : `${elapsed}'`;
+                                                } else {
+                                                  displayText = "Extra Time";
+                                                }
+                                              } else if (status === "BT") {
+                                                displayText = "Break Time";
+                                              } else if (status === "INT") {
+                                                displayText = "Interrupted";
+                                              } else {
+                                                displayText = elapsed ? `${elapsed}'` : "LIVE";
                                               }
 
                                               return (
-                                                <div className="match-status-label status-live">
+                                                <div className={`match-status-label ${statusClass}`}>
                                                   {displayText}
                                                 </div>
                                               );
                                             }
 
-                                            // Finished matches status
-                                            if (
-                                              [
-                                                "FT",
-                                                "AET",
-                                                "PEN",
-                                                "AWD",
-                                                "WO",
-                                                "ABD",
-                                                "CANC",
-                                                "SUSP",
-                                              ].includes(status)
-                                            ) {
-                                              return (
-                                                <div className="match-status-label status-ended">
-                                                  {status === "FT"
-                                                    ? "Ended"
-                                                    : status === "AET"
-                                                      ? "Ended (AET)"
-                                                      : status === "PEN"
-                                                        ? "Ended (Penalties)"
-                                                        : status === "AWD"
-                                                          ? "Awarded"
-                                                          : status === "WO"
-                                                            ? "Walkover"
-                                                            : status === "ABD"                                                              ? "Abandoned"
-                                                               : status ===
-                                                                   "CANC"
-                                                                 ? "Cancelled"
-                                                                 : status ===
-                                                                     "SUSP"
-                                                                   ? "Suspended"
-                                                                   : status}
-                                                </div>
-                                              );
-                                            }
-
-                                            // Postponed matches status
-                                            if (
-                                              [
-                                                "PST",
-                                                "CANC",
-                                                "ABD",
-                                                "SUSP",
-                                                "AWD",
-                                                "WO",
-                                              ].includes(status)
-                                            ) {
-                                              const statusText =
-                                                status === "PST"
-                                                  ? "Postponed"
-                                                  : status === "CANC"
-                                                    ? "Cancelled"
-                                                    : status === "ABD"
-                                                      ? "Abandoned"
-                                                      : status === "SUSP"
-                                                        ? "Suspended"
-                                                        : status === "AWD"
-                                                          ? "Awarded"
-                                                          : status === "WO"
-                                                            ? "Walkover"
-                                                            : status;
-
+                                            // Postponed/Cancelled matches
+                                            if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
                                               return (
                                                 <div className="match-status-label status-postponed">
-                                                  {statusText}
+                                                  {status === "PST"
+                                                    ? "Postponed"
+                                                    : status === "CANC"
+                                                      ? "Cancelled"
+                                                      : status === "ABD"
+                                                        ? "Abandoned"
+                                                        : status === "SUSP"
+                                                          ? "Suspended"
+                                                          : status === "AWD"
+                                                            ? "Awarded"
+                                                            : status === "WO"
+                                                              ? "Walkover"
+                                                              : status}
                                                 </div>
                                               );
                                             }
 
-                                            // Upcoming matches (TBD status)
-                                            if (status === "TBD") {
+                                            // Check for overdue matches that should be marked as postponed
+                                            if (status === "NS" || status === "TBD") {
+                                              const matchTime = new Date(match.fixture.date);
+                                              const now = new Date();
+                                              const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+
+                                              // If match is more than 2 hours overdue, show postponed status
+                                              if (hoursAgo > 2) {
+                                                return (
+                                                  <div className="match-status-label status-postponed">
+                                                    Postponed
+                                                  </div>
+                                                );
+                                              }
+
+                                              // Show TBD status for matches with undefined time
+                                              if (status === "TBD") {
+                                                return (
+                                                  <div className="match-status-label status-upcoming">
+                                                    Time TBD
+                                                  </div>
+                                                );
+                                              }
+
+                                              // For upcoming matches, don't show status in top grid
+                                              return null;
+                                            }
+
+                                            // Show "Ended" status for finished matches or stale matches
+                                            if (
+                                              ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) ||
+                                              isStaleFinishedMatch
+                                            ) {
                                               return (
-                                                <div className="match-status-label status-upcoming">
-                                                  Time TBD
+                                                <div
+                                                  className="match-status-label status-ended"
+                                                  style={{
+                                                    minWidth: "60px",
+                                                    textAlign: "center",
+                                                    transition: "none",
+                                                    animation: "none",
+                                                  }}
+                                                >
+                                                  {status === "FT" || isStaleFinishedMatch
+                                                    ? "Ended"
+                                                    : status === "AET"
+                                                      ? "After Extra Time"
+                                                      : status}
                                                 </div>
                                               );
                                             }
 
-                                            // Default - no status display for regular upcoming matches
                                             return null;
                                           })()}
                                         </div>
