@@ -1360,14 +1360,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         );
                       }
 
-                      // For all other countries, use MyCircularFlag
+                      // For all other countries, use MyCountryGroupFlag
                       return (
-                        <MyCircularFlag
+                        <MyCountryGroupFlag
                           teamName={countryName}
-                          fallbackUrl="/assets/fallback.svg"
+                          fallbackUrl="/assets/fallback-logo.svg"
                           alt={countryName}
-                          size="20px"
-                          className="rounded-sm shadow-sm"
+                          className="country-group-flag-header"
                         />
                       );
                     })()}
