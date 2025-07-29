@@ -293,42 +293,45 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        {/* Football Section */}
-        <div className="p-4 border-b border-gray-100">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+        {/* Football Section with Countries */}
+        <div className="divide-y divide-gray-100">
+          {/* Football Header */}
+          <div className="p-4 border-b border-gray-100">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span 
+                  className="text-gray-900 font-medium"
+                  style={{
+                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                    fontSize: "14px",
+                  }}
+                >
+                  Football
+                </span>
+              </div>
               <span 
-                className="text-gray-900 font-medium"
+                className="text-gray-500 text-sm"
                 style={{
                   fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                  fontSize: "14px",
                 }}
               >
-                Football
+                ({validFixtures.length})
               </span>
             </div>
-            <span 
-              className="text-gray-500 text-sm"
-              style={{
-                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-              }}
-            >
-              ({validFixtures.length})
-            </span>
+            <div className="mt-2">
+              <span 
+                className="text-gray-600 text-sm"
+                style={{
+                  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                  fontSize: "13px",
+                }}
+              >
+                All Leagues A-Z
+              </span>
+            </div>
           </div>
-          <div className="mt-2">
-            <span 
-              className="text-gray-600 text-sm"
-              style={{
-                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                fontSize: "13px",
-              }}
-            >
-              All Leagues A-Z
-            </span>
-          </div>
-        </div>
-        <div className="divide-y divide-gray-100">
+
+          {/* Countries under Football */}
           {sortedCountries.map((countryData: any) => {
             const totalLeagues = Object.keys(countryData.leagues).length;
             const totalMatches = Object.values(countryData.leagues).reduce(
@@ -340,10 +343,10 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
             return (
               <div key={countryData.country} className="border-b border-gray-100 last:border-b-0">
-                {/* Country Header - Clickable */}
+                {/* Country Header - Clickable (nested under Football) */}
                 <button
                   onClick={() => toggleCountry(countryData.country)}
-                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-between pl-8 pr-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer border-l-2 border-transparent hover:border-l-blue-100"
                 >
                   <div className="flex items-center gap-3">
                     {(() => {
@@ -402,7 +405,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
                 {/* Leagues List - Show when expanded */}
                 {isExpanded && (
-                  <div className="space-y-2 ml-8 pb-4">
+                  <div className="space-y-2 ml-12 pb-4">
                     {Object.values(countryData.leagues)
                       .sort((a: any, b: any) => a.league.name.localeCompare(b.league.name))
                       .map((leagueData: any) => (
