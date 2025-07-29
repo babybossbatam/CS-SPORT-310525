@@ -1345,17 +1345,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                           ? countryData.country
                           : countryData.country?.name || "Unknown";
 
-                      // Special case for World - use COTIF tournament logo
+                      // Special case for World - use COTIF tournament logo with consistent styling
                       if (countryName === "World") {
                         return (
-                          <img
-                            src="/assets/matchdetaillogo/cotif tournament.png"
+                          <MyCountryGroupFlag
+                            teamName="World"
+                            fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
                             alt="World"
-                            className="w-5 h-3 object-cover rounded-sm shadow-sm"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = "/assets/fallback.svg";
-                            }}
+                            className="country-group-flag-header"
                           />
                         );
                       }

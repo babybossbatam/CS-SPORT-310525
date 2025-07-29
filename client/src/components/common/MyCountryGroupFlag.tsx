@@ -133,6 +133,11 @@ const MyCountryGroupFlag: React.FC<MyCountryGroupFlagProps> = ({
 
   // For club teams, use team logo sources
   const getLogoUrl = () => {
+    // Special case for World - use local COTIF tournament logo
+    if (teamName === "World") {
+      return "/assets/matchdetaillogo/cotif tournament.png";
+    }
+    
     if (!isNational && teamId) {
       const logoSources = getTeamLogoSources({ id: teamId, name: teamName }, false);
       return logoSources[0]?.url || fallbackUrl || "/assets/fallback-logo.svg";
@@ -224,7 +229,14 @@ const MyCountryGroupFlag: React.FC<MyCountryGroupFlagProps> = ({
             : "none",
         }}
         onError={
-          !isNational && teamId 
+          teamName === "World"
+            ? (e) => {
+                const target = e.target as HTMLImageElement;
+                if (!target.src.includes("/assets/fallback-logo.svg")) {
+                  target.src = "/assets/fallback-logo.svg";
+                }
+              }
+            : !isNational && teamId 
             ? createTeamLogoErrorHandler({ id: teamId, name: teamName }, false, 'football')
             : (e) => {
                 const target = e.target as HTMLImageElement;
