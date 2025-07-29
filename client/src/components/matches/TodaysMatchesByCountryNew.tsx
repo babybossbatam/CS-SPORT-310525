@@ -38,7 +38,6 @@ import { isNationalTeam } from "../../lib/teamLogoSources";
 import { MySmartDateLabeling } from "../../lib/MySmartDateLabeling";
 import LazyImage from "../common/LazyImage";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
-import MyCircularFlag from "../common/MyCircularFlag";
 import LazyMatchItem from "./LazyMatchItem";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import "../../styles/MyLogoPositioning.css";
@@ -1362,11 +1361,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                       // For all other countries, use MyCircularFlag
                       return (
-                        <MyCircularFlag
+                        <MyCountryGroupFlag
                           teamName={countryName}
-                          fallbackUrl="/assets/fallback.svg"
+                          fallbackUrl="/assets/fallback-logo.svg"
                           alt={countryName}
-                          size="20px"
                           className="rounded-sm shadow-sm"
                         />
                       );
@@ -1653,7 +1651,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                               let statusClass = "status-live-elapsed";
 
                                               if (status === "HT") {
-                                                displayText = "Halftime";
+                                                                               displayText = "Halftime";
                                                 statusClass = "status-halftime";
                                               } else if (status === "P") {
                                                 displayText = "Penalties";
