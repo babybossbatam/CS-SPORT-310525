@@ -205,25 +205,27 @@ const MyCountryGroupFlag: React.FC<MyCountryGroupFlagProps> = ({
 
   return (
     <div
-      className={`country-flag-circle ${className}`}
-      onMouseEnter={() => showNextMatchOverlay && setIsHovered(true)}
-      onMouseLeave={() => showNextMatchOverlay && setIsHovered(false)}
+      className={`flag-circle ${className}`}
       style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
         width: size,
         height: size,
+        position: "relative",
+        left: "0px",
       }}
+      onMouseEnter={() => showNextMatchOverlay && setIsHovered(true)}
+      onMouseLeave={() => showNextMatchOverlay && setIsHovered(false)}
     >
       <img
         src={getLogoUrl()}
         alt={alt || teamName}
         className="team-logo"
         style={{
-          width: "100%",
-          height: "100%",
+          width: size,
+          height: size,
           objectFit: "cover",
+          borderRadius: isNational ? "50%" : "50%",
+          position: "relative",
+          zIndex: 1,
           filter: isNational 
             ? "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)"
             : "none",
@@ -246,6 +248,7 @@ const MyCountryGroupFlag: React.FC<MyCountryGroupFlagProps> = ({
               }
         }
       />
+      <div className="gloss"></div>
     </div>
       
   
