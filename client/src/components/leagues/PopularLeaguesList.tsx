@@ -41,13 +41,42 @@ const PopularLeaguesList = () => {
   const { toast } = useToast();
   const user = useSelector((state: RootState) => state.user);
   const [leagueData, setLeagueData] = useState(CURRENT_POPULAR_LEAGUES);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Sort leagues by popularity score (highest first)
-    const sortedLeagues = [...CURRENT_POPULAR_LEAGUES].sort((a, b) => b.popularity - a.popularity);
-    setLeagueData(sortedLeagues);
-    setIsLoading(false);
+    const fetchPopularLeagues = async () => {
+      try {
+        console.log('🔄 [PopularLeaguesList] Fetching popular leagues from API...');
+        const response = await apiRequest('GET', '/api/leagues/popular');
+        const leagues = await response.json();
+
+        if (leagues && leagues.length > 0) {
+          console.log(`✅ [PopularLeaguesList] Fetched ${leagues.length} popular leagues from API`);
+
+          // Transform API response to match our League interface
+          const transformedLeagues = leagues.map((league: any) => ({
+            id: league.league?.id || league.id,
+            name: league.league?.name || league.name,
+            logo: league.league?.logo || league.logo,
+            country: league.country?.name || league.league?.country || league.country,
+            popularity: 100 - (leagues.indexOf(league) * 2) // Generate popularity scores
+          }));
+
+          setLeagueData(transformedLeagues);
+        } else {
+          throw new Error('No leagues data received from API');
+        }
+      } catch (error) {
+        console.error('❌ [PopularLeaguesList] Error fetching popular leagues:', error);
+        // Fallback to hardcoded popular leagues if API fails
+        const sortedLeagues = [...CURRENT_POPULAR_LEAGUES].sort((a, b) => b.popularity - a.popularity);
+        setLeagueData(sortedLeagues);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPopularLeagues();
   }, []);
 
   const toggleFavorite = (leagueId: number) => {
