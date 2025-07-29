@@ -1352,17 +1352,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                             teamName="World"
                             fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
                             alt="World"
-                            size="27px"
                             className="country-group-flag-header"
                           />
                         );
                       }
 
+                      // For all other countries, use MyCountryGroupFlag
                       return (
                         <MyCountryGroupFlag
                           teamName={countryName}
+                          fallbackUrl="/assets/fallback-logo.svg"
                           alt={countryName}
-                          size="27px"
                           className="country-group-flag-header"
                         />
                       );
