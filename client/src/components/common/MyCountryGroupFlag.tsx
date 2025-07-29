@@ -8,6 +8,7 @@ interface MyCountryGroupFlagProps {
   teamId?: number | string;
   fallbackUrl?: string;
   alt?: string;
+  size?: string;
   className?: string;
   nextMatchInfo?: {
     opponent: string;
@@ -22,6 +23,7 @@ const MyCountryGroupFlag: React.FC<MyCountryGroupFlagProps> = ({
   teamId,
   fallbackUrl,
   alt,
+  size = "20px",
   className = "",
   nextMatchInfo,
   showNextMatchOverlay = false,
@@ -205,6 +207,8 @@ const MyCountryGroupFlag: React.FC<MyCountryGroupFlagProps> = ({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        width: size,
+        height: size,
       }}
     >
       <img
