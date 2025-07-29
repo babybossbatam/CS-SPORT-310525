@@ -208,9 +208,37 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     setIsFootballExpanded(prev => !prev);
   };
 
-  // Sort countries alphabetically with World first
+  // Define all football countries
+  const allFootballCountries = [
+    "World", "Argentina", "Australia", "Austria", "Belgium", "Brazil", "Bulgaria", 
+    "Chile", "Colombia", "Croatia", "Czech Republic", "Denmark", "England", 
+    "Estonia", "Faroe Islands", "Finland", "France", "Germany", "Greece", 
+    "Iceland", "India", "Ireland", "Italy", "Lithuania", "Mexico", "Netherlands", 
+    "Norway", "Panama", "Paraguay", "Poland", "Portugal", "Romania", "Russia", 
+    "Scotland", "Slovakia", "Slovenia", "Spain", "Sweden", "Switzerland", 
+    "Turkey", "Ukraine", "USA", "Wales"
+  ];
+
+  // Sort countries alphabetically with World first, showing all countries
   const sortedCountries = useMemo(() => {
-    return Object.values(leaguesByCountry).sort((a: any, b: any) => {
+    const allCountriesData = allFootballCountries.map(country => {
+      // Check if this country has matches
+      const existingCountryData = Object.values(leaguesByCountry).find((data: any) => 
+        data.country?.toLowerCase() === country.toLowerCase()
+      );
+      
+      if (existingCountryData) {
+        return existingCountryData;
+      } else {
+        // Return empty country data for countries without matches
+        return {
+          country,
+          leagues: {}
+        };
+      }
+    });
+
+    return allCountriesData.sort((a: any, b: any) => {
       const countryA = a.country || "";
       const countryB = b.country || "";
 
@@ -352,20 +380,25 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
           {/* Countries under Football - Show when expanded */}
           {isFootballExpanded && sortedCountries.map((countryData: any) => {
-            const totalLeagues = Object.keys(countryData.leagues).length;
-            const totalMatches = Object.values(countryData.leagues).reduce(
+            const totalLeagues = Object.keys(countryData.leagues || {}).length;
+            const totalMatches = Object.values(countryData.leagues || {}).reduce(
               (sum: number, league: any) => sum + league.matchCount,
               0,
             );
 
+            const hasMatches = totalMatches > 0;
             const isExpanded = expandedCountries.has(countryData.country);
 
             return (
               <div key={countryData.country} className="border-b border-gray-100 last:border-b-0">
                 {/* Country Header - Clickable (nested under Football) */}
                 <button
-                  onClick={() => toggleCountry(countryData.country)}
-                  className="w-full flex items-center justify-between pl-8 pr-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer border-l-2 border-transparent hover:border-l-blue-100"
+                  onClick={() => hasMatches && toggleCountry(countryData.country)}
+                  className={`w-full flex items-center justify-between pl-8 pr-4 py-3 transition-colors border-l-2 border-transparent ${
+                    hasMatches 
+                      ? 'hover:bg-gray-50 cursor-pointer hover:border-l-blue-100' 
+                      : 'cursor-not-allowed opacity-50'
+                  }`}
                 >
                   <div className="flex items-center gap-3">
                     {(() => {
@@ -404,7 +437,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                         {getCountryDisplayName(countryData.country)}
                       </span>
                       <span
-                        className="text-gray-500 text-sm"
+                        className={`text-sm ${hasMatches ? 'text-gray-500' : 'text-gray-300'}`}
                         style={{
                           fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                         }}
@@ -414,16 +447,18 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                     </div>
                   </div>
 
-                  {/* Expand/Collapse Icon for Country */}
-                  {isExpanded ? (
-                    <ChevronUp className="h-4 w-4 text-gray-500" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                  {/* Expand/Collapse Icon for Country - Only show if has matches */}
+                  {hasMatches && (
+                    isExpanded ? (
+                      <ChevronUp className="h-4 w-4 text-gray-500" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 text-gray-500" />
+                    )
                   )}
                 </button>
 
-                {/* Leagues List - Show when expanded */}
-                {isExpanded && (
+                {/* Leagues List - Show when expanded and has matches */}
+                {isExpanded && hasMatches && (
                   <div className="space-y-2 ml-12 pb-4">
                     {Object.values(countryData.leagues)
                       .sort((a: any, b: any) => a.league.name.localeCompare(b.league.name))
