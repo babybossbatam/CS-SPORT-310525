@@ -23,7 +23,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   teamId,
   fallbackUrl,
   alt,
-  size = "64px",
+  size = "51px",
   className = "",
   moveLeft = false,
   nextMatchInfo,
@@ -205,8 +205,8 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     <div
       className={`flag-circle ${className}`}
       style={{
-        width: "27px",
-        height: "27px",
+        width: size,
+        height: size,
         position: "relative",
         left: moveLeft ? "-16px" : "4px",
       }}
@@ -218,8 +218,8 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
         alt={alt || teamName}
         className="team-logo"
         style={{
-          width: "27px",
-          height: "27px",
+          width: size,
+          height: size,
           objectFit: "cover",
           borderRadius: isNational ? "50%" : "50%", // Keep circular for both, but club logos will show as regular logos
           position: "relative",
