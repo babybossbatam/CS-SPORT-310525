@@ -38,6 +38,7 @@ import { isNationalTeam } from "../../lib/teamLogoSources";
 import { MySmartDateLabeling } from "../../lib/MySmartDateLabeling";
 import LazyImage from "../common/LazyImage";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
+import MyCircularFlag from "../common/MyCircularFlag";
 import LazyMatchItem from "./LazyMatchItem";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import "../../styles/MyLogoPositioning.css";
@@ -1337,90 +1338,38 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   }`}
                 >
                   <div className="flex items-center gap-3 font-normal text-[14px]">
-                    <img
-                      src={(() => {
-                        const countryName =
-                          typeof countryData.country === "string"
-                            ? countryData.country
-                            : countryData.country?.name || "Unknown";
-
-                        if (countryName === "World") {
-                          return "/assets/world flag_new.png";
-                        }
-
-                        // For England specifically, always use the England flag
-                        if (countryName === "England") {
-                          return "https://flagcdn.com/w40/gb-eng.png";
-                        }
-
-                        // Check if we have a cached flag for other countries
-                        const cachedFlag = flagMap[countryName];
-                        if (cachedFlag) {
-                          return cachedFlag;
-                        }
-
-                        // For other countries, use the fallback sync function
-                        return (
-                          getCountryFlagWithFallbackSync(countryName) ||
-                          "/assets/fallback.svg"
-                        );
-                      })()}
-                      alt={
+                    {(() => {
+                      const countryName =
                         typeof countryData.country === "string"
                           ? countryData.country
-                          : countryData.country?.name || "Unknown"
-                      }
-                      className="w-5 h-3 object-cover rounded-sm shadow-sm"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        const countryName =
-                          typeof countryData.country === "string"
-                            ? countryData.country
-                            : countryData.country?.name || "Unknown";
+                          : countryData.country?.name || "Unknown";
 
-                        // For World flag, use fallback
-                        if (countryName === "World") {
-                          target.src = "/assets/fallback.svg";
-                          return;
-                        }
-                        // For England specifically, ensure we try the correct flag first
-                        if (
-                          countryName === "England" &&
-                          !target.src.includes("fallback-logo.svg")
-                        ) {
-                          if (!target.src.includes("gb-eng")) {
-                            // First try the England flag
-                            target.src = "https://flagcdn.com/w40/gb-eng.png";
-                            return;
-                          } else {
-                            // If England flag fails, use GB flag
-                            target.src = "https://flagcdn.com/w40/gb.png";
-                            return;
-                          }
-                        }
-                        // For other GB subdivisions
-                        if (
-                          (countryName === "Scotland" ||
-                            countryName === "Wales" ||
-                            countryName === "Northern Ireland") &&
-                          !target.src.includes("fallback-logo.svg")
-                        ) {
-                          if (
-                            target.src.includes("gb-sct") ||
-                            target.src.includes("gb-wls") ||
-                            target.src.includes("gb-nir")
-                          ) {
-                            target.src = "https://flagcdn.com/w40/gb.png"; // Fallback to GB flag
-                          } else if (target.src.includes("/gb.png")) {
-                            target.src = "/assets/fallback.svg";
-                          }
-                          return;
-                        }
-                        if (!target.src.includes("/assets/fallback.svg")) {
-                          target.src = "/assets/fallback.svg";
-                        }
-                      }}
-                    />
+                      // Special case for World - use COTIF tournament logo
+                      if (countryName === "World") {
+                        return (
+                          <img
+                            src="/assets/matchdetaillogo/cotif tournament.png"
+                            alt="World"
+                            className="w-5 h-3 object-cover rounded-sm shadow-sm"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = "/assets/fallback.svg";
+                            }}
+                          />
+                        );
+                      }
+
+                      // For all other countries, use MyCircularFlag
+                      return (
+                        <MyCircularFlag
+                          teamName={countryName}
+                          fallbackUrl="/assets/fallback.svg"
+                          alt={countryName}
+                          size="20px"
+                          className="rounded-sm shadow-sm"
+                        />
+                      );
+                    })()}
                     <span
                       className="font-medium text-gray-900"
                       style={{
