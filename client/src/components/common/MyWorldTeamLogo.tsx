@@ -63,25 +63,16 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     console.log(`🔄 [MyWorldTeamLogo] Computing shouldUseCircularFlag for: ${teamName}`);
 
     const isActualNationalTeam = isNationalTeam({ name: teamName }, leagueContext);
+    const isYouthTeam = teamName?.includes("U17") || 
+                       teamName?.includes("U19") ||
+                       teamName?.includes("U20") || 
+                       teamName?.includes("U21") ||
+                       teamName?.includes("U23");
 
     // Special handling for COTIF Tournament - detect club vs national teams
     const leagueName = leagueContext?.name?.toLowerCase() || "";
     const isCOTIFTournament = leagueName.includes("cotif");
     
-    // Special handling for AFF U23 Championship - always use national team logos
-    const isAFFU23Championship = leagueName.includes("aff u23") || 
-                                leagueName.includes("aff u-23") ||
-                                leagueName.includes("aff under 23") ||
-                                leagueName.includes("aff under-23");
-    
-    // Special handling for AFF U23 Championship - always use circular flags
-    if (isAFFU23Championship) {
-      console.log(`🏆 [MyWorldTeamLogo] AFF U23 Championship detected for team: ${teamName} - forcing circular flag`);
-      const result = true; // Always use circular flag for AFF U23 teams
-      circularFlagCache.set(cacheKey, { result, timestamp: now });
-      return result;
-    }
-
     // For COTIF Tournament, we need to distinguish between club and national teams
     if (isCOTIFTournament) {
       console.log(`🏆 [MyWorldTeamLogo] COTIF Tournament detected for team: ${teamName}`);
@@ -104,7 +95,13 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         return result;
       }
       
-      
+      // For youth teams in COTIF that are national teams
+      if (isYouthTeam && isActualNationalTeam) {
+        console.log(`🇺🇳 [MyWorldTeamLogo] COTIF: ${teamName} identified as national youth team - using circular flag`);
+        const result = true; // Use circular flag format
+        circularFlagCache.set(cacheKey, { result, timestamp: now });
+        return result;
+      }
       
       // Default for COTIF: if it's a recognizable country name, use circular flag
       if (isActualNationalTeam) {
@@ -155,7 +152,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         leagueName,
         isFriendliesInternational,
         isFriendliesClub,
-        isActualNationalTeam
+        isActualNationalTeam,
+        isYouthTeam
       });
     }
 
@@ -175,43 +173,12 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     const isClubYouthTeam = (teamName?.includes("Valencia U20") && teamId === 532) ||
                            (teamName?.includes("Alboraya U20") && teamId === 19922);
 
-    // Additional check for known club teams that should NEVER use circular flags
-    const isKnownClubTeam = teamName && (
-      teamName.toLowerCase().includes("fc") ||
-      teamName.toLowerCase().includes("cf") ||
-      teamName.toLowerCase().includes("united") ||
-      teamName.toLowerCase().includes("city") ||
-      teamName.toLowerCase().includes("athletic") ||
-      teamName.toLowerCase().includes("real madrid") ||
-      teamName.toLowerCase().includes("barcelona") ||
-      teamName.toLowerCase().includes("valencia") ||
-      teamName.toLowerCase().includes("alboraya") ||
-      teamName.toLowerCase().includes("club") ||
-      teamName.toLowerCase().includes("ud ") ||
-      teamName.toLowerCase().includes("arsenal") ||
-      teamName.toLowerCase().includes("liverpool") ||
-      teamName.toLowerCase().includes("chelsea") ||
-      teamName.toLowerCase().includes("manchester") ||
-      teamName.toLowerCase().includes("tottenham") ||
-      teamName.toLowerCase().includes("bayern") ||
-      teamName.toLowerCase().includes("dortmund") ||
-      teamName.toLowerCase().includes("juventus") ||
-      teamName.toLowerCase().includes("milan") ||
-      teamName.toLowerCase().includes("inter") ||
-      teamName.toLowerCase().includes("napoli") ||
-      teamName.toLowerCase().includes("roma") ||
-      teamName.toLowerCase().includes("psg") ||
-      teamName.toLowerCase().includes("olympique") ||
-      teamName.toLowerCase().includes("atletico")
-    );
-
     // Use circular flag for national teams in international competitions
-    // BUT: Force club teams to ALWAYS use club logos regardless of league context
+    // BUT: Force specific club youth teams, ADH Brazil and Valencia to ALWAYS use club logos regardless of league context
+    // AND: Force club logos for standings/domestic league contexts
     const result = !isStandingsContext &&
                    !isClubYouthTeam &&
-                   !isKnownClubTeam &&
-                   isActualNationalTeam && 
-                   (isFriendliesInternational || isUefaNationsLeague) && 
+                   (isActualNationalTeam || isYouthTeam || isFriendliesInternational || isUefaNationsLeague) && 
                    !isFifaClubWorldCup && 
                    !isFriendliesClub && 
                    !isUefaEuropaLeague && 
@@ -301,7 +268,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     height: "100%",
     objectFit: "contain" as const,
     borderRadius: "0%",
-    transform: "scale(0.9)"
+    transform: "scale(0.8)"
   }), []);
 
     const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement, Event>) => {
@@ -347,7 +314,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         moveLeft={moveLeft}
         nextMatchInfo={nextMatchInfo}
         showNextMatchOverlay={showNextMatchOverlay}
-        leagueContext={leagueContext}
       />
     );
   }

@@ -80,45 +80,6 @@
 
 }
 
-/* Flash animation for kick-off matches with soft yellow only */
-.country-matches-container .match-card-container.kickoff-flash {
-  position: relative;
-  overflow: hidden;
-  background-color: #ffffff !important;
-}
-
-.country-matches-container .match-card-container.kickoff-flash::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #fff3a0;
-  animation: slide-from-both-ends-kickoff 4s linear;
-  z-index: 0;
-  pointer-events: none;
-  transform: scaleX(0);
-  transform-origin: center;
-}
-
-@keyframes slide-from-both-ends-kickoff {
-  0% {
-    transform: scaleX(1);
-    opacity: 0.1;
-  }
-
-  25% {
-    transform: scaleX(0.5);
-    opacity: 0.5;
-  }
-
-  50% {
-    transform: scaleX(0);
-    opacity: 1;
-  }
-}
-
 /* Flash animation for goal matches with soft green only */
 .country-matches-container .match-card-container.goal-flash {
   position: relative;

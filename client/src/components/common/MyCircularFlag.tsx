@@ -4,11 +4,11 @@ import { isNationalTeam, getTeamLogoSources, createTeamLogoErrorHandler } from "
 
 interface MyCircularFlagProps {
   teamName: string;
+  teamId?: number | string;
   fallbackUrl?: string;
   alt?: string;
   size?: string;
   className?: string;
-  teamId?: number | string;
   moveLeft?: boolean;
   nextMatchInfo?: {
     opponent: string;
@@ -16,55 +16,28 @@ interface MyCircularFlagProps {
     venue?: string;
   };
   showNextMatchOverlay?: boolean;
-  leagueContext?: {
-    name?: string;
-    country?: string;
-  };
 }
 
 const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   teamName,
+  teamId,
   fallbackUrl,
   alt,
   size = "51px",
   className = "",
-  teamId,
   moveLeft = false,
   nextMatchInfo,
   showNextMatchOverlay = false,
-  leagueContext,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [nextMatch, setNextMatch] = useState(nextMatchInfo);
 
-  // For national teams, use the circular flag format
-  // Special handling for tournaments where all teams should be treated as national teams
-  const leagueName = leagueContext?.name?.toLowerCase() || "";
-  const isAFFU23Championship = leagueName.includes("aff u23") || 
-                              leagueName.includes("aff u-23") ||
-                              leagueName.includes("aff under 23") ||
-                              leagueName.includes("aff under-23");
-
-  const isNational = isNationalTeam({ name: teamName }, leagueContext || { name: "", country: "" }) || isAFFU23Championship;
-
-  // Additional check for known club teams that should never use circular flags
-  const isKnownClubTeam = !isNational && (
-    teamName?.toLowerCase().includes("fc") ||
-    teamName?.toLowerCase().includes("cf") ||
-    teamName?.toLowerCase().includes("united") ||
-    teamName?.toLowerCase().includes("city") ||
-    teamName?.toLowerCase().includes("athletic") ||
-    teamName?.toLowerCase().includes("real") ||
-    teamName?.toLowerCase().includes("barcelona") ||
-    teamName?.toLowerCase().includes("valencia") ||
-    teamName?.toLowerCase().includes("alboraya") ||
-    teamName?.toLowerCase().includes("club") ||
-    teamName?.toLowerCase().includes("ud ")
-  );
+  // Check if this is a national team or club team
+  const isNational = isNationalTeam({ name: teamName });
 
   // For club teams, use team logo sources
   const getLogoUrl = () => {
-    if ((!isNational || isKnownClubTeam) && teamId) {
+    if (!isNational && teamId) {
       const logoSources = getTeamLogoSources({ id: teamId, name: teamName }, false);
       return logoSources[0]?.url || fallbackUrl || "/assets/fallback-logo.svg";
     }
@@ -222,6 +195,10 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       year: "numeric",
     });
   };
+
+    const isKnownClubTeam = !isNational && teamName && !Object.keys(teamCountryPatterns).some(country =>
+    teamName.toLowerCase().includes(country.toLowerCase())
+  );
 
   // For national teams, use the circular flag format
   return (
