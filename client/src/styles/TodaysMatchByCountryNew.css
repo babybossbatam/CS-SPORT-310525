@@ -1,3 +1,19 @@
+
+/* Custom pulse animation - only opacity change, no shrinking/expanding */
+@keyframes custom-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.custom-pulse {
+  animation: custom-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+
 /* Dedicated CSS for TodaysMatchByCountryNew component */
 
 .country-matches-container .match-card-container {

@@ -811,7 +811,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         // Check for live matches in each country
         const aHasLive = Object.values(a.leagues).some((league: any) =>
           league.matches.some((match: any) =>
-            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes```text
+
               match.fixture.status.short,
             ),
           ),
@@ -984,7 +985,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
 
     if (["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
-      return "bg-red-100 text-red-700 font-semibold animate-pulse";
+      return "bg-red-100 text-red-700 font-semibold custom-pulse";
     }
 
     if (fixtureDate < now && status === "NS") {
@@ -1715,8 +1716,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                           ? "Awarded"
                                                           : status === "WO"
                                                             ? "Walkover"
-                                                            : status === "ABD"
-                                                              ? "Abandoned"
+                                                            : status === "ABD"                                                              ? "Abandoned"
                                                                : status ===
                                                                    "CANC"
                                                                  ? "Cancelled"
