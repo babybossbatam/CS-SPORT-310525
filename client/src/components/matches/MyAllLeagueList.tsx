@@ -310,52 +310,56 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                   onClick={() => toggleCountry(countryData.country)}
                   className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors cursor-pointer"
                 >
-                  <div className="flex items-center gap-3">
-                    {(() => {
-                      const countryName = typeof countryData.country === "string"
-                        ? countryData.country
-                        : countryData.country?.name || "Unknown";
+                  
+                  {(() => {
+                    const countryName = typeof countryData.country === "string"
+                      ? countryData.country
+                      : countryData.country?.name || "Unknown";
 
-                      if (countryName === "World") {
-                        return (
+                    if (countryName === "World") {
+                      return (
+                        <div className="flex items-center gap-3">
                           <MyCountryGroupFlag
                             teamName="World"
                             fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
                             alt="World"
                             size="24px"
                           />
-                        );
-                      }
+                        </div>
+                      );
+                    }
 
-                      return (
+                    return (
+                      <div className="flex items-center gap-3">
                         <MyCountryGroupFlag
                           teamName={countryName}
                           alt={countryName}
                           size="24px"
-                          className="country-group-flag"
+                          className=""
                         />
-                      );
-                    })()}
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="font-medium text-gray-900"
-                        style={{
-                          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                          fontSize: "14px",
-                        }}
-                      >
-                        {getCountryDisplayName(countryData.country)}
-                      </span>
-                      <span
-                        className="text-gray-500 text-sm"
-                        style={{
-                          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                        }}
-                      >
-                        ({totalMatches})
-                      </span>
-                    </div>
+                      </div>
+                    );
+                  })()}
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="font-medium text-gray-900"
+                      style={{
+                        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                        fontSize: "14px",
+                      }}
+                    >
+                      {getCountryDisplayName(countryData.country)}
+                    </span>
+                    <span
+                      className="text-gray-500 text-sm"
+                      style={{
+                        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                      }}
+                    >
+                      ({totalMatches})
+                    </span>
                   </div>
+
 
                   {/* Expand/Collapse Icon */}
                   {isExpanded ? (
