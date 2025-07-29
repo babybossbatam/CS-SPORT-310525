@@ -293,6 +293,41 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         </div>
       </CardHeader>
       <CardContent className="p-0">
+        {/* Football Section */}
+        <div className="p-4 border-b border-gray-100">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span 
+                className="text-gray-900 font-medium"
+                style={{
+                  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                  fontSize: "14px",
+                }}
+              >
+                Football
+              </span>
+            </div>
+            <span 
+              className="text-gray-500 text-sm"
+              style={{
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+              }}
+            >
+              ({validFixtures.length})
+            </span>
+          </div>
+          <div className="mt-2">
+            <span 
+              className="text-gray-600 text-sm"
+              style={{
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                fontSize: "13px",
+              }}
+            >
+              All Leagues A-Z
+            </span>
+          </div>
+        </div>
         <div className="divide-y divide-gray-100">
           {sortedCountries.map((countryData: any) => {
             const totalLeagues = Object.keys(countryData.leagues).length;
