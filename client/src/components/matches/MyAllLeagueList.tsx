@@ -414,7 +414,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                     </div>
                   </div>
 
-                  {/* Expand/Collapse Icon */}
+                  {/* Expand/Collapse Icon for Country */}
                   {isExpanded ? (
                     <ChevronUp className="h-4 w-4 text-gray-500" />
                   ) : (
