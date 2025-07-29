@@ -207,6 +207,11 @@ const MyCountryGroupFlag: React.FC<MyCountryGroupFlagProps> = ({
         alt={alt || teamName}
         className="team-logo"
         style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          display: "block",
+          margin: "0 auto",
           filter: isNational 
             ? "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)"
             : "none",
