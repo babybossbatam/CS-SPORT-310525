@@ -5,6 +5,8 @@ import MyHomeFeaturedMatchNew from '@/components/matches/MyHomeFeaturedMatchNew'
 import HomeTopScorersList from '@/components/leagues/HomeTopScorersList';
 import LeagueStandingsFilter from '@/components/leagues/LeagueStandingsFilter';
 import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
+import TodaysMatchesByCountryNew from '@/components/matches/TodaysMatchesByCountryNew';
+import { Card, CardContent } from '@/components/ui/card';
 
 import PopularTeamsList from '@/components/teams/PopularTeamsList';
 import ScoreDetailsCard from '@/components/matches/ScoreDetailsCard';
@@ -26,8 +28,17 @@ const MyRightContent: React.FC = () => {
 
       <LeagueStandingsFilter />
 
-      {/* Popular Leagues and Teams sections */}
-      <PopularLeaguesList />
+      {/* Popular Leagues and All League List sections */}
+      <div className="grid grid-cols-2 gap-4">
+        <PopularLeaguesList />
+        
+        <Card className="w-full bg-white shadow-sm">
+          <CardContent className="p-0">
+            <h3 className="text-sm font-semibold mb-2 p-4 pb-2">All League List</h3>
+            <TodaysMatchesByCountryNew selectedDate={selectedDate} />
+          </CardContent>
+        </Card>
+      </div>
       
       <div className="w-full shadow-md bg-white">
         <div className="p-4">
