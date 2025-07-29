@@ -293,6 +293,21 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         </div>
       </CardHeader>
       <CardContent className="p-0">
+        {/* All Leagues A-Z Section */}
+        <div className="p-4 border-b border-gray-100">
+          <div className="text-center">
+            <span 
+              className="text-gray-600 text-sm"
+              style={{
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                fontSize: "13px",
+              }}
+            >
+              All Leagues A-Z
+            </span>
+          </div>
+        </div>
+
         {/* Football Section with Countries */}
         <div className="divide-y divide-gray-100">
           {/* Football Header */}
@@ -316,17 +331,6 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                 }}
               >
                 ({validFixtures.length})
-              </span>
-            </div>
-            <div className="mt-2">
-              <span 
-                className="text-gray-600 text-sm"
-                style={{
-                  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                  fontSize: "13px",
-                }}
-              >
-                All Leagues A-Z
               </span>
             </div>
           </div>
