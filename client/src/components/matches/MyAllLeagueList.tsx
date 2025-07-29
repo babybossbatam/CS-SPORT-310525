@@ -334,7 +334,6 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                         <MyCountryGroupFlag
                           teamName={countryName}
                           alt={countryName}
-                          size="24px"
                           className=""
                         />
                       </div>
