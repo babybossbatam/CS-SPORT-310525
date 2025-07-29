@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -310,62 +311,53 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                   onClick={() => toggleCountry(countryData.country)}
                   className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors cursor-pointer"
                 >
+                  <div className="flex items-center gap-3">
+                    {(() => {
+                      const countryName = typeof countryData.country === "string"
+                        ? countryData.country
+                        : countryData.country?.name || "Unknown";
 
-                  {(() => {
-                    const countryName = typeof countryData.country === "string"
-                      ? countryData.country
-                      : countryData.country?.name || "Unknown";
-
-                    if (countryName === "World") {
-                      return (
-                        <div className="flex items-center gap-3">
-                          <div className="country-flag-circle">
-                            <MyCountryGroupFlag
-                              teamName="World"
-                              fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
-                              alt="World"
-                              className="country-group-flag-header"
-                            />
-                            <div className="gloss"></div>
-                          </div>
-                        </div>
-                      );
-                    }
-
-                    return (
-                      <div className="flex items-center gap-3">
-                        <div className="country-flag-circle">
+                      if (countryName === "World") {
+                        return (
                           <MyCountryGroupFlag
-                            teamName={countryName}
-                            alt={countryName}
-                            className="country-group-flag-header"
+                            teamName="World"
+                            fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
+                            alt="World"
+                            size="24px"
                           />
-                          <div className="gloss"></div>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="font-medium text-gray-900"
-                      style={{
-                        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                        fontSize: "14px",
-                      }}
-                    >
-                      {getCountryDisplayName(countryData.country)}
-                    </span>
-                    <span
-                      className="text-gray-500 text-sm"
-                      style={{
-                        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                      }}
-                    >
-                      ({totalMatches})
-                    </span>
+                        );
+                      }
+
+                      return (
+                        <MyCountryGroupFlag
+                          teamName={countryName}
+                          fallbackUrl="/assets/fallback-logo.svg"
+                          alt={countryName}
+                          size="24px"
+                        />
+                      );
+                    })()}
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="font-medium text-gray-900"
+                        style={{
+                          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                          fontSize: "14px",
+                        }}
+                      >
+                        {getCountryDisplayName(countryData.country)}
+                      </span>
+                      <span
+                        className="text-gray-500 text-sm"
+                        style={{
+                          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                        }}
+                      >
+                        ({totalLeagues} leagues, {totalMatches} matches)
+                      </span>
+                    </div>
                   </div>
-
-
+                  
                   {/* Expand/Collapse Icon */}
                   {isExpanded ? (
                     <ChevronUp className="h-4 w-4 text-gray-500" />
