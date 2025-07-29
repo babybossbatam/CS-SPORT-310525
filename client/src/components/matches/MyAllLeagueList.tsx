@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,7 +9,7 @@ import { shouldExcludeMatchByCountry } from "@/lib/MyMatchByCountryNewExclusion"
 import { isDateStringToday, isDateStringYesterday, isDateStringTomorrow } from "@/lib/dateUtilsUpdated";
 import { getCachedCountryName, setCachedCountryName } from "@/lib/countryCache";
 import { countryCodeMap } from "@/lib/flagUtils";
-import MyCountryGroupFlag from "../common/MyCountryGroupFlag";
+import MyGroupNationalFlag from "../common/MyGroupNationalFlag";
 
 interface MyAllLeagueListProps {
   selectedDate: string;
@@ -319,7 +318,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
                       if (countryName === "World") {
                         return (
-                          <MyCountryGroupFlag
+                          <MyGroupNationalFlag
                             teamName="World"
                             fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
                             alt="World"
@@ -329,7 +328,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                       }
 
                       return (
-                        <MyCountryGroupFlag
+                        <MyGroupNationalFlag
                           teamName={countryName}
                           fallbackUrl="/assets/fallback-logo.svg"
                           alt={countryName}
@@ -357,7 +356,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                       </span>
                     </div>
                   </div>
-                  
+
                   {/* Expand/Collapse Icon */}
                   {isExpanded ? (
                     <ChevronUp className="h-4 w-4 text-gray-500" />
