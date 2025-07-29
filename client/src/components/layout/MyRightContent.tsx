@@ -36,10 +36,7 @@ const MyRightContent: React.FC = () => {
       </div>
       
       <div className="w-full shadow-md bg-white">
-        <div className="p-4">
-          <h3 className="text-sm font-semibold mb-2">Popular Teams</h3>
-          <PopularTeamsList />
-        </div>
+        <PopularTeamsList />
       </div>
 
       
