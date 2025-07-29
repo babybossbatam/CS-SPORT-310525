@@ -64,10 +64,15 @@ const PopularLeaguesList = () => {
             }))
             .filter((league: any) => {
               const leagueName = league.name?.toLowerCase() || '';
+              const country = league.country?.toLowerCase() || '';
               // Exclude Second League and Segunda División leagues
+              // Exclude leagues from Finland, Iran, and Thailand
               return !leagueName.includes('second league') && 
                      !leagueName.includes('segunda división') &&
-                     !leagueName.includes('segunda division');
+                     !leagueName.includes('segunda division') &&
+                     !country.includes('finland') &&
+                     !country.includes('iran') &&
+                     !country.includes('thailand');
             });
 
           setLeagueData(transformedLeagues);
@@ -80,10 +85,15 @@ const PopularLeaguesList = () => {
         const sortedLeagues = [...CURRENT_POPULAR_LEAGUES]
           .filter((league) => {
             const leagueName = league.name?.toLowerCase() || '';
+            const country = league.country?.toLowerCase() || '';
             // Exclude Second League and Segunda División leagues
+            // Exclude leagues from Finland, Iran, and Thailand
             return !leagueName.includes('second league') && 
                    !leagueName.includes('segunda división') &&
-                   !leagueName.includes('segunda division');
+                   !leagueName.includes('segunda division') &&
+                   !country.includes('finland') &&
+                   !country.includes('iran') &&
+                   !country.includes('thailand');
           })
           .sort((a, b) => b.popularity - a.popularity);
         setLeagueData(sortedLeagues);
