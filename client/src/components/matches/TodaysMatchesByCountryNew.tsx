@@ -1554,7 +1554,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                     if (liveMatchesInLeague > 0) {
                                       return (
-                                        <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-semibold animate-pulse">
+                                        <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-semibold">
                                           {liveMatchesInLeague} LIVE
                                         </span>
                                       );
