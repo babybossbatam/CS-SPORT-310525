@@ -530,6 +530,25 @@ const MyNewLeague2 = ({
   const [goalFlashMatches, setGoalFlashMatches] = useState<Set<number>>(new Set());
   const [kickoffFlashMatches, setKickoffFlashMatches] = useState<Set<number>>(new Set());
 
+  // Function to trigger the kickoff flash effect
+  const triggerKickoffFlash = useCallback((matchId: number) => {
+    if (!kickoffFlashMatches.has(matchId)) {
+      setKickoffFlashMatches((prev) => {
+        const newKickoffFlashMatches = new Set(prev);
+        newKickoffFlashMatches.add(matchId);
+        return newKickoffFlashMatches;
+      });
+
+      // Remove the flash after a delay (e.g., 3 seconds)
+      setTimeout(() => {
+        setKickoffFlashMatches((prev) => {
+          const newKickoffFlashMatches = new Set(prev);
+          newKickoffFlashMatches.delete(matchId);
+          return newKickoffFlashMatches;
+        });
+      }, 3000);
+    }
+  }, [kickoffFlashMatches, setKickoffFlashMatches]);
 
   if (isLoading) {
     return (
@@ -846,6 +865,16 @@ const MyNewLeague2 = ({
                     const isKickoffFlash = kickoffFlashMatches.has(matchId);
                     const isStarred = starredMatches.has(matchId);
 
+                    // Trigger kickoff flash effect when the match transitions to live
+                    useEffect(() => {
+                      if (
+                        fixture.fixture.status.short === "1H" &&
+                        !kickoffFlashMatches.has(matchId)
+                      ) {
+                        triggerKickoffFlash(matchId);
+                      }
+                    }, [fixture.fixture.status.short, matchId, kickoffFlashMatches, triggerKickoffFlash]);
+
                     return (
                       <div key={matchId} className="country-matches-container">
                         <div
@@ -963,34 +992,6 @@ const MyNewLeague2 = ({
                                     "INT",
                                   ].includes(status)
                                 ) {
-                                  // Trigger kickoff flash effect when the match transitions to live
-                                  useEffect(() => {
-                                    if (
-                                      status === "1H" &&
-                                      !kickoffFlashMatches.has(matchId)
-                                    ) {
-                                      setKickoffFlashMatches((prev) => {
-                                        const newKickoffFlashMatches = new Set(
-                                          prev,
-                                        );
-                                        newKickoffFlashMatches.add(matchId);
-                                        return newKickoffFlashMatches;
-                                      });
-
-                                      // Remove the flash after a delay (e.g., 3 seconds)
-                                      setTimeout(() => {
-                                        setKickoffFlashMatches((prev) => {
-                                          const newKickoffFlashMatches =
-                                            new Set(prev);
-                                          newKickoffFlashMatches.delete(
-                                            matchId,
-                                          );
-                                          return newKickoffFlashMatches;
-                                        });
-                                      }, 3000);
-                                    }
-                                  }, [status, matchId, kickoffFlashMatches]);
-
                                   let displayText = "";
                                   let statusClass = "status-live-elapsed";
 
