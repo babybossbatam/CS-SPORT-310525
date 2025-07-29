@@ -163,9 +163,9 @@ const PopularLeaguesList = () => {
   return (
     <div className="space-y-4">
       <Card className="w-full bg-white shadow-sm">
-        <CardContent className="p-4">
-          <h3 className="text-sm font-semibold mb-2">Popular Leagues</h3>
-        <div className="space-y-2">
+        <CardContent className="p-0">
+          <h3 className="text-sm font-semibold mb-2 p-4 pb-2">Popular Leagues</h3>
+        <div className="space-y-2 px-4 pb-4">
           {leagueData.map((league) => {
             const isFavorite = user.preferences.favoriteLeagues.includes(league.id.toString());
 
