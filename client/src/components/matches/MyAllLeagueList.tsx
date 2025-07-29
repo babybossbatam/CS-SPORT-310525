@@ -394,7 +394,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                 {/* Country Header - Clickable (nested under Football) */}
                 <button
                   onClick={() => hasMatches && toggleCountry(countryData.country)}
-                  className={`w-full flex items-center justify-between pl-8 pr-4 py-3 transition-colors border-l-2 border-transparent ${
+                  className={`w-full flex items-center justify-between pl-2 pr-4 py-3 transition-colors border-l-2 border-transparent ${
                     hasMatches 
                       ? 'hover:bg-gray-50 cursor-pointer hover:border-l-blue-100' 
                       : 'cursor-not-allowed opacity-50'
@@ -459,7 +459,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
                 {/* Leagues List - Show when expanded and has matches */}
                 {isExpanded && hasMatches && (
-                  <div className="space-y-2 ml-12 pb-4">
+                  <div className="space-y-2 ml-3 pb-4">
                     {Object.values(countryData.leagues)
                       .sort((a: any, b: any) => a.league.name.localeCompare(b.league.name))
                       .map((leagueData: any) => (
@@ -502,7 +502,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                               fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                             }}
                           >
-                            ({leagueData.matchCount})
+                            
                           </span>
                         </div>
                       ))}
