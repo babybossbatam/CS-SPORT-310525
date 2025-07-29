@@ -14,7 +14,7 @@ export const CURRENT_POPULAR_LEAGUES = [
   { id: 39, name: 'Premier League', logo: 'https://media.api-sports.io/football/leagues/39.png', country: 'England', popularity: 95 },
   { id: 2, name: 'UEFA Champions League', logo: 'https://media.api-sports.io/football/leagues/2.png', country: 'Europe', popularity: 92 },
   { id: 140, name: 'La Liga', logo: 'https://media.api-sports.io/football/leagues/140.png', country: 'Spain', popularity: 90 },
-  { id: 490, name: 'World Cup', logo: 'https://media.api-sports.io/football/leagues/490.png', country: 'World', popularity: 88 },
+  { id: 37, name: 'World Cup', logo: 'https://media.api-sports.io/football/leagues/37.png', country: 'World', popularity: 88 },
   { id: 135, name: 'Serie A', logo: 'https://media.api-sports.io/football/leagues/135.png', country: 'Italy', popularity: 85 },
   { id: 78, name: 'Bundesliga', logo: 'https://media.api-sports.io/football/leagues/78.png', country: 'Germany', popularity: 83 },
   { id: 4, name: 'Euro Championship', logo: 'https://media.api-sports.io/football/leagues/4.png', country: 'World', popularity: 82 },
