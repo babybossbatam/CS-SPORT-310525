@@ -228,7 +228,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [selectedDay, setSelectedDay] = useState(0);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [countdownTimer, setCountdownTimer] = useState<string>("Loading...");
-  const [roundsCache, setRoundsCache = useState<Record<string, string[]>>({});
+  const [roundsCache, setRoundsCache] = useState<Record<string, string[]>>({});
 
   const fetchRoundsForLeague = useCallback(async (leagueId: number, season: number) => {
     const cacheKey = `${leagueId}-${season}`;
