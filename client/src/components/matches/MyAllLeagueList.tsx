@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -357,7 +356,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                       </span>
                     </div>
                   </div>
-                  
+
                   {/* Expand/Collapse Icon */}
                   {isExpanded ? (
                     <ChevronUp className="h-4 w-4 text-gray-500" />
