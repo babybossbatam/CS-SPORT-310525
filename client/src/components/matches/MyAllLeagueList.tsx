@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar } from "lucide-react";
+import { Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid } from "date-fns";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
@@ -20,6 +20,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   const [fixtures, setFixtures] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
 
   // Fetch fixtures data
   useEffect(() => {
@@ -189,6 +190,19 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     }
   };
 
+  // Toggle country expansion
+  const toggleCountry = (country: string) => {
+    setExpandedCountries(prev => {
+      const newExpanded = new Set(prev);
+      if (newExpanded.has(country)) {
+        newExpanded.delete(country);
+      } else {
+        newExpanded.add(country);
+      }
+      return newExpanded;
+    });
+  };
+
   // Sort countries alphabetically with World first
   const sortedCountries = useMemo(() => {
     return Object.values(leaguesByCountry).sort((a: any, b: any) => {
@@ -288,105 +302,121 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
               0,
             );
 
-            return (
-              <div key={countryData.country} className="p-4">
-                {/* Country Header */}
-                <div className="flex items-center gap-3 mb-3">
-                  {(() => {
-                    const countryName = typeof countryData.country === "string"
-                      ? countryData.country
-                      : countryData.country?.name || "Unknown";
+            const isExpanded = expandedCountries.has(countryData.country);
 
-                    if (countryName === "World") {
+            return (
+              <div key={countryData.country} className="border-b border-gray-100 last:border-b-0">
+                {/* Country Header - Clickable */}
+                <button
+                  onClick={() => toggleCountry(countryData.country)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    {(() => {
+                      const countryName = typeof countryData.country === "string"
+                        ? countryData.country
+                        : countryData.country?.name || "Unknown";
+
+                      if (countryName === "World") {
+                        return (
+                          <MyCountryGroupFlag
+                            teamName="World"
+                            fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
+                            alt="World"
+                            size="24px"
+                          />
+                        );
+                      }
+
                       return (
                         <MyCountryGroupFlag
-                          teamName="World"
-                          fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
-                          alt="World"
+                          teamName={countryName}
+                          fallbackUrl="/assets/fallback-logo.svg"
+                          alt={countryName}
                           size="24px"
                         />
                       );
-                    }
-
-                    return (
-                      <MyCountryGroupFlag
-                        teamName={countryName}
-                        fallbackUrl="/assets/fallback-logo.svg"
-                        alt={countryName}
-                        size="24px"
-                      />
-                    );
-                  })()}
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="font-medium text-gray-900"
-                      style={{
-                        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                        fontSize: "14px",
-                      }}
-                    >
-                      {getCountryDisplayName(countryData.country)}
-                    </span>
-                    <span
-                      className="text-gray-500 text-sm"
-                      style={{
-                        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                      }}
-                    >
-                      ({totalLeagues} leagues, {totalMatches} matches)
-                    </span>
+                    })()}
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="font-medium text-gray-900"
+                        style={{
+                          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                          fontSize: "14px",
+                        }}
+                      >
+                        {getCountryDisplayName(countryData.country)}
+                      </span>
+                      <span
+                        className="text-gray-500 text-sm"
+                        style={{
+                          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                        }}
+                      >
+                        ({totalLeagues} leagues, {totalMatches} matches)
+                      </span>
+                    </div>
                   </div>
-                </div>
+                  
+                  {/* Expand/Collapse Icon */}
+                  {isExpanded ? (
+                    <ChevronUp className="h-4 w-4 text-gray-500" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                  )}
+                </button>
 
-                {/* Leagues List */}
-                <div className="space-y-2 ml-8">
-                  {Object.values(countryData.leagues)
-                    .sort((a: any, b: any) => a.league.name.localeCompare(b.league.name))
-                    .map((leagueData: any) => (
-                      <div key={leagueData.league.id} className="flex items-center gap-3 py-2">
-                        <img
-                          src={(() => {
-                            const leagueName = leagueData.league.name?.toLowerCase() || "";
-                            if (leagueName.includes("cotif")) {
-                              return "/assets/matchdetaillogo/cotif tournament.png";
-                            }
-                            return leagueData.league.logo || "/assets/fallback-logo.svg";
-                          })()}
-                          alt={leagueData.league.name || "Unknown League"}
-                          className="w-5 h-5 object-contain rounded-full"
-                          style={{ backgroundColor: "transparent" }}
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            const leagueName = leagueData.league.name?.toLowerCase() || "";
-                            if (leagueName.includes("cotif") && !target.src.includes("fallback-logo.svg")) {
-                              target.src = "/assets/fallback-logo.svg";
-                            } else if (!target.src.includes("fallback-logo.svg")) {
-                              target.src = "/assets/fallback-logo.svg";
-                            }
-                          }}
-                        />
-                        <div className="flex-1">
+                {/* Leagues List - Show when expanded */}
+                {isExpanded && (
+                  <div className="space-y-2 ml-8 pb-4">
+                    {Object.values(countryData.leagues)
+                      .sort((a: any, b: any) => a.league.name.localeCompare(b.league.name))
+                      .map((leagueData: any) => (
+                        <div key={leagueData.league.id} className="flex items-center gap-3 py-2">
+                          <img
+                            src={(() => {
+                              const leagueName = leagueData.league.name?.toLowerCase() || "";
+                              if (leagueName.includes("cotif")) {
+                                return "/assets/matchdetaillogo/cotif tournament.png";
+                              }
+                              return leagueData.league.logo || "/assets/fallback-logo.svg";
+                            })()}
+                            alt={leagueData.league.name || "Unknown League"}
+                            className="w-5 h-5 object-contain rounded-full"
+                            style={{ backgroundColor: "transparent" }}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              const leagueName = leagueData.league.name?.toLowerCase() || "";
+                              if (leagueName.includes("cotif") && !target.src.includes("fallback-logo.svg")) {
+                                target.src = "/assets/fallback-logo.svg";
+                              } else if (!target.src.includes("fallback-logo.svg")) {
+                                target.src = "/assets/fallback-logo.svg";
+                              }
+                            }}
+                          />
+                          <div className="flex-1">
+                            <span
+                              className="text-gray-800 font-medium"
+                              style={{
+                                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                                fontSize: "13px",
+                              }}
+                            >
+                              {safeSubstring(leagueData.league.name, 0) || "Unknown League"}
+                            </span>
+                          </div>
                           <span
-                            className="text-gray-800 font-medium"
+                            className="text-gray-500 text-xs"
                             style={{
                               fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                              fontSize: "13px",
                             }}
                           >
-                            {safeSubstring(leagueData.league.name, 0) || "Unknown League"}
+                            ({leagueData.matchCount})
                           </span>
                         </div>
-                        <span
-                          className="text-gray-500 text-xs"
-                          style={{
-                            fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                          }}
-                        >
-                          ({leagueData.matchCount})
-                        </span>
-                      </div>
-                    ))}
-                </div>
+                      ))}
+                  </div>
+                )}
               </div>
             );
           })}
