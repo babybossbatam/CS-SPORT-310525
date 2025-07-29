@@ -142,15 +142,15 @@ const PopularLeaguesList = () => {
   if (isLoading) {
     return (
       <Card className="w-full bg-white shadow-sm">
-        <CardContent className="p-4">
+        <CardContent className="-mx-2">
           <h3 className="text-sm font-semibold mb-2">Popular Leagues</h3>
-          <div className="space-y-2">
+          <div className="space-y-2 ">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="flex items-center py-1.5 px-2 animate-pulse">
+              <div key={i} className="flex items-center py-1.5  ">
                 <div className="w-5 h-5 bg-gray-200 rounded"></div>
                 <div className="ml-3 flex-1">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-1"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  <div className="h-4   w-3/4 mb-1"></div>
+                  <div className="h-3  w-1/2"></div>
                 </div>
               </div>
             ))}
