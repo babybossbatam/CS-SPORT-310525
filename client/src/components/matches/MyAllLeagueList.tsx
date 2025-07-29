@@ -210,13 +210,20 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
   // Define all football countries
   const allFootballCountries = [
-    "World", "Argentina", "Australia", "Austria", "Belgium", "Brazil", "Bulgaria", 
-    "Chile", "Colombia", "Croatia", "Czech Republic", "Denmark", "England", 
-    "Estonia", "Faroe Islands", "Finland", "France", "Germany", "Greece", 
-    "Iceland", "India", "Ireland", "Italy", "Lithuania", "Mexico", "Netherlands", 
-    "Norway", "Panama", "Paraguay", "Poland", "Portugal", "Romania", "Russia", 
-    "Scotland", "Slovakia", "Slovenia", "Spain", "Sweden", "Switzerland", 
-    "Turkey", "Ukraine", "USA", "Wales"
+    "World", "Afghanistan", "Albania", "Algeria", "Angola", "Argentina", "Armenia", 
+    "Australia", "Austria", "Azerbaijan", "Bahrain", "Bangladesh", "Belgium", "Bolivia", 
+    "Bosnia and Herzegovina", "Botswana", "Brazil", "Bulgaria", "Burkina Faso", 
+    "Cameroon", "Canada", "Chile", "China", "Colombia", "Croatia", "Czech Republic", 
+    "Denmark", "Egypt", "England", "Estonia", "Ethiopia", "Faroe Islands", "Finland", 
+    "France", "Georgia", "Germany", "Ghana", "Greece", "Hungary", "Iceland", "India", 
+    "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Japan", "Jordan", 
+    "Kazakhstan", "Kenya", "Kuwait", "Lithuania", "Luxembourg", "Malaysia", "Mali", 
+    "Mexico", "Morocco", "Netherlands", "New Zealand", "Nigeria", "Norway", "Oman", 
+    "Pakistan", "Panama", "Paraguay", "Peru", "Poland", "Portugal", "Qatar", 
+    "Romania", "Russia", "Saudi Arabia", "Scotland", "Senegal", "Serbia", "Singapore", 
+    "Slovakia", "Slovenia", "South Africa", "South Korea", "Spain", "Sweden", 
+    "Switzerland", "Thailand", "Tunisia", "Turkey", "Ukraine", "United Arab Emirates", 
+    "Uruguay", "USA", "Uzbekistan", "Venezuela", "Vietnam", "Wales", "Yemen", "Zambia", "Zimbabwe"
   ];
 
   // Sort countries alphabetically with World first, showing all countries
