@@ -54,13 +54,21 @@ const PopularLeaguesList = () => {
           console.log(`✅ [PopularLeaguesList] Fetched ${leagues.length} popular leagues from API`);
 
           // Transform API response to match our League interface
-          const transformedLeagues = leagues.map((league: any) => ({
-            id: league.league?.id || league.id,
-            name: league.league?.name || league.name,
-            logo: league.league?.logo || league.logo,
-            country: league.country?.name || league.league?.country || league.country,
-            popularity: 100 - (leagues.indexOf(league) * 2) // Generate popularity scores
-          }));
+          const transformedLeagues = leagues
+            .map((league: any) => ({
+              id: league.league?.id || league.id,
+              name: league.league?.name || league.name,
+              logo: league.league?.logo || league.logo,
+              country: league.country?.name || league.league?.country || league.country,
+              popularity: 100 - (leagues.indexOf(league) * 2) // Generate popularity scores
+            }))
+            .filter((league: any) => {
+              const leagueName = league.name?.toLowerCase() || '';
+              // Exclude Second League and Segunda División leagues
+              return !leagueName.includes('second league') && 
+                     !leagueName.includes('segunda división') &&
+                     !leagueName.includes('segunda division');
+            });
 
           setLeagueData(transformedLeagues);
         } else {
@@ -69,7 +77,15 @@ const PopularLeaguesList = () => {
       } catch (error) {
         console.error('❌ [PopularLeaguesList] Error fetching popular leagues:', error);
         // Fallback to hardcoded popular leagues if API fails
-        const sortedLeagues = [...CURRENT_POPULAR_LEAGUES].sort((a, b) => b.popularity - a.popularity);
+        const sortedLeagues = [...CURRENT_POPULAR_LEAGUES]
+          .filter((league) => {
+            const leagueName = league.name?.toLowerCase() || '';
+            // Exclude Second League and Segunda División leagues
+            return !leagueName.includes('second league') && 
+                   !leagueName.includes('segunda división') &&
+                   !leagueName.includes('segunda division');
+          })
+          .sort((a, b) => b.popularity - a.popularity);
         setLeagueData(sortedLeagues);
       } finally {
         setIsLoading(false);
