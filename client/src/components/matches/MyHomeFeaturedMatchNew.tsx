@@ -228,7 +228,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [selectedDay, setSelectedDay] = useState(0);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [countdownTimer, setCountdownTimer] = useState<string>("Loading...");
-  const [roundsCache, setRoundsCache] = useState<Record<string, string[]>>({});
+  const [roundsCache, setRoundsCache = useState<Record<string, string[]>>({});
 
   const fetchRoundsForLeague = useCallback(async (leagueId: number, season: number) => {
     const cacheKey = `${leagueId}-${season}`;
@@ -459,7 +459,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
                     const isOberligaLeague = leagueName.includes("oberliga");
-                    const isRegionalligaLeague = leagueName.includes("regionalliga");
+                    const isRegionalligaLeague = leagueName.includes("regionalliga") || leagueName.includes("regional liga");
                     const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
 
                     const shouldInclude = hasValidTeams && isNotLive && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga && !isExplicitlyExcluded;
@@ -472,7 +472,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           away: fixture.teams?.away?.name,
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
-                          status: fixture.fixture.status.short,
+                          status: fixture.fixture.status,
                         },
                       );
                     } else if (isWomensCompetition) {
@@ -808,19 +808,19 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     // Exclude women's competitions
                     const isWomensCompetition = leagueName.includes("women") || 
                       leagueName.includes("femenina") || 
-                      leagueName.includes
-("feminine") ||
+                      leagueName.includes("feminine") ||
                       leagueName.includes("feminin");
 
                     // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
                     const isOberligaLeague = leagueName.includes("oberliga");
-                    const isRegionalligaLeague = leagueName.includes("regionalliga");
+                    const isRegionalligaLeague = leagueName.includes("regionalliga") || leagueName.includes("regional liga");
                     const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
 
                       return hasValidTeams && isNotLive && isNotDuplicate && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga;
                     })
                     .slice(0, 5) // Limit to prevent overwhelming
                     .map((fixture: any) => ({
+```text
                       fixture: {
                         id: fixture.fixture.id,
                         date: fixture.fixture.date,
@@ -935,34 +935,34 @@ id: fixture.teams.away.id,
                 console.log(`🚫 [EXPLICIT EXCLUSION] UEFA Europa Conference League match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
                 return false;
               }
-              
+
               if (fixture.league.id === 169) {
                 console.log(`🚫 [EXPLICIT EXCLUSION] Regionalliga - Bayern match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
                 return false;
               }
-              
+
               if (fixture.league.id === 940) {
                 console.log(`🚫 [EXPLICIT EXCLUSION] League 940 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
                 return false;
               }
-              
+
               if (fixture.league.id === 85) {
                 console.log(`🚫 [EXPLICIT EXCLUSION] Regionalliga - Nordost match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
                 return false;
               }
-              
+
               if (fixture.league.id === 80) {
                 console.log(`🚫 [EXPLICIT EXCLUSION] 3. Liga match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
                 return false;
               }
-              
+
               // Additional name-based exclusion for Regionalliga leagues
               const leagueName = fixture.league?.name?.toLowerCase() || "";
               if (leagueName.includes('regionalliga') && leagueName.includes('bayern')) {
                 console.log(`🚫 [NAME-BASED EXCLUSION] Regionalliga - Bayern match excluded by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
                 return false;
               }
-              
+
               const matchDate = new Date(fixture.fixture.date);
               const year = matchDate.getFullYear();
               const month = String(matchDate.getMonth() + 1).padStart(2, "0");
@@ -1079,7 +1079,7 @@ id: fixture.teams.away.id,
     try {
       // Clear fixture cache completely
       fixtureCache.clearCache();
-      
+
       // Clear all localStorage entries that might contain excluded league data
       const keys = Object.keys(localStorage);
       const excludedLeagueKeys = keys.filter(key => 
@@ -1094,7 +1094,7 @@ id: fixture.teams.away.id,
         key.startsWith('featured-match-') ||
         key.startsWith('all-fixtures-by-date')
       );
-      
+
       excludedLeagueKeys.forEach(key => {
         try {
           localStorage.removeItem(key);
@@ -1102,7 +1102,7 @@ id: fixture.teams.away.id,
           console.warn(`Failed to clear cache key: ${key}`, error);
         }
       });
-      
+
       // Clear sessionStorage as well
       const sessionKeys = Object.keys(sessionStorage);
       const sessionExcludedKeys = sessionKeys.filter(key => 
@@ -1114,7 +1114,7 @@ id: fixture.teams.away.id,
         key.startsWith('league-fixtures-') ||
         key.startsWith('featured-match-')
       );
-      
+
       sessionExcludedKeys.forEach(key => {
         try {
           sessionStorage.removeItem(key);
@@ -1122,7 +1122,7 @@ id: fixture.teams.away.id,
           console.warn(`Failed to clear session cache key: ${key}`, error);
         }
       });
-      
+
       // Also clear React Query cache for these specific leagues
       if (typeof window !== 'undefined' && window.queryClient) {
         try {
@@ -1138,7 +1138,7 @@ id: fixture.teams.away.id,
           console.warn('Failed to clear React Query cache:', error);
         }
       }
-      
+
       console.log(`🧹 [CacheClean] Cleared ${excludedLeagueKeys.length + sessionExcludedKeys.length} cache entries for excluded leagues (UEFA Europa Conference League and Regionalliga - Bayern)`);
     } catch (error) {
       console.error('Error clearing excluded leagues caches:', error);
@@ -1148,7 +1148,7 @@ id: fixture.teams.away.id,
   useEffect(() => {
     // Clear caches first to ensure we don't show stale data
     clearExcludedLeaguesCaches();
-    
+
     // Initial fetch with force refresh after clearing caches
     setTimeout(() => {
       fetchFeaturedMatches(true);
