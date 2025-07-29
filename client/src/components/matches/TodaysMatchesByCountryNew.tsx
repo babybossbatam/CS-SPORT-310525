@@ -1277,11 +1277,22 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               (count: number, league: any) => {
                 return (
                   count +
-                  league.matches.filter((match: any) =>
-                    ["LIVE", "1H", "HT", "2H", "ET"].includes(
-                      match.fixture.status.short,
-                    ),
-                  ).length
+                  league.matches.filter((match: any) => {
+                    const status = match.fixture.status.short;
+                    
+                    // Check if match finished more than 4 hours ago
+                    const matchDateTime = new Date(match.fixture.date);
+                    const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
+                    const isStaleFinishedMatch =
+                      (["FT", "AET", "PEN"].includes(status) && hoursOld > 4) ||
+                      (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursOld > 4) ||
+                      (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
+
+                    // Only count as live if status indicates live and match is not stale
+                    return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) && 
+                           !isStaleFinishedMatch && 
+                           hoursOld <= 4;
+                  }).length
                 );
               },
               0,
