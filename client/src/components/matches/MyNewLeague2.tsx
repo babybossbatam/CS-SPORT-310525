@@ -127,6 +127,13 @@ const MyNewLeague2 = ({
   // Use passed match data or fallback to sample (like MyMatchdetailsScoreboard)
   const displayMatch = match || sampleMatch;
 
+  // Define league context for logo rendering
+  const leagueContext = {
+    leagueId: displayMatch?.league?.id || null,
+    leagueName: displayMatch?.league?.name || null,
+    country: displayMatch?.league?.country || null,
+  };
+
   // Debug: Log the match data being received
   console.log("🎯 [MyNewLeague2] Received match data:", {
     hasMatch: !!match,
