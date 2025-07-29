@@ -20,6 +20,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
+  const [isFootballExpanded, setIsFootballExpanded] = useState<boolean>(true);
 
   // Fetch fixtures data
   useEffect(() => {
@@ -202,6 +203,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     });
   };
 
+  // Toggle Football section expansion
+  const toggleFootballSection = () => {
+    setIsFootballExpanded(prev => !prev);
+  };
+
   // Sort countries alphabetically with World first
   const sortedCountries = useMemo(() => {
     return Object.values(leaguesByCountry).sort((a: any, b: any) => {
@@ -310,8 +316,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
         {/* Football Section with Countries */}
         <div className="divide-y divide-gray-100">
-          {/* Football Header */}
-          <div className="p-4 border-b border-gray-100">
+          {/* Football Header - Clickable */}
+          <button
+            onClick={toggleFootballSection}
+            className="w-full p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span 
@@ -323,6 +332,12 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                 >
                   Football
                 </span>
+                {/* Expand/Collapse Icon */}
+                {isFootballExpanded ? (
+                  <ChevronUp className="h-4 w-4 text-gray-500" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-gray-500" />
+                )}
               </div>
               <span 
                 className="text-gray-500 text-sm"
@@ -333,10 +348,10 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                 ({validFixtures.length})
               </span>
             </div>
-          </div>
+          </button>
 
-          {/* Countries under Football */}
-          {sortedCountries.map((countryData: any) => {
+          {/* Countries under Football - Show when expanded */}
+          {isFootballExpanded && sortedCountries.map((countryData: any) => {
             const totalLeagues = Object.keys(countryData.leagues).length;
             const totalMatches = Object.values(countryData.leagues).reduce(
               (sum: number, league: any) => sum + league.matchCount,
