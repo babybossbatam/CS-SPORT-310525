@@ -6,7 +6,6 @@ import HomeTopScorersList from '@/components/leagues/HomeTopScorersList';
 import LeagueStandingsFilter from '@/components/leagues/LeagueStandingsFilter';
 import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
 import TodaysMatchesByCountryNew from '@/components/matches/TodaysMatchesByCountryNew';
-import MyAllLeague from '@/components/matches/MyAllLeague';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
@@ -62,7 +61,7 @@ const MyRightContent: React.FC = () => {
             </button>
             {isAllLeagueListExpanded && (
               <div className="transition-all duration-300 ease-in-out">
-                <MyAllLeague selectedDate={selectedDate} />
+                <TodaysMatchesByCountryNew selectedDate={selectedDate} />
               </div>
             )}
           </CardContent>
