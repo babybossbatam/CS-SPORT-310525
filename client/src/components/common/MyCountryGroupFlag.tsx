@@ -228,47 +228,12 @@ const MyCountryGroupFlag: React.FC<MyCountryGroupFlagProps> = ({
         }
       />
       
-      {/* Gloss effect */}
-      <div className="gloss" />
+ 
 
-      {/* Next Match Tooltip */}
-      {showNextMatchOverlay && isHovered && nextMatch && (
-        <div
-          className="absolute bg-gray-800 text-white text-xs rounded-lg px-3 py-2 shadow-2xl z-[9999] whitespace-nowrap border border-gray-600 transition-opacity duration-200"
-          style={{
-            bottom: "calc(100% + 8px)",
-            left: "50%",
-            transform: "translateX(-50%)",
-            fontSize: "11px",
-            minWidth: "140px",
-            maxWidth: "200px",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.6)",
-            backdropFilter: "blur(4px)",
-          }}
-        >
-          <div className="text-center">
-            <div className="font-semibold text-white text-[11px] mb-1">
-              vs {nextMatch.opponent}
-            </div>
-            <div className="text-gray-300 text-[10px]">
-              {formatDate(nextMatch.date)}
-            </div>
-          </div>
-          {/* Tooltip arrow */}
-          <div
-            className="absolute top-full left-1/2 transform -translate-x-1/2"
-            style={{
-              width: 0,
-              height: 0,
-              borderLeft: "5px solid transparent",
-              borderRight: "5px solid transparent",
-              borderTop: "5px solid #374151",
-              marginTop: "0px",
-            }}
-          ></div>
+     
         </div>
-      )}
-    </div>
+      
+  
   );
 };
 
