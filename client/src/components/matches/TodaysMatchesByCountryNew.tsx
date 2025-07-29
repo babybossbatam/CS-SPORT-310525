@@ -1435,7 +1435,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                     {/* Live/Recent badges */}
                     {liveMatches > 0 && (
                       <span
-                        className="bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium animate-pulse"
+                        className="bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium"
                         style={{
                           fontFamily:
                             "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
