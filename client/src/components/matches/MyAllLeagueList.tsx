@@ -330,9 +330,9 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                       return (
                         <MyCountryGroupFlag
                           teamName={countryName}
-                          fallbackUrl="/assets/fallback-logo.svg"
                           alt={countryName}
                           size="24px"
+                          className="country-group-flag"
                         />
                       );
                     })()}
