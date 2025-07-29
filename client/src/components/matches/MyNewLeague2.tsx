@@ -171,20 +171,20 @@ const MyNewLeague2 = ({
       // Process leagues in batches to avoid rate limiting
       const batchSize = 3; // Reduce concurrent requests
       const results: any[] = [];
-      
+
       for (let i = 0; i < leagueIds.length; i += batchSize) {
         const batch = leagueIds.slice(i, i + batchSize);
         console.log(`🔄 [MyNewLeague2] Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(leagueIds.length/batchSize)}: leagues ${batch.join(', ')}`);
-        
+
         const batchPromises = batch.map(async (leagueId, index) => {
           // Add small delay between requests in the same batch
           if (index > 0) {
             await delay(200); // 200ms delay between requests
           }
-          
+
           try {
             const response = await fetch(`/api/leagues/${leagueId}/fixtures`);
-            
+
             if (!response.ok) {
               if (response.status === 429) {
                 console.warn(`⚠️ [MyNewLeague2] Rate limited for league ${leagueId}, will use cached data if available`);
@@ -195,7 +195,7 @@ const MyNewLeague2 = ({
               );
               return { leagueId, fixtures: [], error: `HTTP ${response.status}` };
             }
-            
+
             const data = await response.json();
             const fixtures = data.response || data || [];
             console.log(
@@ -204,13 +204,13 @@ const MyNewLeague2 = ({
             return { leagueId, fixtures, error: null };
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            
+
             // Handle specific fetch errors
             if (errorMessage.includes('Failed to fetch') || errorMessage.includes('fetch')) {
               console.warn(`🌐 [MyNewLeague2] Network error for league ${leagueId}: ${errorMessage}`);
               return { leagueId, fixtures: [], error: 'Network error', networkError: true };
             }
-            
+
             console.error(
               `❌ [MyNewLeague2] Error fetching league ${leagueId}:`,
               error,
@@ -221,14 +221,14 @@ const MyNewLeague2 = ({
 
         const batchResults = await Promise.all(batchPromises);
         results.push(...batchResults);
-        
+
         // Add delay between batches to be more API-friendly
         if (i + batchSize < leagueIds.length) {
           console.log(`⏳ [MyNewLeague2] Waiting 500ms before next batch...`);
           await delay(500);
         }
       }
-      
+
       // Deduplicate at the fetch level as well
       const allFixturesMap = new Map<number, FixtureData>();
       results.forEach((result) => {
@@ -238,7 +238,7 @@ const MyNewLeague2 = ({
           }
         });
       });
-      
+
       const allFixtures = Array.from(allFixturesMap.values());
 
       // Log detailed results
@@ -332,7 +332,7 @@ const MyNewLeague2 = ({
 
       // Create unique matchup key (team IDs + league + date)
       const matchupKey = `${fixture.teams.home.id}-${fixture.teams.away.id}-${fixture.league.id}-${fixture.fixture.date}`;
-      
+
       // Check for duplicate team matchups
       if (seenMatchups.has(matchupKey)) {
         console.log(
@@ -369,7 +369,7 @@ const MyNewLeague2 = ({
       seenFixtures.add(fixture.fixture.id);
       seenMatchups.add(matchupKey);
       grouped[leagueId].fixtures.push(fixture);
-      
+
       console.log(
         `✅ [MyNewLeague2] Added fixture:`,
         {
@@ -525,7 +525,11 @@ const MyNewLeague2 = ({
     // navigate(`/match/${fixture.fixture.id}`);
   };
 
-  
+  const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
+  const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
+  const [goalFlashMatches, setGoalFlashMatches] = useState<Set<number>>(new Set());
+  const [kickoffFlashMatches, setKickoffFlashMatches] = useState<Set<number>>(new Set());
+
 
   if (isLoading) {
     return (
@@ -615,7 +619,7 @@ const MyNewLeague2 = ({
     const isRateLimit = error.message?.toLowerCase().includes('429') || 
                        error.message?.toLowerCase().includes('rate limit') || 
                        error.message?.toLowerCase().includes('too many requests');
-    
+
     return (
       <Card className="mb-4">
         <CardContent className="p-4">
@@ -836,16 +840,24 @@ const MyNewLeague2 = ({
                 <div className="match-cards-wrapper">
                   {fixtures.map((fixture: FixtureData) => {
                     const matchId = fixture.fixture.id;
+                    const isHalftimeFlash = halftimeFlashMatches.has(matchId);
+                    const isFulltimeFlash = fulltimeFlashMatches.has(matchId);
+                    const isGoalFlash = goalFlashMatches.has(matchId);
+                    const isKickoffFlash = kickoffFlashMatches.has(matchId);
                     const isStarred = starredMatches.has(matchId);
-                    const leagueContext = {
-                      name: league.name,
-                      country: league.country,
-                    };
 
                     return (
                       <div key={matchId} className="country-matches-container">
                         <div
-                          className="match-card-container group"
+                          className={`match-card-container group ${
+                            isHalftimeFlash ? 'halftime-flash' : ''
+                          } ${
+                            isFulltimeFlash ? 'fulltime-flash' : ''
+                          } ${
+                            isGoalFlash ? 'goal-flash' : ''
+                          } ${
+                            isKickoffFlash ? 'kickoff-flash' : ''
+                          }`}
                           data-fixture-id={matchId}
                           onClick={() => handleMatchClick(fixture)}
                           style={{
@@ -882,7 +894,7 @@ const MyNewLeague2 = ({
                             <div
                               className="match-status-top"
                               style={{
-                                minHeight: "20px",
+                                                               minHeight: "20px",
                                 display: "flex",
                                 justifyContent: "center",
                                 alignItems: "center",
@@ -951,6 +963,34 @@ const MyNewLeague2 = ({
                                     "INT",
                                   ].includes(status)
                                 ) {
+                                  // Trigger kickoff flash effect when the match transitions to live
+                                  useEffect(() => {
+                                    if (
+                                      status === "1H" &&
+                                      !kickoffFlashMatches.has(matchId)
+                                    ) {
+                                      setKickoffFlashMatches((prev) => {
+                                        const newKickoffFlashMatches = new Set(
+                                          prev,
+                                        );
+                                        newKickoffFlashMatches.add(matchId);
+                                        return newKickoffFlashMatches;
+                                      });
+
+                                      // Remove the flash after a delay (e.g., 3 seconds)
+                                      setTimeout(() => {
+                                        setKickoffFlashMatches((prev) => {
+                                          const newKickoffFlashMatches =
+                                            new Set(prev);
+                                          newKickoffFlashMatches.delete(
+                                            matchId,
+                                          );
+                                          return newKickoffFlashMatches;
+                                        });
+                                      }, 3000);
+                                    }
+                                  }, [status, matchId, kickoffFlashMatches]);
+
                                   let displayText = "";
                                   let statusClass = "status-live-elapsed";
 
