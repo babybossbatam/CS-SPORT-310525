@@ -865,15 +865,16 @@ const MyNewLeague2 = ({
                     const isKickoffFlash = kickoffFlashMatches.has(matchId);
                     const isStarred = starredMatches.has(matchId);
 
-                    // Trigger kickoff flash effect when the match transitions to live
-                    useEffect(() => {
-                      if (
-                        fixture.fixture.status.short === "1H" &&
-                        !kickoffFlashMatches.has(matchId)
-                      ) {
+                    // Check for kickoff flash (moved outside useEffect to avoid hook violations)
+                    if (
+                      fixture.fixture.status.short === "1H" &&
+                      !kickoffFlashMatches.has(matchId)
+                    ) {
+                      // Use setTimeout to avoid triggering state updates during render
+                      setTimeout(() => {
                         triggerKickoffFlash(matchId);
-                      }
-                    }, [fixture.fixture.status.short, matchId, kickoffFlashMatches, triggerKickoffFlash]);
+                      }, 0);
+                    }
 
                     return (
                       <div key={matchId} className="country-matches-container">
