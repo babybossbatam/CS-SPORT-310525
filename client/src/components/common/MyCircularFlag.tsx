@@ -211,10 +211,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     });
   };
 
-    const isKnownClubTeam = !isNational && teamName && !Object.keys(teamCountryPatterns).some(country =>
-    teamName.toLowerCase().includes(country.toLowerCase())
-  );
-
   // For national teams, use the circular flag format
   return (
     <div
