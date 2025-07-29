@@ -34,6 +34,43 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const handleError = () => {
     // Safety check to prevent cascading errors
     try {
+      // Check for specific teams/leagues that should use local assets
+      const shouldUseLocalAsset = () => {
+        if (alt) {
+          const altLower = alt.toLowerCase();
+          
+          // COTIF Tournament league
+          if (altLower.includes("cotif") || altLower.includes("cotif tournament")) {
+            setImageSrc("/assets/matchdetaillogo/cotif tournament.png");
+            setHasError(false);
+            console.log(`🏆 [LazyImage] Using local COTIF Tournament logo`);
+            return true;
+          }
+          
+          // Valencia team (including U20)
+          if (altLower.includes("valencia") && !altLower.includes("rayo vallecano")) {
+            setImageSrc("/assets/matchdetaillogo/valencia.png");
+            setHasError(false);
+            console.log(`⚽ [LazyImage] Using local Valencia logo`);
+            return true;
+          }
+          
+          // Alboraya team (including U20)
+          if (altLower.includes("alboraya") || altLower.includes("albaroya")) {
+            setImageSrc("/assets/matchdetaillogo/alboraya.png");
+            setHasError(false);
+            console.log(`⚽ [LazyImage] Using local Alboraya logo`);
+            return true;
+          }
+        }
+        return false;
+      };
+
+      // Try local assets first for specific teams/leagues
+      if (shouldUseLocalAsset()) {
+        return;
+      }
+
       // Special logging for Valencia/Spain flags
       const isSpainFlag =
         imageSrc.includes("/es.svg") ||
@@ -211,6 +248,19 @@ const LazyImage: React.FC<LazyImageProps> = ({
       console.log(
         `⚠️ [LazyImage] Fallback image loaded, not caching: ${imageSrc}`,
       );
+      setHasError(false);
+      onLoad?.();
+      return;
+    }
+
+    // Check for local asset success
+    const isLocalAsset =
+      imageSrc.includes("/assets/matchdetaillogo/cotif tournament.png") ||
+      imageSrc.includes("/assets/matchdetaillogo/valencia.png") ||
+      imageSrc.includes("/assets/matchdetaillogo/alboraya.png");
+
+    if (isLocalAsset) {
+      console.log(`✅ [LazyImage] Local asset loaded successfully: ${imageSrc}`);
       setHasError(false);
       onLoad?.();
       return;
