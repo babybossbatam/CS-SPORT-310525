@@ -47,6 +47,76 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     }
     return getCircleFlagUrl(teamName, fallbackUrl);
   };
+
+  // If this is a club team, render with LazyImage instead of circular flag
+  if (!isNational && teamId) {
+    return (
+      <div
+        className={`club-logo-container ${className}`}
+        style={{
+          width: size,
+          height: size,
+          position: "relative",
+          left: moveLeft ? "-16px" : "4px",
+        }}
+        onMouseEnter={() => showNextMatchOverlay && setIsHovered(true)}
+        onMouseLeave={() => showNextMatchOverlay && setIsHovered(false)}
+      >
+        <img
+          src={getLogoUrl()}
+          alt={alt || teamName}
+          className="club-team-logo"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain", // Use contain for club logos to maintain aspect ratio
+            borderRadius: "8px", // Slight rounding for club logos instead of full circle
+            position: "relative",
+            zIndex: 1,
+          }}
+          onError={createTeamLogoErrorHandler({ id: teamId, name: teamName }, false, 'football')}
+        />
+
+        {/* Next Match Tooltip for club teams */}
+        {showNextMatchOverlay && isHovered && nextMatch && (
+          <div
+            className="absolute bg-gray-800 text-white text-xs rounded-lg px-3 py-2 shadow-2xl z-[9999] whitespace-nowrap border border-gray-600 transition-opacity duration-200"
+            style={{
+              bottom: "calc(100% + 8px)",
+              left: "50%",
+              transform: "translateX(-50%)",
+              fontSize: "11px",
+              minWidth: "140px",
+              maxWidth: "200px",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.6)",
+              backdropFilter: "blur(4px)",
+            }}
+          >
+            <div className="text-center">
+              <div className="font-semibold text-white text-[11px] mb-1">
+                vs {nextMatch.opponent}
+              </div>
+              <div className="text-gray-300 text-[10px]">
+                {formatDate(nextMatch.date)}
+              </div>
+            </div>
+            {/* Tooltip arrow */}
+            <div
+              className="absolute top-full left-1/2 transform -translate-x-1/2"
+              style={{
+                width: 0,
+                height: 0,
+                borderLeft: "5px solid transparent",
+                borderRight: "5px solid transparent",
+                borderTop: "5px solid #374151",
+                marginTop: "0px",
+              }}
+            ></div>
+          </div>
+        )}
+      </div>
+    );
+  }
   const getCircleFlagUrl = (teamName: string, fallbackUrl?: string) => {
     // Check if teamName is valid
     if (!teamName || typeof teamName !== "string") {
