@@ -4,11 +4,11 @@ import { isNationalTeam, getTeamLogoSources, createTeamLogoErrorHandler } from "
 
 interface MyCircularFlagProps {
   teamName: string;
-  teamId?: number | string;
   fallbackUrl?: string;
   alt?: string;
   size?: string;
   className?: string;
+  teamId?: number | string;
   moveLeft?: boolean;
   nextMatchInfo?: {
     opponent: string;
@@ -16,24 +16,36 @@ interface MyCircularFlagProps {
     venue?: string;
   };
   showNextMatchOverlay?: boolean;
+  leagueContext?: {
+    name?: string;
+    country?: string;
+  };
 }
 
 const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   teamName,
-  teamId,
   fallbackUrl,
   alt,
   size = "51px",
   className = "",
+  teamId,
   moveLeft = false,
   nextMatchInfo,
   showNextMatchOverlay = false,
+  leagueContext,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [nextMatch, setNextMatch] = useState(nextMatchInfo);
 
-  // Check if this is a national team or club team
-  const isNational = isNationalTeam({ name: teamName });
+  // For national teams, use the circular flag format
+  // Special handling for tournaments where all teams should be treated as national teams
+  const leagueName = leagueContext?.name?.toLowerCase() || "";
+  const isAFFU23Championship = leagueName.includes("aff u23") || 
+                              leagueName.includes("aff u-23") ||
+                              leagueName.includes("aff under 23") ||
+                              leagueName.includes("aff under-23");
+
+  const isNational = isNationalTeam({ name: teamName }, leagueContext || { name: "", country: "" }) || isAFFU23Championship;
 
   // Additional check for known club teams that should never use circular flags
   const isKnownClubTeam = !isNational && (

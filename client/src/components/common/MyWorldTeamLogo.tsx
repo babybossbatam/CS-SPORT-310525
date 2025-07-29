@@ -347,6 +347,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         moveLeft={moveLeft}
         nextMatchInfo={nextMatchInfo}
         showNextMatchOverlay={showNextMatchOverlay}
+        leagueContext={leagueContext}
       />
     );
   }
