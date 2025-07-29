@@ -128,10 +128,15 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                                leagueName.includes("primeira liga") ||
                                leagueName.includes("eredivisie");
 
+    // Force specific club youth teams to ALWAYS use club logos
+    const isClubYouthTeam = (teamName?.includes("Valencia U20") && teamId === 532) ||
+                           (teamName?.includes("Alboraya U20") && teamId === 19922);
+
     // Use circular flag for national teams in international competitions
-    // BUT: Force ADH Brazil and Valencia to ALWAYS use club logos regardless of league context
+    // BUT: Force specific club youth teams, ADH Brazil and Valencia to ALWAYS use club logos regardless of league context
     // AND: Force club logos for standings/domestic league contexts
     const result = !isStandingsContext &&
+                   !isClubYouthTeam &&
                    (isActualNationalTeam || isYouthTeam || isFriendliesInternational || isUefaNationsLeague) && 
                    !isFifaClubWorldCup && 
                    !isFriendliesClub && 
@@ -147,6 +152,17 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     });
 
  
+
+    // Debug logging for specific club youth teams
+    if (teamName?.includes("Valencia U20") || teamName?.includes("Alboraya U20")) {
+      console.log(`🏟️ [MyWorldTeamLogo] Club Youth Team Detection for ${teamName}:`, {
+        teamId: teamId,
+        isClubYouthTeam: (teamName?.includes("Valencia U20") && teamId === 532) ||
+                        (teamName?.includes("Alboraya U20") && teamId === 19922),
+        shouldUseCircularFlag: result,
+        leagueName: leagueName
+      });
+    }
 
     console.log(`💾 [MyWorldTeamLogo] Cached shouldUseCircularFlag result for ${teamName}: ${result}`);
     return result;
