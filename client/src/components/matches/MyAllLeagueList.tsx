@@ -353,7 +353,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                           fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                         }}
                       >
-                        ({totalLeagues} leagues, {totalMatches} matches)
+                        ({totalMatches})
                       </span>
                     </div>
                   </div>
