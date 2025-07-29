@@ -310,7 +310,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                   onClick={() => toggleCountry(countryData.country)}
                   className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors cursor-pointer"
                 >
-                  
+
                   {(() => {
                     const countryName = typeof countryData.country === "string"
                       ? countryData.country
@@ -323,7 +323,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                             teamName="World"
                             fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
                             alt="World"
-                            size="24px"
+                            className="country-group-flag-header"
                           />
                         </div>
                       );
