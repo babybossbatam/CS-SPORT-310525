@@ -163,7 +163,7 @@ const PopularTeamsList = () => {
               return (
                 <div
                   key={team.id}
-                  className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors"
+                  className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors -mx-4"
                   onClick={() => navigate(`/team/${team.id}`)}
                 >
                   <MyWorldTeamLogo
