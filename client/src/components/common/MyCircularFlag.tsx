@@ -32,12 +32,8 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [nextMatch, setNextMatch] = useState(nextMatchInfo);
   
-  // Force specific club youth teams to be treated as club teams
-  const isClubYouthTeam = (teamName?.includes("Valencia U20") && teamId === 532) ||
-                         (teamName?.includes("Alboraya U20") && teamId === 19922);
-  
   // Check if this is a national team or club team
-  const isNational = isNationalTeam({ name: teamName }) && !isClubYouthTeam;
+  const isNational = isNationalTeam({ name: teamName });
   
   // For club teams, use team logo sources
   const getLogoUrl = () => {
@@ -198,16 +194,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       year: "numeric",
     });
   };
-
-  // Debug logging for specific club youth teams
-  if (teamName?.includes("Valencia U20") || teamName?.includes("Alboraya U20")) {
-    console.log(`🏟️ [MyCircularFlag] Club Youth Team Detection for ${teamName}:`, {
-      teamId: teamId,
-      isClubYouthTeam: isClubYouthTeam,
-      isNational: isNational,
-      willUseClubLogo: !isNational
-    });
-  }
 
   // For national teams, use the circular flag format
   return (
