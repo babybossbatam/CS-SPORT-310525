@@ -985,7 +985,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
 
     if (["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
-      return "bg-red-100 text-red-700 font-semibold custom-pulse";
+      return "bg-red-100 text-red-700 font-semibold";
     }
 
     if (fixtureDate < now && status === "NS") {
