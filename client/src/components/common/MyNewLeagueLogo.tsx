@@ -43,9 +43,42 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
   };
 
   useEffect(() => {
+    // Check for specific teams/leagues that should use local assets immediately
+    const shouldUseLocalAsset = () => {
+      if (leagueName) {
+        const leagueNameLower = leagueName.toLowerCase();
+
+        // COTIF Tournament league
+        if (leagueNameLower.includes("cotif") || leagueNameLower.includes("cotif tournament")) {
+          console.log(`🏆 [MyNewLeagueLogo] Using local COTIF Tournament logo from start`);
+          return "/assets/matchdetaillogo/cotif tournament.png";
+        }
+
+        // Valencia team (including U20)
+        if (leagueNameLower.includes("valencia") && !leagueNameLower.includes("rayo vallecano")) {
+          console.log(`⚽ [MyNewLeagueLogo] Using local Valencia logo from start`);
+          return "/assets/matchdetaillogo/valencia.png";
+        }
+
+        // Alboraya team (including U20)
+        if (leagueNameLower.includes("alboraya") || leagueNameLower.includes("albaroya")) {
+          console.log(`⚽ [MyNewLeagueLogo] Using local Alboraya logo from start`);
+          return "/assets/matchdetaillogo/alboraya.png";
+        }
+      }
+      return null;
+    };
+
     const loadLogo = async () => {
       if (!leagueId) {
         setLogoUrl(fallbackUrl || "/assets/fallback-logo.svg");
+        return;
+      }
+
+      const localAssetUrl = shouldUseLocalAsset();
+
+      if (localAssetUrl) {
+        setLogoUrl(localAssetUrl);
         return;
       }
 
@@ -128,6 +161,38 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
           `❌ [MyNewLeagueLogo] Error loading logo for league ${leagueId}:`,
           error,
         );
+          // Check for specific teams/leagues that should use local assets after error
+          const shouldUseLocalAssetOnError = () => {
+            if (leagueName) {
+              const leagueNameLower = leagueName.toLowerCase();
+
+              // COTIF Tournament league
+              if (leagueNameLower.includes("cotif") || leagueNameLower.includes("cotif tournament")) {
+                console.log(`🏆 [MyNewLeagueLogo] Using local COTIF Tournament logo after error`);
+                return "/assets/matchdetaillogo/cotif tournament.png";
+              }
+
+              // Valencia team (including U20)
+              if (leagueNameLower.includes("valencia") && !leagueNameLower.includes("rayo vallecano")) {
+                console.log(`⚽ [MyNewLeagueLogo] Using local Valencia logo after error`);
+                return "/assets/matchdetaillogo/valencia.png";
+              }
+
+              // Alboraya team (including U20)
+              if (leagueNameLower.includes("alboraya") || leagueNameLower.includes("albaroya")) {
+                console.log(`⚽ [MyNewLeagueLogo] Using local Alboraya logo after error`);
+                return "/assets/matchdetaillogo/alboraya.png";
+              }
+            }
+            return null;
+          };
+
+          const localAssetUrlOnError = shouldUseLocalAssetOnError();
+          if (localAssetUrlOnError) {
+            setLogoUrl(localAssetUrlOnError);
+            setIsLoading(false);
+            return;
+          }
         setError(error instanceof Error ? error.message : "Unknown error");
         const finalFallback = fallbackUrl || "/assets/fallback-logo.svg";
         setLogoUrl(finalFallback);
@@ -145,7 +210,7 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
       style={containerStyle}
       onClick={onClick}
     >
-      <LazyImage
+      <img
         src={logoUrl}
         alt={leagueName || `League ${leagueId}`}
         title={leagueName}
