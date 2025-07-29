@@ -201,6 +201,11 @@ const MyCountryGroupFlag: React.FC<MyCountryGroupFlagProps> = ({
       className={`country-flag-circle ${className}`}
       onMouseEnter={() => showNextMatchOverlay && setIsHovered(true)}
       onMouseLeave={() => showNextMatchOverlay && setIsHovered(false)}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
     >
       <img
         src={getLogoUrl()}
@@ -210,8 +215,6 @@ const MyCountryGroupFlag: React.FC<MyCountryGroupFlagProps> = ({
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          display: "block",
-          margin: "0 auto",
           filter: isNational 
             ? "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)"
             : "none",
@@ -227,11 +230,7 @@ const MyCountryGroupFlag: React.FC<MyCountryGroupFlagProps> = ({
               }
         }
       />
-      
- 
-
-     
-        </div>
+    </div>
       
   
   );
