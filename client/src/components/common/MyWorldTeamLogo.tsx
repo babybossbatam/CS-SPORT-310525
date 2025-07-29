@@ -63,11 +63,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     console.log(`🔄 [MyWorldTeamLogo] Computing shouldUseCircularFlag for: ${teamName}`);
 
     const isActualNationalTeam = isNationalTeam({ name: teamName }, leagueContext);
-    const isYouthTeam = teamName?.includes("U17") || 
-                       teamName?.includes("U19") ||
-                       teamName?.includes("U20") || 
-                       teamName?.includes("U21") ||
-                       teamName?.includes("U23");
 
     // Special handling for COTIF Tournament - detect club vs national teams
     const leagueName = leagueContext?.name?.toLowerCase() || "";
@@ -109,13 +104,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         return result;
       }
       
-      // For youth teams in COTIF that are national teams
-      if (isYouthTeam && isActualNationalTeam) {
-        console.log(`🇺🇳 [MyWorldTeamLogo] COTIF: ${teamName} identified as national youth team - using circular flag`);
-        const result = true; // Use circular flag format
-        circularFlagCache.set(cacheKey, { result, timestamp: now });
-        return result;
-      }
+      
       
       // Default for COTIF: if it's a recognizable country name, use circular flag
       if (isActualNationalTeam) {
@@ -166,8 +155,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         leagueName,
         isFriendliesInternational,
         isFriendliesClub,
-        isActualNationalTeam,
-        isYouthTeam
+        isActualNationalTeam
       });
     }
 
@@ -223,7 +211,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                    !isClubYouthTeam &&
                    !isKnownClubTeam &&
                    isActualNationalTeam && 
-                   !isYouthTeam && // Remove youth team logic as it can misidentify club youth teams
                    (isFriendliesInternational || isUefaNationsLeague) && 
                    !isFifaClubWorldCup && 
                    !isFriendliesClub && 
