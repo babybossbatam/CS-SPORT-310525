@@ -43,19 +43,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     }
     return getCircleFlagUrl(teamName, fallbackUrl);
   };
-  const getCircleFlagUrl = (teamName: string, fallbackUrl?: string) => {
-    // Check if teamName is valid
-    if (!teamName || typeof teamName !== "string") {
-      return fallbackUrl || "/assets/fallback-logo.svg";
-    }
-
-    // Extract country from team name or use direct country mapping
-    const countryCode = getCountryCode(teamName);
-
-    if (countryCode) {
-      // Use Circle Flags from hatscripts.github.io
-      return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
-    }
 
     // If no country code found, try to extract from team name patterns
     const teamCountryPatterns: { [key: string]: string } = {
@@ -153,6 +140,20 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       Zimbabwe: "zw",
       Vietnam: "vn",
     };
+
+  const getCircleFlagUrl = (teamName: string, fallbackUrl?: string) => {
+    // Check if teamName is valid
+    if (!teamName || typeof teamName !== "string") {
+      return fallbackUrl || "/assets/fallback-logo.svg";
+    }
+
+    // Extract country from team name or use direct country mapping
+    const countryCode = getCountryCode(teamName);
+
+    if (countryCode) {
+      // Use Circle Flags from hatscripts.github.io
+      return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
+    }
 
     // Try to find a pattern match in the team name
     for (const [country, code] of Object.entries(teamCountryPatterns)) {
