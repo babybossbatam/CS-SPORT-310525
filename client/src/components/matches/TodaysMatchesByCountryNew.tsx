@@ -1514,16 +1514,29 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               className={`w-full flex items-center gap-2 p-2 bg-white border-b border-stone-200 transition-colors cursor-pointer group`}
                             >
                               <img
-                                src={
-                                  leagueData.league.logo ||
-                                  "/assets/fallback-logo.svg"
-                                }
+                                src={(() => {
+                                  const leagueName = leagueData.league.name?.toLowerCase() || "";
+                                  
+                                  // Use specific COTIF tournament logo
+                                  if (leagueName.includes("cotif")) {
+                                    return "/assets/matchdetaillogo/cotif tournament.png";
+                                  }
+                                  
+                                  return leagueData.league.logo || "/assets/fallback-logo.svg";
+                                })()}
                                 alt={leagueData.league.name || "Unknown League"}
                                 className="w-6 h-6 object-contain rounded-full"
                                 style={{ backgroundColor: "transparent" }}
                                 onError={(e) => {
-                                  (e.target as HTMLImageElement).src =
-                                    "/assets/fallback-logo.svg";
+                                  const target = e.target as HTMLImageElement;
+                                  const leagueName = leagueData.league.name?.toLowerCase() || "";
+                                  
+                                  // If COTIF logo fails, try fallback
+                                  if (leagueName.includes("cotif") && !target.src.includes("fallback-logo.svg")) {
+                                    target.src = "/assets/fallback-logo.svg";
+                                  } else if (!target.src.includes("fallback-logo.svg")) {
+                                    target.src = "/assets/fallback-logo.svg";
+                                  }
                                 }}
                               />
                               <div className="flex flex-col flex-1 text-left">
