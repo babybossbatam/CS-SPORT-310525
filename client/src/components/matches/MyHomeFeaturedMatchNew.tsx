@@ -144,7 +144,7 @@ const FEATURED_MATCH_LEAGUE_IDS = [
 ];
 
 // Explicitly excluded leagues
-const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [848, 169, 940, 85]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost
+const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [848, 169, 940, 85, 80]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga
 const PRIORITY_LEAGUE_IDS = [2, 15, 38, 22]; // UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup
 
 interface FeaturedMatch {
@@ -457,11 +457,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       leagueName.includes("feminine") ||
                       leagueName.includes("feminin");
 
-                    // Exclude Oberliga and Regionalliga leagues (German regional leagues)
+                    // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
                     const isOberligaLeague = leagueName.includes("oberliga");
                     const isRegionalligaLeague = leagueName.includes("regionalliga");
+                    const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
 
-                    const shouldInclude = hasValidTeams && isNotLive && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !isExplicitlyExcluded;
+                    const shouldInclude = hasValidTeams && isNotLive && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga && !isExplicitlyExcluded;
 
                     if (shouldInclude) {
                       console.log(
@@ -493,6 +494,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     } else if (isRegionalligaLeague) {
                       console.log(
                         `❌ [MyHomeFeaturedMatchNew] Excluding Regionalliga league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (is3Liga) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding 3. Liga league:`,
                         {
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
@@ -803,11 +812,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 ("feminine") ||
                       leagueName.includes("feminin");
 
-                    // Exclude Oberliga and Regionalliga leagues (German regional leagues)
+                    // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
                     const isOberligaLeague = leagueName.includes("oberliga");
                     const isRegionalligaLeague = leagueName.includes("regionalliga");
+                    const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
 
-                      return hasValidTeams && isNotLive && isNotDuplicate && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague;
+                      return hasValidTeams && isNotLive && isNotDuplicate && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga;
                     })
                     .slice(0, 5) // Limit to prevent overwhelming
                     .map((fixture: any) => ({
@@ -938,6 +948,11 @@ id: fixture.teams.away.id,
               
               if (fixture.league.id === 85) {
                 console.log(`🚫 [EXPLICIT EXCLUSION] Regionalliga - Nordost match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                return false;
+              }
+              
+              if (fixture.league.id === 80) {
+                console.log(`🚫 [EXPLICIT EXCLUSION] 3. Liga match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
                 return false;
               }
               
