@@ -21,7 +21,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
-  const [isFootballExpanded, setIsFootballExpanded] = useState<boolean>(true);
+  const [isFootballExpanded, setIsFootballExpanded] = useState<boolean>(false);
 
   // Fetch all leagues data
   useEffect(() => {
