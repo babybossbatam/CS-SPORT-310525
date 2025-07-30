@@ -300,7 +300,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     height: "100%",
     objectFit: "contain" as const,
     borderRadius: "0%",
-    transform: "scale(0.8)"
+    transform: "scale(0.9)"
   }), []);
 
     const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement, Event>) => {
