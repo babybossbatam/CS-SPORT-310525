@@ -243,6 +243,12 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                    !isUefaChampionsLeague && 
                    !isConmebolSudamericana;
 
+    // Cache the result
+    circularFlagCache.set(cacheKey, {
+      result,
+      timestamp: now
+    });
+
     // Debug logging for World Cup Qualification leagues
     if (isWorldCupQualification || isWorldCupQualLeagueId) {
       console.log("🌍 [MyWorldTeamLogo] World Cup Qualification Detection:", {
@@ -255,12 +261,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         shouldUseCircularFlag: result
       });
     }
-
-    // Cache the result
-    circularFlagCache.set(cacheKey, {
-      result,
-      timestamp: now
-    });
 
 
 
