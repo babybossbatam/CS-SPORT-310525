@@ -173,12 +173,44 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     const isClubYouthTeam = (teamName?.includes("Valencia U20") && teamId === 532) ||
                            (teamName?.includes("Alboraya U20") && teamId === 19922);
 
+    // Additional check for known club teams that should NEVER use circular flags
+    const isKnownClubTeam = teamName && (
+      teamName.toLowerCase().includes("fc") ||
+      teamName.toLowerCase().includes("cf") ||
+      teamName.toLowerCase().includes("united") ||
+      teamName.toLowerCase().includes("city") ||
+      teamName.toLowerCase().includes("athletic") ||
+      teamName.toLowerCase().includes("real madrid") ||
+      teamName.toLowerCase().includes("barcelona") ||
+      teamName.toLowerCase().includes("valencia") ||
+      teamName.toLowerCase().includes("alboraya") ||
+      teamName.toLowerCase().includes("club") ||
+      teamName.toLowerCase().includes("ud ") ||
+      teamName.toLowerCase().includes("arsenal") ||
+      teamName.toLowerCase().includes("liverpool") ||
+      teamName.toLowerCase().includes("chelsea") ||
+      teamName.toLowerCase().includes("manchester") ||
+      teamName.toLowerCase().includes("tottenham") ||
+      teamName.toLowerCase().includes("bayern") ||
+      teamName.toLowerCase().includes("dortmund") ||
+      teamName.toLowerCase().includes("juventus") ||
+      teamName.toLowerCase().includes("milan") ||
+      teamName.toLowerCase().includes("inter") ||
+      teamName.toLowerCase().includes("napoli") ||
+      teamName.toLowerCase().includes("roma") ||
+      teamName.toLowerCase().includes("psg") ||
+      teamName.toLowerCase().includes("olympique") ||
+      teamName.toLowerCase().includes("atletico")
+    );
+
     // Use circular flag for national teams in international competitions
-    // BUT: Force specific club youth teams, ADH Brazil and Valencia to ALWAYS use club logos regardless of league context
-    // AND: Force club logos for standings/domestic league contexts
+    // BUT: Force club teams to ALWAYS use club logos regardless of league context
     const result = !isStandingsContext &&
                    !isClubYouthTeam &&
-                   (isActualNationalTeam || isYouthTeam || isFriendliesInternational || isUefaNationsLeague) && 
+                   !isKnownClubTeam &&
+                   isActualNationalTeam && 
+                   !isYouthTeam && // Remove youth team logic as it can misidentify club youth teams
+                   (isFriendliesInternational || isUefaNationsLeague) && 
                    !isFifaClubWorldCup && 
                    !isFriendliesClub && 
                    !isUefaEuropaLeague && 

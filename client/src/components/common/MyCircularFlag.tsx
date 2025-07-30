@@ -35,9 +35,24 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   // Check if this is a national team or club team
   const isNational = isNationalTeam({ name: teamName });
 
+  // Additional check for known club teams that should never use circular flags
+  const isKnownClubTeam = !isNational && (
+    teamName?.toLowerCase().includes("fc") ||
+    teamName?.toLowerCase().includes("cf") ||
+    teamName?.toLowerCase().includes("united") ||
+    teamName?.toLowerCase().includes("city") ||
+    teamName?.toLowerCase().includes("athletic") ||
+    teamName?.toLowerCase().includes("real") ||
+    teamName?.toLowerCase().includes("barcelona") ||
+    teamName?.toLowerCase().includes("valencia") ||
+    teamName?.toLowerCase().includes("alboraya") ||
+    teamName?.toLowerCase().includes("club") ||
+    teamName?.toLowerCase().includes("ud ")
+  );
+
   // For club teams, use team logo sources
   const getLogoUrl = () => {
-    if (!isNational && teamId) {
+    if ((!isNational || isKnownClubTeam) && teamId) {
       const logoSources = getTeamLogoSources({ id: teamId, name: teamName }, false);
       return logoSources[0]?.url || fallbackUrl || "/assets/fallback-logo.svg";
     }
@@ -195,10 +210,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       year: "numeric",
     });
   };
-
-    const isKnownClubTeam = !isNational && teamName && !Object.keys(teamCountryPatterns).some(country =>
-    teamName.toLowerCase().includes(country.toLowerCase())
-  );
 
   // For national teams, use the circular flag format
   return (

@@ -377,7 +377,13 @@ const LazyImage: React.FC<LazyImageProps> = ({
       alt={alt}
       title={title}
       className={className}
-      style={style}
+      style={{
+        ...style,
+        width: style?.width ? `calc(${style.width} + 5px)` : undefined,
+        height: style?.height ? `calc(${style.height} + 5px)` : undefined,
+        minWidth: '5px',
+        minHeight: '5px'
+      }}
       loading={loading}
       onLoad={handleLoad}
       onError={handleError}

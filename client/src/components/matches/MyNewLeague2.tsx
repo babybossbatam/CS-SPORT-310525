@@ -127,6 +127,13 @@ const MyNewLeague2 = ({
   // Use passed match data or fallback to sample (like MyMatchdetailsScoreboard)
   const displayMatch = match || sampleMatch;
 
+  // Define league context for logo rendering
+  const leagueContext = {
+    leagueId: displayMatch?.league?.id || null,
+    leagueName: displayMatch?.league?.name || null,
+    country: displayMatch?.league?.country || null,
+  };
+
   // Debug: Log the match data being received
   console.log("🎯 [MyNewLeague2] Received match data:", {
     hasMatch: !!match,
@@ -275,95 +282,6 @@ const MyNewLeague2 = ({
     },
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
-
-  // Flash animation states
-  const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
-  const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
-  const [goalFlashMatches, setGoalFlashMatches] = useState<Set<number>>(new Set());
-  const [kickoffFlashMatches, setKickoffFlashMatches] = useState<Set<number>>(new Set());
-  const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
-  const [previousMatchScores, setPreviousMatchScores] = useState<Map<number, {home: number, away: number}>>(new Map());
-
-  // Effect to handle match status changes and flash effects
-  useEffect(() => {
-    if (!fixturesByLeague) return;
-
-    const currentStatuses = new Map<number, string>();
-    const flashUpdates: {
-      kickoff: Set<number>;
-      halftime: Set<number>;
-      fulltime: Set<number>;
-      goal: Set<number>;
-    } = {
-      kickoff: new Set(),
-      halftime: new Set(),
-      fulltime: new Set(),
-      goal: new Set()
-    };
-
-    // Collect all current match statuses
-    Object.values(fixturesByLeague).forEach(({ fixtures }) => {
-      fixtures.forEach((fixture: FixtureData) => {
-        const matchId = fixture.fixture.id;
-        const status = fixture.fixture.status.short;
-        currentStatuses.set(matchId, status);
-
-        // Check for status changes
-        const previousStatus = previousMatchStatuses.get(matchId);
-        if (previousStatus && previousStatus !== status) {
-          // Kickoff detection
-          if (status === "1H" && previousStatus === "NS") {
-            flashUpdates.kickoff.add(matchId);
-          }
-          // Halftime detection
-          if (status === "HT" && previousStatus === "1H") {
-            flashUpdates.halftime.add(matchId);
-          }
-          // Fulltime detection
-          if (status === "FT" && (previousStatus === "2H" || previousStatus === "1H")) {
-            flashUpdates.fulltime.add(matchId);
-          }
-        }
-      });
-    });
-
-    // Update previous statuses
-    setPreviousMatchStatuses(currentStatuses);
-
-    // Apply flash effects
-    if (flashUpdates.kickoff.size > 0) {
-      setKickoffFlashMatches(prev => new Set([...prev, ...flashUpdates.kickoff]));
-      setTimeout(() => {
-        setKickoffFlashMatches(prev => {
-          const newSet = new Set(prev);
-          flashUpdates.kickoff.forEach(id => newSet.delete(id));
-          return newSet;
-        });
-      }, 3000);
-    }
-
-    if (flashUpdates.halftime.size > 0) {
-      setHalftimeFlashMatches(prev => new Set([...prev, ...flashUpdates.halftime]));
-      setTimeout(() => {
-        setHalftimeFlashMatches(prev => {
-          const newSet = new Set(prev);
-          flashUpdates.halftime.forEach(id => newSet.delete(id));
-          return newSet;
-        });
-      }, 2000);
-    }
-
-    if (flashUpdates.fulltime.size > 0) {
-      setFulltimeFlashMatches(prev => new Set([...prev, ...flashUpdates.fulltime]));
-      setTimeout(() => {
-        setFulltimeFlashMatches(prev => {
-          const newSet = new Set(prev);
-          flashUpdates.fulltime.forEach(id => newSet.delete(id));
-          return newSet;
-        });
-      }, 2000);
-    }
-  }, [fixturesByLeague, previousMatchStatuses]);
 
   // Group fixtures by league with date filtering
   const fixturesByLeague = useMemo(() => {
@@ -614,7 +532,30 @@ const MyNewLeague2 = ({
     // navigate(`/match/${fixture.fixture.id}`);
   };
 
+  const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
+  const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
+  const [goalFlashMatches, setGoalFlashMatches] = useState<Set<number>>(new Set());
+  const [kickoffFlashMatches, setKickoffFlashMatches] = useState<Set<number>>(new Set());
 
+  // Function to trigger the kickoff flash effect
+  const triggerKickoffFlash = useCallback((matchId: number) => {
+    if (!kickoffFlashMatches.has(matchId)) {
+      setKickoffFlashMatches((prev) => {
+        const newKickoffFlashMatches = new Set(prev);
+        newKickoffFlashMatches.add(matchId);
+        return newKickoffFlashMatches;
+      });
+
+      // Remove the flash after a delay (e.g., 3 seconds)
+      setTimeout(() => {
+        setKickoffFlashMatches((prev) => {
+          const newKickoffFlashMatches = new Set(prev);
+          newKickoffFlashMatches.delete(matchId);
+          return newKickoffFlashMatches;
+        });
+      }, 3000);
+    }
+  }, [kickoffFlashMatches, setKickoffFlashMatches]);
 
   if (isLoading) {
     return (
@@ -925,16 +866,35 @@ const MyNewLeague2 = ({
                 <div className="match-cards-wrapper">
                   {fixtures.map((fixture: FixtureData) => {
                     const matchId = fixture.fixture.id;
+                    const isHalftimeFlash = halftimeFlashMatches.has(matchId);
+                    const isFulltimeFlash = fulltimeFlashMatches.has(matchId);
+                    const isGoalFlash = goalFlashMatches.has(matchId);
+                    const isKickoffFlash = kickoffFlashMatches.has(matchId);
                     const isStarred = starredMatches.has(matchId);
-                    const leagueContext = {
-                      name: league.name,
-                      country: league.country,
-                    };
+
+                    // Check for kickoff flash (moved outside useEffect to avoid hook violations)
+                    if (
+                      fixture.fixture.status.short === "1H" &&
+                      !kickoffFlashMatches.has(matchId)
+                    ) {
+                      // Use setTimeout to avoid triggering state updates during render
+                      setTimeout(() => {
+                        triggerKickoffFlash(matchId);
+                      }, 0);
+                    }
 
                     return (
                       <div key={matchId} className="country-matches-container">
                         <div
-                          className="match-card-container group"
+                          className={`match-card-container group ${
+                            isHalftimeFlash ? 'halftime-flash' : ''
+                          } ${
+                            isFulltimeFlash ? 'fulltime-flash' : ''
+                          } ${
+                            isGoalFlash ? 'goal-flash' : ''
+                          } ${
+                            isKickoffFlash ? 'kickoff-flash' : ''
+                          }`}
                           data-fixture-id={matchId}
                           onClick={() => handleMatchClick(fixture)}
                           style={{
@@ -971,7 +931,7 @@ const MyNewLeague2 = ({
                             <div
                               className="match-status-top"
                               style={{
-                                minHeight: "20px",
+                                                               minHeight: "20px",
                                 display: "flex",
                                 justifyContent: "center",
                                 alignItems: "center",
@@ -1177,7 +1137,7 @@ const MyNewLeague2 = ({
                             </div>
 
                             {/* Middle Grid: Main match content */}
-                            <div className={`match-content-container ${kickoffFlashMatches.has(matchId) ? 'kickoff-flash' : ''}`}>
+                            <div className="match-content-container">
                               {/* Home Team Name */}
                               <div
                                 className={`home-team-name ${
@@ -1252,9 +1212,6 @@ const MyNewLeague2 = ({
                                         <span className="score-number">
                                           {fixture.goals.away ?? 0}
                                         </span>
-                                        <div className="match-status-label status-live-elapsed">
-                                           {elapsed ? `${elapsed}'` : "LIVE"}
-                                        </div>
                                       </div>
                                     );
                                   }
@@ -1283,9 +1240,6 @@ const MyNewLeague2 = ({
                                         <span className="score-number">
                                           {fixture.goals.away ?? 0}
                                         </span>
-                                        <div className="match-status-label status-ended">
-                                          Ended
-                                        </div>
                                       </div>
                                     );
                                   }
