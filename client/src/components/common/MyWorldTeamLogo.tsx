@@ -94,25 +94,25 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
       if (isKnownClubTeam) {
         console.log(`🏟️ [MyWorldTeamLogo] COTIF: ${teamName} identified as club team - using club logo`);
-        const result = false; // Use club logo format
-        circularFlagCache.set(cacheKey, { result, timestamp: now });
-        return result;
+        const cotifResult = false; // Use club logo format
+        circularFlagCache.set(cacheKey, { result: cotifResult, timestamp: now });
+        return cotifResult;
       }
 
       // For youth teams in COTIF that are national teams
       if (isYouthTeam && isActualNationalTeam) {
         console.log(`🇺🇳 [MyWorldTeamLogo] COTIF: ${teamName} identified as national youth team - using circular flag`);
-        const result = true; // Use circular flag format
-        circularFlagCache.set(cacheKey, { result, timestamp: now });
-        return result;
+        const cotifResult = true; // Use circular flag format
+        circularFlagCache.set(cacheKey, { result: cotifResult, timestamp: now });
+        return cotifResult;
       }
 
       // Default for COTIF: if it's a recognizable country name, use circular flag
       if (isActualNationalTeam) {
         console.log(`🌍 [MyWorldTeamLogo] COTIF: ${teamName} identified as national team - using circular flag`);
-        const result = true;
-        circularFlagCache.set(cacheKey, { result, timestamp: now });
-        return result;
+        const cotifResult = true;
+        circularFlagCache.set(cacheKey, { result: cotifResult, timestamp: now });
+        return cotifResult;
       }
     }
 
@@ -164,8 +164,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                                   leagueId === 35 || // Asian Cup - Qualification
                                   leagueId === 36 || // Africa Cup of Nations - Qualification
                                   leagueId === 37;   // World Cup Qualification - Intercontinental Play-offs
-
-
 
     // Debug logging for Friendlies International
     if (leagueName.includes("friendlies")) {
@@ -227,7 +225,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
     // Use circular flag for national teams in international competitions
     // BUT: Force club teams to ALWAYS use club logos regardless of league context
-    const result = !isStandingsContext &&
+    const computedResult = !isStandingsContext &&
                    !isClubYouthTeam &&
                    !isKnownClubTeam &&
                    isActualNationalTeam && 
@@ -243,12 +241,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                    !isUefaChampionsLeague && 
                    !isConmebolSudamericana;
 
-    // Cache the result
-    circularFlagCache.set(cacheKey, {
-      result,
-      timestamp: now
-    });
-
     // Debug logging for World Cup Qualification leagues
     if (isWorldCupQualification || isWorldCupQualLeagueId) {
       console.log("🌍 [MyWorldTeamLogo] World Cup Qualification Detection:", {
@@ -258,11 +250,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         isWorldCupQualification,
         isWorldCupQualLeagueId,
         isActualNationalTeam,
-        shouldUseCircularFlag: result
+        shouldUseCircularFlag: computedResult
       });
     }
-
-
 
     // Debug logging for specific club youth teams
     if (teamName?.includes("Valencia U20") || teamName?.includes("Alboraya U20")) {
@@ -270,13 +260,19 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         teamId: teamId,
         isClubYouthTeam: (teamName?.includes("Valencia U20") && teamId === 532) ||
                         (teamName?.includes("Alboraya U20") && teamId === 19922),
-        shouldUseCircularFlag: result,
+        shouldUseCircularFlag: computedResult,
         leagueName: leagueName
       });
     }
 
-    console.log(`💾 [MyWorldTeamLogo] Cached shouldUseCircularFlag result for ${teamName}: ${result}`);
-    return result;
+    // Cache the result
+    circularFlagCache.set(cacheKey, {
+      result: computedResult,
+      timestamp: now
+    });
+
+    console.log(`💾 [MyWorldTeamLogo] Cached shouldUseCircularFlag result for ${teamName}: ${computedResult}`);
+    return computedResult;
   }, [teamName, leagueContext]);
 
   // Memoized logo URL resolution using enhancedLogoManager
