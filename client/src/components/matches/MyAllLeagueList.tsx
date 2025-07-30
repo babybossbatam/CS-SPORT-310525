@@ -404,7 +404,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                   className={`w-full flex items-center justify-between pl-2 pr-4 py-3 transition-colors border-l-2 border-transparent ${
                     hasMatches 
                       ? 'hover:bg-gray-50 cursor-pointer hover:border-l-blue-100' 
-                      : 'cursor-not-allowed opacity-50'
+                      : 'cursor-not-allowed '
                   }`}
                 >
                   <div className="flex items-center gap-3">
