@@ -145,8 +145,8 @@ const PopularLeaguesList = () => {
     return (
       <Card className="w-full bg-white shadow-sm">
         <CardContent className="-mx-2">
-          <h3 className="text-sm font-semibold mb-2">Popular Leagues</h3>
-          <div className="space-y-2 ">
+          <h3 className="text-sm font-semibold py-1">Popular Leagues</h3>
+          <div className="space-y- ">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="flex items-center py-1.5  ">
                 <div className="w-5 h-5 bg-gray-200 rounded"></div>
@@ -163,11 +163,11 @@ const PopularLeaguesList = () => {
   }
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-0">
       <Card className="w-full bg-white shadow-sm">
-        <CardContent className="p-0">
+        <CardContent className="p-4">
           <h3 className="text-sm font-semibold mb-2  pb-2">Popular Leagues</h3>
-        <div className="space-y-1  py-1">
+        <div className="space-y-1  py-0">
           {leagueData.slice(0, 15).map((league) => {
             const isFavorite = user.preferences.favoriteLeagues.includes(league.id.toString());
 
