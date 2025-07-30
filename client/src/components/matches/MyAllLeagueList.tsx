@@ -98,9 +98,9 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     return { validFixtures: filtered };
   }, [fixtures, selectedDate]);
 
-  // Group leagues by country with enhanced live match tracking
+  // Group leagues by country with live match tracking
   const leaguesByCountry = useMemo(() => {
-    const grouped: { [key: string]: { country: string; leagues: any; totalMatches: number; liveMatches: number; recentMatches: number } } = {};
+    const grouped: { [key: string]: { country: string; leagues: any; totalMatches: number; liveMatches: number } } = {};
 
     validFixtures.forEach((fixture: any) => {
       const country = fixture.league.country || "Unknown";
@@ -114,23 +114,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         return;
       }
 
-      const status = fixture.fixture?.status?.short;
-      const matchDateTime = new Date(fixture.fixture.date);
-      const hoursAgo = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
-
-      // Check if match is currently live
-      const isLive = ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status) && hoursAgo <= 4;
-      
-      // Check if match recently ended (within 2 hours)
-      const isRecentlyEnded = ["FT", "AET", "PEN"].includes(status) && hoursAgo <= 2;
-      
-      // Check if match is stale (ended more than 4 hours ago)
-      const isStaleEnded = (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursAgo > 4);
-
-      // Skip stale ended matches to remove them from count
-      if (isStaleEnded) {
-        return;
-      }
+      // Check if match is live
+      const isLive = fixture.fixture?.status?.short === "1H" || 
+                     fixture.fixture?.status?.short === "2H" || 
+                     fixture.fixture?.status?.short === "HT" ||
+                     fixture.fixture?.status?.short === "LIVE";
 
       if (!grouped[country]) {
         grouped[country] = {
@@ -138,7 +126,6 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
           leagues: {},
           totalMatches: 0,
           liveMatches: 0,
-          recentMatches: 0,
         };
       }
 
@@ -147,7 +134,6 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
           league: fixture.league,
           matchCount: 0,
           liveMatchCount: 0,
-          recentMatchCount: 0,
         };
       }
 
@@ -157,11 +143,6 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       if (isLive) {
         grouped[country].leagues[leagueId].liveMatchCount++;
         grouped[country].liveMatches++;
-      }
-
-      if (isRecentlyEnded) {
-        grouped[country].leagues[leagueId].recentMatchCount++;
-        grouped[country].recentMatches++;
       }
     });
 
@@ -396,20 +377,13 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                     (sum: number, countryData: any) => sum + (countryData.liveMatches || 0),
                     0
                   );
-                  const totalRecentMatches = Object.values(leaguesByCountry).reduce(
-                    (sum: number, countryData: any) => sum + (countryData.recentMatches || 0),
-                    0
-                  );
-                  
                   if (totalLiveMatches > 0) {
                     return (
                       <>
-                        <span className="text-red-500 font-medium">{totalLiveMatches} LIVE</span>
-                        {totalRecentMatches > 0 && <span className="text-green-600 ml-1">+{totalRecentMatches} FT</span>}
+                        <span className="text-red-400">{totalLiveMatches}</span>
+                        <span>/{validFixtures.length}</span>
                       </>
                     );
-                  } else if (totalRecentMatches > 0) {
-                    return <span className="text-green-600">{totalRecentMatches} FT</span>;
                   }
                   return validFixtures.length;
                 })()})
@@ -485,14 +459,10 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                       >
                         ({liveMatches > 0 ? (
                           <>
-                            <span className="text-red-500 font-medium">{liveMatches} LIVE</span>
-                            {countryData.recentMatches > 0 && <span className="text-green-600 ml-1">+{countryData.recentMatches} FT</span>}
+                            <span className="text-red-400">{liveMatches}</span>
+                            <span>/{totalMatches}</span>
                           </>
-                        ) : countryData.recentMatches > 0 ? (
-                          <span className="text-green-600">{countryData.recentMatches} FT</span>
-                        ) : (
-                          totalMatches
-                        )})
+                        ) : totalMatches})
                       </span>
                     </div>
                   </div>
@@ -552,13 +522,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                               fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                             }}
                           >
-                            {leagueData.liveMatchCount > 0 ? (
-                              <span className="text-red-500 font-medium">{leagueData.liveMatchCount} LIVE</span>
-                            ) : leagueData.recentMatchCount > 0 ? (
-                              <span className="text-green-600">{leagueData.recentMatchCount} FT</span>
-                            ) : (
-                              leagueData.matchCount
-                            )}
+                            {leagueData.liveMatchCount > 0 ? `${leagueData.liveMatchCount} LIVE` : `${leagueData.matchCount}`}
                           </span>
                         </div>
                       ))}
