@@ -117,6 +117,53 @@
     transform: scaleX(0);
     opacity: 1;
   }
+}
 
+/* Flash animation for kickoff matches with light yellow */
+.country-matches-container .match-card-container.kickoff-flash {
+  position: relative;
+  overflow: hidden;
+  background-color: #ffffff !important;
+}
 
+.country-matches-container .match-card-container.kickoff-flash::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff9c4;
+  animation: slide-from-both-ends-kickoff 4s linear;
+  z-index: 0;
+  pointer-events: none;
+  transform: scaleX(0);
+  transform-origin: center;
+}
+
+@keyframes slide-from-both-ends-kickoff {
+  0% {
+    transform: scaleX(1);
+    opacity: 0.2;
+  }
+
+  25% {
+    transform: scaleX(0.7);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: scaleX(0.3);
+    opacity: 0.8;
+  }
+
+  75% {
+    transform: scaleX(0.1);
+    opacity: 0.4;
+  }
+
+  100% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
 }

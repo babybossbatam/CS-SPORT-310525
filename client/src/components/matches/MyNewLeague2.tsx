@@ -171,20 +171,20 @@ const MyNewLeague2 = ({
       // Process leagues in batches to avoid rate limiting
       const batchSize = 3; // Reduce concurrent requests
       const results: any[] = [];
-      
+
       for (let i = 0; i < leagueIds.length; i += batchSize) {
         const batch = leagueIds.slice(i, i + batchSize);
         console.log(`🔄 [MyNewLeague2] Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(leagueIds.length/batchSize)}: leagues ${batch.join(', ')}`);
-        
+
         const batchPromises = batch.map(async (leagueId, index) => {
           // Add small delay between requests in the same batch
           if (index > 0) {
             await delay(200); // 200ms delay between requests
           }
-          
+
           try {
             const response = await fetch(`/api/leagues/${leagueId}/fixtures`);
-            
+
             if (!response.ok) {
               if (response.status === 429) {
                 console.warn(`⚠️ [MyNewLeague2] Rate limited for league ${leagueId}, will use cached data if available`);
@@ -195,7 +195,7 @@ const MyNewLeague2 = ({
               );
               return { leagueId, fixtures: [], error: `HTTP ${response.status}` };
             }
-            
+
             const data = await response.json();
             const fixtures = data.response || data || [];
             console.log(
@@ -204,13 +204,13 @@ const MyNewLeague2 = ({
             return { leagueId, fixtures, error: null };
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            
+
             // Handle specific fetch errors
             if (errorMessage.includes('Failed to fetch') || errorMessage.includes('fetch')) {
               console.warn(`🌐 [MyNewLeague2] Network error for league ${leagueId}: ${errorMessage}`);
               return { leagueId, fixtures: [], error: 'Network error', networkError: true };
             }
-            
+
             console.error(
               `❌ [MyNewLeague2] Error fetching league ${leagueId}:`,
               error,
@@ -221,14 +221,14 @@ const MyNewLeague2 = ({
 
         const batchResults = await Promise.all(batchPromises);
         results.push(...batchResults);
-        
+
         // Add delay between batches to be more API-friendly
         if (i + batchSize < leagueIds.length) {
           console.log(`⏳ [MyNewLeague2] Waiting 500ms before next batch...`);
           await delay(500);
         }
       }
-      
+
       // Deduplicate at the fetch level as well
       const allFixturesMap = new Map<number, FixtureData>();
       results.forEach((result) => {
@@ -238,7 +238,7 @@ const MyNewLeague2 = ({
           }
         });
       });
-      
+
       const allFixtures = Array.from(allFixturesMap.values());
 
       // Log detailed results
@@ -275,6 +275,14 @@ const MyNewLeague2 = ({
     },
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
+
+  // Flash animation states
+  const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
+  const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
+  const [goalFlashMatches, setGoalFlashMatches] = useState<Set<number>>(new Set());
+  const [kickoffFlashMatches, setKickoffFlashMatches] = useState<Set<number>>(new Set());
+  const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
+  const [previousMatchScores, setPreviousMatchScores] = useState<Map<number, {home: number, away: number}>>(new Map());
 
   // Group fixtures by league with date filtering
   const fixturesByLeague = useMemo(() => {
@@ -332,7 +340,7 @@ const MyNewLeague2 = ({
 
       // Create unique matchup key (team IDs + league + date)
       const matchupKey = `${fixture.teams.home.id}-${fixture.teams.away.id}-${fixture.league.id}-${fixture.fixture.date}`;
-      
+
       // Check for duplicate team matchups
       if (seenMatchups.has(matchupKey)) {
         console.log(
@@ -369,7 +377,7 @@ const MyNewLeague2 = ({
       seenFixtures.add(fixture.fixture.id);
       seenMatchups.add(matchupKey);
       grouped[leagueId].fixtures.push(fixture);
-      
+
       console.log(
         `✅ [MyNewLeague2] Added fixture:`,
         {
@@ -525,7 +533,7 @@ const MyNewLeague2 = ({
     // navigate(`/match/${fixture.fixture.id}`);
   };
 
-  
+
 
   if (isLoading) {
     return (
@@ -615,7 +623,7 @@ const MyNewLeague2 = ({
     const isRateLimit = error.message?.toLowerCase().includes('429') || 
                        error.message?.toLowerCase().includes('rate limit') || 
                        error.message?.toLowerCase().includes('too many requests');
-    
+
     return (
       <Card className="mb-4">
         <CardContent className="p-4">
@@ -891,6 +899,32 @@ const MyNewLeague2 = ({
                               {(() => {
                                 const status = fixture.fixture.status.short;
                                 const elapsed = fixture.fixture.status.elapsed;
+                                const isKickoff = status === "1H" && previousMatchStatuses.get(matchId) === "NS";
+
+                                // Update previous status after checking for kickoff
+                                useEffect(() => {
+                                  setPreviousMatchStatuses(prev => new Map(prev).set(matchId, status));
+                                }, [status, matchId]);
+
+                                // Trigger kickoff flash effect if applicable
+                                useEffect(() => {
+                                  if (isKickoff) {
+                                    setKickoffFlashMatches(prev => {
+                                      const newSet = new Set(prev);
+                                      newSet.add(matchId);
+                                      return newSet;
+                                    });
+
+                                    // Remove the flash after a short delay
+                                    setTimeout(() => {
+                                      setKickoffFlashMatches(prev => {
+                                        const newSet = new Set(prev);
+                                        newSet.delete(matchId);
+                                        return newSet;
+                                      });
+                                    }, 3000); // Flash for 3 seconds
+                                  }
+                                }, [isKickoff, matchId]);
 
                                 // Check if match finished more than 4 hours ago
                                 const matchDateTime = new Date(
@@ -1088,7 +1122,7 @@ const MyNewLeague2 = ({
                             </div>
 
                             {/* Middle Grid: Main match content */}
-                            <div className="match-content-container">
+                            <div className={`match-content-container ${kickoffFlashMatches.has(matchId) ? 'kickoff-flash' : ''}`}>
                               {/* Home Team Name */}
                               <div
                                 className={`home-team-name ${
@@ -1163,6 +1197,9 @@ const MyNewLeague2 = ({
                                         <span className="score-number">
                                           {fixture.goals.away ?? 0}
                                         </span>
+                                        <div className="match-status-label status-live-elapsed">
+                                           {elapsed ? `${elapsed}'` : "LIVE"}
+                                        </div>
                                       </div>
                                     );
                                   }
@@ -1191,6 +1228,9 @@ const MyNewLeague2 = ({
                                         <span className="score-number">
                                           {fixture.goals.away ?? 0}
                                         </span>
+                                        <div className="match-status-label status-ended">
+                                          Ended
+                                        </div>
                                       </div>
                                     );
                                   }
