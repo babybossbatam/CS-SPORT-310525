@@ -143,6 +143,24 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     const isUefaNationsLeague = leagueName.includes("uefa nations league") || 
                                leagueName.includes("nations league");
 
+    // World Cup qualification leagues should ALWAYS use circular flags (national teams)
+    const isWorldCupQualification = leagueName.includes("world cup qualification") ||
+                                   leagueName.includes("world cup - qualification") ||
+                                   leagueName.includes("wc qualification") ||
+                                   leagueName.includes("fifa world cup qualification");
+
+    // Get league context to check for specific league IDs
+    const leagueContext = popularLeagues?.find(l => l && l.name && l.name.toLowerCase() === leagueName.toLowerCase());
+    const leagueId = leagueContext?.id;
+
+    // Specific World Cup qualification league IDs that should use circular flags
+    const isWorldCupQualLeagueId = leagueId === 32 || // World Cup Qualification - Europe
+                                  leagueId === 33 || // World Cup Qualification - Oceania  
+                                  leagueId === 34 || // World Cup Qualification - South America
+                                  leagueId === 35 || // Asian Cup - Qualification
+                                  leagueId === 36 || // Africa Cup of Nations - Qualification
+                                  leagueId === 37;   // World Cup Qualification - Intercontinental Play-offs
+
 
 
     // Debug logging for Friendlies International
@@ -154,6 +172,19 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         isFriendliesClub,
         isActualNationalTeam,
         isYouthTeam
+      });
+    }
+
+    // Debug logging for World Cup Qualification leagues
+    if (isWorldCupQualification || isWorldCupQualLeagueId) {
+      console.log("🌍 [MyWorldTeamLogo] World Cup Qualification Detection:", {
+        teamName,
+        leagueName,
+        leagueId,
+        isWorldCupQualification,
+        isWorldCupQualLeagueId,
+        isActualNationalTeam,
+        shouldUseCircularFlag: result
       });
     }
 
@@ -210,7 +241,10 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                    !isKnownClubTeam &&
                    isActualNationalTeam && 
                    !isYouthTeam && // Remove youth team logic as it can misidentify club youth teams
-                   (isFriendliesInternational || isUefaNationsLeague) && 
+                   (isFriendliesInternational || 
+                    isUefaNationsLeague || 
+                    isWorldCupQualification || 
+                    isWorldCupQualLeagueId) && 
                    !isFifaClubWorldCup && 
                    !isFriendliesClub && 
                    !isUefaEuropaLeague && 
