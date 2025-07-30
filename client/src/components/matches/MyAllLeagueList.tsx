@@ -98,9 +98,9 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     return { validFixtures: filtered };
   }, [fixtures, selectedDate]);
 
-  // Group leagues by country
+  // Group leagues by country with live match tracking
   const leaguesByCountry = useMemo(() => {
-    const grouped: { [key: string]: { country: string; leagues: any } } = {};
+    const grouped: { [key: string]: { country: string; leagues: any; totalMatches: number; liveMatches: number } } = {};
 
     validFixtures.forEach((fixture: any) => {
       const country = fixture.league.country || "Unknown";
@@ -114,10 +114,18 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         return;
       }
 
+      // Check if match is live
+      const isLive = fixture.fixture?.status?.short === "1H" || 
+                     fixture.fixture?.status?.short === "2H" || 
+                     fixture.fixture?.status?.short === "HT" ||
+                     fixture.fixture?.status?.short === "LIVE";
+
       if (!grouped[country]) {
         grouped[country] = {
           country,
           leagues: {},
+          totalMatches: 0,
+          liveMatches: 0,
         };
       }
 
@@ -125,10 +133,17 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         grouped[country].leagues[leagueId] = {
           league: fixture.league,
           matchCount: 0,
+          liveMatchCount: 0,
         };
       }
 
       grouped[country].leagues[leagueId].matchCount++;
+      grouped[country].totalMatches++;
+
+      if (isLive) {
+        grouped[country].leagues[leagueId].liveMatchCount++;
+        grouped[country].liveMatches++;
+      }
     });
 
     return grouped;
@@ -357,7 +372,13 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                   fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                 }}
               >
-                ({validFixtures.length})
+                ({(() => {
+                  const totalLiveMatches = Object.values(leaguesByCountry).reduce(
+                    (sum: number, countryData: any) => sum + (countryData.liveMatches || 0),
+                    0
+                  );
+                  return totalLiveMatches > 0 ? `${totalLiveMatches}/` : '';
+                })()}{validFixtures.length})
               </span>
             </div>
           </button>
@@ -365,10 +386,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
           {/* Countries under Football - Show when expanded */}
           {isFootballExpanded && sortedCountries.map((countryData: any) => {
             const totalLeagues = Object.keys(countryData.leagues || {}).length;
-            const totalMatches = Object.values(countryData.leagues || {}).reduce(
-              (sum: number, league: any) => sum + league.matchCount,
-              0,
-            );
+            const totalMatches = countryData.totalMatches || 0;
+            const liveMatches = countryData.liveMatches || 0;
 
             const hasMatches = totalMatches > 0;
             const isExpanded = expandedCountries.has(countryData.country);
@@ -430,7 +449,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                           fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                         }}
                       >
-                        ({totalMatches})
+                        ({liveMatches > 0 ? `${liveMatches}/` : ''}{totalMatches})
                       </span>
                     </div>
                   </div>
