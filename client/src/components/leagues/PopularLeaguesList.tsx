@@ -72,12 +72,14 @@ const PopularLeaguesList = () => {
               // Exclude women's competitions
               // Exclude qualification tournaments
               // Exclude Reserve League and San Marino
+              // Exclude Super Cup from San Marino specifically
               return !leagueName.includes('second league') && 
                    !leagueName.includes('segunda división') &&
                    !leagueName.includes('segunda division') &&
                    !leagueName.includes('women') &&
                    !leagueName.includes('qualification') &&
                    !leagueName.includes('reserve league') &&
+                   !(leagueName.includes('super cup') && country.includes('san marino')) &&
                    !country.includes('finland') &&
                    !country.includes('iran') &&
                    !country.includes('thailand') &&
@@ -100,12 +102,14 @@ const PopularLeaguesList = () => {
             // Exclude women's competitions
             // Exclude qualification tournaments
             // Exclude Reserve League and San Marino
+            // Exclude Super Cup from San Marino specifically
             return !leagueName.includes('second league') && 
                    !leagueName.includes('segunda división') &&
                    !leagueName.includes('segunda division') &&
                    !leagueName.includes('women') &&
                    !leagueName.includes('qualification') &&
                    !leagueName.includes('reserve league') &&
+                   !(leagueName.includes('super cup') && country.includes('san marino')) &&
                    !country.includes('finland') &&
                    !country.includes('iran') &&
                    !country.includes('thailand') &&
