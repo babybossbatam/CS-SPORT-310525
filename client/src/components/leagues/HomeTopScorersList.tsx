@@ -467,7 +467,25 @@ const HomeTopScorersList = () => {
 
   const getLeagueDisplayName = (leagueId: number) => {
     const league = availableLeagues.find((l) => l.id === leagueId);
-    return league?.name || "League";
+    const name = league?.name || "League";
+    
+    // Shorten long league names for better display
+    const shortenedNames: { [key: string]: string } = {
+      "World Cup Qualification South America": "WC Qualifiers SA",
+      "World Cup Qualification Europe": "WC Qualifiers EU", 
+      "World Cup Qualification Africa": "WC Qualifiers AF",
+      "World Cup Qualification Asia": "WC Qualifiers AS",
+      "World Cup Qualification North America": "WC Qualifiers NA",
+      "UEFA Nations League": "Nations League",
+      "UEFA Champions League": "Champions League",
+      "UEFA Europa League": "Europa League",
+      "UEFA Conference League": "Conference League",
+      "FIFA Club World Cup": "Club World Cup",
+      "Egyptian Premier League": "Egyptian PL",
+      "Saudi Pro League": "Saudi League"
+    };
+    
+    return shortenedNames[name] || name;
   };
 
   // 365scores-style navigation with positioning
