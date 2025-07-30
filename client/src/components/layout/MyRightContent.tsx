@@ -38,7 +38,7 @@ const MyRightContent: React.FC = () => {
           
          
         </div>  
-        <MyAllLeague />
+       
       </div>
       
    
