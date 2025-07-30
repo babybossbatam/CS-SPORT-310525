@@ -71,14 +71,17 @@ const PopularLeaguesList = () => {
               // Exclude leagues from Finland, Iran, and Thailand
               // Exclude women's competitions
               // Exclude qualification tournaments
+              // Exclude Reserve League and San Marino
               return !leagueName.includes('second league') && 
                    !leagueName.includes('segunda división') &&
                    !leagueName.includes('segunda division') &&
                    !leagueName.includes('women') &&
                    !leagueName.includes('qualification') &&
+                   !leagueName.includes('reserve league') &&
                    !country.includes('finland') &&
                    !country.includes('iran') &&
-                   !country.includes('thailand');
+                   !country.includes('thailand') &&
+                   !country.includes('san marino');
             });
 
           setLeagueData(transformedLeagues);
@@ -96,14 +99,17 @@ const PopularLeaguesList = () => {
             // Exclude leagues from Finland, Iran, and Thailand
             // Exclude women's competitions
             // Exclude qualification tournaments
+            // Exclude Reserve League and San Marino
             return !leagueName.includes('second league') && 
                    !leagueName.includes('segunda división') &&
                    !leagueName.includes('segunda division') &&
                    !leagueName.includes('women') &&
                    !leagueName.includes('qualification') &&
+                   !leagueName.includes('reserve league') &&
                    !country.includes('finland') &&
                    !country.includes('iran') &&
-                   !country.includes('thailand');
+                   !country.includes('thailand') &&
+                   !country.includes('san marino');
           })
           .sort((a, b) => b.popularity - a.popularity);
         setLeagueData(sortedLeagues);
