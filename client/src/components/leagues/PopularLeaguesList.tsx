@@ -77,10 +77,32 @@ const PopularLeaguesList = () => {
                    !leagueName.includes('segunda división') &&
                    !leagueName.includes('segunda division') &&
                    !leagueName.includes('women') &&
-                   !leagueName.includes('qualification') &&
+                !leagueName.includes('league cup') &&
+                !leagueName.includes('oceania') &&
+                !leagueName.includes('tipsport') &&
+                !leagueName.includes('algarve') &&
+                !leagueName.includes('atlantic cup') &&
+                !leagueName.includes('intercontinental') &&
+
+                !leagueName.includes('u17') &&
+
+                !leagueName.includes('u18') &&
+
+                !leagueName.includes('u19') &&
+
+                !leagueName.includes('u20') &&
+
+                !leagueName.includes('u21') &&
+                !leagueName.includes('shebelieves') &&
+                   !leagueName.includes('coppa italia serie') &&
                    !leagueName.includes('reserve league') &&
-                   !(leagueName.includes('super cup') && country.includes('san marino')) &&
+                !leagueName.includes('campeones') &&
+                !leagueName.includes('africa cup') &&
+                !leagueName.includes('olympics men') &&
+                !leagueName.includes('asian cup') &&
+                   !(leagueName.includes('super cup') && country.includes('san-marino')) &&
                    !country.includes('finland') &&
+                
                    !country.includes('iran') &&
                    !country.includes('thailand') &&
                    !country.includes('san marino');
