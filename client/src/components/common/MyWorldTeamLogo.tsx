@@ -4,6 +4,10 @@ import { enhancedLogoManager } from '../../lib/enhancedLogoManager';
 import MyCircularFlag from './MyCircularFlag';
 import LazyImage from './LazyImage';
 
+// You'll need to import or define popularLeagues here
+// For now, let's define it as an empty array to prevent errors
+const popularLeagues: any[] = [];
+
 interface MyWorldTeamLogoProps {
   teamName: string;
   teamLogo?: string;
@@ -150,8 +154,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                                    leagueName.includes("fifa world cup qualification");
 
     // Get league context to check for specific league IDs
-    const leagueContext = popularLeagues?.find(l => l && l.name && l.name.toLowerCase() === leagueName.toLowerCase());
-    const leagueId = leagueContext?.id;
+    const foundLeague = popularLeagues?.find(l => l && l.name && l.name.toLowerCase() === leagueName.toLowerCase());
+    const leagueId = foundLeague?.id;
 
     // Specific World Cup qualification league IDs that should use circular flags
     const isWorldCupQualLeagueId = leagueId === 32 || // World Cup Qualification - Europe
