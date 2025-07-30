@@ -30,14 +30,14 @@ const MyRightContent: React.FC = () => {
       <LeagueStandingsFilter />
 
       {/* Popular Leagues and All League List sections */}
-      <div className="grid grid-cols-2  gap-4">
+      <div className="grid grid-cols-2 grid-rows-1 gap-4">
         <PopularLeaguesList />
-       
-          <MyAllLeague />
-
-     
+        <MyAllLeague />
         <PopularTeamsList />
-        
+        <div className="w-full shadow-md bg-white">
+          
+         
+        </div>  
        
       </div>
       
