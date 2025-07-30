@@ -8,6 +8,39 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import LazyImage from "@/components/common/LazyImage";
 
+// Function to shorten league names for better display
+const shortenLeagueName = (name: string): string => {
+  const maxLength = 25;
+  if (name.length <= maxLength) return name;
+  
+  // Common abbreviations for league names
+  const abbreviations = {
+    'World Cup - Qualification': 'WC Qualification',
+    'UEFA Champions League Qualifiers': 'UCL Qualifiers',
+    'UEFA Europa League': 'Europa League',
+    'UEFA Conference League': 'Conference League',
+    'UEFA Nations League': 'Nations League',
+    'FIFA Club World Cup': 'Club World Cup',
+    'CONCACAF Gold Cup': 'Gold Cup',
+    'Premier League': 'Premier League',
+    'Championship': 'Championship',
+    'Bundesliga': 'Bundesliga',
+    'La Liga': 'La Liga',
+    'Serie A': 'Serie A',
+    'Ligue 1': 'Ligue 1'
+  };
+  
+  // Check for exact matches first
+  for (const [full, short] of Object.entries(abbreviations)) {
+    if (name.includes(full)) {
+      return name.replace(full, short);
+    }
+  }
+  
+  // If still too long, truncate with ellipsis
+  return name.length > maxLength ? name.substring(0, maxLength - 3) + '...' : name;
+};
+
 // Popular leagues list with popularity scores for sorting
 export const CURRENT_POPULAR_LEAGUES = [
   {
@@ -394,7 +427,7 @@ const PopularLeaguesList = () => {
                     }}
                   />
                   <div className="ml-3 flex-1">
-                    <div className="text-sm">{league.name}</div>
+                    <div className="text-sm">{shortenLeagueName(league.name)}</div>
                     <span className="text-xs text-gray-500 truncate">
                       {league.country}
                     </span>
