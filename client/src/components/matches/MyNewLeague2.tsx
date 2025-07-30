@@ -536,26 +536,56 @@ const MyNewLeague2 = ({
   const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
   const [goalFlashMatches, setGoalFlashMatches] = useState<Set<number>>(new Set());
   const [kickoffFlashMatches, setKickoffFlashMatches] = useState<Set<number>>(new Set());
+  const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
 
   // Function to trigger the kickoff flash effect
   const triggerKickoffFlash = useCallback((matchId: number) => {
     if (!kickoffFlashMatches.has(matchId)) {
+      console.log(`🟡 [KICKOFF FLASH] Match ${matchId} just kicked off!`);
       setKickoffFlashMatches((prev) => {
         const newKickoffFlashMatches = new Set(prev);
         newKickoffFlashMatches.add(matchId);
         return newKickoffFlashMatches;
       });
 
-      // Remove the flash after a delay (e.g., 3 seconds)
+      // Remove the flash after a delay (e.g., 4 seconds)
       setTimeout(() => {
         setKickoffFlashMatches((prev) => {
           const newKickoffFlashMatches = new Set(prev);
           newKickoffFlashMatches.delete(matchId);
           return newKickoffFlashMatches;
         });
-      }, 3000);
+      }, 4000);
     }
-  }, [kickoffFlashMatches, setKickoffFlashMatches]);
+  }, [kickoffFlashMatches]);
+
+  // Track status changes for kickoff flash effects
+  useEffect(() => {
+    if (!fixturesByLeague || Object.keys(fixturesByLeague).length === 0) return;
+
+    const currentStatuses = new Map<number, string>();
+    const allFixtures = Object.values(fixturesByLeague).flatMap(group => group.fixtures);
+
+    allFixtures.forEach((fixture) => {
+      const matchId = fixture.fixture.id;
+      const currentStatus = fixture.fixture.status.short;
+      const previousStatus = previousMatchStatuses.get(matchId);
+
+      currentStatuses.set(matchId, currentStatus);
+
+      // Check if status just changed from upcoming (NS/TBD) to kickoff (1H)
+      if (
+        (previousStatus === 'NS' || previousStatus === 'TBD') &&
+        currentStatus === '1H'
+      ) {
+        console.log(`🟡 [KICKOFF DETECTION] Match ${matchId} transitioned from ${previousStatus} to ${currentStatus}`);
+        triggerKickoffFlash(matchId);
+      }
+    });
+
+    // Update previous statuses for next comparison
+    setPreviousMatchStatuses(currentStatuses);
+  }, [fixturesByLeague, previousMatchStatuses, triggerKickoffFlash]);
 
   if (isLoading) {
     return (
@@ -871,17 +901,6 @@ const MyNewLeague2 = ({
                     const isGoalFlash = goalFlashMatches.has(matchId);
                     const isKickoffFlash = kickoffFlashMatches.has(matchId);
                     const isStarred = starredMatches.has(matchId);
-
-                    // Check for kickoff flash (moved outside useEffect to avoid hook violations)
-                    if (
-                      fixture.fixture.status.short === "1H" &&
-                      !kickoffFlashMatches.has(matchId)
-                    ) {
-                      // Use setTimeout to avoid triggering state updates during render
-                      setTimeout(() => {
-                        triggerKickoffFlash(matchId);
-                      }, 0);
-                    }
 
                     return (
                       <div key={matchId} className="country-matches-container">
