@@ -455,11 +455,12 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                         className={`text-sm ${hasMatches ? 'text-gray-500' : 'text-gray-300'}`}
                         style={{
                           fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                          
                         }}
                       >
                         ({liveMatches > 0 ? (
                           <>
-                            <span className="text-red-400">{liveMatches}</span>
+                            <span className="text-red-400 ">{liveMatches}</span>
                             <span>/{totalMatches}</span>
                           </>
                         ) : totalMatches})
