@@ -480,7 +480,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
                 {/* Leagues List - Show when expanded and has matches */}
                 {isExpanded && hasMatches && (
-                  <div className="space-y-2 ml-3 pb-4">
+                  <div className="space-y-2 ml-3 pb-4 mr-12">
                     {Object.values(countryData.leagues)
                       .sort((a: any, b: any) => a.league.name.localeCompare(b.league.name))
                       .map((leagueData: any) => (
