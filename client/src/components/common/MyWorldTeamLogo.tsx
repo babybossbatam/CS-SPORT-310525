@@ -72,11 +72,11 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     // Special handling for COTIF Tournament - detect club vs national teams
     const leagueName = leagueContext?.name?.toLowerCase() || "";
     const isCOTIFTournament = leagueName.includes("cotif");
-    
+
     // For COTIF Tournament, we need to distinguish between club and national teams
     if (isCOTIFTournament) {
       console.log(`🏆 [MyWorldTeamLogo] COTIF Tournament detected for team: ${teamName}`);
-      
+
       // Known club teams in COTIF (Valencia, Alboraya, etc.)
       const isKnownClubTeam = 
         (teamId === 532 && teamName.toLowerCase().includes("valencia")) ||
@@ -87,14 +87,14 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         teamName.toLowerCase().includes("fc") ||
         teamName.toLowerCase().includes("cf") ||
         teamName.toLowerCase().includes("club");
-      
+
       if (isKnownClubTeam) {
         console.log(`🏟️ [MyWorldTeamLogo] COTIF: ${teamName} identified as club team - using club logo`);
         const result = false; // Use club logo format
         circularFlagCache.set(cacheKey, { result, timestamp: now });
         return result;
       }
-      
+
       // For youth teams in COTIF that are national teams
       if (isYouthTeam && isActualNationalTeam) {
         console.log(`🇺🇳 [MyWorldTeamLogo] COTIF: ${teamName} identified as national youth team - using circular flag`);
@@ -102,7 +102,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         circularFlagCache.set(cacheKey, { result, timestamp: now });
         return result;
       }
-      
+
       // Default for COTIF: if it's a recognizable country name, use circular flag
       if (isActualNationalTeam) {
         console.log(`🌍 [MyWorldTeamLogo] COTIF: ${teamName} identified as national team - using circular flag`);
@@ -143,7 +143,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     const isUefaNationsLeague = leagueName.includes("uefa nations league") || 
                                leagueName.includes("nations league");
 
-   
+
 
     // Debug logging for Friendlies International
     if (leagueName.includes("friendlies")) {
@@ -224,7 +224,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       timestamp: now
     });
 
- 
+
 
     // Debug logging for specific club youth teams
     if (teamName?.includes("Valencia U20") || teamName?.includes("Alboraya U20")) {
@@ -311,7 +311,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     }
 
     const target = e.target as HTMLImageElement;
-    
+
     // Additional safety check for target properties
     if (!target || typeof target.src !== 'string') {
       console.warn('⚠️ [MyWorldTeamLogo] Invalid image target');

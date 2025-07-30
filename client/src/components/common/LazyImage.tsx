@@ -371,33 +371,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
     onLoad?.();
   };
 
-  // Check if this is for league-specific styling
-  const getLeagueSpecificStyle = () => {
-    // Extract league ID from alt text or className if available
-    const leagueId = alt?.match(/league[_\s]*(\d+)/i)?.[1] || 
-                    className?.match(/league[_\s]*(\d+)/i)?.[1] ||
-                    title?.match(/league[_\s]*(\d+)/i)?.[1];
-    
-    if (leagueId === '10') {
-      // League ID 10: Use circular flag style (MyCircularFlag equivalent)
-      return {
-        borderRadius: '50%',
-        objectFit: 'cover' as const,
-        border: '1px solid rgba(255, 255, 255, 0.1)'
-      };
-    } else if (leagueId === '667') {
-      // League ID 667: Use club team logo format (standard square/rectangular)
-      return {
-        borderRadius: '4px',
-        objectFit: 'contain' as const,
-        backgroundColor: 'transparent'
-      };
-    }
-    
-    return {};
-  };
-
-  const leagueSpecificStyle = getLeagueSpecificStyle();
+  
 
   return (
     <img
@@ -407,7 +381,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
       className={className}
       style={{
         ...style,
-        ...leagueSpecificStyle,
         width: style?.width ? `calc(${style.width} + 5px)` : undefined,
         height: style?.height ? `calc(${style.height} + 5px)` : undefined,
         minWidth: '5px',
