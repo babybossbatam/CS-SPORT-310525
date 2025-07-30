@@ -27,7 +27,7 @@ const MyInfo: React.FC = () => {
           </p>
           <div className="space-y-4">
             <div>
-              <h3 className="font-medium text-gray-900 mb-1 text-sm">
+              <h3 className="font-bold text-gray-900 mb-1 text-xs">
                 Explore Your Favorite Teams & Players
               </h3>
               <p className="text-xs text-gray-600">
