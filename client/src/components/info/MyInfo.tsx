@@ -73,13 +73,15 @@ const MyInfo: React.FC = () => {
 
               {/* Toggle Button - Full Width - Only show when collapsed */}
               {!isExpanded && (
-                <button
-                  onClick={toggleExpanded}
-                  className="w-full flex items-center justify-center  py-2  border-t border-b border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-                >
-                  <span>Football Info</span>
-                  <ChevronDown size={18} />
-                </button>
+                <div className="-mx-6">
+                  <button
+                    onClick={toggleExpanded}
+                    className="w-full flex items-center justify-center gap-2 py-2 border-t border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                  >
+                    <span>Football Info</span>
+                    <ChevronDown size={18} />
+                  </button>
+                </div>
               )}
 
               {/* Collapsible Content */}
