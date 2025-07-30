@@ -536,6 +536,7 @@ const MyNewLeague2 = ({
   const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
   const [goalFlashMatches, setGoalFlashMatches] = useState<Set<number>>(new Set());
   const [kickoffFlashMatches, setKickoffFlashMatches] = useState<Set<number>>(new Set());
+  const [finishFlashMatches, setFinishFlashMatches] = useState<Set<number>>(new Set());
   const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
 
   // Function to trigger the kickoff flash effect
@@ -559,7 +560,28 @@ const MyNewLeague2 = ({
     }
   }, [kickoffFlashMatches]);
 
-  // Track status changes for kickoff flash effects
+  // Function to trigger the finish flash effect
+  const triggerFinishFlash = useCallback((matchId: number) => {
+    if (!finishFlashMatches.has(matchId)) {
+      console.log(`🔵 [FINISH FLASH] Match ${matchId} just finished!`);
+      setFinishFlashMatches((prev) => {
+        const newFinishFlashMatches = new Set(prev);
+        newFinishFlashMatches.add(matchId);
+        return newFinishFlashMatches;
+      });
+
+      // Remove the flash after a delay (4 seconds)
+      setTimeout(() => {
+        setFinishFlashMatches((prev) => {
+          const newFinishFlashMatches = new Set(prev);
+          newFinishFlashMatches.delete(matchId);
+          return newFinishFlashMatches;
+        });
+      }, 4000);
+    }
+  }, [finishFlashMatches]);
+
+  // Track status changes for kickoff and finish flash effects
   useEffect(() => {
     if (!fixturesByLeague || Object.keys(fixturesByLeague).length === 0) return;
 
@@ -581,11 +603,21 @@ const MyNewLeague2 = ({
         console.log(`🟡 [KICKOFF DETECTION] Match ${matchId} transitioned from ${previousStatus} to ${currentStatus}`);
         triggerKickoffFlash(matchId);
       }
+
+      // Check if status just changed from live to finished
+      if (
+        previousStatus &&
+        ['1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT', 'LIVE', 'LIV'].includes(previousStatus) &&
+        ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(currentStatus)
+      ) {
+        console.log(`🔵 [FINISH DETECTION] Match ${matchId} transitioned from ${previousStatus} to ${currentStatus}`);
+        triggerFinishFlash(matchId);
+      }
     });
 
     // Update previous statuses for next comparison
     setPreviousMatchStatuses(currentStatuses);
-  }, [fixturesByLeague, previousMatchStatuses, triggerKickoffFlash]);
+  }, [fixturesByLeague, previousMatchStatuses, triggerKickoffFlash, triggerFinishFlash]);
 
   if (isLoading) {
     return (
@@ -900,6 +932,7 @@ const MyNewLeague2 = ({
                     const isFulltimeFlash = fulltimeFlashMatches.has(matchId);
                     const isGoalFlash = goalFlashMatches.has(matchId);
                     const isKickoffFlash = kickoffFlashMatches.has(matchId);
+                    const isFinishFlash = finishFlashMatches.has(matchId);
                     const isStarred = starredMatches.has(matchId);
 
                     return (
@@ -913,6 +946,8 @@ const MyNewLeague2 = ({
                             isGoalFlash ? 'goal-flash' : ''
                           } ${
                             isKickoffFlash ? 'kickoff-flash' : ''
+                          } ${
+                            isFinishFlash ? 'finish-flash' : ''
                           }`}
                           data-fixture-id={matchId}
                           onClick={() => handleMatchClick(fixture)}
