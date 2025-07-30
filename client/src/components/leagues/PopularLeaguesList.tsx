@@ -360,11 +360,11 @@ const PopularLeaguesList = () => {
   }
 
   return (
-    <div className="space-y-0 ">
-      <Card className="w-full bg-white shadow-sm ">
-        <CardContent className="  p-4 border-b border-stone-200">
-          <h3 className="text-sm font-semibold mb-2 pb-2 border-b border-stone-200 -mx-4">Popular Leagues</h3>
-          <div className="  py-0">
+    <div className="space-y-0">
+      <Card className="w-full bg-white shadow-sm border border-stone-200">
+        <CardContent className="p-0">
+          <h3 className="text-sm font-semibold p-3 border-b border-stone-200">Popular Leagues</h3>
+          <div className="divide-y divide-stone-200">
             {leagueData.slice(0, 20).map((league) => {
               const isFavorite = user.preferences.favoriteLeagues.includes(
                 league.id.toString(),
@@ -373,7 +373,7 @@ const PopularLeaguesList = () => {
               return (
                 <div
                   key={league.id}
-                  className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors"
+                  className="flex items-center py-2 px-3 hover:bg-gray-50 cursor-pointer transition-colors"
                   onClick={() => navigate(`/league/${league.id}`)}
                 >
                   <LazyImage
