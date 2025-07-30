@@ -319,35 +319,16 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   }
 
   return (
-    <Card className="w-full bg-white shadow-sm">
-      <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
+    <Card className="w-full bg-white ">
+      <CardHeader className="flex flex-row justify-between items-center space-y-0 p-4 border-b border-stone-200 text-sm font-bold">
+         {/* All Leagues A-Z Section */}
         <div className="flex justify-between items-center w-full">
-          <h3
-            className="font-semibold"
-            style={{
-              fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-              fontSize: "13.3px",
-            }}
-          >
-            {getHeaderTitle()}
-          </h3>
+          All Leagues A-Z
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        {/* All Leagues A-Z Section */}
-        <div className="p-4 border-b border-gray-100">
-          <div className="text-center">
-            <span 
-              className="text-gray-600 text-sm"
-              style={{
-                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                fontSize: "13px",
-              }}
-            >
-              All Leagues A-Z
-            </span>
-          </div>
-        </div>
+       
+     
 
         {/* Football Section with Countries */}
         <div className="divide-y divide-gray-100">
@@ -368,11 +349,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                   Football
                 </span>
                 {/* Expand/Collapse Icon */}
-                {isFootballExpanded ? (
-                  <ChevronUp className="h-4 w-4 text-gray-500" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-gray-500" />
-                )}
+                {isFootballExpanded }
               </div>
               <span 
                 className="text-gray-500 text-sm"
