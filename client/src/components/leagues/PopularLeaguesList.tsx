@@ -208,7 +208,7 @@ const PopularLeaguesList = () => {
         <CardContent className="p-4">
           <h3 className="text-sm font-semibold mb-2  pb-2">Popular Leagues</h3>
         <div className="space-y-1  py-0">
-          {leagueData.slice(0, 15).map((league) => {
+          {leagueData.slice(0, 20).map((league) => {
             const isFavorite = user.preferences.favoriteLeagues.includes(league.id.toString());
 
             return (
