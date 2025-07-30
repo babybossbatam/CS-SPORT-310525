@@ -29,7 +29,7 @@ export const CURRENT_POPULAR_LEAGUES = [
     name: "La Liga",
     logo: "https://media.api-sports.io/football/leagues/140.png",
     country: "Spain",
-    popularity: 20,
+    popularity: 90,
   },
   {
     id: 37,
