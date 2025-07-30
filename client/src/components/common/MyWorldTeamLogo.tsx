@@ -179,19 +179,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       });
     }
 
-    // Debug logging for World Cup Qualification leagues
-    if (isWorldCupQualification || isWorldCupQualLeagueId) {
-      console.log("🌍 [MyWorldTeamLogo] World Cup Qualification Detection:", {
-        teamName,
-        leagueName,
-        leagueId,
-        isWorldCupQualification,
-        isWorldCupQualLeagueId,
-        isActualNationalTeam,
-        shouldUseCircularFlag: result
-      });
-    }
-
     // Check if this is being used in a standings context (club competition)
     const isStandingsContext = leagueName.includes("standing") || 
                                leagueName.includes("table") ||
@@ -255,6 +242,19 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                    !isUefaConferenceLeague && 
                    !isUefaChampionsLeague && 
                    !isConmebolSudamericana;
+
+    // Debug logging for World Cup Qualification leagues
+    if (isWorldCupQualification || isWorldCupQualLeagueId) {
+      console.log("🌍 [MyWorldTeamLogo] World Cup Qualification Detection:", {
+        teamName,
+        leagueName,
+        leagueId,
+        isWorldCupQualification,
+        isWorldCupQualLeagueId,
+        isActualNationalTeam,
+        shouldUseCircularFlag: result
+      });
+    }
 
     // Cache the result
     circularFlagCache.set(cacheKey, {
