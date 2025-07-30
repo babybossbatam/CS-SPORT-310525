@@ -30,6 +30,9 @@ const MyRightContent: React.FC = () => {
 
       <LeagueStandingsFilter />
 
+      {/* CS SPORT Information Card */}
+      <MyInfo />
+
       {/* Popular Leagues and All League List sections */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-4">
@@ -39,8 +42,7 @@ const MyRightContent: React.FC = () => {
         <MyAllLeague />
       </div>
       
-      {/* CS SPORT Information Card */}
-      <MyInfo />
+      
       
     </>
 
