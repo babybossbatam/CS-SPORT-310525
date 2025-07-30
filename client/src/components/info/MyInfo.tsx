@@ -61,13 +61,13 @@ const MyInfo: React.FC = () => {
               </li>
             </p>
             <div>
-              <p className="text-xs text-gray-600 py-1">
+              <p className="text-xs text-gray-600 mt-2">
                 Ready to experience Football like never before?
               </p>
             </div>
 
             <div>
-              <h3 className="font-medium text-gray-800 mb-12 text-xs">
+              <h3 className="font-medium text-gray-800 mb-12 text-sm">
                 Start exploring now and join the CS SPORT community!
               </h3>
 
@@ -76,7 +76,7 @@ const MyInfo: React.FC = () => {
                 <div className="-mx-6">
                   <button
                     onClick={toggleExpanded}
-                    className="w-full flex items-center justify-center gap-2 py-2 border-t border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-200 transition-colors duration-200 "
+                    className="w-full flex items-center justify-center gap-2 py-2 border-t border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                   >
                     <span>Football Info</span>
                     <ChevronDown size={18} />
@@ -150,7 +150,7 @@ const MyInfo: React.FC = () => {
                         Check out live stats, highlights, and join the
                         conversation with fans worldwide – only on
                       </p>
-                      <h3 className="font-medium text-gray-800 my-2 mb-12 text-xs">
+                      <h3 className="font-medium text-gray-800 my-2 text-xs">
                         CS SPORT! 🚀
                       </h3>
                     </div>
@@ -159,7 +159,7 @@ const MyInfo: React.FC = () => {
                   {/* Show Less Button at the bottom */}
                   <button
                     onClick={toggleExpanded}
-                    className="w-full flex items-center justify-center gap-2 py-2 border-t border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-200 transition-colors duration-200 -mb-6"
+                    className="w-full flex items-center justify-center gap-2 py-2 border-t border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 -mb-6"
                   >
                     <span>Show Less</span>
                     <ChevronUp size={20} />
