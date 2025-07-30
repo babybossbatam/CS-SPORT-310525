@@ -144,7 +144,7 @@ const FEATURED_MATCH_LEAGUE_IDS = [
 ];
 
 // Explicitly excluded leagues
-const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [848, 169, 940, 85, 80]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga
+const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [848, 169, 940, 85, 80, 84]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord
 const PRIORITY_LEAGUE_IDS = [2, 15, 38, 22, 550, 531]; // UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, League 550, League 531
 
 interface FeaturedMatch {
@@ -953,6 +953,11 @@ id: fixture.teams.away.id,
 
               if (fixture.league.id === 80) {
                 console.log(`🚫 [EXPLICIT EXCLUSION] 3. Liga match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                return false;
+              }
+
+              if (fixture.league.id === 84) {
+                console.log(`🚫 [EXPLICIT EXCLUSION] Regionalliga - Nord match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
                 return false;
               }
 
