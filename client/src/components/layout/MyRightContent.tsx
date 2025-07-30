@@ -12,6 +12,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import PopularTeamsList from '@/components/teams/PopularTeamsList';
 import ScoreDetailsCard from '@/components/matches/ScoreDetailsCard';
 import MyMainLayoutRight from '@/components/layout/MyMainLayoutRight';
+import MyInfo from '@/components/info/MyInfo';
 
 
 const MyRightContent: React.FC = () => {
@@ -38,7 +39,8 @@ const MyRightContent: React.FC = () => {
         <MyAllLeague />
       </div>
       
-   
+      {/* CS SPORT Information Card */}
+      <MyInfo />
       
     </>
 
