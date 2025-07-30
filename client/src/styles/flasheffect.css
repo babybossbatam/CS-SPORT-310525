@@ -80,7 +80,7 @@
 
 }
 
-/* Flash animation for kick-off matches with soft yellow only */
+/* Flash animation for kick-off matches with vibrant yellow only */
 .country-matches-container .match-card-container.kickoff-flash {
   position: relative;
   overflow: hidden;
@@ -94,7 +94,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: #fff3a0;
+  background: #ffd700;
   animation: slide-from-both-ends-kickoff 4s linear;
   z-index: 0;
   pointer-events: none;
@@ -105,12 +105,12 @@
 @keyframes slide-from-both-ends-kickoff {
   0% {
     transform: scaleX(1);
-    opacity: 0.1;
+    opacity: 0.2;
   }
 
   25% {
     transform: scaleX(0.5);
-    opacity: 0.5;
+    opacity: 0.6;
   }
 
   50% {
