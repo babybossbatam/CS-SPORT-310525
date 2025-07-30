@@ -907,7 +907,7 @@ const HomeTopScorersList = () => {
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <span className="text-sm font-medium">{league.name}</span>
+                    <span className="text-sm font-medium">{getLeagueDisplayName(league.id)}</span>
                   </button>
                 ))}
               </div>
