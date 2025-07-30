@@ -149,7 +149,7 @@ export function RoundBadge({
   const isLive = matchStatus && ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(matchStatus);
   const isFinished = matchStatus && ["FT", "AET", "PEN"].includes(matchStatus);
 
-  let badgeClass = "text-xs px-2 py-1 font-medium border";
+  let badgeClass = "text-xs px-2 py-1 font-medium border rounded-md";
 
   if (isLive) {
     badgeClass += " border-red-500 text-red-600 bg-red-50 animate-pulse";
