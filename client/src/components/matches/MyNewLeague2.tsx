@@ -487,7 +487,7 @@ const MyNewLeague2 = ({
       (leagueId) => `league-${leagueId}`,
     );
     setExpandedLeagues(new Set(leagueKeys));
-  }, [Object.keys(fixturesByLeague).length]);
+  }, [fixturesByLeague]);
 
   const toggleStarMatch = useCallback((matchId: number) => {
     setStarredMatches((prev) => {
