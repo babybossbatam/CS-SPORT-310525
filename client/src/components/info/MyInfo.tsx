@@ -16,8 +16,8 @@ const MyInfo: React.FC = () => {
           Football at CS SPORT
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="text-xs text-gray-700 space-y-3 ">
+      <CardContent className="space-y-4 p-0">
+        <div className="text-xs text-gray-700 space-y-3 px-6">
           <p>
             Welcome to CS SPORT – your ultimate destination for everything
             Football! Stay on top of the action with live scores from over 1,000
