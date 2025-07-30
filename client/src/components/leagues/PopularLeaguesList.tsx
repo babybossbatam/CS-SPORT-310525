@@ -69,12 +69,14 @@ const PopularLeaguesList = () => {
               const country = league.country?.toLowerCase() || '';
               // Exclude Second League and Segunda División leagues
               // Exclude leagues from Finland, Iran, and Thailand
+              // Exclude women's competitions
               return !leagueName.includes('second league') && 
-                     !leagueName.includes('segunda división') &&
-                     !leagueName.includes('segunda division') &&
-                     !country.includes('finland') &&
-                     !country.includes('iran') &&
-                     !country.includes('thailand');
+                   !leagueName.includes('segunda división') &&
+                   !leagueName.includes('segunda division') &&
+                   !leagueName.includes('women') &&
+                   !country.includes('finland') &&
+                   !country.includes('iran') &&
+                   !country.includes('thailand');
             });
 
           setLeagueData(transformedLeagues);
@@ -90,9 +92,11 @@ const PopularLeaguesList = () => {
             const country = league.country?.toLowerCase() || '';
             // Exclude Second League and Segunda División leagues
             // Exclude leagues from Finland, Iran, and Thailand
+            // Exclude women's competitions
             return !leagueName.includes('second league') && 
                    !leagueName.includes('segunda división') &&
                    !leagueName.includes('segunda division') &&
+                   !leagueName.includes('women') &&
                    !country.includes('finland') &&
                    !country.includes('iran') &&
                    !country.includes('thailand');
