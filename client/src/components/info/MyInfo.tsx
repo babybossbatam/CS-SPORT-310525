@@ -17,7 +17,7 @@ const MyInfo: React.FC = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 p-0">
-        <div className="text-xs text-gray-700 space-y-3 px-6">
+        <div className="text-xs text-gray-700 space-y-3 px-6 pb-0">
           <p>
             Welcome to CS SPORT – your ultimate destination for everything
             Football! Stay on top of the action with live scores from over 1,000
@@ -84,12 +84,12 @@ const MyInfo: React.FC = () => {
 
               {/* Collapsible Content */}
               {isExpanded && (
-                <div className="space-y-4">
-                  <h3 className="font-medium text-gray-800 text-sm">
+                <div className="space-y-4 -mx-6">
+                  <h3 className="font-medium text-gray-800 text-sm px-6">
                     Football FAQ
                   </h3>
 
-                  <div className="text-xs text-gray-600 space-y-3">
+                  <div className="text-xs text-gray-600 space-y-3 px-6">
                     <div>
                       <h3 className="font-medium text-gray-800 my-2 text-xs">
                         Who invented Football?
