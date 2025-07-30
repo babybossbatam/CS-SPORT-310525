@@ -149,14 +149,14 @@ export function RoundBadge({
   const isLive = matchStatus && ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(matchStatus);
   const isFinished = matchStatus && ["FT", "AET", "PEN"].includes(matchStatus);
 
-  let badgeClass = "text-xs px-2 py-1 font-medium border ";
+  let badgeClass = "text-xs px-2 py-1 font-medium border rounded-md";
 
   if (isLive) {
-    badgeClass += " border-red-500 text-red-600  ";
+    badgeClass += " border-red-500 text-red-600 bg-red-50 animate-pulse";
   } else if (isFinished) {
     badgeClass += " border-gray-500 text-gray-600 bg-gray-50";
   } else {
-    badgeClass += " border-green-500 text-green-600";
+    badgeClass += " border-blue-500 text-blue-600 bg-blue-50";
   }
 
   return (

@@ -1995,6 +1995,7 @@ id: fixture.teams.away.id,
                               return (
                                 <>
                                   {formattedDate} | {timeOnly}
+                                  {displayVenue ? ` | ${displayVenue}` : ""}
                                 </>
                               );
                             } catch (e) {
@@ -2006,45 +2007,6 @@ id: fixture.teams.away.id,
                             }
                           })()}
                         </div>
-
-                        {/* Venue information below date/time */}
-                        {(() => {
-                          try {
-                            // Safely get venue with proper fallbacks
-                            let displayVenue = currentMatch.fixture?.venue?.name || null;
-
-                            // Check if venue is missing or has placeholder values
-                            if (
-                              !displayVenue ||
-                              displayVenue === "TBD" ||
-                              displayVenue === "Venue TBA" ||
-                              displayVenue === "" ||
-                              displayVenue === "Unknown"
-                            ) {
-                              return null; // No valid venue found
-                            }
-
-                            return (
-                              <div
-                                className="absolute text-center text-xs text-gray-500 font-medium"
-                                style={{
-                                  fontSize: "0.75rem",
-                                  position: "absolute",
-                                  left: "50%",
-                                  transform: "translateX(-50%)",
-                                  top: "80px",
-                                  width: "max-content",
-                                  fontFamily: "'Inter', system-ui, sans-serif",
-                                }}
-                              >
-                                {displayVenue}
-                              </div>
-                            );
-                          } catch (e) {
-                            console.warn("Error displaying venue:", e);
-                            return null;
-                          }
-                        })()}
 
                         {/* Away team colored bar and logo */}
                         <div
