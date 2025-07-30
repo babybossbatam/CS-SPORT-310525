@@ -248,7 +248,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       const existingCountryData = Object.values(leaguesByCountry).find((data: any) => 
         data.country?.toLowerCase() === country.toLowerCase()
       );
-      
+
       if (existingCountryData) {
         return existingCountryData;
       } else {
@@ -342,8 +342,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         </div>
       </CardHeader>
       <CardContent className="p-0">
-       
-     
+
+
 
         {/* Football Section with Countries */}
         <div className="divide-y divide-gray-100">
@@ -470,7 +470,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                     {Object.values(countryData.leagues)
                       .sort((a: any, b: any) => a.league.name.localeCompare(b.league.name))
                       .map((leagueData: any) => (
-                        <div key={leagueData.league.id} className="flex items-center gap-3 py-2">
+                        <div className="flex items-center gap-3 py-2">
                           <img
                             src={(() => {
                               const leagueName = leagueData.league.name?.toLowerCase() || "";
@@ -509,7 +509,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                               fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                             }}
                           >
-                            
+                            {leagueData.liveMatchCount > 0 ? `${leagueData.liveMatchCount} LIVE` : `${leagueData.matchCount}`}
                           </span>
                         </div>
                       ))}
