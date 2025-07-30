@@ -34,7 +34,7 @@ export const CURRENT_POPULAR_LEAGUES = [
   { id: 7, name: 'Asian Cup', logo: 'https://media.api-sports.io/football/leagues/7.png', country: 'World', popularity: 45 },
   { id: 233, name: 'Egyptian Premier League', logo: 'https://media.api-sports.io/football/leagues/233.png', country: 'Egypt', popularity: 42 },
   { id: 550, name: 'Super Cup', logo: 'https://media.api-sports.io/football/leagues/550.png', country: 'Portugal', popularity: 40 },
-  { id: 667, name: 'Friendlies Clubs', logo: 'https://media.api-sports.io/football/leagues/667.png', country: 'World', popularity: 38 },
+  { id: 140, name: 'La Liga', logo: 'https://media.api-sports.io/football/leagues/140.png', country: 'Spain', popularity: 38 },
 ];
 
 const PopularLeaguesList = () => {
