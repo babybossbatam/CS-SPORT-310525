@@ -377,8 +377,16 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                     (sum: number, countryData: any) => sum + (countryData.liveMatches || 0),
                     0
                   );
-                  return totalLiveMatches > 0 ? `${totalLiveMatches}/` : '';
-                })()}{validFixtures.length})
+                  if (totalLiveMatches > 0) {
+                    return (
+                      <>
+                        <span className="text-red-400">{totalLiveMatches}</span>
+                        <span>/{validFixtures.length}</span>
+                      </>
+                    );
+                  }
+                  return validFixtures.length;
+                })()})
               </span>
             </div>
           </button>
@@ -449,7 +457,12 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                           fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                         }}
                       >
-                        ({liveMatches > 0 ? `${liveMatches}/` : ''}{totalMatches})
+                        ({liveMatches > 0 ? (
+                          <>
+                            <span className="text-red-400">{liveMatches}</span>
+                            <span>/{totalMatches}</span>
+                          </>
+                        ) : totalMatches})
                       </span>
                     </div>
                   </div>
