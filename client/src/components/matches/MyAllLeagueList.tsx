@@ -17,10 +17,36 @@ interface MyAllLeagueListProps {
 
 const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   const [fixtures, setFixtures] = useState<any[]>([]);
+  const [allLeagues, setAllLeagues] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [isFootballExpanded, setIsFootballExpanded] = useState<boolean>(true);
+
+  // Fetch all leagues data
+  useEffect(() => {
+    const fetchAllLeaguesData = async () => {
+      try {
+        console.log(`🔍 [MyAllLeagueList] Fetching all leagues data`);
+
+        const response = await apiRequest("GET", "/api/leagues/all");
+        const data = await response.json();
+
+        console.log(`✅ [MyAllLeagueList] Received ${data?.length || 0} leagues`);
+
+        if (Array.isArray(data)) {
+          setAllLeagues(data);
+        } else {
+          setAllLeagues([]);
+        }
+      } catch (err) {
+        console.error("❌ [MyAllLeagueList] Error fetching all leagues:", err);
+        setAllLeagues([]);
+      }
+    };
+
+    fetchAllLeaguesData();
+  }, []);
 
   // Fetch fixtures data
   useEffect(() => {
@@ -102,6 +128,30 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   const leaguesByCountry = useMemo(() => {
     const grouped: { [key: string]: { country: string; leagues: any; totalMatches: number; liveMatches: number } } = {};
 
+    // First, initialize all leagues from allLeagues data
+    allLeagues.forEach((league: any) => {
+      const country = league.country || "Unknown";
+      const leagueId = league.id;
+
+      if (!grouped[country]) {
+        grouped[country] = {
+          country,
+          leagues: {},
+          totalMatches: 0,
+          liveMatches: 0,
+        };
+      }
+
+      if (!grouped[country].leagues[leagueId]) {
+        grouped[country].leagues[leagueId] = {
+          league: league,
+          matchCount: 0,
+          liveMatchCount: 0,
+        };
+      }
+    });
+
+    // Then, update with actual fixture data
     validFixtures.forEach((fixture: any) => {
       const country = fixture.league.country || "Unknown";
       const leagueId = fixture.league.id;
@@ -147,7 +197,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     });
 
     return grouped;
-  }, [validFixtures]);
+  }, [validFixtures, allLeagues]);
 
   // Country name mapping
   const getCountryDisplayName = (country: string | null | undefined): string => {
@@ -243,22 +293,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
   // Sort countries alphabetically with World first, showing all countries
   const sortedCountries = useMemo(() => {
-    const allCountriesData = allFootballCountries.map(country => {
-      // Check if this country has matches
-      const existingCountryData = Object.values(leaguesByCountry).find((data: any) => 
-        data.country?.toLowerCase() === country.toLowerCase()
-      );
-
-      if (existingCountryData) {
-        return existingCountryData;
-      } else {
-        // Return empty country data for countries without matches
-        return {
-          country,
-          leagues: {}
-        };
-      }
-    });
+    // Get all countries from leaguesByCountry (which now includes all leagues)
+    const allCountriesData = Object.values(leaguesByCountry);
 
     return allCountriesData.sort((a: any, b: any) => {
       const countryA = a.country || "";
@@ -272,7 +308,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
       return countryA.localeCompare(countryB);
     });
-  }, [Object.keys(leaguesByCountry).length]);
+  }, [leaguesByCountry]);
 
   if (!selectedDate) {
     return (
@@ -404,12 +440,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
               <div key={countryData.country} className="border-b border-gray-100 last:border-b-0">
                 {/* Country Header - Clickable (nested under Football) */}
                 <button
-                  onClick={() => hasMatches && toggleCountry(countryData.country)}
-                  className={`w-full flex items-center justify-between pl-2 pr-4 py-3 transition-colors border-l-2 border-transparent ${
-                    hasMatches 
-                      ? 'hover:bg-gray-50 cursor-pointer hover:border-l-blue-100' 
-                      : 'cursor-not-allowed '
-                  }`}
+                  onClick={() => toggleCountry(countryData.country)}
+                  className={`w-full flex items-center justify-between pl-2 pr-4 py-3 transition-colors border-l-2 border-transparent hover:bg-gray-50 cursor-pointer hover:border-l-blue-100`}
                 >
                   <div className="flex items-center gap-3">
                     {(() => {
@@ -468,8 +500,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                     </div>
                   </div>
 
-                  {/* Expand/Collapse Icon for Country - Only show if has matches */}
-                  {hasMatches && (
+                  {/* Expand/Collapse Icon for Country */}
+                  {totalLeagues > 0 && (
                     isExpanded ? (
                       <ChevronUp className="h-4 w-4 text-gray-500" />
                     ) : (
@@ -478,8 +510,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                   )}
                 </button>
 
-                {/* Leagues List - Show when expanded and has matches */}
-                {isExpanded && hasMatches && (
+                {/* Leagues List - Show when expanded and has leagues */}
+                {isExpanded && totalLeagues > 0 && (
                   <div className="space-y-2 ml-3 pb-4 mr-12">
                     {Object.values(countryData.leagues)
                       .sort((a: any, b: any) => a.league.name.localeCompare(b.league.name))

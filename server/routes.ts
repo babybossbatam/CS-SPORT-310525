@@ -1,3 +1,45 @@
+
+// Add this route to your existing routes
+app.get('/api/leagues/all', async (req, res) => {
+  try {
+    console.log('🔍 [API] Fetching all leagues...');
+    
+    const response = await fetch(
+      `https://v3.football.api-sports.io/leagues`,
+      {
+        method: 'GET',
+        headers: {
+          'x-rapidapi-host': 'v3.football.api-sports.io',
+          'x-rapidapi-key': process.env.RAPIDAPI_KEY || '',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`API responded with status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const leagues = data.response || [];
+
+    console.log(`✅ [API] Retrieved ${leagues.length} leagues`);
+    
+    // Transform the data to match your format
+    const transformedLeagues = leagues.map((item: any) => ({
+      id: item.league.id,
+      name: item.league.name,
+      country: item.country.name,
+      logo: item.league.logo,
+      type: item.league.type,
+    }));
+
+    res.json(transformedLeagues);
+  } catch (error) {
+    console.error('❌ [API] Error fetching all leagues:', error);
+    res.status(500).json({ error: 'Failed to fetch leagues' });
+  }
+});
+
 import sharp from "sharp";
 
 import express, { type Express, Request, Response } from "express";
