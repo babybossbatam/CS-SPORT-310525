@@ -380,7 +380,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                   if (totalLiveMatches > 0) {
                     return (
                       <>
-                        <span className="text-red-400">{totalLiveMatches}</span>
+                        <span className="text-red-500">{totalLiveMatches}</span>
                         <span>/{validFixtures.length}</span>
                       </>
                     );
@@ -460,7 +460,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                       >
                         ({liveMatches > 0 ? (
                           <>
-                            <span className="text-red-400 ">{liveMatches}</span>
+                            <span className="text-red-500">{liveMatches}</span>
                             <span>/{totalMatches}</span>
                           </>
                         ) : totalMatches})
@@ -523,7 +523,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                               fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                             }}
                           >
-                            {leagueData.liveMatchCount > 0 ? `(${leagueData.liveMatchCount}/${leagueData.matchCount})` : `(${leagueData.matchCount})`}
+                            {leagueData.liveMatchCount > 0 ? (
+                              <>
+                                (<span className="text-red-500">{leagueData.liveMatchCount}</span>/{leagueData.matchCount})
+                              </>
+                            ) : `(${leagueData.matchCount})`}
                           </span>
                         </div>
                       ))}
