@@ -210,13 +210,16 @@ const PopularLeaguesList = () => {
             .filter((league: any) => {
               const leagueName = league.name?.toLowerCase() || "";
               const country = league.country?.toLowerCase() || "";
+              const leagueId = league.id;
               // Exclude Second League and Segunda División leagues
               // Exclude leagues from Finland, Iran, and Thailand
               // Exclude women's competitions
               // Exclude qualification tournaments
               // Exclude Reserve League and San Marino
               // Exclude Super Cup from San Marino specifically
+              // Exclude specific league IDs
               return (
+                leagueId !== 40 && // Exclude Championship (England)
                 !leagueName.includes("second league") &&
                 !leagueName.includes("segunda división") &&
                 !leagueName.includes("segunda division") &&
