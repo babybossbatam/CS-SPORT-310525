@@ -471,11 +471,11 @@ const HomeTopScorersList = () => {
     
     // Shorten long league names for better display
     const shortenedNames: { [key: string]: string } = {
-      "World Cup Qualification South America": "WC Qualifiers SA",
-      "World Cup Qualification Europe": "WC Qualifiers EU", 
-      "World Cup Qualification Africa": "WC Qualifiers AF",
-      "World Cup Qualification Asia": "WC Qualifiers AS",
-      "World Cup Qualification North America": "WC Qualifiers NA",
+      "World Cup Qualification South America": "WC SA",
+      "World Cup Qualification Europe": "WC EU", 
+      "World Cup Qualification Africa": "WC AF",
+      "World Cup Qualification Asia": "WC AS",
+      "World Cup Qualification North America": "WC NA",
       "UEFA Nations League": "Nations League",
       "UEFA Champions League": "Champions League",
       "UEFA Europa League": "Europa League",
