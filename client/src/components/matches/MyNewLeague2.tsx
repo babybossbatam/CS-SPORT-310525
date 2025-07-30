@@ -915,11 +915,6 @@ const MyNewLeague2 = ({
                   </span>
                 </div>
                 <div className="flex gap-2 items-center">
-                  {isExpanded ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
                 </div>
               </button>
 
