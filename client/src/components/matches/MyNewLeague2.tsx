@@ -939,55 +939,17 @@ const MyNewLeague2 = ({
                             >
                               {(() => {
                                 const status = fixture.fixture.status.short;
-                                const elapsed = fixture.fixture.status.elapsed;
+                                const matchDateTime = new Date(fixture.fixture.date);
+                                const now = new Date();
+                                const minutesSinceKickoff = (now.getTime() - matchDateTime.getTime()) / (1000 * 60);
 
-                                // Check if match finished more than 4 hours ago
-                                const matchDateTime = new Date(
-                                  fixture.fixture.date,
-                                );
-                                const hoursOld =
-                                  (Date.now() - matchDateTime.getTime()) /
-                                  (1000 * 60 * 60);
-                                const isStaleFinishedMatch =
-                                  (["FT", "AET", "PEN"].includes(status) &&
-                                    hoursOld > 4) ||
-                                  ([
-                                    "FT",
-                                    "AET",
-                                    "PEN",
-                                    "AWD",
-                                    "WO",
-                                    "ABD",
-                                    "CANC",
-                                    "SUSP",
-                                  ].includes(status) &&
-                                    hoursOld > 4) ||
-                                  (hoursOld > 4 &&
-                                    [
-                                      "LIVE",
-                                      "1H",
-                                      "2H",
-                                      "HT",
-                                      "ET",
-                                      "BT",
-                                      "P",
-                                      "INT",
-                                    ].includes(status));
+                                // Time-based status correction: if match should have started but API still shows NS/TBD
+                                const shouldBeLiveByTime = minutesSinceKickoff >= -5 && minutesSinceKickoff <= 150; // 5min before to 150min after kickoff
+                                const isNotStartedStatus = ["NS", "TBD"].includes(status);
+                                const shouldShowAsLive = shouldBeLiveByTime && isNotStartedStatus;
 
-                                // Show live status only for truly live matches (not finished and not stale)
+                                // Live matches - show current score
                                 if (
-                                  ![
-                                    "FT",
-                                    "AET",
-                                    "PEN",
-                                    "AWD",
-                                    "WO",
-                                    "ABD",
-                                    "CANC",
-                                    "SUSP",
-                                  ].includes(status) &&
-                                  !isStaleFinishedMatch &&
-                                  hoursOld <= 4 &&
                                   [
                                     "LIVE",
                                     "LIV",
@@ -998,41 +960,27 @@ const MyNewLeague2 = ({
                                     "BT",
                                     "P",
                                     "INT",
-                                  ].includes(status)
+                                    "45",
+                                    "90",
+                                  ].includes(status) || shouldShowAsLive
                                 ) {
-                                  let displayText = "";
-                                  let statusClass = "status-live-elapsed";
-
-                                  if (status === "HT") {
-                                    displayText = "Halftime";
-                                    statusClass = "status-halftime";
-                                  } else if (status === "P") {
-                                    displayText = "Penalties";
-                                  } else if (status === "ET") {
-                                    if (elapsed) {
-                                      const extraTime = elapsed - 90;
-                                      displayText =
-                                        extraTime > 0
-                                          ? `90' + ${extraTime}'`
-                                          : `${elapsed}'`;
-                                    } else {
-                                      displayText = "Extra Time";
-                                    }
-                                  } else if (status === "BT") {
-                                    displayText = "Break Time";
-                                  } else if (status === "INT") {
-                                    displayText = "Interrupted";
-                                  } else {
-                                    displayText = elapsed
-                                      ? `${elapsed}'`
-                                      : "LIVE";
+                                  // For time-corrected matches, show estimated elapsed time
+                                  if (shouldShowAsLive) {
+                                    const estimatedElapsed = Math.max(0, Math.floor(minutesSinceKickoff));
+                                    console.log(`⏰ [TIME-BASED CORRECTION] ${fixture.teams.home.name} vs ${fixture.teams.away.name}: API shows ${status} but should be live (${estimatedElapsed}' elapsed)`);
                                   }
 
                                   return (
-                                    <div
-                                      className={`match-status-label ${statusClass}`}
-                                    >
-                                      {displayText}
+                                    <div className="match-score-display">
+                                      <span className="score-number">
+                                        {fixture.goals.home ?? 0}
+                                      </span>
+                                      <span className="score-separator">
+                                        -
+                                      </span>
+                                      <span className="score-number">
+                                        {fixture.goals.away ?? 0}
+                                      </span>
                                     </div>
                                   );
                                 }
@@ -1199,6 +1147,14 @@ const MyNewLeague2 = ({
                               <div className="match-score-container">
                                 {(() => {
                                   const status = fixture.fixture.status.short;
+                                  const matchDateTime = new Date(fixture.fixture.date);
+                                  const now = new Date();
+                                  const minutesSinceKickoff = (now.getTime() - matchDateTime.getTime()) / (1000 * 60);
+
+                                  // Time-based status correction: if match should have started but API still shows NS/TBD
+                                  const shouldBeLiveByTime = minutesSinceKickoff >= -5 && minutesSinceKickoff <= 150; // 5min before to 150min after kickoff
+                                  const isNotStartedStatus = ["NS", "TBD"].includes(status);
+                                  const shouldShowAsLive = shouldBeLiveByTime && isNotStartedStatus;
 
                                   // Live matches - show current score
                                   if (
@@ -1214,8 +1170,14 @@ const MyNewLeague2 = ({
                                       "INT",
                                       "45",
                                       "90",
-                                    ].includes(status)
+                                    ].includes(status) || shouldShowAsLive
                                   ) {
+                                    // For time-corrected matches, show estimated elapsed time
+                                    if (shouldShowAsLive) {
+                                      const estimatedElapsed = Math.max(0, Math.floor(minutesSinceKickoff));
+                                      console.log(`⏰ [TIME-BASED CORRECTION] ${fixture.teams.home.name} vs ${fixture.teams.away.name}: API shows ${status} but should be live (${estimatedElapsed}' elapsed)`);
+                                    }
+
                                     return (
                                       <div className="match-score-display">
                                         <span className="score-number">
