@@ -522,7 +522,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                               fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                             }}
                           >
-                            {leagueData.liveMatchCount > 0 ? `${leagueData.liveMatchCount} LIVE` : `${leagueData.matchCount}`}
+                            {leagueData.liveMatchCount > 0 ? `(${leagueData.liveMatchCount}/${leagueData.matchCount})` : `(${leagueData.matchCount})`}
                           </span>
                         </div>
                       ))}
