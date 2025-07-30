@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import MyWorldTeamLogo from "./MyWorldTeamLogo";
 
 interface LazyImageProps {
   src: string;
@@ -9,6 +10,14 @@ interface LazyImageProps {
   loading?: "lazy" | "eager";
   onLoad?: () => void;
   onError?: () => void;
+  // Team logo specific props
+  useTeamLogo?: boolean;
+  teamId?: number | string;
+  teamName?: string;
+  leagueContext?: {
+    name?: string;
+    country?: string;
+  };
 }
 
 const LazyImage: React.FC<LazyImageProps> = ({
@@ -20,6 +29,10 @@ const LazyImage: React.FC<LazyImageProps> = ({
   loading = "lazy",
   onLoad,
   onError,
+  useTeamLogo = false,
+  teamId,
+  teamName,
+  leagueContext,
 }) => {
   const [imageSrc, setImageSrc] = useState<string>(src);
   const [hasError, setHasError] = useState<boolean>(false);
@@ -372,6 +385,21 @@ const LazyImage: React.FC<LazyImageProps> = ({
   };
 
   
+
+  // Use MyWorldTeamLogo if team information is provided and useTeamLogo is true
+  if (useTeamLogo && teamId && teamName) {
+    return (
+      <MyWorldTeamLogo
+        teamName={teamName}
+        teamId={teamId}
+        teamLogo={imageSrc}
+        alt={alt}
+        size={style?.width || style?.height || "32px"}
+        className={className}
+        leagueContext={leagueContext}
+      />
+    );
+  }
 
   return (
     <img
