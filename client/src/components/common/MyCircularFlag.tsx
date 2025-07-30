@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { getCountryCode } from "@/lib/flagUtils";
-import { isNationalTeam, getTeamLogoSources, createTeamLogoErrorHandler } from "@/lib/teamLogoSources";
+import {
+  isNationalTeam,
+  getTeamLogoSources,
+  createTeamLogoErrorHandler,
+} from "@/lib/teamLogoSources";
 
 interface MyCircularFlagProps {
   teamName: string;
@@ -36,125 +40,130 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   const isNational = isNationalTeam({ name: teamName });
 
   // Additional check for known club teams that should never use circular flags
-  const isKnownClubTeam = !isNational && (
-    teamName?.toLowerCase().includes("fc") ||
-    teamName?.toLowerCase().includes("cf") ||
-    teamName?.toLowerCase().includes("united") ||
-    teamName?.toLowerCase().includes("city") ||
-    teamName?.toLowerCase().includes("athletic") ||
-    teamName?.toLowerCase().includes("real") ||
-    teamName?.toLowerCase().includes("barcelona") ||
-    teamName?.toLowerCase().includes("valencia") ||
-    teamName?.toLowerCase().includes("alboraya") ||
-    teamName?.toLowerCase().includes("club") ||
-    teamName?.toLowerCase().includes("ud ")
-  );
+  const isKnownClubTeam =
+    !isNational &&
+    (teamName?.toLowerCase().includes("fc") ||
+      teamName?.toLowerCase().includes("cf") ||
+      teamName?.toLowerCase().includes("united") ||
+      teamName?.toLowerCase().includes("city") ||
+      teamName?.toLowerCase().includes("athletic") ||
+      teamName?.toLowerCase().includes("real") ||
+      teamName?.toLowerCase().includes("barcelona") ||
+      teamName?.toLowerCase().includes("valencia") ||
+      teamName?.toLowerCase().includes("alboraya") ||
+      teamName?.toLowerCase().includes("club") ||
+      teamName?.toLowerCase().includes("ud "));
 
   // For club teams, use team logo sources
   const getLogoUrl = () => {
     if ((!isNational || isKnownClubTeam) && teamId) {
-      const logoSources = getTeamLogoSources({ id: teamId, name: teamName }, false);
+      const logoSources = getTeamLogoSources(
+        { id: teamId, name: teamName },
+        false,
+      );
       return logoSources[0]?.url || fallbackUrl || "/assets/fallback-logo.svg";
     }
     return getCircleFlagUrl(teamName, fallbackUrl);
   };
 
-    // If no country code found, try to extract from team name patterns
-    const teamCountryPatterns: { [key: string]: string } = {
-      // European teams
-      Portugal: "pt",
-      France: "fr",
-      Spain: "es",
-      Italy: "it",
-      Germany: "de",
-      England: "gb-eng",
-      Netherlands: "nl",
-      Belgium: "be",
-      Croatia: "hr",
-      Poland: "pl",
-      Romania: "ro",
-      Ukraine: "ua",
-      Turkey: "tr",
-      Türkiye: "tr",
-      Switzerland: "ch",
-      Austria: "at",
-      "Czech Republic": "cz",
-      Denmark: "dk",
-      Sweden: "se",
-      Norway: "no",
-      Finland: "fi",
-      Russia: "ru",
-      Serbia: "rs",
-      // South American teams
-      Brazil: "br",
-      Argentina: "ar",
-      Colombia: "co",
-      Peru: "pe",
-      Chile: "cl",
-      "Kyrgyz Repu": "kg",
-      Uruguay: "uy",
-      Paraguay: "py",
-      "S. Africa": "za",
-      Tajikistan: "tj",
-      Bolivia: "bo",
-      Ecuador: "ec",
-      Venezuela: "ve",
-      // Others
-      Algeria: "dz",
-      Angola: "ao",
-      Afghanistan: "af",
-      Azerbaijan: "az",
-      Belarus: "by",
-      Bhutan: "bt",
-      Bahrain: "bh",
-      Bangladesh: "bd",
-      Brunei: "bn",
-      Cambodia: "kh",
-      Dominican: "do",
-      Estonia: "ee",
-      Guadeloupe: "gp",
-      India: "in",
-      Jordan: "jo",
-      Kyrgyzstan: "kg",
-      Lebanon: "lb",
-      Latvia: "lv",
-      Lithuania: "lt",
-      Tanzania: "tz",
-      Turkmenistan: "tm",
-      "Timor-Leste": "tl",
-      Uzbekistan: "uz",
-      UAE: "ae",
-      Laos: "la",
-      Mali: "ml",
-      Madagascar: "mg",
-      Mongolia: "mn",
-      Mexico: "mx",
-      Maldives: "mv",
-      Malawi: "mw",
-      Malaysia: "my",
-      Mauritania: "mr",
-       Myanmar: "mm",
-      Nigeria: "ng",
-      Nepal: "np",
-      Namibia: "na",
-      Pakistan: "pk",
-      Palestine: "ps",
-      Philippines: "ph",
-      Thailand: "th",
-      Indonesia: "id",
-      "United States": "us",
-      Africa: "za",
-      Canada: "ca",
-      Japan: "jp",
-      Singapore: "sg",
-      Senegal: "sn",
-      "Hong Kong": "hk",
-      Australia: "au",
-      "Chinese Taipei": "tw",
-      Zambia: "zm",
-      Zimbabwe: "zw",
-      Vietnam: "vn",
-    };
+  // If no country code found, try to extract from team name patterns
+  const teamCountryPatterns: { [key: string]: string } = {
+    // European teams
+    Portugal: "pt",
+    France: "fr",
+    Spain: "es",
+    Italy: "it",
+    Germany: "de",
+    England: "gb-eng",
+    Netherlands: "nl",
+    Belgium: "be",
+    Croatia: "hr",
+    Poland: "pl",
+    Romania: "ro",
+    Ukraine: "ua",
+    Turkey: "tr",
+    Türkiye: "tr",
+    Switzerland: "ch",
+    Austria: "at",
+    "Czech Republic": "cz",
+    Denmark: "dk",
+    Sweden: "se",
+    Norway: "no",
+    Finland: "fi",
+    Russia: "ru",
+    Serbia: "rs",
+    // South American teams
+    Brazil: "br",
+    Argentina: "ar",
+    Colombia: "co",
+    Peru: "pe",
+    Chile: "cl",
+    "Kyrgyz Repu": "kg",
+    Uruguay: "uy",
+    Paraguay: "py",
+    "S. Africa": "za",
+    Tajikistan: "tj",
+    Bolivia: "bo",
+    Ecuador: "ec",
+    Venezuela: "ve",
+    // Others
+    Algeria: "dz",
+    Angola: "ao",
+    Afghanistan: "af",
+    Azerbaijan: "az",
+    Belarus: "by",
+    Bhutan: "bt",
+    Bahrain: "bh",
+    Bangladesh: "bd",
+    Brunei: "bn",
+    Cambodia: "kh",
+    Dominican: "do",
+    Estonia: "ee",
+    Guadeloupe: "gp",
+    India: "in",
+    Jordan: "jo",
+    Kyrgyzstan: "kg",
+    Lebanon: "lb",
+    Latvia: "lv",
+    Lithuania: "lt",
+    Tanzania: "tz",
+    Turkmenistan: "tm",
+    "Timor-Leste": "tl",
+    Uzbekistan: "uz",
+    UAE: "ae",
+    Laos: "la",
+    Mali: "ml",
+    Madagascar: "mg",
+    Mongolia: "mn",
+    Mexico: "mx",
+    Maldives: "mv",
+    Malawi: "mw",
+    Malaysia: "my",
+    Mauritania: "mr",
+    Myanmar: "mm",
+    Nigeria: "ng",
+    Nepal: "np",
+    Namibia: "na",
+    Pakistan: "pk",
+    Palestine: "ps",
+    Philippines: "ph",
+    Thailand: "th",
+    Indonesia: "id",
+    "United States": "us",
+    "United States of America": "us",
+    Usa: "us",
+    Africa: "za",
+    Canada: "ca",
+    Japan: "jp",
+    Singapore: "sg",
+    Senegal: "sn",
+    "Hong Kong": "hk",
+    Australia: "au",
+    "Chinese Taipei": "tw",
+    Zambia: "zm",
+    Zimbabwe: "zw",
+    Vietnam: "vn",
+  };
 
   const getCircleFlagUrl = (teamName: string, fallbackUrl?: string) => {
     // Check if teamName is valid
@@ -235,13 +244,17 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
           borderRadius: isNational ? "50%" : "50%", // Keep circular for both, but club logos will show as regular logos
           position: "relative",
           zIndex: 1,
-          filter: isNational 
+          filter: isNational
             ? "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)"
             : "none", // No filter for club logos
         }}
         onError={
-          !isNational && teamId 
-            ? createTeamLogoErrorHandler({ id: teamId, name: teamName }, false, 'football')
+          !isNational && teamId
+            ? createTeamLogoErrorHandler(
+                { id: teamId, name: teamName },
+                false,
+                "football",
+              )
             : (e) => {
                 const target = e.target as HTMLImageElement;
                 if (!target.src.includes("/assets/fallback-logo.svg")) {
