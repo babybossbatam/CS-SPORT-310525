@@ -171,14 +171,7 @@ export const CURRENT_POPULAR_LEAGUES = [
     country: "Portugal",
     popularity: 40,
   },
-  {
-    id: 140,
-    name: "La Liga",
-    logo: "https://media.api-sports.io/football/leagues/140.png",
-    country: "Spain",
-    popularity: 20,
-  },
-];
+  ];
 
 const PopularLeaguesList = () => {
   const [, navigate] = useLocation();
