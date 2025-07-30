@@ -85,7 +85,7 @@ const MyInfo: React.FC = () => {
               {/* Collapsible Content */}
               {isExpanded && (
                 <div className="space-y-4">
-                  <h3 className="font-medium text-gray-800 my-2 text-sm">
+                  <h3 className="font-medium text-gray-800 text-sm">
                     Football FAQ
                   </h3>
 
