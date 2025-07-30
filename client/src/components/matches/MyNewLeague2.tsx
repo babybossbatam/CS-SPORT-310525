@@ -15,8 +15,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
-import MyNewLeagueLogo from "../common/MyNewLeagueLogo";
 import LazyImage from "../common/LazyImage";
+import MyCircularFlag from "../common/MyCircularFlag";
 import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
@@ -888,7 +888,7 @@ const MyNewLeague2 = ({
                         <div
                           className={`match-card-container group ${
                             isHalftimeFlash ? 'halftime-flash' : ''
-                          } ${
+                          }${
                             isFulltimeFlash ? 'fulltime-flash' : ''
                           } ${
                             isGoalFlash ? 'goal-flash' : ''
@@ -1166,18 +1166,33 @@ const MyNewLeague2 = ({
                                 className="home-team-logo-container"
                                 style={{ padding: "0 0.6rem" }}
                               >
-                                <MyWorldTeamLogo
-                                  teamName={fixture.teams.home.name || ""}
-                                  teamLogo={
-                                    fixture.teams.home.id
-                                      ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
-                                      : "/assets/fallback-logo.svg"
-                                  }
-                                  alt={fixture.teams.home.name}
-                                  size="34px"
-                                  className="popular-leagues-size"
-                                  leagueContext={leagueContext}
-                                />
+                                {fixture.league.id === 10 ? (
+                                  <MyCircularFlag
+                                    teamName={fixture.teams.home.name || ""}
+                                    teamId={fixture.teams.home.id}
+                                    fallbackUrl={
+                                      fixture.teams.home.id
+                                        ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
+                                        : "/assets/fallback-logo.svg"
+                                    }
+                                    alt={fixture.teams.home.name}
+                                    size="34px"
+                                    className="popular-leagues-size"
+                                  />
+                                ) : (
+                                  <MyWorldTeamLogo
+                                    teamName={fixture.teams.home.name || ""}
+                                    teamLogo={
+                                      fixture.teams.home.id
+                                        ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
+                                        : "/assets/fallback-logo.svg"
+                                    }
+                                    alt={fixture.teams.home.name}
+                                    size="34px"
+                                    className="popular-leagues-size"
+                                    leagueContext={leagueContext}
+                                  />
+                                )}
                               </div>
 
                               {/* Score/Time Center */}
@@ -1371,18 +1386,33 @@ const MyNewLeague2 = ({
                                 className="away-team-logo-container"
                                 style={{ padding: "0 0.5rem" }}
                               >
-                                <MyWorldTeamLogo
-                                  teamName={fixture.teams.away.name || ""}
-                                  teamLogo={
-                                    fixture.teams.away.id
-                                      ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
-                                      : "/assets/fallback-logo.svg"
-                                  }
-                                  alt={fixture.teams.away.name}
-                                  size="34px"
-                                  className="popular-leagues-size"
-                                  leagueContext={leagueContext}
-                                />
+                                {fixture.league.id === 10 ? (
+                                  <MyCircularFlag
+                                    teamName={fixture.teams.away.name || ""}
+                                    teamId={fixture.teams.away.id}
+                                    fallbackUrl={
+                                      fixture.teams.away.id
+                                        ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
+                                        : "/assets/fallback-logo.svg"
+                                    }
+                                    alt={fixture.teams.away.name}
+                                    size="34px"
+                                    className="popular-leagues-size"
+                                  />
+                                ) : (
+                                  <MyWorldTeamLogo
+                                    teamName={fixture.teams.away.name || ""}
+                                    teamLogo={
+                                      fixture.teams.away.id
+                                        ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
+                                        : "/assets/fallback-logo.svg"
+                                    }
+                                    alt={fixture.teams.away.name}
+                                    size="34px"
+                                    className="popular-leagues-size"
+                                    leagueContext={leagueContext}
+                                  />
+                                )}
                               </div>
 
                               {/* Away Team Name */}
