@@ -1139,15 +1139,22 @@ const LeagueStandingsFilter = () => {
                             </TableCell>
                             <TableCell className="py-0 px-2">
                               <div className="flex items-center">
-                                <img
-                                  src={standing.team.logo}
-                                  alt={standing.team.name}
-                                  className="mr-3 h-6 w-6 rounded-md flex-shrink-0 object-contain"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).src =
-                                      "/assets/fallback-logo.svg";
-                                  }}
-                                />
+                                <div className="mr-3 flex-shrink-0">
+                                  <MyWorldTeamLogo
+                                    teamName={standing.team.name}
+                                    teamLogo={standing.team.logo}
+                                    teamId={standing.team.id}
+                                    alt={standing.team.name}
+                                    size="24px"
+                                    className="object-contain"
+                                    leagueContext={{
+                                      name: selectedLeagueName,
+                                      country: popularLeagues.find(
+                                        (l) => l && l.id && l.id.toString() === selectedLeague,
+                                      )?.country || "World",
+                                    }}
+                                  />
+                                </div>
                                 <div className="flex flex-col min-w-0 flex-1">
                                   <span className="text-xs font-medium text-gray-900 truncate hover:underline cursor-pointer">
                                     {standing.team.name}
