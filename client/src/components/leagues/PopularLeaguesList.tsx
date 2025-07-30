@@ -70,10 +70,12 @@ const PopularLeaguesList = () => {
               // Exclude Second League and Segunda División leagues
               // Exclude leagues from Finland, Iran, and Thailand
               // Exclude women's competitions
+              // Exclude qualification tournaments
               return !leagueName.includes('second league') && 
                    !leagueName.includes('segunda división') &&
                    !leagueName.includes('segunda division') &&
                    !leagueName.includes('women') &&
+                   !leagueName.includes('qualification') &&
                    !country.includes('finland') &&
                    !country.includes('iran') &&
                    !country.includes('thailand');
@@ -93,10 +95,12 @@ const PopularLeaguesList = () => {
             // Exclude Second League and Segunda División leagues
             // Exclude leagues from Finland, Iran, and Thailand
             // Exclude women's competitions
+            // Exclude qualification tournaments
             return !leagueName.includes('second league') && 
                    !leagueName.includes('segunda división') &&
                    !leagueName.includes('segunda division') &&
                    !leagueName.includes('women') &&
+                   !leagueName.includes('qualification') &&
                    !country.includes('finland') &&
                    !country.includes('iran') &&
                    !country.includes('thailand');
