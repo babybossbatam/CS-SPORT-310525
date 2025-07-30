@@ -93,6 +93,9 @@ const PopularLeaguesList = () => {
                 !leagueName.includes('u20') &&
 
                 !leagueName.includes('u21') &&
+                
+                !leagueName.includes('conmebol') &&
+                
                 !leagueName.includes('shebelieves') &&
                    !leagueName.includes('coppa italia serie') &&
                    !leagueName.includes('reserve league') &&
