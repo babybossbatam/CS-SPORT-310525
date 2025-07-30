@@ -34,10 +34,7 @@ const MyRightContent: React.FC = () => {
         <PopularLeaguesList />
         <MyAllLeague />
         <PopularTeamsList />
-        <div className="w-full shadow-md bg-white">
-          
-         
-        </div>  
+  
        
       </div>
       
