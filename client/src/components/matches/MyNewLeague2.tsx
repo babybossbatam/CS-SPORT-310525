@@ -284,6 +284,87 @@ const MyNewLeague2 = ({
   const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
   const [previousMatchScores, setPreviousMatchScores] = useState<Map<number, {home: number, away: number}>>(new Map());
 
+  // Effect to handle match status changes and flash effects
+  useEffect(() => {
+    if (!fixturesByLeague) return;
+
+    const currentStatuses = new Map<number, string>();
+    const flashUpdates: {
+      kickoff: Set<number>;
+      halftime: Set<number>;
+      fulltime: Set<number>;
+      goal: Set<number>;
+    } = {
+      kickoff: new Set(),
+      halftime: new Set(),
+      fulltime: new Set(),
+      goal: new Set()
+    };
+
+    // Collect all current match statuses
+    Object.values(fixturesByLeague).forEach(({ fixtures }) => {
+      fixtures.forEach((fixture: FixtureData) => {
+        const matchId = fixture.fixture.id;
+        const status = fixture.fixture.status.short;
+        currentStatuses.set(matchId, status);
+
+        // Check for status changes
+        const previousStatus = previousMatchStatuses.get(matchId);
+        if (previousStatus && previousStatus !== status) {
+          // Kickoff detection
+          if (status === "1H" && previousStatus === "NS") {
+            flashUpdates.kickoff.add(matchId);
+          }
+          // Halftime detection
+          if (status === "HT" && previousStatus === "1H") {
+            flashUpdates.halftime.add(matchId);
+          }
+          // Fulltime detection
+          if (status === "FT" && (previousStatus === "2H" || previousStatus === "1H")) {
+            flashUpdates.fulltime.add(matchId);
+          }
+        }
+      });
+    });
+
+    // Update previous statuses
+    setPreviousMatchStatuses(currentStatuses);
+
+    // Apply flash effects
+    if (flashUpdates.kickoff.size > 0) {
+      setKickoffFlashMatches(prev => new Set([...prev, ...flashUpdates.kickoff]));
+      setTimeout(() => {
+        setKickoffFlashMatches(prev => {
+          const newSet = new Set(prev);
+          flashUpdates.kickoff.forEach(id => newSet.delete(id));
+          return newSet;
+        });
+      }, 3000);
+    }
+
+    if (flashUpdates.halftime.size > 0) {
+      setHalftimeFlashMatches(prev => new Set([...prev, ...flashUpdates.halftime]));
+      setTimeout(() => {
+        setHalftimeFlashMatches(prev => {
+          const newSet = new Set(prev);
+          flashUpdates.halftime.forEach(id => newSet.delete(id));
+          return newSet;
+        });
+      }, 2000);
+    }
+
+    if (flashUpdates.fulltime.size > 0) {
+      setFulltimeFlashMatches(prev => new Set([...prev, ...flashUpdates.fulltime]));
+      setTimeout(() => {
+        setFulltimeFlashMatches(prev => {
+          const newSet = new Set(prev);
+          flashUpdates.fulltime.forEach(id => newSet.delete(id));
+          return newSet;
+        });
+      }, 2000);
+    }
+  }, [fixturesByLeague, previousMatchStatuses]);
+
   // Group fixtures by league with date filtering
   const fixturesByLeague = useMemo(() => {
     console.log(
@@ -899,32 +980,6 @@ const MyNewLeague2 = ({
                               {(() => {
                                 const status = fixture.fixture.status.short;
                                 const elapsed = fixture.fixture.status.elapsed;
-                                const isKickoff = status === "1H" && previousMatchStatuses.get(matchId) === "NS";
-
-                                // Update previous status after checking for kickoff
-                                useEffect(() => {
-                                  setPreviousMatchStatuses(prev => new Map(prev).set(matchId, status));
-                                }, [status, matchId]);
-
-                                // Trigger kickoff flash effect if applicable
-                                useEffect(() => {
-                                  if (isKickoff) {
-                                    setKickoffFlashMatches(prev => {
-                                      const newSet = new Set(prev);
-                                      newSet.add(matchId);
-                                      return newSet;
-                                    });
-
-                                    // Remove the flash after a short delay
-                                    setTimeout(() => {
-                                      setKickoffFlashMatches(prev => {
-                                        const newSet = new Set(prev);
-                                        newSet.delete(matchId);
-                                        return newSet;
-                                      });
-                                    }, 3000); // Flash for 3 seconds
-                                  }
-                                }, [isKickoff, matchId]);
 
                                 // Check if match finished more than 4 hours ago
                                 const matchDateTime = new Date(
