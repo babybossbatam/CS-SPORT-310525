@@ -10,7 +10,7 @@ const MyInfo: React.FC = () => {
   };
 
   return (
-    <Card className="-px-1">
+    <Card className="">
       <CardHeader>
         <CardTitle className="text-sm font-semibold -mb-2 -mt-2 ">
           Football at CS SPORT
@@ -75,7 +75,7 @@ const MyInfo: React.FC = () => {
               {!isExpanded && (
                 <button
                   onClick={toggleExpanded}
-                  className="w-full flex items-center justify-center  py-2 -mb-6 border-t border-b border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                  className="w-full flex items-center justify-center  py-2  border-t border-b border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                 >
                   <span>Football Info</span>
                   <ChevronDown size={18} />
