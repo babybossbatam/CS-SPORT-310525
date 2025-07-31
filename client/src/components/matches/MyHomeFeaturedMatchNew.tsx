@@ -156,6 +156,8 @@ interface FeaturedMatch {
       short: string;
       long: string;
       elapsed?: number;
+     season: number;
+      rounds: string;
     };
     venue?: {
       id?: number;
@@ -1729,10 +1731,10 @@ id: fixture.teams.away.id,
                     <RoundBadge 
                       leagueId={currentMatch.league.id}
                       currentRound={
-                        currentMatch.fixture?.round ||
+                        currentMatch.fixture?.rounds ||
                         currentMatch.league?.round ||
-                        currentMatch.fixture?.status?.round ||
-                        currentMatch.league?.season?.round ||
+                        currentMatch.fixture?.status?.rounds ||
+                        currentMatch.league?.seasons.round ||
                         currentMatch.round ||
                         currentMatch.fixture?.status?.long ||
                         currentMatch.league?.season?.current
@@ -1742,18 +1744,8 @@ id: fixture.teams.away.id,
                     />
 
                     {/* Live Status Badge */}
-                    {getStatusDisplay(currentMatch).isLive && (
-                      <div className="flex items-center gap-1.5 ml-2">
-                        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                        <Badge
-                          variant="outline"
-                          className="text-[10px] px-1.5 py-0 border border-red-500 text-red-500 animate-pulse bg-red-50"
-                        >
-                          LIVE
-                        </Badge>
-                      </div>
-                    )}
-                  </div>
+                    
+                     
 
 
                   {/* Match day indicator */}
