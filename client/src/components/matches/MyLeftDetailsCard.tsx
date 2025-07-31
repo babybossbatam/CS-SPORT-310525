@@ -11,7 +11,7 @@ import { apiRequest } from "@/lib/queryClient";
 import LiveMatchForAllCountry from "./LiveMatchForAllCountry";
 import LiveMatchByTime from "./LiveMatchByTime";
 import TodayMatchByTime from "./TodayMatchByTime";
-import MyNewLeague2 from "./MyNewLeague2";
+import MyDetailsFixture from "./MyDetailsFixture";
 import EnhancementLeague from "./EnhancementLeague";
 import { useCachedQuery } from "@/lib/cachingHelper";
 
@@ -403,13 +403,9 @@ export const MyLeftDetailsCard = ({
       ) : (
         // Neither filter active - show default view
         <>
-          <MyNewLeague2
+          <MyDetailsFixture
             selectedDate={selectedDate}
-            timeFilterActive={false}
-            showTop10={false}
-            liveFilterActive={liveFilterActive}
             onMatchCardClick={handleMatchCardClick}
-            useUTCOnly={true}
           />
 
         </>
