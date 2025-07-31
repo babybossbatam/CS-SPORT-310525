@@ -405,7 +405,9 @@ export const MyLeftDetailsCard = ({
       
         // Neither filter active - show default view
         <>
-          <span className="mt-4">Today's Matches</span>
+          <div className="flex justify-center items-center mt-4 mb-2">
+            <span className="text-lg font-semibold text-gray-800">Today's Matches</span>
+          </div>
           <MyDetailsFixture
             selectedDate={selectedDate}
             onMatchCardClick={handleMatchCardClick}
