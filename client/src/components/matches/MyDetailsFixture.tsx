@@ -947,7 +947,7 @@ const MyDetailsFixture = ({
                           } ${
                             isFinishFlash ? 'finish-flash' : ''
                           } ${
-                            selectedMatchId === matchId ? 'bg-gray-300' : ''
+                            selectedMatchId === matchId ? 'bg-gray-50 hover:bg-gray-50' : ''
                           }`}
                           data-fixture-id={matchId}
                           onClick={() => handleMatchClick(fixture)}
