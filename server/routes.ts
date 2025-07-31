@@ -38,7 +38,7 @@ import predictionsRoutes from './routes/predictionsRoutes';
 import basketballRoutes from "./routes/basketballRoutes";
 import basketballStandingsRoutes from "./routes/basketballStandingsRoutes";
 import playerVerificationRoutes from './routes/playerVerificationRoutes';
-import { RapidAPI } from './utils/rapidApi'; // corrected rapidApi import
+import { rapidApiService } from './services/rapidApi'; // corrected rapidApi import
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
