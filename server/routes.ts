@@ -868,20 +868,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid league ID" });
       }
 
-      console.log(`🔍 [API] Fetching detailed league information for league ${leagueId}`);
+      console.log(`[API] Fetching detailed league information for league ${leagueId}`);
 
       // Use RapidAPI to get league information
       const leagueData = await rapidApiService.getLeagueById(leagueId);
 
       if (leagueData) {
-        console.log(`✅ [API] Successfully retrieved league ${leagueId} information`);
+        console.log(`[API] Successfully retrieved league ${leagueId} information`);
         res.json(leagueData);
       } else {
-        console.log(`❌ [API] No league data found for ID ${leagueId}`);
+        console.log(`[API] No league data found for ID ${leagueId}`);
         res.status(404).json({ message: "League not found" });
       }
     } catch (error) {
-      console.error(`❌ [API] Error fetching league ${req.params.id}:`, error);
+      console.error(`[API] Error fetching league ${req.params.id}:`, error);
       res.status(500).json({ 
         error: "Failed to fetch league information",
         details: error instanceof Error ? error.message : "Unknown error"
