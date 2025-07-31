@@ -151,6 +151,8 @@ const MyNewLeague2 = ({
   const [expandedLeagues, setExpandedLeagues] = useState<Set<string>>(
     new Set(),
   );
+  const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
+  const [hoveredMatchId, setHoveredMatchId] = useState<number | null>(null);
 
   // League IDs without any filtering - removed duplicates
   const leagueIds = [
@@ -522,6 +524,9 @@ const MyNewLeague2 = ({
       status: fixture.fixture?.status?.short,
       source: "MyNewLeague2",
     });
+
+    // Set this match as selected
+    setSelectedMatchId(fixture.fixture?.id);
 
     // Call the callback to pass match data to parent component first (like MyNewLeague does)
     if (onMatchCardClick) {
@@ -943,9 +948,15 @@ const MyNewLeague2 = ({
                             isKickoffFlash ? 'kickoff-flash' : ''
                           } ${
                             isFinishFlash ? 'finish-flash' : ''
+                          } ${
+                            selectedMatchId === matchId ? 'selected-match' : ''
+                          } ${
+                            hoveredMatchId === matchId ? 'hovered-match' : ''
                           }`}
                           data-fixture-id={matchId}
                           onClick={() => handleMatchClick(fixture)}
+                          onMouseEnter={() => setHoveredMatchId(matchId)}
+                          onMouseLeave={() => setHoveredMatchId(null)}
                           style={{
                             cursor: "pointer",
                           }}
