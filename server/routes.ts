@@ -813,7 +813,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               code: "GB",
               flag: "https://media.api-sports.io/flags/gb.svg",
             },
-          },
+          },```text
           {
             league: {
               id: 78,
@@ -2655,6 +2655,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const leagues = await soccersApi.getLeagues();
       res.json({
         success: true,
+```text
         data: leagues,
         count: leagues.length,
       });
@@ -3334,6 +3335,36 @@ error) {
   app.use('/api', basketballRoutes);
   app.use('/api/basketball/standings', basketballStandingsRoutes);
 
+// All leagues endpoint
+app.get("/api/leagues/all", async (req, res) => {
+  try {
+    console.log("📋 [routes] Getting all leagues");
+
+    // Return a comprehensive list of popular leagues
+    const allLeagues = [
+      { id: 39, name: "Premier League", country: "England", logo: "https://media.api-sports.io/football/leagues/39.png" },
+      { id: 140, name: "La Liga", country: "Spain", logo: "https://media.api-sports.io/football/leagues/140.png" },
+      { id: 135, name: "Serie A", country: "Italy", logo: "https://media.api-sports.io/football/leagues/135.png" },
+      { id: 78, name: "Bundesliga", country: "Germany", logo: "https://media.api-sports.io/football/leagues/78.png" },
+      { id: 61, name: "Ligue 1", country: "France", logo: "https://media.api-sports.io/football/leagues/61.png" },
+      { id: 2, name: "UEFA Champions League", country: "Europe", logo: "https://media.api-sports.io/football/leagues/2.png" },
+      { id: 3, name: "UEFA Europa League", country: "Europe", logo: "https://media.api-sports.io/football/leagues/3.png" },
+      { id: 5, name: "UEFA Nations League", country: "Europe", logo: "https://media.api-sports.io/football/leagues/5.png" },
+      { id: 1, name: "World Cup", country: "World", logo: "https://media.api-sports.io/football/leagues/1.png" },
+      { id: 4, name: "Euro Championship", country: "World", logo: "https://media.api-sports.io/football/leagues/4.png" },
+      { id: 15, name: "FIFA Club World Cup", country: "World", logo: "https://media.api-sports.io/football/leagues/15.png" },
+      { id: 667, name: "Friendlies Clubs", country: "World", logo: "https://media.api-sports.io/football/leagues/667.png" }
+    ];
+
+    res.json(allLeagues);
+  } catch (error) {
+    console.error("❌ [routes] Error getting all leagues:", error);
+    res.status(500).json({ message: "Failed to fetch leagues" });
+  }
+});
+
+// Popular leagues endpoint
+app.get("/api/leagues/popular", async (req, res) => {
 // Test route for debugging
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is running!' });

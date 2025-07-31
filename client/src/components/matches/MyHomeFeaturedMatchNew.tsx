@@ -22,9 +22,9 @@ import {
   getEnhancedHomeTeamGradient,
 } from "@/lib/colorExtractor";
 import { motion, AnimatePresence } from "framer-motion";
-import { fixtureCache } from "@/lib/fixtureCache";
 
 import { RoundBadge } from "@/components/ui/round-badge";
+import { fixtureCache } from "@/lib/fixtureCache";
 
 // Import popular teams data from the same source as PopularTeamsList
 const POPULAR_TEAMS_DATA = [
