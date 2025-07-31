@@ -44,7 +44,7 @@ const MyDetailsLayout: React.FC<MyDetailsLayoutProps> = ({ currentFixture }) => 
       )}
 
       {/* Add MyDetailsTabCard component */}
-      <MyDetailsTabCard fixtures={[]} />
+      <MyDetailsTabCard fixtures={[currentFixture]} />
     </>
   );
 };
