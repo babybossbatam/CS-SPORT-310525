@@ -336,17 +336,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const leagueId = parseInt(league as string);
       const seasonYear = season ? parseInt(season as string) : 2025;
 
-      console.log(`📋 [Rounds API] Fetching rounds for league ${leagueId}, season ${seasonYear}`);
+      console.log(`[Routes API] Fetching rounds for league ${leagueId}, season ${seasonYear}`);
 
       // Use RapidAPI to get rounds
       const rounds = await rapidApiService.getFixtureRounds(leagueId, seasonYear);
 
       if (!rounds || rounds.length === 0) {
-        console.log(`📋 [Rounds API] No rounds found for league ${leagueId}`);
+        console.log(`[Routes API] No rounds found for league ${leagueId}`);
         return res.json([]);
       }
 
-      console.log(`📋 [Rounds API] Found ${rounds.length} rounds for league ${leagueId}`);
+      console.log(`[Routes API] Found ${rounds.length} rounds for league ${leagueId}`);
       res.json(rounds);
 
     } catch (error) {
@@ -677,7 +677,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { id: 889, priority: 9.6 }, // AFC U19 Championship
         { id: 890, priority: 9.7 }, // AFC U16 Championship
         { id: 891, priority: 9.8 }, // CAF U20 Cup of Nations
-        { id: 892, priority: 9.9 }, // CAF U17 Cup of Nations
+        { id: id: 892, priority: 9.9 }, // CAF U17 Cup of Nations
         { id: 893, priority: 10.0 }, // CONCACAF U17 Championship
         { id: 894, priority: 10.1 }, // OFC U17 Championship
         { id: 895, priority: 10.2 }, // FIFA Beach Soccer World Cup
@@ -817,6 +817,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           {
             league: {
               id: 78,
+```text
               name: "Bundesliga",
               type: "League",
               logo: "https://media.api-sports.io/football/leagues/78.png",
@@ -1712,8 +1713,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const logoUrls = [
           `https://www.365scores.com/images/leagues/${leagueId}.png`,
           `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`,
-          `https://365scores.com/images/competitions/${leagueId}.png`,
-          `https://static.365scores.com/images/leagues/${leagueId}.png`,
+          `https://365scores.com/images/competitions/${leagueId}.png`,`https://static.365scores.com/images/leagues/${leagueId}.png`,
         ];
 
         for (const logoUrl of logoUrls) {
@@ -2652,9 +2652,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/soccersapi/leagues", async (req: Request, res: Response) => {
     try {
       console.log("🏈 [SoccersAPI] Fetching leagues");
-      const leagues = await soccersApi.getLeagues();
-      ```text
-res.json({
+      const leagues = await soccersApi.getLeagues();```text
+      res.json({
         success: true,
         data: leagues,
         count: leagues.length,
@@ -2693,7 +2692,7 @@ res.json({
     async (req: Request, res: Response) => {
       try {
         const { id } = req.params;
-        console.log(`📋 [SoccersAPI] Fetching match details for: ${id}`);
+        console.log(`[SoccersAPI] Fetching match details for: ${id}`);
 
         const matchDetails = await soccersApi.getMatchDetails(id);
 
