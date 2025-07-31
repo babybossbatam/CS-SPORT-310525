@@ -65,21 +65,7 @@ const MyDetailsRightScoreboard = ({
   onTabChange,
 }: MyDetailsRightScoreboardProps) => {
 
-  // Extract team data for passing to child components like MyHighlights
-  const getTeamData = () => {
-    return {
-      homeTeamData: {
-        id: displayMatch.teams.home.id,
-        name: displayMatch.teams.home.name,
-        logo: displayMatch.teams.home.logo
-      },
-      awayTeamData: {
-        id: displayMatch.teams.away.id,
-        name: displayMatch.teams.away.name,
-        logo: displayMatch.teams.away.logo
-      }
-    };
-  };
+  // All hooks must be called before any conditional returns
   const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
   const [liveScores, setLiveScores] = useState<{home: number | null, away: number | null} | null>(null);
   const [liveStatus, setLiveStatus] = useState<string | null>(null);
@@ -93,20 +79,6 @@ const MyDetailsRightScoreboard = ({
       onTabChange(tab);
     } else {
       setInternalActiveTab(tab);
-    }
-  };
-
-  const handleMatchCardClick = () => {
-    console.log("🎯 [MyDetailsRightScoreboard] Match card clicked:", {
-      fixtureId: displayMatch?.fixture?.id,
-      teams: `${displayMatch?.teams?.home?.name} vs ${displayMatch?.teams?.away?.name}`,
-      league: displayMatch?.league?.name,
-      status: displayMatch?.fixture?.status?.short,
-      source: "MyDetailsRightScoreboard",
-    });
-
-    if (onMatchCardClick) {
-      onMatchCardClick(displayMatch);
     }
   };
 
@@ -133,7 +105,40 @@ const MyDetailsRightScoreboard = ({
   // Use the passed match, defaultMatch, or featured match - no sample fallback
   const displayMatch = match || defaultMatch || featuredMatch;
 
-  // Early return if no match data is available
+  // Extract team data for passing to child components like MyHighlights
+  const getTeamData = () => {
+    if (!displayMatch) return null;
+    return {
+      homeTeamData: {
+        id: displayMatch.teams.home.id,
+        name: displayMatch.teams.home.name,
+        logo: displayMatch.teams.home.logo
+      },
+      awayTeamData: {
+        id: displayMatch.teams.away.id,
+        name: displayMatch.teams.away.name,
+        logo: displayMatch.teams.away.logo
+      }
+    };
+  };
+
+  const handleMatchCardClick = () => {
+    if (!displayMatch) return;
+    
+    console.log("🎯 [MyDetailsRightScoreboard] Match card clicked:", {
+      fixtureId: displayMatch?.fixture?.id,
+      teams: `${displayMatch?.teams?.home?.name} vs ${displayMatch?.teams?.away?.name}`,
+      league: displayMatch?.league?.name,
+      status: displayMatch?.fixture?.status?.short,
+      source: "MyDetailsRightScoreboard",
+    });
+
+    if (onMatchCardClick) {
+      onMatchCardClick(displayMatch);
+    }
+  };
+
+  // Early return if no match data is available - AFTER all hooks
   if (!displayMatch) {
     console.warn("🎯 [MyDetailsRightScoreboard] No match data available");
     return null;
