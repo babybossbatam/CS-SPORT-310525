@@ -29,17 +29,17 @@ import {
 
 
 
-interface MyLeftBasketProps {
+interface TodayMatchPageCardProps {
   fixtures: any[];
   onMatchClick: (matchId: number) => void;
   onMatchCardClick?: (fixture: any) => void;
 }
 
-export const MyLeftBasket = ({
+export const TodayMatchPageCard = ({
   fixtures,
   onMatchClick,
   onMatchCardClick,
-}: MyLeftBasketProps) => {
+}: TodayMatchPageCardProps) => {
   const [timeFilterActive, setTimeFilterActive] = useState(false);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -427,4 +427,4 @@ export const MyLeftBasket = ({
   );
 };
 
-export default MyLeftBasket;
+export default TodayMatchPageCard;
