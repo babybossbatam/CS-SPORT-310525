@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import ScoreDetailsCard from '@/components/matches/ScoreDetailsCard';
+import MyDetailsRightScoreboard from "@/components/matches/MyDetailsRightScoreboard";
 import MyMatchTabCard from '@/components/matches/MyMatchTabCard';
 import MyStatsTabCard from '@/components/matches/MyStatsTabCard';
 import MyLineupsTabsCard from '@/components/matches/MyLineupsTabsCard';
@@ -26,7 +25,7 @@ const MyDetailsRightCard: React.FC<MyDetailsRightCardProps> = ({ selectedFixture
 
   return (
     <>
-      <ScoreDetailsCard
+      <MyDetailsRightScoreboard
         currentFixture={selectedFixture}
         onClose={onClose}
         activeTab={activeTab}
@@ -37,8 +36,8 @@ const MyDetailsRightCard: React.FC<MyDetailsRightCardProps> = ({ selectedFixture
       {activeTab === "match" && (
         <>
           <MyMatchTabCard match={selectedFixture} onTabChange={setActiveTab} />
-          
-         
+
+
         </>
       )}
 
