@@ -8,7 +8,6 @@ import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
 
-import TodaysMatchesByCountryNew from "./TodaysMatchesByCountryNew";
 import LiveMatchForAllCountry from "./LiveMatchForAllCountry";
 import LiveMatchByTime from "./LiveMatchByTime";
 import TodayMatchByTime from "./TodayMatchByTime";
@@ -411,13 +410,6 @@ export const MyLeftDetailsCard = ({
             liveFilterActive={liveFilterActive}
             onMatchCardClick={handleMatchCardClick}
             useUTCOnly={true}
-          />
-          
-          <TodaysMatchesByCountryNew
-            selectedDate={selectedDate}
-            liveFilterActive={liveFilterActive}
-            timeFilterActive={timeFilterActive}
-            onMatchCardClick={onMatchCardClick}
           />
 
         </>
