@@ -312,12 +312,16 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     const allCountriesData = Object.values(leaguesByCountry);
 
     return allCountriesData.sort((a: any, b: any) => {
-      // Ensure we're working with strings
-      const countryA = typeof a.country === "string" ? a.country : (a.country?.name || "");
-      const countryB = typeof b.country === "string" ? b.country : (b.country?.name || "");
+      // Ensure we're working with strings for all comparisons
+      const countryA = typeof a.country === "string" ? a.country : (a.country?.name || "Unknown");
+      const countryB = typeof b.country === "string" ? b.country : (b.country?.name || "Unknown");
 
-      const aIsWorld = countryA.toLowerCase() === "world";
-      const bIsWorld = countryB.toLowerCase() === "world";
+      // Safely convert to lowercase for comparison
+      const aLower = String(countryA).toLowerCase();
+      const bLower = String(countryB).toLowerCase();
+
+      const aIsWorld = aLower === "world";
+      const bIsWorld = bLower === "world";
 
       if (aIsWorld && !bIsWorld) return -1;
       if (bIsWorld && !aIsWorld) return 1;
