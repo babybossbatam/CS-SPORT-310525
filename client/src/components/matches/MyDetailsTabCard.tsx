@@ -12,12 +12,14 @@ import { Card, CardContent } from "@/components/ui/card";
 
 interface MyDetailsTabCardProps {
   fixtures: any[];
+  featuredMatchId?: number;
   onFeaturedMatchSelect?: (matchId: number) => void;
   children?: React.ReactNode;
 }
 
 const MyDetailsTabCard: React.FC<MyDetailsTabCardProps> = ({
   fixtures,
+  featuredMatchId,
   loading = false,
   children,
   onFeaturedMatchSelect,
@@ -133,6 +135,7 @@ const MyDetailsTabCard: React.FC<MyDetailsTabCardProps> = ({
             <div>
               <MyLeftDetailsCard
                 fixtures={filteredFixtures}
+                featuredMatchId={featuredMatchId}
                 onMatchClick={handleMatchClick}
                 onMatchCardClick={handleMatchCardClick}
               />

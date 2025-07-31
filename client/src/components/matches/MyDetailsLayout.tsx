@@ -33,6 +33,9 @@ const MyDetailsLayout: React.FC<MyDetailsLayoutProps> = ({ currentFixture }) => 
     fixtureStatus: currentFixture?.fixture?.status
   });
 
+  // Use currentFixture ID as the featured match ID to highlight it
+  const featuredMatchId = currentFixture?.fixture?.id;
+
   return (
     <>
       {/* Show MyLiveAction for live matches */}
@@ -45,9 +48,10 @@ const MyDetailsLayout: React.FC<MyDetailsLayoutProps> = ({ currentFixture }) => 
         />
       )}
 
-      {/* Add MyDetailsTabCard component */}
+      {/* Add MyDetailsTabCard component with featured match ID */}
       <MyDetailsTabCard 
         fixtures={[currentFixture]} 
+        featuredMatchId={featuredMatchId}
         onFeaturedMatchSelect={(selector) => setFeaturedMatchSelector(() => selector)}
       />
     </>

@@ -60,7 +60,7 @@ const MatchDetails = () => {
     (state: RootState) => state.fixtures,
   );
 
-  const [activeTab, setActiveTab] = useState(tab || "details");
+  const [activeTab, setActiveTab] = useState("details");
 
   // Sample match events data for the interactive timeline
   const [matchEvents, setMatchEvents] = useState<MatchEvent[]>([

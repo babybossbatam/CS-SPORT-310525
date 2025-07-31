@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Clock } from "lucide-react";
 import { Card, CardHeader, CardContent } from "../ui/card";
@@ -30,12 +29,14 @@ import {
 
 interface MyLeftDetailsCardProps {
   fixtures: any[];
-  onMatchClick: (matchId: number) => void;
+  featuredMatchId?: number;
+  onMatchClick?: (matchId: number) => void;
   onMatchCardClick?: (fixture: any) => void;
 }
 
 export const MyLeftDetailsCard = ({
   fixtures,
+  featuredMatchId,
   onMatchClick,
   onMatchCardClick,
 }: MyLeftDetailsCardProps) => {
@@ -400,9 +401,9 @@ export const MyLeftDetailsCard = ({
           timeFilterActive={timeFilterActive}
           liveFilterActive={liveFilterActive}
         />
-      
+
       ) : (
-      
+
         // Neither filter active - show default view
         <>
           <div className="flex justify-start items-center mt-2 -mb-2 ml-4 ">
@@ -410,7 +411,8 @@ export const MyLeftDetailsCard = ({
           </div>
           <MyDetailsFixture
             selectedDate={selectedDate}
-            onMatchCardClick={handleMatchCardClick}
+            selectedMatchId={featuredMatchId}
+            onMatchCardClick={onMatchCardClick}
           />
 
         </>
