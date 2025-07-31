@@ -38,7 +38,7 @@ import predictionsRoutes from './routes/predictionsRoutes';
 import basketballRoutes from "./routes/basketballRoutes";
 import basketballStandingsRoutes from "./routes/basketballStandingsRoutes";
 import playerVerificationRoutes from './routes/playerVerificationRoutes';
-import { rapidApiService } from './services/rapidApi'; // corrected rapidApi import
+import { RapidAPI } from './utils/rapidApi'; // corrected rapidApi import
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -336,17 +336,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const leagueId = parseInt(league as string);
       const seasonYear = season ? parseInt(season as string) : 2025;
 
-      console.log(`[Routes API] Fetching rounds for league ${leagueId}, season ${seasonYear}`);
+      console.log(`📋 [Rounds API] Fetching rounds for league ${leagueId}, season ${seasonYear}`);
 
       // Use RapidAPI to get rounds
       const rounds = await rapidApiService.getFixtureRounds(leagueId, seasonYear);
 
       if (!rounds || rounds.length === 0) {
-        console.log(`[Routes API] No rounds found for league ${leagueId}`);
+        console.log(`📋 [Rounds API] No rounds found for league ${leagueId}`);
         return res.json([]);
       }
 
-      console.log(`[Routes API] Found ${rounds.length} rounds for league ${leagueId}`);
+      console.log(`📋 [Rounds API] Found ${rounds.length} rounds for league ${leagueId}`);
       res.json(rounds);
 
     } catch (error) {
@@ -868,20 +868,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid league ID" });
       }
 
-      console.log(`[API] Fetching detailed league information for league ${leagueId}`);
+      console.log(`🔍 [API] Fetching detailed league information for league ${leagueId}`);
 
       // Use RapidAPI to get league information
       const leagueData = await rapidApiService.getLeagueById(leagueId);
 
       if (leagueData) {
-        console.log(`[API] Successfully retrieved league ${leagueId} information`);
+        console.log(`✅ [API] Successfully retrieved league ${leagueId} information`);
         res.json(leagueData);
       } else {
-        console.log(`[API] No league data found for ID ${leagueId}`);
+        console.log(`❌ [API] No league data found for ID ${leagueId}`);
         res.status(404).json({ message: "League not found" });
       }
     } catch (error) {
-      console.error(`[API] Error fetching league ${req.params.id}:`, error);
+      console.error(`❌ [API] Error fetching league ${req.params.id}:`, error);
       res.status(500).json({ 
         error: "Failed to fetch league information",
         details: error instanceof Error ? error.message : "Unknown error"
@@ -2653,9 +2653,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("🏈 [SoccersAPI] Fetching leagues");
       const leagues = await soccersApi.getLeagues();
-      res.json({
+      ```text
+res.json({
         success: true,
-data: leagues,
+        data: leagues,
         count: leagues.length,
       });
     } catch (error) {
@@ -2692,7 +2693,7 @@ data: leagues,
     async (req: Request, res: Response) => {
       try {
         const { id } = req.params;
-        console.log(`[SoccersAPI] Fetching match details for: ${id}`);
+        console.log(`📋 [SoccersAPI] Fetching match details for: ${id}`);
 
         const matchDetails = await soccersApi.getMatchDetails(id);
 
@@ -2707,7 +2708,8 @@ data: leagues,
             error: "Match not found",
           });
         }
-      } catch (error) {
+      } catch (
+error) {
         console.error("❌ [SoccersAPI] Error fetching match details:", error);
         res.status(500).json({
           success: false,
@@ -3332,62 +3334,6 @@ data: leagues,
   app.use('/api', predictionsRoutes);
   app.use('/api', basketballRoutes);
   app.use('/api/basketball/standings', basketballStandingsRoutes);
-
-// All leagues endpoint
-app.get("/api/leagues/all", async (req, res) => {
-  try {
-    console.log("📋 [routes] Getting all leagues");
-
-    // Return a comprehensive list of popular leagues
-    const allLeagues = [
-      { id: 39, name: "Premier League", country: "England", logo: "https://media.api-sports.io/football/leagues/39.png" },
-      { id: 140, name: "La Liga", country: "Spain", logo: "https://media.api-sports.io/football/leagues/140.png" },
-      { id: 135, name: "Serie A", country: "Italy", logo: "https://media.api-sports.io/football/leagues/135.png" },
-      { id: 78, name: "Bundesliga", country: "Germany", logo: "https://media.api-sports.io/football/leagues/78.png" },
-      { id: 61, name: "Ligue 1", country: "France", logo: "https://media.api-sports.io/football/leagues/61.png" },
-      { id: 2, name: "UEFA Champions League", country: "Europe", logo: "https://media.api-sports.io/football/leagues/2.png" },
-      { id: 3, name: "UEFA Europa League", country: "Europe", logo: "https://media.api-sports.io/football/leagues/3.png" },
-      { id: 5, name: "UEFA Nations League", country: "Europe", logo: "https://media.api-sports.io/football/leagues/5.png" },
-      { id: 1, name: "World Cup", country: "World", logo: "https://media.api-sports.io/football/leagues/1.png" },
-      { id: 4, name: "Euro Championship", country: "World", logo: "https://media.api-sports.io/football/leagues/4.png" },
-      { id: 15, name: "FIFA Club World Cup", country: "World", logo: "https://media.api-sports.io/football/leagues/15.png" },
-      { id: 667, name: "Friendlies Clubs", country: "World", logo: "https://media.api-sports.io/football/leagues/667.png" }
-    ];
-
-    res.json(allLeagues);
-  } catch (error) {
-    console.error("❌ [routes] Error getting all leagues:", error);
-    res.status(500).json({ message: "Failed to fetch leagues" });
-  }
-});
-
-// Popular leagues endpoint
-app.get("/api/leagues/popular", async (req, res) => {
-  try {
-    console.log("📋 [routes] Getting popular leagues");
-
-    // Return a comprehensive list of popular leagues
-    const popularLeagues = [
-      { id: 39, name: "Premier League", country: "England", logo: "https://media.api-sports.io/football/leagues/39.png" },
-      { id: 140, name: "La Liga", country: "Spain", logo: "https://media.api-sports.io/football/leagues/140.png" },
-      { id: 135, name: "Serie A", country: "Italy", logo: "https://media.api-sports.io/football/leagues/135.png" },
-      { id: 78, name: "Bundesliga", country: "Germany", logo: "https://media.api-sports.io/football/leagues/78.png" },
-      { id: 61, name: "Ligue 1", country: "France", logo: "https://media.api-sports.io/football/leagues/61.png" },
-      { id: 2, name: "UEFA Champions League", country: "Europe", logo: "https://media.api-sports.io/football/leagues/2.png" },
-      { id: 3, name: "UEFA Europa League", country: "Europe", logo: "https://media.api-sports.io/football/leagues/3.png" },
-      { id: 5, name: "UEFA Nations League", country: "Europe", logo: "https://media.api-sports.io/football/leagues/5.png" },
-      { id: 1, name: "World Cup", country: "World", logo: "https://media.api-sports.io/football/leagues/1.png" },
-      { id: 4, name: "Euro Championship", country: "World", logo: "https://media.api-sports.io/football/leagues/4.png" },
-      { id: 15, name: "FIFA Club World Cup", country: "World", logo: "https://media.api-sports.io/football/leagues/15.png" },
-      { id: 667, name: "Friendlies Clubs", country: "World", logo: "https://media.api-sports.io/football/leagues/667.png" }
-    ];
-
-    res.json(popularLeagues);
-  } catch (error) {
-    console.error("❌ [routes] Error getting popular leagues:", error);
-    res.status(500).json({ message: "Failed to fetch leagues" });
-  }
-});
 
 // Test route for debugging
 app.get('/api/test', (req, res) => {

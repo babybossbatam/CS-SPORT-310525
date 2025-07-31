@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo, useCallback, memo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, Calendar, MapPin, Users, Star, X } from "lucide-react";
@@ -48,7 +49,6 @@ const pulseStyles = `
 
 interface MyDetailsRightScoreboardProps {
   match?: any;
-  defaultMatch?: any;
   className?: string;
   onClose?: () => void;
   onMatchCardClick?: (match: any) => void;
@@ -58,7 +58,6 @@ interface MyDetailsRightScoreboardProps {
 
 const MyDetailsRightScoreboard = ({
   match,
-  defaultMatch,
   className = "",
   onClose,
   onMatchCardClick,
@@ -66,7 +65,21 @@ const MyDetailsRightScoreboard = ({
   onTabChange,
 }: MyDetailsRightScoreboardProps) => {
 
-  // All hooks must be called before any conditional returns
+  // Extract team data for passing to child components like MyHighlights
+  const getTeamData = () => {
+    return {
+      homeTeamData: {
+        id: displayMatch.teams.home.id,
+        name: displayMatch.teams.home.name,
+        logo: displayMatch.teams.home.logo
+      },
+      awayTeamData: {
+        id: displayMatch.teams.away.id,
+        name: displayMatch.teams.away.name,
+        logo: displayMatch.teams.away.logo
+      }
+    };
+  };
   const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
   const [liveScores, setLiveScores] = useState<{home: number | null, away: number | null} | null>(null);
   const [liveStatus, setLiveStatus] = useState<string | null>(null);
@@ -74,43 +87,26 @@ const MyDetailsRightScoreboard = ({
   const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
   const activeTab = externalActiveTab || internalActiveTab;
   const [featuredMatches, setFeaturedMatches] = useState<any[]>([]);
-  const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
-
-  // Load starred matches from localStorage on component mount
-  useEffect(() => {
-    const savedStarredMatches = localStorage.getItem('starredMatches');
-    if (savedStarredMatches) {
-      try {
-        const parsed = JSON.parse(savedStarredMatches);
-        setStarredMatches(new Set(parsed));
-      } catch (error) {
-        console.error('Failed to parse starred matches from localStorage:', error);
-      }
-    }
-  }, []);
-
-  // Function to toggle starred matches
-  const toggleStarMatch = (fixtureId: number) => {
-    setStarredMatches(prev => {
-      const newStarredMatches = new Set(prev);
-      if (newStarredMatches.has(fixtureId)) {
-        newStarredMatches.delete(fixtureId);
-      } else {
-        newStarredMatches.add(fixtureId);
-      }
-      
-      // Save to localStorage
-      localStorage.setItem('starredMatches', JSON.stringify(Array.from(newStarredMatches)));
-      
-      return newStarredMatches;
-    });
-  };
 
   const handleTabChange = (tab: string) => {
     if (onTabChange) {
       onTabChange(tab);
     } else {
       setInternalActiveTab(tab);
+    }
+  };
+
+  const handleMatchCardClick = () => {
+    console.log("🎯 [MyDetailsRightScoreboard] Match card clicked:", {
+      fixtureId: displayMatch?.fixture?.id,
+      teams: `${displayMatch?.teams?.home?.name} vs ${displayMatch?.teams?.away?.name}`,
+      league: displayMatch?.league?.name,
+      status: displayMatch?.fixture?.status?.short,
+      source: "MyDetailsRightScoreboard",
+    });
+
+    if (onMatchCardClick) {
+      onMatchCardClick(displayMatch);
     }
   };
 
@@ -134,47 +130,44 @@ const MyDetailsRightScoreboard = ({
   // Get the first featured match from MyHomeFeaturedMatchNew data
   const featuredMatch = featuredMatches.length > 0 ? featuredMatches[0] : null;
 
-  // Use the passed match, defaultMatch, or featured match - no sample fallback
-  const displayMatch = match || defaultMatch || featuredMatch;
-
-  // Extract team data for passing to child components like MyHighlights
-  const getTeamData = () => {
-    if (!displayMatch) return null;
-    return {
-      homeTeamData: {
-        id: displayMatch.teams.home.id,
-        name: displayMatch.teams.home.name,
-        logo: displayMatch.teams.home.logo
+  // Default match data using the first featured match or fallback
+  const sampleMatch = featuredMatch || {
+    fixture: {
+      id: 1100311,
+      date: "2025-06-11T21:00:00+00:00",
+      status: { short: "NS", long: "Not Started" },
+      venue: { name: "Estadio Nacional de Lima", city: "Lima" },
+      referee: "Andres Rojas, Colombia",
+    },
+    league: {
+      id: 135,
+      name: "World Cup - Qualification South America",
+      country: "World",
+      round: "Group Stage - 16",
+    },
+    teams: {
+      home: {
+        id: 2382,
+        name: "Portugal U21",
+        logo: "https://media.api-sports.io/football/teams/2382.png",
       },
-      awayTeamData: {
-        id: displayMatch.teams.away.id,
-        name: displayMatch.teams.away.name,
-        logo: displayMatch.teams.away.logo
-      }
-    };
+      away: {
+        id: 768,
+        name: "France U21",
+        logo: "https://media.api-sports.io/football/teams/768.png",
+      },
+    },
+    goals: {
+      home: null,
+      away: null,
+    },
+    score: {
+      halftime: { home: null, away: null },
+      fulltime: { home: null, away: null },
+    },
   };
 
-  const handleMatchCardClick = () => {
-    if (!displayMatch) return;
-    
-    console.log("🎯 [MyDetailsRightScoreboard] Match card clicked:", {
-      fixtureId: displayMatch?.fixture?.id,
-      teams: `${displayMatch?.teams?.home?.name} vs ${displayMatch?.teams?.away?.name}`,
-      league: displayMatch?.league?.name,
-      status: displayMatch?.fixture?.status?.short,
-      source: "MyDetailsRightScoreboard",
-    });
-
-    if (onMatchCardClick) {
-      onMatchCardClick(displayMatch);
-    }
-  };
-
-  // Early return if no match data is available - AFTER all hooks
-  if (!displayMatch) {
-    console.warn("🎯 [MyDetailsRightScoreboard] No match data available");
-    return null;
-  }
+  const displayMatch = match || sampleMatch;
 
   // Debug: Log the match data being received
   console.log("🎯 [MyDetailsRightScoreboard] Received match data:", {
@@ -492,38 +485,15 @@ const MyDetailsRightScoreboard = ({
         className={`w-full ${className} p-0 bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50 relative transition-all duration-200 cursor-pointer hover:shadow-lg`}
         onClick={handleMatchCardClick}
       >
-      {/* Star button on the left */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          toggleStarMatch(displayMatch.fixture.id);
-        }}
-        className={`absolute top-2 left-2 w-6 h-6 flex items-center justify-center z-10 transition-colors duration-200 ${
-          starredMatches.has(displayMatch.fixture.id)
-            ? 'text-blue-400 hover:text-blue-500'
-            : 'text-gray-500 hover:text-blue-400'
-        }`}
-        aria-label="Add to favorites"
-        title="Add to favorites"
-      >
-        <Star
-          className={`w-4 h-4 ${
-            starredMatches.has(displayMatch.fixture.id) ? 'fill-current' : ''
-          }`}
-        />
-      </button>
-      
-      {/* Close button on the right */}
       {onClose && (
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 w-6 h-6 flex items-center justify-center z-10"
+          className="absolute top-2 right-2 text-gray-500 text-xl font-semi-bold w-6 h-6 flex items-center justify-center z-10"
           aria-label="Close"
         >
-          <X className="w-4 h-4" />
+          x
         </button>
       )}
-
       <CardTitle className="text-md font-normal text-gray-900 text-center pt-2">
         {displayMatch.teams.home.name} vs {displayMatch.teams.away.name}
         <div className="text-xs text-gray-400 font-normal text-center">

@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import MyDetailsRightScoreboard from "@/components/matches/MyDetailsRightScoreboard";
+import MyMatchdetailsScoreboard from "@/components/matches/MyMatchdetailsScoreboard";
 
 interface ScoreDetailsCardProps {
   currentFixture: any;
@@ -18,10 +18,11 @@ const ScoreDetailsCard: React.FC<ScoreDetailsCardProps> = ({
   return (
     <Card className="w-full border-0 shadow-none">
       <CardContent className="p-0">
-        <MyDetailsRightScoreboard 
-          match={currentFixture}
-          defaultMatch={currentFixture}
-          onMatchCardClick={onClose}
+        <MyMatchdetailsScoreboard 
+          match={currentFixture} 
+          onClose={onClose}
+          activeTab={activeTab}
+          onTabChange={onTabChange}
         />
       </CardContent>
     </Card>

@@ -15,7 +15,6 @@ interface MyDetailsTabCardProps {
   featuredMatchId?: number;
   onFeaturedMatchSelect?: (matchId: number) => void;
   children?: React.ReactNode;
-  defaultMatch?: any;
 }
 
 const MyDetailsTabCard: React.FC<MyDetailsTabCardProps> = ({
@@ -24,7 +23,6 @@ const MyDetailsTabCard: React.FC<MyDetailsTabCardProps> = ({
   loading = false,
   children,
   onFeaturedMatchSelect,
-  defaultMatch
 }) => {
   const user = useSelector((state: RootState) => state.user);
   const { currentFixture } = useSelector((state: RootState) => state.fixtures);

@@ -29,34 +29,19 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       try {
         console.log(`🔍 [MyAllLeagueList] Fetching all leagues data`);
 
-        // Use a different approach to get all leagues - fetch from popular leagues endpoint instead
-        const response = await apiRequest("GET", "/api/leagues/popular");
+        const response = await apiRequest("GET", "/api/leagues/all");
         const data = await response.json();
 
         console.log(`✅ [MyAllLeagueList] Received ${data?.length || 0} leagues`);
 
         if (Array.isArray(data)) {
           setAllLeagues(data);
-        } else if (data && typeof data === 'object' && data.leagues) {
-          // Handle case where data is wrapped in an object
-          setAllLeagues(Array.isArray(data.leagues) ? data.leagues : []);
         } else {
-          console.warn("No valid leagues data received, using empty array");
           setAllLeagues([]);
         }
       } catch (err) {
         console.error("❌ [MyAllLeagueList] Error fetching all leagues:", err);
-        // Fallback: create a minimal set of popular leagues if API fails
-        const fallbackLeagues = [
-          { id: 39, name: "Premier League", country: "England" },
-          { id: 140, name: "La Liga", country: "Spain" },
-          { id: 135, name: "Serie A", country: "Italy" },
-          { id: 78, name: "Bundesliga", country: "Germany" },
-          { id: 61, name: "Ligue 1", country: "France" },
-          { id: 2, name: "UEFA Champions League", country: "Europe" },
-          { id: 3, name: "UEFA Europa League", country: "Europe" }
-        ];
-        setAllLeagues(fallbackLeagues);
+        setAllLeagues([]);
       }
     };
 
@@ -312,16 +297,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     const allCountriesData = Object.values(leaguesByCountry);
 
     return allCountriesData.sort((a: any, b: any) => {
-      // Ensure we're working with strings for all comparisons
-      const countryA = typeof a.country === "string" ? a.country : (a.country?.name || "Unknown");
-      const countryB = typeof b.country === "string" ? b.country : (b.country?.name || "Unknown");
+      const countryA = a.country || "";
+      const countryB = b.country || "";
 
-      // Safely convert to lowercase for comparison
-      const aLower = String(countryA).toLowerCase();
-      const bLower = String(countryB).toLowerCase();
-
-      const aIsWorld = aLower === "world";
-      const bIsWorld = bLower === "world";
+      const aIsWorld = countryA.toLowerCase() === "world";
+      const bIsWorld = countryB.toLowerCase() === "world";
 
       if (aIsWorld && !bIsWorld) return -1;
       if (bIsWorld && !aIsWorld) return 1;

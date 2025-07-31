@@ -53,7 +53,6 @@ const MyDetailsLayout: React.FC<MyDetailsLayoutProps> = ({ currentFixture }) => 
         fixtures={[currentFixture]} 
         featuredMatchId={featuredMatchId}
         onFeaturedMatchSelect={(selector) => setFeaturedMatchSelector(() => selector)}
-        defaultMatch={currentFixture}
       />
     </>
   );
