@@ -400,9 +400,12 @@ export const MyLeftDetailsCard = ({
           timeFilterActive={timeFilterActive}
           liveFilterActive={liveFilterActive}
         />
+      
       ) : (
+      
         // Neither filter active - show default view
         <>
+          <span className="mt-4">Today's Matches</span>
           <MyDetailsFixture
             selectedDate={selectedDate}
             onMatchCardClick={handleMatchCardClick}
