@@ -1,5 +1,3 @@
-
-
 import sharp from "sharp";
 
 import express, { type Express, Request, Response } from "express";
@@ -40,6 +38,7 @@ import predictionsRoutes from './routes/predictionsRoutes';
 import basketballRoutes from "./routes/basketballRoutes";
 import basketballStandingsRoutes from "./routes/basketballStandingsRoutes";
 import playerVerificationRoutes from './routes/playerVerificationRoutes';
+import { RapidAPI } from './utils/rapidApi'; // corrected rapidApi import
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -1762,7 +1761,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const { fixtureId } = req.params;
 
-        const response = await rapidApi.get('/fixtures/players', {
+        const response = await rapidApiService.get('/fixtures/players', {
           params: { fixture: fixtureId }
         });
 
@@ -2064,7 +2063,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   requestedDate: '${today.toISOString().split("T")[0]}',
   apiReturnedDate: '${apiDateString}',
   extractedDate: '${extractedDate}',
-  fixtureId: ${fixture.fixture.id}
+  fixtureId: ${fixture.fixture.id}'
 }`);
               return false;
             }
@@ -2654,7 +2653,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("🏈 [SoccersAPI] Fetching leagues");
       const leagues = await soccersApi.getLeagues();
-      res.json({
+      ```text
+res.json({
         success: true,
         data: leagues,
         count: leagues.length,
