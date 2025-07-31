@@ -9,9 +9,10 @@ import MyHeadtoheadTabsCard from '@/components/matches/MyHeadtoheadTabsCard';
 interface MyDetailsRightCardProps {
   selectedFixture: any;
   onClose: () => void;
+  onMatchCardClick?: (match: any) => void;
 }
 
-const MyDetailsRightCard: React.FC<MyDetailsRightCardProps> = ({ selectedFixture, onClose }) => {
+const MyDetailsRightCard: React.FC<MyDetailsRightCardProps> = ({ selectedFixture, onClose, onMatchCardClick }) => {
   const [activeTab, setActiveTab] = useState<string>("match");
 
   // Debug logging to verify data reception from MyNewLeague2
@@ -26,10 +27,11 @@ const MyDetailsRightCard: React.FC<MyDetailsRightCardProps> = ({ selectedFixture
   return (
     <>
       <MyDetailsRightScoreboard
-        currentFixture={selectedFixture}
+        match={selectedFixture}
         onClose={onClose}
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        onMatchCardClick={onMatchCardClick}
       />
 
       {/* Tab Content */}

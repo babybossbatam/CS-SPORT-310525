@@ -96,6 +96,20 @@ const MyDetailsRightScoreboard = ({
     }
   };
 
+  const handleMatchCardClick = () => {
+    console.log("🎯 [MyDetailsRightScoreboard] Match card clicked:", {
+      fixtureId: displayMatch?.fixture?.id,
+      teams: `${displayMatch?.teams?.home?.name} vs ${displayMatch?.teams?.away?.name}`,
+      league: displayMatch?.league?.name,
+      status: displayMatch?.fixture?.status?.short,
+      source: "MyDetailsRightScoreboard",
+    });
+
+    if (onMatchCardClick) {
+      onMatchCardClick(displayMatch);
+    }
+  };
+
   // Fetch featured matches data
   useEffect(() => {
     const fetchFeaturedMatches = async () => {
@@ -468,7 +482,8 @@ const MyDetailsRightScoreboard = ({
     <>
       <style dangerouslySetInnerHTML={{ __html: pulseStyles }} />
       <Card
-        className={`w-full ${className} p-0 bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50 relative transition-all duration-200 `}
+        className={`w-full ${className} p-0 bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50 relative transition-all duration-200 cursor-pointer hover:shadow-lg`}
+        onClick={handleMatchCardClick}
       >
       {onClose && (
         <button
