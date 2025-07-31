@@ -50,6 +50,7 @@ interface MyDetailsRightScoreboardProps {
   match?: any;
   defaultMatch?: any;
   className?: string;
+  onClose?: () => void;
   onMatchCardClick?: (match: any) => void;
   activeTab?: string;
   onTabChange?: (tab: string) => void;
@@ -73,6 +74,37 @@ const MyDetailsRightScoreboard = ({
   const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
   const activeTab = externalActiveTab || internalActiveTab;
   const [featuredMatches, setFeaturedMatches] = useState<any[]>([]);
+  const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
+
+  // Load starred matches from localStorage on component mount
+  useEffect(() => {
+    const savedStarredMatches = localStorage.getItem('starredMatches');
+    if (savedStarredMatches) {
+      try {
+        const parsed = JSON.parse(savedStarredMatches);
+        setStarredMatches(new Set(parsed));
+      } catch (error) {
+        console.error('Failed to parse starred matches from localStorage:', error);
+      }
+    }
+  }, []);
+
+  // Function to toggle starred matches
+  const toggleStarMatch = (fixtureId: number) => {
+    setStarredMatches(prev => {
+      const newStarredMatches = new Set(prev);
+      if (newStarredMatches.has(fixtureId)) {
+        newStarredMatches.delete(fixtureId);
+      } else {
+        newStarredMatches.add(fixtureId);
+      }
+      
+      // Save to localStorage
+      localStorage.setItem('starredMatches', JSON.stringify(Array.from(newStarredMatches)));
+      
+      return newStarredMatches;
+    });
+  };
 
   const handleTabChange = (tab: string) => {
     if (onTabChange) {
@@ -462,10 +494,23 @@ const MyDetailsRightScoreboard = ({
       >
       {/* Star button on the left */}
       <button
-        className="absolute top-2 left-2 text-gray-500 hover:text-yellow-500 w-6 h-6 flex items-center justify-center z-10"
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleStarMatch(displayMatch.fixture.id);
+        }}
+        className={`absolute top-2 left-2 w-6 h-6 flex items-center justify-center z-10 transition-colors duration-200 ${
+          starredMatches.has(displayMatch.fixture.id)
+            ? 'text-yellow-500 hover:text-yellow-600'
+            : 'text-gray-500 hover:text-yellow-500'
+        }`}
         aria-label="Add to favorites"
+        title="Add to favorites"
       >
-        <Star className="w-4 h-4" />
+        <Star
+          className={`w-4 h-4 ${
+            starredMatches.has(displayMatch.fixture.id) ? 'fill-current' : ''
+          }`}
+        />
       </button>
       
       {/* Close button on the right */}
