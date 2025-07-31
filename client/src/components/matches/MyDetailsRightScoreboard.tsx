@@ -485,15 +485,7 @@ const MyDetailsRightScoreboard = ({
         className={`w-full ${className} p-0 bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50 relative transition-all duration-200 cursor-pointer hover:shadow-lg`}
         onClick={handleMatchCardClick}
       >
-      {onClose && (
-        <button
-          onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 text-xl font-semi-bold w-6 h-6 flex items-center justify-center z-10"
-          aria-label="Close"
-        >
-          x
-        </button>
-      )}
+      
       <CardTitle className="text-md font-normal text-gray-900 text-center pt-2">
         {displayMatch.teams.home.name} vs {displayMatch.teams.away.name}
         <div className="text-xs text-gray-400 font-normal text-center">
