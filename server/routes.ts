@@ -2810,7 +2810,7 @@ error) {
           fixture.lastUpdated = Date.now();
         });
 
-        //        // Only cache ended matches from the live response
+        // Only cache ended matches from the live response
         const endedMatches = fixtures.filter((fixture) =>
           ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC"].includes(
             fixture.fixture.status.short,
