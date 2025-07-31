@@ -22,6 +22,7 @@ import {
   getEnhancedHomeTeamGradient,
 } from "@/lib/colorExtractor";
 import { motion, AnimatePresence } from "framer-motion";
+import { fixtureCache } from "@/lib/fixtureCache";
 
 import { RoundBadge } from "@/components/ui/round-badge";
 
