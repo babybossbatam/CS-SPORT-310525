@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ChevronLeft, ChevronRight, ChevronDown, Calendar } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { RootState } from "@/lib/store";
-import { setSelectedDate } from "@/lib/store";
+import { uiActions } from "@/lib/store";
 import MyNewLeague2 from "@/components/matches/MyNewLeague2";
 import TodaysMatchesByCountryNew from "@/components/matches/TodaysMatchesByCountryNew";
 import LiveMatchForAllCountry from "@/components/matches/LiveMatchForAllCountry";
@@ -49,14 +49,14 @@ const TodayMatchPageCard: React.FC<TodayMatchPageCardProps> = ({
     const currentDate = new Date(selectedDate);
     const previousDay = subDays(currentDate, 1);
     const newDateString = format(previousDay, "yyyy-MM-dd");
-    dispatch(setSelectedDate(newDateString));
+    dispatch(uiActions.setSelectedDate(newDateString));
   };
 
   const goToNextDay = () => {
     const currentDate = new Date(selectedDate);
     const nextDay = addDays(currentDate, 1);
     const newDateString = format(nextDay, "yyyy-MM-dd");
-    dispatch(setSelectedDate(newDateString));
+    dispatch(uiActions.setSelectedDate(newDateString));
   };
 
   const getDisplayName = () => {
