@@ -29,7 +29,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       try {
         console.log(`🔍 [MyAllLeagueList] Fetching all leagues data`);
 
-        const response = await apiRequest("GET", `/api/leagues`);
+        const response = await apiRequest("GET", "/api/leagues/all");
         const data = await response.json();
 
         console.log(`✅ [MyAllLeagueList] Received ${data?.length || 0} leagues`);
@@ -487,7 +487,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                         className={`text-sm ${hasMatches ? 'text-gray-500' : 'text-gray-300'}`}
                         style={{
                           fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-
+                          
                         }}
                       >
                         ({liveMatches > 0 ? (

@@ -12,46 +12,6 @@ router.get('/player-photo-by-name', async (req, res) => {
 
   console.log(`🔍 [PlayerPhotoByName] Searching photo for: "${name}"`);
 
-    // Try exact name match first (case insensitive)
-    let query = db
-      .select()
-      .from(playerPhotos)
-      .where(sql`LOWER(${playerPhotos.name}) = LOWER(${name})`);
-
-    let result = await query.execute();
-
-    // If no exact match, try partial match
-    if (result.length === 0) {
-      query = db
-        .select()
-        .from(playerPhotos)
-        .where(sql`LOWER(${playerPhotos.name}) LIKE LOWER(${'%' + name + '%'})`);
-
-      result = await query.execute();
-    }
-
-    // Try searching without first name initial
-    if (result.length === 0 && name.includes('.')) {
-      const lastName = name.split('.').pop()?.trim();
-      if (lastName) {
-        query = db
-          .select()
-          .from(playerPhotos)
-          .where(sql`LOWER(${playerPhotos.name}) LIKE LOWER(${'%' + lastName + '%'})`);
-
-        result = await query.execute();
-      }
-    }
-
-    if (result.length === 0) {
-      console.log(`❌ [PlayerPhotoByName] No photo found for "${name}"`);
-      return res.status(404).json({ 
-        error: "Player photo not found",
-        searchedName: name,
-        suggestion: "Try a different name format or check if the player exists in our database"
-      });
-    }
-
   try {
     // Source 1: Try RapidAPI search (but with error handling for rate limits)
     try {

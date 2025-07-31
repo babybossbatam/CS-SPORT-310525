@@ -48,27 +48,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Featured match routes for MyHomeFeaturedMatch component
   apiRouter.use("/featured-match", featuredMatchRoutes);
   app.use("/api/featured-match", featuredMatchRoutes);
-  
-  // Add featured fixtures endpoint
-  apiRouter.get("/fixtures/featured", async (req: Request, res: Response) => {
-    try {
-      const { date } = req.query;
-      const dateStr = date ? String(date) : new Date().toISOString().split('T')[0];
-      
-      // Redirect to featured-match endpoint
-      const featuredResponse = await fetch(`${req.protocol}://${req.get('host')}/api/featured-match/priority-leagues?date=${dateStr}`);
-      
-      if (featuredResponse.ok) {
-        const data = await featuredResponse.json();
-        res.json(data);
-      } else {
-        res.status(400).json({ error: "Failed to fetch featured fixtures" });
-      }
-    } catch (error) {
-      console.error("Error in featured fixtures endpoint:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
   app.use("/api/youtube", youtubeRoutes);
   app.use("/api/highlights", highlightsRoutes);
   apiRouter.use('/api', playerRoutes);
@@ -593,43 +572,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching multi-timezone fixtures:", error);
       return res.json([]);
-    }
-  });
-
-  // Head-to-head fixtures endpoint
-  apiRouter.get("/fixtures/headtohead", async (req: Request, res: Response) => {
-    try {
-      const { h2h } = req.query;
-      
-      if (!h2h) {
-        return res.status(400).json({ error: "h2h parameter is required (format: team1_id-team2_id)" });
-      }
-      
-      const teamIds = String(h2h).split('-');
-      if (teamIds.length !== 2) {
-        return res.status(400).json({ error: "Invalid h2h format. Use: team1_id-team2_id" });
-      }
-      
-      // Use RapidAPI to get head-to-head data
-      const response = await fetch(
-        `https://api-football-v1.p.rapidapi.com/v3/fixtures/headtohead?h2h=${h2h}`,
-        {
-          headers: {
-            'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
-            'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
-          }
-        }
-      );
-      
-      if (!response.ok) {
-        return res.status(400).json({ error: "Failed to fetch head-to-head data" });
-      }
-      
-      const data = await response.json();
-      res.json(data.response || []);
-    } catch (error) {
-      console.error("Error fetching head-to-head data:", error);
-      res.status(500).json({ error: "Failed to fetch head-to-head data" });
     }
   });
 
@@ -1819,27 +1761,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const { fixtureId } = req.params;
 
-        const response = await fetch(
-          `https://api-football-v1.p.rapidapi.com/v3/fixtures/players?fixture=${fixtureId}`,
-          {
-            method: 'GET',
-            headers: {
-              'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
-              'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
-            }
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`API responded with status ${response.status}`);
-        }
-
-        const data = await response.json();
+        const response = await rapidApiService.get('/fixtures/players', {
+          params: { fixture: fixtureId }
+        });
 
         // Extract shot data from player statistics
         const shots: any[] = [];
 
-        data.response.forEach((team: any) => {
+        response.data.response.forEach((team: any) => {
           team.players?.forEach((playerData: any) => {
             const player = playerData.player;
             const statistics = playerData.statistics[0]; // First statistics object
