@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
-import MyLeftBasket from "../matches/MyLeftBasket";
+import MyLeftBasket from "@/components/matches/MyLeftBasket";
 import MyRightBasket from "@/components/layout/MyRightBasket";
 import MyMatchEvents from "@/components/matches/MyMatchEvents";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
@@ -10,7 +10,7 @@ import { format } from "date-fns";
 
 import { Card, CardContent } from "@/components/ui/card";
 import MyMainLayoutRight from "@/components/layout/MyMainLayoutRight"; // Import MyMainLayoutRight
-import MyBasketFeatured from '@/components/matches/MyBasketFeatured';
+import MyBasketFeatured from "@/components/matches/MyBasketFeatured";
 
 interface MyBasketballMainProps {
   fixtures: any[];
@@ -32,14 +32,17 @@ const MyBasketballMain: React.FC<MyBasketballMainProps> = ({ fixtures }) => {
     console.log(`📋 [MyBasketballMain] selectedDateFixtures filter contents:`, {
       selectedDate,
       totalFixtures: fixtures.length,
-      fixturesByDate: fixtures.slice(0, 3).map(f => ({
+      fixturesByDate: fixtures.slice(0, 3).map((f) => ({
         id: f.fixture?.id,
         date: f.fixture?.date,
         teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
         status: f.fixture?.status?.short,
-        league: f.league?.name
+        league: f.league?.name,
       })),
-      sampleFixtures: fixtures.length > 3 ? `... and ${fixtures.length - 3} more` : 'showing all'
+      sampleFixtures:
+        fixtures.length > 3
+          ? `... and ${fixtures.length - 3} more`
+          : "showing all",
     });
 
     // Determine what type of date is selected
@@ -130,27 +133,30 @@ const MyBasketballMain: React.FC<MyBasketballMainProps> = ({ fixtures }) => {
       `✅ [MyBasketballMain] After smart filtering: ${filtered.length} matches for ${selectedDate}`,
     );
 
-    console.log(`📊 [MyBasketballMain] Final selectedDateFixtures after filtering:`, {
-      selectedDate,
-      finalCount: filtered.length,
-      filteredFixtures: filtered.slice(0, 5).map(f => ({
-        id: f.fixture?.id,
-        date: f.fixture?.date,
-        teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
-        status: f.fixture?.status?.short,
-        league: f.league?.name,
-        smartFilterReason: (() => {
-          const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-            f.fixture.date,
-            f.fixture.status.short,
-            selectedDate + "T12:00:00Z"
-          );
-          return smartResult.reason;
-        })()
-      })),
-      showingFirst: Math.min(5, filtered.length),
-      totalFiltered: filtered.length
-    });
+    console.log(
+      `📊 [MyBasketballMain] Final selectedDateFixtures after filtering:`,
+      {
+        selectedDate,
+        finalCount: filtered.length,
+        filteredFixtures: filtered.slice(0, 5).map((f) => ({
+          id: f.fixture?.id,
+          date: f.fixture?.date,
+          teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
+          status: f.fixture?.status?.short,
+          league: f.league?.name,
+          smartFilterReason: (() => {
+            const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+              f.fixture.date,
+              f.fixture.status.short,
+              selectedDate + "T12:00:00Z",
+            );
+            return smartResult.reason;
+          })(),
+        })),
+        showingFirst: Math.min(5, filtered.length),
+        totalFiltered: filtered.length,
+      },
+    );
 
     return filtered;
   }, [fixtures, selectedDate]);
@@ -160,19 +166,19 @@ const MyBasketballMain: React.FC<MyBasketballMainProps> = ({ fixtures }) => {
   };
 
   const handleMatchCardClick = (fixture: any) => {
-    console.log('🎯 [MyBasketballMain] Match clicked from components:', {
+    console.log("🎯 [MyBasketballMain] Match clicked from components:", {
       fixtureId: fixture?.fixture?.id,
       teams: `${fixture?.teams?.home?.name} vs ${fixture?.teams?.away?.name}`,
       league: fixture?.league?.name,
       status: fixture?.fixture?.status?.short,
-      source: 'MyBasketballMain'
+      source: "MyBasketballMain",
     });
 
     // Set the selected fixture to show MyMainLayoutRight
     setSelectedFixture(fixture);
 
     // Scroll to top when match is selected for better UX
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleBackToMain = () => {
@@ -180,7 +186,9 @@ const MyBasketballMain: React.FC<MyBasketballMainProps> = ({ fixtures }) => {
   };
 
   const handleCloseDetails = () => {
-    console.log('🎯 [MyBasketballMain] Closing match details, returning to MyRightContent');
+    console.log(
+      "🎯 [MyBasketballMain] Closing match details, returning to MyRightContent",
+    );
     setSelectedFixture(null);
   };
 
@@ -194,9 +202,7 @@ const MyBasketballMain: React.FC<MyBasketballMainProps> = ({ fixtures }) => {
         <div className="lg:col-span-5 space-y-4">
           {/* Basketball-specific MyLeftBasket */}
           <div className="max-h-full overflow-y-auto">
-            <MyLeftBasket
-              onMatchCardClick={handleMatchCardClick}
-            />
+            <MyLeftBasket onMatchCardClick={handleMatchCardClick} />
           </div>
         </div>
 
