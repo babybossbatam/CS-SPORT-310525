@@ -511,12 +511,21 @@
 
 
 /* Status label hover effects to match card background */
-.match-card-container:hover .match-status-label {
+.country-matches-container .match-card-container:hover .match-status-label {
   background-color: transparent !important;
 }
 
-.match-card-container.disable-hover .match-status-label {
-  background-color: white !important;
+.country-matches-container .match-card-container.disable-hover .match-status-label {
+  background-color: transparent !important;
+}
+
+/* Selected match styling - maintains background color */
+.match-card-container.selected-match {
+  background-color: rgb(243 244 246) !important; /* bg-gray-100 */
+}
+
+.match-card-container.selected-match:hover {
+  background-color: rgb(243 244 246) !important; /* Keep same background on hover */
 }
 
 /* Collapse and expand animations for league sections */
