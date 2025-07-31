@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import MatchPredictionsCard from '@/components/matches/MatchPredictionsCard';
 import MyLiveAction from '@/components/matches/MyLiveAction';
 import MyHighlights from '@/components/matches/MyHighlights';
 import MyMatchEventNew from '@/components/matches/MyMatchEventNew';
-import MyMatchdetailsScoreboard from "@/components/matches/MyMatchdetailsScoreboard";
+import ScoreDetailsCard from '@/components/matches/ScoreDetailsCard';
 import MyMatchTabCard from '@/components/matches/MyMatchTabCard';
 import MyStatsTabCard from '@/components/matches/MyStatsTabCard';
 import MyLineupsTabsCard from '@/components/matches/MyLineupsTabsCard';
@@ -29,7 +30,7 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
 
   return (
     <>
-      <MyMatchdetailsScoreboard
+      <ScoreDetailsCard
         currentFixture={selectedFixture}
         onClose={onClose}
         activeTab={activeTab}
@@ -40,8 +41,8 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
       {activeTab === "match" && (
         <>
           <MyMatchTabCard match={selectedFixture} onTabChange={setActiveTab} />
-
-
+          
+         
         </>
       )}
 
@@ -65,8 +66,8 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
       )}
 
 
-
-
+      
+     
       {/* Conditional rendering based on match status */}
       {(() => {
         const matchStatus = selectedFixture?.fixture?.status?.short;
@@ -105,13 +106,13 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
 
         return (
           <>
-
+    
             {/* For upcoming matches, neither component is shown */}
           </>
         );
       })()}
 
-
+     
       </>
   );
 };
