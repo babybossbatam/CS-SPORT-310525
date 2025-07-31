@@ -99,7 +99,7 @@ const MyDetailsTabCard: React.FC<MyDetailsTabCardProps> = ({
   return (
     <div
       className="bg-[#FDFBF7] rounded-lg py-4"
-      style={{ marginLeft: "90px", marginRight: "90px" }}
+      style={{ marginLeft: "150px", marginRight: "150px" }}
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Left column (5 columns) */}
