@@ -736,44 +736,29 @@ const MyDetailsRightScoreboard = ({
       <Card>
         <div className="flex space-x-1 pb-0  px-0">
           <button className={`flex-0 py-0 px-4 text-sm font-normal ${activeTab === 'match' ? 'text-gray-600 border-b border-blue-500' : 'text-gray-500 hover:text-gray-700'} pb-0`}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleTabChange("match");
-          }}
+          onClick={() => handleTabChange("match")}
           >
             Match
           </button>
           <button className={`flex-0 py-0 px-4 text-sm font-normal ${activeTab === 'lineups' ? 'text-gray-600 border-b border-blue-500' : 'text-gray-500 hover:text-gray-700'} pb-0`}
-           onClick={(e) => {
-             e.stopPropagation();
-             handleTabChange("lineups");
-           }}
+           onClick={() => handleTabChange("lineups")}
           >
             {displayMatch.fixture.status.short === "NS"
               ? "Probable Lineups"
               : "Lineups"}
           </button>
           <button  className={`flex-0 py-0 px-4 text-sm font-normal ${activeTab === 'stats' ? 'text-gray-600 border-b border-blue-500' : 'text-gray-500 hover:text-gray-700'} pb-0`}
-           onClick={(e) => {
-             e.stopPropagation();
-             handleTabChange("stats");
-           }}
+           onClick={() => handleTabChange("stats")}
           >
             Stats
           </button>
           <button className={`flex-0 py-0 px-4 text-sm font-normal ${activeTab === 'trends' ? 'text-gray-600 border-b border-blue-500' : 'text-gray-500 hover:text-gray-700'} relative pb-0`}
-           onClick={(e) => {
-             e.stopPropagation();
-             handleTabChange("trends");
-           }}
+           onClick={() => handleTabChange("trends")}
           >
             Trends
           </button>
           <button  className={`flex-0 py-0 px-4 text-sm font-normal ${activeTab === 'h2h' ? 'text-gray-600 border-b border-blue-500' : 'text-gray-500 hover:text-gray-700'} pb-0`}
-           onClick={(e) => {
-             e.stopPropagation();
-             handleTabChange("h2h");
-           }}
+           onClick={() => handleTabChange("h2h")}
           >
             Head to Head
           </button>
