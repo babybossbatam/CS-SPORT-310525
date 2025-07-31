@@ -2653,7 +2653,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("🏈 [SoccersAPI] Fetching leagues");
       const leagues = await soccersApi.getLeagues();
-      ```text
+      
 res.json({
         success: true,
         data: leagues,

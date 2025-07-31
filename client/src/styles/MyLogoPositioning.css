@@ -780,7 +780,7 @@
 /* Selected match state */
 .match-card-container.selected-match {
   background-color: #f3f4f6 !important;
-  border-left: 4px solid #3b82f6 !important;
+
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15) !important;
 }
 
