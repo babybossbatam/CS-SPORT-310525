@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
-import TodayMatchPageCard from "@/components/matches/TodayMatchPageCard";
+import MyLeftDetailsCard from "@/components/matches/MyLeftDetailsCard";
 import MyRightContent, {
   MyRightDetails,
 } from "@/components/layout/MyRightContent";
@@ -110,7 +110,7 @@ const MyDetailsTabCard: React.FC<MyDetailsTabCardProps> = ({
             <div>{children}</div>
           ) : (
             <div>
-              <TodayMatchPageCard
+              <MyLeftDetailsCard
                 fixtures={filteredFixtures}
                 onMatchClick={handleMatchClick}
                 onMatchCardClick={handleMatchCardClick}
