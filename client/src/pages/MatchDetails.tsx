@@ -534,7 +534,7 @@ const MatchDetails = () => {
         title={`${currentFixture.teams.home.name} vs ${currentFixture.teams.away.name}`}
       />
 
-      <Card className="">
+      <Card className="mt-[10px]">
         {/* Breadcrumb Navigation */}
         <div className="mx-20 py-1 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center text-sm text-gray-600">
