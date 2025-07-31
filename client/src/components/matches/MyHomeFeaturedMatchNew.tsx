@@ -1730,15 +1730,7 @@ id: fixture.teams.away.id,
                     {/* Round/Bracket Status Display using RoundBadge component */}
                     <RoundBadge 
                       leagueId={currentMatch.league.id}
-                      currentRound={
-                        currentMatch.fixture?.rounds ||
-                        currentMatch.league?.round ||
-                        currentMatch.fixture?.status?.rounds ||
-                        currentMatch.league?.seasons.round ||
-                        currentMatch.round ||
-                        currentMatch.fixture?.status?.long ||
-                        currentMatch.league?.season?.current
-                      }
+                      currentRound={currentMatch.league?.round}
                       matchStatus={currentMatch.fixture.status.short}
                       className="ml-2"
                     />
