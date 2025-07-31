@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import MatchPredictionsCard from '@/components/matches/MatchPredictionsCard';
 import MyLiveAction from '@/components/matches/MyLiveAction';
@@ -40,8 +41,8 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
       {activeTab === "match" && (
         <>
           <MyMatchTabCard match={selectedFixture} onTabChange={setActiveTab} />
-
-
+          
+         
         </>
       )}
 
@@ -65,8 +66,8 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
       )}
 
 
-
-
+      
+     
       {/* Conditional rendering based on match status */}
       {(() => {
         const matchStatus = selectedFixture?.fixture?.status?.short;
@@ -105,13 +106,13 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
 
         return (
           <>
-
+    
             {/* For upcoming matches, neither component is shown */}
           </>
         );
       })()}
 
-
+     
       </>
   );
 };

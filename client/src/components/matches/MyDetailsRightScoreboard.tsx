@@ -98,10 +98,10 @@ const MyDetailsRightScoreboard = ({
       } else {
         newStarredMatches.add(fixtureId);
       }
-
+      
       // Save to localStorage
       localStorage.setItem('starredMatches', JSON.stringify(Array.from(newStarredMatches)));
-
+      
       return newStarredMatches;
     });
   };
@@ -156,7 +156,7 @@ const MyDetailsRightScoreboard = ({
 
   const handleMatchCardClick = () => {
     if (!displayMatch) return;
-
+    
     console.log("🎯 [MyDetailsRightScoreboard] Match card clicked:", {
       fixtureId: displayMatch?.fixture?.id,
       teams: `${displayMatch?.teams?.home?.name} vs ${displayMatch?.teams?.away?.name}`,
@@ -512,7 +512,7 @@ const MyDetailsRightScoreboard = ({
           }`}
         />
       </button>
-
+      
       {/* Close button on the right */}
       {onClose && (
         <button
@@ -780,4 +780,4 @@ const MyDetailsRightScoreboard = ({
   );
 };
 
-export default MyMatchDetailsScoreboard;
+export default MyDetailsRightScoreboard;
