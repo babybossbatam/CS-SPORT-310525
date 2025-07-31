@@ -1,4 +1,3 @@
-
 import React, {
   useState,
   useEffect,
@@ -154,6 +153,7 @@ const MyDetailsFixture = ({
   const [expandedLeagues, setExpandedLeagues] = useState<Set<string>>(
     new Set(),
   );
+  const [internalSelectedMatchId, setInternalSelectedMatchId] = useState<number | null>(null);
 
   // League IDs without any filtering - removed duplicates
   const leagueIds = [
@@ -530,6 +530,9 @@ const MyDetailsFixture = ({
     if (onMatchCardClick) {
       onMatchCardClick(fixture);
     }
+
+    // Set the internal selected match ID
+    setInternalSelectedMatchId(fixture.fixture.id);
 
     // Don't navigate automatically - let parent handle it if needed
     // navigate(`/match/${fixture.fixture.id}`);
@@ -947,7 +950,7 @@ const MyDetailsFixture = ({
                           } ${
                             isFinishFlash ? 'finish-flash' : ''
                           } ${
-                            selectedMatchId === matchId ? 'bg-gray-100 selected-match' : ''
+                            internalSelectedMatchId === matchId ? 'selected-match' : ''
                           }`}
                           data-fixture-id={matchId}
                           onClick={() => handleMatchClick(fixture)}
