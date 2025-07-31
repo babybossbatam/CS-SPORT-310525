@@ -2655,8 +2655,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const leagues = await soccersApi.getLeagues();
       res.json({
         success: true,
-```text
-        data: leagues,
+data: leagues,
         count: leagues.length,
       });
     } catch (error) {
@@ -2708,8 +2707,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             error: "Match not found",
           });
         }
-      } catch (
-error) {
+      } catch (error) {
         console.error("❌ [SoccersAPI] Error fetching match details:", error);
         res.status(500).json({
           success: false,
