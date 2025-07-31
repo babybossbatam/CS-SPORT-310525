@@ -500,8 +500,8 @@ const MyDetailsRightScoreboard = ({
         }}
         className={`absolute top-2 left-2 w-6 h-6 flex items-center justify-center z-10 transition-colors duration-200 ${
           starredMatches.has(displayMatch.fixture.id)
-            ? 'text-yellow-500 hover:text-yellow-600'
-            : 'text-gray-500 hover:text-yellow-500'
+            ? 'text-blue-400 hover:text-blue-500'
+            : 'text-gray-500 hover:text-blue-400'
         }`}
         aria-label="Add to favorites"
         title="Add to favorites"
