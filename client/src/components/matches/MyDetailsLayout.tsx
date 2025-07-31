@@ -2,6 +2,7 @@ import React from "react";
 import ScoreDetailsCard from "@/components/matches/ScoreDetailsCard";
 import MyLiveAction from "@/components/matches/MyLiveAction";
 import MyMatchEvents from "@/components/matches/MyMatchEvents";
+import MyDetailsTabCard from "@/components/matches/MyDetailsTabCard";
 
 interface MyDetailsLayoutProps {
   currentFixture: any;
@@ -42,7 +43,8 @@ const MyDetailsLayout: React.FC<MyDetailsLayoutProps> = ({ currentFixture }) => 
         />
       )}
 
-      
+      {/* Add MyDetailsTabCard component */}
+      <MyDetailsTabCard fixtures={[]} />
     </>
   );
 };
