@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo, useCallback, memo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, Calendar, MapPin, Users, Star, X } from "lucide-react";
@@ -49,8 +48,8 @@ const pulseStyles = `
 
 interface MyDetailsRightScoreboardProps {
   match?: any;
+  defaultMatch?: any;
   className?: string;
-  onClose?: () => void;
   onMatchCardClick?: (match: any) => void;
   activeTab?: string;
   onTabChange?: (tab: string) => void;
@@ -58,6 +57,7 @@ interface MyDetailsRightScoreboardProps {
 
 const MyDetailsRightScoreboard = ({
   match,
+  defaultMatch,
   className = "",
   onClose,
   onMatchCardClick,
@@ -131,7 +131,7 @@ const MyDetailsRightScoreboard = ({
   const featuredMatch = featuredMatches.length > 0 ? featuredMatches[0] : null;
 
   // Default match data using the first featured match or fallback
-  const sampleMatch = featuredMatch || {
+  const sampleMatch = defaultMatch || featuredMatch || {
     fixture: {
       id: 1100311,
       date: "2025-06-11T21:00:00+00:00",
@@ -485,7 +485,7 @@ const MyDetailsRightScoreboard = ({
         className={`w-full ${className} p-0 bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50 relative transition-all duration-200 cursor-pointer hover:shadow-lg`}
         onClick={handleMatchCardClick}
       >
-      
+
       <CardTitle className="text-md font-normal text-gray-900 text-center pt-2">
         {displayMatch.teams.home.name} vs {displayMatch.teams.away.name}
         <div className="text-xs text-gray-400 font-normal text-center">
