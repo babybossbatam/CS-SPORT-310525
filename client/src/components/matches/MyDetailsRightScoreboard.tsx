@@ -130,44 +130,14 @@ const MyDetailsRightScoreboard = ({
   // Get the first featured match from MyHomeFeaturedMatchNew data
   const featuredMatch = featuredMatches.length > 0 ? featuredMatches[0] : null;
 
-  // Default match data using the first featured match or fallback
-  const sampleMatch = defaultMatch || featuredMatch || {
-    fixture: {
-      id: 1100311,
-      date: "2025-06-11T21:00:00+00:00",
-      status: { short: "NS", long: "Not Started" },
-      venue: { name: "Estadio Nacional de Lima", city: "Lima" },
-      referee: "Andres Rojas, Colombia",
-    },
-    league: {
-      id: 135,
-      name: "World Cup - Qualification South America",
-      country: "World",
-      round: "Group Stage - 16",
-    },
-    teams: {
-      home: {
-        id: 2382,
-        name: "Portugal U21",
-        logo: "https://media.api-sports.io/football/teams/2382.png",
-      },
-      away: {
-        id: 768,
-        name: "France U21",
-        logo: "https://media.api-sports.io/football/teams/768.png",
-      },
-    },
-    goals: {
-      home: null,
-      away: null,
-    },
-    score: {
-      halftime: { home: null, away: null },
-      fulltime: { home: null, away: null },
-    },
-  };
+  // Use the passed match, defaultMatch, or featured match - no sample fallback
+  const displayMatch = match || defaultMatch || featuredMatch;
 
-  const displayMatch = match || sampleMatch;
+  // Early return if no match data is available
+  if (!displayMatch) {
+    console.warn("🎯 [MyDetailsRightScoreboard] No match data available");
+    return null;
+  }
 
   // Debug: Log the match data being received
   console.log("🎯 [MyDetailsRightScoreboard] Received match data:", {
