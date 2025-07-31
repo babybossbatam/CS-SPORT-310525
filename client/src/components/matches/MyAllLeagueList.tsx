@@ -312,8 +312,9 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     const allCountriesData = Object.values(leaguesByCountry);
 
     return allCountriesData.sort((a: any, b: any) => {
-      const countryA = a.country || "";
-      const countryB = b.country || "";
+      // Ensure we're working with strings
+      const countryA = typeof a.country === "string" ? a.country : (a.country?.name || "");
+      const countryB = typeof b.country === "string" ? b.country : (b.country?.name || "");
 
       const aIsWorld = countryA.toLowerCase() === "world";
       const bIsWorld = countryB.toLowerCase() === "world";
