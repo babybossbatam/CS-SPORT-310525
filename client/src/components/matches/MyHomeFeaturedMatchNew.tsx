@@ -117,6 +117,7 @@ const isPopularTeamMatch = (homeTeam: string, awayTeam: string, homeTeamId?: num
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
   maxMatches?: number;
+  onMatchSelect?: (matchId: number) => void;
 }
 
 // Popular leagues from PopularLeaguesList.tsx
@@ -199,6 +200,7 @@ interface DayMatches {
 
 const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   maxMatches = 15,
+  onMatchSelect,
 }) => {
   // Add CSS for truePulse animation
   const truePulseStyle = `
@@ -1684,27 +1686,14 @@ id: fixture.teams.away.id,
                       fixtureStatus: currentMatch.fixture.status.short
                     });
 
-                    // Special debug for Oberliga leagues
-                    if (currentMatch.league.name?.toLowerCase().includes('oberliga')) {
-                      console.log(`🎯 [OBERLIGA DEBUG] Found Oberliga league:`, {
-                        LEAGUE_ID: currentMatch.league.id,
-                        LEAGUE_NAME: currentMatch.league.name,
-                        FULL_MATCH_INFO: `${currentMatch.teams.home.name} vs ${currentMatch.teams.away.name}`,
-                        COUNTRY: currentMatch.league.country
-                      });
+                    // Call onMatchSelect if provided (for Details tab)
+                    if (onMatchSelect) {
+                      console.log(`🎯 [MyHomeFeaturedMatchNew] Selecting match for Details tab:`, currentMatch.fixture.id);
+                      onMatchSelect(currentMatch.fixture.id);
+                    } else {
+                      // Navigate to match details page if no callback provided
+                      navigate(`/match/${currentMatch.fixture.id}`);
                     }
-
-                    // Special debug for Bayern Süd
-                    if (currentMatch.league.name?.toLowerCase().includes('bayern') || 
-                        currentMatch.league.name?.toLowerCase().includes('süd')) {
-                      console.log(`🏰 [BAYERN SÜD DEBUG] Found Bayern Süd related league:`, {
-                        LEAGUE_ID: currentMatch.league.id,
-                        LEAGUE_NAME: currentMatch.league.name,
-                        MATCH_DETAILS: `${currentMatch.teams.home.name} vs ${currentMatch.teams.away.name}`
-                      });
-                    }
-
-                    navigate(`/match/${currentMatch.fixture.id}`);
                   }}
                 >
                   {/* League header */}

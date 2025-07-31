@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import ScoreDetailsCard from "@/components/matches/ScoreDetailsCard";
 import MyLiveAction from "@/components/matches/MyLiveAction";
 import MyMatchEvents from "@/components/matches/MyMatchEvents";
@@ -9,6 +9,8 @@ interface MyDetailsLayoutProps {
 }
 
 const MyDetailsLayout: React.FC<MyDetailsLayoutProps> = ({ currentFixture }) => {
+  const [featuredMatchSelector, setFeaturedMatchSelector] = useState<((matchId: number) => void) | null>(null);
+  
   const matchStatus = currentFixture?.fixture?.status?.short;
   const isLive = [
     "1H",
@@ -44,7 +46,10 @@ const MyDetailsLayout: React.FC<MyDetailsLayoutProps> = ({ currentFixture }) => 
       )}
 
       {/* Add MyDetailsTabCard component */}
-      <MyDetailsTabCard fixtures={[currentFixture]} />
+      <MyDetailsTabCard 
+        fixtures={[currentFixture]} 
+        onFeaturedMatchSelect={(selector) => setFeaturedMatchSelector(() => selector)}
+      />
     </>
   );
 };

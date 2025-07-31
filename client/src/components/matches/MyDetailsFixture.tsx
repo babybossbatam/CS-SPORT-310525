@@ -81,12 +81,14 @@ interface MyDetailsFixtureProps {
   selectedDate: string;
   onMatchCardClick?: (fixture: any) => void; // Callback to pass match data to parent (for MyMatchdetailsScoreboard)
   match?: any; // Current match data (used for sample display)
+  selectedMatchId?: number; // Match ID to highlight from featured match
 }
 
 const MyDetailsFixture = ({
   selectedDate,
   onMatchCardClick,
   match,
+  selectedMatchId,
 }: MyDetailsFixtureProps) => {
   // Sample match data for demonstration (similar to MyMatchdetailsScoreboard)
   const sampleMatch = {
@@ -944,6 +946,8 @@ const MyDetailsFixture = ({
                             isKickoffFlash ? 'kickoff-flash' : ''
                           } ${
                             isFinishFlash ? 'finish-flash' : ''
+                          } ${
+                            selectedMatchId === matchId ? 'bg-gray-300' : ''
                           }`}
                           data-fixture-id={matchId}
                           onClick={() => handleMatchClick(fixture)}

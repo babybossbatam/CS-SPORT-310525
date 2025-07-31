@@ -12,7 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 interface MyDetailsTabCardProps {
   fixtures: any[];
-  loading?: boolean;
+  onFeaturedMatchSelect?: (matchId: number) => void;
   children?: React.ReactNode;
 }
 
@@ -20,12 +20,34 @@ const MyDetailsTabCard: React.FC<MyDetailsTabCardProps> = ({
   fixtures,
   loading = false,
   children,
+  onFeaturedMatchSelect,
 }) => {
   const user = useSelector((state: RootState) => state.user);
   const { currentFixture } = useSelector((state: RootState) => state.fixtures);
   const [location, navigate] = useLocation();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
+  const [selectedMatchId, setSelectedMatchId] = useState<number | undefined>(undefined);
+
+  // Handle featured match selection
+  const handleFeaturedMatchSelect = (matchId: number) => {
+    console.log(`🎯 [MyDetailsTabCard] Featured match selected:`, matchId);
+    setSelectedMatchId(matchId);
+    // Find the fixture with this ID and set it as selected
+    const fixture = fixtures.find(f => f?.fixture?.id === matchId);
+    if (fixture) {
+      setSelectedFixture(fixture);
+      console.log(`✅ [MyDetailsTabCard] Found and selected fixture:`, fixture);
+    }
+  };
+
+  // Expose the handler through the callback prop
+  React.useEffect(() => {
+    if (onFeaturedMatchSelect) {
+      onFeaturedMatchSelect(handleFeaturedMatchSelect);
+    }
+  }, [onFeaturedMatchSelect]);
+
 
   // Apply UTC date filtering to fixtures
   const filteredFixtures = useMemo(() => {
