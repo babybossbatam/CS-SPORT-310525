@@ -1,10 +1,11 @@
-
 import React, { useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
 import TodayMatchPageCard from "@/components/matches/TodayMatchPageCard";
-import MyRightContent, { MyRightDetails } from "@/components/layout/MyRightContent";
+import MyRightContent, {
+  MyRightDetails,
+} from "@/components/layout/MyRightContent";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 
@@ -37,13 +38,13 @@ const MyDetailsTabCard: React.FC<MyDetailsTabCardProps> = ({
 
     // Use UTC dates throughout - no timezone conversion
     const todayUTC = new Date();
-    const todayUTCString = todayUTC.toISOString().split('T')[0]; // YYYY-MM-DD in UTC
-    
+    const todayUTCString = todayUTC.toISOString().split("T")[0]; // YYYY-MM-DD in UTC
+
     const filtered = fixtures.filter((fixture) => {
       if (fixture.fixture.date && fixture.fixture.status?.short) {
         // Extract UTC date from fixture date (no timezone conversion)
         const fixtureUTCDate = new Date(fixture.fixture.date);
-        const fixtureDateString = fixtureUTCDate.toISOString().split('T')[0]; // YYYY-MM-DD in UTC
+        const fixtureDateString = fixtureUTCDate.toISOString().split("T")[0]; // YYYY-MM-DD in UTC
 
         // Simple UTC date matching
         const shouldInclude = fixtureDateString === selectedDate;
@@ -56,7 +57,7 @@ const MyDetailsTabCard: React.FC<MyDetailsTabCardProps> = ({
               extractedUTCDate: fixtureDateString,
               selectedDate,
               status: fixture.fixture.status.short,
-              reason: 'UTC date mismatch'
+              reason: "UTC date mismatch",
             },
           );
           return false;
@@ -68,7 +69,7 @@ const MyDetailsTabCard: React.FC<MyDetailsTabCardProps> = ({
             fixtureUTCDate: fixture.fixture.date,
             extractedUTCDate: fixtureDateString,
             selectedDate,
-            status: fixture.fixture.status.short
+            status: fixture.fixture.status.short,
           },
         );
 
@@ -99,16 +100,14 @@ const MyDetailsTabCard: React.FC<MyDetailsTabCardProps> = ({
   return (
     <div
       className="bg-[#FDFBF7] rounded-lg py-4"
-      style={{ marginLeft: "150px", marginRight: "150px" }}
+      style={{ marginLeft: "90px", marginRight: "90px" }}
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Left column (5 columns) */}
         <div className="lg:col-span-5 space-y-4">
           {/* Render children if provided, otherwise show TodayMatchPageCard */}
           {children ? (
-            <div>
-              {children}
-            </div>
+            <div>{children}</div>
           ) : (
             <div>
               <TodayMatchPageCard
@@ -123,7 +122,7 @@ const MyDetailsTabCard: React.FC<MyDetailsTabCardProps> = ({
         {/* Right column (7 columns) */}
         <div className="lg:col-span-7 space-y-4">
           {selectedFixture ? (
-            <MyRightDetails 
+            <MyRightDetails
               selectedFixture={selectedFixture}
               onClose={handleBackToMain}
             />
