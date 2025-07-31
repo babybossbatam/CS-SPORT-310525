@@ -1,6 +1,5 @@
 import React from "react";
 import ScoreDetailsCard from "@/components/matches/ScoreDetailsCard";
-import MyHighlights from "@/components/matches/MyHighlights";
 import MyLiveAction from "@/components/matches/MyLiveAction";
 import MyMatchEvents from "@/components/matches/MyMatchEvents";
 
@@ -43,15 +42,7 @@ const MyDetailsLayout: React.FC<MyDetailsLayoutProps> = ({ currentFixture }) => 
         />
       )}
 
-      {/* Show MyHighlights for ended matches */}
-      {isEnded && (
-        <MyHighlights
-          homeTeam={currentFixture?.teams?.home?.name}
-          awayTeam={currentFixture?.teams?.away?.name}
-          leagueName={currentFixture?.league?.name}
-          matchStatus={currentFixture?.fixture?.status?.short}
-        />
-      )}
+      
     </>
   );
 };
