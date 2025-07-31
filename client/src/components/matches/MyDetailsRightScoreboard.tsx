@@ -460,6 +460,24 @@ const MyDetailsRightScoreboard = ({
         className={`w-full ${className} p-0 bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50 relative transition-all duration-200 cursor-pointer hover:shadow-lg`}
         onClick={handleMatchCardClick}
       >
+      {/* Star button on the left */}
+      <button
+        className="absolute top-2 left-2 text-gray-500 hover:text-yellow-500 w-6 h-6 flex items-center justify-center z-10"
+        aria-label="Add to favorites"
+      >
+        <Star className="w-4 h-4" />
+      </button>
+      
+      {/* Close button on the right */}
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 w-6 h-6 flex items-center justify-center z-10"
+          aria-label="Close"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      )}
 
       <CardTitle className="text-md font-normal text-gray-900 text-center pt-2">
         {displayMatch.teams.home.name} vs {displayMatch.teams.away.name}
