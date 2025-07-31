@@ -3,9 +3,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
 import MyLeftDetailsCard from "@/components/matches/MyLeftDetailsCard";
-import MyRightContent, {
-  MyRightDetails,
-} from "@/components/layout/MyRightContent";
+import MyDetailsRightCard from "@/components/matches/MyDetailsRightCard";
+import { MyRightDetails } from "@/components/layout/MyRightContent";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 
@@ -122,12 +121,15 @@ const MyDetailsTabCard: React.FC<MyDetailsTabCardProps> = ({
         {/* Right column (7 columns) */}
         <div className="lg:col-span-7 space-y-4">
           {selectedFixture ? (
-            <MyRightDetails
+            <MyDetailsRightCard
               selectedFixture={selectedFixture}
               onClose={handleBackToMain}
             />
           ) : (
-            <MyRightContent />
+            <MyRightDetails
+              selectedFixture={null}
+              onClose={handleBackToMain}
+            />
           )}
         </div>
       </div>
