@@ -1,0 +1,15 @@
+Uncaught SyntaxError: Invalid or unexpected tokenUnderstand this error
+_app-7b035e8e57bdd4b6.js:13 Adding extension: Icon Generator Object
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/leagues/all:1  Failed to load resource: the server responded with a status of 400 (Bad Request)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/player-photo-by-name?name=L.%20Messi:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/player-photo-by-name?name=L.%20D%C3%ADaz:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/fixtures/featured:1  Failed to load resource: the server responded with a status of 400 (Bad Request)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/fixtures/1383457/shots:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/fixtures/headtohead?h2h=2184-567:1  Failed to load resource: the server responded with a status of 400 (Bad Request)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/fixtures/featured:1  Failed to load resource: the server responded with a status of 400 (Bad Request)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/fixtures/1383456/shots:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/fixtures/headtohead?h2h=571-319:1  Failed to load resource: the server responded with a status of 400 (Bad Request)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/fixtures/1383457/shots:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/fixtures/headtohead?h2h=2184-567:1  Failed to load resource: the server responded with a status of 400 (Bad Request)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/fixtures/1383456/shots:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/fixtures/headtohead?h2h=571-319:1  Failed to load resource: the server responded with a status of 400 (Bad Request)
