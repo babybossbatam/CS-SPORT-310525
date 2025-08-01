@@ -429,6 +429,7 @@ export const MyScoresLeft = ({
               selectedLeagues={selectedLeagues}
               onRemoveLeague={handleRemoveLeague}
               onShowLeagueSelection={() => setShowLeagueSelection(true)}
+              onLeagueSelectionComplete={handleLeagueSelectionComplete}
             />
           </>
         ) : (

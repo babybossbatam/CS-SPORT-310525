@@ -32,12 +32,15 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
       if (storedLeagues && selectedLeagues.length === 0) {
         const parsedLeagues = JSON.parse(storedLeagues);
         console.log("🎯 [MySelectionCard] Restored leagues from localStorage:", parsedLeagues.length);
-        // Don't call onLeagueSelectionComplete during restoration to avoid loops
+        // Call onLeagueSelectionComplete to sync with parent
+        if (onLeagueSelectionComplete && parsedLeagues.length > 0) {
+          onLeagueSelectionComplete(parsedLeagues);
+        }
       }
     } catch (error) {
       console.error("Error restoring leagues from localStorage:", error);
     }
-  }, []);
+  }, [onLeagueSelectionComplete]);
 
   const handleRemoveTeam = (teamId: string | number) => {
     if (onRemoveTeam) {
