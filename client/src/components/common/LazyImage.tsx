@@ -37,6 +37,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const [imageSrc, setImageSrc] = useState<string>(src);
   const [hasError, setHasError] = useState<boolean>(false);
   const [retryCount, setRetryCount] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     // Check for specific teams/leagues that should use local assets immediately
@@ -81,6 +82,9 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const handleError = () => {
     // Safety check to prevent cascading errors
     try {
+      // Immediately set loading to false to prevent broken image display
+      setIsLoading(false);
+      
       // Check for specific teams/leagues that should use local assets
       const shouldUseLocalAsset = () => {
         if (alt) {
@@ -90,6 +94,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
           if (altLower.includes("cotif") || altLower.includes("cotif tournament")) {
             setImageSrc("/assets/matchdetaillogo/cotif tournament.png");
             setHasError(false);
+            setIsLoading(true);
             console.log(`🏆 [LazyImage] Using local COTIF Tournament logo`);
             return true;
           }
@@ -98,6 +103,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
           if (altLower.includes("valencia") && !altLower.includes("rayo vallecano")) {
             setImageSrc("/assets/matchdetaillogo/valencia.png");
             setHasError(false);
+            setIsLoading(true);
             console.log(`⚽ [LazyImage] Using local Valencia logo`);
             return true;
           }
@@ -106,6 +112,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
           if (altLower.includes("alboraya") || altLower.includes("albaroya")) {
             setImageSrc("/assets/matchdetaillogo/alboraya.png");
             setHasError(false);
+            setIsLoading(true);
             console.log(`⚽ [LazyImage] Using local Alboraya logo`);
             return true;
           }
@@ -208,6 +215,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
             );
             setImageSrc(fallbackUrl);
             setRetryCount(retryCount + 1);
+            setIsLoading(true);
             return;
           }
         }
@@ -227,6 +235,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
             );
             setImageSrc(squareUrl);
             setRetryCount(retryCount + 1);
+            setIsLoading(true);
             return;
           }
         }
@@ -246,6 +255,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
             );
             setImageSrc(directUrl);
             setRetryCount(retryCount + 1);
+            setIsLoading(true);
             return;
           }
         }
@@ -260,6 +270,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
           console.log(`🔄 [LazyImage] Retrying with cache buster: ${freshUrl}`);
           setImageSrc(freshUrl);
           setRetryCount(retryCount + 1);
+          setIsLoading(true);
           return;
         }
 
@@ -285,6 +296,9 @@ const LazyImage: React.FC<LazyImageProps> = ({
   };
 
   const handleLoad = () => {
+    // Reset loading state when image loads successfully
+    setIsLoading(false);
+    
     // Don't cache or log success for fallback images
     const isFallbackImage =
       imageSrc.includes("/assets/fallback-logo.svg") ||
@@ -410,7 +424,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
       style={{
         ...style,
         border: 'none',
-        outline: 'none'
+        outline: 'none',
+        display: isLoading && hasError ? 'none' : 'block'
       }}
       loading={loading}
       onLoad={handleLoad}
