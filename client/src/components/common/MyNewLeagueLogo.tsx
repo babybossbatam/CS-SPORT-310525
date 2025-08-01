@@ -86,76 +86,14 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
       setError(null);
 
       try {
-        // Priority 1: Try server proxy first (most reliable)
+        // Use the working server proxy endpoint directly (same as LazyImage)
+        const proxyUrl = `/api/league-logo/${leagueId}`;
         console.log(
-          `🔍 [MyNewLeagueLogo] Trying server proxy for league ${leagueId}`,
+          `✅ [MyNewLeagueLogo] Using server proxy for league ${leagueId}: ${proxyUrl}`,
         );
-
-        try {
-          const proxyUrl = `/api/league-logo/${leagueId}`;
-          console.log(
-            `✅ [MyNewLeagueLogo] Using server proxy for league ${leagueId}: ${proxyUrl}`,
-          );
-          setLogoUrl(proxyUrl);
-          setIsLoading(false);
-          return;
-        } catch (proxyError) {
-          console.warn(
-            `⚠️ [MyNewLeagueLogo] Server proxy failed for league ${leagueId}:`,
-            proxyError,
-          );
-        }
-
-        // Priority 2: Try to get league information from API
-        console.log(
-          `🔍 [MyNewLeagueLogo] Trying API endpoint for league ${leagueId}`,
-        );
-
-        const response = await fetch(`/api/leagues/${leagueId}`, {
-          signal: AbortSignal.timeout(5000), // 5 second timeout
-        });
-
-        if (response.ok) {
-          const leagueData = await response.json();
-          const leagueLogo = leagueData?.league?.logo;
-
-          if (leagueLogo && !leagueLogo.includes("media.api-sports.io")) {
-            console.log(
-              `✅ [MyNewLeagueLogo] Got safe league logo from API: ${leagueLogo}`,
-            );
-            setLogoUrl(leagueLogo);
-            setIsLoading(false);
-            return;
-          }
-        }
-
-        // Priority 3: Use enhanced logo manager with enhanced options
-        console.log(
-          `🔄 [MyNewLeagueLogo] Trying enhanced logo manager for league ${leagueId}`,
-        );
-
-        if (enhancedLogoManager) {
-          const result = await enhancedLogoManager.getLeagueLogo(
-            leagueId,
-            leagueName,
-          );
-
-          if (result && result.url) {
-            console.log(
-              `✅ [MyNewLeagueLogo] Enhanced manager result for league ${leagueId}: ${result.url}`,
-            );
-            setLogoUrl(result.url);
-            setIsLoading(false);
-            return;
-          }
-        }
-
-        // Final fallback
-        const finalFallback = fallbackUrl || "/assets/fallback-logo.svg";
-        console.log(
-          `🚫 [MyNewLeagueLogo] All methods failed, using fallback for league ${leagueId}: ${finalFallback}`,
-        );
-        setLogoUrl(finalFallback);
+        setLogoUrl(proxyUrl);
+        setIsLoading(false);
+        return;
       } catch (error) {
         console.error(
           `❌ [MyNewLeagueLogo] Error loading logo for league ${leagueId}:`,
