@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,8 +21,23 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
   selectedLeagues = [],
   onRemoveLeague,
   onShowLeagueSelection,
+  onLeagueSelectionComplete,
 }) => {
   const [isEditMode, setIsEditMode] = React.useState(false);
+
+  // Add useEffect to load leagues from localStorage on component mount
+  React.useEffect(() => {
+    try {
+      const storedLeagues = localStorage.getItem('selectedLeagues');
+      if (storedLeagues && selectedLeagues.length === 0) {
+        const parsedLeagues = JSON.parse(storedLeagues);
+        console.log("🎯 [MySelectionCard] Restored leagues from localStorage:", parsedLeagues.length);
+        // Don't call onLeagueSelectionComplete during restoration to avoid loops
+      }
+    } catch (error) {
+      console.error("Error restoring leagues from localStorage:", error);
+    }
+  }, []);
 
   const handleRemoveTeam = (teamId: string | number) => {
     if (onRemoveTeam) {
@@ -103,7 +117,7 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
                     leagueContext={team.type === 'country' ? { name: 'International', country: 'World' } : undefined}
                   />
                 </div>
-                
+
                 {/* Remove button - visible in edit mode or on hover */}
                 <button
                   onClick={() => handleRemoveTeam(team.id)}
@@ -113,13 +127,13 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
                 >
                   ×
                 </button>
-                
+
                 {/* Team name tooltip on hover */}
                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
                   {team.name}
                 </div>
               </div>
-              
+
               {/* Team name below logo */}
               <div className="text-center mt-1">
                 <span className="text-xs text-gray-600 whitespace-nowrap">{team.name}</span>
@@ -129,9 +143,26 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
         </div>
       </div>
 
-      
+
     </div>
   );
+
+  const handleLeagueSelectionComplete = (leagues: any[]) => {
+    console.log("🎯 [MySelectionCard] League selection completed:", leagues);
+
+    // Save to localStorage first
+    try {
+      localStorage.setItem('selectedLeagues', JSON.stringify(leagues));
+      console.log("🎯 [MySelectionCard] Saved leagues to localStorage:", leagues.length);
+    } catch (error) {
+      console.error("Error saving leagues to localStorage:", error);
+    }
+
+    // Call the parent's handler if provided
+    if (onLeagueSelectionComplete) {
+      onLeagueSelectionComplete(leagues);
+    }
+  };
 
   const MyLeaguesSection = () => (
     <div className="space-y-4">
@@ -176,7 +207,7 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
             // Create unique identifier for leagues (including qualifiers)
             const uniqueKey = league.isQualifiers ? `${league.id}-qualifiers-${index}` : `${league.id}-${index}`;
             const uniqueId = league.isQualifiers ? `${league.id}_qualifiers` : league.id;
-            
+
             return (
               <div key={uniqueKey} className="flex flex-col items-center">
                 <div className="relative group">
@@ -195,7 +226,7 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
                       }}
                     />
                   </div>
-                  
+
                   {/* Remove button - visible in edit mode or on hover */}
                   <button
                     onClick={() => handleRemoveLeague(uniqueId)}
@@ -205,13 +236,13 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
                   >
                     ×
                   </button>
-                  
+
                   {/* League name tooltip on hover */}
                   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
                     {league.name}
                   </div>
                 </div>
-                
+
                 {/* League name below logo */}
                 <div className="text-center mt-1">
                   <span className="text-xs text-gray-600 block max-w-[60px] truncate">{league.name}</span>
@@ -231,7 +262,7 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
           <MyTeamsSection />
         </CardContent>
       </Card>
-      
+
       {/* New card below for leagues */}
       <Card className="shadow-md w-full mb-4">
         <CardContent className="pt-4 mt-4">
