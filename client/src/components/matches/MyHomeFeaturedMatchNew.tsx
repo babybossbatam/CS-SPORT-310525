@@ -188,6 +188,24 @@ interface FeaturedMatch {
     home: number | null;
     away: number | null;
   };
+  score?: {
+    halftime: {
+      home: number | null;
+      away: number | null;
+    };
+    fulltime: {
+      home: number | null;
+      away: number | null;
+    };
+    extratime: {
+      home: number | null;
+      away: number | null;
+    };
+    penalty: {
+      home: number | null;
+      away: number | null;
+    };
+  };
   venue?: {
     id?: number;
     name?: string;
