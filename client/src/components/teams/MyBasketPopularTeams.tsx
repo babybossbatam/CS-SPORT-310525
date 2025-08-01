@@ -130,18 +130,14 @@ const MyBasketPopularTeams: React.FC = () => {
               teamName={team.name}
               logoUrl={team.logo}
               size="small"
-              country={team.country}
+              
             />
             <div className="flex-1 min-w-0">
               <p className="text-xs font-medium text-gray-900 truncate">
                 {team.name}
               </p>
               <div className="flex items-center space-x-1">
-                <MyBasketballCircularFlag 
-                  teamName={team.name}
-                  countryName={team.country}
-                  size="16px"
-                />
+               
                 <p className="text-xs text-gray-500">
                   {team.league.name}
                 </p>
