@@ -126,16 +126,7 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
         />
       </div>
 
-      {/* Key Players */}
-      <div className="space-y-2">
-
-        <MyKeyPlayer 
-          match={match}
-          fixtureId={match.fixture?.id}
-          homeTeam={match.teams?.home?.name}
-          awayTeam={match.teams?.away?.name}
-        />
-      </div>
+      
       {/* Match Statistics */}
       <Card className="">
         <CardHeader>
@@ -159,6 +150,16 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
       {/* Head to Head */}
       <div className="space-y-2">
         <MyH2HNew match={match} />
+      </div>
+
+      {/* Key Players */}
+      <div className="space-y-2">
+        <MyKeyPlayer 
+          match={match}
+          fixtureId={match.fixture?.id}
+          homeTeam={match.teams?.home?.name}
+          awayTeam={match.teams?.away?.name}
+        />
       </div>
     </>
   );
