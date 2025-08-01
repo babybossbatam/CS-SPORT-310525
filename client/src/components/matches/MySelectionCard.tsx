@@ -25,15 +25,15 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
 }) => {
   const [isEditMode, setIsEditMode] = React.useState(false);
 
-  // Add useEffect to load leagues from localStorage on component mount
+  // Add useEffect to load leagues from localStorage on component mount and sync with parent
   React.useEffect(() => {
     try {
       const storedLeagues = localStorage.getItem('selectedLeagues');
-      if (storedLeagues && selectedLeagues.length === 0) {
+      if (storedLeagues) {
         const parsedLeagues = JSON.parse(storedLeagues);
         console.log("🎯 [MySelectionCard] Restored leagues from localStorage:", parsedLeagues.length);
-        // Call onLeagueSelectionComplete to sync with parent
-        if (onLeagueSelectionComplete && parsedLeagues.length > 0) {
+        // Always sync with parent, regardless of current selectedLeagues length
+        if (onLeagueSelectionComplete && parsedLeagues.length !== selectedLeagues.length) {
           onLeagueSelectionComplete(parsedLeagues);
         }
       }
@@ -41,6 +41,50 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
       console.error("Error restoring leagues from localStorage:", error);
     }
   }, [onLeagueSelectionComplete]);
+
+  // Add useEffect to listen for localStorage changes from other components
+  React.useEffect(() => {
+    const handleStorageChange = () => {
+      try {
+        const storedLeagues = localStorage.getItem('selectedLeagues');
+        if (storedLeagues) {
+          const parsedLeagues = JSON.parse(storedLeagues);
+          console.log("🎯 [MySelectionCard] Storage changed, syncing leagues:", parsedLeagues.length);
+          if (onLeagueSelectionComplete) {
+            onLeagueSelectionComplete(parsedLeagues);
+          }
+        }
+      } catch (error) {
+        console.error("Error handling storage change:", error);
+      }
+    };
+
+    // Listen for storage events (when localStorage is changed from other tabs/components)
+    window.addEventListener('storage', handleStorageChange);
+
+    // Also poll for changes every 500ms to catch same-tab changes
+    const interval = setInterval(() => {
+      try {
+        const storedLeagues = localStorage.getItem('selectedLeagues');
+        if (storedLeagues) {
+          const parsedLeagues = JSON.parse(storedLeagues);
+          if (parsedLeagues.length !== selectedLeagues.length) {
+            console.log("🎯 [MySelectionCard] Detected league count change, syncing...");
+            if (onLeagueSelectionComplete) {
+              onLeagueSelectionComplete(parsedLeagues);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error in polling check:", error);
+      }
+    }, 500);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [selectedLeagues.length, onLeagueSelectionComplete]);
 
   const handleRemoveTeam = (teamId: string | number) => {
     if (onRemoveTeam) {

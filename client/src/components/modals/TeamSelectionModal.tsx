@@ -159,6 +159,13 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
   const handleLeagueSelectionComplete = (leagues: any[]) => {
     console.log("🎯 [TeamSelectionModal] League selection completed:", leagues);
     setSelectedLeagues(leagues);
+    
+    // Force a storage event to notify other components
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'selectedLeagues',
+      newValue: JSON.stringify(leagues),
+      storageArea: localStorage
+    }));
   };
 
   const handleLeagueSelectionClose = () => {
