@@ -24,7 +24,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { RoundBadge } from "@/components/ui/round-badge";
 
-// Popular basketball leagues from MyBasketPopularLeagues
+// Popular basketball leagues from MyBasketPopularLeagues - using exact IDs from MyBasketPopularLeagues
 const POPULAR_BASKETBALL_LEAGUES = [
   { id: 12, name: 'NBA', country: 'USA' },
   { id: 120, name: 'EuroLeague', country: 'Europe' },
