@@ -54,9 +54,13 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
         setError(null);
 
         console.log(`🔍 [H2H] Fetching head-to-head data for teams: ${actualHomeTeamId} vs ${actualAwayTeamId}`);
-        
-        const response = await fetch(`/api/fixtures/headtohead?h2h=${actualHomeTeamId}-${actualAwayTeamId}&last=10`);
-        
+
+        const h2hParam = `${actualHomeTeamId}-${actualAwayTeamId}`;
+        const url = `/api/fixtures/headtohead?h2h=${h2hParam}&last=10`;
+        console.log(`🔍 [H2H] Fetching from: ${url}`);
+
+        const response = await fetch(url);
+
         console.log(`📡 [H2H] Response status: ${response.status}`);
 
         if (!response.ok) {
@@ -70,7 +74,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
 
         const fixtures = data?.response || [];
         console.log(`✅ [H2H] Found ${fixtures.length} head-to-head matches`);
-        
+
         setH2hData(fixtures);
       } catch (err) {
         console.error('❌ [H2H] Error:', err);

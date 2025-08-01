@@ -15,9 +15,16 @@ router.get('/headtohead', async (req, res) => {
       return res.status(400).json({ error: 'h2h parameter is required (format: team1-team2)' });
     }
 
-    // Validate h2h format (should be team1-team2)
-    if (!h2h.toString().includes('-')) {
+    // Clean and validate h2h format (should be team1-team2)
+    const cleanH2h = h2h.toString().trim();
+    if (!cleanH2h.includes('-')) {
       return res.status(400).json({ error: 'h2h parameter must be in format: team1-team2' });
+    }
+    
+    // Validate that both team IDs are numbers
+    const [team1, team2] = cleanH2h.split('-');
+    if (!team1 || !team2 || isNaN(Number(team1)) || isNaN(Number(team2))) {
+      return res.status(400).json({ error: 'h2h parameter must contain valid team IDs: team1-team2' });
     }
     
     const apiKey = process.env.RAPID_API_KEY || process.env.RAPIDAPI_KEY || '';
@@ -28,7 +35,7 @@ router.get('/headtohead', async (req, res) => {
     // Build URL with proper parameters
     const baseUrl = 'https://api-football-v1.p.rapidapi.com/v3/fixtures/headtohead';
     const params = new URLSearchParams({
-      h2h: h2h.toString(),
+      h2h: cleanH2h,
       last: last.toString()
     });
     
