@@ -166,6 +166,12 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
     setShowLeagueSelection(false);
   };
 
+  const handleLeaguePrevious = () => {
+    console.log("🎯 [TeamSelectionModal] Previous clicked in league selection, reopening team selection");
+    setShowLeagueSelection(false);
+    onOpenChange(true); // Reopen the TeamSelectionModal
+  };
+
   const soccerTeams = popularTeams.filter(team => team.type === 'team');
   const countries = popularTeams.filter(team => team.type === 'country');
 
@@ -393,6 +399,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
       onOpenChange={handleLeagueSelectionClose}
       onLeagueSelectionComplete={handleLeagueSelectionComplete}
       initialSelectedLeagues={selectedLeagues}
+      onPrevious={handleLeaguePrevious}
     />
   </>
   );
