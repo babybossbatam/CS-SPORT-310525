@@ -154,6 +154,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           )}
         </div>
       </div>
+      </div>
     </>
   );
 };
