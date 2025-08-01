@@ -354,7 +354,12 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   return (
     <div
       className={`team-logo-container ${className}`}
-      style={containerStyle}
+      style={{
+        ...containerStyle,
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none'
+      }}
     >
       <LazyImage
         src={resolvedLogoUrl}
