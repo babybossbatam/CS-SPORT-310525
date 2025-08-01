@@ -804,51 +804,6 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                   ? "All Matches by Time"
                   : "Popular Football Live Score"}
           </span>
-          {/* Test Flash Effect Buttons - Remove these after testing */}
-          <div className="flex gap-2">
-            <button 
-              onClick={() => {
-                const firstMatchId = filteredFixtures[0]?.fixture?.id;
-                if (firstMatchId) {
-                  setHalftimeFlashMatches(new Set([firstMatchId]));
-                  setTimeout(() => setHalftimeFlashMatches(new Set()), 3000);
-                }
-              }}
-              className="px-2 py-1 text-xs bg-pink-200 rounded"
-            >
-              Test HT Flash
-            </button>
-            <button 
-              onClick={() => {
-                const firstMatchId = filteredFixtures[0]?.fixture?.id;
-                if (firstMatchId) {
-                  setFulltimeFlashMatches(new Set([firstMatchId]));
-                  setTimeout(() => setFulltimeFlashMatches(new Set()), 3000);
-                }
-              }}
-              className="px-2 py-1 text-xs bg-blue-200 rounded"
-            >
-              Test FT Flash
-            </button>
-            <button 
-              onClick={() => {
-                const firstMatchId = filteredFixtures[0]?.fixture?.id;
-                if (firstMatchId) {
-                  // Create a temporary goal flash state since it's not implemented in this component yet
-                  const matchCardElement = document.querySelector(`[data-fixture-id="${firstMatchId}"]`);
-                  if (matchCardElement) {
-                    matchCardElement.classList.add('goal-flash');
-                    setTimeout(() => {
-                      matchCardElement.classList.remove('goal-flash');
-                    }, 2000);
-                  }
-                }
-              }}
-              className="px-2 py-1 text-xs bg-green-200 rounded"
-            >
-              Test Goal Flash
-            </button>
-          </div>
         </div>
       </CardHeader>
       {/* Create individual league cards from all countries */}
