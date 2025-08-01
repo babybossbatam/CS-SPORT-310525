@@ -45,20 +45,24 @@ const MyInfo: React.FC = () => {
               Why Choose CS SPORT?
             </h3>
             <p className="text-xs text-gray-600">
-              <li>
+              <li className="flex items-center">
+                <span className="w-1 h-1 bg-gray-600 rounded-full mr-3"></span>
                 All-in-One Platform: Get the latest news, fixtures, standings,
-                results, and live scores for leagues, cups, and tournaments
-                around the globe.
+                  results, and live scores for leagues, cups, and tournaments
+                  around the globe.
               </li>
-              <li>
+              <li className="flex items-center">
+                <span className="w-1 h-1 bg-gray-600 rounded-full mr-3"></span>
                 Track Your Favorites: Follow your teams and players, and never
                 miss a moment. Smart Predictions: Use our insights and tips to
                 make better Football predictions and outsmart your friends!
               </li>
-              <li>
+              <li className="flex items-center">
+                <span className="w-1 h-1 bg-gray-600 rounded-full mr-3"></span>
                 Smart Predictions: Use our insights and tips to make better
                 Football predictions and outsmart your friends.
               </li>
+              
             </p>
             <div>
               <p className="text-xs text-gray-600 mt-2">

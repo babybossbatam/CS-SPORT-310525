@@ -17,12 +17,12 @@ const ComingSoon: React.FC<ComingSoonProps> = ({
   feature = "feature"
 }) => {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 p-4">
-      <Card className="w-full max-w-2xl mx-auto shadow-lg">
+    <div className="min-h-screen w-full flex items-center justify-center  ">
+      <Card className="w-full max-w-2xl mx-auto shadow-lg -mt-14">
         <CardContent className="pt-12 pb-12 text-center">
           {/* Icon */}
           <div className="mb-6 flex justify-center">
-            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
               <Icon className="h-12 w-12 text-gray-400" />
             </div>
           </div>
@@ -38,7 +38,7 @@ const ComingSoon: React.FC<ComingSoonProps> = ({
           {/* Progress indicator */}
           <div className="mb-8">
             <div className="w-full bg-gray-200 rounded-full h-2 max-w-xs mx-auto">
-              <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '45%' }}></div>
+              <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '55%' }}></div>
             </div>
             <p className="text-sm text-gray-500 mt-2">Development in progress...</p>
           </div>
