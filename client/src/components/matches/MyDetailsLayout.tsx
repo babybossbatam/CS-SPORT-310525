@@ -64,13 +64,7 @@ const MyDetailsLayout: React.FC<MyDetailsLayoutProps> = ({ currentFixture }) => 
 
       {/* Display fixtures filtered by the current league */}
       {/* Assuming MyDetailsFixture is meant to be rendered here and needs these props */}
-       <MyDetailsFixture
-          selectedDate={selectedDate}
-          onMatchCardClick={handleMatchCardClick}
-          match={currentFixture}
-          selectedMatchId={selectedMatchId}
-          currentLeagueId={currentFixture?.league?.id}
-        />
+      
     </>
   );
 };
