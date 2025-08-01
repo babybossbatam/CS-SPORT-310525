@@ -53,37 +53,27 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
         setLoading(true);
         setError(null);
 
-        console.log(`🔍 [H2H] Making request with team1=${actualHomeTeamId}, team2=${actualAwayTeamId}`);
+        console.log(`🔍 [H2H] Fetching head-to-head data for teams: ${actualHomeTeamId} vs ${actualAwayTeamId}`);
         
-        // Build URL with proper h2h parameter format
-        const params = new URLSearchParams({
-          h2h: `${actualHomeTeamId}-${actualAwayTeamId}`,
-          last: '10'
-        });
+        const response = await fetch(`/api/fixtures/headtohead?h2h=${actualHomeTeamId}-${actualAwayTeamId}&last=10`);
         
-        const url = `/api/fixtures/headtohead?${params.toString()}`;
-        console.log(`🌐 [H2H] Full URL: ${url}`);
-        
-        const response = await fetch(url);
-
-        console.log(`📡 [H2H] Response status: ${response.status}, statusText: ${response.statusText}`);
+        console.log(`📡 [H2H] Response status: ${response.status}`);
 
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error(`❌ [H2H] API Error Response:`, errorText);
-          throw new Error(`API returned ${response.status}: ${errorText}`);
+          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+          console.error(`❌ [H2H] API Error:`, errorData);
+          throw new Error(errorData.error || `HTTP ${response.status}`);
         }
 
         const data = await response.json();
-        console.log(`📊 [H2H] Complete Raw API Response:`, JSON.stringify(data, null, 2));
+        console.log(`📊 [H2H] Raw API Response:`, data);
 
-        // Just show whatever the API gives us
         const fixtures = data?.response || [];
-        console.log(`✅ [H2H] API returned ${fixtures.length} matches`);
+        console.log(`✅ [H2H] Found ${fixtures.length} head-to-head matches`);
         
         setH2hData(fixtures);
       } catch (err) {
-        console.error('❌ [H2H] Complete error details:', err);
+        console.error('❌ [H2H] Error:', err);
         setError(`Failed to load head-to-head data: ${err.message}`);
       } finally {
         setLoading(false);
@@ -119,13 +109,8 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
           <div className="text-center text-gray-500">
             <div className="text-2xl mb-2">📊</div>
             <p className="text-sm text-red-600">{error}</p>
-            <div className="mt-4 text-xs text-left bg-gray-100 p-2 rounded">
-              <strong>Debug Info:</strong><br/>
-              Home Team ID: {actualHomeTeamId}<br/>
-              Away Team ID: {actualAwayTeamId}<br/>
-              H2H Parameter: {actualHomeTeamId}-{actualAwayTeamId}<br/>
-              API Endpoint: /api/fixtures/headtohead<br/>
-              <strong>Expected Format:</strong> h2h=team1-team2&last=10
+            <div className="mt-2 text-xs text-gray-400">
+              Teams: {actualHomeTeamId} vs {actualAwayTeamId}
             </div>
           </div>
         </CardContent>

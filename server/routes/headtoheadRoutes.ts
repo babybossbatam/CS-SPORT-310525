@@ -15,8 +15,14 @@ router.get('/headtohead', async (req, res) => {
       console.error(`❌ [H2H API] Missing h2h parameter:`, { h2h });
       return res.status(400).json({ error: 'h2h parameter is required (format: team1-team2)' });
     }
+
+    // Validate h2h format (should be team1-team2)
+    if (!h2h.toString().includes('-')) {
+      console.error(`❌ [H2H API] Invalid h2h format:`, { h2h });
+      return res.status(400).json({ error: 'h2h parameter must be in format: team1-team2' });
+    }
     
-    console.log(`🔍 [H2H API] Fetching head-to-head data for: ${h2h}, last ${last} matches`);
+    console.log(`🔍 [H2H API] Fetching head-to-head data for teams: ${h2h}, last ${last} matches`);
     
     // Check if API key is available
     const apiKey = process.env.RAPID_API_KEY || process.env.RAPIDAPI_KEY || '';
