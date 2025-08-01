@@ -394,16 +394,13 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
             </div>
           )}
 
-          {/* Historical Meetings - 365scores style */}
-          <div className="space-y-4">
+          {/* Historical Meetings - Clean format like reference image */}
+          <div className="space-y-3">
             <h4 className="text-sm font-medium text-gray-800 mb-3">Previous Meetings</h4>
             
-            {/* Historical List - Enhanced 365scores style matching your image */}
-            <div className="bg-white rounded-lg overflow-hidden border border-gray-100">
+            {/* Clean Historical List - Simplified format */}
+            <div className="bg-white rounded-lg overflow-hidden">
               {recentMatches.map((match, index) => {
-                const isHomeWinner = match.goals.home > match.goals.away;
-                const isAwayWinner = match.goals.away > match.goals.home;
-                const isDraw = match.goals.home === match.goals.away && match.goals.home !== null;
                 const isScheduled = match.goals.home === null || match.goals.away === null;
                 
                 // Determine which team is home/away in this historical match
@@ -421,121 +418,57 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
                   ? match.goals.away 
                   : match.goals.home;
                 
-                // Determine winner styling based on current context
-                const homeTeamWon = homeScoreInMatch > awayScoreInMatch;
-                const awayTeamWon = awayScoreInMatch > homeScoreInMatch;
-                const isDrawMatch = homeScoreInMatch === awayScoreInMatch && !isScheduled;
-                
                 return (
                   <div 
                     key={match.fixture.id} 
-                    className={`border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors cursor-pointer ${
-                      homeTeamWon ? 'bg-green-50 hover:bg-green-100' :
-                      awayTeamWon ? 'bg-red-50 hover:bg-red-100' :
-                      isDrawMatch ? 'bg-yellow-50 hover:bg-yellow-100' :
-                      'bg-white hover:bg-gray-50'
-                    }`}
+                    className="py-3 px-4 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
                   >
-                    <div className="px-4 py-4">
-                      {/* Date and Competition Header */}
-                      <div className="flex justify-between items-center mb-3">
-                        <div className="text-xs text-gray-500 font-medium">
-                          {new Date(match.fixture.date).toLocaleDateString('en-US', { 
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric'
-                          })}
-                        </div>
-                        <div className="text-xs text-gray-600 bg-gray-200 px-2 py-1 rounded-full font-medium">
-                          {match.league?.name || 'Unknown Competition'}
-                        </div>
+                    {/* Date and Competition */}
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="text-xs text-gray-500">
+                        {new Date(match.fixture.date).toLocaleDateString('en-GB', { 
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric'
+                        })}
                       </div>
-                      
-                      {/* Main Match Content */}
-                      <div className="flex items-center justify-between">
-                        {/* Home Team Section */}
-                        <div className={`flex-1 ${
-                          homeTeamWon && !isScheduled ? 'font-bold text-gray-900' : 
-                          !isScheduled ? 'text-gray-700' : 'text-gray-700'
-                        }`}>
-                          <div className="flex items-center space-x-2">
-                            <MyWorldTeamLogo
-                              teamName={homeTeamInMatch.name}
-                              teamLogo={homeTeamInMatch.logo}
-                              teamId={homeTeamInMatch.id}
-                              alt={homeTeamInMatch.name}
-                              size="24px"
-                              className="w-6 h-6 rounded-full flex-shrink-0"
-                            />
-                            <div className="text-sm truncate max-w-24" title={homeTeamInMatch.name}>
-                              {homeTeamInMatch.name}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Score or Time Section */}
-                        <div className="flex-shrink-0 mx-6">
-                          {isScheduled ? (
-                            <div className="text-sm font-medium text-gray-700 bg-gray-100 px-3 py-1 rounded-md">
-                              {new Date(match.fixture.date).toLocaleTimeString('en-US', { 
-                                hour: '2-digit', 
-                                minute: '2-digit',
-                                hour12: false 
-                              })}
-                            </div>
-                          ) : (
-                            <div className={`text-xl font-bold px-3 py-1 rounded-md ${
-                              homeTeamWon ? 'text-green-700 bg-green-100' :
-                              awayTeamWon ? 'text-red-700 bg-red-100' :
-                              'text-yellow-700 bg-yellow-100'
-                            }`}>
-                              {homeScoreInMatch} - {awayScoreInMatch}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Away Team Section */}
-                        <div className={`flex-1 text-right ${
-                          awayTeamWon && !isScheduled ? 'font-bold text-gray-900' : 
-                          !isScheduled ? 'text-gray-700' : 'text-gray-700'
-                        }`}>
-                          <div className="flex items-center justify-end space-x-2">
-                            <div className="text-sm truncate max-w-24" title={awayTeamInMatch.name}>
-                              {awayTeamInMatch.name}
-                            </div>
-                            <MyWorldTeamLogo
-                              teamName={awayTeamInMatch.name}
-                              teamLogo={awayTeamInMatch.logo}
-                              teamId={awayTeamInMatch.id}
-                              alt={awayTeamInMatch.name}
-                              size="24px"
-                              className="w-6 h-6 rounded-full flex-shrink-0"
-                            />
-                          </div>
-                        </div>
+                      <div className="text-xs text-gray-600 font-medium">
+                        {match.league?.name || 'Unknown Competition'}
+                      </div>
+                    </div>
+                    
+                    {/* Teams and Score */}
+                    <div className="flex items-center justify-between">
+                      {/* Home Team */}
+                      <div className="flex items-center flex-1">
+                        <span className="text-sm text-gray-800 font-medium">
+                          {homeTeamInMatch.name}
+                        </span>
                       </div>
 
-                      {/* Match Result Summary */}
-                      {!isScheduled && (
-                        <div className="mt-3 flex justify-center">
-                          <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            homeTeamWon ? 'bg-green-200 text-green-800' : 
-                            awayTeamWon ? 'bg-red-200 text-red-800' : 
-                            'bg-yellow-200 text-yellow-800'
-                          }`}>
-                            {homeTeamWon ? `${homeTeamInMatch.name} Won` :
-                             awayTeamWon ? `${awayTeamInMatch.name} Won` :
-                             'Draw'}
+                      {/* Score */}
+                      <div className="mx-6 min-w-16 text-center">
+                        {isScheduled ? (
+                          <div className="text-sm font-medium text-gray-700">
+                            {new Date(match.fixture.date).toLocaleTimeString('en-US', { 
+                              hour: '2-digit', 
+                              minute: '2-digit',
+                              hour12: false 
+                            })}
                           </div>
-                        </div>
-                      )}
+                        ) : (
+                          <div className="text-lg font-bold text-gray-900">
+                            {homeScoreInMatch} - {awayScoreInMatch}
+                          </div>
+                        )}
+                      </div>
 
-                      {/* Additional Match Info */}
-                      {match.fixture?.venue?.name && (
-                        <div className="mt-2 text-xs text-gray-500 text-center">
-                          📍 {match.fixture.venue.name}
-                        </div>
-                      )}
+                      {/* Away Team */}
+                      <div className="flex items-center justify-end flex-1">
+                        <span className="text-sm text-gray-800 font-medium">
+                          {awayTeamInMatch.name}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 );
