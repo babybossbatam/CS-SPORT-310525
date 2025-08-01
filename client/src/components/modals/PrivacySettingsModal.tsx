@@ -53,7 +53,7 @@ const PrivacySettingsModal: React.FC<PrivacySettingsModalProps> = ({ isOpen, onC
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-white">
         <DialogHeader className="flex flex-row items-center justify-between border-b pb-4">
           <DialogTitle className="text-lg font-semibold text-gray-900">
-            Welcome to 365Scores Ltd Consent Management
+            Welcome to CS SPORT Consent Management
           </DialogTitle>
           <Button
             variant="ghost"
