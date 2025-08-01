@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -56,7 +55,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
 
         console.log(`🔍 [H2H] Fetching head-to-head data for: ${actualHomeTeamId}-${actualAwayTeamId}`);
         const response = await fetch(`/api/fixtures/headtohead?h2h=${actualHomeTeamId}-${actualAwayTeamId}&season=2025`);
-        
+
         if (!response.ok) {
           console.error(`❌ [H2H] API response not ok: ${response.status} ${response.statusText}`);
           throw new Error(`Failed to fetch head-to-head data: ${response.status}`);
@@ -64,18 +63,18 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
 
         const data = await response.json();
         console.log(`📊 [H2H] Raw API response:`, data);
-        
+
         // Handle the response structure from your API
         const fixtures = data?.response || data || [];
         console.log(`✅ [H2H] Found ${fixtures.length} head-to-head matches`);
-        
+
         // Filter only finished matches for H2H statistics
         const finishedMatches = fixtures.filter(match => 
           match.fixture?.status?.short === 'FT' || 
           match.fixture?.status?.short === 'AET' ||
           match.fixture?.status?.short === 'PEN'
         );
-        
+
         console.log(`📈 [H2H] ${finishedMatches.length} finished matches for statistics`);
         setH2hData(fixtures); // Keep all matches for display
       } catch (err) {
@@ -171,7 +170,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
               </div>
             </div>
           )}
-          
+
           {finishedMatches.length === 0 && h2hData.length > 0 && (
             <div className="text-center text-gray-500 mb-4">
               <div className="text-sm">No completed matches found</div>
@@ -194,7 +193,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
                     {match.teams.home.name}
                   </span>
                 </div>
-                
+
                 <div className="flex flex-col items-center space-y-1 mx-4">
                   <span className="text-xs font-medium">
                     {match.goals.home !== null && match.goals.away !== null 
@@ -212,7 +211,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
                     </span>
                   )}
                 </div>
-                
+
                 <div className="flex items-center space-x-2 flex-1 justify-end">
                   <span className="text-xs text-gray-700 truncate">
                     {match.teams.away.name}
@@ -236,7 +235,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
           )}
         </CardContent>
       </Card>
-      
+
       <TopTrendsCard homeTeamId={actualHomeTeamId} awayTeamId={actualAwayTeamId} />
     </>
   );

@@ -1,6 +1,6 @@
 
 import express from 'express';
-import { rapidApiService } from '../services/rapidApi';
+import fetch from 'node-fetch';
 
 const router = express.Router();
 
@@ -10,26 +10,30 @@ router.get('/headtohead', async (req, res) => {
     const { h2h, season = '2025' } = req.query;
     
     if (!h2h || typeof h2h !== 'string') {
-      return res.status(400).json({ message: 'Invalid fixture ID' });
+      return res.status(400).json({ message: 'h2h parameter is required' });
     }
     
-    const [homeTeamId, awayTeamId] = h2h.split('-').map(id => parseInt(id));
+    console.log(`🔍 [H2H API] Fetching head-to-head data for: ${h2h}, season: ${season}`);
     
-    if (!homeTeamId || !awayTeamId) {
-      return res.status(400).json({ message: 'Invalid team IDs in h2h parameter' });
-    }
+    // Direct RapidAPI call - exactly like your example
+    const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures/headtohead?h2h=${h2h}&season=${season}`;
+    const options = {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': process.env.RAPID_API_KEY || '',
+        'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
+      }
+    };
+
+    const response = await fetch(url, options);
+    const result = await response.json();
     
-    console.log(`🔍 [H2H API] Fetching head-to-head data for teams: ${homeTeamId} vs ${awayTeamId}, season: ${season}`);
+    console.log(`✅ [H2H API] Successfully fetched head-to-head data:`, result);
     
-    // Use existing RapidAPI service
-    const data = await rapidApiService.getHeadToHeadFixtures(h2h, season);
-    
-    console.log(`✅ [H2H API] Successfully fetched ${data?.results || 0} head-to-head matches`);
-    
-    res.json(data);
+    res.json(result);
   } catch (error) {
     console.error(`❌ [H2H API] Error fetching head-to-head data:`, error);
-    res.status(500).json({ error: 'Failed to fetch head-to-head data' });
+    res.status(500).json({ error: 'Failed to fetch head-to-head data', details: error.message });
   }
 });
 
