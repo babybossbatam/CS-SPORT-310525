@@ -1968,11 +1968,11 @@ id: fixture.teams.away.id,
                             position: "absolute",
                             left: "50%",
                             transform: "translateX(-50%)",
-                            top: "60px",
-                            bottom: "-15px",
+                            top: "80px",
+                           
                             width: "max-content",
                             fontFamily: "'Inter', system-ui, sans-serif",
-                            marginTop: "10px",
+                           
                           }}
                         >
                           {(() => {
@@ -2081,7 +2081,7 @@ id: fixture.teams.away.id,
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex justify-around border-t border-gray-200 pt-4">
+                  <div className="flex justify-around border-t border-gray-200 pt-4 mt-15">
                     <button
                       className="flex flex-col items-center cursor-pointer"
                       onClick={(e) => {
