@@ -13,18 +13,23 @@ import PopularTeamsList from '@/components/teams/PopularTeamsList';
 import ScoreDetailsCard from '@/components/matches/ScoreDetailsCard';
 import MyMainLayoutRight from '@/components/layout/MyMainLayoutRight';
 import MyInfo from '@/components/info/MyInfo';
+import { useDeviceInfo } from '@/lib/hooks/useDeviceInfo';
 
 
 const MyRightContent: React.FC = () => {
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
+  const [showAllLeagues, setShowAllLeagues] = useState(false);
+  const { isMobile } = useDeviceInfo();
 
   return (
     <>
-      {/* New optimized featured match component for testing */}
-      <MyHomeFeaturedMatchNew 
-        selectedDate={selectedDate} 
-        maxMatches={8}
-      />
+      {/* Featured Match Section - Hidden on mobile */}
+      {!isMobile && (
+        <MyHomeFeaturedMatchNew 
+          selectedDate={selectedDate} 
+          maxMatches={8}
+        />
+      )}
 
       <HomeTopScorersList />
 
@@ -41,9 +46,9 @@ const MyRightContent: React.FC = () => {
         </div>
         <MyAllLeague />
       </div>
-      
-      
-      
+
+
+
     </>
 
   );

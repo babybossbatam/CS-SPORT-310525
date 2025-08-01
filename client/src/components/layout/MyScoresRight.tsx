@@ -5,17 +5,21 @@ import { RootState } from '@/lib/store';
 import MyHomeFeaturedMatchNew from '@/components/matches/MyHomeFeaturedMatchNew';
 import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
 import PopularTeamsList from '@/components/teams/PopularTeamsList';
+import { useDeviceInfo } from '@/hooks/use-mobile';
 
 const MyScoresRight: React.FC = () => {
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
+  const { isMobile } = useDeviceInfo();
 
   return (
     <>
-      {/* New optimized featured match component for testing */}
-      <MyHomeFeaturedMatchNew 
-        selectedDate={selectedDate} 
-        maxMatches={8}
-      />
+      {/* New optimized featured match component for testing - Hidden on mobile */}
+      {!isMobile && (
+        <MyHomeFeaturedMatchNew 
+          selectedDate={selectedDate} 
+          maxMatches={8}
+        />
+      )}
 
       {/* Popular Leagues and Teams sections */}
       <div className="grid grid-cols-2 gap-4">
