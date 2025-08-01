@@ -98,8 +98,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
             }}
           />
           <span className={cn(
-            "flex items-center gap-2",
-            isMobile && !showTextOnMobile ? "hidden" : "whitespace-nowrap"
+            "flex items-center gap-2 whitespace-nowrap"
           )}>
             <span
               className={cn(
