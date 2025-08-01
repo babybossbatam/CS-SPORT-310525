@@ -238,7 +238,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
 
             {/* Away Team Section */}
             <div className="flex flex-col items-center flex-1">
-              <div className="w-12 h-12 mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
+           
                 <MyWorldTeamLogo
                   teamName={match?.teams?.away?.name || 'Away Team'}
                   teamLogo={match?.teams?.away?.logo}
@@ -247,7 +247,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
                   size="32px"
                   className="w-8 h-8 rounded-full"
                 />
-              </div>
+            
               <div className="text-xs text-gray-600 text-center max-w-20 truncate" title={match?.teams?.away?.name}>
                 {match?.teams?.away?.name || 'Away Team'}
               </div>
@@ -397,8 +397,8 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-gray-800 mb-3">Previous Meetings</h4>
             
-            {/* Historical List - 365scores inspired clean design */}
-            <div className="bg-white rounded-lg overflow-hidden">
+            {/* Historical List - Enhanced 365scores style matching your image */}
+            <div className="bg-white rounded-lg overflow-hidden border border-gray-100">
               {recentMatches.map((match, index) => {
                 const isHomeWinner = match.goals.home > match.goals.away;
                 const isAwayWinner = match.goals.away > match.goals.home;
@@ -423,43 +423,59 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
                 // Determine winner styling based on current context
                 const homeTeamWon = homeScoreInMatch > awayScoreInMatch;
                 const awayTeamWon = awayScoreInMatch > homeScoreInMatch;
+                const isDrawMatch = homeScoreInMatch === awayScoreInMatch && !isScheduled;
                 
                 return (
                   <div 
                     key={match.fixture.id} 
-                    className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors cursor-pointer"
+                    className={`border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors cursor-pointer ${
+                      homeTeamWon ? 'bg-green-50 hover:bg-green-100' :
+                      awayTeamWon ? 'bg-red-50 hover:bg-red-100' :
+                      isDrawMatch ? 'bg-yellow-50 hover:bg-yellow-100' :
+                      'bg-white hover:bg-gray-50'
+                    }`}
                   >
-                    <div className="px-4 py-3">
-                      {/* Date and Competition */}
+                    <div className="px-4 py-4">
+                      {/* Date and Competition Header */}
                       <div className="flex justify-between items-center mb-3">
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 font-medium">
                           {new Date(match.fixture.date).toLocaleDateString('en-US', { 
                             day: '2-digit',
                             month: '2-digit',
                             year: 'numeric'
                           })}
                         </div>
-                        <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                        <div className="text-xs text-gray-600 bg-gray-200 px-2 py-1 rounded-full font-medium">
                           {match.league?.name || 'Unknown Competition'}
                         </div>
                       </div>
                       
-                      {/* Match Result */}
+                      {/* Main Match Content */}
                       <div className="flex items-center justify-between">
-                        {/* Home Team */}
+                        {/* Home Team Section */}
                         <div className={`flex-1 ${
                           homeTeamWon && !isScheduled ? 'font-bold text-gray-900' : 
-                          !isScheduled ? 'text-gray-600' : 'text-gray-700'
+                          !isScheduled ? 'text-gray-700' : 'text-gray-700'
                         }`}>
-                          <div className="text-sm truncate max-w-32">
-                            {homeTeamInMatch.name}
+                          <div className="flex items-center space-x-2">
+                            <MyWorldTeamLogo
+                              teamName={homeTeamInMatch.name}
+                              teamLogo={homeTeamInMatch.logo}
+                              teamId={homeTeamInMatch.id}
+                              alt={homeTeamInMatch.name}
+                              size="24px"
+                              className="w-6 h-6 rounded-full flex-shrink-0"
+                            />
+                            <div className="text-sm truncate max-w-24" title={homeTeamInMatch.name}>
+                              {homeTeamInMatch.name}
+                            </div>
                           </div>
                         </div>
 
-                        {/* Score or Time */}
-                        <div className="flex-shrink-0 mx-4">
+                        {/* Score or Time Section */}
+                        <div className="flex-shrink-0 mx-6">
                           {isScheduled ? (
-                            <div className="text-sm font-medium text-gray-700 bg-gray-100 px-3 py-1 rounded">
+                            <div className="text-sm font-medium text-gray-700 bg-gray-100 px-3 py-1 rounded-md">
                               {new Date(match.fixture.date).toLocaleTimeString('en-US', { 
                                 hour: '2-digit', 
                                 minute: '2-digit',
@@ -467,31 +483,56 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
                               })}
                             </div>
                           ) : (
-                            <div className="text-lg font-bold text-gray-900">
+                            <div className={`text-xl font-bold px-3 py-1 rounded-md ${
+                              homeTeamWon ? 'text-green-700 bg-green-100' :
+                              awayTeamWon ? 'text-red-700 bg-red-100' :
+                              'text-yellow-700 bg-yellow-100'
+                            }`}>
                               {homeScoreInMatch} - {awayScoreInMatch}
                             </div>
                           )}
                         </div>
 
-                        {/* Away Team */}
+                        {/* Away Team Section */}
                         <div className={`flex-1 text-right ${
                           awayTeamWon && !isScheduled ? 'font-bold text-gray-900' : 
-                          !isScheduled ? 'text-gray-600' : 'text-gray-700'
+                          !isScheduled ? 'text-gray-700' : 'text-gray-700'
                         }`}>
-                          <div className="text-sm truncate max-w-32">
-                            {awayTeamInMatch.name}
+                          <div className="flex items-center justify-end space-x-2">
+                            <div className="text-sm truncate max-w-24" title={awayTeamInMatch.name}>
+                              {awayTeamInMatch.name}
+                            </div>
+                            <MyWorldTeamLogo
+                              teamName={awayTeamInMatch.name}
+                              teamLogo={awayTeamInMatch.logo}
+                              teamId={awayTeamInMatch.id}
+                              alt={awayTeamInMatch.name}
+                              size="24px"
+                              className="w-6 h-6 rounded-full flex-shrink-0"
+                            />
                           </div>
                         </div>
                       </div>
 
-                      {/* Result indicator for completed matches */}
+                      {/* Match Result Summary */}
                       {!isScheduled && (
-                        <div className="mt-2 flex justify-center">
-                          <div className={`w-1.5 h-1.5 rounded-full ${
-                            homeTeamWon ? 'bg-green-500' : 
-                            awayTeamWon ? 'bg-red-500' : 
-                            'bg-yellow-500'
-                          }`}></div>
+                        <div className="mt-3 flex justify-center">
+                          <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            homeTeamWon ? 'bg-green-200 text-green-800' : 
+                            awayTeamWon ? 'bg-red-200 text-red-800' : 
+                            'bg-yellow-200 text-yellow-800'
+                          }`}>
+                            {homeTeamWon ? `${homeTeamInMatch.name} Won` :
+                             awayTeamWon ? `${awayTeamInMatch.name} Won` :
+                             'Draw'}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Additional Match Info */}
+                      {match.fixture?.venue?.name && (
+                        <div className="mt-2 text-xs text-gray-500 text-center">
+                          📍 {match.fixture.venue.name}
                         </div>
                       )}
                     </div>
@@ -500,17 +541,41 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
               })}
             </div>
             
-            {/* See All Link */}
+            {/* See All Link - Enhanced */}
             {h2hData.length > 5 && (
-              <div className="text-center mt-4">
-                <button className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center justify-center space-x-1">
-                  <span>See All</span>
+              <div className="text-center mt-4 p-3 bg-gray-50 rounded-lg">
+                <button className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center justify-center space-x-2 mx-auto transition-colors">
+                  <span>See All {h2hData.length} Matches</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
                 <div className="text-xs text-gray-500 mt-1">
-                  Showing {recentMatches.length} of {h2hData.length} matches
+                  Showing recent {recentMatches.length} meetings
+                </div>
+              </div>
+            )}
+
+            {/* Historical Statistics Summary */}
+            {finishedMatches.length > 0 && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                <h5 className="text-sm font-medium text-gray-800 mb-2">All-Time Record</h5>
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <div className="text-lg font-bold text-blue-600">{homeWins}</div>
+                    <div className="text-xs text-gray-600">{match?.teams?.home?.name || 'Home'} Wins</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-bold text-gray-600">{draws}</div>
+                    <div className="text-xs text-gray-600">Draws</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-bold text-red-600">{awayWins}</div>
+                    <div className="text-xs text-gray-600">{match?.teams?.away?.name || 'Away'} Wins</div>
+                  </div>
+                </div>
+                <div className="text-center mt-2 text-xs text-gray-500">
+                  Total matches: {finishedMatches.length}
                 </div>
               </div>
             )}
