@@ -1734,11 +1734,7 @@ id: fixture.teams.away.id,
                       matchStatus={currentMatch.fixture.status.short}
                       className="ml-2"
                     />
-
-                    {/* Live Status Badge */}
-                    
-                     
-
+                  </div>
 
                   {/* Match day indicator */}
                   <div className="text-center mb-4 ">
