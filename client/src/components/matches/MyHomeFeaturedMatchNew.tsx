@@ -387,12 +387,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     id: fixture.fixture.id,
                     date: fixture.fixture.date,
                     status: fixture.fixture.status,
+                    venue: fixture.fixture.venue,
                   },
                   league: {
                     id: fixture.league.id,
                     name: fixture.league.name,
                     country: fixture.league.country,
                     logo: fixture.league.logo,
+                    round: fixture.league.round,
                   },
                   teams: {
                     home: {
@@ -410,6 +412,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     home: fixture.goals?.home ?? null,
                     away: fixture.goals?.away ?? null,
                   },
+                  venue: fixture.venue,
                 }));
             }
             console.log(
@@ -521,12 +524,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       id: fixture.fixture.id,
                       date: fixture.fixture.date,
                       status: fixture.fixture.status,
+                      venue: fixture.fixture.venue,
                     },
                     league: {
                       id: fixture.league.id,
                       name: fixture.league.name,
                       country: fixture.league.country,
                       logo: fixture.league.logo,
+                      round: fixture.league.round,
                     },
                     teams: {
                       home: {
@@ -544,6 +549,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       home: fixture.goals?.home ?? null,
                       away: fixture.goals?.away ?? null,
                     },
+                    venue: fixture.venue,
                   }));
 
                 allFixtures.push(...cachedFixtures);
@@ -601,12 +607,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     id: fixture.fixture.id,
                     date: fixture.fixture.date,
                     status: fixture.fixture.status,
+                    venue: fixture.fixture.venue,
                   },
                   league: {
                     id: fixture.league.id,
                     name: fixture.league.name,
                     country: fixture.league.country,
                     logo: fixture.league.logo,
+                    round: fixture.league.round,
                   },
                   teams: {
                     home: {
@@ -624,6 +632,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     home: fixture.goals?.home ?? null,
                     away: fixture.goals?.away ?? null,
                   },
+                  venue: fixture.venue,
                 }));
 
               console.log(`🎯 [MyHomeFeaturedMatchNew] Found ${popularFriendlies.length} popular team friendlies`);
@@ -744,12 +753,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       id: fixture.fixture.id,
                       date: fixture.fixture.date,
                       status: fixture.fixture.status,
+                      venue: fixture.fixture.venue,
                     },
                     league: {
                       id: fixture.league.id,
                       name: fixture.league.name,
                       country: fixture.league.country,
                       logo: fixture.league.logo,
+                      round: fixture.league.round,
                     },
                     teams: {
                       home: {
@@ -767,6 +778,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       home: fixture.goals?.home ?? null,
                       away: fixture.goals?.away ?? null,
                     },
+                    venue: fixture.venue,
                   }));
 
                 allFixtures.push(...cachedFixtures);
@@ -830,12 +842,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         id: fixture.fixture.id,
                         date: fixture.fixture.date,
                         status: fixture.fixture.status,
+                        venue: fixture.fixture.venue,
                       },
                       league: {
                         id: fixture.league.id,
                         name: fixture.league.name,
                         country: fixture.league.country,
                         logo: fixture.league.logo,
+                        round: fixture.league.round,
                       },
                       teams: {
                         home: {
@@ -854,6 +868,7 @@ id: fixture.teams.away.id,
                         home: fixture.goals?.home ?? null,
                         away: fixture.goals?.away ?? null,
                       },
+                      venue: fixture.venue,
                     }));
 
                   allFixtures.push(...expandedFixtures);
