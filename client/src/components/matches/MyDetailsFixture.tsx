@@ -771,8 +771,8 @@ const MyDetailsFixture = ({
     <>
       {/* Header Section */}
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-        <div className="flex justify-end items-center w-full">
-          <div className="flex items-center gap-2 text-right">
+        <div className="flex justify-between items-center w-full">
+          <div className="text-left">
             {(() => {
               // Get the most common round from all fixtures for display
               const rounds = Object.values(fixturesByLeague)
@@ -790,6 +790,8 @@ const MyDetailsFixture = ({
                 <span className="text-sm text-gray-600">{mostCommonRound}</span>
               ) : null;
             })()}
+          </div>
+          <div className="text-right">
             <span className="text-sm text-gray-500">{format(new Date(selectedDate), 'dd/MM/yyyy')}</span>
           </div>
         </div>
