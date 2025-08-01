@@ -52,6 +52,10 @@ router.get('/headtohead', async (req, res) => {
     const team2Num = Number(team2);
     if (team1Num < 1 || team1Num > 50000 || team2Num < 1 || team2Num > 50000) {
       console.log(`⚠️ [H2H API] Suspicious team IDs: ${team1} vs ${team2}`);
+      return res.status(400).json({ 
+        error: 'Invalid team IDs: IDs must be between 1 and 50000',
+        received: { team1: team1Num, team2: team2Num }
+      });
     }
     
     const apiKey = process.env.RAPID_API_KEY || process.env.RAPIDAPI_KEY || '';
@@ -95,6 +99,15 @@ router.get('/headtohead', async (req, res) => {
         const errorData = await response.json();
         errorDetails = errorData;
         console.error(`❌ [H2H API] JSON Error:`, response.status, errorData);
+        
+        // Handle specific API error cases
+        if (response.status === 400) {
+          return res.status(400).json({ 
+            error: 'Invalid team combination or no head-to-head data available',
+            details: errorDetails,
+            suggestion: 'These teams may not have played against each other'
+          });
+        }
       } catch {
         const errorText = await response.text();
         errorDetails = errorText;

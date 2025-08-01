@@ -89,6 +89,15 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
             teams: `${actualHomeTeamId} vs ${actualAwayTeamId}`,
             errorData
           });
+
+          // Handle specific error cases more gracefully
+          if (response.status === 400) {
+            if (errorData.error?.includes('Invalid team combination') || 
+                errorData.error?.includes('no head-to-head data')) {
+              throw new Error('No previous meetings found between these teams');
+            }
+          }
+          
           throw new Error(errorData.error || `HTTP ${response.status}`);
         }
 
@@ -142,7 +151,11 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
         <CardContent className="p-4">
           <div className="text-center text-gray-500">
             <div className="text-2xl mb-2">📊</div>
-            <p className="text-sm text-red-600">{error}</p>
+            <p className="text-sm text-red-600">
+              {error.includes('no head-to-head data') || error.includes('Invalid team combination') 
+                ? 'No previous meetings found between these teams' 
+                : error}
+            </p>
             <div className="mt-2 text-xs text-gray-400">
               Teams: {actualHomeTeamId} vs {actualAwayTeamId}
             </div>
@@ -201,20 +214,49 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
           <CardTitle className="text-sm font-medium">Head to Head</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
-          {/* Statistics Summary - Only show if there are finished matches */}
+          {/* 365scores-inspired H2H Header */}
           {finishedMatches.length > 0 && (
-            <div className="flex items-center justify-between mb-4 text-sm">
-              <div className="text-center">
-                <div className="font-semibold text-blue-600">{homeWins}</div>
-                <div className="text-gray-500">Wins</div>
+            <div className="flex items-center justify-between mb-6 bg-gray-50 rounded-lg p-4">
+              {/* Home Team Section */}
+              <div className="flex flex-col items-center flex-1">
+                <div className="w-12 h-12 mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span className="text-xs font-medium text-blue-600">H</span>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-600 text-center max-w-16 truncate">
+                  Home Team
+                </div>
               </div>
-              <div className="text-center">
-                <div className="font-semibold text-gray-600">{draws}</div>
-                <div className="text-gray-500">Draws</div>
+
+              {/* Score Summary */}
+              <div className="flex items-center space-x-4 flex-2">
+                <div className="text-center">
+                  <div className="text-lg font-bold text-blue-600">{homeWins}</div>
+                  <div className="text-xs text-gray-500">Wins</div>
+                </div>
+                <div className="w-px h-8 bg-gray-300"></div>
+                <div className="text-center">
+                  <div className="text-lg font-bold text-gray-600">{draws}</div>
+                  <div className="text-xs text-gray-500">Draws</div>
+                </div>
+                <div className="w-px h-8 bg-gray-300"></div>
+                <div className="text-center">
+                  <div className="text-lg font-bold text-red-600">{awayWins}</div>
+                  <div className="text-xs text-gray-500">Wins</div>
+                </div>
               </div>
-              <div className="text-center">
-                <div className="font-semibold text-red-600">{awayWins}</div>
-                <div className="text-gray-500">Wins</div>
+
+              {/* Away Team Section */}
+              <div className="flex flex-col items-center flex-1">
+                <div className="w-12 h-12 mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
+                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                    <span className="text-xs font-medium text-red-600">A</span>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-600 text-center max-w-16 truncate">
+                  Away Team
+                </div>
               </div>
             </div>
           )}
@@ -226,50 +268,82 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
             </div>
           )}
 
-          {/* Recent Matches */}
-          <div className="space-y-2">
-            <h4 className="text-xs font-medium text-gray-700 mb-2">Recent Matches</h4>
+          {/* Recent Matches - 365scores style */}
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium text-gray-800 mb-3">Previous Meetings</h4>
             {recentMatches.map((match, index) => (
-              <div key={match.fixture.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
-                <div className="flex items-center space-x-2 flex-1">
-                  <img 
-                    src={match.teams.home.logo} 
-                    alt={match.teams.home.name}
-                    className="w-4 h-4 object-contain"
-                  />
-                  <span className="text-xs text-gray-700 truncate">
-                    {match.teams.home.name}
-                  </span>
-                </div>
-
-                <div className="flex flex-col items-center space-y-1 mx-4">
-                  <span className="text-xs font-medium">
-                    {match.goals.home !== null && match.goals.away !== null 
-                      ? `${match.goals.home} - ${match.goals.away}` 
-                      : match.fixture?.status?.short === 'NS' ? 'vs' : match.fixture?.status?.short
-                    }
-                  </span>
-                  {match.fixture?.date && (
-                    <span className="text-xs text-gray-500">
-                      {new Date(match.fixture.date).toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
+              <div key={match.fixture.id} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
+                <div className="flex items-center justify-between">
+                  {/* Home Team */}
+                  <div className="flex items-center space-x-3 flex-1">
+                    <img 
+                      src={match.teams.home.logo} 
+                      alt={match.teams.home.name}
+                      className="w-6 h-6 object-contain"
+                    />
+                    <span className="text-sm font-medium text-gray-700 truncate max-w-20">
+                      {match.teams.home.name}
                     </span>
-                  )}
+                  </div>
+
+                  {/* Score and Date */}
+                  <div className="flex flex-col items-center space-y-1 mx-4 min-w-16">
+                    <div className="flex items-center space-x-2">
+                      {match.goals.home !== null && match.goals.away !== null ? (
+                        <>
+                          <span className={`text-sm font-bold ${
+                            match.goals.home > match.goals.away ? 'text-green-600' : 
+                            match.goals.home < match.goals.away ? 'text-red-600' : 'text-gray-600'
+                          }`}>
+                            {match.goals.home}
+                          </span>
+                          <span className="text-xs text-gray-400">-</span>
+                          <span className={`text-sm font-bold ${
+                            match.goals.away > match.goals.home ? 'text-green-600' : 
+                            match.goals.away < match.goals.home ? 'text-red-600' : 'text-gray-600'
+                          }`}>
+                            {match.goals.away}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-xs text-gray-500 px-2 py-1 bg-gray-100 rounded">
+                          {match.fixture?.status?.short === 'NS' ? 'SCH' : match.fixture?.status?.short}
+                        </span>
+                      )}
+                    </div>
+                    {match.fixture?.date && (
+                      <span className="text-xs text-gray-500">
+                        {new Date(match.fixture.date).toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          day: 'numeric'
+                        })}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Away Team */}
+                  <div className="flex items-center space-x-3 flex-1 justify-end">
+                    <span className="text-sm font-medium text-gray-700 truncate max-w-20">
+                      {match.teams.away.name}
+                    </span>
+                    <img 
+                      src={match.teams.away.logo} 
+                      alt={match.teams.away.name}
+                      className="w-6 h-6 object-contain"
+                    />
+                  </div>
                 </div>
 
-                <div className="flex items-center space-x-2 flex-1 justify-end">
-                  <span className="text-xs text-gray-700 truncate">
-                    {match.teams.away.name}
-                  </span>
-                  <img 
-                    src={match.teams.away.logo} 
-                    alt={match.teams.away.name}
-                    className="w-4 h-4 object-contain"
-                  />
-                </div>
+                {/* League info */}
+                {match.league?.name && (
+                  <div className="mt-2 pt-2 border-t border-gray-100">
+                    <div className="flex items-center justify-center">
+                      <span className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded">
+                        {match.league.name}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
