@@ -18,7 +18,7 @@ const ComingSoon: React.FC<ComingSoonProps> = ({
 }) => {
   return (
     <div className="min-h-screen w-full flex items-center justify-center  ">
-      <Card className="w-full max-w-2xl mx-auto shadow-lg -mt-14">
+      <Card className="w-full max-w-2xl mx-auto shadow-lg mt-16">
         <CardContent className="pt-17 pb-12 text-center">
           {/* Icon */}
           <div className="mb-6 flex justify-center">
