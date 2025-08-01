@@ -138,9 +138,12 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
       </div>
       {/* Match Statistics */}
       <Card className="">
-        <div className="space-y-2 mx-2">
+        <CardHeader>
+          <CardTitle className="text-xs">Stats</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
           <MyStatsCard match={match} />
-        </div>
+        </CardContent>
 
         {/* See All Stats Button */}
         <div className="text-center">
@@ -212,66 +215,43 @@ const MyStatsCard = ({ match }: { match: any }) => {
 
   if (isUpcoming) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xs">Stats</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4">
-          <div className="text-center text-gray-600">
-            <div className="text-4xl mb-4">📊</div>
-            <h3 className="text-lg font-medium mb-2">Statistics Coming Soon</h3>
-            <p className="text-sm text-gray-500">
-              Match statistics will be available once the game starts
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="text-center text-gray-600">
+        <div className="text-4xl mb-4">📊</div>
+        <h3 className="text-lg font-medium mb-2">Statistics Coming Soon</h3>
+        <p className="text-sm text-gray-500">
+          Match statistics will be available once the game starts
+        </p>
+      </div>
     );
   }
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xs">Stats</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4">
-          <div className="text-center text-gray-500">
-            <div className="text-2xl mb-2">⏳</div>
-            <p>Loading match statistics...</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="text-center text-gray-500">
+        <div className="text-2xl mb-2">⏳</div>
+        <p>Loading match statistics...</p>
+      </div>
     );
   }
 
   if (error || !homeStats || !awayStats) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xs">Stats</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4">
-          <div className="text-center text-gray-500">
-            <div className="text-2xl mb-2">❌</div>
-            <p>{error || 'No statistics available for this match'}</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="text-center text-gray-500">
+        <div className="text-2xl mb-2">❌</div>
+        <p>{error || 'No statistics available for this match'}</p>
+      </div>
     );
   }
 
   return (
-    <CardContent className="p-4">
-      <MyStats
-        homeStats={homeStats}
-        awayStats={awayStats}
-        homeTeam={homeTeam}
-        awayTeam={awayTeam}
-        isExpanded={isExpanded}
-        onToggleExpanded={() => setIsExpanded(!isExpanded)}
-      />
-    </CardContent>
+    <MyStats
+      homeStats={homeStats}
+      awayStats={awayStats}
+      homeTeam={homeTeam}
+      awayTeam={awayTeam}
+      isExpanded={isExpanded}
+      onToggleExpanded={() => setIsExpanded(!isExpanded)}
+    />
   );
 };
 
