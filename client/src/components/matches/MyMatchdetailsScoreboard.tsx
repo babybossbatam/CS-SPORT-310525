@@ -436,10 +436,13 @@ const MyMatchdetailsScoreboard = ({
       {onClose && (
         <button
           onClick={() => {
-            // Clear selected match first if callback is available
+            console.log("🔴 [MyMatchdetailsScoreboard] Close button clicked");
+
+            // Clear the selected match first
             if (onMatchCardClick) {
               onMatchCardClick(null);
             }
+
             // Then call the close callback
             if (onClose) {
               onClose();
