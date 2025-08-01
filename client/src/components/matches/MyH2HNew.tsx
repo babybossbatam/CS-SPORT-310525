@@ -200,9 +200,9 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
         <CardHeader>
           <CardTitle className="text-sm font-medium">Head to Head</CardTitle>
         </CardHeader>
-        <CardContent className="p-4">
+        <CardContent className="p-1">
           {/* 365scores-inspired No Data Layout */}
-          <div className="flex items-center justify-between  p-8">
+          <div className="flex items-center justify-between  p-1">
             {/* Home Team Section */}
             <div className="flex flex-col items-center flex-1">
               <div className="w-22 h-22  flex items-center justify-center mr-3">
@@ -262,14 +262,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
             
             {match?.teams?.home?.name && match?.teams?.away?.name ? (
               <div className="mt-2 space-y-2">
-                <p className="text-xs text-gray-600">
-                  <span className="font-medium">{match.teams.home.name}</span>
-                  {' vs '}
-                  <span className="font-medium">{match.teams.away.name}</span>
-                </p>
-                <p className="text-xs text-gray-400">
-                  These teams haven't faced each other in recorded matches
-                </p>
+      
                 
                 {/* Analysis based on team names */}
                 {(match.teams.home.name.toLowerCase().includes('alkmaar') && 
@@ -526,13 +519,6 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
 
       <TopTrendsCard homeTeamId={actualHomeTeamId} awayTeamId={actualAwayTeamId} />
 
-      {/* Key Players Section - Moved below Head to Head */}
-      <MyKeyPlayer
-        match={match}
-        fixtureId={match?.fixture?.id}
-        homeTeam={match?.teams?.home?.name}
-        awayTeam={match?.teams?.away?.name}
-      />
     </>
   );
 };
