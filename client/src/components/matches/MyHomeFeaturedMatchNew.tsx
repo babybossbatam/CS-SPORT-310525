@@ -2002,7 +2002,7 @@ id: fixture.teams.away.id,
                               return (
                                 <>
                                   {formattedDate} | {timeOnly}
-                                  {displayVenue ? ` | ${displayVenue}` : ""}
+                                  {displayVenue ? ` | ${displayVenue.toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}` : ""}
                                 </>
                               );
                             } catch (e) {
