@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import LazyImage from '@/components/common/LazyImage';
+import { leagueLogoCache, getLeagueLogoCacheKey } from '@/lib/logoCache';
 
 
 interface League {
@@ -33,6 +34,23 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTab, setSelectedTab] = useState('top');
   const [selectedLeagues, setSelectedLeagues] = useState<Set<string | number>>(new Set());
+
+  // Function to get cached or fresh logo URL
+  const getCachedLogoUrl = (leagueId: number, leagueName: string): string => {
+    const cacheKey = getLeagueLogoCacheKey(leagueId, leagueName);
+    const cached = leagueLogoCache.getCached(cacheKey);
+    
+    if (cached) {
+      console.log(`🎯 [LeagueSelectionModal] Using cached logo for ${leagueName}: ${cached.url}`);
+      return cached.url;
+    }
+    
+    // If not cached, use server proxy and cache the result
+    const proxyUrl = `/api/league-logo/${leagueId}`;
+    leagueLogoCache.setCached(cacheKey, proxyUrl, 'server-proxy', true);
+    console.log(`💾 [LeagueSelectionModal] Caching logo for ${leagueName}: ${proxyUrl}`);
+    return proxyUrl;
+  };
 
   // Sync internal state with initialSelectedLeagues when modal opens
   React.useEffect(() => {
@@ -194,7 +212,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
 
             <div className="w-12 h-12 mb-2 flex items-center justify-center">
               <LazyImage
-                src={`/api/league-logo/${league.id}`}
+                src={getCachedLogoUrl(league.id, league.name)}
                 alt={league.name}
                 className="w-full h-full object-contain rounded-lg"
                 style={{ backgroundColor: "transparent" }}
@@ -311,7 +329,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
                   <div key={uniqueId} className="relative group">
                     <div className="w-8 h-8 flex items-center justify-center">
                       <LazyImage
-                        src={`/api/league-logo/${league.id}`}
+                        src={getCachedLogoUrl(league.id, league.name)}
                         alt={league.name}
                         className="w-8 h-8 object-contain rounded-full"
                         style={{ backgroundColor: "transparent" }}
