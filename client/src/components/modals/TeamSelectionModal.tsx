@@ -176,7 +176,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
   const countries = popularTeams.filter(team => team.type === 'country');
 
   const renderTeamGrid = (teams: typeof popularTeams, tabPrefix: string) => (
-    <div className="grid grid-cols-5 gap-4 p-4">
+    <div className="grid grid-cols-5 gap-4 p-0">
       {teams.map((team, index) => {
         const isSelected = selectedTeams.has(team.id);
         // Use combination of tab prefix, team id, and index to ensure uniqueness
