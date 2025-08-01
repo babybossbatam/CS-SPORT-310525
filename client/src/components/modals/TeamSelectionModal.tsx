@@ -185,7 +185,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
           <div
             key={uniqueKey}
             onClick={() => handleTeamClick(team.id)}
-            className={`group relative flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer transition-all duration-200 border ${
+            className={`group relative flex flex-col items-center justify-center h-20 w-full md:h-auto md:p-3 p-1 rounded-lg cursor-pointer transition-all duration-200 border ${
               isSelected 
                 ? 'border-blue-500 bg-blue-50' 
                 : 'border-transparent hover:border-blue-200 hover:border-blue-500'
@@ -222,33 +222,33 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
               </svg>
             </button>
 
-          <div className="w-12 h-12 mb-2 flex items-center justify-center">
+          <div className="w-10 h-10 md:w-12 md:h-12 mb-1 md:mb-2 flex items-center justify-center flex-shrink-0">
             <MyWorldTeamLogo
               teamName={team.name}
               teamLogo={team.type === 'country' 
                 ? `https://hatscripts.github.io/circle-flags/flags/${team.flag}.svg`
                 : `/api/team-logo/square/${team.id}?size=48`
               }
-              size="48px"
+              size="40px"
               className={team.type === 'country' 
-                ? "flag-circle rounded-full" 
-                : "rounded-full shadow-md hover:shadow-lg transition-shadow duration-200"
+                ? "flag-circle rounded-full w-10 h-10 md:w-12 md:h-12" 
+                : "rounded-full shadow-md hover:shadow-lg transition-shadow duration-200 w-10 h-10 md:w-12 md:h-12"
               }
               alt={team.name}
               leagueContext={team.type === 'country' ? { name: 'International', country: 'World' } : undefined}
             />
           </div>
 
-          <span className="text-xs text-center text-gray-700 font-medium mb-1">
+          <span className="text-xs md:text-sm text-center text-gray-700 font-medium mb-1 leading-tight px-1 line-clamp-1">
             {team.name}
           </span>
 
           {/* Popularity indicator - appears on hover */}
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center text-blue-600">
-            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center text-blue-600 text-xs">
+            <svg className="w-2 h-2 md:w-3 md:h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="text-xs font-semibold">
+            <span className="text-xs font-semibold whitespace-nowrap">
               {Math.floor(Math.random() * 50) + 10}.{Math.floor(Math.random() * 10)}K
             </span>
           </div>
