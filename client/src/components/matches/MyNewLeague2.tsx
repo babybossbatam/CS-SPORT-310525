@@ -521,6 +521,13 @@ const MyNewLeague2 = ({
       // Clear selection when null is passed (from close button)
       console.log("🎯 [MyNewLeague2] Clearing selected match");
       setSelectedMatchId(null);
+      
+      // Remove selected-match CSS class from all match containers as backup
+      const selectedMatches = document.querySelectorAll('.selected-match');
+      selectedMatches.forEach(match => {
+        match.classList.remove('selected-match');
+      });
+      
       // Also call the callback to notify parent component
       if (onMatchCardClick) {
         onMatchCardClick(null);
