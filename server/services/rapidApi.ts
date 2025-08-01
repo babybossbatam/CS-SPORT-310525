@@ -1420,6 +1420,55 @@ timestamp: now,
       return null;
     }
   },
+
+  /**
+   * Get head-to-head fixtures between two teams
+   */
+  async getHeadToHeadFixtures(h2h: string, season: number = 2025): Promise<any> {
+    const cacheKey = `h2h-${h2h}-${season}`;
+    const cached = fixturesCache.get(cacheKey);
+
+    const now = Date.now();
+    // Cache head-to-head data for 2 hours
+    if (cached && now - cached.timestamp < 2 * 60 * 60 * 1000) {
+      console.log(`📦 [RapidAPI] Using cached head-to-head data for ${h2h}`);
+      return cached.data;
+    }
+
+    try {
+      console.log(`🔍 [RapidAPI] Fetching head-to-head data for teams: ${h2h}, season: ${season}`);
+
+      const response = await apiClient.get("/fixtures/headtohead", {
+        params: {
+          h2h: h2h,
+          season: season
+        },
+      });
+
+      console.log(`📊 [RapidAPI] Head-to-head API response status: ${response.status}, results count: ${response.data?.results || 0}`);
+
+      if (response.data && response.data.response) {
+        const h2hData = response.data.response;
+        fixturesCache.set(cacheKey, {
+          data: response.data,
+          timestamp: now,
+        });
+        console.log(`✅ [RapidAPI] Successfully cached head-to-head data for ${h2h}`);
+        return response.data;
+      }
+
+      console.log(`❌ [RapidAPI] No head-to-head data for ${h2h}, season ${season}`);
+      return { response: [] };
+    } catch (error) {
+      console.error(`❌ [RapidAPI] Error fetching head-to-head data for ${h2h}:`, error);
+      if (cached?.data) {
+        console.log("Using cached data due to API error");
+        return cached.data;
+      }
+      console.error("API request failed and no cache available");
+      return { response: [] };
+    }
+  },
 };
 
 // Removing emoji characters from console logs to prevent build errors.

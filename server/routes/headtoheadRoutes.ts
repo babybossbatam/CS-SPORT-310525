@@ -21,25 +21,12 @@ router.get('/headtohead', async (req, res) => {
     
     console.log(`🔍 [H2H API] Fetching head-to-head data for teams: ${homeTeamId} vs ${awayTeamId}, season: ${season}`);
     
-    // Use RapidAPI to get head-to-head data
-    const apiClient = require('axios').create({
-      baseURL: "https://api-football-v1.p.rapidapi.com/v3",
-      headers: {
-        "X-RapidAPI-Key": process.env.RAPID_API_KEY || "",
-        "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
-      },
-    });
+    // Use existing RapidAPI service
+    const data = await rapidApiService.getHeadToHeadFixtures(h2h, season);
     
-    const response = await apiClient.get("/fixtures/headtohead", {
-      params: {
-        h2h: h2h,
-        season: season
-      }
-    });
+    console.log(`✅ [H2H API] Successfully fetched ${data?.results || 0} head-to-head matches`);
     
-    console.log(`✅ [H2H API] Successfully fetched ${response.data?.results || 0} head-to-head matches`);
-    
-    res.json(response.data);
+    res.json(data);
   } catch (error) {
     console.error(`❌ [H2H API] Error fetching head-to-head data:`, error);
     res.status(500).json({ error: 'Failed to fetch head-to-head data' });
