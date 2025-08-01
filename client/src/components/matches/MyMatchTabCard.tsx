@@ -228,7 +228,6 @@ const MyStatsCard = ({ match }: { match: any }) => {
   if (loading) {
     return (
       <div className="text-center text-gray-500">
-        <div className="text-2xl mb-2">⏳</div>
         <p>Loading match statistics...</p>
       </div>
     );
