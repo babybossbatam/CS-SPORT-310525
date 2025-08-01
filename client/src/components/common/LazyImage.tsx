@@ -38,7 +38,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const [hasError, setHasError] = useState<boolean>(false);
   const [retryCount, setRetryCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [shouldShowImage, setShouldShowImage] = useState<boolean>(false);
 
   useEffect(() => {
     // Check for specific teams/leagues that should use local assets immediately
@@ -47,21 +46,13 @@ const LazyImage: React.FC<LazyImageProps> = ({
         const altLower = alt.toLowerCase();
 
         // COTIF Tournament league
-        if (
-          altLower.includes("cotif") ||
-          altLower.includes("cotif tournament")
-        ) {
-          console.log(
-            `🏆 [LazyImage] Using local COTIF Tournament logo from start`,
-          );
+        if (altLower.includes("cotif") || altLower.includes("cotif tournament")) {
+          console.log(`🏆 [LazyImage] Using local COTIF Tournament logo from start`);
           return "/assets/matchdetaillogo/cotif tournament.png";
         }
 
         // Valencia team (including U20)
-        if (
-          altLower.includes("valencia") &&
-          !altLower.includes("rayo vallecano")
-        ) {
+        if (altLower.includes("valencia") && !altLower.includes("rayo vallecano")) {
           console.log(`⚽ [LazyImage] Using local Valencia logo from start`);
           return "/assets/matchdetaillogo/valencia.png";
         }
@@ -81,20 +72,17 @@ const LazyImage: React.FC<LazyImageProps> = ({
       setImageSrc(localAssetUrl);
       setHasError(false);
       setRetryCount(0);
-      setShouldShowImage(false); // Will be set to true on successful load
     } else {
       setImageSrc(src);
       setHasError(false);
       setRetryCount(0);
-      setShouldShowImage(false); // Will be set to true on successful load
     }
   }, [src, alt]);
 
   const handleError = () => {
     // Safety check to prevent cascading errors
     try {
-      // Immediately hide the broken image and set loading state
-      setShouldShowImage(false);
+      // Immediately set loading to false to prevent broken image display
       setIsLoading(false);
 
       // Check for specific teams/leagues that should use local assets
@@ -103,26 +91,28 @@ const LazyImage: React.FC<LazyImageProps> = ({
           const altLower = alt.toLowerCase();
 
           // COTIF Tournament league
-          if (
-            altLower.includes("cotif") ||
-            altLower.includes("cotif tournament")
-          ) {
+          if (altLower.includes("cotif") || altLower.includes("cotif tournament")) {
             setImageSrc("/assets/matchdetaillogo/cotif tournament.png");
             setHasError(false);
             setIsLoading(true);
-            setShouldShowImage(false); // Will be set to true on successful load
             console.log(`🏆 [LazyImage] Using local COTIF Tournament logo`);
             return true;
           }
 
-         
+          // Valencia team (including U20)
+          if (altLower.includes("valencia") && !altLower.includes("rayo vallecano")) {
+            setImageSrc("/assets/matchdetaillogo/valencia.png");
+            setHasError(false);
+            setIsLoading(true);
+            console.log(`⚽ [LazyImage] Using local Valencia logo`);
+            return true;
+          }
 
           // Alboraya team (including U20)
           if (altLower.includes("alboraya") || altLower.includes("albaroya")) {
             setImageSrc("/assets/matchdetaillogo/alboraya.png");
             setHasError(false);
             setIsLoading(true);
-            setShouldShowImage(false); // Will be set to true on successful load
             console.log(`⚽ [LazyImage] Using local Alboraya logo`);
             return true;
           }
@@ -142,6 +132,15 @@ const LazyImage: React.FC<LazyImageProps> = ({
         (alt && alt.toLowerCase().includes("spain")) ||
         (alt && alt.toLowerCase().includes("valencia"));
 
+      if (isSpainFlag) {
+        console.log(`🇪🇸 [LazyImage] VALENCIA/SPAIN FLAG ERROR:`, {
+          imageSrc,
+          alt,
+          retryCount,
+          hasError,
+          component: "LazyImage",
+        });
+      }
 
       // Enhanced league logo handling like MyNewLeague2
       const isLeagueLogo =
@@ -189,9 +188,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
           let leagueId = null;
 
           // From /api/league-logo/ID or /api/league-logo/square/ID
-          const apiMatch = imageSrc.match(
-            /\/api\/league-logo\/(?:square\/)?(\d+)/,
-          );
+          const apiMatch = imageSrc.match(/\/api\/league-logo\/(?:square\/)?(\d+)/);
           if (apiMatch) {
             leagueId = apiMatch[1];
           }
@@ -219,7 +216,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
             setImageSrc(fallbackUrl);
             setRetryCount(retryCount + 1);
             setIsLoading(true);
-            setShouldShowImage(false); // Will be set to true on successful load
             return;
           }
         }
@@ -240,7 +236,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
             setImageSrc(squareUrl);
             setRetryCount(retryCount + 1);
             setIsLoading(true);
-            setShouldShowImage(false); // Will be set to true on successful load
             return;
           }
         }
@@ -261,7 +256,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
             setImageSrc(directUrl);
             setRetryCount(retryCount + 1);
             setIsLoading(true);
-            setShouldShowImage(false); // Will be set to true on successful load
             return;
           }
         }
@@ -277,7 +271,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
           setImageSrc(freshUrl);
           setRetryCount(retryCount + 1);
           setIsLoading(true);
-          setShouldShowImage(false); // Will be set to true on successful load
           return;
         }
 
@@ -303,9 +296,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
   };
 
   const handleLoad = () => {
-    // Reset loading state and show image when successfully loaded
+    // Reset loading state when image loads successfully
     setIsLoading(false);
-    setShouldShowImage(true);
 
     // Don't cache or log success for fallback images
     const isFallbackImage =
@@ -329,9 +321,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       imageSrc.includes("/assets/matchdetaillogo/alboraya.png");
 
     if (isLocalAsset) {
-      console.log(
-        `✅ [LazyImage] Local asset loaded successfully: ${imageSrc}`,
-      );
+      console.log(`✅ [LazyImage] Local asset loaded successfully: ${imageSrc}`);
       setHasError(false);
       onLoad?.();
       return;
@@ -408,6 +398,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
     onLoad?.();
   };
 
+
+
   // Use MyWorldTeamLogo if team information is provided and useTeamLogo is true
   if (useTeamLogo && teamId && teamName) {
     return (
@@ -431,9 +423,9 @@ const LazyImage: React.FC<LazyImageProps> = ({
       className={className}
       style={{
         ...style,
-        border: "none",
-        outline: "none",
-        display: shouldShowImage && !hasError ? "block" : "none",
+        border: 'none',
+        outline: 'none',
+        display: isLoading && hasError ? 'none' : 'block'
       }}
       loading={loading}
       onLoad={handleLoad}
