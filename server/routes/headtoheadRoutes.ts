@@ -7,7 +7,7 @@ const router = express.Router();
 // Route to get head-to-head fixtures between two teams
 router.get('/headtohead', async (req, res) => {
   try {
-    const { team1, team2, last = '10' } = req.query;
+    const { team1, team2, last = '10', season, date, league, next, from, to, venue, status, timezone } = req.query;
     
     console.log(`🔍 [H2H API] Raw query params:`, req.query);
     
@@ -25,8 +25,23 @@ router.get('/headtohead', async (req, res) => {
       return res.status(500).json({ error: 'RapidAPI key not configured' });
     }
 
-    // Use the correct RapidAPI format with team IDs and last parameter
-    const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures/headtohead?h2h=${team1}-${team2}&last=${last}`;
+    // Build query parameters according to RapidAPI documentation
+    const queryParams = new URLSearchParams();
+    queryParams.append('h2h', `${team1}-${team2}`);
+    
+    // Add optional parameters if provided
+    if (last) queryParams.append('last', last.toString());
+    if (season) queryParams.append('season', season.toString());
+    if (date) queryParams.append('date', date.toString());
+    if (league) queryParams.append('league', league.toString());
+    if (next) queryParams.append('next', next.toString());
+    if (from) queryParams.append('from', from.toString());
+    if (to) queryParams.append('to', to.toString());
+    if (venue) queryParams.append('venue', venue.toString());
+    if (status) queryParams.append('status', status.toString());
+    if (timezone) queryParams.append('timezone', timezone.toString());
+
+    const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures/headtohead?${queryParams.toString()}`;
     const options = {
       method: 'GET',
       headers: {
@@ -37,7 +52,7 @@ router.get('/headtohead', async (req, res) => {
 
     console.log(`🔑 [H2H API] Using API key: ${apiKey.substring(0, 8)}...`);
     console.log(`🌐 [H2H API] Making request to:`, url);
-    console.log(`📋 [H2H API] Request params: h2h=${team1}-${team2}, last=${last}`);
+    console.log(`📋 [H2H API] Request params:`, Object.fromEntries(queryParams));
     
     const response = await fetch(url, options);
     

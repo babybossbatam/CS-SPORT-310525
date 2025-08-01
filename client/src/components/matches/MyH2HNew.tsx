@@ -55,7 +55,14 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
 
         console.log(`🔍 [H2H] Making request with team1=${actualHomeTeamId}, team2=${actualAwayTeamId}`);
         
-        const url = `/api/fixtures/headtohead?team1=${actualHomeTeamId}&team2=${actualAwayTeamId}&last=10`;
+        // Build URL with proper parameters according to RapidAPI documentation
+        const params = new URLSearchParams({
+          team1: actualHomeTeamId.toString(),
+          team2: actualAwayTeamId.toString(),
+          last: '10'
+        });
+        
+        const url = `/api/fixtures/headtohead?${params.toString()}`;
         console.log(`🌐 [H2H] Full URL: ${url}`);
         
         const response = await fetch(url);
@@ -117,7 +124,9 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
               <strong>Debug Info:</strong><br/>
               Home Team ID: {actualHomeTeamId}<br/>
               Away Team ID: {actualAwayTeamId}<br/>
-              Expected h2h param: {actualHomeTeamId}-{actualAwayTeamId}
+              H2H Parameter: {actualHomeTeamId}-{actualAwayTeamId}<br/>
+              API Endpoint: /api/fixtures/headtohead<br/>
+              <strong>Expected Format:</strong> h2h=team1-team2&last=10
             </div>
           </div>
         </CardContent>
