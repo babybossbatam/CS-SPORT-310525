@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import LazyImage from '@/components/common/LazyImage';
 
 
 interface League {
@@ -192,15 +193,12 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
             </button>
 
             <div className="w-12 h-12 mb-2 flex items-center justify-center">
-              <img
+              <LazyImage
                 src={`/api/league-logo/${league.id}`}
                 alt={league.name}
                 className="w-full h-full object-contain rounded-lg"
                 style={{ backgroundColor: "transparent" }}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = "/assets/fallback-logo.svg";
-                }}
+                loading="lazy"
               />
             </div>
 
@@ -312,15 +310,12 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
                 return (
                   <div key={uniqueId} className="relative group">
                     <div className="w-8 h-8 flex items-center justify-center">
-                      <img
+                      <LazyImage
                         src={`/api/league-logo/${league.id}`}
                         alt={league.name}
                         className="w-8 h-8 object-contain rounded-full"
                         style={{ backgroundColor: "transparent" }}
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = "/assets/fallback-logo.svg";
-                        }}
+                        loading="lazy"
                       />
                     </div>
 
