@@ -7,16 +7,16 @@ const router = express.Router();
 // Route to get head-to-head fixtures between two teams
 router.get('/headtohead', async (req, res) => {
   try {
-    const { team1, team2, last = '10', season, date, league, next, from, to, venue, status, timezone } = req.query;
+    const { h2h, last = '10', season, date, league, next, from, to, venue, status, timezone } = req.query;
     
     console.log(`🔍 [H2H API] Raw query params:`, req.query);
     
-    if (!team1 || !team2) {
-      console.error(`❌ [H2H API] Missing team parameters:`, { team1, team2 });
-      return res.status(400).json({ error: 'team1 and team2 parameters are required' });
+    if (!h2h) {
+      console.error(`❌ [H2H API] Missing h2h parameter:`, { h2h });
+      return res.status(400).json({ error: 'h2h parameter is required (format: team1-team2)' });
     }
     
-    console.log(`🔍 [H2H API] Fetching head-to-head data for: ${team1} vs ${team2}, last ${last} matches`);
+    console.log(`🔍 [H2H API] Fetching head-to-head data for: ${h2h}, last ${last} matches`);
     
     // Check if API key is available
     const apiKey = process.env.RAPID_API_KEY || process.env.RAPIDAPI_KEY || '';
@@ -27,7 +27,7 @@ router.get('/headtohead', async (req, res) => {
 
     // Build query parameters according to RapidAPI documentation
     const queryParams = new URLSearchParams();
-    queryParams.append('h2h', `${team1}-${team2}`);
+    queryParams.append('h2h', h2h.toString());
     
     // Add optional parameters if provided
     if (last) queryParams.append('last', last.toString());

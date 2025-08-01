@@ -55,10 +55,9 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
 
         console.log(`🔍 [H2H] Making request with team1=${actualHomeTeamId}, team2=${actualAwayTeamId}`);
         
-        // Build URL with proper parameters according to RapidAPI documentation
+        // Build URL with proper h2h parameter format
         const params = new URLSearchParams({
-          team1: actualHomeTeamId.toString(),
-          team2: actualAwayTeamId.toString(),
+          h2h: `${actualHomeTeamId}-${actualAwayTeamId}`,
           last: '10'
         });
         
