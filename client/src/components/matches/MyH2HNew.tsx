@@ -66,7 +66,11 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
         console.log(`🔍 [H2H] Fetching head-to-head data for teams: ${actualHomeTeamId} vs ${actualAwayTeamId}`);
 
         const h2hParam = `${actualHomeTeamId}-${actualAwayTeamId}`;
-        const url = `/api/fixtures/headtohead?h2h=${encodeURIComponent(h2hParam)}&last=10`;
+        const params = new URLSearchParams({
+          h2h: h2hParam,
+          last: '10'
+        });
+        const url = `/api/fixtures/headtohead?${params.toString()}`;
         console.log(`🔍 [H2H] Fetching from: ${url}`);
         console.log(`🔍 [H2H] Raw team IDs: home=${actualHomeTeamId} (${typeof actualHomeTeamId}), away=${actualAwayTeamId} (${typeof actualAwayTeamId})`);
         console.log(`🔍 [H2H] H2H parameter: "${h2hParam}"`);

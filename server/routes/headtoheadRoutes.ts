@@ -26,7 +26,16 @@ router.get('/headtohead', async (req, res) => {
     }
     
     // Validate that both team IDs are numbers
-    const [team1, team2] = cleanH2h.split('-');
+    const parts = cleanH2h.split('-');
+    if (parts.length !== 2) {
+      console.log(`❌ [H2H API] Invalid h2h format: ${cleanH2h}`);
+      return res.status(400).json({ 
+        error: 'h2h parameter must contain exactly two team IDs: team1-team2',
+        received: cleanH2h
+      });
+    }
+    
+    const [team1, team2] = parts;
     if (!team1 || !team2 || isNaN(Number(team1)) || isNaN(Number(team2))) {
       console.log(`❌ [H2H API] Invalid team IDs: team1="${team1}", team2="${team2}"`);
       return res.status(400).json({ 
@@ -46,11 +55,15 @@ router.get('/headtohead', async (req, res) => {
     // Build URL with proper parameters
     const baseUrl = 'https://api-football-v1.p.rapidapi.com/v3/fixtures/headtohead';
     const params = new URLSearchParams({
-      h2h: cleanH2h,
-      last: last.toString()
+      h2h: cleanH2h
     });
     
-    // Only add season if provided
+    // Add last parameter (limit number of matches)
+    if (last) {
+      params.append('last', last.toString());
+    }
+    
+    // Add season if provided
     if (season) {
       params.append('season', season.toString());
     }
