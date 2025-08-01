@@ -168,3 +168,61 @@ function App() {
 }
 
 export default App;
+import { Route, Router } from "wouter";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/toaster";
+import Home from "@/pages/Home";
+import Football from "@/pages/Football";
+import Basketball from "@/pages/Basketball";
+import TV from "@/pages/TV";
+import HorseRacing from "@/pages/HorseRacing";
+import Snooker from "@/pages/Snooker";
+import Esport from "@/pages/Esport";
+import MatchDetails from "@/pages/MatchDetails";
+import LeagueDetails from "@/pages/LeagueDetails";
+import NotFound from "@/pages/not-found";
+import LiveScoreboardPage from "@/pages/LiveScoreboardPage";
+import TodayMatchPage from "@/pages/TodayMatchPage";
+import MyScores from "@/pages/MyScores";
+import Settings from "@/pages/Settings";
+import NewsPage from "@/pages/NewsPage";
+import SearchResults from "@/pages/SearchResults";
+import LiveMatches from "@/pages/LiveMatches";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 30, // 30 minutes
+    },
+  },
+});
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <Route path="/" component={Home} />
+        <Route path="/football" component={Football} />
+        <Route path="/basketball" component={Basketball} />
+        <Route path="/tv" component={TV} />
+        <Route path="/horseracing" component={HorseRacing} />
+        <Route path="/snooker" component={Snooker} />
+        <Route path="/esports" component={Esport} />
+        <Route path="/match/:id" component={MatchDetails} />
+        <Route path="/league/:id" component={LeagueDetails} />
+        <Route path="/live" component={LiveScoreboardPage} />
+        <Route path="/today" component={TodayMatchPage} />
+        <Route path="/scores" component={MyScores} />
+        <Route path="/settings" component={Settings} />
+        <Route path="/news" component={NewsPage} />
+        <Route path="/search" component={SearchResults} />
+        <Route path="/live-matches" component={LiveMatches} />
+        <Route component={NotFound} />
+      </Router>
+      <Toaster />
+    </QueryClientProvider>
+  );
+}
+
+export default App;
