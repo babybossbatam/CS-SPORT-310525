@@ -771,8 +771,8 @@ const MyDetailsFixture = ({
     <>
       {/* Header Section */}
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-        <div className="flex justify-between items-center w-full">
-          <div className="flex flex-col items-end text-right">
+        <div className="flex justify-end items-center w-full">
+          <div className="flex items-center gap-2 text-right">
             {(() => {
               // Get the most common round from all fixtures for display
               const rounds = Object.values(fixturesByLeague)
