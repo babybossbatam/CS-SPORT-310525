@@ -187,11 +187,16 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
           >
             {/* Star toggle button - slides in on hover or always visible when selected */}
             <button
-              className={`absolute top-1 right-1 w-6 h-6 shadow-md flex items-center justify-center transition-all duration-300 ease-out ${
+              className={`absolute top-1 right-1 w-6 h-6 flex items-center justify-center transition-all duration-300 ease-out ${
                 isSelected
                   ? 'opacity-100 transform translate-x-0'
                   : 'opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0'
               }`}
+              style={{
+                background: 'none',
+                border: 'none',
+                boxShadow: 'none'
+              }}
               onClick={(e) => handleStarClick(e, team.id)}
             >
               <svg
