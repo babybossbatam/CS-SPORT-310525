@@ -268,36 +268,63 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
               "flex items-center font-semibold text-white transition-colors duration-200 cursor-pointer",
               isMobile ? "text-xs ml-2" : "text-sm ml-4"
             )}>
-              <span
-                className={`transition-colors duration-200 ${
-                  activeHover === "username"
-                    ? "text-amber-400"
-                    : activeHover === "logout"
-                      ? "text-white"
-                      : "hover:text-amber-400"
-                }`}
-                onMouseEnter={() => setActiveHover("username")}
-                onMouseLeave={() => setActiveHover(null)}
-              >
-                {username
-                  ? username.charAt(0).toUpperCase() + username.slice(1)
-                  : ""}
-              </span>
-              <span>, </span>
-              <span
-                className={`cursor-pointer transition-colors duration-200 ${
-                  activeHover === "logout"
-                    ? "text-amber-300"
-                    : activeHover === "username"
-                      ? "text-white"
-                      : "hover:text-amber-300"
-                }`}
-                onClick={handleLogout}
-                onMouseEnter={() => setActiveHover("logout")}
-                onMouseLeave={() => setActiveHover(null)}
-              >
-                Logout
-              </span>
+              {isMobile ? (
+                // Mobile: Show avatar circle with initials
+                <div className="flex items-center gap-2">
+                  <div 
+                    className="w-8 h-8 bg-gradient-to-br from-amber-300 via-yellow-500 to-orange-500 rounded-full flex items-center justify-center text-black text-xs font-bold transition-all duration-200 hover:scale-105"
+                    title={username ? username.charAt(0).toUpperCase() + username.slice(1) : ""}
+                  >
+                    {username ? username.charAt(0).toUpperCase() : "U"}
+                  </div>
+                  <span
+                    className={`cursor-pointer transition-colors duration-200 ${
+                      activeHover === "logout"
+                        ? "text-amber-300"
+                        : "hover:text-amber-300"
+                    }`}
+                    onClick={handleLogout}
+                    onMouseEnter={() => setActiveHover("logout")}
+                    onMouseLeave={() => setActiveHover(null)}
+                  >
+                    Logout
+                  </span>
+                </div>
+              ) : (
+                // Desktop: Show full username
+                <>
+                  <span
+                    className={`transition-colors duration-200 ${
+                      activeHover === "username"
+                        ? "text-amber-400"
+                        : activeHover === "logout"
+                          ? "text-white"
+                          : "hover:text-amber-400"
+                    }`}
+                    onMouseEnter={() => setActiveHover("username")}
+                    onMouseLeave={() => setActiveHover(null)}
+                  >
+                    {username
+                      ? username.charAt(0).toUpperCase() + username.slice(1)
+                      : ""}
+                  </span>
+                  <span>, </span>
+                  <span
+                    className={`cursor-pointer transition-colors duration-200 ${
+                      activeHover === "logout"
+                        ? "text-amber-300"
+                        : activeHover === "username"
+                          ? "text-white"
+                          : "hover:text-amber-300"
+                    }`}
+                    onClick={handleLogout}
+                    onMouseEnter={() => setActiveHover("logout")}
+                    onMouseLeave={() => setActiveHover(null)}
+                  >
+                    Logout
+                  </span>
+                </>
+              )}
             </div>
           )}
         </div>
