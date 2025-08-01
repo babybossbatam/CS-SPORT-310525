@@ -53,33 +53,33 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
         setLoading(true);
         setError(null);
 
-        console.log(`🔍 [H2H] Fetching head-to-head data for: ${actualHomeTeamId}-${actualAwayTeamId}`);
-        const response = await fetch(`/api/fixtures/headtohead?h2h=${actualHomeTeamId}-${actualAwayTeamId}&season=2025`);
+        const h2hParam = `${actualHomeTeamId}-${actualAwayTeamId}`;
+        console.log(`🔍 [H2H] Making request with params: h2h=${h2hParam}, season=2025`);
+        
+        const url = `/api/fixtures/headtohead?h2h=${encodeURIComponent(h2hParam)}&season=2025`;
+        console.log(`🌐 [H2H] Full URL: ${url}`);
+        
+        const response = await fetch(url);
+
+        console.log(`📡 [H2H] Response status: ${response.status}, statusText: ${response.statusText}`);
 
         if (!response.ok) {
-          console.error(`❌ [H2H] API response not ok: ${response.status} ${response.statusText}`);
-          throw new Error(`Failed to fetch head-to-head data: ${response.status}`);
+          const errorText = await response.text();
+          console.error(`❌ [H2H] API Error Response:`, errorText);
+          throw new Error(`API returned ${response.status}: ${errorText}`);
         }
 
         const data = await response.json();
-        console.log(`📊 [H2H] Raw API response:`, data);
+        console.log(`📊 [H2H] Complete Raw API Response:`, JSON.stringify(data, null, 2));
 
-        // Handle the response structure from your API
-        const fixtures = data?.response || data || [];
-        console.log(`✅ [H2H] Found ${fixtures.length} head-to-head matches`);
-
-        // Filter only finished matches for H2H statistics
-        const finishedMatches = fixtures.filter(match => 
-          match.fixture?.status?.short === 'FT' || 
-          match.fixture?.status?.short === 'AET' ||
-          match.fixture?.status?.short === 'PEN'
-        );
-
-        console.log(`📈 [H2H] ${finishedMatches.length} finished matches for statistics`);
-        setH2hData(fixtures); // Keep all matches for display
+        // Just show whatever the API gives us
+        const fixtures = data?.response || [];
+        console.log(`✅ [H2H] API returned ${fixtures.length} matches`);
+        
+        setH2hData(fixtures);
       } catch (err) {
-        console.error('❌ [H2H] Error fetching head-to-head data:', err);
-        setError(`Failed to load head-to-head data: ${err.message}`);
+        console.error('❌ [H2H] Complete error details:', err);
+        setError(`API Error: ${err.message}`);
       } finally {
         setLoading(false);
       }
@@ -104,7 +104,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
     );
   }
 
-  if (error || !h2hData.length) {
+  if (error) {
     return (
       <Card>
         <CardHeader>
@@ -113,7 +113,29 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
         <CardContent className="p-4">
           <div className="text-center text-gray-500">
             <div className="text-2xl mb-2">📊</div>
-            <p className="text-sm">{error || 'No head-to-head data available'}</p>
+            <p className="text-sm text-red-600">{error}</p>
+            <div className="mt-4 text-xs text-left bg-gray-100 p-2 rounded">
+              <strong>Debug Info:</strong><br/>
+              Home Team ID: {actualHomeTeamId}<br/>
+              Away Team ID: {actualAwayTeamId}<br/>
+              Expected h2h param: {actualHomeTeamId}-{actualAwayTeamId}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!h2hData.length) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-medium">Head to Head</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="text-center text-gray-500">
+            <div className="text-2xl mb-2">📊</div>
+            <p className="text-sm">No head-to-head data available</p>
           </div>
         </CardContent>
       </Card>

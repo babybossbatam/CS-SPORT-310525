@@ -18,15 +18,24 @@ router.get('/headtohead', async (req, res) => {
     
     console.log(`🔍 [H2H API] Fetching head-to-head data for: ${h2h}, season: ${season}`);
     
+    // Check if API key is available
+    const apiKey = process.env.RAPID_API_KEY || process.env.RAPIDAPI_KEY || '';
+    if (!apiKey) {
+      console.error(`❌ [H2H API] No RapidAPI key found in environment variables`);
+      return res.status(500).json({ error: 'RapidAPI key not configured' });
+    }
+
     // Direct RapidAPI call - exactly like your example
     const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures/headtohead?h2h=${h2h}&season=${season}`;
     const options = {
       method: 'GET',
       headers: {
-        'x-rapidapi-key': process.env.RAPID_API_KEY || '',
+        'x-rapidapi-key': apiKey,
         'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
       }
     };
+
+    console.log(`🔑 [H2H API] Using API key: ${apiKey.substring(0, 8)}...`);
 
     console.log(`🌐 [H2H API] Making request to:`, url);
     
