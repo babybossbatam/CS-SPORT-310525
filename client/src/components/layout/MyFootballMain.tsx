@@ -200,7 +200,7 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
 
   return (
     <div className={`
-      ${isMobile ? 'px-2 py-2 pt-4' : 'py-4 pt-16'}
+      ${isMobile ? 'px-2 py-2 pt-10' : 'py-4 pt-16'}
       ${isMobile ? 'mx-0' : ''}
       ${isTablet ? 'mx-4' : ''}
       ${!isMobile && !isTablet ? 'mx-[150px]' : ''}
