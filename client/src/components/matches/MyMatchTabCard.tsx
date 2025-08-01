@@ -216,7 +216,6 @@ const MyStatsCard = ({ match }: { match: any }) => {
   if (isUpcoming) {
     return (
       <div className="text-center text-gray-600">
-        <div className="text-4xl mb-4">📊</div>
         <h3 className="text-lg font-medium mb-2">Statistics Coming Soon</h3>
         <p className="text-sm text-gray-500">
           Match statistics will be available once the game starts
