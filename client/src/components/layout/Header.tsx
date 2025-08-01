@@ -27,7 +27,11 @@ import React from "react";
 import { useDeviceInfo, useMobileViewport } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
-const Header = () => {
+interface HeaderProps {
+  showTextOnMobile?: boolean;
+}
+
+const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
   const [location, navigate] = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -95,7 +99,7 @@ const Header = () => {
           />
           <span className={cn(
             "flex items-center gap-2",
-            isMobile ? "hidden" : "whitespace-nowrap"
+            isMobile && !showTextOnMobile ? "hidden" : "whitespace-nowrap"
           )}>
             <span
               className="bg-gradient-to-br from-amber-300 via-yellow-500 to-orange-500 bg-clip-text text-transparent font-bold text-[clamp(2.685rem,3.146vw,3.197rem)] transition-all duration-200 hover:from-white hover:via-yellow-100 hover:to-amber-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]"

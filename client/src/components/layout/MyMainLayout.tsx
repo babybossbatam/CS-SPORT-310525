@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { useDeviceInfo } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import Header from "@/components/layout/Header";
 
 interface MyMainLayoutProps {
   fixtures: any[];
@@ -101,17 +102,19 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   };
 
   return (
-    <div
-      className={cn(
-        "bg-[#FDFBF7] rounded-lg py-4 mobile-main-layout",
-        isMobile ? "mx-2 mt-20" : "",
-      )}
-      style={{
-        marginLeft: isMobile ? "8px" : "150px",
-        marginRight: isMobile ? "8px" : "150px",
-        marginTop: isMobile ? "-22px" : "0",
-      }}
-    >
+    <>
+      <Header showTextOnMobile={true} />
+      <div
+        className={cn(
+          "bg-[#FDFBF7] rounded-lg py-4 mobile-main-layout",
+          isMobile ? "mx-2 mt-20" : "",
+        )}
+        style={{
+          marginLeft: isMobile ? "8px" : "150px",
+          marginRight: isMobile ? "8px" : "150px",
+          marginTop: isMobile ? "-22px" : "0",
+        }}
+      >
       <div
         className={cn(
           "grid gap-4",
@@ -151,7 +154,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
