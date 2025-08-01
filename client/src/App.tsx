@@ -1,3 +1,4 @@
+
 import { Switch, Route } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,6 +19,7 @@ const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
 const Football = lazy(() => import("@/pages/Football"));
 const Basketball = lazy(() => import("@/pages/Basketball"));
+const TV = lazy(() => import("@/pages/TV"));
 const HorseRacing = lazy(() => import("@/pages/HorseRacing"));
 const Snooker = lazy(() => import("@/pages/Snooker"));
 const Esport = lazy(() => import("@/pages/Esport"));
@@ -40,6 +42,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/football" component={Football} />
       <Route path="/basketball" component={Basketball} />
+      <Route path="/tv" component={TV} />
       <Route path="/horseracing" component={HorseRacing} />
       <Route path="/snooker" component={Snooker} />
       <Route path="/esports" component={Esport} />
