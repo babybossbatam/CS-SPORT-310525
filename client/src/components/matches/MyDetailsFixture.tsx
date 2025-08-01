@@ -772,7 +772,6 @@ const MyDetailsFixture = ({
       {/* Header Section */}
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
         <div className="flex justify-between items-center w-full">
-          <span>Fixtures</span>
           <div className="flex flex-col items-end text-right">
             {(() => {
               // Get the most common round from all fixtures for display
