@@ -25,6 +25,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState, userActions } from "@/lib/store";
 import React from "react";
 import { useDeviceInfo, useMobileViewport } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 const Header = () => {
   const [location, navigate] = useLocation();
