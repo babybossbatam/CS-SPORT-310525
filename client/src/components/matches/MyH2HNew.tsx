@@ -48,13 +48,22 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
   useEffect(() => {
     if (!actualHomeTeamId || !actualAwayTeamId) {
       console.log(`⚠️ [H2H] Missing team IDs: home=${actualHomeTeamId}, away=${actualAwayTeamId}`);
+      console.log(`⚠️ [H2H] Match object:`, match);
       return;
     }
 
     // Validate team IDs are numbers
     if (isNaN(Number(actualHomeTeamId)) || isNaN(Number(actualAwayTeamId))) {
       console.log(`❌ [H2H] Invalid team IDs: home=${actualHomeTeamId}, away=${actualAwayTeamId}`);
+      console.log(`❌ [H2H] Team ID types: home=${typeof actualHomeTeamId}, away=${typeof actualAwayTeamId}`);
       setError('Invalid team IDs provided');
+      return;
+    }
+
+    // Additional validation - check if teams are the same
+    if (Number(actualHomeTeamId) === Number(actualAwayTeamId)) {
+      console.log(`❌ [H2H] Same team IDs provided: ${actualHomeTeamId}`);
+      setError('Cannot get head-to-head data for the same team');
       return;
     }
 
@@ -106,6 +115,18 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
 
         const fixtures = data?.response || [];
         console.log(`✅ [H2H] Found ${fixtures.length} head-to-head matches`);
+
+        // If no fixtures found, let's verify the teams exist
+        if (fixtures.length === 0) {
+          console.log(`🔍 [H2H] No fixtures found, checking if teams exist...`);
+          try {
+            const testResponse = await fetch(`/api/fixtures/test-teams/${actualHomeTeamId}/${actualAwayTeamId}`);
+            const testData = await testResponse.json();
+            console.log(`🧪 [H2H] Team verification:`, testData);
+          } catch (testError) {
+            console.log(`❌ [H2H] Team verification failed:`, testError);
+          }
+        }
 
         // Handle case where API returns success but with message about no data
         if (data?.message && fixtures.length === 0) {
@@ -187,7 +208,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
                 </div>
               </div>
               <div className="text-xs text-gray-600 text-center max-w-16 truncate">
-                Home Team
+                {match?.teams?.home?.name || 'Home Team'}
               </div>
             </div>
 
@@ -217,7 +238,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
                 </div>
               </div>
               <div className="text-xs text-gray-600 text-center max-w-16 truncate">
-                Away Team
+                {match?.teams?.away?.name || 'Away Team'}
               </div>
             </div>
           </div>
@@ -225,7 +246,15 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
           <div className="text-center text-gray-500">
             <div className="text-2xl mb-2">📊</div>
             <p className="text-sm font-medium">No Previous Meetings</p>
-            <p className="text-xs text-gray-400 mt-1">These teams haven't played against each other</p>
+            <p className="text-xs text-gray-400 mt-1">
+              {match?.teams?.home?.name && match?.teams?.away?.name 
+                ? `${match.teams.home.name} vs ${match.teams.away.name} haven't played against each other`
+                : 'These teams haven\'t played against each other'
+              }
+            </p>
+            <div className="mt-2 text-xs text-gray-400">
+              Team IDs: {actualHomeTeamId} vs {actualAwayTeamId}
+            </div>
           </div>
         </CardContent>
       </Card>
