@@ -1900,7 +1900,7 @@ id: fixture.teams.away.id,
                         {/* Home team colored bar and logo */}
 
                         <div
-                          className="h-full w-[calc(50%+20px)] ml-[34px] transition-all duration-500 ease-in-out opacity-100 relative "
+                          className="h-full w-[calc(50%+20px)] ml-[17px] transition-all duration-500 ease-in-out opacity-100 relative "
                           style={{
                             background: getEnhancedTeamColor(
                               currentMatch?.teams?.home?.name || "Home Team",
@@ -1917,8 +1917,8 @@ id: fixture.teams.away.id,
                               className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out"
                               style={{
                                 cursor: "pointer",
-                                top: "calc(50% - 47px)",
-                                left: "-45px",
+                                top: "calc(50% - 30px)",
+                                left: "-35px",
                                 filter: "contrast(115%) brightness(105%)",
                               }}
                               onClick={(e) => {
@@ -1939,7 +1939,7 @@ id: fixture.teams.away.id,
                                 alt={
                                   currentMatch.teams.home.name || "Home Team"
                                 }
-                                size="90px"
+                                size="60px"
                                 className="w-full h-full object-contain"
                                 leagueContext={{
                                   name: currentMatch.league.name,
@@ -1953,8 +1953,8 @@ id: fixture.teams.away.id,
                         <div
                           className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
                           style={{
-                            top: "calc(50% - 13px)",
-                            left: "93px",
+                            top: "calc(50% - 15px)",
+                            left: "60px",
                             fontSize: "1.24rem",
                             fontWeight: "normal",
                           }}
@@ -1967,7 +1967,7 @@ id: fixture.teams.away.id,
                           className="absolute text-white font-md text-3xl  h-[52px] w-[52px] flex items-center justify-center z-30 overflow-hidden"
                           style={{
                             background: "transparent",
-                            left: "calc(50% - 25px)",
+                            left: "calc(50% - 35px)",
                             top: "calc(50% - 26px)",
                             minWidth: "52px",
                           }}
@@ -2053,7 +2053,7 @@ id: fixture.teams.away.id,
                           className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
                           style={{
                             top: "calc(50% - 15px)",
-                            right: "88px",
+                            right: "75px",
                             fontSize: "1.24rem",
                             fontWeight: "normal",
                           }}
@@ -2065,8 +2065,8 @@ id: fixture.teams.away.id,
                           className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out"
                           style={{
                             cursor: "pointer",
-                            top: "calc(50% - 45px)",
-                            right: "65px",
+                            top: "calc(50% - 35px)",
+                            right: "50px",
                             transform: "translateX(50%)",
                             filter: "contrast(115%) brightness(105%)",
                           }}
@@ -2081,12 +2081,12 @@ id: fixture.teams.away.id,
                             }
                             teamLogo={
                               currentMatch.teams.away.id
-                                ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=64`
+                                ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=70`
                                 : currentMatch?.teams?.away?.logo ||
                                   `/assets/fallback-logo.svg`
                             }
                             alt={currentMatch?.teams?.away?.name || "Away Team"}
-                            size="90px"
+                            size="70px"
                             className="w-full hull object-contain"
                             leagueContext={{
                               name: currentMatch.league.name,
