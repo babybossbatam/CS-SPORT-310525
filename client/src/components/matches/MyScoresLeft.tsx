@@ -227,6 +227,12 @@ export const MyScoresLeft = ({
     }
   };
 
+  const handleLeaguePrevious = () => {
+    setShowLeagueSelection(false);
+    setShowTeamSelection(true); // Navigate back to TeamSelectionModal
+  };
+
+
   return (
     <>
       <Card className="shadow-md w-full mb-4">
@@ -388,11 +394,12 @@ export const MyScoresLeft = ({
 
       {/* League Selection Modal */}
       <LeagueSelectionModal
-        open={showLeagueSelection}
-        onOpenChange={setShowLeagueSelection}
-        onLeagueSelectionComplete={handleLeagueSelectionComplete}
-        initialSelectedLeagues={selectedLeagues}
-      />
+          open={showLeagueSelection}
+          onOpenChange={setShowLeagueSelection}
+          onLeagueSelectionComplete={handleLeagueSelectionComplete}
+          initialSelectedLeagues={selectedLeagues}
+          onPrevious={handleLeaguePrevious}
+        />
 
 
 

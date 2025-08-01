@@ -23,13 +23,15 @@ interface LeagueSelectionModalProps {
   onOpenChange: (open: boolean) => void;
   onLeagueSelectionComplete?: (selectedLeagues: League[]) => void;
   initialSelectedLeagues?: League[];
+  onPrevious?: () => void;
 }
 
 const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({ 
   open, 
   onOpenChange, 
   onLeagueSelectionComplete,
-  initialSelectedLeagues = []
+  initialSelectedLeagues = [],
+  onPrevious
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTab, setSelectedTab] = useState('top');
@@ -360,7 +362,13 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
         <div className="flex justify-between items-center gap-2 text-xs p-4">
           <Button 
             variant="outline"
-            onClick={() => onOpenChange(false)}
+            onClick={() => {
+              if (onPrevious) {
+                onPrevious();
+              } else {
+                onOpenChange(false);
+              }
+            }}
             className="flex items-center gap-2"
           >
             <ChevronLeft className="h-4 w-4" />
