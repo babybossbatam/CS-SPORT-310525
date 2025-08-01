@@ -32,6 +32,7 @@ interface MyLeftDetailsCardProps {
   featuredMatchId?: number;
   onMatchClick?: (matchId: number) => void;
   onMatchCardClick?: (fixture: any) => void;
+  currentLeagueId?: number; // League ID from the current match on match details page
 }
 
 export const MyLeftDetailsCard = ({
@@ -39,6 +40,7 @@ export const MyLeftDetailsCard = ({
   featuredMatchId,
   onMatchClick,
   onMatchCardClick,
+  currentLeagueId,
 }: MyLeftDetailsCardProps) => {
   const [timeFilterActive, setTimeFilterActive] = useState(false);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
@@ -283,7 +285,7 @@ export const MyLeftDetailsCard = ({
             selectedDate={selectedDate}
             selectedMatchId={featuredMatchId}
             onMatchCardClick={onMatchCardClick}
-            currentLeagueId={undefined} // Use undefined for general view, pass specific league ID from match details
+            currentLeagueId={currentLeagueId} // Pass league ID from current match to show only fixtures from that league
           />
 
         </>
