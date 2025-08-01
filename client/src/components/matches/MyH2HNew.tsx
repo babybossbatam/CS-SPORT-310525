@@ -237,18 +237,18 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
             </div>
 
             {/* Away Team Section */}
-            <div className="flex flex-col items-center flex-1 w-22 h-22">
-           
+            <div className="flex flex-col items-center flex-1">
+              <div className="w-22 h-22  flex items-center justify-center">
                 <MyWorldTeamLogo
                   teamName={match?.teams?.away?.name || 'Away Team'}
                   teamLogo={match?.teams?.away?.logo}
                   teamId={match?.teams?.away?.id}
                   alt={match?.teams?.away?.name || 'Away Team'}
                   size="80px"
-                  className="w-22 h-22 "
+                  className="w-14 h-14 "
                 />
-            
-              <div className="py-4 text-sm text-gray-600 text-center max-w-100 truncate" title={match?.teams?.away?.name}>
+              </div>
+              <div className="text-sm py-4 text-gray-600 text-center max-w-100 truncate" title={match?.teams?.away?.name}>
                 {match?.teams?.away?.name || 'Away Team'}
               </div>
             </div>
