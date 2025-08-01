@@ -3,6 +3,7 @@ import ScoreDetailsCard from "@/components/matches/ScoreDetailsCard";
 import MyLiveAction from "@/components/matches/MyLiveAction";
 import MyMatchEvents from "@/components/matches/MyMatchEvents";
 import MyDetailsTabCard from "@/components/matches/MyDetailsTabCard";
+import MyDetailsFixture from "@/components/matches/MyDetailsFixture"; // Assuming this component exists
 
 interface MyDetailsLayoutProps {
   currentFixture: any;
@@ -10,7 +11,9 @@ interface MyDetailsLayoutProps {
 
 const MyDetailsLayout: React.FC<MyDetailsLayoutProps> = ({ currentFixture }) => {
   const [featuredMatchSelector, setFeaturedMatchSelector] = useState<((matchId: number) => void) | null>(null);
-  
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
+
   const matchStatus = currentFixture?.fixture?.status?.short;
   const isLive = [
     "1H",
@@ -25,7 +28,7 @@ const MyDetailsLayout: React.FC<MyDetailsLayoutProps> = ({ currentFixture }) => 
     "BT"
   ].includes(matchStatus);
   const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"].includes(matchStatus);
-  
+
   console.log(`🔍 [MyDetailsLayout] Match ${currentFixture?.fixture?.id} status detection:`, {
     matchStatus,
     isLive,
@@ -35,6 +38,10 @@ const MyDetailsLayout: React.FC<MyDetailsLayoutProps> = ({ currentFixture }) => 
 
   // Use currentFixture ID as the featured match ID to highlight it
   const featuredMatchId = currentFixture?.fixture?.id;
+
+  const handleMatchCardClick = (matchId: number) => {
+    setSelectedMatchId(matchId);
+  };
 
   return (
     <>
@@ -54,6 +61,16 @@ const MyDetailsLayout: React.FC<MyDetailsLayoutProps> = ({ currentFixture }) => 
         featuredMatchId={featuredMatchId}
         onFeaturedMatchSelect={(selector) => setFeaturedMatchSelector(() => selector)}
       />
+
+      {/* Display fixtures filtered by the current league */}
+      {/* Assuming MyDetailsFixture is meant to be rendered here and needs these props */}
+       <MyDetailsFixture
+          selectedDate={selectedDate}
+          onMatchCardClick={handleMatchCardClick}
+          match={currentFixture}
+          selectedMatchId={selectedMatchId}
+          currentLeagueId={currentFixture?.league?.id}
+        />
     </>
   );
 };
