@@ -425,7 +425,9 @@ const LazyImage: React.FC<LazyImageProps> = ({
         ...style,
         border: 'none',
         outline: 'none',
-        display: isLoading && hasError ? 'none' : 'block'
+        display: hasError && imageSrc !== "/assets/fallback-logo.svg" ? 'none' : 'block',
+        opacity: isLoading ? 0.7 : 1,
+        transition: 'opacity 0.2s ease-in-out'
       }}
       loading={loading}
       onLoad={handleLoad}
