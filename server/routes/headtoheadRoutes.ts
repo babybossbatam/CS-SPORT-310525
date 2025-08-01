@@ -7,7 +7,7 @@ const router = express.Router();
 // Route to get head-to-head fixtures between two teams
 router.get('/headtohead', async (req, res) => {
   try {
-    const { h2h, last = '10', season = '2025' } = req.query;
+    const { h2h, last = '10', season } = req.query;
     
     console.log(`🔍 [H2H API] Request params:`, { h2h, last, season });
     
@@ -25,7 +25,19 @@ router.get('/headtohead', async (req, res) => {
       return res.status(500).json({ error: 'RapidAPI key not configured' });
     }
 
-    const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures/headtohead?h2h=${h2h}&last=${last}&season=${season}`;
+    // Build URL with proper parameters
+    const baseUrl = 'https://api-football-v1.p.rapidapi.com/v3/fixtures/headtohead';
+    const params = new URLSearchParams({
+      h2h: h2h.toString(),
+      last: last.toString()
+    });
+    
+    // Only add season if provided
+    if (season) {
+      params.append('season', season.toString());
+    }
+    
+    const url = `${baseUrl}?${params.toString()}`;
     
     console.log(`🌐 [H2H API] Fetching from:`, url);
     
