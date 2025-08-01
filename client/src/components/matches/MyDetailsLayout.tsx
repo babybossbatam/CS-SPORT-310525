@@ -4,6 +4,7 @@ import MyLiveAction from "@/components/matches/MyLiveAction";
 import MyMatchEvents from "@/components/matches/MyMatchEvents";
 import MyDetailsTabCard from "@/components/matches/MyDetailsTabCard";
 import MyDetailsFixture from "@/components/matches/MyDetailsFixture"; // Assuming this component exists
+import Footer from "@/components/layout/Footer";
 
 interface MyDetailsLayoutProps {
   currentFixture: any;
@@ -62,7 +63,8 @@ const MyDetailsLayout: React.FC<MyDetailsLayoutProps> = ({ currentFixture }) => 
         onFeaturedMatchSelect={(selector) => setFeaturedMatchSelector(() => selector)}
       />
 
-      
+      {/* Add Footer component */}
+      <Footer />
     </>
   );
 };
