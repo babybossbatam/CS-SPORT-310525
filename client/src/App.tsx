@@ -31,8 +31,8 @@ const LiveMatches = lazy(() => import("@/pages/LiveMatches"));
 const LiveScoresPage = lazy(() => import("@/pages/LiveScoresPage"));
 const NewsPage = lazy(() => import("@/pages/NewsPage"));
 const ScoreboardDemo = lazy(() => import("./pages/ScoreboardDemo"));
-import Scores365Page from './pages/Scores365Page';
-
+import Scores365Page from "./pages/Scores365Page";
+import LiveScoreboardPage from "@/pages/LiveScoreboardPage";
 
 function Router() {
   return (
@@ -40,10 +40,10 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/football" component={Football} />
       <Route path="/basketball" component={Basketball} />
-       <Route path="/horseracing" component={HorseRacing} />
+      <Route path="/horseracing" component={HorseRacing} />
       <Route path="/snooker" component={Snooker} />
       <Route path="/esports" component={Esport} />
-      
+
       <Route path="/login" component={() => <Authentication mode="login" />} />
       <Route
         path="/register"
@@ -53,6 +53,7 @@ function Router() {
       <Route path="/match/:id/:tab" component={MatchDetails} />
       <Route path="/league/:id" component={LeagueDetails} />
       <Route path="/league/:id/:tab" component={LeagueDetails} />
+      <Route path="/live" component={LiveScoreboardPage} />
       <Route path="/my-scores" component={MyScores} />
       <Route path="/settings" component={Settings} />
       <Route path="/search" component={SearchResults} />
@@ -86,8 +87,12 @@ function AppContent() {
   try {
     return <Router />;
   } catch (error) {
-    console.error('Router error:', error);
-    return <div>Router Error: {error instanceof Error ? error.message : 'Unknown error'}</div>;
+    console.error("Router error:", error);
+    return (
+      <div>
+        Router Error: {error instanceof Error ? error.message : "Unknown error"}
+      </div>
+    );
   }
 }
 
@@ -108,9 +113,13 @@ function App() {
         event.reason?.message?.includes("Too many re-renders") ||
         event.reason?.toString()?.includes("riker.replit.dev") ||
         event.reason?.toString()?.includes("plugin:runtime-error-plugin") ||
-        (typeof event.reason === 'string' && event.reason.includes("plugin:runtime-error-plugin"))
+        (typeof event.reason === "string" &&
+          event.reason.includes("plugin:runtime-error-plugin"))
       ) {
-        console.log("🔧 Runtime/dynamic import error caught and suppressed:", event.reason?.message || event.reason);
+        console.log(
+          "🔧 Runtime/dynamic import error caught and suppressed:",
+          event.reason?.message || event.reason,
+        );
         event.preventDefault();
         return;
       }
@@ -128,7 +137,10 @@ function App() {
         event.error?.toString()?.includes("plugin:runtime-error-plugin") ||
         event.error?.toString()?.includes("ErrorOverlay")
       ) {
-        console.log("🔧 Runtime/ErrorOverlay error caught and suppressed:", event.message);
+        console.log(
+          "🔧 Runtime/ErrorOverlay error caught and suppressed:",
+          event.message,
+        );
         event.preventDefault();
         return;
       }
@@ -138,7 +150,10 @@ function App() {
     window.addEventListener("error", handleError);
 
     return () => {
-      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+      window.removeEventListener(
+        "unhandledrejection",
+        handleUnhandledRejection,
+      );
       window.removeEventListener("error", handleError);
     };
   }, []);
@@ -152,11 +167,13 @@ function App() {
             selectedDate={new Date().toISOString().slice(0, 10)}
           >
             <Provider store={store}>
-              <Suspense fallback={
-                <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-                  <BrandedLoading size="64px" className="py-8" />
-                </div>
-              }>
+              <Suspense
+                fallback={
+                  <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+                    <BrandedLoading size="64px" className="py-8" />
+                  </div>
+                }
+              >
                 <AppContent />
               </Suspense>
             </Provider>
@@ -164,64 +181,6 @@ function App() {
         </QueryClientProvider>
       </main>
     </TooltipProvider>
-  );
-}
-
-export default App;
-import { Route, Router } from "wouter";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
-import Home from "@/pages/Home";
-import Football from "@/pages/Football";
-import Basketball from "@/pages/Basketball";
-import TV from "@/pages/TV";
-import HorseRacing from "@/pages/HorseRacing";
-import Snooker from "@/pages/Snooker";
-import Esport from "@/pages/Esport";
-import MatchDetails from "@/pages/MatchDetails";
-import LeagueDetails from "@/pages/LeagueDetails";
-import NotFound from "@/pages/not-found";
-import LiveScoreboardPage from "@/pages/LiveScoreboardPage";
-import TodayMatchPage from "@/pages/TodayMatchPage";
-import MyScores from "@/pages/MyScores";
-import Settings from "@/pages/Settings";
-import NewsPage from "@/pages/NewsPage";
-import SearchResults from "@/pages/SearchResults";
-import LiveMatches from "@/pages/LiveMatches";
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 30, // 30 minutes
-    },
-  },
-});
-
-function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <Route path="/" component={Home} />
-        <Route path="/football" component={Football} />
-        <Route path="/basketball" component={Basketball} />
-        <Route path="/tv" component={TV} />
-        <Route path="/horseracing" component={HorseRacing} />
-        <Route path="/snooker" component={Snooker} />
-        <Route path="/esports" component={Esport} />
-        <Route path="/match/:id" component={MatchDetails} />
-        <Route path="/league/:id" component={LeagueDetails} />
-        <Route path="/live" component={LiveScoreboardPage} />
-        <Route path="/today" component={TodayMatchPage} />
-        <Route path="/scores" component={MyScores} />
-        <Route path="/settings" component={Settings} />
-        <Route path="/news" component={NewsPage} />
-        <Route path="/search" component={SearchResults} />
-        <Route path="/live-matches" component={LiveMatches} />
-        <Route component={NotFound} />
-      </Router>
-      <Toaster />
-    </QueryClientProvider>
   );
 }
 
