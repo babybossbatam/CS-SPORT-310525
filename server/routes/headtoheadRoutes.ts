@@ -47,6 +47,13 @@ router.get('/headtohead', async (req, res) => {
     
     console.log(`✅ [H2H API] Valid team IDs: ${team1} vs ${team2}`);
     
+    // Quick validation - check if team IDs are reasonable (not too high/low)
+    const team1Num = Number(team1);
+    const team2Num = Number(team2);
+    if (team1Num < 1 || team1Num > 50000 || team2Num < 1 || team2Num > 50000) {
+      console.log(`⚠️ [H2H API] Suspicious team IDs: ${team1} vs ${team2}`);
+    }
+    
     const apiKey = process.env.RAPID_API_KEY || process.env.RAPIDAPI_KEY || '';
     if (!apiKey) {
       return res.status(500).json({ error: 'RapidAPI key not configured' });
@@ -83,11 +90,22 @@ router.get('/headtohead', async (req, res) => {
     console.log(`📡 [H2H API] Response status:`, response.status);
     
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`❌ [H2H API] Error:`, response.status, errorText);
+      let errorDetails = 'Unknown error';
+      try {
+        const errorData = await response.json();
+        errorDetails = errorData;
+        console.error(`❌ [H2H API] JSON Error:`, response.status, errorData);
+      } catch {
+        const errorText = await response.text();
+        errorDetails = errorText;
+        console.error(`❌ [H2H API] Text Error:`, response.status, errorText);
+      }
+      
       return res.status(response.status).json({ 
         error: `API returned ${response.status}`,
-        details: errorText
+        details: errorDetails,
+        url: url,
+        teams: `${team1} vs ${team2}`
       });
     }
     
@@ -98,6 +116,44 @@ router.get('/headtohead', async (req, res) => {
   } catch (error) {
     console.error(`❌ [H2H API] Error:`, error);
     res.status(500).json({ error: 'Failed to fetch head-to-head data', details: error.message });
+  }
+});
+
+// Test endpoint to check if teams exist
+router.get('/test-teams/:team1/:team2', async (req, res) => {
+  try {
+    const { team1, team2 } = req.params;
+    
+    console.log(`🧪 [H2H TEST] Testing teams: ${team1} vs ${team2}`);
+    
+    const apiKey = process.env.RAPID_API_KEY || process.env.RAPIDAPI_KEY || '';
+    if (!apiKey) {
+      return res.status(500).json({ error: 'RapidAPI key not configured' });
+    }
+
+    // Test by getting team info first
+    const teamInfoUrl = `https://api-football-v1.p.rapidapi.com/v3/teams?id=${team1}`;
+    
+    const response = await fetch(teamInfoUrl, {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': apiKey,
+        'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
+      }
+    });
+    
+    const result = await response.json();
+    console.log(`🧪 [H2H TEST] Team ${team1} info:`, result);
+    
+    res.json({
+      team1: team1,
+      team2: team2,
+      team1Info: result,
+      status: response.status
+    });
+  } catch (error) {
+    console.error(`❌ [H2H TEST] Error:`, error);
+    res.status(500).json({ error: 'Test failed', details: error.message });
   }
 });
 

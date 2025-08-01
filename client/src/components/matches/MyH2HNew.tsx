@@ -82,6 +82,12 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
           console.error(`❌ [H2H] API Error:`, errorData);
+          console.error(`❌ [H2H] Full error details:`, {
+            status: response.status,
+            url: url,
+            teams: `${actualHomeTeamId} vs ${actualAwayTeamId}`,
+            errorData
+          });
           throw new Error(errorData.error || `HTTP ${response.status}`);
         }
 
@@ -94,7 +100,14 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
         setH2hData(fixtures);
       } catch (err) {
         console.error('❌ [H2H] Error:', err);
-        setError(`Failed to load head-to-head data: ${err.message}`);
+        const errorMessage = `Failed to load head-to-head data: ${err.message}`;
+        console.error('❌ [H2H] Detailed error context:', {
+          homeTeam: actualHomeTeamId,
+          awayTeam: actualAwayTeamId,
+          url: url,
+          error: err
+        });
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
