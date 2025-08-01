@@ -153,3 +153,5 @@ const MyScoresMain: React.FC<MyScoresMainProps> = ({
     </div>
   );
 };
+
+export default MyScoresMain;
