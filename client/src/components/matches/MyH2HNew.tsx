@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import MyWorldTeamLogo from '@/components/common/MyWorldTeamLogo';
 
 interface MyH2HNewProps {
   homeTeamId?: number;
@@ -203,17 +204,14 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
             {/* Home Team Section */}
             <div className="flex flex-col items-center flex-1">
               <div className="w-12 h-12 mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
-                {match?.teams?.home?.logo ? (
-                  <img 
-                    src={match.teams.home.logo} 
-                    alt={match.teams.home.name}
-                    className="w-8 h-8 object-contain rounded-full"
-                  />
-                ) : (
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-medium text-blue-600">H</span>
-                  </div>
-                )}
+                <MyWorldTeamLogo
+                  teamName={match?.teams?.home?.name || 'Home Team'}
+                  teamLogo={match?.teams?.home?.logo}
+                  teamId={match?.teams?.home?.id}
+                  alt={match?.teams?.home?.name || 'Home Team'}
+                  size="32px"
+                  className="w-8 h-8 rounded-full"
+                />
               </div>
               <div className="text-xs text-gray-600 text-center max-w-20 truncate" title={match?.teams?.home?.name}>
                 {match?.teams?.home?.name || 'Home Team'}
@@ -241,17 +239,14 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
             {/* Away Team Section */}
             <div className="flex flex-col items-center flex-1">
               <div className="w-12 h-12 mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
-                {match?.teams?.away?.logo ? (
-                  <img 
-                    src={match.teams.away.logo} 
-                    alt={match.teams.away.name}
-                    className="w-8 h-8 object-contain rounded-full"
-                  />
-                ) : (
-                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-medium text-red-600">A</span>
-                  </div>
-                )}
+                <MyWorldTeamLogo
+                  teamName={match?.teams?.away?.name || 'Away Team'}
+                  teamLogo={match?.teams?.away?.logo}
+                  teamId={match?.teams?.away?.id}
+                  alt={match?.teams?.away?.name || 'Away Team'}
+                  size="32px"
+                  className="w-8 h-8 rounded-full"
+                />
               </div>
               <div className="text-xs text-gray-600 text-center max-w-20 truncate" title={match?.teams?.away?.name}>
                 {match?.teams?.away?.name || 'Away Team'}
@@ -340,12 +335,17 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
               {/* Home Team Section */}
               <div className="flex flex-col items-center flex-1">
                 <div className="w-12 h-12 mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-medium text-blue-600">H</span>
-                  </div>
+                  <MyWorldTeamLogo
+                    teamName={match?.teams?.home?.name || 'Home Team'}
+                    teamLogo={match?.teams?.home?.logo}
+                    teamId={actualHomeTeamId}
+                    alt={match?.teams?.home?.name || 'Home Team'}
+                    size="32px"
+                    className="w-8 h-8 rounded-full"
+                  />
                 </div>
                 <div className="text-xs text-gray-600 text-center max-w-16 truncate">
-                  Home Team
+                  {match?.teams?.home?.name || 'Home Team'}
                 </div>
               </div>
 
@@ -370,12 +370,17 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
               {/* Away Team Section */}
               <div className="flex flex-col items-center flex-1">
                 <div className="w-12 h-12 mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
-                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-medium text-red-600">A</span>
-                  </div>
+                  <MyWorldTeamLogo
+                    teamName={match?.teams?.away?.name || 'Away Team'}
+                    teamLogo={match?.teams?.away?.logo}
+                    teamId={actualAwayTeamId}
+                    alt={match?.teams?.away?.name || 'Away Team'}
+                    size="32px"
+                    className="w-8 h-8 rounded-full"
+                  />
                 </div>
                 <div className="text-xs text-gray-600 text-center max-w-16 truncate">
-                  Away Team
+                  {match?.teams?.away?.name || 'Away Team'}
                 </div>
               </div>
             </div>
