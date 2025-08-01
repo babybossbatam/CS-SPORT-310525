@@ -1,4 +1,3 @@
-
 import axios from "axios";
 
 interface BasketballGame {
@@ -169,23 +168,29 @@ export const basketballApiService = {
   /**
    * Get basketball games by date
    */
-  async getGamesByDate(date: string): Promise<BasketballGame[]> {
-    const cacheKey = `basketball-games-${date}`;
+  async getGamesByDate(date: string, leagueId?: number): Promise<BasketballGame[]> {
+    const cacheKey = `basketball-games-${date}-${leagueId || 'all'}`;
     const cached = basketballCache.get(cacheKey);
 
     const now = Date.now();
     if (cached && now - cached.timestamp < BASKETBALL_CACHE_DURATION) {
-      console.log(`📦 [BasketballAPI] Using cached games for ${date}`);
+      console.log(`📦 [BasketballAPI] Using cached games for ${date}, league: ${leagueId || 'all'}`);
       return cached.data;
     }
 
     try {
-      console.log(`🏀 [BasketballAPI] Fetching games for date: ${date}`);
+      console.log(`🏀 [BasketballAPI] Fetching games for date: ${date}, league: ${leagueId || 'all'}`);
+
+      const params: any = {
+        date: date,
+      };
+
+      if (leagueId) {
+        params.league = leagueId;
+      }
 
       const response = await basketballApiClient.get("/games", {
-        params: {
-          date: date,
-        },
+        params: params,
       });
 
       console.log(`🏀 [BasketballAPI] API response status: ${response.status}, results: ${response.data?.results || 0}`);
@@ -212,7 +217,7 @@ export const basketballApiService = {
           timestamp: now,
         });
 
-        console.log(`✅ [BasketballAPI] Retrieved ${validGames.length} valid games for ${date}`);
+        console.log(`✅ [BasketballAPI] Retrieved ${validGames.length} valid games for ${date}, league: ${leagueId || 'all'}`);
         return validGames;
       }
 
@@ -312,7 +317,7 @@ export const basketballApiService = {
 
       // Step 1: First get recent games for this league
       const recentGames = await this.getGamesByLeague(leagueId, season);
-      
+
       if (!recentGames || recentGames.length === 0) {
         console.warn(`⚠️ [BasketballAPI] No games found for league ${leagueId}`);
         throw new Error(`No games available for league ${leagueId}`);
@@ -328,7 +333,7 @@ export const basketballApiService = {
         const game = recentGames[i];
         try {
           console.log(`🏀 [BasketballAPI] Fetching player stats for game ${game.id}`);
-          
+
           const response = await basketballApiClient.get("/games/statistics/players", {
             params: {
               id: game.id
@@ -338,7 +343,7 @@ export const basketballApiService = {
           if (response.data && response.data.response && response.data.response.length > 0) {
             const gamePlayerStats = response.data.response;
             console.log(`🏀 [BasketballAPI] Retrieved ${gamePlayerStats.length} player stats for game ${game.id}`);
-            
+
             // Add game info to each player stat
             gamePlayerStats.forEach((playerStat: any) => {
               if (playerStat.points && playerStat.points > 0) {
@@ -363,7 +368,7 @@ export const basketballApiService = {
 
       // Step 3: Aggregate and sort players by total points
       const playerAggregation = new Map();
-      
+
       allPlayerStats.forEach((playerStat: any) => {
         const playerId = playerStat.player?.id;
         if (!playerId) return;
@@ -416,7 +421,7 @@ export const basketballApiService = {
 
       console.log(`✅ [BasketballAPI] Retrieved ${topScorers.length} real top scorers from ${maxGamesToCheck} games for league ${leagueId}`);
       return topScorers;
-      
+
     } catch (error) {
       console.error(`❌ [BasketballAPI] Error fetching top scorers for league ${leagueId}:`, error);
       throw error; // Re-throw to prevent fallback to mock data

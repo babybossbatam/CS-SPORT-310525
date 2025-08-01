@@ -24,6 +24,22 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { RoundBadge } from "@/components/ui/round-badge";
 
+// Popular basketball leagues from MyBasketPopularLeagues
+const POPULAR_BASKETBALL_LEAGUES = [
+  { id: 12, name: 'NBA', country: 'USA' },
+  { id: 120, name: 'EuroLeague', country: 'Europe' },
+  { id: 1, name: 'FIBA World Cup', country: 'International' },
+  { id: 127, name: 'ACB', country: 'Spain' },
+  { id: 2, name: 'Olympics Basketball - Men', country: 'Olympics' },
+  { id: 132, name: 'Bundesliga', country: 'Germany' },
+  { id: 133, name: 'Lega A', country: 'Italy' },
+  { id: 143, name: 'BBL', country: 'United Kingdom' },
+  { id: 122, name: 'Eurobasket', country: 'Europe' },
+  { id: 134, name: 'LNB Élite', country: 'France' }
+];
+
+const POPULAR_BASKETBALL_LEAGUE_IDS = POPULAR_BASKETBALL_LEAGUES.map(league => league.id);
+
 // Popular basketball teams data
 const POPULAR_BASKETBALL_TEAMS_DATA = [
   { id: 145, name: 'Los Angeles Lakers', country: 'USA' },
@@ -302,9 +318,9 @@ const MyBasketFeatured: React.FC<MyBasketFeaturedProps> = ({
                 liveData.length,
               );
 
-              // Filter by featured basketball leagues
+              // Filter by popular basketball leagues
               const featuredLiveGames = liveData.filter((game) =>
-                FEATURED_BASKETBALL_LEAGUE_IDS.includes(game.league?.id),
+                POPULAR_BASKETBALL_LEAGUE_IDS.includes(game.league?.id),
               );
 
               console.log(
@@ -367,8 +383,8 @@ const MyBasketFeatured: React.FC<MyBasketFeaturedProps> = ({
                   // Must have valid teams
                   const hasValidTeams = isValidBasketballGame(game);
                   
-                  // Filter by featured leagues
-                  const isFeaturedLeague = FEATURED_BASKETBALL_LEAGUE_IDS.includes(game.league?.id);
+                  // Filter by popular leagues
+                  const isPopularLeague = POPULAR_BASKETBALL_LEAGUE_IDS.includes(game.league?.id);
                   
                   // Check if involves popular teams
                   const isPopularTeamGame = isPopularBasketballTeamMatch(
@@ -378,7 +394,7 @@ const MyBasketFeatured: React.FC<MyBasketFeaturedProps> = ({
                     game.teams?.away?.id
                   );
 
-                  const shouldInclude = hasValidTeams && (isFeaturedLeague || isPopularTeamGame);
+                  const shouldInclude = hasValidTeams && (isPopularLeague || isPopularTeamGame);
 
                   if (shouldInclude) {
                     console.log(
