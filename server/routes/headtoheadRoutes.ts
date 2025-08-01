@@ -29,7 +29,11 @@ router.get('/headtohead', async (req, res) => {
     const [team1, team2] = cleanH2h.split('-');
     if (!team1 || !team2 || isNaN(Number(team1)) || isNaN(Number(team2))) {
       console.log(`❌ [H2H API] Invalid team IDs: team1="${team1}", team2="${team2}"`);
-      return res.status(400).json({ error: 'h2h parameter must contain valid team IDs: team1-team2' });
+      return res.status(400).json({ 
+        error: 'h2h parameter must contain valid team IDs: team1-team2',
+        received: cleanH2h,
+        parsed: { team1, team2 }
+      });
     }
     
     console.log(`✅ [H2H API] Valid team IDs: ${team1} vs ${team2}`);

@@ -817,7 +817,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           {
             league: {
               id: 78,
-              name: "Bundesliga",
+              ```python
+name: "Bundesliga",
               type: "League",
               logo: "https://media.api-sports.io/football/leagues/78.png",
               country: "Germany",
@@ -1713,6 +1714,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           `https://www.365scores.com/images/leagues/${leagueId}.png`,
           `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`,
           `https://365scores.com/images/competitions/${leagueId}.png`,
+```python
           `https://static.365scores.com/images/leagues/${leagueId}.png`,
         ];
 
@@ -2105,7 +2107,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         console.log(`🔍 [DEBUG] Comparing fixture ${fixtureId} between APIs`);
 
+        // Add debugging for H2H route conflicts
         if (!fixtureId || fixtureId.trim() === "") {
+          console.log(`❌ [DEBUG] Invalid fixture ID in compare route: "${fixtureId}"`);
           return res.status(400).json({
             error: "Invalid fixture ID",
             fixtureId: fixtureId,
@@ -2653,7 +2657,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("🏈 [SoccersAPI] Fetching leagues");
       const leagues = await soccersApi.getLeagues();
-      
+
 res.json({
         success: true,
         data: leagues,
