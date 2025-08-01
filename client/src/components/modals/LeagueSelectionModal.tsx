@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import LazyImage from "../common/LazyImage";
+import MyNewLeagueLogo from "../common/MyNewLeagueLogo";
 
 interface League {
   id: number;
@@ -192,12 +192,11 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
             </button>
 
             <div className="w-12 h-12 mb-2 flex items-center justify-center">
-              <LazyImage
-                src={`/api/league-logo/${league.id}`}
-                alt={league.name}
+              <MyNewLeagueLogo
+                leagueId={league.id}
+                leagueName={league.name}
                 className="w-full h-full object-contain rounded-lg"
                 style={{ backgroundColor: "transparent" }}
-                loading="lazy"
               />
             </div>
 
@@ -309,12 +308,11 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
                 return (
                   <div key={uniqueId} className="relative group">
                     <div className="w-8 h-8 flex items-center justify-center">
-                      <LazyImage
-                        src={`/api/league-logo/${league.id}`}
-                        alt={league.name}
+                      <MyNewLeagueLogo
+                        leagueId={league.id}
+                        leagueName={league.name}
                         className="w-8 h-8 object-contain rounded-full"
                         style={{ backgroundColor: "transparent" }}
-                        loading="lazy"
                       />
                     </div>
 
