@@ -640,7 +640,7 @@ const MyNewLeague2 = ({
 
     // Update previous statuses for next comparison
     setPreviousMatchStatuses(currentStatuses);
-  }, [fixturesByLeague, previousMatchStatuses, triggerKickoffFlash, triggerFinishFlash]);
+  }, [fixturesByLeague, triggerKickoffFlash, triggerFinishFlash]);
 
   if (isLoading) {
     return (
