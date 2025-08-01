@@ -185,7 +185,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
           <div
             key={uniqueKey}
             onClick={() => handleTeamClick(team.id)}
-            className={`group relative flex flex-col items-center justify-center h-28 w-full md:h-auto md:p-3 p-1 rounded-lg cursor-pointer transition-all duration-200 border ${
+            className={`group relative flex flex-col items-center justify-center h-32 w-full md:h-auto md:p-3 p-1 rounded-lg cursor-pointer transition-all duration-200 border ${
               isSelected 
                 ? 'border-blue-500 bg-blue-50' 
                 : 'border-transparent hover:border-blue-200 hover:border-blue-500'
