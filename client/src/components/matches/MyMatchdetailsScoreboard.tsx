@@ -438,6 +438,12 @@ const MyMatchdetailsScoreboard = ({
           onClick={() => {
             console.log("🔴 [MyMatchdetailsScoreboard] Close button clicked");
 
+            // Remove selected-match CSS class from all match containers
+            const selectedMatches = document.querySelectorAll('.selected-match');
+            selectedMatches.forEach(match => {
+              match.classList.remove('selected-match');
+            });
+
             // Clear the selected match first
             if (onMatchCardClick) {
               onMatchCardClick(null);
