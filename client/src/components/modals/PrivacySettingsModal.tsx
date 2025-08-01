@@ -51,18 +51,10 @@ const PrivacySettingsModal: React.FC<PrivacySettingsModalProps> = ({ isOpen, onC
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-white">
-        <DialogHeader className="flex flex-row items-center justify-between border-b pb-4">
+        <DialogHeader className="border-b pb-4">
           <DialogTitle className="text-lg font-semibold text-gray-900">
             Welcome to CS SPORT Consent Management
           </DialogTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="h-6 w-6 p-0"
-          >
-            <X className="h-4 w-4" />
-          </Button>
         </DialogHeader>
         
         <div className="py-4">
