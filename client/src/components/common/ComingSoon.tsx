@@ -44,23 +44,23 @@ const ComingSoon: React.FC<ComingSoonProps> = ({
           </div>
 
           {/* Features coming */}
-          <div className="bg-blue-50 rounded-lg p-6 max-w-md mx-auto">
-            <h3 className="text-lg font-semibold text-blue-900 mb-3">What's Coming</h3>
-            <ul className="text-left text-blue-800 space-y-2">
+          <div className="rounded-lg p-6 max-w-md mx-auto">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">What's Coming</h3>
+            <ul className="text-left text-gray-800 space-y-2">
               <li className="flex items-center">
-                <span className="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
+                <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
                 Live TV streaming integration
               </li>
               <li className="flex items-center">
-                <span className="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
+                <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
                 Sports channel listings
               </li>
               <li className="flex items-center">
-                <span className="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
+                <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
                 Match broadcast schedules
               </li>
               <li className="flex items-center">
-                <span className="w-2 h-2 bg-blue-600 rounded-full mr-3"></span>
+                <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
                 Personalized recommendations
               </li>
             </ul>
