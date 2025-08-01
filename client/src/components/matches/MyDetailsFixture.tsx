@@ -157,8 +157,14 @@ const MyDetailsFixture = ({
   );
   const [internalSelectedMatchId, setInternalSelectedMatchId] = useState<number | null>(null);
 
-  // Only use the current league ID - no fallback to multiple leagues
-  const leagueIds = currentLeagueId ? [currentLeagueId] : [];
+  // Filter league IDs based on currentLeagueId if provided
+  const leagueIds = currentLeagueId 
+    ? [currentLeagueId] // Only show fixtures from the current match's league
+    : [
+        38, 15, 2, 4, 10, 11, 848, 886, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667,
+        940, 908, 1169, 23, 1077, 253, 850, 893, 921, 130, 128, 493, 239, 265, 237,
+        235, 743,
+      ];
 
   // Helper function to add delay between requests
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
