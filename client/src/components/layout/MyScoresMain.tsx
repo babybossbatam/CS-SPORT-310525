@@ -102,28 +102,29 @@ const MyScoresMain: React.FC<MyScoresMainProps> = ({
   return (
     <div
       className={cn(
-        "bg-[#FDFBF7] rounded-lg py-4 mobile-main-layout",
-        isMobile ? "mx-2 mt-20" : "",
+        "bg-[#FDFBF7] rounded-lg mobile-main-layout",
+        isMobile ? "mx-2 py-2" : "py-4",
       )}
       style={{
-        marginLeft: isMobile ? "8px" : "150px",
-        marginRight: isMobile ? "8px" : "150px",
-        marginTop: isMobile ? "-22px" : "0",
+        marginLeft: isMobile ? "4px" : "150px",
+        marginRight: isMobile ? "4px" : "150px",
+        marginTop: isMobile ? "-20px" : "0",
+        paddingBottom: isMobile ? "80px" : "16px", // Extra padding for mobile bottom nav
       }}
     >
       <div
         className={cn(
-          "grid gap-4",
-          isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12",
+          "gap-4",
+          isMobile ? "flex flex-col space-y-3" : "grid grid-cols-1 lg:grid-cols-12",
         )}
       >
         {/* Left column (5 columns) */}
         <div className={cn("space-y-4", isMobile ? "w-full" : "lg:col-span-5")}>
           {/* Render children if provided, otherwise show MyScoresCard and MyScoresLeft */}
           {children ? (
-            <div>{children}</div>
+            <div className={isMobile ? "px-1" : ""}>{children}</div>
           ) : (
-            <div>
+            <div className={isMobile ? "px-1" : ""}>
               <MyScoresLeft
                 fixtures={filteredFixtures}
                 onMatchClick={handleMatchClick}
@@ -133,22 +134,34 @@ const MyScoresMain: React.FC<MyScoresMainProps> = ({
           )}
         </div>
 
-        {/* Right column (7 columns) */}
-        <div
-          className={cn(
-            "space-y-4",
-            isMobile ? "w-full mt-4" : "lg:col-span-7",
-          )}
-        >
-          {selectedFixture ? (
+        {/* Right column (7 columns) - Hidden on mobile when fixture is selected */}
+        {!isMobile || !selectedFixture ? (
+          <div
+            className={cn(
+              "space-y-4",
+              isMobile ? "w-full px-1" : "lg:col-span-7",
+            )}
+          >
+            {selectedFixture ? (
+              <MyRightDetails
+                selectedFixture={selectedFixture}
+                onClose={handleBackToMain}
+              />
+            ) : (
+              <MyScoresRight />
+            )}
+          </div>
+        ) : null}
+
+        {/* Mobile-only full-screen fixture details */}
+        {isMobile && selectedFixture && (
+          <div className="fixed inset-0 bg-[#FDFBF7] z-50 overflow-y-auto">
             <MyRightDetails
               selectedFixture={selectedFixture}
               onClose={handleBackToMain}
             />
-          ) : (
-            <MyScoresRight />
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
