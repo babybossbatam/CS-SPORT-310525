@@ -429,7 +429,7 @@ const PopularLeaguesList = () => {
                   <div className="ml-3 flex-1">
                     <div className="text-sm">{shortenLeagueName(league.name)}</div>
                     <span className="text-xs text-gray-500 truncate">
-                      {league.country}
+                      {league.country?.replace(/-/g, ' ') || ''}
                     </span>
                   </div>
                   <button
