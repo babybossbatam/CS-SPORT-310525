@@ -13,7 +13,7 @@ import PopularTeamsList from '@/components/teams/PopularTeamsList';
 import ScoreDetailsCard from '@/components/matches/ScoreDetailsCard';
 import MyMainLayoutRight from '@/components/layout/MyMainLayoutRight';
 import MyInfo from '@/components/info/MyInfo';
-import { useDeviceInfo } from '@/lib/hooks/useDeviceInfo';
+import { useDeviceInfo } from '@/hooks/use-mobile';
 
 
 const MyRightContent: React.FC = () => {
