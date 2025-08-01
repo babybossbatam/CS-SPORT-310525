@@ -12,20 +12,27 @@ router.get('/headtohead', async (req, res) => {
     console.log(`🔍 [H2H API] Request params:`, { h2h, last, season });
     
     if (!h2h) {
+      console.log(`❌ [H2H API] Missing h2h parameter`);
       return res.status(400).json({ error: 'h2h parameter is required (format: team1-team2)' });
     }
 
     // Clean and validate h2h format (should be team1-team2)
     const cleanH2h = h2h.toString().trim();
+    console.log(`🔍 [H2H API] Cleaned h2h parameter: "${cleanH2h}"`);
+    
     if (!cleanH2h.includes('-')) {
+      console.log(`❌ [H2H API] Invalid h2h format: ${cleanH2h}`);
       return res.status(400).json({ error: 'h2h parameter must be in format: team1-team2' });
     }
     
     // Validate that both team IDs are numbers
     const [team1, team2] = cleanH2h.split('-');
     if (!team1 || !team2 || isNaN(Number(team1)) || isNaN(Number(team2))) {
+      console.log(`❌ [H2H API] Invalid team IDs: team1="${team1}", team2="${team2}"`);
       return res.status(400).json({ error: 'h2h parameter must contain valid team IDs: team1-team2' });
     }
+    
+    console.log(`✅ [H2H API] Valid team IDs: ${team1} vs ${team2}`);
     
     const apiKey = process.env.RAPID_API_KEY || process.env.RAPIDAPI_KEY || '';
     if (!apiKey) {

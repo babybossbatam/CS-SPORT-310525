@@ -46,7 +46,17 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
   const actualAwayTeamId = awayTeamId || match?.teams?.away?.id;
 
   useEffect(() => {
-    if (!actualHomeTeamId || !actualAwayTeamId) return;
+    if (!actualHomeTeamId || !actualAwayTeamId) {
+      console.log(`⚠️ [H2H] Missing team IDs: home=${actualHomeTeamId}, away=${actualAwayTeamId}`);
+      return;
+    }
+
+    // Validate team IDs are numbers
+    if (isNaN(Number(actualHomeTeamId)) || isNaN(Number(actualAwayTeamId))) {
+      console.log(`❌ [H2H] Invalid team IDs: home=${actualHomeTeamId}, away=${actualAwayTeamId}`);
+      setError('Invalid team IDs provided');
+      return;
+    }
 
     const fetchH2HData = async () => {
       try {
@@ -56,7 +66,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
         console.log(`🔍 [H2H] Fetching head-to-head data for teams: ${actualHomeTeamId} vs ${actualAwayTeamId}`);
 
         const h2hParam = `${actualHomeTeamId}-${actualAwayTeamId}`;
-        const url = `/api/fixtures/headtohead?h2h=${h2hParam}&last=10`;
+        const url = `/api/fixtures/headtohead?h2h=${encodeURIComponent(h2hParam)}&last=10`;
         console.log(`🔍 [H2H] Fetching from: ${url}`);
 
         const response = await fetch(url);
