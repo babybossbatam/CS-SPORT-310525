@@ -817,7 +817,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           {
             league: {
               id: 78,
-              ```python
+              
 name: "Bundesliga",
               type: "League",
               logo: "https://media.api-sports.io/football/leagues/78.png",
@@ -1714,7 +1714,7 @@ name: "Bundesliga",
           `https://www.365scores.com/images/leagues/${leagueId}.png`,
           `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`,
           `https://365scores.com/images/competitions/${leagueId}.png`,
-```python
+
           `https://static.365scores.com/images/leagues/${leagueId}.png`,
         ];
 
