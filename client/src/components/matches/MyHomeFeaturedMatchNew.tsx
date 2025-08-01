@@ -2180,7 +2180,6 @@ id: fixture.teams.away.id,
                       className="flex flex-col items-center cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/league/${currentMatch.league.id}/standings`);
                       }}
                     >
                       <svg
