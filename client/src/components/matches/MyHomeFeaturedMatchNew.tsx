@@ -1972,6 +1972,7 @@ id: fixture.teams.away.id,
                             bottom: "-15px",
                             width: "max-content",
                             fontFamily: "'Inter', system-ui, sans-serif",
+                            marginTop: "10px",
                           }}
                         >
                           {(() => {
