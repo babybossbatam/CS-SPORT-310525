@@ -407,7 +407,11 @@ const LazyImage: React.FC<LazyImageProps> = ({
       alt={alt}
       title={title}
       className={className}
-      style={style}
+      style={{
+        ...style,
+        border: 'none',
+        outline: 'none'
+      }}
       loading={loading}
       onLoad={handleLoad}
       onError={handleError}
