@@ -283,96 +283,52 @@ export const MyLeftDetailsCard = ({
             <ChevronRight className="h-5 w-5" />
           </button>
         </div>
-        <div className="flex items-center justify-between px-4 pb-4 mt-[20px] text-[110.25%] h-9">
-          {/* Live button */}
+        <div className="flex items-center border-b border-gray-200 px-4 pb-0 mt-[20px]">
+          {/* Scores Overview Tab */}
           <button
             onClick={() => {
-              if (!liveFilterActive) {
-                // Activating live filter
-                setLiveFilterActive(true);
-                const today = getCurrentUTCDateString();
-                setSelectedDate(today);
-                // If time filter is active, keep it active for combined state
-                // Otherwise reset it
-                if (!timeFilterActive) {
-                  setTimeFilterActive(false);
-                }
-              } else {
-                // Deactivating live filter
-                setLiveFilterActive(false);
-                // Only activate time filter if it was already active (combined state)
-                // Otherwise return to default view
-                if (!timeFilterActive) {
-                  // Return to default view (TodayPopularFootballLeaguesNew)
-                  setTimeFilterActive(false);
-                } else {
-                  // Keep time filter active if it was already active
-                  setTimeFilterActive(true);
-                }
-              }
+              setLiveFilterActive(false);
+              setTimeFilterActive(false);
             }}
-            className={`flex items-center justify-center gap-1 px-0.5 py-0.5 rounded-full text-xs font-medium w-fit transition-colors duration-200 ${
-              liveFilterActive
-                ? "bg-red-500 text-white hover:bg-red-600"
-                : "bg-gray-300 text-black hover:bg-gray-400"
+            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors duration-200 ${
+              !liveFilterActive && !timeFilterActive
+                ? "text-blue-600 border-blue-600"
+                : "text-gray-500 border-transparent hover:text-gray-700"
             }`}
-            style={{ minWidth: "calc(2rem + 15px)" }}
           >
-            <span className="relative flex h-2 w-2">
-              <span
-                className={`animate-ping absolute inline-flex h-full w-full rounded-full ${liveFilterActive ? "bg-white" : "bg-red-400"} opacity-75`}
-              ></span>
-              <span
-                className={`relative inline-flex rounded-full h-2 w-2 ${liveFilterActive ? "bg-white" : "bg-red-500"}`}
-              ></span>
-            </span>
-            Live
+            Scores Overview
           </button>
 
-          {/* Spacer to maintain layout */}
-          <div className="flex items-center gap-2"></div>
-
-          {/* By time button */}
+          {/* Results Tab */}
           <button
             onClick={() => {
-              // Check if Live is active but no live matches exist - disable functionality
-              if (liveFilterActive && (!sharedLiveFixtures || sharedLiveFixtures.length === 0)) {
-                return; // Do nothing if Live is active but no live matches
-              }
-
-              if (!timeFilterActive) {
-                // Activating by time filter
-                setTimeFilterActive(true);
-                // If live filter is active, keep it active for combined state
-                // Otherwise reset it
-                if (!liveFilterActive) {
-                  setLiveFilterActive(false);
-                }
-              } else {
-                // Deactivating by time filter
-                setTimeFilterActive(false);
-                // Only activate live if it wasn't already active
-                if (!liveFilterActive) {
-                  // Return to default view (TodayPopularFootballLeaguesNew)
-                  setLiveFilterActive(false);
-                } else {
-                  // Keep live active if it was already active
-                  const today = getCurrentUTCDateString();
-                  setSelectedDate(today);
-                }
-              }
+              setLiveFilterActive(false);
+              setTimeFilterActive(true);
             }}
-            className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium w-fit transition-all duration-200 ${
-              // Disable button appearance when Live is active but no live matches
-              liveFilterActive && (!sharedLiveFixtures || sharedLiveFixtures.length === 0)
-                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                : timeFilterActive
-                ? "bg-blue-400 text-white hover:bg-blue-500"
-                : "bg-gray-300 text-black hover:bg-gray-400"
+            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors duration-200 ${
+              !liveFilterActive && timeFilterActive
+                ? "text-blue-600 border-blue-600"
+                : "text-gray-500 border-transparent hover:text-gray-700"
             }`}
           >
-            <Clock className="h-3.5 w-3.5" />
-            By time
+            Results
+          </button>
+
+          {/* Fixtures Tab */}
+          <button
+            onClick={() => {
+              setLiveFilterActive(true);
+              setTimeFilterActive(false);
+              const today = getCurrentUTCDateString();
+              setSelectedDate(today);
+            }}
+            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors duration-200 ${
+              liveFilterActive && !timeFilterActive
+                ? "text-blue-600 border-blue-600"
+                : "text-gray-500 border-transparent hover:text-gray-700"
+            }`}
+          >
+            Fixtures
           </button>
         </div>
       </Card>
