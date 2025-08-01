@@ -7,16 +7,16 @@ const router = express.Router();
 // Route to get head-to-head fixtures between two teams
 router.get('/headtohead', async (req, res) => {
   try {
-    const { h2h, season = '2025' } = req.query;
+    const { team1, team2, last = '10' } = req.query;
     
     console.log(`🔍 [H2H API] Raw query params:`, req.query);
     
-    if (!h2h || typeof h2h !== 'string') {
-      console.error(`❌ [H2H API] Missing or invalid h2h parameter:`, { h2h, type: typeof h2h });
-      return res.status(400).json({ error: 'h2h parameter is required and must be a string like "33-34"' });
+    if (!team1 || !team2) {
+      console.error(`❌ [H2H API] Missing team parameters:`, { team1, team2 });
+      return res.status(400).json({ error: 'team1 and team2 parameters are required' });
     }
     
-    console.log(`🔍 [H2H API] Fetching head-to-head data for: ${h2h}, season: ${season}`);
+    console.log(`🔍 [H2H API] Fetching head-to-head data for: ${team1} vs ${team2}, last ${last} matches`);
     
     // Check if API key is available
     const apiKey = process.env.RAPID_API_KEY || process.env.RAPIDAPI_KEY || '';
@@ -25,18 +25,8 @@ router.get('/headtohead', async (req, res) => {
       return res.status(500).json({ error: 'RapidAPI key not configured' });
     }
 
-    // Split the h2h parameter to get individual team IDs
-    const teamIds = h2h.split('-');
-    if (teamIds.length !== 2) {
-      console.error(`❌ [H2H API] Invalid h2h format. Expected "team1-team2", got: ${h2h}`);
-      return res.status(400).json({ error: 'h2h parameter must be in format "team1-team2"' });
-    }
-
-    const [team1, team2] = teamIds;
-    console.log(`🔍 [H2H API] Parsed team IDs: ${team1} vs ${team2}`);
-
-    // Use the correct RapidAPI format - pass team IDs separately
-    const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures/headtohead?h2h=${team1}-${team2}&season=${season}`;
+    // Use the correct RapidAPI format with team IDs and last parameter
+    const url = `https://api-football-v1.p.rapidapi.com/v3/fixtures/headtohead?h2h=${team1}-${team2}&last=${last}`;
     const options = {
       method: 'GET',
       headers: {
@@ -47,7 +37,7 @@ router.get('/headtohead', async (req, res) => {
 
     console.log(`🔑 [H2H API] Using API key: ${apiKey.substring(0, 8)}...`);
     console.log(`🌐 [H2H API] Making request to:`, url);
-    console.log(`📋 [H2H API] Request params: h2h=${team1}-${team2}, season=${season}`);
+    console.log(`📋 [H2H API] Request params: h2h=${team1}-${team2}, last=${last}`);
     
     const response = await fetch(url, options);
     
@@ -60,13 +50,6 @@ router.get('/headtohead', async (req, res) => {
         statusText: response.statusText,
         body: errorText
       });
-      
-      try {
-        const errorJson = JSON.parse(errorText);
-        console.error(`📋 [H2H API] Parsed error JSON:`, errorJson);
-      } catch (e) {
-        console.error(`📋 [H2H API] Could not parse error as JSON:`, errorText);
-      }
       
       return res.status(response.status).json({ 
         error: `RapidAPI error: ${response.status} ${response.statusText}`,

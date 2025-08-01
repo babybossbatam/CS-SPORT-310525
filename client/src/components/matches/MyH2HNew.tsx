@@ -53,10 +53,9 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
         setLoading(true);
         setError(null);
 
-        const h2hParam = `${actualHomeTeamId}-${actualAwayTeamId}`;
-        console.log(`🔍 [H2H] Making request with params: h2h=${h2hParam}, season=2025`);
+        console.log(`🔍 [H2H] Making request with team1=${actualHomeTeamId}, team2=${actualAwayTeamId}`);
         
-        const url = `/api/fixtures/headtohead?h2h=${encodeURIComponent(h2hParam)}&season=2025`;
+        const url = `/api/fixtures/headtohead?team1=${actualHomeTeamId}&team2=${actualAwayTeamId}&last=10`;
         console.log(`🌐 [H2H] Full URL: ${url}`);
         
         const response = await fetch(url);
@@ -79,7 +78,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
         setH2hData(fixtures);
       } catch (err) {
         console.error('❌ [H2H] Complete error details:', err);
-        setError(`API Error: ${err.message}`);
+        setError(`Failed to load head-to-head data: ${err.message}`);
       } finally {
         setLoading(false);
       }
