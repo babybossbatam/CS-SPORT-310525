@@ -16,6 +16,7 @@ import {
   VolleyballIcon,
   RugbyIcon
 } from '@/components/icons/SportIcons';
+import { useDeviceInfo } from '@/hooks/use-mobile';
 
 type SportItem = {
   id: string;
@@ -27,6 +28,10 @@ const SportsCategoryTabs = () => {
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const selectedSport = useSelector((state: RootState) => state.ui.selectedSport);
+  const { isMobile } = useDeviceInfo();
+
+  // Hide on mobile as we use bottom navigation instead
+  if (isMobile) return null;
 
   const handleSportSelect = (sport: string) => {
     dispatch(uiActions.setSelectedSport(sport));

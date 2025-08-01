@@ -8,6 +8,8 @@ import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { useDeviceInfo } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 interface MyMainLayoutProps {
   fixtures: any[];
@@ -25,6 +27,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   const [location, navigate] = useLocation();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
+  const { isMobile } = useDeviceInfo();
 
   // Apply UTC date filtering to fixtures
   const filteredFixtures = useMemo(() => {
@@ -97,12 +100,25 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
 
   return (
     <div
-      className="bg-[#FDFBF7] rounded-lg py-4"
-      style={{ marginLeft: "150px", marginRight: "150px" }}
+      className={cn(
+        "bg-[#FDFBF7] rounded-lg py-4 mobile-main-layout",
+        isMobile ? "mx-2 mt-20" : ""
+      )}
+      style={{ 
+        marginLeft: isMobile ? "8px" : "150px", 
+        marginRight: isMobile ? "8px" : "150px",
+        marginTop: isMobile ? "4rem" : "0"
+      }}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      <div className={cn(
+        "grid gap-4",
+        isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12"
+      )}>
         {/* Left column (5 columns) */}
-        <div className="lg:col-span-5 space-y-4">
+        <div className={cn(
+          "space-y-4",
+          isMobile ? "w-full" : "lg:col-span-5"
+        )}>
           {/* Render children if provided, otherwise show TodayMatchPageCard */}
           {children ? (
             <div>
@@ -120,7 +136,10 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
         </div>
 
         {/* Right column (7 columns) */}
-        <div className="lg:col-span-7 space-y-4">
+        <div className={cn(
+          "space-y-4",
+          isMobile ? "w-full mt-4" : "lg:col-span-7"
+        )}>
           {selectedFixture ? (
             <MyRightDetails 
               selectedFixture={selectedFixture}

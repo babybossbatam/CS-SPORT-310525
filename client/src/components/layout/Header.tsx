@@ -65,8 +65,14 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-black text-white shadow-md fixed top-0 left-0 right-0 z-50 h-[87px]">
-      <div className="container mx-auto flex items-center justify-between h-full px-20">
+    <header className={cn(
+      "bg-black text-white shadow-md fixed top-0 left-0 right-0 z-50",
+      isMobile ? "h-16" : "h-[87px]"
+    )}>
+      <div className={cn(
+        "container mx-auto flex items-center justify-between h-full",
+        isMobile ? "px-4" : "px-20"
+      )}>
         <Link
           href="/"
           className="flex-shrink-0 flex items-center h-full bg-black"
@@ -74,7 +80,10 @@ const Header = () => {
           <img
             src="/CSSPORT_1_updated.png"
             alt="CS SPORT Logo"
-            className="h-full max-h-[57px] w-auto mr-2 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]"
+            className={cn(
+              "w-auto mr-2 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]",
+              isMobile ? "h-8 max-h-8" : "h-full max-h-[57px]"
+            )}
             onError={(e) => {
               console.log("Logo failed to load, trying fallback");
               const target = e.target as HTMLImageElement;
@@ -83,7 +92,10 @@ const Header = () => {
               }
             }}
           />
-          <span className="flex items-center gap-2 whitespace-nowrap">
+          <span className={cn(
+            "flex items-center gap-2",
+            isMobile ? "hidden" : "whitespace-nowrap"
+          )}>
             <span
               className="bg-gradient-to-br from-amber-300 via-yellow-500 to-orange-500 bg-clip-text text-transparent font-bold text-[clamp(2.685rem,3.146vw,3.197rem)] transition-all duration-200 hover:from-white hover:via-yellow-100 hover:to-amber-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]"
               style={{
@@ -97,30 +109,42 @@ const Header = () => {
           </span>
         </Link>
 
-        <LeagueTabs />
+        {!isMobile && <LeagueTabs />}
 
-        <div className="flex items-center gap-[1.05rem]">
+        <div className={cn(
+          "flex items-center",
+          isMobile ? "gap-3" : "gap-[1.05rem]"
+        )}>
           <div
-            className="text-sm flex items-center text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
+            className={cn(
+              "flex items-center text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer",
+              isMobile ? "text-xs" : "text-sm"
+            )}
             onClick={() =>
               isAuthenticated ? navigate("/my-scores") : navigate("/login")
             }
           >
-            <Star className="h-4 w-4 mr-1 fill-current" />
-            <span>My Scores</span>
+            <Star className={cn("fill-current", isMobile ? "h-3 w-3 mr-1" : "h-4 w-4 mr-1")} />
+            {!isMobile && <span>My Scores</span>}
           </div>
 
           <div
-            className="text-sm flex items-center text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
+            className={cn(
+              "flex items-center text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer",
+              isMobile ? "text-xs" : "text-sm"
+            )}
             onClick={() => setSearchOpen(true)}
           >
-            <Search className="h-4 w-4" />
+            <Search className={cn(isMobile ? "h-3 w-3" : "h-4 w-4")} />
           </div>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <div className="text-sm flex items-center text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer">
-                <Settings className="h-4 w-4" />
+              <div className={cn(
+                "flex items-center text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer",
+                isMobile ? "text-xs" : "text-sm"
+              )}>
+                <Settings className={cn(isMobile ? "h-3 w-3" : "h-4 w-4")} />
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -232,7 +256,10 @@ const Header = () => {
           </DropdownMenu>
 
           {isAuthenticated && (
-            <div className="flex items-center text-sm font-semibold text-white transition-colors duration-200 cursor-pointer  ml-4">
+            <div className={cn(
+              "flex items-center font-semibold text-white transition-colors duration-200 cursor-pointer",
+              isMobile ? "text-xs ml-2" : "text-sm ml-4"
+            )}>
               <span
                 className={`transition-colors duration-200 ${
                   activeHover === "username"
