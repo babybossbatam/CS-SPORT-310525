@@ -22,7 +22,7 @@ const MyScoresRight: React.FC = () => {
       )}
 
       {/* Popular Leagues and Teams sections */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className={`${isMobile ? 'space-y-4' : 'grid grid-cols-2 gap-4'}`}>
         <PopularLeaguesList />
         <div className="w-full shadow-md bg-white">
           <div className="p-4">
