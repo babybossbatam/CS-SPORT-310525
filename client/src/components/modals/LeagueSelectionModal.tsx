@@ -41,12 +41,12 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
   const getCachedLogoUrl = (leagueId: number, leagueName: string): string => {
     const cacheKey = getLeagueLogoCacheKey(leagueId, leagueName);
     const cached = leagueLogoCache.getCached(cacheKey);
-    
+
     if (cached) {
       console.log(`🎯 [LeagueSelectionModal] Using cached logo for ${leagueName}: ${cached.url}`);
       return cached.url;
     }
-    
+
     // If not cached, use server proxy and cache the result
     const proxyUrl = `/api/league-logo/${leagueId}`;
     leagueLogoCache.setCached(cacheKey, proxyUrl, 'server-proxy', true);
@@ -112,7 +112,6 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
   ];
 
   const handleLeagueClick = (league: any) => {
-    // Create unique identifier for leagues (including qualifiers)
     const uniqueId = league.isQualifiers ? `${league.id}_qualifiers` : league.id;
 
     setSelectedLeagues(prev => {
@@ -123,18 +122,27 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
         newSelection.add(uniqueId);
       }
 
+      // Create selected leagues array
+      const selectedLeaguesArray = Array.from(newSelection).map((uniqueId) => {
+        // Handle qualifier leagues
+        if (typeof uniqueId === 'string' && uniqueId.includes('_qualifiers')) {
+          const leagueId = parseInt(uniqueId.split('_')[0]);
+          return popularLeagues.find(l => l.id === leagueId && l.isQualifiers);
+        }
+        // Handle regular leagues
+        return popularLeagues.find(l => l.id === uniqueId && !l.isQualifiers);
+      }).filter(Boolean);
+
+      // Save to localStorage immediately
+      try {
+        localStorage.setItem('selectedLeagues', JSON.stringify(selectedLeaguesArray));
+        console.log("🎯 [LeagueSelectionModal] Saved leagues to localStorage:", selectedLeaguesArray.length);
+      } catch (error) {
+        console.error("Error saving leagues to localStorage:", error);
+      }
+
       // Immediately update parent component with current selections
       if (onLeagueSelectionComplete) {
-        const selectedLeaguesArray = Array.from(newSelection).map((uniqueId) => {
-          // Handle qualifier leagues
-          if (typeof uniqueId === 'string' && uniqueId.includes('_qualifiers')) {
-            const leagueId = parseInt(uniqueId.split('_')[0]);
-            return popularLeagues.find(l => l.id === leagueId && l.isQualifiers);
-          }
-          // Handle regular leagues
-          return popularLeagues.find(l => l.id === uniqueId && !l.isQualifiers);
-        }).filter(Boolean);
-
         onLeagueSelectionComplete(selectedLeaguesArray);
       }
 
