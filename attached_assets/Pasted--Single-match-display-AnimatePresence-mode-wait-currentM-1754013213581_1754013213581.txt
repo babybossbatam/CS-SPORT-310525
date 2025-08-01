@@ -1,0 +1,72 @@
+      {/* Single match display */}
+            <AnimatePresence mode="wait">
+              {currentMatch && (
+                <motion.div
+                  key={`match-${currentMatch.fixture.id}-${currentMatchIndex}`}
+                  initial={{ x: 100, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: -100, opacity: 0 }}
+                  transition={{
+                    type: "tween",
+                    duration: 0.15,
+                    ease: "easeInOut",
+                  }}
+                  className="cursor-pointer"
+                  onClick={() => {
+                    // Debug logging for league identification
+                    console.log(`🔍 [FEATURED MATCH DEBUG] League ID Debug:`, {
+                      leagueId: currentMatch.league.id,
+                      leagueName: currentMatch.league.name,
+                      leagueCountry: currentMatch.league.country,
+                      matchId: currentMatch.fixture.id,
+                      homeTeam: currentMatch.teams.home.name,
+                      awayTeam: currentMatch.teams.away.name,
+                      fixtureStatus: currentMatch.fixture.status.short
+                    });
+
+                    // Call onMatchSelect if provided (for Details tab)
+                    if (onMatchSelect) {
+                      console.log(`🎯 [MyHomeFeaturedMatchNew] Selecting match for Details tab:`, currentMatch.fixture.id);
+                      onMatchSelect(currentMatch.fixture.id);
+                    } else {
+                      // Navigate to match details page if no callback provided
+                      navigate(`/match/${currentMatch.fixture.id}`);
+                    }
+                  }}
+                >
+                  {/* League header */}
+                  <div 
+                    className="flex items-center justify-center gap-2 mb-4 p-2"
+                    onClick={() => {
+                      console.log(`🔍 [LEAGUE HEADER DEBUG] Clicked on league:`, {
+                        LEAGUE_ID: currentMatch.league.id,
+                        LEAGUE_NAME: currentMatch.league.name,
+                        LEAGUE_COUNTRY: currentMatch.league.country,
+                        LEAGUE_LOGO: currentMatch.league.logo
+                      });
+                    }}
+                  >
+                    <LazyImage
+                      src={
+                        currentMatch.league.name?.toLowerCase().includes('cotif') 
+                          ? "/assets/matchdetaillogo/SGCUNl9j-zkh3mv3i.png"
+                          : currentMatch.league.logo
+                      }
+                      alt={currentMatch.league.name}
+                      className="w-6 h-6"
+                      fallbackSrc="/assets/fallback-logo.svg"
+                    />
+                    <span 
+                      className="text-sm font-medium text-gray-700 text-center"
+                      title={`League ID: ${currentMatch.league.id} | ${currentMatch.league.name} | ${currentMatch.league.country}`}
+                    >
+                      {currentMatch.league.name}
+                    </span>
+
+                    {/* Round/Bracket Status Display using RoundBadge component */}
+                    <RoundBadge 
+                      leagueId={currentMatch.league.id}
+                      currentRound={currentMatch.league?.round}
+                      matchStatus={currentMatch.fixture.status.short}
+                      className="ml-2"
+                    />
