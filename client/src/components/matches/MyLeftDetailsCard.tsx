@@ -248,7 +248,8 @@ export const MyLeftDetailsCard = ({
       </Card>
 
       <Card className="shadow-md w-full">
-        <CardContent className="p-4">
+        <CardContent className="p-4 space-y-4"> </CardContent>
+        </Card>
           {liveFilterActive && timeFilterActive ? (
         // Combined state: Show live matches grouped by time
         <LiveMatchByTime
@@ -288,8 +289,8 @@ export const MyLeftDetailsCard = ({
         </>
         )
       }
-        </CardContent>
-      </Card>
+       
+    
     </>
   );
 };
