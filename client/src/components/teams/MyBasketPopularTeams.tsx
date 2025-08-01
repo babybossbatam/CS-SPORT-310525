@@ -144,9 +144,6 @@ const MyBasketPopularTeams: React.FC = () => {
               </div>
             </div>
           </div>
-          <Badge variant="outline" className="text-xs">
-            {team.code}
-          </Badge>
         </div>
       ))}
     </div>
