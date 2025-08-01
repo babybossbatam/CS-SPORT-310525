@@ -78,7 +78,7 @@ interface FixtureData {
 
 interface MyNewLeague2Props {
   selectedDate: string;
-  onMatchCardClick?: (fixture: any) => void; // Callback to pass match data to parent (for MyMatchdetailsScoreboard)
+  onMatchCardClick?: (fixture: any | null) => void; // Callback to pass match data to parent (for MyMatchdetailsScoreboard)
   match?: any; // Current match data (used for sample display)
 }
 
@@ -516,7 +516,14 @@ const MyNewLeague2 = ({
     });
   }, []);
 
-  const handleMatchClick = (fixture: FixtureData) => {
+  const handleMatchClick = (fixture: FixtureData | null) => {
+    if (fixture === null) {
+      // Clear selection when null is passed (from close button)
+      console.log("🎯 [MyNewLeague2] Clearing selected match");
+      setSelectedMatchId(null);
+      return;
+    }
+
     console.log("🎯 [MyNewLeague2] Match card clicked:", {
       fixtureId: fixture.fixture?.id,
       teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,

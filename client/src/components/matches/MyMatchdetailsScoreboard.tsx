@@ -435,7 +435,13 @@ const MyMatchdetailsScoreboard = ({
       >
       {onClose && (
         <button
-          onClick={onClose}
+          onClick={() => {
+            onClose();
+            // Clear selected match if callback is available
+            if (onMatchCardClick) {
+              onMatchCardClick(null);
+            }
+          }}
           className="absolute top-2 right-2 text-gray-500 text-xl font-semi-bold w-6 h-6 flex items-center justify-center z-10"
           aria-label="Close"
         >
