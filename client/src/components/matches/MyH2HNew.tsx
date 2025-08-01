@@ -55,7 +55,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
 
         console.log(`🔍 [H2H] Fetching head-to-head data for teams: ${actualHomeTeamId} vs ${actualAwayTeamId}`);
         
-        const response = await fetch(`/api/fixtures/headtohead?h2h=${actualHomeTeamId}-${actualAwayTeamId}&last=10`);
+        const response = await fetch(`/api/fixtures/headtohead?h2h=${actualHomeTeamId}-${actualAwayTeamId}&last=10&season=2025`);
         
         console.log(`📡 [H2H] Response status: ${response.status}`);
 
