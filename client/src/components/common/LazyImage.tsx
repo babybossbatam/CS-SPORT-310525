@@ -85,7 +85,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       const shouldUseLocalAsset = () => {
         if (alt) {
           const altLower = alt.toLowerCase();
-          
+
           // COTIF Tournament league
           if (altLower.includes("cotif") || altLower.includes("cotif tournament")) {
             setImageSrc("/assets/matchdetaillogo/cotif tournament.png");
@@ -93,7 +93,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
             console.log(`🏆 [LazyImage] Using local COTIF Tournament logo`);
             return true;
           }
-          
+
           // Valencia team (including U20)
           if (altLower.includes("valencia") && !altLower.includes("rayo vallecano")) {
             setImageSrc("/assets/matchdetaillogo/valencia.png");
@@ -101,7 +101,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
             console.log(`⚽ [LazyImage] Using local Valencia logo`);
             return true;
           }
-          
+
           // Alboraya team (including U20)
           if (altLower.includes("alboraya") || altLower.includes("albaroya")) {
             setImageSrc("/assets/matchdetaillogo/alboraya.png");
@@ -384,7 +384,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
     onLoad?.();
   };
 
-  
+
 
   // Use MyWorldTeamLogo if team information is provided and useTeamLogo is true
   if (useTeamLogo && teamId && teamName) {
@@ -407,13 +407,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       alt={alt}
       title={title}
       className={className}
-      style={{
-        ...style,
-        width: style?.width ? `calc(${style.width} + 5px)` : undefined,
-        height: style?.height ? `calc(${style.height} + 5px)` : undefined,
-        minWidth: '5px',
-        minHeight: '5px'
-      }}
+      style={style}
       loading={loading}
       onLoad={handleLoad}
       onError={handleError}
