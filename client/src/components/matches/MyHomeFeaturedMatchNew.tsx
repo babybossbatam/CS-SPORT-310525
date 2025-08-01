@@ -2081,7 +2081,7 @@ id: fixture.teams.away.id,
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex justify-around border-t border-gray-200 pt-4 mt-15">
+                  <div className="flex justify-around border-t border-gray-200 pt-4 mt-24">
                     <button
                       className="flex flex-col items-center cursor-pointer"
                       onClick={(e) => {
