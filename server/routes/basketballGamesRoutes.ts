@@ -1,6 +1,6 @@
 
 import { Router } from 'express';
-import { basketballApi } from '../services/basketballApi';
+import { basketballApiService } from '../services/basketballApi';
 
 const router = Router();
 
@@ -17,7 +17,7 @@ router.get('/games/:date', async (req, res) => {
     
     for (const leagueId of popularLeagueIds) {
       try {
-        const games = await basketballApi.getGamesByDate(date, leagueId);
+        const games = await basketballApiService.getGamesByDate(date, leagueId);
         if (games && Array.isArray(games)) {
           allGames.push(...games);
         }
@@ -45,7 +45,7 @@ router.get('/games/live', async (req, res) => {
   try {
     console.log(`🔴 [BasketballGames] Fetching live games`);
     
-    const liveGames = await basketballApi.getLiveGames();
+    const liveGames = await basketballApiService.getLiveGames();
     
     if (liveGames && Array.isArray(liveGames)) {
       // Filter by popular leagues
