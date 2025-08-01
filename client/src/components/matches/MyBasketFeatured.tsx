@@ -97,18 +97,6 @@ interface MyBasketFeaturedProps {
   maxMatches?: number;
 }
 
-// Popular basketball leagues
-const POPULAR_BASKETBALL_LEAGUES = [
-  { id: 12, name: "NBA", country: "USA" },
-  { id: 120, name: "EuroLeague", country: "Europe" },
-  { id: 127, name: "Liga ACB", country: "Spain" },
-  { id: 133, name: "Lega Basket Serie A", country: "Italy" },
-  { id: 132, name: "Bundesliga", country: "Germany" },
-  { id: 134, name: "LNB Pro A", country: "France" },
-  { id: 122, name: "EuroCup", country: "Europe" },
-  { id: 117, name: "CBA", country: "China" },
-];
-
 // Define featured basketball leagues
 const FEATURED_BASKETBALL_LEAGUE_IDS = [
   12, 120, 127, 133, 132, 134, 122, 117
