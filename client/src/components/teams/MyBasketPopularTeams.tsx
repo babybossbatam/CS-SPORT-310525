@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -141,7 +140,7 @@ const MyBasketPopularTeams: React.FC = () => {
                 <MyBasketballCircularFlag 
                   teamName={team.name}
                   countryName={team.country}
-                  size="24px"
+                  size="16px"
                 />
                 <p className="text-xs text-gray-500">
                   {team.league.name}
