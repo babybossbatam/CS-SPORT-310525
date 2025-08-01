@@ -169,7 +169,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
   const internationalLeagues = popularLeagues.filter(league => league.type === 'international');
 
   const renderLeagueGrid = (leagues: typeof popularLeagues, tabPrefix: string) => (
-    <div className="grid grid-cols-5 gap-4 p-4">
+    <div className="grid grid-cols-5 gap-1 md:gap-4 p-0 md:p-4">
       {leagues.map((league, index) => {
         const uniqueId = league.isQualifiers ? `${league.id}_qualifiers` : league.id;
         const isSelected = selectedLeagues.has(uniqueId);
@@ -178,7 +178,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
           <div
             key={uniqueKey}
             onClick={() => handleLeagueClick(league)}
-            className={`group relative flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer transition-all duration-200 border ${
+            className={`group relative flex flex-col items-center justify-center h-28 w-full md:h-auto md:p-3 p-1 rounded-lg cursor-pointer transition-all duration-200 border ${
               isSelected 
                 ? 'border-blue-500 bg-blue-50' 
                 : 'border-transparent hover:border-blue-300 hover:bg-blue-50'
@@ -212,7 +212,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
               </svg>
             </button>
 
-            <div className="w-12 h-12 mb-2 flex items-center justify-center">
+            <div className="w-10 h-10 md:w-12 md:h-12 mb-1 md:mb-2 flex items-center justify-center flex-shrink-0">
               <LazyImage
                 src={getCachedLogoUrl(league.id, league.name)}
                 alt={league.name}
@@ -222,11 +222,16 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
               />
             </div>
 
-            <div className="relative text-xs text-center text-gray-700 font-medium mb-1 h-8 flex items-center justify-center">
-              <span className="group-hover:opacity-0 transition-opacity duration-200 line-clamp-2 leading-tight">
-                {league.name}
-              </span>
-              <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-blue-600 font-semibold">
+            <span className="text-xs md:text-sm text-center text-gray-700 font-medium mb-1 leading-tight px-1 line-clamp-1">
+              {league.name}
+            </span>
+
+            {/* Popularity indicator - appears on hover */}
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center text-blue-600 text-xs">
+              <svg className="w-2 h-2 md:w-3 md:h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-xs font-semibold whitespace-nowrap">
                 {league.popularity}
               </span>
             </div>
