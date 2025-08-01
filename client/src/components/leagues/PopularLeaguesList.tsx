@@ -29,11 +29,25 @@ const shortenLeagueName = (name: string): string => {
     'Serie A': 'Serie A',
     'Ligue 1': 'Ligue 1'
   };
+
+  // Additional mobile-friendly abbreviations
+  const mobileAbbreviations = {
+    'Qualification': 'Qual',
+    'Championship': 'Champ',
+    'International': 'Intl'
+  };
   
   // Check for exact matches first
   for (const [full, short] of Object.entries(abbreviations)) {
     if (name.includes(full)) {
-      return name.replace(full, short);
+      name = name.replace(full, short);
+    }
+  }
+
+  // Apply mobile-friendly abbreviations for remaining long words
+  for (const [full, short] of Object.entries(mobileAbbreviations)) {
+    if (name.includes(full)) {
+      name = name.replace(full, short);
     }
   }
   
