@@ -54,17 +54,33 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
         setLoading(true);
         setError(null);
 
+        console.log(`🔍 [H2H] Fetching head-to-head data for: ${actualHomeTeamId}-${actualAwayTeamId}`);
         const response = await fetch(`/api/fixtures/headtohead?h2h=${actualHomeTeamId}-${actualAwayTeamId}`);
         
         if (!response.ok) {
-          throw new Error('Failed to fetch head-to-head data');
+          console.error(`❌ [H2H] API response not ok: ${response.status} ${response.statusText}`);
+          throw new Error(`Failed to fetch head-to-head data: ${response.status}`);
         }
 
         const data = await response.json();
-        setH2hData(data?.response || []);
+        console.log(`📊 [H2H] Raw API response:`, data);
+        
+        // Handle the response structure from your API
+        const fixtures = data?.response || data || [];
+        console.log(`✅ [H2H] Found ${fixtures.length} head-to-head matches`);
+        
+        // Filter only finished matches for H2H statistics
+        const finishedMatches = fixtures.filter(match => 
+          match.fixture?.status?.short === 'FT' || 
+          match.fixture?.status?.short === 'AET' ||
+          match.fixture?.status?.short === 'PEN'
+        );
+        
+        console.log(`📈 [H2H] ${finishedMatches.length} finished matches for statistics`);
+        setH2hData(fixtures); // Keep all matches for display
       } catch (err) {
-        console.error('Error fetching H2H data:', err);
-        setError('Failed to load head-to-head data');
+        console.error('❌ [H2H] Error fetching head-to-head data:', err);
+        setError(`Failed to load head-to-head data: ${err.message}`);
       } finally {
         setLoading(false);
       }
@@ -108,18 +124,28 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
   // Get recent 5 matches
   const recentMatches = h2hData.slice(0, 5);
 
-  // Calculate statistics
-  const homeWins = h2hData.filter(match => 
+  // Calculate statistics only from finished matches
+  const finishedMatches = h2hData.filter(match => 
+    match.fixture?.status?.short === 'FT' || 
+    match.fixture?.status?.short === 'AET' ||
+    match.fixture?.status?.short === 'PEN'
+  );
+
+  const homeWins = finishedMatches.filter(match => 
     (match.teams.home.id === actualHomeTeamId && match.goals.home > match.goals.away) ||
     (match.teams.away.id === actualHomeTeamId && match.goals.away > match.goals.home)
   ).length;
 
-  const awayWins = h2hData.filter(match => 
+  const awayWins = finishedMatches.filter(match => 
     (match.teams.home.id === actualAwayTeamId && match.goals.home > match.goals.away) ||
     (match.teams.away.id === actualAwayTeamId && match.goals.away > match.goals.home)
   ).length;
 
-  const draws = h2hData.filter(match => match.goals.home === match.goals.away).length;
+  const draws = finishedMatches.filter(match => 
+    match.goals.home === match.goals.away && 
+    match.goals.home !== null && 
+    match.goals.away !== null
+  ).length;
 
   return (
     <>
@@ -128,21 +154,30 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
           <CardTitle className="text-sm font-medium">Head to Head</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
-          {/* Statistics Summary */}
-          <div className="flex items-center justify-between mb-4 text-sm">
-            <div className="text-center">
-              <div className="font-semibold text-blue-600">{homeWins}</div>
-              <div className="text-gray-500">Wins</div>
+          {/* Statistics Summary - Only show if there are finished matches */}
+          {finishedMatches.length > 0 && (
+            <div className="flex items-center justify-between mb-4 text-sm">
+              <div className="text-center">
+                <div className="font-semibold text-blue-600">{homeWins}</div>
+                <div className="text-gray-500">Wins</div>
+              </div>
+              <div className="text-center">
+                <div className="font-semibold text-gray-600">{draws}</div>
+                <div className="text-gray-500">Draws</div>
+              </div>
+              <div className="text-center">
+                <div className="font-semibold text-red-600">{awayWins}</div>
+                <div className="text-gray-500">Wins</div>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="font-semibold text-gray-600">{draws}</div>
-              <div className="text-gray-500">Draws</div>
+          )}
+          
+          {finishedMatches.length === 0 && h2hData.length > 0 && (
+            <div className="text-center text-gray-500 mb-4">
+              <div className="text-sm">No completed matches found</div>
+              <div className="text-xs">Showing upcoming fixtures</div>
             </div>
-            <div className="text-center">
-              <div className="font-semibold text-red-600">{awayWins}</div>
-              <div className="text-gray-500">Wins</div>
-            </div>
-          </div>
+          )}
 
           {/* Recent Matches */}
           <div className="space-y-2">
@@ -160,10 +195,22 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
                   </span>
                 </div>
                 
-                <div className="flex items-center space-x-2 mx-4">
+                <div className="flex flex-col items-center space-y-1 mx-4">
                   <span className="text-xs font-medium">
-                    {match.goals.home} - {match.goals.away}
+                    {match.goals.home !== null && match.goals.away !== null 
+                      ? `${match.goals.home} - ${match.goals.away}` 
+                      : match.fixture?.status?.short === 'NS' ? 'vs' : match.fixture?.status?.short
+                    }
                   </span>
+                  {match.fixture?.date && (
+                    <span className="text-xs text-gray-500">
+                      {new Date(match.fixture.date).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </span>
+                  )}
                 </div>
                 
                 <div className="flex items-center space-x-2 flex-1 justify-end">
