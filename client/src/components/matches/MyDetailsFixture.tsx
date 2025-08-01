@@ -774,7 +774,23 @@ const MyDetailsFixture = ({
         <div className="flex justify-between items-center w-full">
           <span>Fixtures</span>
           <div className="flex flex-col items-end text-right">
-            <span className="text-sm text-gray-600">Extra Preliminary Round</span>
+            {(() => {
+              // Get the most common round from all fixtures for display
+              const rounds = Object.values(fixturesByLeague)
+                .flatMap(group => group.fixtures)
+                .map(fixture => fixture.league?.round)
+                .filter(round => round && round !== 'Regular Season');
+              
+              const mostCommonRound = rounds.length > 0 
+                ? rounds.reduce((a, b, i, arr) => 
+                    arr.filter(v => v === a).length >= arr.filter(v => v === b).length ? a : b
+                  )
+                : null;
+
+              return mostCommonRound ? (
+                <span className="text-sm text-gray-600">{mostCommonRound}</span>
+              ) : null;
+            })()}
             <span className="text-sm text-gray-500">{format(new Date(selectedDate), 'dd/MM/yyyy')}</span>
           </div>
         </div>
