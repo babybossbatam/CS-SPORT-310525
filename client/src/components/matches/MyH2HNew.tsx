@@ -55,7 +55,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
         setError(null);
 
         console.log(`🔍 [H2H] Fetching head-to-head data for: ${actualHomeTeamId}-${actualAwayTeamId}`);
-        const response = await fetch(`/api/fixtures/headtohead?h2h=${actualHomeTeamId}-${actualAwayTeamId}`);
+        const response = await fetch(`/api/fixtures/headtohead?h2h=${actualHomeTeamId}-${actualAwayTeamId}&season=2025`);
         
         if (!response.ok) {
           console.error(`❌ [H2H] API response not ok: ${response.status} ${response.statusText}`);
