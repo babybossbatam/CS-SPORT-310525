@@ -200,20 +200,20 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
         </CardHeader>
         <CardContent className="p-4">
           {/* 365scores-inspired No Data Layout */}
-          <div className="flex items-center justify-between mb-6 bg-gray-50 rounded-lg p-4">
+          <div className="flex items-center justify-between  p-8">
             {/* Home Team Section */}
             <div className="flex flex-col items-center flex-1">
-              <div className="w-12 h-12 mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
+              <div className="w-22 h-22  flex items-center justify-center">
                 <MyWorldTeamLogo
                   teamName={match?.teams?.home?.name || 'Home Team'}
                   teamLogo={match?.teams?.home?.logo}
                   teamId={match?.teams?.home?.id}
                   alt={match?.teams?.home?.name || 'Home Team'}
-                  size="72px"
-                  className="w-8 h-8 rounded-full"
+                  size="80px"
+                  className="w-14 h-14 "
                 />
               </div>
-              <div className="text-xs text-gray-600 text-center max-w-20 truncate" title={match?.teams?.home?.name}>
+              <div className="text-sm py-4 text-gray-600 text-center max-w-100 truncate" title={match?.teams?.home?.name}>
                 {match?.teams?.home?.name || 'Home Team'}
               </div>
             </div>
@@ -237,25 +237,25 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
             </div>
 
             {/* Away Team Section */}
-            <div className="flex flex-col items-center flex-1">
+            <div className="flex flex-col items-center flex-1 w-22 h-22">
            
                 <MyWorldTeamLogo
                   teamName={match?.teams?.away?.name || 'Away Team'}
                   teamLogo={match?.teams?.away?.logo}
                   teamId={match?.teams?.away?.id}
                   alt={match?.teams?.away?.name || 'Away Team'}
-                  size="32px"
-                  className="w-8 h-8 rounded-full"
+                  size="80px"
+                  className="w-22 h-22 "
                 />
             
-              <div className="text-xs text-gray-600 text-center max-w-20 truncate" title={match?.teams?.away?.name}>
+              <div className="py-4 text-sm text-gray-600 text-center max-w-100 truncate" title={match?.teams?.away?.name}>
                 {match?.teams?.away?.name || 'Away Team'}
               </div>
             </div>
           </div>
 
           <div className="text-center text-gray-500">
-            <div className="text-2xl mb-2">📊</div>
+            <div className="text-2xl mb-2"></div>
             <p className="text-sm font-medium">No Previous Meetings</p>
             
             {match?.teams?.home?.name && match?.teams?.away?.name ? (
