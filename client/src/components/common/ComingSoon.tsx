@@ -47,22 +47,83 @@ const ComingSoon: React.FC<ComingSoonProps> = ({
           <div className="rounded-lg p-6 max-w-md mx-auto">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">What's Coming</h3>
             <ul className="text-left text-gray-800 space-y-2">
-              <li className="flex items-center">
-                <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
-                Live TV streaming integration
-              </li>
-              <li className="flex items-center">
-                <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
-                Sports channel listings
-              </li>
-              <li className="flex items-center">
-                <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
-                Match broadcast schedules
-              </li>
-              <li className="flex items-center">
-                <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
-                Personalized recommendations
-              </li>
+              {feature === 'horseracing' ? (
+                <>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
+                    Live race results and odds
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
+                    Horse and jockey statistics
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
+                    Track conditions and schedules
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
+                    Major race coverage
+                  </li>
+                </>
+              ) : feature === 'snooker' ? (
+                <>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
+                    Live tournament scores
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
+                    Player rankings and statistics
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
+                    World Championship coverage
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
+                    Match highlights and results
+                  </li>
+                </>
+              ) : feature === 'esports' ? (
+                <>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
+                    Live tournament streams
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
+                    Team and player statistics
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
+                    Major championship coverage
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
+                    Game-specific tournaments
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
+                    Live TV streaming integration
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
+                    Sports channel listings
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
+                    Match broadcast schedules
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-gray-600 rounded-full mr-3"></span>
+                    Personalized recommendations
+                  </li>
+                </>
+              )}
             </ul>
           </div>
 
