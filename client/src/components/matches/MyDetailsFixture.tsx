@@ -772,7 +772,11 @@ const MyDetailsFixture = ({
       {/* Header Section */}
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
         <div className="flex justify-between items-center w-full">
-          <span>Popular Football Leagues</span>
+          <span>Fixtures</span>
+          <div className="flex flex-col items-end text-right">
+            <span className="text-sm text-gray-600">Extra Preliminary Round</span>
+            <span className="text-sm text-gray-500">{format(new Date(selectedDate), 'dd/MM/yyyy')}</span>
+          </div>
         </div>
       </CardHeader>
 
