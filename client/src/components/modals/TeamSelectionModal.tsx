@@ -327,18 +327,16 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
           </Tabs>
         </div>
 
-        <div className="  flex-shrink-0">
-          <div className="flex justify-between items-center ">
+        <div className="flex-shrink-0 p-2 md:p-4">
+          <div className="flex justify-between items-center mb-2">
             <div className="px-2 text-xs text-gray-700">
               My Selections: <span className="font-medium">{selectedTeams.size}</span>
             </div>
-
           </div>
-
 
           {/* Display selected team logos */}
           {selectedTeams.size > 0 && (
-            <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto p-2">
+            <div className="flex flex-wrap gap-2 max-h-20 md:max-h-24 overflow-y-auto">
               {Array.from(selectedTeams).map((teamId) => {
                 const team = popularTeams.find(t => t.id === teamId);
                 if (!team) return null;
