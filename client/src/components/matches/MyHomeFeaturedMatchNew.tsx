@@ -170,6 +170,7 @@ interface FeaturedMatch {
     name: string;
     country: string;
     logo: string;
+    round?: string;
   };
   teams: {
     home: {
