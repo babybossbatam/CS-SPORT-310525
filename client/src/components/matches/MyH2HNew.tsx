@@ -203,28 +203,36 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
             {/* Home Team Section */}
             <div className="flex flex-col items-center flex-1">
               <div className="w-12 h-12 mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-xs font-medium text-blue-600">H</span>
-                </div>
+                {match?.teams?.home?.logo ? (
+                  <img 
+                    src={match.teams.home.logo} 
+                    alt={match.teams.home.name}
+                    className="w-8 h-8 object-contain rounded-full"
+                  />
+                ) : (
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span className="text-xs font-medium text-blue-600">H</span>
+                  </div>
+                )}
               </div>
-              <div className="text-xs text-gray-600 text-center max-w-16 truncate">
+              <div className="text-xs text-gray-600 text-center max-w-20 truncate" title={match?.teams?.home?.name}>
                 {match?.teams?.home?.name || 'Home Team'}
               </div>
             </div>
 
             {/* No Data Message */}
-            <div className="flex items-center space-x-4 flex-2">
-              <div className="text-center">
+            <div className="flex items-center space-x-3 flex-2 px-4">
+              <div className="text-center min-w-12">
                 <div className="text-lg font-bold text-gray-400">-</div>
                 <div className="text-xs text-gray-500">Wins</div>
               </div>
               <div className="w-px h-8 bg-gray-300"></div>
-              <div className="text-center">
+              <div className="text-center min-w-12">
                 <div className="text-lg font-bold text-gray-400">-</div>
                 <div className="text-xs text-gray-500">Draws</div>
               </div>
               <div className="w-px h-8 bg-gray-300"></div>
-              <div className="text-center">
+              <div className="text-center min-w-12">
                 <div className="text-lg font-bold text-gray-400">-</div>
                 <div className="text-xs text-gray-500">Wins</div>
               </div>
@@ -233,11 +241,19 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
             {/* Away Team Section */}
             <div className="flex flex-col items-center flex-1">
               <div className="w-12 h-12 mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
-                <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                  <span className="text-xs font-medium text-red-600">A</span>
-                </div>
+                {match?.teams?.away?.logo ? (
+                  <img 
+                    src={match.teams.away.logo} 
+                    alt={match.teams.away.name}
+                    className="w-8 h-8 object-contain rounded-full"
+                  />
+                ) : (
+                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                    <span className="text-xs font-medium text-red-600">A</span>
+                  </div>
+                )}
               </div>
-              <div className="text-xs text-gray-600 text-center max-w-16 truncate">
+              <div className="text-xs text-gray-600 text-center max-w-20 truncate" title={match?.teams?.away?.name}>
                 {match?.teams?.away?.name || 'Away Team'}
               </div>
             </div>
@@ -246,13 +262,37 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
           <div className="text-center text-gray-500">
             <div className="text-2xl mb-2">📊</div>
             <p className="text-sm font-medium">No Previous Meetings</p>
-            <p className="text-xs text-gray-400 mt-1">
-              {match?.teams?.home?.name && match?.teams?.away?.name 
-                ? `${match.teams.home.name} vs ${match.teams.away.name} haven't played against each other`
-                : 'These teams haven\'t played against each other'
-              }
-            </p>
-            <div className="mt-2 text-xs text-gray-400">
+            
+            {match?.teams?.home?.name && match?.teams?.away?.name ? (
+              <div className="mt-2 space-y-2">
+                <p className="text-xs text-gray-600">
+                  <span className="font-medium">{match.teams.home.name}</span>
+                  {' vs '}
+                  <span className="font-medium">{match.teams.away.name}</span>
+                </p>
+                <p className="text-xs text-gray-400">
+                  These teams haven't faced each other in recorded matches
+                </p>
+                
+                {/* Analysis based on team names */}
+                {(match.teams.home.name.toLowerCase().includes('alkmaar') && 
+                  match.teams.away.name.toLowerCase().includes('ilves')) && (
+                  <div className="mt-3 p-2 bg-blue-50 rounded-lg border border-blue-100">
+                    <p className="text-xs text-blue-700 font-medium mb-1">Analysis</p>
+                    <p className="text-xs text-blue-600">
+                      AZ Alkmaar (Netherlands) and Ilves (Finland) compete in different domestic leagues. 
+                      They would only meet in UEFA competitions or international friendlies.
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-xs text-gray-400 mt-1">
+                These teams haven't played against each other
+              </p>
+            )}
+            
+            <div className="mt-3 text-xs text-gray-400 opacity-75">
               Team IDs: {actualHomeTeamId} vs {actualAwayTeamId}
             </div>
           </div>
