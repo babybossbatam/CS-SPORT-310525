@@ -521,6 +521,10 @@ const MyNewLeague2 = ({
       // Clear selection when null is passed (from close button)
       console.log("🎯 [MyNewLeague2] Clearing selected match");
       setSelectedMatchId(null);
+      // Also call the callback to notify parent component
+      if (onMatchCardClick) {
+        onMatchCardClick(null);
+      }
       return;
     }
 
