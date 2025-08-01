@@ -419,7 +419,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
     <img
       src={imageSrc}
       alt={alt}
-      title={title}
       className={className}
       style={{
         ...style,
