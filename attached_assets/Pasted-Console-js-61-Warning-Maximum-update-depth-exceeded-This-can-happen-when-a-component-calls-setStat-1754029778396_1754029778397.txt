@@ -1,0 +1,28 @@
+Console.js:61 Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.
+    at MyNewLeague2 (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/src/components/matches/MyNewLeague2.tsx?t=1754023892552:39:3)
+    at TodayMatchPageCard (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/src/components/matches/TodayMatchPageCard.tsx?t=1754023892552:35:3)
+    at div
+    at div
+    at div
+    at div
+    at MyMainLayout (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/src/components/layout/MyMainLayout.tsx?t=1754026611112:24:3)
+    at div
+    at div
+    at Home (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/src/pages/Home.tsx?t=1754026611112:28:49)
+    at Route (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=9250a75f:265:16)
+    at Switch (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=9250a75f:321:17)
+    at Router
+    at AppContent
+    at Suspense
+    at Provider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/@fs/home/runner/workspace/node_modules/.vite/deps/react-redux.js?v=9250a75f:923:11)
+    at CentralDataProvider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/src/providers/CentralDataProvider.tsx:24:39)
+    at QueryClientProvider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9250a75f:2805:3)
+    at main
+    at Provider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=9250a75f:38:15)
+    at TooltipProvider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=9250a75f:61:5)
+    at App (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/src/App.tsx?t=1754026611112&v=pur1kB016fwX6Llduelsr:222:9)
+    at ErrorBoundary (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/src/components/common/ErrorBoundary.tsx?v=pur1kB016fwX6Llduelsr:8:5)
+    at V (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/@fs/home/runner/workspace/node_modules/.vite/deps/next-themes.js?v=9250a75f:44:25)
+    at J (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/@fs/home/runner/workspace/node_modules/.vite/deps/next-themes.js?v=9250a75f:42:18)
+    at QueryClientProvider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9250a75f:2805:3)
+    at Provider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/@fs/home/runner/workspace/node_modules/.vite/deps/react-redux.js?v=9250a75f:923:11)
