@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import mobile optimizations */
+@import './styles/mobile-optimizations.css';
+
 /* Prevent flash of unstyled content */
 #root {
   min-height: 100vh;

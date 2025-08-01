@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import MyLiveAction from '@/components/matches/MyLiveAction';
 
 import MyMatchTabCard from '@/components/matches/MyMatchTabCard';
@@ -56,7 +57,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
         />
       )}
 
-     
+
 
       {/* Tab Content for Selected Match */}
       {selectedMatch && (
@@ -89,6 +90,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           {children}
         </div>
       )}
+      <MobileBottomNav />
     </div>
   );
 };

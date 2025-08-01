@@ -11,6 +11,8 @@ import PrivacySettingsModal from '@/components/modals/PrivacySettingsModal';
 import { useToast } from '@/hooks/use-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, userActions } from '@/lib/store';
+import React from 'react';
+import { useDeviceInfo } from '@/hooks/use-mobile';
 
 const Header = () => {
   const [location, navigate] = useLocation();
