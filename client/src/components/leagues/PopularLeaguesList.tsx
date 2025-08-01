@@ -41,6 +41,24 @@ const shortenLeagueName = (name: string): string => {
   return name.length > maxLength ? name.substring(0, maxLength - 3) + '...' : name;
 };
 
+// Function to shorten country names for mobile display
+const shortenCountryName = (country: string): string => {
+  const countryAbbreviations: { [key: string]: string } = {
+    'United Arab Emirates': 'UAE',
+    'United States': 'USA',
+    'United Kingdom': 'UK',
+    'Saudi Arabia': 'Saudi',
+    'South Africa': 'S. Africa',
+    'Bosnia and Herzegovina': 'Bosnia',
+    'Dominican Republic': 'Dominican Rep',
+    'Trinidad and Tobago': 'Trinidad',
+    'Central African Republic': 'CAR',
+    'Papua New Guinea': 'Papua NG'
+  };
+  
+  return countryAbbreviations[country] || country;
+};
+
 // Popular leagues list with popularity scores for sorting
 export const CURRENT_POPULAR_LEAGUES = [
   {
@@ -429,7 +447,7 @@ const PopularLeaguesList = () => {
                   <div className="ml-3 flex-1">
                     <div className="text-sm">{shortenLeagueName(league.name)}</div>
                     <span className="text-xs text-gray-500 truncate">
-                      {league.country?.replace(/-/g, ' ') || ''}
+                      {shortenCountryName(league.country?.replace(/-/g, ' ') || '')}
                     </span>
                   </div>
                   <button
