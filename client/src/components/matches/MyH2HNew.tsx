@@ -590,12 +590,104 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
 
 // Top Trends Card Component
 const TopTrendsCard: React.FC<{ homeTeamId?: number; awayTeamId?: number }> = ({ homeTeamId, awayTeamId }) => {
-  const trends = [
-    { label: "Goals per game", home: "2.1", away: "1.8" },
-    { label: "Clean sheets", home: "40%", away: "30%" },
-    { label: "Both teams score", home: "65%", away: "70%" },
-    { label: "Over 2.5 goals", home: "60%", away: "55%" }
-  ];
+  const [homeStats, setHomeStats] = useState<any>(null);
+  const [awayStats, setAwayStats] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!homeTeamId || !awayTeamId) return;
+
+    const fetchTeamStats = async () => {
+      setLoading(true);
+      try {
+        const [homeResponse, awayResponse] = await Promise.all([
+          fetch(`/api/teams/${homeTeamId}/statistics`),
+          fetch(`/api/teams/${awayTeamId}/statistics`)
+        ]);
+
+        if (homeResponse.ok && awayResponse.ok) {
+          const homeData = await homeResponse.json();
+          const awayData = await awayResponse.json();
+          setHomeStats(homeData);
+          setAwayStats(awayData);
+        }
+      } catch (error) {
+        console.error('Error fetching team statistics:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTeamStats();
+  }, [homeTeamId, awayTeamId]);
+
+  // Calculate trends from actual stats
+  const calculateTrends = () => {
+    if (!homeStats || !awayStats) return [];
+
+    const homeGoalsPerGame = homeStats.fixtures?.played?.total 
+      ? (homeStats.goals?.for?.total / homeStats.fixtures.played.total).toFixed(1)
+      : "0.0";
+    
+    const awayGoalsPerGame = awayStats.fixtures?.played?.total 
+      ? (awayStats.goals?.for?.total / awayStats.fixtures.played.total).toFixed(1)
+      : "0.0";
+
+    const homeCleanSheets = homeStats.fixtures?.played?.total 
+      ? Math.round((homeStats.clean_sheet?.total || 0) / homeStats.fixtures.played.total * 100)
+      : 0;
+    
+    const awayCleanSheets = awayStats.fixtures?.played?.total 
+      ? Math.round((awayStats.clean_sheet?.total || 0) / awayStats.fixtures.played.total * 100)
+      : 0;
+
+    const homeBothTeamsScore = homeStats.fixtures?.played?.total 
+      ? Math.round(((homeStats.fixtures.played.total - (homeStats.failed_to_score?.total || 0)) / homeStats.fixtures.played.total) * 100)
+      : 0;
+    
+    const awayBothTeamsScore = awayStats.fixtures?.played?.total 
+      ? Math.round(((awayStats.fixtures.played.total - (awayStats.failed_to_score?.total || 0)) / awayStats.fixtures.played.total) * 100)
+      : 0;
+
+    return [
+      { label: "Goals per game", home: homeGoalsPerGame, away: awayGoalsPerGame },
+      { label: "Clean sheets", home: `${homeCleanSheets}%`, away: `${awayCleanSheets}%` },
+      { label: "Both teams score", home: `${homeBothTeamsScore}%`, away: `${awayBothTeamsScore}%` },
+      { label: "Wins", home: homeStats.fixtures?.wins?.total || 0, away: awayStats.fixtures?.wins?.total || 0 }
+    ];
+  };
+
+  const trends = calculateTrends();
+
+  if (loading) {
+    return (
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle className="text-sm font-medium">Top Trends</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="text-center text-gray-500">
+            <div className="text-sm">Loading team statistics...</div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!homeStats || !awayStats || trends.length === 0) {
+    return (
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle className="text-sm font-medium">Top Trends</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="text-center text-gray-500">
+            <div className="text-sm">No team statistics available</div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="mt-4">
