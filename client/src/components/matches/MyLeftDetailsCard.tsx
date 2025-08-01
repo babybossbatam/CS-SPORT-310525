@@ -366,6 +366,7 @@ export const MyLeftDetailsCard = ({
             selectedDate={selectedDate}
             selectedMatchId={featuredMatchId}
             onMatchCardClick={onMatchCardClick}
+            currentLeagueId={undefined} // Use undefined for general view, pass specific league ID from match details
           />
 
         </>

@@ -81,6 +81,7 @@ interface MyDetailsFixtureProps {
   onMatchCardClick?: (fixture: any) => void; // Callback to pass match data to parent (for MyMatchdetailsScoreboard)
   match?: any; // Current match data (used for sample display)
   selectedMatchId?: number; // Match ID to highlight from featured match
+  currentLeagueId?: number; // League ID to filter fixtures for current match's league only
 }
 
 const MyDetailsFixture = ({
@@ -88,6 +89,7 @@ const MyDetailsFixture = ({
   onMatchCardClick,
   match,
   selectedMatchId,
+  currentLeagueId,
 }: MyDetailsFixtureProps) => {
   // Sample match data for demonstration (similar to MyMatchdetailsScoreboard)
   const sampleMatch = {
@@ -155,12 +157,14 @@ const MyDetailsFixture = ({
   );
   const [internalSelectedMatchId, setInternalSelectedMatchId] = useState<number | null>(null);
 
-  // League IDs without any filtering - removed duplicates
-  const leagueIds = [
-    38, 15, 2, 4, 10, 11, 848, 886, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667,
-    940, 908, 1169, 23, 1077, 253, 850, 893, 921, 130, 128, 493, 239, 265, 237,
-    235, 743,
-  ];
+  // Filter league IDs based on currentLeagueId if provided
+  const leagueIds = currentLeagueId 
+    ? [currentLeagueId] // Only show fixtures from the current match's league
+    : [
+        38, 15, 2, 4, 10, 11, 848, 886, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667,
+        940, 908, 1169, 23, 1077, 253, 850, 893, 921, 130, 128, 493, 239, 265, 237,
+        235, 743,
+      ];
 
   // Helper function to add delay between requests
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -746,16 +750,16 @@ const MyDetailsFixture = ({
         {/* Header Section */}
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
           <div className="flex justify-between items-center w-full">
-            <span>Popular Football Leagues</span>
+            <span>{currentLeagueId ? "League Fixtures" : "Popular Football Leagues"}</span>
           </div>
         </CardHeader>
 
         <Card className="mb-4">
           <CardContent className="p-4">
             <div className="text-center text-gray-500">
-              <div>No matches found</div>
+              <div>{currentLeagueId ? "No matches found for this league" : "No matches found"}</div>
               <div className="text-xs mt-2">
-                Searched {leagueIds.length} leagues: {leagueIds.join(", ")}
+                Searched {leagueIds.length} league{leagueIds.length > 1 ? 's' : ''}: {leagueIds.join(", ")}
               </div>
               <div className="text-xs mt-1">
                 Raw fixtures count: {allFixtures?.length || 0}
@@ -774,21 +778,29 @@ const MyDetailsFixture = ({
         <div className="flex justify-between items-center w-full">
           <div className="text-left">
             {(() => {
-              // Get the most common round from all fixtures for display
-              const rounds = Object.values(fixturesByLeague)
-                .flatMap(group => group.fixtures)
-                .map(fixture => fixture.league?.round)
-                .filter(round => round && round !== 'Regular Season');
-              
-              const mostCommonRound = rounds.length > 0 
-                ? rounds.reduce((a, b, i, arr) => 
-                    arr.filter(v => v === a).length >= arr.filter(v => v === b).length ? a : b
-                  )
-                : null;
+              if (currentLeagueId && Object.keys(fixturesByLeague).length > 0) {
+                // Show league name when filtering by specific league
+                const leagueData = Object.values(fixturesByLeague)[0]?.league;
+                return leagueData ? (
+                  <span className="text-sm text-gray-600">{leagueData.name}</span>
+                ) : null;
+              } else {
+                // Get the most common round from all fixtures for display
+                const rounds = Object.values(fixturesByLeague)
+                  .flatMap(group => group.fixtures)
+                  .map(fixture => fixture.league?.round)
+                  .filter(round => round && round !== 'Regular Season');
+                
+                const mostCommonRound = rounds.length > 0 
+                  ? rounds.reduce((a, b, i, arr) => 
+                      arr.filter(v => v === a).length >= arr.filter(v => v === b).length ? a : b
+                    )
+                  : null;
 
-              return mostCommonRound ? (
-                <span className="text-sm text-gray-600">{mostCommonRound}</span>
-              ) : null;
+                return mostCommonRound ? (
+                  <span className="text-sm text-gray-600">{mostCommonRound}</span>
+                ) : null;
+              }
             })()}
           </div>
           <div className="text-right">
