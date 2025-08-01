@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Facebook, Twitter, Instagram } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-gray-900 text-white py-8 mt-8">
+    <footer className="bg-gray-900 text-white py-8 mt-4 border-t border-gray-700">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Section - Company Description */}
@@ -19,7 +18,7 @@ const Footer: React.FC = () => {
               and live match updates of competitions from all over the world including FIFA Club World Cup, UEFA WC 
               Qualification, UEFA Champions League, Premier League and La Liga
             </p>
-            
+
             {/* Footer Links */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
