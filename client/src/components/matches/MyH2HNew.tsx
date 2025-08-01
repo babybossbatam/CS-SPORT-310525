@@ -192,7 +192,8 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
     );
   }
 
-  if (!h2hData.length) {
+  // Only show "No Previous Meetings" if we have no data AND no error (meaning successful fetch with empty result)
+  if (!h2hData.length && !error) {
     return (
       <Card>
         <CardHeader>
