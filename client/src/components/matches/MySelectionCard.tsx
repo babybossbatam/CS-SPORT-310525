@@ -12,6 +12,7 @@ interface MySelectionCardProps {
   selectedLeagues?: any[];
   onRemoveLeague?: (leagueId: string | number) => void;
   onShowLeagueSelection?: () => void;
+  onLeagueSelectionComplete?: (selectedLeagues: any[]) => void;
 }
 
 const MySelectionCard: React.FC<MySelectionCardProps> = ({
@@ -32,7 +33,11 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
 
   const handleRemoveLeague = (leagueId: string | number) => {
     if (onRemoveLeague) {
-      onRemoveLeague(leagueId);
+      // Handle both regular leagues and qualifiers with unique identifiers
+      const uniqueId = typeof leagueId === 'string' && leagueId.includes('_qualifiers') 
+        ? leagueId 
+        : leagueId;
+      onRemoveLeague(uniqueId);
     }
   };
 
@@ -167,47 +172,53 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
           </div>
 
           {/* Show all selected leagues horizontally after Add More button */}
-          {selectedLeagues.map((league, index) => (
-            <div key={`${league.id}-${index}`} className="flex flex-col items-center">
-              <div className="relative group">
-                <div className="w-9 h-9 flex items-center justify-center mt-1.5">
-                  <img
-                    src={`/api/league-logo/square/${league.id}?size=36`}
-                    alt={league.name}
-                    className="w-full h-full object-contain rounded-lg  hover:shadow-lg transition-shadow duration-200"
-                    onError={(e) => {
-                      // Try fallback sources
-                      if (e.currentTarget.src.includes('/api/league-logo/')) {
-                        e.currentTarget.src = league.logo || '/assets/fallback-logo.png';
-                      } else {
-                        e.currentTarget.src = '/assets/fallback-logo.png';
-                      }
-                    }}
-                  />
+          {selectedLeagues.map((league, index) => {
+            // Create unique identifier for leagues (including qualifiers)
+            const uniqueKey = league.isQualifiers ? `${league.id}-qualifiers-${index}` : `${league.id}-${index}`;
+            const uniqueId = league.isQualifiers ? `${league.id}_qualifiers` : league.id;
+            
+            return (
+              <div key={uniqueKey} className="flex flex-col items-center">
+                <div className="relative group">
+                  <div className="w-9 h-9 flex items-center justify-center mt-1.5">
+                    <img
+                      src={`/api/league-logo/square/${league.id}?size=36`}
+                      alt={league.name}
+                      className="w-full h-full object-contain rounded-lg hover:shadow-lg transition-shadow duration-200"
+                      onError={(e) => {
+                        // Try fallback sources
+                        if (e.currentTarget.src.includes('/api/league-logo/')) {
+                          e.currentTarget.src = league.logo || '/assets/fallback-logo.png';
+                        } else {
+                          e.currentTarget.src = '/assets/fallback-logo.png';
+                        }
+                      }}
+                    />
+                  </div>
+                  
+                  {/* Remove button - visible in edit mode or on hover */}
+                  <button
+                    onClick={() => handleRemoveLeague(uniqueId)}
+                    className={`absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs transition-opacity duration-200 flex items-center justify-center hover:bg-red-600 ${
+                      isEditMode ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                    }`}
+                  >
+                    ×
+                  </button>
+                  
+                  {/* League name tooltip on hover */}
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                    {league.name}
+                  </div>
                 </div>
                 
-                {/* Remove button - visible in edit mode or on hover */}
-                <button
-                  onClick={() => handleRemoveLeague(league.id)}
-                  className={`absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs transition-opacity duration-200 flex items-center justify-center hover:bg-red-600 ${
-                    isEditMode ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                  }`}
-                >
-                  ×
-                </button>
-                
-                {/* League name tooltip on hover */}
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
-                  {league.name}
+                {/* League name below logo */}
+                <div className="text-center mt-1">
+                  <span className="text-xs text-gray-600 block max-w-[60px] truncate">{league.name}</span>
                 </div>
               </div>
-              
-              {/* League name below logo */}
-              <div className="text-center mt-1">
-                <span className="text-xs text-gray-600 block max-w-[60px] truncate">{league.name}</span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
