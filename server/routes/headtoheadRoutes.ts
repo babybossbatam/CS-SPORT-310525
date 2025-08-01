@@ -9,8 +9,11 @@ router.get('/headtohead', async (req, res) => {
   try {
     const { h2h, season = '2025' } = req.query;
     
+    console.log(`🔍 [H2H API] Raw query params:`, req.query);
+    
     if (!h2h || typeof h2h !== 'string') {
-      return res.status(400).json({ message: 'h2h parameter is required' });
+      console.error(`❌ [H2H API] Missing or invalid h2h parameter:`, { h2h, type: typeof h2h });
+      return res.status(400).json({ error: 'h2h parameter is required and must be a string like "33-34"' });
     }
     
     console.log(`🔍 [H2H API] Fetching head-to-head data for: ${h2h}, season: ${season}`);
@@ -25,10 +28,20 @@ router.get('/headtohead', async (req, res) => {
       }
     };
 
+    console.log(`🌐 [H2H API] Making request to:`, url);
+    
     const response = await fetch(url, options);
+    
+    if (!response.ok) {
+      console.error(`❌ [H2H API] RapidAPI response not ok:`, response.status, response.statusText);
+      return res.status(response.status).json({ 
+        error: `RapidAPI error: ${response.status} ${response.statusText}` 
+      });
+    }
+    
     const result = await response.json();
     
-    console.log(`✅ [H2H API] Successfully fetched head-to-head data:`, result);
+    console.log(`✅ [H2H API] Successfully fetched head-to-head data. Results count:`, result?.results || 0);
     
     res.json(result);
   } catch (error) {
