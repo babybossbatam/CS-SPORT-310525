@@ -92,10 +92,10 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
 
           // Handle specific error cases more gracefully
           if (response.status === 400) {
-            if (errorData.error?.includes('Invalid team combination') || 
-                errorData.error?.includes('no head-to-head data')) {
-              throw new Error('No previous meetings found between these teams');
-            }
+            // Set empty data instead of throwing error
+            setH2hData([]);
+            setError(null); // Don't show error, just show "no data"
+            return;
           }
           
           throw new Error(errorData.error || `HTTP ${response.status}`);
@@ -106,6 +106,11 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
 
         const fixtures = data?.response || [];
         console.log(`✅ [H2H] Found ${fixtures.length} head-to-head matches`);
+
+        // Handle case where API returns success but with message about no data
+        if (data?.message && fixtures.length === 0) {
+          console.log(`ℹ️ [H2H] API message: ${data.message}`);
+        }
 
         setH2hData(fixtures);
       } catch (err) {
@@ -172,9 +177,55 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
           <CardTitle className="text-sm font-medium">Head to Head</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
+          {/* 365scores-inspired No Data Layout */}
+          <div className="flex items-center justify-between mb-6 bg-gray-50 rounded-lg p-4">
+            {/* Home Team Section */}
+            <div className="flex flex-col items-center flex-1">
+              <div className="w-12 h-12 mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-medium text-blue-600">H</span>
+                </div>
+              </div>
+              <div className="text-xs text-gray-600 text-center max-w-16 truncate">
+                Home Team
+              </div>
+            </div>
+
+            {/* No Data Message */}
+            <div className="flex items-center space-x-4 flex-2">
+              <div className="text-center">
+                <div className="text-lg font-bold text-gray-400">-</div>
+                <div className="text-xs text-gray-500">Wins</div>
+              </div>
+              <div className="w-px h-8 bg-gray-300"></div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-gray-400">-</div>
+                <div className="text-xs text-gray-500">Draws</div>
+              </div>
+              <div className="w-px h-8 bg-gray-300"></div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-gray-400">-</div>
+                <div className="text-xs text-gray-500">Wins</div>
+              </div>
+            </div>
+
+            {/* Away Team Section */}
+            <div className="flex flex-col items-center flex-1">
+              <div className="w-12 h-12 mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
+                <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-medium text-red-600">A</span>
+                </div>
+              </div>
+              <div className="text-xs text-gray-600 text-center max-w-16 truncate">
+                Away Team
+              </div>
+            </div>
+          </div>
+
           <div className="text-center text-gray-500">
             <div className="text-2xl mb-2">📊</div>
-            <p className="text-sm">No head-to-head data available</p>
+            <p className="text-sm font-medium">No Previous Meetings</p>
+            <p className="text-xs text-gray-400 mt-1">These teams haven't played against each other</p>
           </div>
         </CardContent>
       </Card>

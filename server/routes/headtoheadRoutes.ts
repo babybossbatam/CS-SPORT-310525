@@ -102,10 +102,11 @@ router.get('/headtohead', async (req, res) => {
         
         // Handle specific API error cases
         if (response.status === 400) {
-          return res.status(400).json({ 
-            error: 'Invalid team combination or no head-to-head data available',
-            details: errorDetails,
-            suggestion: 'These teams may not have played against each other'
+          return res.status(200).json({ 
+            response: [],
+            message: 'No head-to-head data available between these teams',
+            teams: { team1: team1, team2: team2 },
+            suggestion: 'These teams may not have played against each other or do not exist in the database'
           });
         }
       } catch {
@@ -144,25 +145,53 @@ router.get('/test-teams/:team1/:team2', async (req, res) => {
       return res.status(500).json({ error: 'RapidAPI key not configured' });
     }
 
-    // Test by getting team info first
-    const teamInfoUrl = `https://api-football-v1.p.rapidapi.com/v3/teams?id=${team1}`;
+    // Test both teams
+    const team1InfoUrl = `https://api-football-v1.p.rapidapi.com/v3/teams?id=${team1}`;
+    const team2InfoUrl = `https://api-football-v1.p.rapidapi.com/v3/teams?id=${team2}`;
     
-    const response = await fetch(teamInfoUrl, {
-      method: 'GET',
-      headers: {
-        'x-rapidapi-key': apiKey,
-        'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
-      }
-    });
+    const [response1, response2] = await Promise.all([
+      fetch(team1InfoUrl, {
+        method: 'GET',
+        headers: {
+          'x-rapidapi-key': apiKey,
+          'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
+        }
+      }),
+      fetch(team2InfoUrl, {
+        method: 'GET',
+        headers: {
+          'x-rapidapi-key': apiKey,
+          'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
+        }
+      })
+    ]);
     
-    const result = await response.json();
-    console.log(`🧪 [H2H TEST] Team ${team1} info:`, result);
+    const [result1, result2] = await Promise.all([
+      response1.json(),
+      response2.json()
+    ]);
+    
+    console.log(`🧪 [H2H TEST] Team ${team1} info:`, result1);
+    console.log(`🧪 [H2H TEST] Team ${team2} info:`, result2);
+    
+    const team1Exists = result1?.response?.length > 0;
+    const team2Exists = result2?.response?.length > 0;
     
     res.json({
-      team1: team1,
-      team2: team2,
-      team1Info: result,
-      status: response.status
+      team1: {
+        id: team1,
+        exists: team1Exists,
+        name: team1Exists ? result1.response[0].name : 'Not found',
+        info: result1
+      },
+      team2: {
+        id: team2,
+        exists: team2Exists,
+        name: team2Exists ? result2.response[0].name : 'Not found',
+        info: result2
+      },
+      bothExist: team1Exists && team2Exists,
+      canHaveH2H: team1Exists && team2Exists
     });
   } catch (error) {
     console.error(`❌ [H2H TEST] Error:`, error);
