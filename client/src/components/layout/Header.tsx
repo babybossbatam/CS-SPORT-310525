@@ -133,7 +133,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
             }
           >
             <Star className={cn("fill-current", isMobile ? "h-3 w-3 mr-1" : "h-4 w-4 mr-1")} />
-            {!isMobile && <span>My Scores</span>}
+            <span className={cn(isMobile ? "text-xs" : "")}>My Scores</span>
           </div>
 
           <div
