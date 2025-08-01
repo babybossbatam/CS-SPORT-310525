@@ -307,6 +307,9 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
     match.fixture?.status?.short === 'PEN'
   );
 
+  // Check if we have any finished matches for statistics
+  const hasFinishedMatches = finishedMatches.length > 0;
+
   const homeWins = finishedMatches.filter(match => 
     (match.teams.home.id === actualHomeTeamId && match.goals.home > match.goals.away) ||
     (match.teams.away.id === actualHomeTeamId && match.goals.away > match.goals.home)
@@ -387,10 +390,13 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
             </div>
           )}
 
-          {finishedMatches.length === 0 && h2hData.length > 0 && (
+          {!hasFinishedMatches && h2hData.length > 0 && (
             <div className="text-center text-gray-500 mb-4">
               <div className="text-sm">No completed matches found</div>
-              <div className="text-xs">Showing upcoming fixtures</div>
+              <div className="text-xs">Showing upcoming/scheduled fixtures</div>
+              <div className="text-xs text-blue-600 mt-1">
+                These teams will meet soon - check back after their matches!
+              </div>
             </div>
           )}
 
@@ -491,7 +497,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
             )}
 
             {/* Historical Statistics Summary */}
-            {finishedMatches.length > 0 && (
+            {hasFinishedMatches && (
               <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                 <h5 className="text-sm font-medium text-gray-800 mb-2">All-Time Record</h5>
                 <div className="grid grid-cols-3 gap-4 text-center">
