@@ -66,7 +66,19 @@ export const MyScoresLeft = ({
   });
   const [showTeamSelection, setShowTeamSelection] = useState(false);
   const [showLeagueSelection, setShowLeagueSelection] = useState(false); // Added state for league selection modal
-  const [selectedLeagues, setSelectedLeagues] = useState<any[]>([]); // Added state for selected leagues
+  const [selectedLeagues, setSelectedLeagues] = useState<any[]>(() => {
+    try {
+      const storedLeagues = localStorage.getItem('selectedLeagues');
+      if (storedLeagues) {
+        const parsedLeagues = JSON.parse(storedLeagues);
+        console.log("🎯 [MyScoresLeft] Restored leagues from localStorage:", parsedLeagues.length);
+        return parsedLeagues;
+      }
+    } catch (error) {
+      console.error("Error restoring leagues from localStorage in MyScoresLeft:", error);
+    }
+    return [];
+  }); // Added state for selected leagues
   const calendarRef = useRef<HTMLDivElement>(null);
 
   // Close calendar when clicking outside
@@ -180,19 +192,39 @@ export const MyScoresLeft = ({
     console.log("🎯 [MyScoresLeft] Number of teams received:", teams.length);
     setSelectedTeams(teams);
     // Don't close the modal - keep it open for further selections
+
+      // Save to localStorage
+      try {
+        localStorage.setItem('selectedTeams', JSON.stringify(teams));
+        console.log("🎯 [MyScoresLeft] Saved teams to localStorage:", teams.length);
+      } catch (error) {
+        console.error("Error saving teams to localStorage:", error);
+      }
   };
 
   const handleRemoveTeam = (teamId: string | number) => {
     setSelectedTeams(prev => prev.filter(team => team.id !== teamId));
   };
 
-  const handleLeagueSelectionComplete = (leagues: any[]) => {
-      console.log("🎯 [MyScoresLeft] League selection completed:", leagues);
-      setSelectedLeagues(leagues);
+  const handleRemoveLeague = (leagueId: string | number) => {
+    console.log("🎯 [MyScoresLeft] Removing league:", leagueId);
+    setSelectedLeagues(prev => prev.filter(league => {
+      const uniqueId = league.isQualifiers ? `${league.id}_qualifiers` : league.id;
+      return uniqueId !== leagueId;
+    }));
   };
 
-  const handleRemoveLeague = (leagueId: string | number) => {
-    setSelectedLeagues(prev => prev.filter(league => league.id !== leagueId));
+  const handleLeagueSelectionComplete = (leagues: any[]) => {
+    console.log("🎯 [MyScoresLeft] League selection completed:", leagues);
+    setSelectedLeagues(leagues);
+
+    // Save to localStorage
+    try {
+      localStorage.setItem('selectedLeagues', JSON.stringify(leagues));
+      console.log("🎯 [MyScoresLeft] Saved leagues to localStorage:", leagues.length);
+    } catch (error) {
+      console.error("Error saving leagues to localStorage:", error);
+    }
   };
 
   return (
