@@ -107,7 +107,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
       style={{ 
         marginLeft: isMobile ? "8px" : "150px", 
         marginRight: isMobile ? "8px" : "150px",
-        marginTop: isMobile ? "4rem" : "0"
+        marginTop: isMobile ? "calc(4rem + 20px)" : "0"
       }}
     >
       <div className={cn(
