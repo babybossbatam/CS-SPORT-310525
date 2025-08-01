@@ -31,7 +31,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
   React.useEffect(() => {
     if (open) {
       console.log("🎯 [TeamSelectionModal] Modal opened, syncing with initial selected teams:", initialSelectedTeams.length);
-      
+
       // Try to restore from localStorage first
       try {
         const storedTeams = localStorage.getItem('selectedTeams');
@@ -45,7 +45,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
       } catch (error) {
         console.error("Error restoring teams from localStorage:", error);
       }
-      
+
       // Fallback to sync internal state with parent's current selected teams
       const initialTeamIds = new Set(initialSelectedTeams.map(team => team.id));
       setSelectedTeams(initialTeamIds);
@@ -217,7 +217,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                  d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-.181h4.914a1 1 0 00.951-.69l1.519-4.674z"
                 />
               </svg>
             </button>
@@ -338,14 +338,14 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
 
           {/* Display selected team logos */}
           {selectedTeams.size > 0 && (
-            <div className="flex flex-wrap gap-2 max-h-20 overflow-y-auto">
+            <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto p-2">
               {Array.from(selectedTeams).map((teamId) => {
                 const team = popularTeams.find(t => t.id === teamId);
                 if (!team) return null;
 
                 return (
                   <div key={teamId} className="relative group">
-                    <div className="w-8 h-8 flex items-center justify-center ">
+                    <div className="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-200">
                       <MyWorldTeamLogo
                         teamName={team.name}
                         teamLogo={team.type === 'country' 
