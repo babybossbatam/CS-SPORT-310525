@@ -209,7 +209,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
                   teamLogo={match?.teams?.home?.logo}
                   teamId={match?.teams?.home?.id}
                   alt={match?.teams?.home?.name || 'Home Team'}
-                  size="32px"
+                  size="72px"
                   className="w-8 h-8 rounded-full"
                 />
               </div>
