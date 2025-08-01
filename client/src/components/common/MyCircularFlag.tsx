@@ -63,6 +63,12 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       );
       return logoSources[0]?.url || fallbackUrl || "/assets/fallback-logo.svg";
     }
+    
+    // Force England to use correct circular flag
+    if (teamName?.toLowerCase() === "england") {
+      return "https://hatscripts.github.io/circle-flags/flags/gb-eng.svg";
+    }
+    
     return getCircleFlagUrl(teamName, fallbackUrl);
   };
 
@@ -171,10 +177,17 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       return fallbackUrl || "/assets/fallback-logo.svg";
     }
 
+    // Special case for England first
+    if (teamName.toLowerCase() === "england") {
+      console.log(`🏴󠁧󠁢󠁥󠁮󠁧󠁿 [MyCircularFlag] Using England flag: gb-eng`);
+      return "https://hatscripts.github.io/circle-flags/flags/gb-eng.svg";
+    }
+
     // Extract country from team name or use direct country mapping
     const countryCode = getCountryCode(teamName);
 
     if (countryCode) {
+      console.log(`🎯 [MyCircularFlag] Using country code ${countryCode} for ${teamName}`);
       // Use Circle Flags from hatscripts.github.io
       return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
     }
@@ -182,10 +195,12 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     // Try to find a pattern match in the team name
     for (const [country, code] of Object.entries(teamCountryPatterns)) {
       if (teamName.toLowerCase().includes(country.toLowerCase())) {
+        console.log(`🔍 [MyCircularFlag] Pattern match: ${country} -> ${code} for ${teamName}`);
         return `https://hatscripts.github.io/circle-flags/flags/${code}.svg`;
       }
     }
 
+    console.log(`❌ [MyCircularFlag] No match found for ${teamName}, using fallback`);
     // Final fallback
     return fallbackUrl || "/assets/fallback-logo.svg";
   };
