@@ -1,133 +1,433 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import MyWorldTeamLogo from "./MyWorldTeamLogo";
 
-interface LazyImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+interface LazyImageProps {
   src: string;
   alt: string;
-  fallbackSrc?: string;
+  title?: string;
   className?: string;
   style?: React.CSSProperties;
-  loading?: 'lazy' | 'eager';
+  loading?: "lazy" | "eager";
+  onLoad?: () => void;
+  onError?: () => void;
+  // Team logo specific props
+  useTeamLogo?: boolean;
+  teamId?: number | string;
+  teamName?: string;
+  leagueContext?: {
+    name?: string;
+    country?: string;
+  };
 }
 
 const LazyImage: React.FC<LazyImageProps> = ({
   src,
   alt,
-  fallbackSrc = '/assets/fallback-logo.svg',
-  className = '',
-  style = {},
-  loading = 'lazy',
-  ...props
+  title,
+  className = "",
+  style,
+  loading = "lazy",
+  onLoad,
+  onError,
+  useTeamLogo = false,
+  teamId,
+  teamName,
+  leagueContext,
 }) => {
-  const [imageSrc, setImageSrc] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [imageSrc, setImageSrc] = useState<string>(src);
   const [hasError, setHasError] = useState<boolean>(false);
   const [retryCount, setRetryCount] = useState<number>(0);
-  const [isInView, setIsInView] = useState<boolean>(false);
-  const imgRef = useRef<HTMLImageElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const maxRetries = 3;
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Intersection Observer for lazy loading
   useEffect(() => {
-    if (loading === 'eager') {
-      setIsInView(true);
-      return;
-    }
+    // Check for specific teams/leagues that should use local assets immediately
+    const shouldUseLocalAsset = () => {
+      if (alt) {
+        const altLower = alt.toLowerCase();
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        if (entry.isIntersecting) {
-          setIsInView(true);
-          observer.disconnect();
+        // COTIF Tournament league
+        if (
+          altLower.includes("cotif") ||
+          altLower.includes("cotif tournament")
+        ) {
+          console.log(
+            `🏆 [LazyImage] Using local COTIF Tournament logo from start`,
+          );
+          return "/assets/matchdetaillogo/cotif tournament.png";
         }
-      },
-      {
-        threshold: 0.1,
-        rootMargin: '50px'
+
+        // Valencia team (including U20)
+        if (
+          altLower.includes("valencia") &&
+          !altLower.includes("rayo vallecano")
+        ) {
+          console.log(`⚽ [LazyImage] Using local Valencia logo from start`);
+          return "/assets/matchdetaillogo/valencia.png";
+        }
+
+        // Alboraya team (including U20)
+        if (altLower.includes("alboraya") || altLower.includes("albaroya")) {
+          console.log(`⚽ [LazyImage] Using local Alboraya logo from start`);
+          return "/assets/matchdetaillogo/alboraya.png";
+        }
       }
-    );
+      return null;
+    };
 
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
+    const localAssetUrl = shouldUseLocalAsset();
 
-    return () => observer.disconnect();
-  }, [loading]);
-
-  // Load image only when in view
-  useEffect(() => {
-    if (isInView && src) {
-      console.log(`🖼️ [LazyImage] Starting to load (in view): ${src}`);
+    if (localAssetUrl) {
+      setImageSrc(localAssetUrl);
+      setHasError(false);
+      setRetryCount(0);
+    } else {
       setImageSrc(src);
-      setIsLoading(true);
       setHasError(false);
       setRetryCount(0);
     }
-  }, [src, isInView]);
+  }, [src, alt]);
 
   const handleError = () => {
-    if (hasError && retryCount >= maxRetries) {
-      console.warn(`🚫 [LazyImage] Max retries reached for: ${src}, using fallback`);
-      setImageSrc(fallbackSrc);
-      return;
-    }
+    // Safety check to prevent cascading errors
+    try {
+      // Immediately set loading to false to prevent broken image display
+      setIsLoading(false);
 
-    if (retryCount < maxRetries) {
-      console.warn(`🖼️ [LazyImage] Failed to load image: ${src}, retry ${retryCount + 1}`);
-      const cacheBuster = `?t=${Date.now()}`;
-      const freshUrl = src + cacheBuster;
-      setImageSrc(freshUrl);
-      setRetryCount(retryCount + 1);
+      // Check for specific teams/leagues that should use local assets
+      const shouldUseLocalAsset = () => {
+        if (alt) {
+          const altLower = alt.toLowerCase();
+
+          // COTIF Tournament league
+          if (
+            altLower.includes("cotif") ||
+            altLower.includes("cotif tournament")
+          ) {
+            setImageSrc("/assets/matchdetaillogo/cotif tournament.png");
+            setHasError(false);
+            setIsLoading(true);
+            console.log(`🏆 [LazyImage] Using local COTIF Tournament logo`);
+            return true;
+          }
+
+         
+
+          // Alboraya team (including U20)
+          if (altLower.includes("alboraya") || altLower.includes("albaroya")) {
+            setImageSrc("/assets/matchdetaillogo/alboraya.png");
+            setHasError(false);
+            setIsLoading(true);
+            console.log(`⚽ [LazyImage] Using local Alboraya logo`);
+            return true;
+          }
+        }
+        return false;
+      };
+
+      // Try local assets first for specific teams/leagues
+      if (shouldUseLocalAsset()) {
+        return;
+      }
+
+      // Special logging for Valencia/Spain flags
+      const isSpainFlag =
+        imageSrc.includes("/es.svg") ||
+        imageSrc.includes("/es.png") ||
+        (alt && alt.toLowerCase().includes("spain")) ||
+        (alt && alt.toLowerCase().includes("valencia"));
+
+
+      // Enhanced league logo handling like MyNewLeague2
+      const isLeagueLogo =
+        imageSrc.includes("/api/league-logo/") ||
+        imageSrc.includes("media.api-sports.io/football/leagues/") ||
+        imageSrc.includes("imagecache.365scores.com");
+
+      if (isLeagueLogo) {
+        // Extract league ID for better debugging
+        let leagueId = "unknown";
+        const apiMatch = imageSrc.match(
+          /\/api\/league-logo\/(?:square\/)?(\d+)/,
+        );
+        const mediaMatch = imageSrc.match(
+          /media\.api-sports\.io\/football\/leagues\/(\d+)/,
+        );
+        const scoresMatch = imageSrc.match(/Competitions\/(\d+)/);
+
+        if (apiMatch) leagueId = apiMatch[1];
+        else if (mediaMatch) leagueId = mediaMatch[1];
+        else if (scoresMatch) leagueId = scoresMatch[1];
+
+        console.log(
+          `🏆 [LazyImage] League logo error detected for: ${alt} (ID: ${leagueId})`,
+          {
+            imageSrc,
+            retryCount,
+            hasError,
+            leagueId,
+          },
+        );
+      }
+
+      if (!hasError && retryCount < 3) {
+        console.warn(
+          `🖼️ [LazyImage] Failed to load image: ${imageSrc}, retry ${retryCount + 1}`,
+        );
+
+        // Add cache busting parameter to force fresh fetch
+        const cacheBuster = `?t=${Date.now()}`;
+
+        // League logo fallback strategy (like MyNewLeague2)
+        if (isLeagueLogo && retryCount === 0) {
+          // Extract league ID from various sources
+          let leagueId = null;
+
+          // From /api/league-logo/ID or /api/league-logo/square/ID
+          const apiMatch = imageSrc.match(
+            /\/api\/league-logo\/(?:square\/)?(\d+)/,
+          );
+          if (apiMatch) {
+            leagueId = apiMatch[1];
+          }
+
+          // From media.api-sports.io/football/leagues/ID.png
+          const mediaMatch = imageSrc.match(
+            /media\.api-sports\.io\/football\/leagues\/(\d+)/,
+          );
+          if (mediaMatch) {
+            leagueId = mediaMatch[1];
+          }
+
+          // From 365scores imagecache
+          const scoresMatch = imageSrc.match(/Competitions\/(\d+)/);
+          if (scoresMatch) {
+            leagueId = scoresMatch[1];
+          }
+
+          if (leagueId) {
+            // Try server proxy endpoint first
+            const fallbackUrl = `/api/league-logo/${leagueId}${cacheBuster}`;
+            console.log(
+              `🔄 [LazyImage] Trying league logo server proxy: ${fallbackUrl}`,
+            );
+            setImageSrc(fallbackUrl);
+            setRetryCount(retryCount + 1);
+            setIsLoading(true);
+            return;
+          }
+        }
+
+        // Second retry: Try square endpoint if not already tried
+        if (isLeagueLogo && retryCount === 1) {
+          let leagueId = null;
+
+          const apiMatch = imageSrc.match(
+            /\/api\/league-logo\/(?:square\/)?(\d+)/,
+          );
+          if (apiMatch) {
+            leagueId = apiMatch[1];
+            const squareUrl = `/api/league-logo/square/${leagueId}${cacheBuster}`;
+            console.log(
+              `🔄 [LazyImage] Trying square league logo endpoint: ${squareUrl}`,
+            );
+            setImageSrc(squareUrl);
+            setRetryCount(retryCount + 1);
+            setIsLoading(true);
+            return;
+          }
+        }
+
+        // Third retry: Try direct API-Sports URL
+        if (isLeagueLogo && retryCount === 2) {
+          let leagueId = null;
+
+          const apiMatch = imageSrc.match(
+            /\/api\/league-logo\/(?:square\/)?(\d+)/,
+          );
+          if (apiMatch) {
+            leagueId = apiMatch[1];
+            const directUrl = `https://media.api-sports.io/football/leagues/${leagueId}.png${cacheBuster}`;
+            console.log(
+              `🔄 [LazyImage] Trying direct API-Sports URL: ${directUrl}`,
+            );
+            setImageSrc(directUrl);
+            setRetryCount(retryCount + 1);
+            setIsLoading(true);
+            return;
+          }
+        }
+
+        // General retry with cache buster for non-league logos
+        if (
+          !isLeagueLogo &&
+          !imageSrc.includes("?") &&
+          !imageSrc.includes("t=")
+        ) {
+          const freshUrl = imageSrc + cacheBuster;
+          console.log(`🔄 [LazyImage] Retrying with cache buster: ${freshUrl}`);
+          setImageSrc(freshUrl);
+          setRetryCount(retryCount + 1);
+          setIsLoading(true);
+          return;
+        }
+
+        // Final fallback after all retries (increased limit for league logos)
+        const maxRetries = isLeagueLogo ? 3 : 2;
+        if (retryCount >= maxRetries) {
+          console.warn(
+            `🚫 [LazyImage] All retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
+          );
+          setHasError(true);
+          setImageSrc("/assets/fallback-logo.svg");
+          onError?.();
+        } else {
+          setRetryCount(retryCount + 1);
+        }
+      }
+    } catch (error) {
+      console.warn("⚠️ [LazyImage] Error in handleError function:", error);
+      setHasError(true);
+      setImageSrc("/assets/fallback-logo.svg");
+      onError?.();
     }
   };
 
   const handleLoad = () => {
+    // Reset loading state when image loads successfully
     setIsLoading(false);
+
+    // Don't cache or log success for fallback images
+    const isFallbackImage =
+      imageSrc.includes("/assets/fallback-logo.svg") ||
+      imageSrc.includes("fallback") ||
+      imageSrc.includes("placeholder");
+
+    if (isFallbackImage) {
+      console.log(
+        `⚠️ [LazyImage] Fallback image loaded, not caching: ${imageSrc}`,
+      );
+      setHasError(false);
+      onLoad?.();
+      return;
+    }
+
+    // Check for local asset success
+    const isLocalAsset =
+      imageSrc.includes("/assets/matchdetaillogo/cotif tournament.png") ||
+      imageSrc.includes("/assets/matchdetaillogo/valencia.png") ||
+      imageSrc.includes("/assets/matchdetaillogo/alboraya.png");
+
+    if (isLocalAsset) {
+      console.log(
+        `✅ [LazyImage] Local asset loaded successfully: ${imageSrc}`,
+      );
+      setHasError(false);
+      onLoad?.();
+      return;
+    }
+
+    // Special logging for Valencia/Spain flags (only for real logos)
+    const isSpainFlag =
+      imageSrc.includes("/es.svg") ||
+      imageSrc.includes("/es.png") ||
+      (alt && alt.toLowerCase().includes("spain")) ||
+      (alt && alt.toLowerCase().includes("valencia"));
+
+    if (isSpainFlag) {
+      console.log(`🇪🇸 [LazyImage] VALENCIA/SPAIN FLAG SUCCESS (REAL LOGO):`, {
+        imageSrc,
+        alt,
+        retryCount,
+        wasError: hasError,
+        component: "LazyImage",
+      });
+    }
+
+    // Enhanced league logo success logging (only for real logos)
+    const isLeagueLogo =
+      imageSrc.includes("/api/league-logo/") ||
+      imageSrc.includes("media.api-sports.io/football/leagues/") ||
+      imageSrc.includes("imagecache.365scores.com");
+
+    if (isLeagueLogo) {
+      // Extract league ID and source for better tracking
+      let leagueId = "unknown";
+      let source = "unknown";
+
+      const apiMatch = imageSrc.match(/\/api\/league-logo\/(?:square\/)?(\d+)/);
+      const mediaMatch = imageSrc.match(
+        /media\.api-sports\.io\/football\/leagues\/(\d+)/,
+      );
+      const scoresMatch = imageSrc.match(/Competitions\/(\d+)/);
+
+      if (apiMatch) {
+        leagueId = apiMatch[1];
+        source = imageSrc.includes("/square/") ? "api-square" : "api-proxy";
+      } else if (mediaMatch) {
+        leagueId = mediaMatch[1];
+        source = "api-sports-direct";
+      } else if (scoresMatch) {
+        leagueId = scoresMatch[1];
+        source = "365scores";
+      }
+
+      console.log(
+        `🏆 [LazyImage] League logo loaded successfully (REAL LOGO):`,
+        {
+          alt,
+          leagueId,
+          source,
+          imageSrc,
+          retryCount,
+          wasError: hasError,
+          component: "LazyImage",
+        },
+      );
+    }
+
+    if (hasError) {
+      console.log(`✅ [LazyImage] Recovered and loaded real logo: ${imageSrc}`);
+    }
+
+    // Only cache real, non-fallback images
+    console.log(
+      `💾 [LazyImage] Real logo loaded and ready for caching: ${imageSrc}`,
+    );
+    setHasError(false);
+    onLoad?.();
   };
 
-  // Show placeholder until image is in view and loaded
-  if (!isInView) {
+  // Use MyWorldTeamLogo if team information is provided and useTeamLogo is true
+  if (useTeamLogo && teamId && teamName) {
     return (
-      <div
-        ref={containerRef}
-        className={`${className} bg-gray-100 animate-pulse flex items-center justify-center`}
-        style={style}
-        {...props}
-      >
-        <div className="w-6 h-6 bg-gray-300 rounded"></div>
-      </div>
-    );
-  }
-
-  // Show loading state while image loads
-  if (isLoading && !imageSrc) {
-    return (
-      <div
-        ref={containerRef}
-        className={`${className} bg-gray-100 animate-pulse flex items-center justify-center`}
-        style={style}
-        {...props}
-      >
-        <div className="w-6 h-6 bg-gray-300 rounded"></div>
-      </div>
+      <MyWorldTeamLogo
+        teamName={teamName}
+        teamId={teamId}
+        teamLogo={imageSrc}
+        alt={alt}
+        size={style?.width || style?.height || "32px"}
+        className={className}
+        leagueContext={leagueContext}
+      />
     );
   }
 
   return (
-    <div ref={containerRef}>
-      <img
-        ref={imgRef}
-        src={imageSrc || fallbackSrc}
-        alt={alt}
-        className={`${className} ${isLoading ? 'opacity-50' : 'opacity-100'} transition-opacity duration-200`}
-        style={style}
-        onLoad={handleLoad}
-        onError={handleError}
-        loading={loading}
-        {...props}
-      />
-    </div>
+    <img
+      src={imageSrc}
+      alt={alt}
+      title={title}
+      className={className}
+      style={{
+        ...style,
+        border: "none",
+        outline: "none",
+        display: isLoading && hasError ? "none" : "block",
+      }}
+      loading={loading}
+      onLoad={handleLoad}
+      onError={handleError}
+    />
   );
 };
 
