@@ -18,6 +18,7 @@ import MyMatchEvents from "@/components/matches/MyMatchEvents";
 import MyLiveAction from "@/components/matches/MyLiveAction";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
+import { useDeviceInfo, useMobileViewport } from "@/hooks/use-mobile";
 
 import { Card, CardContent } from "@/components/ui/card";
 import MyMainLayoutRight from "@/components/layout/MyMainLayoutRight"; // Import MyMainLayoutRight
@@ -30,6 +31,9 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
   const [location, navigate] = useLocation();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
+  
+  const { isMobile, isTablet, isPortrait } = useDeviceInfo();
+  useMobileViewport();
 
   // Apply smart time filtering to fixtures
   const filteredFixtures = useMemo(() => {
@@ -195,15 +199,29 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
   };
 
   return (
-    <div
-      className="bg-[#FDFBF7] rounded-lg py-4 pt-16"
-      style={{ marginLeft: "150px", marginRight: "150px" }}
-    >
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Left column (5 columns) */}
-        <div className="lg:col-span-5 space-y-4">
+    <div className={`
+      ${isMobile ? 'px-2 py-2 pt-4' : 'py-4 pt-16'}
+      ${isMobile ? 'mx-0' : ''}
+      ${isTablet ? 'mx-4' : ''}
+      ${!isMobile && !isTablet ? 'mx-[150px]' : ''}
+      bg-[#FDFBF7] 
+      ${isMobile ? 'rounded-none' : 'rounded-lg'}
+      min-h-screen
+      ${isMobile ? 'no-scroll-x' : ''}
+    `}>
+      <div className={`
+        ${isMobile ? 'flex flex-col space-y-3' : 'grid grid-cols-1 lg:grid-cols-12 gap-4'}
+      `}>
+        {/* Left column (5 columns) - Main content on mobile */}
+        <div className={`
+          ${isMobile ? 'w-full' : 'lg:col-span-5'}
+          ${isMobile ? 'space-y-2' : 'space-y-4'}
+        `}>
           {/* Football-specific TodayMatchPageCard */}
-          <div className="max-h-full overflow-y-auto">
+          <div className={`
+            ${isMobile ? 'mobile-scroll-y' : 'max-h-full overflow-y-auto'}
+            ${isMobile ? 'min-h-[60vh]' : ''}
+          `}>
             <TodayMatchPageCard
               fixtures={filteredFixtures}
               onMatchClick={handleMatchClick}
@@ -212,8 +230,11 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
           </div>
         </div>
 
-        {/* Right column (7 columns) */}
-        <div className="lg:col-span-7 space-y-4">
+        {/* Right column (7 columns) - Hidden on mobile when no selection */}
+        <div className={`
+          ${isMobile ? (selectedFixture ? 'w-full' : 'hidden') : 'lg:col-span-7'}
+          ${isMobile ? 'space-y-2' : 'space-y-4'}
+        `}>
           {selectedFixture ? (
             <>
               <MyMainLayoutRight
@@ -229,10 +250,13 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
               />
             </>
           ) : (
-            <MyRightContent />
+            !isMobile && <MyRightContent />
           )}
         </div>
       </div>
+
+      {/* Mobile bottom padding for safe area */}
+      {isMobile && <div className="pb-safe-bottom" />}
     </div>
   );
 };
