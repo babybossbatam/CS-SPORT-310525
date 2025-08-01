@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import MyWorldTeamLogo from '@/components/common/MyWorldTeamLogo';
+import MyKeyPlayer from './MyKeyPlayer';
 
 interface MyH2HNewProps {
   homeTeamId?: number;
@@ -524,6 +525,14 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
       </Card>
 
       <TopTrendsCard homeTeamId={actualHomeTeamId} awayTeamId={actualAwayTeamId} />
+
+      {/* Key Players Section - Moved below Head to Head */}
+      <MyKeyPlayer
+        match={match}
+        fixtureId={match?.fixture?.id}
+        homeTeam={match?.teams?.home?.name}
+        awayTeam={match?.teams?.away?.name}
+      />
     </>
   );
 };
