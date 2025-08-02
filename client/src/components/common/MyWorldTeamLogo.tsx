@@ -251,7 +251,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         shape: shouldUseCircularFlag ? 'circular' : 'normal',
         teamId: teamId,
         teamName: teamName,
-        fallbackUrl: teamLogo || "/assets/fallback-logo.svg"
+        fallbackUrl: teamLogo || "/assets/matchdetaillogo/fallback.png"
       });
 
       console.log(`✅ [MyWorldTeamLogo] Logo resolved for ${teamName}:`, {
@@ -271,12 +271,12 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
     // Fallback to original teamLogo if no teamId
     console.log(`⚠️ [MyWorldTeamLogo] No teamId provided for ${teamName}, using original logo`);
-    const safeLogo = teamLogo && !teamLogo.includes('placeholder.com') ? teamLogo : "/assets/fallback-logo.svg";
+    const safeLogo = teamLogo && !teamLogo.includes('placeholder.com') ? teamLogo : "/assets/matchdetaillogo/fallback.png";
     return safeLogo;
   }, [teamId, teamName, teamLogo, shouldUseCircularFlag]);
 
   // Use React.Suspense pattern for async logo loading
-  const [resolvedLogoUrl, setResolvedLogoUrl] = React.useState<string>(teamLogo || "/assets/fallback-logo.svg");
+  const [resolvedLogoUrl, setResolvedLogoUrl] = React.useState<string>(teamLogo || "/assets/matchdetaillogo/fallback.png");
 
   React.useEffect(() => {
     if (logoUrl instanceof Promise) {
@@ -332,7 +332,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     }
 
     // Set fallback image as last resort
-    target.src = '/assets/fallback-logo.svg';
+    target.src = '/assets/matchdetaillogo/fallback.png';
   }, [teamId]);
 
   if (shouldUseCircularFlag) {
@@ -367,7 +367,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         title={teamName}
         className="team-logo"
         style={imageStyle}
-        fallbackSrc="/assets/fallback-logo.svg"
+        fallbackSrc="/assets/matchdetaillogo/fallback.png"
         onError={handleImageError}
       />
     </div>
