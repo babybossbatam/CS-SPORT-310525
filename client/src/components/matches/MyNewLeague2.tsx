@@ -878,12 +878,12 @@ const MyNewLeague2 = ({
           return (
             <Card
               key={`mynewleague2-${leagueIdNum}`}
-              className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing"
+              className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing mobile-card"
             >
               {/* League Header - Clickable and collapsible */}
               <button
                 onClick={() => toggleLeague(leagueIdNum)}
-                className="w-full flex items-center gap-2 p-2 bg-white border-b border-gray-200 transition-colors cursor-pointer group hover:bg-gray-50"
+                className="w-full flex items-center gap-2 p-2 md:p-3 bg-white border-b border-gray-200 transition-colors cursor-pointer group hover:bg-gray-50 min-h-[56px] touch-target"
               >
                 {/* League Star Toggle Button */}
                 <button
@@ -907,21 +907,22 @@ const MyNewLeague2 = ({
                   src={
                     league.logo ||
                     `/api/league-logo/${leagueIdNum}` ||
-                    "/assets/fallback-logo.svg"
+                    "/assets/matchdetaillogo/fallback.png"
                   }
                   alt={league.name || "Unknown League"}
-                  className="w-6 h-6 object-contain rounded-full"
+                  className="w-6 h-6 md:w-7 md:h-7 object-contain rounded-full flex-shrink-0"
                   style={{ backgroundColor: "transparent" }}
                   loading="lazy"
                 />
-                <div className="flex flex-col flex-1 text-left">
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-col flex-1 text-left min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span
-                      className="font-semibold text-gray-800 group-hover:underline transition-all duration-200"
+                      className="font-semibold text-gray-800 group-hover:underline transition-all duration-200 text-sm md:text-base leading-tight"
                       style={{
                         fontFamily:
                           "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                        fontSize: "13.3px",
+                        fontSize: "14px",
+                        lineHeight: "1.3",
                       }}
                     >
                       {safeSubstring(league.name, 0) || "Unknown League"}
@@ -969,12 +970,13 @@ const MyNewLeague2 = ({
                       if (liveMatchesInLeague > 0) {
                         return (
                           <span
-                            className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-semibold"
+                            className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-semibold whitespace-nowrap"
                             style={{
                               minWidth: "50px",
                               textAlign: "center",
                               animation: "none",
                               transition: "none",
+                              fontSize: "11px",
                             }}
                           >
                             {liveMatchesInLeague} LIVE
@@ -985,11 +987,12 @@ const MyNewLeague2 = ({
                     })()}
                   </div>
                   <span
-                    className="text-xs text-gray-600"
+                    className="text-xs md:text-sm text-gray-600 leading-tight"
                     style={{
                       fontFamily:
                         "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                       fontSize: "12px",
+                      lineHeight: "1.2",
                     }}
                   >
                     {league.country || "Unknown Country"}

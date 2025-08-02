@@ -55,6 +55,41 @@
   margin-bottom: 8px;
 }
 
+/* Mobile league card optimizations */
+@media (max-width: 768px) {
+  .league-card-spacing {
+    margin-bottom: 8px;
+  }
+  
+  .touch-target {
+    min-height: 56px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Ensure league names don't overflow on mobile */
+  .mobile-card .font-semibold {
+    word-break: break-word;
+    hyphens: auto;
+  }
+  
+  /* Mobile-specific league header styling */
+  .mobile-card button {
+    padding: 12px 8px;
+    gap: 8px;
+  }
+  
+  /* Improve tap targets for mobile */
+  .mobile-card .w-6.h-6 {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+  }
+}
+
 .mobile-card-small {
   border-radius: 8px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
