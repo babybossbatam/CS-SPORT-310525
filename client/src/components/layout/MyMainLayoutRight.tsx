@@ -32,9 +32,9 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
 
   return (
     <div className={cn(
-      "overflow-y-auto mobile-scroll",
+      isMobile ? "mobile-layout-scroll" : "overflow-y-auto mobile-scroll",
       isMobile 
-        ? "min-h-screen w-full px-2 pb-20" // Mobile: full screen with bottom padding for nav
+        ? "w-full px-2 pb-20" // Mobile: proper scroll container
         : "min-h-screen" // Desktop: original behavior
     )}>
       <div className={cn(

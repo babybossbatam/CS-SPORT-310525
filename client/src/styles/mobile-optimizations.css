@@ -34,11 +34,23 @@
 .mobile-scroll {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  scroll-behavior: smooth;
 }
 
 .mobile-scroll-y {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
+  scroll-behavior: smooth;
+}
+
+/* Mobile layout scroll fixes */
+.mobile-layout-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  height: 100vh;
+  overflow-y: auto;
+  position: relative;
 }
 
 /* Prevent horizontal scroll on mobile */
