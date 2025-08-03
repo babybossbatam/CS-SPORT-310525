@@ -663,76 +663,87 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .match-event-three-grid-container {
-    grid-template-columns: 1fr 60px 1fr;
-    gap: 4px;
-    padding: 4px 4px;
-    min-height: 50px;
+    grid-template-columns: 1fr 50px 1fr;
+    gap: 2px;
+    padding: 2px 4px;
+    min-height: 45px;
   }
 
   .match-event-time-center {
-      font-size: 8px;
-    padding: 2px 2px;
-    min-height: 32px;
-    min-width: 45px;
+    font-size: 8px;
+    padding: 1px 1px;
+    min-height: 28px;
+    min-width: 40px;
   }
 
   .match-event-time-center-simple {
-    height: 32px;
-    min-height: 32px;
-    max-height: 32px;
-    width: 60px;
-    min-width: 60px;
-    max-width: 60px;
+    height: 28px;
+    min-height: 28px;
+    max-height: 28px;
+    width: 50px;
+    min-width: 50px;
+    max-width: 50px;
   }
 
   .match-event-time-display {
-    font-size: 11px;
-    height: 32px;
-    width: 60px;
-    min-width: 60px;
-    max-width: 60px;
+    font-size: 10px;
+    height: 28px;
+    width: 50px;
+    min-width: 50px;
+    max-width: 50px;
   }
 
   .period-score-marker {
-    padding: 6px 12px;
-    margin-left: -12px;
-    margin-right: -12px;
+    padding: 4px 8px;
+    margin-left: -8px;
+    margin-right: -8px;
   }
 
   .period-score-label {
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .period-score-display {
-    font-size: 12px;
-    min-width: 50px;
-    padding: 0 8px;
+    font-size: 10px;
+    min-width: 40px;
+    padding: 0 6px;
   }
 
   .match-event-icon {
-    width: 20px;
-    height: 20px;
-    font-size: 10px;
-
+    width: 18px;
+    height: 18px;
+    font-size: 8px;
   }
 
   .match-event-home-side,
   .match-event-away-side {
-    padding: 0 4px;
-
+    padding: 0 2px;
   }
 
   .match-event-event-title {
-    font-size: 11px;
-  }
-
-  .match-event-event-subtitle {
     font-size: 10px;
   }
 
+  .match-event-event-subtitle {
+    font-size: 9px;
+  }
+
   .match-event-player-image {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .match-event-home-player-info,
+  .match-event-away-player-info {
+    gap: 2px;
+    max-width: 100%;
+  }
+
+  .match-event-home-icon-column,
+  .match-event-away-icon-column {
+    width: 20px;
+    height: 35px;
+    min-height: 35px;
   }
 
   /* Mobile penalty shootout adjustments */
