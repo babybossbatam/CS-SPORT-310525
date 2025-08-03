@@ -169,10 +169,10 @@ const PopularTeamsList = () => {
                   <MyWorldTeamLogo
                     teamId={team.id}
                     teamName={team.name}
-                    teamLogo={team.logo || `/api/team-logo/square/${team.id}?size=24`}
+                    teamLogo={team.logo || `/api/team-logo/square/${team.id}?size=14`}
                     alt={team.name}
-                    size="24px"
-                    className="w-5 h-5 object-contain"
+                    size="14px"
+                    className="w-3.5 h-3.5 object-contain"
                     leagueContext={{
                       name: "Popular Teams",
                       country: team.country
