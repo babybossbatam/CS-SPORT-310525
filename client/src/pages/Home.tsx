@@ -38,7 +38,7 @@ const Home = () => {
         <MyMainLayout fixtures={[]} />
       </div>
 
-      <div className="mt-8">
+      <div className="mt-10">
         <Footer />
       </div>
       <RegionModal />
