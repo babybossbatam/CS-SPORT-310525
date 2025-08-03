@@ -14,6 +14,7 @@ import ScoreDetailsCard from '@/components/matches/ScoreDetailsCard';
 import MyMainLayoutRight from '@/components/layout/MyMainLayoutRight';
 import MyInfo from '@/components/info/MyInfo';
 import { useDeviceInfo } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 
 const MyRightContent: React.FC = () => {

@@ -10,6 +10,7 @@ import MyLineupsTabsCard from '@/components/matches/MyLineupsTabsCard';
 import MyTrendsTabsCard from '@/components/matches/MyTrendsTabsCard';
 import MyHeadtoheadTabsCard from '@/components/matches/MyHeadtoheadTabsCard';
 import { cn } from '@/lib/utils';
+import { useDeviceInfo } from '@/hooks/use-mobile';
 
 interface MyMainLayoutRightProps {
   selectedFixture: any;
@@ -18,6 +19,7 @@ interface MyMainLayoutRightProps {
 
 const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, onClose }) => {
   const [activeTab, setActiveTab] = useState<string>("match");
+  const { isMobile } = useDeviceInfo();
 
   // Debug logging to verify data reception from MyNewLeague2
   console.log(`🔍 [MyMainLayoutRight] Received selectedFixture:`, {
@@ -29,41 +31,71 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
   });
 
   return (
-    <div className="overflow-y-auto min-h-screen">
-      <ScoreDetailsCard
-        currentFixture={selectedFixture}
-        onClose={onClose}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-      />
-
-      {/* Tab Content */}
-      {activeTab === "match" && (
-        <>
-          <MyMatchTabCard match={selectedFixture} onTabChange={setActiveTab} />
-
-
-        </>
-      )}
-
-      {activeTab === "stats" && (
-        <MyStatsTabCard 
-          match={selectedFixture} 
+    <div className={cn(
+      "overflow-y-auto mobile-scroll",
+      isMobile 
+        ? "min-h-screen w-full px-2 pb-20" // Mobile: full screen with bottom padding for nav
+        : "min-h-screen" // Desktop: original behavior
+    )}>
+      <div className={cn(
+        isMobile ? "mb-4" : "mb-6"
+      )}>
+        <ScoreDetailsCard
+          currentFixture={selectedFixture}
+          onClose={onClose}
+          activeTab={activeTab}
           onTabChange={setActiveTab}
         />
-      )}
+      </div>
 
-      {activeTab === "lineups" && (
-        <MyLineupsTabsCard match={selectedFixture} />
-      )}
+      {/* Tab Content */}
+      <div className={cn(
+        "space-y-4",
+        isMobile ? "mobile-tab-content px-1" : ""
+      )}>
+        {activeTab === "match" && (
+          <div className={cn(
+            isMobile ? "space-y-3" : "space-y-4"
+          )}>
+            <MyMatchTabCard match={selectedFixture} onTabChange={setActiveTab} />
+          </div>
+        )}
 
-      {activeTab === "trends" && (
-        <MyTrendsTabsCard match={selectedFixture} />
-      )}
+        {activeTab === "stats" && (
+          <div className={cn(
+            isMobile ? "space-y-3" : "space-y-4"
+          )}>
+            <MyStatsTabCard 
+              match={selectedFixture} 
+              onTabChange={setActiveTab}
+            />
+          </div>
+        )}
 
-      {activeTab === "h2h" && (
-        <MyHeadtoheadTabsCard match={selectedFixture} />
-      )}
+        {activeTab === "lineups" && (
+          <div className={cn(
+            isMobile ? "space-y-3" : "space-y-4"
+          )}>
+            <MyLineupsTabsCard match={selectedFixture} />
+          </div>
+        )}
+
+        {activeTab === "trends" && (
+          <div className={cn(
+            isMobile ? "space-y-3" : "space-y-4"
+          )}>
+            <MyTrendsTabsCard match={selectedFixture} />
+          </div>
+        )}
+
+        {activeTab === "h2h" && (
+          <div className={cn(
+            isMobile ? "space-y-3" : "space-y-4"
+          )}>
+            <MyHeadtoheadTabsCard match={selectedFixture} />
+          </div>
+        )}
+      </div>
 
 
 
