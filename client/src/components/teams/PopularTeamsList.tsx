@@ -152,18 +152,18 @@ const PopularTeamsList = () => {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="w-full bg-white border border-gray-200 rounded-lg shadow-sm">
+    <div className="">
+      <div className="w-full bg-white border border-gray-200  shadow-sm">
         <div>
-          <h3 className="text-sm font-semibold mb-3 text-gray-900 border-b border-gray-100 pb-2">Popular Teams</h3>
-          <div className="space-y-1">
+          <h3 className="text-sm font-semibold mb-3 text-gray-900 border-b border-gray-200 pb-2">Popular Teams</h3>
+          <div className="">
             {teamData.map((team) => {
               const isFavorite = user.preferences.favoriteTeams.includes(team.id.toString());
 
               return (
                 <div
                   key={team.id}
-                  className="flex items-center py-2 px-3 hover:bg-gray-50 rounded-md cursor-pointer transition-colors  hover:border-l-blue-200"
+                  className="flex items-center py-2 px-3 hover:bg-gray-100 border-b border-gray-200 rounded-md cursor-pointer transition-colors  "
                   onClick={() => navigate(`/team/${team.id}`)}
                 >
                   <MyWorldTeamLogo
