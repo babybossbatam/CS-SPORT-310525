@@ -338,6 +338,31 @@
   max-width: 100vw;
 }
 
+/* Immediate mobile detection styles */
+@media (max-width: 767px) {
+  /* Force mobile layout immediately on load */
+  body {
+    overflow-x: hidden !important;
+  }
+  
+  /* Hide desktop layouts immediately */
+  .lg\:col-span-5:not(.mobile-left-col),
+  .lg\:col-span-7 {
+    display: none !important;
+  }
+  
+  /* Force single column grid */
+  .lg\:grid-cols-12:not(.mobile-grid) {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Prevent horizontal scroll */
+  * {
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+  }
+}
+
 /* Prevent desktop layouts on mobile during navigation */
 @media (max-width: 767px) {
   .lg\:col-span-5,

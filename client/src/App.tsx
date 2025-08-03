@@ -100,8 +100,15 @@ function AppContent() {
 }
 
 function App() {
-  // Initialize global error handlers
+  // Initialize global error handlers and mobile detection
   React.useEffect(() => {
+    // Force mobile-first layout immediately
+    const isMobileCheck = window.innerWidth < 768;
+    if (isMobileCheck) {
+      document.documentElement.classList.add('mobile-device');
+      document.body.classList.add('mobile-body');
+    }
+    
     setupGlobalErrorHandlers();
 
     // Add additional error handling for dynamic imports and runtime errors
@@ -164,7 +171,7 @@ function App() {
   return (
     <TooltipProvider>
       <Toaster />
-      <main className="bg-stone-50 pt-[0px] pb-[0px] mt-[81px]">
+      <main className="bg-stone-50 pt-[0px] pb-[0px] mt-[81px] mobile-app-container">
         <QueryClientProvider client={queryClient}>
           <CentralDataProvider
             selectedDate={new Date().toISOString().slice(0, 10)}

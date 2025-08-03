@@ -3,6 +3,12 @@ import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import MyLiveAction from '@/components/matches/MyLiveAction';
 import { useDeviceInfo } from '@/hooks/use-mobile';
 
+// Immediate mobile detection to prevent layout flash
+const getIsMobileImmediate = () => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth < 768;
+};
+
 import MyMatchTabCard from '@/components/matches/MyMatchTabCard';
 import MyLineupsTabsCard from '@/components/matches/MyLineupsTabsCard';
 import MyStatsTabCard from '@/components/matches/MyStatsTabCard';
@@ -26,7 +32,13 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
 }) => {
   const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
   const currentActiveTab = activeTab || internalActiveTab;
+  
+  // Immediate mobile check to prevent flash
+  const [isMobileImmediate] = useState(getIsMobileImmediate);
   const { isMobile } = useDeviceInfo();
+  
+  // Use immediate detection first, then hook result
+  const actualIsMobile = isMobile !== undefined ? isMobile : isMobileImmediate;
 
   const handleTabChange = (tab: string) => {
     if (onTabChange) {
@@ -47,7 +59,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
                 selectedMatch?.fixture?.status?.short === 'BT';
 
   return (
-    <div className={`w-full space-y-6 ${isMobile ? 'mobile-layout px-2' : ''}`}>
+    <div className={`w-full space-y-6 ${actualIsMobile ? 'mobile-layout px-2 mobile-layout-active' : ''}`}>
       {/* MyLiveAction component - show for live matches */}
       {isLive && (
         <MyLiveAction 
@@ -61,7 +73,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
 
       {/* Tab Content for Selected Match */}
       {selectedMatch && (
-        <div className={`mt-6 ${isMobile ? 'mobile-tab-content' : ''}`}>
+        <div className={`mt-6 ${actualIsMobile ? 'mobile-tab-content' : ''}`}>
           {currentActiveTab === "match" && (
             <MyMatchTabCard match={selectedMatch} />
           )}
@@ -86,13 +98,13 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
 
       {/* Any additional children content */}
       {children && (
-        <div className={`mt-6 ${isMobile ? 'mobile-children-content' : ''}`}>
+        <div className={`mt-6 ${actualIsMobile ? 'mobile-children-content' : ''}`}>
           {children}
         </div>
       )}
       
       {/* Mobile Bottom Navigation - only show on mobile */}
-      {isMobile && <MobileBottomNav />}
+      {actualIsMobile && <MobileBottomNav />}
     </div>
   );
 };

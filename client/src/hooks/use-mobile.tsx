@@ -70,16 +70,38 @@ export function useScreenSize() {
  * Enhanced mobile detection with device type and orientation
  */
 export function useDeviceInfo() {
-  const [deviceInfo, setDeviceInfo] = useState({
-    isMobile: false,
-    isTablet: false,
-    isDesktop: false,
-    isPortrait: false,
-    isLandscape: false,
-    screenWidth: 0,
-    screenHeight: 0,
-    isTouchDevice: false
-  });
+  // Initialize with immediate check to prevent flash
+  const getInitialDeviceInfo = () => {
+    if (typeof window === 'undefined') {
+      return {
+        isMobile: false,
+        isTablet: false,
+        isDesktop: true,
+        isPortrait: false,
+        isLandscape: true,
+        screenWidth: 1024,
+        screenHeight: 768,
+        isTouchDevice: false
+      };
+    }
+    
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    return {
+      isMobile: width < 768,
+      isTablet: width >= 768 && width < 1024,
+      isDesktop: width >= 1024,
+      isPortrait: height > width,
+      isLandscape: width > height,
+      screenWidth: width,
+      screenHeight: height,
+      isTouchDevice
+    };
+  };
+
+  const [deviceInfo, setDeviceInfo] = useState(getInitialDeviceInfo);
 
   useEffect(() => {
     const updateDeviceInfo = () => {

@@ -11,6 +11,42 @@
   background-color: #fafaf9; /* stone-50 */
 }
 
+/* Mobile-first layout to prevent desktop flash */
+.mobile-app-container {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Mobile device detection classes */
+.mobile-device .lg\:grid-cols-12 {
+  grid-template-columns: 1fr !important;
+}
+
+.mobile-device .lg\:col-span-5,
+.mobile-device .lg\:col-span-7 {
+  grid-column: span 1 / span 1 !important;
+}
+
+.mobile-body {
+  overflow-x: hidden !important;
+}
+
+/* Mobile layout active state */
+.mobile-layout-active {
+  margin-left: 8px !important;
+  margin-right: 8px !important;
+}
+
+.mobile-grid {
+  grid-template-columns: 1fr !important;
+}
+
+.mobile-left-col {
+  width: 100% !important;
+  grid-column: span 1 / span 1 !important;
+}
+
 /* Initial loading state */
 .initial-loading {
   position: fixed;
