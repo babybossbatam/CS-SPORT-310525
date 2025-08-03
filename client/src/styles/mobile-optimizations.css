@@ -322,6 +322,38 @@
   perspective: 1000px;
 }
 
+/* Mobile layout consistency */
+.mobile-layout {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+.mobile-tab-content {
+  width: 100%;
+  max-width: 100vw;
+}
+
+.mobile-children-content {
+  width: 100%;
+  max-width: 100vw;
+}
+
+/* Prevent desktop layouts on mobile during navigation */
+@media (max-width: 767px) {
+  .lg\:col-span-5,
+  .lg\:col-span-7,
+  .lg\:grid-cols-12 {
+    display: block !important;
+    grid-template-columns: 1fr !important;
+  }
+  
+  .mobile-main-layout {
+    margin-left: 8px !important;
+    margin-right: 8px !important;
+    margin-top: -22px !important;
+  }
+}
+
 /* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
   .mobile-modal,

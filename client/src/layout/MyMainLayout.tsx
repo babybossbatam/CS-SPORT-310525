@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import MyLiveAction from '@/components/matches/MyLiveAction';
+import { useDeviceInfo } from '@/hooks/use-mobile';
 
 import MyMatchTabCard from '@/components/matches/MyMatchTabCard';
 import MyLineupsTabsCard from '@/components/matches/MyLineupsTabsCard';
@@ -25,6 +26,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
 }) => {
   const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
   const currentActiveTab = activeTab || internalActiveTab;
+  const { isMobile } = useDeviceInfo();
 
   const handleTabChange = (tab: string) => {
     if (onTabChange) {
@@ -45,7 +47,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
                 selectedMatch?.fixture?.status?.short === 'BT';
 
   return (
-    <div className="w-full space-y-6">
+    <div className={`w-full space-y-6 ${isMobile ? 'mobile-layout px-2' : ''}`}>
       {/* MyLiveAction component - show for live matches */}
       {isLive && (
         <MyLiveAction 
@@ -57,11 +59,9 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
         />
       )}
 
-
-
       {/* Tab Content for Selected Match */}
       {selectedMatch && (
-        <div className="mt-6">
+        <div className={`mt-6 ${isMobile ? 'mobile-tab-content' : ''}`}>
           {currentActiveTab === "match" && (
             <MyMatchTabCard match={selectedMatch} />
           )}
@@ -86,11 +86,13 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
 
       {/* Any additional children content */}
       {children && (
-        <div className="mt-6">
+        <div className={`mt-6 ${isMobile ? 'mobile-children-content' : ''}`}>
           {children}
         </div>
       )}
-      <MobileBottomNav />
+      
+      {/* Mobile Bottom Navigation - only show on mobile */}
+      {isMobile && <MobileBottomNav />}
     </div>
   );
 };
