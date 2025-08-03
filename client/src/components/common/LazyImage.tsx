@@ -267,7 +267,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
             `🚫 [LazyImage] All retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
           );
           setHasError(true);
-          setImageSrc("/assets/fallback-logo.svg");
+          setImageSrc("/assets/matchdetaillogo/fallback.png");
           onError?.();
         } else {
           setRetryCount(retryCount + 1);
@@ -276,7 +276,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
     } catch (error) {
       console.warn("⚠️ [LazyImage] Error in handleError function:", error);
       setHasError(true);
-      setImageSrc("/assets/fallback-logo.svg");
+      setImageSrc("/assets/matchdetaillogo/fallback.png");
       onError?.();
     }
   };
@@ -287,6 +287,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
     // Don't cache or log success for fallback images
     const isFallbackImage =
+      imageSrc.includes("/assets/matchdetaillogo/fallback.png") ||
       imageSrc.includes("/assets/fallback-logo.svg") ||
       imageSrc.includes("fallback") ||
       imageSrc.includes("placeholder");
@@ -410,7 +411,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         ...style,
         border: 'none',
         outline: 'none',
-        display: hasError && imageSrc !== "/assets/fallback-logo.svg" ? 'none' : 'block',
+        display: hasError && imageSrc !== "/assets/matchdetaillogo/fallback.png" ? 'none' : 'block',
         opacity: isLoading ? 0.7 : 1,
         transition: 'opacity 0.2s ease-in-out',
         // Apply size from props if no explicit width/height in style
