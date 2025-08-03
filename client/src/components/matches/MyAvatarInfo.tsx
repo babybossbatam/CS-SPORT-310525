@@ -38,10 +38,10 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const sizeClasses = {
-    sm: 'w-10 h-10',
-    md: 'w-10 h-10',
-    lg: 'w-14 h-14',
-    'md-commentary': 'w-8 h-8'
+    sm: 'w-10 h-10 md:w-10 md:h-10 max-md:w-7 max-md:h-7',
+    md: 'w-10 h-10 md:w-10 md:h-10 max-md:w-7 max-md:h-7',
+    lg: 'w-14 h-14 md:w-14 md:h-14 max-md:w-9 max-md:h-9',
+    'md-commentary': 'w-8 h-8 md:w-8 md:h-8 max-md:w-6 max-md:h-6'
   };
 
   // Use the cached player image system
@@ -130,7 +130,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     <div 
       ref={containerRef}
       key={componentId}
-      className={`${sizeClasses[size]} border-2 border-gray-300 rounded-full overflow-hidden relative ${onClick ? 'cursor-pointer hover:scale-105 transition-transform' : ''} ${className}`}
+      className={`${sizeClasses[size]} border-2 md:border-2 max-md:border-1 border-gray-300 rounded-full overflow-hidden relative ${onClick ? 'cursor-pointer hover:scale-105 transition-transform' : ''} ${className}`}
       onClick={handleClick}
     >
       {imageUrl === 'INITIALS_FALLBACK' ? (

@@ -731,23 +731,23 @@
   }
 
   .match-event-player-image {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
   }
 
   /* Mobile penalty shootout adjustments */
   .penalty-shootout-container {
-    padding: 8px 4px;
-    margin: 8px 0;
+    padding: 6px 2px;
+    margin: 6px 0;
     max-width: 100%;
     overflow-x: hidden;
     box-sizing: border-box;
   }
 
   .penalty-shootout-row {
-    gap: 2px;
-    padding: 4px 0;
-    grid-template-columns: 1fr 28px 1fr;
+    gap: 3px;
+    padding: 3px 0;
+    grid-template-columns: 1fr 24px 1fr;
     max-width: 100%;
     overflow: hidden;
     align-items: center;
@@ -755,7 +755,7 @@
 
   .penalty-home-side,
   .penalty-away-side {
-    min-height: 32px;
+    min-height: 28px;
     max-width: 100%;
     overflow: hidden;
     display: flex;
@@ -764,34 +764,35 @@
 
   .penalty-home-player-info,
   .penalty-away-player-info {
-    gap: 4px;
+    gap: 3px;
     flex-wrap: nowrap;
     min-width: 0;
-    max-width: calc(100% - 16px);
+    max-width: calc(100% - 12px);
     display: flex;
     align-items: center;
   }
 
   .penalty-player-name {
-    font-size: 9px;
-    max-width: 50px;
+    font-size: 10px;
+    max-width: 60px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1;
+    line-height: 1.1;
     font-weight: 500;
   }
 
   .penalty-player-avatar {
     flex-shrink: 0;
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
   }
 
   .penalty-player-avatar img {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
+    border: 1px solid #e5e7eb;
   }
 
   .penalty-result-icon {
