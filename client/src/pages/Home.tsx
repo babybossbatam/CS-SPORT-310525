@@ -34,7 +34,7 @@ const Home = () => {
         icon={<Trophy className="h-4 w-4 text-neutral-600" />}
       />
 
-      <div className="flex-1 h-full" style={{ marginTop: "52px", marginBottom: "64px" }}>
+      <div className="flex-1 h-full" style={{ marginTop: "52px", marginBottom: "-34px" }}>
         <MyMainLayout fixtures={[]} />
       </div>
 
