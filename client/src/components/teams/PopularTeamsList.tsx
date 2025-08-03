@@ -153,17 +153,17 @@ const PopularTeamsList = () => {
 
   return (
     <div className="space-y-4">
-      <div className="w-full bg-white shadow-sm rounded">
+      <div className="w-full bg-white border border-gray-200 rounded-lg shadow-sm">
         <div className="p-4">
-          <h3 className="text-sm font-semibold mb-2">Popular Teams</h3>
-          <div className="space-y-2">
+          <h3 className="text-sm font-semibold mb-3 text-gray-900 border-b border-gray-100 pb-2">Popular Teams</h3>
+          <div className="space-y-1">
             {teamData.map((team) => {
               const isFavorite = user.preferences.favoriteTeams.includes(team.id.toString());
 
               return (
                 <div
                   key={team.id}
-                  className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors -mx-4"
+                  className="flex items-center py-2 px-3 hover:bg-gray-50 rounded-md cursor-pointer transition-colors border-l-2 border-transparent hover:border-l-blue-200"
                   onClick={() => navigate(`/team/${team.id}`)}
                 >
                   <MyWorldTeamLogo
@@ -179,7 +179,7 @@ const PopularTeamsList = () => {
                     }}
                   />
                   <div className="ml-3 flex-1">
-                    <div className="text-sm">{team.name}</div>
+                    <div className="text-sm font-medium text-gray-900">{team.name}</div>
                     <span className="text-xs text-gray-500 truncate">
                       {team.country}
                     </span>
@@ -189,7 +189,7 @@ const PopularTeamsList = () => {
                       e.stopPropagation();
                       toggleFavorite(team.id);
                     }}
-                    className="text-gray-400 hover:text-blue-500 transition-colors"
+                    className="text-gray-400 hover:text-blue-500 transition-colors p-1"
                   >
                     <Star
                       className={`h-4 w-4 ${isFavorite ? 'text-blue-500 fill-current' : ''}`}
