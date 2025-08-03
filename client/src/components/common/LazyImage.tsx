@@ -104,9 +104,30 @@ const LazyImage: React.FC<LazyImageProps> = ({
             return true;
           }
 
-         
+          // Valencia team (including U20)
+          if (altLower.includes("valencia") && !altLower.includes("rayo vallecano")) {
+            setImageSrc("/assets/matchdetaillogo/valencia.png");
+            setHasError(false);
+            setIsLoading(true);
+            console.log(`⚽ [LazyImage] Using local Valencia logo`);
+            return true;
+          }
 
-    
+          // Alboraya team (including U20)  
+          if (altLower.includes("alboraya") || altLower.includes("albaroya")) {
+            setImageSrc("/assets/matchdetaillogo/alboraya.png");
+            setHasError(false);
+            setIsLoading(true);
+            console.log(`⚽ [LazyImage] Using local Alboraya logo`);
+            return true;
+          }
+        }
+        return false;
+      };
+
+      const localAssetUsed = shouldUseLocalAsset();
+      if (localAssetUsed) return;
+
       // Enhanced league logo handling like MyNewLeague2
       const isLeagueLogo =
         imageSrc.includes("/api/league-logo/") ||
