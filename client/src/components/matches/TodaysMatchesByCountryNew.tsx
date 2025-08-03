@@ -157,7 +157,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Test flash effect buttons (remove after testing)
   const [showTestButtons, setShowTestButtons] = useState(false);
   // Initialize flagMap with immediate synchronous values for better rendering
-  const [flagMap, setFlagMap<{ [country: string]: string }>(() => {
+   const [flagMap, setFlagMap] = useState<{ [country: string]: string }>(() => {
     // Pre-populate with synchronous flag URLs to prevent initial undefined state
     const initialMap: { [country: string]: string } = {};
     // Let World flag be fetched through the normal caching system
@@ -191,9 +191,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   ]; // Significantly expanded to include major leagues from all continents
 
   // Direct API fetching without caching - like MyNewLeague
-  const [fixtures, setFixtures<any[]>([]);
-  const [isLoading, setIsLoading: React.Dispatch<React.SetStateAction<boolean>>>(true);
-  const [error, setError: React.Dispatch<React.SetStateAction<string | null>>>(null);
+  const [fixtures, setFixtures] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchFixturesData = async () => {
@@ -823,7 +823,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               match.fixture.status.short,
             ),
           ),
-```
+                                                       
         );
 
         // Priority: World with live matches first, then World without live, then others alphabetically
