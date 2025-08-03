@@ -15,6 +15,7 @@ import { format, addDays } from 'date-fns';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLocation } from "wouter";
+import Footer from '@/components/layout/Footer';
 
 // Cleanup any stale video references
 const cleanupFrames = () => {
@@ -403,11 +404,12 @@ const Football = () => {
       <SportsCategoryTabs />
       <TournamentHeader 
         title="Football - Major Leagues" 
-        icon={<Trophy className="h-4 w-4 text-neutral-600" />} 
+        icon={<Trophy className="h-4 w-4 text-neutral-600" style={{  marginBottom: "-20px" }} />} 
       />
-
+     
       <MyFootballMain fixtures={fixtures} />
 
+       <Footer />
       <RegionModal />
     </>
   );
