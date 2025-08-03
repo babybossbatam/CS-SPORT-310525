@@ -94,7 +94,12 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   };
 
   const handleMatchCardClick = (fixture: any) => {
-    setSelectedFixture(fixture);
+    // On mobile, navigate to match details page instead of showing in sidebar
+    if (isMobile) {
+      navigate(`/match/${fixture.fixture.id}`);
+    } else {
+      setSelectedFixture(fixture);
+    }
   };
 
   const handleBackToMain = () => {
@@ -121,8 +126,8 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12",
         )}
       >
-        {/* Left column (5 columns) */}
-        <div className={cn("space-y-4", isMobile ? "w-full" : "lg:col-span-5")}>
+        {/* Left column (5 columns on desktop, full width on mobile) */}
+        <div className={cn("space-y-4", isMobile ? "w-full col-span-1" : "lg:col-span-5")}>
           {/* Render children if provided, otherwise show TodayMatchPageCard */}
           {children ? (
             <div>{children}</div>
@@ -137,22 +142,24 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           )}
         </div>
 
-        {/* Right column (7 columns) */}
-        <div
-          className={cn(
-            "space-y-4",
-            isMobile ? "w-full mt-4" : "lg:col-span-7",
-          )}
-        >
-          {selectedFixture ? (
-            <MyRightDetails
-              selectedFixture={selectedFixture}
-              onClose={handleBackToMain}
-            />
-          ) : (
-            <MyRightContent />
-          )}
-        </div>
+        {/* Right column (7 columns) - Hidden on mobile */}
+        {!isMobile && (
+          <div
+            className={cn(
+              "space-y-4",
+              "lg:col-span-7",
+            )}
+          >
+            {selectedFixture ? (
+              <MyRightDetails
+                selectedFixture={selectedFixture}
+                onClose={handleBackToMain}
+              />
+            ) : (
+              <MyRightContent />
+            )}
+          </div>
+        )}
       </div>
       </div>
     </>
