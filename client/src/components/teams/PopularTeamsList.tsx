@@ -154,7 +154,7 @@ const PopularTeamsList = () => {
   return (
     <div className="space-y-4">
       <div className="w-full bg-white border border-gray-200 rounded-lg shadow-sm">
-        <div className="p-4">
+        <div>
           <h3 className="text-sm font-semibold mb-3 text-gray-900 border-b border-gray-100 pb-2">Popular Teams</h3>
           <div className="space-y-1">
             {teamData.map((team) => {
