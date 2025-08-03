@@ -3,9 +3,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
 import TodayMatchPageCard from "@/components/matches/TodayMatchPageCard";
-import MyRightContent, {
-  MyRightDetails,
-} from "@/components/layout/MyRightContent";
+import MyRightContent from "@/components/layout/MyRightContent";
+import MyMainLayoutRight from "@/components/layout/MyMainLayoutRight";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 
@@ -151,7 +150,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
             )}
           >
             {selectedFixture ? (
-              <MyRightDetails
+              <MyMainLayoutRight
                 selectedFixture={selectedFixture}
                 onClose={handleBackToMain}
               />
