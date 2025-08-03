@@ -402,27 +402,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
     );
   }
 
-  // For team logo URLs that should use MyWorldTeamLogo automatically
-  if (imageSrc.includes('/api/team-logo/') && alt) {
-    // Extract team ID from the URL
-    const teamIdMatch = imageSrc.match(/\/api\/team-logo\/(?:square|circular)\/(\d+)/);
-    const extractedTeamId = teamIdMatch ? teamIdMatch[1] : null;
-    
-    if (extractedTeamId) {
-      return (
-        <MyWorldTeamLogo
-          teamName={alt}
-          teamId={extractedTeamId}
-          teamLogo={imageSrc}
-          alt={alt}
-          size={style?.width || style?.height || "32px"}
-          className={className}
-          leagueContext={leagueContext}
-        />
-      );
-    }
-  }
-
   return (
     <img
       src={imageSrc}
