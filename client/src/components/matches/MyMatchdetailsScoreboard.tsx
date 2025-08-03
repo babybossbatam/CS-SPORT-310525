@@ -229,16 +229,23 @@ const MyMatchdetailsScoreboard = ({
             extractColorFromLogo(awayLogoUrl, displayMatch.teams.away.name)
           ]);
           
-          // Create a subtle gradient similar to 365scores style
-          const gradient = `linear-gradient(135deg, ${homeColor}12 0%, rgba(255, 255, 255, 0.96) 25%, rgba(255, 255, 255, 0.98) 50%, rgba(255, 255, 255, 0.96) 75%, ${awayColor}12 100%)`;
+          // Create 365scores-style radial gradients with circular shapes from left and right
+          const homeColorRgba = homeColor.replace('rgb(', '').replace(')', '').split(',');
+          const awayColorRgba = awayColor.replace('rgb(', '').replace(')', '').split(',');
+          
+          const gradient = `radial-gradient(121.26% 75.73% at 0% 50.24%, rgba(${homeColorRgba[0]}, ${homeColorRgba[1]}, ${homeColorRgba[2]}, 0.3) 0%, rgba(255, 255, 255, 0.3) 80%), radial-gradient(121.26% 75.73% at 100% 50.24%, rgba(${awayColorRgba[0]}, ${awayColorRgba[1]}, ${awayColorRgba[2]}, 0.3) 0%, rgba(255, 255, 255, 0.3) 80%)`;
           
           setDynamicBackground(gradient);
         } catch (error) {
           console.warn("Error extracting team colors for background:", error);
-          // Fallback to name-based colors
+          // Fallback to name-based colors with radial gradient approach
           const homeTeamColor = getTeamColor(displayMatch.teams.home.name, true);
           const awayTeamColor = getTeamColor(displayMatch.teams.away.name, false);
-          const gradient = `linear-gradient(135deg, ${homeTeamColor}15 0%, rgba(255, 255, 255, 0.95) 30%, rgba(255, 255, 255, 0.95) 70%, ${awayTeamColor}15 100%)`;
+          
+          const homeColorRgba = homeTeamColor.replace('rgb(', '').replace(')', '').split(',');
+          const awayColorRgba = awayTeamColor.replace('rgb(', '').replace(')', '').split(',');
+          
+          const gradient = `radial-gradient(121.26% 75.73% at 0% 50.24%, rgba(${homeColorRgba[0]}, ${homeColorRgba[1]}, ${awayColorRgba[2]}, 0.3) 0%, rgba(255, 255, 255, 0.3) 80%), radial-gradient(121.26% 75.73% at 100% 50.24%, rgba(${awayColorRgba[0]}, ${awayColorRgba[1]}, ${awayColorRgba[2]}, 0.3) 0%, rgba(255, 255, 255, 0.3) 80%)`;
           setDynamicBackground(gradient);
         }
       };
@@ -554,7 +561,7 @@ const MyMatchdetailsScoreboard = ({
       <Card
         className={`w-full ${className} p-0 relative transition-all duration-500 `}
         style={{
-          background: dynamicBackground || 'linear-gradient(135deg, rgba(248, 250, 252, 0.95) 0%, rgba(255, 255, 255, 0.98) 50%, rgba(248, 250, 252, 0.95) 100%)',
+          background: dynamicBackground || 'radial-gradient(121.26% 75.73% at 0% 50.24%, rgba(248, 250, 252, 0.3) 0%, rgba(255, 255, 255, 0.3) 80%), radial-gradient(121.26% 75.73% at 100% 50.24%, rgba(248, 250, 252, 0.3) 0%, rgba(255, 255, 255, 0.3) 80%)',
           backdropFilter: 'blur(8px)',
           border: '1px solid rgba(255, 255, 255, 0.2)',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
