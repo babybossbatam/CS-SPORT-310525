@@ -727,8 +727,8 @@
   .match-event-home-side {
     grid-area: home-side;
     display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 4px;
+    grid-template-columns: 1fr 20px;
+    gap: 6px;
     align-items: center;
     padding: 0 2px;
     max-width: 100%;
@@ -738,8 +738,8 @@
   .match-event-away-side {
     grid-area: away-side;
     display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 4px;
+    grid-template-columns: 20px 1fr;
+    gap: 6px;
     align-items: center;
     padding: 0 2px;
     max-width: 100%;
@@ -749,10 +749,10 @@
   .match-event-home-player-info {
     display: flex;
     align-items: center;
-    gap: 3px;
+    gap: 4px;
     justify-content: flex-start;
     text-align: left;
-    max-width: 100%;
+    max-width: calc(100% - 26px);
     overflow: hidden;
   }
 
@@ -761,8 +761,8 @@
     align-items: center;
     justify-content: flex-end;
     text-align: right;
-    gap: 3px;
-    max-width: 100%;
+    gap: 4px;
+    max-width: calc(100% - 26px);
     overflow: hidden;
   }
 
@@ -771,7 +771,8 @@
     justify-content: flex-end;
     align-items: center;
     height: 30px;
-    width: 16px;
+    width: 20px;
+    min-width: 20px;
     min-height: 30px;
     flex-shrink: 0;
   }
@@ -781,7 +782,8 @@
     justify-content: flex-start;
     align-items: center;
     height: 30px;
-    width: 16px;
+    width: 20px;
+    min-width: 20px;
     min-height: 30px;
     flex-shrink: 0;
   }
@@ -803,31 +805,33 @@
   }
 
   .match-event-icon {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     font-size: 8px;
     flex-shrink: 0;
   }
 
   .match-event-event-title {
-    font-size: 10px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 80px;
-  }
-
-  .match-event-event-subtitle {
     font-size: 9px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 80px;
+    max-width: 70px;
+    line-height: 1.1;
+  }
+
+  .match-event-event-subtitle {
+    font-size: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 70px;
+    line-height: 1.1;
   }
 
   .match-event-player-image {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     flex-shrink: 0;
   }
 
