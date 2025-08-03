@@ -409,7 +409,9 @@ const Football = () => {
      
       <MyFootballMain fixtures={fixtures} />
 
-       <Footer />
+      <div className="mt-16">
+        <Footer />
+      </div>
       <RegionModal />
     </>
   );
