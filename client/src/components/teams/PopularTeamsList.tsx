@@ -171,8 +171,8 @@ const PopularTeamsList = () => {
                     teamName={team.name}
                     teamLogo={team.logo || `/api/team-logo/square/${team.id}?size=24`}
                     alt={team.name}
-                    size="20px"
-                    className="w-5 h-5 object-contain"
+                    size="16px"
+                    className="w-4 h-4 object-contain"
                     leagueContext={{
                       name: "Popular Teams",
                       country: team.country
