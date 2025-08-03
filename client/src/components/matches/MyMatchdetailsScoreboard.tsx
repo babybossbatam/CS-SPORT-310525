@@ -65,6 +65,56 @@ const MyMatchdetailsScoreboard = ({
   onTabChange,
 }: MyMatchdetailsScoreboardProps) => {
 
+  const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
+  const [liveScores, setLiveScores] = useState<{home: number | null, away: number | null} | null>(null);
+  const [liveStatus, setLiveStatus] = useState<string | null>(null);
+  const [currentMatchData, setCurrentMatchData] = useState<any | null>(null);
+  const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
+  const activeTab = externalActiveTab || internalActiveTab;
+  
+  // Dynamic background color state
+  const [dynamicBackground, setDynamicBackground] = useState<string>("");
+
+  // Since this component only displays passed data, we don't need to fetch data
+  // Sample match data for demonstration
+  const sampleMatch = {
+    fixture: {
+      id: 1100311,
+      date: "2025-06-11T21:00:00+00:00",
+      status: { short: "NS", long: "Not Started" },
+      venue: { name: "Estadio Nacional de Lima", city: "Lima" },
+      referee: "Andres Rojas, Colombia",
+    },
+    league: {
+      id: 135,
+      name: "World Cup - Qualification South America",
+      country: "World",
+      round: "Group Stage - 16",
+    },
+    teams: {
+      home: {
+        id: 2382,
+        name: "Portugal U21",
+        logo: "https://media.api-sports.io/football/teams/2382.png",
+      },
+      away: {
+        id: 768,
+        name: "France U21",
+        logo: "https://media.api-sports.io/football/teams/768.png",
+      },
+    },
+    goals: {
+      home: null,
+      away: null,
+    },
+    score: {
+      halftime: { home: null, away: null },
+      fulltime: { home: null, away: null },
+    },
+  };
+
+  const displayMatch = match || sampleMatch;
+
   // Extract team data for passing to child components like MyHighlights
   const getTeamData = () => {
     return {
@@ -80,15 +130,6 @@ const MyMatchdetailsScoreboard = ({
       }
     };
   };
-  const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
-  const [liveScores, setLiveScores] = useState<{home: number | null, away: number | null} | null>(null);
-  const [liveStatus, setLiveStatus] = useState<string | null>(null);
-  const [currentMatchData, setCurrentMatchData] = useState<any | null>(null);
-  const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
-  const activeTab = externalActiveTab || internalActiveTab;
-  
-  // Dynamic background color state
-  const [dynamicBackground, setDynamicBackground] = useState<string>("");
 
   // Enhanced logo-based color extraction
   const extractColorFromLogo = async (logoUrl: string, teamName: string): Promise<string> => {
@@ -213,46 +254,6 @@ const MyMatchdetailsScoreboard = ({
       setInternalActiveTab(tab);
     }
   };
-
-  // Since this component only displays passed data, we don't need to fetch data
-  // Sample match data for demonstration
-  const sampleMatch = {
-    fixture: {
-      id: 1100311,
-      date: "2025-06-11T21:00:00+00:00",
-      status: { short: "NS", long: "Not Started" },
-      venue: { name: "Estadio Nacional de Lima", city: "Lima" },
-      referee: "Andres Rojas, Colombia",
-    },
-    league: {
-      id: 135,
-      name: "World Cup - Qualification South America",
-      country: "World",
-      round: "Group Stage - 16",
-    },
-    teams: {
-      home: {
-        id: 2382,
-        name: "Portugal U21",
-        logo: "https://media.api-sports.io/football/teams/2382.png",
-      },
-      away: {
-        id: 768,
-        name: "France U21",
-        logo: "https://media.api-sports.io/football/teams/768.png",
-      },
-    },
-    goals: {
-      home: null,
-      away: null,
-    },
-    score: {
-      halftime: { home: null, away: null },
-      fulltime: { home: null, away: null },
-    },
-  };
-
-  const displayMatch = match || sampleMatch;
 
   // Debug: Log the match data being received
   console.log("🎯 [MyMatchdetailsScoreboard] Received match data:", {
