@@ -112,16 +112,7 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
         );
       })()}
 
-<button
-        onClick={onClose}
-        className={cn(
-          "text-gray-500 hover:text-gray-700",
-          "md:text-sm text-lg md:p-1 p-2", // Larger on mobile for easier tapping
-        )}
-      >
-        ✕
-      </button>
-    </div>
+</div>
   );
 };
 
