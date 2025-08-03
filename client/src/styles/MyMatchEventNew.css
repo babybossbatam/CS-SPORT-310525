@@ -734,6 +734,95 @@
     width: 32px;
     height: 32px;
   }
+
+  /* Mobile penalty shootout adjustments */
+  .penalty-shootout-container {
+    padding: 8px;
+    margin: 8px 0;
+  }
+
+  .penalty-shootout-row {
+    gap: 8px;
+    padding: 4px 0;
+    grid-template-columns: 1fr auto 1fr;
+  }
+
+  .penalty-home-side,
+  .penalty-away-side {
+    min-height: 40px;
+  }
+
+  .penalty-home-player-info,
+  .penalty-away-player-info {
+    gap: 4px;
+    flex-wrap: nowrap;
+  }
+
+  .penalty-player-name {
+    font-size: 11px;
+    max-width: 80px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .penalty-player-avatar {
+    flex-shrink: 0;
+  }
+
+  .penalty-result-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .penalty-result-icon img {
+    width: 14px;
+    height: 14px;
+  }
+
+  .match-event-module-stages-time-yellow-circle-penalty {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
+  }
+
+  /* Mobile home side penalty adjustments */
+  .penalty-home-player-info {
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .penalty-home-icon {
+    justify-content: flex-end;
+    margin-left: 4px;
+  }
+
+  /* Mobile away side penalty adjustments */
+  .penalty-away-player-info {
+    justify-content: flex-end;
+    text-align: right;
+  }
+
+  .penalty-away-icon {
+    justify-content: flex-start;
+    margin-right: 4px;
+  }
+
+  /* Ensure proper spacing on mobile */
+  .penalty-shootout-list {
+    gap: 8px;
+  }
+
+  /* Mobile adjustments for better touch targets */
+  .match-event-home-player-info,
+  .match-event-away-player-info {
+    gap: 8px;
+  }
+
+  .match-event-home-player-info .penalty-player-name,
+  .match-event-away-player-info .penalty-player-name {
+    line-height: 1.2;
+  }
 }
 
 /* Dark theme support */
