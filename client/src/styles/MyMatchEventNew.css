@@ -107,7 +107,7 @@
 .penalty-home-player-info {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   justify-content: flex-start;
 }
 
@@ -115,6 +115,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  margin-left: 8px;
 }
 
 .penalty-away-side {
@@ -127,7 +128,7 @@
 .penalty-away-player-info {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   justify-content: flex-end;
   flex-direction: row;
 }
@@ -136,6 +137,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  margin-right: 8px;
 }
 
 .penalty-center {
@@ -864,7 +866,7 @@
 
   .penalty-home-player-info,
   .penalty-away-player-info {
-    gap: 3px;
+    gap: 6px;
     flex-wrap: nowrap;
     min-width: 0;
     max-width: 100%;
@@ -926,7 +928,7 @@
 
   .penalty-home-icon {
     justify-content: flex-end;
-    margin-left: 1px;
+    margin-left: 4px;
     flex-shrink: 0;
     width: 12px;
   }
@@ -940,7 +942,7 @@
 
   .penalty-away-icon {
     justify-content: flex-start;
-    margin-right: 1px;
+    margin-right: 4px;
     flex-shrink: 0;
     width: 12px;
   }
