@@ -154,9 +154,9 @@ const MyNewLeague2 = ({
 
   // League IDs without any filtering - removed duplicates
   const leagueIds = [
-    38, 15, 2, 4, 10, 11, 848, 886, 1022, 71, 3, 5, 531, 22, 72, 73, 75, 76,
-    233, 667, 940, 908, 1169, 23, 1077, 253, 850, 893, 921, 130, 128, 493, 239,
-    265, 237, 235, 743,
+    38, 15, 2, 4, 10, 11, 848, 886, 1022, 772, 71, 3, 5, 531, 22, 72, 73, 75,
+    76, 233, 667, 940, 908, 1169, 23, 1077, 253, 850, 893, 921, 130, 128, 493,
+    239, 265, 237, 235, 743,
   ];
 
   // Helper function to add delay between requests
@@ -852,8 +852,8 @@ const MyNewLeague2 = ({
         .sort(([aId], [bId]) => {
           // Define priority order - same as MyNewLeague
           const priorityOrder = [
-            38, 15, 2, 5, 22, 10, 11, 1022, 71, 72, 667, 3, 848, 73, 75, 239,
-            233, 253,
+            38, 15, 2, 5, 22, 10, 11, 1022, 772, 71, 72, 667, 3, 848, 73, 75,
+            239, 233, 253,
           ];
 
           const aIndex = priorityOrder.indexOf(Number(aId));
