@@ -1223,13 +1223,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       ) {
                         const halftimeScore = calculateHalftimeScore();
                         markers.push({
-                          time: { elapsed: 45 },
+                          time: { elapsed: 46 },
                           type: "period_score",
                           detail: "Halftime",
                           score: `${halftimeScore.homeHalftimeScore} - ${halftimeScore.awayHalftimeScore}`,
                           team: { name: "", logo: "" },
                           player: { name: "" },
-                          id: "period-45",
+                          id: "period-46",
                         } as PeriodMarkerEvent);
                       }
 
@@ -1870,13 +1870,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       if (hasSecondHalfEvents) {
                         const halftimeScore = calculateHalftimeScore();
                         markers.push({
-                          time: { elapsed: 45 },
+                          time: { elapsed: 46 },
                           type: "period_score",
                           detail: "Halftime",
                           score: `${halftimeScore.homeHalftimeScore} - ${halftimeScore.awayHalftimeScore}`,
                           team: { name: "", logo: "" },
                           player: { name: "" },
-                          id: "period-45-top",
+                          id: "period-46-top",
                           hasFirstHalfGoals: firstHalfGoals.length > 0,
                         } as PeriodMarkerEvent);
                       }
