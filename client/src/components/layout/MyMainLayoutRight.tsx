@@ -29,7 +29,7 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
   });
 
   return (
-    <>
+    <div className="overflow-y-auto max-h-screen">
       <ScoreDetailsCard
         currentFixture={selectedFixture}
         onClose={onClose}
@@ -121,7 +121,7 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
       >
         ✕
       </button>
-      </>
+    </div>
   );
 };
 
