@@ -157,7 +157,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Test flash effect buttons (remove after testing)
   const [showTestButtons, setShowTestButtons] = useState(false);
   // Initialize flagMap with immediate synchronous values for better rendering
-  const [flagMap, setFlagMap] = useState<{ [country: string]: string }>(() => {
+  const [flagMap, setFlagMap<{ [country: string]: string }>(() => {
     // Pre-populate with synchronous flag URLs to prevent initial undefined state
     const initialMap: { [country: string]: string } = {};
     // Let World flag be fetched through the normal caching system
@@ -191,9 +191,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   ]; // Significantly expanded to include major leagues from all continents
 
   // Direct API fetching without caching - like MyNewLeague
-  const [fixtures, setFixtures] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [fixtures, setFixtures<any[]>([]);
+  const [isLoading, setIsLoading: React.Dispatch<React.SetStateAction<boolean>>>(true);
+  const [error, setError: React.Dispatch<React.SetStateAction<string | null>>>(null);
 
   useEffect(() => {
     const fetchFixturesData = async () => {
@@ -823,6 +823,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               match.fixture.status.short,
             ),
           ),
+```
         );
 
         // Priority: World with live matches first, then World without live, then others alphabetically
@@ -1208,17 +1209,24 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Show loading only if we're actually loading and have no data
   if (isLoading && !fixtures.length) {
     return (
-      <Card>
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-4 w-4 rounded-full" />
-            <Skeleton className="h-4 w-52" />
+      <Card className="mt-4">
+        <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
+          <div className="flex justify-between items-center w-full">
+            <h3
+              className="font-semibold"
+              style={{
+                fontFamily:
+                  "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                fontSize: "13.3px",
+              }}
+            >
+              {getHeaderTitle()}
+            </h3>
           </div>
-          <Skeleton className="h-3 w-44" />
         </CardHeader>
         <CardContent className="p-0">
           <div className="space-y-0">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="border-b border-gray-100 last:border-b-0">
                 <div className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
