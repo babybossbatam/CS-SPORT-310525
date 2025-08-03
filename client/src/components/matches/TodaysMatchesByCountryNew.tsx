@@ -1822,69 +1822,22 @@ const [fixtures, setFixtures] = useState<any[]>([]);
 
                                           {/* Home team logo - grid area */}
                                           <div className="home-team-logo-container">
-                                            {(() => {
-                                              const isNationalTeamContext = isNationalTeam(
-                                                leagueData.league.name,
-                                                leagueData.league.country,
-                                              );
-                                              const isActualNationalTeam = isNationalTeam(
-                                                match.teams.home.name,
-                                                leagueData.league.country,
-                                              );
-                                              const isYouthTeam =
-                                                match.teams.home.name
-                                                  .toLowerCase()
-                                                  .includes("u2") ||
-                                                match.teams.home.name
-                                                  .toLowerCase()
-                                                  .includes("youth");
-                                              const isFifaClubWorldCup =
-                                                leagueData.league.name
-                                                  .toLowerCase()
-                                                  .includes("fifa club world cup");
-                                              const isUefaConferenceLeague =
-                                                leagueData.league.name
-                                                  .toLowerCase()
-                                                  .includes(
-                                                    "uefa europa conference league",
-                                                  );
-                                              // Check if the team is a national team, a youth team, or the FIFA Club World Cup
-
-                                              if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup && !isUefaConferenceLeague) {
-                                                return (
-                                                  <MyCountryGroupFlag
-                                                    teamName={match.teams.home.name || ""}
-                                                    fallbackUrl={
-                                                      match.teams.home.id
-                                                        ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                                                        : "/assets/fallback-logo.svg"
-                                                    }
-                                                    alt={match.teams.home.name}
-                                                    className="popular-leagues-size"
-                                                  />
-                                                );
+                                            <MyWorldTeamLogo
+                                              teamName={match.teams.home.name || ""}
+                                              teamId={match.teams.home.id}
+                                              teamLogo={
+                                                match.teams.home.id
+                                                  ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                                  : "/assets/fallback-logo.svg"
                                               }
-                                              return (
-                                                <MyWorldTeamLogo
-                                                  teamName={
-                                                    match.teams.home.name || ""
-                                                  }
-                                                  teamLogo={
-                                                    match.teams.home.id
-                                                      ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                                                      : "/assets/fallback-logo.svg"
-                                                  }
-                                                  alt={match.teams.home.name}
-                                                  size="34px"
-                                                  className="popular-leagues-size"
-                                                  leagueContext={{
-                                                    name: leagueData.league.name,
-                                                    country:
-                                                      leagueData.league.country,
-                                                  }}
-                                                />
-                                              );
-                                            })()}
+                                              alt={match.teams.home.name}
+                                              size="34px"
+                                              className="popular-leagues-size"
+                                              leagueContext={{
+                                                name: leagueData.league.name,
+                                                country: leagueData.league.country,
+                                              }}
+                                            />
                                           </div>
 
                                           {/* Score/Time Center - Fixed width and centered */}
@@ -2042,67 +1995,22 @@ const [fixtures, setFixtures] = useState<any[]>([]);
 
                                           {/* Away team logo - grid area */}
                                           <div className="away-team-logo-container">
-                                            {(() => {
-                                              const isNationalTeamContext = isNationalTeam(
-                                                leagueData.league.name,
-                                                leagueData.league.country,
-                                              );
-                                              const isActualNationalTeam = isNationalTeam(
-                                                match.teams.away.name,
-                                                leagueData.league.country,
-                                              );
-                                              const isYouthTeam =
-                                                match.teams.away.name
-                                                  .toLowerCase()
-                                                  .includes("u2") ||
-                                                match.teams.away.name
-                                                  .toLowerCase()
-                                                  .includes("youth");
-                                              const isFifaClubWorldCup =
-                                                leagueData.league.name
-                                                  .toLowerCase()
-                                                  .includes("fifa club world cup");
-                                              const isUefaConferenceLeague =
-                                                leagueData.league.name
-                                                  .toLowerCase()
-                                                  .includes(
-                                                    "uefa europa conference league",
-                                                  );
-                                              if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup && !isUefaConferenceLeague) {
-                                                return (
-                                                  <MyCountryGroupFlag
-                                                    teamName={match.teams.away.name || ""}
-                                                    fallbackUrl={
-                                                      match.teams.away.id
-                                                        ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                                                        : "/assets/fallback-logo.svg"
-                                                    }
-                                                    alt={match.teams.away.name}
-                                                    className="popular-leagues-size"
-                                                  />
-                                                );
+                                            <MyWorldTeamLogo
+                                              teamName={match.teams.away.name || ""}
+                                              teamId={match.teams.away.id}
+                                              teamLogo={
+                                                match.teams.away.id
+                                                  ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                                                  : "/assets/fallback-logo.svg"
                                               }
-                                              return (
-                                                <MyWorldTeamLogo
-                                                  teamName={
-                                                    match.teams.away.name || ""
-                                                  }
-                                                  teamLogo={
-                                                    match.teams.away.id
-                                                      ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                                                      : "/assets/fallback-logo.svg"
-                                                  }
-                                                  alt={match.teams.away.name}
-                                                  size="34px"
-                                                  className="popular-leagues-size"
-                                                  leagueContext={{
-                                                    name: leagueData.league.name,
-                                                    country:
-                                                      leagueData.league.country,
-                                                  }}
-                                                />
-                                              );
-                                            })()}
+                                              alt={match.teams.away.name}
+                                              size="34px"
+                                              className="popular-leagues-size"
+                                              leagueContext={{
+                                                name: leagueData.league.name,
+                                                country: leagueData.league.country,
+                                              }}
+                                            />
                                           </div>
 
                                           {/* Away Team Name - positioned further right */}
