@@ -297,9 +297,13 @@ export const rapidApiService = {
     }
 
     if (cached && now - cached.timestamp < cacheTime) {
-      console.log(
-        `📦 [RapidAPI] Using cached fixtures for ${date} (age: ${Math.round((now - cached.timestamp) / 60000)}min, type: ${isPast ? "past" : isToday ? "today" : "future"})`,
-      );
+      const ageMinutes = Math.round((now - cached.timestamp) / 60000);
+      const cacheType = isPast ? "past" : isToday ? "today" : "future";
+      const dateStr = date;
+
+      // Enhanced logging for cache status
+      console.log(`📦 [RapidAPI] Using cached fixtures for ${dateStr} (age: ${ageMinutes}min, type: ${cacheType}, size: ${cached.data.length})`);
+
       return cached.data;
     }
 
@@ -943,8 +947,7 @@ export const rapidApiService = {
         playersCache.set(cacheKey, {
           data: playerStats,
 timestamp: now,
-        });
-        console.log(`✅ [RapidAPI] Found player statistics for fixture ${fixtureId}, teams: ${playerStats.length}`);
+        });console.log(`✅ [RapidAPI] Found player statistics for fixture ${fixtureId}, teams: ${playerStats.length}`);
         return playerStats;
       }
 
@@ -1297,19 +1300,19 @@ timestamp: now,
   ): Promise<any[]> {
     try {
       const topScorers = await this.getTopScorers(leagueId, season);
-      
+
       // Process and enhance the data with better photo handling
       return topScorers.map((scorer: any) => {
         const playerStats = scorer.statistics[0];
         const goals = playerStats?.goals?.total || 0;
-        
+
         // Enhanced photo URL with fallback
         let photoUrl = scorer.player?.photo;
         if (!photoUrl || photoUrl.includes('default.png')) {
           // Use 365Scores CDN as fallback
           photoUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${scorer.player.id}`;
         }
-        
+
         return {
           id: scorer.player.id,
           name: scorer.player.name,

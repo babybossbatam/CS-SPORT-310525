@@ -1,24 +1,55 @@
-
-import React, { Suspense, lazy } from 'react';
-import BrandedLoading from './BrandedLoading';
+import React, { Suspense, lazy, useState, useEffect, useRef } from 'react';
 
 interface LazyWrapperProps {
-  importFunc: () => Promise<{ default: React.ComponentType<any> }>;
+  children: React.ReactNode;
   fallback?: React.ReactNode;
-  children?: React.ReactNode;
+  minHeight?: string;
+  threshold?: number;
 }
 
 const LazyWrapper: React.FC<LazyWrapperProps> = ({ 
-  importFunc, 
-  fallback = <BrandedLoading />,
-  ...props 
+  children, 
+  fallback = <div>Loading...</div>,
+  minHeight = "200px",
+  threshold = 0.1
 }) => {
-  const LazyComponent = lazy(importFunc);
-  
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => observer.disconnect();
+  }, [threshold]);
+
   return (
-    <Suspense fallback={fallback}>
-      <LazyComponent {...props} />
-    </Suspense>
+    <div ref={ref} style={{ minHeight }}>
+      {isVisible ? (
+        <Suspense fallback={
+          <div style={{ minHeight }} className="flex items-center justify-center">
+            {fallback}
+          </div>
+        }>
+          {children}
+        </Suspense>
+      ) : (
+        <div style={{ minHeight }} className="flex items-center justify-center">
+          {fallback}
+        </div>
+      )}
+    </div>
   );
 };
 

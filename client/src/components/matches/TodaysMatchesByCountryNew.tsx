@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronDown, ChevronUp, Calendar, Star } from "lucide-react";
@@ -249,7 +249,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Simple fixture processing like MyNewLeague
   const processedFixtures = fixtures || [];
 
-// Enhanced filtering using MyNewLeague2's robust approach
+// Memoized filtering with performance optimizations
   const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
     const allFixtures = processedFixtures;
     if (!allFixtures?.length) {
@@ -322,6 +322,48 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       },
     };
   }, [processedFixtures, selectedDate]);
+
+  // Cache the last filter results
+  const lastFilterCache = useRef<{
+    key: string;
+    data: any[];
+  } | null>(null);
+
+// Memoized filtering with performance optimizations
+  const filteredFixtures = useMemo(() => {
+    if (!fixtures?.length || !selectedDate) {
+      console.log(`🔍 [TodaysMatchByCountryNew] No fixtures or date provided`);
+      return [];
+    }
+
+    // Early return for cached results
+    const cacheKey = `filtered_${selectedDate}_${fixtures.length}`;
+    if (lastFilterCache?.current?.key === cacheKey && lastFilterCache?.current?.data) {
+      console.log(`⚡ [TodaysMatchByCountryNew] Returning cached filtered fixtures for ${selectedDate}`);
+      return lastFilterCache.current.data;
+    }
+
+    console.log(`🔍 [TodaysMatchByCountryNew UTC] Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
+
+    const filtered = fixtures.filter((fixture) => {
+      if (!fixture || !fixture.fixture?.date) {
+        console.warn("Invalid fixture structure:", fixture);
+        return false;
+      }
+
+      const fixtureDate = new Date(fixture.fixture.date);
+      const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
+      return fixtureDateString === selectedDate;
+    });
+
+    // Update cache
+    lastFilterCache.current = {
+      key: cacheKey,
+      data: filtered,
+    };
+
+    return filtered;
+  }, [fixtures, selectedDate]);
 
   // Now validate after all hooks are called
   if (!selectedDate) {
@@ -406,7 +448,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       "palestine state": "Palestine",
       "palestine (state of)": "Palestine",
       "congo democratic republic": "Democratic Republic of Congo",
-      "congo (the democratic republic of the)": "Democratic Republic of Congo",
+      "congo (the democratic republic of)": "Democratic Republic of Congo",
       "lao people's democratic republic": "Laos",
       "lao people's democratic republic (the)": "Laos",
     };

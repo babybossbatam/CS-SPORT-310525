@@ -31,17 +31,16 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
   const { isMobile } = useDeviceInfo();
 
-  // Apply UTC date filtering to fixtures
+  // Optimized UTC date filtering with memoization
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length || !selectedDate) return [];
+
+    // Performance monitoring
+    const startTime = performance.now();
 
     console.log(
       `🔍 [MyMainLayout UTC] Processing ${fixtures.length} fixtures for date: ${selectedDate}`,
     );
-
-    // Use UTC dates throughout - no timezone conversion
-    const todayUTC = new Date();
-    const todayUTCString = todayUTC.toISOString().split("T")[0]; // YYYY-MM-DD in UTC
 
     const filtered = fixtures.filter((fixture) => {
       if (fixture.fixture.date && fixture.fixture.status?.short) {
@@ -82,8 +81,15 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
       return false;
     });
 
+    const endTime = performance.now();
+    const processingTime = endTime - startTime;
+
+    if (processingTime > 50) {
+      console.warn(`⚠️ [MyMainLayout Performance] Filtering took ${processingTime.toFixed(2)}ms`);
+    }
+
     console.log(
-      `✅ [MyMainLayout UTC] After UTC filtering: ${filtered.length} matches for ${selectedDate}`,
+      `✅ [MyMainLayout UTC] After UTC filtering: ${filtered.length} matches for ${selectedDate} (${processingTime.toFixed(2)}ms)`,
     );
     return filtered;
   }, [fixtures, selectedDate]);
