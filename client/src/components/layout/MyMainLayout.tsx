@@ -99,12 +99,8 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   };
 
   const handleMatchCardClick = (fixture: any) => {
-    // On mobile, navigate to match details page instead of showing in sidebar
-    if (isMobile) {
-      navigate(`/match/${fixture.fixture.id}`);
-    } else {
-      setSelectedFixture(fixture);
-    }
+    // On mobile and desktop, show match details in sidebar
+    setSelectedFixture(fixture);
   };
 
   const handleBackToMain = () => {
@@ -131,28 +127,31 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12",
         )}
       >
-        {/* Left column (5 columns on desktop, full width on mobile) */}
-        <div className={cn("space-y-4", isMobile ? "w-full col-span-1" : "lg:col-span-5")}>
-          {/* Render children if provided, otherwise show TodayMatchPageCard */}
-          {children ? (
-            <div>{children}</div>
-          ) : (
-            <div>
-              <TodayMatchPageCard
-                fixtures={filteredFixtures}
-                onMatchClick={handleMatchClick}
-                onMatchCardClick={handleMatchCardClick}
-              />
-            </div>
-          )}
-        </div>
+        {/* Left column (5 columns on desktop, full width on mobile) - Hide on mobile when match is selected */}
+        {(!isMobile || !selectedFixture) && (
+          <div className={cn("space-y-4", isMobile ? "w-full col-span-1" : "lg:col-span-5")}>
+            {/* Render children if provided, otherwise show TodayMatchPageCard */}
+            {children ? (
+              <div>{children}</div>
+            ) : (
+              <div>
+                <TodayMatchPageCard
+                  fixtures={filteredFixtures}
+                  onMatchClick={handleMatchClick}
+                  onMatchCardClick={handleMatchCardClick}
+                />
+              </div>
+            )}
+          </div>
+        )}
 
-        {/* Right column (7 columns) - Hidden on mobile */}
-        {!isMobile && (
+        {/* Right column (7 columns) - Show when match is selected on mobile, always show on desktop */}
+        {(!isMobile || selectedFixture) && (
           <div
             className={cn(
               "space-y-4",
-              "lg:col-span-7",
+              isMobile ? "col-span-1" : "lg:col-span-7",
+              isMobile && selectedFixture ? "fixed inset-0 z-50 bg-white" : "",
             )}
           >
             {selectedFixture ? (

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import MatchPredictionsCard from '@/components/matches/MatchPredictionsCard';
 import MyLiveAction from '@/components/matches/MyLiveAction';
@@ -10,6 +9,7 @@ import MyStatsTabCard from '@/components/matches/MyStatsTabCard';
 import MyLineupsTabsCard from '@/components/matches/MyLineupsTabsCard';
 import MyTrendsTabsCard from '@/components/matches/MyTrendsTabsCard';
 import MyHeadtoheadTabsCard from '@/components/matches/MyHeadtoheadTabsCard';
+import { cn } from '@/lib/utils';
 
 interface MyMainLayoutRightProps {
   selectedFixture: any;
@@ -41,8 +41,8 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
       {activeTab === "match" && (
         <>
           <MyMatchTabCard match={selectedFixture} onTabChange={setActiveTab} />
-          
-         
+
+
         </>
       )}
 
@@ -66,8 +66,8 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
       )}
 
 
-      
-     
+
+
       {/* Conditional rendering based on match status */}
       {(() => {
         const matchStatus = selectedFixture?.fixture?.status?.short;
@@ -106,13 +106,21 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
 
         return (
           <>
-    
+
             {/* For upcoming matches, neither component is shown */}
           </>
         );
       })()}
 
-     
+<button
+        onClick={onClose}
+        className={cn(
+          "text-gray-500 hover:text-gray-700",
+          "md:text-sm text-lg md:p-1 p-2", // Larger on mobile for easier tapping
+        )}
+      >
+        ✕
+      </button>
       </>
   );
 };
