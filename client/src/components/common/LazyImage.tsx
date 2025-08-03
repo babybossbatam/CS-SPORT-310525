@@ -104,49 +104,9 @@ const LazyImage: React.FC<LazyImageProps> = ({
             return true;
           }
 
-          // Valencia team (including U20)
-          if (altLower.includes("valencia") && !altLower.includes("rayo vallecano")) {
-            setImageSrc("/assets/matchdetaillogo/valencia.png");
-            setHasError(false);
-            setIsLoading(true);
-            console.log(`⚽ [LazyImage] Using local Valencia logo`);
-            return true;
-          }
+         
 
-          // Alboraya team (including U20)
-          if (altLower.includes("alboraya") || altLower.includes("albaroya")) {
-            setImageSrc("/assets/matchdetaillogo/alboraya.png");
-            setHasError(false);
-            setIsLoading(true);
-            console.log(`⚽ [LazyImage] Using local Alboraya logo`);
-            return true;
-          }
-        }
-        return false;
-      };
-
-      // Try local assets first for specific teams/leagues
-      if (shouldUseLocalAsset()) {
-        return;
-      }
-
-      // Special logging for Valencia/Spain flags
-      const isSpainFlag =
-        imageSrc.includes("/es.svg") ||
-        imageSrc.includes("/es.png") ||
-        (alt && alt.toLowerCase().includes("spain")) ||
-        (alt && alt.toLowerCase().includes("valencia"));
-
-      if (isSpainFlag) {
-        console.log(`🇪🇸 [LazyImage] VALENCIA/SPAIN FLAG ERROR:`, {
-          imageSrc,
-          alt,
-          retryCount,
-          hasError,
-          component: "LazyImage",
-        });
-      }
-
+    
       // Enhanced league logo handling like MyNewLeague2
       const isLeagueLogo =
         imageSrc.includes("/api/league-logo/") ||
