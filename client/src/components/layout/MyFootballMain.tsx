@@ -211,6 +211,7 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
         ${isMobile ? 'rounded-none' : 'rounded-lg'}
         min-h-screen
         ${isMobile ? 'no-scroll-x' : ''}
+        mb-8
       `}>
         <div className={`
           ${isMobile ? 'flex flex-col space-y-3' : 'grid grid-cols-1 lg:grid-cols-12 gap-4'}
