@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { uiActions } from '@/lib/store';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
+import Footer from '@/components/layout/Footer';
 import ComingSoon from '@/components/common/ComingSoon';
 import { SnookerIcon } from '@/components/icons/SportIcons';
 
@@ -24,6 +25,8 @@ const Snooker = () => {
         icon={SnookerIcon}
         feature="snooker"
       />
+      
+      <Footer />
     </>
   );
 };
