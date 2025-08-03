@@ -1,4 +1,3 @@
-
 import { Switch, Route } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -108,7 +107,7 @@ function App() {
       document.documentElement.classList.add('mobile-device');
       document.body.classList.add('mobile-body');
     }
-    
+
     setupGlobalErrorHandlers();
 
     // Add additional error handling for dynamic imports and runtime errors

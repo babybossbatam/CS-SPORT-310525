@@ -1,4 +1,4 @@
-import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { QueryClient, QueryCache, MutationCache, QueryFunction } from "@tanstack/react-query";
 import { CACHE_STALE_TIMES } from "./constants";
 import { CACHE_DURATIONS } from "./cacheConfig";
 

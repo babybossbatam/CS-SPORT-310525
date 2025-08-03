@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import MyWorldTeamLogo from "./MyWorldTeamLogo";
 
 interface LazyImageProps {
@@ -18,6 +18,7 @@ interface LazyImageProps {
     name?: string;
     country?: string;
   };
+  priority?: 'high' | 'medium' | 'low';
 }
 
 const LazyImage: React.FC<LazyImageProps> = ({
@@ -33,11 +34,15 @@ const LazyImage: React.FC<LazyImageProps> = ({
   teamId,
   teamName,
   leagueContext,
+  priority = 'low',
 }) => {
   const [imageSrc, setImageSrc] = useState<string>(src);
   const [hasError, setHasError] = useState<boolean>(false);
   const [retryCount, setRetryCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // Preload critical images
+  const shouldPreload = priority === 'high' || priority === 'medium';
 
   useEffect(() => {
     // Check for specific teams/leagues that should use local assets immediately
@@ -428,7 +433,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
         opacity: isLoading ? 0.7 : 1,
         transition: 'opacity 0.2s ease-in-out'
       }}
-      loading={loading}
+      loading={shouldPreload ? 'eager' : 'lazy'}
+      decoding="async"
       onLoad={handleLoad}
       onError={handleError}
     />

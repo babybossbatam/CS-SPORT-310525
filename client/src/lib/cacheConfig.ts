@@ -1,6 +1,6 @@
 import { UseQueryOptions } from '@tanstack/react-query';
 
-// Cache durations in milliseconds
+// Cache durations in milliseconds - optimized for performance
 export const CACHE_DURATIONS = {
   ONE_HOUR: 60 * 60 * 1000,
   SIX_HOURS: 6 * 60 * 60 * 1000,
@@ -8,19 +8,19 @@ export const CACHE_DURATIONS = {
   TWENTY_FOUR_HOURS: 24 * 60 * 60 * 1000,
   THIRTY_MINUTES: 30 * 60 * 1000,
   FIVE_MINUTES: 5 * 60 * 1000,
-  THIRTY_SECONDS: 30 * 1000,
+  TWO_MINUTES: 2 * 60 * 1000, // Reduced from 30 seconds
   FOUR_HOURS: 4 * 60 * 60 * 1000,
 } as const;
 
 // Cache presets for different data types
 export const CACHE_PRESETS = {
-  // For frequently changing data like live scores
+  // For frequently changing data like live scores - optimized
   LIVE_DATA: {
-    staleTime: CACHE_DURATIONS.THIRTY_SECONDS,
+    staleTime: CACHE_DURATIONS.TWO_MINUTES,
     gcTime: CACHE_DURATIONS.FIVE_MINUTES,
-    refetchInterval: CACHE_DURATIONS.THIRTY_SECONDS,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
+    refetchInterval: CACHE_DURATIONS.TWO_MINUTES,
+    refetchOnWindowFocus: false, // Reduce unnecessary refetches
+    refetchOnMount: false,
     refetchOnReconnect: true,
   },
 

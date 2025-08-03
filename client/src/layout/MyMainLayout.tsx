@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import MobileBottomNav from '@/components/layout/MobileBottomNav';
+import React, { useState, Suspense, lazy } from 'react';
 import MyLiveAction from '@/components/matches/MyLiveAction';
 import { useDeviceInfo } from '@/hooks/use-mobile';
+import BrandedLoading from '@/components/common/BrandedLoading';
 
 // Immediate mobile detection to prevent layout flash
 const getIsMobileImmediate = () => {
@@ -14,6 +14,9 @@ import MyLineupsTabsCard from '@/components/matches/MyLineupsTabsCard';
 import MyStatsTabCard from '@/components/matches/MyStatsTabCard';
 import MyTrendsTabsCard from '@/components/matches/MyTrendsTabsCard';
 import MyHeadtoheadTabsCard from '@/components/matches/MyHeadtoheadTabsCard';
+
+// Lazy load MobileBottomNav component
+const MobileBottomNav = lazy(() => import('@/components/layout/MobileBottomNav'));
 
 interface MyMainLayoutProps {
   selectedMatchId?: number;
@@ -32,11 +35,11 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
 }) => {
   const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
   const currentActiveTab = activeTab || internalActiveTab;
-  
+
   // Immediate mobile check to prevent flash
   const [isMobileImmediate] = useState(getIsMobileImmediate);
   const { isMobile } = useDeviceInfo();
-  
+
   // Use immediate detection first, then hook result
   const actualIsMobile = isMobile !== undefined ? isMobile : isMobileImmediate;
 
@@ -102,9 +105,13 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           {children}
         </div>
       )}
-      
+
       {/* Mobile Bottom Navigation - only show on mobile */}
-      {actualIsMobile && <MobileBottomNav />}
+      {actualIsMobile && (
+        <Suspense fallback={<BrandedLoading />}>
+          <MobileBottomNav />
+        </Suspense>
+      )}
     </div>
   );
 };
