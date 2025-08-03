@@ -43,12 +43,12 @@
 /* Three-grid layout container */
 .match-event-three-grid-container {
   display: grid;
-  grid-template-columns: 1fr 80px 1fr;
+  grid-template-columns: 1fr 72px 1fr;
   grid-template-areas: "home-side time-center away-side";
   grid-template-rows: 60px;
   align-items: center;
   width: 100%;
-  gap: 3px;
+  gap: 8px;
   padding: 0px 8px;
   min-height: 60px;
   max-height: 60px;
@@ -663,40 +663,133 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .match-event-three-grid-container {
-    grid-template-columns: 1fr 50px 1fr;
-    gap: 2px;
-    padding: 2px 4px;
-    min-height: 45px;
+    display: grid;
+    grid-template-columns: 1fr 45px 1fr;
+    grid-template-areas: "home-side time-center away-side";
+    gap: 3px;
+    padding: 3px 6px;
+    min-height: 40px;
+    max-height: 40px;
+    align-items: center;
+    position: relative;
   }
 
   .match-event-time-center {
     font-size: 8px;
-    padding: 1px 1px;
-    min-height: 28px;
+    padding: 2px;
+    min-height: 30px;
     min-width: 40px;
+    max-width: 45px;
   }
 
   .match-event-time-center-simple {
-    height: 28px;
-    min-height: 28px;
-    max-height: 28px;
-    width: 50px;
-    min-width: 50px;
-    max-width: 50px;
+    grid-area: time-center;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    min-height: 30px;
+    max-height: 30px;
+    width: 45px;
+    min-width: 45px;
+    max-width: 45px;
+    padding: 0;
+    border-radius: 8px;
+    background: transparent;
+    flex-shrink: 0;
+    flex-grow: 0;
+    place-self: center;
   }
 
   .match-event-time-display {
-    font-size: 10px;
-    height: 28px;
-    width: 50px;
-    min-width: 50px;
-    max-width: 50px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 9px;
+    font-weight: 600;
+    color: black;
+    line-height: 1;
+    white-space: nowrap;
+    height: 30px;
+    width: 45px;
+    min-width: 45px;
+    max-width: 45px;
+    flex-shrink: 0;
+    flex-grow: 0;
+  }
+
+  .match-event-home-side {
+    grid-area: home-side;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px;
+    align-items: center;
+    padding: 0 2px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .match-event-away-side {
+    grid-area: away-side;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px;
+    align-items: center;
+    padding: 0 2px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .match-event-home-player-info {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    justify-content: flex-start;
+    text-align: left;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .match-event-away-player-info {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    text-align: right;
+    gap: 3px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .match-event-home-icon-column {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: 30px;
+    width: 16px;
+    min-height: 30px;
+    flex-shrink: 0;
+  }
+
+  .match-event-away-icon-column {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    height: 30px;
+    width: 16px;
+    min-height: 30px;
+    flex-shrink: 0;
   }
 
   .period-score-marker {
-    padding: 4px 8px;
-    margin-left: -8px;
-    margin-right: -8px;
+    padding: 3px 6px;
+    margin-left: -6px;
+    margin-right: -6px;
   }
 
   .period-score-label {
@@ -705,45 +798,37 @@
 
   .period-score-display {
     font-size: 10px;
-    min-width: 40px;
-    padding: 0 6px;
+    min-width: 35px;
+    padding: 0 4px;
   }
 
   .match-event-icon {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     font-size: 8px;
-  }
-
-  .match-event-home-side,
-  .match-event-away-side {
-    padding: 0 2px;
+    flex-shrink: 0;
   }
 
   .match-event-event-title {
     font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80px;
   }
 
   .match-event-event-subtitle {
     font-size: 9px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80px;
   }
 
   .match-event-player-image {
-    width: 24px;
-    height: 24px;
-  }
-
-  .match-event-home-player-info,
-  .match-event-away-player-info {
-    gap: 2px;
-    max-width: 100%;
-  }
-
-  .match-event-home-icon-column,
-  .match-event-away-icon-column {
     width: 20px;
-    height: 35px;
-    min-height: 35px;
+    height: 20px;
+    flex-shrink: 0;
   }
 
   /* Mobile penalty shootout adjustments */
