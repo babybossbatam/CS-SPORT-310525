@@ -10,6 +10,7 @@ import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
 import MyMatchStats from "./MyMatchStats";
+import { getTeamColor } from "@/lib/colorExtractor";
 
 
 // Add CSS for cleaner pulse effect
@@ -85,6 +86,125 @@ const MyMatchdetailsScoreboard = ({
   const [currentMatchData, setCurrentMatchData] = useState<any | null>(null);
   const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
   const activeTab = externalActiveTab || internalActiveTab;
+  
+  // Dynamic background color state
+  const [dynamicBackground, setDynamicBackground] = useState<string>("");
+
+  // Enhanced logo-based color extraction
+  const extractColorFromLogo = async (logoUrl: string, teamName: string): Promise<string> => {
+    return new Promise((resolve) => {
+      try {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          if (!ctx) {
+            resolve(getTeamColor(teamName, true));
+            return;
+          }
+          
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+          
+          // Color frequency map
+          const colorMap: Record<string, number> = {};
+          
+          for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            const a = data[i + 3];
+            
+            // Skip transparent or near-transparent pixels
+            if (a < 128) continue;
+            
+            // Skip very light or very dark colors
+            const brightness = (r + g + b) / 3;
+            if (brightness < 40 || brightness > 220) continue;
+            
+            // Group similar colors
+            const rGroup = Math.floor(r / 30) * 30;
+            const gGroup = Math.floor(g / 30) * 30;
+            const bGroup = Math.floor(b / 30) * 30;
+            
+            const colorKey = `${rGroup},${gGroup},${bGroup}`;
+            colorMap[colorKey] = (colorMap[colorKey] || 0) + 1;
+          }
+          
+          // Find most frequent color
+          let dominantColor = "";
+          let maxCount = 0;
+          
+          for (const [color, count] of Object.entries(colorMap)) {
+            if (count > maxCount) {
+              maxCount = count;
+              dominantColor = color;
+            }
+          }
+          
+          if (dominantColor) {
+            const [r, g, b] = dominantColor.split(",").map(Number);
+            resolve(`rgb(${r}, ${g}, ${b})`);
+          } else {
+            resolve(getTeamColor(teamName, true));
+          }
+        };
+        
+        img.onerror = () => {
+          resolve(getTeamColor(teamName, true));
+        };
+        
+        img.src = logoUrl;
+      } catch (error) {
+        resolve(getTeamColor(teamName, true));
+      }
+    });
+  };
+
+  // Extract team colors for dynamic background
+  useEffect(() => {
+    if (displayMatch?.teams) {
+      const extractColorsAndSetBackground = async () => {
+        try {
+          // Get logo URLs
+          const homeLogoUrl = displayMatch.teams.home.id 
+            ? `/api/team-logo/square/${displayMatch.teams.home.id}?size=64`
+            : displayMatch.teams.home.logo;
+          
+          const awayLogoUrl = displayMatch.teams.away.id 
+            ? `/api/team-logo/square/${displayMatch.teams.away.id}?size=64`
+            : displayMatch.teams.away.logo;
+          
+          // Extract colors from logos
+          const [homeColor, awayColor] = await Promise.all([
+            extractColorFromLogo(homeLogoUrl, displayMatch.teams.home.name),
+            extractColorFromLogo(awayLogoUrl, displayMatch.teams.away.name)
+          ]);
+          
+          // Create a subtle gradient similar to 365scores style
+          const gradient = `linear-gradient(135deg, ${homeColor}12 0%, rgba(255, 255, 255, 0.96) 25%, rgba(255, 255, 255, 0.98) 50%, rgba(255, 255, 255, 0.96) 75%, ${awayColor}12 100%)`;
+          
+          setDynamicBackground(gradient);
+        } catch (error) {
+          console.warn("Error extracting team colors for background:", error);
+          // Fallback to name-based colors
+          const homeTeamColor = getTeamColor(displayMatch.teams.home.name, true);
+          const awayTeamColor = getTeamColor(displayMatch.teams.away.name, false);
+          const gradient = `linear-gradient(135deg, ${homeTeamColor}15 0%, rgba(255, 255, 255, 0.95) 30%, rgba(255, 255, 255, 0.95) 70%, ${awayTeamColor}15 100%)`;
+          setDynamicBackground(gradient);
+        }
+      };
+      
+      extractColorsAndSetBackground();
+    }
+  }, [displayMatch?.teams?.home?.name, displayMatch?.teams?.away?.name, displayMatch?.teams?.home?.id, displayMatch?.teams?.away?.id]);
 
   const handleTabChange = (tab: string) => {
     if (onTabChange) {
@@ -431,7 +551,13 @@ const MyMatchdetailsScoreboard = ({
     <>
       <style dangerouslySetInnerHTML={{ __html: pulseStyles }} />
       <Card
-        className={`w-full ${className} p-0 bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50 relative transition-all duration-200 `}
+        className={`w-full ${className} p-0 relative transition-all duration-500 `}
+        style={{
+          background: dynamicBackground || 'linear-gradient(135deg, rgba(248, 250, 252, 0.95) 0%, rgba(255, 255, 255, 0.98) 50%, rgba(248, 250, 252, 0.95) 100%)',
+          backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+        }}
       >
       {onClose && (
         <button
