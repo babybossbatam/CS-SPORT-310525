@@ -431,7 +431,12 @@ const LazyImage: React.FC<LazyImageProps> = ({
         outline: 'none',
         display: hasError && imageSrc !== "/assets/fallback-logo.svg" ? 'none' : 'block',
         opacity: isLoading ? 0.7 : 1,
-        transition: 'opacity 0.2s ease-in-out'
+        transition: 'opacity 0.2s ease-in-out',
+        // Apply size from props if no explicit width/height in style
+        ...(style?.width || style?.height ? {} : {
+          width: style?.width || style?.height || '32px',
+          height: style?.height || style?.width || '32px'
+        })
       }}
       loading={shouldPreload ? 'eager' : 'lazy'}
       decoding="async"
