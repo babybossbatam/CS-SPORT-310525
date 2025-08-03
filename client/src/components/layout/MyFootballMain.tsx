@@ -236,7 +236,7 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
 
           {/* Right column (7 columns) - Hidden on mobile when no selection */}
           <div className={`
-            ${isMobile ? (selectedFixture ? 'w-full' : 'hidden') : 'lg:col-span-7'}
+            ${isMobile ? (selectedFixture ? 'w-full' : 'hidden' ) : 'lg:col-span-7'}
             ${isMobile ? 'space-y-2' : 'space-y-4'}
           `}>
             {selectedFixture ? (

@@ -404,7 +404,7 @@ const Football = () => {
       <SportsCategoryTabs />
       <TournamentHeader 
         title="Football - Major Leagues" 
-        icon={<Trophy className="h-4 w-4 text-neutral-600" style={{  marginBottom: "-20px" }} />} 
+        icon={<Trophy className="h-4 w-4 text-neutral-600" />} 
       />
      
       <MyFootballMain fixtures={fixtures} />
