@@ -29,7 +29,7 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
   });
 
   return (
-    <div className="overflow-y-auto max-h-screen">
+    <div className="overflow-y-auto min-h-screen">
       <ScoreDetailsCard
         currentFixture={selectedFixture}
         onClose={onClose}
