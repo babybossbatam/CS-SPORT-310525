@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
           {/* Left Section - Company Description */}
           <div className="lg:col-span-2">
             <div className="flex items-center mb-4">
-              <img src="/cs-sport-logo.png" alt="CS Sport" className="h-8 w-auto mr-3" />
+              <img src="/CSSPORT_1_updated.png" alt="CS Sport" className="h-8 w-auto mr-3" />
               <span className="text-xl font-bold">CS Sport</span>
             </div>
             <p className="text-gray-300 text-sm leading-relaxed mb-6 max-w-2xl">
