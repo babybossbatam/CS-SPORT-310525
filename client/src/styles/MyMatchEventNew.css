@@ -129,6 +129,7 @@
   align-items: center;
   gap: 8px;
   justify-content: flex-end;
+  flex-direction: row;
 }
 
 .penalty-away-icon {
@@ -934,7 +935,7 @@
   .penalty-away-player-info {
     justify-content: flex-end;
     text-align: right;
-    flex-direction: row-reverse;
+    flex-direction: row;
   }
 
   .penalty-away-icon {
