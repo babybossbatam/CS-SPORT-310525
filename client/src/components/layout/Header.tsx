@@ -170,7 +170,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
               </DropdownMenuLabel>
 
               <DropdownMenuItem className={cn(
-                "flex items-center justify-between hover:bg-gray-100 cursor-pointer",
+                "flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                 isMobile ? "min-h-[48px] px-4 py-3" : "px-3 py-2"
               )}>
                 <span className={cn(isMobile ? "text-base" : "text-sm")}>Enable all Notifications</span>
@@ -181,7 +181,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                 />
               </DropdownMenuItem>
 
-              <DropdownMenuSeparator className="bg-gray-200" />
+              <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
 
               <DropdownMenuLabel className={cn(
                 "text-gray-600 font-medium",
@@ -191,7 +191,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
               </DropdownMenuLabel>
 
               <DropdownMenuItem className={cn(
-                "flex items-center justify-between hover:bg-gray-100 cursor-pointer",
+                "flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                 isMobile ? "min-h-[48px] px-4 py-3" : "px-3 py-2"
               )}>
                 <span className={cn(isMobile ? "text-base" : "text-sm")}>Set Dark Theme</span>
@@ -202,7 +202,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                 />
               </DropdownMenuItem>
 
-              <DropdownMenuSeparator className="bg-gray-200" />
+              <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
 
               <DropdownMenuLabel className={cn(
                 "text-gray-600 font-medium",
@@ -214,7 +214,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <DropdownMenuItem className={cn(
-                    "flex items-center justify-between hover:bg-gray-100 cursor-pointer",
+                    "flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                     isMobile ? "min-h-[48px] px-4 py-3" : "px-3 py-2"
                   )}>
                     <div className="flex items-center">
@@ -234,7 +234,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                 >
                   <DropdownMenuItem
                     className={cn(
-                      "hover:bg-gray-100 cursor-pointer",
+                      "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm"
                     )}
                     onClick={() => setSelectedLanguage("English (US)")}
@@ -244,7 +244,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className={cn(
-                      "hover:bg-gray-100 cursor-pointer",
+                      "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm"
                     )}
                     onClick={() => setSelectedLanguage("English (UK)")}
@@ -254,7 +254,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className={cn(
-                      "hover:bg-gray-100 cursor-pointer",
+                      "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm"
                     )}
                     onClick={() => setSelectedLanguage("Español")}
@@ -264,7 +264,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className={cn(
-                      "hover:bg-gray-100 cursor-pointer",
+                      "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm"
                     )}
                     onClick={() => setSelectedLanguage("Français")}
@@ -274,7 +274,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className={cn(
-                      "hover:bg-gray-100 cursor-pointer",
+                      "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm"
                     )}
                     onClick={() => setSelectedLanguage("中文 (简体)")}
@@ -284,7 +284,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className={cn(
-                      "hover:bg-gray-100 cursor-pointer",
+                      "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm"
                     )}
                     onClick={() => setSelectedLanguage("中文 (繁體)")}
@@ -295,11 +295,11 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <DropdownMenuSeparator className="bg-gray-200" />
+              <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
 
               <DropdownMenuItem
                 className={cn(
-                  "hover:bg-gray-100 cursor-pointer text-gray-700",
+                  "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-700",
                   isMobile ? "min-h-[48px] px-4 py-3 text-base" : "px-3 py-2 text-sm"
                 )}
                 onClick={() => setPrivacyModalOpen(true)}
@@ -354,7 +354,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       ? username.charAt(0).toUpperCase() + username.slice(1)
                       : ""}
                   </span>
-                  <span>, </span>
+                  <span>, </span> 
                   <span
                     className={`cursor-pointer transition-colors duration-200 ${
                       activeHover === "logout"
