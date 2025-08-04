@@ -35,7 +35,9 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
       isMobile ? "mobile-layout-scroll" : "overflow-y-auto mobile-scroll",
       isMobile 
         ? "w-full px-2 pb-20" // Mobile: proper scroll container
-        : "min-h-screen" // Desktop: original behavior
+        : "min-h-screen", // Desktop: original behavior
+      // Dark mode support
+      "bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
     )}>
       <div className={cn(
         isMobile ? "mb-4" : "mb-6"
@@ -51,11 +53,15 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
       {/* Tab Content */}
       <div className={cn(
         "space-y-4",
-        isMobile ? "mobile-tab-content px-1" : ""
+        isMobile ? "mobile-tab-content px-1" : "",
+        // Dark mode enhancements for tab content
+        "dark:border-gray-700"
       )}>
         {activeTab === "match" && (
           <div className={cn(
-            isMobile ? "space-y-3" : "space-y-4"
+            isMobile ? "space-y-3" : "space-y-4",
+            // Dark mode card styling
+            "dark:bg-gray-800 dark:border-gray-700 rounded-lg p-2"
           )}>
             <MyMatchTabCard match={selectedFixture} onTabChange={setActiveTab} />
           </div>
@@ -63,7 +69,9 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
 
         {activeTab === "stats" && (
           <div className={cn(
-            isMobile ? "space-y-3" : "space-y-4"
+            isMobile ? "space-y-3" : "space-y-4",
+            // Dark mode card styling
+            "dark:bg-gray-800 dark:border-gray-700 rounded-lg p-2"
           )}>
             <MyStatsTabCard 
               match={selectedFixture} 
@@ -74,7 +82,9 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
 
         {activeTab === "lineups" && (
           <div className={cn(
-            isMobile ? "space-y-3" : "space-y-4"
+            isMobile ? "space-y-3" : "space-y-4",
+            // Dark mode card styling
+            "dark:bg-gray-800 dark:border-gray-700 rounded-lg p-2"
           )}>
             <MyLineupsTabsCard match={selectedFixture} />
           </div>
@@ -82,7 +92,9 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
 
         {activeTab === "trends" && (
           <div className={cn(
-            isMobile ? "space-y-3" : "space-y-4"
+            isMobile ? "space-y-3" : "space-y-4",
+            // Dark mode card styling
+            "dark:bg-gray-800 dark:border-gray-700 rounded-lg p-2"
           )}>
             <MyTrendsTabsCard match={selectedFixture} />
           </div>
@@ -90,7 +102,9 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
 
         {activeTab === "h2h" && (
           <div className={cn(
-            isMobile ? "space-y-3" : "space-y-4"
+            isMobile ? "space-y-3" : "space-y-4",
+            // Dark mode card styling
+            "dark:bg-gray-800 dark:border-gray-700 rounded-lg p-2"
           )}>
             <MyHeadtoheadTabsCard match={selectedFixture} />
           </div>
