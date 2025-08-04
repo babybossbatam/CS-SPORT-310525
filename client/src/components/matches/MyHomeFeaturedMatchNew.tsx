@@ -1704,7 +1704,7 @@ id: fixture.teams.away.id,
 
   return (
     <>
-      <Card className="px-0 pt-0 pb-2 relative shadow-md mb-4 overflow-hidden">
+      <Card className="px-0 pt-0 pb-2 relative shadow-md mb-4 overflow-hidden bg-white dark:bg-gray-800">
         <Badge
           variant="secondary"
           className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-10 pointer-events-none"
@@ -1718,7 +1718,7 @@ id: fixture.teams.away.id,
 
       <CardContent className="pt-0">
         {allMatches.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+          <div className="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400">
             <p className="text-lg font-medium mb-1">No featured matches</p>
             <p className="text-sm">Check back later for upcoming games</p>
           </div>
@@ -1802,7 +1802,7 @@ id: fixture.teams.away.id,
                       fallbackSrc="/assets/fallback.png"
                     />
                     <span 
-                      className="text-sm font-medium text-gray-700 text-center"
+                      className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center"
                       title={`League ID: ${currentMatch.league.id} | ${currentMatch.league.name} | ${currentMatch.league.country}`}
                     >
                       {currentMatch.league.name}
@@ -1819,7 +1819,7 @@ id: fixture.teams.away.id,
 
                   {/* Match day indicator */}
                   <div className="text-center mb-4 ">
-                    <div className="text-lg font-bold text-gray-800 ">
+                    <div className="text-lg font-bold text-gray-800 dark:text-gray-200 ">
                       {(() => {
                         const statusInfo = getStatusDisplay(currentMatch);
                         const matchStatus = currentMatch.fixture.status.short;
@@ -1860,7 +1860,7 @@ id: fixture.teams.away.id,
 
                           return (
                             <div className="space-y-0">
-                              <div className="text-gray-600 text-sm ">
+                              <div className="text-gray-600 dark:text-gray-400 text-sm ">
                                 {matchStatus === "FT"
                                   ? "Ended"
                                   : matchStatus === "AET"
@@ -1874,7 +1874,7 @@ id: fixture.teams.away.id,
                               </div>
                               {/* Show penalty scores if match ended in penalties */}
                               {matchStatus === "PEN" && currentMatch.score?.penalty && (
-                                <div className="text-sm text-gray-600 mt-1">
+                                <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                                   Penalties: {currentMatch.score.penalty.home} - {currentMatch.score.penalty.away}
                                 </div>
                               )}
@@ -1921,7 +1921,7 @@ id: fixture.teams.away.id,
 
                         return (
                           <div className="space-y-1">
-                            <div className="text-sm text-gray-600 invisible">
+                            <div className="text-sm text-gray-600 dark:text-gray-400 invisible">
                                {/* // Hidden status placeholder to maintain spacing */}
                               Ended
                             </div>
@@ -2024,7 +2024,7 @@ id: fixture.teams.away.id,
 
                         {/* Match date and venue - centered below VS */}
                         <div
-                          className=" absolute text-center text-xs text-black font-medium"
+                          className=" absolute text-center text-xs text-black dark:text-gray-300 font-medium"
                           style={{
                             fontSize: "0.875rem",
                             whiteSpace: "nowrap",
@@ -2146,7 +2146,7 @@ id: fixture.teams.away.id,
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex justify-around border-t border-gray-200 pt-4 mt-20">
+                  <div className="flex justify-around border-t border-gray-200 dark:border-gray-700 pt-4 mt-20">
                     <button
                       className="flex flex-col items-center cursor-pointer"
                       onClick={(e) => {
@@ -2165,7 +2165,7 @@ id: fixture.teams.away.id,
                           fill="currentColor"
                         />
                       </svg>
-                      <span className="text-xs text-gray-600 mt-1">
+                      <span className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                         Match Page
                       </span>
                     </button>
@@ -2200,7 +2200,7 @@ id: fixture.teams.away.id,
                           fill="none"
                         />
                       </svg>
-                      <span className="text-xs text-gray-600 mt-1">
+                      <span className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                         Lineups
                       </span>
                     </button>
@@ -2221,7 +2221,7 @@ id: fixture.teams.away.id,
                           fill="currentColor"
                         />
                       </svg>
-                      <span className="text-xs text-gray-600 mt-1">Stats</span>
+                      <span className="text-xs text-gray-600 dark:text-gray-400 mt-1">Stats</span>
                     </button>
                     <button
                       className="flex flex-col items-center cursor-pointer"
@@ -2240,7 +2240,7 @@ id: fixture.teams.away.id,
                           fill="currentColor"
                         />
                       </svg>
-                      <span className="text-xs text-gray-600 mt-1">Groups</span>
+                      <span className="text-xs text-gray-600 dark:text-gray-400 mt-1">Groups</span>
                     </button>
                   </div>
 
