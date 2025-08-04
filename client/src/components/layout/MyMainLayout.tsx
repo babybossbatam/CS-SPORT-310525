@@ -160,15 +160,8 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
                 onClose={handleBackToMain}
               />
             ) : (
-              !isMobile && <MyRightContent />
+              <MyRightContent />
             )}
-          </div>
-        )}
-
-        {/* Desktop right content when no match is selected */}
-        {!isMobile && !selectedFixture && (
-          <div className="lg:col-span-7 space-y-4">
-            <MyRightContent />
           </div>
         )}
       </div>
