@@ -5,7 +5,7 @@
   background-color: white;
   transition: all 0.2s ease;
   cursor: pointer;
-  border-bottom: 1px solid rgb(209 213 219);
+  border-bottom: 1px solid #e5e7eb !important;
   position: relative;
   display: flex;
   overflow: hidden;
@@ -15,9 +15,7 @@
   background-color: rgb(243 244 246);
 }
 
-/* .match-card-container:last-child {
-  border-bottom: none;
-} */
+/* Ensure all match cards have borders */
 
 /* Star button slide-in effect */
 .match-star-button {
