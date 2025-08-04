@@ -86,11 +86,13 @@ const categorizeError = (error: any): ErrorCategory => {
 
   // Replit development environment errors - suppress but log
   if (errorStr.includes('plugin:runtime-error-plugin') || 
+      errorStr.includes('[plugin:runtime-error-plugin]') ||
       errorStr.includes('unknown runtime error') ||
       errorStr.includes('sendError') ||
       errorStr.includes('riker.replit.dev') ||
       errorStr.includes('signal is aborted') ||
       errorStr.includes('runtime-error-plugin') ||
+      errorStr.includes('482be3e5-72e0-4aaf-ab33-69660b136cf5') ||
       (error && typeof error === 'object' && error.toString && error.toString().includes('runtime-error-plugin'))) {
     return {
       name: 'replit-dev-environment',
@@ -282,9 +284,11 @@ export const setupGlobalErrorHandlers = () => {
          error.includes('dynamically imported') ||
          error.includes('MaxListenersExceeded') ||
          error.includes('runtime-error-plugin') ||
+         error.includes('[plugin:runtime-error-plugin]') ||
+         error.includes('riker.replit.dev') ||
+         error.includes('482be3e5-72e0-4aaf-ab33-69660b136cf5') ||
          error.includes('signal is aborted'))) {
-      console.log('🌐 Network/import/abort error string detected, attempting recovery...');
-      handleNetworkRecovery();
+      console.log('🌐 Network/import/abort/replit error string detected, suppressing...');
       event.preventDefault();
       return;
     }
