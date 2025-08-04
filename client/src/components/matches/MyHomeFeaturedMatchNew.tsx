@@ -1802,7 +1802,7 @@ id: fixture.teams.away.id,
                       fallbackSrc="/assets/fallback.png"
                     />
                     <span 
-                      className="text-sm font-medium text-gray-700 dark:text-gray-100 text-center"
+                      className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center"
                       title={`League ID: ${currentMatch.league.id} | ${currentMatch.league.name} | ${currentMatch.league.country}`}
                     >
                       {currentMatch.league.name}
@@ -1860,7 +1860,7 @@ id: fixture.teams.away.id,
 
                           return (
                             <div className="space-y-0">
-                              <div className="text-gray-600 dark:text-gray-200 text-sm ">
+                              <div className="text-gray-600 dark:text-gray-400 text-sm ">
                                 {matchStatus === "FT"
                                   ? "Ended"
                                   : matchStatus === "AET"
@@ -1874,7 +1874,7 @@ id: fixture.teams.away.id,
                               </div>
                               {/* Show penalty scores if match ended in penalties */}
                               {matchStatus === "PEN" && currentMatch.score?.penalty && (
-                                <div className="text-sm text-gray-600 dark:text-gray-200 mt-1">
+                                <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                                   Penalties: {currentMatch.score.penalty.home} - {currentMatch.score.penalty.away}
                                 </div>
                               )}
@@ -1921,7 +1921,7 @@ id: fixture.teams.away.id,
 
                         return (
                           <div className="space-y-1">
-                            <div className="text-sm text-gray-600 dark:text-gray-200 invisible">
+                            <div className="text-sm text-gray-600 dark:text-gray-400 invisible">
                                {/* // Hidden status placeholder to maintain spacing */}
                               Ended
                             </div>
@@ -2024,7 +2024,7 @@ id: fixture.teams.away.id,
 
                         {/* Match date and venue - centered below VS */}
                         <div
-                          className=" absolute text-center text-xs text-black dark:text-white font-medium"
+                          className=" absolute text-center text-xs text-black dark:text-gray-300 font-medium"
                           style={{
                             fontSize: "0.875rem",
                             whiteSpace: "nowrap",
@@ -2039,7 +2039,7 @@ id: fixture.teams.away.id,
                             fontFamily: "'Inter', system-ui, sans-serif",
                            
                           }}
-                        ></div>
+                        >
                           {(() => {
                             try {
                               const matchDate = new Date(
@@ -2165,7 +2165,7 @@ id: fixture.teams.away.id,
                           fill="currentColor"
                         />
                       </svg>
-                      <span className="text-xs text-gray-600 dark:text-gray-200 mt-1">
+                      <span className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                         Match Page
                       </span>
                     </button>
@@ -2200,7 +2200,7 @@ id: fixture.teams.away.id,
                           fill="none"
                         />
                       </svg>
-                      <span className="text-xs text-gray-600 dark:text-gray-200 mt-1">
+                      <span className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                         Lineups
                       </span>
                     </button>
@@ -2221,7 +2221,7 @@ id: fixture.teams.away.id,
                           fill="currentColor"
                         />
                       </svg>
-                      <span className="text-xs text-gray-600 dark:text-gray-200 mt-1">Stats</span>
+                      <span className="text-xs text-gray-600 dark:text-gray-400 mt-1">Stats</span>
                     </button>
                     <button
                       className="flex flex-col items-center cursor-pointer"
@@ -2240,7 +2240,7 @@ id: fixture.teams.away.id,
                           fill="currentColor"
                         />
                       </svg>
-                      <span className="text-xs text-gray-600 dark:text-gray-200 mt-1">Groups</span>
+                      <span className="text-xs text-gray-600 dark:text-gray-400 mt-1">Groups</span>
                     </button>
                   </div>
 
