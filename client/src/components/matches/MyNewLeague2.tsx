@@ -486,11 +486,13 @@ const MyNewLeague2 = ({
       `🔍 [MyNewLeague2] Processing fixtures for date ${selectedDate}:`,
       {
         allFixturesLength: allFixtures?.length || 0,
-        sampleFixtures: allFixtures?.slice(0, 3)?.map((f) => ({
+        selectedDate,
+        sampleFixtures: allFixtures?.slice(0, 5)?.map((f) => ({
           id: f?.fixture?.id,
           league: f?.league?.name,
           teams: `${f?.teams?.home?.name} vs ${f?.teams?.away?.name}`,
-          date: f?.fixture?.date,
+          fixtureDate: f?.fixture?.date,
+          formattedDate: f?.fixture?.date ? format(new Date(f.fixture.date), "yyyy-MM-dd") : "invalid",
         })),
       },
     );
@@ -557,6 +559,7 @@ const MyNewLeague2 = ({
 
       // Only include fixtures that match the selected date
       if (fixtureDateString !== selectedDate) {
+        console.log(`🔄 [MyNewLeague2] Date mismatch - fixture: ${fixtureDateString}, selected: ${selectedDate}, skipping fixture ${fixture.fixture.id}`);
         return;
       }
 
@@ -657,6 +660,14 @@ const MyNewLeague2 = ({
       0,
     );
 
+    // Analyze fixture dates to understand the mismatch
+    const fixtureDateAnalysis = allFixtures?.slice(0, 10)?.map((f) => ({
+      id: f?.fixture?.id,
+      originalDate: f?.fixture?.date,
+      formattedDate: f?.fixture?.date ? format(new Date(f.fixture.date), "yyyy-MM-dd") : "invalid",
+      matchesSelected: f?.fixture?.date ? format(new Date(f.fixture.date), "yyyy-MM-dd") === selectedDate : false,
+    }));
+
     console.log(
       `✅ [MyNewLeague2] Date filtered fixtures for ${selectedDate}:`,
       {
@@ -664,6 +675,8 @@ const MyNewLeague2 = ({
         filteredFixtures: totalValidFixtures,
         leagueCount: groupedKeys.length,
         leagueIds: groupedKeys,
+        selectedDate,
+        fixtureDateSamples: fixtureDateAnalysis,
         leagueDetails: Object.entries(grouped).map(([id, data]) => ({
           id: Number(id),
           name: data.league.name,
