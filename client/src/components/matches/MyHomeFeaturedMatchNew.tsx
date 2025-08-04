@@ -1947,7 +1947,7 @@ id: fixture.teams.away.id,
                         {/* Home team colored bar and logo */}
 
                         <div
-                          className="h-full w-[calc(50%+20px)] ml-[17px] transition-all duration-500 ease-in-out opacity-100 relative "
+                          className="h-full w-[calc(50%+20px)] ml-[25px] transition-all duration-500 ease-in-out opacity-100 relative "
                           style={{
                             background: getEnhancedTeamColor(
                               currentMatch?.teams?.home?.name || "Home Team",
@@ -1964,7 +1964,7 @@ id: fixture.teams.away.id,
                               className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out"
                               style={{
                                 cursor: "pointer",
-                                top: "calc(50% - 30px)",
+                                top: "calc(50% - 35px)",
                                 left: "-35px",
                                 filter: "contrast(115%) brightness(105%)",
                               }}
@@ -1986,7 +1986,7 @@ id: fixture.teams.away.id,
                                 alt={
                                   currentMatch.teams.home.name || "Home Team"
                                 }
-                                size="60px"
+                                size="70px"
                                 className="w-full h-full object-contain"
                                 leagueContext={{
                                   name: currentMatch.league.name,
@@ -2001,7 +2001,7 @@ id: fixture.teams.away.id,
                           className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
                           style={{
                             top: "calc(50% - 15px)",
-                            left: "60px",
+                            left: "85px",
                             fontSize: "1.24rem",
                             fontWeight: "normal",
                           }}
@@ -2083,7 +2083,7 @@ id: fixture.teams.away.id,
 
                         {/* Away team colored bar and logo */}
                         <div
-                          className="h-full w-[calc(50%+16px)] mr-[35px] transition-all duration-500 ease-in-out opacity-100"
+                          className="h-full w-[calc(50%+16px)] mr-[45px] transition-all duration-500 ease-in-out opacity-100"
                           style={{
                             background: getEnhancedTeamColor(
                               currentMatch?.teams?.away?.name || "Away Team",
@@ -2100,7 +2100,7 @@ id: fixture.teams.away.id,
                           className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
                           style={{
                             top: "calc(50% - 15px)",
-                            right: "75px",
+                            right: "85px",
                             fontSize: "1.24rem",
                             fontWeight: "normal",
                           }}
@@ -2112,8 +2112,8 @@ id: fixture.teams.away.id,
                           className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out"
                           style={{
                             cursor: "pointer",
-                            top: "calc(50% - 35px)",
-                            right: "50px",
+                            top: "calc(50% - 38px)",
+                            right: "55px",
                             transform: "translateX(50%)",
                             filter: "contrast(115%) brightness(105%)",
                           }}
@@ -2133,7 +2133,7 @@ id: fixture.teams.away.id,
                                   `/assets/fallback-logo.svg`
                             }
                             alt={currentMatch?.teams?.away?.name || "Away Team"}
-                            size="70px"
+                            size="75px"
                             className="w-full hull object-contain"
                             leagueContext={{
                               name: currentMatch.league.name,
