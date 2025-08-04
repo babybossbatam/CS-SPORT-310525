@@ -1799,7 +1799,7 @@ id: fixture.teams.away.id,
                       }
                       alt={currentMatch.league.name}
                       className="w-6 h-6"
-                      fallbackSrc="/assets/fallback-logo.svg"
+                      fallbackSrc="/assets/fallback.png"
                     />
                     <span 
                       className="text-sm font-medium text-gray-700 text-center"
@@ -2256,7 +2256,7 @@ id: fixture.teams.away.id,
                           }}
                           className={`w-1 h-1 rounded-sm transition-colors ${
                             index === currentMatchIndex
-                              ? "bg-blue-500"
+                              ? "bg-gray-500"
                               : "bg-gray-300"
                           }`}
                         />
