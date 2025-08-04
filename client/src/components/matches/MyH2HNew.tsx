@@ -102,17 +102,25 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
           });
 
           // Handle specific error cases more gracefully
-          if (response.status === 400 || 
-              (errorData.message && errorData.message.includes('Invalid fixture ID')) ||
-              (errorData.error && errorData.error.includes('Invalid fixture ID'))) {
-            // Set empty data instead of throwing error for invalid fixture IDs
-            console.log(`ℹ️ [H2H] Invalid fixture ID or no data available for teams ${actualHomeTeamId} vs ${actualAwayTeamId}`);
+          if (response.status === 400 || response.status === 404 ||
+              (errorData.message && (
+                errorData.message.includes('Invalid fixture ID') ||
+                errorData.message.includes('Invalid team combination') ||
+                errorData.message.includes('No head-to-head data')
+              )) ||
+              (errorData.error && (
+                errorData.error.includes('Invalid fixture ID') ||
+                errorData.error.includes('Invalid team combination') ||
+                errorData.error.includes('No head-to-head data')
+              ))) {
+            // Set empty data instead of throwing error for invalid fixture IDs or team combinations
+            console.log(`ℹ️ [H2H] No head-to-head data available for teams ${actualHomeTeamId} vs ${actualAwayTeamId}: ${errorData.message || errorData.error}`);
             setH2hData([]);
             setError(null); // Don't show error, just show "no data"
             return;
           }
           
-          throw new Error(errorData.error || `HTTP ${response.status}`);
+          throw new Error(errorData.error || errorData.message || `HTTP ${response.status}`);
         }
 
         const data = await response.json();

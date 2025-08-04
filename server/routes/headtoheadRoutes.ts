@@ -52,9 +52,24 @@ router.get('/headtohead', async (req, res) => {
     const team2Num = Number(team2);
     if (team1Num < 1 || team1Num > 50000 || team2Num < 1 || team2Num > 50000) {
       console.log(`⚠️ [H2H API] Suspicious team IDs: ${team1} vs ${team2}`);
-      return res.status(400).json({ 
-        error: 'Invalid team IDs: IDs must be between 1 and 50000',
-        received: { team1: team1Num, team2: team2Num }
+      return res.status(200).json({ 
+        response: [],
+        message: 'Invalid team IDs provided',
+        teams: { team1: team1Num, team2: team2Num },
+        suggestion: 'Team IDs must be between 1 and 50000',
+        reason: 'Invalid team ID range'
+      });
+    }
+    
+    // Additional check for same team IDs
+    if (team1Num === team2Num) {
+      console.log(`⚠️ [H2H API] Same team IDs provided: ${team1Num}`);
+      return res.status(200).json({ 
+        response: [],
+        message: 'Cannot get head-to-head data for the same team',
+        teams: { team1: team1Num, team2: team2Num },
+        suggestion: 'Provide two different team IDs',
+        reason: 'Identical team IDs'
       });
     }
     
@@ -101,12 +116,13 @@ router.get('/headtohead', async (req, res) => {
         console.error(`❌ [H2H API] JSON Error:`, response.status, errorData);
         
         // Handle specific API error cases
-        if (response.status === 400) {
+        if (response.status === 400 || response.status === 404) {
           return res.status(200).json({ 
             response: [],
             message: 'No head-to-head data available between these teams',
             teams: { team1: team1, team2: team2 },
-            suggestion: 'These teams may not have played against each other or do not exist in the database'
+            suggestion: 'These teams may not have played against each other or do not exist in the database',
+            reason: 'Invalid team combination or fixture ID'
           });
         }
       } catch {
