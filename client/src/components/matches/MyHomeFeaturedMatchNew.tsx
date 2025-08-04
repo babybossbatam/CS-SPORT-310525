@@ -1704,7 +1704,7 @@ id: fixture.teams.away.id,
 
   return (
     <>
-      <Card className="px-0 pt-0 pb-2 relative shadow-md mb-4 overflow-hidden">
+      <Card className="px-0 pt-0 pb-2 relative shadow-md mb-4 overflow-hidden bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
         <Badge
           variant="secondary"
           className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-10 pointer-events-none"
@@ -1729,14 +1729,14 @@ id: fixture.teams.away.id,
               <>
                 <button
                   onClick={handlePrevious}
-                  className="absolute -left-8 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 border-2 border-gray-400 rounded-full p-3 "
+                  className="absolute -left-8 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 border-2 border-gray-400 dark:border-gray-500 rounded-full p-3 "
                 >
                   <ChevronLeft className="h-4 w-3" />
                 </button>
 
                 <button
                   onClick={handleNext}
-                  className="absolute -right-8 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 border-2 border-gray-400 rounded-full p-3 "
+                  className="absolute -right-8 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 border-2 border-gray-400 dark:border-gray-500 rounded-full p-3 "
                 >
                   <ChevronRight className="h-4 w-3" />
                 </button>
@@ -1802,7 +1802,7 @@ id: fixture.teams.away.id,
                       fallbackSrc="/assets/fallback.png"
                     />
                     <span 
-                      className="text-sm font-medium text-gray-700 text-center"
+                      className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center"
                       title={`League ID: ${currentMatch.league.id} | ${currentMatch.league.name} | ${currentMatch.league.country}`}
                     >
                       {currentMatch.league.name}
@@ -1819,7 +1819,7 @@ id: fixture.teams.away.id,
 
                   {/* Match day indicator */}
                   <div className="text-center mb-4 ">
-                    <div className="text-lg font-bold text-gray-800 ">
+                    <div className="text-lg font-bold text-gray-800 dark:text-gray-200">
                       {(() => {
                         const statusInfo = getStatusDisplay(currentMatch);
                         const matchStatus = currentMatch.fixture.status.short;
@@ -2024,7 +2024,7 @@ id: fixture.teams.away.id,
 
                         {/* Match date and venue - centered below VS */}
                         <div
-                          className=" absolute text-center text-xs text-black dark:text-white-500 font-medium"
+                          className=" absolute text-center text-xs text-black dark:text-white-300 font-medium"
                           style={{
                             fontSize: "0.875rem",
                             whiteSpace: "nowrap",
@@ -2146,7 +2146,7 @@ id: fixture.teams.away.id,
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex justify-around border-t border-gray-200 pt-4 mt-20">
+                  <div className="flex justify-around border-t border-gray-200 dark:border-gray-600 pt-4 mt-20">
                     <button
                       className="flex flex-col items-center cursor-pointer"
                       onClick={(e) => {

@@ -54,6 +54,18 @@ export default {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+        white: {
+          50: '#ffffff',
+          100: '#fefefe',
+          200: '#fafafa',
+          300: '#f5f5f5',
+          400: '#f0f0f0',
+          500: '#e5e5e5',
+          600: '#d4d4d4',
+          700: '#a3a3a3',
+          800: '#737373',
+          900: '#525252',
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
