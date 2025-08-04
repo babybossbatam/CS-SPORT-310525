@@ -196,7 +196,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
               )}>
                 <span className={cn(isMobile ? "text-base" : "text-sm")}>Set Dark Theme</span>
                 <Switch
-                  checked={false}
+                
                   onCheckedChange={() => dispatch({ type: 'ui/toggleDarkMode' })}
                   className="data-[state=checked]:bg-blue-500"
                 />
