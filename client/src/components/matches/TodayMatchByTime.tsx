@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
+import MyCircularFlag from "../common/MyCircularFlag";
 import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
@@ -79,6 +80,8 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
+  const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
+  const [hoveredMatchId, setHoveredMatchId] = useState<number | null>(null);
 
   // League IDs to fetch data from
   const leagueIds = [
@@ -164,7 +167,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       const bUpcoming = ["NS", "TBD"].includes(bStatus);
 
       const aEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(aStatus);
-      const bEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(bStatus);
+      const bEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(aStatus);
 
       // Priority 1: Live matches first
       if (aLive && !bLive) return -1;
@@ -220,6 +223,9 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       league: fixture.league?.name,
       status: fixture.fixture?.status?.short,
     });
+
+    // Set this match as selected
+    setSelectedMatchId(fixture.fixture?.id);
 
     if (onMatchCardClick) {
       onMatchCardClick(fixture);
@@ -314,16 +320,23 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                 const matchId = fixture.fixture.id;
                 const isStarred = starredMatches.has(matchId);
                 const leagueContext = {
-                  name: fixture.league.name,
+                  leagueId: fixture.league.id,
+                  leagueName: fixture.league.name,
                   country: fixture.league.country,
                 };
 
                 return (
                   <div key={matchId} className="country-matches-container">
                     <div
-                      className="match-card-container group"
+                      className={`match-card-container group border-b border-gray-200 ${
+                        selectedMatchId === matchId ? "selected-match" : ""
+                      } ${
+                        hoveredMatchId === matchId ? "hovered-match" : ""
+                      }`}
                       data-fixture-id={matchId}
                       onClick={() => handleMatchClick(fixture)}
+                      onMouseEnter={() => setHoveredMatchId(matchId)}
+                      onMouseLeave={() => setHoveredMatchId(null)}
                       style={{ cursor: "pointer" }}
                     >
                       {/* Star Button */}
@@ -334,13 +347,23 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                         }}
                         className="match-star-button"
                         title="Add to favorites"
+                        onMouseEnter={(e) => {
+                          e.currentTarget
+                            .closest(".match-card-container")
+                            ?.classList.add("disable-hover");
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget
+                            .closest(".match-card-container")
+                            ?.classList.remove("disable-hover");
+                        }}
                       >
                         <Star
                           className={`match-star-icon ${isStarred ? "starred" : ""}`}
                         />
                       </button>
 
-                      {/* Match content container */}
+                      {/* Match content container - Using MyNewLeague2's 3-grid system */}
                       <div className="match-three-grid-container">
                         {/* Top Grid: Match Status */}
                         <div
@@ -350,93 +373,122 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                             display: "flex",
                             justifyContent: "center",
                             alignItems: "center",
-                            padding: "0 0.5rem",
                           }}
                         >
-                          <div>
-                            {(() => {
-                              const status = fixture.fixture.status.short;
-                              const elapsed = fixture.fixture.status.elapsed;
+                          {(() => {
+                            const status = fixture.fixture.status.short;
+                            const elapsed = fixture.fixture.status.elapsed;
 
-                              // Live matches
-                              if (
-                                ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
-                              ) {
-                                let displayText = "";
-                                let statusClass = "status-live-elapsed";
+                            // Check if match finished more than 4 hours ago
+                            const matchDateTime = new Date(fixture.fixture.date);
+                            const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
+                            const isStaleFinishedMatch =
+                              (["FT", "AET", "PEN"].includes(status) && hoursOld > 4) ||
+                              (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursOld > 4) ||
+                              (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
 
-                                if (status === "HT") {
-                                  displayText = "Halftime";
-                                  statusClass = "status-halftime";
-                                } else if (status === "P") {
-                                  displayText = "Penalties";
-                                } else if (status === "ET") {
-                                  displayText = elapsed ? `${elapsed}'` : "Extra Time";
+                            // Show live status only for truly live matches (not finished and not stale)
+                            if (
+                              !["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) &&
+                              !isStaleFinishedMatch &&
+                              hoursOld <= 4 &&
+                              ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
+                            ) {
+                              let displayText = "";
+                              let statusClass = "status-live-elapsed";
+
+                              if (status === "HT") {
+                                displayText = "Halftime";
+                                statusClass = "status-halftime";
+                              } else if (status === "P") {
+                                displayText = "Penalties";
+                              } else if (status === "ET") {
+                                if (elapsed) {
+                                  const extraTime = elapsed - 90;
+                                  displayText = extraTime > 0 ? `90' + ${extraTime}'` : `${elapsed}'`;
                                 } else {
-                                  displayText = elapsed ? `${elapsed}'` : "LIVE";
+                                  displayText = "Extra Time";
                                 }
-
-                                return (
-                                  <div className={`match-status-label ${statusClass}`}>
-                                    {displayText}
-                                  </div>
-                                );
+                              } else if (status === "BT") {
+                                displayText = "Break Time";
+                              } else if (status === "INT") {
+                                displayText = "Interrupted";
+                              } else {
+                                displayText = elapsed ? `${elapsed}'` : "LIVE";
                               }
 
-                              // Ended matches
-                              if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
-                                return (
-                                  <div className="match-status-label status-ended">
-                                    {status === "FT" ? "Ended" : status}
-                                  </div>
-                                );
-                              }
+                              return (
+                                <div className={`match-status-label ${statusClass}`}>
+                                  {displayText}
+                                </div>
+                              );
+                            }
 
-                              // Postponed/Cancelled matches
-                              if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
+                            // Postponed/Cancelled matches
+                            if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
+                              return (
+                                <div className="match-status-label status-postponed">
+                                  {status === "PST" ? "Postponed" :
+                                   status === "CANC" ? "Cancelled" :
+                                   status === "ABD" ? "Abandoned" :
+                                   status === "SUSP" ? "Suspended" :
+                                   status === "AWD" ? "Awarded" :
+                                   status === "WO" ? "Walkover" : status}
+                                </div>
+                              );
+                            }
+
+                            // Check for overdue matches that should be marked as postponed
+                            if (status === "NS" || status === "TBD") {
+                              const matchTime = new Date(fixture.fixture.date);
+                              const now = new Date();
+                              const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+
+                              // If match is more than 2 hours overdue, show postponed status
+                              if (hoursAgo > 2) {
                                 return (
                                   <div className="match-status-label status-postponed">
-                                    {status === "PST" ? "Postponed" : 
-                                     status === "CANC" ? "Cancelled" : 
-                                     status === "ABD" ? "Abandoned" : 
-                                     status === "SUSP" ? "Suspended" : 
-                                     status === "AWD" ? "Awarded" : 
-                                     status === "WO" ? "Walkover" : status}
+                                    Postponed
                                   </div>
                                 );
                               }
 
-                              // Check for overdue matches that should be marked as postponed
-                              if (status === "NS" || status === "TBD") {
-                                const matchTime = new Date(fixture.fixture.date);
-                                const now = new Date();
-                                const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
-
-                                // If match is more than 2 hours overdue, show postponed status
-                                if (hoursAgo > 2) {
-                                  return (
-                                    <div className="match-status-label status-postponed">
-                                      Postponed
-                                    </div>
-                                  );
-                                }
-
-                                // Show TBD status for matches with undefined time
-                                if (status === "TBD") {
-                                  return (
-                                    <div className="match-status-label status-upcoming">
-                                      Time TBD
-                                    </div>
-                                  );
-                                }
-
-                                // For upcoming matches, don't show status in top grid
-                                return null;
+                              // Show TBD status for matches with undefined time
+                              if (status === "TBD") {
+                                return (
+                                  <div className="match-status-label status-upcoming">
+                                    Time TBD
+                                  </div>
+                                );
                               }
 
+                              // For upcoming matches, don't show status in top grid
                               return null;
-                            })()}
-                          </div>
+                            }
+
+                            // Show "Ended" status for finished matches or stale matches
+                            if (
+                              ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) ||
+                              isStaleFinishedMatch
+                            ) {
+                              return (
+                                <div
+                                  className="match-status-label status-ended"
+                                  style={{
+                                    minWidth: "60px",
+                                    textAlign: "center",
+                                    transition: "none",
+                                    animation: "none",
+                                  }}
+                                >
+                                  {status === "FT" || isStaleFinishedMatch ? "Ended" :
+                                   status === "AET" ? "After Extra Time" : status}
+                                </div>
+                              );
+                            }
+
+                            return null;
+                          })()}
                         </div>
 
                         {/* Middle Grid: Main match content */}
@@ -463,18 +515,33 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
                           {/* Home team logo */}
                           <div className="home-team-logo-container" style={{ padding: "0 0.6rem" }}>
-                            <MyWorldTeamLogo
-                              teamName={fixture.teams.home.name}
-                              teamLogo={
-                                fixture.teams.home.id
-                                  ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
-                                  : "/assets/fallback-logo.svg"
-                              }
-                              alt={fixture.teams.home.name}
-                              size="34px"
-                              className="popular-leagues-size"
-                              leagueContext={leagueContext}
-                            />
+                            {fixture.league.id === 10 ? (
+                              <MyCircularFlag
+                                teamName={fixture.teams.home.name || ""}
+                                teamId={fixture.teams.home.id}
+                                fallbackUrl={
+                                  fixture.teams.home.id
+                                    ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
+                                    : "/assets/fallback-logo.svg"
+                                }
+                                alt={fixture.teams.home.name}
+                                size="34px"
+                                className="popular-leagues-size"
+                              />
+                            ) : (
+                              <MyWorldTeamLogo
+                                teamName={fixture.teams.home.name}
+                                teamLogo={
+                                  fixture.teams.home.id
+                                    ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
+                                    : "/assets/fallback-logo.svg"
+                                }
+                                alt={fixture.teams.home.name}
+                                size="34px"
+                                className="popular-leagues-size"
+                                leagueContext={leagueContext}
+                              />
+                            )}
                           </div>
 
                           {/* Score/Time Center */}
@@ -482,10 +549,8 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                             {(() => {
                               const status = fixture.fixture.status.short;
 
-                              // Live/Ended matches - show score
-                              if (
-                                ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT", "FT", "AET", "PEN"].includes(status)
-                              ) {
+                              // Live matches - show current score
+                              if (["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT", "45", "90"].includes(status)) {
                                 return (
                                   <div className="match-score-display">
                                     <span className="score-number">{fixture.goals.home ?? 0}</span>
@@ -495,9 +560,60 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                                 );
                               }
 
-                              // Upcoming matches - show kick-off time
-                              if (status === "NS" || status === "TBD") {
+                              // Ended matches - show final score
+                              if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                                return (
+                                  <div className="match-score-display">
+                                    <span className="score-number">{fixture.goals.home ?? 0}</span>
+                                    <span className="score-separator">-</span>
+                                    <span className="score-number">{fixture.goals.away ?? 0}</span>
+                                  </div>
+                                );
+                              }
+
+                              // For postponed matches and upcoming matches - show kick-off time
+                              if (
+                                status === "NS" ||
+                                status === "TBD" ||
+                                ["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)
+                              ) {
                                 const matchTime = new Date(fixture.fixture.date);
+
+                                // For postponed/cancelled matches, still show the kick-off time
+                                if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
+                                  const localTime = matchTime.toLocaleTimeString("en-US", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: false,
+                                  });
+
+                                  return (
+                                    <div className="match-time-display" style={{ fontSize: "0.882em" }}>
+                                      {localTime}
+                                    </div>
+                                  );
+                                }
+
+                                // Check if match should have started already (more than 2 hours ago) for NS/TBD
+                                const now = new Date();
+                                const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+
+                                // If match is more than 2 hours overdue, show kick-off time but with postponed styling
+                                if (hoursAgo > 2) {
+                                  const localTime = matchTime.toLocaleTimeString("en-US", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: false,
+                                  });
+
+                                  return (
+                                    <div className="match-time-display text-orange-600" style={{ fontSize: "0.8em" }}>
+                                      {localTime}
+                                    </div>
+                                  );
+                                }
+
+                                // Use simplified local time formatting for regular upcoming matches
                                 const localTime = matchTime.toLocaleTimeString("en-US", {
                                   hour: "2-digit",
                                   minute: "2-digit",
@@ -511,6 +627,18 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                                 );
                               }
 
+                              // Fallback for any unhandled status - show time or score if available
+                              if (fixture.goals.home !== null || fixture.goals.away !== null) {
+                                return (
+                                  <div className="match-score-display">
+                                    <span className="score-number">{fixture.goals.home ?? 0}</span>
+                                    <span className="score-separator">-</span>
+                                    <span className="score-number">{fixture.goals.away ?? 0}</span>
+                                  </div>
+                                );
+                              }
+
+                              // Last resort - show match time
                               return (
                                 <div className="match-time-display" style={{ fontSize: "0.882em" }}>
                                   {formatMatchTimeWithTimezone(fixture.fixture.date)}
@@ -521,18 +649,33 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
                           {/* Away team logo */}
                           <div className="away-team-logo-container" style={{ padding: "0 0.5rem" }}>
-                            <MyWorldTeamLogo
-                              teamName={fixture.teams.away.name}
-                              teamLogo={
-                                fixture.teams.away.id
-                                  ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
-                                  : "/assets/fallback-logo.svg"
-                              }
-                              alt={fixture.teams.away.name}
-                              size="34px"
-                              className="popular-leagues-size"
-                              leagueContext={leagueContext}
-                            />
+                            {fixture.league.id === 10 ? (
+                              <MyCircularFlag
+                                teamName={fixture.teams.away.name || ""}
+                                teamId={fixture.teams.away.id}
+                                fallbackUrl={
+                                  fixture.teams.away.id
+                                    ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
+                                    : "/assets/fallback-logo.svg"
+                                }
+                                alt={fixture.teams.away.name}
+                                size="34px"
+                                className="popular-leagues-size"
+                              />
+                            ) : (
+                              <MyWorldTeamLogo
+                                teamName={fixture.teams.away.name}
+                                teamLogo={
+                                  fixture.teams.away.id
+                                    ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
+                                    : "/assets/fallback-logo.svg"
+                                }
+                                alt={fixture.teams.away.name}
+                                size="34px"
+                                className="popular-leagues-size"
+                                leagueContext={leagueContext}
+                              />
+                            )}
                           </div>
 
                           {/* Away Team Name */}
@@ -555,6 +698,36 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                           >
                             {shortenTeamName(fixture.teams.away.name) || "Unknown Team"}
                           </div>
+                        </div>
+
+                        {/* Bottom Grid: Penalty Result Status */}
+                        <div className="match-penalty-bottom">
+                          {(() => {
+                            const isPenaltyMatch = fixture.fixture.status.short === "PEN";
+                            const penaltyHome = fixture.score?.penalty?.home;
+                            const penaltyAway = fixture.score?.penalty?.away;
+                            const hasPenaltyScores =
+                              penaltyHome !== null &&
+                              penaltyHome !== undefined &&
+                              penaltyAway !== null &&
+                              penaltyAway !== undefined;
+
+                            if (isPenaltyMatch && hasPenaltyScores) {
+                              const winnerText =
+                                penaltyHome > penaltyAway
+                                  ? `${shortenTeamName(fixture.teams.home.name)} won ${penaltyHome}-${penaltyAway} on penalties`
+                                  : `${shortenTeamName(fixture.teams.away.name)} won ${penaltyAway}-${penaltyHome} on penalties`;
+
+                              return (
+                                <div className="penalty-result-display">
+                                  <span className="penalty-winner" style={{ background: "transparent" }}>
+                                    {winnerText}
+                                  </span>
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()}
                         </div>
                       </div>
                     </div>
