@@ -14,8 +14,6 @@
 .match-card-container:hover {
   background-color: rgb(249 250 251) !important;
   /* bg-gray-50 for light mode - matches league header */
-  transform: translateX(2px);
-  /* Subtle slide animation like league header */
 }
 
 /* Dark mode styles for match cards */
