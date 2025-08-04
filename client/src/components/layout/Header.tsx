@@ -178,7 +178,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
               <DropdownMenuLabel
                 className={cn(
                   "text-gray-600 dark:text-gray-400 font-medium",
-                  isMobile ? "px-4 py-2 text-sm" : "text-xs",
+                  isMobile ? "px-4 py-2 text-sm" : "text-sm",
                 )}
               >
                 NOTIFICATIONS
@@ -205,7 +205,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
               <DropdownMenuLabel
                 className={cn(
                   "text-gray-600 dark:text-gray-400 font-medium",
-                  isMobile ? "px-4 py-2 text-sm" : "text-xs",
+                  isMobile ? "px-4 py-2 text-sm" : "text-sm",
                 )}
               >
                 THEMES
@@ -234,7 +234,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
               <DropdownMenuLabel
                 className={cn(
                   "text-gray-600 dark:text-gray-400 font-medium",
-                  isMobile ? "px-4 py-2 text-sm" : "text-xs",
+                  isMobile ? "px-4 py-2 text-sm" : "text-sm",
                 )}
               >
                 LANGUAGE
