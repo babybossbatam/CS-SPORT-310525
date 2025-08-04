@@ -914,8 +914,8 @@
   }
 
   .penalty-result-icon {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -923,8 +923,8 @@
   }
 
   .penalty-result-icon img {
-    width: 10px;
-    height: 10px;
+    width: 14px;
+    height: 14px;
   }
 
   .match-event-module-stages-time-yellow-circle-penalty {
@@ -943,10 +943,11 @@
   }
 
   .penalty-home-icon {
-    justify-content: flex-end;
-    margin-left: 4px;
+    justify-content: flex-start;
+    margin-right: 8px;
     flex-shrink: 0;
-    width: 12px;
+    width: 16px;
+    min-width: 16px;
   }
 
   /* Mobile away side penalty adjustments */
@@ -967,7 +968,7 @@
 
   /* Ensure proper spacing on mobile */
   .penalty-shootout-list {
-    gap: 6px;
+    gap: 2px;
     max-width: 100%;
     overflow-x: hidden;
   }
@@ -975,7 +976,7 @@
   /* Mobile adjustments for better touch targets */
   .match-event-home-player-info,
   .match-event-away-player-info {
-    gap: 3px;
+    gap: 18px;
     max-width: 100%;
   }
 
