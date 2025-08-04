@@ -1,4 +1,4 @@
-import React, { useState, useMemo, Suspense, lazy } from "react";
+import React, { useState, useMemo, Suspense, lazy, useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
@@ -13,8 +13,19 @@ import { useDeviceInfo } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import Header from "@/components/layout/Header";
 
-// Lazy load the TodayMatchPageCard component
-const TodayMatchPageCard = lazy(() => import("@/components/matches/TodayMatchPageCard"));
+// Lazy load with preloading optimization
+const TodayMatchPageCard = lazy(() => {
+  // Preload the component module immediately
+  const componentPromise = import("@/components/matches/TodayMatchPageCard");
+  
+  // Add a small delay to prevent blocking the main thread
+  return new Promise(resolve => {
+    componentPromise.then(module => {
+      // Minimum 100ms delay to show skeleton briefly for UX
+      setTimeout(() => resolve(module), 100);
+    });
+  });
+});
 
 interface MyMainLayoutProps {
   fixtures: any[];
@@ -33,6 +44,37 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
   const { isMobile } = useDeviceInfo();
+  const [shouldLoadComponent, setShouldLoadComponent] = useState(false);
+  const componentContainerRef = useRef<HTMLDivElement>(null);
+
+  // Intersection Observer for lazy loading
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShouldLoadComponent(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '50px' }
+    );
+
+    if (componentContainerRef.current) {
+      observer.observe(componentContainerRef.current);
+    }
+
+    // Fallback: load after 2 seconds anyway
+    const timeout = setTimeout(() => {
+      setShouldLoadComponent(true);
+    }, 2000);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(timeout);
+    };
+  }, []);
 
   // Optimized UTC date filtering with memoization
   const filteredFixtures = useMemo(() => {
@@ -137,36 +179,64 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
             {children ? (
               <div>{children}</div>
             ) : (
-              <div>
-                <Suspense fallback={
-                  <Card className="w-full">
-                    <div className="p-4 space-y-4">
-                      <div className="flex items-center justify-between">
-                        <Skeleton className="h-6 w-32" />
-                        <Skeleton className="h-6 w-16" />
-                      </div>
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <div key={i} className="space-y-2">
-                          <div className="flex items-center gap-3 p-3 border rounded">
-                            <Skeleton className="h-8 w-8 rounded" />
-                            <Skeleton className="h-4 w-24" />
-                            <div className="flex-1" />
-                            <Skeleton className="h-4 w-16" />
-                            <div className="flex-1" />
-                            <Skeleton className="h-4 w-24" />
-                            <Skeleton className="h-8 w-8 rounded" />
+              <div ref={componentContainerRef}>
+                {shouldLoadComponent ? (
+                  <Suspense fallback={
+                    <div className="animate-in fade-in-50 duration-200">
+                      <Card className="w-full">
+                        <div className="p-4 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <Skeleton className="h-5 w-28" />
+                            <Skeleton className="h-4 w-12" />
                           </div>
+                          {[1, 2, 3].map((i) => (
+                            <div key={i} className="space-y-2">
+                              <div className="flex items-center gap-3 p-2 border rounded">
+                                <Skeleton className="h-6 w-6 rounded" />
+                                <Skeleton className="h-3 w-20" />
+                                <div className="flex-1" />
+                                <Skeleton className="h-3 w-12" />
+                                <div className="flex-1" />
+                                <Skeleton className="h-3 w-20" />
+                                <Skeleton className="h-6 w-6 rounded" />
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      </Card>
                     </div>
-                  </Card>
-                }>
-                  <TodayMatchPageCard
-                    fixtures={filteredFixtures}
-                    onMatchClick={handleMatchClick}
-                    onMatchCardClick={handleMatchCardClick}
-                  />
-                </Suspense>
+                  }>
+                    <TodayMatchPageCard
+                      fixtures={filteredFixtures}
+                      onMatchClick={handleMatchClick}
+                      onMatchCardClick={handleMatchCardClick}
+                    />
+                  </Suspense>
+                ) : (
+                  <div className="animate-pulse">
+                    <Card className="w-full">
+                      <div className="p-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <Skeleton className="h-5 w-28" />
+                          <Skeleton className="h-4 w-12" />
+                        </div>
+                        {[1, 2, 3].map((i) => (
+                          <div key={i} className="space-y-2">
+                            <div className="flex items-center gap-3 p-2 border rounded">
+                              <Skeleton className="h-6 w-6 rounded" />
+                              <Skeleton className="h-3 w-20" />
+                              <div className="flex-1" />
+                              <Skeleton className="h-3 w-12" />
+                              <div className="flex-1" />
+                              <Skeleton className="h-3 w-20" />
+                              <Skeleton className="h-6 w-6 rounded" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+                  </div>
+                )}
               </div>
             )}
           </div>
