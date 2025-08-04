@@ -213,7 +213,7 @@ export const TodayMatchPageCard = ({
                 );
                 setIsCalendarOpen(!isCalendarOpen);
               }}
-              className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md h-full"
+              className="flex items-center gap-3 px-3 py-4   h-full"
             >
               <span className="font-medium">
                 {getMyLeftBasketDisplayName()}
