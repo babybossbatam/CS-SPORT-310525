@@ -501,6 +501,13 @@
   margin-bottom: 0;
 }
 
+/* Dark mode league header */
+.dark .league-header-container {
+  background-color: rgb(31 41 55) !important; /* bg-gray-800 */
+  border-bottom: 1px solid rgb(55 65 81) !important; /* border-gray-700 */
+  color: white !important;
+}
+
 .league-logo {
   width: 2.25rem;
   height: 2.25rem;

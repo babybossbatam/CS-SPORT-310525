@@ -358,6 +358,21 @@ main {
   --radius: 0.5rem;
 }
 
+/* Dark mode card header styles */
+.dark [data-card-header],
+.dark .card-header {
+  background-color: rgb(31 41 55) !important; /* bg-gray-800 */
+  color: white !important;
+  border-bottom: 1px solid rgb(55 65 81) !important; /* border-gray-700 */
+}
+
+/* Dark mode card content */
+.dark [data-card-content],
+.dark .card-content {
+  background-color: rgb(31 41 55) !important; /* bg-gray-800 */
+  color: white !important;
+}
+
 @keyframes glow {
   from {
     box-shadow: 0 0 5px rgba(239, 68, 68, 0.5), 0 0 10px rgba(239, 68, 68, 0.3);

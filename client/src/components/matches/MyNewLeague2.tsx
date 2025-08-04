@@ -995,7 +995,7 @@ const MyNewLeague2 = ({
   return (
     <>
       {/* Header Section */}
-      <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
+      <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
         <div className="flex justify-between items-center w-full">
           <span>Popular Football Leagues</span>
         </div>
@@ -1037,7 +1037,7 @@ const MyNewLeague2 = ({
               {/* League Header - Clickable and collapsible */}
               <button
                 onClick={() => toggleLeague(leagueIdNum)}
-                className="w-full flex items-center gap-2 p-2 md:p-3 bg-white border-b border-gray-200 transition-colors cursor-pointer group hover:bg-gray-50 min-h-[56px] touch-target"
+                className="w-full flex items-center gap-2 p-2 md:p-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 transition-colors cursor-pointer group hover:bg-gray-50 dark:hover:bg-gray-700 min-h-[56px] touch-target"
               >
                 {/* League Star Toggle Button */}
                 <button
@@ -1071,7 +1071,7 @@ const MyNewLeague2 = ({
                 <div className="flex flex-col flex-1 text-left min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span
-                      className="font-semibold text-gray-800 group-hover:underline transition-all duration-200 text-sm md:text-base leading-tight"
+                      className="font-semibold text-gray-800 dark:text-white group-hover:underline transition-all duration-200 text-sm md:text-base leading-tight"
                       style={{
                         fontFamily:
                           "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
@@ -1141,7 +1141,7 @@ const MyNewLeague2 = ({
                     })()}
                   </div>
                   <span
-                    className="text-xs md:text-sm text-gray-600 leading-tight"
+                    className="text-xs md:text-sm text-gray-600 dark:text-gray-300 leading-tight"
                     style={{
                       fontFamily:
                         "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
