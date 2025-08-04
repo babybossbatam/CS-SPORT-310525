@@ -186,7 +186,7 @@ const MyNewLeague2 = ({
     const matchDate = new Date(fixture.fixture.date);
     const hoursAgo = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
 
-    return hoursAgo > 4;
+    return hoursAgo > 2;
   }, []);
 
   // Cache key for ended matches
