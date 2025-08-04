@@ -1102,6 +1102,10 @@ id: fixture.teams.away.id,
                 return aPriority - bPriority;
 
               // Popular team friendlies get priority over regular matches
+              const aLeagueName = a.league.name?.toLowerCase() || "";
+              const bLeagueName = b.league.name?.toLowerCase() || "";
+
+              
               const aIsPopularFriendly = (aLeagueName.includes("friendlies") || aLeagueName.includes("friendlies clubs") || a.league.id === 667) && 
                 (POPULAR_TEAM_IDS.includes(a.teams.home.id) || POPULAR_TEAM_IDS.includes(a.teams.away.id));
               const bIsPopularFriendly = (bLeagueName.includes("friendlies") || bLeagueName.includes("friendlies clubs") || b.league.id === 667) && 
