@@ -285,27 +285,31 @@ const MyScoresLeagueComponent: React.FC<MyScoresLeagueProps> = ({
   // Using league ID 38 (UEFA U21) first priority, then 15 (FIFA Club World Cup) second priority
   const leagueIds = [38, 2, 848, 3, 5, 531, 921, 493, 893, 850, 14]; // Added UEFA Champions League (2), CONMEBOL Sudamericana (11), Brazilian Serie A (71), CONCACEF Gold Cup (22), Serie B (72), Serie C (73), Serie D (75), Iraqi League (233), UEFA Europa Conference League (848), Friendlies Clubs (667), and new leagues (908, 1169, 23, 1077), MLS (253), and additional leagues (850, 893, 3, 531, 921, 886, 493)
 
-  // Check if a match ended more than 24 hours ago
-  const isMatchOldEnded = useCallback((fixture: FixtureData): boolean => {
-    const status = fixture.fixture.status.short;
-    const isEnded = [
-      "FT",
-      "AET",
-      "PEN",
-      "AWD",
-      "WO",
-      "ABD",
-      "CANC",
-      "SUSP",
-    ].includes(status);
+  // Check if a match ended more than 2 hours ago (performance optimization)
+  const isMatchOldEnded = useCallback(
+    (fixture: FixtureData): boolean => {
+      const status = fixture.fixture.status.short;
+      const isEnded = [
+        "FT",
+        "AET",
+        "PEN",
+        "AWD",
+        "WO",
+        "ABD",
+        "CANC",
+        "SUSP",
+      ].includes(status);
 
-    if (!isEnded) return false;
+      if (!isEnded) return false;
 
-    const matchDate = new Date(fixture.fixture.date);
-    const hoursAgo = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
+      const matchDate = new Date(fixture.fixture.date);
+      const hoursAgo = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
 
-    return hoursAgo > 24;
-  }, []);
+      // Performance optimization: use 2-hour rule instead of 24-hour
+      return hoursAgo > 2;
+    },
+    [],
+  );
 
   // Cache key for ended matches
   const getCacheKey = useCallback((date: string, leagueId: number) => {

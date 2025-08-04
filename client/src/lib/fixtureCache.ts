@@ -77,6 +77,51 @@ class FixtureCache {
   /**
    * Determine cache duration based on fixture status and timing
    */
+  private getFixtureCacheDuration(fixture: FixtureResponse): number {
+    const status = fixture.fixture.status.short;
+    const fixtureDate = new Date(fixture.fixture.date).getTime();
+    const now = Date.now();
+
+    // Live matches get minimal cache (30 seconds)
+    if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+      return FIXTURE_CACHE_CONFIG.LIVE_CACHE_DURATION;
+    }
+
+    // Finished matches - ENHANCED WITH 2-HOUR RULE
+    if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'CANC', 'PST', 'SUSP', 'ABD'].includes(status)) {
+      const hoursAgo = (now - fixtureDate) / (1000 * 60 * 60);
+
+      // Matches ended more than 2 hours ago get extended cache (24 hours)
+      if (hoursAgo >= 2) {
+        console.log(`📦 [FixtureCache] Match ended ${Math.round(hoursAgo)}h ago, using extended cache:`, {
+          teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+          status,
+          cacheDuration: '24 hours'
+        });
+        return 24 * 60 * 60 * 1000; // 24 hours for matches ended 2+ hours ago
+      }
+
+      // Recent matches (under 2 hours) get shorter cache (6 hours)
+      if (hoursAgo <= 24) {
+        console.log(`🕒 [FixtureCache] Recent match (${Math.round(hoursAgo * 60)}min ago), using short cache:`, {
+          teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+          status,
+          cacheDuration: '6 hours'
+        });
+        return FIXTURE_CACHE_CONFIG.RECENT_FINISHED_CACHE_DURATION;
+      }
+
+      // Very old matches get longest cache (30 days)
+      return FIXTURE_CACHE_CONFIG.OLD_FINISHED_CACHE_DURATION;
+    }
+
+    // Default cache duration
+    return FIXTURE_CACHE_CONFIG.FUTURE_CACHE_DURATION;
+  }
+
+  /**
+   * Determine cache duration based on fixture status and timing
+   */
   private getCacheDuration(fixture: FixtureResponse): number {
     const now = Date.now();
     const fixtureDate = new Date(fixture.fixture.date).getTime();
@@ -199,13 +244,13 @@ class FixtureCache {
   private isLiveFixture(fixture: FixtureResponse): boolean {
     const status = fixture.fixture.status.short;
     const isLiveStatus = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status);
-    
+
     // Also check if match started recently (within last 3 hours) even if status seems stale
     if (!isLiveStatus) {
       const fixtureTime = new Date(fixture.fixture.date).getTime();
       const now = Date.now();
       const hoursSinceKickoff = (now - fixtureTime) / (1000 * 60 * 60);
-      
+
       // If match started within last 3 hours and status is NS, it might be stale cache
       if (status === 'NS' && hoursSinceKickoff > 0 && hoursSinceKickoff <= 3) {
         console.log(`🚨 [fixtureCache] Potential stale NS status for recent match:`, {
@@ -217,7 +262,7 @@ class FixtureCache {
         return true; // Treat as live to bypass cache
       }
     }
-    
+
     return isLiveStatus;
   }
 
@@ -458,7 +503,7 @@ class FixtureCache {
   clearCacheForDate(date: string) {
     const dateKey = this.generateKey(date, 'date', date);
     this.cache.delete(dateKey);
-    
+
     // Also clear persistent storage for this date
     try {
       localStorage.removeItem(`finished_fixtures_${date}`);
@@ -466,7 +511,7 @@ class FixtureCache {
     } catch (error) {
       console.error('Error clearing persistent cache for date:', error);
     }
-    
+
     this.stats.size = this.cache.size;
   }
 
