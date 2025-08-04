@@ -885,3 +885,24 @@
 .match-card-container.selected-match {
   background-color: #f3f4f6 !important;
 }
+
+/* Ensure hover effect works correctly in both light and dark modes */
+.country-matches-container .match-card-container:hover:not(.disable-hover) {
+  background-color: rgb(243 244 246) !important; /* gray-100 */
+}
+
+/* Dark mode hover for country matches container */
+.dark .country-matches-container .match-card-container:hover:not(.disable-hover) {
+  background-color: rgb(55 65 81) !important; /* gray-700 */
+}
+
+/* Additional dark mode hover overrides to ensure proper styling */
+.dark .match-card-container:hover {
+  background-color: rgb(55 65 81) !important; /* bg-gray-700 for dark mode hover */
+}
+
+/* Ensure country matches container dark mode hover takes priority */
+.dark .country-matches-container .match-card-container:hover {
+  background-color: rgb(55 65 81) !important; /* gray-700 */
+  transform: translateX(2px);
+}
