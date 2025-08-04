@@ -299,12 +299,12 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   return (
     <Card className="mt-4 overflow-hidden">
       <CardHeader 
-        className="cursor-pointer flex items-center justify-between p-3 bg-white border-b"
+        className="cursor-pointer flex items-left justify-between p-3 bg-white border-b"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-blue-500" />
-          <span className="font-semibold text-gray-800">Popular Football Leagues</span>
+     
+          <span className="font-semibold text-gray-800 text-sm">Popular Football Leagues</span>
         </div>
       </CardHeader>
 
