@@ -686,7 +686,14 @@
   background-color: white !important;
 }
 
+.country-matches-container .match-card-container.disable-hover:hover {
+  background-color: white !important;
+}
 
+/* Ensure hover effect works correctly in both light and dark modes */
+.country-matches-container .match-card-container:hover:not(.disable-hover) {
+  background-color: rgb(243 244 246) !important; /* gray-100 */
+}
 
 /* Status label hover effects to match card background */
 .country-matches-container .match-card-container:hover .match-status-label {
