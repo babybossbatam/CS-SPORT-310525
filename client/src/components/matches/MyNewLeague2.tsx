@@ -713,16 +713,25 @@ const MyNewLeague2 = ({
       return;
     }
 
+    const matchId = fixture.fixture?.id;
+    
     console.log("🎯 [MyNewLeague2] Match card clicked:", {
-      fixtureId: fixture.fixture?.id,
+      fixtureId: matchId,
       teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
       league: fixture.league?.name,
       status: fixture.fixture?.status?.short,
       source: "MyNewLeague2",
+      currentlySelected: selectedMatchId,
+    });
+
+    // Remove disable-hover class from all match containers to allow re-selection
+    const allMatchContainers = document.querySelectorAll(".match-card-container");
+    allMatchContainers.forEach((container) => {
+      container.classList.remove("disable-hover");
     });
 
     // Set this match as selected
-    setSelectedMatchId(fixture.fixture?.id);
+    setSelectedMatchId(matchId);
 
     // Call the callback to pass match data to parent component first (like MyNewLeague does)
     if (onMatchCardClick) {
