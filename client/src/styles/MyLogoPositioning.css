@@ -616,12 +616,20 @@
 
 .match-card-container {
   transition: all 0.2s ease-in-out;
-
 }
 
 /* Flash effect animations */
 .halftime-flash {
   animation: halftimeFlash 2s ease-in-out;
+}
+
+@keyframes halftimeFlash {
+  0%, 100% {
+    background-color: inherit;
+  }
+  50% {
+    background-color: rgba(59, 130, 246, 0.1);
+  }
 }
 
 /* Collapse and expand animations for league sections */
@@ -876,16 +884,4 @@
 /* Selected match state */
 .match-card-container.selected-match {
   background-color: #f3f4f6 !important;
-}
-
- 
-
-.match-card-container {
-  transition: all 0.2s ease-in-out;
-
-}
-
-/* Flash effect animations */
-.halftime-flash {
-  animation: halftimeFlash 2s ease-in-out;
 }
