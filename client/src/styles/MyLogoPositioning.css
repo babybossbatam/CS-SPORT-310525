@@ -605,10 +605,7 @@
   /* bg-gray-100 */
 }
 
-.match-card-container.selected-match:hover {
-  background-color: rgb(243 244 246) !important;
-  /* Keep same background on hover */
-}
+
 
 /* Collapse and expand animations for league sections */
 .league-section {
