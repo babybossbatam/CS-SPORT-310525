@@ -885,8 +885,8 @@
   }
 
   .penalty-player-name {
-    font-size: 7px;
-    max-width: 45px;
+    font-size: 8px;
+    max-width: 50px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
