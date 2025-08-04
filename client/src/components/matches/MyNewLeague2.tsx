@@ -1170,7 +1170,7 @@ const MyNewLeague2 = ({
                     return (
                       <div key={matchId} className="country-matches-container">
                         <div
-                          className={`mynewleague2-match-card-container group border-b border-gray-200 ${
+                          className={`match-card-container group border-b border-gray-200 ${
                             isHalftimeFlash ? "halftime-flash" : ""
                           }${isFulltimeFlash ? "fulltime-flash" : ""} ${
                             isGoalFlash ? "goal-flash" : ""
