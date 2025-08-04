@@ -145,7 +145,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           </div>
         )}
 
-        {/* Right column (7 columns) - Show when match is selected on mobile, always show on desktop */}
+        {/* Right column (7 columns) - Always show on desktop, conditionally on mobile */}
         {(!isMobile || selectedFixture) && (
           <div
             className={cn(
@@ -160,8 +160,15 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
                 onClose={handleBackToMain}
               />
             ) : (
-              <MyRightContent />
+              !isMobile && <MyRightContent />
             )}
+          </div>
+        )}
+
+        {/* Desktop right content when no match is selected */}
+        {!isMobile && !selectedFixture && (
+          <div className="lg:col-span-7 space-y-4">
+            <MyRightContent />
           </div>
         )}
       </div>
