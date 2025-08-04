@@ -5,9 +5,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import dark mode enhancements */
-@import './styles/dark-mode-enhancements.css';
-
 /* Prevent flash of unstyled content */
 #root {
   min-height: 100vh;

@@ -23,45 +23,35 @@ const MyRightContent: React.FC = () => {
   const { isMobile } = useDeviceInfo();
 
   return (
-    <div className="dark:bg-gray-900 dark:text-gray-100 min-h-full">
+    <>
       {/* Featured Match Section - Hidden on mobile */}
       {!isMobile && (
-        <div className="dark:bg-gray-800 dark:border-gray-700 rounded-lg mb-4">
-          <MyHomeFeaturedMatchNew 
-            selectedDate={selectedDate} 
-            maxMatches={8}
-          />
-        </div>
+        <MyHomeFeaturedMatchNew 
+          selectedDate={selectedDate} 
+          maxMatches={8}
+        />
       )}
 
-      <div className="dark:bg-gray-800 dark:border-gray-700 rounded-lg mb-4">
-        <HomeTopScorersList />
-      </div>
+      <HomeTopScorersList />
 
-      <div className="dark:bg-gray-800 dark:border-gray-700 rounded-lg mb-4">
-        <LeagueStandingsFilter />
-      </div>
+      <LeagueStandingsFilter />
 
       {/* CS SPORT Information Card */}
-      <div className="dark:bg-gray-800 dark:border-gray-700 rounded-lg mb-4">
-        <MyInfo />
-      </div>
+      <MyInfo />
 
       {/* Popular Leagues and All League List sections */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-4">
-          <div className="dark:bg-gray-800 dark:border-gray-700 rounded-lg">
-            <PopularLeaguesList />
-          </div>
-          <div className="dark:bg-gray-800 dark:border-gray-700 rounded-lg">
-            <PopularTeamsList />
-          </div>
+          <PopularLeaguesList />
+          <PopularTeamsList />
         </div>
-        <div className="dark:bg-gray-800 dark:border-gray-700 rounded-lg">
-          <MyAllLeague />
-        </div>
+        <MyAllLeague />
       </div>
-    </div>
+
+
+
+    </>
+
   );
 };
 
