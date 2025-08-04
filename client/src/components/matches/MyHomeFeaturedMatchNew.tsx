@@ -1049,18 +1049,45 @@ id: fixture.teams.away.id,
               if (aIsSpecialMatch && !bIsSpecialMatch) return -1;
               if (!aIsSpecialMatch && bIsSpecialMatch) return 1;
 
-              // Priority sort: live matches first, then by league priority, then by popular team friendlies, then by time
+              // Define match status categories
               const aStatus = a.fixture.status.short;
               const bStatus = b.fixture.status.short;
 
               const aLive = isLiveMatch(aStatus);
               const bLive = isLiveMatch(bStatus);
 
-              // Live matches always come first (after special match)
+              const aEnded = isEndedMatch(aStatus);
+              const bEnded = isEndedMatch(bStatus);
+
+              const aUpcoming = isUpcomingMatch(aStatus);
+              const bUpcoming = isUpcomingMatch(bStatus);
+
+              // Primary sort: Live > Ended > Upcoming
               if (aLive && !bLive) return -1;
               if (!aLive && bLive) return 1;
 
-              // Priority leagues first
+              if (aEnded && !bEnded && !bLive) return -1;
+              if (!aEnded && bEnded && !aLive) return 1;
+
+              if (aUpcoming && !bUpcoming && !bLive && !bEnded) return -1;
+              if (!aUpcoming && bUpcoming && !aLive && !aEnded) return 1;
+
+              // Within the same status category, apply additional sorting
+              const aLeagueName = a.league.name?.toLowerCase() || "";
+              const bLeagueName = b.league.name?.toLowerCase() || "";
+
+              // Check for Friendlies Clubs vs FA Cup priority
+              const aIsFriendliesClubs = aLeagueName.includes("friendlies clubs") || a.league.id === 667;
+              const bIsFriendliesClubs = bLeagueName.includes("friendlies clubs") || b.league.id === 667;
+              
+              const aIsFACup = aLeagueName.includes("fa cup") || a.league.id === 45;
+              const bIsFACup = bLeagueName.includes("fa cup") || b.league.id === 45;
+
+              // Friendlies Clubs has priority over FA Cup
+              if (aIsFriendliesClubs && bIsFACup) return -1;
+              if (aIsFACup && bIsFriendliesClubs) return 1;
+
+              // Priority leagues
               const aPriority = priorityLeagueIds.indexOf(a.league.id);
               const bPriority = priorityLeagueIds.indexOf(b.league.id);
 
@@ -1070,9 +1097,6 @@ id: fixture.teams.away.id,
                 return aPriority - bPriority;
 
               // Popular team friendlies get priority over regular matches
-              const aLeagueName = a.league.name?.toLowerCase() || "";
-              const bLeagueName = b.league.name?.toLowerCase() || "";
-
               const aIsPopularFriendly = (aLeagueName.includes("friendlies") || aLeagueName.includes("friendlies clubs") || a.league.id === 667) && 
                 (POPULAR_TEAM_IDS.includes(a.teams.home.id) || POPULAR_TEAM_IDS.includes(a.teams.away.id));
               const bIsPopularFriendly = (bLeagueName.includes("friendlies") || bLeagueName.includes("friendlies clubs") || b.league.id === 667) && 
@@ -1096,7 +1120,25 @@ id: fixture.teams.away.id,
                 if (aScore !== bScore) return bScore - aScore; // Higher score first
               }
 
-              // Finally by time
+              // Finally sort by time based on status
+              if (aLive && bLive) {
+                // For live matches, sort by elapsed time (shortest first)
+                const aElapsed = Number(a.fixture.status.elapsed) || 0;
+                const bElapsed = Number(b.fixture.status.elapsed) || 0;
+                return aElapsed - bElapsed;
+              }
+
+              if (aEnded && bEnded) {
+                // For ended matches, sort by most recent first
+                return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
+              }
+
+              if (aUpcoming && bUpcoming) {
+                // For upcoming matches, sort by earliest first
+                return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
+              }
+
+              // Default time sorting
               return (
                 new Date(a.fixture.date).getTime() -
                 new Date(b.fixture.date).getTime()
