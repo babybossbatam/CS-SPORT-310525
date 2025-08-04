@@ -15,6 +15,16 @@
   background-color: rgb(243 244 246);
 }
 
+/* Dark mode styles for match cards */
+.dark .match-card-container {
+  background-color: rgb(31 41 55) !important; /* bg-gray-800 */
+  border-bottom: 1px solid rgb(55 65 81) !important; /* border-gray-700 */
+}
+
+.dark .match-card-container:hover {
+  background-color: rgb(55 65 81) !important; /* bg-gray-700 */
+}
+
 /* Ensure all match cards have borders */
 
 /* Star button slide-in effect */
@@ -33,6 +43,12 @@
   justify-content: center;
   flex-shrink: 0;
   z-index: 10;
+}
+
+/* Dark mode styles for star button */
+.dark .match-star-button {
+  background-color: rgb(31 41 55) !important; /* bg-gray-800 */
+  border-right: 1px solid rgb(75 85 99) !important; /* border-gray-600 */
 }
 
 .match-card-container:hover .match-star-button {
@@ -151,6 +167,18 @@
   letter-spacing: -0.01em;
   justify-self: start;
   align-self: center;
+}
+
+/* Dark mode styles for team names */
+.dark .home-team-name,
+.dark .away-team-name {
+  color: white !important;
+}
+
+.dark .home-team-name.winner,
+.dark .away-team-name.winner {
+  color: white !important;
+  font-weight: 600;
 }
 
 /* Team logo containers - Grid areas */
@@ -372,6 +400,19 @@
   text-align: center;
   width: 100%;
   place-self: center;
+}
+
+/* Dark mode styles for match time and score */
+.dark .match-time-display {
+  color: white !important;
+}
+
+.dark .score-number {
+  color: white !important;
+}
+
+.dark .match-score-display {
+  color: white !important;
 }
 
 /* Responsive grid adjustments */
