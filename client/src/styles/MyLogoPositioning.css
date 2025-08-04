@@ -400,6 +400,35 @@
   color: rgb(220 38 38);
 }
 
+/* MyNewLeague2 specific hover effects - matching TodayMatchByTime */
+.mynewleague2-match-card-container {
+  background-color: white;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border-bottom: 1px solid #e5e7eb !important;
+  position: relative;
+  display: flex;
+  overflow: hidden;
+}
+
+.mynewleague2-match-card-container:hover {
+  background-color: rgb(229 231 235);
+  /* bg-gray-200 for light theme */
+}
+
+/* Dark mode styles for MyNewLeague2 match cards */
+.dark .mynewleague2-match-card-container {
+  background-color: rgb(31 41 55) !important;
+  /* bg-gray-800 */
+  border-bottom: 1px solid rgb(55 65 81) !important;
+  /* border-gray-700 */
+}
+
+.dark .mynewleague2-match-card-container:hover {
+  background-color: rgb(75 85 99) !important;
+  /* bg-gray-600 */
+}
+
 .status-upcoming {
   color: black;
 }
