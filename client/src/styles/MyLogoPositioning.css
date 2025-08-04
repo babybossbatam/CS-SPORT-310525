@@ -17,12 +17,15 @@
 
 /* Dark mode styles for match cards */
 .dark .match-card-container {
-  background-color: rgb(31 41 55) !important; /* bg-gray-800 */
-  border-bottom: 1px solid rgb(55 65 81) !important; /* border-gray-700 */
+  background-color: rgb(31 41 55) !important;
+  /* bg-gray-800 */
+  border-bottom: 1px solid rgb(55 65 81) !important;
+  /* border-gray-700 */
 }
 
 .dark .match-card-container:hover {
-  background-color: rgb(75 85 99) !important; /* bg-gray-600 */
+  background-color: rgb(75 85 99) !important;
+  /* bg-gray-600 */
 }
 
 /* Ensure all match cards have borders */
@@ -47,8 +50,10 @@
 
 /* Dark mode styles for star button */
 .dark .match-star-button {
-  background-color: rgb(31 41 55) !important; /* bg-gray-800 */
-  border-right: 1px solid rgb(75 85 99) !important; /* border-gray-600 */
+  background-color: rgb(31 41 55) !important;
+  /* bg-gray-800 */
+  border-right: 1px solid rgb(75 85 99) !important;
+  /* border-gray-600 */
 }
 
 .match-card-container:hover .match-star-button {
@@ -138,7 +143,8 @@
 
 /* Dark mode styles for penalty winner text */
 .dark .penalty-winner {
-  color: rgb(229 231 235) !important; /* text-gray-200 */
+  color: rgb(173, 173, 174) !important;
+  /* text-gray-200 */
 }
 
 /* Team name containers - Grid areas */
@@ -385,7 +391,8 @@
 
 /* Dark mode styles for match status labels */
 .dark .status-ended {
-  color: rgb(143, 143, 143) !important; /* text-gray-200 */
+  color: rgb(143, 143, 143) !important;
+  /* text-gray-200 */
 }
 
 .status-postponed {
@@ -418,6 +425,10 @@
 }
 
 .dark .score-number {
+  color: white !important;
+}
+
+.dark .score-separator {
   color: white !important;
 }
 
@@ -513,8 +524,10 @@
 
 /* Dark mode league header */
 .dark .league-header-container {
-  background-color: rgb(31 41 55) !important; /* bg-gray-800 */
-  border-bottom: 1px solid rgb(55 65 81) !important; /* border-gray-700 */
+  background-color: rgb(31 41 55) !important;
+  /* bg-gray-800 */
+  border-bottom: 1px solid rgb(55 65 81) !important;
+  /* border-gray-700 */
   color: white !important;
 }
 
@@ -566,11 +579,13 @@
 
 /* Dark mode styles for disable-hover */
 .dark .match-card-container.disable-hover {
-  background-color: rgb(31 41 55) !important; /* bg-gray-800 */
+  background-color: rgb(31 41 55) !important;
+  /* bg-gray-800 */
 }
 
 .dark .match-card-container.disable-hover:hover {
-  background-color: rgb(31 41 55) !important; /* bg-gray-800 */
+  background-color: rgb(31 41 55) !important;
+  /* bg-gray-800 */
 }
 
 
@@ -586,11 +601,13 @@
 
 /* Selected match styling - maintains background color */
 .match-card-container.selected-match {
-  background-color: rgb(243 244 246) !important; /* bg-gray-100 */
+  background-color: rgb(243 244 246) !important;
+  /* bg-gray-100 */
 }
 
 .match-card-container.selected-match:hover {
-  background-color: rgb(243 244 246) !important; /* Keep same background on hover */
+  background-color: rgb(243 244 246) !important;
+  /* Keep same background on hover */
 }
 
 /* Collapse and expand animations for league sections */
