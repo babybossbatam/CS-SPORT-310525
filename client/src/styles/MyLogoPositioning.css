@@ -882,13 +882,7 @@
   background-color: #f3f4f6 !important;
 }
 
-  /* Selected match state */
-  .dark .match-card-container.selected-match {
-    background-color: #575757 !important;
-
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15) !important;
-}
-
+ 
 
 .match-card-container {
   transition: all 0.2s ease-in-out;
