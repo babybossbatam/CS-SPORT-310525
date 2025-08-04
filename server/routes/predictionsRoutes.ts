@@ -34,25 +34,33 @@ router.get('/fixtures/:fixtureId/predictions', async (req, res) => {
       console.error(`❌ [Predictions API] HTTP ${response.status}: ${response.statusText}`, errorText);
       
       if (response.status === 401) {
-        return res.status(500).json({
+        return res.status(200).json({
           success: false,
           message: 'API authentication failed - please check API key configuration',
-          data: []
+          response: []
         });
       }
       
       if (response.status === 429) {
-        return res.status(429).json({
+        return res.status(200).json({
           success: false,
           message: 'API rate limit exceeded - please try again later',
-          data: []
+          response: []
         });
       }
       
-      return res.status(500).json({
+      if (response.status === 404) {
+        return res.status(200).json({
+          success: false,
+          message: 'No prediction data available for this fixture',
+          response: []
+        });
+      }
+      
+      return res.status(200).json({
         success: false,
         message: `API error: ${response.statusText}`,
-        data: []
+        response: []
       });
     }
 
@@ -62,7 +70,7 @@ router.get('/fixtures/:fixtureId/predictions', async (req, res) => {
     
     res.json({
       success: true,
-      data: data.response || [],
+      response: data.response || [],
       message: `Found ${data.response?.length || 0} predictions`
     });
 

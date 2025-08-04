@@ -102,8 +102,11 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
           });
 
           // Handle specific error cases more gracefully
-          if (response.status === 400) {
-            // Set empty data instead of throwing error
+          if (response.status === 400 || 
+              (errorData.message && errorData.message.includes('Invalid fixture ID')) ||
+              (errorData.error && errorData.error.includes('Invalid fixture ID'))) {
+            // Set empty data instead of throwing error for invalid fixture IDs
+            console.log(`ℹ️ [H2H] Invalid fixture ID or no data available for teams ${actualHomeTeamId} vs ${actualAwayTeamId}`);
             setH2hData([]);
             setError(null); // Don't show error, just show "no data"
             return;

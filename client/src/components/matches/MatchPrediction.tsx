@@ -206,6 +206,13 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
         let apiPredictions = null;
         if (predictionsResponse && predictionsResponse.ok) {
           try {
+            // Check if response is actually JSON before parsing
+            const contentType = predictionsResponse.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+              console.warn('❌ [MatchPrediction] Predictions API returned non-JSON response, skipping');
+              throw new Error('Non-JSON response from predictions API');
+            }
+            
             const predictionsData = await predictionsResponse.json();
             console.log('📊 [MatchPrediction] RapidAPI Predictions response:', predictionsData);
             
@@ -257,7 +264,10 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
             }
           } catch (predictionsError) {
             console.error('❌ [MatchPrediction] Error processing RapidAPI predictions:', predictionsError);
+            // Don't throw, just continue without predictions
           }
+        } else if (predictionsResponse && !predictionsResponse.ok) {
+          console.warn(`⚠️ [MatchPrediction] Predictions API returned ${predictionsResponse.status}, skipping predictions`);
         }
 
         // Only use props as fallback if no RapidAPI data available

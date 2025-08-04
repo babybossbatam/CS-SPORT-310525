@@ -1073,12 +1073,13 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       // Set a timer to check if video is actually playable
       const timeoutId = setTimeout(() => {
         // If we still have a current source but it might be showing "Video unavailable"
-        // we should hide the component after a reasonable wait time
+        // automatically try the next source
         if (currentSource.type === 'youtube') {
           console.warn(`🎬 [Highlights] YouTube video timeout - may be unavailable: ${currentSource.title}`);
-
+          console.log(`🔄 [Highlights] Automatically trying next source...`);
+          setSourceIndex(prev => prev + 1);
         }
-      }, 10000); // 10 second timeout for video availability check
+      }, 15000); // 15 second timeout for video availability check
 
       return () => clearTimeout(timeoutId);
     }
