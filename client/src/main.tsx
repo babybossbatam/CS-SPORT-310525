@@ -1,30 +1,24 @@
-
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { store } from './lib/store'
 import App from './App.tsx'
 import './index.css'
+import './lib/networkErrorHandler'
+import { setupGlobalErrorHandlers } from './lib/errorHandler.ts'
+import { createRoot } from "react-dom/client";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
+import { ThemeProvider } from "next-themes";
+import { initializeFlagCachePersistence } from "./lib/flagUtils";
+import { printMissingCountriesReport } from './lib/flagUtils';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 // Initialize dark mode from localStorage
 const isDarkMode = localStorage.getItem('darkMode') === 'true';
 if (isDarkMode) {
   document.documentElement.classList.add('dark');
 }
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </React.StrictMode>,
-)
-
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
-import './lib/networkErrorHandler'
 
 // Filter out known Replit/browser warnings in development
 if (import.meta.env.DEV) {
@@ -54,23 +48,6 @@ if (import.meta.env.DEV) {
     originalError.apply(console, args);
   };
 }
-import { setupGlobalErrorHandlers } from './lib/errorHandler.ts'
-
-// Set EventEmitter limits early
-if (typeof process !== 'undefined') {
-  process.setMaxListeners?.(50);
-}
-
-// Setup global error handlers
-setupGlobalErrorHandlers();
-import { createRoot } from "react-dom/client";
-import { Provider } from "react-redux";
-import { store } from "@/lib/store";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "@/lib/queryClient";
-import { ThemeProvider } from "next-themes";
-import { initializeFlagCachePersistence } from "./lib/flagUtils";
-import { printMissingCountriesReport } from './lib/flagUtils';
 
 // Make debugging functions available globally in development
 if (import.meta.env.DEV) {
@@ -80,19 +57,24 @@ if (import.meta.env.DEV) {
 // Initialize flag cache persistence
 initializeFlagCachePersistence();
 
-// Initialize error handlers before rendering
-import ErrorBoundary from './components/common/ErrorBoundary';
+// Set EventEmitter limits early
+if (typeof process !== 'undefined') {
+  process.setMaxListeners?.(50);
+}
 
-// Initial loader removed for faster page load
+// Setup global error handlers
+setupGlobalErrorHandlers();
 
 createRoot(document.getElementById("root")!).render(
-  <Provider store={store}>
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="light">
-        <ErrorBoundary>
-        <App />
-        </ErrorBoundary>
-      </ThemeProvider>
-    </QueryClientProvider>
-  </Provider>
+  <React.StrictMode>
+    <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider attribute="class" defaultTheme="light">
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </Provider>
+  </React.StrictMode>
 );
