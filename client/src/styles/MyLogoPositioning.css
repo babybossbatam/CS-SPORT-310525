@@ -378,6 +378,11 @@
   color: rgb(173, 173, 174);
 }
 
+/* Dark mode styles for match status labels */
+.dark .status-ended {
+  color: rgb(229 231 235) !important; /* text-gray-200 */
+}
+
 .status-postponed {
   color: rgb(220 38 38);
 }
