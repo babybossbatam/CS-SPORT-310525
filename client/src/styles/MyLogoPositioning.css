@@ -904,5 +904,5 @@
 /* Ensure country matches container dark mode hover takes priority */
 .dark .country-matches-container .match-card-container:hover {
   background-color: rgb(55 65 81) !important; /* gray-700 */
-  transform: translateX(2px);
+  
 }
