@@ -355,10 +355,10 @@ const MyNewLeague2 = ({
 
             const data = await response.json();
             const fixtures = data.response || data || [];
-            
+
             // Cache ended matches for this league
             cacheEndedMatches(selectedDate, leagueId, fixtures);
-            
+
             console.log(
               `✅ [MyNewLeague2] League ${leagueId}: ${fixtures.length} fixtures`,
             );
@@ -403,7 +403,7 @@ const MyNewLeague2 = ({
 
       // Combine fresh fixtures with cached ended matches
       const allFixturesMap = new Map<number, FixtureData>();
-      
+
       // Add cached ended matches first
       cachedEndedMatches.forEach((fixture) => {
         if (fixture?.fixture?.id && !allFixturesMap.has(fixture.fixture.id)) {
@@ -971,7 +971,7 @@ const MyNewLeague2 = ({
         {/* Header Section */}
         <CardHeader className="flex items-left gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
           <div className="flex justify-between  w-full">
-            <span className=" text-sm font-semibold">Popular Football Leagues</span>
+            <span className="text-sm font-semibold">Popular Football Leagues</span>
           </div>
         </CardHeader>
 
