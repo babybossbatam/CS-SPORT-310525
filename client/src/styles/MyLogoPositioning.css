@@ -29,8 +29,7 @@
 .dark .match-card-container:hover {
   background-color: rgb(55 65 81) !important;
   /* bg-gray-700 for dark mode hover - matches league header */
-  transform: translateX(2px);
-  /* Subtle slide animation like league header */
+ 
 }
 
 /* Ensure all match cards have borders */
@@ -608,7 +607,7 @@
 
   /* Selected match state */
   .dark .match-card-container.selected-match {
-    background-color: #40424f !important;
+    background-color: rgb(55 65 81) !important;
 
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15) !important;
 }
