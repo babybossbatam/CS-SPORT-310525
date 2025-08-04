@@ -76,8 +76,12 @@ interface FixtureData {
 
 interface MyNewLeague2Props {
   selectedDate: string;
+  timeFilterActive?: boolean;
+  showTop10?: boolean;
+  liveFilterActive?: boolean;
   onMatchCardClick?: (fixture: any | null) => void; // Callback to pass match data to parent (for MyMatchdetailsScoreboard)
   match?: any; // Current match data (used for sample display)
+  useUTCOnly?: boolean;
 }
 
 const MyNewLeague2 = ({
