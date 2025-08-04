@@ -1185,13 +1185,13 @@ const MyNewLeague2 = ({
                           onClick={() => handleMatchClick(fixture)}
                           onMouseEnter={() => {
                             const container = document.querySelector(`[data-fixture-id="${matchId}"]`);
-                            if (!container?.classList.contains("disable-hover")) {
+                            if (!container?.classList.contains("disable-hover") && selectedMatchId !== matchId) {
                               setHoveredMatchId(matchId);
                             }
                           }}
                           onMouseLeave={() => {
                             const container = document.querySelector(`[data-fixture-id="${matchId}"]`);
-                            if (!container?.classList.contains("disable-hover")) {
+                            if (!container?.classList.contains("disable-hover") && selectedMatchId !== matchId) {
                               setHoveredMatchId(null);
                             }
                           }}
