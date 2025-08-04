@@ -1003,7 +1003,7 @@ const MyNewLeague2 = ({
             <div className="text-center text-gray-500">
               <div>No matches found</div>
               <div className="text-xs mt-2">
-                Searched {leagueIds.length} leagues: {leagueIds.join(", ")}
+                Searched {priorityLeagueIds.length + remainingLeagueIds.length} leagues: {[...priorityLeagueIds, ...remainingLeagueIds].join(", ")}
               </div>
               <div className="text-xs mt-1">
                 Raw fixtures count: {allFixtures?.length || 0}
