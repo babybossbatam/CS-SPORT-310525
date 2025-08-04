@@ -853,7 +853,7 @@
     grid-template-columns: 1fr 36px 1fr;
     max-width: 100%;
     overflow: hidden;
-    
+
   }
 
   .penalty-home-side,
@@ -861,7 +861,7 @@
     min-height: 32px;
     max-width: 100%;
     overflow: hidden;
-    
+
   }
 
   .penalty-home-player-info,
@@ -942,9 +942,10 @@
 
   .penalty-away-icon {
     justify-content: flex-start;
-    margin-right: 14px;
+    margin-right: 8px;
     flex-shrink: 0;
-    width: 12px;
+    width: 16px;
+    min-width: 16px;
   }
 
   /* Ensure proper spacing on mobile */
