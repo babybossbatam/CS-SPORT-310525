@@ -554,6 +554,15 @@
   background-color: white !important;
 }
 
+/* Dark mode styles for disable-hover */
+.dark .match-card-container.disable-hover {
+  background-color: rgb(31 41 55) !important; /* bg-gray-800 */
+}
+
+.dark .match-card-container.disable-hover:hover {
+  background-color: rgb(31 41 55) !important; /* bg-gray-800 */
+}
+
 
 
 /* Status label hover effects to match card background */
