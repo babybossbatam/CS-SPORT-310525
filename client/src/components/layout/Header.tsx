@@ -163,7 +163,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
               sideOffset={isMobile ? 8 : 4}
             >
               <DropdownMenuLabel className={cn(
-                "text-gray-600 font-medium",
+                "text-gray-600 dark:text-white font-medium",
                 isMobile ? "px-4 py-2 text-sm" : "text-xs"
               )}>
                 NOTIFICATIONS
@@ -184,7 +184,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
               <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
 
               <DropdownMenuLabel className={cn(
-                "text-gray-600 font-medium",
+                "text-gray-600 dark:text-white font-medium",
                 isMobile ? "px-4 py-2 text-sm" : "text-xs"
               )}>
                 THEMES
@@ -205,7 +205,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
               <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
 
               <DropdownMenuLabel className={cn(
-                "text-gray-600 font-medium",
+                "text-gray-600 dark:text-white font-medium",
                 isMobile ? "px-4 py-2 text-sm" : "text-xs"
               )}>
                 LANGUAGE
@@ -299,7 +299,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
 
               <DropdownMenuItem
                 className={cn(
-                  "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-700",
+                  "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-700 dark:text-white",
                   isMobile ? "min-h-[48px] px-4 py-3 text-base" : "px-3 py-2 text-sm"
                 )}
                 onClick={() => setPrivacyModalOpen(true)}
