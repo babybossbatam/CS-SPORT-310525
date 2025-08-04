@@ -868,8 +868,8 @@
 
 /* Hover effect */
 .match-card-container.hovered-match:not(.selected-match) {
-  background-color: rgb(55 65 81) !important;
-  border-left: 2px solid #6b7280 !important;
+  background-color: #f9fafb !important;
+  
   transition: all 0.2s ease-in-out !important;
 }
 
