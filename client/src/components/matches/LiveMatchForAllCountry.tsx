@@ -773,7 +773,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     return (
       <>
         {/* Header Section */}
-        <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
+        <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold text-sm">
           Popular Football Live Score
         </CardHeader>
         <div className="bg-gray-100 min-h-[400px]">

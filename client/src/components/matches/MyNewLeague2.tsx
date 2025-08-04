@@ -997,7 +997,7 @@ const MyNewLeague2 = ({
       {/* Header Section */}
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
         <div className="flex justify-between items-center w-full">
-          <span>Popular Football Leagues</span>
+          <span className="text-sm font-semibold">Popular Football Leagues</span>
         </div>
       </CardHeader>
 
