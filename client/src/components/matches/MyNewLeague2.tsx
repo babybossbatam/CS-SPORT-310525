@@ -167,7 +167,128 @@ const MyNewLeague2 = ({
   const delay = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
 
-  // Fetch fixtures for all leagues with throttling
+  // Helper function to check if match ended more than 4 hours ago
+  const isMatchOldEnded = useCallback((fixture: FixtureData): boolean => {
+    const status = fixture.fixture.status.short;
+    const isEnded = [
+      "FT",
+      "AET",
+      "PEN",
+      "AWD",
+      "WO",
+      "ABD",
+      "CANC",
+      "SUSP",
+    ].includes(status);
+
+    if (!isEnded) return false;
+
+    const matchDate = new Date(fixture.fixture.date);
+    const hoursAgo = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
+
+    return hoursAgo > 4;
+  }, []);
+
+  // Cache key for ended matches
+  const getCacheKey = useCallback((date: string, leagueId: number) => {
+    return `ended_matches_${date}_${leagueId}`;
+  }, []);
+
+  // Get cached ended matches with strict date validation
+  const getCachedEndedMatches = useCallback(
+    (date: string, leagueId: number): FixtureData[] => {
+      try {
+        const cacheKey = getCacheKey(date, leagueId);
+        const cached = localStorage.getItem(cacheKey);
+
+        if (!cached) return [];
+
+        const { fixtures, timestamp, date: cachedDate } = JSON.parse(cached);
+
+        // CRITICAL: Ensure cached date exactly matches requested date
+        if (cachedDate !== date) {
+          console.log(
+            `🚨 [MyNewLeague2] Date mismatch in cache - cached: ${cachedDate}, requested: ${date}, clearing cache`,
+          );
+          localStorage.removeItem(cacheKey);
+          return [];
+        }
+
+        const cacheAge = Date.now() - timestamp;
+        const today = new Date().toISOString().slice(0, 10);
+        const isToday = date === today;
+
+        // For ended matches older than 4h: 7 days cache (much longer for optimization)
+        // For today: 30 minutes max (shorter for live data accuracy)
+        const maxCacheAge = isToday ? 30 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
+
+        if (cacheAge < maxCacheAge) {
+          // Additional validation: check if fixtures actually match the date
+          const validFixtures = fixtures.filter((fixture: any) => {
+            const fixtureDate = new Date(fixture.fixture.date);
+            const fixtureDateString = fixtureDate.toISOString().slice(0, 10);
+            return fixtureDateString === date;
+          });
+
+          if (validFixtures.length !== fixtures.length) {
+            console.log(
+              `🚨 [MyNewLeague2] Found ${fixtures.length - validFixtures.length} fixtures with wrong dates in cache, clearing`,
+            );
+            localStorage.removeItem(cacheKey);
+            return [];
+          }
+
+          console.log(
+            `✅ [MyNewLeague2] Using cached ended matches for league ${leagueId} on ${date}: ${validFixtures.length} matches`,
+          );
+          return validFixtures;
+        } else {
+          // Remove expired cache
+          localStorage.removeItem(cacheKey);
+          console.log(
+            `⏰ [MyNewLeague2] Removed expired cache for league ${leagueId} on ${date} (age: ${Math.round(cacheAge / 60000)}min)`,
+          );
+        }
+      } catch (error) {
+        console.error("Error reading cached ended matches:", error);
+        // Clear corrupted cache
+        const cacheKey = getCacheKey(date, leagueId);
+        localStorage.removeItem(cacheKey);
+      }
+
+      return [];
+    },
+    [getCacheKey],
+  );
+
+  // Cache ended matches
+  const cacheEndedMatches = useCallback(
+    (date: string, leagueId: number, fixtures: FixtureData[]) => {
+      try {
+        const endedFixtures = fixtures.filter(isMatchOldEnded);
+
+        if (endedFixtures.length === 0) return;
+
+        const cacheKey = getCacheKey(date, leagueId);
+        const cacheData = {
+          fixtures: endedFixtures,
+          timestamp: Date.now(),
+          date,
+          leagueId,
+        };
+
+        localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+        console.log(
+          `💾 [MyNewLeague2] Cached ${endedFixtures.length} ended matches for league ${leagueId} on ${date}`,
+        );
+      } catch (error) {
+        console.error("Error caching ended matches:", error);
+      }
+    },
+    [getCacheKey, isMatchOldEnded],
+  );
+
+  // Fetch fixtures for all leagues with optimized caching for ended matches
   const {
     data: allFixtures,
     isLoading,
@@ -178,6 +299,17 @@ const MyNewLeague2 = ({
       console.log(
         `🎯 [MyNewLeague2] Fetching fixtures for ${leagueIds.length} leagues on ${selectedDate}:`,
         leagueIds,
+      );
+
+      // First, get cached ended matches for all leagues
+      const cachedEndedMatches: FixtureData[] = [];
+      leagueIds.forEach((leagueId) => {
+        const cached = getCachedEndedMatches(selectedDate, leagueId);
+        cachedEndedMatches.push(...cached);
+      });
+
+      console.log(
+        `💾 [MyNewLeague2] Retrieved ${cachedEndedMatches.length} cached ended matches`,
       );
 
       // Process leagues in batches to avoid rate limiting
@@ -223,6 +355,10 @@ const MyNewLeague2 = ({
 
             const data = await response.json();
             const fixtures = data.response || data || [];
+            
+            // Cache ended matches for this league
+            cacheEndedMatches(selectedDate, leagueId, fixtures);
+            
             console.log(
               `✅ [MyNewLeague2] League ${leagueId}: ${fixtures.length} fixtures`,
             );
@@ -265,12 +401,24 @@ const MyNewLeague2 = ({
         }
       }
 
-      // Deduplicate at the fetch level as well
+      // Combine fresh fixtures with cached ended matches
       const allFixturesMap = new Map<number, FixtureData>();
+      
+      // Add cached ended matches first
+      cachedEndedMatches.forEach((fixture) => {
+        if (fixture?.fixture?.id && !allFixturesMap.has(fixture.fixture.id)) {
+          allFixturesMap.set(fixture.fixture.id, fixture);
+        }
+      });
+
+      // Add fresh fixtures (this will overwrite cached ones if they exist in fresh data)
       results.forEach((result) => {
         result.fixtures.forEach((fixture: FixtureData) => {
-          if (fixture?.fixture?.id && !allFixturesMap.has(fixture.fixture.id)) {
-            allFixturesMap.set(fixture.fixture.id, fixture);
+          if (fixture?.fixture?.id) {
+            // Only add if not cached or if it's not an old ended match
+            if (!allFixturesMap.has(fixture.fixture.id) || !isMatchOldEnded(fixture)) {
+              allFixturesMap.set(fixture.fixture.id, fixture);
+            }
           }
         });
       });
@@ -281,9 +429,11 @@ const MyNewLeague2 = ({
       console.log(`🔄 [MyNewLeague2] Fetch results:`, {
         totalLeagues: results.length,
         successfulFetches: results.filter((r) => r.fixtures.length > 0).length,
+        cachedEndedMatches: cachedEndedMatches.length,
         totalFixtures: allFixtures.length,
         duplicatesRemoved:
-          results.reduce((sum, r) => sum + r.fixtures.length, 0) -
+          results.reduce((sum, r) => sum + r.fixtures.length, 0) +
+          cachedEndedMatches.length -
           allFixtures.length,
         leagueBreakdown: results.map((r) => ({
           league: r.leagueId,
