@@ -24,8 +24,8 @@
 }
 
 .dark .match-card-container:hover {
-  background-color: rgb(75 85 99) !important;
-  /* bg-gray-600 */
+  background-color: rgb(55 65 81) !important;
+  /* bg-gray-700 */
 }
 
 /* Ensure all match cards have borders */
