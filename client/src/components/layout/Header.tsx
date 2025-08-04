@@ -155,15 +155,25 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-              className="w-80 bg-white border-gray-200 text-gray-900 shadow-lg"
+              className={cn(
+                "bg-white border-gray-200 text-gray-900 shadow-lg",
+                isMobile ? "w-72 max-w-[90vw]" : "w-80"
+              )}
               align="end"
+              sideOffset={isMobile ? 8 : 4}
             >
-              <DropdownMenuLabel className="text-gray-600 font-medium">
+              <DropdownMenuLabel className={cn(
+                "text-gray-600 font-medium",
+                isMobile ? "px-4 py-2 text-sm" : "text-xs"
+              )}>
                 NOTIFICATIONS
               </DropdownMenuLabel>
 
-              <DropdownMenuItem className="flex items-center justify-between hover:bg-gray-100 cursor-pointer">
-                <span>Enable all Notifications</span>
+              <DropdownMenuItem className={cn(
+                "flex items-center justify-between hover:bg-gray-100 cursor-pointer",
+                isMobile ? "min-h-[48px] px-4 py-3" : "px-3 py-2"
+              )}>
+                <span className={cn(isMobile ? "text-base" : "text-sm")}>Enable all Notifications</span>
                 <Switch
                   checked={notificationsEnabled}
                   onCheckedChange={setNotificationsEnabled}
@@ -173,12 +183,18 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
 
               <DropdownMenuSeparator className="bg-gray-200" />
 
-              <DropdownMenuLabel className="text-gray-600 font-medium">
+              <DropdownMenuLabel className={cn(
+                "text-gray-600 font-medium",
+                isMobile ? "px-4 py-2 text-sm" : "text-xs"
+              )}>
                 THEMES
               </DropdownMenuLabel>
 
-              <DropdownMenuItem className="flex items-center justify-between hover:bg-gray-100 cursor-pointer">
-                <span>Set Dark Theme</span>
+              <DropdownMenuItem className={cn(
+                "flex items-center justify-between hover:bg-gray-100 cursor-pointer",
+                isMobile ? "min-h-[48px] px-4 py-3" : "px-3 py-2"
+              )}>
+                <span className={cn(isMobile ? "text-base" : "text-sm")}>Set Dark Theme</span>
                 <Switch
                   checked={darkTheme}
                   onCheckedChange={setDarkTheme}
@@ -188,64 +204,92 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
 
               <DropdownMenuSeparator className="bg-gray-200" />
 
-              <DropdownMenuLabel className="text-gray-600 font-medium">
+              <DropdownMenuLabel className={cn(
+                "text-gray-600 font-medium",
+                isMobile ? "px-4 py-2 text-sm" : "text-xs"
+              )}>
                 LANGUAGE
               </DropdownMenuLabel>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <DropdownMenuItem className="flex items-center justify-between hover:bg-gray-100 cursor-pointer">
+                  <DropdownMenuItem className={cn(
+                    "flex items-center justify-between hover:bg-gray-100 cursor-pointer",
+                    isMobile ? "min-h-[48px] px-4 py-3" : "px-3 py-2"
+                  )}>
                     <div className="flex items-center">
-                      <span className="mr-2 text-lg">🇺🇸</span>
-                      <span>{selectedLanguage}</span>
+                      <span className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}>🇺🇸</span>
+                      <span className={cn(isMobile ? "text-base" : "text-sm")}>{selectedLanguage}</span>
                     </div>
-                    <ChevronDown className="h-3 w-3" />
+                    <ChevronDown className={cn(isMobile ? "h-4 w-4" : "h-3 w-3")} />
                   </DropdownMenuItem>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="w-48 bg-white border-gray-200 text-gray-900"
-                  side="left"
+                  className={cn(
+                    "bg-white border-gray-200 text-gray-900",
+                    isMobile ? "w-60 max-w-[80vw]" : "w-48"
+                  )}
+                  side={isMobile ? "bottom" : "left"}
+                  sideOffset={isMobile ? 4 : 0}
                 >
                   <DropdownMenuItem
-                    className="hover:bg-gray-100 cursor-pointer"
+                    className={cn(
+                      "hover:bg-gray-100 cursor-pointer",
+                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm"
+                    )}
                     onClick={() => setSelectedLanguage("English (US)")}
                   >
-                    <span className="mr-2 text-lg">🇺🇸</span>
+                    <span className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}>🇺🇸</span>
                     English (US)
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="hover:bg-gray-100 cursor-pointer"
+                    className={cn(
+                      "hover:bg-gray-100 cursor-pointer",
+                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm"
+                    )}
                     onClick={() => setSelectedLanguage("English (UK)")}
                   >
-                    <span className="mr-2 text-lg">🇬🇧</span>
+                    <span className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}>🇬🇧</span>
                     English (UK)
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="hover:bg-gray-100 cursor-pointer"
+                    className={cn(
+                      "hover:bg-gray-100 cursor-pointer",
+                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm"
+                    )}
                     onClick={() => setSelectedLanguage("Español")}
                   >
-                    <span className="mr-2 text-lg">🇪🇸</span>
+                    <span className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}>🇪🇸</span>
                     Español
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="hover:bg-gray-100 cursor-pointer"
+                    className={cn(
+                      "hover:bg-gray-100 cursor-pointer",
+                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm"
+                    )}
                     onClick={() => setSelectedLanguage("Français")}
                   >
-                    <span className="mr-2 text-lg">🇫🇷</span>
+                    <span className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}>🇫🇷</span>
                     Français
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="hover:bg-gray-100 cursor-pointer"
+                    className={cn(
+                      "hover:bg-gray-100 cursor-pointer",
+                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm"
+                    )}
                     onClick={() => setSelectedLanguage("中文 (简体)")}
                   >
-                    <span className="mr-2 text-lg">🇨🇳</span>
+                    <span className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}>🇨🇳</span>
                     中文 (简体)
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="hover:bg-gray-100 cursor-pointer"
+                    className={cn(
+                      "hover:bg-gray-100 cursor-pointer",
+                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm"
+                    )}
                     onClick={() => setSelectedLanguage("中文 (繁體)")}
                   >
-                    <span className="mr-2 text-lg">🇭🇰</span>
+                    <span className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}>🇭🇰</span>
                     中文 (繁體)
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -254,7 +298,10 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
               <DropdownMenuSeparator className="bg-gray-200" />
 
               <DropdownMenuItem
-                className="hover:bg-gray-100 cursor-pointer text-gray-700"
+                className={cn(
+                  "hover:bg-gray-100 cursor-pointer text-gray-700",
+                  isMobile ? "min-h-[48px] px-4 py-3 text-base" : "px-3 py-2 text-sm"
+                )}
                 onClick={() => setPrivacyModalOpen(true)}
               >
                 Privacy Settings
