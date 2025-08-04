@@ -1183,8 +1183,18 @@ const MyNewLeague2 = ({
                           }`}
                           data-fixture-id={matchId}
                           onClick={() => handleMatchClick(fixture)}
-                          onMouseEnter={() => setHoveredMatchId(matchId)}
-                          onMouseLeave={() => setHoveredMatchId(null)}
+                          onMouseEnter={() => {
+                            const container = document.querySelector(`[data-fixture-id="${matchId}"]`);
+                            if (!container?.classList.contains("disable-hover")) {
+                              setHoveredMatchId(matchId);
+                            }
+                          }}
+                          onMouseLeave={() => {
+                            const container = document.querySelector(`[data-fixture-id="${matchId}"]`);
+                            if (!container?.classList.contains("disable-hover")) {
+                              setHoveredMatchId(null);
+                            }
+                          }}
                           style={{
                             cursor: "pointer",
                           }}
@@ -1198,14 +1208,13 @@ const MyNewLeague2 = ({
                             className="match-star-button"
                             title="Add to favorites"
                             onMouseEnter={(e) => {
-                              e.currentTarget
-                                .closest(".match-card-container")
-                                ?.classList.add("disable-hover");
+                              const container = e.currentTarget.closest(".match-card-container");
+                              container?.classList.add("disable-hover");
+                              setHoveredMatchId(null);
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget
-                                .closest(".match-card-container")
-                                ?.classList.remove("disable-hover");
+                              const container = e.currentTarget.closest(".match-card-container");
+                              container?.classList.remove("disable-hover");
                             }}
                           >
                             <Star

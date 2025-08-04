@@ -573,13 +573,21 @@
 /* Disable hover effect when star button is being interacted with */
 .match-card-container.disable-hover {
   background-color: white !important;
+  pointer-events: none !important;
 }
 
 .match-card-container.disable-hover:hover {
   background-color: white !important;
 }
 
+.match-card-container.disable-hover .match-star-button {
+  pointer-events: auto !important;
+}
+
 /* Dark mode styles for disable-hover */
+.dark .match-card-container.disable-hover {
+  background-color: rgb(31 41 55) !important;
+}
 
 .dark .match-card-container.disable-hover:hover {
   background-color: rgb(31 41 55) !important;
