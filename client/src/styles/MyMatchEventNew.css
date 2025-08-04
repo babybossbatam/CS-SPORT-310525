@@ -764,6 +764,7 @@
     align-items: center;
     justify-content: flex-end;
     text-align: right;
+   
     gap: 4px;
     max-width: calc(100% - 26px);
     overflow: hidden;
@@ -773,18 +774,18 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    height: 30px;
-    width: 5px;
-    min-width: 20px;
+    height: 20px;
+    width: 3px;
+    min-width: 14px;
     min-height: 30px;
     flex-shrink: 0;
   }
 
   .match-event-away-icon-column {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     align-items: center;
-    height: 30px;
+    height: 20px;
     width: 20px;
     min-width: 20px;
     min-height: 30px;
