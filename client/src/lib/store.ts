@@ -50,6 +50,7 @@ interface UIState {
   selectedSport: string;
   selectedLeague: number;
   showRegionModal: boolean;
+  darkMode: boolean;
   accessibility: {
     highContrast: boolean;
     largerText: boolean;
@@ -124,6 +125,7 @@ const initialUIState: UIState = {
   selectedSport: 'football',
   selectedLeague: 39, // Default to Premier League
   showRegionModal: false,
+  darkMode: localStorage.getItem('darkMode') === 'true',
   accessibility: {
     highContrast: false,
     largerText: false,
@@ -359,6 +361,20 @@ const uiSlice = createSlice({
     // Reset all accessibility settings to default
     resetAccessibility: (state) => {
       state.accessibility = initialUIState.accessibility;
+    },
+    toggleSidebar: (state) => {
+      state.sidebarCollapsed = !state.sidebarCollapsed;
+    },
+    toggleDarkMode: (state) => {
+      state.darkMode = !state.darkMode;
+      localStorage.setItem('darkMode', state.darkMode.toString());
+
+      // Apply dark class to document
+      if (state.darkMode) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
     },
   },
 });

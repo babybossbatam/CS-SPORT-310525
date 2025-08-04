@@ -35,7 +35,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
   const [location, navigate] = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [darkTheme, setDarkTheme] = useState(false);
+  const darkMode = useSelector((state: RootState) => state.ui.darkMode);
   const [selectedLanguage, setSelectedLanguage] = useState("English (US)");
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
@@ -196,8 +196,8 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
               )}>
                 <span className={cn(isMobile ? "text-base" : "text-sm")}>Set Dark Theme</span>
                 <Switch
-                  checked={darkTheme}
-                  onCheckedChange={setDarkTheme}
+                  checked={darkMode}
+                  onCheckedChange={() => dispatch({ type: 'ui/toggleDarkMode' })}
                   className="data-[state=checked]:bg-blue-500"
                 />
               </DropdownMenuItem>
