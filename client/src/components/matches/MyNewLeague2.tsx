@@ -1157,7 +1157,7 @@ const MyNewLeague2 = ({
 
               {/* Matches - Show when league is expanded */}
               {isExpanded && (
-                <div className="match-cards-wrapper">
+                <div className="match-cards-wrapper ">
                   {fixtures.map((fixture: FixtureData) => {
                     const matchId = fixture.fixture.id;
                     const isHalftimeFlash = halftimeFlashMatches.has(matchId);
@@ -1168,7 +1168,7 @@ const MyNewLeague2 = ({
                     const isStarred = starredMatches.has(matchId);
 
                     return (
-                      <div key={matchId} className="country-matches-container">
+                      <div key={matchId} className="country-matches-container ">
                         <div
                           className={`match-card-container group border-b border-gray-200 ${
                             isHalftimeFlash ? "halftime-flash" : ""

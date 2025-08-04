@@ -583,10 +583,6 @@
 }
 
 /* Dark mode styles for disable-hover */
-.dark .match-card-container.disable-hover {
-  background-color: rgb(31 41 55) !important;
-  /* bg-gray-800 */
-}
 
 .dark .match-card-container.disable-hover:hover {
   background-color: rgb(31 41 55) !important;
@@ -612,7 +608,7 @@
 
   /* Selected match state */
   .dark .match-card-container.selected-match {
-    background-color: #575757 !important;
+    background-color: #40424f !important;
 
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15) !important;
 }
@@ -807,7 +803,7 @@
 }
 
 .match-card-container:hover {
-  background-color: rgba(0, 0, 0, 0.02);
+  background-color: rgb(170, 167, 167, 0.02);
 }
 
 .match-card-container:active {
