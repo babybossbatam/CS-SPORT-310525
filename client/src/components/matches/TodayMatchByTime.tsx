@@ -304,7 +304,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       >
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-blue-500" />
-          <span className="font-semibold text-gray-800">Matches by Time ({sortedFixtures.length})</span>
+          <span className="font-semibold text-gray-800">Popular Football Leagues</span>
         </div>
       </CardHeader>
 
