@@ -188,11 +188,25 @@ const reportError = (error: any, category: ErrorCategory, context: string) => {
 
   // Store for debugging (in development)
   if (import.meta.env.DEV) {
-    const errors = JSON.parse(localStorage.getItem('app-errors') || '[]');
-    errors.push(errorReport);
-    // Keep only last 50 errors
-    if (errors.length > 50) errors.splice(0, errors.length - 50);
-    localStorage.setItem('app-errors', JSON.stringify(errors));
+    try {
+      const errors = JSON.parse(localStorage.getItem('app-errors') || '[]');
+      errors.push(errorReport);
+      // Keep only last 10 errors to prevent quota issues
+      if (errors.length > 10) {
+        errors.splice(0, errors.length - 10);
+      }
+      localStorage.setItem('app-errors', JSON.stringify(errors));
+    } catch (quotaError) {
+      // If localStorage is full, clear it and start fresh
+      console.warn('🧹 localStorage quota exceeded, clearing error storage');
+      localStorage.removeItem('app-errors');
+      try {
+        localStorage.setItem('app-errors', JSON.stringify([errorReport]));
+      } catch {
+        // If still failing, just skip storing this error
+        console.warn('⚠️ Unable to store error due to localStorage constraints');
+      }
+    }
   }
 };
 
