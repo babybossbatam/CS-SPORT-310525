@@ -38,6 +38,24 @@
   transition: all 0.2s ease;
 }
 
+/* Mobile-specific container improvements */
+@media (max-width: 768px) {
+  .match-event-container {
+    margin-bottom: 12px;
+    border-radius: 12px;
+    background: var(--surfaceSecondary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--dividerPrimary);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.05);
+  }
+
+  .match-event-container:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+}
+
 
 
 /* Three-grid layout container */
@@ -667,22 +685,26 @@
 @media (max-width: 768px) {
   .match-event-three-grid-container {
     display: grid;
-    grid-template-columns: 1fr 45px 1fr;
+    grid-template-columns: 1fr 50px 1fr;
     grid-template-areas: "home-side time-center away-side";
-    gap: 3px;
-    padding: 3px 6px;
-    min-height: 40px;
-    max-height: 40px;
+    gap: 6px;
+    padding: 8px 12px;
+    min-height: 56px;
+    max-height: 56px;
     align-items: center;
     position: relative;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
   }
 
   .match-event-time-center {
-    font-size: 8px;
-    padding: 2px;
-    min-height: 30px;
-    min-width: 40px;
-    max-width: 45px;
+    font-size: 10px;
+    padding: 6px 4px;
+    min-height: 44px;
+    min-width: 44px;
+    max-width: 50px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
   }
 
   .match-event-time-center-simple {
@@ -691,18 +713,20 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 30px;
-    min-height: 30px;
-    max-height: 30px;
-    width: 45px;
-    min-width: 45px;
-    max-width: 45px;
+    height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+    width: 50px;
+    min-width: 50px;
+    max-width: 50px;
     padding: 0;
-    border-radius: 8px;
+    border-radius: 12px;
     background: transparent;
     flex-shrink: 0;
     flex-grow: 0;
     place-self: center;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
   }
 
   .match-event-time-display {
@@ -714,15 +738,15 @@
     justify-content: center;
     align-items: center;
     text-align: center;
-    font-size: 9px;
+    font-size: 11px;
     font-weight: 600;
     color: black;
-    line-height: 1;
+    line-height: 1.2;
     white-space: nowrap;
-    height: 30px;
-    width: 45px;
-    min-width: 45px;
-    max-width: 45px;
+    height: 44px;
+    width: 50px;
+    min-width: 50px;
+    max-width: 50px;
     flex-shrink: 0;
     flex-grow: 0;
   }
@@ -730,33 +754,37 @@
   .match-event-home-side {
     grid-area: home-side;
     display: grid;
-    grid-template-columns: 1fr 4px;
-    gap: 6px;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
     align-items: center;
-    padding: 2 -2px;
+    padding: 4px 8px;
     max-width: 100%;
     overflow: hidden;
+    min-height: 44px;
   }
 
   .match-event-away-side {
     grid-area: away-side;
     display: grid;
-    grid-template-columns: 5px 1fr;
-    gap: 6px;
+    grid-template-columns: auto 1fr;
+    gap: 8px;
     align-items: center;
-    padding: 0 0px;
+    padding: 4px 8px;
     max-width: 100%;
     overflow: hidden;
+    min-height: 44px;
   }
 
   .match-event-home-player-info {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
     justify-content: flex-start;
     text-align: left;
-    max-width: calc(100% - 5px);
+    max-width: calc(100% - 32px);
     overflow: hidden;
+    min-height: 44px;
+    touch-action: manipulation;
   }
 
   .match-event-away-player-info {
@@ -764,32 +792,35 @@
     align-items: center;
     justify-content: flex-end;
     text-align: right;
-   
-    gap: 4px;
-    max-width: calc(100% - 26px);
+    gap: 8px;
+    max-width: calc(100% - 32px);
     overflow: hidden;
+    min-height: 44px;
+    touch-action: manipulation;
   }
 
   .match-event-home-icon-column {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    height: 20px;
-    width: 3px;
-    min-width: 14px;
-    min-height: 30px;
+    height: 44px;
+    width: 24px;
+    min-width: 24px;
+    min-height: 44px;
     flex-shrink: 0;
+    touch-action: manipulation;
   }
 
   .match-event-away-icon-column {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    height: 20px;
-    width: 20px;
-    min-width: 20px;
-    min-height: 30px;
+    height: 44px;
+    width: 24px;
+    min-width: 24px;
+    min-height: 44px;
     flex-shrink: 0;
+    touch-action: manipulation;
   }
 
   .period-score-marker {
@@ -809,43 +840,57 @@
   }
 
   .match-event-icon {
-    width: 14px;
-    height: 14px;
-    font-size: 8px;
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
     flex-shrink: 0;
+    min-width: 20px;
+    min-height: 20px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
   }
 
   .match-event-event-title {
-    font-size: 9px;
+    font-size: 11px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 70px;
-    line-height: 1.1;
+    max-width: 120px;
+    line-height: 1.3;
+    font-weight: 500;
   }
 
   .match-event-event-subtitle {
-    font-size: 8px;
+    font-size: 10px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 70px;
-    line-height: 1.1;
+    max-width: 120px;
+    line-height: 1.3;
+    margin-top: 2px;
   }
 
   .match-event-player-image {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
     flex-shrink: 0;
+    min-width: 24px;
+    min-height: 24px;
+    border-radius: 50%;
+    border: 1px solid var(--dividerPrimary);
   }
 
   /* Mobile penalty shootout adjustments */
   .penalty-shootout-container {
-    padding: 4px;
-    margin: 4px 0;
+    padding: 12px;
+    margin: 8px 0;
     max-width: 100vw;
     overflow-x: hidden;
     box-sizing: border-box;
+    border-radius: 12px;
+    background: #f8f9fa;
+    border: 1px solid #e5e7eb;
+    touch-action: manipulation;
   }
 
   .penalty-shootout-row {
@@ -1014,6 +1059,45 @@
 .match-event-time-center-simple:focus {
   outline: 2px solid var(--accentPrimary);
   outline-offset: 2px;
+}
+
+/* Mobile touch optimization */
+@media (max-width: 768px) {
+  /* Improve touch targets */
+  .match-event-container * {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    touch-action: manipulation;
+  }
+
+  /* Ensure minimum touch target sizes */
+  .match-event-icon,
+  .match-event-time-center,
+  .match-event-time-center-simple,
+  .match-event-player-image {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Prevent text selection on touch */
+  .match-event-container {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Allow text selection for player names */
+  .match-event-event-title,
+  .match-event-event-subtitle,
+  .penalty-player-name {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+  }
 }
 
 /* High contrast mode support */
