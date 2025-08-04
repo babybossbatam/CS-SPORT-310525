@@ -166,10 +166,10 @@ const MyNewLeague2 = ({
     239, 265, 237, 235, 743,
   ];
   
-  // State for managing progressive loading
+  // State for managing priority vs full loading
+  const [showingPriorityOnly, setShowingPriorityOnly] = useState(true);
   const [priorityFixtures, setPriorityFixtures] = useState<FixtureData[]>([]);
   const [remainingFixtures, setRemainingFixtures] = useState<FixtureData[]>([]);
-  const [showOnlyPriority, setShowOnlyPriority] = useState(true);
 
   // Helper function to add delay between requests
   const delay = (ms: number) =>
@@ -459,11 +459,6 @@ const MyNewLeague2 = ({
       const fixtures = Array.from(allFixturesMap.values());
       console.log(`⏳ [MyNewLeague2] Remaining leagues loaded: ${fixtures.length} fixtures`);
       
-      // Automatically show remaining leagues after they're loaded
-      setTimeout(() => {
-        setShowOnlyPriority(false);
-      }, 1000);
-      
       return fixtures;
     },
     enabled: !!priorityData, // Only run after priority leagues are loaded
@@ -472,20 +467,14 @@ const MyNewLeague2 = ({
     refetchOnWindowFocus: false,
   });
 
-  // Combine priority and remaining data based on current display state
+  // Combine priority and remaining data
   const allFixtures = useMemo(() => {
-    if (showOnlyPriority) {
-      // Show only priority leagues initially
-      return priorityData || [];
-    } else {
-      // Show all leagues after remaining data is loaded
-      const combined = [...(priorityData || []), ...(remainingData || [])];
-      const uniqueFixtures = Array.from(
-        new Map(combined.map(fixture => [fixture.fixture.id, fixture])).values()
-      );
-      return uniqueFixtures;
-    }
-  }, [priorityData, remainingData, showOnlyPriority]);
+    const combined = [...(priorityData || []), ...(remainingData || [])];
+    const uniqueFixtures = Array.from(
+      new Map(combined.map(fixture => [fixture.fixture.id, fixture])).values()
+    );
+    return uniqueFixtures;
+  }, [priorityData, remainingData]);
 
   // Loading and error states
   const isLoading = isPriorityLoading;
@@ -497,13 +486,11 @@ const MyNewLeague2 = ({
       `🔍 [MyNewLeague2] Processing fixtures for date ${selectedDate}:`,
       {
         allFixturesLength: allFixtures?.length || 0,
-        selectedDate,
-        sampleFixtures: allFixtures?.slice(0, 5)?.map((f) => ({
+        sampleFixtures: allFixtures?.slice(0, 3)?.map((f) => ({
           id: f?.fixture?.id,
           league: f?.league?.name,
           teams: `${f?.teams?.home?.name} vs ${f?.teams?.away?.name}`,
-          fixtureDate: f?.fixture?.date,
-          formattedDate: f?.fixture?.date ? format(new Date(f.fixture.date), "yyyy-MM-dd") : "invalid",
+          date: f?.fixture?.date,
         })),
       },
     );
@@ -570,7 +557,6 @@ const MyNewLeague2 = ({
 
       // Only include fixtures that match the selected date
       if (fixtureDateString !== selectedDate) {
-        console.log(`🔄 [MyNewLeague2] Date mismatch - fixture: ${fixtureDateString}, selected: ${selectedDate}, skipping fixture ${fixture.fixture.id}`);
         return;
       }
 
@@ -671,14 +657,6 @@ const MyNewLeague2 = ({
       0,
     );
 
-    // Analyze fixture dates to understand the mismatch
-    const fixtureDateAnalysis = allFixtures?.slice(0, 10)?.map((f) => ({
-      id: f?.fixture?.id,
-      originalDate: f?.fixture?.date,
-      formattedDate: f?.fixture?.date ? format(new Date(f.fixture.date), "yyyy-MM-dd") : "invalid",
-      matchesSelected: f?.fixture?.date ? format(new Date(f.fixture.date), "yyyy-MM-dd") === selectedDate : false,
-    }));
-
     console.log(
       `✅ [MyNewLeague2] Date filtered fixtures for ${selectedDate}:`,
       {
@@ -686,8 +664,6 @@ const MyNewLeague2 = ({
         filteredFixtures: totalValidFixtures,
         leagueCount: groupedKeys.length,
         leagueIds: groupedKeys,
-        selectedDate,
-        fixtureDateSamples: fixtureDateAnalysis,
         leagueDetails: Object.entries(grouped).map(([id, data]) => ({
           id: Number(id),
           name: data.league.name,
@@ -1027,16 +1003,11 @@ const MyNewLeague2 = ({
             <div className="text-center text-gray-500">
               <div>No matches found</div>
               <div className="text-xs mt-2">
-                Searched {showOnlyPriority ? priorityLeagueIds.length : priorityLeagueIds.length + remainingLeagueIds.length} leagues: {showOnlyPriority ? priorityLeagueIds.join(", ") : [...priorityLeagueIds, ...remainingLeagueIds].join(", ")}
+                Searched {priorityLeagueIds.length + remainingLeagueIds.length} leagues: {[...priorityLeagueIds, ...remainingLeagueIds].join(", ")}
               </div>
               <div className="text-xs mt-1">
                 Raw fixtures count: {allFixtures?.length || 0}
               </div>
-              {showOnlyPriority && (
-                <div className="text-xs mt-1 text-blue-600">
-                  Loading remaining leagues in background...
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
@@ -1835,23 +1806,6 @@ const MyNewLeague2 = ({
             </Card>
           );
         })}
-
-      {/* Loading indicator for remaining leagues */}
-      {showOnlyPriority && isRemainingLoading && (
-        <Card className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing mobile-card rounded-none">
-          <CardContent className="p-4">
-            <div className="text-center text-gray-500">
-              <div className="flex items-center justify-center gap-2">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                <span className="text-sm">Loading more leagues...</span>
-              </div>
-              <div className="text-xs mt-1">
-                Loading {remainingLeagueIds.length} additional leagues in background
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </>
   );
 };
