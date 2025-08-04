@@ -2024,7 +2024,7 @@ id: fixture.teams.away.id,
 
                         {/* Match date and venue - centered below VS */}
                         <div
-                          className=" absolute text-center text-xs text-black font-medium"
+                          className=" absolute text-center text-xs text-black dark:text-white-500 font-medium"
                           style={{
                             fontSize: "0.875rem",
                             whiteSpace: "nowrap",
