@@ -2254,7 +2254,7 @@ id: fixture.teams.away.id,
                             e.stopPropagation();
                             setCurrentMatchIndex(index);
                           }}
-                          className={`w-6 h-2 rounded-sm transition-colors ${
+                          className={`w-1 h-1 rounded-sm transition-colors ${
                             index === currentMatchIndex
                               ? "bg-blue-500"
                               : "bg-gray-300"
