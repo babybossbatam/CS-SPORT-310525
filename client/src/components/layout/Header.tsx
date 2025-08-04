@@ -70,14 +70,18 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
   };
 
   return (
-    <header className={cn(
-      "bg-black text-white shadow-md fixed top-0 left-0 right-0 z-50",
-      isMobile ? "h-16" : "h-[87px]"
-    )}>
-      <div className={cn(
-        "container mx-auto flex items-center justify-between h-full",
-        isMobile ? "px-4" : "px-20"
-      )}>
+    <header
+      className={cn(
+        "bg-black text-white shadow-md fixed top-0 left-0 right-0 z-50",
+        isMobile ? "h-16" : "h-[87px]",
+      )}
+    >
+      <div
+        className={cn(
+          "container mx-auto flex items-center justify-between h-full",
+          isMobile ? "px-4" : "px-20",
+        )}
+      >
         <Link
           href="/"
           className="flex-shrink-0 flex items-center h-full bg-black"
@@ -87,7 +91,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
             alt="CS SPORT Logo"
             className={cn(
               "w-auto mr-2 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]",
-              isMobile ? "h-8 max-h-8" : "h-full max-h-[57px]"
+              isMobile ? "h-8 max-h-8" : "h-full max-h-[57px]",
             )}
             onError={(e) => {
               console.log("Logo failed to load, trying fallback");
@@ -97,13 +101,13 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
               }
             }}
           />
-          <span className={cn(
-            "flex items-center gap-2 whitespace-nowrap"
-          )}>
+          <span className={cn("flex items-center gap-2 whitespace-nowrap")}>
             <span
               className={cn(
                 "bg-gradient-to-br from-amber-300 via-yellow-500 to-orange-500 bg-clip-text text-transparent font-bold transition-all duration-200 hover:from-white hover:via-yellow-100 hover:to-amber-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]",
-                isMobile ? "text-lg" : "text-[clamp(2.685rem,3.146vw,3.197rem)]"
+                isMobile
+                  ? "text-lg"
+                  : "text-[clamp(2.685rem,3.146vw,3.197rem)]",
               )}
               style={{
                 fontFamily: "Roboto Condensed, sans-serif",
@@ -118,27 +122,34 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
 
         {!isMobile && <LeagueTabs />}
 
-        <div className={cn(
-          "flex items-center",
-          isMobile ? "gap-3" : "gap-[1.05rem]"
-        )}>
+        <div
+          className={cn(
+            "flex items-center",
+            isMobile ? "gap-3" : "gap-[1.05rem]",
+          )}
+        >
           <div
             className={cn(
               "flex items-center text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer",
-              isMobile ? "text-xs" : "text-sm"
+              isMobile ? "text-xs" : "text-sm",
             )}
             onClick={() =>
               isAuthenticated ? navigate("/my-scores") : navigate("/login")
             }
           >
-            <Star className={cn("fill-current", isMobile ? "h-3 w-3 mr-1" : "h-4 w-4 mr-1")} />
+            <Star
+              className={cn(
+                "fill-current",
+                isMobile ? "h-3 w-3 mr-1" : "h-4 w-4 mr-1",
+              )}
+            />
             <span className={cn(isMobile ? "text-xs" : "")}>My Scores</span>
           </div>
 
           <div
             className={cn(
               "flex items-center text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer",
-              isMobile ? "text-xs" : "text-sm"
+              isMobile ? "text-xs" : "text-sm",
             )}
             onClick={() => setSearchOpen(true)}
           >
@@ -147,33 +158,41 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <div className={cn(
-                "flex items-center text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer",
-                isMobile ? "text-xs" : "text-sm"
-              )}>
+              <div
+                className={cn(
+                  "flex items-center text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer",
+                  isMobile ? "text-xs" : "text-sm",
+                )}
+              >
                 <Settings className={cn(isMobile ? "h-3 w-3" : "h-4 w-4")} />
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className={cn(
                 "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white shadow-lg",
-                isMobile ? "w-72 max-w-[90vw]" : "w-80"
+                isMobile ? "w-72 max-w-[90vw]" : "w-80",
               )}
               align="end"
               sideOffset={isMobile ? 8 : 4}
             >
-              <DropdownMenuLabel className={cn(
-                "text-gray-600 dark:text-white font-medium",
-                isMobile ? "px-4 py-2 text-sm" : "text-xs"
-              )}>
+              <DropdownMenuLabel
+                className={cn(
+                  "text-gray-600 dark:text-gray-400 font-medium",
+                  isMobile ? "px-4 py-2 text-sm" : "text-xs",
+                )}
+              >
                 NOTIFICATIONS
               </DropdownMenuLabel>
 
-              <DropdownMenuItem className={cn(
-                "flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
-                isMobile ? "min-h-[48px] px-4 py-3" : "px-3 py-2"
-              )}>
-                <span className={cn(isMobile ? "text-base" : "text-sm")}>Enable all Notifications</span>
+              <DropdownMenuItem
+                className={cn(
+                  "flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
+                  isMobile ? "min-h-[48px] px-4 py-3" : "px-3 py-2",
+                )}
+              >
+                <span className={cn(isMobile ? "text-base" : "text-sm")}>
+                  Enable all Notifications
+                </span>
                 <Switch
                   checked={notificationsEnabled}
                   onCheckedChange={setNotificationsEnabled}
@@ -183,51 +202,71 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
 
               <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
 
-              <DropdownMenuLabel className={cn(
-                "text-gray-600 dark:text-white font-medium",
-                isMobile ? "px-4 py-2 text-sm" : "text-xs"
-              )}>
+              <DropdownMenuLabel
+                className={cn(
+                  "text-gray-600 dark:text-gray-400 font-medium",
+                  isMobile ? "px-4 py-2 text-sm" : "text-xs",
+                )}
+              >
                 THEMES
               </DropdownMenuLabel>
 
-              <DropdownMenuItem className={cn(
-                "flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
-                isMobile ? "min-h-[48px] px-4 py-3" : "px-3 py-2"
-              )}>
-                <span className={cn(isMobile ? "text-base" : "text-sm")}>Set Dark Theme</span>
+              <DropdownMenuItem
+                className={cn(
+                  "flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
+                  isMobile ? "min-h-[48px] px-4 py-3" : "px-3 py-2",
+                )}
+              >
+                <span className={cn(isMobile ? "text-base" : "text-sm")}>
+                  Set Dark Theme
+                </span>
                 <Switch
                   checked={darkMode}
-                  onCheckedChange={() => dispatch({ type: 'ui/toggleDarkMode' })}
+                  onCheckedChange={() =>
+                    dispatch({ type: "ui/toggleDarkMode" })
+                  }
                   className="data-[state=checked]:bg-blue-500"
                 />
               </DropdownMenuItem>
 
               <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
 
-              <DropdownMenuLabel className={cn(
-                "text-gray-600 dark:text-white font-medium",
-                isMobile ? "px-4 py-2 text-sm" : "text-xs"
-              )}>
+              <DropdownMenuLabel
+                className={cn(
+                  "text-gray-600 dark:text-gray-400 font-medium",
+                  isMobile ? "px-4 py-2 text-sm" : "text-xs",
+                )}
+              >
                 LANGUAGE
               </DropdownMenuLabel>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <DropdownMenuItem className={cn(
-                    "flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
-                    isMobile ? "min-h-[48px] px-4 py-3" : "px-3 py-2"
-                  )}>
+                  <DropdownMenuItem
+                    className={cn(
+                      "flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
+                      isMobile ? "min-h-[48px] px-4 py-3" : "px-3 py-2",
+                    )}
+                  >
                     <div className="flex items-center">
-                      <span className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}>🇺🇸</span>
-                      <span className={cn(isMobile ? "text-base" : "text-sm")}>{selectedLanguage}</span>
+                      <span
+                        className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}
+                      >
+                        🇺🇸
+                      </span>
+                      <span className={cn(isMobile ? "text-base" : "text-sm")}>
+                        {selectedLanguage}
+                      </span>
                     </div>
-                    <ChevronDown className={cn(isMobile ? "h-4 w-4" : "h-3 w-3")} />
+                    <ChevronDown
+                      className={cn(isMobile ? "h-4 w-4" : "h-3 w-3")}
+                    />
                   </DropdownMenuItem>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   className={cn(
                     "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white",
-                    isMobile ? "w-60 max-w-[80vw]" : "w-48"
+                    isMobile ? "w-60 max-w-[80vw]" : "w-48",
                   )}
                   side={isMobile ? "bottom" : "left"}
                   sideOffset={isMobile ? 4 : 0}
@@ -235,61 +274,85 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                   <DropdownMenuItem
                     className={cn(
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
-                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm"
+                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
                     onClick={() => setSelectedLanguage("English (US)")}
                   >
-                    <span className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}>🇺🇸</span>
+                    <span
+                      className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}
+                    >
+                      🇺🇸
+                    </span>
                     English (US)
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className={cn(
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
-                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm"
+                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
                     onClick={() => setSelectedLanguage("English (UK)")}
                   >
-                    <span className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}>🇬🇧</span>
+                    <span
+                      className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}
+                    >
+                      🇬🇧
+                    </span>
                     English (UK)
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className={cn(
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
-                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm"
+                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
                     onClick={() => setSelectedLanguage("Español")}
                   >
-                    <span className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}>🇪🇸</span>
+                    <span
+                      className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}
+                    >
+                      🇪🇸
+                    </span>
                     Español
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className={cn(
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
-                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm"
+                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
                     onClick={() => setSelectedLanguage("Français")}
                   >
-                    <span className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}>🇫🇷</span>
+                    <span
+                      className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}
+                    >
+                      🇫🇷
+                    </span>
                     Français
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className={cn(
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
-                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm"
+                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
                     onClick={() => setSelectedLanguage("中文 (简体)")}
                   >
-                    <span className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}>🇨🇳</span>
+                    <span
+                      className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}
+                    >
+                      🇨🇳
+                    </span>
                     中文 (简体)
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className={cn(
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
-                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm"
+                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
                     onClick={() => setSelectedLanguage("中文 (繁體)")}
                   >
-                    <span className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}>🇭🇰</span>
+                    <span
+                      className={cn("mr-2", isMobile ? "text-xl" : "text-lg")}
+                    >
+                      🇭🇰
+                    </span>
                     中文 (繁體)
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -300,7 +363,9 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
               <DropdownMenuItem
                 className={cn(
                   "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-700 dark:text-white",
-                  isMobile ? "min-h-[48px] px-4 py-3 text-base" : "px-3 py-2 text-sm"
+                  isMobile
+                    ? "min-h-[48px] px-4 py-3 text-base"
+                    : "px-3 py-2 text-sm",
                 )}
                 onClick={() => setPrivacyModalOpen(true)}
               >
@@ -310,16 +375,22 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
           </DropdownMenu>
 
           {isAuthenticated && (
-            <div className={cn(
-              "flex items-center font-semibold text-white transition-colors duration-200 cursor-pointer",
-              isMobile ? "text-xs ml-2" : "text-sm ml-4"
-            )}>
+            <div
+              className={cn(
+                "flex items-center font-semibold text-white transition-colors duration-200 cursor-pointer",
+                isMobile ? "text-xs ml-2" : "text-sm ml-4",
+              )}
+            >
               {isMobile ? (
                 // Mobile: Show avatar circle with initials
                 <div className="flex items-center gap-2">
-                  <div 
+                  <div
                     className="w-8 h-8 bg-gradient-to-br from-amber-300 via-yellow-500 to-orange-500 rounded-full flex items-center justify-center text-black text-xs font-bold transition-all duration-200 hover:scale-105"
-                    title={username ? username.charAt(0).toUpperCase() + username.slice(1) : ""}
+                    title={
+                      username
+                        ? username.charAt(0).toUpperCase() + username.slice(1)
+                        : ""
+                    }
                   >
                     {username ? username.charAt(0).toUpperCase() : "U"}
                   </div>
@@ -354,7 +425,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       ? username.charAt(0).toUpperCase() + username.slice(1)
                       : ""}
                   </span>
-                  <span>, </span> 
+                  <span>, </span>
                   <span
                     className={`cursor-pointer transition-colors duration-200 ${
                       activeHover === "logout"
