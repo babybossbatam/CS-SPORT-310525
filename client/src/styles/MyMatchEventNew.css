@@ -673,8 +673,54 @@
   }
 }
 
-/* Responsive adjustments */
+/* Tab Navigation Optimization for Mobile */
 @media (max-width: 768px) {
+  /* Mobile tab navigation container */
+  .pl-28.pr-28.py-4.flex {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    gap: 2px;
+  }
+
+  /* Mobile tab buttons */
+  .pl-28.pr-28.py-4.flex button {
+    flex: 1;
+    padding: 12px 8px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border: 1px solid #e5e7eb;
+  }
+
+  /* Active tab styling for mobile */
+  .pl-28.pr-28.py-4.flex button.bg-blue-500 {
+    background-color: #3b82f6 !important;
+    color: white !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.25);
+  }
+
+  /* Inactive tab styling for mobile */
+  .pl-28.pr-28.py-4.flex button.bg-white {
+    background-color: #f8fafc !important;
+    color: #64748b !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  /* Hover effect for mobile tabs */
+  .pl-28.pr-28.py-4.flex button.bg-white:hover {
+    background-color: #f1f5f9 !important;
+    color: #475569 !important;
+    border-color: #cbd5e1 !important;
+  }
+
   .match-event-three-grid-container {
     display: grid;
     grid-template-columns: 1fr 45px 1fr;
