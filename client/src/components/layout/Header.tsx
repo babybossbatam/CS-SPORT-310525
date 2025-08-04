@@ -156,7 +156,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className={cn(
-                "bg-white border-gray-200 text-gray-900 shadow-lg",
+                "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white shadow-lg",
                 isMobile ? "w-72 max-w-[90vw]" : "w-80"
               )}
               align="end"
@@ -226,7 +226,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   className={cn(
-                    "bg-white border-gray-200 text-gray-900",
+                    "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white",
                     isMobile ? "w-60 max-w-[80vw]" : "w-48"
                   )}
                   side={isMobile ? "bottom" : "left"}
