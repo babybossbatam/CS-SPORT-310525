@@ -380,7 +380,7 @@
 
 /* Dark mode styles for match status labels */
 .dark .status-ended {
-  color: rgb(229 231 235) !important; /* text-gray-200 */
+  color: rgb(143, 143, 143) !important; /* text-gray-200 */
 }
 
 .status-postponed {
