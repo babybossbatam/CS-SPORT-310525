@@ -882,7 +882,7 @@ const MyNewLeague2 = ({
           return (
             <Card
               key={`mynewleague2-${leagueIdNum}`}
-              className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing mobile-card"
+              className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing mobile-card rounded-none"
             >
               {/* League Header - Clickable and collapsible */}
               <button
