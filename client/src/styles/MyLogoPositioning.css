@@ -136,6 +136,11 @@
 
 }
 
+/* Dark mode styles for penalty winner text */
+.dark .penalty-winner {
+  color: rgb(229 231 235) !important; /* text-gray-200 */
+}
+
 /* Team name containers - Grid areas */
 .home-team-name {
   grid-area: home-team-name;
