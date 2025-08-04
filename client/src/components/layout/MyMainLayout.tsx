@@ -1,17 +1,20 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, Suspense, lazy } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
-import TodayMatchPageCard from "@/components/matches/TodayMatchPageCard";
 import MyRightContent from "@/components/layout/MyRightContent";
 import MyMainLayoutRight from "@/components/layout/MyMainLayoutRight";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useDeviceInfo } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import Header from "@/components/layout/Header";
+
+// Lazy load the TodayMatchPageCard component
+const TodayMatchPageCard = lazy(() => import("@/components/matches/TodayMatchPageCard"));
 
 interface MyMainLayoutProps {
   fixtures: any[];
@@ -135,11 +138,35 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
               <div>{children}</div>
             ) : (
               <div>
-                <TodayMatchPageCard
-                  fixtures={filteredFixtures}
-                  onMatchClick={handleMatchClick}
-                  onMatchCardClick={handleMatchCardClick}
-                />
+                <Suspense fallback={
+                  <Card className="w-full">
+                    <div className="p-4 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Skeleton className="h-6 w-32" />
+                        <Skeleton className="h-6 w-16" />
+                      </div>
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <div key={i} className="space-y-2">
+                          <div className="flex items-center gap-3 p-3 border rounded">
+                            <Skeleton className="h-8 w-8 rounded" />
+                            <Skeleton className="h-4 w-24" />
+                            <div className="flex-1" />
+                            <Skeleton className="h-4 w-16" />
+                            <div className="flex-1" />
+                            <Skeleton className="h-4 w-24" />
+                            <Skeleton className="h-8 w-8 rounded" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                }>
+                  <TodayMatchPageCard
+                    fixtures={filteredFixtures}
+                    onMatchClick={handleMatchClick}
+                    onMatchCardClick={handleMatchCardClick}
+                  />
+                </Suspense>
               </div>
             )}
           </div>
