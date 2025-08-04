@@ -894,6 +894,12 @@
     font-weight: 500;
   }
 
+  /* Mobile player name font size override */
+  .match-event-home-player-info .text-xs,
+  .match-event-away-player-info .text-xs {
+    font-size: 10px !important;
+  }
+
   .penalty-player-avatar {
     flex-shrink: 0;
     width: 24px;
