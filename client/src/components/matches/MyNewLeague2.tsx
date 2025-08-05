@@ -5,7 +5,7 @@ import React, {
   useCallback,
   useRef,
 } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Star, ChevronDown, ChevronUp } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -84,11 +84,11 @@ interface MyNewLeague2Props {
   useUTCOnly?: boolean;
 }
 
-const MyNewLeague2 = ({
+const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
   selectedDate,
   onMatchCardClick,
   match,
-}: MyNewLeague2Props) => {
+}) => {
   // Sample match data for demonstration (similar to MyMatchdetailsScoreboard)
   const sampleMatch = {
     fixture: {
@@ -288,11 +288,37 @@ const MyNewLeague2 = ({
     [getCacheKey, isMatchOldEnded],
   );
 
+  // Determine cache configuration based on match status
+  const getCacheConfig = useCallback(
+    (fixtures: FixtureData[] | undefined) => {
+      if (!fixtures || fixtures.length === 0) {
+        // Default for no data yet
+        return { staleTime: 5 * 60 * 1000, refetchInterval: 30 * 1000 };
+      }
+
+      const hasLiveMatches = fixtures.some((match) =>
+        ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(
+          match.fixture.status.short,
+        ),
+      );
+
+      if (hasLiveMatches) {
+        // For Live Sports Data (Current matches)
+        return { staleTime: 2 * 60 * 1000, refetchInterval: 30 * 1000 }; // 2 minutes, 30 seconds
+      } else {
+        // For Historical/Ended Matches or Far Future Matches
+        return { staleTime: 60 * 60 * 1000, refetchInterval: false }; // 1 hour, no automatic refetching
+      }
+    },
+    [],
+  );
+
   // Fetch fixtures for all leagues with optimized caching for ended matches
   const {
     data: allFixtures,
     isLoading,
     error,
+    isFetching,
   } = useQuery({
     queryKey: ["myNewLeague2", "allFixtures", selectedDate],
     queryFn: async () => {
@@ -447,27 +473,58 @@ const MyNewLeague2 = ({
 
       return allFixtures;
     },
-    staleTime: 10 * 60 * 1000, // Increase cache time to 10 minutes
-    refetchInterval: 60 * 1000, // Reduce refetch frequency to 1 minute
+    // Apply dynamic cache configuration
+    ...getCacheConfig(allFixtures), // Use the function to get config based on fetched data
     refetchOnWindowFocus: false,
+    // Additional configuration for better UX
+    refetchOnReconnect: true,
     retry: (failureCount, error) => {
-      // Don't retry on rate limiting or network errors
-      if (error instanceof Error) {
-        const errorMessage = error.message.toLowerCase();
-        if (
-          errorMessage.includes("429") ||
-          errorMessage.includes("rate limit") ||
-          errorMessage.includes("too many requests")
-        ) {
-          console.warn(`🚫 [MyNewLeague2] Not retrying due to rate limiting`);
-          return false;
-        }
-      }
-      // Retry up to 2 times for other errors
-      return failureCount < 2;
+      // Don't retry too aggressively for historical data (no refetchInterval)
+      if (!getCacheConfig(allFixtures).refetchInterval) return failureCount < 2;
+      // For live data, allow more retries
+      return failureCount < 3;
     },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
+
+  const cacheConfig = getCacheConfig(allFixtures);
+
+  // Monitor for live match transitions and adjust caching accordingly
+  useEffect(() => {
+    if (!allFixtures || Object.keys(allFixtures).length === 0) return;
+
+    const allMatches = Object.values(allFixtures).flat() as FixtureData[];
+    const liveMatches = allMatches.filter((match) =>
+      ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(
+        match?.fixture?.status?.short,
+      ),
+    );
+
+    if (liveMatches.length > 0) {
+      console.log(
+        `🔴 [MyNewLeague2] ${liveMatches.length} live matches detected - cache will auto-adjust for next fetch`,
+      );
+
+      // Set up interval to check for match status changes every 30 seconds when live matches exist
+      const liveMonitorInterval = setInterval(() => {
+        const currentTime = Date.now();
+        // Check if any live match is still relevant (within 4 hours window of its start/current time)
+        const shouldRefetch = liveMatches.some((match) => {
+          const matchTime = new Date(match.fixture.date).getTime();
+          const hoursFromMatch = Math.abs(currentTime - matchTime) / (1000 * 60 * 60);
+          return hoursFromMatch <= 4; // Consider match relevant if within 4 hours window
+        });
+
+        if (shouldRefetch) {
+          console.log(`🔄 [MyNewLeague2] Triggering live match update`);
+          queryClient.invalidateQueries({
+            queryKey: ["myNewLeague2", "allFixtures", selectedDate],
+          });
+        }
+      }, 30000); // Check every 30 seconds
+
+      return () => clearInterval(liveMonitorInterval);
+    }
+  }, [allFixtures, selectedDate, queryClient]);
 
   // Group fixtures by league with date filtering
   const fixturesByLeague = useMemo(() => {
@@ -911,7 +968,7 @@ const MyNewLeague2 = ({
     return (
       <>
         {/* Header Section */}
-          <CardHeader className="flex items-left gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
+        <CardHeader className="flex items-left gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
           <div className="flex justify-between  w-full">
             <span className="text-sm font-semibold">
               Popular Football Leagues
@@ -1708,9 +1765,7 @@ const MyNewLeague2 = ({
                                   fixture.score?.penalty?.away;
                                 const hasPenaltyScores =
                                   penaltyHome !== null &&
-                                  penaltyHome !== undefined &&
-                                  penaltyAway !== null &&
-                                  penaltyAway !== undefined;
+                                  penaltyAway !== null;
 
                                 if (isPenaltyMatch && hasPenaltyScores) {
                                   const winnerText =
