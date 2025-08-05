@@ -17,6 +17,7 @@ import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
+import BrandedLoading from "../common/BrandedLoading";
 import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
@@ -1365,12 +1366,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
         <Card className="mb-4">
           <CardContent className="p-4">
-            <div className="text-center text-gray-500">
-              <div>Loading matches...</div>
-              <div className="text-xs mt-2">
-                Please wait while we fetch the latest fixtures
-              </div>
-            </div>
+            <BrandedLoading className="h-32" />
           </CardContent>
         </Card>
       </>
