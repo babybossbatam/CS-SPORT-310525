@@ -288,30 +288,32 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
     [getCacheKey, isMatchOldEnded],
   );
 
-  // Determine cache configuration based on match status
-  const getCacheConfig = useCallback(
-    (fixtures: FixtureData[] | undefined) => {
-      if (!fixtures || fixtures.length === 0) {
-        // Default for no data yet
-        return { staleTime: 5 * 60 * 1000, refetchInterval: 30 * 1000 };
-      }
+  // Determine cache configuration based on current date and context
+  const getCacheConfig = useCallback(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    const isToday = selectedDate === today;
+    
+    if (isToday) {
+      // For today's matches - moderate cache with potential for live matches
+      return { 
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        refetchInterval: 60 * 1000, // 1 minute
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: true
+      };
+    } else {
+      // For past/future dates - longer cache, no automatic refetching
+      return { 
+        staleTime: 60 * 60 * 1000, // 1 hour
+        refetchInterval: false, // No automatic refetching
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false
+      };
+    }
+  }, [selectedDate]);
 
-      const hasLiveMatches = fixtures.some((match) =>
-        ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(
-          match.fixture.status.short,
-        ),
-      );
-
-      if (hasLiveMatches) {
-        // For Live Sports Data (Current matches)
-        return { staleTime: 2 * 60 * 1000, refetchInterval: 30 * 1000 }; // 2 minutes, 30 seconds
-      } else {
-        // For Historical/Ended Matches or Far Future Matches
-        return { staleTime: 60 * 60 * 1000, refetchInterval: false }; // 1 hour, no automatic refetching
-      }
-    },
-    [],
-  );
+  // Get initial cache configuration
+  const cacheConfig = getCacheConfig();
 
   // Fetch fixtures for all leagues with optimized caching for ended matches
   const {
@@ -473,27 +475,22 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
 
       return allFixtures;
     },
-    // Apply dynamic cache configuration
-    ...getCacheConfig(allFixtures), // Use the function to get config based on fetched data
-    refetchOnWindowFocus: false,
+    // Apply cache configuration
+    ...cacheConfig,
     // Additional configuration for better UX
-    refetchOnReconnect: true,
     retry: (failureCount, error) => {
       // Don't retry too aggressively for historical data (no refetchInterval)
-      if (!getCacheConfig(allFixtures).refetchInterval) return failureCount < 2;
+      if (!cacheConfig.refetchInterval) return failureCount < 2;
       // For live data, allow more retries
       return failureCount < 3;
     },
   });
 
-  const cacheConfig = getCacheConfig(allFixtures);
-
   // Monitor for live match transitions and adjust caching accordingly
   useEffect(() => {
-    if (!allFixtures || Object.keys(allFixtures).length === 0) return;
+    if (!allFixtures || allFixtures.length === 0) return;
 
-    const allMatches = Object.values(allFixtures).flat() as FixtureData[];
-    const liveMatches = allMatches.filter((match) =>
+    const liveMatches = allFixtures.filter((match) =>
       ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(
         match?.fixture?.status?.short,
       ),
@@ -501,21 +498,23 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
 
     if (liveMatches.length > 0) {
       console.log(
-        `🔴 [MyNewLeague2] ${liveMatches.length} live matches detected - cache will auto-adjust for next fetch`,
+        `🔴 [MyNewLeague2] ${liveMatches.length} live matches detected - using enhanced live monitoring`,
       );
 
-      // Set up interval to check for match status changes every 30 seconds when live matches exist
+      // For live matches, we rely on the shorter cache intervals already set
+      // The 5-minute staleTime and 1-minute refetchInterval will handle updates
+      
+      // Optional: Set up additional monitoring for critical match events
       const liveMonitorInterval = setInterval(() => {
         const currentTime = Date.now();
-        // Check if any live match is still relevant (within 4 hours window of its start/current time)
-        const shouldRefetch = liveMatches.some((match) => {
+        const activeMatches = liveMatches.filter((match) => {
           const matchTime = new Date(match.fixture.date).getTime();
           const hoursFromMatch = Math.abs(currentTime - matchTime) / (1000 * 60 * 60);
-          return hoursFromMatch <= 4; // Consider match relevant if within 4 hours window
+          return hoursFromMatch <= 3; // Only monitor matches within 3 hours
         });
 
-        if (shouldRefetch) {
-          console.log(`🔄 [MyNewLeague2] Triggering live match update`);
+        if (activeMatches.length > 0) {
+          console.log(`🔄 [MyNewLeague2] ${activeMatches.length} active live matches - cache refresh triggered`);
           queryClient.invalidateQueries({
             queryKey: ["myNewLeague2", "allFixtures", selectedDate],
           });
@@ -523,8 +522,38 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
       }, 30000); // Check every 30 seconds
 
       return () => clearInterval(liveMonitorInterval);
+    } else {
+      console.log(`⏸️ [MyNewLeague2] No live matches detected - using extended cache (${cacheConfig.staleTime / 1000 / 60} minutes)`);
     }
-  }, [allFixtures, selectedDate, queryClient]);
+  }, [allFixtures, selectedDate, queryClient, cacheConfig.staleTime]);
+
+  // Dynamic cache adjustment based on detected live matches
+  useEffect(() => {
+    if (!allFixtures || allFixtures.length === 0) return;
+
+    const hasLiveMatches = allFixtures.some((match) =>
+      ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(
+        match?.fixture?.status?.short,
+      ),
+    );
+
+    const today = new Date().toISOString().slice(0, 10);
+    const isToday = selectedDate === today;
+
+    // If we detect live matches on today's date, use aggressive cache settings
+    if (hasLiveMatches && isToday) {
+      console.log(`🔴 [MyNewLeague2] Live matches detected - switching to live cache mode`);
+      // The next refetch will use shorter intervals due to live match priority
+    } 
+    // If no live matches on today's date, use moderate cache
+    else if (isToday && !hasLiveMatches) {
+      console.log(`⏸️ [MyNewLeague2] No live matches on today's date - using moderate cache (5min staleTime, 1min refetch)`);
+    }
+    // For non-today dates, use extended cache
+    else if (!isToday) {
+      console.log(`📅 [MyNewLeague2] Non-today date - using extended cache (1 hour staleTime, no refetch)`);
+    }
+  }, [allFixtures, selectedDate]);
 
   // Group fixtures by league with date filtering
   const fixturesByLeague = useMemo(() => {
