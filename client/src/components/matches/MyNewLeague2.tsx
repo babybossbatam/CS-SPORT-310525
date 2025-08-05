@@ -2159,14 +2159,56 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
     return <MyNewLeague2Component {...props} />;
   }
 
-  // If no cached data and not intersected yet, show loading spinner
+  // If no cached data and not intersected yet, show proper loading skeleton
   if (!hasIntersected) {
     return (
-      <div ref={containerRef} className="flex justify-center items-center min-h-[200px]">
-        <div className="flex flex-col items-center gap-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <span className="text-sm text-gray-600 dark:text-gray-400">Loading football leagues...</span>
-        </div>
+      <div ref={containerRef}>
+        {/* Header Section Skeleton */}
+        <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
+          <div className="flex justify-between items-center w-full">
+            <Skeleton className="h-4 w-48" />
+          </div>
+        </CardHeader>
+
+        {/* League Cards Skeleton */}
+        {[1, 2, 3].map((i) => (
+          <Card
+            key={`skeleton-league-${i}`}
+            className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing mobile-card rounded-none mb-2"
+          >
+            {/* League Header Skeleton */}
+            <div className="w-full flex items-center gap-2 p-2 md:p-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 min-h-[56px]">
+              <Skeleton className="h-5 w-5 rounded-full" />
+              <Skeleton className="w-6 h-6 md:w-7 md:h-7 rounded-full" />
+              <div className="flex flex-col flex-1 gap-1">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            </div>
+
+            {/* Match Skeleton Cards */}
+            {[1, 2].map((j) => (
+              <div key={`skeleton-match-${i}-${j}`} className="border-b border-gray-200 p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 flex-1">
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="w-8 h-8 rounded-full" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                  <div className="flex flex-col items-center gap-1">
+                    <Skeleton className="h-4 w-12" />
+                    <Skeleton className="h-3 w-8" />
+                  </div>
+                  <div className="flex items-center gap-3 flex-1 justify-end">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="w-8 h-8 rounded-full" />
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </Card>
+        ))}
       </div>
     );
   }
