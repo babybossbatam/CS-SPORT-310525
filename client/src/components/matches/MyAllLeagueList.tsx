@@ -407,7 +407,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                   fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                 }}
               >
-                ({(() => {
+                {(() => {
                   const totalLiveMatches = Object.values(leaguesByCountry).reduce(
                     (sum: number, countryData: any) => sum + (countryData.liveMatches || 0),
                     0
@@ -415,13 +415,12 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                   if (totalLiveMatches > 0) {
                     return (
                       <>
-                        <span className="text-red-500 font-semibold">{totalLiveMatches}</span>
-                        <span>/{validFixtures.length}</span>
+                        (<span className="text-red-500 font-semibold">{totalLiveMatches}</span>/{validFixtures.length})
                       </>
                     );
                   }
-                  return validFixtures.length;
-                })()})
+                  return `(${validFixtures.length})`;
+                })()}
               </span>
             </div>
           </button>
