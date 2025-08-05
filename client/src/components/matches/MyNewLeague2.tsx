@@ -2253,8 +2253,8 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
   const cachedData = queryClient.getQueryData(["myNewLeague2", "allFixtures", props.selectedDate]);
   const hasCachedData = cachedData && Array.isArray(cachedData) && cachedData.length > 0;
 
-  // If we have cached data, show the component immediately regardless of intersection
-  if (hasCachedData) {
+  // If we have cached data OR component has intersected, show the actual component
+  if (hasCachedData || hasIntersected) {
     return <MyNewLeague2Component {...props} />;
   }
 
@@ -2273,10 +2273,10 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
         {[1, 2, 3].map((i) => (
           <Card
             key={`skeleton-league-${i}`}
-            className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing mobile-card rounded-none mb-2"
+            className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing mobile-card rounded-none"
           >
             {/* League Header Skeleton */}
-            <div className="w-full flex items-center gap-2 p-2 md:p-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 min-h-[56px]">
+            <div className="w-full flex items-center gap-2 p-2 md:p-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 min-h-[56px] touch-target">
               <Skeleton className="h-5 w-5 rounded-full" />
               <Skeleton className="w-6 h-6 md:w-7 md:h-7 rounded-full" />
               <div className="flex flex-col flex-1 gap-1">
@@ -2285,27 +2285,60 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
               </div>
             </div>
 
-            {/* Match Skeleton Cards */}
-            {[1, 2].map((j) => (
-              <div key={`skeleton-match-${i}-${j}`} className="border-b border-gray-200 p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 flex-1">
-                    <Skeleton className="h-4 w-16" />
-                    <Skeleton className="w-8 h-8 rounded-full" />
-                    <Skeleton className="h-4 w-20" />
-                  </div>
-                  <div className="flex flex-col items-center gap-1">
-                    <Skeleton className="h-4 w-12" />
-                    <Skeleton className="h-3 w-8" />
-                  </div>
-                  <div className="flex items-center gap-3 flex-1 justify-end">
-                    <Skeleton className="h-4 w-20" />
-                    <Skeleton className="w-8 h-8 rounded-full" />
-                    <Skeleton className="h-4 w-16" />
+            {/* Enhanced Match Skeleton Cards with 3-grid layout */}
+            <div className="match-cards-wrapper">
+              {[1, 2, 3].map((j) => (
+                <div key={`skeleton-match-${i}-${j}`} className="country-matches-container">
+                  <div className="match-card-container">
+                    {/* Star Button Skeleton */}
+                    <div className="match-star-button">
+                      <Skeleton className="h-4 w-4 rounded-full" />
+                    </div>
+
+                    {/* Three-grid layout container */}
+                    <div className="match-three-grid-container">
+                      {/* Top grid for status */}
+                      <div className="match-status-top" style={{ minHeight: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <Skeleton className="h-4 w-16 rounded" />
+                      </div>
+
+                      {/* Middle grid for main content */}
+                      <div className="match-content-container">
+                        {/* Home Team Name */}
+                        <div className="home-team-name" style={{ textAlign: "right" }}>
+                          <Skeleton className="h-4 w-20" />
+                        </div>
+
+                        {/* Home team logo */}
+                        <div className="home-team-logo-container" style={{ padding: "0 0.6rem" }}>
+                          <Skeleton className="h-8 w-8 rounded-full" />
+                        </div>
+
+                        {/* Score/Time Center */}
+                        <div className="match-score-container">
+                          <Skeleton className="h-6 w-12 rounded" />
+                        </div>
+
+                        {/* Away team logo */}
+                        <div className="away-team-logo-container" style={{ padding: "0 0.5rem" }}>
+                          <Skeleton className="h-8 w-8 rounded-full" />
+                        </div>
+
+                        {/* Away Team Name */}
+                        <div className="away-team-name" style={{ paddingLeft: "0.75rem", textAlign: "left" }}>
+                          <Skeleton className="h-4 w-20" />
+                        </div>
+                      </div>
+
+                      {/* Bottom grid placeholder */}
+                      <div className="match-penalty-bottom" style={{ minHeight: '16px' }}>
+                        {/* Empty space for penalty results when applicable */}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </Card>
         ))}
       </div>
