@@ -291,10 +291,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     "Uruguay", "USA", "Uzbekistan", "Venezuela", "Vietnam", "Wales", "Yemen", "Zambia", "Zimbabwe"
   ];
 
-  // Sort countries alphabetically with World first, showing all countries
+  // Sort countries alphabetically with World first, showing only countries with matches
   const sortedCountries = useMemo(() => {
-    // Get all countries from leaguesByCountry (which now includes all leagues)
-    const allCountriesData = Object.values(leaguesByCountry);
+    // Get all countries from leaguesByCountry and filter out those with no matches
+    const allCountriesData = Object.values(leaguesByCountry)
+      .filter((countryData: any) => countryData.totalMatches > 0);
 
     return allCountriesData.sort((a: any, b: any) => {
       const countryA = typeof a.country === "string" ? a.country : "";
