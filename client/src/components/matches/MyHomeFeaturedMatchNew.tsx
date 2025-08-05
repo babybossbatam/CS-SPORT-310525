@@ -404,11 +404,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             // 1. Match shows "Starting now" but is old (>30 min past kickoff)
             // 2. Match is live
             // 3. Match is within 2 hours of kickoff
+            // 4. Match is more than 12 hours away but shows ended status (conflicting data)
             const isStaleStartingNow = status === "NS" && minutesFromKickoff > 30 && minutesFromKickoff < 120;
             const isLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
             const isWithinTwoHours = Math.abs(minutesFromKickoff) <= 120;
+            const hasConflictingStatus = (minutesFromKickoff < -720) && ["FT", "AET", "PEN"].includes(status); // More than 12 hours away but shows ended
             
-            return isStaleStartingNow || isLive || (status === "NS" && isWithinTwoHours);
+            return isStaleStartingNow || isLive || (status === "NS" && isWithinTwoHours) || hasConflictingStatus;
           })
         );
 
@@ -613,6 +615,27 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             away: fixture.teams?.away?.name,
                             league: fixture.league?.name,
                             date: fixture.fixture.date,
+                          },
+                        );
+                        return false;
+                      }
+
+                      // NEW: Exclude matches with conflicting status/time data
+                      const matchDate = new Date(fixture.fixture.date);
+                      const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
+                      const status = fixture.fixture.status.short;
+                      
+                      // Check for conflicting data: ended status but match is far in future
+                      const hasConflictingEndedStatus = (minutesFromKickoff < -720) && ["FT", "AET", "PEN"].includes(status);
+                      if (hasConflictingEndedStatus) {
+                        console.log(
+                          `🔄 [MyHomeFeaturedMatchNew] Excluding match with conflicting ended status (${status}) for future match:`,
+                          {
+                            home: fixture.teams?.home?.name,
+                            away: fixture.teams?.away?.name,
+                            league: fixture.league?.name,
+                            date: fixture.fixture.date,
+                            hoursFromNow: (minutesFromKickoff / 60).toFixed(1),
                           },
                         );
                         return false;
@@ -838,10 +861,31 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const isWomensCompetition = leagueName.includes("women") ||
                       leagueName.includes("femenina") ||
                       leagueName.includes("feminine") ||
-                      leagueName.includes("feminin");
+                      leagueName.includes("femmin");
 
                     // Exclude Oberliga leagues (German regional leagues)
                     const isOberligaLeague = leagueName.includes("oberliga");
+
+                    // NEW: Exclude matches with conflicting status/time data
+                    const matchDate = new Date(fixture.fixture.date);
+                    const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
+                    const status = fixture.fixture.status.short;
+                    
+                    // Check for conflicting data: ended status but match is far in future
+                    const hasConflictingEndedStatus = (minutesFromKickoff < -720) && ["FT", "AET", "PEN"].includes(status);
+                    if (hasConflictingEndedStatus) {
+                      console.log(
+                        `🔄 [MyHomeFeaturedMatchNew] Excluding date-based match with conflicting ended status (${status}):`,
+                        {
+                          home: fixture.teams?.home?.name,
+                          away: fixture.teams?.away?.name,
+                          league: fixture.league?.name,
+                          date: fixture.fixture.date,
+                          hoursFromNow: (minutesFromKickoff / 60).toFixed(1),
+                        },
+                      );
+                      return false;
+                    }
 
                     // Check if it's a popular league or from a popular country
                     const isPopularLeague = POPULAR_LEAGUES.some(
@@ -983,6 +1027,27 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         (existing) =>
                           existing.fixture.id === fixture.fixture.id,
                       );
+
+                    // NEW: Exclude matches with conflicting status/time data
+                    const matchDate = new Date(fixture.fixture.date);
+                    const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
+                    const status = fixture.fixture.status.short;
+                    
+                    // Check for conflicting data: ended status but match is far in future
+                    const hasConflictingEndedStatus = (minutesFromKickoff < -720) && ["FT", "AET", "PEN"].includes(status);
+                    if (hasConflictingEndedStatus) {
+                      console.log(
+                        `🔄 [MyHomeFeaturedMatchNew] Excluding expanded search match with conflicting ended status (${status}):`,
+                        {
+                          home: fixture.teams?.home?.name,
+                          away: fixture.teams?.away?.name,
+                          league: fixture.league?.name,
+                          date: fixture.fixture.date,
+                          hoursFromNow: (minutesFromKickoff / 60).toFixed(1),
+                        },
+                      );
+                      return false;
+                    }
 
                     // Exclude women's competitions and Oberliga leagues
                     const leagueName = fixture.league?.name?.toLowerCase() || "";
