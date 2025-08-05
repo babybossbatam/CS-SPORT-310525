@@ -1069,13 +1069,13 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         if (selectedMatchId !== null) {
           setManuallyDeselectedMatches(prev => {
             try {
-              const newSet = new Set(prev);
+              const newSet = new Set(prev || []);
               newSet.add(selectedMatchId);
               console.log(`🚫 [MyNewLeague2] Added match ${selectedMatchId} to manually deselected set`);
               return newSet;
             } catch (error) {
               console.error("🚨 [MyNewLeague2] Error updating manually deselected matches:", error);
-              return prev;
+              return new Set();
             }
           });
         }
@@ -1085,11 +1085,13 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         // Remove selected-match CSS class from all match containers as backup
         try {
           const selectedMatches = document.querySelectorAll(".selected-match");
-          selectedMatches.forEach((match) => {
-            if (match && match.classList) {
-              match.classList.remove("selected-match");
-            }
-          });
+          if (selectedMatches) {
+            selectedMatches.forEach((match) => {
+              if (match && match.classList && typeof match.classList.remove === 'function') {
+                match.classList.remove("selected-match");
+              }
+            });
+          }
         } catch (error) {
           console.error("🚨 [MyNewLeague2] Error removing selected-match classes:", error);
         }
@@ -1105,7 +1107,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         return;
       }
 
-      // Validate fixture data structure with more comprehensive checks
+      // Validate fixture data structure with comprehensive null checks
       if (!fixture) {
         console.error("🚨 [MyNewLeague2] Fixture is null or undefined");
         return;
@@ -1116,7 +1118,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         return;
       }
 
-      if (typeof fixture.fixture.id !== 'number' || isNaN(fixture.fixture.id)) {
+      if (!fixture.fixture.id || typeof fixture.fixture.id !== 'number' || isNaN(fixture.fixture.id)) {
         console.error("🚨 [MyNewLeague2] Invalid fixture ID:", fixture.fixture.id);
         return;
       }
@@ -1147,7 +1149,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         const allMatchContainers = document.querySelectorAll(".match-card-container");
         if (allMatchContainers && allMatchContainers.length > 0) {
           allMatchContainers.forEach((container) => {
-            if (container && container.classList) {
+            if (container && container.classList && typeof container.classList.remove === 'function') {
               container.classList.remove("disable-hover");
             }
           });
@@ -1159,11 +1161,12 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       // Remove from manually deselected set when manually clicked
       setManuallyDeselectedMatches(prev => {
         try {
-          if (!prev || typeof prev.has !== 'function') {
+          const prevSet = prev || new Set();
+          if (!prevSet || typeof prevSet.has !== 'function') {
             console.warn("🚨 [MyNewLeague2] Invalid manually deselected matches state, resetting");
             return new Set();
           }
-          const newSet = new Set(prev);
+          const newSet = new Set(prevSet);
           const wasManuallyDeselected = newSet.has(matchId);
           newSet.delete(matchId);
           if (wasManuallyDeselected) {
@@ -1191,31 +1194,54 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           const safeFixture = {
             fixture: {
               id: fixture.fixture.id,
-              date: fixture.fixture.date,
-              status: { ...fixture.fixture.status },
-              venue: fixture.fixture.venue ? { ...fixture.fixture.venue } : undefined
+              date: fixture.fixture.date || '',
+              status: { 
+                short: fixture.fixture.status?.short || 'NS',
+                long: fixture.fixture.status?.long || 'Not Started',
+                elapsed: fixture.fixture.status?.elapsed || null
+              },
+              venue: fixture.fixture.venue ? { 
+                name: fixture.fixture.venue.name || '',
+                city: fixture.fixture.venue.city || ''
+              } : undefined
             },
             league: {
-              id: fixture.league.id,
-              name: fixture.league.name,
-              country: fixture.league.country,
-              logo: fixture.league.logo,
-              flag: fixture.league.flag
+              id: fixture.league.id || 0,
+              name: fixture.league.name || '',
+              country: fixture.league.country || '',
+              logo: fixture.league.logo || '',
+              flag: fixture.league.flag || ''
             },
             teams: {
               home: {
-                id: fixture.teams.home.id,
-                name: fixture.teams.home.name,
-                logo: fixture.teams.home.logo
+                id: fixture.teams.home.id || 0,
+                name: fixture.teams.home.name || '',
+                logo: fixture.teams.home.logo || ''
               },
               away: {
-                id: fixture.teams.away.id,
-                name: fixture.teams.away.name,
-                logo: fixture.teams.away.logo
+                id: fixture.teams.away.id || 0,
+                name: fixture.teams.away.name || '',
+                logo: fixture.teams.away.logo || ''
               }
             },
-            goals: { ...fixture.goals },
-            score: fixture.score ? { ...fixture.score } : undefined
+            goals: { 
+              home: fixture.goals?.home || null,
+              away: fixture.goals?.away || null
+            },
+            score: fixture.score ? { 
+              halftime: {
+                home: fixture.score.halftime?.home || null,
+                away: fixture.score.halftime?.away || null
+              },
+              fulltime: {
+                home: fixture.score.fulltime?.home || null,
+                away: fixture.score.fulltime?.away || null
+              },
+              penalty: fixture.score.penalty ? {
+                home: fixture.score.penalty.home || null,
+                away: fixture.score.penalty.away || null
+              } : undefined
+            } : undefined
           };
           onMatchCardClick(safeFixture);
         } else {
@@ -1633,12 +1659,28 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                           data-fixture-id={matchId}
                           onClick={(e) => {
                             try {
-                              e.preventDefault();
-                              e.stopPropagation();
+                              // Safely handle event object
+                              if (e && typeof e.preventDefault === 'function') {
+                                e.preventDefault();
+                              }
+                              if (e && typeof e.stopPropagation === 'function') {
+                                e.stopPropagation();
+                              }
                               
                               // Validate fixture before passing to handleMatchClick
                               if (!fixture || !fixture.fixture || !fixture.fixture.id) {
                                 console.error("🚨 [MyNewLeague2] Invalid fixture data in click handler:", fixture);
+                                return false;
+                              }
+                              
+                              // Additional safety check for required properties
+                              if (!fixture.teams || !fixture.teams.home || !fixture.teams.away) {
+                                console.error("🚨 [MyNewLeague2] Invalid teams data in click handler:", fixture.teams);
+                                return false;
+                              }
+                              
+                              if (!fixture.league) {
+                                console.error("🚨 [MyNewLeague2] Invalid league data in click handler:", fixture.league);
                                 return false;
                               }
                               
