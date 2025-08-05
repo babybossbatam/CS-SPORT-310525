@@ -1181,6 +1181,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         setSelectedMatchId(matchId);
       } catch (error) {
         console.error("🚨 [MyNewLeague2] Error setting selected match ID:", error);
+        return; // Stop execution if we can't set the selected match
       }
 
       // Call the callback to pass match data to parent component
@@ -1191,8 +1192,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             fixture: {
               id: fixture.fixture.id,
               date: fixture.fixture.date,
-              status: fixture.fixture.status,
-              venue: fixture.fixture.venue
+              status: { ...fixture.fixture.status },
+              venue: fixture.fixture.venue ? { ...fixture.fixture.venue } : undefined
             },
             league: {
               id: fixture.league.id,
@@ -1213,8 +1214,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                 logo: fixture.teams.away.logo
               }
             },
-            goals: fixture.goals,
-            score: fixture.score
+            goals: { ...fixture.goals },
+            score: fixture.score ? { ...fixture.score } : undefined
           };
           onMatchCardClick(safeFixture);
         } else {
@@ -1222,6 +1223,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         }
       } catch (error) {
         console.error("🚨 [MyNewLeague2] Error calling onMatchCardClick:", error);
+        // Don't re-throw the error to prevent runtime errors
       }
     } catch (error) {
       console.error("🚨 [MyNewLeague2] Unexpected error in handleMatchClick:", error);
@@ -1233,6 +1235,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           name: error.name
         });
       }
+      // Explicitly prevent error propagation
+      return false;
     }
   };
 
@@ -1631,10 +1635,18 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                             try {
                               e.preventDefault();
                               e.stopPropagation();
+                              
+                              // Validate fixture before passing to handleMatchClick
+                              if (!fixture || !fixture.fixture || !fixture.fixture.id) {
+                                console.error("🚨 [MyNewLeague2] Invalid fixture data in click handler:", fixture);
+                                return false;
+                              }
+                              
                               handleMatchClick(fixture);
                             } catch (error) {
                               console.error("🚨 [MyNewLeague2] Error in match container click handler:", error);
                               // Prevent error from propagating and causing runtime errors
+                              return false;
                             }
                           }}
                           onMouseEnter={() => {
