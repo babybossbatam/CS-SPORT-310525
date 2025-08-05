@@ -747,57 +747,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all leagues endpoint - MUST be before parameterized routes
-  apiRouter.get("/leagues/all", async (req: Request, res: Response) => {
-    try {
-      console.log("API: Fetching all leagues");
-      
-      // Check for cached leagues first
-      const cachedLeagues = await storage.getAllCachedLeagues();
-
-      if (cachedLeagues && cachedLeagues.length > 0) {
-        // Transform to the expected format
-        const leagues = cachedLeagues.map((league) => league.data);
-        return res.json(leagues);
-      }
-
-      // Use API-Football (RapidAPI) only
-      const leagues = await rapidApiService.getLeagues();
-
-      // Cache each league from RapidAPI
-      try {
-        for (const league of leagues) {
-          try {
-            const leagueId = league.league.id.toString();
-            const existingLeague = await storage.getCachedLeague(leagueId);
-
-            if (existingLeague) {
-              await storage.updateCachedLeague(leagueId, league);
-            } else {
-              await storage.createCachedLeague({
-                leagueId: leagueId,
-                data: league,
-              });
-            }
-          } catch (individualError) {
-            console.error(
-              `Error caching league ${league.league.id}:`,
-              individualError,
-            );
-          }
-        }
-      } catch (cacheError) {
-        console.error("Error caching leagues from RapidAPI:", cacheError);
-      }
-
-      console.log(`API: Returning ${leagues.length} leagues`);
-      return res.json(leagues);
-    } catch (error) {
-      console.error("Error fetching all leagues:", error);
-      res.status(500).json({ error: "Failed to fetch leagues" });
-    }
-  });
-
   apiRouter.get("/leagues", async (_req: Request, res: Response) => {
     try {
       // Check for cached leagues first
