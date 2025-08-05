@@ -924,66 +924,100 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
   }, []);
 
   const handleMatchClick = (fixture: FixtureData | null) => {
-    if (fixture === null) {
-      // Clear selection when null is passed (from close button)
-      console.log("🎯 [MyNewLeague2] Clearing selected match");
-      
-      // Add the current selected match to manually deselected set
-      if (selectedMatchId !== null) {
-        setManuallyDeselectedMatches(prev => new Set(prev).add(selectedMatchId));
-      }
-      
-      setSelectedMatchId(null);
+    try {
+      if (fixture === null) {
+        // Clear selection when null is passed (from close button)
+        console.log("🎯 [MyNewLeague2] Clearing selected match");
+        
+        // Add the current selected match to manually deselected set
+        if (selectedMatchId !== null) {
+          setManuallyDeselectedMatches(prev => new Set(prev).add(selectedMatchId));
+        }
+        
+        setSelectedMatchId(null);
 
-      // Remove selected-match CSS class from all match containers as backup
-      const selectedMatches = document.querySelectorAll(".selected-match");
-      selectedMatches.forEach((match) => {
-        match.classList.remove("selected-match");
+        // Remove selected-match CSS class from all match containers as backup
+        try {
+          const selectedMatches = document.querySelectorAll(".selected-match");
+          selectedMatches.forEach((match) => {
+            match.classList.remove("selected-match");
+          });
+        } catch (domError) {
+          console.warn("🚨 [MyNewLeague2] DOM error in handleMatchClick:", domError);
+        }
+
+        // Also call the callback to notify parent component
+        if (onMatchCardClick && typeof onMatchCardClick === 'function') {
+          try {
+            onMatchCardClick(null);
+          } catch (callbackError) {
+            console.error("🚨 [MyNewLeague2] Error in onMatchCardClick callback:", callbackError);
+          }
+        }
+        return;
+      }
+
+      // Validate fixture data structure
+      if (!fixture || !fixture.fixture || !fixture.fixture.id) {
+        console.error("🚨 [MyNewLeague2] Invalid fixture data:", fixture);
+        return;
+      }
+
+      const matchId = fixture.fixture.id;
+
+      console.log("🎯 [MyNewLeague2] Match card clicked:", {
+        fixtureId: matchId,
+        teams: `${fixture.teams?.home?.name || 'Unknown'} vs ${fixture.teams?.away?.name || 'Unknown'}`,
+        league: fixture.league?.name || 'Unknown League',
+        status: fixture.fixture?.status?.short || 'Unknown',
+        source: "MyNewLeague2",
+        currentlySelected: selectedMatchId,
       });
 
-      // Also call the callback to notify parent component
-      if (onMatchCardClick) {
-        onMatchCardClick(null);
+      // Remove disable-hover class from all match containers to allow re-selection
+      try {
+        const allMatchContainers = document.querySelectorAll(".match-card-container");
+        allMatchContainers.forEach((container) => {
+          container.classList.remove("disable-hover");
+        });
+      } catch (domError) {
+        console.warn("🚨 [MyNewLeague2] DOM error removing disable-hover:", domError);
       }
-      return;
+
+      // Remove from manually deselected set when manually clicked
+      try {
+        setManuallyDeselectedMatches(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(matchId);
+          return newSet;
+        });
+      } catch (stateError) {
+        console.error("🚨 [MyNewLeague2] Error updating manually deselected matches:", stateError);
+      }
+
+      // Set this match as selected
+      try {
+        setSelectedMatchId(matchId);
+      } catch (stateError) {
+        console.error("🚨 [MyNewLeague2] Error setting selected match ID:", stateError);
+      }
+
+      // Call the callback to pass match data to parent component first (like MyNewLeague does)
+      if (onMatchCardClick && typeof onMatchCardClick === 'function') {
+        try {
+          onMatchCardClick(fixture);
+        } catch (callbackError) {
+          console.error("🚨 [MyNewLeague2] Error in onMatchCardClick callback:", callbackError);
+          // Don't throw the error, just log it
+        }
+      }
+
+      // Don't navigate automatically - let parent handle it if needed
+      // navigate(`/match/${fixture.fixture.id}`);
+    } catch (error) {
+      console.error("🚨 [MyNewLeague2] Critical error in handleMatchClick:", error);
+      // Prevent the error from propagating and breaking the app
     }
-
-    const matchId = fixture.fixture?.id;
-
-    console.log("🎯 [MyNewLeague2] Match card clicked:", {
-      fixtureId: matchId,
-      teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-      league: fixture.league?.name,
-      status: fixture.fixture?.status?.short,
-      source: "MyNewLeague2",
-      currentlySelected: selectedMatchId,
-    });
-
-    // Remove disable-hover class from all match containers to allow re-selection
-    const allMatchContainers = document.querySelectorAll(
-      ".match-card-container",
-    );
-    allMatchContainers.forEach((container) => {
-      container.classList.remove("disable-hover");
-    });
-
-    // Remove from manually deselected set when manually clicked
-    setManuallyDeselectedMatches(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(matchId);
-      return newSet;
-    });
-
-    // Set this match as selected
-    setSelectedMatchId(matchId);
-
-    // Call the callback to pass match data to parent component first (like MyNewLeague does)
-    if (onMatchCardClick) {
-      onMatchCardClick(fixture);
-    }
-
-    // Don't navigate automatically - let parent handle it if needed
-    // navigate(`/match/${fixture.fixture.id}`);
   };
 
   const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(
@@ -1367,7 +1401,15 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
                             hoveredMatchId === matchId ? "hovered-match" : ""
                           }`}
                           data-fixture-id={matchId}
-                          onClick={() => handleMatchClick(fixture)}
+                          onClick={(e) => {
+                            try {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleMatchClick(fixture);
+                            } catch (error) {
+                              console.error("🚨 [MyNewLeague2] Click handler error:", error);
+                            }
+                          }}
                           onMouseEnter={() => {
                             const container = document.querySelector(
                               `[data-fixture-id="${matchId}"]`,
