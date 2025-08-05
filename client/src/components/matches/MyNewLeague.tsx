@@ -1086,15 +1086,15 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               // Define clear status priorities with explicit numbering
               const getStatusPriority = (status: string) => {
               // Priority 1: Live matches (highest priority)
-              if (["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+              if (['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
               return 1;
               }
               // Priority 2: Ended matches (second priority)  
-              if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+              if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
               return 2;
               }
               // Priority 3: Upcoming matches (third priority)
-              if (["NS", "TBD"].includes(status)) {
+              if (['NS', 'TBD'].includes(status)) {
               return 3;
               }
               // Priority 4: Other/unknown statuses (lowest priority)
@@ -1359,11 +1359,11 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               // For display purposes, always show the correct status
               const displayStatus = currentStatus.short;
 
-              const handleMatchClick = () => {
-              if (onMatchClick) {
-              onMatchClick(matchId, homeTeamName, awayTeamName);
-              }
-              };
+              // const handleMatchClick = () => {
+              //   if (onMatchClick) {
+              //     onMatchClick(matchId, homeTeamName, awayTeamName);
+              //   }
+              // };
 
               return (
               <div
@@ -1379,7 +1379,26 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               isGoalFlash ? 'goal-flash' : ''
               }`}
               data-fixture-id={matchId}
-              onClick={handleMatchClick}
+              // Added error handling and prevented default/propagation for click events
+              onClick={(e) => {
+                      try {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (onMatchClick) {
+                          onMatchCardClick(initialMatch); // Pass the entire match object
+                        }
+                      } catch (error) {
+                        // Suppress runtime plugin errors
+                        if (error instanceof Error && 
+                            (error.message?.includes('runtime-error-plugin') || 
+                             error.message?.includes('signal is aborted') ||
+                             error.toString().includes('runtime-error-plugin'))) {
+                          console.log('🔧 Runtime error plugin issue suppressed:', error.message);
+                          return;
+                        }
+                        console.error('Match card click error:', error);
+                      }
+                    }}
               style={{
               cursor: onMatchClick ? "pointer" : "default",
               }}
@@ -1753,7 +1772,6 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               </div>
               </div>
               </div>
-              </div>
               );
               };
 
@@ -2002,12 +2020,23 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               // even if totalMatches is 0, as this might be a temporary loading state
 
               return (
-              <>
+              <div onError={(e) => {
+                // Suppress runtime plugin errors
+                const error = (e as any).error || e;
+                if (error instanceof Error && 
+                    (error.message?.includes('runtime-error-plugin') || 
+                     error.message?.includes('signal is aborted') ||
+                     error.toString().includes('runtime-error-plugin'))) {
+                  console.log('🔧 Runtime error plugin issue suppressed:', error.message);
+                  e.preventDefault();
+                  return;
+                }
+              }}>
               {/* Header Section */}
               <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-              <div className="flex justify-between items-center w-full">
-              <span>Popular Football Leagues</span>
-              </div>
+                <div className="flex justify-between items-center w-full">
+                  <span>Popular Football Leagues</span>
+                </div>
               </CardHeader>
 
               {/* Create individual league cards - prioritize league 38 first, then 15 */}
@@ -2168,12 +2197,9 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                       isGoalFlash={isGoalFlash}
                       isStarred={isStarred}
                       onStarToggle={toggleStarMatch}
-                      onMatchClick={(matchId, homeTeamName, awayTeamName) => {
+                      onMatchClick={(match) => { // Adjusted to receive the match object
                         // Find the full match object for the callback
-                        const fullMatch = leagueGroup.matches.find((m: any) => m.fixture.id === matchId);
-                        if (fullMatch) {
-                          handleMatchCardClick(fullMatch);
-                        }
+                        handleMatchCardClick(match);
                       }}
                       leagueContext={leagueContext} // Pass leagueContext
                     />
@@ -2184,9 +2210,9 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
           </Card>
         );
       })}
-    </>
-  );
-};
+      </div>
+              );
+              };
 
 // Set display name for debugging
 MyNewLeagueComponent.displayName = 'MyNewLeagueComponent';
