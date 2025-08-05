@@ -138,35 +138,11 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
               <div>{children}</div>
             ) : (
               <div>
-                <Suspense fallback={
-                  <Card className="w-full">
-                    <div className="p-4 space-y-4">
-                      <div className="flex items-center justify-between">
-                        <Skeleton className="h-6 w-32" />
-                        <Skeleton className="h-6 w-16" />
-                      </div>
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <div key={i} className="space-y-2">
-                          <div className="flex items-center gap-3 p-3 border rounded">
-                            <Skeleton className="h-8 w-8 rounded" />
-                            <Skeleton className="h-4 w-24" />
-                            <div className="flex-1" />
-                            <Skeleton className="h-4 w-16" />
-                            <div className="flex-1" />
-                            <Skeleton className="h-4 w-24" />
-                            <Skeleton className="h-8 w-8 rounded" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-                }>
-                  <TodayMatchPageCard
-                    fixtures={filteredFixtures}
-                    onMatchClick={handleMatchClick}
-                    onMatchCardClick={handleMatchCardClick}
-                  />
-                </Suspense>
+                <TodayMatchPageCard
+                  fixtures={filteredFixtures}
+                  onMatchClick={handleMatchClick}
+                  onMatchCardClick={handleMatchCardClick}
+                />
               </div>
             )}
           </div>
