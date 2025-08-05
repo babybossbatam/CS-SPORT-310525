@@ -1215,7 +1215,7 @@ const MyNewLeague2 = ({
                               toggleStarMatch(matchId);
                             }}
                             className="match-star-button"
-                            title="Add to favorites"
+                            title="Add to My Selections"
                             onMouseEnter={(e) => {
                               const container = e.currentTarget.closest(".match-card-container");
                               container?.classList.add("disable-hover");
