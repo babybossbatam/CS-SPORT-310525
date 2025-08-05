@@ -908,7 +908,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       style={{ zIndex: 1, position: "relative" }}
     >
       <div
-        className={`bg-white rounded-xl overflow-hidden shadow-lg border-2 transition-all duration-300 ${getIntensityColor()}`}
+        className={`bg-white overflow-hidden shadow-lg transition-all duration-300 ${getIntensityColor()}`}
       >
         {/* Simplified Header */}
         <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3 border-b border-gray-200">
