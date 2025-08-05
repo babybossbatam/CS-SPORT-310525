@@ -1241,7 +1241,23 @@ id: fixture.teams.away.id,
                 return false;
               }
 
+              // CRITICAL: Filter out stale "Starting now" matches
+              const status = fixture.fixture.status.short;
               const matchDate = new Date(fixture.fixture.date);
+              const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
+              
+              // Remove matches that show "NS" (Not Started) but are significantly past kickoff time
+              if (status === "NS" && minutesFromKickoff > 120) {
+                console.log(`🚫 [STALE MATCH EXCLUSION] Removing stale "Starting now" match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(minutesFromKickoff)} min past kickoff)`);
+                return false;
+              }
+
+              // Remove matches that are postponed, cancelled, or suspended
+              if (["PST", "CANC", "SUSP", "ABD", "AWD", "WO"].includes(status)) {
+                console.log(`🚫 [STATUS EXCLUSION] Removing ${status} match: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                return false;
+              }
+
               const year = matchDate.getFullYear();
               const month = String(matchDate.getMonth() + 1).padStart(2, "0");
               const day = String(matchDate.getDate()).padStart(2, "0");
@@ -1368,11 +1384,18 @@ id: fixture.teams.away.id,
             `✅ [MyHomeFeaturedMatchNew] Found ${fixturesForDay.length} featured matches for ${dateInfo.label}`,
           );
 
-          allMatches.push({
-            date: dateInfo.date,
-            label: dateInfo.label,
-            matches: fixturesForDay,
-          });
+          // Only add days that have valid matches
+          if (fixturesForDay.length > 0) {
+            allMatches.push({
+              date: dateInfo.date,
+              label: dateInfo.label,
+              matches: fixturesForDay,
+            });
+          } else {
+            console.log(
+              `🚫 [EMPTY DAY EXCLUSION] Excluding ${dateInfo.label} - no valid matches found`,
+            );
+          }
         }
 
         // Only update state if data has actually changed
@@ -1978,7 +2001,7 @@ id: fixture.teams.away.id,
       </CardHeader>
 
       <CardContent className="pt-0">
-        {allMatches.length === 0 ? (
+        {allMatches.length === 0 || !currentMatch ? (
           <div className="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400">
             <p className="text-lg font-medium mb-1">No featured matches</p>
             <p className="text-sm">Check back later for upcoming games</p>
