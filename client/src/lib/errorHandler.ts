@@ -103,6 +103,55 @@ const categorizeError = (error: any): ErrorCategory => {
     };
   }
 
+  // Replit/Development environment errors
+  if (errorStr.includes('replit.dev') || 
+      errorStr.includes('482be3e5-72e0-4aaf-ab33-69660b136cf5') ||
+      errorStr.includes('riker.replit.dev') ||
+      errorStr.includes('signal is aborted') ||
+      errorStr.includes('AbortError') ||
+      errorStr.includes('workspace_iframe.html') ||
+      errorStr.includes('Unrecognized feature') ||
+      errorStr.includes('sandbox') ||
+      errorStr.includes('allow-downloads-without-user-activation') ||
+      errorStr.includes('allowfullscreen') ||
+      errorStr.includes('allowpaymentrequest') ||
+      errorStr.includes('ambient-light-sensor') ||
+      errorStr.includes('battery') ||
+      errorStr.includes('execution-while-not-rendered') ||
+      errorStr.includes('execution-while-out-of-viewport') ||
+      errorStr.includes('layout-animations') ||
+      errorStr.includes('legacy-image-formats') ||
+      errorStr.includes('navigation-override') ||
+      errorStr.includes('oversized-images') ||
+      errorStr.includes('publickey-credentials') ||
+      errorStr.includes('speaker-selection') ||
+      errorStr.includes('unoptimized-images') ||
+      errorStr.includes('unsized-media')) {
+    return {
+      name: 'Replit Environment',
+      shouldSuppress: true,
+      shouldReport: false,
+      action: 'suppress'
+    };
+  }
+
+  // Browser extension and background script errors
+  if (errorStr.includes('background.js') ||
+      errorStr.includes('extension') ||
+      errorStr.includes('Icon Generator') ||
+      errorStr.includes('chrome-extension') ||
+      errorStr.includes('moz-extension') ||
+      errorStr.includes('Adding extension') ||
+      errorStr.includes('extensionArgs') ||
+      errorStr.includes('Invalid or unexpected token') && errorStr.includes('background.js')) {
+    return {
+      name: 'Browser Extension',
+      shouldSuppress: true,
+      shouldReport: false,
+      action: 'suppress'
+    };
+  }
+
   // Network/connectivity issues - attempt recovery
   if (errorStr.includes('Failed to fetch') || 
       errorStr.includes('NetworkError') ||
@@ -165,49 +214,35 @@ const categorizeError = (error: any): ErrorCategory => {
 };
 
 // Enhanced error reporting system
-const reportError = (error: any, category: ErrorCategory, context: string) => {
-  if (!category.shouldReport) return;
+const reportError = (error: any, category: any, source: string) => {
+  if (!import.meta.env.DEV) return;
 
-  const errorReport = {
-    category: category.name,
-    action: category.action,
-    context,
+  const errorData = {
     timestamp: new Date().toISOString(),
-    error: {
-      message: error?.message,
-      stack: error?.stack,
-      name: error?.name
-    },
+    error: typeof error === 'string' ? error : error?.message || 'Unknown error',
+    category: category.name,
+    source,
+    stack: error?.stack || 'No stack trace',
     userAgent: navigator.userAgent,
     url: window.location.href
   };
 
-  console.group(`🚨 Error Report: ${category.name}`);
-  console.log('Action Required:', category.action);
-  console.log('Error Details:', errorReport);
-  console.groupEnd();
+  // Store in localStorage for analysis
+  const stored = JSON.parse(localStorage.getItem('app-errors') || '[]');
+  stored.push(errorData);
 
-  // Store for debugging (in development)
-  if (import.meta.env.DEV) {
-    try {
-      const errors = JSON.parse(localStorage.getItem('app-errors') || '[]');
-      errors.push(errorReport);
-      // Keep only last 10 errors to prevent quota issues
-      if (errors.length > 10) {
-        errors.splice(0, errors.length - 10);
-      }
-      localStorage.setItem('app-errors', JSON.stringify(errors));
-    } catch (quotaError) {
-      // If localStorage is full, clear it and start fresh
-      console.warn('🧹 localStorage quota exceeded, clearing error storage');
-      localStorage.removeItem('app-errors');
-      try {
-        localStorage.setItem('app-errors', JSON.stringify([errorReport]));
-      } catch {
-        // If still failing, just skip storing this error
-        console.warn('⚠️ Unable to store error due to localStorage constraints');
-      }
-    }
+  // Keep only last 50 errors
+  if (stored.length > 50) {
+    stored.splice(0, stored.length - 50);
+  }
+
+  localStorage.setItem('app-errors', JSON.stringify(stored));
+
+  if (!category.shouldSuppress) {
+    console.group(`🚨 ${category.name} Error Report`);
+    console.error('Error:', error);
+    console.log('Context:', errorData);
+    console.groupEnd();
   }
 };
 
