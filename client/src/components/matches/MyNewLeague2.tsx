@@ -155,6 +155,7 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
   );
   const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
   const [hoveredMatchId, setHoveredMatchId] = useState<number | null>(null);
+  const [manuallyDeselectedMatches, setManuallyDeselectedMatches] = useState<Set<number>>(new Set());
 
   // League IDs without any filtering - removed duplicates
   const leagueIds = [
@@ -926,6 +927,12 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
     if (fixture === null) {
       // Clear selection when null is passed (from close button)
       console.log("🎯 [MyNewLeague2] Clearing selected match");
+      
+      // Add the current selected match to manually deselected set
+      if (selectedMatchId !== null) {
+        setManuallyDeselectedMatches(prev => new Set(prev).add(selectedMatchId));
+      }
+      
       setSelectedMatchId(null);
 
       // Remove selected-match CSS class from all match containers as backup
@@ -958,6 +965,13 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
     );
     allMatchContainers.forEach((container) => {
       container.classList.remove("disable-hover");
+    });
+
+    // Remove from manually deselected set when manually clicked
+    setManuallyDeselectedMatches(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(matchId);
+      return newSet;
     });
 
     // Set this match as selected
@@ -1360,7 +1374,8 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
                             );
                             if (
                               !container?.classList.contains("disable-hover") &&
-                              selectedMatchId !== matchId
+                              selectedMatchId !== matchId &&
+                              !manuallyDeselectedMatches.has(matchId)
                             ) {
                               setHoveredMatchId(matchId);
                             }
@@ -1371,7 +1386,8 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
                             );
                             if (
                               !container?.classList.contains("disable-hover") &&
-                              selectedMatchId !== matchId
+                              selectedMatchId !== matchId &&
+                              !manuallyDeselectedMatches.has(matchId)
                             ) {
                               setHoveredMatchId(null);
                             }
