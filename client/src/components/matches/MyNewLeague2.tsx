@@ -862,7 +862,7 @@ const MyNewLeague2 = ({
     setPreviousMatchStatuses(currentStatuses);
   }, [fixturesByLeague, triggerKickoffFlash, triggerFinishFlash]);
 
-  if (isLoading && (!allFixtures || allFixtures.length === 0)) {
+  if (isLoading && (!allFixtures || allFixtures?.length === 0)) {
     return (
       <>
         {/* Header Section Skeleton */}
