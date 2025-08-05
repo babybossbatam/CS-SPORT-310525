@@ -950,7 +950,9 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
         try {
           const selectedMatches = document.querySelectorAll(".selected-match");
           selectedMatches.forEach((match) => {
-            match.classList.remove("selected-match");
+            if (match && match.classList) {
+              match.classList.remove("selected-match");
+            }
           });
         } catch (error) {
           console.error("🚨 [MyNewLeague2] Error removing selected-match classes:", error);
@@ -967,9 +969,29 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
         return;
       }
 
-      // Validate fixture data structure
-      if (!fixture || !fixture.fixture || typeof fixture.fixture.id !== 'number') {
-        console.error("🚨 [MyNewLeague2] Invalid fixture data:", fixture);
+      // Validate fixture data structure with more comprehensive checks
+      if (!fixture) {
+        console.error("🚨 [MyNewLeague2] Fixture is null or undefined");
+        return;
+      }
+
+      if (!fixture.fixture) {
+        console.error("🚨 [MyNewLeague2] Fixture.fixture is missing:", fixture);
+        return;
+      }
+
+      if (typeof fixture.fixture.id !== 'number' || isNaN(fixture.fixture.id)) {
+        console.error("🚨 [MyNewLeague2] Invalid fixture ID:", fixture.fixture.id);
+        return;
+      }
+
+      if (!fixture.teams || !fixture.teams.home || !fixture.teams.away) {
+        console.error("🚨 [MyNewLeague2] Fixture teams data is incomplete:", fixture.teams);
+        return;
+      }
+
+      if (!fixture.league) {
+        console.error("🚨 [MyNewLeague2] Fixture league data is missing:", fixture.league);
         return;
       }
 
@@ -987,9 +1009,13 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
       // Remove disable-hover class from all match containers to allow re-selection
       try {
         const allMatchContainers = document.querySelectorAll(".match-card-container");
-        allMatchContainers.forEach((container) => {
-          container.classList.remove("disable-hover");
-        });
+        if (allMatchContainers && allMatchContainers.length > 0) {
+          allMatchContainers.forEach((container) => {
+            if (container && container.classList) {
+              container.classList.remove("disable-hover");
+            }
+          });
+        }
       } catch (error) {
         console.error("🚨 [MyNewLeague2] Error removing disable-hover classes:", error);
       }
@@ -997,6 +1023,10 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
       // Remove from manually deselected set when manually clicked
       setManuallyDeselectedMatches(prev => {
         try {
+          if (!prev || typeof prev.has !== 'function') {
+            console.warn("🚨 [MyNewLeague2] Invalid manually deselected matches state, resetting");
+            return new Set();
+          }
           const newSet = new Set(prev);
           const wasManuallyDeselected = newSet.has(matchId);
           newSet.delete(matchId);
@@ -1006,23 +1036,67 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
           return newSet;
         } catch (error) {
           console.error("🚨 [MyNewLeague2] Error updating manually deselected matches:", error);
-          return prev;
+          return new Set();
         }
       });
 
       // Set this match as selected
-      setSelectedMatchId(matchId);
+      try {
+        setSelectedMatchId(matchId);
+      } catch (error) {
+        console.error("🚨 [MyNewLeague2] Error setting selected match ID:", error);
+      }
 
       // Call the callback to pass match data to parent component
       try {
         if (onMatchCardClick && typeof onMatchCardClick === 'function') {
-          onMatchCardClick(fixture);
+          // Create a safe copy of fixture data to prevent reference issues
+          const safeFixture = {
+            fixture: {
+              id: fixture.fixture.id,
+              date: fixture.fixture.date,
+              status: fixture.fixture.status,
+              venue: fixture.fixture.venue
+            },
+            league: {
+              id: fixture.league.id,
+              name: fixture.league.name,
+              country: fixture.league.country,
+              logo: fixture.league.logo,
+              flag: fixture.league.flag
+            },
+            teams: {
+              home: {
+                id: fixture.teams.home.id,
+                name: fixture.teams.home.name,
+                logo: fixture.teams.home.logo
+              },
+              away: {
+                id: fixture.teams.away.id,
+                name: fixture.teams.away.name,
+                logo: fixture.teams.away.logo
+              }
+            },
+            goals: fixture.goals,
+            score: fixture.score
+          };
+          onMatchCardClick(safeFixture);
+        } else {
+          console.warn("🚨 [MyNewLeague2] onMatchCardClick is not a function or is undefined");
         }
       } catch (error) {
         console.error("🚨 [MyNewLeague2] Error calling onMatchCardClick:", error);
       }
     } catch (error) {
       console.error("🚨 [MyNewLeague2] Unexpected error in handleMatchClick:", error);
+      // Prevent the error from bubbling up and causing runtime errors
+      if (error instanceof Error) {
+        console.error("🚨 [MyNewLeague2] Error details:", {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        });
+      }
     }
   };
 
@@ -1471,26 +1545,41 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
                           }`}
                           data-fixture-id={matchId}
                           onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleMatchClick(fixture);
+                            try {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleMatchClick(fixture);
+                            } catch (error) {
+                              console.error("🚨 [MyNewLeague2] Error in match container click handler:", error);
+                              // Prevent error from propagating and causing runtime errors
+                            }
                           }}
                           onMouseEnter={() => {
-                            const container = document.querySelector(
-                              `[data-fixture-id="${matchId}"]`,
-                            );
-                            // Only allow hover if not manually deselected and not currently selected
-                            if (
-                              !container?.classList.contains("disable-hover") &&
-                              selectedMatchId !== matchId &&
-                              !manuallyDeselectedMatches.has(matchId)
-                            ) {
-                              setHoveredMatchId(matchId);
+                            try {
+                              const container = document.querySelector(
+                                `[data-fixture-id="${matchId}"]`,
+                              );
+                              // Only allow hover if not manually deselected and not currently selected
+                              if (
+                                container &&
+                                !container.classList.contains("disable-hover") &&
+                                selectedMatchId !== matchId &&
+                                manuallyDeselectedMatches &&
+                                !manuallyDeselectedMatches.has(matchId)
+                              ) {
+                                setHoveredMatchId(matchId);
+                              }
+                            } catch (error) {
+                              console.error("🚨 [MyNewLeague2] Error in mouse enter handler:", error);
                             }
                           }}
                           onMouseLeave={() => {
-                            // Always clear hover state when leaving, regardless of selection status
-                            setHoveredMatchId(null);
+                            try {
+                              // Always clear hover state when leaving, regardless of selection status
+                              setHoveredMatchId(null);
+                            } catch (error) {
+                              console.error("🚨 [MyNewLeague2] Error in mouse leave handler:", error);
+                            }
                           }}
                           style={{
                             cursor: "pointer",
