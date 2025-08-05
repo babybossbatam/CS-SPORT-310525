@@ -2144,12 +2144,22 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 // Lazy Loading Wrapper Component
 const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
   const { hasIntersected } = useIntersectionObserver(containerRef, {
     threshold: 0.01, // Trigger even earlier
     rootMargin: '200px' // Start loading 200px before it comes into view
   });
 
-  // Minimal placeholder while not intersected - just reserve space
+  // Check if we have cached data available
+  const cachedData = queryClient.getQueryData(["myNewLeague2", "allFixtures", props.selectedDate]);
+  const hasCachedData = cachedData && Array.isArray(cachedData) && cachedData.length > 0;
+
+  // If we have cached data, show the component immediately regardless of intersection
+  if (hasCachedData) {
+    return <MyNewLeague2Component {...props} />;
+  }
+
+  // If no cached data and not intersected yet, show minimal placeholder
   if (!hasIntersected) {
     return (
       <div ref={containerRef} className="min-h-[400px] flex items-center justify-center">
