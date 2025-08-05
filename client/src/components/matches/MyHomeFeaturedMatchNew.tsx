@@ -1327,8 +1327,23 @@ id: fixture.teams.away.id,
                 console.log(`🚫 [NAME-BASED EXCLUSION] Regionalliga - Bayern match excluded by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
                 return false;
               }
-
+              // CRITICAL: Filter out stale "Starting now" matches
+              const status = fixture.fixture.status.short;
               const matchDate = new Date(fixture.fixture.date);
+              const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
+
+              // Remove matches that show "NS" (Not Started) but are significantly past kickoff time
+              if (status === "NS" && minutesFromKickoff > 120) {
+                console.log(`🚫 [STALE MATCH EXCLUSION] Removing stale "Starting now" match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(minutesFromKickoff)} min past kickoff)`);
+                return false;
+              }
+
+              // Remove matches that are postponed, cancelled, or suspended
+              if (["PST", "CANC", "SUSP", "ABD", "AWD", "WO"].includes(status)) {
+                console.log(`🚫 [STATUS EXCLUSION] Removing ${status} match: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                return false;
+              }
+
               const year = matchDate.getFullYear();
               const month = String(matchDate.getMonth() + 1).padStart(2, "0");
               const day = String(matchDate.getDate()).padStart(2, "0");
