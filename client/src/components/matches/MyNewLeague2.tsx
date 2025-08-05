@@ -921,20 +921,21 @@ const MyNewLeague2 = ({
       return 0;
     });
 
-  // Get visible leagues (first N leagues that have matches)
-  const visibleLeagues = sortedLeagueEntries.slice(0, visibleLeagueCount);
-  const hasMoreLeagues = sortedLeagueEntries.length > visibleLeagueCount;
-
-  // Load more leagues function
+  // Load more leagues function - define early to ensure consistent hook order
   const loadMoreLeagues = useCallback(async () => {
-    if (isLoadingMore || !hasMoreLeagues) return;
+    const currentHasMore = sortedLeagueEntries.length > visibleLeagueCount;
+    if (isLoadingMore || !currentHasMore) return;
     
     setIsLoadingMore(true);
     // Simulate a small delay for smooth UX
     await new Promise(resolve => setTimeout(resolve, 300));
     setVisibleLeagueCount(prev => Math.min(prev + 3, sortedLeagueEntries.length));
     setIsLoadingMore(false);
-  }, [isLoadingMore, hasMoreLeagues, sortedLeagueEntries.length]);
+  }, [isLoadingMore, visibleLeagueCount, sortedLeagueEntries.length]);
+
+  // Get visible leagues (first N leagues that have matches)
+  const visibleLeagues = sortedLeagueEntries.slice(0, visibleLeagueCount);
+  const hasMoreLeagues = sortedLeagueEntries.length > visibleLeagueCount;
 
   if (leagueEntries.length === 0) {
     return (
