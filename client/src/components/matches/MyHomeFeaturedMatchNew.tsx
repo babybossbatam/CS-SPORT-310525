@@ -399,7 +399,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             const status = match.fixture.status.short;
             const matchDate = new Date(match.fixture.date);
             const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
-
+            
             // Force refresh if:
             // 1. Match shows "Starting now" but is old (>30 min past kickoff)
             // 2. Match is live
@@ -409,7 +409,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             const isLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
             const isWithinTwoHours = Math.abs(minutesFromKickoff) <= 120;
             const hasConflictingStatus = (minutesFromKickoff < -720) && ["FT", "AET", "PEN"].includes(status); // More than 12 hours away but shows ended
-
+            
             return isStaleStartingNow || isLive || (status === "NS" && isWithinTwoHours) || hasConflictingStatus;
           })
         );
@@ -624,10 +624,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       const matchDate = new Date(fixture.fixture.date);
                       const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
                       const hoursFromKickoff = minutesFromKickoff / 60;
-                      const daysFromKickoff = hoursFromKickoff / 24;
                       const status = fixture.fixture.status.short;
-
-                      // Check for various types of conflicting data (same logic as above)
+                      
+                      // Check for various types of conflicting data
                       let hasConflictingData = false;
                       let conflictReason = "";
 
@@ -653,18 +652,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       if ((hoursFromKickoff > 6) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
                         hasConflictingData = true;
                         conflictReason = `stale ended match (${status}) more than 6 hours old`;
-                      }
-
-                      // 5. CRITICAL: Exclude matches that are more than 1 day old regardless of status (stale data)
-                      if (daysFromKickoff > 1) {
-                        hasConflictingData = true;
-                        conflictReason = `match is more than 1 day old (${daysFromKickoff.toFixed(1)} days)`;
-                      }
-
-                      // 6. Special check for Friendlies Clubs matches that are more than 12 hours old
-                      if ((fixture.league?.id === 667 || fixture.league?.name?.toLowerCase().includes('friendlies')) && hoursFromKickoff > 12) {
-                        hasConflictingData = true;
-                        conflictReason = `stale friendlies match (${hoursFromKickoff.toFixed(1)} hours old)`;
                       }
 
                       if (hasConflictingData) {
@@ -892,7 +879,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               if (fixtures?.length) {
                 const cachedFixtures = fixtures
                   .filter((fixture: any) => {
-                    // Must have valid teams and be from popular leagues, not priority leagues, and NOT be live
+                    // Must have valid teams, be from popular leagues, not priority leagues, and NOT be live
                     const hasValidTeams =
                       fixture.teams?.home?.name && fixture.teams?.away?.name;
 
@@ -912,9 +899,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const matchDate = new Date(fixture.fixture.date);
                     const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
                     const hoursFromKickoff = minutesFromKickoff / 60;
-                    const daysFromKickoff = hoursFromKickoff / 24;
                     const status = fixture.fixture.status.short;
-
+                    
                     // Check for various types of conflicting data (same logic as above)
                     let hasConflictingData = false;
                     let conflictReason = "";
@@ -941,18 +927,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     if ((hoursFromKickoff > 6) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
                       hasConflictingData = true;
                       conflictReason = `stale ended match (${status}) more than 6 hours old`;
-                    }
-
-                    // 5. CRITICAL: Exclude matches that are more than 1 day old regardless of status (stale data)
-                    if (daysFromKickoff > 1) {
-                      hasConflictingData = true;
-                      conflictReason = `match is more than 1 day old (${daysFromKickoff.toFixed(1)} days)`;
-                    }
-
-                    // 6. Special check for Friendlies Clubs matches that are more than 12 hours old
-                    if ((fixture.league?.id === 667 || fixture.league?.name?.toLowerCase().includes('friendlies')) && hoursFromKickoff > 12) {
-                      hasConflictingData = true;
-                      conflictReason = `stale friendlies match (${hoursFromKickoff.toFixed(1)} hours old)`;
                     }
 
                     if (hasConflictingData) {
@@ -1116,9 +1090,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const matchDate = new Date(fixture.fixture.date);
                     const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
                     const hoursFromKickoff = minutesFromKickoff / 60;
-                    const daysFromKickoff = hoursFromKickoff / 24;
                     const status = fixture.fixture.status.short;
-
+                    
                     // Check for various types of conflicting data (same logic as above)
                     let hasConflictingData = false;
                     let conflictReason = "";
@@ -1145,18 +1118,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     if ((hoursFromKickoff > 6) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
                       hasConflictingData = true;
                       conflictReason = `stale ended match (${status}) more than 6 hours old`;
-                    }
-
-                    // 5. CRITICAL: Exclude matches that are more than 1 day old regardless of status (stale data)
-                    if (daysFromKickoff > 1) {
-                      hasConflictingData = true;
-                      conflictReason = `match is more than 1 day old (${daysFromKickoff.toFixed(1)} days)`;
-                    }
-
-                    // 6. Special check for Friendlies Clubs matches that are more than 12 hours old
-                    if ((fixture.league?.id === 667 || fixture.league?.name?.toLowerCase().includes('friendlies')) && hoursFromKickoff > 12) {
-                      hasConflictingData = true;
-                      conflictReason = `stale friendlies match (${hoursFromKickoff.toFixed(1)} hours old)`;
                     }
 
                     if (hasConflictingData) {
@@ -1625,7 +1586,7 @@ id: fixture.teams.away.id,
           } else if (Math.abs(minutesFromKickoff) <= 120) {
             analysis.upcomingMatches++; // Starting within 2 hours
           }
-
+          
           // Check for stale "Starting now" matches
           if (minutesFromKickoff > 30 && minutesFromKickoff < 180) {
             analysis.staleMatches++;
