@@ -1352,8 +1352,29 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
   // Show cached data immediately if available, no loading spinner
   if (isLoading && Object.keys(fixturesByLeague).length === 0) {
-    // Return empty div to let lazy loading handle the display
-    return <div className="min-h-[200px]" />;
+    return (
+      <>
+        {/* Header Section */}
+        <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
+          <div className="flex justify-between items-center w-full">
+            <span className="text-sm font-semibold">
+              Popular Football Leagues
+            </span>
+          </div>
+        </CardHeader>
+
+        <Card className="mb-4">
+          <CardContent className="p-4">
+            <div className="text-center text-gray-500">
+              <div>Loading matches...</div>
+              <div className="text-xs mt-2">
+                Please wait while we fetch the latest fixtures
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </>
+    );
   }
 
   if (error) {
