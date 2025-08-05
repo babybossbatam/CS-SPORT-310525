@@ -418,30 +418,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           console.log("🔄 [MyHomeFeaturedMatchNew] Smart cache: forcing refresh due to live/imminent matches or stale data");
         }
 
-        // Helper function to check if match should be excluded from slides
-        const shouldExcludeFromSlides = (fixture: any): boolean => {
-          const status = fixture.fixture.status.short;
-          const matchDate = new Date(fixture.fixture.date);
-          const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
-          
-          // Exclude matches showing "Starting now" that are actually stale (>30 min past kickoff)
-          if (status === "NS" && minutesFromKickoff > 30) {
-            console.log(`🚫 [MyHomeFeaturedMatchNew] Excluding stale "Starting now" match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${minutesFromKickoff.toFixed(1)}min past kickoff)`);
-            return true;
-          }
-          
-          // Exclude matches that ended more than 4 hours ago
-          if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
-            const hoursOld = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
-            if (hoursOld > 4) {
-              console.log(`🚫 [MyHomeFeaturedMatchNew] Excluding old ended match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${hoursOld.toFixed(1)}h old)`);
-              return true;
-            }
-          }
-          
-          return false;
-        };
-
         // Get dates for today and the next 4 days
         const today = new Date();
         const dates = [
@@ -628,11 +604,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       const isNotLive = !isLiveMatch(
                         fixture.fixture.status.short,
                       );
-
-                      // CRITICAL: Exclude matches that should not appear in slides
-                      if (shouldExcludeFromSlides(fixture)) {
-                        return false;
-                      }
 
                       // CRITICAL: Exclude matches that ended more than 2 hours ago
                       const isOldEnded = isMatchOldEnded(fixture);
@@ -883,11 +854,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const hasValidTeams =
                       fixture.teams?.home?.name && fixture.teams?.away?.name;
 
-                    // CRITICAL: Exclude matches that should not appear in slides
-                    if (shouldExcludeFromSlides(fixture)) {
-                      return false;
-                    }
-
                     const leagueName = fixture.league?.name?.toLowerCase() || "";
                     const country = fixture.league?.country?.toLowerCase() || "";
 
@@ -1061,11 +1027,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         (existing) =>
                           existing.fixture.id === fixture.fixture.id,
                       );
-
-                    // CRITICAL: Exclude matches that should not appear in slides
-                    if (shouldExcludeFromSlides(fixture)) {
-                      return false;
-                    }
 
                     // NEW: Exclude matches with conflicting status/time data
                     const matchDate = new Date(fixture.fixture.date);
@@ -1407,18 +1368,11 @@ id: fixture.teams.away.id,
             `✅ [MyHomeFeaturedMatchNew] Found ${fixturesForDay.length} featured matches for ${dateInfo.label}`,
           );
 
-          // Only add days that have matches to prevent empty slides
-          if (fixturesForDay.length > 0) {
-            allMatches.push({
-              date: dateInfo.date,
-              label: dateInfo.label,
-              matches: fixturesForDay,
-            });
-          } else {
-            console.log(
-              `🚫 [MyHomeFeaturedMatchNew] Skipping empty day: ${dateInfo.label}`,
-            );
-          }
+          allMatches.push({
+            date: dateInfo.date,
+            label: dateInfo.label,
+            matches: fixturesForDay,
+          });
         }
 
         // Only update state if data has actually changed
