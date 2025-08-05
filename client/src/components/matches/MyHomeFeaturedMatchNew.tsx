@@ -14,6 +14,7 @@ import {
 import { format, addDays, parseISO } from "date-fns";
 import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
+import { fixtureCache } from "@/lib/fixtureCache";
 import TeamLogo from "./TeamLogo";
 import LazyImage from "../common/LazyImage";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
