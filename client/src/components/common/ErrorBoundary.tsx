@@ -44,6 +44,7 @@ export default class ErrorBoundary extends Component<Props, State> {
       'runtime-error-plugin',
       'sendError',
       'riker.replit.dev',
+      '482be3e5-72e0-4aaf-ab33-69660b136cf5',
       'Failed to execute \'removeChild\' on \'Node\'',
       'NotFoundError',
       'The node to be removed is not a child of this node',

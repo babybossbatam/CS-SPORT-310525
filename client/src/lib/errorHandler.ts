@@ -90,6 +90,7 @@ const categorizeError = (error: any): ErrorCategory => {
       errorStr.includes('unknown runtime error') ||
       errorStr.includes('sendError') ||
       errorStr.includes('riker.replit.dev') ||
+      errorStr.includes('482be3e5-72e0-4aaf-ab33-69660b136cf5') ||
       errorStr.includes('signal is aborted') ||
       errorStr.includes('runtime-error-plugin') ||
       errorStr.includes('482be3e5-72e0-4aaf-ab33-69660b136cf5') ||
