@@ -156,16 +156,20 @@ const MyNewLeague2 = ({
   const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
   const [hoveredMatchId, setHoveredMatchId] = useState<number | null>(null);
 
-  // All leagues to load (combining priority and remaining)
-  const allLeagueIds = [
-    38, 15, 2, 4, 10, 11, 848, 886, 1022, 772, 71, 3, 5, 531, 22, 72, 73, 75,
+  // Priority leagues for fast initial loading (top 3)
+  const priorityLeagueIds = [38, 15, 2]; // Premier League, Champions League, Bundesliga
+  
+  // Remaining leagues for secondary loading
+  const remainingLeagueIds = [
+    4, 10, 11, 848, 886, 1022, 772, 71, 3, 5, 531, 22, 72, 73, 75,
     76, 233, 667, 940, 908, 1169, 23, 1077, 253, 850, 893, 921, 130, 128, 493,
     239, 265, 237, 235, 743,
   ];
   
-  // State for managing display of league cards
-  const [visibleLeagueCount, setVisibleLeagueCount] = useState(3); // Show first 3 cards initially
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  // State for managing priority vs full loading
+  const [showingPriorityOnly, setShowingPriorityOnly] = useState(true);
+  const [priorityFixtures, setPriorityFixtures] = useState<FixtureData[]>([]);
+  const [remainingFixtures, setRemainingFixtures] = useState<FixtureData[]>([]);
 
   // Helper function to add delay between requests
   const delay = (ms: number) =>
@@ -292,69 +296,59 @@ const MyNewLeague2 = ({
     [getCacheKey, isMatchOldEnded],
   );
 
-  // Fetch all leagues at once but with batching for API limits
+  // Fetch priority leagues first (top 3) for fast initial loading
   const {
-    data: allFixtures,
-    isLoading,
-    error,
+    data: priorityData,
+    isLoading: isPriorityLoading,
+    error: priorityError,
   } = useQuery({
-    queryKey: ["myNewLeague2", "all", selectedDate],
+    queryKey: ["myNewLeague2", "priority", selectedDate],
     queryFn: async () => {
       console.log(
-        `🚀 [MyNewLeague2] Loading all ${allLeagueIds.length} leagues on ${selectedDate}:`,
-        allLeagueIds,
+        `🚀 [MyNewLeague2] Fast loading: Fetching top 3 priority leagues on ${selectedDate}:`,
+        priorityLeagueIds,
       );
 
       const results: any[] = [];
       const cachedEndedMatches: FixtureData[] = [];
 
-      // Get cached ended matches for all leagues
-      allLeagueIds.forEach((leagueId) => {
+      // Get cached ended matches for priority leagues
+      priorityLeagueIds.forEach((leagueId) => {
         const cached = getCachedEndedMatches(selectedDate, leagueId);
         cachedEndedMatches.push(...cached);
       });
 
-      // Process all leagues in batches to avoid overwhelming the API
-      const batchSize = 5;
-      for (let i = 0; i < allLeagueIds.length; i += batchSize) {
-        const batch = allLeagueIds.slice(i, i + batchSize);
-
-        const batchPromises = batch.map(async (leagueId, index) => {
-          // Small delay between requests within batch
-          if (index > 0) {
-            await delay(150);
-          }
-
-          try {
-            const response = await fetch(`/api/leagues/${leagueId}/fixtures`);
-
-            if (!response.ok) {
-              console.warn(`⚠️ [MyNewLeague2] League ${leagueId} failed: ${response.status}`);
-              return { leagueId, fixtures: [], error: `HTTP ${response.status}` };
-            }
-
-            const data = await response.json();
-            const fixtures = data.response || data || [];
-
-            // Cache ended matches for this league
-            cacheEndedMatches(selectedDate, leagueId, fixtures);
-
-            console.log(`✅ [MyNewLeague2] League ${leagueId}: ${fixtures.length} fixtures`);
-            return { leagueId, fixtures, error: null };
-          } catch (error) {
-            console.error(`❌ [MyNewLeague2] League ${leagueId} error:`, error);
-            return { leagueId, fixtures: [], error: error instanceof Error ? error.message : "Unknown error" };
-          }
-        });
-
-        const batchResults = await Promise.all(batchPromises);
-        results.push(...batchResults);
-
-        // Delay between batches
-        if (i + batchSize < allLeagueIds.length) {
-          await delay(300);
+      // Fetch priority leagues concurrently (small batch)
+      const batchPromises = priorityLeagueIds.map(async (leagueId, index) => {
+        // Small delay between requests
+        if (index > 0) {
+          await delay(100); // Reduced delay for priority leagues
         }
-      }
+
+        try {
+          const response = await fetch(`/api/leagues/${leagueId}/fixtures`);
+
+          if (!response.ok) {
+            console.warn(`⚠️ [MyNewLeague2] Priority league ${leagueId} failed: ${response.status}`);
+            return { leagueId, fixtures: [], error: `HTTP ${response.status}` };
+          }
+
+          const data = await response.json();
+          const fixtures = data.response || data || [];
+
+          // Cache ended matches for this league
+          cacheEndedMatches(selectedDate, leagueId, fixtures);
+
+          console.log(`✅ [MyNewLeague2] Priority league ${leagueId}: ${fixtures.length} fixtures`);
+          return { leagueId, fixtures, error: null };
+        } catch (error) {
+          console.error(`❌ [MyNewLeague2] Priority league ${leagueId} error:`, error);
+          return { leagueId, fixtures: [], error: error instanceof Error ? error.message : "Unknown error" };
+        }
+      });
+
+      const batchResults = await Promise.all(batchPromises);
+      results.push(...batchResults);
 
       // Combine with cached data
       const allFixturesMap = new Map<number, FixtureData>();
@@ -378,14 +372,113 @@ const MyNewLeague2 = ({
       });
 
       const fixtures = Array.from(allFixturesMap.values());
-      console.log(`🚀 [MyNewLeague2] All leagues loaded: ${fixtures.length} fixtures`);
+      console.log(`🚀 [MyNewLeague2] Priority leagues loaded: ${fixtures.length} fixtures`);
       
       return fixtures;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes cache
-    refetchInterval: 30 * 1000, // 30 seconds refetch
+    staleTime: 5 * 60 * 1000, // 5 minutes cache for priority
+    refetchInterval: 30 * 1000, // 30 seconds refetch for priority
     refetchOnWindowFocus: false,
   });
+
+  // Fetch remaining leagues in background after priority leagues load
+  const {
+    data: remainingData,
+    isLoading: isRemainingLoading,
+  } = useQuery({
+    queryKey: ["myNewLeague2", "remaining", selectedDate],
+    queryFn: async () => {
+      console.log(
+        `⏳ [MyNewLeague2] Background loading: Fetching remaining ${remainingLeagueIds.length} leagues`,
+      );
+
+      const results: any[] = [];
+      const cachedEndedMatches: FixtureData[] = [];
+
+      // Get cached ended matches for remaining leagues
+      remainingLeagueIds.forEach((leagueId) => {
+        const cached = getCachedEndedMatches(selectedDate, leagueId);
+        cachedEndedMatches.push(...cached);
+      });
+
+      // Process remaining leagues in batches
+      const batchSize = 3;
+      for (let i = 0; i < remainingLeagueIds.length; i += batchSize) {
+        const batch = remainingLeagueIds.slice(i, i + batchSize);
+
+        const batchPromises = batch.map(async (leagueId, index) => {
+          if (index > 0) {
+            await delay(200);
+          }
+
+          try {
+            const response = await fetch(`/api/leagues/${leagueId}/fixtures`);
+
+            if (!response.ok) {
+              return { leagueId, fixtures: [], error: `HTTP ${response.status}` };
+            }
+
+            const data = await response.json();
+            const fixtures = data.response || data || [];
+
+            cacheEndedMatches(selectedDate, leagueId, fixtures);
+            return { leagueId, fixtures, error: null };
+          } catch (error) {
+            return { leagueId, fixtures: [], error: error instanceof Error ? error.message : "Unknown error" };
+          }
+        });
+
+        const batchResults = await Promise.all(batchPromises);
+        results.push(...batchResults);
+
+        // Delay between batches
+        if (i + batchSize < remainingLeagueIds.length) {
+          await delay(500);
+        }
+      }
+
+      // Combine with cached data
+      const allFixturesMap = new Map<number, FixtureData>();
+
+      cachedEndedMatches.forEach((fixture) => {
+        if (fixture?.fixture?.id && !allFixturesMap.has(fixture.fixture.id)) {
+          allFixturesMap.set(fixture.fixture.id, fixture);
+        }
+      });
+
+      results.forEach((result) => {
+        result.fixtures.forEach((fixture: FixtureData) => {
+          if (fixture?.fixture?.id) {
+            if (!allFixturesMap.has(fixture.fixture.id) || !isMatchOldEnded(fixture)) {
+              allFixturesMap.set(fixture.fixture.id, fixture);
+            }
+          }
+        });
+      });
+
+      const fixtures = Array.from(allFixturesMap.values());
+      console.log(`⏳ [MyNewLeague2] Remaining leagues loaded: ${fixtures.length} fixtures`);
+      
+      return fixtures;
+    },
+    enabled: !!priorityData, // Only run after priority leagues are loaded
+    staleTime: 10 * 60 * 1000,
+    refetchInterval: 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  // Combine priority and remaining data
+  const allFixtures = useMemo(() => {
+    const combined = [...(priorityData || []), ...(remainingData || [])];
+    const uniqueFixtures = Array.from(
+      new Map(combined.map(fixture => [fixture.fixture.id, fixture])).values()
+    );
+    return uniqueFixtures;
+  }, [priorityData, remainingData]);
+
+  // Loading and error states
+  const isLoading = isPriorityLoading;
+  const error = priorityError;
 
   // Group fixtures by league with date filtering
   const fixturesByLeague = useMemo(() => {
@@ -893,46 +986,7 @@ const MyNewLeague2 = ({
     );
   }
 
-  // Load more leagues function - define at the top to ensure consistent hook order
-  const loadMoreLeagues = useCallback(async () => {
-    setIsLoadingMore(true);
-    // Simulate a small delay for smooth UX
-    await new Promise(resolve => setTimeout(resolve, 300));
-    setVisibleLeagueCount(prev => prev + 3);
-    setIsLoadingMore(false);
-  }, [isLoadingMore]);
-
   const leagueEntries = Object.entries(fixturesByLeague);
-  
-  // Sort leagues by priority and filter to show only visible ones
-  const sortedLeagueEntries = leagueEntries
-    .sort(([aId], [bId]) => {
-      // Priority order with top leagues first
-      const priorityOrder = [
-        38, 15, 2, // Top 3 priority leagues
-        5, 22, 10, 11, 1022, 772, 71, 72, 667, 3, 848, 73, 75,
-        239, 233, 253, // Remaining priority leagues
-      ];
-
-      const aIndex = priorityOrder.indexOf(Number(aId));
-      const bIndex = priorityOrder.indexOf(Number(bId));
-
-      // If both leagues are in priority list, sort by their position
-      if (aIndex !== -1 && bIndex !== -1) {
-        return aIndex - bIndex;
-      }
-
-      // If only one is in priority list, prioritize it
-      if (aIndex !== -1) return -1;
-      if (bIndex !== -1) return 1;
-
-      // For other leagues, maintain original order
-      return 0;
-    });
-
-  // Get visible leagues (first N leagues that have matches)
-  const visibleLeagues = sortedLeagueEntries.slice(0, visibleLeagueCount);
-  const hasMoreLeagues = sortedLeagueEntries.length > visibleLeagueCount;
 
   if (leagueEntries.length === 0) {
     return (
@@ -949,7 +1003,7 @@ const MyNewLeague2 = ({
             <div className="text-center text-gray-500">
               <div>No matches found</div>
               <div className="text-xs mt-2">
-                Searched {allLeagueIds.length} leagues: {allLeagueIds.join(", ")}
+                Searched {priorityLeagueIds.length + remainingLeagueIds.length} leagues: {[...priorityLeagueIds, ...remainingLeagueIds].join(", ")}
               </div>
               <div className="text-xs mt-1">
                 Raw fixtures count: {allFixtures?.length || 0}
@@ -970,8 +1024,31 @@ const MyNewLeague2 = ({
         </div>
       </CardHeader>
 
-      {/* Individual League Cards - Show visible leagues */}
-      {visibleLeagues
+      {/* Individual League Cards */}
+      {leagueEntries
+        .sort(([aId], [bId]) => {
+          // Priority order with top 3 leagues first for fast loading
+          const priorityOrder = [
+            38, 15, 2, // Top 3 priority leagues (loaded first)
+            5, 22, 10, 11, 1022, 772, 71, 72, 667, 3, 848, 73, 75,
+            239, 233, 253, // Remaining priority leagues
+          ];
+
+          const aIndex = priorityOrder.indexOf(Number(aId));
+          const bIndex = priorityOrder.indexOf(Number(bId));
+
+          // If both leagues are in priority list, sort by their position
+          if (aIndex !== -1 && bIndex !== -1) {
+            return aIndex - bIndex;
+          }
+
+          // If only one is in priority list, prioritize it
+          if (aIndex !== -1) return -1;
+          if (bIndex !== -1) return 1;
+
+          // For other leagues, maintain original order
+          return 0;
+        })
         .map(([leagueId, { league, fixtures }]) => {
           const leagueIdNum = Number(leagueId);
           const isExpanded = expandedLeagues.has(`league-${leagueIdNum}`);
@@ -1729,32 +1806,6 @@ const MyNewLeague2 = ({
             </Card>
           );
         })}
-
-      {/* Load More Button */}
-      {hasMoreLeagues && (
-        <div className="flex justify-center mt-4 mb-6">
-          <button
-            onClick={() => {
-              if (!isLoadingMore && hasMoreLeagues) {
-                loadMoreLeagues();
-              }
-            }}
-            disabled={isLoadingMore || !hasMoreLeagues}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
-          >
-            {isLoadingMore ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Loading...
-              </>
-            ) : (
-              <>
-                Load More Leagues ({sortedLeagueEntries.length - visibleLeagueCount} remaining)
-              </>
-            )}
-          </button>
-        </div>
-      )}
     </>
   );
 };
