@@ -862,7 +862,8 @@ const MyNewLeague2 = ({
     setPreviousMatchStatuses(currentStatuses);
   }, [fixturesByLeague, triggerKickoffFlash, triggerFinishFlash]);
 
-  if (isLoading && (!allFixtures || allFixtures?.length === 0)) {
+  // Show loading only during initial fetch or when no data is available
+  if (isLoading && Object.keys(fixturesByLeague).length === 0) {
     return (
       <>
         {/* Header Section Skeleton */}
@@ -872,8 +873,8 @@ const MyNewLeague2 = ({
           </div>
         </CardHeader>
 
-        {/* Multiple League Cards Skeleton */}
-        {[1, 2, 3, 4].map((i) => (
+        {/* Optimized League Cards Skeleton - Reduced to 2 cards for faster loading */}
+        {[1, 2].map((i) => (
           <Card
             key={i}
             className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing"
@@ -888,7 +889,7 @@ const MyNewLeague2 = ({
               <Skeleton className="h-4 w-12 rounded-full" />
             </div>
             <div className="match-cards-wrapper">
-              {[1, 2, 3].map((j) => (
+              {[1, 2].map((j) => (
                 <div key={j} className="country-matches-container">
                   <div className="match-card-container">
                     <div className="match-three-grid-container">
@@ -931,9 +932,6 @@ const MyNewLeague2 = ({
                         >
                           <Skeleton className="h-4 w-24" />
                         </div>
-                      </div>
-                      <div className="match-penalty-bottom">
-                        {/* Empty for penalty results */}
                       </div>
                     </div>
                   </div>
