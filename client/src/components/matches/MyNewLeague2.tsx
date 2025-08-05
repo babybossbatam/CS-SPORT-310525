@@ -893,6 +893,15 @@ const MyNewLeague2 = ({
     );
   }
 
+  // Load more leagues function - define at the top to ensure consistent hook order
+  const loadMoreLeagues = useCallback(async () => {
+    setIsLoadingMore(true);
+    // Simulate a small delay for smooth UX
+    await new Promise(resolve => setTimeout(resolve, 300));
+    setVisibleLeagueCount(prev => prev + 3);
+    setIsLoadingMore(false);
+  }, [isLoadingMore]);
+
   const leagueEntries = Object.entries(fixturesByLeague);
   
   // Sort leagues by priority and filter to show only visible ones
@@ -920,18 +929,6 @@ const MyNewLeague2 = ({
       // For other leagues, maintain original order
       return 0;
     });
-
-  // Load more leagues function - define early to ensure consistent hook order
-  const loadMoreLeagues = useCallback(async () => {
-    const currentHasMore = sortedLeagueEntries.length > visibleLeagueCount;
-    if (isLoadingMore || !currentHasMore) return;
-    
-    setIsLoadingMore(true);
-    // Simulate a small delay for smooth UX
-    await new Promise(resolve => setTimeout(resolve, 300));
-    setVisibleLeagueCount(prev => Math.min(prev + 3, sortedLeagueEntries.length));
-    setIsLoadingMore(false);
-  }, [isLoadingMore, visibleLeagueCount, sortedLeagueEntries.length]);
 
   // Get visible leagues (first N leagues that have matches)
   const visibleLeagues = sortedLeagueEntries.slice(0, visibleLeagueCount);
@@ -1737,8 +1734,12 @@ const MyNewLeague2 = ({
       {hasMoreLeagues && (
         <div className="flex justify-center mt-4 mb-6">
           <button
-            onClick={loadMoreLeagues}
-            disabled={isLoadingMore}
+            onClick={() => {
+              if (!isLoadingMore && hasMoreLeagues) {
+                loadMoreLeagues();
+              }
+            }}
+            disabled={isLoadingMore || !hasMoreLeagues}
             className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
           >
             {isLoadingMore ? (
