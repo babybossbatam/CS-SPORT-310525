@@ -328,16 +328,17 @@ export const setupGlobalErrorHandlers = () => {
     }
 
     // Handle string errors that might be fetch-related or import-related
-    if (typeof error === 'string' && 
-        (error.includes('Failed to fetch') || 
-         error.includes('Network') || 
-         error.includes('dynamically imported') ||
-         error.includes('MaxListenersExceeded') ||
-         error.includes('runtime-error-plugin') ||
-         error.includes('[plugin:runtime-error-plugin]') ||
-         error.includes('riker.replit.dev') ||
-         error.includes('482be3e5-72e0-4aaf-ab33-69660b136cf5') ||
-         error.includes('signal is aborted'))) {
+    const errorString = typeof error === 'string' ? error : (error?.message || error?.toString?.() || String(error));
+    if (typeof errorString === 'string' && 
+        (errorString.includes('Failed to fetch') || 
+         errorString.includes('Network') || 
+         errorString.includes('dynamically imported') ||
+         errorString.includes('MaxListenersExceeded') ||
+         errorString.includes('runtime-error-plugin') ||
+         errorString.includes('[plugin:runtime-error-plugin]') ||
+         errorString.includes('riker.replit.dev') ||
+         errorString.includes('482be3e5-72e0-4aaf-ab33-69660b136cf5') ||
+         errorString.includes('signal is aborted'))) {
       console.log('🌐 Network/import/abort/replit error string detected, suppressing...');
       event.preventDefault();
       return;
@@ -356,7 +357,7 @@ export const setupGlobalErrorHandlers = () => {
     if (category.shouldSuppress) {
       console.log(`🔧 ${category.name} error suppressed:`, event.message);
       event.preventDefault();
-      return;
+      return false;
     }
 
     console.error('🚨 Global error:', error);
