@@ -75,11 +75,11 @@ const POPULAR_TEAM_KEYWORDS = [
   "real madrid", "barcelona", "manchester city", "manchester united", "manchester",
   "bayern munich", "bayern", "juventus", "psg", "paris saint-germain", "paris saint germain",
   "liverpool", "arsenal", "chelsea", "atletico madrid", "atletico", "tottenham",
-  "ac milan", "inter milan", "inter", "napoli", "roma", "as roma", 
-  "borussia dortmund", "borussia", "dortmund", "rb leipzig", "leipzig", 
+  "ac milan", "inter milan", "inter", "napoli", "roma", "as roma",
+  "borussia dortmund", "borussia", "dortmund", "rb leipzig", "leipzig",
   "bayer leverkusen", "leverkusen", "lyon", "olympique lyonnais", "marseille",
-  "olympique marseille", "monaco", "as monaco", "sevilla", "valencia", 
-  "villarreal", "ajax", "feyenoord", "psv eindhoven", "psv", "porto", 
+  "olympique marseille", "monaco", "as monaco", "sevilla", "valencia",
+  "villarreal", "ajax", "feyenoord", "psv eindhoven", "psv", "porto",
   "fc porto", "benfica", "sl benfica", "sporting cp", "sporting lisbon", "sporting",
   "fenerbahce", "galatasaray", "besiktas", "trabzonspor", "millwall", "southampton",
   "elche", "valencia", "newcastle", "west ham", "brighton", "brentford"
@@ -99,7 +99,7 @@ const isPopularTeamMatch = (homeTeam: string, awayTeam: string, homeTeamId?: num
   const homeTeamLower = homeTeam.toLowerCase();
   const awayTeamLower = awayTeam.toLowerCase();
 
-  const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(popularTeam => 
+  const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(popularTeam =>
     homeTeamLower.includes(popularTeam) || awayTeamLower.includes(popularTeam)
   );
 
@@ -108,7 +108,7 @@ const isPopularTeamMatch = (homeTeam: string, awayTeam: string, homeTeamId?: num
   }
 
   // Enhanced keyword-based matching
-  const hasKeywordMatch = POPULAR_TEAM_KEYWORDS.some(keyword => 
+  const hasKeywordMatch = POPULAR_TEAM_KEYWORDS.some(keyword =>
     homeTeamLower.includes(keyword) || awayTeamLower.includes(keyword)
   );
 
@@ -602,8 +602,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       const isExplicitlyExcluded = EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league?.id);
 
                       // Exclude women's competitions
-                      const isWomensCompetition = leagueName.includes("women") || 
-                        leagueName.includes("femenina") || 
+                      const isWomensCompetition = leagueName.includes("women") ||
+                        leagueName.includes("femenina") ||
                         leagueName.includes("feminine") ||
                         leagueName.includes("feminin");
 
@@ -811,8 +811,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const country = fixture.league?.country?.toLowerCase() || "";
 
                     // Exclude women's competitions and Oberliga leagues
-                    const isWomensCompetition = leagueName.includes("women") || 
-                      leagueName.includes("femenina") || 
+                    const isWomensCompetition = leagueName.includes("women") ||
+                      leagueName.includes("femenina") ||
                       leagueName.includes("feminine") ||
                       leagueName.includes("feminin");
 
@@ -856,7 +856,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     // Check if it's a club friendly with popular teams using the imported popular teams list
                     const isPopularClubFriendly = () => {
-                      if (leagueName.includes("club friendlies") || 
+                      if (leagueName.includes("club friendlies") ||
                           leagueName.includes("friendlies clubs") ||
                           fixture.league?.id === 667 ||
                           (leagueName.includes("friendlies") && !leagueName.includes("international") && !leagueName.includes("women"))) {
@@ -965,8 +965,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const country = fixture.league?.country?.toLowerCase() || "";
 
                     // Exclude women's competitions
-                    const isWomensCompetition = leagueName.includes("women") || 
-                      leagueName.includes("femenina") || 
+                    const isWomensCompetition = leagueName.includes("women") ||
+                      leagueName.includes("femenina") ||
                       leagueName.includes("feminine") ||
                       leagueName.includes("feminin");
 
@@ -1051,7 +1051,7 @@ id: fixture.teams.away.id,
         console.log(`📋 [MyHomeFeaturedMatchNew] Fixture details with League IDs:`, fixtureDetails);
 
         // Special debug for Oberliga leagues
-        const oberligaMatches = uniqueFixtures.filter(f => 
+        const oberligaMatches = uniqueFixtures.filter(f =>
           f.league.name?.toLowerCase().includes('oberliga')
         );
 
@@ -1069,8 +1069,8 @@ id: fixture.teams.away.id,
         }
 
         // Special debug for Bayern Süd
-        const bayernSudMatches = uniqueFixtures.filter(f => 
-          f.league.name?.toLowerCase().includes('bayern') && 
+        const bayernSudMatches = uniqueFixtures.filter(f =>
+          f.league.name?.toLowerCase().includes('bayern') &&
           f.league.name?.toLowerCase().includes('süd')
         );
 
@@ -1226,9 +1226,9 @@ id: fixture.teams.away.id,
                 return aPriority - bPriority;
 
               // Popular team friendlies get priority over regular matches
-              const aIsPopularFriendly = (aLeagueName.includes("friendlies") || aLeagueName.includes("friendlies clubs") || a.league.id === 667) && 
+              const aIsPopularFriendly = (aLeagueName.includes("friendlies") || aLeagueName.includes("friendlies clubs") || a.league.id === 667) &&
                 (POPULAR_TEAM_IDS.includes(a.teams.home.id) || POPULAR_TEAM_IDS.includes(a.teams.away.id));
-              const bIsPopularFriendly = (bLeagueName.includes("friendlies") || bLeagueName.includes("friendlies clubs") || b.league.id === 667) && 
+              const bIsPopularFriendly = (bLeagueName.includes("friendlies") || bLeagueName.includes("friendlies clubs") || b.league.id === 667) &&
                 (POPULAR_TEAM_IDS.includes(b.teams.home.id) || POPULAR_TEAM_IDS.includes(b.teams.away.id));
 
               if (aIsPopularFriendly && !bIsPopularFriendly) return -1;
@@ -1313,10 +1313,10 @@ id: fixture.teams.away.id,
 
       // Clear all localStorage entries that might contain excluded league data
       const keys = Object.keys(localStorage);
-      const excludedLeagueKeys = keys.filter(key => 
+      const excludedLeagueKeys = keys.filter(key =>
         key.includes('848') || // UEFA Europa Conference League
         key.includes('169') || // Regionalliga - Bayern
-        key.includes('conference') || 
+        key.includes('conference') ||
         key.includes('regionalliga') ||
         key.includes('bayern') ||
         key.includes('fixtures_date') ||
@@ -1336,8 +1336,8 @@ id: fixture.teams.away.id,
 
       // Clear sessionStorage as well
       const sessionKeys = Object.keys(sessionStorage);
-      const sessionExcludedKeys = sessionKeys.filter(key => 
-        key.includes('848') || 
+      const sessionExcludedKeys = sessionKeys.filter(key =>
+        key.includes('848') ||
         key.includes('169') ||
         key.includes('conference') ||
         key.includes('regionalliga') ||
@@ -1357,10 +1357,10 @@ id: fixture.teams.away.id,
       // Also clear React Query cache for these specific leagues
       if (typeof window !== 'undefined' && window.queryClient) {
         try {
-          window.queryClient.removeQueries({ 
+          window.queryClient.removeQueries({
             predicate: (query: any) => {
               const key = query.queryKey?.join('-') || '';
-              return key.includes('848') || key.includes('169') || 
+              return key.includes('848') || key.includes('169') ||
                      key.includes('conference') || key.includes('regionalliga') ||
                      key.includes('bayern');
             }
@@ -1903,7 +1903,7 @@ id: fixture.teams.away.id,
                   }}
                 >
                   {/* League header */}
-                  <div 
+                  <div
                     className="flex items-center justify-center gap-2 mb-4 p-2"
                     onClick={() => {
                       console.log(`🔍 [LEAGUE HEADER DEBUG] Clicked on league:`, {
@@ -1916,7 +1916,7 @@ id: fixture.teams.away.id,
                   >
                     <LazyImage
                       src={
-                        currentMatch.league.name?.toLowerCase().includes('cotif') 
+                        currentMatch.league.name?.toLowerCase().includes('cotif')
                           ? "/assets/matchdetaillogo/SGCUNl9j-zkh3mv3i.png"
                           : currentMatch.league.logo
                       }
@@ -1924,7 +1924,7 @@ id: fixture.teams.away.id,
                       className="w-6 h-6"
                       fallbackSrc="/assets/fallback.png"
                     />
-                    <span 
+                    <span
                       className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center"
                       title={`League ID: ${currentMatch.league.id} | ${currentMatch.league.name} | ${currentMatch.league.country}`}
                     >
@@ -1932,7 +1932,7 @@ id: fixture.teams.away.id,
                     </span>
 
                     {/* Round/Bracket Status Display using RoundBadge component */}
-                    <RoundBadge 
+                    <RoundBadge
                       leagueId={currentMatch.league.id}
                       currentRound={currentMatch.league?.round}
                       matchStatus={currentMatch.fixture.status.short}
