@@ -714,7 +714,7 @@ const MyNewLeague2 = ({
     }
 
     const matchId = fixture.fixture?.id;
-    
+
     console.log("🎯 [MyNewLeague2] Match card clicked:", {
       fixtureId: matchId,
       teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
