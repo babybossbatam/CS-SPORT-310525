@@ -96,7 +96,7 @@ const initialLeaguesState: LeaguesState = {
     2,   // UEFA Champions League
     3,   // UEFA Europa League
     848, // UEFA Conference League
-    39,  // Premier League (England) 
+    39,  // Premier League (England)
     45,  // FA Cup (England)
     140, // La Liga (Spain)
     135, // Serie A (Italy)
@@ -125,7 +125,7 @@ const initialUIState: UIState = {
   selectedSport: 'football',
   selectedLeague: 39, // Default to Premier League
   showRegionModal: false,
-  darkMode: localStorage.getItem('darkMode') === 'true',
+  darkMode: false,
   accessibility: {
     highContrast: false,
     largerText: false,
