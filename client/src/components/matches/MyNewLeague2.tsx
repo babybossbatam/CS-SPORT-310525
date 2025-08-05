@@ -1141,15 +1141,78 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
     setPreviousMatchStatuses(currentStatuses);
   }, [fixturesByLeague, triggerKickoffFlash, triggerFinishFlash]);
 
-  // Simple loading state - only show when actually loading and no data exists
+  // Lazy loading skeleton - show when actually loading and no data exists
   if (isLoading && Object.keys(fixturesByLeague).length === 0) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
-          <p className="text-sm text-gray-600">Loading football leagues...</p>
-        </div>
-      </div>
+      <>
+        {/* Header Section Skeleton */}
+        <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
+          <div className="flex justify-between items-center w-full">
+            <Skeleton className="h-4 w-48" />
+          </div>
+        </CardHeader>
+
+        {/* Skeleton League Cards */}
+        {[1, 2, 3, 4, 5].map((i) => (
+          <Card
+            key={`skeleton-league-${i}`}
+            className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing mobile-card rounded-none"
+          >
+            {/* League Header Skeleton */}
+            <div className="w-full flex items-center gap-2 p-2 md:p-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 min-h-[56px]">
+              <Skeleton className="h-5 w-5 rounded-full" />
+              <Skeleton className="w-6 h-6 md:w-7 md:h-7 rounded-full" />
+              <div className="flex flex-col flex-1 gap-1">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            </div>
+
+            {/* Match Cards Skeleton */}
+            <div className="match-cards-wrapper">
+              {[1, 2, 3].map((j) => (
+                <div key={`skeleton-match-${i}-${j}`} className="border-b border-gray-200 p-3">
+                  <div className="match-three-grid-container">
+                    {/* Top Grid: Match Status Skeleton */}
+                    <div className="match-status-top flex justify-center items-center min-h-[20px]">
+                      <Skeleton className="h-4 w-16" />
+                    </div>
+
+                    {/* Middle Grid: Main match content skeleton */}
+                    <div className="match-content-container grid grid-cols-5 gap-2 items-center">
+                      {/* Home Team Name */}
+                      <Skeleton className="h-4 w-full" />
+                      
+                      {/* Home team logo */}
+                      <div className="flex justify-center">
+                        <Skeleton className="w-8 h-8 rounded-full" />
+                      </div>
+
+                      {/* Score/Time Center */}
+                      <div className="flex justify-center">
+                        <Skeleton className="h-5 w-12" />
+                      </div>
+
+                      {/* Away team logo */}
+                      <div className="flex justify-center">
+                        <Skeleton className="w-8 h-8 rounded-full" />
+                      </div>
+
+                      {/* Away Team Name */}
+                      <Skeleton className="h-4 w-full" />
+                    </div>
+
+                    {/* Bottom Grid: Additional info skeleton */}
+                    <div className="match-penalty-bottom flex justify-center">
+                      {Math.random() > 0.7 && <Skeleton className="h-3 w-20" />}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        ))}
+      </>
     );
   }
 
