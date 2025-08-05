@@ -620,22 +620,51 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         return false;
                       }
 
-                      // NEW: Exclude matches with conflicting status/time data
+                      // ENHANCED: Exclude matches with conflicting status/time data
                       const matchDate = new Date(fixture.fixture.date);
                       const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
+                      const hoursFromKickoff = minutesFromKickoff / 60;
                       const status = fixture.fixture.status.short;
                       
-                      // Check for conflicting data: ended status but match is far in future
-                      const hasConflictingEndedStatus = (minutesFromKickoff < -720) && ["FT", "AET", "PEN"].includes(status);
-                      if (hasConflictingEndedStatus) {
+                      // Check for various types of conflicting data
+                      let hasConflictingData = false;
+                      let conflictReason = "";
+
+                      // 1. Ended status but match is far in future (more than 12 hours away)
+                      if ((minutesFromKickoff < -720) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                        hasConflictingData = true;
+                        conflictReason = `ended status (${status}) for future match`;
+                      }
+
+                      // 2. Live status but match is more than 3 hours old
+                      if ((minutesFromKickoff > 180) && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status)) {
+                        hasConflictingData = true;
+                        conflictReason = `live status (${status}) for old match`;
+                      }
+
+                      // 3. "Not Started" status but match is more than 2 hours past kickoff
+                      if ((minutesFromKickoff > 120) && ["NS", "TBD", "PST"].includes(status)) {
+                        hasConflictingData = true;
+                        conflictReason = `not started status (${status}) for overdue match`;
+                      }
+
+                      // 4. Ended match that's more than 6 hours old (stale ended matches)
+                      if ((hoursFromKickoff > 6) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                        hasConflictingData = true;
+                        conflictReason = `stale ended match (${status}) more than 6 hours old`;
+                      }
+
+                      if (hasConflictingData) {
                         console.log(
-                          `🔄 [MyHomeFeaturedMatchNew] Excluding match with conflicting ended status (${status}) for future match:`,
+                          `🔄 [MyHomeFeaturedMatchNew] Excluding match with conflicting data - ${conflictReason}:`,
                           {
                             home: fixture.teams?.home?.name,
                             away: fixture.teams?.away?.name,
                             league: fixture.league?.name,
                             date: fixture.fixture.date,
-                            hoursFromNow: (minutesFromKickoff / 60).toFixed(1),
+                            status: status,
+                            hoursFromNow: hoursFromKickoff.toFixed(1),
+                            conflictReason: conflictReason,
                           },
                         );
                         return false;
@@ -866,22 +895,51 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     // Exclude Oberliga leagues (German regional leagues)
                     const isOberligaLeague = leagueName.includes("oberliga");
 
-                    // NEW: Exclude matches with conflicting status/time data
+                    // ENHANCED: Exclude matches with conflicting status/time data
                     const matchDate = new Date(fixture.fixture.date);
                     const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
+                    const hoursFromKickoff = minutesFromKickoff / 60;
                     const status = fixture.fixture.status.short;
                     
-                    // Check for conflicting data: ended status but match is far in future
-                    const hasConflictingEndedStatus = (minutesFromKickoff < -720) && ["FT", "AET", "PEN"].includes(status);
-                    if (hasConflictingEndedStatus) {
+                    // Check for various types of conflicting data (same logic as above)
+                    let hasConflictingData = false;
+                    let conflictReason = "";
+
+                    // 1. Ended status but match is far in future (more than 12 hours away)
+                    if ((minutesFromKickoff < -720) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                      hasConflictingData = true;
+                      conflictReason = `ended status (${status}) for future match`;
+                    }
+
+                    // 2. Live status but match is more than 3 hours old
+                    if ((minutesFromKickoff > 180) && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status)) {
+                      hasConflictingData = true;
+                      conflictReason = `live status (${status}) for old match`;
+                    }
+
+                    // 3. "Not Started" status but match is more than 2 hours past kickoff
+                    if ((minutesFromKickoff > 120) && ["NS", "TBD", "PST"].includes(status)) {
+                      hasConflictingData = true;
+                      conflictReason = `not started status (${status}) for overdue match`;
+                    }
+
+                    // 4. Ended match that's more than 6 hours old (stale ended matches)
+                    if ((hoursFromKickoff > 6) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                      hasConflictingData = true;
+                      conflictReason = `stale ended match (${status}) more than 6 hours old`;
+                    }
+
+                    if (hasConflictingData) {
                       console.log(
-                        `🔄 [MyHomeFeaturedMatchNew] Excluding date-based match with conflicting ended status (${status}):`,
+                        `🔄 [MyHomeFeaturedMatchNew] Excluding date-based match with conflicting data - ${conflictReason}:`,
                         {
                           home: fixture.teams?.home?.name,
                           away: fixture.teams?.away?.name,
                           league: fixture.league?.name,
                           date: fixture.fixture.date,
-                          hoursFromNow: (minutesFromKickoff / 60).toFixed(1),
+                          status: status,
+                          hoursFromNow: hoursFromKickoff.toFixed(1),
+                          conflictReason: conflictReason,
                         },
                       );
                       return false;
@@ -1028,22 +1086,51 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           existing.fixture.id === fixture.fixture.id,
                       );
 
-                    // NEW: Exclude matches with conflicting status/time data
+                    // ENHANCED: Exclude matches with conflicting status/time data
                     const matchDate = new Date(fixture.fixture.date);
                     const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
+                    const hoursFromKickoff = minutesFromKickoff / 60;
                     const status = fixture.fixture.status.short;
                     
-                    // Check for conflicting data: ended status but match is far in future
-                    const hasConflictingEndedStatus = (minutesFromKickoff < -720) && ["FT", "AET", "PEN"].includes(status);
-                    if (hasConflictingEndedStatus) {
+                    // Check for various types of conflicting data (same logic as above)
+                    let hasConflictingData = false;
+                    let conflictReason = "";
+
+                    // 1. Ended status but match is far in future (more than 12 hours away)
+                    if ((minutesFromKickoff < -720) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                      hasConflictingData = true;
+                      conflictReason = `ended status (${status}) for future match`;
+                    }
+
+                    // 2. Live status but match is more than 3 hours old
+                    if ((minutesFromKickoff > 180) && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status)) {
+                      hasConflictingData = true;
+                      conflictReason = `live status (${status}) for old match`;
+                    }
+
+                    // 3. "Not Started" status but match is more than 2 hours past kickoff
+                    if ((minutesFromKickoff > 120) && ["NS", "TBD", "PST"].includes(status)) {
+                      hasConflictingData = true;
+                      conflictReason = `not started status (${status}) for overdue match`;
+                    }
+
+                    // 4. Ended match that's more than 6 hours old (stale ended matches)
+                    if ((hoursFromKickoff > 6) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                      hasConflictingData = true;
+                      conflictReason = `stale ended match (${status}) more than 6 hours old`;
+                    }
+
+                    if (hasConflictingData) {
                       console.log(
-                        `🔄 [MyHomeFeaturedMatchNew] Excluding expanded search match with conflicting ended status (${status}):`,
+                        `🔄 [MyHomeFeaturedMatchNew] Excluding expanded search match with conflicting data - ${conflictReason}:`,
                         {
                           home: fixture.teams?.home?.name,
                           away: fixture.teams?.away?.name,
                           league: fixture.league?.name,
                           date: fixture.fixture.date,
-                          hoursFromNow: (minutesFromKickoff / 60).toFixed(1),
+                          status: status,
+                          hoursFromNow: hoursFromKickoff.toFixed(1),
+                          conflictReason: conflictReason,
                         },
                       );
                       return false;
