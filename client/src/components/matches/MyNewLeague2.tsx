@@ -325,7 +325,7 @@ const MyNewLeague2 = ({
         const batchPromises = batch.map(async (leagueId, index) => {
           // Add small delay between requests in the same batch
           if (index > 0) {
-            await delay(200); // 200ms delay between requests
+            await delay(25); // 25ms delay between requests
           }
 
           try {
@@ -397,7 +397,7 @@ const MyNewLeague2 = ({
         // Add delay between batches to be more API-friendly
         if (i + batchSize < leagueIds.length) {
           console.log(`⏳ [MyNewLeague2] Waiting 500ms before next batch...`);
-          await delay(500);
+          await delay(25);
         }
       }
 
@@ -416,7 +416,10 @@ const MyNewLeague2 = ({
         result.fixtures.forEach((fixture: FixtureData) => {
           if (fixture?.fixture?.id) {
             // Only add if not cached or if it's not an old ended match
-            if (!allFixturesMap.has(fixture.fixture.id) || !isMatchOldEnded(fixture)) {
+            if (
+              !allFixturesMap.has(fixture.fixture.id) ||
+              !isMatchOldEnded(fixture)
+            ) {
               allFixturesMap.set(fixture.fixture.id, fixture);
             }
           }
@@ -725,7 +728,9 @@ const MyNewLeague2 = ({
     });
 
     // Remove disable-hover class from all match containers to allow re-selection
-    const allMatchContainers = document.querySelectorAll(".match-card-container");
+    const allMatchContainers = document.querySelectorAll(
+      ".match-card-container",
+    );
     allMatchContainers.forEach((container) => {
       container.classList.remove("disable-hover");
     });
@@ -857,7 +862,7 @@ const MyNewLeague2 = ({
     setPreviousMatchStatuses(currentStatuses);
   }, [fixturesByLeague, triggerKickoffFlash, triggerFinishFlash]);
 
-  if (isLoading) {
+  if (isLoading && (!allFixtures || allFixtures.length === 0)) {
     return (
       <>
         {/* Header Section Skeleton */}
@@ -980,7 +985,9 @@ const MyNewLeague2 = ({
         {/* Header Section */}
         <CardHeader className="flex items-left gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
           <div className="flex justify-between  w-full">
-            <span className="text-sm font-semibold">Popular Football Leagues</span>
+            <span className="text-sm font-semibold">
+              Popular Football Leagues
+            </span>
           </div>
         </CardHeader>
 
@@ -1006,7 +1013,9 @@ const MyNewLeague2 = ({
       {/* Header Section */}
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
         <div className="flex justify-between items-center w-full">
-          <span className="text-sm font-semibold">Popular Football Leagues</span>
+          <span className="text-sm font-semibold">
+            Popular Football Leagues
+          </span>
         </div>
       </CardHeader>
 
@@ -1193,14 +1202,24 @@ const MyNewLeague2 = ({
                           data-fixture-id={matchId}
                           onClick={() => handleMatchClick(fixture)}
                           onMouseEnter={() => {
-                            const container = document.querySelector(`[data-fixture-id="${matchId}"]`);
-                            if (!container?.classList.contains("disable-hover") && selectedMatchId !== matchId) {
+                            const container = document.querySelector(
+                              `[data-fixture-id="${matchId}"]`,
+                            );
+                            if (
+                              !container?.classList.contains("disable-hover") &&
+                              selectedMatchId !== matchId
+                            ) {
                               setHoveredMatchId(matchId);
                             }
                           }}
                           onMouseLeave={() => {
-                            const container = document.querySelector(`[data-fixture-id="${matchId}"]`);
-                            if (!container?.classList.contains("disable-hover") && selectedMatchId !== matchId) {
+                            const container = document.querySelector(
+                              `[data-fixture-id="${matchId}"]`,
+                            );
+                            if (
+                              !container?.classList.contains("disable-hover") &&
+                              selectedMatchId !== matchId
+                            ) {
                               setHoveredMatchId(null);
                             }
                           }}
@@ -1217,12 +1236,16 @@ const MyNewLeague2 = ({
                             className="match-star-button"
                             title="Add to My Selections"
                             onMouseEnter={(e) => {
-                              const container = e.currentTarget.closest(".match-card-container");
+                              const container = e.currentTarget.closest(
+                                ".match-card-container",
+                              );
                               container?.classList.add("disable-hover");
                               setHoveredMatchId(null);
                             }}
                             onMouseLeave={(e) => {
-                              const container = e.currentTarget.closest(".match-card-container");
+                              const container = e.currentTarget.closest(
+                                ".match-card-container",
+                              );
                               container?.classList.remove("disable-hover");
                             }}
                           >
