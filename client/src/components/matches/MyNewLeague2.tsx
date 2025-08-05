@@ -1366,7 +1366,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
      
           
-            <BrandedLoading className="h-32" />
+            <BrandedLoading  />
          
      
       </>
