@@ -910,40 +910,16 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       <div
         className={`bg-white rounded-xl overflow-hidden shadow-lg border-2 transition-all duration-300 ${getIntensityColor()}`}
       >
-        {/* Enhanced Header with 365scores style */}
+        {/* Simplified Header */}
         <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                <div className="absolute inset-0 w-2 h-2 bg-red-500 rounded-full animate-ping opacity-20"></div>
-              </div>
-              <span className="text-gray-800 text-sm font-semibold">
-                Live Action
-              </span>
-              <Badge
-                variant="outline"
-                className={`text-xs px-2 py-1 ${
-                  matchIntensity === "high"
-                    ? "bg-red-100 text-red-700 border-red-300"
-                    : matchIntensity === "medium"
-                      ? "bg-yellow-100 text-yellow-700 border-yellow-300"
-                      : "bg-green-100 text-green-700 border-green-300"
-                }`}
-              >
-                {matchIntensity.toUpperCase()}
-              </Badge>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+              <div className="absolute inset-0 w-2 h-2 bg-red-500 rounded-full animate-ping opacity-20"></div>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                {elapsed}'
-              </div>
-              <div className="text-xs text-gray-600">
-                {ballPossession === "home"
-                  ? homeTeamData?.name?.slice(0, 3)
-                  : awayTeamData?.name?.slice(0, 3)}
-              </div>
-            </div>
+            <span className="text-gray-800 text-sm font-semibold">
+              Live Action
+            </span>
           </div>
         </div>
 
