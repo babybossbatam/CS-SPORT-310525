@@ -165,10 +165,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       }
 
       // Check if match is live
-      const isLive = fixture.fixture?.status?.short === "1H" || 
-                     fixture.fixture?.status?.short === "2H" || 
-                     fixture.fixture?.status?.short === "HT" ||
-                     fixture.fixture?.status?.short === "LIVE";
+      const statusShort = fixture.fixture?.status?.short;
+      const isLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(statusShort);
 
       if (!grouped[country]) {
         grouped[country] = {
@@ -417,7 +415,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                   if (totalLiveMatches > 0) {
                     return (
                       <>
-                        <span className="text-red-500">{totalLiveMatches}</span>
+                        <span className="text-red-500 font-semibold">{totalLiveMatches}</span>
                         <span>/{validFixtures.length}</span>
                       </>
                     );
