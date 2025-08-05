@@ -933,7 +933,10 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
         if (selectedMatchId !== null) {
           setManuallyDeselectedMatches(prev => {
             try {
-              return new Set(prev).add(selectedMatchId);
+              const newSet = new Set(prev);
+              newSet.add(selectedMatchId);
+              console.log(`🚫 [MyNewLeague2] Added match ${selectedMatchId} to manually deselected set`);
+              return newSet;
             } catch (error) {
               console.error("🚨 [MyNewLeague2] Error updating manually deselected matches:", error);
               return prev;
@@ -995,7 +998,11 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
       setManuallyDeselectedMatches(prev => {
         try {
           const newSet = new Set(prev);
+          const wasManuallyDeselected = newSet.has(matchId);
           newSet.delete(matchId);
+          if (wasManuallyDeselected) {
+            console.log(`✅ [MyNewLeague2] Removed match ${matchId} from manually deselected set (user clicked)`);
+          }
           return newSet;
         } catch (error) {
           console.error("🚨 [MyNewLeague2] Error updating manually deselected matches:", error);
@@ -1409,6 +1416,7 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
                             const container = document.querySelector(
                               `[data-fixture-id="${matchId}"]`,
                             );
+                            // Only allow hover if not manually deselected and not currently selected
                             if (
                               !container?.classList.contains("disable-hover") &&
                               selectedMatchId !== matchId &&
@@ -1418,16 +1426,8 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
                             }
                           }}
                           onMouseLeave={() => {
-                            const container = document.querySelector(
-                              `[data-fixture-id="${matchId}"]`,
-                            );
-                            if (
-                              !container?.classList.contains("disable-hover") &&
-                              selectedMatchId !== matchId &&
-                              !manuallyDeselectedMatches.has(matchId)
-                            ) {
-                              setHoveredMatchId(null);
-                            }
+                            // Always clear hover state when leaving, regardless of selection status
+                            setHoveredMatchId(null);
                           }}
                           style={{
                             cursor: "pointer",
