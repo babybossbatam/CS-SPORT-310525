@@ -104,8 +104,8 @@ function App() {
     // Force mobile-first layout immediately
     const isMobileCheck = window.innerWidth < 768;
     if (isMobileCheck) {
-      document.documentElement.classList.add('mobile-device');
-      document.body.classList.add('mobile-body');
+      document.documentElement.classList.add("mobile-device");
+      document.body.classList.add("mobile-body");
     }
 
     setupGlobalErrorHandlers();
@@ -137,6 +137,7 @@ function App() {
     const handleError = (event: ErrorEvent) => {
       if (
         event.message?.includes("plugin:runtime-error-plugin") ||
+        event.message?.includes("signal timed out") ||
         event.message?.includes("unknown runtime error") ||
         event.message?.includes("sendError") ||
         event.message?.includes("Too many re-renders") ||
@@ -144,6 +145,7 @@ function App() {
         event.message?.includes("reading 'frame'") ||
         event.filename?.includes("riker.replit.dev") ||
         event.error?.toString()?.includes("plugin:runtime-error-plugin") ||
+        event.error?.toString()?.includes("signal timed out") ||
         event.error?.toString()?.includes("ErrorOverlay")
       ) {
         console.log(

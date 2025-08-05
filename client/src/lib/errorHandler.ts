@@ -240,7 +240,7 @@ export const setupGlobalErrorHandlers = () => {
     }
 
     // Handle runtime-error-plugin errors
-    if (typeof error === 'string' && error.includes('runtime-error-plugin')) {
+    if (typeof error === 'string' && error.includes('runtime-error-plugin')  || error.includes('signal timed out'))) {
       console.log('🔧 Runtime error plugin issue suppressed:', error);
       event.preventDefault();
       return;
