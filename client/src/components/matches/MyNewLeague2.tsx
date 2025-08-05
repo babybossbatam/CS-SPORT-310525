@@ -440,7 +440,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           `💾 [MyNewLeague2] Cached ${ultraMinimalFixtures.length} ended matches for league ${leagueId} (${jsonString.length} bytes)`,
         );
       } catch (error) {
-        if (error.name === 'QuotaExceededError') {
+        if (error instanceof Error && error.name === 'QuotaExceededError') {
           console.warn(`🚨 [MyNewLeague2] Quota exceeded while caching league ${leagueId}, cleaning up...`);
           if (checkStorageQuota()) {
             // Try caching again with even less data after cleanup
