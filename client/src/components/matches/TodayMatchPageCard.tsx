@@ -200,7 +200,7 @@ export const TodayMatchPageCard = ({
         <div className="flex items-center justify-between h-9 p-4">
           <button
             onClick={goToPreviousDay}
-            className="p-2 hover:bg-gray-100 rounded-r-full flex items-center -ml-4"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-500 rounded-r-full flex items-center -ml-4"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
@@ -278,7 +278,7 @@ export const TodayMatchPageCard = ({
           </div>
           <button
             onClick={goToNextDay}
-            className="p-2 hover:bg-gray-100 rounded-l-full flex items-center -mr-4"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-500 rounded-l-full flex items-center -mr-4"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
