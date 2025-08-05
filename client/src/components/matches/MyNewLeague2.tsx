@@ -1364,11 +1364,11 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           </div>
         </CardHeader>
 
-        <Card className="mb-4">
-          <CardContent className="p-4">
+     
+          
             <BrandedLoading className="h-32" />
-          </CardContent>
-        </Card>
+         
+     
       </>
     );
   }
