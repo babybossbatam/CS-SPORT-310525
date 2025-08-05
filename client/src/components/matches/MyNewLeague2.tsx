@@ -862,85 +862,15 @@ const MyNewLeague2 = ({
     setPreviousMatchStatuses(currentStatuses);
   }, [fixturesByLeague, triggerKickoffFlash, triggerFinishFlash]);
 
-  // Show loading only during initial fetch or when no data is available
+  // Simple loading state - only show when actually loading and no data exists
   if (isLoading && Object.keys(fixturesByLeague).length === 0) {
     return (
-      <>
-        {/* Header Section Skeleton */}
-        <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-          <div className="flex justify-between items-center w-full">
-            <Skeleton className="h-5 w-48" />
-          </div>
-        </CardHeader>
-
-        {/* Optimized League Cards Skeleton - Reduced to 2 cards for faster loading */}
-        {[1, 2].map((i) => (
-          <Card
-            key={i}
-            className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing"
-          >
-            <div className="w-full flex items-center gap-2 p-2 bg-white border-b border-gray-200">
-              <Skeleton className="h-5 w-5 rounded-full" />
-              <Skeleton className="w-6 h-6 rounded-full" />
-              <div className="flex flex-col flex-1 gap-1">
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-3 w-24" />
-              </div>
-              <Skeleton className="h-4 w-12 rounded-full" />
-            </div>
-            <div className="match-cards-wrapper">
-              {[1, 2].map((j) => (
-                <div key={j} className="country-matches-container">
-                  <div className="match-card-container">
-                    <div className="match-three-grid-container">
-                      <div
-                        className="match-status-top"
-                        style={{
-                          minHeight: "20px",
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Skeleton className="h-4 w-16 rounded" />
-                      </div>
-                      <div className="match-content-container">
-                        <div
-                          className="home-team-name"
-                          style={{ textAlign: "right" }}
-                        >
-                          <Skeleton className="h-4 w-24" />
-                        </div>
-                        <div
-                          className="home-team-logo-container"
-                          style={{ padding: "0 0.6rem" }}
-                        >
-                          <Skeleton className="h-8 w-8 rounded" />
-                        </div>
-                        <div className="match-score-container">
-                          <Skeleton className="h-6 w-12" />
-                        </div>
-                        <div
-                          className="away-team-logo-container"
-                          style={{ padding: "0 0.5rem" }}
-                        >
-                          <Skeleton className="h-8 w-8 rounded" />
-                        </div>
-                        <div
-                          className="away-team-name"
-                          style={{ textAlign: "left" }}
-                        >
-                          <Skeleton className="h-4 w-24" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        ))}
-      </>
+      <div className="flex items-center justify-center py-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
+          <p className="text-sm text-gray-600">Loading football leagues...</p>
+        </div>
+      </div>
     );
   }
 
