@@ -234,37 +234,51 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       localStorage.removeItem('quota_test');
       return true;
     } catch (error) {
-      console.warn('🚨 [MyNewLeague2] localStorage quota exceeded, cleaning up...');
+      console.warn('🚨 [MyNewLeague2] localStorage quota exceeded, emergency cleanup...');
       
-      // Get all cache keys and sort by age
-      const cacheKeys: Array<{key: string, timestamp: number}> = [];
-      
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('ended_matches_')) {
-          try {
-            const cached = localStorage.getItem(key);
-            if (cached) {
-              const { timestamp } = JSON.parse(cached);
-              cacheKeys.push({ key, timestamp });
-            }
-          } catch (e) {
-            // Remove corrupted entries
-            localStorage.removeItem(key);
+      try {
+        // Emergency cleanup - remove ALL cache entries to free up space
+        const keysToRemove: string[] = [];
+        
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (
+            key.startsWith('ended_matches_') ||
+            key.startsWith('league-fixtures-') ||
+            key.startsWith('featured-match-') ||
+            key.startsWith('popular_') ||
+            key.includes('cache') ||
+            key.includes('logo') ||
+            key.includes('flag')
+          )) {
+            keysToRemove.push(key);
           }
         }
+        
+        // Remove all cache entries in emergency
+        keysToRemove.forEach(key => {
+          try {
+            localStorage.removeItem(key);
+          } catch (e) {
+            // Ignore errors during cleanup
+          }
+        });
+        
+        console.log(`🧹 [MyNewLeague2] Emergency cleanup: removed ${keysToRemove.length} cache entries`);
+        
+        // Try to set test again after cleanup
+        try {
+          localStorage.setItem('quota_test_after_cleanup', 'test');
+          localStorage.removeItem('quota_test_after_cleanup');
+          return true;
+        } catch (e) {
+          console.error('🚨 [MyNewLeague2] Still quota exceeded after emergency cleanup');
+          return false;
+        }
+      } catch (cleanupError) {
+        console.error('🚨 [MyNewLeague2] Error during emergency cleanup:', cleanupError);
+        return false;
       }
-      
-      // Sort by timestamp (oldest first) and remove oldest 50%
-      cacheKeys.sort((a, b) => a.timestamp - b.timestamp);
-      const toRemove = Math.ceil(cacheKeys.length * 0.5);
-      
-      for (let i = 0; i < toRemove; i++) {
-        localStorage.removeItem(cacheKeys[i].key);
-      }
-      
-      console.log(`🧹 [MyNewLeague2] Cleaned up ${toRemove} old cache entries`);
-      return false;
     }
   }, []);
 
@@ -282,7 +296,12 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
         if (!cached) return [];
 
-        const { fixtures, timestamp, date: cachedDate } = JSON.parse(cached);
+        const parsedCache = JSON.parse(cached);
+        
+        // Handle both old and new cache formats
+        const fixtures = parsedCache.fixtures || parsedCache.f || [];
+        const timestamp = parsedCache.timestamp || parsedCache.t || 0;
+        const cachedDate = parsedCache.date || parsedCache.d || '';
 
         // CRITICAL: Ensure cached date exactly matches requested date
         if (cachedDate !== date) {
@@ -301,31 +320,45 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         // For today: 30 minutes max (shorter for live data accuracy)
         const maxCacheAge = isToday ? 30 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
 
-        if (cacheAge < maxCacheAge) {
-          // Additional validation: check if fixtures actually match the date
-          const validFixtures = fixtures.filter((fixture: any) => {
-            const fixtureDate = new Date(fixture.fixture.date);
-            const fixtureDateString = fixtureDate.toISOString().slice(0, 10);
-            return fixtureDateString === date;
-          });
-
-          if (validFixtures.length !== fixtures.length) {
-            console.log(
-              `🚨 [MyNewLeague2] Found ${fixtures.length - validFixtures.length} fixtures with wrong dates in cache, clearing`,
-            );
-            localStorage.removeItem(cacheKey);
-            return [];
-          }
-
+        if (cacheAge < maxCacheAge && fixtures.length > 0) {
           console.log(
-            `✅ [MyNewLeague2] Using cached ended matches for league ${leagueId} on ${date}: ${validFixtures.length} matches`,
+            `✅ [MyNewLeague2] Using cached ended matches for league ${leagueId} on ${date}: ${fixtures.length} matches`,
           );
-          return validFixtures;
+          
+          // Convert minimal format back to full format if needed
+          if (fixtures[0] && fixtures[0].f) {
+            // New minimal format - convert back
+            return fixtures.map((f: any) => ({
+              fixture: {
+                id: f.f.i,
+                date: f.f.d,
+                status: { short: f.f.s }
+              },
+              league: {
+                id: f.l.i,
+                name: f.l.n
+              },
+              teams: {
+                home: {
+                  id: f.t.h.i,
+                  name: f.t.h.n
+                },
+                away: {
+                  id: f.t.a.i,
+                  name: f.t.a.n
+                }
+              },
+              goals: f.g
+            }));
+          } else {
+            // Old format - use as is
+            return fixtures;
+          }
         } else {
-          // Remove expired cache
+          // Remove expired or empty cache
           localStorage.removeItem(cacheKey);
           console.log(
-            `⏰ [MyNewLeague2] Removed expired cache for league ${leagueId} on ${date} (age: ${Math.round(cacheAge / 60000)}min)`,
+            `⏰ [MyNewLeague2] Removed expired/empty cache for league ${leagueId} on ${date} (age: ${Math.round(cacheAge / 60000)}min)`,
           );
         }
       } catch (error) {
@@ -348,6 +381,12 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
         if (endedFixtures.length === 0) return;
 
+        // Skip caching for large leagues to prevent quota issues
+        if (endedFixtures.length > 50) {
+          console.log(`⚠️ [MyNewLeague2] Skipping cache for large league ${leagueId} (${endedFixtures.length} matches)`);
+          return;
+        }
+
         // Check quota before attempting to cache
         if (!checkStorageQuota()) {
           console.warn(`⚠️ [MyNewLeague2] Skipping cache for league ${leagueId} due to quota limits`);
@@ -356,51 +395,67 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
         const cacheKey = getCacheKey(date, leagueId);
         
-        // Create minimal cache data - only store essential fields
-        const minimalFixtures = endedFixtures.map(fixture => ({
-          fixture: {
-            id: fixture.fixture.id,
-            date: fixture.fixture.date,
-            status: fixture.fixture.status
+        // Create ultra-minimal cache data - only absolute essentials
+        const ultraMinimalFixtures = endedFixtures.slice(0, 20).map(fixture => ({
+          f: { // fixture
+            i: fixture.fixture.id, // id
+            d: fixture.fixture.date, // date
+            s: fixture.fixture.status.short // status
           },
-          league: {
-            id: fixture.league.id,
-            name: fixture.league.name,
-            country: fixture.league.country,
-            logo: fixture.league.logo,
-            flag: fixture.league.flag
+          l: { // league
+            i: fixture.league.id, // id
+            n: fixture.league.name.substring(0, 30) // name (truncated)
           },
-          teams: {
-            home: {
-              id: fixture.teams.home.id,
-              name: fixture.teams.home.name,
-              logo: fixture.teams.home.logo
+          t: { // teams
+            h: { // home
+              i: fixture.teams.home.id,
+              n: fixture.teams.home.name.substring(0, 20) // truncated name
             },
-            away: {
-              id: fixture.teams.away.id,
-              name: fixture.teams.away.name,
-              logo: fixture.teams.away.logo
+            a: { // away
+              i: fixture.teams.away.id,
+              n: fixture.teams.away.name.substring(0, 20) // truncated name
             }
           },
-          goals: fixture.goals,
-          score: fixture.score
+          g: fixture.goals // goals
         }));
 
         const cacheData = {
-          fixtures: minimalFixtures,
-          timestamp: Date.now(),
-          date,
-          leagueId,
+          f: ultraMinimalFixtures, // fixtures
+          t: Date.now(), // timestamp
+          d: date, // date
+          l: leagueId, // league
         };
 
-        localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+        const jsonString = JSON.stringify(cacheData);
+        
+        // Check if the data is too large (> 50KB)
+        if (jsonString.length > 50000) {
+          console.log(`⚠️ [MyNewLeague2] Cache data too large for league ${leagueId}, skipping`);
+          return;
+        }
+
+        localStorage.setItem(cacheKey, jsonString);
         console.log(
-          `💾 [MyNewLeague2] Cached ${endedFixtures.length} ended matches for league ${leagueId} on ${date}`,
+          `💾 [MyNewLeague2] Cached ${ultraMinimalFixtures.length} ended matches for league ${leagueId} (${jsonString.length} bytes)`,
         );
       } catch (error) {
         if (error.name === 'QuotaExceededError') {
           console.warn(`🚨 [MyNewLeague2] Quota exceeded while caching league ${leagueId}, cleaning up...`);
-          checkStorageQuota();
+          if (checkStorageQuota()) {
+            // Try caching again with even less data after cleanup
+            try {
+              const cacheKey = getCacheKey(date, leagueId);
+              const minimalData = {
+                f: [], // Empty to save space
+                t: Date.now(),
+                d: date,
+                l: leagueId,
+              };
+              localStorage.setItem(cacheKey, JSON.stringify(minimalData));
+            } catch (retryError) {
+              console.warn(`⚠️ [MyNewLeague2] Failed to cache even after cleanup for league ${leagueId}`);
+            }
+          }
         } else {
           console.error("Error caching ended matches:", error);
         }
@@ -435,20 +490,33 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     const cleanupOldCache = () => {
       try {
         const keys = Object.keys(localStorage);
-        const cacheKeys = keys.filter(key => key.startsWith('ended_matches_'));
+        const allCacheKeys = keys.filter(key => 
+          key.startsWith('ended_matches_') ||
+          key.startsWith('league-fixtures-') ||
+          key.startsWith('featured-match-') ||
+          key.startsWith('popular_') ||
+          key.includes('cache')
+        );
+        
         const now = Date.now();
-        const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
+        const maxAge = 24 * 60 * 60 * 1000; // Reduced to 1 day
         
         let cleanedCount = 0;
+        let totalCacheSize = 0;
         
-        cacheKeys.forEach(key => {
+        // Calculate total cache size and remove old entries
+        allCacheKeys.forEach(key => {
           try {
             const cached = localStorage.getItem(key);
             if (cached) {
-              const { timestamp } = JSON.parse(cached);
+              totalCacheSize += cached.length;
+              
+              // Try to parse and check timestamp
+              const parsedCache = JSON.parse(cached);
+              const timestamp = parsedCache.timestamp || parsedCache.t || 0;
               const age = now - timestamp;
               
-              if (age > maxAge) {
+              if (age > maxAge || timestamp === 0) {
                 localStorage.removeItem(key);
                 cleanedCount++;
               }
@@ -460,16 +528,47 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           }
         });
         
-        if (cleanedCount > 0) {
-          console.log(`🧹 [MyNewLeague2] Cleaned up ${cleanedCount} old cache entries on mount`);
+        // If cache is still too large (> 1MB), remove more aggressively
+        if (totalCacheSize > 1000000) {
+          console.warn(`🚨 [MyNewLeague2] Cache size too large (${Math.round(totalCacheSize/1024)}KB), aggressive cleanup...`);
+          
+          const remainingKeys = Object.keys(localStorage).filter(key => 
+            key.startsWith('ended_matches_') ||
+            key.startsWith('league-fixtures-') ||
+            key.startsWith('featured-match-')
+          );
+          
+          // Remove 80% of remaining cache entries
+          const toRemove = Math.ceil(remainingKeys.length * 0.8);
+          for (let i = 0; i < toRemove && i < remainingKeys.length; i++) {
+            localStorage.removeItem(remainingKeys[i]);
+            cleanedCount++;
+          }
         }
+        
+        if (cleanedCount > 0) {
+          console.log(`🧹 [MyNewLeague2] Cleaned up ${cleanedCount} cache entries on mount (was ${Math.round(totalCacheSize/1024)}KB)`);
+        }
+        
+        // Final quota check
+        checkStorageQuota();
       } catch (error) {
         console.error('Error during cache cleanup:', error);
+        // Emergency cleanup if regular cleanup fails
+        try {
+          Object.keys(localStorage).forEach(key => {
+            if (key.includes('cache') || key.includes('matches') || key.includes('league')) {
+              localStorage.removeItem(key);
+            }
+          });
+        } catch (e) {
+          console.error('Emergency cleanup also failed:', e);
+        }
       }
     };
     
     cleanupOldCache();
-  }, []);
+  }, [checkStorageQuota]);
 
   // Fetch fixtures for all leagues with optimized caching for ended matches
   const {
