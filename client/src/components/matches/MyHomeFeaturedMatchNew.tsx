@@ -2263,9 +2263,11 @@ id: fixture.teams.away.id,
                           } else if (matchDateString === tomorrowString) {
                             return "Tomorrow";
                           } else {
-                            // Calculate days difference for upcoming matches
-                            const daysDiff = Math.ceil(
-                              (matchDate.getTime() - today.getTime()) /
+                            // Calculate days difference for upcoming matches using date-only comparison
+                            const matchDateOnly = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate());
+                            const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                            const daysDiff = Math.round(
+                              (matchDateOnly.getTime() - todayDateOnly.getTime()) /
                                 (1000 * 60 * 60 * 24),
                             );
 
