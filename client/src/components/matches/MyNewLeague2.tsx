@@ -236,11 +236,11 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       return true;
     } catch (error) {
       console.warn('🚨 [MyNewLeague2] localStorage quota exceeded, emergency cleanup...');
-      
+
       try {
         // Emergency cleanup - remove ALL cache entries to free up space
         const keysToRemove: string[] = [];
-        
+
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
           if (key && (
@@ -255,7 +255,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             keysToRemove.push(key);
           }
         }
-        
+
         // Remove all cache entries in emergency
         keysToRemove.forEach(key => {
           try {
@@ -264,9 +264,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             // Ignore errors during cleanup
           }
         });
-        
+
         console.log(`🧹 [MyNewLeague2] Emergency cleanup: removed ${keysToRemove.length} cache entries`);
-        
+
         // Try to set test again after cleanup
         try {
           localStorage.setItem('quota_test_after_cleanup', 'test');
@@ -298,7 +298,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         if (!cached) return [];
 
         const parsedCache = JSON.parse(cached);
-        
+
         // Handle both old and new cache formats
         const fixtures = parsedCache.fixtures || parsedCache.f || [];
         const timestamp = parsedCache.timestamp || parsedCache.t || 0;
@@ -325,7 +325,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           console.log(
             `✅ [MyNewLeague2] Using cached ended matches for league ${leagueId} on ${date}: ${fixtures.length} matches`,
           );
-          
+
           // Convert minimal format back to full format if needed
           if (fixtures[0] && fixtures[0].f) {
             // New minimal format - convert back
@@ -395,7 +395,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         }
 
         const cacheKey = getCacheKey(date, leagueId);
-        
+
         // Create ultra-minimal cache data - only absolute essentials
         const ultraMinimalFixtures = endedFixtures.slice(0, 20).map(fixture => ({
           f: { // fixture
@@ -428,7 +428,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         };
 
         const jsonString = JSON.stringify(cacheData);
-        
+
         // Check if the data is too large (> 50KB)
         if (jsonString.length > 50000) {
           console.log(`⚠️ [MyNewLeague2] Cache data too large for league ${leagueId}, skipping`);
@@ -469,7 +469,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   const [dynamicCacheConfig, setDynamicCacheConfig] = useState(() => {
     const today = new Date().toISOString().slice(0, 10);
     const isToday = selectedDate === today;
-    
+
     return isToday ? {
       staleTime: 5 * 60 * 1000, // 5 minutes - default for today
       refetchInterval: 60 * 1000, // 1 minute - default for today
@@ -498,25 +498,25 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           key.startsWith('popular_') ||
           key.includes('cache')
         );
-        
+
         const now = Date.now();
         const maxAge = 24 * 60 * 60 * 1000; // Reduced to 1 day
-        
+
         let cleanedCount = 0;
         let totalCacheSize = 0;
-        
+
         // Calculate total cache size and remove old entries
         allCacheKeys.forEach(key => {
           try {
             const cached = localStorage.getItem(key);
             if (cached) {
               totalCacheSize += cached.length;
-              
+
               // Try to parse and check timestamp
               const parsedCache = JSON.parse(cached);
               const timestamp = parsedCache.timestamp || parsedCache.t || 0;
               const age = now - timestamp;
-              
+
               if (age > maxAge || timestamp === 0) {
                 localStorage.removeItem(key);
                 cleanedCount++;
@@ -528,17 +528,17 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             cleanedCount++;
           }
         });
-        
+
         // If cache is still too large (> 1MB), remove more aggressively
         if (totalCacheSize > 1000000) {
           console.warn(`🚨 [MyNewLeague2] Cache size too large (${Math.round(totalCacheSize/1024)}KB), aggressive cleanup...`);
-          
+
           const remainingKeys = Object.keys(localStorage).filter(key => 
             key.startsWith('ended_matches_') ||
             key.startsWith('league-fixtures-') ||
             key.startsWith('featured-match-')
           );
-          
+
           // Remove 80% of remaining cache entries
           const toRemove = Math.ceil(remainingKeys.length * 0.8);
           for (let i = 0; i < toRemove && i < remainingKeys.length; i++) {
@@ -546,11 +546,11 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             cleanedCount++;
           }
         }
-        
+
         if (cleanedCount > 0) {
           console.log(`🧹 [MyNewLeague2] Cleaned up ${cleanedCount} cache entries on mount (was ${Math.round(totalCacheSize/1024)}KB)`);
         }
-        
+
         // Final quota check
         checkStorageQuota();
       } catch (error) {
@@ -567,7 +567,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         }
       }
     };
-    
+
     cleanupOldCache();
   }, [checkStorageQuota]);
 
@@ -1064,7 +1064,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       if (fixture === null) {
         // Clear selection when null is passed (from close button)
         console.log("🎯 [MyNewLeague2] Clearing selected match");
-        
+
         // Add the current selected match to manually deselected set
         if (selectedMatchId !== null) {
           setManuallyDeselectedMatches(prev => {
@@ -1079,7 +1079,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             }
           });
         }
-        
+
         setSelectedMatchId(null);
 
         // Remove selected-match CSS class from all match containers as backup
@@ -1160,7 +1160,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
       // Check if this match was manually deselected before
       const wasManuallyDeselected = manuallyDeselectedMatches && manuallyDeselectedMatches.has(matchId);
-      
+
       if (wasManuallyDeselected) {
         console.log(`🔄 [MyNewLeague2] Re-selecting previously deselected match ${matchId}`);
         // Remove from manually deselected set since user is re-selecting it
@@ -1658,24 +1658,24 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                               if (e && typeof e.stopPropagation === 'function') {
                                 e.stopPropagation();
                               }
-                              
+
                               // Validate fixture before passing to handleMatchClick
                               if (!fixture || !fixture.fixture || !fixture.fixture.id) {
                                 console.error("🚨 [MyNewLeague2] Invalid fixture data in click handler:", fixture);
                                 return false;
                               }
-                              
+
                               // Additional safety check for required properties
                               if (!fixture.teams || !fixture.teams.home || !fixture.teams.away) {
                                 console.error("🚨 [MyNewLeague2] Invalid teams data in click handler:", fixture.teams);
                                 return false;
                               }
-                              
+
                               if (!fixture.league) {
                                 console.error("🚨 [MyNewLeague2] Invalid league data in click handler:", fixture.league);
                                 return false;
                               }
-                              
+
                               handleMatchClick(fixture);
                             } catch (error) {
                               console.error("🚨 [MyNewLeague2] Error in match container click handler:", error);
@@ -1683,7 +1683,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                               return false;
                             }
                           }}
-                          
+
                           onMouseEnter={() => {
                             try {
                               const container = document.querySelector(
@@ -2036,7 +2036,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     // Use fulltime score if available, otherwise use goals
                                     const homeScore = fixture.score?.fulltime?.home ?? fixture.goals?.home ?? 0;
                                     const awayScore = fixture.score?.fulltime?.away ?? fixture.goals?.away ?? 0;
-                                    
+
                                     return (
                                       <div className="match-score-display">
                                         <span className="score-number">
@@ -2068,7 +2068,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     // Use fulltime score if available, otherwise use goals
                                     const homeScore = fixture.score?.fulltime?.home ?? fixture.goals?.home ?? 0;
                                     const awayScore = fixture.score?.fulltime?.away ?? fixture.goals?.away ?? 0;
-                                    
+
                                     return (
                                       <div className="match-score-display">
                                         <span className="score-number">
