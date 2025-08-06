@@ -88,7 +88,7 @@ const Footer: React.FC = () => {
             {/* Social Media */}
             <div className="mb-4 md:mb-0">
               <h3 className="text-white font-semibold mb-3 md:mb-4 text-base">Follow Us:</h3>
-              <div className="flex space-x-3 md:space-x-4">
+              <div className="flex items-center space-x-3 md:space-x-4">
                 <a 
                   href="https://facebook.com" 
                   target="_blank" 
