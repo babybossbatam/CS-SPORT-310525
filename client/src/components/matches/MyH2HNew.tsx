@@ -231,65 +231,65 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
   // Only show "No Previous Meetings" if we have no data AND no error (meaning successful fetch with empty result)
   if (!h2hData.length && !error) {
     return (
-      <Card>
+      <Card className="mobile-card">
         <CardHeader>
           <CardTitle className="text-sm font-medium">Head to Head</CardTitle>
         </CardHeader>
-        <CardContent className="p-1">
-          {/* 365scores-inspired No Data Layout */}
-          <div className="flex items-center justify-between  p-1">
+        <CardContent className="mobile-p-2 md:p-4">
+          {/* Mobile-optimized No Data Layout */}
+          <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 mobile-space-y-3">
             {/* Home Team Section */}
-            <div className="flex flex-col items-center flex-1">
-              <div className="w-22 h-22  flex items-center justify-center mr-3">
+            <div className="flex flex-col items-center flex-1 touch-target">
+              <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center mb-2">
                 <MyWorldTeamLogo
                   teamName={match?.teams?.home?.name || "Home Team"}
                   teamLogo={match?.teams?.home?.logo}
                   teamId={match?.teams?.home?.id}
                   alt={match?.teams?.home?.name || "Home Team"}
-                  size="80px"
-                  className="w-14 h-14 "
+                  size="64px"
+                  className="w-12 h-12 md:w-14 md:h-14"
                 />
               </div>
               <div
-                className="text-sm font-bold py-4 text-gray-600 text-center max-w-100 truncate"
+                className="mobile-text-xs md:text-sm font-bold text-gray-600 text-center max-w-20 md:max-w-24 truncate px-1"
                 title={match?.teams?.home?.name}
               >
                 {match?.teams?.home?.name || "Home Team"}
               </div>
             </div>
 
-            {/* No Data Message */}
-            <div className="flex items-center space-x-3 flex-2 px-4">
-              <div className="text-center min-w-12">
-                <div className="text-lg font-bold text-gray-400">-</div>
-                <div className="text-xs text-gray-500">Wins</div>
+            {/* No Data Message - Mobile Stack */}
+            <div className="flex items-center justify-center space-x-2 md:space-x-4 flex-2 mobile-p-2">
+              <div className="text-center min-w-8 md:min-w-12">
+                <div className="mobile-text-sm md:text-lg font-bold text-gray-400">-</div>
+                <div className="mobile-text-xs text-gray-500">Wins</div>
               </div>
-              <div className="w-px h-8 bg-gray-300"></div>
-              <div className="text-center min-w-12">
-                <div className="text-lg font-bold text-gray-400">-</div>
-                <div className="text-xs text-gray-500">Draws</div>
+              <div className="w-px h-6 md:h-8 bg-gray-300"></div>
+              <div className="text-center min-w-8 md:min-w-12">
+                <div className="mobile-text-sm md:text-lg font-bold text-gray-400">-</div>
+                <div className="mobile-text-xs text-gray-500">Draws</div>
               </div>
-              <div className="w-px h-8 bg-gray-300"></div>
-              <div className="text-center min-w-12">
-                <div className="text-lg font-bold text-gray-400">-</div>
-                <div className="text-xs text-gray-500">Wins</div>
+              <div className="w-px h-6 md:h-8 bg-gray-300"></div>
+              <div className="text-center min-w-8 md:min-w-12">
+                <div className="mobile-text-sm md:text-lg font-bold text-gray-400">-</div>
+                <div className="mobile-text-xs text-gray-500">Wins</div>
               </div>
             </div>
 
             {/* Away Team Section */}
-            <div className="flex flex-col items-center flex-1">
-              <div className="w-22 h-22  flex items-center justify-center">
+            <div className="flex flex-col items-center flex-1 touch-target">
+              <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center mb-2">
                 <MyWorldTeamLogo
                   teamName={match?.teams?.away?.name || "Away Team"}
                   teamLogo={match?.teams?.away?.logo}
                   teamId={match?.teams?.away?.id}
                   alt={match?.teams?.away?.name || "Away Team"}
-                  size="80px"
-                  className="w-14 h-14 mr-4"
+                  size="64px"
+                  className="w-12 h-12 md:w-14 md:h-14"
                 />
               </div>
               <div
-                className="text-sm py-4 text-gray-600 text-center font-bold  max-w-100 truncate"
+                className="mobile-text-xs md:text-sm font-bold text-gray-600 text-center max-w-20 md:max-w-24 truncate px-1"
                 title={match?.teams?.away?.name}
               >
                 {match?.teams?.away?.name || "Away Team"}
@@ -377,62 +377,70 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
           <CardTitle className="text-sm font-medium">Head to Head</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
-          {/* 365scores-inspired H2H Header */}
+          {/* Mobile-optimized H2H Header */}
           {finishedMatches.length > 0 && (
-            <div className="flex items-center justify-between mb-6 bg-gray-50 rounded-lg p-4">
-              {/* Home Team Section */}
-              <div className="flex flex-col items-center flex-1">
-                <div className="w-12 h-12 mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
-                  <MyWorldTeamLogo
-                    teamName={match?.teams?.home?.name || "Home Team"}
-                    teamLogo={match?.teams?.home?.logo}
-                    teamId={actualHomeTeamId}
-                    alt={match?.teams?.home?.name || "Home Team"}
-                    size="32px"
-                    className="w-8 h-8 rounded-full"
-                  />
+            <div className="flex flex-col md:flex-row items-center justify-between mb-4 md:mb-6 bg-gray-50 rounded-lg mobile-p-3 md:p-4 space-y-3 md:space-y-0">
+              {/* Mobile: Teams Row */}
+              <div className="flex items-center justify-between w-full md:flex-1 space-x-4">
+                {/* Home Team Section */}
+                <div className="flex flex-col items-center touch-target">
+                  <div className="w-10 h-10 md:w-12 md:h-12 mb-1 md:mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
+                    <MyWorldTeamLogo
+                      teamName={match?.teams?.home?.name || "Home Team"}
+                      teamLogo={match?.teams?.home?.logo}
+                      teamId={actualHomeTeamId}
+                      alt={match?.teams?.home?.name || "Home Team"}
+                      size="24px"
+                      className="w-6 h-6 md:w-8 md:h-8 rounded-full"
+                    />
+                  </div>
+                  <div className="mobile-text-xs text-gray-600 text-center max-w-12 md:max-w-16 truncate">
+                    {match?.teams?.home?.name || "Home Team"}
+                  </div>
                 </div>
-                <div className="text-xs text-gray-600 text-center max-w-16 truncate">
-                  {match?.teams?.home?.name || "Home Team"}
+
+                {/* VS indicator on mobile */}
+                <div className="flex md:hidden text-gray-400 mobile-text-xs font-medium">
+                  VS
+                </div>
+
+                {/* Away Team Section */}
+                <div className="flex flex-col items-center touch-target">
+                  <div className="w-10 h-10 md:w-12 md:h-12 mb-1 md:mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
+                    <MyWorldTeamLogo
+                      teamName={match?.teams?.away?.name || "Away Team"}
+                      teamLogo={match?.teams?.away?.logo}
+                      teamId={actualAwayTeamId}
+                      alt={match?.teams?.away?.name || "Away Team"}
+                      size="24px"
+                      className="w-6 h-6 md:w-8 md:h-8 rounded-full"
+                    />
+                  </div>
+                  <div className="mobile-text-xs text-gray-600 text-center max-w-12 md:max-w-16 truncate">
+                    {match?.teams?.away?.name || "Away Team"}
+                  </div>
                 </div>
               </div>
 
-              {/* Score Summary */}
-              <div className="flex items-center space-x-4 flex-2">
-                <div className="text-center">
-                  <div className="text-lg font-bold text-blue-600">
+              {/* Score Summary - Mobile optimized */}
+              <div className="flex items-center justify-center space-x-3 md:space-x-4 w-full md:flex-2 mobile-p-2">
+                <div className="text-center touch-target">
+                  <div className="mobile-text-base md:text-lg font-bold text-blue-600">
                     {homeWins}
                   </div>
-                  <div className="text-xs text-gray-500">Wins</div>
+                  <div className="mobile-text-xs text-gray-500">Wins</div>
                 </div>
-                <div className="w-px h-8 bg-gray-300"></div>
-                <div className="text-center">
-                  <div className="text-lg font-bold text-gray-600">{draws}</div>
-                  <div className="text-xs text-gray-500">Draws</div>
+                <div className="w-px h-6 md:h-8 bg-gray-300"></div>
+                <div className="text-center touch-target">
+                  <div className="mobile-text-base md:text-lg font-bold text-gray-600">{draws}</div>
+                  <div className="mobile-text-xs text-gray-500">Draws</div>
                 </div>
-                <div className="w-px h-8 bg-gray-300"></div>
-                <div className="text-center">
-                  <div className="text-lg font-bold text-red-600">
+                <div className="w-px h-6 md:h-8 bg-gray-300"></div>
+                <div className="text-center touch-target">
+                  <div className="mobile-text-base md:text-lg font-bold text-red-600">
                     {awayWins}
                   </div>
-                  <div className="text-xs text-gray-500">Wins</div>
-                </div>
-              </div>
-
-              {/* Away Team Section */}
-              <div className="flex flex-col items-center flex-1">
-                <div className="w-12 h-12 mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
-                  <MyWorldTeamLogo
-                    teamName={match?.teams?.away?.name || "Away Team"}
-                    teamLogo={match?.teams?.away?.logo}
-                    teamId={actualAwayTeamId}
-                    alt={match?.teams?.away?.name || "Away Team"}
-                    size="32px"
-                    className="w-8 h-8 rounded-full"
-                  />
-                </div>
-                <div className="text-xs text-gray-600 text-center max-w-16 truncate">
-                  {match?.teams?.away?.name || "Away Team"}
+                  <div className="mobile-text-xs text-gray-500">Wins</div>
                 </div>
               </div>
             </div>
@@ -448,14 +456,14 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
             </div>
           )}
 
-          {/* Historical Meetings - Clean format like reference image */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-medium text-gray-800 mb-3">
+          {/* Historical Meetings - Mobile optimized */}
+          <div className="mobile-space-y-2 md:space-y-3">
+            <h4 className="mobile-text-sm font-medium text-gray-800 mobile-p-2 md:mb-3">
               Previous Meetings
             </h4>
 
-            {/* Clean Historical List - Simplified format */}
-            <div className="bg-white rounded-lg overflow-hidden">
+            {/* Mobile-optimized Historical List */}
+            <div className="bg-white rounded-lg overflow-hidden mobile-card">
               {recentMatches.map((match, index) => {
                 const isScheduled =
                   match.goals.home === null || match.goals.away === null;
@@ -479,11 +487,11 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                 return (
                   <div
                     key={match.fixture.id}
-                    className="py-3 px-4 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
+                    className="mobile-p-3 md:py-3 md:px-4 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 touch-target"
                   >
-                    {/* Date and Competition */}
-                    <div className="flex justify-between items-center mb-2">
-                      <div className="text-xs text-gray-500">
+                    {/* Date and Competition - Mobile optimized */}
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 space-y-1 md:space-y-0">
+                      <div className="mobile-text-xs text-gray-500">
                         {new Date(match.fixture.date).toLocaleDateString(
                           "en-GB",
                           {
@@ -493,24 +501,24 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                           },
                         )}
                       </div>
-                      <div className="text-xs text-gray-600 font-medium">
+                      <div className="mobile-text-xs text-gray-600 font-medium truncate max-w-40 md:max-w-none">
                         {match.league?.name || "Unknown Competition"}
                       </div>
                     </div>
 
-                    {/* Teams and Score */}
-                    <div className="flex items-center justify-between">
+                    {/* Teams and Score - Mobile responsive */}
+                    <div className="flex items-center justify-between space-x-2">
                       {/* Home Team */}
-                      <div className="flex items-center flex-1">
-                        <span className="text-sm text-gray-800 font-medium">
+                      <div className="flex items-center flex-1 min-w-0">
+                        <span className="mobile-text-xs md:text-sm text-gray-800 font-medium truncate">
                           {homeTeamInMatch.name}
                         </span>
                       </div>
 
                       {/* Score */}
-                      <div className="mx-6 min-w-16 text-center">
+                      <div className="mx-2 md:mx-6 min-w-12 md:min-w-16 text-center touch-target">
                         {isScheduled ? (
-                          <div className="text-sm font-medium text-gray-700">
+                          <div className="mobile-text-xs md:text-sm font-medium text-gray-700">
                             {new Date(match.fixture.date).toLocaleTimeString(
                               "en-US",
                               {
@@ -521,15 +529,15 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                             )}
                           </div>
                         ) : (
-                          <div className="text-lg font-bold text-gray-900">
+                          <div className="mobile-text-sm md:text-lg font-bold text-gray-900">
                             {homeScoreInMatch} - {awayScoreInMatch}
                           </div>
                         )}
                       </div>
 
                       {/* Away Team */}
-                      <div className="flex items-center justify-end flex-1">
-                        <span className="text-sm text-gray-800 font-medium">
+                      <div className="flex items-center justify-end flex-1 min-w-0">
+                        <span className="mobile-text-xs md:text-sm text-gray-800 font-medium truncate">
                           {awayTeamInMatch.name}
                         </span>
                       </div>
@@ -539,10 +547,10 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
               })}
             </div>
 
-            {/* See All Link - Enhanced */}
+            {/* See All Link - Mobile optimized */}
             {h2hData.length > 5 && (
-              <div className="text-center mt-4 p-3 bg-gray-50 rounded-lg">
-                <button className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center justify-center space-x-2 mx-auto transition-colors">
+              <div className="text-center mt-3 md:mt-4 mobile-p-3 bg-gray-50 rounded-lg">
+                <button className="mobile-text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center justify-center space-x-2 mx-auto transition-colors touch-target min-h-11">
                   <span>See All {h2hData.length} Matches</span>
                   <svg
                     className="w-4 h-4"
@@ -558,43 +566,43 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                     />
                   </svg>
                 </button>
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="mobile-text-xs text-gray-500 mt-1">
                   Showing recent {recentMatches.length} meetings
                 </div>
               </div>
             )}
 
-            {/* Historical Statistics Summary */}
+            {/* Historical Statistics Summary - Mobile responsive */}
             {hasFinishedMatches && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <h5 className="text-sm font-medium text-gray-800 mb-2">
+              <div className="mt-3 md:mt-4 mobile-p-3 md:p-4 bg-gray-50 rounded-lg">
+                <h5 className="mobile-text-sm font-medium text-gray-800 mb-2">
                   All-Time Record
                 </h5>
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div>
-                    <div className="text-lg font-bold text-blue-600">
+                <div className="grid grid-cols-3 gap-2 md:gap-4 text-center">
+                  <div className="touch-target">
+                    <div className="mobile-text-base md:text-lg font-bold text-blue-600">
                       {homeWins}
                     </div>
-                    <div className="text-xs text-gray-600">
+                    <div className="mobile-text-xs text-gray-600 truncate">
                       {match?.teams?.home?.name || "Home"} Wins
                     </div>
                   </div>
-                  <div>
-                    <div className="text-lg font-bold text-gray-600">
+                  <div className="touch-target">
+                    <div className="mobile-text-base md:text-lg font-bold text-gray-600">
                       {draws}
                     </div>
-                    <div className="text-xs text-gray-600">Draws</div>
+                    <div className="mobile-text-xs text-gray-600">Draws</div>
                   </div>
-                  <div>
-                    <div className="text-lg font-bold text-red-600">
+                  <div className="touch-target">
+                    <div className="mobile-text-base md:text-lg font-bold text-red-600">
                       {awayWins}
                     </div>
-                    <div className="text-xs text-gray-600">
+                    <div className="mobile-text-xs text-gray-600 truncate">
                       {match?.teams?.away?.name || "Away"} Wins
                     </div>
                   </div>
                 </div>
-                <div className="text-center mt-2 text-xs text-gray-500">
+                <div className="text-center mt-2 mobile-text-xs text-gray-500">
                   Total matches: {finishedMatches.length}
                 </div>
               </div>
@@ -754,21 +762,21 @@ const TopTrendsCard: React.FC<{ homeTeamId?: number; awayTeamId?: number }> = ({
   }
 
   return (
-    <Card className="mt-4">
+    <Card className="mt-3 md:mt-4 mobile-card">
       <CardHeader>
-        <CardTitle className="text-sm font-medium">Top Trends</CardTitle>
+        <CardTitle className="mobile-text-sm font-medium">Top Trends</CardTitle>
       </CardHeader>
-      <CardContent className="p-4">
-        <div className="space-y-3">
+      <CardContent className="mobile-p-3 md:p-4">
+        <div className="mobile-space-y-2 md:space-y-3">
           {trends.map((trend, index) => (
-            <div key={index} className="flex items-center justify-between">
-              <span className="text-xs text-gray-600">{trend.label}</span>
-              <div className="flex items-center space-x-4">
-                <span className="text-xs font-medium text-blue-600">
+            <div key={index} className="flex items-center justify-between touch-target mobile-p-2 rounded-md hover:bg-gray-50">
+              <span className="mobile-text-xs text-gray-600 flex-1 pr-2">{trend.label}</span>
+              <div className="flex items-center space-x-2 md:space-x-4 flex-shrink-0">
+                <span className="mobile-text-xs font-medium text-blue-600 min-w-8 text-center">
                   {trend.home}
                 </span>
-                <span className="text-xs text-gray-400">vs</span>
-                <span className="text-xs font-medium text-red-600">
+                <span className="mobile-text-xs text-gray-400">vs</span>
+                <span className="mobile-text-xs font-medium text-red-600 min-w-8 text-center">
                   {trend.away}
                 </span>
               </div>
