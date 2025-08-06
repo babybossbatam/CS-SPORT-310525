@@ -149,18 +149,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                             leagueName.includes("asian cup u20") ||
                             leagueName.includes("asian cup u-20");
 
-    // Debug logging for AFC competitions
-    if (leagueName.includes("afc") || leagueName.includes("asian cup")) {
-      console.log("🏆 [MyWorldTeamLogo] AFC Competition Detection:", {
-        teamName,
-        leagueName,
-        isAfcU20AsianCup,
-        isActualNationalTeam,
-        isYouthTeam,
-        isWomensNationalTeam
-      });
-    }
-
     // Debug logging for Friendlies International
     if (leagueName.includes("friendlies")) {
       console.log("🔍 [MyWorldTeamLogo] Friendlies Detection:", {
