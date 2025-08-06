@@ -138,7 +138,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           {(!isMobile || !selectedFixture) && (
             <div
               className={cn(
-                "overflow-y-auto space-y-4",
+                " space-y-4",
                 isMobile ? "w-full col-span-1" : "lg:col-span-5",
               )}
             >
