@@ -37,7 +37,6 @@ import { getCachedCountryName, setCachedCountryName } from "@/lib/countryCache";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import { MySmartDateLabeling } from "../../lib/MySmartDateLabeling";
-import LazyImage from "../common/LazyImage";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import MyCircularFlag from "../common/MyCircularFlag";
 import LazyMatchItem from "./LazyMatchItem";
