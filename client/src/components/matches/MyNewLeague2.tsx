@@ -1162,13 +1162,16 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       const wasManuallyDeselected = manuallyDeselectedMatches && manuallyDeselectedMatches.has(matchId);
       
       if (wasManuallyDeselected) {
-        console.log(`🚫 [MyNewLeague2] Match ${matchId} was manually deselected, preventing auto-selection`);
-        // Don't automatically select matches that were manually deselected
-        // User needs to explicitly choose to re-enable selection for this match
-        return;
+        console.log(`🔄 [MyNewLeague2] Re-selecting previously deselected match ${matchId}`);
+        // Remove from manually deselected set since user is re-selecting it
+        setManuallyDeselectedMatches(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(matchId);
+          return newSet;
+        });
       }
 
-      // Set this match as selected only if it wasn't manually deselected
+      // Set this match as selected
       try {
         setSelectedMatchId(matchId);
       } catch (error) {
@@ -1680,27 +1683,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                               return false;
                             }
                           }}
-                          onDoubleClick={(e) => {
-                            try {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              
-                              // Double-click to re-enable selection for manually deselected matches
-                              const wasManuallyDeselected = manuallyDeselectedMatches && manuallyDeselectedMatches.has(matchId);
-                              if (wasManuallyDeselected) {
-                                console.log(`🔄 [MyNewLeague2] Double-click detected, re-enabling selection for match ${matchId}`);
-                                setManuallyDeselectedMatches(prev => {
-                                  const newSet = new Set(prev);
-                                  newSet.delete(matchId);
-                                  return newSet;
-                                });
-                                // Auto-select the match after re-enabling
-                                setTimeout(() => handleMatchClick(fixture), 100);
-                              }
-                            } catch (error) {
-                              console.error("🚨 [MyNewLeague2] Error in double-click handler:", error);
-                            }
-                          }}
+                          
                           onMouseEnter={() => {
                             try {
                               const container = document.querySelector(
