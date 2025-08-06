@@ -38,7 +38,7 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
 
   return (
     <div className={cn(
-      "h-full min-h-0 overflow-y-auto",
+      "h-full min-h-0 max-h-full overflow-y-auto",
       isMobile 
         ? "w-full px-2 pb-20" // Mobile: proper scroll container
         : "pb-4" // Desktop: add bottom padding

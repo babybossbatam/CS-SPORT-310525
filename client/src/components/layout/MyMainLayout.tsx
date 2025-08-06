@@ -14,7 +14,9 @@ import { cn } from "@/lib/utils";
 import Header from "@/components/layout/Header";
 
 // Lazy load the TodayMatchPageCard component
-const TodayMatchPageCard = lazy(() => import("@/components/matches/TodayMatchPageCard"));
+const TodayMatchPageCard = lazy(
+  () => import("@/components/matches/TodayMatchPageCard"),
+);
 
 interface MyMainLayoutProps {
   fixtures: any[];
@@ -88,7 +90,9 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
     const processingTime = endTime - startTime;
 
     if (processingTime > 50) {
-      console.warn(`⚠️ [MyMainLayout Performance] Filtering took ${processingTime.toFixed(2)}ms`);
+      console.warn(
+        `⚠️ [MyMainLayout Performance] Filtering took ${processingTime.toFixed(2)}ms`,
+      );
     }
 
     console.log(
@@ -124,54 +128,57 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           marginTop: isMobile ? "-22px" : "0",
         }}
       >
-      <div
-        className={cn(
-          "grid gap-4",
-          isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12",
-        )}
-      >
-        {/* Left column (5 columns on desktop, full width on mobile) - Hide on mobile when match is selected */}
-        {(!isMobile || !selectedFixture) && (
-          <div className={cn("space-y-4", isMobile ? "w-full col-span-1" : "lg:col-span-5")}>
-            {/* Render children if provided, otherwise show TodayMatchPageCard */}
-            {children ? (
-              <div>{children}</div>
-            ) : (
-              <div>
-                <TodayMatchPageCard
-                  fixtures={filteredFixtures}
-                  onMatchClick={handleMatchClick}
-                  onMatchCardClick={handleMatchCardClick}
+        <div
+          className={cn(
+            "grid gap-4",
+            isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12",
+          )}
+        >
+          {/* Left column (5 columns on desktop, full width on mobile) - Hide on mobile when match is selected */}
+          {(!isMobile || !selectedFixture) && (
+            <div
+              className={cn(
+                "overflow-y-auto space-y-4",
+                isMobile ? "w-full col-span-1" : "lg:col-span-5",
+              )}
+            >
+              {/* Render children if provided, otherwise show TodayMatchPageCard */}
+              {children ? (
+                <div>{children}</div>
+              ) : (
+                <div>
+                  <TodayMatchPageCard
+                    fixtures={filteredFixtures}
+                    onMatchClick={handleMatchClick}
+                    onMatchCardClick={handleMatchCardClick}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Right column (7 columns) - Show when match is selected on mobile, always show on desktop */}
+          {(!isMobile || selectedFixture) && (
+            <div
+              className={cn(
+                "space-y-4 ",
+                isMobile ? "col-span-1" : "lg:col-span-7",
+                isMobile && selectedFixture
+                  ? "fixed inset-0 z-50 bg-white"
+                  : "",
+              )}
+            >
+              {selectedFixture ? (
+                <MyMainLayoutRight
+                  selectedFixture={selectedFixture}
+                  onClose={handleBackToMain}
                 />
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Right column (7 columns) - Show when match is selected on mobile, always show on desktop */}
-        {(!isMobile || selectedFixture) && (
-          <div
-            className={cn(
-              "space-y-4 ",
-              isMobile ? "col-span-1" : "lg:col-span-7",
-              isMobile && selectedFixture ? "fixed inset-0 z-50 bg-white" : "",
-            )}
-        
-      
-          >
-            {selectedFixture ? (
-
-            
-              <MyMainLayoutRight
-                selectedFixture={selectedFixture}
-                onClose={handleBackToMain}
-              />
-            ) : (
-              <MyRightContent />
-            )}
-          </div>
-        )}
-      </div>
+              ) : (
+                <MyRightContent />
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
