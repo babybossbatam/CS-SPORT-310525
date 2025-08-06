@@ -148,7 +148,7 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
       </Card>
 
       {/* Head to Head */}
-      <div className="space-y-2">
+      <div className="space-y-2 [&_.border]:rounded-none [&_*]:rounded-none">
         <MyH2HNew match={match} />
       </div>
 
