@@ -342,21 +342,21 @@ main {
 }
 
 .dark {
-  --background: 218 18% 12%;
+  --background: 0 0% 7%;
   --foreground: 0 0% 98%;
-  --muted: 218 18% 16%;
+  --muted: 0 0% 10%;
   --muted-foreground: 240 5% 64.9%;
-  --popover: 218 18% 12%;
+  --popover: 0 0% 7%;
   --popover-foreground: 0 0% 98%;
-  --card: 218 18% 14%;
+  --card: 0 0% 9%;
   --card-foreground: 0 0% 98%;
-  --border: 218 18% 20%;
-  --input: 218 18% 20%;
+  --border: 0 0% 15%;
+  --input: 0 0% 15%;
   --primary: 207 90% 54%;
   --primary-foreground: 211 100% 99%;
-  --secondary: 218 18% 18%;
+  --secondary: 0 0% 12%;
   --secondary-foreground: 0 0% 98%;
-  --accent: 218 18% 18%;
+  --accent: 0 0% 12%;
   --accent-foreground: 0 0% 98%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 98%;
@@ -367,7 +367,7 @@ main {
 /* Dark mode card header styles */
 .dark [data-card-header],
 .dark .card-header {
-  background-color: rgb(50, 55, 62) !important;
+  background-color: rgb(31, 41, 55) !important;
   /* bg-gray-800 */
   color: #404040 !important;
   border-bottom: 1px solid rgb(55 65 81) !important;
@@ -377,7 +377,7 @@ main {
 /* Dark mode card content */
 .dark [data-card-content],
 .dark .card-content {
-  background-color: rgb(50, 55, 62) !important;
+  background-color: rgb(31, 41, 55) !important;
   /* bg-gray-800 */
   color: white !important;
 }
