@@ -350,19 +350,19 @@ main {
 .dark {
   --background: 0 0% 0%;
   --foreground: 0 0% 98%;
-  --muted: 0 0% 0%;
+  --muted: 217 33% 17%;
   --muted-foreground: 240 5% 64.9%;
-  --popover: 0 0% 0%;
+  --popover: 217 33% 17%;
   --popover-foreground: 0 0% 98%;
-  --card: 0 0% 0%;
+  --card: 217 33% 17%;
   --card-foreground: 0 0% 98%;
   --border: 0 0% 15%;
   --input: 0 0% 15%;
   --primary: 207 90% 54%;
   --primary-foreground: 211 100% 99%;
-  --secondary: 0 0% 0%;
+  --secondary: 217 33% 17%;
   --secondary-foreground: 0 0% 98%;
-  --accent: 0 0% 0%;
+  --accent: 217 33% 17%;
   --accent-foreground: 0 0% 98%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 98%;
@@ -373,8 +373,8 @@ main {
 /* Dark mode card header styles */
 .dark [data-card-header],
 .dark .card-header {
-  background-color: #000000 !important;
-  /* true black */
+  background-color: #1f2937 !important;
+  /* gray-800 */
   color: white !important;
   border-bottom: 1px solid rgb(55 65 81) !important;
   /* border-gray-700 */
@@ -383,8 +383,8 @@ main {
 /* Dark mode card content */
 .dark [data-card-content],
 .dark .card-content {
-  background-color: #000000 !important;
-  /* true black */
+  background-color: #1f2937 !important;
+  /* gray-800 */
   color: white !important;
 }
 
@@ -398,8 +398,8 @@ main {
 
 .dark .bg-card,
 .dark .bg-white {
-  background-color: #000000 !important;
-  /* true black */
+  background-color: #1f2937 !important;
+  /* gray-800 */
 }
 
 .dark .text-card-foreground {
@@ -409,14 +409,21 @@ main {
 /* Skeleton components in dark mode */
 .dark .bg-gray-100,
 .dark .bg-gray-50 {
-  background-color: rgb(55 65 81) !important;
-  /* border-gray-700 for skeletons */
+  background-color: #1f2937 !important;
+  /* gray-800 for consistency */
 }
 
 /* League card spacing consistency */
 .dark .league-card-spacing {
-  background-color: #000000 !important;
+  background-color: #1f2937 !important;
   border-color: rgb(55 65 81) !important;
+}
+
+/* Additional card styling for comprehensive coverage */
+.dark .card,
+.dark [data-card] {
+  background-color: #1f2937 !important;
+  /* gray-800 */
 }
 
 @keyframes glow {
