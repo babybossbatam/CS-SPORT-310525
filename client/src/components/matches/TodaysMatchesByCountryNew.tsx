@@ -1540,7 +1540,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         : countryData.country?.name || "Unknown"}
                     </span>
                     <span
-                      className="text-gray-500"
+                      className="text-gray-500 dark:text-white"
                       style={{
                         fontFamily:
                           "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
