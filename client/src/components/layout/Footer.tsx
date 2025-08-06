@@ -93,25 +93,25 @@ const Footer: React.FC = () => {
                   href="https://facebook.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="bg-blue-600 p-2 md:p-2 rounded-full hover:bg-blue-700 transition-colors touch-target-large"
+                  className="w-10 h-10 md:w-12 md:h-12 bg-blue-600 rounded-full hover:bg-blue-700 transition-colors flex items-center justify-center touch-target-large"
                 >
-                  <Facebook size={18} className="md:w-5 md:h-5" />
+                  <Facebook size={20} className="text-white" />
                 </a>
                 <a 
                   href="https://twitter.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="bg-black p-2 md:p-2 rounded-full hover:bg-gray-800 transition-colors touch-target-large"
+                  className="w-10 h-10 md:w-12 md:h-12 bg-black rounded-full hover:bg-gray-800 transition-colors flex items-center justify-center touch-target-large"
                 >
-                  <Twitter size={18} className="md:w-5 md:h-5" />
+                  <Twitter size={20} className="text-white" />
                 </a>
                 <a 
                   href="https://instagram.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 p-2 md:p-2 rounded-full hover:from-purple-600 hover:to-pink-600 transition-colors touch-target-large"
+                  className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full hover:from-purple-600 hover:to-pink-600 transition-colors flex items-center justify-center touch-target-large"
                 >
-                  <Instagram size={18} className="md:w-5 md:h-5" />
+                  <Instagram size={20} className="text-white" />
                 </a>
               </div>
             </div>
