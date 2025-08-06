@@ -1033,6 +1033,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     setExpandedLeagues(new Set(leagueKeys));
   }, [fixturesByLeague]);
 
+  // Listen for external match clearing and reset selected match ID
+  useEffect(() => {
+    if (!match) {
+      // If no match is passed from parent, clear the selection
+      setSelectedMatchId(null);
+    }
+  }, [match]);
+
   const toggleStarMatch = useCallback((matchId: number) => {
     setStarredMatches((prev) => {
       const newStarred = new Set(prev);
@@ -1089,7 +1097,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         isCurrentlySelected: selectedMatchId === matchId,
       });
 
-      // Set this match as selected (allow re-selection of the same match)
+      // Always set this match as selected, even if it's the same match (allow re-selection)
       setSelectedMatchId(matchId);
       console.log(`✅ [MyNewLeague2] Successfully selected match ${matchId}`);
 
