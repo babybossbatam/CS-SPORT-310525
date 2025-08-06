@@ -84,7 +84,9 @@ const STANDINGS_CACHE_CONFIG = {
 
 // localStorage cache manager for standings
 const STANDINGS_STORAGE_KEY = 'standings_cache';
-const CACHE_EXPIRY_TIME = 4 * 60 * 60 * 1000; // 4 hours
+// Cache configuration - reduced for space efficiency
+const CACHE_EXPIRY_TIME = 30 * 60 * 1000; // 30 minutes (reduced from 2 hours)
+const MAX_CACHE_SIZE = 20; // Maximum number of entries in memory cache (reduced from 50)
 
 interface CachedStandingsItem {
   data: LeagueStandings;
@@ -101,10 +103,10 @@ interface StandingsStorageCache {
 const getPopularLeaguesFromCache = (): number[] => {
   try {
     const today = new Date().toISOString().split('T')[0];
-    
+
     // Try to get cached fixture data to extract league IDs
     const cachedFixtures = fixtureCache.getCachedFixturesForDate(today);
-    
+
     if (cachedFixtures && Array.isArray(cachedFixtures)) {
       // Extract unique league IDs from cached fixtures
       const leagueIds = [...new Set(
@@ -112,11 +114,11 @@ const getPopularLeaguesFromCache = (): number[] => {
           .filter(fixture => fixture?.league?.id)
           .map(fixture => fixture.league.id)
       )];
-      
+
       console.log(`📊 [StandingsCache] Found ${leagueIds.length} leagues from TodayPopularLeagueNew cache`);
       return leagueIds.length > 0 ? leagueIds : [];
     }
-    
+
     // Return empty array instead of fallback leagues to prevent automatic fetching
     console.log(`⚠️ [StandingsCache] No cached data from TodayPopularLeagueNew, returning empty array`);
     return [];
@@ -156,8 +158,13 @@ class StandingsCache {
         Object.entries(cache).forEach(([key, item]) => {
           // Only load non-expired items
           if (now - item.timestamp < CACHE_EXPIRY_TIME) {
-            this.memoryCache.set(key, item);
-            loadedCount++;
+            // Ensure we don't exceed MAX_CACHE_SIZE during initial load
+            if (this.memoryCache.size < MAX_CACHE_SIZE) {
+              this.memoryCache.set(key, item);
+              loadedCount++;
+            } else {
+              console.log(`⚠️ [StandingsCache] Max cache size reached (${MAX_CACHE_SIZE}), skipping item: ${key}`);
+            }
           }
         });
 
@@ -166,6 +173,11 @@ class StandingsCache {
       }
     } catch (error) {
       console.error('Error loading standings cache from localStorage:', error);
+      // If loading fails or storage is full, clear it to prevent further issues
+      if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+        console.error('localStorage quota exceeded during load. Clearing cache.');
+        this.clearCache();
+      }
     }
   }
 
@@ -173,12 +185,59 @@ class StandingsCache {
   private saveToStorage(): void {
     try {
       const cacheObject: StandingsStorageCache = {};
+      let itemCount = 0;
+      // Iterate over memoryCache and add to cacheObject, respecting MAX_CACHE_SIZE
       this.memoryCache.forEach((item, key) => {
-        cacheObject[key] = item;
+        if (itemCount < MAX_CACHE_SIZE) {
+          cacheObject[key] = item;
+          itemCount++;
+        } else {
+          // If we exceed the limit, stop adding
+          return;
+        }
       });
       localStorage.setItem(STANDINGS_STORAGE_KEY, JSON.stringify(cacheObject));
+      console.log(`💾 Saved ${itemCount} standings to localStorage cache`);
     } catch (error) {
       console.error('Error saving standings cache to localStorage:', error);
+      // Handle QuotaExceededError specifically to prune the cache
+      if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+        console.error('localStorage quota exceeded during save. Attempting to prune cache.');
+        this.pruneCache();
+        // Attempt to save again after pruning
+        try {
+          const cacheObject: StandingsStorageCache = {};
+          let itemCount = 0;
+          this.memoryCache.forEach((item, key) => {
+            if (itemCount < MAX_CACHE_SIZE) {
+              cacheObject[key] = item;
+              itemCount++;
+            } else {
+              return;
+            }
+          });
+          localStorage.setItem(STANDINGS_STORAGE_KEY, JSON.stringify(cacheObject));
+          console.log(`💾 Successfully re-saved ${itemCount} standings after pruning.`);
+        } catch (retryError) {
+          console.error('Failed to save cache even after pruning:', retryError);
+        }
+      }
+    }
+  }
+
+  // Prune the cache if it exceeds MAX_CACHE_SIZE
+  private pruneCache(): void {
+    if (this.memoryCache.size > MAX_CACHE_SIZE) {
+      console.warn(`Pruning cache: current size ${this.memoryCache.size}, max size ${MAX_CACHE_SIZE}`);
+      const sortedEntries = Array.from(this.memoryCache.entries()).sort(([, a], [, b]) => a.timestamp - b.timestamp);
+      const entriesToRemove = this.memoryCache.size - MAX_CACHE_SIZE;
+
+      for (let i = 0; i < entriesToRemove; i++) {
+        const [keyToRemove] = sortedEntries[i];
+        this.memoryCache.delete(keyToRemove);
+        console.log(`Pruned oldest cache entry: ${keyToRemove}`);
+      }
+      console.log(`Cache pruned. New size: ${this.memoryCache.size}`);
     }
   }
 
@@ -196,6 +255,8 @@ class StandingsCache {
         return cached.data;
       } else {
         console.log(`⏰ Expired standings cache for league ${leagueId} (age: ${Math.floor(age / 60000)} min)`);
+        // Optionally remove expired item from memory cache here to free up memory
+        // this.memoryCache.delete(cacheKey);
       }
     } else {
       console.log(`❌ Cache miss for standings league ${leagueId}`);
@@ -217,14 +278,16 @@ class StandingsCache {
       season: targetSeason,
     };
 
-    this.memoryCache.set(cacheKey, cacheItem);
-    
-    try {
-      this.saveToStorage();
-      console.log(`💾 Successfully cached standings for league ${leagueId} (${data.league.name}) with key: ${cacheKey}`);
-    } catch (error) {
-      console.error(`❌ Failed to save standings cache to localStorage for league ${leagueId}:`, error);
+    // Before adding, check if we need to prune
+    if (this.memoryCache.size >= MAX_CACHE_SIZE) {
+      console.log(`Cache full (${this.memoryCache.size}/${MAX_CACHE_SIZE}), pruning before adding new item.`);
+      this.pruneCache();
     }
+
+    this.memoryCache.set(cacheKey, cacheItem);
+
+    // Save to storage to persist the cache
+    this.saveToStorage();
   }
 
   // Log cache statistics
@@ -313,7 +376,7 @@ class StandingsCache {
     // PRIORITY 2: Check if we have ANY cached data (even expired) for popular leagues
     const isPopularLeague = [2, 3, 39, 140, 135, 78, 848, 15].includes(leagueId);
     const anyCached = this.memoryCache.get(cacheKey);
-    
+
     if (anyCached && isPopularLeague) {
       const age = Date.now() - anyCached.timestamp;
       const ageHours = Math.floor(age / (60 * 60 * 1000));
@@ -328,7 +391,7 @@ class StandingsCache {
 
     try {
       console.log(`🔍 Fetching fresh standings for league ${leagueId} (season: ${season || 'current'})`);
-      
+
       const response = await apiRequest('GET', `/api/leagues/${leagueId}/standings`, {
         params: season ? { season } : undefined,
         timeout: 15000 // Increased timeout to 15 seconds
@@ -338,9 +401,9 @@ class StandingsCache {
       if (response.status === 0 || !response.ok) {
         const isNetworkError = response.status === 0;
         const errorType = isNetworkError ? 'Network connectivity' : 'API error';
-        
+
         console.warn(`🌐 ${errorType} for league ${leagueId} (status: ${response.status})`);
-        
+
         // For network errors or API failures, always use cached data if available (regardless of age)
         if (anyCached) {
           const age = Date.now() - anyCached.timestamp;
@@ -348,19 +411,19 @@ class StandingsCache {
           console.log(`🔄 Using cached data for league ${leagueId} (age: ${ageHours}h) due to ${errorType.toLowerCase()}`);
           return anyCached.data;
         }
-        
+
         // If no cache available but this is a popular league, provide minimal fallback data
         if (isPopularLeague) {
           const leagueNames = {
             39: 'Premier League',
-            140: 'La Liga', 
+            140: 'La Liga',
             135: 'Serie A',
             78: 'Bundesliga',
             61: 'Ligue 1',
             2: 'UEFA Champions League',
             3: 'UEFA Europa League'
           };
-          
+
           console.warn(`🏆 Creating minimal fallback data for popular league ${leagueId}`);
           return {
             league: {
@@ -374,52 +437,52 @@ class StandingsCache {
             }
           };
         }
-        
+
         // If no cache available, return null
         console.warn(`❌ No cached data available for league ${leagueId} and ${errorType.toLowerCase()}`);
         return null;
       }
 
-      
+
 
       let data;
       try {
         data = await response.json();
       } catch (jsonError) {
         console.warn(`❌ Failed to parse JSON response for league ${leagueId}:`, jsonError);
-        
+
         // If we have any cached data, use it as fallback
         if (anyCached) {
           console.log(`🔄 Falling back to expired cache for league ${leagueId} due to JSON parse error`);
           return anyCached.data;
         }
-        
+
         return null;
       }
 
       // Check if the response indicates an error
       if (data.error) {
         console.warn(`API returned error for league ${leagueId}:`, data.message);
-        
+
         // If we have any cached data, use it as fallback
         if (anyCached) {
           console.log(`🔄 Falling back to expired cache for league ${leagueId} due to API error`);
           return anyCached.data;
         }
-        
+
         return null;
       }
 
       // Validate response structure
       if (!data || !data.league || !data.league.standings) {
         console.warn(`⚠️ API returned invalid data structure for league ${leagueId}`);
-        
+
         // If we have any cached data, use it as fallback
         if (anyCached) {
           console.log(`🔄 Falling back to expired cache for league ${leagueId} due to invalid API response`);
           return anyCached.data;
         }
-        
+
         return null;
       }
 
@@ -430,7 +493,7 @@ class StandingsCache {
       return data;
     } catch (error) {
       console.error(`Error fetching standings for league ${leagueId}:`, error);
-      
+
       // If we have any cached data (even expired), use it as fallback
       if (anyCached) {
         const age = Date.now() - anyCached.timestamp;
@@ -438,7 +501,7 @@ class StandingsCache {
         console.log(`🔄 Falling back to expired cache for league ${leagueId} (age: ${ageHours}h) due to API error`);
         return anyCached.data;
       }
-      
+
       return null;
     }
   }
@@ -483,18 +546,18 @@ class StandingsCache {
         } catch (error) {
           const errorMsg = error instanceof Error ? error.message : 'Unknown error';
           console.error(`❌ Error in batch fetch for league ${leagueId}: ${errorMsg}`);
-          
+
           // Check if we have any cached data for this league as fallback
           const cacheKey = this.getStandingsKey(leagueId, season);
           const cachedData = this.memoryCache.get(cacheKey);
-          
+
           if (cachedData) {
             const age = Date.now() - cachedData.timestamp;
             const ageHours = Math.floor(age / (60 * 60 * 1000));
             console.log(`🔄 Using cached data for league ${leagueId} in batch (age: ${ageHours}h) due to fetch error`);
             return { leagueId, standings: cachedData.data };
           }
-          
+
           return { leagueId, standings: null };
         }
       });
@@ -722,7 +785,7 @@ export function usePrefetchStandings() {
   const prefetchPopularLeaguesStandings = React.useCallback((season?: number) => {
     const currentYear = new Date().getFullYear();
     const targetSeason = season || currentYear;
-    
+
     let dynamicLeagues;
     try {
       dynamicLeagues = getPopularLeaguesFromCache();

@@ -368,10 +368,49 @@ export { flagCache };
 
 // Flag preloading system
 const FLAG_STORAGE_KEY = "cssport_flag_cache";
-const FLAG_PRELOAD_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
+const FLAG_PRELOAD_EXPIRY = 12 * 60 * 60 * 1000; // Reduced to 12 hours
 
 /**
- * Check available localStorage space
+ * Safe localStorage write with automatic cleanup
+ */
+function safeStorageWrite(key: string, value: string): boolean {
+  try {
+    const { available } = getStorageSize();
+    const requiredSpace = value.length + key.length + 100; // 100 bytes buffer
+    
+    if (available < requiredSpace) {
+      console.warn('⚠️ Insufficient storage space, attempting cleanup');
+      cleanupExpiredFlags();
+      
+      const { available: availableAfterCleanup } = getStorageSize();
+      if (availableAfterCleanup < requiredSpace) {
+        emergencyCleanup();
+        
+        const { available: finalAvailable } = getStorageSize();
+        if (finalAvailable < requiredSpace) {
+          console.error('❌ Still not enough space after emergency cleanup');
+          return false;
+        }
+      }
+    }
+    
+    localStorage.setItem(key, value);
+    return true;
+  } catch (e) {
+    console.error('Storage write failed:', e);
+    emergencyCleanup();
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (e2) {
+      console.error('Storage write failed even after cleanup:', e2);
+      return false;
+    }
+  }
+}
+
+/**
+ * Check available localStorage spacece
  */
 function getStorageSize(): { used: number; available: number } {
   let used = 0;
@@ -380,13 +419,60 @@ function getStorageSize(): { used: number; available: number } {
       used += localStorage[key].length + key.length;
     }
   }
-  // Most browsers have 5MB limit, we'll use 4MB as safe limit
-  const maxSize = 4 * 1024 * 1024; // 4MB
+  // Most browsers have 5MB limit, we'll use 3MB as safer limit
+  const maxSize = 3 * 1024 * 1024; // 3MB
   return { used, available: maxSize - used };
 }
 
 /**
- * Clean up old cache entries to free space
+ * Emergency storage cleanup when space is critically low
+ */
+function emergencyCleanup(): void {
+  console.warn('🚨 Emergency storage cleanup initiated');
+  
+  // Clear all cache entries older than 1 hour
+  const emergencyExpiry = 60 * 60 * 1000; // 1 hour
+  const now = Date.now();
+  
+  for (let i = localStorage.length - 1; i >= 0; i--) {
+    const key = localStorage.key(i);
+    if (key && (key.includes('_cache') || key.includes('cssport_'))) {
+      try {
+        const item = localStorage.getItem(key);
+        if (item) {
+          const data = JSON.parse(item);
+          if (data.timestamp && (now - data.timestamp) > emergencyExpiry) {
+            localStorage.removeItem(key);
+          }
+        }
+      } catch (e) {
+        // Remove corrupted entries
+        localStorage.removeItem(key);
+      }
+    }
+  }
+  
+  // If still not enough space, clear half of all cache entries
+  const { available } = getStorageSize();
+  if (available < 100 * 1024) { // Less than 100KB available
+    const cacheKeys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.includes('_cache') || key.includes('cssport_'))) {
+        cacheKeys.push(key);
+      }
+    }
+    
+    // Remove half of cache entries
+    const keysToRemove = cacheKeys.slice(0, Math.floor(cacheKeys.length / 2));
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    
+    console.warn(`🧹 Emergency cleanup removed ${keysToRemove.length} cache entries`);
+  }
+}
+
+/**
+ * Clean up old cache entries to free spacece
  */
 function cleanupOldCacheEntries(): void {
   try {

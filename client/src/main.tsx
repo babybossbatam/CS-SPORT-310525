@@ -12,6 +12,7 @@ import { queryClient } from "@/lib/queryClient";
 import { ThemeProvider } from "next-themes";
 import { initializeFlagCachePersistence } from "./lib/flagUtils";
 import { printMissingCountriesReport } from './lib/flagUtils';
+import { StorageMonitor } from './lib/storageMonitor';
 import ErrorBoundary from './components/common/ErrorBoundary';
 
 // Initialize dark mode from localStorage
@@ -56,6 +57,9 @@ if (import.meta.env.DEV) {
 
 // Initialize flag cache persistence
 initializeFlagCachePersistence();
+
+// Initialize storage monitoring
+StorageMonitor.getInstance().init();
 
 // Set EventEmitter limits early
 if (typeof process !== 'undefined') {
