@@ -763,14 +763,11 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   if (isLoading) {
     return (
       <div className={`w-full ${className}`}>
-        <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100">
-          <div className="bg-gray-50 px-4 py-3 border-b border-gray-100">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-gray-800 text-sm font-semibold">
-                Live Action
-              </span>
-            </div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700">
+          <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+            <span className="text-gray-800 dark:text-white text-sm font-semibold">
+              Live Action
+            </span>
           </div>
           <div className="h-80 flex items-center justify-center text-gray-500 text-sm">
             <div className="text-center">
@@ -785,11 +782,29 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
   // Don't render anything for finished matches - check both current status and fixture status
   const fixtureStatus = displayMatch?.fixture?.status?.short;
-  const isFinished = [
-    "FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"
-  ].includes(currentStatus) || [
-    "FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"
-  ].includes(fixtureStatus);
+  const isFinished =
+    [
+      "FT",
+      "AET",
+      "PEN",
+      "AWD",
+      "WO",
+      "ABD",
+      "PST",
+      "CANC",
+      "SUSP",
+    ].includes(currentStatus) ||
+    [
+      "FT",
+      "AET",
+      "PEN",
+      "AWD",
+      "WO",
+      "ABD",
+      "PST",
+      "CANC",
+      "SUSP",
+    ].includes(fixtureStatus);
 
   if (isFinished) {
     console.log(
@@ -801,17 +816,17 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   if (!displayMatch) {
     return (
       <div className={`w-full ${className}`}>
-        <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100">
-          <div className="bg-gray-50 px-4 py-3 border-b border-gray-100">
-            <span className="text-gray-800 text-sm font-semibold">
+        <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700">
+          <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+            <span className="text-gray-800 dark:text-white text-sm font-semibold">
               Live Action
             </span>
           </div>
           <div className="h-80 flex items-center justify-center text-gray-500 text-sm">
             <div className="text-center">
-              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3 mx-auto">
+              <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-3 mx-auto">
                 <svg
-                  className="w-6 h-6 text-gray-400"
+                  className="w-6 h-6 text-gray-400 dark:text-gray-300"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -842,17 +857,17 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   if (!isLive) {
     return (
       <div className={`w-full ${className}`}>
-        <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100">
-          <div className="bg-gray-50 px-4 py-3 border-b border-gray-100">
-            <span className="text-gray-800 text-sm font-semibold">
+        <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700">
+          <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+            <span className="text-gray-800 dark:text-white text-sm font-semibold">
               Live Action
             </span>
           </div>
           <div className="h-80 flex items-center justify-center text-gray-500 text-sm">
             <div className="text-center">
-              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3 mx-auto">
+              <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-3 mx-auto">
                 <svg
-                  className="w-6 h-6 text-gray-400"
+                  className="w-6 h-6 text-gray-400 dark:text-gray-300"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -908,16 +923,16 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       style={{ zIndex: 1, position: "relative" }}
     >
       <div
-        className={`bg-white overflow-hidden shadow-lg transition-all duration-300 ${getIntensityColor()}`}
+        className={`bg-white dark:bg-gray-800 overflow-hidden shadow-lg transition-all duration-300 ${getIntensityColor()}`}
       >
         {/* Simplified Header */}
-        <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3 border-b border-gray-200">
+        <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
               <div className="absolute inset-0 w-2 h-2 bg-red-500 rounded-full animate-ping opacity-20"></div>
             </div>
-            <span className="text-gray-800 text-sm font-semibold">
+            <span className="text-gray-800 dark:text-white text-sm font-semibold">
               Live Action
             </span>
           </div>
@@ -986,21 +1001,21 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               {ballTrail.slice(0, -1).map((pos, index) => {
                 const nextPos = ballTrail[index + 1];
                 const isLastSegment = index === ballTrail.length - 2;
-                
+
                 // Calculate trail opacity and width based on position in trail
                 const opacity = Math.max(0.1, 1 - (index / ballTrail.length) * 1.2);
                 const strokeWidth = Math.max(0.4, 1.8 - (index / ballTrail.length) * 0.9);
-                
+
                 // For the last segment, connect to ball center but stop just before it
                 let endX = nextPos.x;
                 let endY = nextPos.y;
-                
+
                 if (isLastSegment) {
                   // Calculate direction vector from current to next position
                   const dx = nextPos.x - pos.x;
                   const dy = nextPos.y - pos.y;
                   const distance = Math.sqrt(dx * dx + dy * dy);
-                  
+
                   if (distance > 0) {
                     // Stop the trail 2% short of the ball center to avoid overlap
                     const shortenBy = 2;
@@ -1010,7 +1025,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                     endY = nextPos.y - (normalizedDy * shortenBy);
                   }
                 }
-                
+
                 return (
                   <g key={`trail-${index}`}>
                     {/* Main trail line */}
@@ -1078,11 +1093,11 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           </div>
         {/* Enhanced bottom statistics panel - 365scores style - moved inside field */}
-          <div className="absolute bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-t border-gray-200">
+          <div className="absolute bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700">
             {currentView === "stats" && (
               <div className="p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
+                  <span className="text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wide">
                     Possession
                   </span>
                   <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
@@ -1141,7 +1156,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             {currentView === "history" && (
               <div className="p-4">
                 <div className="text-center mb-3">
-                  <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
+                  <span className="text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wide">
                     Last 5 Matches
                   </span>
                 </div>
@@ -1179,7 +1194,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             {currentView === "corners" && (
               <div className="p-4">
                 <div className="text-center mb-3">
-                  <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
+                  <span className="text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wide">
                     Corners
                   </span>
                 </div>
@@ -1212,7 +1227,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             {currentView === "shotmap" && (
               <div className="p-4">
                 <div className="text-center mb-3">
-                  <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
+                  <span className="text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wide">
                     Shot Map
                   </span>
                 </div>
@@ -1324,7 +1339,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
         {/* Live Commentary Overlay on Field */}
         {currentView === "commentary" && (
-          <div className="absolute bottom-16 left-4 right-4 z-30 bg-black/80 backdrop-blur-sm rounded-lg border border-white/20">
+          <div className="absolute bottom-16 left-4 right-4 z-30 bg-black/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-lg border border-white/20">
             <div className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-white text-xs font-medium uppercase tracking-wide">
@@ -1360,7 +1375,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           </div>
         )}
       </div>
-        
+
     </div>
   );
 };
