@@ -83,10 +83,10 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         (teamId === 19922 && teamName.toLowerCase().includes("alboraya")) ||
         teamName.toLowerCase().includes("valencia") ||
         teamName.toLowerCase().includes("alboraya") ||
-        teamName.toLowerCase().includes("ud") ||
-        teamName.toLowerCase().includes("fc") ||
-        teamName.toLowerCase().includes("cf") ||
-        teamName.toLowerCase().includes("club");
+        teamName.toLowerCase().includes("ud ") ||
+        teamName.toLowerCase().includes("fc ") ||
+        teamName.toLowerCase().includes("cf ") ||
+        teamName.toLowerCase().includes("club ");
 
       if (isKnownClubTeam) {
         console.log(`🏟️ [MyWorldTeamLogo] COTIF: ${teamName} identified as club team - using club logo`);
@@ -206,7 +206,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     // Enhanced national team detection for youth and women's teams
     const isNationalYouthTeam = isYouthTeam && isActualNationalTeam && !isKnownClubTeam;
     const isWomensNationalTeam = teamName?.endsWith(" W") && isActualNationalTeam && !isKnownClubTeam;
-    
+
     // Use circular flag for national teams in international competitions
     // BUT: Force club teams to ALWAYS use club logos regardless of league context
     const result = !isStandingsContext &&
