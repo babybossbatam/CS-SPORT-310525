@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronDown, ChevronUp, Calendar, Star } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { useCachedQuery } from "@/lib/cachingHelper";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import { shouldExcludeMatchByCountry } from "@/lib/MyMatchByCountryNewExclusion";
@@ -190,69 +191,179 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     667, // Friendlies Clubs
   ]; // Significantly expanded to include major leagues from all continents
 
-  // Direct API fetching without caching - like MyNewLeague
-const [fixtures, setFixtures] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Smart cached data fetching using useCachedQuery like MyNewLeague2
+  const today = new Date().toISOString().slice(0, 10);
+  const isToday = selectedDate === today;
 
-  useEffect(() => {
-    const fetchFixturesData = async () => {
-      if (!selectedDate) return;
+  // Dynamic cache configuration based on date and live match detection
+  const getDynamicCacheConfig = () => {
+    if (!isToday) {
+      // Historical or future dates - use longer cache times
+      return {
+        staleTime: 30 * 60 * 1000, // 30 minutes
+        refetchInterval: false, // No auto-refresh for non-today dates
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+      };
+    }
 
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        console.log(`🔍 [TodaysMatchesByCountryNew] Fetching data for date: ${selectedDate}`);
-
-        const response = await apiRequest(
-          "GET",
-          `/api/fixtures/date/${selectedDate}?all=true`,
-        );
-        const data = await response.json();
-
-        console.log(`✅ [TodaysMatchesByCountryNew] Received ${data?.length || 0} fixtures`);
-
-        if (Array.isArray(data)) {
-          setFixtures(data);
-        } else {
-          setFixtures([]);
-        }
-      } catch (err) {
-        console.error("❌ [TodaysMatchesByCountryNew] Error fetching fixtures:", err);
-
-        // Handle specific error types
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-
-        if (errorMessage.includes('Failed to fetch') || 
-            errorMessage.includes('NetworkError') || 
-            errorMessage.includes('Network Error')) {
-          console.warn(`🌐 [TodaysMatchesByCountryNew] Network connectivity issue detected for date: ${selectedDate}`);
-          setError("Network connection issue. Please check your internet connection and try again.");
-        } else if (errorMessage.includes('timeout') || errorMessage.includes('timed out')) {
-          console.warn(`⏱️ [TodaysMatchesByCountryNew] Request timeout for date: ${selectedDate}`);
-          setError("Request timeout. The server took too long to respond.");
-        } else {
-          console.error(`💥 [TodaysMatchesByCountryNew] Unexpected error for date: ${selectedDate}:`, err);
-          setError("Failed to load fixtures. Please try again later.");
-        }
-
-        setFixtures([]);
-      } finally {
-        setIsLoading(false);
-      }
+    // Today's matches - more aggressive caching
+    return {
+      staleTime: 2 * 60 * 1000, // 2 minutes
+      refetchInterval: 30 * 1000, // 30 seconds for today
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
     };
+  };
 
-    fetchFixturesData();
-  }, [selectedDate]);
+  // Use smart cached query
+  const {
+    data: fixtures = [],
+    isLoading,
+    error: queryError,
+    refetch
+  } = useCachedQuery(
+    ['all-fixtures-by-date', selectedDate],
+    async () => {
+      if (!selectedDate) return [];
 
-  // Simple fixture processing like MyNewLeague
-  const processedFixtures = fixtures || [];
+      console.log(`🔍 [TodaysMatchesByCountryNew] Smart fetch for date: ${selectedDate}`);
 
-// Memoized filtering with performance optimizations
+      const response = await apiRequest(
+        "GET",
+        `/api/fixtures/date/${selectedDate}?all=true`,
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      console.log(`✅ [TodaysMatchesByCountryNew] Smart cached: ${data?.length || 0} fixtures`);
+
+      return Array.isArray(data) ? data : [];
+    },
+    {
+      ...getDynamicCacheConfig(),
+      enabled: !!selectedDate,
+      retry: (failureCount, error) => {
+        // Don't retry too aggressively for historical data
+        if (!isToday) return failureCount < 2;
+        // For today's data, allow more retries
+        return failureCount < 3;
+      },
+      onError: (err: any) => {
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        
+        if (errorMessage.includes('Failed to fetch') || 
+            errorMessage.includes('NetworkError')) {
+          console.warn(`🌐 [TodaysMatchesByCountryNew] Network issue for date: ${selectedDate}`);
+        } else if (errorMessage.includes('timeout')) {
+          console.warn(`⏱️ [TodaysMatchesByCountryNew] Request timeout for date: ${selectedDate}`);
+        } else {
+          console.error(`💥 [TodaysMatchesByCountryNew] Smart cache error for date: ${selectedDate}:`, err);
+        }
+      },
+    }
+  );
+
+  // Error handling with user-friendly messages
+  const error = queryError ? (
+    queryError instanceof Error ? 
+      queryError.message.includes('Failed to fetch') || queryError.message.includes('NetworkError') ?
+        "Network connection issue. Please check your internet connection and try again." :
+      queryError.message.includes('timeout') ?
+        "Request timeout. The server took too long to respond." :
+        "Failed to load fixtures. Please try again later."
+      : 'Unknown error occurred'
+  ) : null;
+
+  // Smart cache adjustment based on live match detection and proximity to kickoff - like MyNewLeague2
+  useEffect(() => {
+    if (!fixtures || fixtures.length === 0) return;
+
+    const now = new Date();
+    const liveMatches = fixtures.filter((match: any) =>
+      ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(
+        match.fixture?.status?.short,
+      ),
+    );
+
+    const upcomingMatches = fixtures.filter((match: any) => {
+      if (match.fixture?.status?.short !== "NS") return false;
+      const matchTime = new Date(match.fixture.date);
+      const hoursUntilKickoff = (matchTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+      return hoursUntilKickoff > 0 && hoursUntilKickoff <= 2; // Within 2 hours
+    });
+
+    const imminentMatches = fixtures.filter((match: any) => {
+      if (match.fixture?.status?.short !== "NS") return false;
+      const matchTime = new Date(match.fixture.date);
+      const minutesUntilKickoff = (matchTime.getTime() - now.getTime()) / (1000 * 60);
+      return minutesUntilKickoff > 0 && minutesUntilKickoff <= 30; // Within 30 minutes
+    });
+
+    if (liveMatches.length > 0 && isToday) {
+      console.log(`🔴 [TodaysMatchesByCountryNew] ${liveMatches.length} live matches detected - using most aggressive cache (30s refresh)`);
+    } else if (imminentMatches.length > 0 && isToday) {
+      console.log(`🟡 [TodaysMatchesByCountryNew] ${imminentMatches.length} matches starting within 30min - using aggressive cache`);
+    } else if (upcomingMatches.length > 0 && isToday) {
+      console.log(`🟠 [TodaysMatchesByCountryNew] ${upcomingMatches.length} matches starting within 2h - using moderate cache`);
+    } else if (isToday && liveMatches.length === 0) {
+      console.log(`🔵 [TodaysMatchesByCountryNew] Today but no live/imminent matches - using standard cache`);
+    } else {
+      console.log(`⚫ [TodaysMatchesByCountryNew] Non-today date - using extended cache`);
+    }
+
+    // Log cache status
+    const cacheStats = {
+      date: selectedDate,
+      isToday,
+      totalFixtures: fixtures.length,
+      liveMatches: liveMatches.length,
+      imminentMatches: imminentMatches.length,
+      upcomingMatches: upcomingMatches.length,
+    };
+    console.log(`📊 [TodaysMatchesByCountryNew] Cache stats:`, cacheStats);
+
+  }, [fixtures, selectedDate, isToday]);
+
+  // Smart fixture processing with deduplication like MyNewLeague2
+  const processedFixtures = useMemo(() => {
+    if (!fixtures || fixtures.length === 0) return [];
+
+    // Apply deduplication by fixture ID and matchup key
+    const seenFixtures = new Set<number>();
+    const seenMatchups = new Set<string>();
+    const deduplicatedFixtures: any[] = [];
+
+    fixtures.forEach((fixture: any) => {
+      if (!fixture?.fixture?.id || !fixture?.teams) return;
+
+      // Check for duplicate fixture IDs
+      if (seenFixtures.has(fixture.fixture.id)) return;
+
+      // Create unique matchup key
+      const matchupKey = `${fixture.teams.home?.id}-${fixture.teams.away?.id}-${fixture.league?.id}-${fixture.fixture.date}`;
+      if (seenMatchups.has(matchupKey)) return;
+
+      // Mark as seen and add to deduplicated list
+      seenFixtures.add(fixture.fixture.id);
+      seenMatchups.add(matchupKey);
+      deduplicatedFixtures.push(fixture);
+    });
+
+    console.log(`🔄 [TodaysMatchesByCountryNew] Processed ${fixtures.length} fixtures → ${deduplicatedFixtures.length} after deduplication`);
+
+    return deduplicatedFixtures;
+  }, [fixtures]);
+
+// Memoized filtering with performance optimizations using smart cached data
   const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
     const allFixtures = processedFixtures;
     if (!allFixtures?.length) {
+      console.log(`📊 [TodaysMatchesByCountryNew] No processed fixtures available for ${selectedDate}`);
       return {
         validFixtures: [],
         rejectedFixtures: [],
@@ -1195,7 +1306,7 @@ const [fixtures, setFixtures] = useState<any[]>([]);
           <div className="flex flex-col items-center gap-4">
             <div className="text-red-500 font-medium text-sm">{error}</div>
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => refetch()}
               className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm"
             >
               Try Again
