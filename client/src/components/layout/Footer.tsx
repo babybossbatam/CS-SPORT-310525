@@ -10,10 +10,13 @@ const Footer: React.FC = () => {
           <div className="lg:col-span-2">
             <div className="flex items-center mb-3 md:mb-4">
               <img src="/CSSPORT_1_updated.png" alt="CS Sport" className="h-6 md:h-8 w-auto mr-2 md:mr-3" />
-              <span className="text-lg md:text-xl font-bold">CS Sport</span>
+              <span className="text-lg md:text-xl font-bold uppercase">CS Sport</span>
             </div>
+            
+            <span className="text-lg md:text-xl font-bold uppercase ">CS SPORT
+            </span>
             <p className="text-gray-300 text-sm leading-relaxed mb-4 md:mb-6 max-w-2xl">
-              CS Sport is the fastest, most accurate online live scores service, serving over 100 million fans 
+               is the fastest, most accurate online live scores service, serving over 100 million fans 
               worldwide since 2012. Our Football coverage includes latest news, fixtures & results, standings, statistics 
               and live match updates of competitions from all over the world including FIFA Club World Cup, UEFA WC 
               Qualification, UEFA Champions League, Premier League and La Liga
