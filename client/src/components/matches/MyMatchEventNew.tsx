@@ -1107,7 +1107,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           className={`flex-1  text-xs font-small  transition-colors ${
             activeTab === "all"
               ? "bg-blue-500 text-white "
-              : "bg-white text-blue-400 border border-blue-400 hover:bg-gray-200"
+              : `bg-white text-blue-400 border hover:bg-gray-200 ${isDarkTheme ? "border-white" : "border-blue-400"}`
           }`}
         >
           All
@@ -1117,7 +1117,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           className={`flex-1 py-3  text-xs font-small text-center transition-colors ${
             activeTab === "top"
               ? "bg-blue-500 text-white"
-              : "bg-white text-blue-400 border border-blue-400 hover:bg-gray-200"
+              : `bg-white text-blue-400 border hover:bg-gray-200 ${isDarkTheme ? "border-white" : "border-blue-400"}`
           }`}
         >
           Top
@@ -1127,7 +1127,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           className={`flex-1 py-3  text-xs font-small text-center transition-colors ${
             activeTab === "commentary"
               ? "bg-blue-500 text-white"
-              : "bg-white text-blue-400 border border-blue-400 hover:bg-gray-200"
+              : `bg-white text-blue-400 border hover:bg-gray-200 ${isDarkTheme ? "border-white" : "border-blue-400"}`
           }`}
         >
           Commentary
