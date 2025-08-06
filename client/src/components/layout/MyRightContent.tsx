@@ -23,7 +23,7 @@ const MyRightContent: React.FC = () => {
   const { isMobile } = useDeviceInfo();
 
   return (
-    <div className="h-full min-h-0 overflow-y-auto space-y-4 pb-4">
+    <div className="h-full min-h-0 space-y-4 pb-4">
       {/* Featured Match Section - Hidden on mobile */}
       {!isMobile && (
         <MyHomeFeaturedMatchNew 
