@@ -14,8 +14,8 @@
 
 /* Dark mode root background */
 .dark #root {
-  background-color: #1f2937 !important;
-  /* gray-800 for true black-like appearance */
+  background-color: #000000 !important;
+  /* true black background */
 }
 
 /* Mobile-first layout to prevent desktop flash */
@@ -348,13 +348,13 @@ main {
 }
 
 .dark {
-  --background: 217 33% 17%;
+  --background: 0 0% 0%;
   --foreground: 0 0% 98%;
   --muted: 0 0% 10%;
   --muted-foreground: 240 5% 64.9%;
-  --popover: 217 33% 17%;
+  --popover: 0 0% 0%;
   --popover-foreground: 0 0% 98%;
-  --card: 0 0% 9%;
+  --card: 0 0% 0%;
   --card-foreground: 0 0% 98%;
   --border: 0 0% 15%;
   --input: 0 0% 15%;
@@ -373,9 +373,9 @@ main {
 /* Dark mode card header styles */
 .dark [data-card-header],
 .dark .card-header {
-  background-color: rgb(31, 41, 55) !important;
-  /* bg-gray-800 */
-  color: #404040 !important;
+  background-color: #000000 !important;
+  /* true black */
+  color: white !important;
   border-bottom: 1px solid rgb(55 65 81) !important;
   /* border-gray-700 */
 }
@@ -383,8 +383,8 @@ main {
 /* Dark mode card content */
 .dark [data-card-content],
 .dark .card-content {
-  background-color: rgb(31, 41, 55) !important;
-  /* bg-gray-800 */
+  background-color: #000000 !important;
+  /* true black */
   color: white !important;
 }
 
