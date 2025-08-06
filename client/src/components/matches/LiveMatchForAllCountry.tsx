@@ -1287,14 +1287,16 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
 
                                     // Default to regular team logo for club teams
                                     return (
-                                      <LazyImage
-                                        src={
+                                      <MyWorldTeamLogo
+                                        teamName={match.teams.away.name || ""}
+                                        teamId={match.teams.away.id}
+                                        teamLogo={
                                           match.teams.away.id
                                             ? `/api/team-logo/square/${match.teams.away.id}?size=32`
                                             : "/assets/fallback-logo.svg"
                                         }
                                         alt={match.teams.away.name}
-                                        title={match.teams.away.name}
+                                        size="32px"
                                         className="team-logo"
                                         style={{
                                           filter:
