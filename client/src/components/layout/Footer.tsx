@@ -107,9 +107,9 @@ const Footer: React.FC = () => {
                   className="w-10 h-10 md:w-12 md:h-12 hover:opacity-80 transition-opacity touch-target-large"
                 >
                   <img 
-                    src="/assets/matchdetaillogo/twitter-removebg-preview.png" 
+                    src="/assets/matchdetaillogo/twitter-x.svg" 
                     alt="Twitter" 
-                    className="w-full h-full object-cover rounded-full"
+                    className="w-full h-full object-contain"
                   />
                 </a>
                 <a 
