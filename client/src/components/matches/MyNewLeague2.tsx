@@ -1089,13 +1089,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         isCurrentlySelected: selectedMatchId === matchId,
       });
 
-      // If clicking the same match that's already selected, do nothing (keep it selected)
-      if (selectedMatchId === matchId) {
-        console.log(`🔄 [MyNewLeague2] Match ${matchId} is already selected, keeping selection`);
-        return;
-      }
-
-      // Set this match as selected
+      // Set this match as selected (allow re-selection of the same match)
       setSelectedMatchId(matchId);
       console.log(`✅ [MyNewLeague2] Successfully selected match ${matchId}`);
 
