@@ -220,8 +220,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     );
 
     // Enhanced national team detection for youth and women's teams
-    const isNationalYouthTeam = isYouthTeam && isActualNationalTeam && !isKnownClubTeam;
     const isWomensNationalTeam = teamName?.endsWith(" W") && isActualNationalTeam && !isKnownClubTeam;
+    const isNationalYouthTeam = isYouthTeam && isActualNationalTeam && !isKnownClubTeam;
 
     // Debug logging for AFC competitions
     if (leagueName.includes("afc") || leagueName.includes("asian cup")) {
