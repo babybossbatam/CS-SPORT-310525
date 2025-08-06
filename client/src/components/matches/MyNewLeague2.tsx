@@ -1537,14 +1537,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         <div
                           className={`match-card-container group border-b border-gray-200 ${
                             isHalftimeFlash ? "halftime-flash" : ""
-                          } ${isFulltimeFlash ? "fulltime-flash" : ""} ${
+                          }${isFulltimeFlash ? "fulltime-flash" : ""} ${
                             isGoalFlash ? "goal-flash" : ""
                           } ${isKickoffFlash ? "kickoff-flash" : ""} ${
                             isFinishFlash ? "finish-flash" : ""
                           } ${
-                            selectedMatchId === matchId ? "selected-match bg-blue-50 border-blue-200" : ""
+                            selectedMatchId === matchId ? "selected-match" : ""
                           } ${
-                            hoveredMatchId === matchId && selectedMatchId !== matchId ? "hovered-match" : ""
+                            hoveredMatchId === matchId ? "hovered-match" : ""
                           }`}
                           data-fixture-id={matchId}
                           onClick={(e) => {
