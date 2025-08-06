@@ -1158,28 +1158,17 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         console.error("🚨 [MyNewLeague2] Error removing disable-hover classes:", error);
       }
 
-      // Remove from manually deselected set when manually clicked
-      setManuallyDeselectedMatches(prev => {
-        try {
-          const prevSet = prev || new Set();
-          if (!prevSet || typeof prevSet.has !== 'function') {
-            console.warn("🚨 [MyNewLeague2] Invalid manually deselected matches state, resetting");
-            return new Set();
-          }
-          const newSet = new Set(prevSet);
-          const wasManuallyDeselected = newSet.has(matchId);
-          newSet.delete(matchId);
-          if (wasManuallyDeselected) {
-            console.log(`✅ [MyNewLeague2] Removed match ${matchId} from manually deselected set (user clicked)`);
-          }
-          return newSet;
-        } catch (error) {
-          console.error("🚨 [MyNewLeague2] Error updating manually deselected matches:", error);
-          return new Set();
-        }
-      });
+      // Check if this match was manually deselected before
+      const wasManuallyDeselected = manuallyDeselectedMatches && manuallyDeselectedMatches.has(matchId);
+      
+      if (wasManuallyDeselected) {
+        console.log(`🚫 [MyNewLeague2] Match ${matchId} was manually deselected, preventing auto-selection`);
+        // Don't automatically select matches that were manually deselected
+        // User needs to explicitly choose to re-enable selection for this match
+        return;
+      }
 
-      // Set this match as selected
+      // Set this match as selected only if it wasn't manually deselected
       try {
         setSelectedMatchId(matchId);
       } catch (error) {
@@ -1691,18 +1680,39 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                               return false;
                             }
                           }}
+                          onDoubleClick={(e) => {
+                            try {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              
+                              // Double-click to re-enable selection for manually deselected matches
+                              const wasManuallyDeselected = manuallyDeselectedMatches && manuallyDeselectedMatches.has(matchId);
+                              if (wasManuallyDeselected) {
+                                console.log(`🔄 [MyNewLeague2] Double-click detected, re-enabling selection for match ${matchId}`);
+                                setManuallyDeselectedMatches(prev => {
+                                  const newSet = new Set(prev);
+                                  newSet.delete(matchId);
+                                  return newSet;
+                                });
+                                // Auto-select the match after re-enabling
+                                setTimeout(() => handleMatchClick(fixture), 100);
+                              }
+                            } catch (error) {
+                              console.error("🚨 [MyNewLeague2] Error in double-click handler:", error);
+                            }
+                          }}
                           onMouseEnter={() => {
                             try {
                               const container = document.querySelector(
                                 `[data-fixture-id="${matchId}"]`,
                               );
                               // Only allow hover if not manually deselected and not currently selected
+                              const wasManuallyDeselected = manuallyDeselectedMatches && manuallyDeselectedMatches.has(matchId);
                               if (
                                 container &&
                                 !container.classList.contains("disable-hover") &&
                                 selectedMatchId !== matchId &&
-                                manuallyDeselectedMatches &&
-                                !manuallyDeselectedMatches.has(matchId)
+                                !wasManuallyDeselected
                               ) {
                                 setHoveredMatchId(matchId);
                               }
