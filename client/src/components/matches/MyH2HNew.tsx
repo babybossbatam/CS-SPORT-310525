@@ -212,58 +212,110 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
           <CardTitle className="text-sm font-medium">Head to Head</CardTitle>
         </CardHeader>
         <CardContent className="p-2 md:p-4">
-          {/* Mobile-optimized No Data Layout */}
-          <div className="flex items-center justify-between gap-2 md:gap-4">
-            {/* Home Team Section */}
-            <div className="flex flex-col items-center flex-1 min-w-0">
-              <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center mb-2">
-                <MyWorldTeamLogo
-                  teamName={match?.teams?.home?.name || 'Home Team'}
-                  teamLogo={match?.teams?.home?.logo}
-                  teamId={match?.teams?.home?.id}
-                  alt={match?.teams?.home?.name || 'Home Team'}
-                  size="48px"
-                  className="w-10 h-10 md:w-12 md:h-12"
-                />
+          {/* Responsive No Data Layout */}
+          <div className="block md:hidden">
+            {/* Mobile Layout */}
+            <div className="flex items-center justify-between gap-2">
+              {/* Home Team Section */}
+              <div className="flex flex-col items-center flex-1 min-w-0">
+                <div className="w-12 h-12 flex items-center justify-center mb-2">
+                  <MyWorldTeamLogo
+                    teamName={match?.teams?.home?.name || 'Home Team'}
+                    teamLogo={match?.teams?.home?.logo}
+                    teamId={match?.teams?.home?.id}
+                    alt={match?.teams?.home?.name || 'Home Team'}
+                    size="48px"
+                    className="w-10 h-10"
+                  />
+                </div>
+                <div className="text-xs font-bold text-gray-600 text-center truncate w-full px-1" title={match?.teams?.home?.name}>
+                  {match?.teams?.home?.name || 'Home Team'}
+                </div>
               </div>
-              <div className="text-xs md:text-sm font-bold text-gray-600 text-center truncate w-full px-1" title={match?.teams?.home?.name}>
+
+              {/* No Data Message */}
+              <div className="flex items-center gap-1 flex-2 px-1">
+                <div className="text-center min-w-8">
+                  <div className="text-sm font-bold text-gray-400">-</div>
+                  <div className="text-xs text-gray-500">Wins</div>
+                </div>
+                <div className="w-px h-6 bg-gray-300"></div>
+                <div className="text-center min-w-8">
+                  <div className="text-sm font-bold text-gray-400">-</div>
+                  <div className="text-xs text-gray-500">Draws</div>
+                </div>
+                <div className="w-px h-6 bg-gray-300"></div>
+                <div className="text-center min-w-8">
+                  <div className="text-sm font-bold text-gray-400">-</div>
+                  <div className="text-xs text-gray-500">Wins</div>
+                </div>
+              </div>
+
+              {/* Away Team Section */}
+              <div className="flex flex-col items-center flex-1 min-w-0">
+                <div className="w-12 h-12 flex items-center justify-center mb-2">
+                  <MyWorldTeamLogo
+                    teamName={match?.teams?.away?.name || 'Away Team'}
+                    teamLogo={match?.teams?.away?.logo}
+                    teamId={match?.teams?.away?.id}
+                    alt={match?.teams?.away?.name || 'Away Team'}
+                    size="48px"
+                    className="w-10 h-10"
+                  />
+                </div>
+                <div className="text-xs font-bold text-gray-600 text-center truncate w-full px-1" title={match?.teams?.away?.name}>
+                  {match?.teams?.away?.name || 'Away Team'}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Layout */}
+          <div className="hidden md:flex items-center justify-between space-x-8">
+            {/* Home Team */}
+            <div className="flex items-center space-x-4">
+              <MyWorldTeamLogo
+                teamName={match?.teams?.home?.name || 'Home Team'}
+                teamLogo={match?.teams?.home?.logo}
+                teamId={match?.teams?.home?.id}
+                alt={match?.teams?.home?.name || 'Home Team'}
+                size="48px"
+                className="w-12 h-12"
+              />
+              <div className="text-lg font-semibold">
                 {match?.teams?.home?.name || 'Home Team'}
               </div>
             </div>
 
-            {/* No Data Message */}
-            <div className="flex items-center gap-1 md:gap-3 flex-2 px-1 md:px-4">
-              <div className="text-center min-w-8 md:min-w-12">
-                <div className="text-sm md:text-lg font-bold text-gray-400">-</div>
-                <div className="text-xs text-gray-500">Wins</div>
+            {/* Score Section */}
+            <div className="flex items-center space-x-6">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-400">-</div>
+                <div className="text-sm text-gray-500">Wins</div>
               </div>
-              <div className="w-px h-6 md:h-8 bg-gray-300"></div>
-              <div className="text-center min-w-8 md:min-w-12">
-                <div className="text-sm md:text-lg font-bold text-gray-400">-</div>
-                <div className="text-xs text-gray-500">Draws</div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-400">-</div>
+                <div className="text-sm text-gray-500">Draws</div>
               </div>
-              <div className="w-px h-6 md:h-8 bg-gray-300"></div>
-              <div className="text-center min-w-8 md:min-w-12">
-                <div className="text-sm md:text-lg font-bold text-gray-400">-</div>
-                <div className="text-xs text-gray-500">Wins</div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-400">-</div>
+                <div className="text-sm text-gray-500">Wins</div>
               </div>
             </div>
 
-            {/* Away Team Section */}
-            <div className="flex flex-col items-center flex-1 min-w-0">
-              <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center mb-2">
-                <MyWorldTeamLogo
-                  teamName={match?.teams?.away?.name || 'Away Team'}
-                  teamLogo={match?.teams?.away?.logo}
-                  teamId={match?.teams?.away?.id}
-                  alt={match?.teams?.away?.name || 'Away Team'}
-                  size="48px"
-                  className="w-10 h-10 md:w-12 md:h-12"
-                />
-              </div>
-              <div className="text-xs md:text-sm font-bold text-gray-600 text-center truncate w-full px-1" title={match?.teams?.away?.name}>
+            {/* Away Team */}
+            <div className="flex items-center space-x-4">
+              <div className="text-lg font-semibold">
                 {match?.teams?.away?.name || 'Away Team'}
               </div>
+              <MyWorldTeamLogo
+                teamName={match?.teams?.away?.name || 'Away Team'}
+                teamLogo={match?.teams?.away?.logo}
+                teamId={match?.teams?.away?.id}
+                alt={match?.teams?.away?.name || 'Away Team'}
+                size="48px"
+                className="w-12 h-12"
+              />
             </div>
           </div>
 
@@ -335,61 +387,115 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
           <CardTitle className="text-sm font-medium">Head to Head</CardTitle>
         </CardHeader>
         <CardContent className="p-2 md:p-4">
-          {/* Mobile-optimized H2H Header */}
+          {/* H2H Header - Responsive */}
           {finishedMatches.length > 0 && (
-            <div className="flex items-center justify-between mb-4 md:mb-6 bg-gray-50 rounded-lg p-2 md:p-4">
-              {/* Home Team Section */}
-              <div className="flex flex-col items-center flex-1 min-w-0">
-                <div className="w-10 h-10 md:w-12 md:h-12 mb-1 md:mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
+            <>
+              {/* Mobile Layout */}
+              <div className="block md:hidden mb-4 bg-gray-50 rounded-lg p-2">
+                <div className="flex items-center justify-between">
+                  {/* Home Team Section */}
+                  <div className="flex flex-col items-center flex-1 min-w-0">
+                    <div className="w-10 h-10 mb-1 bg-white rounded-full flex items-center justify-center shadow-sm">
+                      <MyWorldTeamLogo
+                        teamName={match?.teams?.home?.name || 'Home Team'}
+                        teamLogo={match?.teams?.home?.logo}
+                        teamId={actualHomeTeamId}
+                        alt={match?.teams?.home?.name || 'Home Team'}
+                        size="24px"
+                        className="w-6 h-6 rounded-full"
+                      />
+                    </div>
+                    <div className="text-xs text-gray-600 text-center truncate w-full px-1">
+                      {match?.teams?.home?.name || 'Home Team'}
+                    </div>
+                  </div>
+
+                  {/* Score Summary */}
+                  <div className="flex items-center gap-2 flex-2 px-1">
+                    <div className="text-center">
+                      <div className="text-sm font-bold text-blue-600">{homeWins}</div>
+                      <div className="text-xs text-gray-500">Wins</div>
+                    </div>
+                    <div className="w-px h-6 bg-gray-300"></div>
+                    <div className="text-center">
+                      <div className="text-sm font-bold text-gray-600">{draws}</div>
+                      <div className="text-xs text-gray-500">Draws</div>
+                    </div>
+                    <div className="w-px h-6 bg-gray-300"></div>
+                    <div className="text-center">
+                      <div className="text-sm font-bold text-red-600">{awayWins}</div>
+                      <div className="text-xs text-gray-500">Wins</div>
+                    </div>
+                  </div>
+
+                  {/* Away Team Section */}
+                  <div className="flex flex-col items-center flex-1 min-w-0">
+                    <div className="w-10 h-10 mb-1 bg-white rounded-full flex items-center justify-center shadow-sm">
+                      <MyWorldTeamLogo
+                        teamName={match?.teams?.away?.name || 'Away Team'}
+                        teamLogo={match?.teams?.away?.logo}
+                        teamId={actualAwayTeamId}
+                        alt={match?.teams?.away?.name || 'Away Team'}
+                        size="24px"
+                        className="w-6 h-6 rounded-full"
+                      />
+                    </div>
+                    <div className="text-xs text-gray-600 text-center truncate w-full px-1">
+                      {match?.teams?.away?.name || 'Away Team'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop Layout */}
+              <div className="hidden md:flex items-center justify-between mb-6 bg-gray-50 rounded-lg p-6">
+                {/* Home Team */}
+                <div className="flex items-center space-x-4">
                   <MyWorldTeamLogo
                     teamName={match?.teams?.home?.name || 'Home Team'}
                     teamLogo={match?.teams?.home?.logo}
                     teamId={actualHomeTeamId}
                     alt={match?.teams?.home?.name || 'Home Team'}
-                    size="24px"
-                    className="w-6 h-6 md:w-8 md:h-8 rounded-full"
+                    size="48px"
+                    className="w-12 h-12"
                   />
+                  <div className="text-lg font-semibold">
+                    {match?.teams?.home?.name || 'Home Team'}
+                  </div>
                 </div>
-                <div className="text-xs text-gray-600 text-center truncate w-full px-1">
-                  {match?.teams?.home?.name || 'Home Team'}
-                </div>
-              </div>
 
-              {/* Score Summary */}
-              <div className="flex items-center gap-2 md:gap-4 flex-2 px-1 md:px-2">
-                <div className="text-center">
-                  <div className="text-sm md:text-lg font-bold text-blue-600">{homeWins}</div>
-                  <div className="text-xs text-gray-500">Wins</div>
+                {/* Score Summary */}
+                <div className="flex items-center space-x-8">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-blue-600">{homeWins}</div>
+                    <div className="text-sm text-gray-500">Wins</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-600">{draws}</div>
+                    <div className="text-sm text-gray-500">Draws</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-red-600">{awayWins}</div>
+                    <div className="text-sm text-gray-500">Wins</div>
+                  </div>
                 </div>
-                <div className="w-px h-6 md:h-8 bg-gray-300"></div>
-                <div className="text-center">
-                  <div className="text-sm md:text-lg font-bold text-gray-600">{draws}</div>
-                  <div className="text-xs text-gray-500">Draws</div>
-                </div>
-                <div className="w-px h-6 md:h-8 bg-gray-300"></div>
-                <div className="text-center">
-                  <div className="text-sm md:text-lg font-bold text-red-600">{awayWins}</div>
-                  <div className="text-xs text-gray-500">Wins</div>
-                </div>
-              </div>
 
-              {/* Away Team Section */}
-              <div className="flex flex-col items-center flex-1 min-w-0">
-                <div className="w-10 h-10 md:w-12 md:h-12 mb-1 md:mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
+                {/* Away Team */}
+                <div className="flex items-center space-x-4">
+                  <div className="text-lg font-semibold">
+                    {match?.teams?.away?.name || 'Away Team'}
+                  </div>
                   <MyWorldTeamLogo
                     teamName={match?.teams?.away?.name || 'Away Team'}
                     teamLogo={match?.teams?.away?.logo}
                     teamId={actualAwayTeamId}
                     alt={match?.teams?.away?.name || 'Away Team'}
-                    size="24px"
-                    className="w-6 h-6 md:w-8 md:h-8 rounded-full"
+                    size="48px"
+                    className="w-12 h-12"
                   />
                 </div>
-                <div className="text-xs text-gray-600 text-center truncate w-full px-1">
-                  {match?.teams?.away?.name || 'Away Team'}
-                </div>
               </div>
-            </div>
+            </>
           )}
 
           {!hasFinishedMatches && h2hData.length > 0 && (
