@@ -1528,7 +1528,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                       );
                     })()}
                     <span
-                      className="font-medium text-gray-900"
+                      className="font-medium text-gray-900 dark:text-white"
                       style={{
                         fontFamily:
                           "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
