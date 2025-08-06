@@ -208,128 +208,79 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
   if (!h2hData.length && !error) {
     return (
       <Card>
-        <CardHeader className="pb-2">
+        <CardHeader>
           <CardTitle className="text-sm font-medium">Head to Head</CardTitle>
         </CardHeader>
-        <CardContent className="p-2 md:p-4">
-          {/* Responsive No Data Layout */}
-          <div className="block md:hidden">
-            {/* Mobile Layout */}
-            <div className="flex items-center justify-between gap-2">
-              {/* Home Team Section */}
-              <div className="flex flex-col items-center flex-1 min-w-0">
-                <div className="w-12 h-12 flex items-center justify-center mb-2">
-                  <MyWorldTeamLogo
-                    teamName={match?.teams?.home?.name || 'Home Team'}
-                    teamLogo={match?.teams?.home?.logo}
-                    teamId={match?.teams?.home?.id}
-                    alt={match?.teams?.home?.name || 'Home Team'}
-                    size="48px"
-                    className="w-10 h-10"
-                  />
-                </div>
-                <div className="text-xs font-bold text-gray-600 text-center truncate w-full px-1" title={match?.teams?.home?.name}>
-                  {match?.teams?.home?.name || 'Home Team'}
-                </div>
+        <CardContent className="p-1">
+          {/* 365scores-inspired No Data Layout */}
+          <div className="flex items-center justify-between  p-1">
+            {/* Home Team Section */}
+            <div className="flex flex-col items-center flex-1">
+              <div className="w-22 h-22  flex items-center justify-center mr-3">
+                <MyWorldTeamLogo
+                  teamName={match?.teams?.home?.name || 'Home Team'}
+                  teamLogo={match?.teams?.home?.logo}
+                  teamId={match?.teams?.home?.id}
+                  alt={match?.teams?.home?.name || 'Home Team'}
+                  size="80px"
+                  className="w-14 h-14 "
+                />
               </div>
-
-              {/* No Data Message */}
-              <div className="flex items-center gap-1 flex-2 px-1">
-                <div className="text-center min-w-8">
-                  <div className="text-sm font-bold text-gray-400">-</div>
-                  <div className="text-xs text-gray-500">Wins</div>
-                </div>
-                <div className="w-px h-6 bg-gray-300"></div>
-                <div className="text-center min-w-8">
-                  <div className="text-sm font-bold text-gray-400">-</div>
-                  <div className="text-xs text-gray-500">Draws</div>
-                </div>
-                <div className="w-px h-6 bg-gray-300"></div>
-                <div className="text-center min-w-8">
-                  <div className="text-sm font-bold text-gray-400">-</div>
-                  <div className="text-xs text-gray-500">Wins</div>
-                </div>
-              </div>
-
-              {/* Away Team Section */}
-              <div className="flex flex-col items-center flex-1 min-w-0">
-                <div className="w-12 h-12 flex items-center justify-center mb-2">
-                  <MyWorldTeamLogo
-                    teamName={match?.teams?.away?.name || 'Away Team'}
-                    teamLogo={match?.teams?.away?.logo}
-                    teamId={match?.teams?.away?.id}
-                    alt={match?.teams?.away?.name || 'Away Team'}
-                    size="48px"
-                    className="w-10 h-10"
-                  />
-                </div>
-                <div className="text-xs font-bold text-gray-600 text-center truncate w-full px-1" title={match?.teams?.away?.name}>
-                  {match?.teams?.away?.name || 'Away Team'}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Desktop Layout */}
-          <div className="hidden md:flex items-center justify-between space-x-8">
-            {/* Home Team */}
-            <div className="flex items-center space-x-4">
-              <MyWorldTeamLogo
-                teamName={match?.teams?.home?.name || 'Home Team'}
-                teamLogo={match?.teams?.home?.logo}
-                teamId={match?.teams?.home?.id}
-                alt={match?.teams?.home?.name || 'Home Team'}
-                size="48px"
-                className="w-12 h-12"
-              />
-              <div className="text-lg font-semibold">
+              <div className="text-sm font-bold py-4 text-gray-600 text-center max-w-100 truncate" title={match?.teams?.home?.name}>
                 {match?.teams?.home?.name || 'Home Team'}
               </div>
             </div>
 
-            {/* Score Section */}
-            <div className="flex items-center space-x-6">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-400">-</div>
-                <div className="text-sm text-gray-500">Wins</div>
+            {/* No Data Message */}
+            <div className="flex items-center space-x-3 flex-2 px-4">
+              <div className="text-center min-w-12">
+                <div className="text-lg font-bold text-gray-400">-</div>
+                <div className="text-xs text-gray-500">Wins</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-400">-</div>
-                <div className="text-sm text-gray-500">Draws</div>
+              <div className="w-px h-8 bg-gray-300"></div>
+              <div className="text-center min-w-12">
+                <div className="text-lg font-bold text-gray-400">-</div>
+                <div className="text-xs text-gray-500">Draws</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-400">-</div>
-                <div className="text-sm text-gray-500">Wins</div>
+              <div className="w-px h-8 bg-gray-300"></div>
+              <div className="text-center min-w-12">
+                <div className="text-lg font-bold text-gray-400">-</div>
+                <div className="text-xs text-gray-500">Wins</div>
               </div>
             </div>
 
-            {/* Away Team */}
-            <div className="flex items-center space-x-4">
-              <div className="text-lg font-semibold">
+            {/* Away Team Section */}
+            <div className="flex flex-col items-center flex-1">
+              <div className="w-22 h-22  flex items-center justify-center">
+                <MyWorldTeamLogo
+                  teamName={match?.teams?.away?.name || 'Away Team'}
+                  teamLogo={match?.teams?.away?.logo}
+                  teamId={match?.teams?.away?.id}
+                  alt={match?.teams?.away?.name || 'Away Team'}
+                  size="80px"
+                  className="w-14 h-14 mr-4"
+                />
+              </div>
+              <div className="text-sm py-4 text-gray-600 text-center font-bold  max-w-100 truncate" title={match?.teams?.away?.name}>
                 {match?.teams?.away?.name || 'Away Team'}
               </div>
-              <MyWorldTeamLogo
-                teamName={match?.teams?.away?.name || 'Away Team'}
-                teamLogo={match?.teams?.away?.logo}
-                teamId={match?.teams?.away?.id}
-                alt={match?.teams?.away?.name || 'Away Team'}
-                size="48px"
-                className="w-12 h-12"
-              />
             </div>
           </div>
 
-          <div className="text-center text-gray-500 mt-3 md:mt-4">
-            <p className="text-sm md:text-base font-medium mb-2">No Previous Meetings</p>
+          <div className="text-center text-gray-500">
+            <div className="text-2xl mb-2"></div>
+            <p className="text-sm font-medium">No Previous Meetings</p>
             
             {match?.teams?.home?.name && match?.teams?.away?.name ? (
               <div className="mt-2 space-y-2">
+      
+                
                 {/* Analysis based on team names */}
                 {(match.teams.home.name.toLowerCase().includes('alkmaar') && 
                   match.teams.away.name.toLowerCase().includes('ilves')) && (
-                  <div className="mt-3 p-2 md:p-3 bg-blue-50 rounded-lg border border-blue-100">
+                  <div className="mt-3 p-2 bg-blue-50 rounded-lg border border-blue-100">
                     <p className="text-xs text-blue-700 font-medium mb-1">Analysis</p>
-                    <p className="text-xs md:text-sm text-blue-600">
+                    <p className="text-xs text-blue-600">
                       AZ Alkmaar (Netherlands) and Ilves (Finland) compete in different domestic leagues. 
                       They would only meet in UEFA competitions or international friendlies.
                     </p>
@@ -337,12 +288,12 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
                 )}
               </div>
             ) : (
-              <p className="text-xs md:text-sm text-gray-400 mt-1">
+              <p className="text-xs text-gray-400 mt-1">
                 These teams haven't played against each other
               </p>
             )}
             
-            <div className="mt-3 text-xs text-gray-400 opacity-75 hidden md:block">
+            <div className="mt-3 text-xs text-gray-400 opacity-75">
               Team IDs: {actualHomeTeamId} vs {actualAwayTeamId}
             </div>
           </div>
@@ -386,116 +337,62 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
         <CardHeader>
           <CardTitle className="text-sm font-medium">Head to Head</CardTitle>
         </CardHeader>
-        <CardContent className="p-2 md:p-4">
-          {/* H2H Header - Responsive */}
+        <CardContent className="p-4">
+          {/* 365scores-inspired H2H Header */}
           {finishedMatches.length > 0 && (
-            <>
-              {/* Mobile Layout */}
-              <div className="block md:hidden mb-4 bg-gray-50 rounded-lg p-2">
-                <div className="flex items-center justify-between">
-                  {/* Home Team Section */}
-                  <div className="flex flex-col items-center flex-1 min-w-0">
-                    <div className="w-10 h-10 mb-1 bg-white rounded-full flex items-center justify-center shadow-sm">
-                      <MyWorldTeamLogo
-                        teamName={match?.teams?.home?.name || 'Home Team'}
-                        teamLogo={match?.teams?.home?.logo}
-                        teamId={actualHomeTeamId}
-                        alt={match?.teams?.home?.name || 'Home Team'}
-                        size="24px"
-                        className="w-6 h-6 rounded-full"
-                      />
-                    </div>
-                    <div className="text-xs text-gray-600 text-center truncate w-full px-1">
-                      {match?.teams?.home?.name || 'Home Team'}
-                    </div>
-                  </div>
-
-                  {/* Score Summary */}
-                  <div className="flex items-center gap-2 flex-2 px-1">
-                    <div className="text-center">
-                      <div className="text-sm font-bold text-blue-600">{homeWins}</div>
-                      <div className="text-xs text-gray-500">Wins</div>
-                    </div>
-                    <div className="w-px h-6 bg-gray-300"></div>
-                    <div className="text-center">
-                      <div className="text-sm font-bold text-gray-600">{draws}</div>
-                      <div className="text-xs text-gray-500">Draws</div>
-                    </div>
-                    <div className="w-px h-6 bg-gray-300"></div>
-                    <div className="text-center">
-                      <div className="text-sm font-bold text-red-600">{awayWins}</div>
-                      <div className="text-xs text-gray-500">Wins</div>
-                    </div>
-                  </div>
-
-                  {/* Away Team Section */}
-                  <div className="flex flex-col items-center flex-1 min-w-0">
-                    <div className="w-10 h-10 mb-1 bg-white rounded-full flex items-center justify-center shadow-sm">
-                      <MyWorldTeamLogo
-                        teamName={match?.teams?.away?.name || 'Away Team'}
-                        teamLogo={match?.teams?.away?.logo}
-                        teamId={actualAwayTeamId}
-                        alt={match?.teams?.away?.name || 'Away Team'}
-                        size="24px"
-                        className="w-6 h-6 rounded-full"
-                      />
-                    </div>
-                    <div className="text-xs text-gray-600 text-center truncate w-full px-1">
-                      {match?.teams?.away?.name || 'Away Team'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Desktop Layout */}
-              <div className="hidden md:flex items-center justify-between mb-6 bg-gray-50 rounded-lg p-6">
-                {/* Home Team */}
-                <div className="flex items-center space-x-4">
+            <div className="flex items-center justify-between mb-6 bg-gray-50 rounded-lg p-4">
+              {/* Home Team Section */}
+              <div className="flex flex-col items-center flex-1">
+                <div className="w-12 h-12 mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
                   <MyWorldTeamLogo
                     teamName={match?.teams?.home?.name || 'Home Team'}
                     teamLogo={match?.teams?.home?.logo}
                     teamId={actualHomeTeamId}
                     alt={match?.teams?.home?.name || 'Home Team'}
-                    size="48px"
-                    className="w-12 h-12"
+                    size="32px"
+                    className="w-8 h-8 rounded-full"
                   />
-                  <div className="text-lg font-semibold">
-                    {match?.teams?.home?.name || 'Home Team'}
-                  </div>
                 </div>
-
-                {/* Score Summary */}
-                <div className="flex items-center space-x-8">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-blue-600">{homeWins}</div>
-                    <div className="text-sm text-gray-500">Wins</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-gray-600">{draws}</div>
-                    <div className="text-sm text-gray-500">Draws</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-red-600">{awayWins}</div>
-                    <div className="text-sm text-gray-500">Wins</div>
-                  </div>
+                <div className="text-xs text-gray-600 text-center max-w-16 truncate">
+                  {match?.teams?.home?.name || 'Home Team'}
                 </div>
+              </div>
 
-                {/* Away Team */}
-                <div className="flex items-center space-x-4">
-                  <div className="text-lg font-semibold">
-                    {match?.teams?.away?.name || 'Away Team'}
-                  </div>
+              {/* Score Summary */}
+              <div className="flex items-center space-x-4 flex-2">
+                <div className="text-center">
+                  <div className="text-lg font-bold text-blue-600">{homeWins}</div>
+                  <div className="text-xs text-gray-500">Wins</div>
+                </div>
+                <div className="w-px h-8 bg-gray-300"></div>
+                <div className="text-center">
+                  <div className="text-lg font-bold text-gray-600">{draws}</div>
+                  <div className="text-xs text-gray-500">Draws</div>
+                </div>
+                <div className="w-px h-8 bg-gray-300"></div>
+                <div className="text-center">
+                  <div className="text-lg font-bold text-red-600">{awayWins}</div>
+                  <div className="text-xs text-gray-500">Wins</div>
+                </div>
+              </div>
+
+              {/* Away Team Section */}
+              <div className="flex flex-col items-center flex-1">
+                <div className="w-12 h-12 mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
                   <MyWorldTeamLogo
                     teamName={match?.teams?.away?.name || 'Away Team'}
                     teamLogo={match?.teams?.away?.logo}
                     teamId={actualAwayTeamId}
                     alt={match?.teams?.away?.name || 'Away Team'}
-                    size="48px"
-                    className="w-12 h-12"
+                    size="32px"
+                    className="w-8 h-8 rounded-full"
                   />
                 </div>
+                <div className="text-xs text-gray-600 text-center max-w-16 truncate">
+                  {match?.teams?.away?.name || 'Away Team'}
+                </div>
               </div>
-            </>
+            </div>
           )}
 
           {!hasFinishedMatches && h2hData.length > 0 && (
@@ -508,11 +405,11 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
             </div>
           )}
 
-          {/* Historical Meetings - Mobile-optimized format */}
-          <div className="space-y-2 md:space-y-3">
-            <h4 className="text-sm font-medium text-gray-800 mb-2 md:mb-3">Previous Meetings</h4>
+          {/* Historical Meetings - Clean format like reference image */}
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium text-gray-800 mb-3">Previous Meetings</h4>
             
-            {/* Mobile-optimized Historical List */}
+            {/* Clean Historical List - Simplified format */}
             <div className="bg-white rounded-lg overflow-hidden">
               {recentMatches.map((match, index) => {
                 const isScheduled = match.goals.home === null || match.goals.away === null;
@@ -535,10 +432,10 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
                 return (
                   <div 
                     key={match.fixture.id} 
-                    className="py-2 md:py-3 px-2 md:px-4 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
+                    className="py-3 px-4 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
                   >
                     {/* Date and Competition */}
-                    <div className="flex justify-between items-center mb-1 md:mb-2">
+                    <div className="flex justify-between items-center mb-2">
                       <div className="text-xs text-gray-500">
                         {new Date(match.fixture.date).toLocaleDateString('en-GB', { 
                           day: '2-digit',
@@ -546,24 +443,24 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
                           year: 'numeric'
                         })}
                       </div>
-                      <div className="text-xs text-gray-600 font-medium truncate max-w-32 md:max-w-none">
+                      <div className="text-xs text-gray-600 font-medium">
                         {match.league?.name || 'Unknown Competition'}
                       </div>
                     </div>
                     
                     {/* Teams and Score */}
-                    <div className="flex items-center justify-between gap-1 md:gap-2">
+                    <div className="flex items-center justify-between">
                       {/* Home Team */}
-                      <div className="flex items-center flex-1 min-w-0">
-                        <span className="text-xs md:text-sm text-gray-800 font-medium truncate">
+                      <div className="flex items-center flex-1">
+                        <span className="text-sm text-gray-800 font-medium">
                           {homeTeamInMatch.name}
                         </span>
                       </div>
 
                       {/* Score */}
-                      <div className="mx-2 md:mx-6 min-w-12 md:min-w-16 text-center">
+                      <div className="mx-6 min-w-16 text-center">
                         {isScheduled ? (
-                          <div className="text-xs md:text-sm font-medium text-gray-700">
+                          <div className="text-sm font-medium text-gray-700">
                             {new Date(match.fixture.date).toLocaleTimeString('en-US', { 
                               hour: '2-digit', 
                               minute: '2-digit',
@@ -571,15 +468,15 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
                             })}
                           </div>
                         ) : (
-                          <div className="text-sm md:text-lg font-bold text-gray-900">
+                          <div className="text-lg font-bold text-gray-900">
                             {homeScoreInMatch} - {awayScoreInMatch}
                           </div>
                         )}
                       </div>
 
                       {/* Away Team */}
-                      <div className="flex items-center justify-end flex-1 min-w-0">
-                        <span className="text-xs md:text-sm text-gray-800 font-medium truncate">
+                      <div className="flex items-center justify-end flex-1">
+                        <span className="text-sm text-gray-800 font-medium">
                           {awayTeamInMatch.name}
                         </span>
                       </div>
@@ -589,12 +486,12 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
               })}
             </div>
             
-            {/* See All Link - Mobile-optimized */}
+            {/* See All Link - Enhanced */}
             {h2hData.length > 5 && (
-              <div className="text-center mt-3 md:mt-4 p-2 md:p-3 bg-gray-50 rounded-lg">
-                <button className="text-xs md:text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center justify-center space-x-2 mx-auto transition-colors">
+              <div className="text-center mt-4 p-3 bg-gray-50 rounded-lg">
+                <button className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center justify-center space-x-2 mx-auto transition-colors">
                   <span>See All {h2hData.length} Matches</span>
-                  <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
@@ -604,26 +501,22 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({ homeTeamId, awayTeamId, match }) =>
               </div>
             )}
 
-            {/* Historical Statistics Summary - Mobile-optimized */}
+            {/* Historical Statistics Summary */}
             {hasFinishedMatches && (
-              <div className="mt-3 md:mt-4 p-3 md:p-4 bg-gray-50 rounded-lg">
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                 <h5 className="text-sm font-medium text-gray-800 mb-2">All-Time Record</h5>
-                <div className="grid grid-cols-3 gap-2 md:gap-4 text-center">
+                <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <div className="text-sm md:text-lg font-bold text-blue-600">{homeWins}</div>
-                    <div className="text-xs text-gray-600 truncate" title={`${match?.teams?.home?.name || 'Home'} Wins`}>
-                      {match?.teams?.home?.name?.split(' ')[0] || 'Home'} Wins
-                    </div>
+                    <div className="text-lg font-bold text-blue-600">{homeWins}</div>
+                    <div className="text-xs text-gray-600">{match?.teams?.home?.name || 'Home'} Wins</div>
                   </div>
                   <div>
-                    <div className="text-sm md:text-lg font-bold text-gray-600">{draws}</div>
+                    <div className="text-lg font-bold text-gray-600">{draws}</div>
                     <div className="text-xs text-gray-600">Draws</div>
                   </div>
                   <div>
-                    <div className="text-sm md:text-lg font-bold text-red-600">{awayWins}</div>
-                    <div className="text-xs text-gray-600 truncate" title={`${match?.teams?.away?.name || 'Away'} Wins`}>
-                      {match?.teams?.away?.name?.split(' ')[0] || 'Away'} Wins
-                    </div>
+                    <div className="text-lg font-bold text-red-600">{awayWins}</div>
+                    <div className="text-xs text-gray-600">{match?.teams?.away?.name || 'Away'} Wins</div>
                   </div>
                 </div>
                 <div className="text-center mt-2 text-xs text-gray-500">
@@ -743,19 +636,19 @@ const TopTrendsCard: React.FC<{ homeTeamId?: number; awayTeamId?: number }> = ({
   }
 
   return (
-    <Card className="mt-3 md:mt-4">
-      <CardHeader className="pb-2">
+    <Card className="mt-4">
+      <CardHeader>
         <CardTitle className="text-sm font-medium">Top Trends</CardTitle>
       </CardHeader>
-      <CardContent className="p-2 md:p-4">
-        <div className="space-y-2 md:space-y-3">
+      <CardContent className="p-4">
+        <div className="space-y-3">
           {trends.map((trend, index) => (
-            <div key={index} className="flex items-center justify-between gap-2">
-              <span className="text-xs text-gray-600 flex-1 min-w-0 truncate">{trend.label}</span>
-              <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
-                <span className="text-xs font-medium text-blue-600 min-w-8 text-center">{trend.home}</span>
+            <div key={index} className="flex items-center justify-between">
+              <span className="text-xs text-gray-600">{trend.label}</span>
+              <div className="flex items-center space-x-4">
+                <span className="text-xs font-medium text-blue-600">{trend.home}</span>
                 <span className="text-xs text-gray-400">vs</span>
-                <span className="text-xs font-medium text-red-600 min-w-8 text-center">{trend.away}</span>
+                <span className="text-xs font-medium text-red-600">{trend.away}</span>
               </div>
             </div>
           ))}
