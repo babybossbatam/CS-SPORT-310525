@@ -92,7 +92,7 @@ const Footer: React.FC = () => {
                   href="https://facebook.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 md:w-12 md:h-12 rounded-full hover:opacity-80 transition-opacity touch-target-large overflow-hidden"
+                  className="w-10 h-10 md:w-12 md:h-12 hover:opacity-80 transition-opacity touch-target-large"
                 >
                   <img 
                     src="/assets/matchdetaillogo/facebook.jpg" 
@@ -104,7 +104,7 @@ const Footer: React.FC = () => {
                   href="https://twitter.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 md:w-12 md:h-12 rounded-full hover:opacity-80 transition-opacity touch-target-large overflow-hidden"
+                  className="w-10 h-10 md:w-12 md:h-12 hover:opacity-80 transition-opacity touch-target-large"
                 >
                   <img 
                     src="/assets/matchdetaillogo/twitter-removebg-preview.png" 
@@ -116,7 +116,7 @@ const Footer: React.FC = () => {
                   href="https://instagram.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 md:w-12 md:h-12 rounded-full hover:opacity-80 transition-opacity touch-target-large overflow-hidden"
+                  className="w-10 h-10 md:w-12 md:h-12 hover:opacity-80 transition-opacity touch-target-large"
                 >
                   <img 
                     src="/assets/matchdetaillogo/instagram.jpg" 
