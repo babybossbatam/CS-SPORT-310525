@@ -4,6 +4,15 @@ import MyWorldTeamLogo from "./MyWorldTeamLogo";
 // Helper function to detect dark mode
 const isDarkMode = () => {
   if (typeof window !== 'undefined') {
+    // Check for explicit theme setting first (common patterns)
+    const theme = localStorage.getItem('theme') || 
+                  document.documentElement.getAttribute('data-theme') ||
+                  document.documentElement.classList.contains('dark');
+    
+    if (theme === 'dark' || theme === true) return true;
+    if (theme === 'light' || theme === false) return false;
+    
+    // Fallback to system preference
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
   return false;
