@@ -223,12 +223,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     const isNationalYouthTeam = isYouthTeam && isActualNationalTeam && !isKnownClubTeam;
     const isWomensNationalTeam = teamName?.endsWith(" W") && isActualNationalTeam && !isKnownClubTeam;
 
-    // AFC competitions with national teams
-    const isAfcU20AsianCup = leagueName.includes("afc u20 asian cup") ||
-                            leagueName.includes("afc u-20 asian cup") ||
-                            leagueName.includes("asian cup u20") ||
-                            leagueName.includes("asian cup u-20");
-
     // Debug logging for AFC competitions
     if (leagueName.includes("afc") || leagueName.includes("asian cup")) {
       console.log("🏆 [MyWorldTeamLogo] AFC Competition Detection:", {
