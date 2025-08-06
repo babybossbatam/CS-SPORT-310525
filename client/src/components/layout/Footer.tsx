@@ -97,7 +97,7 @@ const Footer: React.FC = () => {
                   <img 
                     src="/assets/matchdetaillogo/facebook.svg" 
                     alt="Facebook" 
-                    className="w-full h-full object-cover rounded-full"
+                    className="w-full h-full object-contain"
                   />
                 </a>
                 <a 
