@@ -119,7 +119,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
       <Header showTextOnMobile={true} />
       <div
         className={cn(
-          "  py-4 mobile-main-layout overflow-y-auto max-h-screen",
+          "  py-4 mobile-main-layout overflow-y-auto ",
           isMobile ? "mx-2 mt-20" : "",
         )}
         style={{

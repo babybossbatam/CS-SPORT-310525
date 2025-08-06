@@ -240,14 +240,14 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
           <div className="flex items-center justify-between space-x-2 md:space-x-4">
             {/* Home Team Section */}
             <div className="flex flex-col items-center flex-1 touch-target">
-              <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center mb-1 md:mb-2">
+              <div className="w-18 h-18 md:w-18 md:h-18 flex items-center justify-center mb-1 md:mb-2">
                 <MyWorldTeamLogo
                   teamName={match?.teams?.home?.name || "Home Team"}
                   teamLogo={match?.teams?.home?.logo}
                   teamId={match?.teams?.home?.id}
                   alt={match?.teams?.home?.name || "Home Team"}
-                  size="48px"
-                  className="w-8 h-8 md:w-12 md:h-12"
+                  size="82px"
+                  className="w-12 h-12 md:w-8 md:h-8"
                 />
               </div>
               <div
@@ -278,13 +278,13 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
 
             {/* Away Team Section */}
             <div className="flex flex-col items-center flex-1 touch-target">
-              <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center mb-1 md:mb-2">
+              <div className="w-18 h-18 md:w-18 md:h-18 flex items-center justify-center mb-1 md:mb-2">
                 <MyWorldTeamLogo
                   teamName={match?.teams?.away?.name || "Away Team"}
                   teamLogo={match?.teams?.away?.logo}
                   teamId={match?.teams?.away?.id}
                   alt={match?.teams?.away?.name || "Away Team"}
-                  size="48px"
+                  size="82px"
                   className="w-8 h-8 md:w-12 md:h-12"
                 />
               </div>
@@ -306,7 +306,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                 {/* Analysis based on team names */}
                 {match.teams.home.name.toLowerCase().includes("alkmaar") &&
                   match.teams.away.name.toLowerCase().includes("ilves") && (
-                    <div className="mt-3 p-2 bg-blue-50 rounded-lg border border-blue-100">
+                    <div className="mt-3 p-2 bg-blue-50  border border-blue-100">
                       <p className="text-xs text-blue-700 font-medium mb-1">
                         Analysis
                       </p>
@@ -379,19 +379,19 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
         <CardContent className="p-4">
           {/* Mobile-optimized H2H Header */}
           {finishedMatches.length > 0 && (
-            <div className="flex flex-col md:flex-row items-center justify-between mb-4 md:mb-6 bg-gray-50 rounded-lg mobile-p-3 md:p-4 space-y-3 md:space-y-0">
+            <div className="flex flex-col md:flex-row items-center justify-between mb-4 md:mb-6 bg-gray-50  mobile-p-3 md:p-4 space-y-3 md:space-y-0">
               {/* Mobile: Teams Row */}
               <div className="flex items-center justify-between w-full md:flex-1 space-x-4">
                 {/* Home Team Section */}
                 <div className="flex flex-col items-center touch-target">
-                  <div className="w-10 h-10 md:w-12 md:h-12 mb-1 md:mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
+                  <div className="w-10 h-10 md:w-12 md:h-12 mb-1 md:mb-2 bg-white  flex items-center justify-center shadow-sm">
                     <MyWorldTeamLogo
                       teamName={match?.teams?.home?.name || "Home Team"}
                       teamLogo={match?.teams?.home?.logo}
                       teamId={actualHomeTeamId}
                       alt={match?.teams?.home?.name || "Home Team"}
                       size="24px"
-                      className="w-6 h-6 md:w-8 md:h-8 rounded-full"
+                      className="w-6 h-6 md:w-8 md:h-8 "
                     />
                   </div>
                   <div className="mobile-text-xs text-gray-600 text-center max-w-12 md:max-w-16 truncate">
@@ -406,14 +406,14 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
 
                 {/* Away Team Section */}
                 <div className="flex flex-col items-center touch-target">
-                  <div className="w-10 h-10 md:w-12 md:h-12 mb-1 md:mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
+                  <div className="w-10 h-10 md:w-12 md:h-12 mb-1 md:mb-2 bg-white  flex items-center justify-center shadow-sm">
                     <MyWorldTeamLogo
                       teamName={match?.teams?.away?.name || "Away Team"}
                       teamLogo={match?.teams?.away?.logo}
                       teamId={actualAwayTeamId}
                       alt={match?.teams?.away?.name || "Away Team"}
                       size="24px"
-                      className="w-6 h-6 md:w-8 md:h-8 rounded-full"
+                      className="w-6 h-6 md:w-8 md:h-8 "
                     />
                   </div>
                   <div className="mobile-text-xs text-gray-600 text-center max-w-12 md:max-w-16 truncate">
@@ -463,7 +463,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
             </h4>
 
             {/* Mobile-optimized Historical List */}
-            <div className="bg-white rounded-lg overflow-hidden mobile-card">
+            <div className="bg-white  overflow-hidden mobile-card">
               {recentMatches.map((match, index) => {
                 const isScheduled =
                   match.goals.home === null || match.goals.away === null;
@@ -549,7 +549,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
 
             {/* See All Link - Mobile optimized */}
             {h2hData.length > 5 && (
-              <div className="text-center mt-3 md:mt-4 mobile-p-3 bg-gray-50 rounded-lg">
+              <div className="text-center mt-3 md:mt-4 mobile-p-3 bg-gray-50 ">
                 <button className="mobile-text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center justify-center space-x-2 mx-auto transition-colors touch-target min-h-11">
                   <span>See All {h2hData.length} Matches</span>
                   <svg
@@ -574,7 +574,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
 
             {/* Historical Statistics Summary - Mobile responsive */}
             {hasFinishedMatches && (
-              <div className="mt-3 md:mt-4 mobile-p-3 md:p-4 bg-gray-50 rounded-lg">
+              <div className="mt-3 md:mt-4 mobile-p-3 md:p-4 bg-gray-50 ">
                 <h5 className="mobile-text-sm font-medium text-gray-800 mb-2">
                   All-Time Record
                 </h5>
@@ -769,7 +769,7 @@ const TopTrendsCard: React.FC<{ homeTeamId?: number; awayTeamId?: number }> = ({
       <CardContent className="mobile-p-3 md:p-4">
         <div className="mobile-space-y-2 md:space-y-3">
           {trends.map((trend, index) => (
-            <div key={index} className="flex items-center justify-between touch-target mobile-p-2 rounded-md hover:bg-gray-50">
+            <div key={index} className="flex items-center justify-between touch-target mobile-p-2  hover:bg-gray-50">
               <span className="mobile-text-xs text-gray-600 flex-1 pr-2">{trend.label}</span>
               <div className="flex items-center space-x-2 md:space-x-4 flex-shrink-0">
                 <span className="mobile-text-xs font-medium text-blue-600 min-w-8 text-center">
