@@ -324,14 +324,20 @@ main {
   max-width: 100vw !important;
 }
 
-/* Main content area with normal scroll behavior */
+/* Main content area with proper scroll behavior */
 main {
   overflow-x: hidden;
+  min-height: calc(100vh - 200px); /* Adjust based on footer height */
+  padding-bottom: 200px; /* Space for footer */
 }
 
-/* Footer positioning - normal flow */
+/* Footer positioning - fixed at bottom */
 footer {
-  position: relative;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
 }
 
 :root {
@@ -384,6 +390,25 @@ footer {
 .dark body,
 .dark html {
   background-color: #000000 !important;
+}
+
+/* Ensure proper document height and scrolling */
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+/* Main app container */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Content wrapper to push footer down */
+.content-wrapper {
+  flex: 1;
+  padding-bottom: 240px; /* Space for footer */
 }
 
 /* Force all background elements to be black in dark mode */
