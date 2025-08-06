@@ -1142,7 +1142,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         status: fixture.fixture?.status?.short || 'Unknown',
         source: "MyNewLeague2",
         currentlySelected: selectedMatchId,
+        isCurrentlySelected: selectedMatchId === matchId,
       });
+
+      // If clicking the same match that's already selected, do nothing (keep it selected)
+      if (selectedMatchId === matchId) {
+        console.log(`🔄 [MyNewLeague2] Match ${matchId} is already selected, keeping selection`);
+        return;
+      }
 
       // Remove disable-hover class from all match containers to allow re-selection
       try {
@@ -1158,12 +1165,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         console.error("🚨 [MyNewLeague2] Error removing disable-hover classes:", error);
       }
 
-      // Check if this match was manually deselected before
+      // Always allow re-selection by clearing from manually deselected set when user explicitly clicks
       const wasManuallyDeselected = manuallyDeselectedMatches && manuallyDeselectedMatches.has(matchId);
-
       if (wasManuallyDeselected) {
-        console.log(`🔄 [MyNewLeague2] Re-selecting previously deselected match ${matchId}`);
-        // Remove from manually deselected set since user is re-selecting it
+        console.log(`🔄 [MyNewLeague2] Re-enabling selection for previously deselected match ${matchId}`);
         setManuallyDeselectedMatches(prev => {
           const newSet = new Set(prev);
           newSet.delete(matchId);
@@ -1174,6 +1179,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       // Set this match as selected
       try {
         setSelectedMatchId(matchId);
+        console.log(`✅ [MyNewLeague2] Successfully selected match ${matchId}`);
       } catch (error) {
         console.error("🚨 [MyNewLeague2] Error setting selected match ID:", error);
         return; // Stop execution if we can't set the selected match
@@ -1689,13 +1695,11 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                               const container = document.querySelector(
                                 `[data-fixture-id="${matchId}"]`,
                               );
-                              // Only allow hover if not manually deselected and not currently selected
-                              const wasManuallyDeselected = manuallyDeselectedMatches && manuallyDeselectedMatches.has(matchId);
+                              // Allow hover if not currently selected and not disabled
                               if (
                                 container &&
                                 !container.classList.contains("disable-hover") &&
-                                selectedMatchId !== matchId &&
-                                !wasManuallyDeselected
+                                selectedMatchId !== matchId
                               ) {
                                 setHoveredMatchId(matchId);
                               }
