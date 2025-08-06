@@ -115,14 +115,20 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
       <Header showTextOnMobile={true} />
       <div
         className={cn(
-          "bg-[#FDFBF7] rounded-lg py-4 mobile-main-layout overflow-y-auto max-h-screen grid gap-4",
-          isMobile ? "mx-2 mt-20 grid-cols-1" : "grid-cols-1 lg:grid-cols-12",
+          "bg-[#FDFBF7] rounded-lg py-4 mobile-main-layout overflow-y-auto max-h-screen",
+          isMobile ? "mx-2 mt-20" : "",
         )}
         style={{
           marginLeft: isMobile ? "8px" : "150px",
           marginRight: isMobile ? "8px" : "150px",
           marginTop: isMobile ? "-22px" : "0",
         }}
+      >
+      <div
+        className={cn(
+          "grid gap-4",
+          isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12",
+        )}
       >
         {/* Left column (5 columns on desktop, full width on mobile) - Hide on mobile when match is selected */}
         {(!isMobile || !selectedFixture) && (
@@ -161,6 +167,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
             )}
           </div>
         )}
+      </div>
       </div>
     </>
   );

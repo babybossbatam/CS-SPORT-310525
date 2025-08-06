@@ -46,8 +46,8 @@ const SportsCategoryTabs = () => {
 
   return (
     <Card className={cn(
-      "rounded-none border-0 shadow-lg fixed left-0 z-50 w-full backdrop-blur-sm",
-      "bg-white/95 dark:bg-gray-900/95",
+      "rounded-none border-b shadow-lg fixed left-0 z-50 w-full backdrop-blur-sm",
+      "bg-white/95 dark:bg-gray-900/95 dark:border-gray-800",
       isMobile ? "top-16" : "top-[87px]"
     )}>
       <div className={cn(
