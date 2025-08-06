@@ -14,8 +14,8 @@
 
 /* Dark mode root background */
 .dark #root {
-  background-color: #1f2937 !important;
-  /* true black background */
+  background-color: #000000 !important;
+  /* true black main page background */
 }
 
 /* Mobile-first layout to prevent desktop flash */
