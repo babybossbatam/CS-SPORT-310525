@@ -251,10 +251,12 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                 />
               </div>
               <div
-                className="mobile-text-xs md:text-sm font-bold text-gray-600 text-center max-w-16 md:max-w-20 truncate px-1"
+                className="mobile-text-xs md:text-sm font-bold text-gray-600 text-center max-w-16 md:max-w-20 truncate px-1 w-full flex justify-center"
                 title={match?.teams?.home?.name}
               >
-                {match?.teams?.home?.name || "Home Team"}
+                <span className="text-center">
+                  {match?.teams?.home?.name || "Home Team"}
+                </span>
               </div>
             </div>
 
@@ -289,10 +291,12 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                 />
               </div>
               <div
-                className="mobile-text-xs md:text-sm font-bold text-gray-600 text-center max-w-16 md:max-w-20 truncate px-1"
+                className="mobile-text-xs md:text-sm font-bold text-gray-600 text-center max-w-16 md:max-w-20 truncate px-1 w-full flex justify-center"
                 title={match?.teams?.away?.name}
               >
-                {match?.teams?.away?.name || "Away Team"}
+                <span className="text-center">
+                  {match?.teams?.away?.name || "Away Team"}
+                </span>
               </div>
             </div>
           </div>
@@ -394,8 +398,10 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                       className="w-6 h-6 md:w-8 md:h-8 "
                     />
                   </div>
-                  <div className="mobile-text-xs text-gray-600 text-center max-w-12 md:max-w-16 truncate">
-                    {match?.teams?.home?.name || "Home Team"}
+                  <div className="mobile-text-xs text-gray-600 text-center max-w-12 md:max-w-16 truncate w-full flex justify-center">
+                    <span className="text-center">
+                      {match?.teams?.home?.name || "Home Team"}
+                    </span>
                   </div>
                 </div>
 
@@ -416,8 +422,10 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                       className="w-6 h-6 md:w-8 md:h-8 "
                     />
                   </div>
-                  <div className="mobile-text-xs text-gray-600 text-center max-w-12 md:max-w-16 truncate">
-                    {match?.teams?.away?.name || "Away Team"}
+                  <div className="mobile-text-xs text-gray-600 text-center max-w-12 md:max-w-16 truncate w-full flex justify-center">
+                    <span className="text-center">
+                      {match?.teams?.away?.name || "Away Team"}
+                    </span>
                   </div>
                 </div>
               </div>
