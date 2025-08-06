@@ -86,7 +86,7 @@
 /* Prevent scrollbars from reducing page width */
 html {
   scrollbar-gutter: stable;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 /* Modern browsers - overlay scrollbars */
@@ -118,7 +118,9 @@ html {
 
 /* Ensure consistent viewport width */
 body {
-  overflow-x: hidden;
+  overflow: hidden;
+  height: 100vh;
+  max-height: 100vh;
 }
 
 /* Disable card hover effect when star buttons are being hovered */
@@ -291,7 +293,7 @@ main {
   display: none !important;
 }
 
-/* Only show vertical scrollbars when needed */
+/* Hide vertical scrollbars by default */
 *::-webkit-scrollbar {
   width: 0px !important;
   background: transparent !important;
@@ -319,9 +321,11 @@ main {
 
 /* Ensure the entire app container doesn't shift */
 #root {
-  overflow-x: hidden !important;
+  overflow: hidden !important;
   width: 100vw !important;
   max-width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
 }
 
 /* Main content area with normal scroll behavior */
