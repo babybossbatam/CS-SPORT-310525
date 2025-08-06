@@ -2040,16 +2040,20 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       "90",
                                     ].includes(status)
                                   ) {
+                                    // Use fulltime score if available, otherwise use goals
+                                    const homeScore = fixture.score?.fulltime?.home ?? fixture.goals?.home ?? 0;
+                                    const awayScore = fixture.score?.fulltime?.away ?? fixture.goals?.away ?? 0;
+                                    
                                     return (
                                       <div className="match-score-display">
                                         <span className="score-number">
-                                          {fixture.goals.home ?? 0}
+                                          {homeScore}
                                         </span>
                                         <span className="score-separator">
                                           -
                                         </span>
                                         <span className="score-number">
-                                          {fixture.goals.away ?? 0}
+                                          {awayScore}
                                         </span>
                                       </div>
                                     );
@@ -2068,16 +2072,20 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       "SUSP",
                                     ].includes(status)
                                   ) {
+                                    // Use fulltime score if available, otherwise use goals
+                                    const homeScore = fixture.score?.fulltime?.home ?? fixture.goals?.home ?? 0;
+                                    const awayScore = fixture.score?.fulltime?.away ?? fixture.goals?.away ?? 0;
+                                    
                                     return (
                                       <div className="match-score-display">
                                         <span className="score-number">
-                                          {fixture.goals.home ?? 0}
+                                          {homeScore}
                                         </span>
                                         <span className="score-separator">
                                           -
                                         </span>
                                         <span className="score-number">
-                                          {fixture.goals.away ?? 0}
+                                          {awayScore}
                                         </span>
                                       </div>
                                     );
