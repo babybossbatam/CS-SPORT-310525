@@ -4,13 +4,47 @@ import MyWorldTeamLogo from "./MyWorldTeamLogo";
 // Helper function to detect dark mode
 const isDarkMode = () => {
   if (typeof window !== 'undefined') {
-    // Check for explicit theme setting first (common patterns)
-    const theme = localStorage.getItem('theme') || 
-                  document.documentElement.getAttribute('data-theme') ||
-                  document.documentElement.classList.contains('dark');
-    
-    if (theme === 'dark' || theme === true) return true;
-    if (theme === 'light' || theme === false) return false;
+    // Check for Redux store dark mode state
+    try {
+      // Check if document has dark class (applied by your theme toggle)
+      if (document.documentElement.classList.contains('dark')) {
+        return true;
+      }
+      
+      // Check for data-theme attribute
+      const dataTheme = document.documentElement.getAttribute('data-theme');
+      if (dataTheme === 'dark') {
+        return true;
+      }
+      
+      // Check localStorage theme setting
+      const localTheme = localStorage.getItem('theme');
+      if (localTheme === 'dark') {
+        return true;
+      }
+      
+      // Check if body has dark mode classes
+      if (document.body.classList.contains('dark') || document.body.classList.contains('dark-mode')) {
+        return true;
+      }
+      
+      // Check for CSS variables or computed styles that indicate dark mode
+      const computedStyle = window.getComputedStyle(document.documentElement);
+      const bgColor = computedStyle.getPropertyValue('background-color');
+      
+      // If background is very dark, assume dark mode
+      if (bgColor) {
+        const rgb = bgColor.match(/\d+/g);
+        if (rgb && rgb.length >= 3) {
+          const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
+          if (brightness < 128) {
+            return true;
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('Error detecting dark mode:', error);
+    }
     
     // Fallback to system preference
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -57,9 +91,40 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const [hasError, setHasError] = useState<boolean>(false);
   const [retryCount, setRetryCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [themeDetector, setThemeDetector] = useState<number>(0);
 
   // Preload critical images
   const shouldPreload = priority === 'high' || priority === 'medium';
+
+  // Listen for theme changes
+  useEffect(() => {
+    const handleThemeChange = () => {
+      setThemeDetector(prev => prev + 1); // Force re-render
+    };
+
+    // Listen for changes to the document class list (theme changes)
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && 
+            (mutation.attributeName === 'class' || mutation.attributeName === 'data-theme')) {
+          handleThemeChange();
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme']
+    });
+
+    // Also listen for localStorage changes
+    window.addEventListener('storage', handleThemeChange);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('storage', handleThemeChange);
+    };
+  }, []);
 
   useEffect(() => {
     // Check for specific teams/leagues that should use local assets immediately
@@ -106,7 +171,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       setHasError(false);
       setRetryCount(0);
     }
-  }, [src, alt]);
+  }, [src, alt, themeDetector]); // Add themeDetector to trigger re-evaluation when theme changes
 
   const handleError = () => {
     // Safety check to prevent cascading errors
