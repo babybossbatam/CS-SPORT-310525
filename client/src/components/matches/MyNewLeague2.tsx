@@ -1097,9 +1097,20 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         isCurrentlySelected: selectedMatchId === matchId,
       });
 
-      // Always set this match as selected, even if it's the same match (allow re-selection)
-      setSelectedMatchId(matchId);
-      console.log(`✅ [MyNewLeague2] Successfully selected match ${matchId}`);
+      // Force re-selection by clearing first, then setting (allows re-highlighting)
+      if (selectedMatchId === matchId) {
+        // If clicking the same match, clear first to trigger re-render
+        setSelectedMatchId(null);
+        // Use setTimeout to ensure the state update is processed
+        setTimeout(() => {
+          setSelectedMatchId(matchId);
+          console.log(`🔄 [MyNewLeague2] Re-selected same match ${matchId} for re-highlighting`);
+        }, 10);
+      } else {
+        // Different match, select directly
+        setSelectedMatchId(matchId);
+        console.log(`✅ [MyNewLeague2] Successfully selected new match ${matchId}`);
+      }
 
       // Call the callback to pass match data to parent component
       if (onMatchCardClick && typeof onMatchCardClick === 'function') {
