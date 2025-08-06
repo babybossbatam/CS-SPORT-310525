@@ -703,3 +703,19 @@
 .country-matches-container .match-card-container.disable-hover .match-status-label {
   background-color: transparent !important;
 }
+
+/* Selected match styling */
+.country-matches-container .match-card-container.selected-match {
+  background-color: rgb(239 246 255) !important; /* blue-50 */
+  border-color: rgb(191 219 254) !important; /* blue-200 */
+  box-shadow: 0 0 0 1px rgb(147 197 253); /* blue-300 */
+}
+
+.country-matches-container .match-card-container.selected-match .match-status-label {
+  background-color: transparent !important;
+}
+
+/* Prevent hover effect on selected matches */
+.country-matches-container .match-card-container.selected-match:hover {
+  background-color: rgb(239 246 255) !important; /* keep blue-50 */
+}
