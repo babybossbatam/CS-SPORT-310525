@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
+import { useDeviceInfo } from "@/hooks/use-mobile";
 import MyWorldTeamLogo from "./MyWorldTeamLogo";
 
 interface LazyImageProps {
@@ -46,6 +47,9 @@ const LazyImage: React.FC<LazyImageProps> = ({
   // Get dark mode state from Redux store
   const darkMode = useSelector((state: RootState) => state.ui.darkMode);
 
+  // Get device info for responsive sizing
+  const { isMobile } = useDeviceInfo();
+
   // Preload critical images
   const shouldPreload = priority === 'high' || priority === 'medium';
 
@@ -58,7 +62,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         // Champions League only - use theme-appropriate logo
         if (altLower.includes("champions league")) {
           const championsLogo = darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
-          console.log(`🏆 [LazyImage] Using local Champions League logo (${darkMode ? 'dark' : 'light'} mode) from start: ${championsLogo}`);
+          console.log(`🏆 [LazyImage] Using local Champions League logo (${darkMode ? 'dark' : 'light'}) mode) from start: ${championsLogo}`);
           return championsLogo;
         }
 
