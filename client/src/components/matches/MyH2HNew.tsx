@@ -236,41 +236,41 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
           <CardTitle className="text-sm font-medium">Head to Head</CardTitle>
         </CardHeader>
         <CardContent className="mobile-p-2 md:p-4">
-          {/* Mobile-optimized No Data Layout */}
-          <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 mobile-space-y-3">
+          {/* Mobile-optimized No Data Layout - Horizontal */}
+          <div className="flex items-center justify-between space-x-2 md:space-x-4">
             {/* Home Team Section */}
             <div className="flex flex-col items-center flex-1 touch-target">
-              <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center mb-2">
+              <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center mb-1 md:mb-2">
                 <MyWorldTeamLogo
                   teamName={match?.teams?.home?.name || "Home Team"}
                   teamLogo={match?.teams?.home?.logo}
                   teamId={match?.teams?.home?.id}
                   alt={match?.teams?.home?.name || "Home Team"}
-                  size="64px"
-                  className="w-12 h-12 md:w-14 md:h-14"
+                  size="48px"
+                  className="w-8 h-8 md:w-12 md:h-12"
                 />
               </div>
               <div
-                className="mobile-text-xs md:text-sm font-bold text-gray-600 text-center max-w-20 md:max-w-24 truncate px-1"
+                className="mobile-text-xs md:text-sm font-bold text-gray-600 text-center max-w-16 md:max-w-20 truncate px-1"
                 title={match?.teams?.home?.name}
               >
                 {match?.teams?.home?.name || "Home Team"}
               </div>
             </div>
 
-            {/* No Data Message - Mobile Stack */}
-            <div className="flex items-center justify-center space-x-2 md:space-x-4 flex-2 mobile-p-2">
-              <div className="text-center min-w-8 md:min-w-12">
+            {/* No Data Message - Mobile Horizontal */}
+            <div className="flex items-center justify-center space-x-1 md:space-x-3 flex-shrink-0">
+              <div className="text-center min-w-6 md:min-w-10">
                 <div className="mobile-text-sm md:text-lg font-bold text-gray-400">-</div>
                 <div className="mobile-text-xs text-gray-500">Wins</div>
               </div>
               <div className="w-px h-6 md:h-8 bg-gray-300"></div>
-              <div className="text-center min-w-8 md:min-w-12">
+              <div className="text-center min-w-6 md:min-w-10">
                 <div className="mobile-text-sm md:text-lg font-bold text-gray-400">-</div>
                 <div className="mobile-text-xs text-gray-500">Draws</div>
               </div>
               <div className="w-px h-6 md:h-8 bg-gray-300"></div>
-              <div className="text-center min-w-8 md:min-w-12">
+              <div className="text-center min-w-6 md:min-w-10">
                 <div className="mobile-text-sm md:text-lg font-bold text-gray-400">-</div>
                 <div className="mobile-text-xs text-gray-500">Wins</div>
               </div>
@@ -278,18 +278,18 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
 
             {/* Away Team Section */}
             <div className="flex flex-col items-center flex-1 touch-target">
-              <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center mb-2">
+              <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center mb-1 md:mb-2">
                 <MyWorldTeamLogo
                   teamName={match?.teams?.away?.name || "Away Team"}
                   teamLogo={match?.teams?.away?.logo}
                   teamId={match?.teams?.away?.id}
                   alt={match?.teams?.away?.name || "Away Team"}
-                  size="64px"
-                  className="w-12 h-12 md:w-14 md:h-14"
+                  size="48px"
+                  className="w-8 h-8 md:w-12 md:h-12"
                 />
               </div>
               <div
-                className="mobile-text-xs md:text-sm font-bold text-gray-600 text-center max-w-20 md:max-w-24 truncate px-1"
+                className="mobile-text-xs md:text-sm font-bold text-gray-600 text-center max-w-16 md:max-w-20 truncate px-1"
                 title={match?.teams?.away?.name}
               >
                 {match?.teams?.away?.name || "Away Team"}
