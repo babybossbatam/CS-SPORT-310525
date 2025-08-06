@@ -118,9 +118,8 @@ html {
 
 /* Ensure consistent viewport width */
 body {
-  overflow: hidden;
-  height: 100vh;
-  max-height: 100vh;
+  overflow-x: hidden;
+  min-height: 100vh;
 }
 
 /* Disable card hover effect when star buttons are being hovered */
@@ -249,7 +248,7 @@ body {
 
 /* Prevent horizontal overflow on main content */
 main {
-  overflow-x: hidden !important;
+  overflow-x: hidden;
 }
 
 /* Additional fixes for portal and viewport */
