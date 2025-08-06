@@ -11,6 +11,12 @@ import MyTrendsTabsCard from '@/components/matches/MyTrendsTabsCard';
 import MyHeadtoheadTabsCard from '@/components/matches/MyHeadtoheadTabsCard';
 import { cn } from '@/lib/utils';
 import { useDeviceInfo } from '@/hooks/use-mobile';
+import { format } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import MyWorldTeamLogo from '@/components/matches/MyWorldTeamLogo';
 
 interface MyMainLayoutRightProps {
   selectedFixture: any;

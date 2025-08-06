@@ -23,7 +23,7 @@ const MyRightContent: React.FC = () => {
   const { isMobile } = useDeviceInfo();
 
   return (
-    <>
+    <div className="h-full overflow-y-auto space-y-4">
       {/* Featured Match Section - Hidden on mobile */}
       {!isMobile && (
         <MyHomeFeaturedMatchNew 
@@ -47,11 +47,7 @@ const MyRightContent: React.FC = () => {
         </div>
         <MyAllLeague />
       </div>
-
-
-
-    </>
-
+    </div>
   );
 };
 

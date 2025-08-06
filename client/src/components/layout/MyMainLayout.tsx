@@ -152,10 +152,13 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
         {(!isMobile || selectedFixture) && (
           <div
             className={cn(
-              "space-y-4",
+              "space-y-4 overflow-y-auto",
               isMobile ? "col-span-1" : "lg:col-span-7",
               isMobile && selectedFixture ? "fixed inset-0 z-50 bg-white" : "",
             )}
+            style={{
+              maxHeight: isMobile && selectedFixture ? "100vh" : "calc(100vh - 120px)"
+            }}
           >
             {selectedFixture ? (
               <MyMainLayoutRight
