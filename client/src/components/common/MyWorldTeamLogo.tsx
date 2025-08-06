@@ -203,13 +203,17 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       teamName.toLowerCase().includes("atletico")
     );
 
+    // Enhanced national team detection for youth and women's teams
+    const isNationalYouthTeam = isYouthTeam && isActualNationalTeam && !isKnownClubTeam;
+    const isWomensNationalTeam = teamName?.endsWith(" W") && isActualNationalTeam && !isKnownClubTeam;
+    
     // Use circular flag for national teams in international competitions
     // BUT: Force club teams to ALWAYS use club logos regardless of league context
     const result = !isStandingsContext &&
                    !isClubYouthTeam &&
                    !isKnownClubTeam &&
                    isActualNationalTeam && 
-                   !isYouthTeam && // Remove youth team logic as it can misidentify club youth teams
+                   (isNationalYouthTeam || isWomensNationalTeam || (!isYouthTeam && !teamName?.endsWith(" W"))) && // Allow national youth and women's teams
                    (isFriendliesInternational || isUefaNationsLeague) && 
                    !isFifaClubWorldCup && 
                    !isFriendliesClub && 
