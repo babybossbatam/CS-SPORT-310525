@@ -493,45 +493,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
                   ? "All Matches by Time"
                   : "Live Football Scores"}
           </span>
-          {/* Test Flash Effect Buttons - Remove these after testing */}
-          <div className="flex gap-2">
-            <button 
-              onClick={() => {
-                const firstMatchId = sortedMatches[0]?.fixture?.id;
-                if (firstMatchId) {
-                  setHalftimeFlashMatches(new Set([firstMatchId]));
-                  setTimeout(() => setHalftimeFlashMatches(new Set()), 3000);
-                }
-              }}
-              className="px-2 py-1 text-xs bg-pink-200 rounded"
-            >
-              Test HT Flash
-            </button>
-            <button 
-              onClick={() => {
-                const firstMatchId = sortedMatches[0]?.fixture?.id;
-                if (firstMatchId) {
-                  setFulltimeFlashMatches(new Set([firstMatchId]));
-                  setTimeout(() => setFulltimeFlashMatches(new Set()), 3000);
-                }
-              }}
-              className="px-2 py-1 text-xs bg-blue-200 rounded"
-            >
-              Test FT Flash
-            </button>
-            <button 
-              onClick={() => {
-                const firstMatchId = sortedMatches[0]?.fixture?.id;
-                if (firstMatchId) {
-                  setGoalFlashMatches(new Set([firstMatchId]));
-                  setTimeout(() => setGoalFlashMatches(new Set()), 2000);
-                }
-              }}
-              className="px-2 py-1 text-xs bg-green-200 rounded"
-            >
-              Test Goal Flash
-            </button>
-          </div>
+          
         </div>
       </CardHeader>
 
