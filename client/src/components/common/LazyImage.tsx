@@ -42,7 +42,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const [hasError, setHasError] = useState<boolean>(false);
   const [retryCount, setRetryCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  
+
   // Get dark mode state from Redux store
   const darkMode = useSelector((state: RootState) => state.ui.darkMode);
 
@@ -439,8 +439,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
         filter: 'drop-shadow(0 2px 8px rgba(255, 255, 255, 0.8)) drop-shadow(0 1px 4px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 0 1px rgba(255, 255, 255, 0.6))',
         // Apply size from props if no explicit width/height in style
         ...(style?.width || style?.height ? {} : {
-          width: style?.width || style?.height || '32px',
-          height: style?.height || style?.width || '32px'
+          width: style?.width || style?.height || (isMobile ? '32px' : '32px'),
+          height: style?.height || style?.width || (isMobile ? '32px' : '32px')
         })
       }}
       loading={shouldPreload ? 'eager' : 'lazy'}
