@@ -370,6 +370,18 @@ main {
   --radius: 0.5rem;
 }
 
+/* Ensure body and html have black background in dark mode */
+.dark body,
+.dark html {
+  background-color: #000000 !important;
+}
+
+/* Force all background elements to be black in dark mode */
+.dark .bg-background,
+.dark .bg-stone-50 {
+  background-color: #000000 !important;
+}
+
 /* Dark mode card header styles */
 .dark [data-card-header],
 .dark .card-header {
