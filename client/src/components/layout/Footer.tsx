@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Facebook, Twitter, Instagram } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
@@ -93,25 +92,37 @@ const Footer: React.FC = () => {
                   href="https://facebook.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 md:w-12 md:h-12 bg-blue-600 rounded-full hover:bg-blue-700 transition-colors flex items-center justify-center touch-target-large"
+                  className="w-10 h-10 md:w-12 md:h-12 rounded-full hover:opacity-80 transition-opacity touch-target-large overflow-hidden"
                 >
-                  <Facebook size={20} className="text-white" />
+                  <img 
+                    src="/assets/matchdetaillogo/facebook.jpg" 
+                    alt="Facebook" 
+                    className="w-full h-full object-cover rounded-full"
+                  />
                 </a>
                 <a 
                   href="https://twitter.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 md:w-12 md:h-12 bg-black rounded-full hover:bg-gray-800 transition-colors flex items-center justify-center touch-target-large"
+                  className="w-10 h-10 md:w-12 md:h-12 rounded-full hover:opacity-80 transition-opacity touch-target-large overflow-hidden"
                 >
-                  <Twitter size={20} className="text-white" />
+                  <img 
+                    src="/assets/matchdetaillogo/twitter-removebg-preview.png" 
+                    alt="Twitter" 
+                    className="w-full h-full object-cover rounded-full"
+                  />
                 </a>
                 <a 
                   href="https://instagram.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full hover:from-purple-600 hover:to-pink-600 transition-colors flex items-center justify-center touch-target-large"
+                  className="w-10 h-10 md:w-12 md:h-12 rounded-full hover:opacity-80 transition-opacity touch-target-large overflow-hidden"
                 >
-                  <Instagram size={20} className="text-white" />
+                  <img 
+                    src="/assets/matchdetaillogo/instagram.jpg" 
+                    alt="Instagram" 
+                    className="w-full h-full object-cover rounded-full"
+                  />
                 </a>
               </div>
             </div>
