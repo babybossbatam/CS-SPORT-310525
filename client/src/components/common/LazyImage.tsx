@@ -67,18 +67,11 @@ const LazyImage: React.FC<LazyImageProps> = ({
       if (alt) {
         const altLower = alt.toLowerCase();
 
-        // UEFA competitions - use theme-appropriate logo
-        if (altLower.includes("uefa") || altLower.includes("champions league") || altLower.includes("europa league") || altLower.includes("conference league")) {
-          const isUefaMatch = altLower.includes("uefa") || 
-                             altLower.includes("champions league") || 
-                             altLower.includes("europa league") || 
-                             altLower.includes("conference league");
-          
-          if (isUefaMatch) {
-            const uefaLogo = isDarkMode() ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
-            console.log(`🏆 [LazyImage] Using local UEFA logo (${isDarkMode() ? 'dark' : 'light'} mode) from start: ${uefaLogo}`);
-            return uefaLogo;
-          }
+        // Champions League only - use theme-appropriate logo
+        if (altLower.includes("champions league")) {
+          const championsLogo = isDarkMode() ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
+          console.log(`🏆 [LazyImage] Using local Champions League logo (${isDarkMode() ? 'dark' : 'light'} mode) from start: ${championsLogo}`);
+          return championsLogo;
         }
 
         // COTIF Tournament league
@@ -126,21 +119,14 @@ const LazyImage: React.FC<LazyImageProps> = ({
         if (alt) {
           const altLower = alt.toLowerCase();
 
-          // UEFA competitions - use theme-appropriate logo
-          if (altLower.includes("uefa") || altLower.includes("champions league") || altLower.includes("europa league") || altLower.includes("conference league")) {
-            const isUefaMatch = altLower.includes("uefa") || 
-                               altLower.includes("champions league") || 
-                               altLower.includes("europa league") || 
-                               altLower.includes("conference league");
-            
-            if (isUefaMatch) {
-              const uefaLogo = isDarkMode() ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
-              setImageSrc(uefaLogo);
-              setHasError(false);
-              setIsLoading(true);
-              console.log(`🏆 [LazyImage] Using local UEFA logo (${isDarkMode() ? 'dark' : 'light'} mode): ${uefaLogo}`);
-              return true;
-            }
+          // Champions League only - use theme-appropriate logo
+          if (altLower.includes("champions league")) {
+            const championsLogo = isDarkMode() ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
+            setImageSrc(championsLogo);
+            setHasError(false);
+            setIsLoading(true);
+            console.log(`🏆 [LazyImage] Using local Champions League logo (${isDarkMode() ? 'dark' : 'light'} mode): ${championsLogo}`);
+            return true;
           }
 
           // COTIF Tournament league
