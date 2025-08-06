@@ -143,7 +143,23 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     const isUefaNationsLeague = leagueName.includes("uefa nations league") || 
                                leagueName.includes("nations league");
 
+    // AFC competitions with national teams
+    const isAfcU20AsianCup = leagueName.includes("afc u20 asian cup") ||
+                            leagueName.includes("afc u-20 asian cup") ||
+                            leagueName.includes("asian cup u20") ||
+                            leagueName.includes("asian cup u-20");
 
+    // Debug logging for AFC competitions
+    if (leagueName.includes("afc") || leagueName.includes("asian cup")) {
+      console.log("🏆 [MyWorldTeamLogo] AFC Competition Detection:", {
+        teamName,
+        leagueName,
+        isAfcU20AsianCup,
+        isActualNationalTeam,
+        isYouthTeam,
+        isWomensNationalTeam
+      });
+    }
 
     // Debug logging for Friendlies International
     if (leagueName.includes("friendlies")) {
@@ -214,7 +230,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                    !isKnownClubTeam &&
                    isActualNationalTeam && 
                    (isNationalYouthTeam || isWomensNationalTeam || (!isYouthTeam && !teamName?.endsWith(" W"))) && // Allow national youth and women's teams
-                   (isFriendliesInternational || isUefaNationsLeague) && 
+                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup) && 
                    !isFifaClubWorldCup && 
                    !isFriendliesClub && 
                    !isUefaEuropaLeague && 
