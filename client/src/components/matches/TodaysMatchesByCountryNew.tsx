@@ -1648,7 +1648,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               <div className="flex flex-col flex-1 text-left">
                                 <div className="flex items-center gap-2">
                                   <span
-                                    className="font-semibold text-gray-800 group-hover:underline transition-all duration-200"
+                                    className="font-semibold text-gray-800 dark:text-white group-hover:underline transition-all duration-200"
                                     style={{
                                       fontFamily:
                                         "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
