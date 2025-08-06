@@ -12,6 +12,12 @@
   /* stone-50 */
 }
 
+/* Dark mode root background */
+.dark #root {
+  background-color: #1f2937 !important;
+  /* gray-800 for true black-like appearance */
+}
+
 /* Mobile-first layout to prevent desktop flash */
 .mobile-app-container {
   width: 100%;
@@ -342,11 +348,11 @@ main {
 }
 
 .dark {
-  --background: 0 0% 7%;
+  --background: 217 33% 17%;
   --foreground: 0 0% 98%;
   --muted: 0 0% 10%;
   --muted-foreground: 240 5% 64.9%;
-  --popover: 0 0% 7%;
+  --popover: 217 33% 17%;
   --popover-foreground: 0 0% 98%;
   --card: 0 0% 9%;
   --card-foreground: 0 0% 98%;
