@@ -350,7 +350,7 @@ main {
 .dark {
   --background: 0 0% 0%;
   --foreground: 0 0% 98%;
-  --muted: 0 0% 10%;
+  --muted: 0 0% 0%;
   --muted-foreground: 240 5% 64.9%;
   --popover: 0 0% 0%;
   --popover-foreground: 0 0% 98%;
@@ -360,9 +360,9 @@ main {
   --input: 0 0% 15%;
   --primary: 207 90% 54%;
   --primary-foreground: 211 100% 99%;
-  --secondary: 0 0% 12%;
+  --secondary: 0 0% 0%;
   --secondary-foreground: 0 0% 98%;
-  --accent: 0 0% 12%;
+  --accent: 0 0% 0%;
   --accent-foreground: 0 0% 98%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 98%;
@@ -386,6 +386,37 @@ main {
   background-color: #000000 !important;
   /* true black */
   color: white !important;
+}
+
+/* Dark mode comprehensive card styling for MyNewLeague2 */
+.dark .border,
+.dark .border-stone-200,
+.dark .border-gray-200 {
+  border-color: rgb(55 65 81) !important;
+  /* border-gray-700 */
+}
+
+.dark .bg-card,
+.dark .bg-white {
+  background-color: #000000 !important;
+  /* true black */
+}
+
+.dark .text-card-foreground {
+  color: white !important;
+}
+
+/* Skeleton components in dark mode */
+.dark .bg-gray-100,
+.dark .bg-gray-50 {
+  background-color: rgb(55 65 81) !important;
+  /* border-gray-700 for skeletons */
+}
+
+/* League card spacing consistency */
+.dark .league-card-spacing {
+  background-color: #000000 !important;
+  border-color: rgb(55 65 81) !important;
 }
 
 @keyframes glow {
