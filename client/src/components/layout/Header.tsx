@@ -39,7 +39,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const darkMode = useSelector((state: RootState) => state.ui.darkMode);
-  const { currentLanguage, changeLanguage } = useLanguage();
+  const { currentLanguage, setLanguage } = useLanguage();
   const { t } = useTranslation();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
@@ -305,7 +305,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => changeLanguage("en-US")}
+                    onClick={() => setLanguage("en-US")}
                   >
                     <div className="mr-2">
                       <MyCircularFlag
@@ -321,7 +321,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => changeLanguage("en-GB")}
+                    onClick={() => setLanguage("en-GB")}
                   >
                     <div className="mr-2">
                       <MyCircularFlag
@@ -337,7 +337,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => changeLanguage("es")}
+                    onClick={() => setLanguage("es")}
                   >
                     <div className="mr-2">
                       <MyCircularFlag
@@ -353,7 +353,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => changeLanguage("fr")}
+                    onClick={() => setLanguage("fr")}
                   >
                     <div className="mr-2">
                       <MyCircularFlag
@@ -369,7 +369,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => changeLanguage("zh-CN")}
+                    onClick={() => setLanguage("zh-CN")}
                   >
                     <div className="mr-2">
                       <MyCircularFlag
@@ -385,7 +385,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => changeLanguage("zh-HK")}
+                    onClick={() => setLanguage("zh-HK")}
                   >
                     <div className="mr-2">
                       <MyCircularFlag
