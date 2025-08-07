@@ -59,6 +59,13 @@ const LazyImage: React.FC<LazyImageProps> = ({
       if (alt) {
         const altLower = alt.toLowerCase();
 
+        // CS SPORT logo - use dark mode SVG when in dark mode
+        if (altLower.includes("cs sport") || altLower.includes("cs-sport") || altLower.includes("cssport")) {
+          const csLogo = darkMode ? "/assets/matchdetaillogo/cs-sport-dark.svg" : "/assets/matchdetaillogo/cs-sport-light.svg";
+          console.log(`🏆 [LazyImage] Using CS SPORT logo (${darkMode ? 'dark' : 'light'} mode) from start: ${csLogo}`);
+          return csLogo;
+        }
+
         // Champions League only - use theme-appropriate logo
         if (altLower.includes("champions league")) {
           const championsLogo = darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
@@ -110,6 +117,16 @@ const LazyImage: React.FC<LazyImageProps> = ({
       const shouldUseLocalAsset = () => {
         if (alt) {
           const altLower = alt.toLowerCase();
+
+          // CS SPORT logo - use dark mode SVG when in dark mode
+          if (altLower.includes("cs sport") || altLower.includes("cs-sport") || altLower.includes("cssport")) {
+            const csLogo = darkMode ? "/assets/matchdetaillogo/cs-sport-dark.svg" : "/assets/matchdetaillogo/cs-sport-light.svg";
+            setImageSrc(csLogo);
+            setHasError(false);
+            setIsLoading(true);
+            console.log(`🏆 [LazyImage] Using CS SPORT logo (${darkMode ? 'dark' : 'light'} mode): ${csLogo}`);
+            return true;
+          }
 
           // Champions League only - use theme-appropriate logo
           if (altLower.includes("champions league")) {
