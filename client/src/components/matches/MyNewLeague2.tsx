@@ -1309,13 +1309,78 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           </div>
         </CardHeader>
 
-        <Card className="mb-4">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-center h-32">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        {/* Multiple League Cards Skeleton */}
+        {[1, 2, 3].map((i) => (
+          <Card
+            key={`skeleton-league-${i}`}
+            className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing mobile-card rounded-none"
+          >
+            {/* League Header Skeleton */}
+            <div className="w-full flex items-center gap-2 p-2 md:p-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 min-h-[56px] touch-target">
+              <Skeleton className="h-5 w-5 rounded-full" />
+              <Skeleton className="w-6 h-6 md:w-7 md:h-7 rounded-full" />
+              <div className="flex flex-col flex-1 gap-1">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-24" />
+              </div>
             </div>
-          </CardContent>
-        </Card>
+
+            {/* Enhanced Match Skeleton Cards with 3-grid layout */}
+            <div className="match-cards-wrapper">
+              {[1, 2, 3].map((j) => (
+                <div key={`skeleton-match-${i}-${j}`} className="country-matches-container">
+                  <div className="match-card-container">
+                    {/* Star Button Skeleton */}
+                    <div className="match-star-button">
+                      <Skeleton className="h-4 w-4 rounded-full" />
+                    </div>
+
+                    {/* Three-grid layout container */}
+                    <div className="match-three-grid-container">
+                      {/* Top grid for status */}
+                      <div className="match-status-top" style={{ minHeight: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <Skeleton className="h-4 w-16 rounded" />
+                      </div>
+
+                      {/* Middle grid for main content */}
+                      <div className="match-content-container">
+                        {/* Home Team Name */}
+                        <div className="home-team-name" style={{ textAlign: "right" }}>
+                          <Skeleton className="h-4 w-20" />
+                        </div>
+
+                        {/* Home team logo */}
+                        <div className="home-team-logo-container" style={{ padding: "0 0.6rem" }}>
+                          <Skeleton className="h-8 w-8 rounded-full" />
+                        </div>
+
+                        {/* Score/Time Center */}
+                        <div className="match-score-container">
+                          <Skeleton className="h-6 w-12 rounded" />
+                        </div>
+
+                        {/* Away team logo */}
+                        <div className="away-team-logo-container" style={{ padding: "0 0.5rem" }}>
+                          <Skeleton className="h-8 w-8 rounded-full" />
+                        </div>
+
+                        {/* Away Team Name */}
+                        <div className="away-team-name" style={{ paddingLeft: "0.75rem", textAlign: "left" }}>
+                          <Skeleton className="h-4 w-20" />
+                        </div>
+                      </div>
+
+                      {/* Bottom grid placeholder */}
+                      <div className="match-penalty-bottom" style={{ minHeight: '16px' }}>
+                        {/* Empty space for penalty results when applicable */}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        ))}
       </>
     );
   }
