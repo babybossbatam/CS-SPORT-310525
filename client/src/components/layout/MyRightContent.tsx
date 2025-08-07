@@ -1,21 +1,20 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/lib/store';
-import MyHomeFeaturedMatchNew from '@/components/matches/MyHomeFeaturedMatchNew';
-import HomeTopScorersList from '@/components/leagues/HomeTopScorersList';
-import LeagueStandingsFilter from '@/components/leagues/LeagueStandingsFilter';
-import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
-import MyAllLeague from '@/components/matches/MyAllLeague';
-import { Card, CardContent } from '@/components/ui/card';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
+import MyHomeFeaturedMatchNew from "@/components/matches/MyHomeFeaturedMatchNew";
+import HomeTopScorersList from "@/components/leagues/HomeTopScorersList";
+import LeagueStandingsFilter from "@/components/leagues/LeagueStandingsFilter";
+import PopularLeaguesList from "@/components/leagues/PopularLeaguesList";
+import MyAllLeague from "@/components/matches/MyAllLeague";
+import { Card, CardContent } from "@/components/ui/card";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
-import PopularTeamsList from '@/components/teams/PopularTeamsList';
-import ScoreDetailsCard from '@/components/matches/ScoreDetailsCard';
-import MyMainLayoutRight from '@/components/layout/MyMainLayoutRight';
-import MyInfo from '@/components/info/MyInfo';
-import { useDeviceInfo } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
-
+import PopularTeamsList from "@/components/teams/PopularTeamsList";
+import ScoreDetailsCard from "@/components/matches/ScoreDetailsCard";
+import MyMainLayoutRight from "@/components/layout/MyMainLayoutRight";
+import MyInfo from "@/components/info/MyInfo";
+import { useDeviceInfo } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 const MyRightContent: React.FC = () => {
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
@@ -26,10 +25,7 @@ const MyRightContent: React.FC = () => {
     <div className="h-full min-h-0 overflow-y-auto space-y-4 pb-4">
       {/* Featured Match Section - Hidden on mobile */}
       {!isMobile && (
-        <MyHomeFeaturedMatchNew 
-          selectedDate={selectedDate} 
-          maxMatches={8}
-        />
+        <MyHomeFeaturedMatchNew selectedDate={selectedDate} maxMatches={8} />
       )}
 
       <HomeTopScorersList />
@@ -40,7 +36,7 @@ const MyRightContent: React.FC = () => {
       <MyInfo />
 
       {/* Popular Leagues and All League List sections */}
-      <div className="grid grid-cols-2 gap-4 hover:bg-gray-200">
+      <div className="grid grid-cols-2 gap-4 ">
         <div className="space-y-4">
           <PopularLeaguesList />
           <PopularTeamsList />
@@ -50,7 +46,6 @@ const MyRightContent: React.FC = () => {
     </div>
   );
 };
-
 
 export default MyRightContent;
 export { MyMainLayoutRight as MyRightDetails };
