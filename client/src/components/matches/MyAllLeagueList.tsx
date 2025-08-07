@@ -547,7 +547,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
                 {/* Leagues List - Show when expanded and has leagues */}
                 {isExpanded && totalLeagues > 0 && (
-                  <div className="space-y-2  pb-4 ">
+                  <div className="   ">
                     {Object.values(countryData.leagues)
                       .sort((a: any, b: any) => a.league.name.localeCompare(b.league.name))
                       .map((leagueData: any) => {
@@ -610,7 +610,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                               className={`absolute right-2 w-6 h-full flex items-center justify-center transition-all duration-300 ease-out ${
                                 isStarred
                                   ? 'opacity-100 transform translate-x-0'
-                                  : 'opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 hover:border-l-blue-400'
+                                  : 'opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 group-hover:border-l-blue-400'
                               }`}
                               title={`${isStarred ? "Remove from" : "Add to"} favorites`}
                             >
