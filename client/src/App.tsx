@@ -1,7 +1,7 @@
 import { Switch, Route, useLocation } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Suspense, lazy, useEffect, startTransition } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { debugLogger } from "./lib/debugLogger";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -53,52 +53,38 @@ const AppWithLanguageRouting = () => {
 // Separate component for routes
 const AppRoutes = () => {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-          <BrandedLoading size="64px" className="py-8" />
-        </div>
-      }
-    >
-      <Switch>
-        {/* Routes with language prefix */}
-        <Route path="/:lang" component={Home} />
-        <Route path="/:lang/" component={Home} />
-        <Route path="/:lang/football" component={Football} />
-        <Route path="/:lang/basketball" component={Basketball} />
-        <Route path="/:lang/tv" component={TV} />
-        <Route path="/:lang/horse-racing" component={HorseRacing} />
-        <Route path="/:lang/snooker" component={Snooker} />
-        <Route path="/:lang/esport" component={Esport} />
-        <Route path="/:lang/match/:matchId" component={MatchDetails} />
-        <Route path="/:lang/league/:leagueId" component={LeagueDetails} />
-        <Route path="/:lang/my-scores" component={MyScores} />
-        <Route path="/:lang/login" component={Authentication} />
+    <Switch>
+      {/* Routes with language prefix */}
+      <Route path="/:lang" component={Home} />
+      <Route path="/:lang/" component={Home} />
+      <Route path="/:lang/football" component={Football} />
+      <Route path="/:lang/basketball" component={Basketball} />
+      <Route path="/:lang/tv" component={TV} />
+      <Route path="/:lang/horse-racing" component={HorseRacing} />
+      <Route path="/:lang/snooker" component={Snooker} />
+      <Route path="/:lang/esport" component={Esport} />
+      <Route path="/:lang/match/:matchId" component={MatchDetails} />
+      <Route path="/:lang/league/:leagueId" component={LeagueDetails} />
+      <Route path="/:lang/my-scores" component={MyScores} />
+      <Route path="/:lang/login" component={Authentication} />
 
-        {/* Fallback routes without language (redirect to default language) */}
-        <Route path="/" component={() => {
-          startTransition(() => {
-            window.location.href = "/en";
-          });
-          return null;
-        }} />
-        <Route path="/football" component={() => {
-          startTransition(() => {
-            window.location.href = "/en/football";
-          });
-          return null;
-        }} />
-        <Route path="/basketball" component={() => {
-          startTransition(() => {
-            window.location.href = "/en/basketball";
-          });
-          return null;
-        }} />
+      {/* Fallback routes without language (redirect to default language) */}
+      <Route path="/" component={() => {
+        window.location.href = "/en";
+        return null;
+      }} />
+      <Route path="/football" component={() => {
+        window.location.href = "/en/football";
+        return null;
+      }} />
+      <Route path="/basketball" component={() => {
+        window.location.href = "/en/basketball";
+        return null;
+      }} />
 
-        {/* 404 page */}
-        <Route component={NotFound} />
-      </Switch>
-    </Suspense>
+      {/* 404 page */}
+      <Route component={NotFound} />
+    </Switch>
   );
 };
 const Settings = lazy(() => import("@/pages/Settings"));
