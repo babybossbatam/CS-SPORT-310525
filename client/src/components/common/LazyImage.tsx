@@ -440,7 +440,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         display: hasError && imageSrc !== "/assets/matchdetaillogo/fallback.png" ? 'none' : 'block',
         opacity: isLoading ? 0.7 : 1,
         transition: 'opacity 0.2s ease-in-out',
-        filter: 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))',
+        filter: darkMode ? 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))' : 'none',
         // Apply size from props if no explicit width/height in style
         ...(style?.width || style?.height ? {} : {
           width: style?.width || style?.height || (isMobile ? '32px' : '32px'),
