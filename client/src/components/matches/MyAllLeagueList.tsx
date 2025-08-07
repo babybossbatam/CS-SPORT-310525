@@ -422,12 +422,12 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
           {/* Football Header - Clickable */}
           <button
             onClick={toggleFootballSection}
-            className="w-full p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
+            className="w-full p-4 border-b border-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span 
-                  className="text-gray-900 font-medium"
+                  className="text-white font-medium"
                   style={{
                     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                     fontSize: "14px",
