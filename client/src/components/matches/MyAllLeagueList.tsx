@@ -555,7 +555,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                         const isStarred = user.preferences.favoriteLeagues.includes(leagueId.toString());
 
                         return (
-                          <div key={leagueId} className="group relative flex items-center gap-3 py-2 hover:bg-gray-50 rounded-lg px-2 transition-colors w-full">
+                          <div key={leagueId} className="group relative flex items-center gap-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg px-2 transition-colors w-full">
                             <img
                               src={(() => {
                                 const leagueName = leagueData.league.name?.toLowerCase() || "";
@@ -579,17 +579,16 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                             />
                             <div className="flex-1">
                               <span
-                                className="text-gray-800 font-medium"
+                                className="text-sm dark:text-white"
                                 style={{
                                   fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                                  fontSize: "13px",
                                 }}
                               >
                                 {safeSubstring(leagueData.league.name, 0) || "Unknown League"}
                               </span>
                             </div>
                             <span
-                              className="text-gray-500 text-xs mr-8"
+                              className="text-gray-500 dark:text-gray-400 text-xs mr-8"
                               style={{
                                 fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                               }}
