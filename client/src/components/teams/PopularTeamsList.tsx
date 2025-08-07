@@ -9,21 +9,21 @@ import MyWorldTeamLogo from '../common/MyWorldTeamLogo';
 
 // Popular teams with their data - fallback data
 const CURRENT_POPULAR_TEAMS = [
-  { id: 33, name: 'Manchester United', logo: 'https://media.api-sports.io/football/teams/33.png', country: 'England', popularity: 95 },
-  { id: 40, name: 'Liverpool', logo: 'https://media.api-sports.io/football/teams/40.png', country: 'England', popularity: 92 },
-  { id: 50, name: 'Manchester City', logo: 'https://media.api-sports.io/football/teams/50.png', country: 'England', popularity: 90 },
-  { id: 541, name: 'Real Madrid', logo: 'https://media.api-sports.io/football/teams/541.png', country: 'Spain', popularity: 88 },
-  { id: 529, name: 'FC Barcelona', logo: 'https://media.api-sports.io/football/teams/529.png', country: 'Spain', popularity: 85 },
-  { id: 42, name: 'Arsenal', logo: 'https://media.api-sports.io/football/teams/42.png', country: 'England', popularity: 83 },
-  { id: 49, name: 'Chelsea', logo: 'https://media.api-sports.io/football/teams/49.png', country: 'England', popularity: 80 },
-  { id: 157, name: 'Bayern Munich', logo: 'https://media.api-sports.io/football/teams/157.png', country: 'Germany', popularity: 78 },
-  { id: 47, name: 'Tottenham', logo: 'https://media.api-sports.io/football/teams/47.png', country: 'England', popularity: 75 },
-  { id: 10, name: 'England', logo: 'https://media.api-sports.io/football/teams/10.png', country: 'England', popularity: 70 },
-  { id: 489, name: 'AC Milan', logo: 'https://media.api-sports.io/football/teams/489.png', country: 'Italy', popularity: 68 },
-  { id: 496, name: 'Juventus', logo: 'https://media.api-sports.io/football/teams/496.png', country: 'Italy', popularity: 65 },
-  { id: 165, name: 'Borussia Dortmund', logo: 'https://media.api-sports.io/football/teams/165.png', country: 'Germany', popularity: 62 },
-  { id: 85, name: 'Paris Saint Germain', logo: 'https://media.api-sports.io/football/teams/85.png', country: 'France', popularity: 60 },
-  { id: 548, name: 'Real Sociedad', logo: 'https://media.api-sports.io/football/teams/548.png', country: 'Spain', popularity: 58 }
+  { id: 33, name: 'Manchester United', logo: 'https://media.api.sports.io/football/teams/33.png', country: 'England', popularity: 95 },
+  { id: 40, name: 'Liverpool', logo: 'https://media.api.sports.io/football/teams/40.png', country: 'England', popularity: 92 },
+  { id: 50, name: 'Manchester City', logo: 'https://media.api.sports.io/football/teams/50.png', country: 'England', popularity: 90 },
+  { id: 541, name: 'Real Madrid', logo: 'https://media.api.sports.io/football/teams/541.png', country: 'Spain', popularity: 88 },
+  { id: 529, name: 'FC Barcelona', logo: 'https://media.api.sports.io/football/teams/529.png', country: 'Spain', popularity: 85 },
+  { id: 42, name: 'Arsenal', logo: 'https://media.api.sports.io/football/teams/42.png', country: 'England', popularity: 83 },
+  { id: 49, name: 'Chelsea', logo: 'https://media.api.sports.io/football/teams/49.png', country: 'England', popularity: 80 },
+  { id: 157, name: 'Bayern Munich', logo: 'https://media.api.sports.io/football/teams/157.png', country: 'Germany', popularity: 78 },
+  { id: 47, name: 'Tottenham', logo: 'https://media.api.sports.io/football/teams/47.png', country: 'England', popularity: 75 },
+  { id: 10, name: 'England', logo: 'https://media.api.sports.io/football/teams/10.png', country: 'England', popularity: 70 },
+  { id: 489, name: 'AC Milan', logo: 'https://media.api.sports.io/football/teams/489.png', country: 'Italy', popularity: 68 },
+  { id: 496, name: 'Juventus', logo: 'https://media.api.sports.io/football/teams/496.png', country: 'Italy', popularity: 65 },
+  { id: 165, name: 'Borussia Dortmund', logo: 'https://media.api.sports.io/football/teams/165.png', country: 'Germany', popularity: 62 },
+  { id: 85, name: 'Paris Saint Germain', logo: 'https://media.api.sports.io/football/teams/85.png', country: 'France', popularity: 60 },
+  { id: 548, name: 'Real Sociedad', logo: 'https://media.api.sports.io/football/teams/548.png', country: 'Spain', popularity: 58 }
 ];
 
 const PopularTeamsList = () => {
@@ -163,7 +163,7 @@ const PopularTeamsList = () => {
               return (
                 <div
                   key={team.id}
-                  className="flex items-center py-2 px-3 hover:bg-gray-100 border-b border-gray-200 rounded-md cursor-pointer transition-colors  "
+                  className="flex items-center py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
                   onClick={() => navigate(`/team/${team.id}`)}
                 >
                   <MyWorldTeamLogo

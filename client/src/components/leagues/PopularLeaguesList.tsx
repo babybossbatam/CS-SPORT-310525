@@ -438,7 +438,7 @@ const PopularLeaguesList = () => {
               return (
                 <div
                   key={league.id}
-                  className="flex items-center py-2 px-3 hover:bg-gray-50 cursor-pointer transition-colors"
+                  className="flex items-center py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
                   onClick={() => navigate(`/league/${league.id}`)}
                 >
                   <LazyImage
