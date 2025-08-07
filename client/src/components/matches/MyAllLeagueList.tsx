@@ -25,7 +25,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   const [error, setError] = useState<string | null>(null);
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [isFootballExpanded, setIsFootballExpanded] = useState<boolean>(false);
-  
+
   // Redux state
   const user = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
@@ -522,7 +522,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                         className={`text-sm ${hasMatches ? 'text-gray-500' : 'text-gray-300'}`}
                         style={{
                           fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                          
+
                         }}
                       >
                         ({liveMatches > 0 ? (
@@ -553,7 +553,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                       .map((leagueData: any) => {
                         const leagueId = leagueData.league.id;
                         const isStarred = user.preferences.favoriteLeagues.includes(leagueId.toString());
-                        
+
                         return (
                           <div key={leagueId} className="group relative flex items-center gap-3 py-2 hover:bg-gray-50 rounded-lg px-2 transition-colors">
                             <img
@@ -600,7 +600,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                                 </>
                               ) : `(${leagueData.matchCount})`}
                             </span>
-                            
+
                             {/* Star Button - Slides from right */}
                             <button
                               onClick={(e) => {
