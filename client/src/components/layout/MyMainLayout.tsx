@@ -53,7 +53,4 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   }
 };
 
-  
-};
-
 export default MyMainLayout;
