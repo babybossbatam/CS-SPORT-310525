@@ -877,7 +877,7 @@ const LeagueStandingsFilter = () => {
                             return (
                               <TableRow
                                 key={standing.team.id}
-                                className="border-b  border-gray-100"
+                                className="border-b border-gray-300"
                               >
                                 <TableCell className="font-medium text-[0.8rem] text-center px-0.5 py-2 ">
                                   {standing.rank}
