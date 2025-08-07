@@ -476,7 +476,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                 {/* Country Header - Clickable (nested under Football) */}
                 <button
                   onClick={() => toggleCountry(countryData.country)}
-                  className={`w-full flex items-center justify-between pl-2 pr-4 py-3 transition-colors border-l-2 border-blue-200 hover:bg-gray-50 cursor-pointer hover:border-l-blue-400`}
+                  className={`w-full flex items-center justify-between pl-2 pr-4 py-3 transition-colors border-l-2 border-blue-200 bg-white hover:bg-gray-50 cursor-pointer hover:border-l-blue-400`}
                 >
                   <div className="flex items-center gap-3">
                     {(() => {
