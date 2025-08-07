@@ -86,6 +86,21 @@ function Router() {
       <Route path="/news/:id" component={NewsPage} />
       <Route path="/scoreboard-demo" component={ScoreboardDemo} />
       <Route path="/365scores" component={Scores365Page} />
+      
+      {/* Language-specific routes - redirect to home with language context */}
+      <Route path="/zh-hk" component={Home} />
+      <Route path="/en" component={Home} />
+      <Route path="/es" component={Home} />
+      <Route path="/fr" component={Home} />
+      <Route path="/de" component={Home} />
+      <Route path="/it" component={Home} />
+      <Route path="/pt" component={Home} />
+      <Route path="/ru" component={Home} />
+      <Route path="/ar" component={Home} />
+      <Route path="/ja" component={Home} />
+      <Route path="/ko" component={Home} />
+      <Route path="/zh-cn" component={Home} />
+      
       <Route component={NotFound} />
     </Switch>
   );
