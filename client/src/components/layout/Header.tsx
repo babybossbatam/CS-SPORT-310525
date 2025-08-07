@@ -26,6 +26,7 @@ import { RootState, userActions } from "@/lib/store";
 import React from "react";
 import { useDeviceInfo, useMobileViewport } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import MyCircularFlag from "@/components/common/MyCircularFlag";
 
 interface HeaderProps {
   showTextOnMobile?: boolean;
@@ -249,15 +250,18 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                     )}
                   >
                     <div className="flex items-center">
-                      <img
-                        src="https://flagsapi.com/US/flat/24.png"
-                        alt="Selected Country Flag"
-                        className={cn("mr-2 rounded-sm", isMobile ? "w-6 h-4" : "w-5 h-3")}
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjMDA1MkZGIi8+CjxyZWN0IHk9IjMiIHdpZHRoPSIyNCIgaGVpZ2h0PSIyIiBmaWxsPSJ3aGl0ZSIvPgo8cmVjdCB5PSI3IiB3aWR0aD0iMjQiIGhlaWdodD0iMiIgZmlsbD0iI0ZGMDAwMCIvPgo8cmVjdCB5PSIxMSIgd2lkdGg9IjI0IiBoZWlnaHQ9IjIiIGZpbGw9IndoaXRlIi8+CjxyZWN0IHk9IjE1IiB3aWR0aD0iMjQiIGhlaWdodD0iMiIgZmlsbD0iI0ZGMDAwMCIvPgo8cmVjdCB5PSIxOSIgd2lkdGg9IjI0IiBoZWlnaHQ9IjIiIGZpbGw9IndoaXRlIi8+CjxyZWN0IHdpZHRoPSIxMCIgaGVpZ2h0PSIxMiIgZmlsbD0iIzAwNTJGRiIvPgo8L3N2Zz4K";
-                        }}
-                      />
+                      <div className="mr-2">
+                        <MyCircularFlag
+                          teamName={selectedLanguage.includes("US") ? "United States" : 
+                                   selectedLanguage.includes("UK") ? "United Kingdom" :
+                                   selectedLanguage.includes("Español") ? "Spain" :
+                                   selectedLanguage.includes("Français") ? "France" :
+                                   selectedLanguage.includes("中文 (简体)") ? "China" :
+                                   selectedLanguage.includes("中文 (繁體)") ? "Hong Kong" : "United States"}
+                          size={isMobile ? "24px" : "20px"}
+                          className=""
+                        />
+                      </div>
                       <span className={cn(isMobile ? "text-base" : "text-sm")}>
                         {selectedLanguage}
                       </span>
@@ -282,15 +286,13 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                     )}
                     onClick={() => setSelectedLanguage("English (US)")}
                   >
-                    <img
-                      src="https://flagsapi.com/US/flat/24.png"
-                      alt="US Flag"
-                      className={cn("mr-2 rounded-sm", isMobile ? "w-6 h-4" : "w-5 h-3")}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjMDA1MkZGIi8+CjxyZWN0IHk9IjMiIHdpZHRoPSIyNCIgaGVpZ2h0PSIyIiBmaWxsPSJ3aGl0ZSIvPgo8cmVjdCB5PSI3IiB3aWR0aD0iMjQiIGhlaWdodD0iMiIgZmlsbD0iI0ZGMDAwMCIvPgo8cmVjdCB5PSIxMSIgd2lkdGg9IjI0IiBoZWlnaHQ9IjIiIGZpbGw9IndoaXRlIi8+CjxyZWN0IHk9IjE1IiB3aWR0aD0iMjQiIGhlaWdodD0iMiIgZmlsbD0iI0ZGMDAwMCIvPgo8cmVjdCB5PSIxOSIgd2lkdGg9IjI0IiBoZWlnaHQ9IjIiIGZpbGw9IndoaXRlIi8+CjxyZWN0IHdpZHRoPSIxMCIgaGVpZ2h0PSIxMiIgZmlsbD0iIzAwNTJGRiIvPgo8L3N2Zz4K";
-                      }}
-                    />
+                    <div className="mr-2">
+                      <MyCircularFlag
+                        teamName="United States"
+                        size={isMobile ? "20px" : "16px"}
+                        className=""
+                      />
+                    </div>
                     English (US)
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -300,15 +302,13 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                     )}
                     onClick={() => setSelectedLanguage("English (UK)")}
                   >
-                    <img
-                      src="https://flagsapi.com/GB/flat/24.png"
-                      alt="UK Flag"
-                      className={cn("mr-2 rounded-sm", isMobile ? "w-6 h-4" : "w-5 h-3")}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjMDA1MkZGIi8+CjxwYXRoIGQ9Ik0wIDBoMjR2MjRIMHoiIGZpbGw9IiMwMDUyRkYiLz4KPHBhdGggZD0iTTAgMTJoMjQiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iNCIvPgo8cGF0aCBkPSJNMTIgMHYyNCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI0Ii8+CjxwYXRoIGQ9Ik0wIDEyaDI0IiBzdHJva2U9IiNGRjAwMDAiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTIgMHYyNCIgc3Ryb2tlPSIjRkYwMDAwIiBzdHJva2Utd2lkdGg9IjIiLz4KPC9zdmc+Cg==";
-                      }}
-                    />
+                    <div className="mr-2">
+                      <MyCircularFlag
+                        teamName="United Kingdom"
+                        size={isMobile ? "20px" : "16px"}
+                        className=""
+                      />
+                    </div>
                     English (UK)
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -318,15 +318,13 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                     )}
                     onClick={() => setSelectedLanguage("Español")}
                   >
-                    <img
-                      src="https://flagsapi.com/ES/flat/24.png"
-                      alt="Spain Flag"
-                      className={cn("mr-2 rounded-sm", isMobile ? "w-6 h-4" : "w-5 h-3")}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjYiIGZpbGw9IiNGRjAwMDAiLz4KPHJlY3QgeT0iNiIgd2lkdGg9IjI0IiBoZWlnaHQ9IjEyIiBmaWxsPSIjRkZENzAwIi8+CjxyZWN0IHk9IjE4IiB3aWR0aD0iMjQiIGhlaWdodD0iNiIgZmlsbD0iI0ZGMDAwMCIvPgo8L3N2Zz4K";
-                      }}
-                    />
+                    <div className="mr-2">
+                      <MyCircularFlag
+                        teamName="Spain"
+                        size={isMobile ? "20px" : "16px"}
+                        className=""
+                      />
+                    </div>
                     Español
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -336,15 +334,13 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                     )}
                     onClick={() => setSelectedLanguage("Français")}
                   >
-                    <img
-                      src="https://flagsapi.com/FR/flat/24.png"
-                      alt="France Flag"
-                      className={cn("mr-2 rounded-sm", isMobile ? "w-6 h-4" : "w-5 h-3")}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgiIGhlaWdodD0iMjQiIGZpbGw9IiMwMDUyRkYiLz4KPHJlY3QgeD0iOCIgd2lkdGg9IjgiIGhlaWdodD0iMjQiIGZpbGw9IndoaXRlIi8+CjxyZWN0IHg9IjE2IiB3aWR0aD0iOCIgaGVpZ2h0PSIyNCIgZmlsbD0iI0ZGMDAwMCIvPgo8L3N2Zz4K";
-                      }}
-                    />
+                    <div className="mr-2">
+                      <MyCircularFlag
+                        teamName="France"
+                        size={isMobile ? "20px" : "16px"}
+                        className=""
+                      />
+                    </div>
                     Français
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -354,15 +350,13 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                     )}
                     onClick={() => setSelectedLanguage("中文 (简体)")}
                   >
-                    <img
-                      src="https://flagsapi.com/CN/flat/24.png"
-                      alt="China Flag"
-                      className={cn("mr-2 rounded-sm", isMobile ? "w-6 h-4" : "w-5 h-3")}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjRkYwMDAwIi8+CjxzdGFyIGN4PSI2IiBjeT0iNiIgcj0iMyIgZmlsbD0iI0ZGRDcwMCIvPgo8L3N2Zz4K";
-                      }}
-                    />
+                    <div className="mr-2">
+                      <MyCircularFlag
+                        teamName="China"
+                        size={isMobile ? "20px" : "16px"}
+                        className=""
+                      />
+                    </div>
                     中文 (简体)
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -372,15 +366,13 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                     )}
                     onClick={() => setSelectedLanguage("中文 (繁體)")}
                   >
-                    <img
-                      src="https://flagsapi.com/HK/flat/24.png"
-                      alt="Hong Kong Flag"
-                      className={cn("mr-2 rounded-sm", isMobile ? "w-6 h-4" : "w-5 h-3")}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjRkYwMDAwIi8+CjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjQiIGZpbGw9IndoaXRlIi8+CjwvdXZnPgo=";
-                      }}
-                    />
+                    <div className="mr-2">
+                      <MyCircularFlag
+                        teamName="Hong Kong"
+                        size={isMobile ? "20px" : "16px"}
+                        className=""
+                      />
+                    </div>
                     中文 (繁體)
                   </DropdownMenuItem>
                 </DropdownMenuContent>
