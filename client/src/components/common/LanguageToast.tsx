@@ -3,7 +3,15 @@ import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const LanguageToast: React.FC = () => {
-  const { currentLanguage } = useLanguage();
+  // Add error boundary for when LanguageProvider is not available
+  let currentLanguage: string;
+  try {
+    const languageContext = useLanguage();
+    currentLanguage = languageContext.currentLanguage;
+  } catch (error) {
+    // If LanguageProvider is not available, don't render the toast
+    return null;
+  }
   const [showToast, setShowToast] = useState(false);
   const [previousLanguage, setPreviousLanguage] = useState(currentLanguage);
 
