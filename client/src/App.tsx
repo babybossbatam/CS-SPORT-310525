@@ -33,30 +33,20 @@ const MyScores = lazy(() => import("@/pages/MyScores"));
 const AppWithLanguageRouting = () => {
   const [location] = useLocation();
   const supportedLanguages = ['en', 'es', 'zh-hk', 'zh', 'de', 'it', 'pt'];
-  
+
   // Extract language from URL
   const pathParts = location.split('/').filter(part => part);
-  const urlLanguage = pathParts.length > 0 && supportedLanguages.includes(pathParts[0]) 
-    ? pathParts[0] 
-    : null;
+  const urlLanguage = pathParts.length > 0 && supportedLanguages.includes(pathParts[0]) ? pathParts[0] : null;
 
   return (
-    <LanguageProvider initialLanguage={urlLanguage}>
-      <LanguageToast />
-      <CentralDataProvider selectedDate={new Date().toISOString().slice(0, 10)}>
-        <Provider store={store}>
-          <Suspense
-            fallback={
-              <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-                <BrandedLoading size="64px" className="py-8" />
-              </div>
-            }
-          >
-            <AppRoutes />
-          </Suspense>
-        </Provider>
-      </CentralDataProvider>
-    </LanguageProvider>
+    <Provider store={store}>
+      <LanguageProvider initialLanguage={urlLanguage}>
+        <CentralDataProvider>
+          <LanguageToast />
+          <AppRoutes />
+        </CentralDataProvider>
+      </LanguageProvider>
+    </Provider>
   );
 };
 
@@ -77,21 +67,21 @@ const AppRoutes = () => {
       <Route path="/:lang/league/:leagueId" component={LeagueDetails} />
       <Route path="/:lang/my-scores" component={MyScores} />
       <Route path="/:lang/login" component={Authentication} />
-      
+
       {/* Fallback routes without language (redirect to default language) */}
-      <Route path="/" component={() => { 
+      <Route path="/" component={() => {
         window.location.href = "/en";
         return null;
       }} />
-      <Route path="/football" component={() => { 
+      <Route path="/football" component={() => {
         window.location.href = "/en/football";
         return null;
       }} />
-      <Route path="/basketball" component={() => { 
+      <Route path="/basketball" component={() => {
         window.location.href = "/en/basketball";
         return null;
       }} />
-      
+
       {/* 404 page */}
       <Route component={NotFound} />
     </Switch>
@@ -155,7 +145,7 @@ function Router() {
       <Route path="/news/:id" component={NewsPage} />
       <Route path="/scoreboard-demo" component={ScoreboardDemo} />
       <Route path="/365scores" component={Scores365Page} />
-      
+
       {/* Language-specific routes - redirect to home with language context */}
       <Route path="/zh-hk" component={Home} />
       <Route path="/en" component={Home} />
@@ -169,7 +159,7 @@ function Router() {
       <Route path="/ja" component={Home} />
       <Route path="/ko" component={Home} />
       <Route path="/zh-cn" component={Home} />
-      
+
       <Route component={NotFound} />
     </Switch>
   );
