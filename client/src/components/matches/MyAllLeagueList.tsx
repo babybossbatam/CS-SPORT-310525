@@ -547,7 +547,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
                 {/* Leagues List - Show when expanded and has leagues */}
                 {isExpanded && totalLeagues > 0 && (
-                  <div className="space-y-2 ml-3 pb-4 mr-12">
+                  <div className="space-y-2 ml-3 pb-4 w-full">
                     {Object.values(countryData.leagues)
                       .sort((a: any, b: any) => a.league.name.localeCompare(b.league.name))
                       .map((leagueData: any) => {
@@ -555,7 +555,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                         const isStarred = user.preferences.favoriteLeagues.includes(leagueId.toString());
 
                         return (
-                          <div key={leagueId} className="group relative flex items-center gap-3 py-2 hover:bg-gray-50 rounded-lg px-2 transition-colors">
+                          <div key={leagueId} className="group relative flex items-center gap-3 py-2 hover:bg-gray-50 rounded-lg px-2 transition-colors w-full">
                             <img
                               src={(() => {
                                 const leagueName = leagueData.league.name?.toLowerCase() || "";
