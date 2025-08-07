@@ -607,10 +607,10 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                                 e.stopPropagation();
                                 toggleFavoriteLeague(leagueId);
                               }}
-                              className={`absolute right-2 w-6 h-full flex items-center justify-center transition-all duration-300 ease-out ${
+                              className={`absolute right-2 w-6 h-full flex items-center justify-center transition-all duration-300 ease-out border-l-2 ${
                                 isStarred
-                                  ? 'opacity-100 transform translate-x-0'
-                                  : 'opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 group-hover:border-l-blue-400'
+                                  ? 'opacity-100 transform translate-x-0 border-l-blue-400'
+                                  : 'opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 group-hover:border-l-blue-400 border-l-transparent'
                               }`}
                               title={`${isStarred ? "Remove from" : "Add to"} favorites`}
                             >
