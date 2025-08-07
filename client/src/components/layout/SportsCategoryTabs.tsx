@@ -17,6 +17,7 @@ import {
   RugbyIcon
 } from '@/components/icons/SportIcons';
 import { useDeviceInfo } from '@/hooks/use-mobile';
+import { useTranslation } from '@/contexts/LanguageContext';
 
 type SportItem = {
   id: string;
@@ -29,6 +30,7 @@ const SportsCategoryTabs = () => {
   const dispatch = useDispatch();
   const selectedSport = useSelector((state: RootState) => state.ui.selectedSport);
   const { isMobile } = useDeviceInfo();
+  const { t } = useTranslation();
 
   const handleSportSelect = (sport: string) => {
     dispatch(uiActions.setSelectedSport(sport));
@@ -36,12 +38,12 @@ const SportsCategoryTabs = () => {
   };
 
   const sportsList: SportItem[] = [
-    { id: 'tv', icon: TvIcon, label: 'TV' },
-    { id: 'football', icon: FootballIcon, label: 'Football' },
-    { id: 'basketball', icon: BasketballIcon, label: 'Basketball' },
-    { id: 'horseracing', icon: HorseRacingIcon, label: 'Horse Racing' },
-    { id: 'snooker', icon: SnookerIcon, label: 'Snooker' },
-    { id: 'esports', icon: EsportsIcon, label: 'Esports' }
+    { id: 'tv', icon: TvIcon, label: t('tv') },
+    { id: 'football', icon: FootballIcon, label: t('football') },
+    { id: 'basketball', icon: BasketballIcon, label: t('basketball') },
+    { id: 'horseracing', icon: HorseRacingIcon, label: t('horse_racing') },
+    { id: 'snooker', icon: SnookerIcon, label: t('snooker') },
+    { id: 'esports', icon: EsportsIcon, label: t('esports') }
   ];
 
   return (
