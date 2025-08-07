@@ -214,6 +214,13 @@ export const LanguageProvider: React.FC<{
     if (translations[language]) {
       setCurrentLanguage(language);
       localStorage.setItem('app-language', language);
+    }
+  };
+
+  const setLanguageWithUrlUpdate = (language: string) => {
+    if (translations[language]) {
+      setCurrentLanguage(language);
+      localStorage.setItem('app-language', language);
       
       // Update URL to reflect language change
       const currentPath = window.location.pathname;
@@ -247,6 +254,7 @@ export const LanguageProvider: React.FC<{
   const contextValue = {
     currentLanguage,
     setLanguage,
+    setLanguageWithUrlUpdate,
     setLanguageByCountry,
     translations
   };

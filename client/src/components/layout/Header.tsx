@@ -97,11 +97,27 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
   };
 
   const handleLanguageChange = (languageCode: string) => {
-    setLanguage(languageCode);
+    const currentPath = getPathWithoutLanguage();
+    const newPath = `/${languageCode}${currentPath === '/' ? '' : currentPath}`;
+    
+    // Navigate to new URL with updated language
+    window.location.href = newPath;
+    
     toast({
       title: "Language Changed",
       description: `Language switched to ${getLanguageDisplayName(languageCode)}`,
     });
+  };
+
+  const getPathWithoutLanguage = (): string => {
+    const supportedLanguages = ['en', 'es', 'zh-hk', 'zh', 'de', 'it', 'pt'];
+    const pathParts = location.split('/').filter(part => part);
+    
+    if (pathParts.length > 0 && supportedLanguages.includes(pathParts[0])) {
+      const remainingPath = pathParts.slice(1).join('/');
+      return remainingPath ? `/${remainingPath}` : '/';
+    }
+    return location;
   };
 
   const getLanguageDisplayName = (lang: string): string => {

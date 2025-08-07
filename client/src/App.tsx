@@ -28,6 +28,75 @@ const MatchDetails = lazy(() => import("@/pages/MatchDetails"));
 const Authentication = lazy(() => import("@/pages/Authentication"));
 const LeagueDetails = lazy(() => import("@/pages/LeagueDetails"));
 const MyScores = lazy(() => import("@/pages/MyScores"));
+
+// Component to extract language from URL and provide it to LanguageProvider
+const AppWithLanguageRouting = () => {
+  const [location] = useLocation();
+  const supportedLanguages = ['en', 'es', 'zh-hk', 'zh', 'de', 'it', 'pt'];
+  
+  // Extract language from URL
+  const pathParts = location.split('/').filter(part => part);
+  const urlLanguage = pathParts.length > 0 && supportedLanguages.includes(pathParts[0]) 
+    ? pathParts[0] 
+    : null;
+
+  return (
+    <LanguageProvider initialLanguage={urlLanguage}>
+      <LanguageToast />
+      <CentralDataProvider selectedDate={new Date().toISOString().slice(0, 10)}>
+        <Provider store={store}>
+          <Suspense
+            fallback={
+              <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+                <BrandedLoading size="64px" className="py-8" />
+              </div>
+            }
+          >
+            <AppRoutes />
+          </Suspense>
+        </Provider>
+      </CentralDataProvider>
+    </LanguageProvider>
+  );
+};
+
+// Separate component for routes
+const AppRoutes = () => {
+  return (
+    <Switch>
+      {/* Routes with language prefix */}
+      <Route path="/:lang" component={Home} />
+      <Route path="/:lang/" component={Home} />
+      <Route path="/:lang/football" component={Football} />
+      <Route path="/:lang/basketball" component={Basketball} />
+      <Route path="/:lang/tv" component={TV} />
+      <Route path="/:lang/horse-racing" component={HorseRacing} />
+      <Route path="/:lang/snooker" component={Snooker} />
+      <Route path="/:lang/esport" component={Esport} />
+      <Route path="/:lang/match/:matchId" component={MatchDetails} />
+      <Route path="/:lang/league/:leagueId" component={LeagueDetails} />
+      <Route path="/:lang/my-scores" component={MyScores} />
+      <Route path="/:lang/login" component={Authentication} />
+      
+      {/* Fallback routes without language (redirect to default language) */}
+      <Route path="/" component={() => { 
+        window.location.href = "/en";
+        return null;
+      }} />
+      <Route path="/football" component={() => { 
+        window.location.href = "/en/football";
+        return null;
+      }} />
+      <Route path="/basketball" component={() => { 
+        window.location.href = "/en/basketball";
+        return null;
+      }} />
+      
+      {/* 404 page */}
+      <Route component={NotFound} />
+    </Switch>
+  );
+};
 const Settings = lazy(() => import("@/pages/Settings"));
 const SearchResults = lazy(() => import("@/pages/SearchResults"));
 const LiveMatches = lazy(() => import("@/pages/LiveMatches"));
@@ -208,24 +277,7 @@ function App() {
       <Toaster />
       <main className="bg-stone-50 pt-[0px] pb-[0px] mt-[81px] mobile-app-container">
         <QueryClientProvider client={queryClient}>
-          <LanguageProvider>
-            <LanguageToast />
-            <CentralDataProvider
-              selectedDate={new Date().toISOString().slice(0, 10)}
-            >
-              <Provider store={store}>
-                <Suspense
-                  fallback={
-                    <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-                      <BrandedLoading size="64px" className="py-8" />
-                    </div>
-                  }
-                >
-                  <AppContent />
-                </Suspense>
-              </Provider>
-            </CentralDataProvider>
-          </LanguageProvider>
+          <AppWithLanguageRouting />
         </QueryClientProvider>
       </main>
     </TooltipProvider>
