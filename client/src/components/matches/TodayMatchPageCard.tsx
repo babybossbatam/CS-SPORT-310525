@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Clock } from "lucide-react";
-import { Card, CardHeader, CardContent } from "../ui/card";
+import { Card, CardContent, CardHeader } from "../ui/card";
 import { Filter, Activity } from "lucide-react";
 import { Calendar } from "../ui/calendar";
 import { useQuery } from "@tanstack/react-query";
@@ -26,7 +25,7 @@ import {
   shouldExcludeFromPopularLeagues,
   isRestrictedUSLeague,
 } from "@/lib/MyPopularLeagueExclusion";
-
+import { useTranslation } from "@/contexts/LanguageContext";
 
 
 interface TodayMatchPageCardProps {
@@ -35,11 +34,12 @@ interface TodayMatchPageCardProps {
   onMatchCardClick?: (fixture: any) => void;
 }
 
-export const TodayMatchPageCard = ({
+const TodayMatchPageCard: React.FC<TodayMatchPageCardProps> = ({
   fixtures,
   onMatchClick,
   onMatchCardClick,
-}: TodayMatchPageCardProps) => {
+}) => {
+  const { t } = useTranslation();
   const [timeFilterActive, setTimeFilterActive] = useState(false);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -115,11 +115,11 @@ export const TodayMatchPageCard = ({
     const tomorrow = format(addDays(parseISO(today), 1), "yyyy-MM-dd");
 
     if (selectedDate === today) {
-      return "Today's Matches";
+      return t("Today's Matches");
     } else if (selectedDate === yesterday) {
-      return "Yesterday's Matches";
+      return t("Yesterday's Matches");
     } else if (selectedDate === tomorrow) {
-      return "Tomorrow's Matches";
+      return t("Tomorrow's Matches");
     } else {
       // For any other date, show the formatted date
       return format(parseISO(selectedDate), "EEE, do MMM");
@@ -251,7 +251,7 @@ export const TodayMatchPageCard = ({
                       "text-gray-500 rounded-md w-9 font-normal text-[0.8rem]",
                     row: "flex w-full mt-2",
                     cell: "h-6 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                    day: "h-6 w-6 p-0 text-xs font-normal aria-selected:opacity-100 hover:bg-gray-300 rounded-full border-transparent",
+                    day: "h-6 w-9 p-0 text-xs font-normal aria-selected:opacity-100 hover:bg-gray-300 rounded-full border-transparent",
                     day_range_end: "day-range-end",
                     day_selected:
                       "bg-blue-500 text-white hover:bg-stone-300 hover:text-gray-900 focus:bg-blue-400 focus:text-white rounded-full",
@@ -270,7 +270,7 @@ export const TodayMatchPageCard = ({
                     onClick={goToToday}
                     className="text-blue-500 hover:bg-stone-300 text-sm font-medium"
                   >
-                    Today
+                    {t("Today")}
                   </button>
                 </div>
               </div>
@@ -326,7 +326,7 @@ export const TodayMatchPageCard = ({
                 className={`relative inline-flex rounded-full h-2 w-2 ${liveFilterActive ? "bg-white" : "bg-red-500"}`}
               ></span>
             </span>
-            Live
+            {t("Live")}
           </button>
 
           {/* Spacer to maintain layout */}
@@ -372,7 +372,7 @@ export const TodayMatchPageCard = ({
             }`}
           >
             <Clock className="h-3.5 w-3.5" />
-            By time
+            {t("By time")}
           </button>
         </div>
       </Card>
@@ -412,7 +412,7 @@ export const TodayMatchPageCard = ({
             onMatchCardClick={handleMatchCardClick}
             useUTCOnly={true}
           />
-          
+
           <TodaysMatchesByCountryNew
             selectedDate={selectedDate}
             liveFilterActive={liveFilterActive}
