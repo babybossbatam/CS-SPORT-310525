@@ -1692,7 +1692,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     return null;
                                   })()}
                                 </div>
-                                <span className="text-xs text-gray-600 dark:text-white">
+                                <span className="text-xs text-gray-600 dark:text-gray-400">
                                   {leagueData.league.country ||
                                     "Unknown Country"}
                                 </span>
