@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar, ChevronDown, ChevronUp } from "lucide-react";
+import { Calendar, ChevronDown, ChevronUp, Star } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid } from "date-fns";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
@@ -10,6 +10,9 @@ import { isDateStringToday, isDateStringYesterday, isDateStringTomorrow } from "
 import { getCachedCountryName, setCachedCountryName } from "@/lib/countryCache";
 import { countryCodeMap } from "@/lib/flagUtils";
 import MyGroupNationalFlag from "../common/MyGroupNationalFlag";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/lib/store";
+import { userActions } from "@/lib/store";
 
 interface MyAllLeagueListProps {
   selectedDate: string;
@@ -22,6 +25,10 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   const [error, setError] = useState<string | null>(null);
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [isFootballExpanded, setIsFootballExpanded] = useState<boolean>(false);
+  
+  // Redux state
+  const user = useSelector((state: RootState) => state.user);
+  const dispatch = useDispatch();
 
   // Fetch all leagues data
   useEffect(() => {
@@ -271,6 +278,36 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     setIsFootballExpanded(prev => !prev);
   };
 
+  // Toggle favorite league
+  const toggleFavoriteLeague = (leagueId: number) => {
+    const leagueIdStr = leagueId.toString();
+    const isFavorite = user.preferences.favoriteLeagues.includes(leagueIdStr);
+
+    if (isFavorite) {
+      dispatch(userActions.removeFavoriteLeague(leagueIdStr));
+      if (user.isAuthenticated && user.id) {
+        apiRequest("PATCH", `/api/user/${user.id}/preferences`, {
+          favoriteLeagues: user.preferences.favoriteLeagues.filter(
+            (id) => id !== leagueIdStr,
+          ),
+        }).catch((err) => {
+          console.error("Failed to remove favorite league:", err);
+          dispatch(userActions.addFavoriteLeague(leagueIdStr));
+        });
+      }
+    } else {
+      dispatch(userActions.addFavoriteLeague(leagueIdStr));
+      if (user.isAuthenticated && user.id) {
+        apiRequest("PATCH", `/api/user/${user.id}/preferences`, {
+          favoriteLeagues: [...user.preferences.favoriteLeagues, leagueIdStr],
+        }).catch((err) => {
+          console.error("Failed to add favorite league:", err);
+          dispatch(userActions.removeFavoriteLeague(leagueIdStr));
+        });
+      }
+    }
+  };
+
   // Define all football countries
   const allFootballCountries = [
     "World", "Afghanistan", "Albania", "Algeria", "Angola", "Argentina", "Armenia", 
@@ -513,54 +550,81 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                   <div className="space-y-2 ml-3 pb-4 mr-12">
                     {Object.values(countryData.leagues)
                       .sort((a: any, b: any) => a.league.name.localeCompare(b.league.name))
-                      .map((leagueData: any) => (
-                        <div className="flex items-center gap-3 py-2">
-                          <img
-                            src={(() => {
-                              const leagueName = leagueData.league.name?.toLowerCase() || "";
-                              if (leagueName.includes("cotif")) {
-                                return "/assets/matchdetaillogo/cotif tournament.png";
-                              }
-                              return leagueData.league.logo || "/assets/fallback-logo.svg";
-                            })()}
-                            alt={leagueData.league.name || "Unknown League"}
-                            className="w-5 h-5 object-contain rounded-full"
-                            style={{ backgroundColor: "transparent" }}
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              const leagueName = leagueData.league.name?.toLowerCase() || "";
-                              if (leagueName.includes("cotif") && !target.src.includes("fallback-logo.svg")) {
-                                target.src = "/assets/fallback-logo.svg";
-                              } else if (!target.src.includes("fallback-logo.svg")) {
-                                target.src = "/assets/fallback-logo.svg";
-                              }
-                            }}
-                          />
-                          <div className="flex-1">
+                      .map((leagueData: any) => {
+                        const leagueId = leagueData.league.id;
+                        const isStarred = user.preferences.favoriteLeagues.includes(leagueId.toString());
+                        
+                        return (
+                          <div key={leagueId} className="group relative flex items-center gap-3 py-2 hover:bg-gray-50 rounded-lg px-2 transition-colors">
+                            <img
+                              src={(() => {
+                                const leagueName = leagueData.league.name?.toLowerCase() || "";
+                                if (leagueName.includes("cotif")) {
+                                  return "/assets/matchdetaillogo/cotif tournament.png";
+                                }
+                                return leagueData.league.logo || "/assets/fallback-logo.svg";
+                              })()}
+                              alt={leagueData.league.name || "Unknown League"}
+                              className="w-5 h-5 object-contain rounded-full"
+                              style={{ backgroundColor: "transparent" }}
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                const leagueName = leagueData.league.name?.toLowerCase() || "";
+                                if (leagueName.includes("cotif") && !target.src.includes("fallback-logo.svg")) {
+                                  target.src = "/assets/fallback-logo.svg";
+                                } else if (!target.src.includes("fallback-logo.svg")) {
+                                  target.src = "/assets/fallback-logo.svg";
+                                }
+                              }}
+                            />
+                            <div className="flex-1">
+                              <span
+                                className="text-gray-800 font-medium"
+                                style={{
+                                  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                                  fontSize: "13px",
+                                }}
+                              >
+                                {safeSubstring(leagueData.league.name, 0) || "Unknown League"}
+                              </span>
+                            </div>
                             <span
-                              className="text-gray-800 font-medium"
+                              className="text-gray-500 text-xs mr-8"
                               style={{
                                 fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                                fontSize: "13px",
                               }}
                             >
-                              {safeSubstring(leagueData.league.name, 0) || "Unknown League"}
+                              {leagueData.liveMatchCount > 0 ? (
+                                <>
+                                  (<span className="text-red-500">{leagueData.liveMatchCount}</span>/{leagueData.matchCount})
+                                </>
+                              ) : `(${leagueData.matchCount})`}
                             </span>
+                            
+                            {/* Star Button - Slides from right */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleFavoriteLeague(leagueId);
+                              }}
+                              className={`absolute right-2 w-6 h-6 flex items-center justify-center transition-all duration-300 ease-out ${
+                                isStarred
+                                  ? 'opacity-100 transform translate-x-0'
+                                  : 'opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0'
+                              }`}
+                              title={`${isStarred ? "Remove from" : "Add to"} favorites`}
+                            >
+                              <Star
+                                className={`h-4 w-4 transition-colors ${
+                                  isStarred
+                                    ? "text-blue-500 fill-blue-500"
+                                    : "text-blue-500"
+                                }`}
+                              />
+                            </button>
                           </div>
-                          <span
-                            className="text-gray-500 text-xs"
-                            style={{
-                              fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                            }}
-                          >
-                            {leagueData.liveMatchCount > 0 ? (
-                              <>
-                                (<span className="text-red-500">{leagueData.liveMatchCount}</span>/{leagueData.matchCount})
-                              </>
-                            ) : `(${leagueData.matchCount})`}
-                          </span>
-                        </div>
-                      ))}
+                        );
+                      })}
                   </div>
                 )}
               </div>
