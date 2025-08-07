@@ -438,8 +438,7 @@ const PopularLeaguesList = () => {
               return (
                 <div
                   key={league.id}
-                  className="flex items-center py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-                  onClick={() => navigate(`/league/${league.id}`)}
+                  className="flex items-center py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <LazyImage
                     src={league.logo || `/api/league-logo/${league.id}`}
@@ -465,11 +464,8 @@ const PopularLeaguesList = () => {
                     </span>
                   </div>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(league.id);
-                    }}
-                    className={`transition-colors ${
+                    onClick={() => toggleFavorite(league.id)}
+                    className={`transition-colors p-1 ${
                       isFavorite 
                         ? "text-blue-500 hover:text-blue-600" 
                         : "text-gray-400 hover:text-blue-500"

@@ -490,7 +490,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     const cleanupOldCache = () => {
       try {
         const keys = Object.keys(localStorage);
-        const allCacheKeys = keys.filter(key => 
+        const allCacheKeys = keys.filter(key =>
           key.startsWith('ended_matches_') ||
           key.startsWith('league-fixtures-') ||
           key.startsWith('featured-match-') ||
@@ -532,7 +532,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         if (totalCacheSize > 1000000) {
           console.warn(`🚨 [MyNewLeague2] Cache size too large (${Math.round(totalCacheSize/1024)}KB), aggressive cleanup...`);
 
-          const remainingKeys = Object.keys(localStorage).filter(key => 
+          const remainingKeys = Object.keys(localStorage).filter(key =>
             key.startsWith('ended_matches_') ||
             key.startsWith('league-fixtures-') ||
             key.startsWith('featured-match-')
@@ -675,7 +675,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         });
 
         const batchResults = await Promise.all(batchPromises);
-        results.push(...batchResults);
+        results.push(batchResults);
 
         // Add delay between batches to be more API-friendly
         if (i + batchSize < leagueIds.length) {
@@ -695,17 +695,19 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       });
 
       // Add fresh fixtures (this will overwrite cached ones if they exist in fresh data)
-      results.forEach((result) => {
-        result.fixtures.forEach((fixture: FixtureData) => {
-          if (fixture?.fixture?.id) {
-            // Only add if not cached or if it's not an old ended match
-            if (
-              !allFixturesMap.has(fixture.fixture.id) ||
-              !isMatchOldEnded(fixture)
-            ) {
-              allFixturesMap.set(fixture.fixture.id, fixture);
+      results.forEach((batchResults) => {
+        batchResults.forEach((result: any) => {
+          result.fixtures.forEach((fixture: FixtureData) => {
+            if (fixture?.fixture?.id) {
+              // Only add if not cached or if it's not an old ended match
+              if (
+                !allFixturesMap.has(fixture.fixture.id) ||
+                !isMatchOldEnded(fixture)
+              ) {
+                allFixturesMap.set(fixture.fixture.id, fixture);
+              }
             }
-          }
+          });
         });
       });
 
@@ -714,18 +716,18 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       // Log detailed results
       console.log(`🔄 [MyNewLeague2] Fetch results:`, {
         totalLeagues: results.length,
-        successfulFetches: results.filter((r) => r.fixtures.length > 0).length,
+        successfulFetches: results.reduce((sum, batch) => sum + batch.filter((r: any) => r.fixtures.length > 0).length, 0),
         cachedEndedMatches: cachedEndedMatches.length,
         totalFixtures: allFixtures.length,
         duplicatesRemoved:
-          results.reduce((sum, r) => sum + r.fixtures.length, 0) +
+          results.reduce((sum, batch) => sum + batch.reduce((bSum, r: any) => bSum + r.fixtures.length, 0), 0) +
           cachedEndedMatches.length -
           allFixtures.length,
-        leagueBreakdown: results.map((r) => ({
+        leagueBreakdown: results.flatMap((batch) => batch.map((r: any) => ({
           league: r.leagueId,
           fixtures: r.fixtures.length,
           error: r.error,
-        })),
+        }))),
       });
 
       return allFixtures;
@@ -1119,12 +1121,12 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           fixture: {
             id: fixture.fixture.id,
             date: fixture.fixture.date || '',
-            status: { 
+            status: {
               short: fixture.fixture.status?.short || 'NS',
               long: fixture.fixture.status?.long || 'Not Started',
               elapsed: fixture.fixture.status?.elapsed || null
             },
-            venue: fixture.fixture.venue ? { 
+            venue: fixture.fixture.venue ? {
               name: fixture.fixture.venue.name || '',
               city: fixture.fixture.venue.city || ''
             } : undefined
@@ -1148,11 +1150,11 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               logo: fixture.teams.away.logo || ''
             }
           },
-          goals: { 
+          goals: {
             home: fixture.goals?.home || null,
             away: fixture.goals?.away || null
           },
-          score: fixture.score ? { 
+          score: fixture.score ? {
             halftime: {
               home: fixture.score.halftime?.home || null,
               away: fixture.score.halftime?.away || null
@@ -1414,7 +1416,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           const isExpanded = expandedLeagues.has(`league-${leagueIdNum}`);
 
           return (
-            <Card
+            <div
               key={`mynewleague2-${leagueIdNum}`}
               className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing mobile-card rounded-none"
             >
@@ -1429,15 +1431,17 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                     e.stopPropagation();
                     toggleStarMatch(leagueIdNum);
                   }}
-                  className="transition-colors"
+                  className={`transition-colors p-1 ${
+                    starredMatches.has(leagueIdNum)
+                      ? "text-blue-500 hover:text-blue-600"
+                      : "text-gray-400 hover:text-blue-500"
+                  }`}
                   title={`${starredMatches.has(leagueIdNum) ? "Remove from" : "Add to"} favorites`}
                 >
                   <Star
-                    className={`h-5 w-5 transition-all ${
-                      starredMatches.has(leagueIdNum)
-                        ? "text-green-500 fill-green-500"
-                        : "text-green-300"
-                    }`}
+                    className="h-4 w-4"
+                    fill={starredMatches.has(leagueIdNum) ? "currentColor" : "none"}
+                    stroke="currentColor"
                   />
                 </button>
 
@@ -2194,7 +2198,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                   })}
                 </div>
               )}
-            </Card>
+            </div>
           );
         })}
     </>
