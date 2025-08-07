@@ -609,8 +609,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                               }}
                               className={`absolute right-2 w-6 h-full -mr-2 flex items-center justify-center transition-all duration-300 ease-out  ${
                                 isStarred
-                                  ? 'opacity-100 transform translate-x-0  '
-                                  : 'opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 group-hover:bg-gray-200'
+                                  ? 'opacity-100 transform translate-x-0 bg-white'
+                                  : 'opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 group-hover:bg-white'
                               }`}
                               title={`${isStarred ? "Remove from" : "Add to"} favorites`}
                             >
