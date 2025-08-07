@@ -607,7 +607,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                                 e.stopPropagation();
                                 toggleFavoriteLeague(leagueId);
                               }}
-                              className={`absolute right-2 w-6 h-6 flex items-center justify-center transition-all duration-300 ease-out ${
+                              className={`absolute right-2 w-6 h-full flex items-center justify-center transition-all duration-300 ease-out ${
                                 isStarred
                                   ? 'opacity-100 transform translate-x-0'
                                   : 'opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 hover:border-l-blue-400'
