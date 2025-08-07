@@ -555,7 +555,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                         const isStarred = user.preferences.favoriteLeagues.includes(leagueId.toString());
 
                         return (
-                          <div key={leagueId} className="group relative flex items-center gap-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg px-2 transition-colors w-full">
+                          <div key={leagueId} className="group relative flex items-center gap-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700  px-2 transition-colors w-full">
                             <img
                               src={(() => {
                                 const leagueName = leagueData.league.name?.toLowerCase() || "";
@@ -609,7 +609,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                               className={`absolute right-2 w-6 h-full -mr-2 flex items-center justify-center transition-all duration-300 ease-out  ${
                                 isStarred
                                   ? 'opacity-100 transform translate-x-0 bg-white'
-                                  : 'opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 group-hover:bg-white'
+                                  : 'opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 group-hover:bg-white '
                               }`}
                               title={`${isStarred ? "Remove from" : "Add to"} favorites`}
                             >
