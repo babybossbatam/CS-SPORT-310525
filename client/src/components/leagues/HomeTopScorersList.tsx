@@ -841,24 +841,24 @@ const HomeTopScorersList = () => {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: scrollbarHideStyle }} />
-      <div className="bg-white rounded-md border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 overflow-hidden">
         {/* Goals title */}
-        <div className="px-4 py-1 border-b border-gray-100">
-          <h3 className="text-sm font-semibold text-gray-900 text-center">
+        <div className="px-4 py-1 border-b border-gray-100 dark:border-gray-700 dark:bg-gray-800">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white text-center">
             Goals
           </h3>
         </div>
         {/* Horizontal scrollable league navigation with navigation buttons */}
-        <div className="border-b ">
+        <div className="border-b border-gray-200 dark:border-gray-700 dark:bg-gray-800">
           <div className="flex items-center">
             {/* Left navigation button - 365scores style */}
             <Button
               variant="ghost"
               size="sm"
-              className={`h-10 w-8 p-0 ml-1 flex-shrink-0  transition-all ${
+              className={`h-10 w-8 p-0 ml-1 flex-shrink-0 transition-all ${
                 canScrollLeft
-                  ? "text-gray-700  hover:bg-bg-white-100"
-                  : "text-gray-300 cursor-not-allowed"
+                  ? "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  : "text-gray-300 dark:text-gray-600 cursor-not-allowed"
               }`}
               onClick={scrollLeft}
               disabled={!canScrollLeft}
@@ -896,8 +896,8 @@ const HomeTopScorersList = () => {
                     }}
                     className={`flex items-center gap-2 whitespace-nowrap transition-all duration-200 flex-shrink-0 px-3 py-2 min-w-max ${
                       selectedLeague === league.id
-                        ? "text-gray-700 font-semibold "
-                        : "text-gray-400 hover:text-gray-900"
+                        ? "text-gray-700 dark:text-white font-semibold"
+                        : "text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-gray-200"
                     }`}
                   >
                     <div className="w-5 h-5 flex-shrink-0">
@@ -917,10 +917,10 @@ const HomeTopScorersList = () => {
             <Button
               variant="ghost"
               size="sm"
-              className={`h-10 w-8 p-0 mr-1 flex-shrink-0  transition-all  ${
+              className={`h-10 w-8 p-0 mr-1 flex-shrink-0 transition-all ${
                 canScrollRight
-                  ? "text-gray-700  hover:bg-bg-white-100"
-                  : "text-gray-700 cursor-not-allowed"
+                  ? "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  : "text-gray-700 dark:text-gray-300 cursor-not-allowed"
               }`}
               onClick={scrollRight}
               disabled={!canScrollRight}
@@ -931,7 +931,7 @@ const HomeTopScorersList = () => {
         </div>
 
         {/* Players list */}
-        <div className="p-4">
+        <div className="p-4 dark:bg-gray-800">
           {isLoading ? (
             <div className="space-y-3">
               {[...Array(3)].map((_, i) => (
@@ -949,9 +949,9 @@ const HomeTopScorersList = () => {
               ))}
             </div>
           ) : error ? (
-            <div className="text-center py-6 text-gray-500">
+            <div className="text-center py-6 text-gray-500 dark:text-gray-400">
               <p className="text-sm">Failed to load top scorers</p>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                 for {getCurrentLeague()?.name || "Selected League"}
               </p>
               <button
@@ -1038,35 +1038,35 @@ const HomeTopScorersList = () => {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <h4 className="font-semibold text-sm text-gray-900 truncate">
+                        <h4 className="font-semibold text-sm text-gray-900 dark:text-white truncate">
                           {scorer.player.name}
                         </h4>
                         {position && (
-                          <span className="text-xs text-gray-500 font-medium">
+                          <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
                             {position.charAt(0).toUpperCase() +
                               position.slice(1)}
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                         {country}
                       </p>
                     </div>
 
                     <div className="text-center flex-shrink-0">
-                      <div className="text-lg font-bold text-gray-900 bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center">
+                      <div className="text-lg font-bold text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center">
                         {goals}
                       </div>
-                      <div className="text-xs text-gray-500 mt-1">Goals</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Goals</div>
                     </div>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className="text-center py-6 text-gray-500">
+            <div className="text-center py-6 text-gray-500 dark:text-gray-400">
               <p className="text-sm">No top scorer data available</p>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                 for {getCurrentLeague()?.name || "Selected League"}
               </p>
             </div>
@@ -1074,9 +1074,9 @@ const HomeTopScorersList = () => {
 
           {/* Stats link - always use the currently selected league */}
           {selectedLeague && (
-            <div className="mt-4 pt-3 border-t border-gray-100">
+            <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
               <button
-                className="w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium group"
+                className="w-full text-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium group"
                 onClick={() => navigate(`/league/${selectedLeague}/stats`)}
               >
                 <span className="hover:underline transition-all duration-200">

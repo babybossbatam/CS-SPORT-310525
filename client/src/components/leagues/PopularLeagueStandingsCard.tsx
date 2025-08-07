@@ -71,18 +71,20 @@ const PopularLeagueStandingsCard = () => {
   });
 
   const standings = data?.league?.standings?.[0]?.slice(0, 10) || [];
-  
+
   const leagueContext = {
     name: data?.league?.name || "Premier League",
     country: data?.league?.country || "England",
   };
 
   return (
-    <Card className="bg-white shadow-md mb-4">
-      <CardHeader>
-        <CardTitle>Premier League</CardTitle>
+    <Card className="w-full dark:bg-gray-800 dark:border-gray-700">
+      <CardHeader className="pb-3 dark:bg-gray-800 dark:border-gray-700">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg font-semibold dark:text-white">Premier League</CardTitle>
+        </div>
       </CardHeader>
-      <CardContent className="p-4">
+      <CardContent className="p-0 dark:bg-gray-800">
         <Table>
           <TableHeader>
             <TableRow>
