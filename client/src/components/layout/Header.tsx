@@ -40,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const darkMode = useSelector((state: RootState) => state.ui.darkMode);
   const { currentLanguage, changeLanguage } = useLanguage();
-  const t = useTranslation();
+  const { t } = useTranslation();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
   const { toast } = useToast();
