@@ -152,7 +152,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
         >
           <img
             src="/CSSPORT_1_updated.png"
-            alt="CS SPORT Logo"
+            alt="CSSport Logo"
             className={cn(
               "w-auto mr-2 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]",
               isMobile ? "h-8 max-h-8" : "h-full max-h-[57px]",
@@ -293,7 +293,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                   }
                   className="data-[state=checked]:bg-blue-500"
                 />
-              </DropdownMenuItem>
+              </DropdownMenu>
 
               <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
 
@@ -450,6 +450,27 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       />
                     </div>
                     Português
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className={cn(
+                      "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
+                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
+                    )}
+                    onClick={() => handleLanguageChange("zh-CN")}
+                  >
+                    <div className="mr-2">🇨🇳</div>
+                    中文 (简体)
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    className={cn(
+                      "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
+                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
+                    )}
+                    onClick={() => handleLanguageChange("zh-HK")}
+                  >
+                    <div className="mr-2">🇭🇰</div>
+                    中文 (繁體)
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
