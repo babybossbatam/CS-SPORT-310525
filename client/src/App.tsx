@@ -37,6 +37,27 @@ const ScoreboardDemo = lazy(() => import("./pages/ScoreboardDemo"));
 import Scores365Page from "./pages/Scores365Page";
 import LiveScoreboardPage from "@/pages/LiveScoreboardPage";
 
+// Mock functions for cache refresh and preloading (replace with actual implementation)
+const setupCacheRefresh = () => {
+  // Implement your cache refresh logic here, e.g., using setInterval
+  // Example:
+  // setInterval(() => {
+  //   // Call functions to refetch data for components
+  // }, 30 * 60 * 1000); // Every 30 minutes
+};
+
+const cleanupCacheRefresh = (intervalId) => {
+  // Implement cleanup logic, e.g., clearInterval
+  if (intervalId) {
+    clearInterval(intervalId);
+  }
+};
+
+const preloadData = () => {
+  // Implement logic to preload data for components
+};
+
+
 function Router() {
   return (
     <Switch>
@@ -70,26 +91,6 @@ function Router() {
   );
 }
 
-// Mock functions for cache refresh and preloading (replace with actual implementation)
-const setupCacheRefresh = () => {
-  // Implement your cache refresh logic here, e.g., using setInterval
-  // Example:
-  // setInterval(() => {
-  //   // Call functions to refetch data for components
-  // }, 30 * 60 * 1000); // Every 30 minutes
-};
-
-const cleanupCacheRefresh = (intervalId) => {
-  // Implement cleanup logic, e.g., clearInterval
-  if (intervalId) {
-    clearInterval(intervalId);
-  }
-};
-
-const preloadData = () => {
-  // Implement logic to preload data for components
-};
-
 function AppContent() {
   try {
     return <Router />;
@@ -102,6 +103,7 @@ function AppContent() {
     );
   }
 }
+
 
 function App() {
   useEffect(() => {

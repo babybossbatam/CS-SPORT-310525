@@ -186,21 +186,54 @@ const countryToLanguageMap: { [key: string]: string } = {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentLanguage, setCurrentLanguage] = useState<string>('en');
-
-  useEffect(() => {
-    // Load saved language from localStorage
+export const LanguageProvider: React.FC<{ 
+  children: React.ReactNode; 
+  initialLanguage?: string | null; 
+}> = ({ children, initialLanguage }) => {
+  const [currentLanguage, setCurrentLanguage] = useState<string>(() => {
+    // Priority: URL language > localStorage > default 'en'
+    if (initialLanguage && translations[initialLanguage]) {
+      return initialLanguage;
+    }
     const savedLanguage = localStorage.getItem('app-language');
     if (savedLanguage && translations[savedLanguage]) {
-      setCurrentLanguage(savedLanguage);
+      return savedLanguage;
     }
-  }, []);
+    return 'en';
+  });
+
+  useEffect(() => {
+    // Update if initialLanguage changes (from URL)
+    if (initialLanguage && translations[initialLanguage] && initialLanguage !== currentLanguage) {
+      setCurrentLanguage(initialLanguage);
+      localStorage.setItem('app-language', initialLanguage);
+    }
+  }, [initialLanguage, currentLanguage]);
 
   const setLanguage = (language: string) => {
     if (translations[language]) {
       setCurrentLanguage(language);
       localStorage.setItem('app-language', language);
+      
+      // Update URL to reflect language change
+      const currentPath = window.location.pathname;
+      const supportedLanguages = ['en', 'es', 'zh-hk', 'zh', 'de', 'it', 'pt'];
+      const pathParts = currentPath.split('/').filter(part => part);
+      
+      let newPath;
+      if (pathParts.length > 0 && supportedLanguages.includes(pathParts[0])) {
+        // Replace existing language in URL
+        pathParts[0] = language;
+        newPath = '/' + pathParts.join('/');
+      } else {
+        // Add language to URL
+        newPath = `/${language}${currentPath === '/' ? '' : currentPath}`;
+      }
+      
+      // Navigate to new URL
+      window.history.pushState({}, '', newPath);
+      // Trigger a popstate event to update the router
+      window.dispatchEvent(new PopStateEvent('popstate'));
     }
   };
 

@@ -29,6 +29,7 @@ import { cn } from "@/lib/utils";
 import MyCircularFlag from "../common/MyCircularFlag";
 import { useLanguage, useTranslation } from "@/contexts/LanguageContext";
 import LanguageIndicator from "../common/LanguageIndicator";
+import { useLanguageNavigation } from "@/hooks/useLanguageNavigation";
 
 interface HeaderProps {
   showTextOnMobile?: boolean;
@@ -41,6 +42,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
   const darkMode = useSelector((state: RootState) => state.ui.darkMode);
   const { currentLanguage, setLanguage } = useLanguage();
   const { t } = useTranslation();
+  const { navigateWithLanguage, getLinkWithLanguage } = useLanguageNavigation();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
   const { toast } = useToast();
@@ -60,7 +62,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
       return;
     }
     setSearchOpen(false);
-    navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+    navigateWithLanguage(`/search?q=${encodeURIComponent(searchQuery)}`);
     setSearchQuery("");
   };
 
@@ -70,7 +72,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
       title: "Logged out successfully",
       description: "You have been logged out of your account.",
     });
-    navigate("/");
+    navigateWithLanguage("/");
   };
 
   const getCountryNameFromLanguage = (lang: string): string => {
@@ -137,7 +139,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
         )}
       >
         <Link
-          href="/"
+          href={getLinkWithLanguage("/")}
           className="flex-shrink-0 flex items-center h-full bg-black"
         >
           <img
@@ -188,7 +190,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
               isMobile ? "text-xs" : "text-sm",
             )}
             onClick={() =>
-              isAuthenticated ? navigate("/my-scores") : navigate("/login")
+              isAuthenticated ? navigateWithLanguage("/my-scores") : navigateWithLanguage("/login")
             }
           >
             <Star
