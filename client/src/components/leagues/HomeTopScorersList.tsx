@@ -1054,7 +1054,7 @@ const HomeTopScorersList = () => {
                     </div>
 
                     <div className="text-center flex-shrink-0">
-                      <div className="text-lg font-bold text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center shadow-sm">
+                      <div className="text-lg font-bold text-gray-800 dark:text-white bg-gray-200 dark:bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center shadow-md border border-gray-300 dark:border-gray-600">
                         {goals}
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Goals</div>
