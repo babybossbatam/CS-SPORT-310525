@@ -1,4 +1,4 @@
-import React, { useState, useMemo, Suspense, lazy, startTransition } from "react";
+import React, { useState, useMemo, Suspense, lazy } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
@@ -104,22 +104,16 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   }, [fixtures, selectedDate]);
 
   const handleMatchClick = (matchId: number) => {
-    startTransition(() => {
-      navigate(`/match/${matchId}`);
-    });
+    navigate(`/match/${matchId}`);
   };
 
   const handleMatchCardClick = (fixture: any) => {
     // On mobile and desktop, show match details in sidebar
-    startTransition(() => {
-      setSelectedFixture(fixture);
-    });
+    setSelectedFixture(fixture);
   };
 
   const handleBackToMain = () => {
-    startTransition(() => {
-      setSelectedFixture(null);
-    });
+    setSelectedFixture(null);
   };
 
   return (

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useMemo, startTransition } from "react";
+
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Clock } from "lucide-react";
 import { Card, CardHeader, CardContent } from "../ui/card";
 import { Filter, Activity } from "lucide-react";
@@ -85,34 +86,26 @@ export const TodayMatchPageCard = ({
   // Date navigation handlers
   const goToPreviousDay = () => {
     const newDate = format(subDays(parseISO(selectedDate), 1), "yyyy-MM-dd");
-    startTransition(() => {
-      setSelectedDate(newDate);
-    });
+    setSelectedDate(newDate);
   };
 
   const goToNextDay = () => {
     const newDate = format(addDays(parseISO(selectedDate), 1), "yyyy-MM-dd");
-    startTransition(() => {
-      setSelectedDate(newDate);
-    });
+    setSelectedDate(newDate);
   };
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
       const selectedDateString = formatYYYYMMDD(date);
-      startTransition(() => {
-        setSelectedDate(selectedDateString);
-        setIsCalendarOpen(false);
-      });
+      setSelectedDate(selectedDateString);
+      setIsCalendarOpen(false);
     }
   };
 
   const goToToday = () => {
     const today = getCurrentUTCDateString();
-    startTransition(() => {
-      setSelectedDate(today);
-      setIsCalendarOpen(false);
-    });
+    setSelectedDate(today);
+    setIsCalendarOpen(false);
   };
 
   // Dedicated date display function for MyLeftBasket
@@ -294,31 +287,29 @@ export const TodayMatchPageCard = ({
           {/* Live button */}
           <button
             onClick={() => {
-              startTransition(() => {
-                if (!liveFilterActive) {
-                  // Activating live filter
-                  setLiveFilterActive(true);
-                  const today = getCurrentUTCDateString();
-                  setSelectedDate(today);
-                  // If time filter is active, keep it active for combined state
-                  // Otherwise reset it
-                  if (!timeFilterActive) {
-                    setTimeFilterActive(false);
-                  }
-                } else {
-                  // Deactivating live filter
-                  setLiveFilterActive(false);
-                  // Only activate time filter if it was already active (combined state)
-                  // Otherwise return to default view
-                  if (!timeFilterActive) {
-                    // Return to default view (TodayPopularFootballLeaguesNew)
-                    setTimeFilterActive(false);
-                  } else {
-                    // Keep time filter active if it was already active
-                    setTimeFilterActive(true);
-                  }
+              if (!liveFilterActive) {
+                // Activating live filter
+                setLiveFilterActive(true);
+                const today = getCurrentUTCDateString();
+                setSelectedDate(today);
+                // If time filter is active, keep it active for combined state
+                // Otherwise reset it
+                if (!timeFilterActive) {
+                  setTimeFilterActive(false);
                 }
-              });
+              } else {
+                // Deactivating live filter
+                setLiveFilterActive(false);
+                // Only activate time filter if it was already active (combined state)
+                // Otherwise return to default view
+                if (!timeFilterActive) {
+                  // Return to default view (TodayPopularFootballLeaguesNew)
+                  setTimeFilterActive(false);
+                } else {
+                  // Keep time filter active if it was already active
+                  setTimeFilterActive(true);
+                }
+              }
             }}
             className={`flex items-center justify-center gap-1 px-0.5 py-0.5 rounded-full text-xs font-medium w-fit transition-colors duration-200 ${
               liveFilterActive
@@ -349,29 +340,27 @@ export const TodayMatchPageCard = ({
                 return; // Do nothing if Live is active but no live matches
               }
 
-              startTransition(() => {
-                if (!timeFilterActive) {
-                  // Activating by time filter
-                  setTimeFilterActive(true);
-                  // If live filter is active, keep it active for combined state
-                  // Otherwise reset it
-                  if (!liveFilterActive) {
-                    setLiveFilterActive(false);
-                  }
-                } else {
-                  // Deactivating by time filter
-                  setTimeFilterActive(false);
-                  // Only activate live if it wasn't already active
-                  if (!liveFilterActive) {
-                    // Return to default view (TodayPopularFootballLeaguesNew)
-                    setLiveFilterActive(false);
-                  } else {
-                    // Keep live active if it was already active
-                    const today = getCurrentUTCDateString();
-                    setSelectedDate(today);
-                  }
+              if (!timeFilterActive) {
+                // Activating by time filter
+                setTimeFilterActive(true);
+                // If live filter is active, keep it active for combined state
+                // Otherwise reset it
+                if (!liveFilterActive) {
+                  setLiveFilterActive(false);
                 }
-              });
+              } else {
+                // Deactivating by time filter
+                setTimeFilterActive(false);
+                // Only activate live if it wasn't already active
+                if (!liveFilterActive) {
+                  // Return to default view (TodayPopularFootballLeaguesNew)
+                  setLiveFilterActive(false);
+                } else {
+                  // Keep live active if it was already active
+                  const today = getCurrentUTCDateString();
+                  setSelectedDate(today);
+                }
+              }
             }}
             className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium w-fit transition-all duration-200 ${
               // Disable button appearance when Live is active but no live matches
@@ -423,7 +412,7 @@ export const TodayMatchPageCard = ({
             onMatchCardClick={handleMatchCardClick}
             useUTCOnly={true}
           />
-
+          
           <TodaysMatchesByCountryNew
             selectedDate={selectedDate}
             liveFilterActive={liveFilterActive}

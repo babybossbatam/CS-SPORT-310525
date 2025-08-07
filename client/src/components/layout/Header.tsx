@@ -101,9 +101,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
     const newPath = `/${languageCode}${currentPath === '/' ? '' : currentPath}`;
     
     // Navigate to new URL with updated language
-    setTimeout(() => {
-      window.location.href = newPath;
-    }, 0);
+    window.location.href = newPath;
     
     toast({
       title: "Language Changed",

@@ -1,7 +1,6 @@
 
 import { useLocation } from 'wouter';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { startTransition } from 'react';
 
 export const useLanguageNavigation = () => {
   const [location, navigate] = useLocation();
@@ -10,9 +9,7 @@ export const useLanguageNavigation = () => {
   const navigateWithLanguage = (path: string) => {
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
     const fullPath = `/${currentLanguage}${cleanPath === '/' ? '' : cleanPath}`;
-    startTransition(() => {
-      navigate(fullPath);
-    });
+    navigate(fullPath);
   };
 
   const getLinkWithLanguage = (path: string) => {
@@ -45,9 +42,7 @@ export const useLanguageNavigation = () => {
   const changeLanguageInUrl = (newLanguage: string) => {
     const currentPathWithoutLang = getPathWithoutLanguage();
     const newPath = `/${newLanguage}${currentPathWithoutLang === '/' ? '' : currentPathWithoutLang}`;
-    startTransition(() => {
-      navigate(newPath);
-    });
+    navigate(newPath);
   };
 
   return {
