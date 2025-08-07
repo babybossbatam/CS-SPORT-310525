@@ -189,10 +189,10 @@ function App() {
   return (
     <TooltipProvider>
       <Toaster />
-      <LanguageToast />
       <main className="bg-stone-50 pt-[0px] pb-[0px] mt-[81px] mobile-app-container">
         <QueryClientProvider client={queryClient}>
           <LanguageProvider>
+            <LanguageToast />
             <CentralDataProvider
               selectedDate={new Date().toISOString().slice(0, 10)}
             >
