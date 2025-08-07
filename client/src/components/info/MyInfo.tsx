@@ -12,12 +12,12 @@ const MyInfo: React.FC = () => {
   return (
     <Card className="">
       <CardHeader>
-        <CardTitle className="text-sm font-semibold -mb-2 -mt-2 ">
+        <CardTitle className="text-sm font-semibold -mb-2 -mt-2 text-gray-900 dark:text-white">
           Football at CS SPORT
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 p-0">
-        <div className="text-xs text-gray-700 space-y-3 px-6 pb-0">
+        <div className="text-xs text-gray-700 dark:text-white space-y-3 px-6 pb-0">
           <p>
             Welcome to CS SPORT – your ultimate destination for everything
             Football! Stay on top of the action with live scores from over 1,000
@@ -27,10 +27,10 @@ const MyInfo: React.FC = () => {
           </p>
           <div className="space-y-4">
             <div>
-              <h3 className="font-bold text-gray-900 mb-1 text-xs">
+              <h3 className="font-bold text-gray-900 dark:text-white mb-1 text-xs">
                 Explore Your Favorite Teams & Players
               </h3>
-              <p className="text-xs text-gray-600">
+              <p className="text-xs text-gray-600 dark:text-white">
                 Want to know how FC Barcelona, Real Madrid, or Manchester United
                 are doing? Dive into the latest results, upcoming fixtures,
                 league standings, breaking news, match highlights, and in-depth
@@ -41,37 +41,37 @@ const MyInfo: React.FC = () => {
           </div>
 
           <div className="">
-            <h3 className="font-bold text-gray-900 mb-2">
+            <h3 className="font-bold text-gray-900 dark:text-white mb-2">
               Why Choose CS SPORT?
             </h3>
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-gray-600 dark:text-white">
               <li className="flex items-center">
-                <span className="w-1 h-1 bg-gray-600 rounded-full mr-3"></span>
+                <span className="w-1 h-1 bg-gray-600 dark:bg-white rounded-full mr-3"></span>
                 All-in-One Platform: Get the latest news, fixtures, standings,
                   results, and live scores for leagues, cups, and tournaments
                   around the globe.
               </li>
               <li className="flex items-center">
-                <span className="w-1 h-1 bg-gray-600 rounded-full mr-3"></span>
+                <span className="w-1 h-1 bg-gray-600 dark:bg-white rounded-full mr-3"></span>
                 Track Your Favorites: Follow your teams and players, and never
                 miss a moment. Smart Predictions: Use our insights and tips to
                 make better Football predictions and outsmart your friends!
               </li>
               <li className="flex items-center">
-                <span className="w-1 h-1 bg-gray-600 rounded-full mr-3"></span>
+                <span className="w-1 h-1 bg-gray-600 dark:bg-white rounded-full mr-3"></span>
                 Smart Predictions: Use our insights and tips to make better
                 Football predictions and outsmart your friends.
               </li>
               
             </p>
             <div>
-              <p className="text-xs text-gray-600 mt-2">
+              <p className="text-xs text-gray-600 dark:text-white mt-2">
                 Ready to experience Football like never before?
               </p>
             </div>
 
             <div>
-              <h3 className="font-medium text-gray-800 mb-12 text-sm">
+              <h3 className="font-medium text-gray-800 dark:text-white mb-12 text-sm">
                 Start exploring now and join the CS SPORT community!
               </h3>
 
@@ -80,7 +80,7 @@ const MyInfo: React.FC = () => {
                 <div className="-mx-6">
                   <button
                     onClick={toggleExpanded}
-                    className="w-full flex items-center justify-center gap-2 py-2 border-t border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                    className="w-full flex items-center justify-center gap-2 py-2 border-t border-gray-200 dark:border-gray-700 text-xs font-medium text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                   >
                     <span>Football Info</span>
                     <ChevronDown size={18} />
@@ -91,13 +91,13 @@ const MyInfo: React.FC = () => {
               {/* Collapsible Content */}
               {isExpanded && (
                 <div className="space-y-4 -mx-6">
-                  <h3 className="font-medium text-gray-800 text-sm px-6">
+                  <h3 className="font-medium text-gray-800 dark:text-white text-sm px-6">
                     Football FAQ
                   </h3>
 
-                  <div className="text-xs text-gray-600 space-y-3 px-6">
+                  <div className="text-xs text-gray-600 dark:text-white space-y-3 px-6">
                     <div>
-                      <h3 className="font-medium text-gray-800 my-2 text-xs">
+                      <h3 className="font-medium text-gray-800 dark:text-white my-2 text-xs">
                         Who invented Football?
                       </h3>
                       <p>
@@ -110,7 +110,7 @@ const MyInfo: React.FC = () => {
                     </div>
 
                     <div>
-                      <h3 className="font-medium text-gray-800 my-2 text-xs">
+                      <h3 className="font-medium text-gray-800 dark:text-white my-2 text-xs">
                         Where was Football invented?
                       </h3>
                       <p>
@@ -122,7 +122,7 @@ const MyInfo: React.FC = () => {
                     </div>
 
                     <div>
-                      <h3 className="font-medium text-gray-800 my-2 text-xs">
+                      <h3 className="font-medium text-gray-800 dark:text-white my-2 text-xs">
                         What is the length of a Football pitch?
                       </h3>
                       <p>
@@ -135,7 +135,7 @@ const MyInfo: React.FC = () => {
                     </div>
 
                     <div>
-                      <h3 className="font-medium text-gray-800 my-2 text-xs">
+                      <h3 className="font-medium text-gray-800 dark:text-white my-2 text-xs">
                         Who is the best Football player in the world?
                       </h3>
                       <p>
@@ -147,14 +147,14 @@ const MyInfo: React.FC = () => {
                     </div>
 
                     <div>
-                      <h3 className="font-medium text-gray-800 my-2 text-xs">
+                      <h3 className="font-medium text-gray-800 dark:text-white my-2 text-xs">
                         Want more Football fun?
                       </h3>
                       <p>
                         Check out live stats, highlights, and join the
                         conversation with fans worldwide – only on
                       </p>
-                      <h3 className="font-medium text-gray-800 my-2 text-xs">
+                      <h3 className="font-medium text-gray-800 dark:text-white my-2 text-xs">
                         CS SPORT! 🚀
                       </h3>
                     </div>
@@ -163,7 +163,7 @@ const MyInfo: React.FC = () => {
                   {/* Show Less Button at the bottom */}
                   <button
                     onClick={toggleExpanded}
-                    className="w-full flex items-center justify-center gap-2 py-2 border-t border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 -mb-6"
+                    className="w-full flex items-center justify-center gap-2 py-2 border-t border-gray-200 dark:border-gray-700 text-xs font-medium text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 -mb-6"
                   >
                     <span>Show Less</span>
                     <ChevronUp size={20} />
