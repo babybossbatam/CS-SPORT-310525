@@ -28,7 +28,8 @@ const translations = {
     'myScores': "My Scores",
     'live': "LIVE",
     'finished': "FT",
-    'not_started': "Not Started"
+    'not_started': "Not Started",
+    'featured_match': "Featured Match"
   },
   'es': {
     'today_matches': "Partidos de Hoy",
@@ -50,7 +51,8 @@ const translations = {
     'myScores': "Mis Resultados",
     'live': "VIVO",
     'finished': "FT",
-    'not_started': "No Iniciado"
+    'not_started': "No Iniciado",
+    'featured_match': "Partido Destacado"
   },
   'zh-hk': {
     'today_matches': "今日比賽",
@@ -72,7 +74,8 @@ const translations = {
     'myScores': "我的比分",
     'live': "即時",
     'finished': "結束",
-    'not_started': "未開始"
+    'not_started': "未開始",
+    'featured_match': "精選比賽"
   },
   'de': {
     'today_matches': "Heutige Spiele",
@@ -94,7 +97,8 @@ const translations = {
     'myScores': "Meine Ergebnisse",
     'live': "LIVE",
     'finished': "FT",
-    'not_started': "Nicht Gestartet"
+    'not_started': "Nicht Gestartet",
+    'featured_match': "Spiel des Tages"
   },
   'it': {
     'today_matches': "Partite di Oggi",
@@ -116,7 +120,8 @@ const translations = {
     'myScores': "I Miei Risultati",
     'live': "LIVE",
     'finished': "FT",
-    'not_started': "Non Iniziato"
+    'not_started': "Non Iniziato",
+    'featured_match': "Partita in Evidenza"
   },
   'pt': {
     'today_matches': "Jogos de Hoje",
@@ -138,7 +143,8 @@ const translations = {
     'myScores': "Meus Resultados",
     'live': "AO VIVO",
     'finished': "FT",
-    'not_started': "Não Iniciado"
+    'not_started': "Não Iniciado",
+    'featured_match': "Jogo em Destaque"
   },
   'zh': {
     'today_matches': "今日比赛",
@@ -160,7 +166,8 @@ const translations = {
     'myScores': "我的比分",
     'live': "直播",
     'finished': "结束",
-    'not_started': "未开始"
+    'not_started': "未开始",
+    'featured_match': "精选比赛"
   }
 };
 

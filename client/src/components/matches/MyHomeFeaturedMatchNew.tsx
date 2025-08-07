@@ -73,17 +73,17 @@ const POPULAR_TEAM_NAMES = POPULAR_TEAMS_DATA.map(team => team.name.toLowerCase(
 
 // Popular team keywords for enhanced matching
 const POPULAR_TEAM_KEYWORDS = [
-  "real madrid", "barcelona", "manchester city", "manchester united", "manchester",
-  "bayern munich", "bayern", "juventus", "psg", "paris saint-germain", "paris saint germain",
-  "liverpool", "arsenal", "chelsea", "atletico madrid", "atletico", "tottenham",
+  "realmadrid", "barcelona", "manchestercity", "manchesterunited", "manchester",
+  "bayernmunich", "bayern", "juventus", "psg", "paris saint-germain", "paris saint germain",
+  "liverpool", "arsenal", "chelsea", "atleticomadrid", "atletico", "tottenham",
   "ac milan", "inter milan", "inter", "napoli", "roma", "as roma",
-  "borussia dortmund", "borussia", "dortmund", "rb leipzig", "leipzig",
-  "bayer leverkusen", "leverkusen", "lyon", "olympique lyonnais", "marseille",
+  "borussiadortmund", "borussia", "dortmund", "rbleipzig", "leipzig",
+  "bayerleverkusen", "leverkusen", "lyon", "olympique lyonnais", "marseille",
   "olympique marseille", "monaco", "as monaco", "sevilla", "valencia",
-  "villarreal", "ajax", "feyenoord", "psv eindhoven", "psv", "porto",
-  "fc porto", "benfica", "sl benfica", "sporting cp", "sporting lisbon", "sporting",
+  "villarreal", "ajax", "feyenoord", "psveindhoven", "psv", "porto",
+  "fcporto", "benfica", "slbenfica", "sportingcp", "sportinglisbon", "sporting",
   "fenerbahce", "galatasaray", "besiktas", "trabzonspor", "millwall", "southampton",
-  "elche", "valencia", "newcastle", "west ham", "brighton", "brentford"
+  "elche", "valencia", "newcastle", "westham", "brighton", "brentford"
 ];
 
 // Helper function to check if a match involves popular teams
@@ -954,7 +954,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     if (hasConflictingData) {
                       console.log(
-                        `🔄 [MyHomeFeaturedMatchNew] Excluding date-based match with conflicting data - ${conflictReason}:`,
+                        `🔄 [MyHomeFeaturedMatchNew] Excluding match with conflicting data - ${conflictReason}:`,
                         {
                           home: fixture.teams?.home?.name,
                           away: fixture.teams?.away?.name,
@@ -997,7 +997,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       leagueName.includes("copa sudamericana") ||
                       leagueName.includes("libertadores") ||
                       leagueName.includes("sudamericana") ||
-                      (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
+                      (leagueName.includes("friendlies") && !leagueName.includes("international") && !leagueName.includes("women")) ||
                       (leagueName.includes("international") && !leagueName.includes("women")) ||
                       country.includes("world") ||
                       country.includes("europe") ||
