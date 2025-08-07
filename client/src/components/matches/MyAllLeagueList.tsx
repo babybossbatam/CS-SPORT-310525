@@ -476,7 +476,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                 {/* Country Header - Clickable (nested under Football) */}
                 <button
                   onClick={() => toggleCountry(countryData.country)}
-                  className={`w-full flex items-center justify-between pl-2 pr-4 py-3 transition-colors  hover:bg-gray-50 cursor-pointer `}
+                  className={`w-full flex items-center justify-between pl-2 pr-4 py-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer `}
                 >
                   <div className="flex items-center gap-3">
                     {(() => {
@@ -506,7 +506,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                     })()}
                     <div className="flex items-center gap-2">
                       <span
-                        className="font-medium text-gray-900"
+                        className="font-medium text-gray-900 dark:text-white"
                         style={{
                           fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                           fontSize: "14px",
