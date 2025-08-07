@@ -6,6 +6,7 @@ import MyRightContent from "@/components/layout/MyRightContent";
 import MyMainLayoutRight from "@/components/layout/MyMainLayoutRight";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
+import { useTranslation } from "@/contexts/LanguageContext";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,6 +36,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
   const { isMobile } = useDeviceInfo();
+  const { t } = useTranslation();
 
   // Optimized UTC date filtering with memoization
   const filteredFixtures = useMemo(() => {
