@@ -469,11 +469,16 @@ const PopularLeaguesList = () => {
                       e.stopPropagation();
                       toggleFavorite(league.id);
                     }}
-                    className="text-gray-400 hover:text-blue-500 transition-colors"
+                    className={`transition-colors ${
+                      isFavorite 
+                        ? "text-blue-500 hover:text-blue-600" 
+                        : "text-gray-400 hover:text-blue-500"
+                    }`}
                   >
                     <Star
-                      className={`h-4 w-4 ${isFavorite ? "text-blue-500 fill-blue-500" : ""}`}
+                      className="h-4 w-4"
                       fill={isFavorite ? "currentColor" : "none"}
+                      stroke="currentColor"
                     />
                   </button>
                 </div>
