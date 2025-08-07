@@ -1404,11 +1404,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   };
 
   return (
-    <Card className="mt-4">
-      <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
+    <Card className="mt-4 dark:bg-gray-800 dark:border-gray-700">
+      <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200 dark:border-gray-700 dark:bg-gray-800">
         <div className="flex justify-between items-center w-full">
           <h3
-            className="font-semibold"
+            className="font-semibold text-gray-900 dark:text-white"
             style={{
               fontFamily:
                 "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
@@ -1419,8 +1419,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           </h3>
         </div>
       </CardHeader>
-      <CardContent className="p-0">
-        <div className="country-matches-container todays-matches-by-country-container">
+      <CardContent className="p-0 dark:bg-gray-800">
+        <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
           {/* Use sortedCountries directly */}
           {sortedCountries.map((countryData: any) => {
             const isExpanded = expandedCountries.has(countryData.country);
@@ -1489,7 +1489,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         : countryData.country?.name || "Unknown",
                     )
                   }
-                  className={`w-full p-4 flex items-center justify-between transition-colors pt-[12px] pb-[12px] font-normal text-[14.7px] country-header-button border-b border-stone-200 ${
+                  className={`w-full p-4 flex items-center justify-between transition-colors pt-[12px] pb-[12px] font-normal text-[14.7px] country-header-button border-b border-stone-200 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 ${
                     isExpanded ? "expanded" : ""
                   }`}
                 >
@@ -1548,7 +1548,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                     {/* Live/Recent badges */}
                     {liveMatches > 0 && (
                       <span
-                        className="bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium"
+                        className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 px-2 py-1 rounded-full font-medium"
                         style={{
                           fontFamily:
                             "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
@@ -1560,7 +1560,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                     )}
                     {recentMatches > 0 && !liveMatches && (
                       <span
-                        className="bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium"
+                        className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 px-2 py-1 rounded-full font-medium"
                         style={{
                           fontFamily:
                             "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
@@ -1573,17 +1573,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   </div>
                   {isExpanded ? (
                     <ChevronUp
-                      className={`h-4 w-4 text-gray-500 chevron-icon rotated`}
+                      className={`h-4 w-4 text-gray-500 dark:text-gray-400 chevron-icon rotated`}
                     />
                   ) : (
                     <ChevronDown
-                      className={`h-4 w-4 text-gray-500 chevron-icon`}
+                      className={`h-4 w-4 text-gray-500 dark:text-gray-400 chevron-icon`}
                     />
                   )}
                 </button>
                 {isExpanded && (
                   <div
-                    className={`bg-gray-50 border-t border-stone-200 league-content ${
+                    className={`bg-gray-50 dark:bg-gray-900 border-t border-stone-200 dark:border-gray-700 league-content ${
                       isExpanded ? "expanded" : "collapsed"
                     }`}
                   >
@@ -1602,7 +1602,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         const isLeagueExpanded = expandedLeagues.has(leagueKey);return (
                           <div
                             key={leagueData.league.id}
-                            className="border-b border-stone-200 last:border-b-0"
+                            className="border-b border-stone-200 dark:border-gray-700 last:border-b-0"
                           >
                             {/* League Header - Now clickable */}
                             <button
@@ -1612,7 +1612,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                   leagueData.league.id,
                                 )
                               }
-                              className={`w-full flex items-center gap-2 p-2 bg-white border-b border-stone-200 transition-colors cursor-pointer group`}
+                              className={`w-full flex items-center gap-2 p-2 bg-white dark:bg-gray-800 border-b border-stone-200 dark:border-gray-700 transition-colors cursor-pointer group hover:bg-gray-50 dark:hover:bg-gray-700`}
                             >
                               <img
                                 src={(() => {
@@ -1684,7 +1684,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                     if (liveMatchesInLeague > 0) {
                                       return (
-                                        <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-semibold">
+                                        <span className="text-xs bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 px-2 py-0.5 rounded-full font-semibold">
                                           {liveMatchesInLeague} LIVE
                                         </span>
                                       );

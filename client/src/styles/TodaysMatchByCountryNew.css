@@ -1,6 +1,7 @@
 /* Custom pulse animation - only opacity change, no shrinking/expanding */
 @keyframes custom-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -344,7 +345,7 @@
 
 .country-matches-container .status-halftime {
   color: rgb(220 38 38);
-   animation: truePulse 2s infinite ease-in-out;
+  animation: truePulse 2s infinite ease-in-out;
   transform: none !important;
   transform-origin: center !important;
 }
@@ -567,7 +568,6 @@
 
 /* Animation for live matches */
 @keyframes pulse {
-
   0%,
   100% {
     opacity: 1;
@@ -581,7 +581,6 @@
 }
 
 @keyframes truePulse {
-
   0%,
   100% {
     opacity: 1;
@@ -702,4 +701,51 @@
 
 .country-matches-container .match-card-container.disable-hover .match-status-label {
   background-color: transparent !important;
+}
+
+/* Dark mode hover for country matches container */
+.dark .country-matches-container .match-card-container:hover:not(.disable-hover) {
+  background-color: rgb(55 65 81) !important; /* gray-700 */
+}
+
+/* Dark mode styles for TodaysMatchByCountryNew */
+.dark .country-matches-container {
+  background-color: rgb(31 41 55) !important; /* bg-gray-800 */
+  color: white;
+}
+
+/* Dark mode match card container */
+.dark .country-matches-container .match-card-container {
+  background-color: rgb(31 41 55) !important; /* bg-gray-800 */
+  border-bottom: 1px solid rgb(55 65 81) !important; /* border-gray-700 */
+}
+
+/* Dark mode country header button */
+.dark .country-matches-container .country-header-button {
+  background-color: rgb(31 41 55) !important; /* bg-gray-800 */
+  color: white !important;
+}
+
+.dark .country-matches-container .country-header-button:hover {
+  background-color: rgb(55 65 81) !important; /* bg-gray-700 */
+}
+
+/* Dark mode league content */
+.dark .country-matches-container .league-content {
+  background-color: rgb(17 24 39) !important; /* bg-gray-900 */
+}
+
+/* Dark mode star button */
+.dark .country-matches-container .match-star-button {
+  background-color: rgb(31 41 55) !important; /* bg-gray-800 */
+  border-right: 1px solid rgb(55 65 81) !important; /* border-gray-700 */
+}
+
+/* Dark mode status labels */
+.dark .country-matches-container .status-upcoming {
+  color: white !important;
+}
+
+.dark .country-matches-container .status-ended {
+  color: rgb(156 163 175) !important; /* text-gray-400 */
 }
