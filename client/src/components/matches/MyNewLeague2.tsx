@@ -464,18 +464,18 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     [getCacheKey, isMatchOldEnded, checkStorageQuota],
   );
 
-  // Smart cache configuration with very short cache times for fresh data
+  // Smart cache configuration based on live match detection (will be set in useEffect)
   const [dynamicCacheConfig, setDynamicCacheConfig] = useState(() => {
     const today = new Date().toISOString().slice(0, 10);
     const isToday = selectedDate === today;
 
     return isToday ? {
-      staleTime: 3 * 1000, // 3 seconds - very short for today
-      refetchInterval: 5 * 1000, // 5 seconds - frequent updates for today
+      staleTime: 5 * 60 * 1000, // 5 minutes - default for today
+      refetchInterval: 60 * 1000, // 1 minute - default for today
       refetchOnWindowFocus: false,
       refetchOnReconnect: true
     } : {
-      staleTime: 10 * 1000, // 10 seconds - for past/future dates
+      staleTime: 60 * 60 * 1000, // 1 hour - for past/future dates
       refetchInterval: false,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false
@@ -776,50 +776,50 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     let newCacheConfig;
 
     if (liveMatches.length > 0 && isToday) {
-      // LIVE matches detected - most aggressive cache (under 5 seconds)
+      // LIVE matches detected - most aggressive cache
       newCacheConfig = {
-        staleTime: 2 * 1000, // 2 seconds
-        refetchInterval: 3 * 1000, // 3 seconds
+        staleTime: 1 * 60 * 1000, // 1 minute
+        refetchInterval: 30 * 1000, // 30 seconds
         refetchOnWindowFocus: false,
         refetchOnReconnect: true
       };
-      console.log(`🔴 [MyNewLeague2] ${liveMatches.length} live matches detected - using most aggressive cache (2s/3s)`);
+      console.log(`🔴 [MyNewLeague2] ${liveMatches.length} live matches detected - using most aggressive cache (1min/30s)`);
     } else if (imminentMatches.length > 0 && isToday) {
       // Matches starting within 30 minutes - very aggressive cache
       newCacheConfig = {
-        staleTime: 3 * 1000, // 3 seconds
-        refetchInterval: 5 * 1000, // 5 seconds
+        staleTime: 2 * 60 * 1000, // 2 minutes
+        refetchInterval: 30 * 1000, // 30 seconds
         refetchOnWindowFocus: false,
         refetchOnReconnect: true
       };
-      console.log(`🟡 [MyNewLeague2] ${imminentMatches.length} matches starting within 30min - using very aggressive cache (3s/5s)`);
+      console.log(`🟡 [MyNewLeague2] ${imminentMatches.length} matches starting within 30min - using very aggressive cache (2min/30s)`);
     } else if (upcomingMatches.length > 0 && isToday) {
       // Matches starting within 2 hours - aggressive cache
       newCacheConfig = {
-        staleTime: 5 * 1000, // 5 seconds
-        refetchInterval: 10 * 1000, // 10 seconds
+        staleTime: 3 * 60 * 1000, // 3 minutes
+        refetchInterval: 45 * 1000, // 45 seconds
         refetchOnWindowFocus: false,
         refetchOnReconnect: true
       };
-      console.log(`🟠 [MyNewLeague2] ${upcomingMatches.length} matches starting within 2h - using aggressive cache (5s/10s)`);
+      console.log(`🟠 [MyNewLeague2] ${upcomingMatches.length} matches starting within 2h - using aggressive cache (3min/45s)`);
     } else if (isToday && liveMatches.length === 0) {
       // Today but no live or imminent matches - moderate cache
       newCacheConfig = {
-        staleTime: 10 * 1000, // 10 seconds
-        refetchInterval: 15 * 1000, // 15 seconds
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        refetchInterval: 60 * 1000, // 1 minute
         refetchOnWindowFocus: false,
         refetchOnReconnect: true
       };
-      console.log(`⏸️ [MyNewLeague2] No live/imminent matches on today's date - using moderate cache (10s/15s)`);
+      console.log(`⏸️ [MyNewLeague2] No live/imminent matches on today's date - using moderate cache (5min/1min)`);
     } else {
-      // Past/future dates - still relatively short cache
+      // Past/future dates - extended cache
       newCacheConfig = {
-        staleTime: 30 * 1000, // 30 seconds
+        staleTime: 60 * 60 * 1000, // 1 hour
         refetchInterval: false,
         refetchOnWindowFocus: false,
         refetchOnReconnect: false
       };
-      console.log(`📅 [MyNewLeague2] Non-today date - using short cache (30s/no refetch)`);
+      console.log(`📅 [MyNewLeague2] Non-today date - using extended cache (1 hour/no refetch)`);
     }
 
     // Update cache config if it changed
@@ -1293,6 +1293,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   }, [fixturesByLeague, triggerKickoffFlash, triggerFinishFlash]);
 
   // Check if we have cached data available
+  const queryClient = useQueryClient();
   const cachedData = queryClient.getQueryData(["myNewLeague2", "allFixtures", selectedDate]);
   const hasCachedData = cachedData && Array.isArray(cachedData) && cachedData.length > 0;
 
