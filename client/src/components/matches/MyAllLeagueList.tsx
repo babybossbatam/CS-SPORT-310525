@@ -476,7 +476,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                 {/* Country Header - Clickable (nested under Football) */}
                 <button
                   onClick={() => toggleCountry(countryData.country)}
-                  className={`w-full flex items-center justify-between pl-2 pr-4 py-3 transition-colors border-l-2 border-blue-200 hover:bg-gray-50 cursor-pointer hover:border-l-blue-400`}
+                  className={`w-full flex items-center justify-between pl-2 pr-4 py-3 transition-colors  hover:bg-gray-50 cursor-pointer `}
                 >
                   <div className="flex items-center gap-3">
                     {(() => {
@@ -610,7 +610,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                               className={`absolute right-2 w-6 h-6 flex items-center justify-center transition-all duration-300 ease-out ${
                                 isStarred
                                   ? 'opacity-100 transform translate-x-0'
-                                  : 'opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0'
+                                  : 'opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 hover:border-l-blue-400'
                               }`}
                               title={`${isStarred ? "Remove from" : "Add to"} favorites`}
                             >
