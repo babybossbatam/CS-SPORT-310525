@@ -220,7 +220,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                   onCheckedChange={setNotificationsEnabled}
                   className="data-[state=checked]:bg-blue-500"
                 />
-              </DropdownMenu>
+              </DropdownMenuItem>
 
               <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
 
