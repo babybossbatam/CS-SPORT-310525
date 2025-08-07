@@ -25,6 +25,7 @@ const translations = {
     'football': "Football",
     'basketball': "Basketball",
     'settings': "Settings",
+    'myScores': "My Scores",
     'live': "LIVE",
     'finished': "FT",
     'not_started': "Not Started"
@@ -46,6 +47,7 @@ const translations = {
     'football': "Fútbol",
     'basketball': "Baloncesto",
     'settings': "Configuración",
+    'myScores': "Mis Resultados",
     'live': "VIVO",
     'finished': "FT",
     'not_started': "No Iniciado"
@@ -67,6 +69,7 @@ const translations = {
     'football': "Football",
     'basketball': "Basketball",
     'settings': "Paramètres",
+    'myScores': "Mes Résultats",
     'live': "DIRECT",
     'finished': "FT",
     'not_started': "Pas Commencé"
@@ -88,6 +91,7 @@ const translations = {
     'football': "Fußball",
     'basketball': "Basketball",
     'settings': "Einstellungen",
+    'myScores': "Meine Ergebnisse",
     'live': "LIVE",
     'finished': "FT",
     'not_started': "Nicht Gestartet"
@@ -109,6 +113,7 @@ const translations = {
     'football': "Calcio",
     'basketball': "Pallacanestro",
     'settings': "Impostazioni",
+    'myScores': "I Miei Risultati",
     'live': "LIVE",
     'finished': "FT",
     'not_started': "Non Iniziato"
@@ -130,9 +135,32 @@ const translations = {
     'football': "Futebol",
     'basketball': "Basquetebol",
     'settings': "Configurações",
+    'myScores': "Meus Resultados",
     'live': "AO VIVO",
     'finished': "FT",
     'not_started': "Não Iniciado"
+  },
+  'zh': {
+    'today_matches': "今日比赛",
+    'yesterday_matches': "昨日比赛",
+    'tomorrow_matches': "明日比赛",
+    'live_matches': "直播比赛",
+    'football_leagues': "足球联赛",
+    'all_leagues': "所有联赛 A-Z",
+    'standings': "积分榜",
+    'fixtures': "赛程",
+    'results': "结果",
+    'statistics': "统计",
+    'home': "主场",
+    'away': "客场",
+    'vs': "对",
+    'football': "足球",
+    'basketball': "篮球",
+    'settings': "设置",
+    'myScores': "我的比分",
+    'live': "直播",
+    'finished': "结束",
+    'not_started': "未开始"
   }
 };
 
