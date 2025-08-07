@@ -1292,8 +1292,13 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     setPreviousMatchStatuses(currentStatuses);
   }, [fixturesByLeague, triggerKickoffFlash, triggerFinishFlash]);
 
-  // Show cached data immediately if available, no loading spinner
-  if (isLoading && Object.keys(fixturesByLeague).length === 0) {
+  // Check if we have cached data available
+  const queryClient = useQueryClient();
+  const cachedData = queryClient.getQueryData(["myNewLeague2", "allFixtures", selectedDate]);
+  const hasCachedData = cachedData && Array.isArray(cachedData) && cachedData.length > 0;
+
+  // Only show loading spinner if we have no cached data AND no processed fixtures
+  if (isLoading && Object.keys(fixturesByLeague).length === 0 && !hasCachedData) {
     return (
       <>
         {/* Header Section */}
