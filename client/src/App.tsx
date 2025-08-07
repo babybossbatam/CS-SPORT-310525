@@ -77,8 +77,11 @@ const setupCacheRefresh = () => {
   // }, 30 * 60 * 1000); // Every 30 minutes
 };
 
-const cleanupCacheRefresh = () => {
+const cleanupCacheRefresh = (intervalId) => {
   // Implement cleanup logic, e.g., clearInterval
+  if (intervalId) {
+    clearInterval(intervalId);
+  }
 };
 
 const preloadData = () => {
@@ -99,8 +102,7 @@ function AppContent() {
 }
 
 function App() {
-  // Initialize global error handlers and mobile detection
-  React.useEffect(() => {
+  useEffect(() => {
     // Force mobile-first layout immediately
     const isMobileCheck = window.innerWidth < 768;
     if (isMobileCheck) {
@@ -109,54 +111,67 @@ function App() {
     }
 
     setupGlobalErrorHandlers();
+    const refreshInterval = setupCacheRefresh();
 
-    // Add additional error handling for dynamic imports and runtime errors
-    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      if (
-        event.reason?.message?.includes(
-          "Failed to fetch dynamically imported module",
-        ) ||
-        event.reason?.message?.includes("plugin:runtime-error-plugin") ||
-        event.reason?.message?.includes("unknown runtime error") ||
-        event.reason?.message?.includes("sendError") ||
-        event.reason?.message?.includes("Too many re-renders") ||
-        event.reason?.toString()?.includes("riker.replit.dev") ||
-        event.reason?.toString()?.includes("plugin:runtime-error-plugin") ||
-        (typeof event.reason === "string" &&
-          event.reason.includes("plugin:runtime-error-plugin"))
-      ) {
-        console.log(
-          "🔧 Runtime/dynamic import error caught and suppressed:",
-          event.reason?.message || event.reason,
-        );
-        event.preventDefault();
-        return;
-      }
+    // Start performance monitoring
+    console.log('🚀 Starting performance monitoring...');
+
+    // Preload critical data
+    preloadData();
+
+    return () => {
+      cleanupCacheRefresh(refreshInterval);
     };
+  }, []);
 
-    const handleError = (event: ErrorEvent) => {
-      if (
-        event.message?.includes("plugin:runtime-error-plugin") ||
-        event.message?.includes("signal timed out") ||
-        event.message?.includes("unknown runtime error") ||
-        event.message?.includes("sendError") ||
-        event.message?.includes("Too many re-renders") ||
-        event.message?.includes("ErrorOverlay") ||
-        event.message?.includes("reading 'frame'") ||
-        event.filename?.includes("riker.replit.dev") ||
-        event.error?.toString()?.includes("plugin:runtime-error-plugin") ||
-        event.error?.toString()?.includes("signal timed out") ||
-        event.error?.toString()?.includes("ErrorOverlay")
-      ) {
-        console.log(
-          "🔧 Runtime/ErrorOverlay error caught and suppressed:",
-          event.message,
-        );
-        event.preventDefault();
-        return;
-      }
-    };
+  // Add additional error handling for dynamic imports and runtime errors
+  const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+    if (
+      event.reason?.message?.includes(
+        "Failed to fetch dynamically imported module",
+      ) ||
+      event.reason?.message?.includes("plugin:runtime-error-plugin") ||
+      event.reason?.message?.includes("unknown runtime error") ||
+      event.reason?.message?.includes("sendError") ||
+      event.reason?.message?.includes("Too many re-renders") ||
+      event.reason?.toString()?.includes("riker.replit.dev") ||
+      event.reason?.toString()?.includes("plugin:runtime-error-plugin") ||
+      (typeof event.reason === "string" &&
+        event.reason.includes("plugin:runtime-error-plugin"))
+    ) {
+      console.log(
+        "🔧 Runtime/dynamic import error caught and suppressed:",
+        event.reason?.message || event.reason,
+      );
+      event.preventDefault();
+      return;
+    }
+  };
 
+  const handleError = (event: ErrorEvent) => {
+    if (
+      event.message?.includes("plugin:runtime-error-plugin") ||
+      event.message?.includes("signal timed out") ||
+      event.message?.includes("unknown runtime error") ||
+      event.message?.includes("sendError") ||
+      event.message?.includes("Too many re-renders") ||
+      event.message?.includes("ErrorOverlay") ||
+      event.message?.includes("reading 'frame'") ||
+      event.filename?.includes("riker.replit.dev") ||
+      event.error?.toString()?.includes("plugin:runtime-error-plugin") ||
+      event.error?.toString()?.includes("signal timed out") ||
+      event.error?.toString()?.includes("ErrorOverlay")
+    ) {
+      console.log(
+        "🔧 Runtime/ErrorOverlay error caught and suppressed:",
+        event.message,
+      );
+      event.preventDefault();
+      return;
+    }
+  };
+
+  useEffect(() => {
     window.addEventListener("unhandledrejection", handleUnhandledRejection);
     window.addEventListener("error", handleError);
 

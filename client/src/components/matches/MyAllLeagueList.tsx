@@ -13,6 +13,8 @@ import MyGroupNationalFlag from "../common/MyGroupNationalFlag";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
 import { userActions } from "@/lib/store";
+import { useCachedQuery } from "@/lib/cachingHelper";
+import { performanceMonitor } from "@/lib/performanceMonitor";
 
 interface MyAllLeagueListProps {
   selectedDate: string;
@@ -30,67 +32,64 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   const user = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
 
-  // Fetch all leagues data
+  // Fetch all leagues data with caching
+  const {
+    data: allLeaguesData,
+    isLoading: isLeaguesLoading,
+    error: leaguesError
+  } = useCachedQuery(
+    ['all-leagues'],
+    async () => {
+      performanceMonitor.startMeasure('all-leagues-fetch');
+      const response = await apiRequest("GET", "/api/leagues/all");
+      const data = await response.json();
+      performanceMonitor.endMeasure('all-leagues-fetch');
+      return Array.isArray(data) ? data : [];
+    },
+    {
+      staleTime: 24 * 60 * 60 * 1000, // 24 hours
+      enabled: true,
+      maxAge: 24 * 60 * 60 * 1000
+    }
+  );
+
+  // Fetch fixtures data with caching
+  const {
+    data: fixturesData,
+    isLoading: isFixturesLoading,
+    error: fixturesError
+  } = useCachedQuery(
+    ['all-fixtures-by-date', selectedDate],
+    async () => {
+      if (!selectedDate) return [];
+      
+      performanceMonitor.startMeasure('fixtures-fetch');
+      const response = await apiRequest("GET", `/api/fixtures/date/${selectedDate}?all=true`);
+      const data = await response.json();
+      performanceMonitor.endMeasure('fixtures-fetch');
+      return Array.isArray(data) ? data : [];
+    },
+    {
+      enabled: !!selectedDate,
+      staleTime: 5 * 60 * 1000, // 5 minutes for fixtures
+      maxAge: 30 * 60 * 1000
+    }
+  );
+
+  // Update local state when data changes
   useEffect(() => {
-    const fetchAllLeaguesData = async () => {
-      try {
-        console.log(`🔍 [MyAllLeagueList] Fetching all leagues data`);
+    if (allLeaguesData) {
+      setAllLeagues(allLeaguesData);
+    }
+  }, [allLeaguesData]);
 
-        const response = await apiRequest("GET", "/api/leagues/all");
-        const data = await response.json();
-
-        console.log(`✅ [MyAllLeagueList] Received ${data?.length || 0} leagues`);
-
-        if (Array.isArray(data)) {
-          setAllLeagues(data);
-        } else {
-          setAllLeagues([]);
-        }
-      } catch (err) {
-        console.error("❌ [MyAllLeagueList] Error fetching all leagues:", err);
-        setAllLeagues([]);
-      }
-    };
-
-    fetchAllLeaguesData();
-  }, []);
-
-  // Fetch fixtures data
   useEffect(() => {
-    const fetchFixturesData = async () => {
-      if (!selectedDate) return;
-
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        console.log(`🔍 [MyAllLeagueList] Fetching data for date: ${selectedDate}`);
-
-        const response = await apiRequest(
-          "GET",
-          `/api/fixtures/date/${selectedDate}?all=true`,
-        );
-        const data = await response.json();
-
-        console.log(`✅ [MyAllLeagueList] Received ${data?.length || 0} fixtures`);
-
-        if (Array.isArray(data)) {
-          setFixtures(data);
-        } else {
-          setFixtures([]);
-        }
-      } catch (err) {
-        console.error("❌ [MyAllLeagueList] Error fetching fixtures:", err);
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-        setError("Failed to load leagues. Please try again later.");
-        setFixtures([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchFixturesData();
-  }, [selectedDate]);
+    if (fixturesData) {
+      setFixtures(fixturesData);
+    }
+    setIsLoading(isFixturesLoading);
+    setError(fixturesError ? "Failed to load leagues. Please try again later." : null);
+  }, [fixturesData, isFixturesLoading, fixturesError]);
 
   // Process fixtures and group by country/league
   const { validFixtures } = useMemo(() => {

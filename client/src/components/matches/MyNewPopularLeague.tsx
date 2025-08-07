@@ -14,6 +14,7 @@ import {
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MyCircularFlag from "../common/MyCircularFlag";
 import LazyImage from "../common/LazyImage";
+import { performanceMonitor } from "@/lib/performanceMonitor";
 import "../../styles/stable-live-components.css";
 
 interface MyNewPopularLeagueProps {

@@ -10,12 +10,12 @@ interface CacheItem {
 class BackgroundCache {
   private cache = new Map<string, CacheItem>();
   private prefetchQueue = new Set<string>();
-  private maxCacheSize = 1000;
-  private defaultTTL = 5 * 60 * 1000; // 5 minutes
+  private maxCacheSize = 2000; // Increased cache size
+  private defaultTTL = 10 * 60 * 1000; // 10 minutes for better performance
 
   constructor() {
-    // Cleanup expired items every minute
-    setInterval(() => this.cleanup(), 60000);
+    // Cleanup expired items every 2 minutes instead of 1
+    setInterval(() => this.cleanup(), 120000);
   }
 
   async get(key: string): Promise<any> {
@@ -131,7 +131,24 @@ export const prefetchLeagueData = async (leagueId: number, season: number) => {
   ];
 
   const promises = endpoints.map(endpoint => 
-    backgroundCache.prefetch(endpoint, 'low')
+    backgroundCache.prefetch(endpoint, 'high') // Changed to high priority
+  );
+
+  await Promise.allSettled(promises);
+};
+
+// Add aggressive preloading for today's data
+export const prefetchTodayData = async () => {
+  const today = new Date().toISOString().split('T')[0];
+  const endpoints = [
+    `/api/fixtures/date/${today}?all=true`,
+    `/api/leagues/popular`,
+    `/api/leagues/all`,
+    `/api/fixtures/live`
+  ];
+
+  const promises = endpoints.map(endpoint => 
+    backgroundCache.prefetch(endpoint, 'high')
   );
 
   await Promise.allSettled(promises);

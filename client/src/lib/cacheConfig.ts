@@ -7,8 +7,10 @@ export const CACHE_DURATIONS = {
   TWELVE_HOURS: 12 * 60 * 60 * 1000,
   TWENTY_FOUR_HOURS: 24 * 60 * 60 * 1000,
   THIRTY_MINUTES: 30 * 60 * 1000,
+  FIFTEEN_MINUTES: 15 * 60 * 1000, // New duration for better balance
+  TEN_MINUTES: 10 * 60 * 1000, // Extended from 5 minutes
   FIVE_MINUTES: 5 * 60 * 1000,
-  TWO_MINUTES: 2 * 60 * 1000, // Reduced from 30 seconds
+  TWO_MINUTES: 2 * 60 * 1000,
   FOUR_HOURS: 4 * 60 * 60 * 1000,
 } as const;
 
@@ -47,8 +49,8 @@ export const CACHE_PRESETS = {
 
   // For league standings and static data
   STANDINGS: {
-    staleTime: CACHE_DURATIONS.TWELVE_HOURS, // Increased from 6 hours
-    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS,
+    staleTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS, // Extended to 24 hours
+    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 2,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
