@@ -271,8 +271,7 @@ const PopularTeamsList = () => {
               return (
                 <div
                   key={team.id}
-                  className="flex items-center py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-                  onClick={() => navigate(`/team/${team.id}`)}
+                  className="flex items-center py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <MyWorldTeamLogo
                     teamId={team.id}
@@ -297,14 +296,17 @@ const PopularTeamsList = () => {
                     </span>
                   </div>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(team.id);
-                    }}
-                    className="text-gray-400 hover:text-blue-500 transition-colors p-1"
+                    onClick={() => toggleFavorite(team.id)}
+                    className={`transition-colors p-1 ${
+                      isFavorite 
+                        ? "text-blue-500 hover:text-blue-600" 
+                        : "text-gray-400 hover:text-blue-500"
+                    }`}
                   >
                     <Star
-                      className={`h-4 w-4 ${isFavorite ? "text-blue-500 fill-current" : ""}`}
+                      className="h-4 w-4"
+                      fill={isFavorite ? "currentColor" : "none"}
+                      stroke="currentColor"
                     />
                   </button>
                 </div>
