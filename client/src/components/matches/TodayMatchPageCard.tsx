@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Clock } from "lucide-react";
-import { Card, CardContent, CardHeader } from "../ui/card";
+import { Card, CardHeader, CardContent } from "../ui/card";
 import { Filter, Activity } from "lucide-react";
 import { Calendar } from "../ui/calendar";
 import { useQuery } from "@tanstack/react-query";
@@ -25,7 +26,7 @@ import {
   shouldExcludeFromPopularLeagues,
   isRestrictedUSLeague,
 } from "@/lib/MyPopularLeagueExclusion";
-import { useTranslation } from "@/contexts/LanguageContext";
+
 
 
 interface TodayMatchPageCardProps {
@@ -34,12 +35,11 @@ interface TodayMatchPageCardProps {
   onMatchCardClick?: (fixture: any) => void;
 }
 
-const TodayMatchPageCard: React.FC<TodayMatchPageCardProps> = ({
+export const TodayMatchPageCard = ({
   fixtures,
   onMatchClick,
   onMatchCardClick,
-}) => {
-  const { t } = useTranslation();
+}: TodayMatchPageCardProps) => {
   const [timeFilterActive, setTimeFilterActive] = useState(false);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -115,11 +115,11 @@ const TodayMatchPageCard: React.FC<TodayMatchPageCardProps> = ({
     const tomorrow = format(addDays(parseISO(today), 1), "yyyy-MM-dd");
 
     if (selectedDate === today) {
-      return t("Today's Matches");
+      return "Today's Matches";
     } else if (selectedDate === yesterday) {
-      return t("Yesterday's Matches");
+      return "Yesterday's Matches";
     } else if (selectedDate === tomorrow) {
-      return t("Tomorrow's Matches");
+      return "Tomorrow's Matches";
     } else {
       // For any other date, show the formatted date
       return format(parseISO(selectedDate), "EEE, do MMM");
@@ -251,7 +251,7 @@ const TodayMatchPageCard: React.FC<TodayMatchPageCardProps> = ({
                       "text-gray-500 rounded-md w-9 font-normal text-[0.8rem]",
                     row: "flex w-full mt-2",
                     cell: "h-6 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                    day: "h-6 w-9 p-0 text-xs font-normal aria-selected:opacity-100 hover:bg-gray-300 rounded-full border-transparent",
+                    day: "h-6 w-6 p-0 text-xs font-normal aria-selected:opacity-100 hover:bg-gray-300 rounded-full border-transparent",
                     day_range_end: "day-range-end",
                     day_selected:
                       "bg-blue-500 text-white hover:bg-stone-300 hover:text-gray-900 focus:bg-blue-400 focus:text-white rounded-full",
@@ -270,7 +270,7 @@ const TodayMatchPageCard: React.FC<TodayMatchPageCardProps> = ({
                     onClick={goToToday}
                     className="text-blue-500 hover:bg-stone-300 text-sm font-medium"
                   >
-                    {t("Today")}
+                    Today
                   </button>
                 </div>
               </div>
@@ -326,7 +326,7 @@ const TodayMatchPageCard: React.FC<TodayMatchPageCardProps> = ({
                 className={`relative inline-flex rounded-full h-2 w-2 ${liveFilterActive ? "bg-white" : "bg-red-500"}`}
               ></span>
             </span>
-            {t("Live")}
+            Live
           </button>
 
           {/* Spacer to maintain layout */}
@@ -372,7 +372,7 @@ const TodayMatchPageCard: React.FC<TodayMatchPageCardProps> = ({
             }`}
           >
             <Clock className="h-3.5 w-3.5" />
-            {t("By time")}
+            By time
           </button>
         </div>
       </Card>
@@ -412,7 +412,7 @@ const TodayMatchPageCard: React.FC<TodayMatchPageCardProps> = ({
             onMatchCardClick={handleMatchCardClick}
             useUTCOnly={true}
           />
-
+          
           <TodaysMatchesByCountryNew
             selectedDate={selectedDate}
             liveFilterActive={liveFilterActive}

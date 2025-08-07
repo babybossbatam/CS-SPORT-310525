@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, ChevronDown, ChevronUp, Star } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
@@ -67,7 +67,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     ['all-fixtures-by-date', selectedDate],
     async () => {
       if (!selectedDate) return [];
-
+      
       performanceMonitor.startMeasure('fixtures-fetch');
       const response = await apiRequest("GET", `/api/fixtures/date/${selectedDate}?all=true`);
       const data = await response.json();
@@ -323,19 +323,19 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
   // Define all football countries
   const allFootballCountries = [
-    "World", "Afghanistan", "Albania", "Algeria", "Angola", "Argentina", "Armenia",
-    "Australia", "Austria", "Azerbaijan", "Bahrain", "Bangladesh", "Belgium", "Bolivia",
-    "Bosnia and Herzegovina", "Botswana", "Brazil", "Bulgaria", "Burkina Faso",
-    "Cameroon", "Canada", "Chile", "China", "Colombia", "Croatia", "Czech Republic",
-    "Denmark", "Egypt", "England", "Estonia", "Ethiopia", "Faroe Islands", "Finland",
-    "France", "Georgia", "Germany", "Ghana", "Greece", "Hungary", "Iceland", "India",
-    "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Japan", "Jordan",
-    "Kazakhstan", "Kenya", "Kuwait", "Lithuania", "Luxembourg", "Malaysia", "Mali",
-    "Mexico", "Morocco", "Netherlands", "New Zealand", "Nigeria", "Norway", "Oman",
-    "Pakistan", "Panama", "Paraguay", "Peru", "Poland", "Portugal", "Qatar",
-    "Romania", "Russia", "Saudi Arabia", "Scotland", "Senegal", "Serbia", "Singapore",
-    "Slovakia", "Slovenia", "South Africa", "South Korea", "Spain", "Sweden",
-    "Switzerland", "Thailand", "Tunisia", "Turkey", "Ukraine", "United Arab Emirates",
+    "World", "Afghanistan", "Albania", "Algeria", "Angola", "Argentina", "Armenia", 
+    "Australia", "Austria", "Azerbaijan", "Bahrain", "Bangladesh", "Belgium", "Bolivia", 
+    "Bosnia and Herzegovina", "Botswana", "Brazil", "Bulgaria", "Burkina Faso", 
+    "Cameroon", "Canada", "Chile", "China", "Colombia", "Croatia", "Czech Republic", 
+    "Denmark", "Egypt", "England", "Estonia", "Ethiopia", "Faroe Islands", "Finland", 
+    "France", "Georgia", "Germany", "Ghana", "Greece", "Hungary", "Iceland", "India", 
+    "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Japan", "Jordan", 
+    "Kazakhstan", "Kenya", "Kuwait", "Lithuania", "Luxembourg", "Malaysia", "Mali", 
+    "Mexico", "Morocco", "Netherlands", "New Zealand", "Nigeria", "Norway", "Oman", 
+    "Pakistan", "Panama", "Paraguay", "Peru", "Poland", "Portugal", "Qatar", 
+    "Romania", "Russia", "Saudi Arabia", "Scotland", "Senegal", "Serbia", "Singapore", 
+    "Slovakia", "Slovenia", "South Africa", "South Korea", "Spain", "Sweden", 
+    "Switzerland", "Thailand", "Tunisia", "Turkey", "Ukraine", "United Arab Emirates", 
     "Uruguay", "USA", "Uzbekistan", "Venezuela", "Vietnam", "Wales", "Yemen", "Zambia", "Zimbabwe"
   ];
 
@@ -439,7 +439,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span
+                <span 
                   className="text-gray-900 dark:text-white font-medium"
                   style={{
                     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
@@ -451,7 +451,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                 {/* Expand/Collapse Icon */}
                 {isFootballExpanded }
               </div>
-              <span
+              <span 
                 className="text-gray-500 text-sm"
                 style={{
                   fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
@@ -515,7 +515,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
                       // Make flag clickable if country has language mapping
                       const hasLanguageMapping = countryToLanguageMap[countryName];
-
+                      
                       return hasLanguageMapping ? (
                         <button
                           onClick={(e) => handleCountryFlagClick(countryName, e)}
