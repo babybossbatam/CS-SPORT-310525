@@ -77,6 +77,10 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
     switch (lang) {
       case "en-US":
         return "United States";
+      case "zh-CN":
+        return "China";
+      case "zh-HK":
+        return "Hong Kong";
       case "en-GB":
         return "United Kingdom";
       case "es":
@@ -89,10 +93,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
         return "Italy";
       case "pt":
         return "Portugal";
-      case "zh-CN":
-        return "China";
-      case "zh-HK":
-        return "Hong Kong";
+
       default:
         return "United States";
     }
@@ -112,6 +113,10 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
         return "English (US)";
       case "en-GB":
         return "English (UK)";
+      case "zh-CN":
+        return "中文 (简体)";
+      case "zh-HK":
+        return "中文 (繁體)";
       case "es":
         return "Español";
       case "fr":
@@ -122,10 +127,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
         return "Italiano";
       case "pt":
         return "Português";
-      case "zh-CN":
-        return "中文 (简体)";
-      case "zh-HK":
-        return "中文 (繁體)";
+
       default:
         return "English (US)";
     }
@@ -205,7 +207,9 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                 isMobile ? "h-3 w-3 mr-1" : "h-4 w-4 mr-1",
               )}
             />
-            <span className={cn(isMobile ? "text-xs" : "")}>{t("myScores")}</span>
+            <span className={cn(isMobile ? "text-xs" : "")}>
+              {t("myScores")}
+            </span>
           </div>
 
           <div
