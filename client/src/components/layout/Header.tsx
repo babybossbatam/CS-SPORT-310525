@@ -79,8 +79,8 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
         return "United States";
       case "es":
         return "Spain";
-      case "fr":
-        return "France";
+      case "zh-hk":
+        return "Hong Kong";
       case "zh":
         return "China";
       case "de":
@@ -108,8 +108,8 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
         return "English";
       case "es":
         return "Español";
-      case "fr":
-        return "Français";
+      case "zh-hk":
+        return "中文 (繁體)";
       case "zh":
         return "中文";
       case "de":
@@ -364,16 +364,16 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => handleLanguageChange("fr")}
+                    onClick={() => handleLanguageChange("zh-hk")}
                   >
                     <div className="mr-2">
                       <MyCircularFlag
-                        teamName="France"
+                        teamName="Hong Kong"
                         size={isMobile ? "20px" : "16px"}
                         className=""
                       />
                     </div>
-                    Français
+                    中文 (繁體)
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className={cn(
