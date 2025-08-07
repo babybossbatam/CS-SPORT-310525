@@ -27,7 +27,8 @@ const translations = {
     'settings': "Settings",
     'live': "LIVE",
     'finished': "FT",
-    'not_started': "Not Started"
+    'not_started': "Not Started",
+    'myScores': "My Scores"
   },
   'es': {
     'today_matches': "Partidos de Hoy",
@@ -48,7 +49,8 @@ const translations = {
     'settings': "Configuración",
     'live': "VIVO",
     'finished': "FT",
-    'not_started': "No Iniciado"
+    'not_started': "No Iniciado",
+    'myScores': "Mis Puntuaciones"
   },
   'fr': {
     'today_matches': "Matchs d'Aujourd'hui",
@@ -69,7 +71,8 @@ const translations = {
     'settings': "Paramètres",
     'live': "DIRECT",
     'finished': "FT",
-    'not_started': "Pas Commencé"
+    'not_started': "Pas Commencé",
+    'myScores': "Mes Scores"
   },
   'de': {
     'today_matches': "Heutige Spiele",
@@ -90,7 +93,8 @@ const translations = {
     'settings': "Einstellungen",
     'live': "LIVE",
     'finished': "FT",
-    'not_started': "Nicht Gestartet"
+    'not_started': "Nicht Gestartet",
+    'myScores': "Meine Ergebnisse"
   },
   'it': {
     'today_matches': "Partite di Oggi",
@@ -111,7 +115,8 @@ const translations = {
     'settings': "Impostazioni",
     'live': "LIVE",
     'finished': "FT",
-    'not_started': "Non Iniziato"
+    'not_started': "Non Iniziato",
+    'myScores': "I Miei Punteggi"
   },
   'pt': {
     'today_matches': "Jogos de Hoje",
@@ -132,7 +137,8 @@ const translations = {
     'settings': "Configurações",
     'live': "AO VIVO",
     'finished': "FT",
-    'not_started': "Não Iniciado"
+    'not_started': "Não Iniciado",
+    'myScores': "Meus Resultados"
   }
 };
 
