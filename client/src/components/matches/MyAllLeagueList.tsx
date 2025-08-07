@@ -440,7 +440,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span 
-                  className="text-white font-medium"
+                  className="text-gray-900 dark:text-white font-medium"
                   style={{
                     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                     fontSize: "14px",
