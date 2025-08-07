@@ -368,20 +368,12 @@ const PopularLeaguesList = () => {
   }, []);
 
   const toggleFavorite = (leagueId: number) => {
-    if (!user.isAuthenticated) {
-      toast({
-        title: "Authentication Required",
-        description: "Please login to save favorites",
-      });
-      return;
-    }
-
     const leagueIdStr = leagueId.toString();
     const isFavorite = user.preferences.favoriteLeagues.includes(leagueIdStr);
 
     if (isFavorite) {
       dispatch(userActions.removeFavoriteLeague(leagueIdStr));
-      if (user.id) {
+      if (user.isAuthenticated && user.id) {
         apiRequest("PATCH", `/api/user/${user.id}/preferences`, {
           favoriteLeagues: user.preferences.favoriteLeagues.filter(
             (id) => id !== leagueIdStr,
@@ -392,7 +384,7 @@ const PopularLeaguesList = () => {
       }
     } else {
       dispatch(userActions.addFavoriteLeague(leagueIdStr));
-      if (user.id) {
+      if (user.isAuthenticated && user.id) {
         apiRequest("PATCH", `/api/user/${user.id}/preferences`, {
           favoriteLeagues: [...user.preferences.favoriteLeagues, leagueIdStr],
         }).catch((err) => {
