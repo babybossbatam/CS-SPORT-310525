@@ -1293,7 +1293,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   }, [fixturesByLeague, triggerKickoffFlash, triggerFinishFlash]);
 
   // Check if we have cached data available
-  const queryClient = useQueryClient();
   const cachedData = queryClient.getQueryData(["myNewLeague2", "allFixtures", selectedDate]);
   const hasCachedData = cachedData && Array.isArray(cachedData) && cachedData.length > 0;
 
