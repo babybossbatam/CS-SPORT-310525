@@ -40,7 +40,7 @@ const MyRightContent: React.FC = () => {
       <MyInfo />
 
       {/* Popular Leagues and All League List sections */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 hover:bg-gray-200">
         <div className="space-y-4">
           <PopularLeaguesList />
           <PopularTeamsList />
