@@ -472,7 +472,8 @@ const PopularLeaguesList = () => {
                     className="text-gray-400 hover:text-blue-500 transition-colors"
                   >
                     <Star
-                      className={`h-4 w-4 ${isFavorite ? "text-blue-500 fill-current" : ""}`}
+                      className={`h-4 w-4 ${isFavorite ? "text-blue-500 fill-blue-500" : ""}`}
+                      fill={isFavorite ? "currentColor" : "none"}
                     />
                   </button>
                 </div>
