@@ -13,6 +13,8 @@ import { Provider } from "react-redux";
 import { store } from "@/lib/store";
 import { setupGlobalErrorHandlers } from "./lib/errorHandler";
 import { CentralDataProvider } from "./providers/CentralDataProvider";
+import { LanguageProvider } from "./contexts/LanguageContext";
+import LanguageToast from "./components/common/LanguageToast";
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
@@ -187,23 +189,26 @@ function App() {
   return (
     <TooltipProvider>
       <Toaster />
+      <LanguageToast />
       <main className="bg-stone-50 pt-[0px] pb-[0px] mt-[81px] mobile-app-container">
         <QueryClientProvider client={queryClient}>
-          <CentralDataProvider
-            selectedDate={new Date().toISOString().slice(0, 10)}
-          >
-            <Provider store={store}>
-              <Suspense
-                fallback={
-                  <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-                    <BrandedLoading size="64px" className="py-8" />
-                  </div>
-                }
-              >
-                <AppContent />
-              </Suspense>
-            </Provider>
-          </CentralDataProvider>
+          <LanguageProvider>
+            <CentralDataProvider
+              selectedDate={new Date().toISOString().slice(0, 10)}
+            >
+              <Provider store={store}>
+                <Suspense
+                  fallback={
+                    <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+                      <BrandedLoading size="64px" className="py-8" />
+                    </div>
+                  }
+                >
+                  <AppContent />
+                </Suspense>
+              </Provider>
+            </CentralDataProvider>
+          </LanguageProvider>
         </QueryClientProvider>
       </main>
     </TooltipProvider>

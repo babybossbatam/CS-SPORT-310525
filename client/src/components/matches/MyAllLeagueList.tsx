@@ -15,6 +15,7 @@ import { RootState } from "@/lib/store";
 import { userActions } from "@/lib/store";
 import { useCachedQuery } from "@/lib/cachingHelper";
 import { performanceMonitor } from "@/lib/performanceMonitor";
+import { useLanguage, useTranslation, countryToLanguageMap } from "@/contexts/LanguageContext";
 
 interface MyAllLeagueListProps {
   selectedDate: string;
@@ -31,6 +32,10 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   // Redux state
   const user = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
+
+  // Language functionality
+  const { setLanguage } = useLanguage();
+  const { t } = useTranslation();
 
   // Fetch all leagues data with caching
   const {
@@ -240,21 +245,21 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   // Get header title
   const getHeaderTitle = () => {
     if (isDateStringToday(selectedDate)) {
-      return "Today's Football Leagues";
+      return t('today_matches');
     } else if (isDateStringYesterday(selectedDate)) {
-      return "Yesterday's Football Leagues";
+      return t('yesterday_matches');
     } else if (isDateStringTomorrow(selectedDate)) {
-      return "Tomorrow's Football Leagues";
+      return t('tomorrow_matches');
     } else {
       try {
         const customDate = parseISO(selectedDate);
         if (isValid(customDate)) {
-          return `${format(customDate, "EEEE, MMMM do")} Football Leagues`;
+          return `${format(customDate, "EEEE, MMMM do")} ${t('football_leagues')}`;
         } else {
-          return "Football Leagues";
+          return t('football_leagues');
         }
       } catch {
-        return "Football Leagues";
+        return t('football_leagues');
       }
     }
   };
@@ -270,6 +275,15 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       }
       return newExpanded;
     });
+  };
+
+  // Handle country flag click for language switching
+  const handleCountryFlagClick = (countryName: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    const languageCode = countryToLanguageMap[countryName];
+    if (languageCode) {
+      setLanguage(languageCode);
+    }
   };
 
   // Toggle Football section expansion
@@ -409,7 +423,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       <CardHeader className="flex flex-row justify-between items-center space-y-0 p-4 border-b border-stone-200 text-sm font-bold">
          {/* All Leagues A-Z Section */}
         <div className="flex justify-between items-center w-full">
-          All Leagues A-Z
+          {t('all_leagues')}
         </div>
       </CardHeader>
       <CardContent className="p-0">
@@ -432,7 +446,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                     fontSize: "14px",
                   }}
                 >
-                  Football
+                  {t('football')}
                 </span>
                 {/* Expand/Collapse Icon */}
                 {isFootballExpanded }
@@ -483,24 +497,35 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                         ? countryData.country
                         : countryData.country?.name || "Unknown";
 
-                      if (countryName === "World") {
-                        return (
-                          <MyGroupNationalFlag
-                            teamName="World"
-                            fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
-                            alt="World"
-                            size="24px"
-                          />
-                        );
-                      }
-
-                      return (
+                      const flagElement = countryName === "World" ? (
+                        <MyGroupNationalFlag
+                          teamName="World"
+                          fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
+                          alt="World"
+                          size="24px"
+                        />
+                      ) : (
                         <MyGroupNationalFlag
                           teamName={countryName}
                           fallbackUrl="/assets/fallback-logo.svg"
                           alt={countryName}
                           size="24px"
                         />
+                      );
+
+                      // Make flag clickable if country has language mapping
+                      const hasLanguageMapping = countryToLanguageMap[countryName];
+                      
+                      return hasLanguageMapping ? (
+                        <button
+                          onClick={(e) => handleCountryFlagClick(countryName, e)}
+                          className="hover:scale-110 transition-transform duration-200 cursor-pointer"
+                          title={`Switch to ${countryName} language`}
+                        >
+                          {flagElement}
+                        </button>
+                      ) : (
+                        flagElement
                       );
                     })()}
                     <div className="flex items-center gap-2">
