@@ -1,4 +1,4 @@
-import { useState, startTransition } from "react";
+import { useState } from "react";
 import { useLocation, Link } from "wouter";
 import LeagueTabs from "./LeagueTabs";
 import { Search, Star, Settings, ChevronDown } from "lucide-react";
@@ -101,9 +101,9 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
     const newPath = `/${languageCode}${currentPath === '/' ? '' : currentPath}`;
     
     // Navigate to new URL with updated language
-    startTransition(() => {
+    setTimeout(() => {
       window.location.href = newPath;
-    });
+    }, 0);
     
     toast({
       title: "Language Changed",
