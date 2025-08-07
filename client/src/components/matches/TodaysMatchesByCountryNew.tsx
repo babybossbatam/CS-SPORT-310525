@@ -238,7 +238,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }
 
       const data = await response.json();
-      
+
       console.log(`✅ [TodaysMatchesByCountryNew] Smart cached: ${data?.length || 0} fixtures`);
 
       return Array.isArray(data) ? data : [];
@@ -254,7 +254,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       },
       onError: (err: any) => {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-        
+
         if (errorMessage.includes('Failed to fetch') || 
             errorMessage.includes('NetworkError')) {
           console.warn(`🌐 [TodaysMatchesByCountryNew] Network issue for date: ${selectedDate}`);
@@ -442,22 +442,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 // Memoized filtering with performance optimizations
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length || !selectedDate) {
-      console.log(`🔍 [TodaysMatchByCountryNew] No fixtures or date provided`);
       return [];
     }
 
     // Early return for cached results
     const cacheKey = `filtered_${selectedDate}_${fixtures.length}`;
     if (lastFilterCache?.current?.key === cacheKey && lastFilterCache?.current?.data) {
-      console.log(`⚡ [TodaysMatchByCountryNew] Returning cached filtered fixtures for ${selectedDate}`);
       return lastFilterCache.current.data;
     }
 
-    console.log(`🔍 [TodaysMatchByCountryNew UTC] Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
-
     const filtered = fixtures.filter((fixture) => {
-      if (!fixture || !fixture.fixture?.date) {
-        console.warn("Invalid fixture structure:", fixture);
+      if (!fixture?.fixture?.date) {
         return false;
       }
 
@@ -779,7 +774,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         grouped[country].leagues[leagueId] = {
           league: fixture.league,
           matches: [],
-          isPopular: false,
+          isPopular: POPULAR_LEAGUES.includes(leagueId),
         };
       }
 
@@ -919,7 +914,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
         // Check if either country is World
         const aIsWorld = countryA.toLowerCase() === "world";
-        const bIsWorld = countryB.toLowerCase() === "world";        // Check for live matches in each country
+        const bIsWorld = countryB.toLowerCase() === "world";
+
+        // Check for live matches in each country
         const aHasLive = Object.values(a.leagues).some((league: any) =>
           league.matches.some((match: any) =>
             ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
@@ -933,7 +930,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               match.fixture.status.short,
             ),
           ),
-
         );
 
         // Priority: World with live matches first, then World without live, then others alphabetically
@@ -967,7 +963,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         const aHasLive = Object.values(a.leagues).some((league: any) =>
           league.matches.some((match: any) =>
             ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-
               match.fixture.status.short,
             ),
           ),
@@ -1836,7 +1831,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                             }
 
                                             // Postponed/Cancelled matches
-                                            if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
+                                            if (
+                                              ["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)
+                                            ) {
                                               return (
                                                 <div className="match-status-label status-postponed">
                                                   {status === "PST"
