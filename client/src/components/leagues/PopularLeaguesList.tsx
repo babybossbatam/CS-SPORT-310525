@@ -373,7 +373,6 @@ const PopularLeaguesList = () => {
         title: "Authentication Required",
         description: "Please login to save favorites",
       });
-      navigate("/auth");
       return;
     }
 
