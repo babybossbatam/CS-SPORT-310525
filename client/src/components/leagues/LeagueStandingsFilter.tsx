@@ -834,7 +834,7 @@ const LeagueStandingsFilter = () => {
                 {standings.league.standings.slice(0, 2).map(
                   (group: Standing[], groupIndex: number) => (
                     <div key={groupIndex}>
-                      <h3 className="text-xs font-regular mx-2 pt-2 mt-4 border-t border-b border-gray-100 mb-2 text-gray-700">
+                      <h3 className="text-xs font-regular mx-2 pt-2 mt-4 border-t border-b border-gray-100 dark:border-gray-700 mb-2 text-gray-700 dark:text-white">
                         Group {String.fromCharCode(65 + groupIndex)}
                       </h3>
                       <Table>
