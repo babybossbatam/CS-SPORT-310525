@@ -76,60 +76,18 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
   const getCountryNameFromLanguage = (lang: string): string => {
     switch (lang) {
       case "en-US":
-        return "United States";
-      case "zh-CN":
-        return "China";
-      case "zh-HK":
-        return "Hong Kong";
       case "en-GB":
-        return "United Kingdom";
+        return "United States";
       case "es":
         return "Spain";
       case "fr":
         return "France";
-      case "de":
-        return "Germany";
-      case "it":
-        return "Italy";
-      case "pt":
-        return "Portugal";
-
+      case "zh-CN":
+        return "China";
+      case "zh-HK":
+        return "Hong Kong";
       default:
         return "United States";
-    }
-  };
-
-  const handleLanguageChange = (languageCode: string) => {
-    setLanguage(languageCode);
-    toast({
-      title: "Language changed",
-      description: `Switched to ${getLanguageDisplayName(languageCode)}`,
-    });
-  };
-
-  const getLanguageDisplayName = (lang: string): string => {
-    switch (lang) {
-      case "en-US":
-        return "English (US)";
-      case "en-GB":
-        return "English (UK)";
-      case "zh-CN":
-        return "中文 (简体)";
-      case "zh-HK":
-        return "中文 (繁體)";
-      case "es":
-        return "Español";
-      case "fr":
-        return "Français";
-      case "de":
-        return "Deutsch";
-      case "it":
-        return "Italiano";
-      case "pt":
-        return "Português";
-
-      default:
-        return "English (US)";
     }
   };
 
@@ -152,7 +110,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
         >
           <img
             src="/CSSPORT_1_updated.png"
-            alt="CSSport Logo"
+            alt="CS SPORT Logo"
             className={cn(
               "w-auto mr-2 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]",
               isMobile ? "h-8 max-h-8" : "h-full max-h-[57px]",
@@ -207,9 +165,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                 isMobile ? "h-3 w-3 mr-1" : "h-4 w-4 mr-1",
               )}
             />
-            <span className={cn(isMobile ? "text-xs" : "")}>
-              {t("myScores")}
-            </span>
+            <span className={cn(isMobile ? "text-xs" : "")}>{t("myScores")}</span>
           </div>
 
           <div
@@ -293,7 +249,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                   }
                   className="data-[state=checked]:bg-blue-500"
                 />
-              </DropdownMenu>
+              </DropdownMenuItem>
 
               <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
 
@@ -323,7 +279,12 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                         />
                       </div>
                       <span className={cn(isMobile ? "text-base" : "text-sm")}>
-                        {getLanguageDisplayName(currentLanguage)}
+                        {currentLanguage === "en-US" ? "English (US)" :
+                         currentLanguage === "en-GB" ? "English (UK)" :
+                         currentLanguage === "es" ? "Español" :
+                         currentLanguage === "fr" ? "Français" :
+                         currentLanguage === "zh-CN" ? "中文 (简体)" :
+                         currentLanguage === "zh-HK" ? "中文 (繁體)" : "English (US)"}
                       </span>
                     </div>
                     <ChevronDown
@@ -344,7 +305,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => handleLanguageChange("en")}
+                    onClick={() => setLanguage("en-US")}
                   >
                     <div className="mr-2">
                       <MyCircularFlag
@@ -360,7 +321,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => handleLanguageChange("en")}
+                    onClick={() => setLanguage("en-GB")}
                   >
                     <div className="mr-2">
                       <MyCircularFlag
@@ -376,7 +337,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => handleLanguageChange("es")}
+                    onClick={() => setLanguage("es")}
                   >
                     <div className="mr-2">
                       <MyCircularFlag
@@ -392,7 +353,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => handleLanguageChange("fr")}
+                    onClick={() => setLanguage("fr")}
                   >
                     <div className="mr-2">
                       <MyCircularFlag
@@ -408,68 +369,31 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => handleLanguageChange("de")}
+                    onClick={() => setLanguage("zh-CN")}
                   >
                     <div className="mr-2">
                       <MyCircularFlag
-                        teamName="Germany"
+                        teamName="China"
                         size={isMobile ? "20px" : "16px"}
                         className=""
                       />
                     </div>
-                    Deutsch
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className={cn(
-                      "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
-                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
-                    )}
-                    onClick={() => handleLanguageChange("it")}
-                  >
-                    <div className="mr-2">
-                      <MyCircularFlag
-                        teamName="Italy"
-                        size={isMobile ? "20px" : "16px"}
-                        className=""
-                      />
-                    </div>
-                    Italiano
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className={cn(
-                      "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
-                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
-                    )}
-                    onClick={() => handleLanguageChange("pt")}
-                  >
-                    <div className="mr-2">
-                      <MyCircularFlag
-                        teamName="Portugal"
-                        size={isMobile ? "20px" : "16px"}
-                        className=""
-                      />
-                    </div>
-                    Português
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className={cn(
-                      "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
-                      isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
-                    )}
-                    onClick={() => handleLanguageChange("zh-CN")}
-                  >
-                    <div className="mr-2">🇨🇳</div>
                     中文 (简体)
                   </DropdownMenuItem>
-
                   <DropdownMenuItem
                     className={cn(
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => handleLanguageChange("zh-HK")}
+                    onClick={() => setLanguage("zh-HK")}
                   >
-                    <div className="mr-2">🇭🇰</div>
+                    <div className="mr-2">
+                      <MyCircularFlag
+                        teamName="Hong Kong"
+                        size={isMobile ? "20px" : "16px"}
+                        className=""
+                      />
+                    </div>
                     中文 (繁體)
                   </DropdownMenuItem>
                 </DropdownMenuContent>

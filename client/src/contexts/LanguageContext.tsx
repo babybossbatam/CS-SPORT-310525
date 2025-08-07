@@ -27,8 +27,7 @@ const translations = {
     'settings': "Settings",
     'live': "LIVE",
     'finished': "FT",
-    'not_started': "Not Started",
-    'myScores': "My Scores"
+    'not_started': "Not Started"
   },
   'es': {
     'today_matches': "Partidos de Hoy",
@@ -49,8 +48,7 @@ const translations = {
     'settings': "Configuración",
     'live': "VIVO",
     'finished': "FT",
-    'not_started': "No Iniciado",
-    'myScores': "Mis Puntuaciones"
+    'not_started': "No Iniciado"
   },
   'fr': {
     'today_matches': "Matchs d'Aujourd'hui",
@@ -71,8 +69,7 @@ const translations = {
     'settings': "Paramètres",
     'live': "DIRECT",
     'finished': "FT",
-    'not_started': "Pas Commencé",
-    'myScores': "Mes Scores"
+    'not_started': "Pas Commencé"
   },
   'de': {
     'today_matches': "Heutige Spiele",
@@ -93,8 +90,7 @@ const translations = {
     'settings': "Einstellungen",
     'live': "LIVE",
     'finished': "FT",
-    'not_started': "Nicht Gestartet",
-    'myScores': "Meine Ergebnisse"
+    'not_started': "Nicht Gestartet"
   },
   'it': {
     'today_matches': "Partite di Oggi",
@@ -115,52 +111,28 @@ const translations = {
     'settings': "Impostazioni",
     'live': "LIVE",
     'finished': "FT",
-    'not_started': "Non Iniziato",
-    'myScores': "I Miei Punteggi"
+    'not_started': "Non Iniziato"
   },
-  'zh-CN': {
-    'today_matches': "今日比赛",
-    'yesterday_matches': "昨日比赛",
-    'tomorrow_matches': "明日比赛",
-    'live_matches': "直播比赛",
-    'football_leagues': "足球联赛",
-    'all_leagues': "所有联赛 A-Z",
-    'standings': "积分榜",
-    'fixtures': "赛程",
-    'results': "结果",
-    'statistics': "统计",
-    'home': "主队",
-    'away': "客队",
-    'vs': "对",
-    'football': "足球",
-    'basketball': "篮球",
-    'settings': "设置",
-    'live': "直播",
-    'finished': "完场",
-    'not_started': "未开始",
-    'myScores': "我的比分"
-  },
-  'zh-HK': {
-    'today_matches': "今日比賽",
-    'yesterday_matches': "昨日比賽",
-    'tomorrow_matches': "明日比賽",
-    'live_matches': "直播比賽",
-    'football_leagues': "足球聯賽",
-    'all_leagues': "所有聯賽 A-Z",
-    'standings': "積分榜",
-    'fixtures': "賽程",
-    'results': "結果",
-    'statistics': "統計",
-    'home': "主隊",
-    'away': "客隊",
-    'vs': "對",
-    'football': "足球",
-    'basketball': "籃球",
-    'settings': "設定",
-    'live': "直播",
-    'finished': "完場",
-    'not_started': "未開始",
-    'myScores': "我的比分"
+  'pt': {
+    'today_matches': "Jogos de Hoje",
+    'yesterday_matches': "Jogos de Ontem",
+    'tomorrow_matches': "Jogos de Amanhã",
+    'live_matches': "Jogos ao Vivo",
+    'football_leagues': "Ligas de Futebol",
+    'all_leagues': "Todas as Ligas A-Z",
+    'standings': "Classificação",
+    'fixtures': "Calendário",
+    'results': "Resultados",
+    'statistics': "Estatísticas",
+    'home': "Casa",
+    'away': "Fora",
+    'vs': "vs",
+    'football': "Futebol",
+    'basketball': "Basquetebol",
+    'settings': "Configurações",
+    'live': "AO VIVO",
+    'finished': "FT",
+    'not_started': "Não Iniciado"
   }
 };
 
@@ -170,9 +142,9 @@ const countryToLanguageMap: { [key: string]: string } = {
   'Spain': 'es',
   'France': 'fr',
   'Germany': 'de',
-  'China': 'zh-CN',
-  'Hong Kong': 'zh-HK',
-  'Taiwan': 'zh-HK',
+  'Italy': 'it',
+  'Portugal': 'pt',
+  'Brazil': 'pt',
   'Mexico': 'es',
   'Argentina': 'es'
 };
