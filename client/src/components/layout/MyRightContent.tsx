@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useState, useEffect, startTransition } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
+import { setSelectedDate } from "@/lib/store";
 import MyHomeFeaturedMatchNew from "@/components/matches/MyHomeFeaturedMatchNew";
 import HomeTopScorersList from "@/components/leagues/HomeTopScorersList";
 import LeagueStandingsFilter from "@/components/leagues/LeagueStandingsFilter";
@@ -20,6 +21,13 @@ const MyRightContent: React.FC = () => {
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [showAllLeagues, setShowAllLeagues] = useState(false);
   const { isMobile } = useDeviceInfo();
+  const dispatch = useDispatch();
+
+  const handleDateChange = (date: Date) => {
+    startTransition(() => {
+      dispatch(setSelectedDate(date));
+    });
+  };
 
   return (
     <div className="h-full min-h-0 overflow-y-auto space-y-4 pb-4">
