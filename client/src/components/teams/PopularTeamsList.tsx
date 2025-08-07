@@ -192,15 +192,6 @@ const PopularTeamsList = () => {
   }, []);
 
   const toggleFavorite = (teamId: number) => {
-    if (!user.isAuthenticated) {
-      toast({
-        title: "Authentication Required",
-        description: "Please login to save favorites",
-      });
-      navigate("/auth");
-      return;
-    }
-
     const teamIdStr = teamId.toString();
     const isFavorite = user.preferences.favoriteTeams.includes(teamIdStr);
 
@@ -208,7 +199,7 @@ const PopularTeamsList = () => {
       dispatch(userActions.removeFavoriteTeam(teamIdStr));
 
       // Update on server
-      if (user.id) {
+      if (user.isAuthenticated && user.id) {
         apiRequest("PATCH", `/api/user/${user.id}/preferences`, {
           favoriteTeams: user.preferences.favoriteTeams.filter(
             (id) => id !== teamIdStr,
@@ -221,7 +212,7 @@ const PopularTeamsList = () => {
       dispatch(userActions.addFavoriteTeam(teamIdStr));
 
       // Update on server
-      if (user.id) {
+      if (user.isAuthenticated && user.id) {
         apiRequest("PATCH", `/api/user/${user.id}/preferences`, {
           favoriteTeams: [...user.preferences.favoriteTeams, teamIdStr],
         }).catch((err) => {
