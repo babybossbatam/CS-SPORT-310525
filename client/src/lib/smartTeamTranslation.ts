@@ -883,6 +883,150 @@ class SmartTeamTranslation {
     'FC Midtjylland': {
       'zh': '中日德兰', 'zh-hk': '中日德蘭', 'zh-tw': '中日德蘭',
       'es': 'FC Midtjylland', 'de': 'FC Midtjylland', 'it': 'FC Midtjylland', 'pt': 'FC Midtjylland'
+    },
+
+    // Additional Brazilian teams
+    'CRB': {
+      'zh': 'CRB', 'zh-hk': 'CRB', 'zh-tw': 'CRB',
+      'es': 'CRB', 'de': 'CRB', 'it': 'CRB', 'pt': 'CRB'
+    },
+    'Cruzeiro': {
+      'zh': '克鲁塞罗', 'zh-hk': '克魯塞羅', 'zh-tw': '克魯塞羅',
+      'es': 'Cruzeiro', 'de': 'Cruzeiro', 'it': 'Cruzeiro', 'pt': 'Cruzeiro'
+    },
+    'Vasco DA Gama': {
+      'zh': '华斯高', 'zh-hk': '華士高', 'zh-tw': '華斯高',
+      'es': 'Vasco da Gama', 'de': 'Vasco da Gama', 'it': 'Vasco da Gama', 'pt': 'Vasco da Gama'
+    },
+    'CSA': {
+      'zh': 'CSA', 'zh-hk': 'CSA', 'zh-tw': 'CSA',
+      'es': 'CSA', 'de': 'CSA', 'it': 'CSA', 'pt': 'CSA'
+    },
+
+    // Colombian teams
+    'Union Magdalena': {
+      'zh': '马格达莱纳联合', 'zh-hk': '馬格達萊納聯合', 'zh-tw': '馬格達萊納聯合',
+      'es': 'Unión Magdalena', 'de': 'Unión Magdalena', 'it': 'Unión Magdalena', 'pt': 'Unión Magdalena'
+    },
+    'Deportivo Pasto': {
+      'zh': '帕斯托体育', 'zh-hk': '帕斯托體育', 'zh-tw': '帕斯托體育',
+      'es': 'Deportivo Pasto', 'de': 'Deportivo Pasto', 'it': 'Deportivo Pasto', 'pt': 'Deportivo Pasto'
+    },
+    'Chico': {
+      'zh': '奇科', 'zh-hk': '奇科', 'zh-tw': '奇科',
+      'es': 'Chico', 'de': 'Chico', 'it': 'Chico', 'pt': 'Chico'
+    },
+    'La Equidad': {
+      'zh': '公平竞技', 'zh-hk': '公平競技', 'zh-tw': '公平競技',
+      'es': 'La Equidad', 'de': 'La Equidad', 'it': 'La Equidad', 'pt': 'La Equidad'
+    },
+
+    // Egyptian teams
+    'Wadi Degla': {
+      'zh': '瓦迪德格拉', 'zh-hk': '瓦迪德格拉', 'zh-tw': '瓦迪德格拉',
+      'es': 'Wadi Degla', 'de': 'Wadi Degla', 'it': 'Wadi Degla', 'pt': 'Wadi Degla'
+    },
+    'Pyramids FC': {
+      'zh': '金字塔', 'zh-hk': '金字塔', 'zh-tw': '金字塔',
+      'es': 'Pyramids FC', 'de': 'Pyramids FC', 'it': 'Pyramids FC', 'pt': 'Pyramids FC'
+    },
+
+    // Argentine teams
+    'Estudiantes L.P.': {
+      'zh': '拉普拉塔大学生', 'zh-hk': '拉普拉塔大學生', 'zh-tw': '拉普拉塔大學生',
+      'es': 'Estudiantes', 'de': 'Estudiantes', 'it': 'Estudiantes', 'pt': 'Estudiantes'
+    },
+    'Estudiantes': {
+      'zh': '拉普拉塔大学生', 'zh-hk': '拉普拉塔大學生', 'zh-tw': '拉普拉塔大學生',
+      'es': 'Estudiantes', 'de': 'Estudiantes', 'it': 'Estudiantes', 'pt': 'Estudiantes'
+    },
+    'Independ. Rivadavia': {
+      'zh': '里瓦达维亚独立', 'zh-hk': '里瓦達維亞獨立', 'zh-tw': '里瓦達維亞獨立',
+      'es': 'Independiente Rivadavia', 'de': 'Independiente Rivadavia', 'it': 'Independiente Rivadavia', 'pt': 'Independiente Rivadavia'
+    },
+    'San Lorenzo': {
+      'zh': '圣洛伦索', 'zh-hk': '聖洛倫索', 'zh-tw': '聖洛倫索',
+      'es': 'San Lorenzo', 'de': 'San Lorenzo', 'it': 'San Lorenzo', 'pt': 'San Lorenzo'
+    },
+    'Velez Sarsfield': {
+      'zh': '萨斯菲尔德', 'zh-hk': '薩斯菲爾德', 'zh-tw': '薩斯菲爾德',
+      'es': 'Vélez Sarsfield', 'de': 'Vélez Sarsfield', 'it': 'Vélez Sarsfield', 'pt': 'Vélez Sarsfield'
+    },
+    'Godoy Cruz': {
+      'zh': '戈多伊克鲁斯', 'zh-hk': '戈多伊克魯斯', 'zh-tw': '戈多伊克魯斯',
+      'es': 'Godoy Cruz', 'de': 'Godoy Cruz', 'it': 'Godoy Cruz', 'pt': 'Godoy Cruz'
+    },
+    'Gimnasia L.P.': {
+      'zh': '拉普拉塔体操', 'zh-hk': '拉普拉塔體操', 'zh-tw': '拉普拉塔體操',
+      'es': 'Gimnasia La Plata', 'de': 'Gimnasia La Plata', 'it': 'Gimnasia La Plata', 'pt': 'Gimnasia La Plata'
+    },
+
+    // Italian teams
+    'Frosinone': {
+      'zh': '弗罗西诺内', 'zh-hk': '弗羅西諾內', 'zh-tw': '弗羅西諾內',
+      'es': 'Frosinone', 'de': 'Frosinone', 'it': 'Frosinone', 'pt': 'Frosinone'
+    },
+    'Benevento': {
+      'zh': '贝内文托', 'zh-hk': '賓尼雲圖', 'zh-tw': '貝內文托',
+      'es': 'Benevento', 'de': 'Benevento', 'it': 'Benevento', 'pt': 'Benevento'
+    },
+
+    // German teams
+    'FC Augsburg': {
+      'zh': '奥格斯堡', 'zh-hk': '奧格斯堡', 'zh-tw': '奧格斯堡',
+      'es': 'FC Augsburg', 'de': 'FC Augsburg', 'it': 'FC Augsburg', 'pt': 'FC Augsburg'
+    },
+    'Pisa': {
+      'zh': '比萨', 'zh-hk': '比薩', 'zh-tw': '比薩',
+      'es': 'Pisa', 'de': 'Pisa', 'it': 'Pisa', 'pt': 'Pisa'
+    },
+
+    // Greek teams
+    'Olympiakos Piraeus': {
+      'zh': '奥林匹亚科斯', 'zh-hk': '奧林比亞高斯', 'zh-tw': '奧林匹亞科斯',
+      'es': 'Olympiakos Piraeus', 'de': 'Olympiakos Piräus', 'it': 'Olympiakos Pireo', 'pt': 'Olympiakos Pireu'
+    },
+
+    // Saudi Arabian teams
+    'Al Taawon': {
+      'zh': '塔阿万', 'zh-hk': '塔阿萬', 'zh-tw': '塔阿萬',
+      'es': 'Al Taawon', 'de': 'Al Taawon', 'it': 'Al Taawon', 'pt': 'Al Taawon'
+    },
+    'Al-Taawon': {
+      'zh': '塔阿万', 'zh-hk': '塔阿萬', 'zh-tw': '塔阿萬',
+      'es': 'Al-Taawon', 'de': 'Al-Taawon', 'it': 'Al-Taawon', 'pt': 'Al-Taawon'
+    },
+
+    // Spanish lower division teams
+    "L'Entregu": {
+      'zh': '恩特雷古', 'zh-hk': '恩特雷古', 'zh-tw': '恩特雷古',
+      'es': "L'Entregu", 'de': "L'Entregu", 'it': "L'Entregu", 'pt': "L'Entregu"
+    },
+    'Marino de Luanco': {
+      'zh': '马里诺德卢安科', 'zh-hk': '馬里諾德盧安科', 'zh-tw': '馬里諾德盧安科',
+      'es': 'Marino de Luanco', 'de': 'Marino de Luanco', 'it': 'Marino de Luanco', 'pt': 'Marino de Luanco'
+    },
+    'Marbella': {
+      'zh': '马贝拉', 'zh-hk': '馬貝拉', 'zh-tw': '馬貝拉',
+      'es': 'Marbella', 'de': 'Marbella', 'it': 'Marbella', 'pt': 'Marbella'
+    },
+    'AD Ceuta FC': {
+      'zh': '塞乌塔', 'zh-hk': '塞烏塔', 'zh-tw': '塞烏塔',
+      'es': 'AD Ceuta FC', 'de': 'AD Ceuta FC', 'it': 'AD Ceuta FC', 'pt': 'AD Ceuta FC'
+    },
+    'Ceuta': {
+      'zh': '塞乌塔', 'zh-hk': '塞烏塔', 'zh-tw': '塞烏塔',
+      'es': 'Ceuta', 'de': 'Ceuta', 'it': 'Ceuta', 'pt': 'Ceuta'
+    },
+
+    // Thai teams
+    'Port FC': {
+      'zh': '港口', 'zh-hk': '港口', 'zh-tw': '港口',
+      'es': 'Port FC', 'de': 'Port FC', 'it': 'Port FC', 'pt': 'Port FC'
+    },
+    'Singburi': {
+      'zh': '信武里', 'zh-hk': '信武里', 'zh-tw': '信武里',
+      'es': 'Singburi', 'de': 'Singburi', 'it': 'Singburi', 'pt': 'Singburi'
     }
   };
 
@@ -903,8 +1047,11 @@ class SmartTeamTranslation {
 
     // Try without common suffixes/prefixes (enhanced patterns)
     const cleanName = normalizedTeamName
-      .replace(/^(FC|CF|AC|AS|Real|Club|CD|SD|AD)\s+/i, '')
-      .replace(/\s+(FC|CF|AC|AS|United|City|CF|SC|II|2|B)$/i, '');
+      .replace(/^(FC|CF|AC|AS|Real|Club|CD|SD|AD|FK|NK|KF|PFC|SC)\s+/i, '')
+      .replace(/\s+(FC|CF|AC|AS|United|City|CF|SC|II|2|B|LP)$/i, '')
+      .replace(/\s+L\.P\./i, '')
+      .replace(/\s+DA\s+/i, ' ')
+      .replace(/\s+Rivadavia/i, ' Rivadavia');
 
     const cleanMatch = Object.keys(this.popularLeagueTeams).find(
       key => key.toLowerCase() === cleanName.toLowerCase()
