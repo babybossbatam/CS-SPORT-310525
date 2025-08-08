@@ -185,6 +185,10 @@ class SmartTeamTranslation {
       'zh': '洛杉矶银河', 'zh-hk': '洛杉磯銀河', 'zh-tw': '洛杉磯銀河',
       'es': 'Los Angeles Galaxy', 'de': 'Los Angeles Galaxy', 'it': 'Los Angeles Galaxy', 'pt': 'Los Angeles Galaxy'
     },
+    'Portland Timbers': {
+      'zh': '波特兰伐木者', 'zh-hk': '波特蘭伐木者', 'zh-tw': '波特蘭伐木者',
+      'es': 'Portland Timbers', 'de': 'Portland Timbers', 'it': 'Portland Timbers', 'pt': 'Portland Timbers'
+    },
     'Los Angeles FC': {
       'zh': '洛杉矶FC', 'zh-hk': '洛杉磯FC', 'zh-tw': '洛杉磯FC',
       'es': 'Los Ángeles FC', 'de': 'Los Angeles FC', 'it': 'Los Angeles FC', 'pt': 'Los Angeles FC'
@@ -352,6 +356,102 @@ class SmartTeamTranslation {
     'PSV': {
       'zh': 'PSV埃因霍温', 'zh-hk': 'PSV燕豪芬', 'zh-tw': 'PSV埃因霍溫',
       'es': 'PSV Eindhoven', 'de': 'PSV Eindhoven', 'it': 'PSV Eindhoven', 'pt': 'PSV Eindhoven'
+    },
+
+    // Additional European teams
+    'Olympiakos Piraeus': {
+      'zh': '奥林匹亚科斯', 'zh-hk': '奧林比亞高斯', 'zh-tw': '奧林匹亞科斯',
+      'es': 'Olympiakos Piraeus', 'de': 'Olympiakos Piräus', 'it': 'Olympiakos Pireo', 'pt': 'Olympiakos Pireu'
+    },
+    'Olympiakos': {
+      'zh': '奥林匹亚科斯', 'zh-hk': '奧林比亞高斯', 'zh-tw': '奧林匹亞科斯',
+      'es': 'Olympiakos', 'de': 'Olympiakos', 'it': 'Olympiakos', 'pt': 'Olympiakos'
+    },
+    'Al Taawon': {
+      'zh': '塔阿万', 'zh-hk': '塔阿萬', 'zh-tw': '塔阿萬',
+      'es': 'Al Taawon', 'de': 'Al Taawon', 'it': 'Al Taawon', 'pt': 'Al Taawon'
+    },
+    'Al-Taawon': {
+      'zh': '塔阿万', 'zh-hk': '塔阿萬', 'zh-tw': '塔阿萬',
+      'es': 'Al-Taawon', 'de': 'Al-Taawon', 'it': 'Al-Taawon', 'pt': 'Al-Taawon'
+    },
+    'FC Augsburg': {
+      'zh': '奥格斯堡', 'zh-hk': '奧格斯堡', 'zh-tw': '奧格斯堡',
+      'es': 'FC Augsburg', 'de': 'FC Augsburg', 'it': 'FC Augsburg', 'pt': 'FC Augsburg'
+    },
+    'Augsburg': {
+      'zh': '奥格斯堡', 'zh-hk': '奧格斯堡', 'zh-tw': '奧格斯堡',
+      'es': 'Augsburg', 'de': 'Augsburg', 'it': 'Augsburg', 'pt': 'Augsburg'
+    },
+    'Pisa': {
+      'zh': '比萨', 'zh-hk': '比薩', 'zh-tw': '比薩',
+      'es': 'Pisa', 'de': 'Pisa', 'it': 'Pisa', 'pt': 'Pisa'
+    },
+    'Frosinone': {
+      'zh': '弗罗西诺内', 'zh-hk': '弗羅西諾內', 'zh-tw': '弗羅西諾內',
+      'es': 'Frosinone', 'de': 'Frosinone', 'it': 'Frosinone', 'pt': 'Frosinone'
+    },
+    'Benevento': {
+      'zh': '贝内文托', 'zh-hk': '賓尼雲圖', 'zh-tw': '貝內文托',
+      'es': 'Benevento', 'de': 'Benevento', 'it': 'Benevento', 'pt': 'Benevento'
+    },
+    'Marbella': {
+      'zh': '马贝拉', 'zh-hk': '馬貝拉', 'zh-tw': '馬貝拉',
+      'es': 'Marbella', 'de': 'Marbella', 'it': 'Marbella', 'pt': 'Marbella'
+    },
+    'AD Ceuta FC': {
+      'zh': '塞乌塔', 'zh-hk': '塞烏塔', 'zh-tw': '塞烏塔',
+      'es': 'AD Ceuta FC', 'de': 'AD Ceuta FC', 'it': 'AD Ceuta FC', 'pt': 'AD Ceuta FC'
+    },
+    'Ceuta': {
+      'zh': '塞乌塔', 'zh-hk': '塞烏塔', 'zh-tw': '塞烏塔',
+      'es': 'Ceuta', 'de': 'Ceuta', 'it': 'Ceuta', 'pt': 'Ceuta'
+    },
+    'Singburi': {
+      'zh': '信武里', 'zh-hk': '信武里', 'zh-tw': '信武里',
+      'es': 'Singburi', 'de': 'Singburi', 'it': 'Singburi', 'pt': 'Singburi'
+    },
+    'Eibar': {
+      'zh': '埃瓦尔', 'zh-hk': '艾巴', 'zh-tw': '埃瓦爾',
+      'es': 'Eibar', 'de': 'Eibar', 'it': 'Eibar', 'pt': 'Eibar'
+    },
+    'SD Eibar': {
+      'zh': '埃瓦尔', 'zh-hk': '艾巴', 'zh-tw': '埃瓦爾',
+      'es': 'SD Eibar', 'de': 'SD Eibar', 'it': 'SD Eibar', 'pt': 'SD Eibar'
+    },
+    'Osasuna II': {
+      'zh': '奥萨苏纳二队', 'zh-hk': '奧薩蘇納二隊', 'zh-tw': '奧薩蘇納二隊',
+      'es': 'Osasuna II', 'de': 'Osasuna II', 'it': 'Osasuna II', 'pt': 'Osasuna II'
+    },
+    'Osasuna': {
+      'zh': '奥萨苏纳', 'zh-hk': '奧薩蘇納', 'zh-tw': '奧薩蘇納',
+      'es': 'Osasuna', 'de': 'Osasuna', 'it': 'Osasuna', 'pt': 'Osasuna'
+    },
+    'Andorra': {
+      'zh': '安道尔', 'zh-hk': '安道爾', 'zh-tw': '安道爾',
+      'es': 'Andorra', 'de': 'Andorra', 'it': 'Andorra', 'pt': 'Andorra'
+    },
+    'FC Andorra': {
+      'zh': '安道尔', 'zh-hk': '安道爾', 'zh-tw': '安道爾',
+      'es': 'FC Andorra', 'de': 'FC Andorra', 'it': 'FC Andorra', 'pt': 'FC Andorra'
+    },
+    'Cordoba': {
+      'zh': '科尔多瓦', 'zh-hk': '哥多華', 'zh-tw': '科爾多瓦',
+      'es': 'Córdoba', 'de': 'Córdoba', 'it': 'Córdoba', 'pt': 'Córdoba'
+    },
+    'Córdoba': {
+      'zh': '科尔多瓦', 'zh-hk': '哥多華', 'zh-tw': '科爾多瓦',
+      'es': 'Córdoba', 'de': 'Córdoba', 'it': 'Córdoba', 'pt': 'Córdoba'
+    },
+
+    // Special handling for teams that might appear with different naming patterns
+    "L'Entregu": {
+      'zh': '恩特雷古', 'zh-hk': '恩特雷古', 'zh-tw': '恩特雷古',
+      'es': "L'Entregu", 'de': "L'Entregu", 'it': "L'Entregu", 'pt': "L'Entregu"
+    },
+    'Marino de Luanco': {
+      'zh': '马里诺德卢安科', 'zh-hk': '馬里諾德盧安科', 'zh-tw': '馬里諾德盧安科',
+      'es': 'Marino de Luanco', 'de': 'Marino de Luanco', 'it': 'Marino de Luanco', 'pt': 'Marino de Luanco'
     }
   };
 
@@ -361,19 +461,25 @@ class SmartTeamTranslation {
 
     const normalizedTeamName = teamName.trim();
     
-    // Direct match
-    if (this.popularLeagueTeams[normalizedTeamName]) {
-      const translation = this.popularLeagueTeams[normalizedTeamName][language as keyof TeamTranslation[string]];
+    // Direct match (case-insensitive)
+    const directMatch = Object.keys(this.popularLeagueTeams).find(
+      key => key.toLowerCase() === normalizedTeamName.toLowerCase()
+    );
+    if (directMatch) {
+      const translation = this.popularLeagueTeams[directMatch][language as keyof TeamTranslation[string]];
       if (translation) return translation;
     }
 
-    // Try without common suffixes/prefixes
+    // Try without common suffixes/prefixes (enhanced patterns)
     const cleanName = normalizedTeamName
-      .replace(/^(FC|CF|AC|AS|Real|Club|CD)\s+/i, '')
-      .replace(/\s+(FC|CF|AC|AS|United|City|CF|SC)$/i, '');
+      .replace(/^(FC|CF|AC|AS|Real|Club|CD|SD|AD)\s+/i, '')
+      .replace(/\s+(FC|CF|AC|AS|United|City|CF|SC|II|2|B)$/i, '');
     
-    if (this.popularLeagueTeams[cleanName]) {
-      const translation = this.popularLeagueTeams[cleanName][language as keyof TeamTranslation[string]];
+    const cleanMatch = Object.keys(this.popularLeagueTeams).find(
+      key => key.toLowerCase() === cleanName.toLowerCase()
+    );
+    if (cleanMatch) {
+      const translation = this.popularLeagueTeams[cleanMatch][language as keyof TeamTranslation[string]];
       if (translation) return translation;
     }
 
@@ -406,16 +512,33 @@ class SmartTeamTranslation {
       if (translation) return translation;
     }
 
-    // Try partial matches for complex names
+    // Try partial matches for complex names (enhanced algorithm)
     for (const [mappedTeam, translations] of Object.entries(this.popularLeagueTeams)) {
       const mappedTeamLower = mappedTeam.toLowerCase();
       
       // More sophisticated partial matching
       if (teamNameLower.includes(mappedTeamLower) || 
-          mappedTeamLower.includes(teamNameLower) ||
-          // Handle cases where team name is part of a longer official name
-          (mappedTeamLower.split(' ').some(word => teamNameLower.includes(word) && word.length > 3)) ||
-          (teamNameLower.split(' ').some(word => mappedTeamLower.includes(word) && word.length > 3))) {
+          mappedTeamLower.includes(teamNameLower)) {
+        const translation = translations[language as keyof TeamTranslation[string]];
+        if (translation) return translation;
+      }
+      
+      // Word-based matching (minimum 4 characters to avoid false positives)
+      const teamWords = teamNameLower.split(/\s+/).filter(word => word.length >= 4);
+      const mappedWords = mappedTeamLower.split(/\s+/).filter(word => word.length >= 4);
+      
+      // If any significant word matches
+      if (teamWords.some(word => mappedWords.includes(word)) || 
+          mappedWords.some(word => teamWords.includes(word))) {
+        const translation = translations[language as keyof TeamTranslation[string]];
+        if (translation) return translation;
+      }
+      
+      // Handle special characters and variations
+      const normalizedTeam = teamNameLower.replace(/['']/g, "'").replace(/[–-]/g, "-");
+      const normalizedMapped = mappedTeamLower.replace(/['']/g, "'").replace(/[–-]/g, "-");
+      
+      if (normalizedTeam === normalizedMapped) {
         const translation = translations[language as keyof TeamTranslation[string]];
         if (translation) return translation;
       }

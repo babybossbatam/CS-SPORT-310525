@@ -1943,15 +1943,23 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   const translatedName = translateTeamName(originalName);
                                   
                                   // Enhanced debug logging for translation
-                                  console.log(`🏠 [MyNewLeague2] Home team translation:`, {
-                                    original: originalName,
-                                    translated: translatedName,
-                                    language: currentLanguage,
-                                    changed: translatedName !== originalName,
-                                    fixtureId: fixture.fixture.id
-                                  });
+                                  if (process.env.NODE_ENV === 'development') {
+                                    console.log(`🏠 [MyNewLeague2] Home team translation:`, {
+                                      original: originalName,
+                                      translated: translatedName,
+                                      language: currentLanguage,
+                                      changed: translatedName !== originalName,
+                                      fixtureId: fixture.fixture.id,
+                                      leagueId: fixture.league.id
+                                    });
+                                  }
                                   
-                                  return translatedName || originalName || "Unknown Team";
+                                  // Ensure we always return a valid name
+                                  const finalName = translatedName && translatedName.trim() !== "" 
+                                    ? translatedName 
+                                    : originalName || "Unknown Team";
+                                  
+                                  return finalName;
                                 })()}
                               </div>
 
@@ -2222,15 +2230,23 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   const translatedName = translateTeamName(originalName);
                                   
                                   // Enhanced debug logging for translation
-                                  console.log(`✈️ [MyNewLeague2] Away team translation:`, {
-                                    original: originalName,
-                                    translated: translatedName,
-                                    language: currentLanguage,
-                                    changed: translatedName !== originalName,
-                                    fixtureId: fixture.fixture.id
-                                  });
+                                  if (process.env.NODE_ENV === 'development') {
+                                    console.log(`✈️ [MyNewLeague2] Away team translation:`, {
+                                      original: originalName,
+                                      translated: translatedName,
+                                      language: currentLanguage,
+                                      changed: translatedName !== originalName,
+                                      fixtureId: fixture.fixture.id,
+                                      leagueId: fixture.league.id
+                                    });
+                                  }
                                   
-                                  return translatedName || originalName || "Unknown Team";
+                                  // Ensure we always return a valid name
+                                  const finalName = translatedName && translatedName.trim() !== "" 
+                                    ? translatedName 
+                                    : originalName || "Unknown Team";
+                                  
+                                  return finalName;
                                 })()}
                               </div>
                             </div>
