@@ -1940,15 +1940,15 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                               >
                                 {(() => {
                                   const originalName = fixture.teams.home.name || "";
-                                  
+
                                   // Try smart translation first
                                   let translatedName = translateTeamName(originalName);
-                                  
+
                                   // If smart translation failed, try direct name cleanup for common patterns
                                   if (translatedName === originalName && currentLanguage.startsWith('zh')) {
                                     // Handle specific team name patterns for better translation
                                     const cleanName = originalName.trim();
-                                    
+
                                     // Add fallback translations for teams that might not be in the smart translation
                                     const fallbackTranslations: { [key: string]: string } = {
                                       'FK Partizan': '贝尔格莱德游击队',
@@ -1993,14 +1993,41 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       'Sabah FA': '沙巴足协',
                                       'Sabah FK': '沙巴足协',
                                       'Olimpija Ljubljana': '卢布尔雅那奥林匹亚',
-                                      'Egnatia Rrogozhinë': '罗戈日纳埃格纳蒂亚'
+                                      'Egnatia Rrogozhinë': '罗戈日纳埃格纳蒂亚',
+                                      // Additional teams from the image
+                                      'FC Differdange 03': '迪费当热03',
+                                      'FC Levadia Tallinn': '塔林莱瓦迪亚',
+                                      'Polessya': '波利西亚',
+                                      'Paks': '帕克什',
+                                      'AIK Stockholm': '斯德哥尔摩AIK',
+                                      'Gyori ETO FC': '捷尔ETO',
+                                      'Istanbul Basaksehir': '伊斯坦布尔巴萨克谢希尔',
+                                      'Silkeborg': '锡尔克堡',
+                                      'Jagiellonia': '雅盖隆尼亚',
+                                      'Riga': '里加',
+                                      'RFS Riga': '里加RFS',
+                                      'Beitar Jerusalem': '耶路撒冷贝塔',
+                                      'Baník Ostrava': '奥斯特拉瓦矿工',
+                                      'Austria Vienna': '奥地利维也纳',
+                                      'FK Austria Wien': '奥地利维也纳',
+                                      'Rosenborg': '罗森博格',
+                                      'Hammarby FF': '哈马比',
+                                      'Milsami Orhei': '奥尔海米尔萨米',
+                                      'Virtus': '维尔图斯',
+                                      'Aris': '阿里斯',
+                                      'AEK Athens FC': '雅典AEK',
+                                      'Kauno Žalgiris': '考纳斯萨尔基里斯',
+                                      'Arda Kardzhali': '卡尔扎利阿尔达',
+                                      'Araz': '阿拉兹',
+                                      'Viking': '维京',
+                                      'FK Haugesund': '豪格松德'
                                     };
-                                    
+
                                     if (fallbackTranslations[cleanName]) {
                                       translatedName = fallbackTranslations[cleanName];
                                     }
                                   }
-                                  
+
                                   // Enhanced debug logging for translation
                                   if (process.env.NODE_ENV === 'development' && translatedName !== originalName) {
                                     console.log(`🏠 [MyNewLeague2] Home team translation:`, {
@@ -2012,12 +2039,12 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       leagueId: fixture.league.id
                                     });
                                   }
-                                  
+
                                   // Ensure we always return a valid name
                                   const finalName = translatedName && translatedName.trim() !== "" 
                                     ? translatedName 
                                     : originalName || "Unknown Team";
-                                  
+
                                   return finalName;
                                 })()}
                               </div>
@@ -2286,15 +2313,15 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                               >
                                 {(() => {
                                   const originalName = fixture.teams.away.name || "";
-                                  
+
                                   // Try smart translation first
                                   let translatedName = translateTeamName(originalName);
-                                  
+
                                   // If smart translation failed, try direct name cleanup for common patterns
                                   if (translatedName === originalName && currentLanguage.startsWith('zh')) {
                                     // Handle specific team name patterns for better translation
                                     const cleanName = originalName.trim();
-                                    
+
                                     // Add fallback translations for teams that might not be in the smart translation
                                     const fallbackTranslations: { [key: string]: string } = {
                                       'FK Partizan': '贝尔格莱德游击队',
@@ -2339,14 +2366,41 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       'Sabah FA': '沙巴足协',
                                       'Sabah FK': '沙巴足协',
                                       'Olimpija Ljubljana': '卢布尔雅那奥林匹亚',
-                                      'Egnatia Rrogozhinë': '罗戈日纳埃格纳蒂亚'
+                                      'Egnatia Rrogozhinë': '罗戈日纳埃格纳蒂亚',
+                                      // Additional teams from the image
+                                      'FC Differdange 03': '迪费当热03',
+                                      'FC Levadia Tallinn': '塔林莱瓦迪亚',
+                                      'Polessya': '波利西亚',
+                                      'Paks': '帕克什',
+                                      'AIK Stockholm': '斯德哥尔摩AIK',
+                                      'Gyori ETO FC': '捷尔ETO',
+                                      'Istanbul Basaksehir': '伊斯坦布尔巴萨克谢希尔',
+                                      'Silkeborg': '锡尔克堡',
+                                      'Jagiellonia': '雅盖隆尼亚',
+                                      'Riga': '里加',
+                                      'RFS Riga': '里加RFS',
+                                      'Beitar Jerusalem': '耶路撒冷贝塔',
+                                      'Baník Ostrava': '奥斯特拉瓦矿工',
+                                      'Austria Vienna': '奥地利维也纳',
+                                      'FK Austria Wien': '奥地利维也纳',
+                                      'Rosenborg': '罗森博格',
+                                      'Hammarby FF': '哈马比',
+                                      'Milsami Orhei': '奥尔海米尔萨米',
+                                      'Virtus': '维尔图斯',
+                                      'Aris': '阿里斯',
+                                      'AEK Athens FC': '雅典AEK',
+                                      'Kauno Žalgiris': '考纳斯萨尔基里斯',
+                                      'Arda Kardzhali': '卡尔扎利阿尔达',
+                                      'Araz': '阿拉兹',
+                                      'Viking': '维京',
+                                      'FK Haugesund': '豪格松德'
                                     };
-                                    
+
                                     if (fallbackTranslations[cleanName]) {
                                       translatedName = fallbackTranslations[cleanName];
                                     }
                                   }
-                                  
+
                                   // Enhanced debug logging for translation
                                   if (process.env.NODE_ENV === 'development' && translatedName !== originalName) {
                                     console.log(`✈️ [MyNewLeague2] Away team translation:`, {
@@ -2358,12 +2412,12 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       leagueId: fixture.league.id
                                     });
                                   }
-                                  
+
                                   // Ensure we always return a valid name
                                   const finalName = translatedName && translatedName.trim() !== "" 
                                     ? translatedName 
                                     : originalName || "Unknown Team";
-                                  
+
                                   return finalName;
                                 })()}
                               </div>

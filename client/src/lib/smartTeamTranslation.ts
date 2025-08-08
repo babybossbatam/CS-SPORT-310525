@@ -1,4 +1,3 @@
-
 interface TeamTranslation {
   [key: string]: {
     zh: string;
@@ -128,7 +127,7 @@ class SmartTeamTranslation {
       'es': 'RB Leipzig', 'de': 'RB Leipzig', 'it': 'RB Lipsia', 'pt': 'RB Leipzig'
     },
     'Bayer Leverkusen': {
-      'zh': '勒沃库森', 'zh-hk': '利華古遜', 'zh-tw': '勒沃庫森',
+      'zh': '勒沃库森', 'zh-hk': '利華古遜', 'zh-tw': '勒沃库森',
       'es': 'Bayer Leverkusen', 'de': 'Bayer Leverkusen', 'it': 'Bayer Leverkusen', 'pt': 'Bayer Leverkusen'
     },
 
@@ -444,6 +443,116 @@ class SmartTeamTranslation {
       'es': 'Córdoba', 'de': 'Córdoba', 'it': 'Córdoba', 'pt': 'Córdoba'
     },
 
+    // Example of adding new translations for MyNewLeague2
+    'Omonia Nicosia': {
+      'zh': '尼科西亚奥莫尼亚', 'zh-hk': '尼科西亞奧莫尼亞', 'zh-tw': '尼科西亞奧莫尼亞',
+      'es': 'Omonia Nicosia', 'de': 'Omonia Nikosia', 'it': 'Omonia Nicosia', 'pt': 'Omonia Nicosia'
+    },
+    'FC Differdange 03': {
+      'zh': '迪费当热03', 'zh-hk': '迪費當熱03', 'zh-tw': '迪費當熱03',
+      'es': 'FC Differdange 03', 'de': 'FC Differdange 03', 'it': 'FC Differdange 03', 'pt': 'FC Differdange 03'
+    },
+    'FC Levadia Tallinn': {
+      'zh': '塔林莱瓦迪亚', 'zh-hk': '塔林萊瓦迪亞', 'zh-tw': '塔林萊瓦迪亞',
+      'es': 'FC Levadia Tallinn', 'de': 'FC Levadia Tallinn', 'it': 'FC Levadia Tallinn', 'pt': 'FC Levadia Tallinn'
+    },
+    'Polessya': {
+      'zh': '波利西亚', 'zh-hk': '波利西亞', 'zh-tw': '波利西亞',
+      'es': 'Polessya', 'de': 'Polessya', 'it': 'Polessya', 'pt': 'Polessya'
+    },
+    'Paks': {
+      'zh': '帕克什', 'zh-hk': '帕克什', 'zh-tw': '帕克什',
+      'es': 'Paks', 'de': 'Paks', 'it': 'Paks', 'pt': 'Paks'
+    },
+    'AIK Stockholm': {
+      'zh': '斯德哥尔摩AIK', 'zh-hk': '斯德哥爾摩AIK', 'zh-tw': '斯德哥爾摩AIK',
+      'es': 'AIK Estocolmo', 'de': 'AIK Stockholm', 'it': 'AIK Stoccolma', 'pt': 'AIK Estocolmo'
+    },
+    'Gyori ETO FC': {
+      'zh': '捷尔ETO', 'zh-hk': '捷爾ETO', 'zh-tw': '捷爾ETO',
+      'es': 'Győri ETO FC', 'de': 'Győri ETO FC', 'it': 'Győri ETO FC', 'pt': 'Győri ETO FC'
+    },
+    'Istanbul Basaksehir': {
+      'zh': '伊斯坦布尔巴萨克谢希尔', 'zh-hk': '伊斯坦布爾巴薩克謝希爾', 'zh-tw': '伊斯坦布爾巴薩克謝希爾',
+      'es': 'Istanbul Başakşehir', 'de': 'Istanbul Başakşehir', 'it': 'Istanbul Başakşehir', 'pt': 'Istanbul Başakşehir'
+    },
+    'Silkeborg': {
+      'zh': '锡尔克堡', 'zh-hk': '錫爾克堡', 'zh-tw': '錫爾克堡',
+      'es': 'Silkeborg', 'de': 'Silkeborg', 'it': 'Silkeborg', 'pt': 'Silkeborg'
+    },
+    'Jagiellonia': {
+      'zh': '雅盖隆尼亚', 'zh-hk': '雅蓋隆尼亞', 'zh-tw': '雅蓋隆尼亞',
+      'es': 'Jagiellonia', 'de': 'Jagiellonia', 'it': 'Jagiellonia', 'pt': 'Jagiellonia'
+    },
+    'Riga': {
+      'zh': '里加', 'zh-hk': '里加', 'zh-tw': '里加',
+      'es': 'Riga', 'de': 'Riga', 'it': 'Riga', 'pt': 'Riga'
+    },
+    'RFS Riga': {
+      'zh': '里加RFS', 'zh-hk': '里加RFS', 'zh-tw': '里加RFS',
+      'es': 'RFS Riga', 'de': 'RFS Riga', 'it': 'RFS Riga', 'pt': 'RFS Riga'
+    },
+    'Beitar Jerusalem': {
+      'zh': '耶路撒冷贝塔', 'zh-hk': '耶路撒冷貝塔', 'zh-tw': '耶路撒冷貝塔',
+      'es': 'Beitar Jerusalén', 'de': 'Beitar Jerusalem', 'it': 'Beitar Gerusalemme', 'pt': 'Beitar Jerusalém'
+    },
+    'Baník Ostrava': {
+      'zh': '奥斯特拉瓦矿工', 'zh-hk': '奧斯特拉瓦礦工', 'zh-tw': '奧斯特拉瓦礦工',
+      'es': 'Baník Ostrava', 'de': 'Baník Ostrava', 'it': 'Baník Ostrava', 'pt': 'Baník Ostrava'
+    },
+    'Austria Vienna': {
+      'zh': '奥地利维也纳', 'zh-hk': '奧地利維也納', 'zh-tw': '奧地利維也納',
+      'es': 'Austria Viena', 'de': 'Austria Wien', 'it': 'Austria Vienna', 'pt': 'Austria Viena'
+    },
+    'FK Austria Wien': {
+      'zh': '奥地利维也纳', 'zh-hk': '奧地利維也納', 'zh-tw': '奧地利維也納',
+      'es': 'FK Austria Viena', 'de': 'FK Austria Wien', 'it': 'FK Austria Vienna', 'pt': 'FK Austria Viena'
+    },
+    'Rosenborg': {
+      'zh': '罗森博格', 'zh-hk': '羅森博格', 'zh-tw': '羅森博格',
+      'es': 'Rosenborg', 'de': 'Rosenborg', 'it': 'Rosenborg', 'pt': 'Rosenborg'
+    },
+    'Hammarby FF': {
+      'zh': '哈马比', 'zh-hk': '哈馬比', 'zh-tw': '哈馬比',
+      'es': 'Hammarby FF', 'de': 'Hammarby FF', 'it': 'Hammarby FF', 'pt': 'Hammarby FF'
+    },
+    'Milsami Orhei': {
+      'zh': '奥尔海米尔萨米', 'zh-hk': '奧爾海米爾薩米', 'zh-tw': '奧爾海米爾薩米',
+      'es': 'Milsami Orhei', 'de': 'Milsami Orhei', 'it': 'Milsami Orhei', 'pt': 'Milsami Orhei'
+    },
+    'Virtus': {
+      'zh': '维尔图斯', 'zh-hk': '維爾圖斯', 'zh-tw': '維爾圖斯',
+      'es': 'Virtus', 'de': 'Virtus', 'it': 'Virtus', 'pt': 'Virtus'
+    },
+    'Aris': {
+      'zh': '阿里斯', 'zh-hk': '阿里斯', 'zh-tw': '阿里斯',
+      'es': 'Aris', 'de': 'Aris', 'it': 'Aris', 'pt': 'Aris'
+    },
+    'AEK Athens FC': {
+      'zh': '雅典AEK', 'zh-hk': '雅典AEK', 'zh-tw': '雅典AEK',
+      'es': 'AEK Atenas FC', 'de': 'AEK Athen FC', 'it': 'AEK Atene FC', 'pt': 'AEK Atenas FC'
+    },
+    'Kauno Žalgiris': {
+      'zh': '考纳斯萨尔基里斯', 'zh-hk': '考納斯薩爾基里斯', 'zh-tw': '考納斯薩爾基里斯',
+      'es': 'Kauno Žalgiris', 'de': 'Kauno Žalgiris', 'it': 'Kauno Žalgiris', 'pt': 'Kauno Žalgiris'
+    },
+    'Arda Kardzhali': {
+      'zh': '卡尔扎利阿尔达', 'zh-hk': '卡爾扎利阿爾達', 'zh-tw': '卡爾扎利阿爾達',
+      'es': 'Arda Kardzhali', 'de': 'Arda Kardzhali', 'it': 'Arda Kardzhali', 'pt': 'Arda Kardzhali'
+    },
+    'Araz': {
+      'zh': '阿拉兹', 'zh-hk': '阿拉茲', 'zh-tw': '阿拉茲',
+      'es': 'Araz', 'de': 'Araz', 'it': 'Araz', 'pt': 'Araz'
+    },
+    'Viking': {
+      'zh': '维京', 'zh-hk': '維京', 'zh-tw': '維京',
+      'es': 'Viking', 'de': 'Viking', 'it': 'Viking', 'pt': 'Viking'
+    },
+    'FK Haugesund': {
+      'zh': '豪格松德', 'zh-hk': '豪格松德', 'zh-tw': '豪格松德',
+      'es': 'FK Haugesund', 'de': 'FK Haugesund', 'it': 'FK Haugesund', 'pt': 'FK Haugesund'
+    },
+
     // Special handling for teams that might appear with different naming patterns
     "L'Entregu": {
       'zh': '恩特雷古', 'zh-hk': '恩特雷古', 'zh-tw': '恩特雷古',
@@ -690,7 +799,7 @@ class SmartTeamTranslation {
     'KF Egnatia': {
       'zh': '罗戈日纳埃格纳蒂亚', 'zh-hk': '羅戈日納埃格納蒂亞', 'zh-tw': '羅戈日納埃格納蒂亞',
       'es': 'KF Egnatia', 'de': 'KF Egnatia', 'it': 'KF Egnatia', 'pt': 'KF Egnatia'
-    }, 
+    },
      'Drita': {
       'zh': '德里塔', 'zh-hk': '德里塔', 'zh-tw': '德里塔',
       'es': 'Drita', 'de': 'Drita', 'it': 'Drita', 'pt': 'Drita'
@@ -716,7 +825,7 @@ class SmartTeamTranslation {
       'es': 'Zrinjski', 'de': 'Zrinjski', 'it': 'Zrinjski', 'pt': 'Zrinjski'
     },
     'Breidablik': {
-      'zh': '布雷达布利克', 'zh-hk': '布雷達布利克', 'zh-tw': '布雷達布利克',
+      'zh': '布雷达布利克', 'zh-hk': '布雷达布利克', 'zh-tw': '布雷达布利克',
       'es': 'Breidablik', 'de': 'Breidablik', 'it': 'Breidablik', 'pt': 'Breidablik'
     },
     'Panathinaikos': {
@@ -782,7 +891,7 @@ class SmartTeamTranslation {
     if (!teamName || !language) return null;
 
     const normalizedTeamName = teamName.trim();
-    
+
     // Direct match (case-insensitive)
     const directMatch = Object.keys(this.popularLeagueTeams).find(
       key => key.toLowerCase() === normalizedTeamName.toLowerCase()
@@ -796,7 +905,7 @@ class SmartTeamTranslation {
     const cleanName = normalizedTeamName
       .replace(/^(FC|CF|AC|AS|Real|Club|CD|SD|AD)\s+/i, '')
       .replace(/\s+(FC|CF|AC|AS|United|City|CF|SC|II|2|B)$/i, '');
-    
+
     const cleanMatch = Object.keys(this.popularLeagueTeams).find(
       key => key.toLowerCase() === cleanName.toLowerCase()
     );
@@ -807,28 +916,28 @@ class SmartTeamTranslation {
 
     // Enhanced matching for common team name patterns
     const teamNameLower = normalizedTeamName.toLowerCase();
-    
+
     // Special cases for known teams
     if (teamNameLower.includes('los angeles galaxy') || teamNameLower === 'la galaxy') {
       const translation = this.popularLeagueTeams['Los Angeles Galaxy']?.[language as keyof TeamTranslation[string]];
       if (translation) return translation;
     }
-    
+
     if (teamNameLower.includes('new york red bulls')) {
       const translation = this.popularLeagueTeams['New York Red Bulls']?.[language as keyof TeamTranslation[string]];
       if (translation) return translation;
     }
-    
+
     if (teamNameLower === 'charlotte' || teamNameLower === 'charlotte fc') {
       const translation = this.popularLeagueTeams['Charlotte']?.[language as keyof TeamTranslation[string]];
       if (translation) return translation;
     }
-    
+
     if (teamNameLower === 'fc cincinnati' || teamNameLower === 'cincinnati') {
       const translation = this.popularLeagueTeams['FC Cincinnati']?.[language as keyof TeamTranslation[string]];
       if (translation) return translation;
     }
-    
+
     if (teamNameLower === 'fc juarez' || teamNameLower === 'juarez') {
       const translation = this.popularLeagueTeams['FC Juarez']?.[language as keyof TeamTranslation[string]];
       if (translation) return translation;
@@ -837,29 +946,29 @@ class SmartTeamTranslation {
     // Try partial matches for complex names (enhanced algorithm)
     for (const [mappedTeam, translations] of Object.entries(this.popularLeagueTeams)) {
       const mappedTeamLower = mappedTeam.toLowerCase();
-      
+
       // More sophisticated partial matching
       if (teamNameLower.includes(mappedTeamLower) || 
           mappedTeamLower.includes(teamNameLower)) {
         const translation = translations[language as keyof TeamTranslation[string]];
         if (translation) return translation;
       }
-      
+
       // Word-based matching (minimum 4 characters to avoid false positives)
       const teamWords = teamNameLower.split(/\s+/).filter(word => word.length >= 4);
       const mappedWords = mappedTeamLower.split(/\s+/).filter(word => word.length >= 4);
-      
+
       // If any significant word matches
       if (teamWords.some(word => mappedWords.includes(word)) || 
           mappedWords.some(word => teamWords.includes(word))) {
         const translation = translations[language as keyof TeamTranslation[string]];
         if (translation) return translation;
       }
-      
+
       // Handle special characters and variations
       const normalizedTeam = teamNameLower.replace(/['']/g, "'").replace(/[–-]/g, "-");
       const normalizedMapped = mappedTeamLower.replace(/['']/g, "'").replace(/[–-]/g, "-");
-      
+
       if (normalizedTeam === normalizedMapped) {
         const translation = translations[language as keyof TeamTranslation[string]];
         if (translation) return translation;
