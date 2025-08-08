@@ -114,11 +114,11 @@ export const TodayMatchPageCard = ({
     const tomorrow = format(addDays(parseISO(today), 1), "yyyy-MM-dd");
 
     if (selectedDate === today) {
-      return "Today's Matches";
+      return t('today_matches');
     } else if (selectedDate === yesterday) {
-      return "Yesterday's Matches";
+      return t('yesterday_matches');
     } else if (selectedDate === tomorrow) {
-      return "Tomorrow's Matches";
+      return t('tomorrow_matches');
     } else {
       // For any other date, show the formatted date
       return format(parseISO(selectedDate), "EEE, do MMM");
