@@ -127,7 +127,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   onMatchCardClick,
   match,
 }) => {
-  const { t, translateLeagueName } = useTranslation();
+  const { t, translateLeagueName, translateCountryName } = useTranslation();
   // Sample match data for demonstration (similar to MyMatchdetailsScoreboard)
   const sampleMatch = {
     fixture: {
@@ -1101,7 +1101,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         isCurrentlySelected: selectedMatchId === matchId,
       });
 
-      // Force re-selection by clearing first, then setting (allows re-highlighting)
+      // Force re-selection by clearing first, then setting (allows re-render)
       if (selectedMatchId === matchId) {
         // If clicking the same match, clear first to trigger re-render
         setSelectedMatchId(null);
@@ -1608,7 +1608,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                       lineHeight: "1.2",
                     }}
                   >
-                    {league.country?.toLowerCase() === "world" ? t('world') : (league.country || "Unknown Country")}
+                    {league.country?.toLowerCase() === "world" ? t('world') : translateCountryName(league.country || "Unknown Country")}
                   </span>
                 </div>
                 <div className="flex gap-2 items-center"></div>
