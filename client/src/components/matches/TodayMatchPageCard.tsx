@@ -6,7 +6,7 @@ import { Calendar } from "../ui/calendar";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
-import { useTranslation } from "@/lib/language"; // Assuming useTranslation is imported from here
+import { useTranslation } from "@/contexts/LanguageContext";
 
 import TodaysMatchesByCountryNew from "./TodaysMatchesByCountryNew";
 import LiveMatchForAllCountry from "./LiveMatchForAllCountry";
