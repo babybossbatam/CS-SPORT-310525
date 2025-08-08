@@ -2230,7 +2230,19 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
                                   const penaltyWonText = t('won_on_penalties');
                                   const onPenaltiesText = t('on_penalties');
-                                  const winnerText = `${winnerTeam} ${penaltyWonText.replace('on penalties', penaltyScore + ' ' + onPenaltiesText).replace('en penales', penaltyScore + ' ' + onPenaltiesText).replace('im Elfmeterschießen', penaltyScore + ' ' + onPenaltiesText).replace('ai rigori', penaltyScore + ' ' + onPenaltiesText).replace('nos pênaltis', penaltyScore + ' ' + onPenaltiesText)}`;
+                                  
+                                  // Handle Chinese languages properly
+                                  let winnerText;
+                                  if (penaltyWonText.includes('互射十二碼獲勝')) {
+                                    // For Chinese, format as "Team 5-4 互射十二碼獲勝"
+                                    winnerText = `${winnerTeam} ${penaltyScore} ${penaltyWonText}`;
+                                  } else if (penaltyWonText.includes('PK大戰獲勝')) {
+                                    // For Taiwan Chinese, format as "Team 5-4 PK大戰獲勝"
+                                    winnerText = `${winnerTeam} ${penaltyScore} ${penaltyWonText}`;
+                                  } else {
+                                    // For other languages, replace the penalty text with score
+                                    winnerText = `${winnerTeam} ${penaltyWonText.replace('on penalties', penaltyScore + ' ' + onPenaltiesText).replace('en penales', penaltyScore + ' ' + onPenaltiesText).replace('im Elfmeterschießen', penaltyScore + ' ' + onPenaltiesText).replace('ai rigori', penaltyScore + ' ' + onPenaltiesText).replace('nos pênaltis', penaltyScore + ' ' + onPenaltiesText)}`;
+                                  }
 
                                   return (
                                     <div className="penalty-result-display">
