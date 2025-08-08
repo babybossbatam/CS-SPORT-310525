@@ -1098,6 +1098,26 @@ export const useTranslation = () => {
         'de': 'Tottenham',
         'it': 'Tottenham',
         'pt': 'Tottenham'
+      },
+      'liga profesional argentina': {
+        'en': 'Argentine Primera División',
+        'es': 'Liga Profesional Argentina',
+        'zh-hk': '阿根廷甲級聯賽',
+        'zh-tw': '阿根廷甲級聯賽',
+        'zh': '阿根廷甲级联赛',
+        'de': 'Argentinische Primera División',
+        'it': 'Primera División Argentina',
+        'pt': 'Primeira Divisão Argentina'
+      },
+      'primera división': {
+        'en': 'Primera División',
+        'es': 'Primera División',
+        'zh-hk': '甲級聯賽',
+        'zh-tw': '甲級聯賽',
+        'zh': '甲级联赛',
+        'de': 'Primera División',
+        'it': 'Primera División',
+        'pt': 'Primera Divisão'
       }
     };
 
