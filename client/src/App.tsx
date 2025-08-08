@@ -15,6 +15,7 @@ import { setupGlobalErrorHandlers } from "./lib/errorHandler";
 import { CentralDataProvider } from "./providers/CentralDataProvider";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import LanguageToast from "./components/common/LanguageToast";
+import { BrowserRouter } from "react-router-dom"; // Import BrowserRouter
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
@@ -32,21 +33,34 @@ const MyScores = lazy(() => import("@/pages/MyScores"));
 // Component to extract language from URL and provide it to LanguageProvider
 const AppWithLanguageRouting = () => {
   const [location] = useLocation();
-  const supportedLanguages = ['en', 'es', 'zh-hk', 'zh', 'de', 'it', 'pt'];
 
   // Extract language from URL
-  const pathParts = location.split('/').filter(part => part);
-  const urlLanguage = pathParts.length > 0 && supportedLanguages.includes(pathParts[0]) ? pathParts[0] : null;
+  const extractLanguageFromUrl = (): string | null => {
+    const supportedLanguages = ['en', 'en-us', 'es', 'es-mx', 'zh-hk', 'zh', 'zh-tw', 'de', 'de-at', 'it', 'pt', 'pt-br', 'fr'];
+    const pathParts = location.split('/').filter(part => part);
+
+    if (pathParts.length > 0 && supportedLanguages.includes(pathParts[0])) {
+      return pathParts[0];
+    }
+    return null;
+  };
+
+  const urlLanguage = extractLanguageFromUrl();
 
   return (
-    <Provider store={store}>
-      <LanguageProvider initialLanguage={urlLanguage}>
-        <CentralDataProvider>
-          <LanguageToast />
-          <AppRoutes />
-        </CentralDataProvider>
-      </LanguageProvider>
-    </Provider>
+    <LanguageProvider initialLanguage={urlLanguage}>
+      <CentralDataProvider>
+        <TooltipProvider>
+          <div className="App">
+            <Suspense fallback={<BrandedLoading />}>
+              <AppRoutes />
+            </Suspense>
+            <Toaster />
+            <LanguageToast />
+          </div>
+        </TooltipProvider>
+      </CentralDataProvider>
+    </LanguageProvider>
   );
 };
 
@@ -263,14 +277,9 @@ function App() {
   }, []);
 
   return (
-    <TooltipProvider>
-      <Toaster />
-      <main className="bg-stone-50 pt-[0px] pb-[0px] mt-[81px] mobile-app-container">
-        <QueryClientProvider client={queryClient}>
-          <AppWithLanguageRouting />
-        </QueryClientProvider>
-      </main>
-    </TooltipProvider>
+    <QueryClientProvider client={queryClient}>
+      <AppWithLanguageRouting />
+    </QueryClientProvider>
   );
 }
 

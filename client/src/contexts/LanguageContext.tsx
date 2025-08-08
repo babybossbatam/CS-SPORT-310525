@@ -367,7 +367,15 @@ export const LanguageProvider: React.FC<{
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (context === undefined) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
+    console.error('useLanguage must be used within a LanguageProvider');
+    // Return a fallback context to prevent app crashes
+    return {
+      currentLanguage: 'en',
+      setLanguage: () => {},
+      setLanguageWithUrlUpdate: () => {},
+      setLanguageByCountry: () => {},
+      translations
+    };
   }
   return context;
 };

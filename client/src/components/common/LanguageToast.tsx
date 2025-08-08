@@ -4,14 +4,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 const LanguageToast: React.FC = () => {
   // Add error boundary for when LanguageProvider is not available
-  let currentLanguage: string;
-  try {
-    const languageContext = useLanguage();
-    currentLanguage = languageContext.currentLanguage;
-  } catch (error) {
-    // If LanguageProvider is not available, don't render the toast
-    return null;
-  }
+  const languageContext = useLanguage();
+  const currentLanguage = languageContext.currentLanguage;
   const [showToast, setShowToast] = useState(false);
   const [previousLanguage, setPreviousLanguage] = useState(currentLanguage);
 
