@@ -782,7 +782,8 @@ class SmartTeamTranslation {
     'Omonia Nicosia': {
       'zh': '尼科西亚奥莫尼亚', 'zh-hk': '尼科西亞奧莫尼亞', 'zh-tw': '尼科西亞奧莫尼亞',
       'es': 'Omonia Nicosia', 'de': 'Omonia Nikosia', 'it': 'Omonia Nicosia', 'pt': 'Omonia Nicosia'
-    }</old_str>
+    }
+  };</old_str>
     'Drita': {
       'zh': '德里塔', 'zh-hk': '德里塔', 'zh-tw': '德里塔',
       'es': 'Drita', 'de': 'Drita', 'it': 'Drita', 'pt': 'Drita'
