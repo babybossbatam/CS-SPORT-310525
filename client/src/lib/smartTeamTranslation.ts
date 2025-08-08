@@ -181,25 +181,49 @@ class SmartTeamTranslation {
       'zh': '洛杉矶银河', 'zh-hk': '洛杉磯銀河', 'zh-tw': '洛杉磯銀河',
       'es': 'LA Galaxy', 'de': 'LA Galaxy', 'it': 'LA Galaxy', 'pt': 'LA Galaxy'
     },
+    'Los Angeles Galaxy': {
+      'zh': '洛杉矶银河', 'zh-hk': '洛杉磯銀河', 'zh-tw': '洛杉磯銀河',
+      'es': 'Los Angeles Galaxy', 'de': 'Los Angeles Galaxy', 'it': 'Los Angeles Galaxy', 'pt': 'Los Angeles Galaxy'
+    },
     'Los Angeles FC': {
       'zh': '洛杉矶FC', 'zh-hk': '洛杉磯FC', 'zh-tw': '洛杉磯FC',
       'es': 'Los Ángeles FC', 'de': 'Los Angeles FC', 'it': 'Los Angeles FC', 'pt': 'Los Angeles FC'
+    },
+    'LAFC': {
+      'zh': '洛杉矶FC', 'zh-hk': '洛杉磯FC', 'zh-tw': '洛杉磯FC',
+      'es': 'LAFC', 'de': 'LAFC', 'it': 'LAFC', 'pt': 'LAFC'
     },
     'Inter Miami': {
       'zh': '迈阿密国际', 'zh-hk': '邁阿密國際', 'zh-tw': '邁阿密國際',
       'es': 'Inter Miami', 'de': 'Inter Miami', 'it': 'Inter Miami', 'pt': 'Inter Miami'
     },
+    'Inter Miami CF': {
+      'zh': '迈阿密国际', 'zh-hk': '邁阿密國際', 'zh-tw': '邁阿密國際',
+      'es': 'Inter Miami CF', 'de': 'Inter Miami CF', 'it': 'Inter Miami CF', 'pt': 'Inter Miami CF'
+    },
     'New York City FC': {
       'zh': '纽约城', 'zh-hk': '紐約城', 'zh-tw': '紐約城',
       'es': 'New York City FC', 'de': 'New York City FC', 'it': 'New York City FC', 'pt': 'New York City FC'
+    },
+    'New York Red Bulls': {
+      'zh': '纽约红牛', 'zh-hk': '紐約紅牛', 'zh-tw': '紐約紅牛',
+      'es': 'New York Red Bulls', 'de': 'New York Red Bulls', 'it': 'New York Red Bulls', 'pt': 'New York Red Bulls'
     },
     'Atlanta United': {
       'zh': '亚特兰大联', 'zh-hk': '亞特蘭大聯', 'zh-tw': '亞特蘭大聯',
       'es': 'Atlanta United', 'de': 'Atlanta United', 'it': 'Atlanta United', 'pt': 'Atlanta United'
     },
+    'Atlanta United FC': {
+      'zh': '亚特兰大联', 'zh-hk': '亞特蘭大聯', 'zh-tw': '亞特蘭大聯',
+      'es': 'Atlanta United FC', 'de': 'Atlanta United FC', 'it': 'Atlanta United FC', 'pt': 'Atlanta United FC'
+    },
     'Seattle Sounders': {
       'zh': '西雅图海湾人', 'zh-hk': '西雅圖海灣人', 'zh-tw': '西雅圖海灣人',
       'es': 'Seattle Sounders', 'de': 'Seattle Sounders', 'it': 'Seattle Sounders', 'pt': 'Seattle Sounders'
+    },
+    'Seattle Sounders FC': {
+      'zh': '西雅图海湾人', 'zh-hk': '西雅圖海灣人', 'zh-tw': '西雅圖海灣人',
+      'es': 'Seattle Sounders FC', 'de': 'Seattle Sounders FC', 'it': 'Seattle Sounders FC', 'pt': 'Seattle Sounders FC'
     },
     'Portland Timbers': {
       'zh': '波特兰伐木者', 'zh-hk': '波特蘭伐木者', 'zh-tw': '波特蘭伐木者',
@@ -209,6 +233,18 @@ class SmartTeamTranslation {
       'zh': '科罗拉多急流', 'zh-hk': '科羅拉多急流', 'zh-tw': '科羅拉多急流',
       'es': 'Colorado Rapids', 'de': 'Colorado Rapids', 'it': 'Colorado Rapids', 'pt': 'Colorado Rapids'
     },
+    'FC Cincinnati': {
+      'zh': '辛辛那提', 'zh-hk': '辛辛那提', 'zh-tw': '辛辛那提',
+      'es': 'FC Cincinnati', 'de': 'FC Cincinnati', 'it': 'FC Cincinnati', 'pt': 'FC Cincinnati'
+    },
+    'Charlotte FC': {
+      'zh': '夏洛特', 'zh-hk': '夏洛特', 'zh-tw': '夏洛特',
+      'es': 'Charlotte FC', 'de': 'Charlotte FC', 'it': 'Charlotte FC', 'pt': 'Charlotte FC'
+    },
+    'Charlotte': {
+      'zh': '夏洛特', 'zh-hk': '夏洛特', 'zh-tw': '夏洛特',
+      'es': 'Charlotte', 'de': 'Charlotte', 'it': 'Charlotte', 'pt': 'Charlotte'
+    },
     'Cruz Azul': {
       'zh': '蓝十字', 'zh-hk': '藍十字', 'zh-tw': '藍十字',
       'es': 'Cruz Azul', 'de': 'Cruz Azul', 'it': 'Cruz Azul', 'pt': 'Cruz Azul'
@@ -216,6 +252,14 @@ class SmartTeamTranslation {
     'Santos Laguna': {
       'zh': '桑托斯拉古纳', 'zh-hk': '山度士拉古納', 'zh-tw': '桑托斯拉古納',
       'es': 'Santos Laguna', 'de': 'Santos Laguna', 'it': 'Santos Laguna', 'pt': 'Santos Laguna'
+    },
+    'CF Monterrey': {
+      'zh': '蒙特雷', 'zh-hk': '蒙特雷', 'zh-tw': '蒙特雷',
+      'es': 'CF Monterrey', 'de': 'CF Monterrey', 'it': 'CF Monterrey', 'pt': 'CF Monterrey'
+    },
+    'FC Juarez': {
+      'zh': '华雷斯', 'zh-hk': '華雷斯', 'zh-tw': '華雷斯',
+      'es': 'FC Juárez', 'de': 'FC Juárez', 'it': 'FC Juárez', 'pt': 'FC Juárez'
     },
 
     // Liga MX teams  
@@ -226,6 +270,14 @@ class SmartTeamTranslation {
     'Guadalajara': {
       'zh': '瓜达拉哈拉', 'zh-hk': '瓜達拉哈拉', 'zh-tw': '瓜達拉哈拉',
       'es': 'Guadalajara', 'de': 'Guadalajara', 'it': 'Guadalajara', 'pt': 'Guadalajara'
+    },
+    'CD Guadalajara': {
+      'zh': '瓜达拉哈拉', 'zh-hk': '瓜達拉哈拉', 'zh-tw': '瓜達拉哈拉',
+      'es': 'CD Guadalajara', 'de': 'CD Guadalajara', 'it': 'CD Guadalajara', 'pt': 'CD Guadalajara'
+    },
+    'Chivas': {
+      'zh': '瓜达拉哈拉', 'zh-hk': '瓜達拉哈拉', 'zh-tw': '瓜達拉哈拉',
+      'es': 'Chivas', 'de': 'Chivas', 'it': 'Chivas', 'pt': 'Chivas'
     },
     'Pumas': {
       'zh': '美洲狮', 'zh-hk': '美洲獅', 'zh-tw': '美洲獅',
@@ -325,10 +377,45 @@ class SmartTeamTranslation {
       if (translation) return translation;
     }
 
+    // Enhanced matching for common team name patterns
+    const teamNameLower = normalizedTeamName.toLowerCase();
+    
+    // Special cases for known teams
+    if (teamNameLower.includes('los angeles galaxy') || teamNameLower === 'la galaxy') {
+      const translation = this.popularLeagueTeams['Los Angeles Galaxy']?.[language as keyof TeamTranslation[string]];
+      if (translation) return translation;
+    }
+    
+    if (teamNameLower.includes('new york red bulls')) {
+      const translation = this.popularLeagueTeams['New York Red Bulls']?.[language as keyof TeamTranslation[string]];
+      if (translation) return translation;
+    }
+    
+    if (teamNameLower === 'charlotte' || teamNameLower === 'charlotte fc') {
+      const translation = this.popularLeagueTeams['Charlotte']?.[language as keyof TeamTranslation[string]];
+      if (translation) return translation;
+    }
+    
+    if (teamNameLower === 'fc cincinnati' || teamNameLower === 'cincinnati') {
+      const translation = this.popularLeagueTeams['FC Cincinnati']?.[language as keyof TeamTranslation[string]];
+      if (translation) return translation;
+    }
+    
+    if (teamNameLower === 'fc juarez' || teamNameLower === 'juarez') {
+      const translation = this.popularLeagueTeams['FC Juarez']?.[language as keyof TeamTranslation[string]];
+      if (translation) return translation;
+    }
+
     // Try partial matches for complex names
     for (const [mappedTeam, translations] of Object.entries(this.popularLeagueTeams)) {
-      if (normalizedTeamName.toLowerCase().includes(mappedTeam.toLowerCase()) || 
-          mappedTeam.toLowerCase().includes(normalizedTeamName.toLowerCase())) {
+      const mappedTeamLower = mappedTeam.toLowerCase();
+      
+      // More sophisticated partial matching
+      if (teamNameLower.includes(mappedTeamLower) || 
+          mappedTeamLower.includes(teamNameLower) ||
+          // Handle cases where team name is part of a longer official name
+          (mappedTeamLower.split(' ').some(word => teamNameLower.includes(word) && word.length > 3)) ||
+          (teamNameLower.split(' ').some(word => mappedTeamLower.includes(word) && word.length > 3))) {
         const translation = translations[language as keyof TeamTranslation[string]];
         if (translation) return translation;
       }
