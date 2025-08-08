@@ -70,7 +70,7 @@ const translations = {
     'october': "October",
     'november': "November",
     'december': "December",
-    'popular_football_leagues': "Popular Football Leagues",
+    'popular_football_leagues': "Popular FootballLeagues",
     'leagues_cup': "Leagues Cup",
     'world': "World",
     'ended': "Ended",
@@ -2191,9 +2191,6 @@ export const useTranslation = () => {
     };
 
     // Check for exact match first
-    if (teamTranslations[teamName]) {</old_str>
-
-    // Check for exact match first
     if (teamTranslations[teamName]) {
       return teamTranslations[teamName][currentLanguage] || teamName;
     }
@@ -2207,7 +2204,7 @@ export const useTranslation = () => {
 
     // Intelligent pattern matching for common team name variations
     const normalizedTeamName = teamName.toLowerCase().trim();
-    
+
     // Handle FC/CF prefix variations
     if (normalizedTeamName.startsWith('fc ') || normalizedTeamName.startsWith('cf ')) {
       const nameWithoutPrefix = teamName.substring(3).trim();
