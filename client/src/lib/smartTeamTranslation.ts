@@ -1621,8 +1621,141 @@ class SmartTeamTranslation {
     return null;
   }
 
-  // Smart translation with fallbacks
-  translateTeamName(teamName: string, language: string = 'zh'): string {
+  // Auto-learn teams from API fixture responses
+  learnTeamsFromFixtures(fixtures: any[], leagueId?: number): void {
+    if (!fixtures?.length) return;
+
+    let newTeamsLearned = 0;
+    const learnedTeams = new Set<string>();
+
+    fixtures.forEach(fixture => {
+      if (fixture.teams?.home?.name && fixture.teams?.away?.name) {
+        const homeTeam = fixture.teams.home.name.trim();
+        const awayTeam = fixture.teams.away.name.trim();
+        
+        // Learn both teams
+        [homeTeam, awayTeam].forEach(teamName => {
+          if (teamName && !learnedTeams.has(teamName.toLowerCase())) {
+            if (this.learnNewTeam(teamName, fixture.league)) {
+              newTeamsLearned++;
+              learnedTeams.add(teamName.toLowerCase());
+            }
+          }
+        });
+      }
+    });
+
+    if (newTeamsLearned > 0) {
+      console.log(`🎓 [SmartTranslation] Auto-learned ${newTeamsLearned} new teams from ${fixtures.length} fixtures`);
+    }
+  }
+
+  // Learn a new team and add basic translations
+  private learnNewTeam(teamName: string, leagueInfo?: any): boolean {
+    const normalizedName = teamName.trim();
+    
+    // Check if already exists in our mappings
+    if (this.getPopularTeamTranslation(normalizedName, 'zh')) {
+      return false; // Already exists
+    }
+
+    // Don't learn teams with suspicious patterns
+    if (this.shouldSkipLearning(normalizedName)) {
+      return false;
+    }
+
+    // Create basic translation entry
+    const basicTranslation = this.createBasicTranslation(normalizedName, leagueInfo);
+    this.popularLeagueTeams[normalizedName] = basicTranslation;
+
+    console.log(`📚 [SmartTranslation] Learned new team: "${normalizedName}" in league: ${leagueInfo?.name || 'Unknown'}`);
+    return true;
+  }
+
+  // Check if we should skip learning this team
+  private shouldSkipLearning(teamName: string): boolean {
+    const skipPatterns = [
+      /\b(ii|2|b|reserves?|youth|u\d+|junior)\b/i,
+      /\b(academy|development|training)\b/i,
+      /^.{1,2}$/, // Too short
+      /^\d+$/, // Only numbers
+      /[^\w\s\-'\.]/g // Contains special characters
+    ];
+
+    return skipPatterns.some(pattern => pattern.test(teamName));
+  }
+
+  // Create basic translation for a new team
+  private createBasicTranslation(teamName: string, leagueInfo?: any): TeamTranslation[string] {
+    // For most teams, we'll use the original name as fallback
+    // But we can add some smart rules based on league/country
+    
+    let chineseTranslation = teamName; // Default fallback
+    
+    // Add some intelligent Chinese translation rules
+    if (leagueInfo?.country) {
+      chineseTranslation = this.generateSmartChineseTranslation(teamName, leagueInfo.country);
+    }
+
+    return {
+      'zh': chineseTranslation,
+      'zh-hk': chineseTranslation,
+      'zh-tw': chineseTranslation,
+      'es': teamName,
+      'de': teamName,
+      'it': teamName,
+      'pt': teamName
+    };
+  }
+
+  // Generate intelligent Chinese translations based on patterns
+  private generateSmartChineseTranslation(teamName: string, country: string): string {
+    // Common translation patterns for different countries
+    const translationRules: Record<string, Record<string, string>> = {
+      'England': {
+        'United': '联',
+        'City': '城',
+        'Town': '镇',
+        'FC': '足球俱乐部',
+        'Athletic': '竞技',
+        'Rovers': '流浪者'
+      },
+      'Spain': {
+        'Real': '皇家',
+        'Club': '俱乐部',
+        'Atletico': '竞技',
+        'Deportivo': '体育'
+      },
+      'Germany': {
+        'Bayern': '拜仁',
+        'Borussia': '多特',
+        'Eintracht': '法兰克福',
+        'Werder': '云达'
+      },
+      'Italy': {
+        'Juventus': '尤文图斯',
+        'Inter': '国际',
+        'Milan': '米兰',
+        'Roma': '罗马'
+      }
+    };
+
+    let translation = teamName;
+    const rules = translationRules[country];
+    
+    if (rules) {
+      Object.entries(rules).forEach(([english, chinese]) => {
+        if (teamName.includes(english)) {
+          translation = translation.replace(english, chinese);
+        }
+      });
+    }
+
+    return translation;
+  }
+
+  // Smart translation with fallbacks and learning
+  translateTeamName(teamName: string, language: string = 'zh', leagueInfo?: any): string {
     if (!teamName) return '';
 
     console.log(`🤖 [SmartTranslation] Translating "${teamName}" to ${language}`, {
@@ -1654,6 +1787,19 @@ class SmartTeamTranslation {
       console.log(`📖 [SmartTranslation] Manual translation: "${teamName}" -> "${manualTranslation}"`);
       this.teamCache.set(cacheKey, manualTranslation);
       return manualTranslation;
+    }
+
+    // If no translation found, try to learn this team
+    if (leagueInfo && !this.getPopularTeamTranslation(teamName, 'zh')) {
+      this.learnNewTeam(teamName, leagueInfo);
+      
+      // Try again after learning
+      const newTranslation = this.getPopularTeamTranslation(teamName, language);
+      if (newTranslation && newTranslation !== teamName) {
+        console.log(`🎓 [SmartTranslation] Learned and translated: "${teamName}" -> "${newTranslation}"`);
+        this.teamCache.set(cacheKey, newTranslation);
+        return newTranslation;
+      }
     }
 
     // Cache the original name if no translation found

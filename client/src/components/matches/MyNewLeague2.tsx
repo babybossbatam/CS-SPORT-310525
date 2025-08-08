@@ -688,6 +688,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         }
       }
 
+      // Learn teams from fixtures before processing
+      smartTeamTranslation.learnTeamsFromFixtures(results.flatMap(batch => batch.flatMap((res: any) => res.fixtures)));
+
       // Combine fresh fixtures with cached ended matches
       const allFixturesMap = new Map<number, FixtureData>();
 
@@ -1053,9 +1056,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                 analysisResult.missingTranslations.slice(0, 100) // Generate for first 100
               );
               console.log('Generated translation template for copy-paste:', translationTemplate);
-              
+
               // Also log teams by frequency to prioritize most common ones
-              console.log('Teams by frequency (most common first):', 
+              console.log('Teams by frequency (most common first):',
                 analysisResult.teams
                   .filter(team => analysisResult.missingTranslations.includes(team.teamName))
                   .slice(0, 30)
@@ -1984,7 +1987,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   const originalName = fixture.teams.home.name || "";
 
                                   // Try smart translation first
-                                  let translatedName = translateTeamName(originalName);
+                                  let translatedName = smartTeamTranslation.translateTeamName(originalName, currentLanguage, fixture.league);
 
                                   // If smart translation failed, try direct name cleanup for common patterns
                                   if (translatedName === originalName && currentLanguage.startsWith('zh')) {
@@ -2357,7 +2360,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   const originalName = fixture.teams.away.name || "";
 
                                   // Try smart translation first
-                                  let translatedName = translateTeamName(originalName);
+                                  let translatedName = smartTeamTranslation.translateTeamName(originalName, currentLanguage, fixture.league);
 
                                   // If smart translation failed, try direct name cleanup for common patterns
                                   if (translatedName === originalName && currentLanguage.startsWith('zh')) {
@@ -2480,8 +2483,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
                                 if (isPenaltyMatch && hasPenaltyScores) {
                                   const winnerTeam = penaltyHome > penaltyAway
-                                    ? translateTeamName(fixture.teams.home.name)
-                                    : translateTeamName(fixture.teams.away.name);
+                                    ? smartTeamTranslation.translateTeamName(fixture.teams.home.name, currentLanguage, fixture.league)
+                                    : smartTeamTranslation.translateTeamName(fixture.teams.away.name, currentLanguage, fixture.league);
                                   const penaltyScore = penaltyHome > penaltyAway
                                     ? `${penaltyHome}-${penaltyAway}`
                                     : `${penaltyAway}-${penaltyHome}`;
