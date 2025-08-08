@@ -19,7 +19,7 @@ import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import BrandedLoading from "../common/BrandedLoading";
 import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";
-import { useTranslation } from "@/contexts/LanguageContext";
+import { useTranslation, useLanguage } from "@/contexts/LanguageContext";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
 
@@ -43,8 +43,8 @@ const useIntersectionObserver = (
         setHasIntersected(true);
       }
     }, {
-      threshold: 0.1,
-      rootMargin: '50px',
+      threshold: 0.01,
+      rootMargin: '200px',
       ...options
     });
 
@@ -127,7 +127,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   onMatchCardClick,
   match,
 }) => {
-  const { t, translateLeagueName, translateCountryName } = useTranslation();
+  const { t } = useTranslation();
+  const { translateCountryName } = useLanguage();
   // Sample match data for demonstration (similar to MyMatchdetailsScoreboard)
   const sampleMatch = {
     fixture: {
@@ -2258,7 +2259,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
-  const { t, translateLeagueName } = useTranslation();
+  const { t } = useTranslation();
   const { hasIntersected } = useIntersectionObserver(containerRef, {
     threshold: 0.01, // Trigger even earlier
     rootMargin: '200px' // Start loading 200px before it comes into view

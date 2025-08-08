@@ -4,6 +4,7 @@ interface LanguageContextType {
   currentLanguage: string;
   setLanguage: (language: string) => void;
   translations: { [key: string]: { [key: string]: string } };
+  translateCountryName?: (countryName: string) => string;
 }
 
 const translations = {
@@ -994,7 +995,8 @@ export const useLanguage = () => {
       setLanguage: () => {},
       setLanguageWithUrlUpdate: () => {},
       setLanguageByCountry: () => {},
-      translations
+      translations,
+      translateCountryName: (name: string) => name
     };
   }
   return context;
@@ -1418,7 +1420,24 @@ export const useTranslation = () => {
     return leagueName;
   };
 
-  return { t, translateLeagueName };
+  // Dynamic country name translation function
+  const translateCountryName = (countryName: string): string => {
+    if (!countryName) return countryName;
+
+    // Create a simple key from the country name
+    const countryKey = countryName.toLowerCase().replace(/\s+/g, '_');
+    
+    // Try to find translation using the key
+    const translation = translations[currentLanguage]?.[countryKey];
+    if (translation) {
+      return translation;
+    }
+
+    // Return original name if no translation found
+    return countryName;
+  };
+
+  return { t, translateLeagueName, translateCountryName };
 };
 
 export { countryToLanguageMap };
