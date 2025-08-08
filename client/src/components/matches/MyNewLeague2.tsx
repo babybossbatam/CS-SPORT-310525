@@ -19,7 +19,7 @@ import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import BrandedLoading from "../common/BrandedLoading";
 import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";
-import { useTranslation, useLanguage } from "@/contexts/LanguageContext";
+import { useTranslation } from "@/contexts/LanguageContext";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
 
@@ -43,8 +43,8 @@ const useIntersectionObserver = (
         setHasIntersected(true);
       }
     }, {
-      threshold: 0.01,
-      rootMargin: '200px',
+      threshold: 0.1,
+      rootMargin: '50px',
       ...options
     });
 
@@ -128,7 +128,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   match,
 }) => {
   const { t, translateLeagueName } = useTranslation();
-  const { translateCountryName } = useLanguage();
   // Sample match data for demonstration (similar to MyMatchdetailsScoreboard)
   const sampleMatch = {
     fixture: {
@@ -1102,7 +1101,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         isCurrentlySelected: selectedMatchId === matchId,
       });
 
-      // Force re-selection by clearing first, then setting (allows re-render)
+      // Force re-selection by clearing first, then setting (allows re-highlighting)
       if (selectedMatchId === matchId) {
         // If clicking the same match, clear first to trigger re-render
         setSelectedMatchId(null);
@@ -1609,7 +1608,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                       lineHeight: "1.2",
                     }}
                   >
-                    {league.country?.toLowerCase() === "world" ? t('world') : translateCountryName(league.country || "Unknown Country")}
+                    {league.country?.toLowerCase() === "world" ? t('world') : (league.country || "Unknown Country")}
                   </span>
                 </div>
                 <div className="flex gap-2 items-center"></div>
