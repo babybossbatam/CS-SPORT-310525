@@ -169,15 +169,20 @@ class SmartTeamTranslation {
   translateTeamName(teamName: string, language: string = 'zh'): string {
     if (!teamName) return '';
 
+    console.log(`🤖 [SmartTranslation] Translating "${teamName}" to ${language}`);
+
     // Check cache first
     const cacheKey = `${teamName.toLowerCase()}_${language}`;
     if (this.teamCache.has(cacheKey)) {
-      return this.teamCache.get(cacheKey)!;
+      const cached = this.teamCache.get(cacheKey)!;
+      console.log(`💾 [SmartTranslation] Cache hit: "${teamName}" -> "${cached}"`);
+      return cached;
     }
 
     // Try exact match from manual translations (keep your existing ones as fallback)
     const manualTranslation = this.getManualTranslation(teamName, language);
     if (manualTranslation && manualTranslation !== teamName) {
+      console.log(`📖 [SmartTranslation] Manual translation: "${teamName}" -> "${manualTranslation}"`);
       this.teamCache.set(cacheKey, manualTranslation);
       return manualTranslation;
     }
@@ -185,11 +190,13 @@ class SmartTeamTranslation {
     // Smart pattern matching for common team names
     const smartTranslation = this.getSmartTranslation(teamName, language);
     if (smartTranslation && smartTranslation !== teamName) {
+      console.log(`🧠 [SmartTranslation] Smart pattern match: "${teamName}" -> "${smartTranslation}"`);
       this.teamCache.set(cacheKey, smartTranslation);
       return smartTranslation;
     }
 
     // Cache the original name to avoid repeated processing
+    console.log(`❌ [SmartTranslation] No translation found for: "${teamName}"`);
     this.teamCache.set(cacheKey, teamName);
     return teamName;
   }

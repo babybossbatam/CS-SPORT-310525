@@ -1938,7 +1938,17 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {translateTeamName(fixture.teams.home.name || "") || "Unknown Team"}
+                                {(() => {
+                                  const originalName = fixture.teams.home.name || "";
+                                  const translatedName = translateTeamName(originalName);
+                                  
+                                  // Debug logging for translation
+                                  if (originalName && translatedName !== originalName) {
+                                    console.log(`🌐 [MyNewLeague2] Team translation: "${originalName}" -> "${translatedName}"`);
+                                  }
+                                  
+                                  return translatedName || originalName || "Unknown Team";
+                                })()}
                               </div>
 
                               {/* Home team logo */}
@@ -2203,7 +2213,17 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {translateTeamName(fixture.teams.away.name || "") || "Unknown Team"}
+                                {(() => {
+                                  const originalName = fixture.teams.away.name || "";
+                                  const translatedName = translateTeamName(originalName);
+                                  
+                                  // Debug logging for translation
+                                  if (originalName && translatedName !== originalName) {
+                                    console.log(`🌐 [MyNewLeague2] Team translation: "${originalName}" -> "${translatedName}"`);
+                                  }
+                                  
+                                  return translatedName || originalName || "Unknown Team";
+                                })()}
                               </div>
                             </div>
 

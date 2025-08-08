@@ -773,7 +773,17 @@ export const LanguageProvider: React.FC<{
       try {
         console.log(`🤖 [LanguageContext] Initializing smart team translation for language: ${currentLanguage}`);
         await smartTeamTranslation.initializeTeamTranslations(currentLanguage);
-        console.log(`✅ [LanguageContext] Smart team translation initialized successfully for ${currentLanguage}`);
+        
+        // Log translation statistics
+        const stats = smartTeamTranslation.getTranslationStats();
+        console.log(`✅ [LanguageContext] Smart team translation initialized successfully for ${currentLanguage}:`, stats);
+        
+        // Test translation with sample teams
+        const testTeams = ['Cruz Azul', 'Colorado Rapids', 'Manchester United', 'Real Madrid'];
+        testTeams.forEach(team => {
+          const translated = smartTeamTranslation.translateTeamName(team, currentLanguage);
+          console.log(`🧪 [LanguageContext] Test translation: "${team}" -> "${translated}"`);
+        });
       } catch (error) {
         console.error(`❌ [LanguageContext] Failed to initialize smart team translation for ${currentLanguage}:`, error);
         // Continue without smart translation - manual fallbacks will still work
@@ -1317,9 +1327,14 @@ export const useTranslation = () => {
   const translateTeamName = (teamName: string): string => {
     if (!teamName) return '';
 
+    console.log(`🌐 [LanguageContext] Translating team: "${teamName}" for language: ${currentLanguage}`);
+
     // First try the smart translation system
     const smartTranslation = smartTeamTranslation.translateTeamName(teamName, currentLanguage);
+    console.log(`🤖 [LanguageContext] Smart translation result: "${teamName}" -> "${smartTranslation}"`);
+    
     if (smartTranslation !== teamName) {
+      console.log(`✅ [LanguageContext] Using smart translation: "${smartTranslation}"`);
       return smartTranslation;
     }
 
