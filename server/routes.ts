@@ -39,8 +39,9 @@ import basketballRoutes from './routes/basketballRoutes';
 import basketballStandingsRoutes from './routes/basketballStandingsRoutes';
 import basketballGamesRoutes from './routes/basketballGamesRoutes';
 import playerVerificationRoutes from './routes/playerVerificationRoutes';
-import { RapidAPI } from './utils/rapidApi'; // corrected rapidApi import
+import { RapidAPI } from './utils/rapidapi'; // corrected rapidApi import
 import teamMappingRoutes from './routes/teamMappingRoutes.js';
+import teamDataRoutes from './routes/teamDataRoutes';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -2889,7 +2890,7 @@ error) {
         success: false,
         message: "Flag not found in SportsRadar - using fallback",
         fallbackUrl: "/assets/fallback-logo.svg",
-        shouldExclude: false, // Don't exclude, just keep writing the code.
+        shouldExclude: false,
       });
     } catch (error) {
       console.error("Error fetching flag:", error);
@@ -3099,7 +3100,7 @@ error) {
           id: fixtureId
         },
         headers: {
-          'X-RapidAPI-Key': RAPIDAPI_KEY,
+          'X-RapidAPI-Key': RAPID_API_KEY,
           'X-RapidAPI-Host': 'v3.football.api-sports.io'
         }
       });
@@ -3344,6 +3345,7 @@ error) {
 
   // Team mapping routes
   app.use('/api/team-mapping', teamMappingRoutes);
+  app.use('/api', teamDataRoutes);
 
 // Test route for debugging
 app.get('/api/test', (req, res) => {

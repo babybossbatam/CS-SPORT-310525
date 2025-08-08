@@ -10,6 +10,37 @@ interface TeamTranslation {
   };
 }
 
+// Enhanced team name translation with smart fallbacks and caching
+const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
+
+// Cache for team data from API
+const teamDataCache = new Map<string, { data: any; timestamp: number }>();
+
+// Function to fetch team data from cached API
+async function getCachedTeamData(teamId: number | string): Promise<any> {
+  const cacheKey = `team_${teamId}`;
+  const cached = teamDataCache.get(cacheKey);
+  const now = Date.now();
+
+  if (cached && (now - cached.timestamp) < CACHE_DURATION) {
+    return cached.data;
+  }
+
+  try {
+    // Try to fetch from your API endpoint
+    const response = await fetch(`/api/teams/${teamId}`);
+    if (response.ok) {
+      const teamData = await response.json();
+      teamDataCache.set(cacheKey, { data: teamData, timestamp: now });
+      return teamData;
+    }
+  } catch (error) {
+    console.warn(`Failed to fetch team data for ID ${teamId}:`, error);
+  }
+
+  return null;
+}
+
 class SmartTeamTranslation {
   private teamCache = new Map<string, string>();
   private leagueTeamsCache: Record<number, any[]> = {};
@@ -253,7 +284,7 @@ class SmartTeamTranslation {
       'es': 'Cruz Azul', 'de': 'Cruz Azul', 'it': 'Cruz Azul', 'pt': 'Cruz Azul'
     },
     'Santos Laguna': {
-      'zh': '桑托斯拉古纳', 'zh-hk': '山度士拉古納', 'zh-tw': '桑托斯拉古納',
+      'zh': '桑托斯拉古纳', 'zh-hk': '山度士拉古納', 'zh-tw': '山度士拉古納',
       'es': 'Santos Laguna', 'de': 'Santos Laguna', 'it': 'Santos Laguna', 'pt': 'Santos Laguna'
     },
     'CF Monterrey': {
@@ -742,82 +773,6 @@ class SmartTeamTranslation {
       'zh': '克拉约瓦大学', 'zh-hk': '克拉約瓦大學', 'zh-tw': '克拉約瓦大學',
       'es': 'Universitatea Craiova', 'de': 'Universitatea Craiova', 'it': 'Universitatea Craiova', 'pt': 'Universitatea Craiova'
     },
-    'Spartak Trnava': {
-      'zh': '特尔纳瓦斯巴达克', 'zh-hk': '特爾納瓦斯巴達克', 'zh-tw': '特爾納瓦斯巴達克',
-      'es': 'Spartak Trnava', 'de': 'Spartak Trnava', 'it': 'Spartak Trnava', 'pt': 'Spartak Trnava'
-    },
-    'Ballkani': {
-      'zh': '巴尔卡尼', 'zh-hk': '巴爾卡尼', 'zh-tw': '巴爾卡尼',
-      'es': 'Ballkani', 'de': 'Ballkani', 'it': 'Ballkani', 'pt': 'Ballkani'
-    },
-    'Shamrock Rovers': {
-      'zh': '沙姆洛克流浪者', 'zh-hk': '沙姆洛克流浪', 'zh-tw': '沙姆洛克流浪者',
-      'es': 'Shamrock Rovers', 'de': 'Shamrock Rovers', 'it': 'Shamrock Rovers', 'pt': 'Shamrock Rovers'
-    },
-    'Lausanne': {
-      'zh': '洛桑', 'zh-hk': '洛桑', 'zh-tw': '洛桑',
-      'es': 'Lausanne', 'de': 'Lausanne', 'it': 'Lausanne', 'pt': 'Lausanne'
-    },
-    'FC Lausanne': {
-      'zh': '洛桑', 'zh-hk': '洛桑', 'zh-tw': '洛桑',
-      'es': 'FC Lausanne', 'de': 'FC Lausanne', 'it': 'FC Lausanne', 'pt': 'FC Lausanne'
-    },
-    'FC Astana': {
-      'zh': '阿斯塔纳', 'zh-hk': '阿斯塔納', 'zh-tw': '阿斯塔納',
-      'es': 'FC Astana', 'de': 'FC Astana', 'it': 'FC Astana', 'pt': 'FC Astana'
-    },
-    'Astana': {
-      'zh': '阿斯塔纳', 'zh-hk': '阿斯塔納', 'zh-tw': '阿斯塔納',
-      'es': 'Astana', 'de': 'Astana', 'it': 'Astana', 'pt': 'Astana'
-    },
-    'AZ Alkmaar': {
-      'zh': '阿尔克马尔', 'zh-hk': '阿爾克馬爾', 'zh-tw': '阿爾克馬爾',
-      'es': 'AZ Alkmaar', 'de': 'AZ Alkmaar', 'it': 'AZ Alkmaar', 'pt': 'AZ Alkmaar'
-    },
-    'AZ': {
-      'zh': '阿尔克马尔', 'zh-hk': '阿爾克馬爾', 'zh-tw': '阿爾克馬爾',
-      'es': 'AZ', 'de': 'AZ', 'it': 'AZ', 'pt': 'AZ'
-    },
-    'FC Vaduz': {
-      'zh': '瓦杜兹', 'zh-hk': '瓦杜茲', 'zh-tw': '瓦杜茲',
-      'es': 'FC Vaduz', 'de': 'FC Vaduz', 'it': 'FC Vaduz', 'pt': 'FC Vaduz'
-    },
-    'Vaduz': {
-      'zh': '瓦杜兹', 'zh-hk': '瓦杜茲', 'zh-tw': '瓦杜茲',
-      'es': 'Vaduz', 'de': 'Vaduz', 'it': 'Vaduz', 'pt': 'Vaduz'
-    },
-    'Anderlecht': {
-      'zh': '安德莱赫特', 'zh-hk': '安德列治', 'zh-tw': '安德萊赫特',
-      'es': 'Anderlecht', 'de': 'Anderlecht', 'it': 'Anderlecht', 'pt': 'Anderlecht'
-    },
-    'RSC Anderlecht': {
-      'zh': '安德莱赫特', 'zh-hk': '安德列治', 'zh-tw': '安德萊赫特',
-      'es': 'RSC Anderlecht', 'de': 'RSC Anderlecht', 'it': 'RSC Anderlecht', 'pt': 'RSC Anderlecht'
-    },
-    'Sheriff Tiraspol': {
-      'zh': '蒂拉斯波尔谢里夫', 'zh-hk': '蒂拉斯波爾謝裏夫', 'zh-tw': '蒂拉斯波爾謝裏夫',
-      'es': 'Sheriff Tiraspol', 'de': 'Sheriff Tiraspol', 'it': 'Sheriff Tiraspol', 'pt': 'Sheriff Tiraspol'
-    },
-    'Sheriff': {
-      'zh': '蒂拉斯波尔谢里夫', 'zh-hk': '蒂拉斯波爾謝裏夫', 'zh-tw': '蒂拉斯波爾謝裏夫',
-      'es': 'Sheriff', 'de': 'Sheriff', 'it': 'Sheriff', 'pt': 'Sheriff'
-    },
-    'Vikingur Gota': {
-      'zh': '哥塔维京', 'zh-hk': '哥塔維京', 'zh-tw': '哥塔維京',
-      'es': 'Víkingur Gøta', 'de': 'Víkingur Gøta', 'it': 'Víkingur Gøta', 'pt': 'Víkingur Gøta'
-    },
-    'Víkingur Gøta': {
-      'zh': '哥塔维京', 'zh-hk': '哥塔維京', 'zh-tw': '哥塔維京',
-      'es': 'Víkingur Gøta', 'de': 'Víkingur Gøta', 'it': 'Víkingur Gøta', 'pt': 'Víkingur Gøta'
-    },
-    'Linfield': {
-      'zh': '连菲尔德', 'zh-hk': '連菲爾德', 'zh-tw': '連菲爾德',
-      'es': 'Linfield', 'de': 'Linfield', 'it': 'Linfield', 'pt': 'Linfield'
-    },
-    'Linfield FC': {
-      'zh': '连菲尔德', 'zh-hk': '連菲爾德', 'zh-tw': '連菲爾德',
-      'es': 'Linfield FC', 'de': 'Linfield FC', 'it': 'Linfield FC', 'pt': 'Linfield FC'
-    },
     'Sparta Praha': {
       'zh': '布拉格斯巴达', 'zh-hk': '布拉格斯巴達', 'zh-tw': '布拉格斯巴達',
       'es': 'Sparta Praga', 'de': 'Sparta Prag', 'it': 'Sparta Praga', 'pt': 'Sparta Praga'
@@ -1197,10 +1152,18 @@ class SmartTeamTranslation {
   }
 
   // Smart translation with fallbacks
-  translateTeamName(teamName: string, language: string = 'zh'): string {
+  translateTeamName(
+    teamName: string,
+    targetLanguage?: string,
+    context?: {
+      leagueName?: string;
+      country?: string;
+      teamId?: number;
+    }
+  ): string {
     if (!teamName) return '';
 
-    console.log(`🤖 [SmartTranslation] Translating "${teamName}" to ${language}`, {
+    console.log(`🤖 [SmartTranslation] Translating "${teamName}" to ${targetLanguage || 'zh'}`, {
       isLoading: this.isLoading,
       cacheSize: this.teamCache.size,
       leaguesLoaded: Object.keys(this.leagueTeamsCache).length,
@@ -1208,7 +1171,7 @@ class SmartTeamTranslation {
     });
 
     // Check cache first
-    const cacheKey = `${teamName.toLowerCase()}_${language}`;
+    const cacheKey = `${teamName.toLowerCase()}_${targetLanguage || 'zh'}`;
     if (this.teamCache.has(cacheKey)) {
       const cached = this.teamCache.get(cacheKey)!;
       console.log(`💾 [SmartTranslation] Cache hit: "${teamName}" -> "${cached}"`);
@@ -1216,7 +1179,7 @@ class SmartTeamTranslation {
     }
 
     // Try popular teams mapping first (highest priority)
-    const popularTranslation = this.getPopularTeamTranslation(teamName, language);
+    const popularTranslation = this.getPopularTeamTranslation(teamName, targetLanguage || 'zh');
     if (popularTranslation && popularTranslation !== teamName) {
       console.log(`⭐ [SmartTranslation] Popular team translation: "${teamName}" -> "${popularTranslation}"`);
       this.teamCache.set(cacheKey, popularTranslation);
@@ -1224,7 +1187,7 @@ class SmartTeamTranslation {
     }
 
     // Try exact match from manual translations (keep your existing ones as fallback)
-    const manualTranslation = this.getManualTranslation(teamName, language);
+    const manualTranslation = this.getManualTranslation(teamName, targetLanguage || 'zh');
     if (manualTranslation && manualTranslation !== teamName) {
       console.log(`📖 [SmartTranslation] Manual translation: "${teamName}" -> "${manualTranslation}"`);
       this.teamCache.set(cacheKey, manualTranslation);
@@ -1232,7 +1195,7 @@ class SmartTeamTranslation {
     }
 
     // Cache the original name if no translation found
-    console.log(`❌ [SmartTranslation] No translation found for "${teamName}" in ${language}`);
+    console.log(`❌ [SmartTranslation] No translation found for "${teamName}" in ${targetLanguage || 'zh'}`);
     this.teamCache.set(cacheKey, teamName);
     return teamName;
   }
@@ -1290,11 +1253,11 @@ class SmartTeamTranslation {
   async loadAutoGeneratedMappings(): Promise<void> {
     try {
       console.log('🔄 [SmartTranslation] Loading auto-generated team mappings...');
-      
+
       const response = await fetch('/api/team-mapping/generate-mappings', {
         method: 'POST'
       });
-      
+
       if (response.ok) {
         const result = await response.json();
         console.log(`✅ [SmartTranslation] Auto-generated mappings loaded: ${result.count} teams`);
@@ -1309,14 +1272,14 @@ class SmartTeamTranslation {
   // Merge external translations into popular teams
   mergeExternalTranslations(externalTranslations: TeamTranslation): void {
     console.log(`🔄 [SmartTranslation] Merging ${Object.keys(externalTranslations).length} external translations...`);
-    
+
     // Merge while preserving existing manual translations (they take priority)
     Object.keys(externalTranslations).forEach(teamName => {
       if (!this.popularLeagueTeams[teamName]) {
         this.popularLeagueTeams[teamName] = externalTranslations[teamName];
       }
     });
-    
+
     console.log(`✅ [SmartTranslation] Merged translations. Total teams: ${Object.keys(this.popularLeagueTeams).length}`);
   }
 
@@ -1329,6 +1292,42 @@ class SmartTeamTranslation {
       popularTeamsCount: Object.keys(this.popularLeagueTeams).length
     };
   }
+}
+
+// Helper function to get current language (assuming it's available globally or via context)
+function getCurrentLanguage(): string {
+  // Replace with your actual logic to get the current language
+  // For example, from a context provider or browser locale
+  return typeof window !== 'undefined' && window.navigator.language ? window.navigator.language : 'en';
+}
+
+// New function to handle translation with cache lookup
+async function translateTeamNameWithCache(
+  teamName: string,
+  targetLanguage?: string,
+  context?: {
+    leagueName?: string;
+    country?: string;
+    teamId?: number;
+  }
+): Promise<string> {
+  // First try to get translation from cached team data
+  if (context?.teamId) {
+    const cachedTeamData = await getCachedTeamData(context.teamId);
+    if (cachedTeamData?.translations) {
+      const lang = targetLanguage || getCurrentLanguage();
+      const cachedTranslation = cachedTeamData.translations[lang] || 
+                               cachedTeamData.translations[lang.split('-')[0]];
+      if (cachedTranslation) {
+        console.log(`🎯 [SmartTranslation] Found cached translation for ${teamName}: ${cachedTranslation}`);
+        return cachedTranslation;
+      }
+    }
+  }
+
+  // Fallback to existing translation logic
+  // Assuming 'smartTeamTranslation' is an instance of SmartTeamTranslation
+  return smartTeamTranslation.translateTeamName(teamName, targetLanguage, context);
 }
 
 export const smartTeamTranslation = new SmartTeamTranslation();
