@@ -1540,17 +1540,27 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                     >
                       {(() => {
                         const leagueName = safeSubstring(league.name, 0) || "Unknown League";
-                        // Translate specific league names
-                        if (leagueName.toLowerCase().includes("leagues cup")) {
-                          return translateLeagueName('leagues_cup');
+                        const lowerName = leagueName.toLowerCase();
+                        
+                        // Translate specific league names based on patterns
+                        if (lowerName.includes("leagues cup") || lowerName.includes("liga mx")) {
+                          return t('leagues_cup');
                         }
-                        if (leagueName.toLowerCase().includes("friendlies")) {
-                          return translateLeagueName('friendlies_clubs');
+                        if (lowerName.includes("friendlies") || lowerName.includes("club friendlies")) {
+                          return t('friendlies_clubs');
                         }
-                        if (leagueName.toLowerCase().includes("uefa europa league")) {
-                          return translateLeagueName('uefa_europa_league');
+                        if (lowerName.includes("uefa europa league")) {
+                          return t('uefa_europa_league');
                         }
-                        return leagueName;
+                        if (lowerName.includes("uefa europa conference league") || lowerName.includes("conference league")) {
+                          return t('uefa_europa_conference_league');
+                        }
+                        if (lowerName.includes("champions league")) {
+                          return t('uefa_champions_league');
+                        }
+                        
+                        // Use the dynamic translation function for other league names
+                        return translateLeagueName(leagueName);
                       })()}
                     </span>
 
@@ -1625,7 +1635,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                       const countryName = league.country || "Unknown Country";
                       // Translate specific country names
                       if (countryName.toLowerCase() === "world") {
-                        return translateLeagueName('world');
+                        return t('world');
                       }
                       return countryName;
                     })()}

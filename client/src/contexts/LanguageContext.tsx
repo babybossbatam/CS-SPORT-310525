@@ -275,6 +275,8 @@ const translations = {
     'ended': "已結束",
     'friendlies_clubs': "球會友誼賽",
     'uefa_europa_league': "歐洲聯賽",
+    'uefa_europa_conference_league': "歐洲協會聯賽",
+    'uefa_champions_league': "歐洲冠軍聯賽",
     'bayern_münchen': "拜仁慕尼黑",
     'tottenham': "熱刺"
   },
@@ -592,6 +594,8 @@ const translations = {
     'ended': "已結束",
     'friendlies_clubs': "球會友誼賽",
     'uefa_europa_league': "歐洲聯賽",
+    'uefa_europa_conference_league': "歐洲協會聯賽",
+    'uefa_champions_league': "歐洲冠軍聯賽",
     'bayern_münchen': "拜仁慕尼黑",
     'tottenham': "熱刺"
   }
@@ -721,9 +725,9 @@ export const useTranslation = () => {
   // Dynamic league name translation function
   const translateLeagueName = (leagueName: string): string => {
     if (!leagueName) return leagueName;
-    
+
     const lowerName = leagueName.toLowerCase();
-    
+
     // Common league patterns and their translations
     const leaguePatterns = {
       'champions league': {
