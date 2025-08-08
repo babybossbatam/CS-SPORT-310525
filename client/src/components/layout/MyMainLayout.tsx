@@ -122,12 +122,12 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
       <div
         className={cn(
           "  py-4 mobile-main-layout overflow-y-auto ",
-          isMobile ? "mx-2 mt-20" : "",
+          isMobile ? "mx-2" : "",
         )}
         style={{
           marginLeft: isMobile ? "8px" : "150px",
           marginRight: isMobile ? "8px" : "150px",
-          marginTop: isMobile ? "18px" : "80px",
+          marginTop: isMobile ? "60px" : "80px",
         }}
       >
         <div
