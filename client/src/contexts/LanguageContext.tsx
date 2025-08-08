@@ -207,7 +207,7 @@ const translations = {
     'leagues_cup': "Copa de Ligas",
     'world': "Mundo",
     'ended': "Finalizado",
-    'friendlies_clubs': "Amistosos de Clubes",
+    'friendlies_clubs': "Amigables de Clubes",
     'uefa_europa_league': "Liga Europa de la UEFA",
     'uefa_europa_conference_league': "Liga Conferencia Europa de la UEFA",
     'uefa_champions_league': "Liga de Campeones de la UEFA",
@@ -292,7 +292,9 @@ const translations = {
     'copa_do_brasil': "巴西盃",
     'primera_a_colombia': "哥倫比亞甲級聯賽",
     'bayern_münchen': "拜仁慕尼黑",
-    'tottenham': "熱刺"
+    'tottenham': "熱刺",
+    'won_on_penalties': "互射十二碼獲勝",
+    'on_penalties': "互射十二碼"
   },
   'de': {
     'today_matches': "Heutige Spiele",
@@ -670,7 +672,9 @@ const translations = {
     'copa_do_brasil': "巴西盃",
     'primera_a_colombia': "哥倫比亞甲級聯賽",
     'bayern_münchen': "拜仁慕尼黑",
-    'tottenham': "熱刺"
+    'tottenham': "熱刺",
+    'won_on_penalties': "PK大戰獲勝",
+    'on_penalties': "PK大戰"
   }
 };
 
@@ -953,7 +957,7 @@ export const useTranslation = () => {
       }
     };
 
-    // Check for Chinese patterns 
+    // Check for Chinese patterns
     for (const [chinesePattern, translations] of Object.entries(chineseLeaguePatterns)) {
       if (leagueName.includes(chinesePattern)) {
         const translation = translations[currentLanguage as keyof typeof translations];
@@ -966,8 +970,8 @@ export const useTranslation = () => {
 
           // Handle specific combinations like "友誼賽 Clubs" -> "Club Friendlies"
           if (chinesePattern === '友誼賽' && leagueName.toLowerCase().includes('clubs')) {
-            result = translations[currentLanguage as keyof typeof translations] === 'Friendlies' 
-              ? 'Club Friendlies' 
+            result = translations[currentLanguage as keyof typeof translations] === 'Friendlies'
+              ? 'Club Friendlies'
               : `${translation} Clubs`;
           }
 
@@ -1253,7 +1257,7 @@ export const useTranslation = () => {
     }
 
     // Specific check for "Liga Profesional Argentina" - complete name translation
-    if (leagueName.toLowerCase().includes('liga profesional') && 
+    if (leagueName.toLowerCase().includes('liga profesional') &&
         (leagueName.toLowerCase().includes('argentina') || leagueName.includes('阿根廷'))) {
       return {
         'en': 'Liga Profesional Argentina',
@@ -1268,11 +1272,11 @@ export const useTranslation = () => {
     }
 
     // Additional pattern for exact Liga Profesional Argentina match
-    if (leagueName.toLowerCase().includes('liga profesional argentina') || 
+    if (leagueName.toLowerCase().includes('liga profesional argentina') ||
         leagueName === 'Liga Profesional Argentina') {
       return {
         'en': 'Liga Profesional Argentina',
-        'es': 'Liga Profesional Argentina', 
+        'es': 'Liga Profesional Argentina',
         'zh-hk': '阿根廷職業聯賽',
         'zh-tw': '阿根廷職業聯賽',
         'zh': '阿根廷职业联赛',

@@ -2228,7 +2228,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     ? `${penaltyHome}-${penaltyAway}`
                                     : `${penaltyAway}-${penaltyHome}`;
 
-                                  const winnerText = `${winnerTeam} ${t('won_on_penalties').replace('on penalties', `${penaltyScore} ${t('on_penalties')}`)}`;
+                                  const penaltyWonText = t('won_on_penalties');
+                                  const onPenaltiesText = t('on_penalties');
+                                  const winnerText = `${winnerTeam} ${penaltyWonText.replace('on penalties', penaltyScore + ' ' + onPenaltiesText).replace('en penales', penaltyScore + ' ' + onPenaltiesText).replace('im Elfmeterschießen', penaltyScore + ' ' + onPenaltiesText).replace('ai rigori', penaltyScore + ' ' + onPenaltiesText).replace('nos pênaltis', penaltyScore + ' ' + onPenaltiesText)}`;
 
                                   return (
                                     <div className="penalty-result-display">
