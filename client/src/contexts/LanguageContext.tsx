@@ -1467,7 +1467,7 @@ export const useTranslation = () => {
         'pt': 'Atlético de Madrid'
       },
 
-      // North American Teams (MLS, Liga MX)
+      // North American Teams (MLS)
       'Los Angeles Galaxy': {
         'en': 'Los Angeles Galaxy',
         'es': 'Los Angeles Galaxy',
@@ -1508,6 +1508,16 @@ export const useTranslation = () => {
         'it': 'New York City FC',
         'pt': 'New York City FC'
       },
+      'New York Red Bulls': {
+        'en': 'New York Red Bulls',
+        'es': 'New York Red Bulls',
+        'zh-hk': '紐約紅牛',
+        'zh-tw': '紐約紅牛',
+        'zh': '纽约红牛',
+        'de': 'New York Red Bulls',
+        'it': 'New York Red Bulls',
+        'pt': 'New York Red Bulls'
+      },
       'LAFC': {
         'en': 'LAFC',
         'es': 'LAFC',
@@ -1538,6 +1548,88 @@ export const useTranslation = () => {
         'it': 'Colorado Rapids',
         'pt': 'Colorado Rapids'
       },
+      'FC Cincinnati': {
+        'en': 'FC Cincinnati',
+        'es': 'FC Cincinnati',
+        'zh-hk': '辛辛那提',
+        'zh-tw': '辛辛那提',
+        'zh': '辛辛那提',
+        'de': 'FC Cincinnati',
+        'it': 'FC Cincinnati',
+        'pt': 'FC Cincinnati'
+      },
+      'Charlotte FC': {
+        'en': 'Charlotte FC',
+        'es': 'Charlotte FC',
+        'zh-hk': '夏洛特',
+        'zh-tw': '夏洛特',
+        'zh': '夏洛特',
+        'de': 'Charlotte FC',
+        'it': 'Charlotte FC',
+        'pt': 'Charlotte FC'
+      },
+      'Charlotte': {
+        'en': 'Charlotte',
+        'es': 'Charlotte',
+        'zh-hk': '夏洛特',
+        'zh-tw': '夏洛特',
+        'zh': '夏洛特',
+        'de': 'Charlotte',
+        'it': 'Charlotte',
+        'pt': 'Charlotte'
+      },
+      'CF Monterrey': {
+        'en': 'Monterrey',
+        'es': 'Monterrey',
+        'zh-hk': '蒙特雷',
+        'zh-tw': '蒙特雷',
+        'zh': '蒙特雷',
+        'de': 'Monterrey',
+        'it': 'Monterrey',
+        'pt': 'Monterrey'
+      },
+      'Monterrey': {
+        'en': 'Monterrey',
+        'es': 'Monterrey',
+        'zh-hk': '蒙特雷',
+        'zh-tw': '蒙特雷',
+        'zh': '蒙特雷',
+        'de': 'Monterrey',
+        'it': 'Monterrey',
+        'pt': 'Monterrey'
+      },
+      'Atlanta United': {
+        'en': 'Atlanta United',
+        'es': 'Atlanta United',
+        'zh-hk': '亞特蘭大聯',
+        'zh-tw': '亞特蘭大聯',
+        'zh': '亚特兰大联',
+        'de': 'Atlanta United',
+        'it': 'Atlanta United',
+        'pt': 'Atlanta United'
+      },
+      'Portland Timbers': {
+        'en': 'Portland Timbers',
+        'es': 'Portland Timbers',
+        'zh-hk': '波特蘭伐木者',
+        'zh-tw': '波特蘭伐木者',
+        'zh': '波特兰伐木者',
+        'de': 'Portland Timbers',
+        'it': 'Portland Timbers',
+        'pt': 'Portland Timbers'
+      },
+      'Sporting Kansas City': {
+        'en': 'Sporting Kansas City',
+        'es': 'Sporting Kansas City',
+        'zh-hk': '堪薩斯城體育會',
+        'zh-tw': '堪薩斯城體育會',
+        'zh': '堪萨斯城体育会',
+        'de': 'Sporting Kansas City',
+        'it': 'Sporting Kansas City',
+        'pt': 'Sporting Kansas City'
+      },
+
+      // Liga MX Teams
       'Cruz Azul': {
         'en': 'Cruz Azul',
         'es': 'Cruz Azul',
@@ -1568,6 +1660,16 @@ export const useTranslation = () => {
         'it': 'Chivas',
         'pt': 'Chivas'
       },
+      'Guadalajara': {
+        'en': 'Guadalajara',
+        'es': 'Guadalajara',
+        'zh-hk': '芝華士',
+        'zh-tw': '芝華士',
+        'zh': '芝华士',
+        'de': 'Guadalajara',
+        'it': 'Guadalajara',
+        'pt': 'Guadalajara'
+      },
       'Santos Laguna': {
         'en': 'Santos Laguna',
         'es': 'Santos Laguna',
@@ -1577,6 +1679,36 @@ export const useTranslation = () => {
         'de': 'Santos Laguna',
         'it': 'Santos Laguna',
         'pt': 'Santos Laguna'
+      },
+      'FC Juarez': {
+        'en': 'FC Juarez',
+        'es': 'FC Juárez',
+        'zh-hk': '華雷斯',
+        'zh-tw': '華雷斯',
+        'zh': '华雷斯',
+        'de': 'FC Juárez',
+        'it': 'FC Juárez',
+        'pt': 'FC Juárez'
+      },
+      'Tigres UANL': {
+        'en': 'Tigres',
+        'es': 'Tigres',
+        'zh-hk': '老虎',
+        'zh-tw': '老虎',
+        'zh': '老虎',
+        'de': 'Tigres',
+        'it': 'Tigres',
+        'pt': 'Tigres'
+      },
+      'Pumas UNAM': {
+        'en': 'Pumas',
+        'es': 'Pumas',
+        'zh-hk': '美洲獅',
+        'zh-tw': '美洲獅',
+        'zh': '美洲狮',
+        'de': 'Pumas',
+        'it': 'Pumas',
+        'pt': 'Pumas'
       },
 
       // South American Teams
@@ -1663,6 +1795,28 @@ export const useTranslation = () => {
     for (const [key, translations] of Object.entries(teamTranslations)) {
       if (teamName.includes(key) || key.includes(teamName)) {
         return translations[currentLanguage] || teamName;
+      }
+    }
+
+    // Intelligent pattern matching for common team name variations
+    const normalizedTeamName = teamName.toLowerCase().trim();
+    
+    // Handle FC/CF prefix variations
+    if (normalizedTeamName.startsWith('fc ') || normalizedTeamName.startsWith('cf ')) {
+      const nameWithoutPrefix = teamName.substring(3).trim();
+      if (teamTranslations[nameWithoutPrefix]) {
+        return teamTranslations[nameWithoutPrefix][currentLanguage] || teamName;
+      }
+    }
+
+    // Handle common team name suffixes
+    const suffixPatterns = ['FC', 'CF', 'SC', 'AC', 'United', 'City'];
+    for (const suffix of suffixPatterns) {
+      if (normalizedTeamName.endsWith(` ${suffix.toLowerCase()}`)) {
+        const nameWithoutSuffix = teamName.substring(0, teamName.length - suffix.length - 1).trim();
+        if (teamTranslations[nameWithoutSuffix]) {
+          return teamTranslations[nameWithoutSuffix][currentLanguage] || teamName;
+        }
       }
     }
 
