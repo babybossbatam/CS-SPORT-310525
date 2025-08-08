@@ -1538,7 +1538,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         lineHeight: "1.3",
                       }}
                     >
-                      {translateLeagueName(safeSubstring(league.name, 0) || "Unknown League")}
+                      {translateLeagueName(league.name || "Unknown League")}
                     </span>
 
                     {(() => {
@@ -1938,7 +1938,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {translateLeagueName(shortenTeamName(fixture.teams.home.name) || "Unknown Team")}
+                                {shortenTeamName(fixture.teams.home.name) || "Unknown Team"}
                               </div>
 
                               {/* Home team logo */}
@@ -2203,7 +2203,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {translateLeagueName(shortenTeamName(fixture.teams.away.name) || "Unknown Team")}
+                                {shortenTeamName(fixture.teams.away.name) || "Unknown Team"}
                               </div>
                             </div>
 
@@ -2223,8 +2223,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 if (isPenaltyMatch && hasPenaltyScores) {
                                   const winnerText =
                                     penaltyHome > penaltyAway
-                                      ? `${translateLeagueName(shortenTeamName(fixture.teams.home.name))} won ${penaltyHome}-${penaltyAway} on penalties`
-                                      : `${translateLeagueName(shortenTeamName(fixture.teams.away.name))} won ${penaltyAway}-${penaltyHome} on penalties`;
+                                      ? `${shortenTeamName(fixture.teams.home.name)} won ${penaltyHome}-${penaltyAway} on penalties`
+                                      : `${shortenTeamName(fixture.teams.away.name)} won ${penaltyAway}-${penaltyHome} on penalties`;
 
                                   return (
                                     <div className="penalty-result-display">
