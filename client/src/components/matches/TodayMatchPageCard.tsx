@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Clock } from "lucide-react";
 import { Card, CardHeader, CardContent } from "../ui/card";
@@ -7,6 +6,7 @@ import { Calendar } from "../ui/calendar";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
+import { useTranslation } from "@/lib/language"; // Assuming useTranslation is imported from here
 
 import TodaysMatchesByCountryNew from "./TodaysMatchesByCountryNew";
 import LiveMatchForAllCountry from "./LiveMatchForAllCountry";
@@ -45,8 +45,7 @@ export const TodayMatchPageCard = ({
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(getCurrentUTCDateString());
   const calendarRef = useRef<HTMLDivElement>(null);
-
-
+  const { t } = useTranslation();
 
 
   // Close calendar when clicking outside
@@ -326,7 +325,7 @@ export const TodayMatchPageCard = ({
                 className={`relative inline-flex rounded-full h-2 w-2 ${liveFilterActive ? "bg-white" : "bg-red-500"}`}
               ></span>
             </span>
-            Live
+            {t('live')}
           </button>
 
           {/* Spacer to maintain layout */}
@@ -372,7 +371,7 @@ export const TodayMatchPageCard = ({
             }`}
           >
             <Clock className="h-3.5 w-3.5" />
-            By time
+            {t('by_time')}
           </button>
         </div>
       </Card>
@@ -412,7 +411,7 @@ export const TodayMatchPageCard = ({
             onMatchCardClick={handleMatchCardClick}
             useUTCOnly={true}
           />
-          
+
           <TodaysMatchesByCountryNew
             selectedDate={selectedDate}
             liveFilterActive={liveFilterActive}

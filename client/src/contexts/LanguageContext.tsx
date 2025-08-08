@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface LanguageContextType {
@@ -129,7 +128,8 @@ const translations = {
     'live': "即時",
     'finished': "結束",
     'not_started': "未開始",
-    'featured_match': "精選比賽"
+    'featured_match': "精選比賽",
+    'by_time': "按時間"
   },
   'de': {
     'today_matches': "Heutige Spiele",
@@ -262,7 +262,8 @@ const translations = {
     'live': "即時",
     'finished': "結束",
     'not_started': "未開始",
-    'featured_match': "精選比賽"
+    'featured_match': "精選比賽",
+    'by_time': "按時間"
   }
 };
 
@@ -319,12 +320,12 @@ export const LanguageProvider: React.FC<{
     if (translations[language]) {
       setCurrentLanguage(language);
       localStorage.setItem('app-language', language);
-      
+
       // Update URL to reflect language change
       const currentPath = window.location.pathname;
       const supportedLanguages = ['en', 'es', 'zh-hk', 'zh', 'de', 'it', 'pt'];
       const pathParts = currentPath.split('/').filter(part => part);
-      
+
       let newPath;
       if (pathParts.length > 0 && supportedLanguages.includes(pathParts[0])) {
         // Replace existing language in URL
@@ -334,7 +335,7 @@ export const LanguageProvider: React.FC<{
         // Add language to URL
         newPath = `/${language}${currentPath === '/' ? '' : currentPath}`;
       }
-      
+
       // Navigate to new URL
       window.history.pushState({}, '', newPath);
       // Trigger a popstate event to update the router
@@ -382,7 +383,7 @@ export const useLanguage = () => {
 
 export const useTranslation = () => {
   const { currentLanguage, translations } = useLanguage();
-  
+
   const t = (key: string): string => {
     return translations[currentLanguage]?.[key] || translations['en']?.[key] || key;
   };
