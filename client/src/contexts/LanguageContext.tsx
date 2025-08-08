@@ -69,7 +69,11 @@ const translations = {
     'september': "September",
     'october': "October",
     'november': "November",
-    'december': "December"
+    'december': "December",
+    'popular_football_leagues': "Popular Football Leagues",
+    'leagues_cup': "Leagues Cup",
+    'world': "World",
+    'ended': "Ended"
   },
   'en-us': {
     'today_matches': "Today's Games",
@@ -128,7 +132,11 @@ const translations = {
     'september': "September",
     'october': "October",
     'november': "November",
-    'december': "December"
+    'december': "December",
+    'popular_football_leagues': "Popular Soccer Leagues",
+    'leagues_cup': "Leagues Cup",
+    'world': "World",
+    'ended': "Ended"
   },
   'es': {
     'today_matches': "Partidos de Hoy",
@@ -192,7 +200,11 @@ const translations = {
     'september': "Septiembre",
     'october': "Octubre",
     'november': "Noviembre",
-    'december': "Diciembre"
+    'december': "Diciembre",
+    'popular_football_leagues': "Ligas de Fútbol Populares",
+    'leagues_cup': "Copa de Ligas",
+    'world': "Mundial",
+    'ended': "Terminado"
   },
   'zh-hk': {
     'today_matches': "今日比賽",
@@ -256,7 +268,11 @@ const translations = {
     'september': "九月",
     'october': "十月",
     'november': "十一月",
-    'december': "十二月"
+    'december': "十二月",
+    'popular_football_leagues': "熱門足球聯賽",
+    'leagues_cup': "聯賽盃",
+    'world': "世界",
+    'ended': "已結束"
   },
   'de': {
     'today_matches': "Heutige Spiele",
@@ -311,7 +327,11 @@ const translations = {
     'september': "September",
     'october': "Oktober",
     'november': "November",
-    'december': "Dezember"
+    'december': "Dezember",
+    'popular_football_leagues': "Beliebte Fußball-Ligen",
+    'leagues_cup': "Liga-Pokal",
+    'world': "Welt",
+    'ended': "Beendet"
   },
   'it': {
     'today_matches': "Partite di Oggi",
@@ -366,7 +386,11 @@ const translations = {
     'september': "Settembre",
     'october': "Ottobre",
     'november': "Novembre",
-    'december': "Dicembre"
+    'december': "Dicembre",
+    'popular_football_leagues': "Campionati di Calcio Popolari",
+    'leagues_cup': "Coppa delle Leghe",
+    'world': "Mondo",
+    'ended': "Finito"
   },
   'pt': {
     'today_matches': "Jogos de Hoje",
@@ -421,7 +445,11 @@ const translations = {
     'september': "Setembro",
     'october': "Outubro",
     'november': "Novembro",
-    'december': "Dezembro"
+    'december': "Dezembro",
+    'popular_football_leagues': "Ligas de Futebol Populares",
+    'leagues_cup': "Copa das Ligas",
+    'world': "Mundo",
+    'ended': "Terminado"
   },
   'zh': {
     'today_matches': "今日比赛",
@@ -485,7 +513,11 @@ const translations = {
     'september': "九月",
     'october': "十月",
     'november': "十一月",
-    'december': "十二月"
+    'december': "十二月",
+    'popular_football_leagues': "热门足球联赛",
+    'leagues_cup': "联赛杯",
+    'world': "世界",
+    'ended': "已结束"
   },
   'zh-tw': {
     'today_matches': "今日比賽",
@@ -549,7 +581,11 @@ const translations = {
     'september': "九月",
     'october': "十月",
     'november': "十一月",
-    'december': "十二月"
+    'december': "十二月",
+    'popular_football_leagues': "熱門足球聯賽",
+    'leagues_cup': "聯賽盃",
+    'world': "世界",
+    'ended': "已結束"
   }
 };
 

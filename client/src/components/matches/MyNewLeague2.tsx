@@ -19,6 +19,7 @@ import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import BrandedLoading from "../common/BrandedLoading";
 import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";
+import { useTranslation } from "@/contexts/LanguageContext";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
 
@@ -126,6 +127,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   onMatchCardClick,
   match,
 }) => {
+  const { t } = useTranslation();
   // Sample match data for demonstration (similar to MyMatchdetailsScoreboard)
   const sampleMatch = {
     fixture: {
@@ -1303,9 +1305,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         {/* Header Section */}
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
           <div className="flex justify-between items-center w-full">
-            <span className="text-sm font-semibold">
-              Popular Football Leagues
-            </span>
+            <Skeleton className="h-4 w-48" />
           </div>
         </CardHeader>
 
@@ -1425,7 +1425,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         <CardHeader className="flex items-left gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
           <div className="flex justify-between  w-full">
             <span className="text-sm font-semibold">
-              Popular Football Leagues
+              {t('popular_football_leagues')}
             </span>
           </div>
         </CardHeader>
@@ -1453,7 +1453,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
         <div className="flex justify-between items-center w-full">
           <span className="text-sm font-semibold">
-            Popular Football Leagues
+            {t('popular_football_leagues')}
           </span>
         </div>
       </CardHeader>
@@ -1538,7 +1538,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         lineHeight: "1.3",
                       }}
                     >
-                      {safeSubstring(league.name, 0) || "Unknown League"}
+                      {(() => {
+                        const leagueName = safeSubstring(league.name, 0) || "Unknown League";
+                        // Translate specific league names
+                        if (leagueName.toLowerCase().includes("leagues cup")) {
+                          return t('leagues_cup');
+                        }
+                        return leagueName;
+                      })()}
                     </span>
 
                     {(() => {
@@ -1608,7 +1615,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                       lineHeight: "1.2",
                     }}
                   >
-                    {league.country || "Unknown Country"}
+                    {(() => {
+                      const countryName = league.country || "Unknown Country";
+                      // Translate specific country names
+                      if (countryName.toLowerCase() === "world") {
+                        return t('world');
+                      }
+                      return countryName;
+                    })()}
                   </span>
                 </div>
                 <div className="flex gap-2 items-center"></div>
@@ -1905,7 +1919,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       }}
                                     >
                                       {status === "FT" || isStaleFinishedMatch
-                                        ? "Ended"
+                                        ? t('ended')
                                         : status === "AET"
                                           ? "After Extra Time"
                                           : status}
@@ -2280,6 +2294,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const { hasIntersected } = useIntersectionObserver(containerRef, {
     threshold: 0.01, // Trigger even earlier
     rootMargin: '200px' // Start loading 200px before it comes into view
@@ -2301,7 +2316,9 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
         {/* Header Section Skeleton */}
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
           <div className="flex justify-between items-center w-full">
-            <Skeleton className="h-4 w-48" />
+            <span className="text-sm font-semibold">
+              {t('popular_football_leagues')}
+            </span>
           </div>
         </CardHeader>
 
