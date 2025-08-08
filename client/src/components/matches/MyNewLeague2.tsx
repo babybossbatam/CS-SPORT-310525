@@ -127,7 +127,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   onMatchCardClick,
   match,
 }) => {
-  const { t, translateLeagueName, translateTeamName } = useTranslation();
+  const { t, translateLeagueName, translateTeamName, currentLanguage } = useTranslation();
   // Sample match data for demonstration (similar to MyMatchdetailsScoreboard)
   const sampleMatch = {
     fixture: {
