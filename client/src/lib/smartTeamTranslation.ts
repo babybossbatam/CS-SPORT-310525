@@ -1153,6 +1153,134 @@ class SmartTeamTranslation {
       'zh': '恩特雷古', 'zh-hk': '恩特雷古', 'zh-tw': '恩特雷古',
       'es': "L'Entregu", 'de': "L'Entregu", 'it': "L'Entregu", 'pt': "L'Entregu"
     },
+
+    // Croatian teams from the image
+    'Sibeník': {
+      'zh': '希贝尼克', 'zh-hk': '希貝尼克', 'zh-tw': '希貝尼克',
+      'es': 'Sibeník', 'de': 'Sibeník', 'it': 'Sibeník', 'pt': 'Sibeník'
+    },
+    'Vodice': {
+      'zh': '沃迪采', 'zh-hk': '沃迪采', 'zh-tw': '沃迪采',
+      'es': 'Vodice', 'de': 'Vodice', 'it': 'Vodice', 'pt': 'Vodice'
+    },
+
+    // Dutch teams from the image
+    'Barendrecht': {
+      'zh': '巴伦德雷赫特', 'zh-hk': '巴倫德雷赫特', 'zh-tw': '巴倫德雷赫特',
+      'es': 'Barendrecht', 'de': 'Barendrecht', 'it': 'Barendrecht', 'pt': 'Barendrecht'
+    },
+    'ASWH': {
+      'zh': 'ASWH', 'zh-hk': 'ASWH', 'zh-tw': 'ASWH',
+      'es': 'ASWH', 'de': 'ASWH', 'it': 'ASWH', 'pt': 'ASWH'
+    },
+    'De Treffers': {
+      'zh': '德特雷弗斯', 'zh-hk': '德特雷弗斯', 'zh-tw': '德特雷弗斯',
+      'es': 'De Treffers', 'de': 'De Treffers', 'it': 'De Treffers', 'pt': 'De Treffers'
+    },
+    'URK': {
+      'zh': 'URK', 'zh-hk': 'URK', 'zh-tw': 'URK',
+      'es': 'URK', 'de': 'URK', 'it': 'URK', 'pt': 'URK'
+    },
+    'GVVV Veenendaal': {
+      'zh': 'GVVV费嫩达尔', 'zh-hk': 'GVVV費嫩達爾', 'zh-tw': 'GVVV費嫩達爾',
+      'es': 'GVVV Veenendaal', 'de': 'GVVV Veenendaal', 'it': 'GVVV Veenendaal', 'pt': 'GVVV Veenendaal'
+    },
+    'Merelbeke': {
+      'zh': '梅雷尔贝克', 'zh-hk': '梅雷爾貝克', 'zh-tw': '梅雷爾貝克',
+      'es': 'Merelbeke', 'de': 'Merelbeke', 'it': 'Merelbeke', 'pt': 'Merelbeke'
+    },
+    'Hoek': {
+      'zh': '霍克', 'zh-hk': '霍克', 'zh-tw': '霍克',
+      'es': 'Hoek', 'de': 'Hoek', 'it': 'Hoek', 'pt': 'Hoek'
+    },
+    'Noordwijk': {
+      'zh': '诺德韦克', 'zh-hk': '諾德韋克', 'zh-tw': '諾德韋克',
+      'es': 'Noordwijk', 'de': 'Noordwijk', 'it': 'Noordwijk', 'pt': 'Noordwijk'
+    },
+    'Rijnvogels': {
+      'zh': '莱茵鸟', 'zh-hk': '萊茵鳥', 'zh-tw': '萊茵鳥',
+      'es': 'Rijnvogels', 'de': 'Rijnvogels', 'it': 'Rijnvogels', 'pt': 'Rijnvogels'
+    },
+    'Poortugaal': {
+      'zh': '波尔图加尔', 'zh-hk': '波爾圖加爾', 'zh-tw': '波爾圖加爾',
+      'es': 'Poortugaal', 'de': 'Poortugaal', 'it': 'Poortugaal', 'pt': 'Poortugaal'
+    },
+    'Excelsior Maassluis': {
+      'zh': '马斯路易斯精英', 'zh-hk': '馬斯路易斯精英', 'zh-tw': '馬斯路易斯精英',
+      'es': 'Excelsior Maassluis', 'de': 'Excelsior Maassluis', 'it': 'Excelsior Maassluis', 'pt': 'Excelsior Maassluis'
+    },
+    'Dovo': {
+      'zh': '多沃', 'zh-hk': '多沃', 'zh-tw': '多沃',
+      'es': 'Dovo', 'de': 'Dovo', 'it': 'Dovo', 'pt': 'Dovo'
+    },
+    'Hercules': {
+      'zh': '海格力斯', 'zh-hk': '海格力斯', 'zh-tw': '海格力斯',
+      'es': 'Hércules', 'de': 'Hercules', 'it': 'Hercules', 'pt': 'Hércules'
+    },
+    'Spakenburg': {
+      'zh': '斯帕肯堡', 'zh-hk': '斯帕肯堡', 'zh-tw': '斯帕肯堡',
+      'es': 'Spakenburg', 'de': 'Spakenburg', 'it': 'Spakenburg', 'pt': 'Spakenburg'
+    },
+    'AFC Amsterdam': {
+      'zh': '阿姆斯特丹AFC', 'zh-hk': '阿姆斯特丹AFC', 'zh-tw': '阿姆斯特丹AFC',
+      'es': 'AFC Amsterdam', 'de': 'AFC Amsterdam', 'it': 'AFC Amsterdam', 'pt': 'AFC Amsterdam'
+    },
+    'Tubize': {
+      'zh': '蒂比兹', 'zh-hk': '蒂比茲', 'zh-tw': '蒂比茲',
+      'es': 'Tubize', 'de': 'Tubize', 'it': 'Tubize', 'pt': 'Tubize'
+    },
+    'Gemert': {
+      'zh': '格默特', 'zh-hk': '格默特', 'zh-tw': '格默特',
+      'es': 'Gemert', 'de': 'Gemert', 'it': 'Gemert', 'pt': 'Gemert'
+    },
+    'Wittenhorst': {
+      'zh': '威滕霍斯特', 'zh-hk': '威滕霍斯特', 'zh-tw': '威滕霍斯特',
+      'es': 'Wittenhorst', 'de': 'Wittenhorst', 'it': 'Wittenhorst', 'pt': 'Wittenhorst'
+    },
+
+    // Belgian teams
+    'AZ Picerno': {
+      'zh': 'AZ皮切尔诺', 'zh-hk': 'AZ皮切爾諾', 'zh-tw': 'AZ皮切爾諾',
+      'es': 'AZ Picerno', 'de': 'AZ Picerno', 'it': 'AZ Picerno', 'pt': 'AZ Picerno'
+    },
+
+    // Macedonian teams
+    'Osogovo': {
+      'zh': '奥索戈沃', 'zh-hk': '奧索戈沃', 'zh-tw': '奧索戈沃',
+      'es': 'Osogovo', 'de': 'Osogovo', 'it': 'Osogovo', 'pt': 'Osogovo'
+    },
+    'Detonit Plachkovica': {
+      'zh': '德托尼特普拉奇科维察', 'zh-hk': '德托尼特普拉奇科維察', 'zh-tw': '德托尼特普拉奇科維察',
+      'es': 'Detonit Plachkovica', 'de': 'Detonit Plachkovica', 'it': 'Detonit Plachkovica', 'pt': 'Detonit Plachkovica'
+    },
+    'Sloga Vinica': {
+      'zh': '斯洛加维尼察', 'zh-hk': '斯洛加維尼察', 'zh-tw': '斯洛加維尼察',
+      'es': 'Sloga Vinica', 'de': 'Sloga Vinica', 'it': 'Sloga Vinica', 'pt': 'Sloga Vinica'
+    },
+    'Pobeda Valandovo': {
+      'zh': '瓦兰多沃胜利', 'zh-hk': '瓦蘭多沃勝利', 'zh-tw': '瓦蘭多沃勝利',
+      'es': 'Pobeda Valandovo', 'de': 'Pobeda Valandovo', 'it': 'Pobeda Valandovo', 'pt': 'Pobeda Valandovo'
+    },
+
+    // Additional German teams
+    'HHC': {
+      'zh': 'HHC', 'zh-hk': 'HHC', 'zh-tw': 'HHC',
+      'es': 'HHC', 'de': 'HHC', 'it': 'HHC', 'pt': 'HHC'
+    },
+    "Excelsior '31": {
+      'zh': '精英31', 'zh-hk': '精英31', 'zh-tw': '精英31',
+      'es': "Excelsior '31", 'de': "Excelsior '31", 'it': "Excelsior '31", 'pt': "Excelsior '31"
+    },
+
+    // Additional teams for common patterns
+    'Spouwen-Mopertingen': {
+      'zh': '斯波文莫珀廷根', 'zh-hk': '斯波文莫珀廷根', 'zh-tw': '斯波文莫珀廷根',
+      'es': 'Spouwen-Mopertingen', 'de': 'Spouwen-Mopertingen', 'it': 'Spouwen-Mopertingen', 'pt': 'Spouwen-Mopertingen'
+    },
+    'Rochefort': {
+      'zh': '罗什福尔', 'zh-hk': '羅什福爾', 'zh-tw': '羅什福爾',
+      'es': 'Rochefort', 'de': 'Rochefort', 'it': 'Rochefort', 'pt': 'Rochefort'
+    },
     'Marino de Luanco': {
       'zh': '马里诺德卢安科', 'zh-hk': '馬里諾德盧安科', 'zh-tw': '馬里諾德盧安科',
       'es': 'Marino de Luanco', 'de': 'Marino de Luanco', 'it': 'Marino de Luanco', 'pt': 'Marino de Luanco'
@@ -1650,7 +1778,7 @@ class SmartTeamTranslation {
     }
   }
 
-  // Learn a new team and add basic translations
+  // Enhanced team learning with better pattern detection
   private learnNewTeam(teamName: string, leagueInfo?: any): boolean {
     const normalizedName = teamName.trim();
     
@@ -1659,99 +1787,219 @@ class SmartTeamTranslation {
       return false; // Already exists
     }
 
-    // Don't learn teams with suspicious patterns
+    // Enhanced skip learning logic
     if (this.shouldSkipLearning(normalizedName)) {
       return false;
     }
 
-    // Create basic translation entry
-    const basicTranslation = this.createBasicTranslation(normalizedName, leagueInfo);
-    this.popularLeagueTeams[normalizedName] = basicTranslation;
+    // Create intelligent translation entry
+    const smartTranslation = this.createSmartTranslation(normalizedName, leagueInfo);
+    this.popularLeagueTeams[normalizedName] = smartTranslation;
 
-    console.log(`📚 [SmartTranslation] Learned new team: "${normalizedName}" in league: ${leagueInfo?.name || 'Unknown'}`);
+    console.log(`📚 [SmartTranslation] Learned new team: "${normalizedName}" (${smartTranslation.zh}) in league: ${leagueInfo?.name || 'Unknown'}`);
     return true;
   }
 
-  // Check if we should skip learning this team
+  // Enhanced skip learning logic
   private shouldSkipLearning(teamName: string): boolean {
     const skipPatterns = [
-      /\b(ii|2|b|reserves?|youth|u\d+|junior)\b/i,
-      /\b(academy|development|training)\b/i,
-      /^.{1,2}$/, // Too short
+      /\b(ii|2|b|reserves?|youth|u\d+|junior|academy|development|training)\b/i,
+      /^.{1,2}$/, // Too short (except for teams like "FC")
       /^\d+$/, // Only numbers
-      /[^\w\s\-'\.]/g // Contains special characters
+      /^[^a-zA-Z]*$/, // No letters at all
+      /\b(test|demo|sample|example)\b/i // Test data
     ];
+
+    // Allow certain short but valid team names
+    const allowedShortNames = ['FC', 'AC', 'AS', 'CF', 'NK', 'FK', 'SC', 'CD', 'SD', 'AD'];
+    if (teamName.length <= 3 && allowedShortNames.includes(teamName.toUpperCase())) {
+      return false;
+    }
 
     return skipPatterns.some(pattern => pattern.test(teamName));
   }
 
-  // Create basic translation for a new team
-  private createBasicTranslation(teamName: string, leagueInfo?: any): TeamTranslation[string] {
-    // For most teams, we'll use the original name as fallback
-    // But we can add some smart rules based on league/country
-    
+  // Create intelligent translation for a new team
+  private createSmartTranslation(teamName: string, leagueInfo?: any): TeamTranslation[string] {
     let chineseTranslation = teamName; // Default fallback
+    let spanishTranslation = teamName;
+    let germanTranslation = teamName;
+    let italianTranslation = teamName;
+    let portugueseTranslation = teamName;
     
-    // Add some intelligent Chinese translation rules
+    // Apply intelligent translation rules based on country/league
     if (leagueInfo?.country) {
       chineseTranslation = this.generateSmartChineseTranslation(teamName, leagueInfo.country);
+      
+      // Generate other language variations if needed
+      if (leagueInfo.country === 'Spain' && teamName.includes('Athletic')) {
+        spanishTranslation = teamName.replace('Athletic', 'Athletic Club');
+      }
+      
+      if (leagueInfo.country === 'Germany' && teamName.includes('FC')) {
+        germanTranslation = teamName; // Keep German names as-is typically
+      }
     }
 
     return {
       'zh': chineseTranslation,
       'zh-hk': chineseTranslation,
       'zh-tw': chineseTranslation,
-      'es': teamName,
-      'de': teamName,
-      'it': teamName,
-      'pt': teamName
+      'es': spanishTranslation,
+      'de': germanTranslation,
+      'it': italianTranslation,
+      'pt': portugueseTranslation
     };
   }
 
-  // Generate intelligent Chinese translations based on patterns
+  // Enhanced intelligent Chinese translations with comprehensive patterns
   private generateSmartChineseTranslation(teamName: string, country: string): string {
-    // Common translation patterns for different countries
+    // Comprehensive translation patterns for different countries
     const translationRules: Record<string, Record<string, string>> = {
       'England': {
-        'United': '联',
-        'City': '城',
-        'Town': '镇',
-        'FC': '足球俱乐部',
-        'Athletic': '竞技',
-        'Rovers': '流浪者'
+        'United': '联', 'City': '城', 'Town': '镇', 'FC': '足球俱乐部',
+        'Athletic': '竞技', 'Rovers': '流浪者', 'Albion': '阿尔比恩',
+        'Villa': '维拉', 'County': '郡', 'Wednesday': '周三', 'Forest': '森林'
       },
       'Spain': {
-        'Real': '皇家',
-        'Club': '俱乐部',
-        'Atletico': '竞技',
-        'Deportivo': '体育'
+        'Real': '皇家', 'Club': '俱乐部', 'Atletico': '竞技', 'Deportivo': '体育',
+        'CD': '体育俱乐部', 'CF': '足球俱乐部', 'SD': '体育会', 'AD': '体育会'
       },
       'Germany': {
-        'Bayern': '拜仁',
-        'Borussia': '多特',
-        'Eintracht': '法兰克福',
-        'Werder': '云达'
+        'Bayern': '拜仁', 'Borussia': '多特', 'Eintracht': '法兰克福',
+        'Werder': '云达', 'VfL': '足球俱乐部', 'VfB': '足球运动俱乐部',
+        'FC': '足球俱乐部', 'TSV': '体育俱乐部', 'SC': '体育俱乐部'
       },
       'Italy': {
-        'Juventus': '尤文图斯',
-        'Inter': '国际',
-        'Milan': '米兰',
-        'Roma': '罗马'
+        'Juventus': '尤文图斯', 'Inter': '国际', 'Milan': '米兰', 'Roma': '罗马',
+        'AC': '足球俱乐部', 'FC': '足球俱乐部', 'Calcio': '足球'
+      },
+      'Netherlands': {
+        'FC': '足球俱乐部', 'PSV': 'PSV', 'Ajax': '阿贾克斯',
+        'VVV': 'VVV', 'AZ': 'AZ', 'Go Ahead': '前进',
+        'De Graafschap': '德拉夫斯哈普', 'Vitesse': '维特斯'
+      },
+      'Belgium': {
+        'FC': '足球俱乐部', 'KRC': '皇家俱乐部', 'RSC': '皇家体育俱乐部',
+        'Standard': '标准', 'Club': '俱乐部', 'Royal': '皇家'
+      },
+      'Croatia': {
+        'NK': '足球俱乐部', 'HNK': '克罗地亚足球俱乐部', 'RNK': '地区足球俱乐部',
+        'Dinamo': '迪纳摩', 'Hajduk': '哈伊杜克', 'Rijeka': '里耶卡'
+      },
+      'France': {
+        'FC': '足球俱乐部', 'AS': '体育协会', 'RC': '赛车俱乐部',
+        'Olympique': '奥林匹克', 'Saint': '圣', 'Stade': '体育场'
+      },
+      'Portugal': {
+        'FC': '足球俱乐部', 'SC': '体育俱乐部', 'CD': '体育俱乐部',
+        'Sporting': '体育', 'Academica': '学院', 'Boavista': '博阿维斯塔'
       }
     };
 
+    // City-based translations for common European cities
+    const cityTranslations: Record<string, string> = {
+      // Dutch cities
+      'Amsterdam': '阿姆斯特丹', 'Rotterdam': '鹿特丹', 'Utrecht': '乌得勒支',
+      'Eindhoven': '埃因霍温', 'Tilburg': '蒂尔堡', 'Groningen': '格罗宁根',
+      'Breda': '布雷达', 'Nijmegen': '奈梅亨', 'Haarlem': '哈勒姆',
+      'Arnhem': '阿纳姆', 'Zwolle': '兹沃勒', 'Enschede': '恩斯赫德',
+      
+      // Belgian cities
+      'Antwerp': '安特卫普', 'Gent': '根特', 'Charleroi': '沙勒罗瓦',
+      'Liege': '列日', 'Bruges': '布鲁日', 'Namur': '那慕尔',
+      
+      // Croatian cities
+      'Zagreb': '萨格勒布', 'Split': '斯普利特', 'Rijeka': '里耶卡',
+      'Osijek': '奥西耶克', 'Zadar': '扎达尔', 'Pula': '普拉',
+      
+      // German cities (additional)
+      'Mönchengladbach': '门兴格拉德巴赫', 'Gelsenkirchen': '盖尔森基兴',
+      'Kaiserslautern': '凯泽斯劳滕', 'Karlsruhe': '卡尔斯鲁厄'
+    };
+
     let translation = teamName;
-    const rules = translationRules[country];
     
+    // Apply country-specific rules
+    const rules = translationRules[country];
     if (rules) {
-      Object.entries(rules).forEach(([english, chinese]) => {
-        if (teamName.includes(english)) {
-          translation = translation.replace(english, chinese);
-        }
+      Object.entries(rules).forEach(([original, chinese]) => {
+        const regex = new RegExp(`\\b${original}\\b`, 'gi');
+        translation = translation.replace(regex, chinese);
       });
     }
 
+    // Apply city-based translations
+    Object.entries(cityTranslations).forEach(([city, chinese]) => {
+      if (translation.toLowerCase().includes(city.toLowerCase())) {
+        const regex = new RegExp(`\\b${city}\\b`, 'gi');
+        translation = translation.replace(regex, chinese);
+      }
+    });
+
+    // Smart pattern recognition for unknown teams
+    if (translation === teamName) {
+      translation = this.applySmartPatterns(teamName, country);
+    }
+
     return translation;
+  }
+
+  // Apply intelligent patterns for unknown teams
+  private applySmartPatterns(teamName: string, country: string): string {
+    // If it's a very short name (likely acronym), keep original
+    if (teamName.length <= 3) {
+      return teamName;
+    }
+
+    // Pattern: City + suffix (like "Sibeník", "Vodice")
+    if (country === 'Croatia' && teamName.length >= 4 && teamName.length <= 12) {
+      // Simple transliteration for Croatian cities/teams
+      const croatianMap: Record<string, string> = {
+        'ć': '奇', 'č': '奇', 'š': '什', 'ž': '日', 'đ': '德',
+        'Sibeník': '希贝尼克', 'Vodice': '沃迪采', 'Osijek': '奥西耶克',
+        'Varaždin': '瓦拉日丁', 'Karlovac': '卡尔洛瓦茨'
+      };
+      
+      for (const [croatian, chinese] of Object.entries(croatianMap)) {
+        if (teamName.includes(croatian)) {
+          return teamName.replace(croatian, chinese);
+        }
+      }
+    }
+
+    // Pattern: Dutch teams (often end with specific suffixes)
+    if (country === 'Netherlands') {
+      const dutchCities: Record<string, string> = {
+        'Barendrecht': '巴伦德雷赫特', 'Merelbeke': '梅雷尔贝克',
+        'Noordwijk': '诺德韦克', 'Spakenburg': '斯帕肯堡',
+        'Katwijk': '卡特韦克', 'Poortugaal': '波尔图加尔'
+      };
+      
+      if (dutchCities[teamName]) {
+        return dutchCities[teamName];
+      }
+    }
+
+    // Pattern: Abbreviated teams (URK, ASWH, etc.)
+    if (teamName.length <= 5 && teamName.match(/^[A-Z]+$/)) {
+      return teamName; // Keep acronyms as is
+    }
+
+    // Fallback: Simple phonetic approximation for common European sounds
+    let phonetic = teamName;
+    const phoneticMap: Record<string, string> = {
+      'ijk': '克', 'oek': '克', 'burg': '堡', 'drecht': '德雷赫特',
+      'beke': '贝克', 'wijk': '韦克', 'stad': '斯塔德', 'hoven': '霍芬'
+    };
+
+    Object.entries(phoneticMap).forEach(([pattern, chinese]) => {
+      if (phonetic.toLowerCase().includes(pattern)) {
+        phonetic = phonetic.replace(new RegExp(pattern, 'gi'), chinese);
+      }
+    });
+
+    return phonetic !== teamName ? phonetic : teamName;
   }
 
   // Smart translation with fallbacks and learning
