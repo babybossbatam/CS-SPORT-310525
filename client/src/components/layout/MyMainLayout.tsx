@@ -36,7 +36,9 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
   const { isMobile } = useDeviceInfo();
-  const { t } = useTranslation();
+  const { t, currentLanguage: translationLanguage } = useTranslation();
+  
+  console.log(`🌐 [MyMainLayout] Translation language: ${translationLanguage}`);
 
   // Optimized UTC date filtering with memoization
   const filteredFixtures = useMemo(() => {

@@ -127,34 +127,27 @@ export const TodayMatchPageCard = ({
     const yesterday = format(subDays(parseISO(today), 1), "yyyy-MM-dd");
     const tomorrow = format(addDays(parseISO(today), 1), "yyyy-MM-dd");
 
+    console.log(`🌍 [DateDisplay] Current language: ${currentLanguage}, Selected date: ${selectedDate}`);
+
     if (selectedDate === today) {
-      const todayText = t('today_matches');
-      console.log(`🌐 Language: ${currentLanguage}, Today text: "${todayText}"`);
-      return todayText;
+      const translation = t('today_matches');
+      console.log(`📅 [DateDisplay] Today translation for ${currentLanguage}: ${translation}`);
+      return translation;
     } else if (selectedDate === yesterday) {
-      return t('yesterday_matches');
+      const translation = t('yesterday_matches');
+      console.log(`📅 [DateDisplay] Yesterday translation for ${currentLanguage}: ${translation}`);
+      return translation;
     } else if (selectedDate === tomorrow) {
-      return t('tomorrow_matches');
+      const translation = t('tomorrow_matches');
+      console.log(`📅 [DateDisplay] Tomorrow translation for ${currentLanguage}: ${translation}`);
+      return translation;
     } else {
-      // For any other date, show the formatted date with translation
+      // Format the date based on language
       const date = parseISO(selectedDate);
-      const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-      const monthNames = [
-        'january', 'february', 'march', 'april', 'may', 'june',
-        'july', 'august', 'september', 'october', 'november', 'december'
-      ];
-      
-      const dayName = t(dayNames[date.getDay()]);
-      const monthName = t(monthNames[date.getMonth()]);
-      const dayOfMonth = date.getDate();
-      
-      // Format based on language - Chinese languages don't use ordinal suffixes
       if (currentLanguage.startsWith('zh')) {
-        return `${monthName}${dayOfMonth}日 ${dayName}`;
+        return format(date, 'M月d日');
       } else {
-        // Format as "Monday, 6th August" equivalent in the target language
-        const ordinalSuffix = getOrdinalSuffix(dayOfMonth);
-        return `${dayName}, ${dayOfMonth}${dayOfMonth} ${monthName}`;
+        return format(date, 'MMM d');
       }
     }
   };
