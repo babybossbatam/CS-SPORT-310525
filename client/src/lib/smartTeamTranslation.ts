@@ -452,6 +452,96 @@ class SmartTeamTranslation {
     'Marino de Luanco': {
       'zh': '马里诺德卢安科', 'zh-hk': '馬里諾德盧安科', 'zh-tw': '馬里諾德盧安科',
       'es': 'Marino de Luanco', 'de': 'Marino de Luanco', 'it': 'Marino de Luanco', 'pt': 'Marino de Luanco'
+    },
+
+    // European Conference League / Europa League teams
+    'FCSB': {
+      'zh': '布加勒斯特星队', 'zh-hk': '布加勒斯特星隊', 'zh-tw': '布加勒斯特星隊',
+      'es': 'FCSB', 'de': 'FCSB', 'it': 'FCSB', 'pt': 'FCSB'
+    },
+    'Drita': {
+      'zh': '德里塔', 'zh-hk': '德里塔', 'zh-tw': '德里塔',
+      'es': 'Drita', 'de': 'Drita', 'it': 'Drita', 'pt': 'Drita'
+    },
+    'Servette FC': {
+      'zh': '塞尔维特', 'zh-hk': '塞爾維特', 'zh-tw': '塞爾維特',
+      'es': 'Servette FC', 'de': 'Servette FC', 'it': 'Servette FC', 'pt': 'Servette FC'
+    },
+    'Servette': {
+      'zh': '塞尔维特', 'zh-hk': '塞爾維特', 'zh-tw': '塞爾維特',
+      'es': 'Servette', 'de': 'Servette', 'it': 'Servette', 'pt': 'Servette'
+    },
+    'Utrecht': {
+      'zh': '乌德勒支', 'zh-hk': '烏德勒支', 'zh-tw': '烏德勒支',
+      'es': 'Utrecht', 'de': 'Utrecht', 'it': 'Utrecht', 'pt': 'Utrecht'
+    },
+    'FC Utrecht': {
+      'zh': '乌德勒支', 'zh-hk': '烏德勒支', 'zh-tw': '烏德勒支',
+      'es': 'FC Utrecht', 'de': 'FC Utrecht', 'it': 'FC Utrecht', 'pt': 'FC Utrecht'
+    },
+    'Zrinjski': {
+      'zh': '泽林斯基', 'zh-hk': '澤林斯基', 'zh-tw': '澤林斯基',
+      'es': 'Zrinjski', 'de': 'Zrinjski', 'it': 'Zrinjski', 'pt': 'Zrinjski'
+    },
+    'Breidablik': {
+      'zh': '布雷达布利克', 'zh-hk': '布雷達布利克', 'zh-tw': '布雷達布利克',
+      'es': 'Breidablik', 'de': 'Breidablik', 'it': 'Breidablik', 'pt': 'Breidablik'
+    },
+    'Panathinaikos': {
+      'zh': '帕纳辛奈科斯', 'zh-hk': '帕納辛奈科斯', 'zh-tw': '帕納辛奈科斯',
+      'es': 'Panathinaikos', 'de': 'Panathinaikos', 'it': 'Panathinaikos', 'pt': 'Panathinaikos'
+    },
+    'Shakhtar Donetsk': {
+      'zh': '顿涅茨克矿工', 'zh-hk': '頓涅茨克礦工', 'zh-tw': '頓涅茨克礦工',
+      'es': 'Shakhtar Donetsk', 'de': 'Shakhtar Donetsk', 'it': 'Shakhtar Donetsk', 'pt': 'Shakhtar Donetsk'
+    },
+    'PAOK': {
+      'zh': 'PAOK', 'zh-hk': 'PAOK', 'zh-tw': 'PAOK',
+      'es': 'PAOK', 'de': 'PAOK', 'it': 'PAOK', 'pt': 'PAOK'
+    },
+    'Wolfsberger AC': {
+      'zh': '沃尔夫斯贝格', 'zh-hk': '沃爾夫斯貝格', 'zh-tw': '沃爾夫斯貝格',
+      'es': 'Wolfsberger AC', 'de': 'Wolfsberger AC', 'it': 'Wolfsberger AC', 'pt': 'Wolfsberger AC'
+    },
+    'BK Hacken': {
+      'zh': '哈肯', 'zh-hk': '哈肯', 'zh-tw': '哈肯',
+      'es': 'BK Häcken', 'de': 'BK Häcken', 'it': 'BK Häcken', 'pt': 'BK Häcken'
+    },
+    'Brann': {
+      'zh': '布兰', 'zh-hk': '布蘭', 'zh-tw': '布蘭',
+      'es': 'Brann', 'de': 'Brann', 'it': 'Brann', 'pt': 'Brann'
+    },
+    'AEK Larnaca': {
+      'zh': '拉纳卡AEK', 'zh-hk': '拉納卡AEK', 'zh-tw': '拉納卡AEK',
+      'es': 'AEK Larnaca', 'de': 'AEK Larnaca', 'it': 'AEK Larnaca', 'pt': 'AEK Larnaca'
+    },
+    'Legia Warszawa': {
+      'zh': '华沙莱吉亚', 'zh-hk': '華沙萊吉亞', 'zh-tw': '華沙萊吉亞',
+      'es': 'Legia Varsovia', 'de': 'Legia Warschau', 'it': 'Legia Varsavia', 'pt': 'Legia Varsóvia'
+    },
+    'CFR 1907 Cluj': {
+      'zh': '克卢日', 'zh-hk': '克盧日', 'zh-tw': '克盧日',
+      'es': 'CFR Cluj', 'de': 'CFR Cluj', 'it': 'CFR Cluj', 'pt': 'CFR Cluj'
+    },
+    'SC Braga': {
+      'zh': '布拉加', 'zh-hk': '布拉加', 'zh-tw': '布拉加',
+      'es': 'SC Braga', 'de': 'SC Braga', 'it': 'SC Braga', 'pt': 'SC Braga'
+    },
+    'Lincoln Red Imps FC': {
+      'zh': '林肯红魔', 'zh-hk': '林肯紅魔', 'zh-tw': '林肯紅魔',
+      'es': 'Lincoln Red Imps FC', 'de': 'Lincoln Red Imps FC', 'it': 'Lincoln Red Imps FC', 'pt': 'Lincoln Red Imps FC'
+    },
+    'FC Noah': {
+      'zh': '诺亚', 'zh-hk': '諾亞', 'zh-tw': '諾亞',
+      'es': 'FC Noah', 'de': 'FC Noah', 'it': 'FC Noah', 'pt': 'FC Noah'
+    },
+    'Fredrikstad': {
+      'zh': '弗雷德里克斯塔', 'zh-hk': '弗雷德里克斯塔', 'zh-tw': '弗雷德里克斯塔',
+      'es': 'Fredrikstad', 'de': 'Fredrikstad', 'it': 'Fredrikstad', 'pt': 'Fredrikstad'
+    },
+    'FC Midtjylland': {
+      'zh': '中日德兰', 'zh-hk': '中日德蘭', 'zh-tw': '中日德蘭',
+      'es': 'FC Midtjylland', 'de': 'FC Midtjylland', 'it': 'FC Midtjylland', 'pt': 'FC Midtjylland'
     }
   };
 

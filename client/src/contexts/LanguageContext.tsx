@@ -773,11 +773,11 @@ export const LanguageProvider: React.FC<{
       try {
         console.log(`🤖 [LanguageContext] Initializing smart team translation for language: ${currentLanguage}`);
         await smartTeamTranslation.initializeTeamTranslations(currentLanguage);
-        
+
         // Log translation statistics
         const stats = smartTeamTranslation.getTranslationStats();
         console.log(`✅ [LanguageContext] Smart team translation initialized successfully for ${currentLanguage}:`, stats);
-        
+
         // Test translation with sample teams
         const testTeams = ['Cruz Azul', 'Colorado Rapids', 'Manchester United', 'Real Madrid'];
         testTeams.forEach(team => {
@@ -1332,7 +1332,7 @@ export const useTranslation = () => {
     // First try the smart translation system
     const smartTranslation = smartTeamTranslation.translateTeamName(teamName, currentLanguage);
     console.log(`🤖 [LanguageContext] Smart translation result: "${teamName}" -> "${smartTranslation}"`);
-    
+
     if (smartTranslation !== teamName) {
       console.log(`✅ [LanguageContext] Using smart translation: "${smartTranslation}"`);
       return smartTranslation;
@@ -1402,6 +1402,66 @@ export const useTranslation = () => {
         'de': 'Barcelona',
         'it': 'Barcelona',
         'pt': 'Barcelona'
+      },
+      'Newcastle': {
+        'zh': '纽卡斯尔', 'zh-hk': '紐卡素', 'zh-tw': '紐卡斯爾',
+        'es': 'Newcastle', 'de': 'Newcastle', 'it': 'Newcastle', 'pt': 'Newcastle'
+      },
+      'fcsb': {
+        'zh': '布加勒斯特星队', 'zh-hk': '布加勒斯特星隊', 'zh-tw': '布加勒斯特星隊',
+        'es': 'FCSB', 'de': 'FCSB', 'it': 'FCSB', 'pt': 'FCSB'
+      },
+      'drita': {
+        'zh': '德里塔', 'zh-hk': '德里塔', 'zh-tw': '德里塔',
+        'es': 'Drita', 'de': 'Drita', 'it': 'Drita', 'pt': 'Drita'
+      },
+      'servette fc': {
+        'zh': '塞尔维特', 'zh-hk': '塞爾維特', 'zh-tw': '塞爾維特',
+        'es': 'Servette FC', 'de': 'Servette FC', 'it': 'Servette FC', 'pt': 'Servette FC'
+      },
+      'utrecht': {
+        'zh': '乌德勒支', 'zh-hk': '烏德勒支', 'zh-tw': '烏德勒支',
+        'es': 'Utrecht', 'de': 'Utrecht', 'it': 'Utrecht', 'pt': 'Utrecht'
+      },
+      'zrinjski': {
+        'zh': '泽林斯基', 'zh-hk': '澤林斯基', 'zh-tw': '澤林斯基',
+        'es': 'Zrinjski', 'de': 'Zrinjski', 'it': 'Zrinjski', 'pt': 'Zrinjski'
+      },
+      'breidablik': {
+        'zh': '布雷达布利克', 'zh-hk': '布雷達布利克', 'zh-tw': '布雷达布利克',
+        'es': 'Breidablik', 'de': 'Breidablik', 'it': 'Breidablik', 'pt': 'Breidablik'
+      },
+      'panathinaikos': {
+        'zh': '帕纳辛奈科斯', 'zh-hk': '帕納辛奈科斯', 'zh-tw': '帕納辛奈科斯',
+        'es': 'Panathinaikos', 'de': 'Panathinaikos', 'it': 'Panathinaikos', 'pt': 'Panathinaikos'
+      },
+      'shakhtar donetsk': {
+        'zh': '顿涅茨克矿工', 'zh-hk': '頓涅茨克礦工', 'zh-tw': '頓涅茨克礦工',
+        'es': 'Shakhtar Donetsk', 'de': 'Shakhtar Donetsk', 'it': 'Shakhtar Donetsk', 'pt': 'Shakhtar Donetsk'
+      },
+      'paok': {
+        'zh': 'PAOK', 'zh-hk': 'PAOK', 'zh-tw': 'PAOK',
+        'es': 'PAOK', 'de': 'PAOK', 'it': 'PAOK', 'pt': 'PAOK'
+      },
+      'wolfsberger ac': {
+        'zh': '沃尔夫斯贝格', 'zh-hk': '沃爾夫斯貝格', 'zh-tw': '沃爾夫斯貝格',
+        'es': 'Wolfsberger AC', 'de': 'Wolfsberger AC', 'it': 'Wolfsberger AC', 'pt': 'Wolfsberger AC'
+      },
+      'bk hacken': {
+        'zh': '哈肯', 'zh-hk': '哈肯', 'zh-tw': '哈肯',
+        'es': 'BK Häcken', 'de': 'BK Häcken', 'it': 'BK Häcken', 'pt': 'BK Häcken'
+      },
+      'brann': {
+        'zh': '布兰', 'zh-hk': '布蘭', 'zh-tw': '布蘭',
+        'es': 'Brann', 'de': 'Brann', 'it': 'Brann', 'pt': 'Brann'
+      },
+      'aek larnaca': {
+        'zh': '拉纳卡AEK', 'zh-hk': '拉納卡AEK', 'zh-tw': '拉納卡AEK',
+        'es': 'AEK Larnaca', 'de': 'AEK Larnaca', 'it': 'AEK Larnaca', 'pt': 'AEK Larnaca'
+      },
+      'legia warszawa': {
+        'zh': '华沙莱吉亚', 'zh-hk': '華沙萊吉亞', 'zh-tw': '華沙萊吉亞',
+        'es': 'Legia Varsovia', 'de': 'Legia Warschau', 'it': 'Legia Varsavia', 'pt': 'Legia Varsóvia'
       }
     };
 
