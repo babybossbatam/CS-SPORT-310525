@@ -61,6 +61,13 @@ export const TodayMatchPageCard = ({
     return `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
   };
 
+  // Get translated weekday names
+  const getWeekdayNames = () => {
+    return [
+      t('sun'), t('mon'), t('tue'), t('wed'), t('thu'), t('fri'), t('sat')
+    ];
+  };
+
 
   // Close calendar when clicking outside
   useEffect(() => {
@@ -272,6 +279,10 @@ export const TodayMatchPageCard = ({
                   className="w-full"
                   formatters={{
                     formatCaption: formatCaption,
+                    formatWeekdayName: (date: Date) => {
+                      const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+                      return t(dayKeys[date.getDay()]);
+                    }
                   }}
                   labels={{
                     labelMonthDropdown: () => t('month'),
@@ -282,6 +293,15 @@ export const TodayMatchPageCard = ({
                     labelWeekday: (date) => {
                       const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
                       return t(dayKeys[date.getDay()]);
+                    }
+                  }}
+                  weekStartsOn={0}
+                  locale={{
+                    localize: {
+                      day: (n: number) => {
+                        const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+                        return t(dayKeys[n]);
+                      }
                     }
                   }}
                   classNames={{
