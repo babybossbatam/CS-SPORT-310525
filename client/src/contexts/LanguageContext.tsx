@@ -764,11 +764,13 @@ export const LanguageProvider: React.FC<{
     }
   };
 
-  // Initialize smart translations when language changes
+  // Initialize translation system on language change
   useEffect(() => {
-    if (currentLanguage) {
-      smartTeamTranslation.initializeTeamTranslations(currentLanguage);
-    }
+    console.log(`🌐 [LanguageContext] Language changed to: ${currentLanguage}`);
+
+    // Initialize smart team translation system
+    console.log(`🤖 [LanguageContext] Initializing smart team translation for language: ${currentLanguage}`);
+    smartTeamTranslation.initializeTeamTranslations(currentLanguage);
   }, [currentLanguage]);
 
   const contextValue = {
