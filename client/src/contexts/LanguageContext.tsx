@@ -2035,6 +2035,1428 @@ export const useTranslation = () => {
         'pt': 'Al Nassr'
       },
 
+      // Extended European Teams
+      'Olympiakos': {
+        'en': 'Olympiakos',
+        'es': 'Olympiakos',
+        'zh-hk': '奧林比亞高斯',
+        'zh-tw': '奧林匹亞科斯',
+        'zh': '奥林匹亚科斯',
+        'de': 'Olympiakos',
+        'it': 'Olympiakos',
+        'pt': 'Olympiakos'
+      },
+      'Olympiakos Piraeus': {
+        'en': 'Olympiakos Piraeus',
+        'es': 'Olympiakos Piraeus',
+        'zh-hk': '奧林比亞高斯',
+        'zh-tw': '奧林匹亞科斯',
+        'zh': '奥林匹亚科斯',
+        'de': 'Olympiakos Piraeus',
+        'it': 'Olympiakos Piraeus',
+        'pt': 'Olympiakos Piraeus'
+      },
+      'Panathinaikos': {
+        'en': 'Panathinaikos',
+        'es': 'Panathinaikos',
+        'zh-hk': '柏拿芬拿高斯',
+        'zh-tw': '帕納辛奈科斯',
+        'zh': '帕纳辛奈科斯',
+        'de': 'Panathinaikos',
+        'it': 'Panathinaikos',
+        'pt': 'Panathinaikos'
+      },
+      'AEK Athens': {
+        'en': 'AEK Athens',
+        'es': 'AEK Atenas',
+        'zh-hk': 'AEK雅典',
+        'zh-tw': 'AEK雅典',
+        'zh': 'AEK雅典',
+        'de': 'AEK Athen',
+        'it': 'AEK Atene',
+        'pt': 'AEK Atenas'
+      },
+      'PAOK': {
+        'en': 'PAOK',
+        'es': 'PAOK',
+        'zh-hk': 'PAOK',
+        'zh-tw': 'PAOK',
+        'zh': 'PAOK',
+        'de': 'PAOK',
+        'it': 'PAOK',
+        'pt': 'PAOK'
+      },
+
+      // Additional German Teams (Bundesliga)
+      'Union Berlin': {
+        'en': 'Union Berlin',
+        'es': 'Union Berlín',
+        'zh-hk': '柏林聯',
+        'zh-tw': '柏林聯',
+        'zh': '柏林联合',
+        'de': '1. FC Union Berlin',
+        'it': 'Union Berlino',
+        'pt': 'Union Berlin'
+      },
+      'FC Koln': {
+        'en': 'FC Koln',
+        'es': 'FC Colonia',
+        'zh-hk': '科隆',
+        'zh-tw': '科隆',
+        'zh': '科隆',
+        'de': '1. FC Köln',
+        'it': 'FC Colonia',
+        'pt': 'FC Colônia'
+      },
+      'Eintracht Frankfurt': {
+        'en': 'Eintracht Frankfurt',
+        'es': 'Eintracht Frankfurt',
+        'zh-hk': '法蘭克福',
+        'zh-tw': '法蘭克福',
+        'zh': '法兰克福',
+        'de': 'Eintracht Frankfurt',
+        'it': 'Eintracht Francoforte',
+        'pt': 'Eintracht Frankfurt'
+      },
+      'SC Freiburg': {
+        'en': 'SC Freiburg',
+        'es': 'SC Friburgo',
+        'zh-hk': '弗賴堡',
+        'zh-tw': '弗賴堡',
+        'zh': '弗赖堡',
+        'de': 'SC Freiburg',
+        'it': 'SC Friburgo',
+        'pt': 'SC Friburgo'
+      },
+      'VfL Wolfsburg': {
+        'en': 'VfL Wolfsburg',
+        'es': 'VfL Wolfsburg',
+        'zh-hk': '沃夫斯堡',
+        'zh-tw': '沃夫斯堡',
+        'zh': '沃尔夫斯堡',
+        'de': 'VfL Wolfsburg',
+        'it': 'VfL Wolfsburg',
+        'pt': 'VfL Wolfsburg'
+      },
+      'Borussia Monchengladbach': {
+        'en': 'Borussia Monchengladbach',
+        'es': 'Borussia Mönchengladbach',
+        'zh-hk': '慕遜加柏',
+        'zh-tw': '門興格拉德巴赫',
+        'zh': '门兴格拉德巴赫',
+        'de': 'Borussia Mönchengladbach',
+        'it': 'Borussia Mönchengladbach',
+        'pt': 'Borussia Mönchengladbach'
+      },
+      'TSG Hoffenheim': {
+        'en': 'TSG Hoffenheim',
+        'es': 'TSG Hoffenheim',
+        'zh-hk': '賀芬咸',
+        'zh-tw': '霍芬海姆',
+        'zh': '霍芬海姆',
+        'de': 'TSG 1899 Hoffenheim',
+        'it': 'TSG Hoffenheim',
+        'pt': 'TSG Hoffenheim'
+      },
+      'FC Augsburg': {
+        'en': 'FC Augsburg',
+        'es': 'FC Augsburgo',
+        'zh-hk': '奧格斯堡',
+        'zh-tw': '奧格斯堡',
+        'zh': '奥格斯堡',
+        'de': 'FC Augsburg',
+        'it': 'FC Augusta',
+        'pt': 'FC Augsburg'
+      },
+      'VfB Stuttgart': {
+        'en': 'VfB Stuttgart',
+        'es': 'VfB Stuttgart',
+        'zh-hk': '史特加',
+        'zh-tw': '斯圖加特',
+        'zh': '斯图加特',
+        'de': 'VfB Stuttgart',
+        'it': 'VfB Stoccarda',
+        'pt': 'VfB Stuttgart'
+      },
+      'Werder Bremen': {
+        'en': 'Werder Bremen',
+        'es': 'Werder Bremen',
+        'zh-hk': '雲達不萊梅',
+        'zh-tw': '雲達不萊梅',
+        'zh': '云达不莱梅',
+        'de': 'SV Werder Bremen',
+        'it': 'Werder Brema',
+        'pt': 'Werder Bremen'
+      },
+      'Mainz 05': {
+        'en': 'Mainz 05',
+        'es': 'Mainz 05',
+        'zh-hk': '緬恩斯',
+        'zh-tw': '美因茨',
+        'zh': '美因茨',
+        'de': '1. FSV Mainz 05',
+        'it': 'Mainz 05',
+        'pt': 'Mainz 05'
+      },
+
+      // Additional French Teams (Ligue 1)
+      'OGC Nice': {
+        'en': 'Nice',
+        'es': 'Niza',
+        'zh-hk': '尼斯',
+        'zh-tw': '尼斯',
+        'zh': '尼斯',
+        'de': 'OGC Nizza',
+        'it': 'Nizza',
+        'pt': 'Nice'
+      },
+      'Lille': {
+        'en': 'Lille',
+        'es': 'Lille',
+        'zh-hk': '里爾',
+        'zh-tw': '里爾',
+        'zh': '里尔',
+        'de': 'OSC Lille',
+        'it': 'Lille',
+        'pt': 'Lille'
+      },
+      'Stade Rennais': {
+        'en': 'Rennes',
+        'es': 'Rennes',
+        'zh-hk': '雷恩',
+        'zh-tw': '雷恩',
+        'zh': '雷恩',
+        'de': 'Stade Rennes',
+        'it': 'Rennes',
+        'pt': 'Rennes'
+      },
+      'RC Strasbourg': {
+        'en': 'Strasbourg',
+        'es': 'Estrasburgo',
+        'zh-hk': '史特拉斯堡',
+        'zh-tw': '史特拉斯堡',
+        'zh': '斯特拉斯堡',
+        'de': 'RC Strasbourg',
+        'it': 'Strasburgo',
+        'pt': 'Strasbourg'
+      },
+      'Montpellier': {
+        'en': 'Montpellier',
+        'es': 'Montpellier',
+        'zh-hk': '蒙彼利埃',
+        'zh-tw': '蒙彼利埃',
+        'zh': '蒙彼利埃',
+        'de': 'HSC Montpellier',
+        'it': 'Montpellier',
+        'pt': 'Montpellier'
+      },
+      'Olympique Lyonnais': {
+        'en': 'Lyon',
+        'es': 'Lyon',
+        'zh-hk': '里昂',
+        'zh-tw': '里昂',
+        'zh': '里昂',
+        'de': 'Olympique Lyon',
+        'it': 'Lione',
+        'pt': 'Lyon'
+      },
+
+      // Additional Italian Teams (Serie A)
+      'Atalanta': {
+        'en': 'Atalanta',
+        'es': 'Atalanta',
+        'zh-hk': '阿特蘭大',
+        'zh-tw': '亞特蘭大',
+        'zh': '亚特兰大',
+        'de': 'Atalanta Bergamo',
+        'it': 'Atalanta',
+        'pt': 'Atalanta'
+      },
+      'Lazio': {
+        'en': 'Lazio',
+        'es': 'Lazio',
+        'zh-hk': '拉素',
+        'zh-tw': '拉齊奧',
+        'zh': '拉齐奥',
+        'de': 'Lazio Rom',
+        'it': 'Lazio',
+        'pt': 'Lazio'
+      },
+      'Fiorentina': {
+        'en': 'Fiorentina',
+        'es': 'Fiorentina',
+        'zh-hk': '費倫天拿',
+        'zh-tw': '佛羅倫薩',
+        'zh': '佛罗伦萨',
+        'de': 'AC Florenz',
+        'it': 'Fiorentina',
+        'pt': 'Fiorentina'
+      },
+      'Sassuolo': {
+        'en': 'Sassuolo',
+        'es': 'Sassuolo',
+        'zh-hk': '薩索羅',
+        'zh-tw': '薩索洛',
+        'zh': '萨索洛',
+        'de': 'US Sassuolo',
+        'it': 'Sassuolo',
+        'pt': 'Sassuolo'
+      },
+      'Torino': {
+        'en': 'Torino',
+        'es': 'Turín',
+        'zh-hk': '拖連奴',
+        'zh-tw': '都靈',
+        'zh': '都灵',
+        'de': 'FC Turin',
+        'it': 'Torino',
+        'pt': 'Torino'
+      },
+      'Bologna': {
+        'en': 'Bologna',
+        'es': 'Bolonia',
+        'zh-hk': '博洛尼亞',
+        'zh-tw': '博洛尼亞',
+        'zh': '博洛尼亚',
+        'de': 'FC Bologna',
+        'it': 'Bologna',
+        'pt': 'Bologna'
+      },
+      'Udinese': {
+        'en': 'Udinese',
+        'es': 'Udinese',
+        'zh-hk': '烏甸尼斯',
+        'zh-tw': '烏迪內斯',
+        'zh': '乌迪内斯',
+        'de': 'Udinese Calcio',
+        'it': 'Udinese',
+        'pt': 'Udinese'
+      },
+      'Sampdoria': {
+        'en': 'Sampdoria',
+        'es': 'Sampdoria',
+        'zh-hk': '森多利亞',
+        'zh-tw': '桑普多利亞',
+        'zh': '桑普多利亚',
+        'de': 'UC Sampdoria',
+        'it': 'Sampdoria',
+        'pt': 'Sampdoria'
+      },
+      'Genoa': {
+        'en': 'Genoa',
+        'es': 'Génova',
+        'zh-hk': '熱拿亞',
+        'zh-tw': '熱那亞',
+        'zh': '热那亚',
+        'de': 'CFC Genua',
+        'it': 'Genoa',
+        'pt': 'Genoa'
+      },
+      'Hellas Verona': {
+        'en': 'Hellas Verona',
+        'es': 'Hellas Verona',
+        'zh-hk': '維羅納',
+        'zh-tw': '維羅納',
+        'zh': '维罗纳',
+        'de': 'Hellas Verona',
+        'it': 'Hellas Verona',
+        'pt': 'Hellas Verona'
+      },
+
+      // Additional Spanish Teams (La Liga)
+      'Villarreal': {
+        'en': 'Villarreal',
+        'es': 'Villarreal',
+        'zh-hk': '維拉利爾',
+        'zh-tw': '比利亞雷亞爾',
+        'zh': '比利亚雷亚尔',
+        'de': 'Villarreal CF',
+        'it': 'Villarreal',
+        'pt': 'Villarreal'
+      },
+      'Real Betis': {
+        'en': 'Real Betis',
+        'es': 'Real Betis',
+        'zh-hk': '皇家貝蒂斯',
+        'zh-tw': '皇家貝蒂斯',
+        'zh': '皇家贝蒂斯',
+        'de': 'Real Betis',
+        'it': 'Real Betis',
+        'pt': 'Real Betis'
+      },
+      'Athletic Bilbao': {
+        'en': 'Athletic Bilbao',
+        'es': 'Athletic Bilbao',
+        'zh-hk': '畢爾包',
+        'zh-tw': '畢爾包',
+        'zh': '毕尔巴鄂竞技',
+        'de': 'Athletic Bilbao',
+        'it': 'Athletic Bilbao',
+        'pt': 'Athletic Bilbao'
+      },
+      'Valencia': {
+        'en': 'Valencia',
+        'es': 'Valencia',
+        'zh-hk': '華倫西亞',
+        'zh-tw': '瓦倫西亞',
+        'zh': '瓦伦西亚',
+        'de': 'FC Valencia',
+        'it': 'Valencia',
+        'pt': 'Valencia'
+      },
+      'Celta Vigo': {
+        'en': 'Celta Vigo',
+        'es': 'Celta de Vigo',
+        'zh-hk': '切爾達',
+        'zh-tw': '塞爾塔',
+        'zh': '塞尔塔',
+        'de': 'Celta Vigo',
+        'it': 'Celta Vigo',
+        'pt': 'Celta de Vigo'
+      },
+      'Real Valladolid': {
+        'en': 'Real Valladolid',
+        'es': 'Real Valladolid',
+        'zh-hk': '華拉度列',
+        'zh-tw': '巴拉多利德',
+        'zh': '巴利亚多利德',
+        'de': 'Real Valladolid',
+        'it': 'Real Valladolid',
+        'pt': 'Real Valladolid'
+      },
+      'Espanyol': {
+        'en': 'Espanyol',
+        'es': 'Espanyol',
+        'zh-hk': '愛斯賓奴',
+        'zh-tw': '西班牙人',
+        'zh': '西班牙人',
+        'de': 'RCD Espanyol',
+        'it': 'Espanyol',
+        'pt': 'Espanyol'
+      },
+      'Getafe': {
+        'en': 'Getafe',
+        'es': 'Getafe',
+        'zh-hk': '加泰菲',
+        'zh-tw': '赫塔費',
+        'zh': '赫塔费',
+        'de': 'Getafe CF',
+        'it': 'Getafe',
+        'pt': 'Getafe'
+      },
+      'Osasuna': {
+        'en': 'Osasuna',
+        'es': 'Osasuna',
+        'zh-hk': '奧薩辛拿',
+        'zh-tw': '奧薩蘇納',
+        'zh': '奥萨苏纳',
+        'de': 'CA Osasuna',
+        'it': 'Osasuna',
+        'pt': 'Osasuna'
+      },
+      'Eibar': {
+        'en': 'Eibar',
+        'es': 'Eibar',
+        'zh-hk': '伊巴',
+        'zh-tw': '艾巴',
+        'zh': '埃瓦尔',
+        'de': 'SD Eibar',
+        'it': 'Eibar',
+        'pt': 'Eibar'
+      },
+      'Las Palmas': {
+        'en': 'Las Palmas',
+        'es': 'Las Palmas',
+        'zh-hk': '拉斯帕爾馬斯',
+        'zh-tw': '拉斯帕爾馬斯',
+        'zh': '拉斯帕尔马斯',
+        'de': 'UD Las Palmas',
+        'it': 'Las Palmas',
+        'pt': 'Las Palmas'
+      },
+      'Mallorca': {
+        'en': 'Mallorca',
+        'es': 'Mallorca',
+        'zh-hk': '馬略卡',
+        'zh-tw': '馬略卡',
+        'zh': '马略卡',
+        'de': 'RCD Mallorca',
+        'it': 'Mallorca',
+        'pt': 'Mallorca'
+      },
+      'Cadiz': {
+        'en': 'Cadiz',
+        'es': 'Cádiz',
+        'zh-hk': '加的斯',
+        'zh-tw': '加的斯',
+        'zh': '加的斯',
+        'de': 'FC Cádiz',
+        'it': 'Cadice',
+        'pt': 'Cádiz'
+      },
+      'Rayo Vallecano': {
+        'en': 'Rayo Vallecano',
+        'es': 'Rayo Vallecano',
+        'zh-hk': '華歷簡奴',
+        'zh-tw': '巴列卡諾',
+        'zh': '巴列卡诺',
+        'de': 'Rayo Vallecano',
+        'it': 'Rayo Vallecano',
+        'pt': 'Rayo Vallecano'
+      },
+      'Almeria': {
+        'en': 'Almeria',
+        'es': 'Almería',
+        'zh-hk': '阿爾梅里亞',
+        'zh-tw': '阿爾梅里亞',
+        'zh': '阿尔梅里亚',
+        'de': 'UD Almería',
+        'it': 'Almería',
+        'pt': 'Almería'
+      },
+      'Girona': {
+        'en': 'Girona',
+        'es': 'Girona',
+        'zh-hk': '基羅納',
+        'zh-tw': '赫羅納',
+        'zh': '赫罗纳',
+        'de': 'Girona FC',
+        'it': 'Girona',
+        'pt': 'Girona'
+      },
+      'Alaves': {
+        'en': 'Alaves',
+        'es': 'Alavés',
+        'zh-hk': '阿拉維斯',
+        'zh-tw': '阿拉維斯',
+        'zh': '阿拉维斯',
+        'de': 'Deportivo Alavés',
+        'it': 'Alavés',
+        'pt': 'Alavés'
+      },
+
+      // Portuguese Teams (Primeira Liga)
+      'FC Porto': {
+        'en': 'FC Porto',
+        'es': 'FC Oporto',
+        'zh-hk': '波圖',
+        'zh-tw': '波爾圖',
+        'zh': '波尔图',
+        'de': 'FC Porto',
+        'it': 'FC Porto',
+        'pt': 'FC Porto'
+      },
+      'SL Benfica': {
+        'en': 'Benfica',
+        'es': 'Benfica',
+        'zh-hk': '賓菲加',
+        'zh-tw': '本菲卡',
+        'zh': '本菲卡',
+        'de': 'SL Benfica',
+        'it': 'Benfica',
+        'pt': 'SL Benfica'
+      },
+      'Sporting Lisboa': {
+        'en': 'Sporting CP',
+        'es': 'Sporting de Lisboa',
+        'zh-hk': '士砵亭',
+        'zh-tw': '葡萄牙體育',
+        'zh': '葡萄牙体育',
+        'de': 'Sporting Lissabon',
+        'it': 'Sporting Lisbona',
+        'pt': 'Sporting CP'
+      },
+      'SC Braga': {
+        'en': 'SC Braga',
+        'es': 'SC Braga',
+        'zh-hk': '布拉加',
+        'zh-tw': '布拉加',
+        'zh': '布拉加',
+        'de': 'SC Braga',
+        'it': 'SC Braga',
+        'pt': 'SC Braga'
+      },
+      'Vitoria Guimaraes': {
+        'en': 'Vitoria Guimaraes',
+        'es': 'Vitória Guimarães',
+        'zh-hk': '基馬良斯',
+        'zh-tw': '基馬良斯',
+        'zh': '吉马良斯',
+        'de': 'Vitória Guimarães',
+        'it': 'Vitória Guimarães',
+        'pt': 'Vitória SC'
+      },
+
+      // Russian Teams (Russian Premier League)
+      'CSKA Moscow': {
+        'en': 'CSKA Moscow',
+        'es': 'CSKA Moscú',
+        'zh-hk': '莫斯科中央陸軍',
+        'zh-tw': '莫斯科中央陸軍',
+        'zh': '莫斯科中央陆军',
+        'de': 'ZSKA Moskau',
+        'it': 'CSKA Mosca',
+        'pt': 'CSKA Moscou'
+      },
+      'Spartak Moscow': {
+        'en': 'Spartak Moscow',
+        'es': 'Spartak Moscú',
+        'zh-hk': '莫斯科斯巴達',
+        'zh-tw': '莫斯科斯巴達',
+        'zh': '莫斯科斯巴达',
+        'de': 'Spartak Moskau',
+        'it': 'Spartak Mosca',
+        'pt': 'Spartak Moscou'
+      },
+      'Zenit': {
+        'en': 'Zenit',
+        'es': 'Zenit',
+        'zh-hk': '辛尼特',
+        'zh-tw': '澤尼特',
+        'zh': '泽尼特',
+        'de': 'Zenit St. Petersburg',
+        'it': 'Zenit',
+        'pt': 'Zenit'
+      },
+      'Dynamo Moscow': {
+        'en': 'Dynamo Moscow',
+        'es': 'Dinamo Moscú',
+        'zh-hk': '莫斯科戴拿模',
+        'zh-tw': '莫斯科迪納摩',
+        'zh': '莫斯科迪纳摩',
+        'de': 'Dynamo Moskau',
+        'it': 'Dinamo Mosca',
+        'pt': 'Dínamo Moscou'
+      },
+      'Lokomotiv Moscow': {
+        'en': 'Lokomotiv Moscow',
+        'es': 'Lokomotiv Moscú',
+        'zh-hk': '莫斯科火車頭',
+        'zh-tw': '莫斯科火車頭',
+        'zh': '莫斯科火车头',
+        'de': 'Lokomotive Moskau',
+        'it': 'Lokomotiv Mosca',
+        'pt': 'Lokomotiv Moscou'
+      },
+
+      // Turkish Teams (Super Lig)
+      'Galatasaray': {
+        'en': 'Galatasaray',
+        'es': 'Galatasaray',
+        'zh-hk': '加拉塔沙雷',
+        'zh-tw': '加拉塔薩雷',
+        'zh': '加拉塔萨雷',
+        'de': 'Galatasaray Istanbul',
+        'it': 'Galatasaray',
+        'pt': 'Galatasaray'
+      },
+      'Fenerbahce': {
+        'en': 'Fenerbahce',
+        'es': 'Fenerbahçe',
+        'zh-hk': '費倫巴治',
+        'zh-tw': '費內巴切',
+        'zh': '费内巴切',
+        'de': 'Fenerbahçe Istanbul',
+        'it': 'Fenerbahçe',
+        'pt': 'Fenerbahçe'
+      },
+      'Besiktas': {
+        'en': 'Besiktas',
+        'es': 'Beşiktaş',
+        'zh-hk': '比錫達斯',
+        'zh-tw': '貝西克塔斯',
+        'zh': '贝西克塔斯',
+        'de': 'Beşiktaş Istanbul',
+        'it': 'Beşiktaş',
+        'pt': 'Beşiktaş'
+      },
+      'Istanbul Basaksehir': {
+        'en': 'Istanbul Basaksehir',
+        'es': 'İstanbul Başakşehir',
+        'zh-hk': '伊斯坦堡巴沙克舍希',
+        'zh-tw': '伊斯坦堡巴沙克舍希',
+        'zh': '伊斯坦布尔巴沙克谢希',
+        'de': 'İstanbul Başakşehir',
+        'it': 'Istanbul Başakşehir',
+        'pt': 'Istanbul Başakşehir'
+      },
+      'Trabzonspor': {
+        'en': 'Trabzonspor',
+        'es': 'Trabzonspor',
+        'zh-hk': '特拉布宗體育',
+        'zh-tw': '特拉布宗體育',
+        'zh': '特拉布宗体育',
+        'de': 'Trabzonspor',
+        'it': 'Trabzonspor',
+        'pt': 'Trabzonspor'
+      },
+
+      // Dutch Teams (Eredivisie)
+      'PSV Eindhoven': {
+        'en': 'PSV Eindhoven',
+        'es': 'PSV Eindhoven',
+        'zh-hk': 'PSV燕豪芬',
+        'zh-tw': 'PSV恩荷芬',
+        'zh': 'PSV埃因霍温',
+        'de': 'PSV Eindhoven',
+        'it': 'PSV Eindhoven',
+        'pt': 'PSV Eindhoven'
+      },
+      'Feyenoord': {
+        'en': 'Feyenoord',
+        'es': 'Feyenoord',
+        'zh-hk': '飛燕諾',
+        'zh-tw': '飛燕諾',
+        'zh': '费耶诺德',
+        'de': 'Feyenoord Rotterdam',
+        'it': 'Feyenoord',
+        'pt': 'Feyenoord'
+      },
+      'AZ Alkmaar': {
+        'en': 'AZ Alkmaar',
+        'es': 'AZ Alkmaar',
+        'zh-hk': '阿克馬爾',
+        'zh-tw': '阿克馬爾',
+        'zh': '阿尔克马尔',
+        'de': 'AZ Alkmaar',
+        'it': 'AZ Alkmaar',
+        'pt': 'AZ Alkmaar'
+      },
+      'FC Twente': {
+        'en': 'FC Twente',
+        'es': 'FC Twente',
+        'zh-hk': '川迪',
+        'zh-tw': '川迪',
+        'zh': '特温特',
+        'de': 'FC Twente',
+        'it': 'FC Twente',
+        'pt': 'FC Twente'
+      },
+      'Vitesse': {
+        'en': 'Vitesse',
+        'es': 'Vitesse',
+        'zh-hk': '維特斯',
+        'zh-tw': '維特斯',
+        'zh': '维特斯',
+        'de': 'Vitesse Arnhem',
+        'it': 'Vitesse',
+        'pt': 'Vitesse'
+      },
+
+      // Belgian Teams (Belgian Pro League)
+      'Club Brugge': {
+        'en': 'Club Brugge',
+        'es': 'Club Brujas',
+        'zh-hk': '布魯日',
+        'zh-tw': '布魯日',
+        'zh': '布鲁日',
+        'de': 'Club Brügge',
+        'it': 'Club Brugge',
+        'pt': 'Club Brugge'
+      },
+      'Anderlecht': {
+        'en': 'Anderlecht',
+        'es': 'Anderlecht',
+        'zh-hk': '安德列治',
+        'zh-tw': '安德萊赫特',
+        'zh': '安德莱赫特',
+        'de': 'RSC Anderlecht',
+        'it': 'Anderlecht',
+        'pt': 'Anderlecht'
+      },
+      'Standard Liege': {
+        'en': 'Standard Liege',
+        'es': 'Standard Lieja',
+        'zh-hk': '標準列治',
+        'zh-tw': '標準列日',
+        'zh': '标准列日',
+        'de': 'Standard Lüttich',
+        'it': 'Standard Liegi',
+        'pt': 'Standard Liège'
+      },
+      'KRC Genk': {
+        'en': 'KRC Genk',
+        'es': 'KRC Genk',
+        'zh-hk': '根克',
+        'zh-tw': '亨克',
+        'zh': '亨克',
+        'de': 'KRC Genk',
+        'it': 'KRC Genk',
+        'pt': 'KRC Genk'
+      },
+      'AA Gent': {
+        'en': 'AA Gent',
+        'es': 'AA Gante',
+        'zh-hk': '根特',
+        'zh-tw': '根特',
+        'zh': '根特',
+        'de': 'KAA Gent',
+        'it': 'AA Gent',
+        'pt': 'AA Gent'
+      },
+
+      // Ukrainian Teams (Ukrainian Premier League)
+      'Shakhtar Donetsk': {
+        'en': 'Shakhtar Donetsk',
+        'es': 'Shakhtar Donetsk',
+        'zh-hk': '薩克達',
+        'zh-tw': '沙克塔',
+        'zh': '顿涅茨克矿工',
+        'de': 'Schachtar Donezk',
+        'it': 'Shakhtar Donetsk',
+        'pt': 'Shakhtar Donetsk'
+      },
+      'Dynamo Kyiv': {
+        'en': 'Dynamo Kyiv',
+        'es': 'Dinamo Kiev',
+        'zh-hk': '基輔戴拿模',
+        'zh-tw': '基輔迪納摩',
+        'zh': '基辅迪纳摩',
+        'de': 'Dynamo Kiew',
+        'it': 'Dinamo Kiev',
+        'pt': 'Dínamo Kiev'
+      },
+
+      // Scottish Teams (Scottish Premiership)
+      'Celtic': {
+        'en': 'Celtic',
+        'es': 'Celtic',
+        'zh-hk': '些路迪',
+        'zh-tw': '塞爾提克',
+        'zh': '凯尔特人',
+        'de': 'Celtic Glasgow',
+        'it': 'Celtic',
+        'pt': 'Celtic'
+      },
+      'Rangers': {
+        'en': 'Rangers',
+        'es': 'Rangers',
+        'zh-hk': '格拉斯哥流浪',
+        'zh-tw': '流浪者',
+        'zh': '流浪者',
+        'de': 'Glasgow Rangers',
+        'it': 'Rangers',
+        'pt': 'Rangers'
+      },
+      'Aberdeen': {
+        'en': 'Aberdeen',
+        'es': 'Aberdeen',
+        'zh-hk': '阿伯丁',
+        'zh-tw': '阿伯丁',
+        'zh': '阿伯丁',
+        'de': 'FC Aberdeen',
+        'it': 'Aberdeen',
+        'pt': 'Aberdeen'
+      },
+      'Hearts': {
+        'en': 'Hearts',
+        'es': 'Hearts',
+        'zh-hk': '赫斯',
+        'zh-tw': '哈茨',
+        'zh': '哈茨',
+        'de': 'Heart of Midlothian',
+        'it': 'Hearts',
+        'pt': 'Hearts'
+      },
+      'Hibernian': {
+        'en': 'Hibernian',
+        'es': 'Hibernian',
+        'zh-hk': '希伯尼安',
+        'zh-tw': '希伯尼安',
+        'zh': '希伯尼安',
+        'de': 'Hibernian Edinburgh',
+        'it': 'Hibernian',
+        'pt': 'Hibernian'
+      },
+
+      // Austrian Teams (Austrian Bundesliga)
+      'Red Bull Salzburg': {
+        'en': 'Red Bull Salzburg',
+        'es': 'Red Bull Salzburgo',
+        'zh-hk': '薩爾茨堡紅牛',
+        'zh-tw': '薩爾茨堡紅牛',
+        'zh': '萨尔茨堡红牛',
+        'de': 'FC Red Bull Salzburg',
+        'it': 'Red Bull Salisburgo',
+        'pt': 'Red Bull Salzburg'
+      },
+      'Austria Vienna': {
+        'en': 'Austria Vienna',
+        'es': 'Austria Viena',
+        'zh-hk': '奧地利維也納',
+        'zh-tw': '奧地利維也納',
+        'zh': '奥地利维也纳',
+        'de': 'FK Austria Wien',
+        'it': 'Austria Vienna',
+        'pt': 'Austria Viena'
+      },
+      'Rapid Vienna': {
+        'en': 'Rapid Vienna',
+        'es': 'Rapid Viena',
+        'zh-hk': '維也納快速',
+        'zh-tw': '維也納快速',
+        'zh': '维也纳快速',
+        'de': 'SK Rapid Wien',
+        'it': 'Rapid Vienna',
+        'pt': 'Rapid Viena'
+      },
+      'Sturm Graz': {
+        'en': 'Sturm Graz',
+        'es': 'Sturm Graz',
+        'zh-hk': '格拉茲',
+        'zh-tw': '格拉茲',
+        'zh': '格拉茨风暴',
+        'de': 'SK Sturm Graz',
+        'it': 'Sturm Graz',
+        'pt': 'Sturm Graz'
+      },
+
+      // Swiss Teams (Swiss Super League)
+      'Basel': {
+        'en': 'Basel',
+        'es': 'Basilea',
+        'zh-hk': '巴塞爾',
+        'zh-tw': '巴塞爾',
+        'zh': '巴塞尔',
+        'de': 'FC Basel',
+        'it': 'Basilea',
+        'pt': 'Basel'
+      },
+      'Young Boys': {
+        'en': 'Young Boys',
+        'es': 'Young Boys',
+        'zh-hk': '年青人',
+        'zh-tw': '伯恩青年',
+        'zh': '伯尔尼年轻人',
+        'de': 'BSC Young Boys',
+        'it': 'Young Boys',
+        'pt': 'Young Boys'
+      },
+      'FC Zurich': {
+        'en': 'FC Zurich',
+        'es': 'FC Zúrich',
+        'zh-hk': '蘇黎世',
+        'zh-tw': '蘇黎世',
+        'zh': '苏黎世',
+        'de': 'FC Zürich',
+        'it': 'FC Zurigo',
+        'pt': 'FC Zurique'
+      },
+
+      // Czech Teams (Czech First League)
+      'Slavia Prague': {
+        'en': 'Slavia Prague',
+        'es': 'Slavia Praga',
+        'zh-hk': '布拉格斯拉維亞',
+        'zh-tw': '布拉格斯拉維亞',
+        'zh': '布拉格斯拉维亚',
+        'de': 'Slavia Prag',
+        'it': 'Slavia Praga',
+        'pt': 'Slavia Praga'
+      },
+      'Sparta Prague': {
+        'en': 'Sparta Prague',
+        'es': 'Sparta Praga',
+        'zh-hk': '布拉格斯巴達',
+        'zh-tw': '布拉格斯巴達',
+        'zh': '布拉格斯巴达',
+        'de': 'Sparta Prag',
+        'it': 'Sparta Praga',
+        'pt': 'Sparta Praga'
+      },
+      'Viktoria Plzen': {
+        'en': 'Viktoria Plzen',
+        'es': 'Viktoria Plzen',
+        'zh-hk': '比爾森勝利',
+        'zh-tw': '比爾森勝利',
+        'zh': '比尔森胜利',
+        'de': 'Viktoria Pilsen',
+        'it': 'Viktoria Plzen',
+        'pt': 'Viktoria Plzen'
+      },
+
+      // Croatian Teams (Croatian First League)
+      'Dinamo Zagreb': {
+        'en': 'Dinamo Zagreb',
+        'es': 'Dinamo Zagreb',
+        'zh-hk': '薩格勒布戴拿模',
+        'zh-tw': '薩格勒布迪納摩',
+        'zh': '萨格勒布迪纳摩',
+        'de': 'Dinamo Zagreb',
+        'it': 'Dinamo Zagabria',
+        'pt': 'Dínamo Zagreb'
+      },
+      'Hajduk Split': {
+        'en': 'Hajduk Split',
+        'es': 'Hajduk Split',
+        'zh-hk': '夏德克',
+        'zh-tw': '哈伊杜克',
+        'zh': '哈伊杜克',
+        'de': 'Hajduk Split',
+        'it': 'Hajduk Spalato',
+        'pt': 'Hajduk Split'
+      },
+
+      // Polish Teams (Ekstraklasa)
+      'Legia Warsaw': {
+        'en': 'Legia Warsaw',
+        'es': 'Legia Varsovia',
+        'zh-hk': '華沙軍團',
+        'zh-tw': '華沙軍團',
+        'zh': '华沙军团',
+        'de': 'Legia Warschau',
+        'it': 'Legia Varsavia',
+        'pt': 'Legia Varsóvia'
+      },
+      'Lech Poznan': {
+        'en': 'Lech Poznan',
+        'es': 'Lech Poznan',
+        'zh-hk': '波茲南',
+        'zh-tw': '波茲南',
+        'zh': '波兹南',
+        'de': 'Lech Posen',
+        'it': 'Lech Poznan',
+        'pt': 'Lech Poznan'
+      },
+
+      // Nordic Teams (Scandinavia)
+      'FC Copenhagen': {
+        'en': 'FC Copenhagen',
+        'es': 'FC Copenhague',
+        'zh-hk': '哥本哈根',
+        'zh-tw': '哥本哈根',
+        'zh': '哥本哈根',
+        'de': 'FC Kopenhagen',
+        'it': 'FC Copenaghen',
+        'pt': 'FC Copenhague'
+      },
+      'Malmö FF': {
+        'en': 'Malmö FF',
+        'es': 'Malmö FF',
+        'zh-hk': '馬模',
+        'zh-tw': '馬爾默',
+        'zh': '马尔默',
+        'de': 'Malmö FF',
+        'it': 'Malmö FF',
+        'pt': 'Malmö FF'
+      },
+      'Rosenborg': {
+        'en': 'Rosenborg',
+        'es': 'Rosenborg',
+        'zh-hk': '羅辛堡',
+        'zh-tw': '羅森堡',
+        'zh': '罗森堡',
+        'de': 'Rosenborg Trondheim',
+        'it': 'Rosenborg',
+        'pt': 'Rosenborg'
+      },
+      'Molde': {
+        'en': 'Molde',
+        'es': 'Molde',
+        'zh-hk': '莫迪',
+        'zh-tw': '莫爾德',
+        'zh': '莫尔德',
+        'de': 'Molde FK',
+        'it': 'Molde',
+        'pt': 'Molde'
+      },
+
+      // Asian Teams (Various Asian Leagues)
+      'Al Taawon': {
+        'en': 'Al Taawon',
+        'es': 'Al Taawon',
+        'zh-hk': '塔亞文',
+        'zh-tw': '塔亞文',
+        'zh': '塔亚文',
+        'de': 'Al Taawon',
+        'it': 'Al Taawon',
+        'pt': 'Al Taawon'
+      },
+      'Singburi': {
+        'en': 'Singburi',
+        'es': 'Singburi',
+        'zh-hk': '信武里',
+        'zh-tw': '信武里',
+        'zh': '信武里',
+        'de': 'Singburi',
+        'it': 'Singburi',
+        'pt': 'Singburi'
+      },
+      'Port FC': {
+        'en': 'Port FC',
+        'es': 'Port FC',
+        'zh-hk': '港口足球會',
+        'zh-tw': '港口足球會',
+        'zh': '港口足球俱乐部',
+        'de': 'Port FC',
+        'it': 'Port FC',
+        'pt': 'Port FC'
+      },
+      'Urawa Red Diamonds': {
+        'en': 'Urawa Red Diamonds',
+        'es': 'Urawa Red Diamonds',
+        'zh-hk': '浦和紅鑽',
+        'zh-tw': '浦和紅鑽',
+        'zh': '浦和红钻',
+        'de': 'Urawa Red Diamonds',
+        'it': 'Urawa Red Diamonds',
+        'pt': 'Urawa Red Diamonds'
+      },
+      'Kashima Antlers': {
+        'en': 'Kashima Antlers',
+        'es': 'Kashima Antlers',
+        'zh-hk': '鹿島鹿角',
+        'zh-tw': '鹿島鹿角',
+        'zh': '鹿岛鹿角',
+        'de': 'Kashima Antlers',
+        'it': 'Kashima Antlers',
+        'pt': 'Kashima Antlers'
+      },
+      'FC Tokyo': {
+        'en': 'FC Tokyo',
+        'es': 'FC Tokio',
+        'zh-hk': '東京FC',
+        'zh-tw': '東京FC',
+        'zh': '东京FC',
+        'de': 'FC Tokyo',
+        'it': 'FC Tokyo',
+        'pt': 'FC Tóquio'
+      },
+      'Yokohama F. Marinos': {
+        'en': 'Yokohama F. Marinos',
+        'es': 'Yokohama F. Marinos',
+        'zh-hk': '橫濱水手',
+        'zh-tw': '橫濱水手',
+        'zh': '横滨水手',
+        'de': 'Yokohama F. Marinos',
+        'it': 'Yokohama F. Marinos',
+        'pt': 'Yokohama F. Marinos'
+      },
+      'Cerezo Osaka': {
+        'en': 'Cerezo Osaka',
+        'es': 'Cerezo Osaka',
+        'zh-hk': '大阪櫻花',
+        'zh-tw': '大阪櫻花',
+        'zh': '大阪樱花',
+        'de': 'Cerezo Osaka',
+        'it': 'Cerezo Osaka',
+        'pt': 'Cerezo Osaka'
+      },
+      'Gamba Osaka': {
+        'en': 'Gamba Osaka',
+        'es': 'Gamba Osaka',
+        'zh-hk': '大阪飛腳',
+        'zh-tw': '大阪飛腳',
+        'zh': '大阪钢巴',
+        'de': 'Gamba Osaka',
+        'it': 'Gamba Osaka',
+        'pt': 'Gamba Osaka'
+      },
+
+      // South Korean Teams (K League)
+      'Ulsan Hyundai': {
+        'en': 'Ulsan Hyundai',
+        'es': 'Ulsan Hyundai',
+        'zh-hk': '蔚山現代',
+        'zh-tw': '蔚山現代',
+        'zh': '蔚山现代',
+        'de': 'Ulsan Hyundai',
+        'it': 'Ulsan Hyundai',
+        'pt': 'Ulsan Hyundai'
+      },
+      'Jeonbuk Motors': {
+        'en': 'Jeonbuk Motors',
+        'es': 'Jeonbuk Motors',
+        'zh-hk': '全北現代汽車',
+        'zh-tw': '全北現代汽車',
+        'zh': '全北现代汽车',
+        'de': 'Jeonbuk Hyundai Motors',
+        'it': 'Jeonbuk Motors',
+        'pt': 'Jeonbuk Motors'
+      },
+      'Pohang Steelers': {
+        'en': 'Pohang Steelers',
+        'es': 'Pohang Steelers',
+        'zh-hk': '浦項鐵人',
+        'zh-tw': '浦項鐵人',
+        'zh': '浦项铁人',
+        'de': 'Pohang Steelers',
+        'it': 'Pohang Steelers',
+        'pt': 'Pohang Steelers'
+      },
+
+      // Chinese Teams (Chinese Super League)
+      'Guangzhou FC': {
+        'en': 'Guangzhou FC',
+        'es': 'Guangzhou FC',
+        'zh-hk': '廣州足球會',
+        'zh-tw': '廣州足球會',
+        'zh': '广州足球俱乐部',
+        'de': 'Guangzhou FC',
+        'it': 'Guangzhou FC',
+        'pt': 'Guangzhou FC'
+      },
+      'Shanghai Port': {
+        'en': 'Shanghai Port',
+        'es': 'Shanghai Port',
+        'zh-hk': '上海海港',
+        'zh-tw': '上海海港',
+        'zh': '上海海港',
+        'de': 'Shanghai Port',
+        'it': 'Shanghai Port',
+        'pt': 'Shanghai Port'
+      },
+      'Beijing Guoan': {
+        'en': 'Beijing Guoan',
+        'es': 'Beijing Guoan',
+        'zh-hk': '北京國安',
+        'zh-tw': '北京國安',
+        'zh': '北京国安',
+        'de': 'Beijing Guoan',
+        'it': 'Beijing Guoan',
+        'pt': 'Beijing Guoan'
+      },
+
+      // Australian Teams (A-League)
+      'Melbourne City': {
+        'en': 'Melbourne City',
+        'es': 'Melbourne City',
+        'zh-hk': '墨爾本城',
+        'zh-tw': '墨爾本城',
+        'zh': '墨尔本城',
+        'de': 'Melbourne City',
+        'it': 'Melbourne City',
+        'pt': 'Melbourne City'
+      },
+      'Sydney FC': {
+        'en': 'Sydney FC',
+        'es': 'Sydney FC',
+        'zh-hk': '悉尼FC',
+        'zh-tw': '悉尼FC',
+        'zh': '悉尼FC',
+        'de': 'Sydney FC',
+        'it': 'Sydney FC',
+        'pt': 'Sydney FC'
+      },
+      'Melbourne Victory': {
+        'en': 'Melbourne Victory',
+        'es': 'Melbourne Victory',
+        'zh-hk': '墨爾本勝利',
+        'zh-tw': '墨爾本勝利',
+        'zh': '墨尔本胜利',
+        'de': 'Melbourne Victory',
+        'it': 'Melbourne Victory',
+        'pt': 'Melbourne Victory'
+      },
+      'Perth Glory': {
+        'en': 'Perth Glory',
+        'es': 'Perth Glory',
+        'zh-hk': '珀斯光輝',
+        'zh-tw': '珀斯光輝',
+        'zh': '珀斯光荣',
+        'de': 'Perth Glory',
+        'it': 'Perth Glory',
+        'pt': 'Perth Glory'
+      },
+
+      // Middle Eastern Teams (Various Leagues)
+      'Al-Ahli Saudi': {
+        'en': 'Al-Ahli Saudi',
+        'es': 'Al-Ahli Saudi',
+        'zh-hk': '沙特阿赫利',
+        'zh-tw': '沙特阿赫利',
+        'zh': '沙特阿赫利',
+        'de': 'Al-Ahli Saudi',
+        'it': 'Al-Ahli Saudi',
+        'pt': 'Al-Ahli Saudita'
+      },
+      'Al-Ittihad': {
+        'en': 'Al-Ittihad',
+        'es': 'Al-Ittihad',
+        'zh-hk': '伊蒂哈德',
+        'zh-tw': '伊蒂哈德',
+        'zh': '伊蒂哈德',
+        'de': 'Al-Ittihad',
+        'it': 'Al-Ittihad',
+        'pt': 'Al-Ittihad'
+      },
+      'Al-Shabab': {
+        'en': 'Al-Shabab',
+        'es': 'Al-Shabab',
+        'zh-hk': '青年人',
+        'zh-tw': '青年人',
+        'zh': '青年人',
+        'de': 'Al-Shabab',
+        'it': 'Al-Shabab',
+        'pt': 'Al-Shabab'
+      },
+
+      // African Teams (Various Leagues)
+      'Al Ahly': {
+        'en': 'Al Ahly',
+        'es': 'Al Ahly',
+        'zh-hk': '阿赫利',
+        'zh-tw': '阿赫利',
+        'zh': '阿赫利',
+        'de': 'Al Ahly Kairo',
+        'it': 'Al Ahly',
+        'pt': 'Al Ahly'
+      },
+      'Zamalek': {
+        'en': 'Zamalek',
+        'es': 'Zamalek',
+        'zh-hk': '薩馬雷克',
+        'zh-tw': '薩馬雷克',
+        'zh': '萨马雷克',
+        'de': 'Zamalek SC',
+        'it': 'Zamalek',
+        'pt': 'Zamalek'
+      },
+      'Kaizer Chiefs': {
+        'en': 'Kaizer Chiefs',
+        'es': 'Kaizer Chiefs',
+        'zh-hk': '凱撒酋長',
+        'zh-tw': '凱撒酋長',
+        'zh': '凯泽酋长',
+        'de': 'Kaizer Chiefs',
+        'it': 'Kaizer Chiefs',
+        'pt': 'Kaizer Chiefs'
+      },
+      'Orlando Pirates': {
+        'en': 'Orlando Pirates',
+        'es': 'Orlando Pirates',
+        'zh-hk': '奧蘭多海盜',
+        'zh-tw': '奧蘭多海盜',
+        'zh': '奥兰多海盗',
+        'de': 'Orlando Pirates',
+        'it': 'Orlando Pirates',
+        'pt': 'Orlando Pirates'
+      },
+      'Mamelodi Sundowns': {
+        'en': 'Mamelodi Sundowns',
+        'es': 'Mamelodi Sundowns',
+        'zh-hk': '馬梅洛迪日落',
+        'zh-tw': '馬梅洛迪日落',
+        'zh': '马梅洛迪日落',
+        'de': 'Mamelodi Sundowns',
+        'it': 'Mamelodi Sundowns',
+        'pt': 'Mamelodi Sundowns'
+      },
+
+      // Additional Italian Teams for Serie A/B Coverage
+      'Benevento': {
+        'en': 'Benevento',
+        'es': 'Benevento',
+        'zh-hk': '賓尼雲圖',
+        'zh-tw': '貝內文托',
+        'zh': '贝内文托',
+        'de': 'Benevento Calcio',
+        'it': 'Benevento',
+        'pt': 'Benevento'
+      },
+      'Frosinone': {
+        'en': 'Frosinone',
+        'es': 'Frosinone',
+        'zh-hk': '弗羅西諾內',
+        'zh-tw': '弗羅西諾內',
+        'zh': '弗罗西诺内',
+        'de': 'Frosinone Calcio',
+        'it': 'Frosinone',
+        'pt': 'Frosinone'
+      },
+      'Pisa': {
+        'en': 'Pisa',
+        'es': 'Pisa',
+        'zh-hk': '比薩',
+        'zh-tw': '比薩',
+        'zh': '比萨',
+        'de': 'Pisa SC',
+        'it': 'Pisa',
+        'pt': 'Pisa'
+      },
+
+      // Spanish Lower Division Teams
+      'L\'Entregu': {
+        'en': 'L\'Entregu',
+        'es': 'L\'Entregu',
+        'zh-hk': '恩特雷古',
+        'zh-tw': '恩特雷古',
+        'zh': '恩特雷古',
+        'de': 'L\'Entregu',
+        'it': 'L\'Entregu',
+        'pt': 'L\'Entregu'
+      },
+      'Marino de Luanco': {
+        'en': 'Marino de Luanco',
+        'es': 'Marino de Luanco',
+        'zh-hk': '盧安科馬里諾',
+        'zh-tw': '盧安科馬里諾',
+        'zh': '卢安科马里诺',
+        'de': 'Marino de Luanco',
+        'it': 'Marino de Luanco',
+        'pt': 'Marino de Luanco'
+      },
+      'Marbella': {
+        'en': 'Marbella',
+        'es': 'Marbella',
+        'zh-hk': '馬貝拉',
+        'zh-tw': '馬貝拉',
+        'zh': '马贝拉',
+        'de': 'Marbella FC',
+        'it': 'Marbella',
+        'pt': 'Marbella'
+      },
+      'AD Ceuta FC': {
+        'en': 'AD Ceuta FC',
+        'es': 'AD Ceuta FC',
+        'zh-hk': '休達',
+        'zh-tw': '休達',
+        'zh': '休达',
+        'de': 'AD Ceuta FC',
+        'it': 'AD Ceuta FC',
+        'pt': 'AD Ceuta FC'
+      },
+      'Real Betis II': {
+        'en': 'Real Betis II',
+        'es': 'Real Betis Deportivo',
+        'zh-hk': '皇家貝蒂斯二隊',
+        'zh-tw': '皇家貝蒂斯二隊',
+        'zh': '皇家贝蒂斯二队',
+        'de': 'Real Betis II',
+        'it': 'Real Betis II',
+        'pt': 'Real Betis II'
+      },
+      'Osasuna II': {
+        'en': 'Osasuna II',
+        'es': 'Osasuna Promesas',
+        'zh-hk': '奧薩辛拿二隊',
+        'zh-tw': '奧薩蘇納二隊',
+        'zh': '奥萨苏纳二队',
+        'de': 'CA Osasuna II',
+        'it': 'Osasuna II',
+        'pt': 'Osasuna II'
+      },
+      'Cordoba': {
+        'en': 'Cordoba',
+        'es': 'Córdoba',
+        'zh-hk': '哥多華',
+        'zh-tw': '科爾多瓦',
+        'zh': '科尔多瓦',
+        'de': 'Córdoba CF',
+        'it': 'Córdoba',
+        'pt': 'Córdoba'
+      },
+      'Andorra': {
+        'en': 'Andorra',
+        'es': 'FC Andorra',
+        'zh-hk': '安道爾',
+        'zh-tw': '安道爾',
+        'zh': '安道尔',
+        'de': 'FC Andorra',
+        'it': 'FC Andorra',
+        'pt': 'FC Andorra'
+      },
+
       // National Teams (UEFA Nations League, World Cup Qualifiers)
       'Germany': {
         'en': 'Germany',
