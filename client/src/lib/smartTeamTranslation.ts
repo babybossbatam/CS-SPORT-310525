@@ -328,34 +328,6 @@ class SmartTeamTranslation {
       'zh': '蒙特雷', 'zh-hk': '蒙特雷', 'zh-tw': '蒙特雷',
       'es': 'CF Monterrey', 'de': 'CF Monterrey', 'it': 'CF Monterrey', 'pt': 'CF Monterrey'
     },
-    'America': {
-      'zh': '美洲', 'zh-hk': '美洲', 'zh-tw': '美洲',
-      'es': 'América', 'de': 'Club América', 'it': 'Club América', 'pt': 'Club América'
-    },
-    'Guadalajara': {
-      'zh': '瓜达拉哈拉', 'zh-hk': '瓜達拉哈拉', 'zh-tw': '瓜達拉哈拉',
-      'es': 'Guadalajara', 'de': 'Guadalajara', 'it': 'Guadalajara', 'pt': 'Guadalajara'
-    },
-    'CD Guadalajara': {
-      'zh': '瓜达拉哈拉', 'zh-hk': '瓜達拉哈拉', 'zh-tw': '瓜達拉哈拉',
-      'es': 'CD Guadalajara', 'de': 'CD Guadalajara', 'it': 'CD Guadalajara', 'pt': 'CD Guadalajara'
-    },
-    'Chivas': {
-      'zh': '瓜达拉哈拉', 'zh-hk': '瓜達拉哈拉', 'zh-tw': '瓜達拉哈拉',
-      'es': 'Chivas', 'de': 'Chivas', 'it': 'Chivas', 'pt': 'Chivas'
-    },
-    'Pumas': {
-      'zh': '美洲狮', 'zh-hk': '美洲獅', 'zh-tw': '美洲獅',
-      'es': 'Pumas', 'de': 'Pumas', 'it': 'Pumas', 'pt': 'Pumas'
-    },
-    'Tigres': {
-      'zh': '老虎', 'zh-hk': '老虎', 'zh-tw': '老虎',
-      'es': 'Tigres', 'de': 'Tigres', 'it': 'Tigres', 'pt': 'Tigres'
-    },
-    'Monterrey': {
-      'zh': '蒙特雷', 'zh-hk': '蒙特雷', 'zh-tw': '蒙特雷',
-      'es': 'Monterrey', 'de': 'Monterrey', 'it': 'Monterrey', 'pt': 'Monterrey'
-    },
 
     // Brazilian teams
     'Flamengo': {
