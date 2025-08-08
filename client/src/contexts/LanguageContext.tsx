@@ -728,7 +728,99 @@ export const useTranslation = () => {
 
     const lowerName = leagueName.toLowerCase();
 
-    // Common league patterns and their translations
+    // First, handle direct Chinese league name detection
+    const chineseLeaguePatterns = {
+      '友誼賽': {
+        'en': 'Friendlies',
+        'es': 'Amistosos',
+        'zh-hk': '友誼賽',
+        'zh-tw': '友誼賽',
+        'zh': '友谊赛',
+        'de': 'Freundschaftsspiele',
+        'it': 'Amichevoli',
+        'pt': 'Amigáveis'
+      },
+      '球會友誼賽': {
+        'en': 'Club Friendlies',
+        'es': 'Amistosos de Clubes',
+        'zh-hk': '球會友誼賽',
+        'zh-tw': '球會友誼賽',
+        'zh': '俱乐部友谊赛',
+        'de': 'Vereinsfreundschaftsspiele',
+        'it': 'Amichevoli di Club',
+        'pt': 'Amigáveis de Clubes'
+      },
+      '歐洲聯賽': {
+        'en': 'Europa League',
+        'es': 'Liga Europa',
+        'zh-hk': '歐洲聯賽',
+        'zh-tw': '歐洲聯賽',
+        'zh': '欧洲联赛',
+        'de': 'Europa League',
+        'it': 'Europa League',
+        'pt': 'Liga Europa'
+      },
+      '歐洲冠軍聯賽': {
+        'en': 'Champions League',
+        'es': 'Liga de Campeones',
+        'zh-hk': '歐洲冠軍聯賽',
+        'zh-tw': '歐洲冠軍聯賽',
+        'zh': '欧洲冠军联赛',
+        'de': 'Champions League',
+        'it': 'Champions League',
+        'pt': 'Liga dos Campeões'
+      },
+      '歐洲協會聯賽': {
+        'en': 'Conference League',
+        'es': 'Liga de la Conferencia',
+        'zh-hk': '歐洲協會聯賽',
+        'zh-tw': '歐洲協會聯賽',
+        'zh': '欧洲协会联赛',
+        'de': 'Conference League',
+        'it': 'Conference League',
+        'pt': 'Liga da Conferência'
+      },
+      '聯賽盃': {
+        'en': 'Leagues Cup',
+        'es': 'Copa de Ligas',
+        'zh-hk': '聯賽盃',
+        'zh-tw': '聯賽盃',
+        'zh': '联赛杯',
+        'de': 'Liga-Pokal',
+        'it': 'Coppa delle Leghe',
+        'pt': 'Copa das Ligas'
+      },
+      '世界': {
+        'en': 'World',
+        'es': 'Mundial',
+        'zh-hk': '世界',
+        'zh-tw': '世界',
+        'zh': '世界',
+        'de': 'Welt',
+        'it': 'Mondo',
+        'pt': 'Mundo'
+      }
+    };
+
+    // Check for Chinese patterns first
+    for (const [chinesePattern, translations] of Object.entries(chineseLeaguePatterns)) {
+      if (leagueName.includes(chinesePattern)) {
+        const translation = translations[currentLanguage as keyof typeof translations];
+        if (translation) {
+          // Replace the Chinese pattern while preserving other parts
+          let result = leagueName.replace(chinesePattern, translation);
+          // Handle specific combinations like "友誼賽 Clubs" -> "Club Friendlies"
+          if (chinesePattern === '友誼賽' && leagueName.includes('Clubs')) {
+            result = translations[currentLanguage as keyof typeof translations] === 'Friendlies' 
+              ? 'Club Friendlies' 
+              : `${translation} Clubs`;
+          }
+          return result;
+        }
+      }
+    }
+
+    // Common league patterns and their translations (existing English patterns)
     const leaguePatterns = {
       'champions league': {
         'en': 'Champions League',
