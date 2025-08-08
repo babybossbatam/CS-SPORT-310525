@@ -169,7 +169,12 @@ class SmartTeamTranslation {
   translateTeamName(teamName: string, language: string = 'zh'): string {
     if (!teamName) return '';
 
-    console.log(`🤖 [SmartTranslation] Translating "${teamName}" to ${language}`);
+    console.log(`🤖 [SmartTranslation] Translating "${teamName}" to ${language}`, {
+      isLoading: this.isLoading,
+      cacheSize: this.teamCache.size,
+      leaguesLoaded: Object.keys(this.leagueTeamsCache).length,
+      totalTeams: Object.values(this.leagueTeamsCache).reduce((sum, teams) => sum + teams.length, 0)
+    });
 
     // Check cache first
     const cacheKey = `${teamName.toLowerCase()}_${language}`;
@@ -196,7 +201,7 @@ class SmartTeamTranslation {
     }
 
     // Cache the original name to avoid repeated processing
-    console.log(`❌ [SmartTranslation] No translation found for: "${teamName}"`);
+    console.log(`❌ [SmartTranslation] No translation found for: "${teamName}" (tried manual + smart patterns)`);
     this.teamCache.set(cacheKey, teamName);
     return teamName;
   }

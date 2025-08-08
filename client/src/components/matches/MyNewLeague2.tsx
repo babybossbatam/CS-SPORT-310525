@@ -1942,10 +1942,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   const originalName = fixture.teams.home.name || "";
                                   const translatedName = translateTeamName(originalName);
                                   
-                                  // Debug logging for translation
-                                  if (originalName && translatedName !== originalName) {
-                                    console.log(`🌐 [MyNewLeague2] Team translation: "${originalName}" -> "${translatedName}"`);
-                                  }
+                                  // Enhanced debug logging for translation
+                                  console.log(`🏠 [MyNewLeague2] Home team translation:`, {
+                                    original: originalName,
+                                    translated: translatedName,
+                                    language: currentLanguage,
+                                    changed: translatedName !== originalName,
+                                    fixtureId: fixture.fixture.id
+                                  });
                                   
                                   return translatedName || originalName || "Unknown Team";
                                 })()}
@@ -2217,10 +2221,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   const originalName = fixture.teams.away.name || "";
                                   const translatedName = translateTeamName(originalName);
                                   
-                                  // Debug logging for translation
-                                  if (originalName && translatedName !== originalName) {
-                                    console.log(`🌐 [MyNewLeague2] Team translation: "${originalName}" -> "${translatedName}"`);
-                                  }
+                                  // Enhanced debug logging for translation
+                                  console.log(`✈️ [MyNewLeague2] Away team translation:`, {
+                                    original: originalName,
+                                    translated: translatedName,
+                                    language: currentLanguage,
+                                    changed: translatedName !== originalName,
+                                    fixtureId: fixture.fixture.id
+                                  });
                                   
                                   return translatedName || originalName || "Unknown Team";
                                 })()}
