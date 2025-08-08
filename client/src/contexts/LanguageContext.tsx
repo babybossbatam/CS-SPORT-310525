@@ -718,7 +718,153 @@ export const useTranslation = () => {
     return translations[currentLanguage]?.[key] || translations['en']?.[key] || key;
   };
 
-  return { t };
+  // Dynamic league name translation function
+  const translateLeagueName = (leagueName: string): string => {
+    if (!leagueName) return leagueName;
+    
+    const lowerName = leagueName.toLowerCase();
+    
+    // Common league patterns and their translations
+    const leaguePatterns = {
+      'champions league': {
+        'en': 'Champions League',
+        'es': 'Liga de Campeones',
+        'zh-hk': '歐洲冠軍聯賽',
+        'zh-tw': '歐洲冠軍聯賽',
+        'zh': '欧洲冠军联赛',
+        'de': 'Champions League',
+        'it': 'Champions League',
+        'pt': 'Liga dos Campeões'
+      },
+      'europa league': {
+        'en': 'Europa League',
+        'es': 'Liga Europa',
+        'zh-hk': '歐洲聯賽',
+        'zh-tw': '歐洲聯賽',
+        'zh': '欧洲联赛',
+        'de': 'Europa League',
+        'it': 'Europa League',
+        'pt': 'Liga Europa'
+      },
+      'conference league': {
+        'en': 'Conference League',
+        'es': 'Liga de la Conferencia',
+        'zh-hk': '歐洲協會聯賽',
+        'zh-tw': '歐洲協會聯賽',
+        'zh': '欧洲协会联赛',
+        'de': 'Conference League',
+        'it': 'Conference League',
+        'pt': 'Liga da Conferência'
+      },
+      'premier league': {
+        'en': 'Premier League',
+        'es': 'Premier League',
+        'zh-hk': '英超',
+        'zh-tw': '英超',
+        'zh': '英超',
+        'de': 'Premier League',
+        'it': 'Premier League',
+        'pt': 'Premier League'
+      },
+      'la liga': {
+        'en': 'La Liga',
+        'es': 'La Liga',
+        'zh-hk': '西甲',
+        'zh-tw': '西甲',
+        'zh': '西甲',
+        'de': 'La Liga',
+        'it': 'La Liga',
+        'pt': 'La Liga'
+      },
+      'serie a': {
+        'en': 'Serie A',
+        'es': 'Serie A',
+        'zh-hk': '意甲',
+        'zh-tw': '意甲',
+        'zh': '意甲',
+        'de': 'Serie A',
+        'it': 'Serie A',
+        'pt': 'Serie A'
+      },
+      'bundesliga': {
+        'en': 'Bundesliga',
+        'es': 'Bundesliga',
+        'zh-hk': '德甲',
+        'zh-tw': '德甲',
+        'zh': '德甲',
+        'de': 'Bundesliga',
+        'it': 'Bundesliga',
+        'pt': 'Bundesliga'
+      },
+      'ligue 1': {
+        'en': 'Ligue 1',
+        'es': 'Ligue 1',
+        'zh-hk': '法甲',
+        'zh-tw': '法甲',
+        'zh': '法甲',
+        'de': 'Ligue 1',
+        'it': 'Ligue 1',
+        'pt': 'Ligue 1'
+      },
+      'world cup': {
+        'en': 'World Cup',
+        'es': 'Copa del Mundo',
+        'zh-hk': '世界盃',
+        'zh-tw': '世界盃',
+        'zh': '世界杯',
+        'de': 'Weltmeisterschaft',
+        'it': 'Coppa del Mondo',
+        'pt': 'Copa do Mundo'
+      },
+      'friendlies': {
+        'en': 'Friendlies',
+        'es': 'Amistosos',
+        'zh-hk': '友誼賽',
+        'zh-tw': '友誼賽',
+        'zh': '友谊赛',
+        'de': 'Freundschaftsspiele',
+        'it': 'Amichevoli',
+        'pt': 'Amigáveis'
+      },
+      'copa america': {
+        'en': 'Copa America',
+        'es': 'Copa América',
+        'zh-hk': '美洲盃',
+        'zh-tw': '美洲盃',
+        'zh': '美洲杯',
+        'de': 'Copa América',
+        'it': 'Copa América',
+        'pt': 'Copa América'
+      },
+      'copa libertadores': {
+        'en': 'Copa Libertadores',
+        'es': 'Copa Libertadores',
+        'zh-hk': '自由盃',
+        'zh-tw': '自由盃',
+        'zh': '自由杯',
+        'de': 'Copa Libertadores',
+        'it': 'Copa Libertadores',
+        'pt': 'Copa Libertadores'
+      }
+    };
+
+    // Check for exact pattern matches
+    for (const [pattern, translations] of Object.entries(leaguePatterns)) {
+      if (lowerName.includes(pattern)) {
+        const translation = translations[currentLanguage as keyof typeof translations];
+        if (translation) {
+          // Replace the pattern in the original name while preserving case and other parts
+          const regex = new RegExp(pattern, 'gi');
+          return leagueName.replace(regex, translation);
+        }
+      }
+    }
+
+    // Return original name if no pattern matched
+    return leagueName;
+  };
+
+  return { t, translateLeagueName };
 };
 
 export { countryToLanguageMap };

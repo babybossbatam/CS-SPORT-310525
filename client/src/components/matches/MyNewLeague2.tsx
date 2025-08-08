@@ -127,7 +127,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   onMatchCardClick,
   match,
 }) => {
-  const { t } = useTranslation();
+  const { t, translateLeagueName } = useTranslation();
   // Sample match data for demonstration (similar to MyMatchdetailsScoreboard)
   const sampleMatch = {
     fixture: {
@@ -1542,13 +1542,13 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         const leagueName = safeSubstring(league.name, 0) || "Unknown League";
                         // Translate specific league names
                         if (leagueName.toLowerCase().includes("leagues cup")) {
-                          return t('leagues_cup');
+                          return translateLeagueName('leagues_cup');
                         }
                         if (leagueName.toLowerCase().includes("friendlies")) {
-                          return t('friendlies_clubs');
+                          return translateLeagueName('friendlies_clubs');
                         }
                         if (leagueName.toLowerCase().includes("uefa europa league")) {
-                          return t('uefa_europa_league');
+                          return translateLeagueName('uefa_europa_league');
                         }
                         return leagueName;
                       })()}
@@ -1625,7 +1625,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                       const countryName = league.country || "Unknown Country";
                       // Translate specific country names
                       if (countryName.toLowerCase() === "world") {
-                        return t('world');
+                        return translateLeagueName('world');
                       }
                       return countryName;
                     })()}
@@ -1962,10 +1962,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   const teamName = shortenTeamName(fixture.teams.home.name) || "Unknown Team";
                                   // Translate specific team names
                                   if (teamName.toLowerCase().includes("bayern münchen") || teamName.toLowerCase().includes("bayern munich")) {
-                                    return t('bayern_münchen');
+                                    return translateLeagueName('bayern_münchen');
                                   }
                                   if (teamName.toLowerCase().includes("tottenham")) {
-                                    return t('tottenham');
+                                    return translateLeagueName('tottenham');
                                   }
                                   return teamName;
                                 })()}
@@ -2165,26 +2165,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     );
                                   }
 
-                                  // Fallback for any unhandled status - show time or score if available
-                                  if (
-                                    fixture.goals.home !== null ||
-                                    fixture.goals.away !== null
-                                  ) {
-                                    return (
-                                      <div className="match-score-display">
-                                        <span className="score-number">
-                                          {fixture.goals.home ?? 0}
-                                        </span>
-                                        <span className="score-separator">
-                                          -
-                                        </span>
-                                        <span className="score-number">
-                                          {fixture.goals.away ?? 0}
-                                        </span>
-                                      </div>
-                                    );
-                                  }
-
                                   // Last resort - show match time
                                   return (
                                     <div
@@ -2257,10 +2237,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   const teamName = shortenTeamName(fixture.teams.away.name) || "Unknown Team";
                                   // Translate specific team names
                                   if (teamName.toLowerCase().includes("bayern münchen") || teamName.toLowerCase().includes("bayern munich")) {
-                                    return t('bayern_münchen');
+                                    return translateLeagueName('bayern_münchen');
                                   }
                                   if (teamName.toLowerCase().includes("tottenham")) {
-                                    return t('tottenham');
+                                    return translateLeagueName('tottenham');
                                   }
                                   return teamName;
                                 })()}
@@ -2283,14 +2263,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 if (isPenaltyMatch && hasPenaltyScores) {
                                   const translateTeamName = (teamName: string) => {
                                     if (teamName.toLowerCase().includes("bayern münchen") || teamName.toLowerCase().includes("bayern munich")) {
-                                      return t('bayern_münchen');
+                                      return translateLeagueName('bayern_münchen');
                                     }
                                     if (teamName.toLowerCase().includes("tottenham")) {
-                                      return t('tottenham');
+                                      return translateLeagueName('tottenham');
                                     }
                                     return teamName;
                                   };
-                                  
+
                                   const winnerText =
                                     penaltyHome > penaltyAway
                                       ? `${translateTeamName(shortenTeamName(fixture.teams.home.name))} won ${penaltyHome}-${penaltyAway} on penalties`
@@ -2328,7 +2308,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
-  const { t } = useTranslation();
+  const { t, translateLeagueName } = useTranslation();
   const { hasIntersected } = useIntersectionObserver(containerRef, {
     threshold: 0.01, // Trigger even earlier
     rootMargin: '200px' // Start loading 200px before it comes into view
