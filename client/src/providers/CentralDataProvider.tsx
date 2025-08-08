@@ -37,6 +37,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     queryKey: ['central-date-fixtures', selectedDate],
     queryFn: async () => {
       try {
+        // Validate selectedDate before making API call
+        if (!selectedDate || selectedDate === 'undefined' || !selectedDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          console.warn(`🚫 [CentralDataProvider] Invalid selectedDate: ${selectedDate}`);
+          return [];
+        }
+        
         console.log(`🔄 [CentralDataProvider] Fetching fixtures for ${selectedDate}`);
         const response = await fetch(`/api/fixtures/date/${selectedDate}?all=true`);
         if (!response.ok) {
@@ -71,6 +77,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     refetchOnWindowFocus: false,
     retry: false, // Disable retries to prevent cascading errors
     throwOnError: false, // Don't throw errors to prevent unhandled rejections
+    enabled: !!(selectedDate && selectedDate !== 'undefined' && selectedDate.match(/^\d{4}-\d{2}-\d{2}$/)), // Only run query with valid dateons
   });
 
   // Single source of truth for live fixtures
