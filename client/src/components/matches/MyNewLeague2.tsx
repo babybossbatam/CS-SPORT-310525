@@ -127,7 +127,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   onMatchCardClick,
   match,
 }) => {
-  const { t, translateLeagueName } = useTranslation();
+  const { t, translateLeagueName, translateTeamName } = useTranslation();
   // Sample match data for demonstration (similar to MyMatchdetailsScoreboard)
   const sampleMatch = {
     fixture: {
@@ -1938,7 +1938,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {shortenTeamName(fixture.teams.home.name) || "Unknown Team"}
+                                {translateTeamName(fixture.teams.home.name) || "Unknown Team"}
                               </div>
 
                               {/* Home team logo */}
@@ -2203,7 +2203,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {shortenTeamName(fixture.teams.away.name) || "Unknown Team"}
+                                {translateTeamName(fixture.teams.away.name) || "Unknown Team"}
                               </div>
                             </div>
 
@@ -2230,7 +2230,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
                                   const penaltyWonText = t('won_on_penalties');
                                   const onPenaltiesText = t('on_penalties');
-                                  
+
                                   // Handle Chinese languages properly
                                   let winnerText;
                                   if (penaltyWonText.includes('互射十二碼獲勝')) {

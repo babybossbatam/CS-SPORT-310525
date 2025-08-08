@@ -1290,7 +1290,47 @@ export const useTranslation = () => {
     return leagueName;
   };
 
-  return { t, translateLeagueName };
+  // Team name translation function (placeholder, needs actual translations)
+  const translateTeamName = (teamName: string): string => {
+    if (!teamName) return teamName;
+
+    // This is a placeholder. You'll need to add actual translations for team names here.
+    // Example:
+    // const teamTranslations: { [key: string]: { [key: string]: string } } = {
+    //   'Bayern München': {
+    //     'en': 'Bayern Munich',
+    //     'es': 'Bayern Múnich',
+    //     'zh-hk': '拜仁慕尼黑',
+    //     'zh-tw': '拜仁慕尼黑',
+    //     'zh': '拜仁慕尼黑',
+    //     'de': 'Bayern München',
+    //     'it': 'Bayern Monaco',
+    //     'pt': 'Bayern de Munique'
+    //   },
+    //   'Tottenham': {
+    //     'en': 'Tottenham',
+    //     'es': 'Tottenham',
+    //     'zh-hk': '熱刺',
+    //     'zh-tw': '熱刺',
+    //     'zh': '热刺',
+    //     'de': 'Tottenham',
+    //     'it': 'Tottenham',
+    //     'pt': 'Tottenham'
+    //   }
+    // };
+    // return teamTranslations[teamName]?.[currentLanguage] || teamName;
+
+    // For now, return the original team name
+    return teamName;
+  };
+
+
+  return {
+    currentLanguage,
+    t,
+    translateLeagueName,
+    translateTeamName
+  };
 };
 
 export { countryToLanguageMap };
