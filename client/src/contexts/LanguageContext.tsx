@@ -1173,6 +1173,20 @@ export const useTranslation = () => {
       }
     }
 
+    // Specific check for "Liga Profesional" with Chinese characters to ensure correct translation
+    if (leagueName.includes('Liga Profesional') && leagueName.includes('阿根廷')) {
+      return {
+        'en': 'Liga Profesional Argentina',
+        'es': 'Liga Profesional Argentina',
+        'zh-hk': '阿根廷職業聯賽',
+        'zh-tw': '阿根廷職業聯賽',
+        'zh': '阿根廷职业联赛',
+        'de': 'Liga Profesional Argentina',
+        'it': 'Liga Profesional Argentina',
+        'pt': 'Liga Profesional Argentina'
+      }[currentLanguage] || leagueName;
+    }
+
     // Return original name if no pattern matched
     return leagueName;
   };
