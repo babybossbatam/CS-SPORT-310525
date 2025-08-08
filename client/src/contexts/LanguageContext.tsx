@@ -3609,6 +3609,380 @@ export const useTranslation = () => {
         'de': 'Vancouver Whitecaps',
         'it': 'Vancouver Whitecaps',
         'pt': 'Vancouver Whitecaps'
+      },
+
+      // European Competition Teams (UEFA Europa League, Conference League, etc.)
+      'FCSB': {
+        'en': 'FCSB',
+        'es': 'FCSB',
+        'zh-hk': 'FCSB',
+        'zh-tw': 'FCSB',
+        'zh': 'FCSB',
+        'de': 'FCSB',
+        'it': 'FCSB',
+        'pt': 'FCSB'
+      },
+      'Drita': {
+        'en': 'Drita',
+        'es': 'Drita',
+        'zh-hk': '德里塔',
+        'zh-tw': '德里塔',
+        'zh': '德里塔',
+        'de': 'Drita',
+        'it': 'Drita',
+        'pt': 'Drita'
+      },
+      'Servette FC': {
+        'en': 'Servette FC',
+        'es': 'Servette FC',
+        'zh-hk': '塞維特',
+        'zh-tw': '塞維特',
+        'zh': '塞尔维特',
+        'de': 'Servette Genf',
+        'it': 'Servette FC',
+        'pt': 'Servette FC'
+      },
+      'Utrecht': {
+        'en': 'Utrecht',
+        'es': 'Utrecht',
+        'zh-hk': '烏德勒支',
+        'zh-tw': '烏德勒支',
+        'zh': '乌德勒支',
+        'de': 'FC Utrecht',
+        'it': 'Utrecht',
+        'pt': 'Utrecht'
+      },
+      'FC Utrecht': {
+        'en': 'FC Utrecht',
+        'es': 'FC Utrecht',
+        'zh-hk': '烏德勒支',
+        'zh-tw': '烏德勒支',
+        'zh': '乌德勒支',
+        'de': 'FC Utrecht',
+        'it': 'FC Utrecht',
+        'pt': 'FC Utrecht'
+      },
+      'Zrinjski': {
+        'en': 'Zrinjski',
+        'es': 'Zrinjski',
+        'zh-hk': '茲林斯基',
+        'zh-tw': '茲林斯基',
+        'zh': '兹林斯基',
+        'de': 'Zrinjski Mostar',
+        'it': 'Zrinjski',
+        'pt': 'Zrinjski'
+      },
+      'Zrinjski Mostar': {
+        'en': 'Zrinjski Mostar',
+        'es': 'Zrinjski Mostar',
+        'zh-hk': '茲林斯基',
+        'zh-tw': '茲林斯基',
+        'zh': '兹林斯基',
+        'de': 'Zrinjski Mostar',
+        'it': 'Zrinjski Mostar',
+        'pt': 'Zrinjski Mostar'
+      },
+      'Breidablik': {
+        'en': 'Breidablik',
+        'es': 'Breidablik',
+        'zh-hk': '布雷達布利克',
+        'zh-tw': '布雷達布利克',
+        'zh': '布雷达布利克',
+        'de': 'Breidablik UBK',
+        'it': 'Breidablik',
+        'pt': 'Breidablik'
+      },
+      'Wolfsberger AC': {
+        'en': 'Wolfsberger AC',
+        'es': 'Wolfsberger AC',
+        'zh-hk': '禾夫斯貝格',
+        'zh-tw': '沃爾夫斯貝格',
+        'zh': '沃尔夫斯贝格',
+        'de': 'Wolfsberger AC',
+        'it': 'Wolfsberger AC',
+        'pt': 'Wolfsberger AC'
+      },
+      'BK Hacken': {
+        'en': 'BK Hacken',
+        'es': 'BK Häcken',
+        'zh-hk': '哈肯',
+        'zh-tw': '哈肯',
+        'zh': '哈肯',
+        'de': 'BK Häcken',
+        'it': 'BK Häcken',
+        'pt': 'BK Häcken'
+      },
+      'Hacken': {
+        'en': 'Hacken',
+        'es': 'Häcken',
+        'zh-hk': '哈肯',
+        'zh-tw': '哈肯',
+        'zh': '哈肯',
+        'de': 'Häcken',
+        'it': 'Häcken',
+        'pt': 'Häcken'
+      },
+      'Brann': {
+        'en': 'Brann',
+        'es': 'Brann',
+        'zh-hk': '布蘭',
+        'zh-tw': '布蘭',
+        'zh': '布兰',
+        'de': 'SK Brann',
+        'it': 'Brann',
+        'pt': 'Brann'
+      },
+      'SK Brann': {
+        'en': 'SK Brann',
+        'es': 'SK Brann',
+        'zh-hk': '布蘭',
+        'zh-tw': '布蘭',
+        'zh': '布兰',
+        'de': 'SK Brann',
+        'it': 'SK Brann',
+        'pt': 'SK Brann'
+      },
+      'AEK Larnaca': {
+        'en': 'AEK Larnaca',
+        'es': 'AEK Larnaca',
+        'zh-hk': 'AEK拉納卡',
+        'zh-tw': 'AEK拉納卡',
+        'zh': 'AEK拉纳卡',
+        'de': 'AEK Larnaka',
+        'it': 'AEK Larnaca',
+        'pt': 'AEK Larnaca'
+      },
+      'Legia Warszawa': {
+        'en': 'Legia Warsaw',
+        'es': 'Legia Varsovia',
+        'zh-hk': '華沙軍團',
+        'zh-tw': '華沙軍團',
+        'zh': '华沙军团',
+        'de': 'Legia Warschau',
+        'it': 'Legia Varsavia',
+        'pt': 'Legia Varsóvia'
+      },
+      'CFR 1907 Cluj': {
+        'en': 'CFR Cluj',
+        'es': 'CFR Cluj',
+        'zh-hk': 'CFR克盧日',
+        'zh-tw': 'CFR克盧日',
+        'zh': 'CFR克卢日',
+        'de': 'CFR Cluj',
+        'it': 'CFR Cluj',
+        'pt': 'CFR Cluj'
+      },
+      'CFR Cluj': {
+        'en': 'CFR Cluj',
+        'es': 'CFR Cluj',
+        'zh-hk': 'CFR克盧日',
+        'zh-tw': 'CFR克盧日',
+        'zh': 'CFR克卢日',
+        'de': 'CFR Cluj',
+        'it': 'CFR Cluj',
+        'pt': 'CFR Cluj'
+      },
+      'Lincoln Red Imps FC': {
+        'en': 'Lincoln Red Imps FC',
+        'es': 'Lincoln Red Imps FC',
+        'zh-hk': '林肯紅魔',
+        'zh-tw': '林肯紅魔',
+        'zh': '林肯红魔',
+        'de': 'Lincoln Red Imps FC',
+        'it': 'Lincoln Red Imps FC',
+        'pt': 'Lincoln Red Imps FC'
+      },
+      'Lincoln Red Imps': {
+        'en': 'Lincoln Red Imps',
+        'es': 'Lincoln Red Imps',
+        'zh-hk': '林肯紅魔',
+        'zh-tw': '林肯紅魔',
+        'zh': '林肯红魔',
+        'de': 'Lincoln Red Imps',
+        'it': 'Lincoln Red Imps',
+        'pt': 'Lincoln Red Imps'
+      },
+      'FC Noah': {
+        'en': 'FC Noah',
+        'es': 'FC Noah',
+        'zh-hk': 'FC諾亞',
+        'zh-tw': 'FC諾亞',
+        'zh': 'FC诺亚',
+        'de': 'FC Noah',
+        'it': 'FC Noah',
+        'pt': 'FC Noah'
+      },
+      'Fredrikstad': {
+        'en': 'Fredrikstad',
+        'es': 'Fredrikstad',
+        'zh-hk': '弗雷德里克斯塔',
+        'zh-tw': '弗雷德里克斯塔',
+        'zh': '弗雷德里克斯塔',
+        'de': 'Fredrikstad FK',
+        'it': 'Fredrikstad',
+        'pt': 'Fredrikstad'
+      },
+      'Fredrikstad FK': {
+        'en': 'Fredrikstad FK',
+        'es': 'Fredrikstad FK',
+        'zh-hk': '弗雷德里克斯塔',
+        'zh-tw': '弗雷德里克斯塔',
+        'zh': '弗雷德里克斯塔',
+        'de': 'Fredrikstad FK',
+        'it': 'Fredrikstad FK',
+        'pt': 'Fredrikstad FK'
+      },
+      'FC Midtjylland': {
+        'en': 'FC Midtjylland',
+        'es': 'FC Midtjylland',
+        'zh-hk': '中日德蘭',
+        'zh-tw': '中日德蘭',
+        'zh': '中日德兰',
+        'de': 'FC Midtjylland',
+        'it': 'FC Midtjylland',
+        'pt': 'FC Midtjylland'
+      },
+      'Midtjylland': {
+        'en': 'Midtjylland',
+        'es': 'Midtjylland',
+        'zh-hk': '中日德蘭',
+        'zh-tw': '中日德蘭',
+        'zh': '中日德兰',
+        'de': 'Midtjylland',
+        'it': 'Midtjylland',
+        'pt': 'Midtjylland'
+      },
+
+      // Additional European teams that might appear
+      'Shamrock Rovers': {
+        'en': 'Shamrock Rovers',
+        'es': 'Shamrock Rovers',
+        'zh-hk': '沙姆洛克流浪',
+        'zh-tw': '沙姆洛克流浪',
+        'zh': '沙姆洛克流浪',
+        'de': 'Shamrock Rovers',
+        'it': 'Shamrock Rovers',
+        'pt': 'Shamrock Rovers'
+      },
+      'Sheriff Tiraspol': {
+        'en': 'Sheriff Tiraspol',
+        'es': 'Sheriff Tiraspol',
+        'zh-hk': '蒂拉斯波爾警長',
+        'zh-tw': '蒂拉斯波爾警長',
+        'zh': '蒂拉斯波尔警长',
+        'de': 'Sheriff Tiraspol',
+        'it': 'Sheriff Tiraspol',
+        'pt': 'Sheriff Tiraspol'
+      },
+      'Ludogorets': {
+        'en': 'Ludogorets',
+        'es': 'Ludogorets',
+        'zh-hk': '盧多戈雷茨',
+        'zh-tw': '盧多戈雷茨',
+        'zh': '卢多戈雷茨',
+        'de': 'Ludogorets Razgrad',
+        'it': 'Ludogorets',
+        'pt': 'Ludogorets'
+      },
+      'Ludogorets Razgrad': {
+        'en': 'Ludogorets Razgrad',
+        'es': 'Ludogorets Razgrad',
+        'zh-hk': '盧多戈雷茨',
+        'zh-tw': '盧多戈雷茨',
+        'zh': '卢多戈雷茨',
+        'de': 'Ludogorets Razgrad',
+        'it': 'Ludogorets Razgrad',
+        'pt': 'Ludogorets Razgrad'
+      },
+      'Maccabi Tel Aviv': {
+        'en': 'Maccabi Tel Aviv',
+        'es': 'Maccabi Tel Aviv',
+        'zh-hk': '特拉維夫馬卡比',
+        'zh-tw': '特拉維夫馬卡比',
+        'zh': '特拉维夫马卡比',
+        'de': 'Maccabi Tel Aviv',
+        'it': 'Maccabi Tel Aviv',
+        'pt': 'Maccabi Tel Aviv'
+      },
+      'Maccabi Haifa': {
+        'en': 'Maccabi Haifa',
+        'es': 'Maccabi Haifa',
+        'zh-hk': '海法馬卡比',
+        'zh-tw': '海法馬卡比',
+        'zh': '海法马卡比',
+        'de': 'Maccabi Haifa',
+        'it': 'Maccabi Haifa',
+        'pt': 'Maccabi Haifa'
+      },
+      'Qarabag': {
+        'en': 'Qarabag',
+        'es': 'Qarabag',
+        'zh-hk': '卡拉巴格',
+        'zh-tw': '卡拉巴格',
+        'zh': '卡拉巴格',
+        'de': 'Qarabağ FK',
+        'it': 'Qarabag',
+        'pt': 'Qarabag'
+      },
+      'Qarabag FK': {
+        'en': 'Qarabag FK',
+        'es': 'Qarabag FK',
+        'zh-hk': '卡拉巴格',
+        'zh-tw': '卡拉巴格',
+        'zh': '卡拉巴格',
+        'de': 'Qarabağ FK',
+        'it': 'Qarabag FK',
+        'pt': 'Qarabag FK'
+      },
+      'Slovan Bratislava': {
+        'en': 'Slovan Bratislava',
+        'es': 'Slovan Bratislava',
+        'zh-hk': '布拉提斯拉瓦斯洛萬',
+        'zh-tw': '布拉提斯拉瓦斯洛萬',
+        'zh': '布拉提斯拉发斯洛万',
+        'de': 'Slovan Bratislava',
+        'it': 'Slovan Bratislava',
+        'pt': 'Slovan Bratislava'
+      },
+      'Red Star Belgrade': {
+        'en': 'Red Star Belgrade',
+        'es': 'Estrella Roja',
+        'zh-hk': '貝爾格勒紅星',
+        'zh-tw': '貝爾格勒紅星',
+        'zh': '贝尔格莱德红星',
+        'de': 'Roter Stern Belgrad',
+        'it': 'Stella Rossa Belgrado',
+        'pt': 'Estrela Vermelha'
+      },
+      'Crvena Zvezda': {
+        'en': 'Red Star Belgrade',
+        'es': 'Estrella Roja',
+        'zh-hk': '貝爾格勒紅星',
+        'zh-tw': '貝爾格勒紅星',
+        'zh': '贝尔格莱德红星',
+        'de': 'Roter Stern Belgrad',
+        'it': 'Stella Rossa Belgrado',
+        'pt': 'Estrela Vermelha'
+      },
+      'Partizan Belgrade': {
+        'en': 'Partizan Belgrade',
+        'es': 'Partizan Belgrado',
+        'zh-hk': '貝爾格勒游擊隊',
+        'zh-tw': '貝爾格勒游擊隊',
+        'zh': '贝尔格莱德游击队',
+        'de': 'Partizan Belgrad',
+        'it': 'Partizan Belgrado',
+        'pt': 'Partizan Belgrado'
+      },
+      'Partizan': {
+        'en': 'Partizan',
+        'es': 'Partizan',
+        'zh-hk': '游擊隊',
+        'zh-tw': '游擊隊',
+        'zh': '游击队',
+        'de': 'Partizan',
+        'it': 'Partizan',
+        'pt': 'Partizan'
       }
     };
 
