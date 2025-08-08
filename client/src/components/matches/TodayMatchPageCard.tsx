@@ -46,6 +46,7 @@ export const TodayMatchPageCard = ({
   const [selectedDate, setSelectedDate] = useState(getCurrentUTCDateString());
   const calendarRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
+  const { currentLanguage } = useLanguage();
 
   // Calendar translation helpers
   const getMonthName = (monthIndex: number): string => {
@@ -127,7 +128,9 @@ export const TodayMatchPageCard = ({
     const tomorrow = format(addDays(parseISO(today), 1), "yyyy-MM-dd");
 
     if (selectedDate === today) {
-      return t('today_matches');
+      const todayText = t('today_matches');
+      console.log(`🌐 Language: ${currentLanguage}, Today text: "${todayText}"`);
+      return todayText;
     } else if (selectedDate === yesterday) {
       return t('yesterday_matches');
     } else if (selectedDate === tomorrow) {
@@ -146,13 +149,12 @@ export const TodayMatchPageCard = ({
       const dayOfMonth = date.getDate();
       
       // Format based on language - Chinese languages don't use ordinal suffixes
-      const { currentLanguage } = useLanguage();
       if (currentLanguage.startsWith('zh')) {
         return `${monthName}${dayOfMonth}日 ${dayName}`;
       } else {
         // Format as "Monday, 6th August" equivalent in the target language
         const ordinalSuffix = getOrdinalSuffix(dayOfMonth);
-        return `${dayName}, ${dayOfMonth}${ordinalSuffix} ${monthName}`;
+        return `${dayName}, ${dayOfMonth}${dayOfMonth} ${monthName}`;
       }
     }
   };
@@ -257,7 +259,7 @@ export const TodayMatchPageCard = ({
               }}
               className="flex items-center gap-3 px-3 py-4   h-full"
             >
-              <span className="font-medium">
+              <span className={`font-medium ${currentLanguage.startsWith('zh') ? 'font-sans' : ''}`}>
                 {getMyLeftBasketDisplayName()}
               </span>
               <ChevronDown
