@@ -1290,37 +1290,383 @@ export const useTranslation = () => {
     return leagueName;
   };
 
-  // Team name translation function (placeholder, needs actual translations)
+  // Team name translation function with comprehensive translations
   const translateTeamName = (teamName: string): string => {
     if (!teamName) return teamName;
 
-    // This is a placeholder. You'll need to add actual translations for team names here.
-    // Example:
-    // const teamTranslations: { [key: string]: { [key: string]: string } } = {
-    //   'Bayern München': {
-    //     'en': 'Bayern Munich',
-    //     'es': 'Bayern Múnich',
-    //     'zh-hk': '拜仁慕尼黑',
-    //     'zh-tw': '拜仁慕尼黑',
-    //     'zh': '拜仁慕尼黑',
-    //     'de': 'Bayern München',
-    //     'it': 'Bayern Monaco',
-    //     'pt': 'Bayern de Munique'
-    //   },
-    //   'Tottenham': {
-    //     'en': 'Tottenham',
-    //     'es': 'Tottenham',
-    //     'zh-hk': '熱刺',
-    //     'zh-tw': '熱刺',
-    //     'zh': '热刺',
-    //     'de': 'Tottenham',
-    //     'it': 'Tottenham',
-    //     'pt': 'Tottenham'
-    //   }
-    // };
-    // return teamTranslations[teamName]?.[currentLanguage] || teamName;
+    const teamTranslations: { [key: string]: { [key: string]: string } } = {
+      // European Clubs
+      'Bayern München': {
+        'en': 'Bayern Munich',
+        'es': 'Bayern Múnich',
+        'zh-hk': '拜仁慕尼黑',
+        'zh-tw': '拜仁慕尼黑',
+        'zh': '拜仁慕尼黑',
+        'de': 'Bayern München',
+        'it': 'Bayern Monaco',
+        'pt': 'Bayern de Munique'
+      },
+      'Bayern Munich': {
+        'en': 'Bayern Munich',
+        'es': 'Bayern Múnich',
+        'zh-hk': '拜仁慕尼黑',
+        'zh-tw': '拜仁慕尼黑',
+        'zh': '拜仁慕尼黑',
+        'de': 'Bayern München',
+        'it': 'Bayern Monaco',
+        'pt': 'Bayern de Munique'
+      },
+      'Real Madrid': {
+        'en': 'Real Madrid',
+        'es': 'Real Madrid',
+        'zh-hk': '皇家馬德里',
+        'zh-tw': '皇家馬德里',
+        'zh': '皇家马德里',
+        'de': 'Real Madrid',
+        'it': 'Real Madrid',
+        'pt': 'Real Madrid'
+      },
+      'FC Barcelona': {
+        'en': 'Barcelona',
+        'es': 'Barcelona',
+        'zh-hk': '巴塞隆拿',
+        'zh-tw': '巴塞隆納',
+        'zh': '巴塞罗那',
+        'de': 'Barcelona',
+        'it': 'Barcellona',
+        'pt': 'Barcelona'
+      },
+      'Barcelona': {
+        'en': 'Barcelona',
+        'es': 'Barcelona',
+        'zh-hk': '巴塞隆拿',
+        'zh-tw': '巴塞隆納',
+        'zh': '巴塞罗那',
+        'de': 'Barcelona',
+        'it': 'Barcellona',
+        'pt': 'Barcelona'
+      },
+      'Manchester United': {
+        'en': 'Manchester United',
+        'es': 'Manchester United',
+        'zh-hk': '曼聯',
+        'zh-tw': '曼聯',
+        'zh': '曼联',
+        'de': 'Manchester United',
+        'it': 'Manchester United',
+        'pt': 'Manchester United'
+      },
+      'Manchester City': {
+        'en': 'Manchester City',
+        'es': 'Manchester City',
+        'zh-hk': '曼城',
+        'zh-tw': '曼城',
+        'zh': '曼城',
+        'de': 'Manchester City',
+        'it': 'Manchester City',
+        'pt': 'Manchester City'
+      },
+      'Liverpool': {
+        'en': 'Liverpool',
+        'es': 'Liverpool',
+        'zh-hk': '利物浦',
+        'zh-tw': '利物浦',
+        'zh': '利物浦',
+        'de': 'Liverpool',
+        'it': 'Liverpool',
+        'pt': 'Liverpool'
+      },
+      'Chelsea': {
+        'en': 'Chelsea',
+        'es': 'Chelsea',
+        'zh-hk': '車路士',
+        'zh-tw': '切爾西',
+        'zh': '切尔西',
+        'de': 'Chelsea',
+        'it': 'Chelsea',
+        'pt': 'Chelsea'
+      },
+      'Arsenal': {
+        'en': 'Arsenal',
+        'es': 'Arsenal',
+        'zh-hk': '阿仙奴',
+        'zh-tw': '阿森納',
+        'zh': '阿森纳',
+        'de': 'Arsenal',
+        'it': 'Arsenal',
+        'pt': 'Arsenal'
+      },
+      'Tottenham': {
+        'en': 'Tottenham',
+        'es': 'Tottenham',
+        'zh-hk': '熱刺',
+        'zh-tw': '熱刺',
+        'zh': '热刺',
+        'de': 'Tottenham',
+        'it': 'Tottenham',
+        'pt': 'Tottenham'
+      },
+      'Juventus': {
+        'en': 'Juventus',
+        'es': 'Juventus',
+        'zh-hk': '祖雲達斯',
+        'zh-tw': '尤文圖斯',
+        'zh': '尤文图斯',
+        'de': 'Juventus',
+        'it': 'Juventus',
+        'pt': 'Juventus'
+      },
+      'AC Milan': {
+        'en': 'AC Milan',
+        'es': 'AC Milan',
+        'zh-hk': 'AC米蘭',
+        'zh-tw': 'AC米蘭',
+        'zh': 'AC米兰',
+        'de': 'AC Mailand',
+        'it': 'AC Milan',
+        'pt': 'AC Milan'
+      },
+      'Inter Milan': {
+        'en': 'Inter Milan',
+        'es': 'Inter de Milán',
+        'zh-hk': '國際米蘭',
+        'zh-tw': '國際米蘭',
+        'zh': '国际米兰',
+        'de': 'Inter Mailand',
+        'it': 'Inter',
+        'pt': 'Inter de Milão'
+      },
+      'Paris Saint-Germain': {
+        'en': 'Paris Saint-Germain',
+        'es': 'Paris Saint-Germain',
+        'zh-hk': '巴黎聖日耳門',
+        'zh-tw': '巴黎聖日耳曼',
+        'zh': '巴黎圣日耳曼',
+        'de': 'Paris Saint-Germain',
+        'it': 'Paris Saint-Germain',
+        'pt': 'Paris Saint-Germain'
+      },
+      'Borussia Dortmund': {
+        'en': 'Borussia Dortmund',
+        'es': 'Borussia Dortmund',
+        'zh-hk': '多蒙特',
+        'zh-tw': '多特蒙德',
+        'zh': '多特蒙德',
+        'de': 'Borussia Dortmund',
+        'it': 'Borussia Dortmund',
+        'pt': 'Borussia Dortmund'
+      },
+      'Atletico Madrid': {
+        'en': 'Atletico Madrid',
+        'es': 'Atlético Madrid',
+        'zh-hk': '馬德里體育會',
+        'zh-tw': '馬德里競技',
+        'zh': '马德里竞技',
+        'de': 'Atlético Madrid',
+        'it': 'Atlético Madrid',
+        'pt': 'Atlético de Madrid'
+      },
 
-    // For now, return the original team name
+      // North American Teams (MLS, Liga MX)
+      'Los Angeles Galaxy': {
+        'en': 'Los Angeles Galaxy',
+        'es': 'Los Angeles Galaxy',
+        'zh-hk': '洛杉磯銀河',
+        'zh-tw': '洛杉磯銀河',
+        'zh': '洛杉矶银河',
+        'de': 'Los Angeles Galaxy',
+        'it': 'Los Angeles Galaxy',
+        'pt': 'Los Angeles Galaxy'
+      },
+      'LA Galaxy': {
+        'en': 'LA Galaxy',
+        'es': 'LA Galaxy',
+        'zh-hk': '洛杉磯銀河',
+        'zh-tw': '洛杉磯銀河',
+        'zh': '洛杉矶银河',
+        'de': 'LA Galaxy',
+        'it': 'LA Galaxy',
+        'pt': 'LA Galaxy'
+      },
+      'Inter Miami': {
+        'en': 'Inter Miami',
+        'es': 'Inter Miami',
+        'zh-hk': '國際邁阿密',
+        'zh-tw': '國際邁阿密',
+        'zh': '国际迈阿密',
+        'de': 'Inter Miami',
+        'it': 'Inter Miami',
+        'pt': 'Inter Miami'
+      },
+      'New York City FC': {
+        'en': 'New York City FC',
+        'es': 'New York City FC',
+        'zh-hk': '紐約城',
+        'zh-tw': '紐約城',
+        'zh': '纽约城',
+        'de': 'New York City FC',
+        'it': 'New York City FC',
+        'pt': 'New York City FC'
+      },
+      'LAFC': {
+        'en': 'LAFC',
+        'es': 'LAFC',
+        'zh-hk': '洛杉磯FC',
+        'zh-tw': '洛杉磯FC',
+        'zh': '洛杉矶FC',
+        'de': 'LAFC',
+        'it': 'LAFC',
+        'pt': 'LAFC'
+      },
+      'Seattle Sounders': {
+        'en': 'Seattle Sounders',
+        'es': 'Seattle Sounders',
+        'zh-hk': '西雅圖海灣人',
+        'zh-tw': '西雅圖海灣人',
+        'zh': '西雅图海湾人',
+        'de': 'Seattle Sounders',
+        'it': 'Seattle Sounders',
+        'pt': 'Seattle Sounders'
+      },
+      'Colorado Rapids': {
+        'en': 'Colorado Rapids',
+        'es': 'Colorado Rapids',
+        'zh-hk': '科羅拉多急流',
+        'zh-tw': '科羅拉多急流',
+        'zh': '科罗拉多急流',
+        'de': 'Colorado Rapids',
+        'it': 'Colorado Rapids',
+        'pt': 'Colorado Rapids'
+      },
+      'Cruz Azul': {
+        'en': 'Cruz Azul',
+        'es': 'Cruz Azul',
+        'zh-hk': '藍十字',
+        'zh-tw': '藍十字',
+        'zh': '蓝十字',
+        'de': 'Cruz Azul',
+        'it': 'Cruz Azul',
+        'pt': 'Cruz Azul'
+      },
+      'Club América': {
+        'en': 'Club América',
+        'es': 'Club América',
+        'zh-hk': '美洲',
+        'zh-tw': '美洲',
+        'zh': '美洲',
+        'de': 'Club América',
+        'it': 'Club América',
+        'pt': 'Club América'
+      },
+      'Chivas': {
+        'en': 'Chivas',
+        'es': 'Chivas',
+        'zh-hk': '芝華士',
+        'zh-tw': '芝華士',
+        'zh': '芝华士',
+        'de': 'Chivas',
+        'it': 'Chivas',
+        'pt': 'Chivas'
+      },
+      'Santos Laguna': {
+        'en': 'Santos Laguna',
+        'es': 'Santos Laguna',
+        'zh-hk': '山度士拉古納',
+        'zh-tw': '山度士拉古納',
+        'zh': '桑托斯拉古纳',
+        'de': 'Santos Laguna',
+        'it': 'Santos Laguna',
+        'pt': 'Santos Laguna'
+      },
+
+      // South American Teams
+      'Boca Juniors': {
+        'en': 'Boca Juniors',
+        'es': 'Boca Juniors',
+        'zh-hk': '小保加',
+        'zh-tw': '博卡青年',
+        'zh': '博卡青年',
+        'de': 'Boca Juniors',
+        'it': 'Boca Juniors',
+        'pt': 'Boca Juniors'
+      },
+      'River Plate': {
+        'en': 'River Plate',
+        'es': 'River Plate',
+        'zh-hk': '河床',
+        'zh-tw': '河床',
+        'zh': '河床',
+        'de': 'River Plate',
+        'it': 'River Plate',
+        'pt': 'River Plate'
+      },
+      'Flamengo': {
+        'en': 'Flamengo',
+        'es': 'Flamengo',
+        'zh-hk': '法林明高',
+        'zh-tw': '佛朗明哥',
+        'zh': '弗拉门戈',
+        'de': 'Flamengo',
+        'it': 'Flamengo',
+        'pt': 'Flamengo'
+      },
+      'Palmeiras': {
+        'en': 'Palmeiras',
+        'es': 'Palmeiras',
+        'zh-hk': '彭美拉斯',
+        'zh-tw': '帕爾梅拉斯',
+        'zh': '帕尔梅拉斯',
+        'de': 'Palmeiras',
+        'it': 'Palmeiras',
+        'pt': 'Palmeiras'
+      },
+      'São Paulo': {
+        'en': 'São Paulo',
+        'es': 'São Paulo',
+        'zh-hk': '聖保羅',
+        'zh-tw': '聖保羅',
+        'zh': '圣保罗',
+        'de': 'São Paulo',
+        'it': 'São Paulo',
+        'pt': 'São Paulo'
+      },
+
+      // Additional Global Teams
+      'Al-Hilal': {
+        'en': 'Al-Hilal',
+        'es': 'Al-Hilal',
+        'zh-hk': '希拉爾',
+        'zh-tw': '希拉爾',
+        'zh': '希拉尔',
+        'de': 'Al-Hilal',
+        'it': 'Al-Hilal',
+        'pt': 'Al-Hilal'
+      },
+      'Al Nassr': {
+        'en': 'Al Nassr',
+        'es': 'Al Nassr',
+        'zh-hk': '勝利',
+        'zh-tw': '勝利',
+        'zh': '胜利',
+        'de': 'Al Nassr',
+        'it': 'Al Nassr',
+        'pt': 'Al Nassr'
+      }
+    };
+
+    // Check for exact match first
+    if (teamTranslations[teamName]) {
+      return teamTranslations[teamName][currentLanguage] || teamName;
+    }
+
+    // Check for partial matches (useful for variations like "FC Barcelona" vs "Barcelona")
+    for (const [key, translations] of Object.entries(teamTranslations)) {
+      if (teamName.includes(key) || key.includes(teamName)) {
+        return translations[currentLanguage] || teamName;
+      }
+    }
+
+    // Return original name if no translation found
     return teamName;
   };
 
