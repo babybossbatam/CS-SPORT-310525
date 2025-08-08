@@ -690,8 +690,8 @@ class SmartTeamTranslation {
     'KF Egnatia': {
       'zh': '罗戈日纳埃格纳蒂亚', 'zh-hk': '羅戈日納埃格納蒂亞', 'zh-tw': '羅戈日納埃格納蒂亞',
       'es': 'KF Egnatia', 'de': 'KF Egnatia', 'it': 'KF Egnatia', 'pt': 'KF Egnatia'
-    },</old_str>
-    'Drita': {
+    }, 
+     'Drita': {
       'zh': '德里塔', 'zh-hk': '德里塔', 'zh-tw': '德里塔',
       'es': 'Drita', 'de': 'Drita', 'it': 'Drita', 'pt': 'Drita'
     },
