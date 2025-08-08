@@ -1938,7 +1938,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {translateTeamName(fixture.teams.home.name) || "Unknown Team"}
+                                {translateTeamName(fixture.teams.home.name || "") || "Unknown Team"}
                               </div>
 
                               {/* Home team logo */}
@@ -2203,7 +2203,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {translateTeamName(fixture.teams.away.name) || "Unknown Team"}
+                                {translateTeamName(fixture.teams.away.name || "") || "Unknown Team"}
                               </div>
                             </div>
 
