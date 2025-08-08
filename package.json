@@ -5,6 +5,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "tsx server/index.ts",
+    "client": "vite",
     "generate-team-mappings": "node scripts/generateTeamMappings.js",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",
