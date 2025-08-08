@@ -277,6 +277,8 @@ const translations = {
     'uefa_europa_league': "歐洲聯賽",
     'uefa_europa_conference_league': "歐洲協會聯賽",
     'uefa_champions_league': "歐洲冠軍聯賽",
+    'copa_do_brasil': "巴西盃",
+    'primera_a_colombia': "哥倫比亞甲級聯賽",
     'bayern_münchen': "拜仁慕尼黑",
     'tottenham': "熱刺"
   },
@@ -596,6 +598,8 @@ const translations = {
     'uefa_europa_league': "歐洲聯賽",
     'uefa_europa_conference_league': "歐洲協會聯賽",
     'uefa_champions_league': "歐洲冠軍聯賽",
+    'copa_do_brasil': "巴西盃",
+    'primera_a_colombia': "哥倫比亞甲級聯賽",
     'bayern_münchen': "拜仁慕尼黑",
     'tottenham': "熱刺"
   }
@@ -731,7 +735,7 @@ export const useTranslation = () => {
     // Enhanced mixed language patterns for complex league names
     const mixedLanguagePatterns = {
       // UEFA Europa League variations
-      'uefa europa 歐洲協會聯賽': {
+      'uefaeuropa 歐洲協會聯賽': {
         'en': 'UEFA Europa League',
         'es': 'UEFA Liga Europa',
         'zh-hk': 'UEFA 歐洲聯賽',
@@ -751,7 +755,7 @@ export const useTranslation = () => {
         'it': 'UEFA Europa League',
         'pt': 'UEFA Liga Europa'
       },
-      'uefa europa': {
+      'uefaeuropa': {
         'en': 'UEFA Europa League',
         'es': 'UEFA Liga Europa',
         'zh-hk': 'UEFA 歐洲聯賽',
@@ -887,17 +891,17 @@ export const useTranslation = () => {
         if (translation) {
           // For pure Chinese patterns, do a smart replacement
           let result = leagueName.replace(chinesePattern, translation);
-          
+
           // Clean up any remaining mixed language artifacts
           result = result.replace(/\s+/g, ' ').trim();
-          
+
           // Handle specific combinations like "友誼賽 Clubs" -> "Club Friendlies"
           if (chinesePattern === '友誼賽' && leagueName.toLowerCase().includes('clubs')) {
             result = translations[currentLanguage as keyof typeof translations] === 'Friendlies' 
               ? 'Club Friendlies' 
               : `${translation} Clubs`;
           }
-          
+
           return result;
         }
       }
@@ -1044,6 +1048,26 @@ export const useTranslation = () => {
         'de': 'Copa Libertadores',
         'it': 'Copa Libertadores',
         'pt': 'Copa Libertadores'
+      },
+      'copa do brasil': {
+        'en': 'Copa do Brasil',
+        'es': 'Copa de Brasil',
+        'zh-hk': '巴西盃',
+        'zh-tw': '巴西盃',
+        'zh': '巴西杯',
+        'de': 'Copa do Brasil',
+        'it': 'Copa do Brasil',
+        'pt': 'Copa do Brasil'
+      },
+      'primera a': {
+        'en': 'Primera A Colombia',
+        'es': 'Primera A Colombia',
+        'zh-hk': '哥倫比亞甲級聯賽',
+        'zh-tw': '哥倫比亞甲級聯賽',
+        'zh': '哥伦比亚甲级联赛',
+        'de': 'Primera A Kolumbien',
+        'it': 'Primera A Colombia',
+        'pt': 'Primeira Divisão Colômbia'
       },
       'bayern münchen': {
         'en': 'Bayern Munich',
