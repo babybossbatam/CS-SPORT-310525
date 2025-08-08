@@ -1310,6 +1310,73 @@ export const useTranslation = () => {
       return smartTranslation;
     }
 
+    // Manual team translations as fallback
+    const teamTranslations: { [key: string]: { [key: string]: string } } = {
+      'manchester united': {
+        'zh': '曼联',
+        'zh-hk': '曼聯',
+        'zh-tw': '曼聯',
+        'es': 'Manchester United',
+        'de': 'Manchester United',
+        'it': 'Manchester United',
+        'pt': 'Manchester United'
+      },
+      'manchester city': {
+        'zh': '曼城',
+        'zh-hk': '曼城',
+        'zh-tw': '曼城',
+        'es': 'Manchester City',
+        'de': 'Manchester City',
+        'it': 'Manchester City',
+        'pt': 'Manchester City'
+      },
+      'liverpool': {
+        'zh': '利物浦',
+        'zh-hk': '利物浦',
+        'zh-tw': '利物浦',
+        'es': 'Liverpool',
+        'de': 'Liverpool',
+        'it': 'Liverpool',
+        'pt': 'Liverpool'
+      },
+      'arsenal': {
+        'zh': '阿森纳',
+        'zh-hk': '阿仙奴',
+        'zh-tw': '阿森納',
+        'es': 'Arsenal',
+        'de': 'Arsenal',
+        'it': 'Arsenal',
+        'pt': 'Arsenal'
+      },
+      'chelsea': {
+        'zh': '切尔西',
+        'zh-hk': '車路士',
+        'zh-tw': '切爾西',
+        'es': 'Chelsea',
+        'de': 'Chelsea',
+        'it': 'Chelsea',
+        'pt': 'Chelsea'
+      },
+      'real madrid': {
+        'zh': '皇家马德里',
+        'zh-hk': '皇家馬德里',
+        'zh-tw': '皇家馬德里',
+        'es': 'Real Madrid',
+        'de': 'Real Madrid',
+        'it': 'Real Madrid',
+        'pt': 'Real Madrid'
+      },
+      'barcelona': {
+        'zh': '巴塞罗那',
+        'zh-hk': '巴塞隆拿',
+        'zh-tw': '巴塞隆納',
+        'es': 'Barcelona',
+        'de': 'Barcelona',
+        'it': 'Barcelona',
+        'pt': 'Barcelona'
+      }
+    };
+
     // Fallback to manual translations
     const lowerTeamName = teamName.toLowerCase();
     const translation = teamTranslations[lowerTeamName];
