@@ -2188,7 +2188,10 @@ export const useTranslation = () => {
         'it': 'Vancouver Whitecaps',
         'pt': 'Vancouver Whitecaps'
       }
-    };</old_str>
+    };
+
+    // Check for exact match first
+    if (teamTranslations[teamName]) {</old_str>
 
     // Check for exact match first
     if (teamTranslations[teamName]) {
