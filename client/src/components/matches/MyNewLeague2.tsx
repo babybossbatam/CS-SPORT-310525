@@ -1785,10 +1785,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   let statusClass = "status-live-elapsed";
 
                                   if (status === "HT") {
-                                    displayText = "Halftime";
+                                    displayText = t('halftime');
                                     statusClass = "status-halftime";
                                   } else if (status === "P") {
-                                    displayText = "Penalties";
+                                    displayText = t('penalties');
                                   } else if (status === "ET") {
                                     if (elapsed) {
                                       const extraTime = elapsed - 90;
@@ -1797,12 +1797,12 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                           ? `90' + ${extraTime}'`
                                           : `${elapsed}'`;
                                     } else {
-                                      displayText = "Extra Time";
+                                      displayText = t('extra_time');
                                     }
                                   } else if (status === "BT") {
-                                    displayText = "Break Time";
+                                    displayText = t('break_time');
                                   } else if (status === "INT") {
-                                    displayText = "Interrupted";
+                                    displayText = t('interrupted');
                                   } else {
                                     displayText = elapsed
                                       ? `${elapsed}'`
@@ -1832,17 +1832,17 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   return (
                                     <div className="match-status-label status-postponed">
                                       {status === "PST"
-                                        ? "Postponed"
+                                        ? t('postponed')
                                         : status === "CANC"
-                                          ? "Cancelled"
+                                          ? t('cancelled')
                                           : status === "ABD"
-                                            ? "Abandoned"
+                                            ? t('abandoned')
                                             : status === "SUSP"
-                                              ? "Suspended"
+                                              ? t('suspended')
                                               : status === "AWD"
-                                                ? "Awarded"
+                                                ? t('awarded')
                                                 : status === "WO"
-                                                  ? "Walkover"
+                                                  ? t('walkover')
                                                   : status}
                                     </div>
                                   );
@@ -1862,7 +1862,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   if (hoursAgo > 2) {
                                     return (
                                       <div className="match-status-label status-postponed">
-                                        Postponed
+                                        {t('postponed')}
                                       </div>
                                     );
                                   }
@@ -1871,7 +1871,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   if (status === "TBD") {
                                     return (
                                       <div className="match-status-label status-upcoming">
-                                        Time TBD
+                                        {t('time_tbd')}
                                       </div>
                                     );
                                   }
