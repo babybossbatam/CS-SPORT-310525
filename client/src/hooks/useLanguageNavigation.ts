@@ -18,7 +18,7 @@ export const useLanguageNavigation = () => {
   };
 
   const getCurrentLanguageFromUrl = (): string | null => {
-    const supportedLanguages = ['en', 'es', 'zh-hk', 'zh', 'de', 'it', 'pt'];
+    const supportedLanguages = ['en', 'en-us', 'es', 'es-mx', 'zh-hk', 'zh', 'zh-tw', 'de', 'de-at', 'it', 'pt', 'pt-br', 'fr'];
     const pathParts = location.split('/').filter(part => part);
     
     if (pathParts.length > 0 && supportedLanguages.includes(pathParts[0])) {
@@ -28,7 +28,7 @@ export const useLanguageNavigation = () => {
   };
 
   const getPathWithoutLanguage = (): string => {
-    const supportedLanguages = ['en', 'es', 'zh-hk', 'zh', 'de', 'it', 'pt'];
+    const supportedLanguages = ['en', 'en-us', 'es', 'es-mx', 'zh-hk', 'zh', 'zh-tw', 'de', 'de-at', 'it', 'pt', 'pt-br', 'fr'];
     const pathParts = location.split('/').filter(part => part);
     
     if (pathParts.length > 0 && supportedLanguages.includes(pathParts[0])) {

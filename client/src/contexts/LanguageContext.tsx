@@ -35,6 +35,33 @@ const translations = {
     'not_started': "Not Started",
     'featured_match': "Featured Match"
   },
+  'en-us': {
+    'today_matches': "Today's Games",
+    'yesterday_matches': "Yesterday's Games",
+    'tomorrow_matches': "Tomorrow's Games",
+    'live_matches': "Live Games",
+    'football_leagues': "Soccer Leagues",
+    'all_leagues': "All Leagues A-Z",
+    'standings': "Standings",
+    'fixtures': "Schedule",
+    'results': "Results",
+    'statistics': "Stats",
+    'home': "Home",
+    'away': "Away",
+    'vs': "vs",
+    'football': "Soccer",
+    'basketball': "Basketball",
+    'tv': "TV",
+    'horse_racing': "Horse Racing",
+    'snooker': "Snooker",
+    'esports': "Esports",
+    'settings': "Settings",
+    'myScores': "My Scores",
+    'live': "LIVE",
+    'finished': "FT",
+    'not_started': "Not Started",
+    'featured_match': "Featured Game"
+  },
   'es': {
     'today_matches': "Partidos de Hoy",
     'yesterday_matches': "Partidos de Ayer",
@@ -184,15 +211,18 @@ const translations = {
 };
 
 const countryToLanguageMap: { [key: string]: string } = {
-  'United States': 'en',
+  'United States': 'en-us',
   'United Kingdom': 'en',
   'Spain': 'es',
   'Hong Kong': 'zh-hk',
+  'Taiwan': 'zh-tw',
+  'China': 'zh',
   'Germany': 'de',
+  'Austria': 'de-at',
   'Italy': 'it',
   'Portugal': 'pt',
-  'Brazil': 'pt',
-  'Mexico': 'es',
+  'Brazil': 'pt-br',
+  'Mexico': 'es-mx',
   'Argentina': 'es'
 };
 
