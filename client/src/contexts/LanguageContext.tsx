@@ -734,17 +734,6 @@ export const useTranslation = () => {
 
     // Enhanced mixed language patterns for complex league names
     const mixedLanguagePatterns = {
-      // Liga Profesional Argentina variations
-      'liga profesional 阿根廷': {
-        'en': 'Liga Profesional Argentina',
-        'es': 'Liga Profesional Argentina',
-        'zh-hk': '阿根廷職業聯賽',
-        'zh-tw': '阿根廷職業聯賽',
-        'zh': '阿根廷职业联赛',
-        'de': 'Liga Profesional Argentina',
-        'it': 'Liga Profesional Argentina',
-        'pt': 'Liga Profesional Argentina'
-      },
       // UEFA Europa League variations
       'uefaeuropa 歐洲協會聯賽': {
         'en': 'UEFA Europa League',
