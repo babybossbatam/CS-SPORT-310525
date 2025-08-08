@@ -259,10 +259,6 @@ class SmartTeamTranslation {
       'zh': '西雅图海湾人', 'zh-hk': '西雅圖海灣人', 'zh-tw': '西雅圖海灣人',
       'es': 'Seattle Sounders FC', 'de': 'Seattle Sounders FC', 'it': 'Seattle Sounders FC', 'pt': 'Seattle Sounders FC'
     },
-    'Portland Timbers': {
-      'zh': '波特兰伐木者', 'zh-hk': '波特蘭伐木者', 'zh-tw': '波特蘭伐木者',
-      'es': 'Portland Timbers', 'de': 'Portland Timbers', 'it': 'Portland Timbers', 'pt': 'Portland Timbers'
-    },
     'Colorado Rapids': {
       'zh': '科罗拉多急流', 'zh-hk': '科羅拉多急流', 'zh-tw': '科羅拉多急流',
       'es': 'Colorado Rapids', 'de': 'Colorado Rapids', 'it': 'Colorado Rapids', 'pt': 'Colorado Rapids'
@@ -297,68 +293,26 @@ class SmartTeamTranslation {
     },
 
     // MLS Teams
-    'LA Galaxy': {
-      'zh': '洛杉矶银河', 'zh-hk': '洛杉磯銀河', 'zh-tw': '洛杉磯銀河',
-      'es': 'LA Galaxy', 'de': 'LA Galaxy', 'it': 'LA Galaxy', 'pt': 'LA Galaxy'
-    },
-    'Los Angeles Galaxy': {
-      'zh': '洛杉矶银河', 'zh-hk': '洛杉磯銀河', 'zh-tw': '洛杉磯銀河',
-      'es': 'Los Angeles Galaxy', 'de': 'Los Angeles Galaxy', 'it': 'Los Angeles Galaxy', 'pt': 'Los Angeles Galaxy'
-    },
-    'Colorado Rapids': {
-      'zh': '科罗拉多急流', 'zh-hk': '科羅拉多急流', 'zh-tw': '科羅拉多急流',
-      'es': 'Colorado Rapids', 'de': 'Colorado Rapids', 'it': 'Colorado Rapids', 'pt': 'Colorado Rapids'
-    },
-    'New York Red Bulls': {
-      'zh': '纽约红牛', 'zh-hk': '紐約紅牛', 'zh-tw': '紐約紅牛',
-      'es': 'New York Red Bulls', 'de': 'New York Red Bulls', 'it': 'New York Red Bulls', 'pt': 'New York Red Bulls'
-    },
-    'Charlotte FC': {
-      'zh': '夏洛特', 'zh-hk': '夏洛特', 'zh-tw': '夏洛特',
-      'es': 'Charlotte FC', 'de': 'Charlotte FC', 'it': 'Charlotte FC', 'pt': 'Charlotte FC'
-    },
-    'FC Cincinnati': {
-      'zh': '辛辛那提', 'zh-hk': '辛辛那提', 'zh-tw': '辛辛那提',
-      'es': 'FC Cincinnati', 'de': 'FC Cincinnati', 'it': 'FC Cincinnati', 'pt': 'FC Cincinnati'
-    },
-    'Inter Miami CF': {
-      'zh': '迈阿密国际', 'zh-hk': '邁阿密國際', 'zh-tw': '邁阿密國際',
-      'es': 'Inter Miami CF', 'de': 'Inter Miami CF', 'it': 'Inter Miami CF', 'pt': 'Inter Miami CF'
-    },
-    'Atlanta United FC': {
-      'zh': '亚特兰大联', 'zh-hk': '亞特蘭大聯', 'zh-tw': '亞特蘭大聯',
-      'es': 'Atlanta United FC', 'de': 'Atlanta United FC', 'it': 'Atlanta United FC', 'pt': 'Atlanta United FC'
-    },
-    'Toronto FC': {
-      'zh': '多伦多FC', 'zh-hk': '多倫多FC', 'zh-tw': '多倫多FC',
-      'es': 'Toronto FC', 'de': 'Toronto FC', 'it': 'Toronto FC', 'pt': 'Toronto FC'
-    },
-    'Seattle Sounders FC': {
-      'zh': '西雅图海湾人', 'zh-hk': '西雅圖海灣人', 'zh-tw': '西雅圖海灣人',
-      'es': 'Seattle Sounders FC', 'de': 'Seattle Sounders FC', 'it': 'Seattle Sounders FC', 'pt': 'Seattle Sounders FC'
-    },
-    'Portland Timbers': {
-      'zh': '波特兰伐木者', 'zh-hk': '波特蘭伐木者', 'zh-tw': '波特蘭伐木者',
-      'es': 'Portland Timbers', 'de': 'Portland Timbers', 'it': 'Portland Timbers', 'pt': 'Portland Timbers'
-    },
+    // 'LA Galaxy': { ... }, // Duplicate removed
+    // 'Los Angeles Galaxy': { ... }, // Duplicate removed
+    // 'Colorado Rapids': { ... }, // Duplicate removed
+    // 'New York Red Bulls': { ... }, // Duplicate removed
+    // 'Charlotte FC': { ... }, // Duplicate removed
+    // 'FC Cincinnati': { ... }, // Duplicate removed
+    // 'Inter Miami CF': { ... }, // Duplicate removed
+    // 'Atlanta United FC': { ... }, // Duplicate removed
+    // 'Toronto FC': {
+    //   'zh': '多伦多FC', 'zh-hk': '多倫多FC', 'zh-tw': '多倫多FC',
+    //   'es': 'Toronto FC', 'de': 'Toronto FC', 'it': 'Toronto FC', 'pt': 'Toronto FC'
+    // },
+    // 'Seattle Sounders FC': { ... }, // Duplicate removed
+    // 'Portland Timbers': { ... }, // Duplicate removed
 
     // Liga MX Teams
-    'Santos Laguna': {
-      'zh': '桑托斯拉古纳', 'zh-hk': '山度士拉古納', 'zh-tw': '山度士拉古納',
-      'es': 'Santos Laguna', 'de': 'Santos Laguna', 'it': 'Santos Laguna', 'pt': 'Santos Laguna'
-    },
-    'Cruz Azul': {
-      'zh': '蓝十字', 'zh-hk': '藍十字', 'zh-tw': '藍十字',
-      'es': 'Cruz Azul', 'de': 'Cruz Azul', 'it': 'Cruz Azul', 'pt': 'Cruz Azul'
-    },
-    'FC Juarez': {
-      'zh': '华雷斯', 'zh-hk': '華雷斯', 'zh-tw': '華雷斯',
-      'es': 'FC Juárez', 'de': 'FC Juárez', 'it': 'FC Juárez', 'pt': 'FC Juárez'
-    },
-    'CF Monterrey': {
-      'zh': '蒙特雷', 'zh-hk': '蒙特雷', 'zh-tw': '蒙特雷',
-      'es': 'CF Monterrey', 'de': 'CF Monterrey', 'it': 'CF Monterrey', 'pt': 'CF Monterrey'
-    },
+    // 'Santos Laguna': { ... }, // Duplicate removed
+    // 'Cruz Azul': { ... }, // Duplicate removed
+    // 'FC Juarez': { ... }, // Duplicate removed
+    // 'CF Monterrey': { ... }, // Duplicate removed
     'America': {
       'zh': '美洲', 'zh-hk': '美洲', 'zh-tw': '美洲',
       'es': 'América', 'de': 'Club América', 'it': 'Club América', 'pt': 'Club América'
@@ -979,72 +933,33 @@ class SmartTeamTranslation {
     },
 
     // Italian teams
-    'Frosinone': {
-      'zh': '弗罗西诺内', 'zh-hk': '弗羅西諾內', 'zh-tw': '弗羅西諾內',
-      'es': 'Frosinone', 'de': 'Frosinone', 'it': 'Frosinone', 'pt': 'Frosinone'
-    },
-    'Benevento': {
-      'zh': '贝内文托', 'zh-hk': '賓尼雲圖', 'zh-tw': '貝內文托',
-      'es': 'Benevento', 'de': 'Benevento', 'it': 'Benevento', 'pt': 'Benevento'
-    },
+    // 'Frosinone': { ... }, // Duplicate removed
+    // 'Benevento': { ... }, // Duplicate removed
 
     // German teams
-    'FC Augsburg': {
-      'zh': '奥格斯堡', 'zh-hk': '奧格斯堡', 'zh-tw': '奧格斯堡',
-      'es': 'FC Augsburg', 'de': 'FC Augsburg', 'it': 'FC Augsburg', 'pt': 'FC Augsburg'
-    },
-    'Pisa': {
-      'zh': '比萨', 'zh-hk': '比薩', 'zh-tw': '比薩',
-      'es': 'Pisa', 'de': 'Pisa', 'it': 'Pisa', 'pt': 'Pisa'
-    },
+    // 'FC Augsburg': { ... }, // Duplicate removed
+    // 'Pisa': { ... }, // Duplicate removed
 
     // Greek teams
-    'Olympiakos Piraeus': {
-      'zh': '奥林匹亚科斯', 'zh-hk': '奧林比亞高斯', 'zh-tw': '奧林匹亞科斯',
-      'es': 'Olympiakos Piraeus', 'de': 'Olympiakos Piräus', 'it': 'Olympiakos Pireo', 'pt': 'Olympiakos Pireu'
-    },
+    // 'Olympiakos Piraeus': { ... }, // Duplicate removed
 
     // Saudi Arabian teams
-    'Al Taawon': {
-      'zh': '塔阿万', 'zh-hk': '塔阿萬', 'zh-tw': '塔阿萬',
-      'es': 'Al Taawon', 'de': 'Al Taawon', 'it': 'Al Taawon', 'pt': 'Al Taawon'
-    },
-    'Al-Taawon': {
-      'zh': '塔阿万', 'zh-hk': '塔阿萬', 'zh-tw': '塔阿萬',
-      'es': 'Al-Taawon', 'de': 'Al-Taawon', 'it': 'Al-Taawon', 'pt': 'Al-Taawon'
-    },
+    // 'Al Taawon': { ... }, // Duplicate removed
+    // 'Al-Taawon': { ... }, // Duplicate removed
 
     // Spanish lower division teams
-    "L'Entregu": {
-      'zh': '恩特雷古', 'zh-hk': '恩特雷古', 'zh-tw': '恩特雷古',
-      'es': "L'Entregu", 'de': "L'Entregu", 'it': "L'Entregu", 'pt': "L'Entregu"
-    },
-    'Marino de Luanco': {
-      'zh': '马里诺德卢安科', 'zh-hk': '馬里諾德盧安科', 'zh-tw': '馬里諾德盧安科',
-      'es': 'Marino de Luanco', 'de': 'Marino de Luanco', 'it': 'Marino de Luanco', 'pt': 'Marino de Luanco'
-    },
-    'Marbella': {
-      'zh': '马贝拉', 'zh-hk': '馬貝拉', 'zh-tw': '馬貝拉',
-      'es': 'Marbella', 'de': 'Marbella', 'it': 'Marbella', 'pt': 'Marbella'
-    },
-    'AD Ceuta FC': {
-      'zh': '塞乌塔', 'zh-hk': '塞烏塔', 'zh-tw': '塞烏塔',
-      'es': 'AD Ceuta FC', 'de': 'AD Ceuta FC', 'it': 'AD Ceuta FC', 'pt': 'AD Ceuta FC'
-    },
-    'Ceuta': {
-      'zh': '塞乌塔', 'zh-hk': '塞烏塔', 'zh-tw': '塞烏塔',
-      'es': 'Ceuta', 'de': 'Ceuta', 'it': 'Ceuta', 'pt': 'Ceuta'
-    },
+    // "L'Entregu": { ... }, // Duplicate removed
+    // 'Marino de Luanco': { ... }, // Duplicate removed
+    // 'Marbella': { ... }, // Duplicate removed
+    // 'AD Ceuta FC': { ... }, // Duplicate removed
+    // 'Ceuta': { ... }, // Duplicate removed
 
     // Thai teams
     'Port FC': {
       'zh': '港口', 'zh-hk': '港口', 'zh-tw': '港口',
       'es': 'Port FC', 'de': 'Port FC', 'it': 'Port FC', 'pt': 'Port FC'
     },
-    'Singburi': {
-      'zh': '信武里', 'zh-hk': '信武里', 'zh-tw': '信武里',
-      'es': 'Singburi', 'de': 'Singburi', 'it': 'Singburi', 'pt': 'Singburi'
-    }
+    // 'Singburi': { ... }, // Duplicate removed
   };
 
   // Get direct translation from popular teams mapping
