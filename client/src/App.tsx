@@ -48,19 +48,21 @@ const AppWithLanguageRouting = () => {
   const urlLanguage = extractLanguageFromUrl();
 
   return (
-    <LanguageProvider initialLanguage={urlLanguage}>
-      <CentralDataProvider>
-        <TooltipProvider>
-          <div className="App">
-            <Suspense fallback={<BrandedLoading />}>
-              <AppRoutes />
-            </Suspense>
-            <Toaster />
-            <LanguageToast />
-          </div>
-        </TooltipProvider>
-      </CentralDataProvider>
-    </LanguageProvider>
+    <Provider store={store}>
+      <LanguageProvider initialLanguage={urlLanguage}>
+        <CentralDataProvider>
+          <TooltipProvider>
+            <div className="App">
+              <Suspense fallback={<BrandedLoading />}>
+                <AppRoutes />
+              </Suspense>
+              <Toaster />
+              <LanguageToast />
+            </div>
+          </TooltipProvider>
+        </CentralDataProvider>
+      </LanguageProvider>
+    </Provider>
   );
 };
 
@@ -131,66 +133,7 @@ const preloadData = () => {
 };
 
 
-function Router() {
-  return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/football" component={Football} />
-      <Route path="/basketball" component={Basketball} />
-      <Route path="/tv" component={TV} />
-      <Route path="/horseracing" component={HorseRacing} />
-      <Route path="/snooker" component={Snooker} />
-      <Route path="/esports" component={Esport} />
 
-      <Route path="/login" component={() => <Authentication mode="login" />} />
-      <Route
-        path="/register"
-        component={() => <Authentication mode="register" />}
-      />
-      <Route path="/match/:id" component={MatchDetails} />
-      <Route path="/match/:id/:tab" component={MatchDetails} />
-      <Route path="/league/:id" component={LeagueDetails} />
-      <Route path="/league/:id/:tab" component={LeagueDetails} />
-      <Route path="/live" component={LiveScoreboardPage} />
-      <Route path="/my-scores" component={MyScores} />
-      <Route path="/settings" component={Settings} />
-      <Route path="/search" component={SearchResults} />
-      <Route path="/live" component={LiveMatches} />
-      <Route path="/news/:id" component={NewsPage} />
-      <Route path="/scoreboard-demo" component={ScoreboardDemo} />
-      <Route path="/365scores" component={Scores365Page} />
-
-      {/* Language-specific routes - redirect to home with language context */}
-      <Route path="/zh-hk" component={Home} />
-      <Route path="/en" component={Home} />
-      <Route path="/es" component={Home} />
-      <Route path="/fr" component={Home} />
-      <Route path="/de" component={Home} />
-      <Route path="/it" component={Home} />
-      <Route path="/pt" component={Home} />
-      <Route path="/ru" component={Home} />
-      <Route path="/ar" component={Home} />
-      <Route path="/ja" component={Home} />
-      <Route path="/ko" component={Home} />
-      <Route path="/zh-cn" component={Home} />
-
-      <Route component={NotFound} />
-    </Switch>
-  );
-}
-
-function AppContent() {
-  try {
-    return <Router />;
-  } catch (error) {
-    console.error("Router error:", error);
-    return (
-      <div>
-        Router Error: {error instanceof Error ? error.message : "Unknown error"}
-      </div>
-    );
-  }
-}
 
 
 function App() {
