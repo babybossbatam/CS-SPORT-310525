@@ -1940,10 +1940,69 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                               >
                                 {(() => {
                                   const originalName = fixture.teams.home.name || "";
-                                  const translatedName = translateTeamName(originalName);
+                                  
+                                  // Try smart translation first
+                                  let translatedName = translateTeamName(originalName);
+                                  
+                                  // If smart translation failed, try direct name cleanup for common patterns
+                                  if (translatedName === originalName && currentLanguage.startsWith('zh')) {
+                                    // Handle specific team name patterns for better translation
+                                    const cleanName = originalName.trim();
+                                    
+                                    // Add fallback translations for teams that might not be in the smart translation
+                                    const fallbackTranslations: { [key: string]: string } = {
+                                      'FK Partizan': '贝尔格莱德游击队',
+                                      'Hibernian': '希伯尼安',
+                                      'HNK Hajduk Split': '哈伊杜克',
+                                      'Hajduk Split': '哈伊杜克',
+                                      'Dinamo Tirana': '地拉那迪纳摩',
+                                      'Rapid Vienna': '维也纳快速',
+                                      'Dundee Utd': '邓迪联',
+                                      'Dundee United': '邓迪联',
+                                      'Raków Częstochowa': '琴斯托霍瓦拉科夫',
+                                      'Maccabi Haifa': '海法马卡比',
+                                      'Larne': '拉恩',
+                                      'Santa Clara': '圣克拉拉',
+                                      'Vikingur Reykjavik': '雷克雅未克维京',
+                                      'Brondby': '布隆德比',
+                                      'Brøndby': '布隆德比',
+                                      'St Patrick\'s Athl.': '圣帕特里克竞技',
+                                      'St Patrick\'s Athletic': '圣帕特里克竞技',
+                                      'Besiktas': '贝西克塔斯',
+                                      'Beşiktaş': '贝西克塔斯',
+                                      'FC Lugano': '卢加诺',
+                                      'Lugano': '卢加诺',
+                                      'Celje': '采列',
+                                      'Universitatea Craiova': '克拉约瓦大学',
+                                      'Spartak Trnava': '特尔纳瓦斯巴达克',
+                                      'Ballkani': '巴尔卡尼',
+                                      'Shamrock Rovers': '沙姆洛克流浪者',
+                                      'Lausanne': '洛桑',
+                                      'FC Astana': '阿斯塔纳',
+                                      'AZ Alkmaar': '阿尔克马尔',
+                                      'FC Vaduz': '瓦杜兹',
+                                      'Anderlecht': '安德莱赫特',
+                                      'Sheriff Tiraspol': '蒂拉斯波尔谢里夫',
+                                      'Sheriff': '蒂拉斯波尔谢里夫',
+                                      'Vikingur Gota': '哥塔维京',
+                                      'Linfield': '连菲尔德',
+                                      'Sparta Praha': '布拉格斯巴达',
+                                      'Sparta Prague': '布拉格斯巴达',
+                                      'Ararat-Armenia': '阿拉拉特亚美尼亚',
+                                      'Levski Sofia': '索非亚列夫斯基',
+                                      'Sabah FA': '沙巴足协',
+                                      'Sabah FK': '沙巴足协',
+                                      'Olimpija Ljubljana': '卢布尔雅那奥林匹亚',
+                                      'Egnatia Rrogozhinë': '罗戈日纳埃格纳蒂亚'
+                                    };
+                                    
+                                    if (fallbackTranslations[cleanName]) {
+                                      translatedName = fallbackTranslations[cleanName];
+                                    }
+                                  }
                                   
                                   // Enhanced debug logging for translation
-                                  if (process.env.NODE_ENV === 'development') {
+                                  if (process.env.NODE_ENV === 'development' && translatedName !== originalName) {
                                     console.log(`🏠 [MyNewLeague2] Home team translation:`, {
                                       original: originalName,
                                       translated: translatedName,
@@ -2227,10 +2286,69 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                               >
                                 {(() => {
                                   const originalName = fixture.teams.away.name || "";
-                                  const translatedName = translateTeamName(originalName);
+                                  
+                                  // Try smart translation first
+                                  let translatedName = translateTeamName(originalName);
+                                  
+                                  // If smart translation failed, try direct name cleanup for common patterns
+                                  if (translatedName === originalName && currentLanguage.startsWith('zh')) {
+                                    // Handle specific team name patterns for better translation
+                                    const cleanName = originalName.trim();
+                                    
+                                    // Add fallback translations for teams that might not be in the smart translation
+                                    const fallbackTranslations: { [key: string]: string } = {
+                                      'FK Partizan': '贝尔格莱德游击队',
+                                      'Hibernian': '希伯尼安',
+                                      'HNK Hajduk Split': '哈伊杜克',
+                                      'Hajduk Split': '哈伊杜克',
+                                      'Dinamo Tirana': '地拉那迪纳摩',
+                                      'Rapid Vienna': '维也纳快速',
+                                      'Dundee Utd': '邓迪联',
+                                      'Dundee United': '邓迪联',
+                                      'Raków Częstochowa': '琴斯托霍瓦拉科夫',
+                                      'Maccabi Haifa': '海法马卡比',
+                                      'Larne': '拉恩',
+                                      'Santa Clara': '圣克拉拉',
+                                      'Vikingur Reykjavik': '雷克雅未克维京',
+                                      'Brondby': '布隆德比',
+                                      'Brøndby': '布隆德比',
+                                      'St Patrick\'s Athl.': '圣帕特里克竞技',
+                                      'St Patrick\'s Athletic': '圣帕特里克竞技',
+                                      'Besiktas': '贝西克塔斯',
+                                      'Beşiktaş': '贝西克塔斯',
+                                      'FC Lugano': '卢加诺',
+                                      'Lugano': '卢加诺',
+                                      'Celje': '采列',
+                                      'Universitatea Craiova': '克拉约瓦大学',
+                                      'Spartak Trnava': '特尔纳瓦斯巴达克',
+                                      'Ballkani': '巴尔卡尼',
+                                      'Shamrock Rovers': '沙姆洛克流浪者',
+                                      'Lausanne': '洛桑',
+                                      'FC Astana': '阿斯塔纳',
+                                      'AZ Alkmaar': '阿尔克马尔',
+                                      'FC Vaduz': '瓦杜兹',
+                                      'Anderlecht': '安德莱赫特',
+                                      'Sheriff Tiraspol': '蒂拉斯波尔谢里夫',
+                                      'Sheriff': '蒂拉斯波尔谢里夫',
+                                      'Vikingur Gota': '哥塔维京',
+                                      'Linfield': '连菲尔德',
+                                      'Sparta Praha': '布拉格斯巴达',
+                                      'Sparta Prague': '布拉格斯巴达',
+                                      'Ararat-Armenia': '阿拉拉特亚美尼亚',
+                                      'Levski Sofia': '索非亚列夫斯基',
+                                      'Sabah FA': '沙巴足协',
+                                      'Sabah FK': '沙巴足协',
+                                      'Olimpija Ljubljana': '卢布尔雅那奥林匹亚',
+                                      'Egnatia Rrogozhinë': '罗戈日纳埃格纳蒂亚'
+                                    };
+                                    
+                                    if (fallbackTranslations[cleanName]) {
+                                      translatedName = fallbackTranslations[cleanName];
+                                    }
+                                  }
                                   
                                   // Enhanced debug logging for translation
-                                  if (process.env.NODE_ENV === 'development') {
+                                  if (process.env.NODE_ENV === 'development' && translatedName !== originalName) {
                                     console.log(`✈️ [MyNewLeague2] Away team translation:`, {
                                       original: originalName,
                                       translated: translatedName,

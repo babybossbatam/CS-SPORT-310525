@@ -459,6 +459,238 @@ class SmartTeamTranslation {
       'zh': '布加勒斯特星队', 'zh-hk': '布加勒斯特星隊', 'zh-tw': '布加勒斯特星隊',
       'es': 'FCSB', 'de': 'FCSB', 'it': 'FCSB', 'pt': 'FCSB'
     },
+    'FK Partizan': {
+      'zh': '贝尔格莱德游击队', 'zh-hk': '貝爾格萊德游擊隊', 'zh-tw': '貝爾格萊德游擊隊',
+      'es': 'FK Partizan', 'de': 'FK Partizan', 'it': 'FK Partizan', 'pt': 'FK Partizan'
+    },
+    'Partizan': {
+      'zh': '贝尔格莱德游击队', 'zh-hk': '貝爾格萊德游擊隊', 'zh-tw': '貝爾格萊德游擊隊',
+      'es': 'Partizan', 'de': 'Partizan', 'it': 'Partizan', 'pt': 'Partizan'
+    },
+    'Hibernian': {
+      'zh': '希伯尼安', 'zh-hk': '希伯尼安', 'zh-tw': '希伯尼安',
+      'es': 'Hibernian', 'de': 'Hibernian', 'it': 'Hibernian', 'pt': 'Hibernian'
+    },
+    'HNK Hajduk Split': {
+      'zh': '哈伊杜克', 'zh-hk': '哈伊杜克', 'zh-tw': '哈伊杜克',
+      'es': 'HNK Hajduk Split', 'de': 'HNK Hajduk Split', 'it': 'HNK Hajduk Split', 'pt': 'HNK Hajduk Split'
+    },
+    'Hajduk Split': {
+      'zh': '哈伊杜克', 'zh-hk': '哈伊杜克', 'zh-tw': '哈伊杜克',
+      'es': 'Hajduk Split', 'de': 'Hajduk Split', 'it': 'Hajduk Split', 'pt': 'Hajduk Split'
+    },
+    'Dinamo Tirana': {
+      'zh': '地拉那迪纳摩', 'zh-hk': '地拉那迪納摩', 'zh-tw': '地拉那迪納摩',
+      'es': 'Dinamo Tirana', 'de': 'Dinamo Tirana', 'it': 'Dinamo Tirana', 'pt': 'Dinamo Tirana'
+    },
+    'Rapid Vienna': {
+      'zh': '维也纳快速', 'zh-hk': '維也納快速', 'zh-tw': '維也納快速',
+      'es': 'Rapid Viena', 'de': 'Rapid Wien', 'it': 'Rapid Vienna', 'pt': 'Rapid Viena'
+    },
+    'Rapid Wien': {
+      'zh': '维也纳快速', 'zh-hk': '維也納快速', 'zh-tw': '維也納快速',
+      'es': 'Rapid Viena', 'de': 'Rapid Wien', 'it': 'Rapid Vienna', 'pt': 'Rapid Viena'
+    },
+    'Dundee Utd': {
+      'zh': '邓迪联', 'zh-hk': '鄧迪聯', 'zh-tw': '鄧迪聯',
+      'es': 'Dundee United', 'de': 'Dundee United', 'it': 'Dundee United', 'pt': 'Dundee United'
+    },
+    'Dundee United': {
+      'zh': '邓迪联', 'zh-hk': '鄧迪聯', 'zh-tw': '鄧迪聯',
+      'es': 'Dundee United', 'de': 'Dundee United', 'it': 'Dundee United', 'pt': 'Dundee United'
+    },
+    'Raków Częstochowa': {
+      'zh': '琴斯托霍瓦拉科夫', 'zh-hk': '琴斯托霍瓦拉科夫', 'zh-tw': '琴斯托霍瓦拉科夫',
+      'es': 'Raków Częstochowa', 'de': 'Raków Częstochowa', 'it': 'Raków Częstochowa', 'pt': 'Raków Częstochowa'
+    },
+    'Rakow Czestochowa': {
+      'zh': '琴斯托霍瓦拉科夫', 'zh-hk': '琴斯托霍瓦拉科夫', 'zh-tw': '琴斯托霍瓦拉科夫',
+      'es': 'Raków Częstochowa', 'de': 'Raków Częstochowa', 'it': 'Raków Częstochowa', 'pt': 'Raków Częstochowa'
+    },
+    'Maccabi Haifa': {
+      'zh': '海法马卡比', 'zh-hk': '海法馬卡比', 'zh-tw': '海法馬卡比',
+      'es': 'Maccabi Haifa', 'de': 'Maccabi Haifa', 'it': 'Maccabi Haifa', 'pt': 'Maccabi Haifa'
+    },
+    'Larne': {
+      'zh': '拉恩', 'zh-hk': '拉恩', 'zh-tw': '拉恩',
+      'es': 'Larne', 'de': 'Larne', 'it': 'Larne', 'pt': 'Larne'
+    },
+    'Santa Clara': {
+      'zh': '圣克拉拉', 'zh-hk': '聖克拉拉', 'zh-tw': '聖克拉拉',
+      'es': 'Santa Clara', 'de': 'Santa Clara', 'it': 'Santa Clara', 'pt': 'Santa Clara'
+    },
+    'CD Santa Clara': {
+      'zh': '圣克拉拉', 'zh-hk': '聖克拉拉', 'zh-tw': '聖克拉拉',
+      'es': 'CD Santa Clara', 'de': 'CD Santa Clara', 'it': 'CD Santa Clara', 'pt': 'CD Santa Clara'
+    },
+    'Vikingur Reykjavik': {
+      'zh': '雷克雅未克维京', 'zh-hk': '雷克雅未克維京', 'zh-tw': '雷克雅未克維京',
+      'es': 'Vikingur Reykjavik', 'de': 'Vikingur Reykjavik', 'it': 'Vikingur Reykjavik', 'pt': 'Vikingur Reykjavik'
+    },
+    'Brondby': {
+      'zh': '布隆德比', 'zh-hk': '布隆德比', 'zh-tw': '布隆德比',
+      'es': 'Brøndby', 'de': 'Brøndby', 'it': 'Brøndby', 'pt': 'Brøndby'
+    },
+    'Brøndby': {
+      'zh': '布隆德比', 'zh-hk': '布隆德比', 'zh-tw': '布隆德比',
+      'es': 'Brøndby', 'de': 'Brøndby', 'it': 'Brøndby', 'pt': 'Brøndby'
+    },
+    'St Patrick\'s Athl.': {
+      'zh': '圣帕特里克竞技', 'zh-hk': '聖柏德烈競技', 'zh-tw': '聖派翠克競技',
+      'es': 'St Patrick\'s Athletic', 'de': 'St Patrick\'s Athletic', 'it': 'St Patrick\'s Athletic', 'pt': 'St Patrick\'s Athletic'
+    },
+    'St Patrick\'s Athletic': {
+      'zh': '圣帕特里克竞技', 'zh-hk': '聖柏德烈競技', 'zh-tw': '聖派翠克競技',
+      'es': 'St Patrick\'s Athletic', 'de': 'St Patrick\'s Athletic', 'it': 'St Patrick\'s Athletic', 'pt': 'St Patrick\'s Athletic'
+    },
+    'Besiktas': {
+      'zh': '贝西克塔斯', 'zh-hk': '貝西克塔斯', 'zh-tw': '貝西克塔斯',
+      'es': 'Beşiktaş', 'de': 'Beşiktaş', 'it': 'Beşiktaş', 'pt': 'Beşiktaş'
+    },
+    'Beşiktaş': {
+      'zh': '贝西克塔斯', 'zh-hk': '貝西克塔斯', 'zh-tw': '貝西克塔斯',
+      'es': 'Beşiktaş', 'de': 'Beşiktaş', 'it': 'Beşiktaş', 'pt': 'Beşiktaş'
+    },
+    'FC Lugano': {
+      'zh': '卢加诺', 'zh-hk': '盧加諾', 'zh-tw': '盧加諾',
+      'es': 'FC Lugano', 'de': 'FC Lugano', 'it': 'FC Lugano', 'pt': 'FC Lugano'
+    },
+    'Lugano': {
+      'zh': '卢加诺', 'zh-hk': '盧加諾', 'zh-tw': '盧加諾',
+      'es': 'Lugano', 'de': 'Lugano', 'it': 'Lugano', 'pt': 'Lugano'
+    },
+    'Celje': {
+      'zh': '采列', 'zh-hk': '採列', 'zh-tw': '采列',
+      'es': 'Celje', 'de': 'Celje', 'it': 'Celje', 'pt': 'Celje'
+    },
+    'NK Celje': {
+      'zh': '采列', 'zh-hk': '採列', 'zh-tw': '采列',
+      'es': 'NK Celje', 'de': 'NK Celje', 'it': 'NK Celje', 'pt': 'NK Celje'
+    },
+    'Universitatea Craiova': {
+      'zh': '克拉约瓦大学', 'zh-hk': '克拉約瓦大學', 'zh-tw': '克拉約瓦大學',
+      'es': 'Universitatea Craiova', 'de': 'Universitatea Craiova', 'it': 'Universitatea Craiova', 'pt': 'Universitatea Craiova'
+    },
+    'Spartak Trnava': {
+      'zh': '特尔纳瓦斯巴达克', 'zh-hk': '特爾納瓦斯巴達克', 'zh-tw': '特爾納瓦斯巴達克',
+      'es': 'Spartak Trnava', 'de': 'Spartak Trnava', 'it': 'Spartak Trnava', 'pt': 'Spartak Trnava'
+    },
+    'Ballkani': {
+      'zh': '巴尔卡尼', 'zh-hk': '巴爾卡尼', 'zh-tw': '巴爾卡尼',
+      'es': 'Ballkani', 'de': 'Ballkani', 'it': 'Ballkani', 'pt': 'Ballkani'
+    },
+    'Shamrock Rovers': {
+      'zh': '沙姆洛克流浪者', 'zh-hk': '沙姆洛克流浪', 'zh-tw': '沙姆洛克流浪者',
+      'es': 'Shamrock Rovers', 'de': 'Shamrock Rovers', 'it': 'Shamrock Rovers', 'pt': 'Shamrock Rovers'
+    },
+    'Lausanne': {
+      'zh': '洛桑', 'zh-hk': '洛桑', 'zh-tw': '洛桑',
+      'es': 'Lausanne', 'de': 'Lausanne', 'it': 'Lausanne', 'pt': 'Lausanne'
+    },
+    'FC Lausanne': {
+      'zh': '洛桑', 'zh-hk': '洛桑', 'zh-tw': '洛桑',
+      'es': 'FC Lausanne', 'de': 'FC Lausanne', 'it': 'FC Lausanne', 'pt': 'FC Lausanne'
+    },
+    'FC Astana': {
+      'zh': '阿斯塔纳', 'zh-hk': '阿斯塔納', 'zh-tw': '阿斯塔納',
+      'es': 'FC Astana', 'de': 'FC Astana', 'it': 'FC Astana', 'pt': 'FC Astana'
+    },
+    'Astana': {
+      'zh': '阿斯塔纳', 'zh-hk': '阿斯塔納', 'zh-tw': '阿斯塔納',
+      'es': 'Astana', 'de': 'Astana', 'it': 'Astana', 'pt': 'Astana'
+    },
+    'AZ Alkmaar': {
+      'zh': '阿尔克马尔', 'zh-hk': '阿爾克馬爾', 'zh-tw': '阿爾克馬爾',
+      'es': 'AZ Alkmaar', 'de': 'AZ Alkmaar', 'it': 'AZ Alkmaar', 'pt': 'AZ Alkmaar'
+    },
+    'AZ': {
+      'zh': '阿尔克马尔', 'zh-hk': '阿爾克馬爾', 'zh-tw': '阿爾克馬爾',
+      'es': 'AZ', 'de': 'AZ', 'it': 'AZ', 'pt': 'AZ'
+    },
+    'FC Vaduz': {
+      'zh': '瓦杜兹', 'zh-hk': '瓦杜茲', 'zh-tw': '瓦杜茲',
+      'es': 'FC Vaduz', 'de': 'FC Vaduz', 'it': 'FC Vaduz', 'pt': 'FC Vaduz'
+    },
+    'Vaduz': {
+      'zh': '瓦杜兹', 'zh-hk': '瓦杜茲', 'zh-tw': '瓦杜茲',
+      'es': 'Vaduz', 'de': 'Vaduz', 'it': 'Vaduz', 'pt': 'Vaduz'
+    },
+    'Anderlecht': {
+      'zh': '安德莱赫特', 'zh-hk': '安德列治', 'zh-tw': '安德萊赫特',
+      'es': 'Anderlecht', 'de': 'Anderlecht', 'it': 'Anderlecht', 'pt': 'Anderlecht'
+    },
+    'RSC Anderlecht': {
+      'zh': '安德莱赫特', 'zh-hk': '安德列治', 'zh-tw': '安德萊赫特',
+      'es': 'RSC Anderlecht', 'de': 'RSC Anderlecht', 'it': 'RSC Anderlecht', 'pt': 'RSC Anderlecht'
+    },
+    'Sheriff Tiraspol': {
+      'zh': '蒂拉斯波尔谢里夫', 'zh-hk': '蒂拉斯波爾謝裏夫', 'zh-tw': '蒂拉斯波爾謝裏夫',
+      'es': 'Sheriff Tiraspol', 'de': 'Sheriff Tiraspol', 'it': 'Sheriff Tiraspol', 'pt': 'Sheriff Tiraspol'
+    },
+    'Sheriff': {
+      'zh': '蒂拉斯波尔谢里夫', 'zh-hk': '蒂拉斯波爾謝裏夫', 'zh-tw': '蒂拉斯波爾謝裏夫',
+      'es': 'Sheriff', 'de': 'Sheriff', 'it': 'Sheriff', 'pt': 'Sheriff'
+    },
+    'Vikingur Gota': {
+      'zh': '哥塔维京', 'zh-hk': '哥塔維京', 'zh-tw': '哥塔維京',
+      'es': 'Víkingur Gøta', 'de': 'Víkingur Gøta', 'it': 'Víkingur Gøta', 'pt': 'Víkingur Gøta'
+    },
+    'Víkingur Gøta': {
+      'zh': '哥塔维京', 'zh-hk': '哥塔維京', 'zh-tw': '哥塔維京',
+      'es': 'Víkingur Gøta', 'de': 'Víkingur Gøta', 'it': 'Víkingur Gøta', 'pt': 'Víkingur Gøta'
+    },
+    'Linfield': {
+      'zh': '连菲尔德', 'zh-hk': '連菲爾德', 'zh-tw': '連菲爾德',
+      'es': 'Linfield', 'de': 'Linfield', 'it': 'Linfield', 'pt': 'Linfield'
+    },
+    'Linfield FC': {
+      'zh': '连菲尔德', 'zh-hk': '連菲爾德', 'zh-tw': '連菲爾德',
+      'es': 'Linfield FC', 'de': 'Linfield FC', 'it': 'Linfield FC', 'pt': 'Linfield FC'
+    },
+    'Sparta Praha': {
+      'zh': '布拉格斯巴达', 'zh-hk': '布拉格斯巴達', 'zh-tw': '布拉格斯巴達',
+      'es': 'Sparta Praga', 'de': 'Sparta Prag', 'it': 'Sparta Praga', 'pt': 'Sparta Praga'
+    },
+    'Sparta Prague': {
+      'zh': '布拉格斯巴达', 'zh-hk': '布拉格斯巴達', 'zh-tw': '布拉格斯巴達',
+      'es': 'Sparta Praga', 'de': 'Sparta Prag', 'it': 'Sparta Praga', 'pt': 'Sparta Praga'
+    },
+    'Ararat-Armenia': {
+      'zh': '阿拉拉特亚美尼亚', 'zh-hk': '阿拉拉特亞美尼亞', 'zh-tw': '阿拉拉特亞美尼亞',
+      'es': 'Ararat-Armenia', 'de': 'Ararat-Armenia', 'it': 'Ararat-Armenia', 'pt': 'Ararat-Armenia'
+    },
+    'Levski Sofia': {
+      'zh': '索非亚列夫斯基', 'zh-hk': '索菲亞列夫斯基', 'zh-tw': '索菲亞列夫斯基',
+      'es': 'Levski Sofía', 'de': 'Levski Sofia', 'it': 'Levski Sofia', 'pt': 'Levski Sofia'
+    },
+    'PFC Levski Sofia': {
+      'zh': '索非亚列夫斯基', 'zh-hk': '索菲亞列夫斯基', 'zh-tw': '索菲亞列夫斯基',
+      'es': 'PFC Levski Sofía', 'de': 'PFC Levski Sofia', 'it': 'PFC Levski Sofia', 'pt': 'PFC Levski Sofia'
+    },
+    'Sabah FA': {
+      'zh': '沙巴足协', 'zh-hk': '沙巴足協', 'zh-tw': '沙巴足協',
+      'es': 'Sabah FA', 'de': 'Sabah FA', 'it': 'Sabah FA', 'pt': 'Sabah FA'
+    },
+    'Sabah FK': {
+      'zh': '沙巴足协', 'zh-hk': '沙巴足協', 'zh-tw': '沙巴足協',
+      'es': 'Sabah FK', 'de': 'Sabah FK', 'it': 'Sabah FK', 'pt': 'Sabah FK'
+    },
+    'Olimpija Ljubljana': {
+      'zh': '卢布尔雅那奥林匹亚', 'zh-hk': '盧布爾雅那奧林比亞', 'zh-tw': '盧布爾雅那奧林匹亞',
+      'es': 'Olimpija Ljubljana', 'de': 'Olimpija Ljubljana', 'it': 'Olimpija Ljubljana', 'pt': 'Olimpija Ljubljana'
+    },
+    'NK Olimpija Ljubljana': {
+      'zh': '卢布尔雅那奥林匹亚', 'zh-hk': '盧布爾雅那奧林比亞', 'zh-tw': '盧布爾雅那奧林匹亞',
+      'es': 'NK Olimpija Ljubljana', 'de': 'NK Olimpija Ljubljana', 'it': 'NK Olimpija Ljubljana', 'pt': 'NK Olimpija Ljubljana'
+    },
+    'Egnatia Rrogozhinë': {
+      'zh': '罗戈日纳埃格纳蒂亚', 'zh-hk': '羅戈日納埃格納蒂亞', 'zh-tw': '羅戈日納埃格納蒂亞',
+      'es': 'Egnatia Rrogozhinë', 'de': 'Egnatia Rrogozhinë', 'it': 'Egnatia Rrogozhinë', 'pt': 'Egnatia Rrogozhinë'
+    },
+    'KF Egnatia': {
+      'zh': '罗戈日纳埃格纳蒂亚', 'zh-hk': '羅戈日納埃格納蒂亞', 'zh-tw': '羅戈日納埃格納蒂亞',
+      'es': 'KF Egnatia', 'de': 'KF Egnatia', 'it': 'KF Egnatia', 'pt': 'KF Egnatia'
+    },</old_str>
     'Drita': {
       'zh': '德里塔', 'zh-hk': '德里塔', 'zh-tw': '德里塔',
       'es': 'Drita', 'de': 'Drita', 'it': 'Drita', 'pt': 'Drita'
