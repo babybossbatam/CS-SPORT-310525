@@ -272,7 +272,11 @@ const translations = {
     'popular_football_leagues': "熱門足球聯賽",
     'leagues_cup': "聯賽盃",
     'world': "世界",
-    'ended': "已結束"
+    'ended': "已結束",
+    'friendlies_clubs': "球會友誼賽",
+    'uefa_europa_league': "歐洲聯賽",
+    'bayern_münchen': "拜仁慕尼黑",
+    'tottenham': "熱刺"
   },
   'de': {
     'today_matches': "Heutige Spiele",
@@ -585,7 +589,11 @@ const translations = {
     'popular_football_leagues': "熱門足球聯賽",
     'leagues_cup': "聯賽盃",
     'world': "世界",
-    'ended': "已結束"
+    'ended': "已結束",
+    'friendlies_clubs': "球會友誼賽",
+    'uefa_europa_league': "歐洲聯賽",
+    'bayern_münchen': "拜仁慕尼黑",
+    'tottenham': "熱刺"
   }
 };
 
