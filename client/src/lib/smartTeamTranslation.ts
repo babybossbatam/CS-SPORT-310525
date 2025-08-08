@@ -345,10 +345,7 @@ class SmartTeamTranslation {
       'zh': '亚马逊', 'zh-hk': '亞馬遜', 'zh-tw': '亞馬遜',
       'es': 'Amazonas', 'de': 'Amazonas', 'it': 'Amazonas', 'pt': 'Amazonas'
     },
-    'Cruzeiro': {
-      'zh': '克鲁塞罗', 'zh-hk': '克魯塞羅', 'zh-tw': '克魯塞羅',
-      'es': 'Cruzeiro', 'de': 'Cruzeiro', 'it': 'Cruzeiro', 'pt': 'Cruzeiro'
-    },
+   
     'Atlético Mineiro': {
       'zh': '米内罗竞技', 'zh-hk': '米內羅競技', 'zh-tw': '米內羅競技',
       'es': 'Atlético Mineiro', 'de': 'Atlético Mineiro', 'it': 'Atlético Mineiro', 'pt': 'Atlético Mineiro'
@@ -415,10 +412,7 @@ class SmartTeamTranslation {
       'zh': '科尔多瓦', 'zh-hk': '哥多華', 'zh-tw': '科爾多瓦',
       'es': 'Córdoba', 'de': 'Córdoba', 'it': 'Córdoba', 'pt': 'Córdoba'
     },
-    'Cordoba': {
-      'zh': '科尔多瓦', 'zh-hk': '哥多華', 'zh-tw': '科爾多瓦',
-      'es': 'Córdoba', 'de': 'Córdoba', 'it': 'Córdoba', 'pt': 'Córdoba'
-    },
+  
     'Lanús': {
       'zh': '拉努斯', 'zh-hk': '拉努斯', 'zh-tw': '拉努斯',
       'es': 'Lanús', 'de': 'Lanús', 'it': 'Lanús', 'pt': 'Lanús'
@@ -1033,10 +1027,7 @@ class SmartTeamTranslation {
       'zh': '科尔多瓦', 'zh-hk': '哥多華', 'zh-tw': '科爾多瓦',
       'es': 'Córdoba', 'de': 'Córdoba', 'it': 'Córdoba', 'pt': 'Córdoba'
     },
-    'Córdoba': {
-      'zh': '科尔多瓦', 'zh-hk': '哥多華', 'zh-tw': '科爾多瓦',
-      'es': 'Córdoba', 'de': 'Córdoba', 'it': 'Córdoba', 'pt': 'Córdoba'
-    },
+
 
     // Example of adding new translations for MyNewLeague2
     'Omonia Nicosia': {
@@ -1555,10 +1546,7 @@ class SmartTeamTranslation {
       'zh': '马格达莱纳联合', 'zh-hk': '馬格達萊納聯合', 'zh-tw': '馬格達萊納聯合',
       'es': 'Unión Magdalena', 'de': 'Unión Magdalena', 'it': 'Unión Magdalena', 'pt': 'Unión Magdalena'
     },
-    'Deportivo Pasto': {
-      'zh': '帕斯托体育', 'zh-hk': '帕斯托體育', 'zh-tw': '帕斯托體育',
-      'es': 'Deportivo Pasto', 'de': 'Deportivo Pasto', 'it': 'Deportivo Pasto', 'pt': 'Deportivo Pasto'
-    },
+   
     'Chico': {
       'zh': '奇科', 'zh-hk': '奇科', 'zh-tw': '奇科',
       'es': 'Chico', 'de': 'Chico', 'it': 'Chico', 'pt': 'Chico'
@@ -1579,64 +1567,28 @@ class SmartTeamTranslation {
     },
 
     // Argentine teams
-    'Estudiantes L.P.': {
-      'zh': '拉普拉塔大学生', 'zh-hk': '拉普拉塔大學生', 'zh-tw': '拉普拉塔大學生',
-      'es': 'Estudiantes', 'de': 'Estudiantes', 'it': 'Estudiantes', 'pt': 'Estudiantes'
-    },
-    'Estudiantes': {
-      'zh': '拉普拉塔大学生', 'zh-hk': '拉普拉塔大學生', 'zh-tw': '拉普拉塔大學生',
-      'es': 'Estudiantes', 'de': 'Estudiantes', 'it': 'Estudiantes', 'pt': 'Estudiantes'
-    },
+ 
+   
     'Independ. Rivadavia': {
       'zh': '里瓦达维亚独立', 'zh-hk': '里瓦達維亞獨立', 'zh-tw': '里瓦達維亞獨立',
       'es': 'Independiente Rivadavia', 'de': 'Independiente Rivadavia', 'it': 'Independiente Rivadavia', 'pt': 'Independiente Rivadavia'
     },
-    'San Lorenzo': {
-      'zh': '圣洛伦索', 'zh-hk': '聖洛倫索', 'zh-tw': '聖洛倫索',
-      'es': 'San Lorenzo', 'de': 'San Lorenzo', 'it': 'San Lorenzo', 'pt': 'San Lorenzo'
-    },
-    'Velez Sarsfield': {
-      'zh': '萨斯菲尔德', 'zh-hk': '薩斯菲爾德', 'zh-tw': '薩斯菲爾德',
-      'es': 'Vélez Sarsfield', 'de': 'Vélez Sarsfield', 'it': 'Vélez Sarsfield', 'pt': 'Vélez Sarsfield'
-    },
-    'Godoy Cruz': {
-      'zh': '戈多伊克鲁斯', 'zh-hk': '戈多伊克魯斯', 'zh-tw': '戈多伊克魯斯',
-      'es': 'Godoy Cruz', 'de': 'Godoy Cruz', 'it': 'Godoy Cruz', 'pt': 'Godoy Cruz'
-    },
+    
+    
     'Gimnasia L.P.': {
       'zh': '拉普拉塔体操', 'zh-hk': '拉普拉塔體操', 'zh-tw': '拉普拉塔體操',
       'es': 'Gimnasia La Plata', 'de': 'Gimnasia La Plata', 'it': 'Gimnasia La Plata', 'pt': 'Gimnasia La Plata'
     },
 
     // Italian teams (avoid duplicates)
-    'Pisa': {
-      'zh': '比萨', 'zh-hk': '比薩', 'zh-tw': '比薩',
-      'es': 'Pisa', 'de': 'Pisa', 'it': 'Pisa', 'pt': 'Pisa'
-    },
+    
 
     // Saudi Arabian teams
-    'Al Taawon': {
-      'zh': '塔阿万', 'zh-hk': '塔阿萬', 'zh-tw': '塔阿萬',
-      'es': 'Al Taawon', 'de': 'Al Taawon', 'it': 'Al Taawon', 'pt': 'Al Taawon'
-    },
-    'Al-Taawon': {
-      'zh': '塔阿万', 'zh-hk': '塔阿萬', 'zh-tw': '塔阿萬',
-      'es': 'Al-Taawon', 'de': 'Al-Taawon', 'it': 'Al-Taawon', 'pt': 'Al-Taawon'
-    },
+    
 
     // Spanish lower division teams
-    "L'Entregu": {
-      'zh': '恩特雷古', 'zh-hk': '恩特雷古', 'zh-tw': '恩特雷古',
-      'es': "L'Entregu", 'de': "L'Entregu", 'it': "L'Entregu", 'pt': "L'Entregu"
-    },
-    'AD Ceuta FC': {
-      'zh': '塞乌塔', 'zh-hk': '塞烏塔', 'zh-tw': '塞烏塔',
-      'es': 'AD Ceuta FC', 'de': 'AD Ceuta FC', 'it': 'AD Ceuta FC', 'pt': 'AD Ceuta FC'
-    },
-    'Ceuta': {
-      'zh': '塞乌塔', 'zh-hk': '塞烏塔', 'zh-tw': '塞烏塔',
-      'es': 'Ceuta', 'de': 'Ceuta', 'it': 'Ceuta', 'pt': 'Ceuta'
-    },
+   
+ 
 
     // Thai teams
     'Port FC': {
