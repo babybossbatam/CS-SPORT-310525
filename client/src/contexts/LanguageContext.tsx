@@ -768,9 +768,20 @@ export const LanguageProvider: React.FC<{
   useEffect(() => {
     console.log(`🌐 [LanguageContext] Language changed to: ${currentLanguage}`);
 
-    // Initialize smart team translation system
-    console.log(`🤖 [LanguageContext] Initializing smart team translation for language: ${currentLanguage}`);
-    smartTeamTranslation.initializeTeamTranslations(currentLanguage);
+    // Initialize smart team translation system with error handling
+    const initializeTranslations = async () => {
+      try {
+        console.log(`🤖 [LanguageContext] Initializing smart team translation for language: ${currentLanguage}`);
+        await smartTeamTranslation.initializeTeamTranslations(currentLanguage);
+        console.log(`✅ [LanguageContext] Smart team translation initialized successfully for ${currentLanguage}`);
+      } catch (error) {
+        console.error(`❌ [LanguageContext] Failed to initialize smart team translation for ${currentLanguage}:`, error);
+        // Continue without smart translation - manual fallbacks will still work
+      }
+    };
+
+    // Run initialization asynchronously
+    initializeTranslations();
   }, [currentLanguage]);
 
   const contextValue = {
