@@ -1046,13 +1046,21 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
             if (analysisResult && analysisResult.missingTranslations.length > 0) {
               console.log(`🔍 [Team Translation Analysis] Found ${analysisResult.missingTranslations.length} teams missing translations:`);
-              console.log('Missing teams:', analysisResult.missingTranslations.slice(0, 20)); // Show first 20
+              console.log('Missing teams:', analysisResult.missingTranslations.slice(0, 50)); // Show first 50
 
               // Generate translation template for missing teams
               const translationTemplate = teamNameExtractor.generateMissingTranslations(
-                analysisResult.missingTranslations.slice(0, 50) // Generate for first 50
+                analysisResult.missingTranslations.slice(0, 100) // Generate for first 100
               );
-              console.log('Generated translation template:', translationTemplate);
+              console.log('Generated translation template for copy-paste:', translationTemplate);
+              
+              // Also log teams by frequency to prioritize most common ones
+              console.log('Teams by frequency (most common first):', 
+                analysisResult.teams
+                  .filter(team => analysisResult.missingTranslations.includes(team.teamName))
+                  .slice(0, 30)
+                  .map(team => `${team.teamName} (${team.frequency} matches, ${team.leagueName})`)
+              );
             }
           } catch (error) {
             console.warn('Team name analysis failed:', error);
