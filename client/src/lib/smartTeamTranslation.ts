@@ -690,100 +690,7 @@ class SmartTeamTranslation {
     'KF Egnatia': {
       'zh': '罗戈日纳埃格纳蒂亚', 'zh-hk': '羅戈日納埃格納蒂亞', 'zh-tw': '羅戈日納埃格納蒂亞',
       'es': 'KF Egnatia', 'de': 'KF Egnatia', 'it': 'KF Egnatia', 'pt': 'KF Egnatia'
-    },
-    'FC Differdange 03': {
-      'zh': '迪费尔当日03', 'zh-hk': '迪費爾當日03', 'zh-tw': '迪費爾當日03',
-      'es': 'FC Differdange 03', 'de': 'FC Differdange 03', 'it': 'FC Differdange 03', 'pt': 'FC Differdange 03'
-    },
-    'FC Levadia Tallinn': {
-      'zh': '塔林勒瓦迪亚', 'zh-hk': '塔林勒瓦迪亞', 'zh-tw': '塔林勒瓦迪亞',
-      'es': 'FC Levadia Tallinn', 'de': 'FC Levadia Tallinn', 'it': 'FC Levadia Tallinn', 'pt': 'FC Levadia Tallinn'
-    },
-    'Polessya': {
-      'zh': '波列西亚', 'zh-hk': '波列西亞', 'zh-tw': '波列西亞',
-      'es': 'Polessya', 'de': 'Polessya', 'it': 'Polessya', 'pt': 'Polessya'
-    },
-    'Paks': {
-      'zh': '帕克什', 'zh-hk': '帕克什', 'zh-tw': '帕克什',
-      'es': 'Paks', 'de': 'Paks', 'it': 'Paks', 'pt': 'Paks'
-    },
-    'AIK Stockholm': {
-      'zh': '斯德哥尔摩AIK', 'zh-hk': '斯德哥爾摩AIK', 'zh-tw': '斯德哥爾摩AIK',
-      'es': 'AIK Estocolmo', 'de': 'AIK Stockholm', 'it': 'AIK Stoccolma', 'pt': 'AIK Estocolmo'
-    },
-    'Gyori ETO FC': {
-      'zh': '杰尔ETO', 'zh-hk': '傑爾ETO', 'zh-tw': '傑爾ETO',
-      'es': 'Gyori ETO FC', 'de': 'Gyori ETO FC', 'it': 'Gyori ETO FC', 'pt': 'Gyori ETO FC'
-    },
-    'Viking': {
-      'zh': '维京', 'zh-hk': '維京', 'zh-tw': '維京',
-      'es': 'Viking', 'de': 'Viking', 'it': 'Viking', 'pt': 'Viking'
-    },
-    'Istanbul Basaksehir': {
-      'zh': '伊斯坦布尔巴萨克谢希尔', 'zh-hk': '伊斯坦布爾巴薩克謝希爾', 'zh-tw': '伊斯坦布爾巴薩克謝希爾',
-      'es': 'Istanbul Basaksehir', 'de': 'Istanbul Basaksehir', 'it': 'Istanbul Basaksehir', 'pt': 'Istanbul Basaksehir'
-    },
-    'Silkeborg': {
-      'zh': '锡尔克堡', 'zh-hk': '錫爾克堡', 'zh-tw': '錫爾克堡',
-      'es': 'Silkeborg', 'de': 'Silkeborg', 'it': 'Silkeborg', 'pt': 'Silkeborg'
-    },
-    'Jagiellonia': {
-      'zh': '雅盖隆尼亚', 'zh-hk': '雅蓋隆尼亞', 'zh-tw': '雅蓋隆尼亞',
-      'es': 'Jagiellonia', 'de': 'Jagiellonia', 'it': 'Jagiellonia', 'pt': 'Jagiellonia'
-    },
-    'Riga': {
-      'zh': '里加', 'zh-hk': '里加', 'zh-tw': '里加',
-      'es': 'Riga', 'de': 'Riga', 'it': 'Riga', 'pt': 'Riga'
-    },
-    'Beitar Jerusalem': {
-      'zh': '耶路撒冷贝塔', 'zh-hk': '耶路撒冷貝塔', 'zh-tw': '耶路撒冷貝塔',
-      'es': 'Beitar Jerusalén', 'de': 'Beitar Jerusalem', 'it': 'Beitar Gerusalemme', 'pt': 'Beitar Jerusalém'
-    },
-    'Baník Ostrava': {
-      'zh': '俄斯特拉发矿工', 'zh-hk': '俄斯特拉發礦工', 'zh-tw': '俄斯特拉發礦工',
-      'es': 'Baník Ostrava', 'de': 'Baník Ostrava', 'it': 'Baník Ostrava', 'pt': 'Baník Ostrava'
-    },
-    'Austria Vienna': {
-      'zh': '奥地利维也纳', 'zh-hk': '奧地利維也納', 'zh-tw': '奧地利維也納',
-      'es': 'Austria Viena', 'de': 'Austria Wien', 'it': 'Austria Vienna', 'pt': 'Austria Viena'
-    },
-    'Rosenborg': {
-      'zh': '罗森博格', 'zh-hk': '羅森博格', 'zh-tw': '羅森博格',
-      'es': 'Rosenborg', 'de': 'Rosenborg', 'it': 'Rosenborg', 'pt': 'Rosenborg'
-    },
-    'Hammarby FF': {
-      'zh': '哈马比', 'zh-hk': '哈馬比', 'zh-tw': '哈馬比',
-      'es': 'Hammarby FF', 'de': 'Hammarby FF', 'it': 'Hammarby FF', 'pt': 'Hammarby FF'
-    },
-    'Milsami Orhei': {
-      'zh': '奥尔海伊米尔萨米', 'zh-hk': '奧爾海伊米爾薩米', 'zh-tw': '奧爾海伊米爾薩米',
-      'es': 'Milsami Orhei', 'de': 'Milsami Orhei', 'it': 'Milsami Orhei', 'pt': 'Milsami Orhei'
-    },
-    'Virtus': {
-      'zh': '维图斯', 'zh-hk': '維圖斯', 'zh-tw': '維圖斯',
-      'es': 'Virtus', 'de': 'Virtus', 'it': 'Virtus', 'pt': 'Virtus'
-    },
-    'AEK Athens FC': {
-      'zh': '雅典AEK', 'zh-hk': '雅典AEK', 'zh-tw': '雅典AEK',
-      'es': 'AEK Atenas FC', 'de': 'AEK Athen FC', 'it': 'AEK Atene FC', 'pt': 'AEK Atenas FC'
-    },
-    'Kauno Žalgiris': {
-      'zh': '考纳斯萨尔吉里斯', 'zh-hk': '考納斯薩爾吉里斯', 'zh-tw': '考納斯薩爾吉里斯',
-      'es': 'Kauno Žalgiris', 'de': 'Kauno Žalgiris', 'it': 'Kauno Žalgiris', 'pt': 'Kauno Žalgiris'
-    },
-    'Arda Kardzhali': {
-      'zh': '阿尔达卡尔扎利', 'zh-hk': '阿爾達卡爾扎利', 'zh-tw': '阿爾達卡爾扎利',
-      'es': 'Arda Kardzhali', 'de': 'Arda Kardzhali', 'it': 'Arda Kardzhali', 'pt': 'Arda Kardzhali'
-    },
-    'Araz': {
-      'zh': '阿拉兹', 'zh-hk': '阿拉茲', 'zh-tw': '阿拉茲',
-      'es': 'Araz', 'de': 'Araz', 'it': 'Araz', 'pt': 'Araz'
-    },
-    'Omonia Nicosia': {
-      'zh': '尼科西亚奥莫尼亚', 'zh-hk': '尼科西亞奧莫尼亞', 'zh-tw': '尼科西亞奧莫尼亞',
-      'es': 'Omonia Nicosia', 'de': 'Omonia Nikosia', 'it': 'Omonia Nicosia', 'pt': 'Omonia Nicosia'
-    }
-  };</old_str>
+    },</old_str>
     'Drita': {
       'zh': '德里塔', 'zh-hk': '德里塔', 'zh-tw': '德里塔',
       'es': 'Drita', 'de': 'Drita', 'it': 'Drita', 'pt': 'Drita'
@@ -868,7 +775,6 @@ class SmartTeamTranslation {
       'zh': '中日德兰', 'zh-hk': '中日德蘭', 'zh-tw': '中日德蘭',
       'es': 'FC Midtjylland', 'de': 'FC Midtjylland', 'it': 'FC Midtjylland', 'pt': 'FC Midtjylland'
     }
-  };
   };
 
   // Get direct translation from popular teams mapping
