@@ -830,6 +830,26 @@ export const useTranslation = () => {
         'it': 'Amichevoli',
         'pt': 'Amigáveis'
       },
+      'club friendlies': {
+        'en': 'Club Friendlies',
+        'es': 'Amistosos de Clubes',
+        'zh-hk': '球會友誼賽',
+        'zh-tw': '球會友誼賽',
+        'zh': '俱乐部友谊赛',
+        'de': 'Vereinsfreundschaftsspiele',
+        'it': 'Amichevoli di Club',
+        'pt': 'Amigáveis de Clubes'
+      },
+      'leagues cup': {
+        'en': 'Leagues Cup',
+        'es': 'Copa de Ligas',
+        'zh-hk': '聯賽盃',
+        'zh-tw': '聯賽盃',
+        'zh': '联赛杯',
+        'de': 'Liga-Pokal',
+        'it': 'Coppa delle Leghe',
+        'pt': 'Copa das Ligas'
+      },
       'copa america': {
         'en': 'Copa America',
         'es': 'Copa América',
@@ -849,6 +869,36 @@ export const useTranslation = () => {
         'de': 'Copa Libertadores',
         'it': 'Copa Libertadores',
         'pt': 'Copa Libertadores'
+      },
+      'bayern münchen': {
+        'en': 'Bayern Munich',
+        'es': 'Bayern Múnich',
+        'zh-hk': '拜仁慕尼黑',
+        'zh-tw': '拜仁慕尼黑',
+        'zh': '拜仁慕尼黑',
+        'de': 'Bayern München',
+        'it': 'Bayern Monaco',
+        'pt': 'Bayern de Munique'
+      },
+      'bayern munich': {
+        'en': 'Bayern Munich',
+        'es': 'Bayern Múnich',
+        'zh-hk': '拜仁慕尼黑',
+        'zh-tw': '拜仁慕尼黑',
+        'zh': '拜仁慕尼黑',
+        'de': 'Bayern München',
+        'it': 'Bayern Monaco',
+        'pt': 'Bayern de Munique'
+      },
+      'tottenham': {
+        'en': 'Tottenham',
+        'es': 'Tottenham',
+        'zh-hk': '熱刺',
+        'zh-tw': '熱刺',
+        'zh': '热刺',
+        'de': 'Tottenham',
+        'it': 'Tottenham',
+        'pt': 'Tottenham'
       }
     };
 

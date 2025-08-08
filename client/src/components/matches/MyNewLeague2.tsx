@@ -1538,30 +1538,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         lineHeight: "1.3",
                       }}
                     >
-                      {(() => {
-                        const leagueName = safeSubstring(league.name, 0) || "Unknown League";
-                        const lowerName = leagueName.toLowerCase();
-                        
-                        // Translate specific league names based on patterns
-                        if (lowerName.includes("leagues cup") || lowerName.includes("liga mx")) {
-                          return t('leagues_cup');
-                        }
-                        if (lowerName.includes("friendlies") || lowerName.includes("club friendlies")) {
-                          return t('friendlies_clubs');
-                        }
-                        if (lowerName.includes("uefa europa league")) {
-                          return t('uefa_europa_league');
-                        }
-                        if (lowerName.includes("uefa europa conference league") || lowerName.includes("conference league")) {
-                          return t('uefa_europa_conference_league');
-                        }
-                        if (lowerName.includes("champions league")) {
-                          return t('uefa_champions_league');
-                        }
-                        
-                        // Use the dynamic translation function for other league names
-                        return translateLeagueName(leagueName);
-                      })()}
+                      {translateLeagueName(safeSubstring(league.name, 0) || "Unknown League")}
                     </span>
 
                     {(() => {
@@ -1631,14 +1608,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                       lineHeight: "1.2",
                     }}
                   >
-                    {(() => {
-                      const countryName = league.country || "Unknown Country";
-                      // Translate specific country names
-                      if (countryName.toLowerCase() === "world") {
-                        return t('world');
-                      }
-                      return countryName;
-                    })()}
+                    {league.country?.toLowerCase() === "world" ? t('world') : (league.country || "Unknown Country")}
                   </span>
                 </div>
                 <div className="flex gap-2 items-center"></div>
@@ -1968,17 +1938,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {(() => {
-                                  const teamName = shortenTeamName(fixture.teams.home.name) || "Unknown Team";
-                                  // Translate specific team names
-                                  if (teamName.toLowerCase().includes("bayern münchen") || teamName.toLowerCase().includes("bayern munich")) {
-                                    return translateLeagueName('bayern_münchen');
-                                  }
-                                  if (teamName.toLowerCase().includes("tottenham")) {
-                                    return translateLeagueName('tottenham');
-                                  }
-                                  return teamName;
-                                })()}
+                                {translateLeagueName(shortenTeamName(fixture.teams.home.name) || "Unknown Team")}
                               </div>
 
                               {/* Home team logo */}
@@ -2243,17 +2203,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {(() => {
-                                  const teamName = shortenTeamName(fixture.teams.away.name) || "Unknown Team";
-                                  // Translate specific team names
-                                  if (teamName.toLowerCase().includes("bayern münchen") || teamName.toLowerCase().includes("bayern munich")) {
-                                    return translateLeagueName('bayern_münchen');
-                                  }
-                                  if (teamName.toLowerCase().includes("tottenham")) {
-                                    return translateLeagueName('tottenham');
-                                  }
-                                  return teamName;
-                                })()}
+                                {translateLeagueName(shortenTeamName(fixture.teams.away.name) || "Unknown Team")}
                               </div>
                             </div>
 
@@ -2271,20 +2221,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   penaltyAway !== null;
 
                                 if (isPenaltyMatch && hasPenaltyScores) {
-                                  const translateTeamName = (teamName: string) => {
-                                    if (teamName.toLowerCase().includes("bayern münchen") || teamName.toLowerCase().includes("bayern munich")) {
-                                      return translateLeagueName('bayern_münchen');
-                                    }
-                                    if (teamName.toLowerCase().includes("tottenham")) {
-                                      return translateLeagueName('tottenham');
-                                    }
-                                    return teamName;
-                                  };
-
                                   const winnerText =
                                     penaltyHome > penaltyAway
-                                      ? `${translateTeamName(shortenTeamName(fixture.teams.home.name))} won ${penaltyHome}-${penaltyAway} on penalties`
-                                      : `${translateTeamName(shortenTeamName(fixture.teams.away.name))} won ${penaltyAway}-${penaltyHome} on penalties`;
+                                      ? `${translateLeagueName(shortenTeamName(fixture.teams.home.name))} won ${penaltyHome}-${penaltyAway} on penalties`
+                                      : `${translateLeagueName(shortenTeamName(fixture.teams.away.name))} won ${penaltyAway}-${penaltyHome} on penalties`;
 
                                   return (
                                     <div className="penalty-result-display">
