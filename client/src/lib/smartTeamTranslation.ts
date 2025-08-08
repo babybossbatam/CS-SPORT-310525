@@ -15,6 +15,11 @@ class SmartTeamTranslation {
   private leagueTeamsCache: Record<number, any[]> = {};
   private isLoading = false;
 
+  constructor() {
+    // Clear cache on initialization to ensure updated translations are used
+    this.clearCache();
+  }
+
   // Comprehensive team translations for popular leagues
   private popularLeagueTeams: TeamTranslation = {
     // Premier League (38)
@@ -175,7 +180,7 @@ class SmartTeamTranslation {
       'es': 'Mónaco', 'de': 'Monaco', 'it': 'Monaco', 'pt': 'Monaco'
     },
 
-    // MLS teams (22)
+    // MLS Teams (no duplicates)
     'LA Galaxy': {
       'zh': '洛杉矶银河', 'zh-hk': '洛杉磯銀河', 'zh-tw': '洛杉磯銀河',
       'es': 'LA Galaxy', 'de': 'LA Galaxy', 'it': 'LA Galaxy', 'pt': 'LA Galaxy'
@@ -183,10 +188,6 @@ class SmartTeamTranslation {
     'Los Angeles Galaxy': {
       'zh': '洛杉矶银河', 'zh-hk': '洛杉磯銀河', 'zh-tw': '洛杉磯銀河',
       'es': 'Los Angeles Galaxy', 'de': 'Los Angeles Galaxy', 'it': 'Los Angeles Galaxy', 'pt': 'Los Angeles Galaxy'
-    },
-    'Portland Timbers': {
-      'zh': '波特兰伐木者', 'zh-hk': '波特蘭伐木者', 'zh-tw': '波特蘭伐木者',
-      'es': 'Portland Timbers', 'de': 'Portland Timbers', 'it': 'Portland Timbers', 'pt': 'Portland Timbers'
     },
     'Los Angeles FC': {
       'zh': '洛杉矶FC', 'zh-hk': '洛杉磯FC', 'zh-tw': '洛杉磯FC',
@@ -248,88 +249,30 @@ class SmartTeamTranslation {
       'zh': '夏洛特', 'zh-hk': '夏洛特', 'zh-tw': '夏洛特',
       'es': 'Charlotte', 'de': 'Charlotte', 'it': 'Charlotte', 'pt': 'Charlotte'
     },
-    'Cruz Azul': {
-      'zh': '蓝十字', 'zh-hk': '藍十字', 'zh-tw': '藍十字',
-      'es': 'Cruz Azul', 'de': 'Cruz Azul', 'it': 'Cruz Azul', 'pt': 'Cruz Azul'
-    },
-    'Santos Laguna': {
-      'zh': '桑托斯拉古纳', 'zh-hk': '山度士拉古納', 'zh-tw': '山度士拉古納',
-      'es': 'Santos Laguna', 'de': 'Santos Laguna', 'it': 'Santos Laguna', 'pt': 'Santos Laguna'
-    },
-    'CF Monterrey': {
-      'zh': '蒙特雷', 'zh-hk': '蒙特雷', 'zh-tw': '蒙特雷',
-      'es': 'CF Monterrey', 'de': 'CF Monterrey', 'it': 'CF Monterrey', 'pt': 'CF Monterrey'
-    },
-    'FC Juarez': {
-      'zh': '华雷斯', 'zh-hk': '華雷斯', 'zh-tw': '華雷斯',
-      'es': 'FC Juárez', 'de': 'FC Juárez', 'it': 'FC Juárez', 'pt': 'FC Juárez'
-    },
-
-    // MLS Teams
-    'LA Galaxy': {
-      'zh': '洛杉矶银河', 'zh-hk': '洛杉磯銀河', 'zh-tw': '洛杉磯銀河',
-      'es': 'LA Galaxy', 'de': 'LA Galaxy', 'it': 'LA Galaxy', 'pt': 'LA Galaxy'
-    },
-    'Los Angeles Galaxy': {
-      'zh': '洛杉矶银河', 'zh-hk': '洛杉磯銀河', 'zh-tw': '洛杉磯銀河',
-      'es': 'Los Angeles Galaxy', 'de': 'Los Angeles Galaxy', 'it': 'Los Angeles Galaxy', 'pt': 'Los Angeles Galaxy'
-    },
-    'Colorado Rapids': {
-      'zh': '科罗拉多急流', 'zh-hk': '科羅拉多急流', 'zh-tw': '科羅拉多急流',
-      'es': 'Colorado Rapids', 'de': 'Colorado Rapids', 'it': 'Colorado Rapids', 'pt': 'Colorado Rapids'
-    },
-    'New York Red Bulls': {
-      'zh': '纽约红牛', 'zh-hk': '紐約紅牛', 'zh-tw': '紐約紅牛',
-      'es': 'New York Red Bulls', 'de': 'New York Red Bulls', 'it': 'New York Red Bulls', 'pt': 'New York Red Bulls'
-    },
-    'Charlotte FC': {
-      'zh': '夏洛特', 'zh-hk': '夏洛特', 'zh-tw': '夏洛特',
-      'es': 'Charlotte FC', 'de': 'Charlotte FC', 'it': 'Charlotte FC', 'pt': 'Charlotte FC'
-    },
-    'FC Cincinnati': {
-      'zh': '辛辛那提', 'zh-hk': '辛辛那提', 'zh-tw': '辛辛那提',
-      'es': 'FC Cincinnati', 'de': 'FC Cincinnati', 'it': 'FC Cincinnati', 'pt': 'FC Cincinnati'
-    },
-    'Inter Miami CF': {
-      'zh': '迈阿密国际', 'zh-hk': '邁阿密國際', 'zh-tw': '邁阿密國際',
-      'es': 'Inter Miami CF', 'de': 'Inter Miami CF', 'it': 'Inter Miami CF', 'pt': 'Inter Miami CF'
-    },
-    'Atlanta United FC': {
-      'zh': '亚特兰大联', 'zh-hk': '亞特蘭大聯', 'zh-tw': '亞特蘭大聯',
-      'es': 'Atlanta United FC', 'de': 'Atlanta United FC', 'it': 'Atlanta United FC', 'pt': 'Atlanta United FC'
-    },
     'Toronto FC': {
       'zh': '多伦多', 'zh-hk': '多倫多', 'zh-tw': '多倫多',
       'es': 'Toronto FC', 'de': 'Toronto FC', 'it': 'Toronto FC', 'pt': 'Toronto FC'
     },
-    'Seattle Sounders FC': {
-      'zh': '西雅图海湾人', 'zh-hk': '西雅圖海灣人', 'zh-tw': '西雅圖海灣人',
-      'es': 'Seattle Sounders FC', 'de': 'Seattle Sounders FC', 'it': 'Seattle Sounders FC', 'pt': 'Seattle Sounders FC'
-    },
-    'Portland Timbers': {
-      'zh': '波特兰伐木者', 'zh-hk': '波特蘭伐木者', 'zh-tw': '波特蘭伐木者',
-      'es': 'Portland Timbers', 'de': 'Portland Timbers', 'it': 'Portland Timbers', 'pt': 'Portland Timbers'
-    },
 
     // Liga MX Teams
-    'Santos Laguna': {
-      'zh': '桑托斯拉古纳', 'zh-hk': '山度士拉古納', 'zh-tw': '山度士拉古納',
-      'es': 'Santos Laguna', 'de': 'Santos Laguna', 'it': 'Santos Laguna', 'pt': 'Santos Laguna'
-    },
     'Cruz Azul': {
       'zh': '蓝十字', 'zh-hk': '藍十字', 'zh-tw': '藍十字',
       'es': 'Cruz Azul', 'de': 'Cruz Azul', 'it': 'Cruz Azul', 'pt': 'Cruz Azul'
     },
-    'FC Juarez': {
-      'zh': '华雷斯', 'zh-hk': '華雷斯', 'zh-tw': '華雷斯',
-      'es': 'FC Juárez', 'de': 'FC Juárez', 'it': 'FC Juárez', 'pt': 'FC Juárez'
+    'Santos Laguna': {
+      'zh': '桑托斯拉古纳', 'zh-hk': '山度士拉古納', 'zh-tw': '山度士拉古納',
+      'es': 'Santos Laguna', 'de': 'Santos Laguna', 'it': 'Santos Laguna', 'pt': 'Santos Laguna'
     },
     'CF Monterrey': {
       'zh': '蒙特雷', 'zh-hk': '蒙特雷', 'zh-tw': '蒙特雷',
       'es': 'CF Monterrey', 'de': 'CF Monterrey', 'it': 'CF Monterrey', 'pt': 'CF Monterrey'
     },
+    'FC Juarez': {
+      'zh': '华雷斯', 'zh-hk': '華雷斯', 'zh-tw': '華雷斯',
+      'es': 'FC Juárez', 'de': 'FC Juárez', 'it': 'FC Juárez', 'pt': 'FC Juárez'
+    },
 
-    // Brazilian teams
+    // Brazilian teams (comprehensive)
     'Flamengo': {
       'zh': '弗拉门戈', 'zh-hk': '法林明高', 'zh-tw': '弗拉門戈',
       'es': 'Flamengo', 'de': 'Flamengo', 'it': 'Flamengo', 'pt': 'Flamengo'
@@ -342,12 +285,96 @@ class SmartTeamTranslation {
       'zh': '科林蒂安', 'zh-hk': '哥連泰斯', 'zh-tw': '科林蒂安',
       'es': 'Corinthians', 'de': 'Corinthians', 'it': 'Corinthians', 'pt': 'Corinthians'
     },
+    'São Paulo': {
+      'zh': '圣保罗', 'zh-hk': '聖保羅', 'zh-tw': '聖保羅',
+      'es': 'São Paulo', 'de': 'São Paulo', 'it': 'San Paolo', 'pt': 'São Paulo'
+    },
     'Sao Paulo': {
       'zh': '圣保罗', 'zh-hk': '聖保羅', 'zh-tw': '聖保羅',
       'es': 'São Paulo', 'de': 'São Paulo', 'it': 'San Paolo', 'pt': 'São Paulo'
     },
+    'Botafogo': {
+      'zh': '博塔弗戈', 'zh-hk': '博塔弗戈', 'zh-tw': '博塔弗戈',
+      'es': 'Botafogo', 'de': 'Botafogo', 'it': 'Botafogo', 'pt': 'Botafogo'
+    },
+    'Vasco da Gama': {
+      'zh': '华斯高', 'zh-hk': '華士高', 'zh-tw': '華斯高',
+      'es': 'Vasco da Gama', 'de': 'Vasco da Gama', 'it': 'Vasco da Gama', 'pt': 'Vasco da Gama'
+    },
+    'Vasco': {
+      'zh': '华斯高', 'zh-hk': '華士高', 'zh-tw': '華斯高',
+      'es': 'Vasco', 'de': 'Vasco', 'it': 'Vasco', 'pt': 'Vasco'
+    },
+    'Santos': {
+      'zh': '桑托斯', 'zh-hk': '山度士', 'zh-tw': '山度士',
+      'es': 'Santos', 'de': 'Santos', 'it': 'Santos', 'pt': 'Santos'
+    },
+    'Grêmio': {
+      'zh': '格雷米奥', 'zh-hk': '格雷米奧', 'zh-tw': '格雷米奧',
+      'es': 'Grêmio', 'de': 'Grêmio', 'it': 'Grêmio', 'pt': 'Grêmio'
+    },
+    'Gremio': {
+      'zh': '格雷米奥', 'zh-hk': '格雷米奧', 'zh-tw': '格雷米奧',
+      'es': 'Grêmio', 'de': 'Grêmio', 'it': 'Grêmio', 'pt': 'Grêmio'
+    },
+    'Internacional': {
+      'zh': '国际', 'zh-hk': '國際', 'zh-tw': '國際',
+      'es': 'Internacional', 'de': 'Internacional', 'it': 'Internacional', 'pt': 'Internacional'
+    },
+    'Athletico Paranaense': {
+      'zh': '巴拉那竞技', 'zh-hk': '巴拉那競技', 'zh-tw': '巴拉那競技',
+      'es': 'Athletico Paranaense', 'de': 'Athletico Paranaense', 'it': 'Athletico Paranaense', 'pt': 'Athletico Paranaense'
+    },
+    'Athletico-PR': {
+      'zh': '巴拉那竞技', 'zh-hk': '巴拉那競技', 'zh-tw': '巴拉那競技',
+      'es': 'Athletico-PR', 'de': 'Athletico-PR', 'it': 'Athletico-PR', 'pt': 'Athletico-PR'
+    },
+    'Coritiba': {
+      'zh': '科里蒂巴', 'zh-hk': '科里蒂巴', 'zh-tw': '科里蒂巴',
+      'es': 'Coritiba', 'de': 'Coritiba', 'it': 'Coritiba', 'pt': 'Coritiba'
+    },
+    'Chapecoense': {
+      'zh': '沙佩科恩斯', 'zh-hk': '沙佩科恩斯', 'zh-tw': '沙佩科恩斯',
+      'es': 'Chapecoense', 'de': 'Chapecoense', 'it': 'Chapecoense', 'pt': 'Chapecoense'
+    },
+    'Ferroviária': {
+      'zh': '费罗维亚里亚', 'zh-hk': '費羅維亞里亞', 'zh-tw': '費羅維亞里亞',
+      'es': 'Ferroviária', 'de': 'Ferroviária', 'it': 'Ferroviária', 'pt': 'Ferroviária'
+    },
+    'Amazonas': {
+      'zh': '亚马逊', 'zh-hk': '亞馬遜', 'zh-tw': '亞馬遜',
+      'es': 'Amazonas', 'de': 'Amazonas', 'it': 'Amazonas', 'pt': 'Amazonas'
+    },
+    'Cruzeiro': {
+      'zh': '克鲁塞罗', 'zh-hk': '克魯塞羅', 'zh-tw': '克魯塞羅',
+      'es': 'Cruzeiro', 'de': 'Cruzeiro', 'it': 'Cruzeiro', 'pt': 'Cruzeiro'
+    },
+    'Atlético Mineiro': {
+      'zh': '米内罗竞技', 'zh-hk': '米內羅競技', 'zh-tw': '米內羅競技',
+      'es': 'Atlético Mineiro', 'de': 'Atlético Mineiro', 'it': 'Atlético Mineiro', 'pt': 'Atlético Mineiro'
+    },
+    'Atletico Mineiro': {
+      'zh': '米内罗竞技', 'zh-hk': '米內羅競技', 'zh-tw': '米內羅競技',
+      'es': 'Atlético Mineiro', 'de': 'Atlético Mineiro', 'it': 'Atlético Mineiro', 'pt': 'Atlético Mineiro'
+    },
+    'Bahia': {
+      'zh': '巴伊亚', 'zh-hk': '巴伊亞', 'zh-tw': '巴伊亞',
+      'es': 'Bahia', 'de': 'Bahia', 'it': 'Bahia', 'pt': 'Bahia'
+    },
+    'Ceará': {
+      'zh': '塞阿拉', 'zh-hk': '塞阿拉', 'zh-tw': '塞阿拉',
+      'es': 'Ceará', 'de': 'Ceará', 'it': 'Ceará', 'pt': 'Ceará'
+    },
+    'Ceara': {
+      'zh': '塞阿拉', 'zh-hk': '塞阿拉', 'zh-tw': '塞阿拉',
+      'es': 'Ceará', 'de': 'Ceará', 'it': 'Ceará', 'pt': 'Ceará'
+    },
+    'Fortaleza': {
+      'zh': '福塔雷萨', 'zh-hk': '福塔雷薩', 'zh-tw': '福塔雷薩',
+      'es': 'Fortaleza', 'de': 'Fortaleza', 'it': 'Fortaleza', 'pt': 'Fortaleza'
+    },
 
-    // Argentine teams
+    // Argentine teams (comprehensive)
     'Boca Juniors': {
       'zh': '博卡青年', 'zh-hk': '小保加', 'zh-tw': '博卡青年',
       'es': 'Boca Juniors', 'de': 'Boca Juniors', 'it': 'Boca Juniors', 'pt': 'Boca Juniors'
@@ -363,6 +390,98 @@ class SmartTeamTranslation {
     'Independiente': {
       'zh': '独立', 'zh-hk': '獨立', 'zh-tw': '獨立',
       'es': 'Independiente', 'de': 'Independiente', 'it': 'Independiente', 'pt': 'Independiente'
+    },
+    'Tigre': {
+      'zh': '老虎', 'zh-hk': '老虎', 'zh-tw': '老虎',
+      'es': 'Tigre', 'de': 'Tigre', 'it': 'Tigre', 'pt': 'Tigre'
+    },
+    'Huracán': {
+      'zh': '飓风', 'zh-hk': '颶風', 'zh-tw': '颶風',
+      'es': 'Huracán', 'de': 'Huracán', 'it': 'Huracán', 'pt': 'Huracán'
+    },
+    'Huracan': {
+      'zh': '飓风', 'zh-hk': '颶風', 'zh-tw': '颶風',
+      'es': 'Huracán', 'de': 'Huracán', 'it': 'Huracán', 'pt': 'Huracán'
+    },
+    'Newell\'s Old Boys': {
+      'zh': '纽韦尔老男孩', 'zh-hk': '紐韋爾老男孩', 'zh-tw': '紐韋爾老男孩',
+      'es': 'Newell\'s Old Boys', 'de': 'Newell\'s Old Boys', 'it': 'Newell\'s Old Boys', 'pt': 'Newell\'s Old Boys'
+    },
+    'Newells Old Boys': {
+      'zh': '纽韦尔老男孩', 'zh-hk': '紐韋爾老男孩', 'zh-tw': '紐韋爾老男孩',
+      'es': 'Newell\'s Old Boys', 'de': 'Newell\'s Old Boys', 'it': 'Newell\'s Old Boys', 'pt': 'Newell\'s Old Boys'
+    },
+    'Córdoba': {
+      'zh': '科尔多瓦', 'zh-hk': '哥多華', 'zh-tw': '科爾多瓦',
+      'es': 'Córdoba', 'de': 'Córdoba', 'it': 'Córdoba', 'pt': 'Córdoba'
+    },
+    'Cordoba': {
+      'zh': '科尔多瓦', 'zh-hk': '哥多華', 'zh-tw': '科爾多瓦',
+      'es': 'Córdoba', 'de': 'Córdoba', 'it': 'Córdoba', 'pt': 'Córdoba'
+    },
+    'Lanús': {
+      'zh': '拉努斯', 'zh-hk': '拉努斯', 'zh-tw': '拉努斯',
+      'es': 'Lanús', 'de': 'Lanús', 'it': 'Lanús', 'pt': 'Lanús'
+    },
+    'Lanus': {
+      'zh': '拉努斯', 'zh-hk': '拉努斯', 'zh-tw': '拉努斯',
+      'es': 'Lanús', 'de': 'Lanús', 'it': 'Lanús', 'pt': 'Lanús'
+    },
+    'Talleres': {
+      'zh': '塔列雷斯', 'zh-hk': '塔列雷斯', 'zh-tw': '塔列雷斯',
+      'es': 'Talleres', 'de': 'Talleres', 'it': 'Talleres', 'pt': 'Talleres'
+    },
+    'Talleres Córdoba': {
+      'zh': '科尔多瓦塔列雷斯', 'zh-hk': '科爾多瓦塔列雷斯', 'zh-tw': '科爾多瓦塔列雷斯',
+      'es': 'Talleres Córdoba', 'de': 'Talleres Córdoba', 'it': 'Talleres Córdoba', 'pt': 'Talleres Córdoba'
+    },
+    'Talleres Cordoba': {
+      'zh': '科尔多瓦塔列雷斯', 'zh-hk': '科爾多瓦塔列雷斯', 'zh-tw': '科爾多瓦塔列雷斯',
+      'es': 'Talleres Córdoba', 'de': 'Talleres Córdoba', 'it': 'Talleres Córdoba', 'pt': 'Talleres Córdoba'
+    },
+    'Central Córdoba': {
+      'zh': '中央科尔多瓦', 'zh-hk': '中央科爾多瓦', 'zh-tw': '中央科爾多瓦',
+      'es': 'Central Córdoba', 'de': 'Central Córdoba', 'it': 'Central Córdoba', 'pt': 'Central Córdoba'
+    },
+    'Central Cordoba': {
+      'zh': '中央科尔多瓦', 'zh-hk': '中央科爾多瓦', 'zh-tw': '中央科爾多瓦',
+      'es': 'Central Córdoba', 'de': 'Central Córdoba', 'it': 'Central Córdoba', 'pt': 'Central Córdoba'
+    },
+    'Central Córdoba de Santiago': {
+      'zh': '圣地亚哥中央科尔多瓦', 'zh-hk': '聖地亞哥中央科爾多瓦', 'zh-tw': '聖地亞哥中央科爾多瓦',
+      'es': 'Central Córdoba de Santiago', 'de': 'Central Córdoba de Santiago', 'it': 'Central Córdoba de Santiago', 'pt': 'Central Córdoba de Santiago'
+    },
+    'Central Cordoba de Santiago': {
+      'zh': '圣地亚哥中央科尔多瓦', 'zh-hk': '聖地亞哥中央科爾多瓦', 'zh-tw': '聖地亞哥中央科爾多瓦',
+      'es': 'Central Córdoba de Santiago', 'de': 'Central Córdoba de Santiago', 'it': 'Central Córdoba de Santiago', 'pt': 'Central Córdoba de Santiago'
+    },
+    'San Lorenzo': {
+      'zh': '圣洛伦索', 'zh-hk': '聖洛倫索', 'zh-tw': '聖洛倫索',
+      'es': 'San Lorenzo', 'de': 'San Lorenzo', 'it': 'San Lorenzo', 'pt': 'San Lorenzo'
+    },
+    'Vélez Sarsfield': {
+      'zh': '萨斯菲尔德', 'zh-hk': '薩斯菲爾德', 'zh-tw': '薩斯菲爾德',
+      'es': 'Vélez Sarsfield', 'de': 'Vélez Sarsfield', 'it': 'Vélez Sarsfield', 'pt': 'Vélez Sarsfield'
+    },
+    'Velez Sarsfield': {
+      'zh': '萨斯菲尔德', 'zh-hk': '薩斯菲爾德', 'zh-tw': '薩斯菲爾德',
+      'es': 'Vélez Sarsfield', 'de': 'Vélez Sarsfield', 'it': 'Vélez Sarsfield', 'pt': 'Vélez Sarsfield'
+    },
+    'Godoy Cruz': {
+      'zh': '戈多伊克鲁斯', 'zh-hk': '戈多伊克魯斯', 'zh-tw': '戈多伊克魯斯',
+      'es': 'Godoy Cruz', 'de': 'Godoy Cruz', 'it': 'Godoy Cruz', 'pt': 'Godoy Cruz'
+    },
+    'Gimnasia La Plata': {
+      'zh': '拉普拉塔体操', 'zh-hk': '拉普拉塔體操', 'zh-tw': '拉普拉塔體操',
+      'es': 'Gimnasia La Plata', 'de': 'Gimnasia La Plata', 'it': 'Gimnasia La Plata', 'pt': 'Gimnasia La Plata'
+    },
+    'Estudiantes': {
+      'zh': '拉普拉塔大学生', 'zh-hk': '拉普拉塔大學生', 'zh-tw': '拉普拉塔大學生',
+      'es': 'Estudiantes', 'de': 'Estudiantes', 'it': 'Estudiantes', 'pt': 'Estudiantes'
+    },
+    'Estudiantes L.P.': {
+      'zh': '拉普拉塔大学生', 'zh-hk': '拉普拉塔大學生', 'zh-tw': '拉普拉塔大學生',
+      'es': 'Estudiantes', 'de': 'Estudiantes', 'it': 'Estudiantes', 'pt': 'Estudiantes'
     },
 
     // Champions League common teams
@@ -389,6 +508,104 @@ class SmartTeamTranslation {
     'PSV': {
       'zh': 'PSV埃因霍温', 'zh-hk': 'PSV燕豪芬', 'zh-tw': 'PSV埃因霍溫',
       'es': 'PSV Eindhoven', 'de': 'PSV Eindhoven', 'it': 'PSV Eindhoven', 'pt': 'PSV Eindhoven'
+    },
+
+    // Chilean teams
+    'Palestino': {
+      'zh': '巴勒斯坦人', 'zh-hk': '巴勒斯坦人', 'zh-tw': '巴勒斯坦人',
+      'es': 'Palestino', 'de': 'Palestino', 'it': 'Palestino', 'pt': 'Palestino'
+    },
+    'Deportes Iquique': {
+      'zh': '伊基克体育', 'zh-hk': '伊基克體育', 'zh-tw': '伊基克體育',
+      'es': 'Deportes Iquique', 'de': 'Deportes Iquique', 'it': 'Deportes Iquique', 'pt': 'Deportes Iquique'
+    },
+    'Colo Colo': {
+      'zh': '科洛科洛', 'zh-hk': '科洛科洛', 'zh-tw': '科洛科洛',
+      'es': 'Colo Colo', 'de': 'Colo Colo', 'it': 'Colo Colo', 'pt': 'Colo Colo'
+    },
+    'Universidad de Chile': {
+      'zh': '智利大学', 'zh-hk': '智利大學', 'zh-tw': '智利大學',
+      'es': 'Universidad de Chile', 'de': 'Universidad de Chile', 'it': 'Universidad de Chile', 'pt': 'Universidad de Chile'
+    },
+
+    // Colombian teams
+    'Millonarios': {
+      'zh': '百万富翁', 'zh-hk': '百萬富翁', 'zh-tw': '百萬富翁',
+      'es': 'Millonarios', 'de': 'Millonarios', 'it': 'Millonarios', 'pt': 'Millonarios'
+    },
+    'Deportivo Pasto': {
+      'zh': '帕斯托体育', 'zh-hk': '帕斯托體育', 'zh-tw': '帕斯托體育',
+      'es': 'Deportivo Pasto', 'de': 'Deportivo Pasto', 'it': 'Deportivo Pasto', 'pt': 'Deportivo Pasto'
+    },
+    'Atlético Nacional': {
+      'zh': '国民竞技', 'zh-hk': '國民競技', 'zh-tw': '國民競技',
+      'es': 'Atlético Nacional', 'de': 'Atlético Nacional', 'it': 'Atlético Nacional', 'pt': 'Atlético Nacional'
+    },
+    'Atletico Nacional': {
+      'zh': '国民竞技', 'zh-hk': '國民競技', 'zh-tw': '國民競技',
+      'es': 'Atlético Nacional', 'de': 'Atlético Nacional', 'it': 'Atlético Nacional', 'pt': 'Atlético Nacional'
+    },
+
+    // Russian teams (from your data)
+    'Krylia Sovetov': {
+      'zh': '苏维埃之翼', 'zh-hk': '蘇維埃之翼', 'zh-tw': '蘇維埃之翼',
+      'es': 'Krylia Sovetov', 'de': 'Krylia Sovetov', 'it': 'Krylia Sovetov', 'pt': 'Krylia Sovetov'
+    },
+    'Baltika': {
+      'zh': '波罗的海', 'zh-hk': '波羅的海', 'zh-tw': '波羅的海',
+      'es': 'Baltika', 'de': 'Baltika', 'it': 'Baltika', 'pt': 'Baltika'
+    },
+    'CSKA Moscow': {
+      'zh': '莫斯科中央陆军', 'zh-hk': '莫斯科中央陸軍', 'zh-tw': '莫斯科中央陸軍',
+      'es': 'CSKA Moscú', 'de': 'ZSKA Moskau', 'it': 'CSKA Mosca', 'pt': 'CSKA Moscou'
+    },
+    'Rubin': {
+      'zh': '喀山红宝石', 'zh-hk': '喀山紅寶石', 'zh-tw': '喀山紅寶石',
+      'es': 'Rubin Kazan', 'de': 'Rubin Kasan', 'it': 'Rubin Kazan', 'pt': 'Rubin Kazan'
+    },
+    'Lokomotiv': {
+      'zh': '莫斯科火车头', 'zh-hk': '莫斯科火車頭', 'zh-tw': '莫斯科火車頭',
+      'es': 'Lokomotiv', 'de': 'Lokomotiv', 'it': 'Lokomotiv', 'pt': 'Lokomotiv'
+    },
+    'Lokomotiv Moscow': {
+      'zh': '莫斯科火车头', 'zh-hk': '莫斯科火車頭', 'zh-tw': '莫斯科火車頭',
+      'es': 'Lokomotiv Moscú', 'de': 'Lokomotiv Moskau', 'it': 'Lokomotiv Mosca', 'pt': 'Lokomotiv Moscou'
+    },
+    'Spartak Moscow': {
+      'zh': '莫斯科斯巴达', 'zh-hk': '莫斯科斯巴達', 'zh-tw': '莫斯科斯巴達',
+      'es': 'Spartak de Moscú', 'de': 'Spartak Moskau', 'it': 'Spartak Mosca', 'pt': 'Spartak Moscou'
+    },
+    'Makhachkala': {
+      'zh': '马哈奇卡拉', 'zh-hk': '馬哈奇卡拉', 'zh-tw': '馬哈奇卡拉',
+      'es': 'Makhachkala', 'de': 'Makhachkala', 'it': 'Makhachkala', 'pt': 'Makhachkala'
+    },
+    'Akron': {
+      'zh': '阿克伦', 'zh-hk': '阿克倫', 'zh-tw': '阿克倫',
+      'es': 'Akron', 'de': 'Akron', 'it': 'Akron', 'pt': 'Akron'
+    },
+
+    // Australian teams (from your data)
+    'Brisbane Roar': {
+      'zh': '布里斯班狮吼', 'zh-hk': '布里斯班獅吼', 'zh-tw': '布里斯班獅吼',
+      'es': 'Brisbane Roar', 'de': 'Brisbane Roar', 'it': 'Brisbane Roar', 'pt': 'Brisbane Roar'
+    },
+    'Sydney FC': {
+      'zh': '悉尼FC', 'zh-hk': '悉尼FC', 'zh-tw': '雪梨FC',
+      'es': 'Sydney FC', 'de': 'Sydney FC', 'it': 'Sydney FC', 'pt': 'Sydney FC'
+    },
+    'Melbourne Victory': {
+      'zh': '墨尔本胜利', 'zh-hk': '墨爾本勝利', 'zh-tw': '墨爾本勝利',
+      'es': 'Melbourne Victory', 'de': 'Melbourne Victory', 'it': 'Melbourne Victory', 'pt': 'Melbourne Victory'
+    },
+
+    // Spanish lower division teams (from your data)
+    'Ucam Murcia': {
+      'zh': '穆尔西亚UCAM', 'zh-hk': '穆爾西亞UCAM', 'zh-tw': '穆爾西亞UCAM',
+      'es': 'UCAM Murcia', 'de': 'UCAM Murcia', 'it': 'UCAM Murcia', 'pt': 'UCAM Murcia'
+    },
+    'Eldense': {
+      'zh': '埃尔登塞', 'zh-hk': '埃爾登塞', 'zh-tw': '埃爾登塞',
+      'es': 'Eldense', 'de': 'Eldense', 'it': 'Eldense', 'pt': 'Eldense'
     },
 
     // Additional European teams

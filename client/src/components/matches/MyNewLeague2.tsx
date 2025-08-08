@@ -22,6 +22,8 @@ import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";
 import { useTranslation } from "@/contexts/LanguageContext";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
+import { smartTeamTranslation } from '@/lib/smartTeamTranslation';
+import { teamNameExtractor } from '@/lib/teamNameExtractor';
 
 // Intersection Observer Hook for lazy loading
 const useIntersectionObserver = (
@@ -1028,6 +1030,38 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
     return grouped;
   }, [allFixtures, selectedDate]);
+
+  // Added team name analysis in useEffect
+  useEffect(() => {
+    if (fixturesByLeague && Object.keys(fixturesByLeague).length > 0) {
+      const leagueFixtures = Object.values(fixturesByLeague).flatMap(group => group.fixtures);
+
+      if (leagueFixtures.length > 0) {
+        console.log(`📊 [MyNewLeague2] Loaded ${leagueFixtures.length} fixtures for analysis`);
+
+        // Analyze team names for translation coverage (only in development)
+        if (process.env.NODE_ENV === 'development') {
+          try {
+            const analysisResult = teamNameExtractor.analyzeFixtures(leagueFixtures);
+
+            if (analysisResult && analysisResult.missingTranslations.length > 0) {
+              console.log(`🔍 [Team Translation Analysis] Found ${analysisResult.missingTranslations.length} teams missing translations:`);
+              console.log('Missing teams:', analysisResult.missingTranslations.slice(0, 20)); // Show first 20
+
+              // Generate translation template for missing teams
+              const translationTemplate = teamNameExtractor.generateMissingTranslations(
+                analysisResult.missingTranslations.slice(0, 50) // Generate for first 50
+              );
+              console.log('Generated translation template:', translationTemplate);
+            }
+          } catch (error) {
+            console.warn('Team name analysis failed:', error);
+          }
+        }
+      }
+    }
+  }, [fixturesByLeague]);
+
 
   // Auto-expand all leagues by default when data changes
   useEffect(() => {
