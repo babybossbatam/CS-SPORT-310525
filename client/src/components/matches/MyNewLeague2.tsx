@@ -127,7 +127,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   onMatchCardClick,
   match,
 }) => {
-  const { t } = useTranslation();
+  const { t, translateLeagueName } = useTranslation();
   const { translateCountryName } = useLanguage();
   // Sample match data for demonstration (similar to MyMatchdetailsScoreboard)
   const sampleMatch = {
@@ -2259,7 +2259,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
-  const { t } = useTranslation();
+  const { t, translateLeagueName } = useTranslation();
   const { hasIntersected } = useIntersectionObserver(containerRef, {
     threshold: 0.01, // Trigger even earlier
     rootMargin: '200px' // Start loading 200px before it comes into view
