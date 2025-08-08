@@ -24,6 +24,8 @@ import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
 import { smartTeamTranslation } from '@/lib/smartTeamTranslation';
 import { teamNameExtractor } from '@/lib/teamNameExtractor';
+import { teamMappingExtractor } from '@/lib/teamMappingExtractor';
+import { generateCompleteTeamMapping } from '@/lib/generateCompleteTeamMapping';
 
 // Intersection Observer Hook for lazy loading
 const useIntersectionObserver = (
@@ -1034,44 +1036,70 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     return grouped;
   }, [allFixtures, selectedDate]);
 
-  // Added team name analysis in useEffect
+  // Enhanced team mapping and analysis in useEffect
   useEffect(() => {
     if (fixturesByLeague && Object.keys(fixturesByLeague).length > 0) {
       const leagueFixtures = Object.values(fixturesByLeague).flatMap(group => group.fixtures);
 
       if (leagueFixtures.length > 0) {
-        console.log(`📊 [MyNewLeague2] Loaded ${leagueFixtures.length} fixtures for analysis`);
+        console.log(`📊 [MyNewLeague2] Loaded ${leagueFixtures.length} fixtures for comprehensive team mapping analysis`);
 
-        // Analyze team names for translation coverage (only in development)
+        // Enhanced team mapping extraction (only in development)
         if (process.env.NODE_ENV === 'development') {
           try {
-            const analysisResult = teamNameExtractor.analyzeFixtures(leagueFixtures);
+            // Extract comprehensive team mappings
+            const leagueTeamData = teamMappingExtractor.extractTeamsFromFixtures(leagueFixtures);
+            const analysisReport = teamMappingExtractor.generateAnalysisReport();
 
-            if (analysisResult && analysisResult.missingTranslations.length > 0) {
-              console.log(`🔍 [Team Translation Analysis] Found ${analysisResult.missingTranslations.length} teams missing translations:`);
-              console.log('Missing teams:', analysisResult.missingTranslations.slice(0, 50)); // Show first 50
+            console.log(`🗺️ [Team Mapping Extractor] Comprehensive Analysis:`, {
+              totalTeams: analysisReport.totalTeams,
+              totalFixtures: analysisReport.totalFixtures,
+              leagueCount: analysisReport.leagueBreakdown.length,
+              topLeagues: analysisReport.leagueBreakdown.slice(0, 10).map(league => ({
+                name: league.leagueName,
+                teamCount: league.teamCount,
+                topTeam: league.topTeams[0]?.name
+              }))
+            });
 
-              // Generate translation template for missing teams
-              const translationTemplate = teamNameExtractor.generateMissingTranslations(
-                analysisResult.missingTranslations.slice(0, 100) // Generate for first 100
-              );
-              console.log('Generated translation template for copy-paste:', translationTemplate);
+            // Log most common teams across all leagues
+            console.log(`🔥 [Top Teams] Most frequent teams across all leagues:`,
+              analysisReport.mostCommonTeams.slice(0, 20)
+            );
 
-              // Also log teams by frequency to prioritize most common ones
-              console.log('Teams by frequency (most common first):',
-                analysisResult.teams
-                  .filter(team => analysisResult.missingTranslations.includes(team.teamName))
-                  .slice(0, 30)
-                  .map(team => `${team.teamName} (${team.frequency} matches, ${team.leagueName})`)
-              );
+            // Generate translation template for copy-paste
+            const translationTemplate = teamMappingExtractor.generateTranslationTemplate(currentLanguage);
+            console.log(`📋 [Translation Template] Generated for ${currentLanguage}:`, translationTemplate);
+
+            // League-by-league breakdown
+            analysisReport.leagueBreakdown.forEach(league => {
+              if (league.teamCount > 0) {
+                console.log(`⚽ [League ${league.leagueId}] ${league.leagueName}: ${league.teamCount} teams, top: ${league.topTeams.map(t => `${t.name} (${t.frequency})`).join(', ')}`);
+              }
+            });
+
+            // Legacy team name analysis for comparison
+            const legacyAnalysisResult = teamNameExtractor.analyzeFixtures(leagueFixtures);
+
+            if (legacyAnalysisResult && legacyAnalysisResult.missingTranslations.length > 0) {
+              console.log(`🔍 [Legacy Analysis] Found ${legacyAnalysisResult.missingTranslations.length} teams missing translations`);
             }
+
+            // Make complete team mapping function available in console
+            if (typeof window !== 'undefined') {
+              (window as any).generateCompleteTeamMappingForMyNewLeague2 = () => 
+                generateCompleteTeamMapping(selectedDate);
+              
+              console.log(`🛠️ [Developer Tool] Run 'generateCompleteTeamMappingForMyNewLeague2()' in console to generate complete team mapping`);
+            }
+
           } catch (error) {
-            console.warn('Team name analysis failed:', error);
+            console.warn('Team mapping analysis failed:', error);
           }
         }
       }
     }
-  }, [fixturesByLeague]);
+  }, [fixturesByLeague, currentLanguage, selectedDate]);
 
 
   // Auto-expand all leagues by default when data changes
