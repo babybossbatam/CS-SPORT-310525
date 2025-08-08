@@ -100,11 +100,14 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
     const currentPath = getPathWithoutLanguage();
     const newPath = `/${languageCode}${currentPath === '/' ? '' : currentPath}`;
     
+    // Update the language context first
+    setLanguage(languageCode);
+    
     // Navigate to new URL with updated language
     window.location.href = newPath;
     
     toast({
-      title: "Language Changed",
+      title: "Language Changed", 
       description: `Language switched to ${getLanguageDisplayName(languageCode)}`,
     });
   };
@@ -112,6 +115,10 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
   const getPathWithoutLanguage = (): string => {
     const supportedLanguages = ['en', 'es', 'zh-hk', 'zh', 'de', 'it', 'pt'];
     const pathParts = location.split('/').filter(part => part);
+    
+    console.log('🔍 [Header] Current location:', location);
+    console.log('🔍 [Header] Path parts:', pathParts);
+    console.log('🔍 [Header] Current language from context:', currentLanguage);
     
     if (pathParts.length > 0 && supportedLanguages.includes(pathParts[0])) {
       const remainingPath = pathParts.slice(1).join('/');
