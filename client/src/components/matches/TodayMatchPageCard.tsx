@@ -121,8 +121,8 @@ export const TodayMatchPageCard = ({
     setIsCalendarOpen(false);
   };
 
-  // Dedicated date display function for MyLeftBasket
-  const getMyLeftBasketDisplayName = () => {
+  // Dedicated date display function for match page
+  const getDateDisplayName = () => {
     const today = getCurrentUTCDateString();
     const yesterday = format(subDays(parseISO(today), 1), "yyyy-MM-dd");
     const tomorrow = format(addDays(parseISO(today), 1), "yyyy-MM-dd");
@@ -189,23 +189,23 @@ export const TodayMatchPageCard = ({
     refetchInterval: 30000,
   });
 
-  console.log(`📊 [MyLeftBasket] Rendering for date: ${selectedDate}`);
+  console.log(`📊 [TodayMatchPageCard] Rendering for date: ${selectedDate}`);
 
   const handleMatchCardClick = (fixture: any) => {
-    console.log('🎯 [MyLeftBasket] Match card clicked:', {
+    console.log('🎯 [TodayMatchPageCard] Match card clicked:', {
       fixtureId: fixture.fixture?.id,
       teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
       league: fixture.league?.name,
       country: fixture.league?.country,
       homeTeamId: fixture.teams?.home?.id,
       awayTeamId: fixture.teams?.away?.id,
-      source: 'MyLeftBasket'
+      source: 'TodayMatchPageCard'
     });
     onMatchCardClick?.(fixture);
   };
 
   const handleLiveMatchClick = (fixture: any) => {
-    console.log('🔴 [MyLeftBasket] LIVE Match card clicked from LiveMatchForAllCountry:', {
+    console.log('🔴 [TodayMatchPageCard] LIVE Match card clicked from LiveMatchForAllCountry:', {
       fixtureId: fixture.fixture?.id,
       teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
       league: fixture.league?.name,
@@ -260,7 +260,7 @@ export const TodayMatchPageCard = ({
               className="flex items-center gap-3 px-3 py-4   h-full"
             >
               <span className={`font-medium ${currentLanguage.startsWith('zh') ? 'font-sans' : ''}`}>
-                {getMyLeftBasketDisplayName()}
+                {getDateDisplayName()}
               </span>
               <ChevronDown
                 className={`h-4 w-4 transition-transform ${isCalendarOpen ? "rotate-180" : ""}`}
