@@ -1,0 +1,283 @@
+5:28:50 PM [express] serving on port 5000
+5:28:53 PM [vite] warning: Duplicate key "Portland Timbers" in object literal
+229|        'es': 'Seattle Sounders FC', 'de': 'Seattle Sounders FC', 'it': 'Seattle Sounders FC', 'pt': 'Seattle Sounders FC'
+230|      },
+231|      'Portland Timbers': {
+   |      ^
+232|        'zh': '波特兰伐木者', 'zh-hk': '波特蘭伐木者', 'zh-tw': '波特蘭伐木者',
+233|        'es': 'Portland Timbers', 'de': 'Portland Timbers', 'it': 'Portland Timbers', 'pt': 'Portland Timbers'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "LA Galaxy" in object literal
+267|  
+268|      // MLS Teams
+269|      'LA Galaxy': {
+   |      ^
+270|        'zh': '洛杉矶银河', 'zh-hk': '洛杉磯銀河', 'zh-tw': '洛杉磯銀河',
+271|        'es': 'LA Galaxy', 'de': 'LA Galaxy', 'it': 'LA Galaxy', 'pt': 'LA Galaxy'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "Los Angeles Galaxy" in object literal
+271|        'es': 'LA Galaxy', 'de': 'LA Galaxy', 'it': 'LA Galaxy', 'pt': 'LA Galaxy'
+272|      },
+273|      'Los Angeles Galaxy': {
+   |      ^
+274|        'zh': '洛杉矶银河', 'zh-hk': '洛杉磯銀河', 'zh-tw': '洛杉磯銀河',
+275|        'es': 'Los Angeles Galaxy', 'de': 'Los Angeles Galaxy', 'it': 'Los Angeles Galaxy', 'pt': 'Los Angeles Galaxy'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "Colorado Rapids" in object literal
+275|        'es': 'Los Angeles Galaxy', 'de': 'Los Angeles Galaxy', 'it': 'Los Angeles Galaxy', 'pt': 'Los Angeles Galaxy'
+276|      },
+277|      'Colorado Rapids': {
+   |      ^
+278|        'zh': '科罗拉多急流', 'zh-hk': '科羅拉多急流', 'zh-tw': '科羅拉多急流',
+279|        'es': 'Colorado Rapids', 'de': 'Colorado Rapids', 'it': 'Colorado Rapids', 'pt': 'Colorado Rapids'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "New York Red Bulls" in object literal
+279|        'es': 'Colorado Rapids', 'de': 'Colorado Rapids', 'it': 'Colorado Rapids', 'pt': 'Colorado Rapids'
+280|      },
+281|      'New York Red Bulls': {
+   |      ^
+282|        'zh': '纽约红牛', 'zh-hk': '紐約紅牛', 'zh-tw': '紐約紅牛',
+283|        'es': 'New York Red Bulls', 'de': 'New York Red Bulls', 'it': 'New York Red Bulls', 'pt': 'New York Red Bulls'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "Charlotte FC" in object literal
+283|        'es': 'New York Red Bulls', 'de': 'New York Red Bulls', 'it': 'New York Red Bulls', 'pt': 'New York Red Bulls'
+284|      },
+285|      'Charlotte FC': {
+   |      ^
+286|        'zh': '夏洛特', 'zh-hk': '夏洛特', 'zh-tw': '夏洛特',
+287|        'es': 'Charlotte FC', 'de': 'Charlotte FC', 'it': 'Charlotte FC', 'pt': 'Charlotte FC'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "FC Cincinnati" in object literal
+287|        'es': 'Charlotte FC', 'de': 'Charlotte FC', 'it': 'Charlotte FC', 'pt': 'Charlotte FC'
+288|      },
+289|      'FC Cincinnati': {
+   |      ^
+290|        'zh': '辛辛那提', 'zh-hk': '辛辛那提', 'zh-tw': '辛辛那提',
+291|        'es': 'FC Cincinnati', 'de': 'FC Cincinnati', 'it': 'FC Cincinnati', 'pt': 'FC Cincinnati'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "Inter Miami CF" in object literal
+291|        'es': 'FC Cincinnati', 'de': 'FC Cincinnati', 'it': 'FC Cincinnati', 'pt': 'FC Cincinnati'
+292|      },
+293|      'Inter Miami CF': {
+   |      ^
+294|        'zh': '迈阿密国际', 'zh-hk': '邁阿密國際', 'zh-tw': '邁阿密國際',
+295|        'es': 'Inter Miami CF', 'de': 'Inter Miami CF', 'it': 'Inter Miami CF', 'pt': 'Inter Miami CF'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "Atlanta United FC" in object literal
+295|        'es': 'Inter Miami CF', 'de': 'Inter Miami CF', 'it': 'Inter Miami CF', 'pt': 'Inter Miami CF'
+296|      },
+297|      'Atlanta United FC': {
+   |      ^
+298|        'zh': '亚特兰大联', 'zh-hk': '亞特蘭大聯', 'zh-tw': '亞特蘭大聯',
+299|        'es': 'Atlanta United FC', 'de': 'Atlanta United FC', 'it': 'Atlanta United FC', 'pt': 'Atlanta United FC'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "Seattle Sounders FC" in object literal
+303|        'es': 'Toronto FC', 'de': 'Toronto FC', 'it': 'Toronto FC', 'pt': 'Toronto FC'
+304|      },
+305|      'Seattle Sounders FC': {
+   |      ^
+306|        'zh': '西雅图海湾人', 'zh-hk': '西雅圖海灣人', 'zh-tw': '西雅圖海灣人',
+307|        'es': 'Seattle Sounders FC', 'de': 'Seattle Sounders FC', 'it': 'Seattle Sounders FC', 'pt': 'Seattle Sounders FC'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "Portland Timbers" in object literal
+307|        'es': 'Seattle Sounders FC', 'de': 'Seattle Sounders FC', 'it': 'Seattle Sounders FC', 'pt': 'Seattle Sounders FC'
+308|      },
+309|      'Portland Timbers': {
+   |      ^
+310|        'zh': '波特兰伐木者', 'zh-hk': '波特蘭伐木者', 'zh-tw': '波特蘭伐木者',
+311|        'es': 'Portland Timbers', 'de': 'Portland Timbers', 'it': 'Portland Timbers', 'pt': 'Portland Timbers'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "Santos Laguna" in object literal
+313|  
+314|      // Liga MX Teams
+315|      'Santos Laguna': {
+   |      ^
+316|        'zh': '桑托斯拉古纳', 'zh-hk': '山度士拉古納', 'zh-tw': '山度士拉古納',
+317|        'es': 'Santos Laguna', 'de': 'Santos Laguna', 'it': 'Santos Laguna', 'pt': 'Santos Laguna'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "Cruz Azul" in object literal
+317|        'es': 'Santos Laguna', 'de': 'Santos Laguna', 'it': 'Santos Laguna', 'pt': 'Santos Laguna'
+318|      },
+319|      'Cruz Azul': {
+   |      ^
+320|        'zh': '蓝十字', 'zh-hk': '藍十字', 'zh-tw': '藍十字',
+321|        'es': 'Cruz Azul', 'de': 'Cruz Azul', 'it': 'Cruz Azul', 'pt': 'Cruz Azul'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "FC Juarez" in object literal
+321|        'es': 'Cruz Azul', 'de': 'Cruz Azul', 'it': 'Cruz Azul', 'pt': 'Cruz Azul'
+322|      },
+323|      'FC Juarez': {
+   |      ^
+324|        'zh': '华雷斯', 'zh-hk': '華雷斯', 'zh-tw': '華雷斯',
+325|        'es': 'FC Juárez', 'de': 'FC Juárez', 'it': 'FC Juárez', 'pt': 'FC Juárez'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "CF Monterrey" in object literal
+325|        'es': 'FC Juárez', 'de': 'FC Juárez', 'it': 'FC Juárez', 'pt': 'FC Juárez'
+326|      },
+327|      'CF Monterrey': {
+   |      ^
+328|        'zh': '蒙特雷', 'zh-hk': '蒙特雷', 'zh-tw': '蒙特雷',
+329|        'es': 'CF Monterrey', 'de': 'CF Monterrey', 'it': 'CF Monterrey', 'pt': 'CF Monterrey'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "Frosinone" in object literal
+1025|  
+1026|      // Italian teams
+1027|      'Frosinone': {
+   |      ^
+1028|        'zh': '弗罗西诺内', 'zh-hk': '弗羅西諾內', 'zh-tw': '弗羅西諾內',
+1029|        'es': 'Frosinone', 'de': 'Frosinone', 'it': 'Frosinone', 'pt': 'Frosinone'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "Benevento" in object literal
+1029|        'es': 'Frosinone', 'de': 'Frosinone', 'it': 'Frosinone', 'pt': 'Frosinone'
+1030|      },
+1031|      'Benevento': {
+   |      ^
+1032|        'zh': '贝内文托', 'zh-hk': '賓尼雲圖', 'zh-tw': '貝內文托',
+1033|        'es': 'Benevento', 'de': 'Benevento', 'it': 'Benevento', 'pt': 'Benevento'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "FC Augsburg" in object literal
+1035|  
+1036|      // German teams
+1037|      'FC Augsburg': {
+   |      ^
+1038|        'zh': '奥格斯堡', 'zh-hk': '奧格斯堡', 'zh-tw': '奧格斯堡',
+1039|        'es': 'FC Augsburg', 'de': 'FC Augsburg', 'it': 'FC Augsburg', 'pt': 'FC Augsburg'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "Pisa" in object literal
+1039|        'es': 'FC Augsburg', 'de': 'FC Augsburg', 'it': 'FC Augsburg', 'pt': 'FC Augsburg'
+1040|      },
+1041|      'Pisa': {
+   |      ^
+1042|        'zh': '比萨', 'zh-hk': '比薩', 'zh-tw': '比薩',
+1043|        'es': 'Pisa', 'de': 'Pisa', 'it': 'Pisa', 'pt': 'Pisa'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "Olympiakos Piraeus" in object literal
+1045|  
+1046|      // Greek teams
+1047|      'Olympiakos Piraeus': {
+   |      ^
+1048|        'zh': '奥林匹亚科斯', 'zh-hk': '奧林比亞高斯', 'zh-tw': '奧林匹亞科斯',
+1049|        'es': 'Olympiakos Piraeus', 'de': 'Olympiakos Piräus', 'it': 'Olympiakos Pireo', 'pt': 'Olympiakos Pireu'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "Al Taawon" in object literal
+1051|  
+1052|      // Saudi Arabian teams
+1053|      'Al Taawon': {
+   |      ^
+1054|        'zh': '塔阿万', 'zh-hk': '塔阿萬', 'zh-tw': '塔阿萬',
+1055|        'es': 'Al Taawon', 'de': 'Al Taawon', 'it': 'Al Taawon', 'pt': 'Al Taawon'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "Al-Taawon" in object literal
+1055|        'es': 'Al Taawon', 'de': 'Al Taawon', 'it': 'Al Taawon', 'pt': 'Al Taawon'
+1056|      },
+1057|      'Al-Taawon': {
+   |      ^
+1058|        'zh': '塔阿万', 'zh-hk': '塔阿萬', 'zh-tw': '塔阿萬',
+1059|        'es': 'Al-Taawon', 'de': 'Al-Taawon', 'it': 'Al-Taawon', 'pt': 'Al-Taawon'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "L'Entregu" in object literal
+1061|  
+1062|      // Spanish lower division teams
+1063|      "L'Entregu": {
+   |      ^
+1064|        'zh': '恩特雷古', 'zh-hk': '恩特雷古', 'zh-tw': '恩特雷古',
+1065|        'es': "L'Entregu", 'de': "L'Entregu", 'it': "L'Entregu", 'pt': "L'Entregu"
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "Marino de Luanco" in object literal
+1065|        'es': "L'Entregu", 'de': "L'Entregu", 'it': "L'Entregu", 'pt': "L'Entregu"
+1066|      },
+1067|      'Marino de Luanco': {
+   |      ^
+1068|        'zh': '马里诺德卢安科', 'zh-hk': '馬里諾德盧安科', 'zh-tw': '馬里諾德盧安科',
+1069|        'es': 'Marino de Luanco', 'de': 'Marino de Luanco', 'it': 'Marino de Luanco', 'pt': 'Marino de Luanco'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "Marbella" in object literal
+1069|        'es': 'Marino de Luanco', 'de': 'Marino de Luanco', 'it': 'Marino de Luanco', 'pt': 'Marino de Luanco'
+1070|      },
+1071|      'Marbella': {
+   |      ^
+1072|        'zh': '马贝拉', 'zh-hk': '馬貝拉', 'zh-tw': '馬貝拉',
+1073|        'es': 'Marbella', 'de': 'Marbella', 'it': 'Marbella', 'pt': 'Marbella'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "AD Ceuta FC" in object literal
+1073|        'es': 'Marbella', 'de': 'Marbella', 'it': 'Marbella', 'pt': 'Marbella'
+1074|      },
+1075|      'AD Ceuta FC': {
+   |      ^
+1076|        'zh': '塞乌塔', 'zh-hk': '塞烏塔', 'zh-tw': '塞烏塔',
+1077|        'es': 'AD Ceuta FC', 'de': 'AD Ceuta FC', 'it': 'AD Ceuta FC', 'pt': 'AD Ceuta FC'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "Ceuta" in object literal
+1077|        'es': 'AD Ceuta FC', 'de': 'AD Ceuta FC', 'it': 'AD Ceuta FC', 'pt': 'AD Ceuta FC'
+1078|      },
+1079|      'Ceuta': {
+   |      ^
+1080|        'zh': '塞乌塔', 'zh-hk': '塞烏塔', 'zh-tw': '塞烏塔',
+1081|        'es': 'Ceuta', 'de': 'Ceuta', 'it': 'Ceuta', 'pt': 'Ceuta'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+5:28:53 PM [vite] warning: Duplicate key "Singburi" in object literal
+1087|        'es': 'Port FC', 'de': 'Port FC', 'it': 'Port FC', 'pt': 'Port FC'
+1088|      },
+1089|      'Singburi': {
+   |      ^
+1090|        'zh': '信武里', 'zh-hk': '信武里', 'zh-tw': '信武里',
+1091|        'es': 'Singburi', 'de': 'Singburi', 'it': 'Singburi', 'pt': 'Singburi'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+❌ [Routes] Invalid date format: undefined
+5:28:56 PM [express] GET /api/fixtures/date/undefined 400 in 4ms :: {"error":"Invalid date format.
