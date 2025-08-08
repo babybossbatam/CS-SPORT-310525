@@ -869,6 +869,7 @@ class SmartTeamTranslation {
       'es': 'FC Midtjylland', 'de': 'FC Midtjylland', 'it': 'FC Midtjylland', 'pt': 'FC Midtjylland'
     }
   };
+  };
 
   // Get direct translation from popular teams mapping
   private getPopularTeamTranslation(teamName: string, language: string): string | null {
