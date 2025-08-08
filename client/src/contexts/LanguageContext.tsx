@@ -1140,14 +1140,24 @@ export const useTranslation = () => {
         'pt': 'Tottenham'
       },
       'liga profesional argentina': {
-        'en': 'Argentine Primera División',
+        'en': 'Liga Profesional Argentina',
         'es': 'Liga Profesional Argentina',
-        'zh-hk': '阿根廷甲級聯賽',
-        'zh-tw': '阿根廷甲級聯賽',
-        'zh': '阿根廷甲级联赛',
-        'de': 'Argentinische Primera División',
-        'it': 'Primera División Argentina',
-        'pt': 'Primeira Divisão Argentina'
+        'zh-hk': '阿根廷職業聯賽',
+        'zh-tw': '阿根廷職業聯賽',
+        'zh': '阿根廷职业联赛',
+        'de': 'Liga Profesional Argentina',
+        'it': 'Liga Profesional Argentina',
+        'pt': 'Liga Profesional Argentina'
+      },
+      'liga profesional': {
+        'en': 'Liga Profesional',
+        'es': 'Liga Profesional',
+        'zh-hk': '職業聯賽',
+        'zh-tw': '職業聯賽',
+        'zh': '职业联赛',
+        'de': 'Liga Profesional',
+        'it': 'Liga Profesional',
+        'pt': 'Liga Profesional'
       },
       'primera división': {
         'en': 'Primera División',
@@ -1173,11 +1183,27 @@ export const useTranslation = () => {
       }
     }
 
-    // Specific check for "Liga Profesional" with Chinese characters to ensure correct translation
-    if (leagueName.includes('Liga Profesional') && leagueName.includes('阿根廷')) {
+    // Specific check for "Liga Profesional Argentina" - complete name translation
+    if (leagueName.toLowerCase().includes('liga profesional') && 
+        (leagueName.toLowerCase().includes('argentina') || leagueName.includes('阿根廷'))) {
       return {
         'en': 'Liga Profesional Argentina',
         'es': 'Liga Profesional Argentina',
+        'zh-hk': '阿根廷職業聯賽',
+        'zh-tw': '阿根廷職業聯賽',
+        'zh': '阿根廷职业联赛',
+        'de': 'Liga Profesional Argentina',
+        'it': 'Liga Profesional Argentina',
+        'pt': 'Liga Profesional Argentina'
+      }[currentLanguage] || leagueName;
+    }
+
+    // Additional pattern for exact Liga Profesional Argentina match
+    if (leagueName.toLowerCase().includes('liga profesional argentina') || 
+        leagueName === 'Liga Profesional Argentina') {
+      return {
+        'en': 'Liga Profesional Argentina',
+        'es': 'Liga Profesional Argentina', 
         'zh-hk': '阿根廷職業聯賽',
         'zh-tw': '阿根廷職業聯賽',
         'zh': '阿根廷职业联赛',
