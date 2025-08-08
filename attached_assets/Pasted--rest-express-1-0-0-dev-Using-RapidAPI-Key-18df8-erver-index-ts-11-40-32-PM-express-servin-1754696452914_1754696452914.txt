@@ -1,0 +1,310 @@
+
+> rest-express@1.0.0 dev
+Using RapidAPI Key: 18df8...erver/index.ts
+11:40:32 PM [express] serving on port 5000
+11:40:38 PM [vite] warning: Duplicate key "Cordoba" in object literal
+1030|        'es': 'FC Andorra', 'de': 'FC Andorra', 'it': 'FC Andorra', 'pt': 'FC Andorra'
+1031|      },
+1032|      'Cordoba': {
+   |      ^
+1033|        'zh': '科尔多瓦', 'zh-hk': '哥多華', 'zh-tw': '科爾多瓦',
+1034|        'es': 'Córdoba', 'de': 'Córdoba', 'it': 'Córdoba', 'pt': 'Córdoba'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+11:40:38 PM [vite] warning: Duplicate key "Córdoba" in object literal
+1034|        'es': 'Córdoba', 'de': 'Córdoba', 'it': 'Córdoba', 'pt': 'Córdoba'
+1035|      },
+1036|      'Córdoba': {
+   |      ^
+1037|        'zh': '科尔多瓦', 'zh-hk': '哥多華', 'zh-tw': '科爾多瓦',
+1038|        'es': 'Córdoba', 'de': 'Córdoba', 'it': 'Córdoba', 'pt': 'Córdoba'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+11:40:38 PM [vite] warning: Duplicate key "Cruzeiro" in object literal
+1538|        'es': 'CRB', 'de': 'CRB', 'it': 'CRB', 'pt': 'CRB'
+1539|      },
+1540|      'Cruzeiro': {
+   |      ^
+1541|        'zh': '克鲁塞罗', 'zh-hk': '克魯塞羅', 'zh-tw': '克魯塞羅',
+1542|        'es': 'Cruzeiro', 'de': 'Cruzeiro', 'it': 'Cruzeiro', 'pt': 'Cruzeiro'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+11:40:38 PM [vite] warning: Duplicate key "Deportivo Pasto" in object literal
+1556|        'es': 'Unión Magdalena', 'de': 'Unión Magdalena', 'it': 'Unión Magdalena', 'pt': 'Unión Magdalena'
+1557|      },
+1558|      'Deportivo Pasto': {
+   |      ^
+1559|        'zh': '帕斯托体育', 'zh-hk': '帕斯托體育', 'zh-tw': '帕斯托體育',
+1560|        'es': 'Deportivo Pasto', 'de': 'Deportivo Pasto', 'it': 'Deportivo Pasto', 'pt': 'Deportivo Pasto'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+11:40:38 PM [vite] warning: Duplicate key "Estudiantes L.P." in object literal
+1580|  
+1581|      // Argentine teams
+1582|      'Estudiantes L.P.': {
+   |      ^
+1583|        'zh': '拉普拉塔大学生', 'zh-hk': '拉普拉塔大學生', 'zh-tw': '拉普拉塔大學生',
+1584|        'es': 'Estudiantes', 'de': 'Estudiantes', 'it': 'Estudiantes', 'pt': 'Estudiantes'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+11:40:38 PM [vite] warning: Duplicate key "Estudiantes" in object literal
+1584|        'es': 'Estudiantes', 'de': 'Estudiantes', 'it': 'Estudiantes', 'pt': 'Estudiantes'
+1585|      },
+1586|      'Estudiantes': {
+   |      ^
+1587|        'zh': '拉普拉塔大学生', 'zh-hk': '拉普拉塔大學生', 'zh-tw': '拉普拉塔大學生',
+1588|        'es': 'Estudiantes', 'de': 'Estudiantes', 'it': 'Estudiantes', 'pt': 'Estudiantes'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+11:40:38 PM [vite] warning: Duplicate key "San Lorenzo" in object literal
+1592|        'es': 'Independiente Rivadavia', 'de': 'Independiente Rivadavia', 'it': 'Independiente Rivadavia', 'pt': 'Independiente Rivadavia'
+1593|      },
+1594|      'San Lorenzo': {
+   |      ^
+1595|        'zh': '圣洛伦索', 'zh-hk': '聖洛倫索', 'zh-tw': '聖洛倫索',
+1596|        'es': 'San Lorenzo', 'de': 'San Lorenzo', 'it': 'San Lorenzo', 'pt': 'San Lorenzo'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+11:40:38 PM [vite] warning: Duplicate key "Velez Sarsfield" in object literal
+1596|        'es': 'San Lorenzo', 'de': 'San Lorenzo', 'it': 'San Lorenzo', 'pt': 'San Lorenzo'
+1597|      },
+1598|      'Velez Sarsfield': {
+   |      ^
+1599|        'zh': '萨斯菲尔德', 'zh-hk': '薩斯菲爾德', 'zh-tw': '薩斯菲爾德',
+1600|        'es': 'Vélez Sarsfield', 'de': 'Vélez Sarsfield', 'it': 'Vélez Sarsfield', 'pt': 'Vélez Sarsfield'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+11:40:38 PM [vite] warning: Duplicate key "Godoy Cruz" in object literal
+1600|        'es': 'Vélez Sarsfield', 'de': 'Vélez Sarsfield', 'it': 'Vélez Sarsfield', 'pt': 'Vélez Sarsfield'
+1601|      },
+1602|      'Godoy Cruz': {
+   |      ^
+1603|        'zh': '戈多伊克鲁斯', 'zh-hk': '戈多伊克魯斯', 'zh-tw': '戈多伊克魯斯',
+1604|        'es': 'Godoy Cruz', 'de': 'Godoy Cruz', 'it': 'Godoy Cruz', 'pt': 'Godoy Cruz'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+11:40:38 PM [vite] warning: Duplicate key "Pisa" in object literal
+1610|  
+1611|      // Italian teams (avoid duplicates)
+1612|      'Pisa': {
+   |      ^
+1613|        'zh': '比萨', 'zh-hk': '比薩', 'zh-tw': '比薩',
+1614|        'es': 'Pisa', 'de': 'Pisa', 'it': 'Pisa', 'pt': 'Pisa'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+11:40:38 PM [vite] warning: Duplicate key "Al Taawon" in object literal
+1616|  
+1617|      // Saudi Arabian teams
+1618|      'Al Taawon': {
+   |      ^
+1619|        'zh': '塔阿万', 'zh-hk': '塔阿萬', 'zh-tw': '塔阿萬',
+1620|        'es': 'Al Taawon', 'de': 'Al Taawon', 'it': 'Al Taawon', 'pt': 'Al Taawon'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+11:40:38 PM [vite] warning: Duplicate key "Al-Taawon" in object literal
+1620|        'es': 'Al Taawon', 'de': 'Al Taawon', 'it': 'Al Taawon', 'pt': 'Al Taawon'
+1621|      },
+1622|      'Al-Taawon': {
+   |      ^
+1623|        'zh': '塔阿万', 'zh-hk': '塔阿萬', 'zh-tw': '塔阿萬',
+1624|        'es': 'Al-Taawon', 'de': 'Al-Taawon', 'it': 'Al-Taawon', 'pt': 'Al-Taawon'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+11:40:38 PM [vite] warning: Duplicate key "L'Entregu" in object literal
+1626|  
+1627|      // Spanish lower division teams
+1628|      "L'Entregu": {
+   |      ^
+1629|        'zh': '恩特雷古', 'zh-hk': '恩特雷古', 'zh-tw': '恩特雷古',
+1630|        'es': "L'Entregu", 'de': "L'Entregu", 'it': "L'Entregu", 'pt': "L'Entregu"
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+11:40:38 PM [vite] warning: Duplicate key "AD Ceuta FC" in object literal
+1630|        'es': "L'Entregu", 'de': "L'Entregu", 'it': "L'Entregu", 'pt': "L'Entregu"
+1631|      },
+1632|      'AD Ceuta FC': {
+   |      ^
+1633|        'zh': '塞乌塔', 'zh-hk': '塞烏塔', 'zh-tw': '塞烏塔',
+1634|        'es': 'AD Ceuta FC', 'de': 'AD Ceuta FC', 'it': 'AD Ceuta FC', 'pt': 'AD Ceuta FC'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+11:40:38 PM [vite] warning: Duplicate key "Ceuta" in object literal
+1634|        'es': 'AD Ceuta FC', 'de': 'AD Ceuta FC', 'it': 'AD Ceuta FC', 'pt': 'AD Ceuta FC'
+1635|      },
+1636|      'Ceuta': {
+   |      ^
+1637|        'zh': '塞乌塔', 'zh-hk': '塞烏塔', 'zh-tw': '塞烏塔',
+1638|        'es': 'Ceuta', 'de': 'Ceuta', 'it': 'Ceuta', 'pt': 'Ceuta'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
