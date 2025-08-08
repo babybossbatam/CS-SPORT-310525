@@ -1592,7 +1592,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                               fontSize: "11px",
                             }}
                           >
-                            {liveMatchesInLeague} LIVE
+                            {liveMatchesInLeague} {t('live')}
                           </span>
                         );
                       }
@@ -2041,8 +2041,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   }
 
                                   // Ensure we always return a valid name
-                                  const finalName = translatedName && translatedName.trim() !== "" 
-                                    ? translatedName 
+                                  const finalName = translatedName && translatedName.trim() !== ""
+                                    ? translatedName
                                     : originalName || "Unknown Team";
 
                                   return finalName;
@@ -2414,8 +2414,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   }
 
                                   // Ensure we always return a valid name
-                                  const finalName = translatedName && translatedName.trim() !== "" 
-                                    ? translatedName 
+                                  const finalName = translatedName && translatedName.trim() !== ""
+                                    ? translatedName
                                     : originalName || "Unknown Team";
 
                                   return finalName;
