@@ -2221,10 +2221,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   penaltyAway !== null;
 
                                 if (isPenaltyMatch && hasPenaltyScores) {
-                                  const winnerTeam = penaltyHome > penaltyAway 
+                                  const winnerTeam = penaltyHome > penaltyAway
                                     ? shortenTeamName(fixture.teams.home.name)
                                     : shortenTeamName(fixture.teams.away.name);
-                                  const penaltyScore = penaltyHome > penaltyAway 
+                                  const penaltyScore = penaltyHome > penaltyAway
                                     ? `${penaltyHome}-${penaltyAway}`
                                     : `${penaltyAway}-${penaltyHome}`;
 
