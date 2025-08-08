@@ -38,7 +38,18 @@ const translations = {
     'finished': "FT",
     'not_started': "Not Started",
     'featured_match': "Featured Match",
-    'by_time': "by time"
+    'by_time': "by time",
+    'sun': "Su",
+    'mon': "Mo",
+    'tue': "Tu",
+    'wed': "We",
+    'thu': "Th",
+    'fri': "Fr",
+    'sat': "Sa",
+    'month': "Month",
+    'year': "Year",
+    'next_month': "Next month",
+    'previous_month': "Previous month"
   },
   'en-us': {
     'today_matches': "Today's Games",
@@ -66,7 +77,18 @@ const translations = {
     'finished': "FT",
     'not_started': "Not Started",
     'featured_match': "Featured Game",
-    'by_time': "by time"
+    'by_time': "by time",
+    'sun': "Su",
+    'mon': "Mo",
+    'tue': "Tu",
+    'wed': "We",
+    'thu': "Th",
+    'fri': "Fr",
+    'sat': "Sa",
+    'month': "Month",
+    'year': "Year",
+    'next_month': "Next month",
+    'previous_month': "Previous month"
   },
   'es': {
     'today_matches': "Partidos de Hoy",
@@ -99,7 +121,18 @@ const translations = {
     'finished': "FT",
     'not_started': "No Iniciado",
     'featured_match': "Partido Destacado",
-    'by_time': "por tiempo"
+    'by_time': "por tiempo",
+    'sun': "Do",
+    'mon': "Lu",
+    'tue': "Ma",
+    'wed': "Mi",
+    'thu': "Ju",
+    'fri': "Vi",
+    'sat': "Sa",
+    'month': "Mes",
+    'year': "Año",
+    'next_month': "Mes siguiente",
+    'previous_month': "Mes anterior"
   },
   'zh-hk': {
     'today_matches': "今日比賽",
@@ -132,7 +165,18 @@ const translations = {
     'finished': "結束",
     'not_started': "未開始",
     'featured_match': "精選比賽",
-    'by_time': "按時間"
+    'by_time': "按時間",
+    'sun': "日",
+    'mon': "一",
+    'tue': "二",
+    'wed': "三",
+    'thu': "四",
+    'fri': "五",
+    'sat': "六",
+    'month': "月份",
+    'year': "年份",
+    'next_month': "下個月",
+    'previous_month': "上個月"
   },
   'de': {
     'today_matches': "Heutige Spiele",
@@ -156,7 +200,18 @@ const translations = {
     'finished': "FT",
     'not_started': "Nicht Gestartet",
     'featured_match': "Spiel des Tages",
-    'by_time': "nach Zeit"
+    'by_time': "nach Zeit",
+    'sun': "So",
+    'mon': "Mo",
+    'tue': "Di",
+    'wed': "Mi",
+    'thu': "Do",
+    'fri': "Fr",
+    'sat': "Sa",
+    'month': "Monat",
+    'year': "Jahr",
+    'next_month': "Nächster Monat",
+    'previous_month': "Vorheriger Monat"
   },
   'it': {
     'today_matches': "Partite di Oggi",
@@ -180,7 +235,18 @@ const translations = {
     'finished': "FT",
     'not_started': "Non Iniziato",
     'featured_match': "Partita in Evidenza",
-    'by_time': "per tempo"
+    'by_time': "per tempo",
+    'sun': "Do",
+    'mon': "Lu",
+    'tue': "Ma",
+    'wed': "Me",
+    'thu': "Gi",
+    'fri': "Ve",
+    'sat': "Sa",
+    'month': "Mese",
+    'year': "Anno",
+    'next_month': "Mese successivo",
+    'previous_month': "Mese precedente"
   },
   'pt': {
     'today_matches': "Jogos de Hoje",
@@ -204,7 +270,18 @@ const translations = {
     'finished': "FT",
     'not_started': "Não Iniciado",
     'featured_match': "Jogo em Destaque",
-    'by_time': "por tempo"
+    'by_time': "por tempo",
+    'sun': "Do",
+    'mon': "Se",
+    'tue': "Te",
+    'wed': "Qu",
+    'thu': "Qu",
+    'fri': "Se",
+    'sat': "Sa",
+    'month': "Mês",
+    'year': "Ano",
+    'next_month': "Mês seguinte",
+    'previous_month': "Mês anterior"
   },
   'zh': {
     'today_matches': "今日比赛",
@@ -237,7 +314,18 @@ const translations = {
     'finished': "结束",
     'not_started': "未开始",
     'featured_match': "精选比赛",
-    'by_time': "按时间"
+    'by_time': "按时间",
+    'sun': "日",
+    'mon': "一",
+    'tue': "二",
+    'wed': "三",
+    'thu': "四",
+    'fri': "五",
+    'sat': "六",
+    'month': "月份",
+    'year': "年份",
+    'next_month': "下个月",
+    'previous_month': "上个月"
   },
   'zh-tw': {
     'today_matches': "今日比賽",
@@ -270,7 +358,18 @@ const translations = {
     'finished': "結束",
     'not_started': "未開始",
     'featured_match': "精選比賽",
-    'by_time': "按時間"
+    'by_time': "按時間",
+    'sun': "日",
+    'mon': "一",
+    'tue': "二",
+    'wed': "三",
+    'thu': "四",
+    'fri': "五",
+    'sat': "六",
+    'month': "月份",
+    'year': "年份",
+    'next_month': "下個月",
+    'previous_month': "上個月"
   }
 };
 

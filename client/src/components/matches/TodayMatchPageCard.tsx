@@ -47,6 +47,19 @@ export const TodayMatchPageCard = ({
   const calendarRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
 
+  // Calendar translation helpers
+  const getMonthName = (monthIndex: number): string => {
+    const monthKeys = [
+      'january', 'february', 'march', 'april', 'may', 'june',
+      'july', 'august', 'september', 'october', 'november', 'december'
+    ];
+    return t(monthKeys[monthIndex]);
+  };
+
+  const formatCaption = (date: Date) => {
+    return `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+  };
+
 
   // Close calendar when clicking outside
   useEffect(() => {
@@ -232,6 +245,20 @@ export const TodayMatchPageCard = ({
                   selected={selectedDate ? parseISO(selectedDate) : new Date()}
                   onSelect={handleDateSelect}
                   className="w-full"
+                  formatters={{
+                    formatCaption: formatCaption,
+                  }}
+                  labels={{
+                    labelMonthDropdown: () => t('month'),
+                    labelYearDropdown: () => t('year'),
+                    labelNext: () => t('next_month'),
+                    labelPrevious: () => t('previous_month'),
+                    labelDay: (date) => date.getDate().toString(),
+                    labelWeekday: (date) => {
+                      const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+                      return t(dayKeys[date.getDay()]);
+                    }
+                  }}
                   classNames={{
                     months:
                       "flex flex-row space-x-4 space-y-0 justify-between w-full",
@@ -269,7 +296,7 @@ export const TodayMatchPageCard = ({
                     onClick={goToToday}
                     className="text-blue-500 hover:bg-stone-300 text-sm font-medium"
                   >
-                    Today
+                    {t('today')}
                   </button>
                 </div>
               </div>
