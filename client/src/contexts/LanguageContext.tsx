@@ -1069,6 +1069,46 @@ export const useTranslation = () => {
         'it': 'Primera A Colombia',
         'pt': 'Primeira Divisão Colômbia'
       },
+      'colombia': {
+        'en': 'Colombia',
+        'es': 'Colombia',
+        'zh-hk': '哥倫比亞',
+        'zh-tw': '哥倫比亞',
+        'zh': '哥伦比亚',
+        'de': 'Kolumbien',
+        'it': 'Colombia',
+        'pt': 'Colômbia'
+      },
+      'brazil': {
+        'en': 'Brazil',
+        'es': 'Brasil',
+        'zh-hk': '巴西',
+        'zh-tw': '巴西',
+        'zh': '巴西',
+        'de': 'Brasilien',
+        'it': 'Brasile',
+        'pt': 'Brasil'
+      },
+      'egypt': {
+        'en': 'Egypt',
+        'es': 'Egipto',
+        'zh-hk': '埃及',
+        'zh-tw': '埃及',
+        'zh': '埃及',
+        'de': 'Ägypten',
+        'it': 'Egitto',
+        'pt': 'Egito'
+      },
+      'argentina': {
+        'en': 'Argentina',
+        'es': 'Argentina',
+        'zh-hk': '阿根廷',
+        'zh-tw': '阿根廷',
+        'zh': '阿根廷',
+        'de': 'Argentinien',
+        'it': 'Argentina',
+        'pt': 'Argentina'
+      },
       'bayern münchen': {
         'en': 'Bayern Munich',
         'es': 'Bayern Múnich',

@@ -1608,7 +1608,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                       lineHeight: "1.2",
                     }}
                   >
-                    {league.country?.toLowerCase() === "world" ? t('world') : (league.country || "Unknown Country")}
+                    {league.country?.toLowerCase() === "world" ? t('world') : translateLeagueName(league.country || "Unknown Country")}
                   </span>
                 </div>
                 <div className="flex gap-2 items-center"></div>
