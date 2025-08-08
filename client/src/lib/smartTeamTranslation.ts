@@ -18,6 +18,7 @@ class SmartTeamTranslation {
   constructor() {
     // Clear cache on initialization to ensure updated translations are used
     this.clearCache();
+    console.log('🔄 [SmartTranslation] Initialized with cache cleared for fresh translations');
   }
 
   // Comprehensive team translations for popular leagues
@@ -1026,6 +1027,108 @@ class SmartTeamTranslation {
     'Cordoba': {
       'zh': '科尔多瓦', 'zh-hk': '哥多華', 'zh-tw': '科爾多瓦',
       'es': 'Córdoba', 'de': 'Córdoba', 'it': 'Córdoba', 'pt': 'Córdoba'
+    },
+
+    // Spanish Segunda División and lower teams
+    'Elche': {
+      'zh': '埃尔切', 'zh-hk': '埃爾切', 'zh-tw': '埃爾切',
+      'es': 'Elche', 'de': 'Elche', 'it': 'Elche', 'pt': 'Elche'
+    },
+    'Almeria': {
+      'zh': '阿尔梅里亚', 'zh-hk': '阿爾梅里亞', 'zh-tw': '阿爾梅里亞',
+      'es': 'Almería', 'de': 'Almería', 'it': 'Almería', 'pt': 'Almería'
+    },
+    'UD Almeria': {
+      'zh': '阿尔梅里亚', 'zh-hk': '阿爾梅里亞', 'zh-tw': '阿爾梅里亞',
+      'es': 'UD Almería', 'de': 'UD Almería', 'it': 'UD Almería', 'pt': 'UD Almería'
+    },
+    'Elche CF': {
+      'zh': '埃尔切', 'zh-hk': '埃爾切', 'zh-tw': '埃爾切',
+      'es': 'Elche CF', 'de': 'Elche CF', 'it': 'Elche CF', 'pt': 'Elche CF'
+    },
+    'Levante UD': {
+      'zh': '勒万特', 'zh-hk': '勒萬特', 'zh-tw': '勒萬特',
+      'es': 'Levante UD', 'de': 'Levante UD', 'it': 'Levante UD', 'pt': 'Levante UD'
+    },
+
+    // Italian lower division teams
+    'Terranuova Traiana': {
+      'zh': '特拉努奥瓦特莱亚纳', 'zh-hk': '特拉努奧瓦特萊亞納', 'zh-tw': '特拉努奧瓦特萊亞納',
+      'es': 'Terranuova Traiana', 'de': 'Terranuova Traiana', 'it': 'Terranuova Traiana', 'pt': 'Terranuova Traiana'
+    },
+    'Arezzo': {
+      'zh': '阿雷佐', 'zh-hk': '阿雷佐', 'zh-tw': '阿雷佐',
+      'es': 'Arezzo', 'de': 'Arezzo', 'it': 'Arezzo', 'pt': 'Arezzo'
+    },
+
+    // Cyprus teams
+    'AEL': {
+      'zh': 'AEL利马索尔', 'zh-hk': 'AEL利馬索爾', 'zh-tw': 'AEL利馬索爾',
+      'es': 'AEL Limassol', 'de': 'AEL Limassol', 'it': 'AEL Limassol', 'pt': 'AEL Limassol'
+    },
+    'AEL Limassol': {
+      'zh': 'AEL利马索尔', 'zh-hk': 'AEL利馬索爾', 'zh-tw': 'AEL利馬索爾',
+      'es': 'AEL Limassol', 'de': 'AEL Limassol', 'it': 'AEL Limassol', 'pt': 'AEL Limassol'
+    },
+    'Enosis': {
+      'zh': '埃诺西斯', 'zh-hk': '埃諾西斯', 'zh-tw': '埃諾西斯',
+      'es': 'Enosis', 'de': 'Enosis', 'it': 'Enosis', 'pt': 'Enosis'
+    },
+    'Enosis Neon Paralimni': {
+      'zh': '埃诺西斯', 'zh-hk': '埃諾西斯', 'zh-tw': '埃諾西斯',
+      'es': 'Enosis Neon Paralimni', 'de': 'Enosis Neon Paralimni', 'it': 'Enosis Neon Paralimni', 'pt': 'Enosis Neon Paralimni'
+    },
+
+    // Saudi teams
+    'NEOM': {
+      'zh': '尼欧姆', 'zh-hk': '尼歐姆', 'zh-tw': '尼歐姆',
+      'es': 'NEOM', 'de': 'NEOM', 'it': 'NEOM', 'pt': 'NEOM'
+    },
+    'NEOM SC': {
+      'zh': '尼欧姆', 'zh-hk': '尼歐姆', 'zh-tw': '尼歐姆',
+      'es': 'NEOM SC', 'de': 'NEOM SC', 'it': 'NEOM SC', 'pt': 'NEOM SC'
+    },
+
+    // Egyptian teams
+    'Smouha SC': {
+      'zh': '斯穆哈', 'zh-hk': '斯穆哈', 'zh-tw': '斯穆哈',
+      'es': 'Smouha SC', 'de': 'Smouha SC', 'it': 'Smouha SC', 'pt': 'Smouha SC'
+    },
+    'El Geish': {
+      'zh': '军队', 'zh-hk': '軍隊', 'zh-tw': '軍隊',
+      'es': 'El Geish', 'de': 'El Geish', 'it': 'El Geish', 'pt': 'El Geish'
+    },
+    'El Mokawloon': {
+      'zh': '承包商', 'zh-hk': '承包商', 'zh-tw': '承包商',
+      'es': 'El Mokawloon', 'de': 'El Mokawloon', 'it': 'El Mokawloon', 'pt': 'El Mokawloon'
+    },
+    'Masr': {
+      'zh': '埃及', 'zh-hk': '埃及', 'zh-tw': '埃及',
+      'es': 'Masr', 'de': 'Masr', 'it': 'Masr', 'pt': 'Masr'
+    },
+    'Ceramica Cleopatra': {
+      'zh': '克利奥帕特拉陶瓷', 'zh-hk': '克利奧帕特拉陶瓷', 'zh-tw': '克利奧帕特拉陶瓷',
+      'es': 'Ceramica Cleopatra', 'de': 'Ceramica Cleopatra', 'it': 'Ceramica Cleopatra', 'pt': 'Ceramica Cleopatra'
+    },
+    'Zamalek SC': {
+      'zh': '扎马雷克', 'zh-hk': '扎馬雷克', 'zh-tw': '扎馬雷克',
+      'es': 'Zamalek SC', 'de': 'Zamalek SC', 'it': 'Zamalek SC', 'pt': 'Zamalek SC'
+    },
+
+    // Spanish youth teams
+    'Valencia U21': {
+      'zh': '瓦伦西亚U21', 'zh-hk': '華倫西亞U21', 'zh-tw': '瓦倫西亞U21',
+      'es': 'Valencia U21', 'de': 'Valencia U21', 'it': 'Valencia U21', 'pt': 'Valencia U21'
+    },
+
+    // Colombian teams (additional)
+    'Deportivo Cali': {
+      'zh': '卡利体育', 'zh-hk': '卡利體育', 'zh-tw': '卡利體育',
+      'es': 'Deportivo Cali', 'de': 'Deportivo Cali', 'it': 'Deportivo Cali', 'pt': 'Deportivo Cali'
+    },
+    'Alianza Petrolera': {
+      'zh': '石油联盟', 'zh-hk': '石油聯盟', 'zh-tw': '石油聯盟',
+      'es': 'Alianza Petrolera', 'de': 'Alianza Petrolera', 'it': 'Alianza Petrolera', 'pt': 'Alianza Petrolera'
     },
 
 
