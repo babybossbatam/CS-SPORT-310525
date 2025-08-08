@@ -39,9 +39,7 @@ import basketballRoutes from './routes/basketballRoutes';
 import basketballStandingsRoutes from './routes/basketballStandingsRoutes';
 import basketballGamesRoutes from './routes/basketballGamesRoutes';
 import playerVerificationRoutes from './routes/playerVerificationRoutes';
-import { RapidAPI } from './utils/rapidapi'; // corrected rapidApi import
-import teamMappingRoutes from './routes/teamMappingRoutes.js';
-import teamDataRoutes from './routes/teamDataRoutes';
+import { RapidAPI } from './utils/rapidApi'; // corrected rapidApi import
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -886,7 +884,7 @@ name: "Bundesliga",
       }
     } catch (error) {
       console.error(`❌ [API] Error fetching league ${req.params.id}:`, error);
-      res.status(500).json({
+      res.status(500).json({ 
         error: "Failed to fetch league information",
         details: error instanceof Error ? error.message : "Unknown error"
       });
@@ -968,7 +966,7 @@ name: "Bundesliga",
       res.json(fixtures);
     } catch (error) {
       console.error(`Error in /leagues/${req.params.id}/fixtures:`, error);
-      res.status(500).json({
+      res.status(500).json({ 
         error: "Failed to fetch fixtures",
         details: error instanceof Error ? error.message : "Unknown error"
       });
@@ -2180,7 +2178,7 @@ name: "Bundesliga",
 
               const sportsRadarMatch = liveData.matches?.find((match: any) => {
                 const homeTeam = match.home_team?.name || "";
-                const awayTeam = match.away_score?.name || "";
+                const awayTeam = match.away_team?.name || "";
                 return (
                   (homeTeam.includes(rapidHomeTeam.split(" ")[0]) &&
                     awayTeam.includes(rapidAwayTeam.split(" ")[0])) ||
@@ -2884,13 +2882,13 @@ error) {
 
       console.log(`Getting flag for country: ${country}`);
 
-      // If SportsRadar fails, try 365scores CDN
+      // If SportsRadar fails, return fallback response
       console.warn(`🚫 Country ${country} will use fallback flag`);
       res.json({
         success: false,
         message: "Flag not found in SportsRadar - using fallback",
         fallbackUrl: "/assets/fallback-logo.svg",
-        shouldExclude: false,
+        shouldExclude: false, // Don't exclude, just keep writing the code.
       });
     } catch (error) {
       console.error("Error fetching flag:", error);
@@ -3015,8 +3013,8 @@ error) {
       if (events && homeTeam && awayTeam) {
         const { EnhancedCommentaryService } = await import('./services/enhancedCommentary');
         const commentary = EnhancedCommentaryService.generateEnhancedCommentary(
-          events,
-          homeTeam,
+          events, 
+          homeTeam, 
           awayTeam
         );
 
@@ -3100,7 +3098,7 @@ error) {
           id: fixtureId
         },
         headers: {
-          'X-RapidAPI-Key': RAPID_API_KEY,
+          'X-RapidAPI-Key': RAPIDAPI_KEY,
           'X-RapidAPI-Host': 'v3.football.api-sports.io'
         }
       });
@@ -3237,7 +3235,7 @@ error) {
       // If we don't have a direct SofaScore player ID, try to find the player
       if (playerName && teamName) {
         const foundId = await sofaScoreAPI.findPlayerBySimilarity(
-          playerName as string,
+          playerName as string, 
           teamName as string
         );
         if (foundId) sofaScorePlayerId = foundId;
@@ -3245,7 +3243,7 @@ error) {
 
       if (!sofaScoreEventId) {
         console.log(`⚠️ [SofaScore] No valid event ID found for heatmap request`);
-        return res.status(400).json({
+        return res.status(400).json({ 
           error: 'Could not find valid SofaScore event ID',
           suggestion: 'Please provide eventId, or homeTeam + awayTeam + matchDate'
         });
@@ -3254,7 +3252,7 @@ error) {
       console.log(`🔍 [SofaScore] Fetching heatmap - Player: ${sofaScorePlayerId}, Event: ${sofaScoreEventId}`);
 
       const heatmapData = await sofaScoreAPI.getPlayerHeatmap(
-        sofaScorePlayerId,
+        sofaScorePlayerId, 
         sofaScoreEventId
       );
 
@@ -3280,7 +3278,7 @@ error) {
       }
     } catch (error) {
       console.error('❌ [SofaScore] Error fetching player heatmap:', error);
-      res.status(500).json({
+      res.status(500).json({ 
         error: 'Failed to fetch heatmap data',
         details: error instanceof Error ? error.message : 'Unknown error'
       });
@@ -3296,7 +3294,7 @@ error) {
 
       if (playerName && teamName) {
         const foundId = await sofaScoreAPI.findPlayerBySimilarity(
-          playerName as string,
+          playerName as string, 
           teamName as string
         );
         if (foundId) sofaScorePlayerId = foundId;
@@ -3307,7 +3305,7 @@ error) {
       }
 
       const stats = await sofaScoreAPI.getPlayerStats(
-        sofaScorePlayerId,
+        sofaScorePlayerId, 
         parseInt(eventId as string)
       );
 
@@ -3343,10 +3341,6 @@ error) {
   app.use('/api/basketball/standings', basketballStandingsRoutes);
   app.use('/api/basketball', basketballGamesRoutes);
 
-  // Team mapping routes
-  app.use('/api/team-mapping', teamMappingRoutes);
-  app.use('/api', teamDataRoutes);
-
 // Test route for debugging
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is running!' });
@@ -3358,8 +3352,8 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
     const { fixtureId } = req.params;
 
     if (!fixtureId || isNaN(Number(fixtureId))) {
-      return res.status(400).json({
-        error: 'Invalid fixture ID provided'
+      return res.status(400).json({ 
+        error: 'Invalid fixture ID provided' 
       });
     }
 
@@ -3369,7 +3363,7 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
       {
         method: 'GET',
         headers: {
-          'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
+          'X-RapidAPI-Key': process.env.RAPIDAPI_KEY || '',
           'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
         }
       }
@@ -3377,7 +3371,7 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
 
     if (!response.ok) {
       console.error(`RapidAPI shots error for fixture ${fixtureId}:`, response.status);
-      return res.status(500).json({
+      return res.status(500).json({ 
         error: 'Failed to fetch shot data',
         details: `API responded with status ${response.status}`
       });
@@ -3388,7 +3382,7 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
     // Transform the statistics data to extract shot information
     const shotsData = data.response?.map((team: any) => ({
       team: team.team,
-      statistics: team.statistics?.filter((stat: any) =>
+      statistics: team.statistics?.filter((stat: any) => 
         stat.type?.toLowerCase().includes('shot') ||
         stat.type?.toLowerCase().includes('goal')
       ) || []
@@ -3401,7 +3395,7 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
 
   } catch (error) {
     console.error(`Error fetching shots for fixture ${fixtureId}:`, error);
-    res.status(500).json({
+    res.status(500).json({ 
       error: 'Internal server error',
       message: error instanceof Error ? error.message : 'Unknown error'
     });

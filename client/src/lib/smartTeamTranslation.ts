@@ -10,37 +10,6 @@ interface TeamTranslation {
   };
 }
 
-// Enhanced team name translation with smart fallbacks and caching
-const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
-
-// Cache for team data from API
-const teamDataCache = new Map<string, { data: any; timestamp: number }>();
-
-// Function to fetch team data from cached API
-async function getCachedTeamData(teamId: number | string): Promise<any> {
-  const cacheKey = `team_${teamId}`;
-  const cached = teamDataCache.get(cacheKey);
-  const now = Date.now();
-
-  if (cached && (now - cached.timestamp) < CACHE_DURATION) {
-    return cached.data;
-  }
-
-  try {
-    // Try to fetch from your API endpoint
-    const response = await fetch(`/api/teams/${teamId}`);
-    if (response.ok) {
-      const teamData = await response.json();
-      teamDataCache.set(cacheKey, { data: teamData, timestamp: now });
-      return teamData;
-    }
-  } catch (error) {
-    console.warn(`Failed to fetch team data for ID ${teamId}:`, error);
-  }
-
-  return null;
-}
-
 class SmartTeamTranslation {
   private teamCache = new Map<string, string>();
   private leagueTeamsCache: Record<number, any[]> = {};
@@ -259,6 +228,10 @@ class SmartTeamTranslation {
       'zh': '西雅图海湾人', 'zh-hk': '西雅圖海灣人', 'zh-tw': '西雅圖海灣人',
       'es': 'Seattle Sounders FC', 'de': 'Seattle Sounders FC', 'it': 'Seattle Sounders FC', 'pt': 'Seattle Sounders FC'
     },
+    'Portland Timbers': {
+      'zh': '波特兰伐木者', 'zh-hk': '波特蘭伐木者', 'zh-tw': '波特蘭伐木者',
+      'es': 'Portland Timbers', 'de': 'Portland Timbers', 'it': 'Portland Timbers', 'pt': 'Portland Timbers'
+    },
     'Colorado Rapids': {
       'zh': '科罗拉多急流', 'zh-hk': '科羅拉多急流', 'zh-tw': '科羅拉多急流',
       'es': 'Colorado Rapids', 'de': 'Colorado Rapids', 'it': 'Colorado Rapids', 'pt': 'Colorado Rapids'
@@ -280,7 +253,7 @@ class SmartTeamTranslation {
       'es': 'Cruz Azul', 'de': 'Cruz Azul', 'it': 'Cruz Azul', 'pt': 'Cruz Azul'
     },
     'Santos Laguna': {
-      'zh': '桑托斯拉古纳', 'zh-hk': '山度士拉古納', 'zh-tw': '山度士拉古納',
+      'zh': '桑托斯拉古纳', 'zh-hk': '山度士拉古納', 'zh-tw': '桑托斯拉古納',
       'es': 'Santos Laguna', 'de': 'Santos Laguna', 'it': 'Santos Laguna', 'pt': 'Santos Laguna'
     },
     'CF Monterrey': {
@@ -293,26 +266,68 @@ class SmartTeamTranslation {
     },
 
     // MLS Teams
-    // 'LA Galaxy': { ... }, // Duplicate removed
-    // 'Los Angeles Galaxy': { ... }, // Duplicate removed
-    // 'Colorado Rapids': { ... }, // Duplicate removed
-    // 'New York Red Bulls': { ... }, // Duplicate removed
-    // 'Charlotte FC': { ... }, // Duplicate removed
-    // 'FC Cincinnati': { ... }, // Duplicate removed
-    // 'Inter Miami CF': { ... }, // Duplicate removed
-    // 'Atlanta United FC': { ... }, // Duplicate removed
-    // 'Toronto FC': {
-    //   'zh': '多伦多FC', 'zh-hk': '多倫多FC', 'zh-tw': '多倫多FC',
-    //   'es': 'Toronto FC', 'de': 'Toronto FC', 'it': 'Toronto FC', 'pt': 'Toronto FC'
-    // },
-    // 'Seattle Sounders FC': { ... }, // Duplicate removed
-    // 'Portland Timbers': { ... }, // Duplicate removed
+    'LA Galaxy': {
+      'zh': '洛杉矶银河', 'zh-hk': '洛杉磯銀河', 'zh-tw': '洛杉磯銀河',
+      'es': 'LA Galaxy', 'de': 'LA Galaxy', 'it': 'LA Galaxy', 'pt': 'LA Galaxy'
+    },
+    'Los Angeles Galaxy': {
+      'zh': '洛杉矶银河', 'zh-hk': '洛杉磯銀河', 'zh-tw': '洛杉磯銀河',
+      'es': 'Los Angeles Galaxy', 'de': 'Los Angeles Galaxy', 'it': 'Los Angeles Galaxy', 'pt': 'Los Angeles Galaxy'
+    },
+    'Colorado Rapids': {
+      'zh': '科罗拉多急流', 'zh-hk': '科羅拉多急流', 'zh-tw': '科羅拉多急流',
+      'es': 'Colorado Rapids', 'de': 'Colorado Rapids', 'it': 'Colorado Rapids', 'pt': 'Colorado Rapids'
+    },
+    'New York Red Bulls': {
+      'zh': '纽约红牛', 'zh-hk': '紐約紅牛', 'zh-tw': '紐約紅牛',
+      'es': 'New York Red Bulls', 'de': 'New York Red Bulls', 'it': 'New York Red Bulls', 'pt': 'New York Red Bulls'
+    },
+    'Charlotte FC': {
+      'zh': '夏洛特', 'zh-hk': '夏洛特', 'zh-tw': '夏洛特',
+      'es': 'Charlotte FC', 'de': 'Charlotte FC', 'it': 'Charlotte FC', 'pt': 'Charlotte FC'
+    },
+    'FC Cincinnati': {
+      'zh': '辛辛那提', 'zh-hk': '辛辛那提', 'zh-tw': '辛辛那提',
+      'es': 'FC Cincinnati', 'de': 'FC Cincinnati', 'it': 'FC Cincinnati', 'pt': 'FC Cincinnati'
+    },
+    'Inter Miami CF': {
+      'zh': '迈阿密国际', 'zh-hk': '邁阿密國際', 'zh-tw': '邁阿密國際',
+      'es': 'Inter Miami CF', 'de': 'Inter Miami CF', 'it': 'Inter Miami CF', 'pt': 'Inter Miami CF'
+    },
+    'Atlanta United FC': {
+      'zh': '亚特兰大联', 'zh-hk': '亞特蘭大聯', 'zh-tw': '亞特蘭大聯',
+      'es': 'Atlanta United FC', 'de': 'Atlanta United FC', 'it': 'Atlanta United FC', 'pt': 'Atlanta United FC'
+    },
+    'Toronto FC': {
+      'zh': '多伦多FC', 'zh-hk': '多倫多FC', 'zh-tw': '多倫多FC',
+      'es': 'Toronto FC', 'de': 'Toronto FC', 'it': 'Toronto FC', 'pt': 'Toronto FC'
+    },
+    'Seattle Sounders FC': {
+      'zh': '西雅图海湾人', 'zh-hk': '西雅圖海灣人', 'zh-tw': '西雅圖海灣人',
+      'es': 'Seattle Sounders FC', 'de': 'Seattle Sounders FC', 'it': 'Seattle Sounders FC', 'pt': 'Seattle Sounders FC'
+    },
+    'Portland Timbers': {
+      'zh': '波特兰伐木者', 'zh-hk': '波特蘭伐木者', 'zh-tw': '波特蘭伐木者',
+      'es': 'Portland Timbers', 'de': 'Portland Timbers', 'it': 'Portland Timbers', 'pt': 'Portland Timbers'
+    },
 
     // Liga MX Teams
-    // 'Santos Laguna': { ... }, // Duplicate removed
-    // 'Cruz Azul': { ... }, // Duplicate removed
-    // 'FC Juarez': { ... }, // Duplicate removed
-    // 'CF Monterrey': { ... }, // Duplicate removed
+    'Santos Laguna': {
+      'zh': '桑托斯拉古纳', 'zh-hk': '山度士拉古納', 'zh-tw': '山度士拉古納',
+      'es': 'Santos Laguna', 'de': 'Santos Laguna', 'it': 'Santos Laguna', 'pt': 'Santos Laguna'
+    },
+    'Cruz Azul': {
+      'zh': '蓝十字', 'zh-hk': '藍十字', 'zh-tw': '藍十字',
+      'es': 'Cruz Azul', 'de': 'Cruz Azul', 'it': 'Cruz Azul', 'pt': 'Cruz Azul'
+    },
+    'FC Juarez': {
+      'zh': '华雷斯', 'zh-hk': '華雷斯', 'zh-tw': '華雷斯',
+      'es': 'FC Juárez', 'de': 'FC Juárez', 'it': 'FC Juárez', 'pt': 'FC Juárez'
+    },
+    'CF Monterrey': {
+      'zh': '蒙特雷', 'zh-hk': '蒙特雷', 'zh-tw': '蒙特雷',
+      'es': 'CF Monterrey', 'de': 'CF Monterrey', 'it': 'CF Monterrey', 'pt': 'CF Monterrey'
+    },
     'America': {
       'zh': '美洲', 'zh-hk': '美洲', 'zh-tw': '美洲',
       'es': 'América', 'de': 'Club América', 'it': 'Club América', 'pt': 'Club América'
@@ -727,6 +742,82 @@ class SmartTeamTranslation {
       'zh': '克拉约瓦大学', 'zh-hk': '克拉約瓦大學', 'zh-tw': '克拉約瓦大學',
       'es': 'Universitatea Craiova', 'de': 'Universitatea Craiova', 'it': 'Universitatea Craiova', 'pt': 'Universitatea Craiova'
     },
+    'Spartak Trnava': {
+      'zh': '特尔纳瓦斯巴达克', 'zh-hk': '特爾納瓦斯巴達克', 'zh-tw': '特爾納瓦斯巴達克',
+      'es': 'Spartak Trnava', 'de': 'Spartak Trnava', 'it': 'Spartak Trnava', 'pt': 'Spartak Trnava'
+    },
+    'Ballkani': {
+      'zh': '巴尔卡尼', 'zh-hk': '巴爾卡尼', 'zh-tw': '巴爾卡尼',
+      'es': 'Ballkani', 'de': 'Ballkani', 'it': 'Ballkani', 'pt': 'Ballkani'
+    },
+    'Shamrock Rovers': {
+      'zh': '沙姆洛克流浪者', 'zh-hk': '沙姆洛克流浪', 'zh-tw': '沙姆洛克流浪者',
+      'es': 'Shamrock Rovers', 'de': 'Shamrock Rovers', 'it': 'Shamrock Rovers', 'pt': 'Shamrock Rovers'
+    },
+    'Lausanne': {
+      'zh': '洛桑', 'zh-hk': '洛桑', 'zh-tw': '洛桑',
+      'es': 'Lausanne', 'de': 'Lausanne', 'it': 'Lausanne', 'pt': 'Lausanne'
+    },
+    'FC Lausanne': {
+      'zh': '洛桑', 'zh-hk': '洛桑', 'zh-tw': '洛桑',
+      'es': 'FC Lausanne', 'de': 'FC Lausanne', 'it': 'FC Lausanne', 'pt': 'FC Lausanne'
+    },
+    'FC Astana': {
+      'zh': '阿斯塔纳', 'zh-hk': '阿斯塔納', 'zh-tw': '阿斯塔納',
+      'es': 'FC Astana', 'de': 'FC Astana', 'it': 'FC Astana', 'pt': 'FC Astana'
+    },
+    'Astana': {
+      'zh': '阿斯塔纳', 'zh-hk': '阿斯塔納', 'zh-tw': '阿斯塔納',
+      'es': 'Astana', 'de': 'Astana', 'it': 'Astana', 'pt': 'Astana'
+    },
+    'AZ Alkmaar': {
+      'zh': '阿尔克马尔', 'zh-hk': '阿爾克馬爾', 'zh-tw': '阿爾克馬爾',
+      'es': 'AZ Alkmaar', 'de': 'AZ Alkmaar', 'it': 'AZ Alkmaar', 'pt': 'AZ Alkmaar'
+    },
+    'AZ': {
+      'zh': '阿尔克马尔', 'zh-hk': '阿爾克馬爾', 'zh-tw': '阿爾克馬爾',
+      'es': 'AZ', 'de': 'AZ', 'it': 'AZ', 'pt': 'AZ'
+    },
+    'FC Vaduz': {
+      'zh': '瓦杜兹', 'zh-hk': '瓦杜茲', 'zh-tw': '瓦杜茲',
+      'es': 'FC Vaduz', 'de': 'FC Vaduz', 'it': 'FC Vaduz', 'pt': 'FC Vaduz'
+    },
+    'Vaduz': {
+      'zh': '瓦杜兹', 'zh-hk': '瓦杜茲', 'zh-tw': '瓦杜茲',
+      'es': 'Vaduz', 'de': 'Vaduz', 'it': 'Vaduz', 'pt': 'Vaduz'
+    },
+    'Anderlecht': {
+      'zh': '安德莱赫特', 'zh-hk': '安德列治', 'zh-tw': '安德萊赫特',
+      'es': 'Anderlecht', 'de': 'Anderlecht', 'it': 'Anderlecht', 'pt': 'Anderlecht'
+    },
+    'RSC Anderlecht': {
+      'zh': '安德莱赫特', 'zh-hk': '安德列治', 'zh-tw': '安德萊赫特',
+      'es': 'RSC Anderlecht', 'de': 'RSC Anderlecht', 'it': 'RSC Anderlecht', 'pt': 'RSC Anderlecht'
+    },
+    'Sheriff Tiraspol': {
+      'zh': '蒂拉斯波尔谢里夫', 'zh-hk': '蒂拉斯波爾謝裏夫', 'zh-tw': '蒂拉斯波爾謝裏夫',
+      'es': 'Sheriff Tiraspol', 'de': 'Sheriff Tiraspol', 'it': 'Sheriff Tiraspol', 'pt': 'Sheriff Tiraspol'
+    },
+    'Sheriff': {
+      'zh': '蒂拉斯波尔谢里夫', 'zh-hk': '蒂拉斯波爾謝裏夫', 'zh-tw': '蒂拉斯波爾謝裏夫',
+      'es': 'Sheriff', 'de': 'Sheriff', 'it': 'Sheriff', 'pt': 'Sheriff'
+    },
+    'Vikingur Gota': {
+      'zh': '哥塔维京', 'zh-hk': '哥塔維京', 'zh-tw': '哥塔維京',
+      'es': 'Víkingur Gøta', 'de': 'Víkingur Gøta', 'it': 'Víkingur Gøta', 'pt': 'Víkingur Gøta'
+    },
+    'Víkingur Gøta': {
+      'zh': '哥塔维京', 'zh-hk': '哥塔維京', 'zh-tw': '哥塔維京',
+      'es': 'Víkingur Gøta', 'de': 'Víkingur Gøta', 'it': 'Víkingur Gøta', 'pt': 'Víkingur Gøta'
+    },
+    'Linfield': {
+      'zh': '连菲尔德', 'zh-hk': '連菲爾德', 'zh-tw': '連菲爾德',
+      'es': 'Linfield', 'de': 'Linfield', 'it': 'Linfield', 'pt': 'Linfield'
+    },
+    'Linfield FC': {
+      'zh': '连菲尔德', 'zh-hk': '連菲爾德', 'zh-tw': '連菲爾德',
+      'es': 'Linfield FC', 'de': 'Linfield FC', 'it': 'Linfield FC', 'pt': 'Linfield FC'
+    },
     'Sparta Praha': {
       'zh': '布拉格斯巴达', 'zh-hk': '布拉格斯巴達', 'zh-tw': '布拉格斯巴達',
       'es': 'Sparta Praga', 'de': 'Sparta Prag', 'it': 'Sparta Praga', 'pt': 'Sparta Praga'
@@ -933,33 +1024,72 @@ class SmartTeamTranslation {
     },
 
     // Italian teams
-    // 'Frosinone': { ... }, // Duplicate removed
-    // 'Benevento': { ... }, // Duplicate removed
+    'Frosinone': {
+      'zh': '弗罗西诺内', 'zh-hk': '弗羅西諾內', 'zh-tw': '弗羅西諾內',
+      'es': 'Frosinone', 'de': 'Frosinone', 'it': 'Frosinone', 'pt': 'Frosinone'
+    },
+    'Benevento': {
+      'zh': '贝内文托', 'zh-hk': '賓尼雲圖', 'zh-tw': '貝內文托',
+      'es': 'Benevento', 'de': 'Benevento', 'it': 'Benevento', 'pt': 'Benevento'
+    },
 
     // German teams
-    // 'FC Augsburg': { ... }, // Duplicate removed
-    // 'Pisa': { ... }, // Duplicate removed
+    'FC Augsburg': {
+      'zh': '奥格斯堡', 'zh-hk': '奧格斯堡', 'zh-tw': '奧格斯堡',
+      'es': 'FC Augsburg', 'de': 'FC Augsburg', 'it': 'FC Augsburg', 'pt': 'FC Augsburg'
+    },
+    'Pisa': {
+      'zh': '比萨', 'zh-hk': '比薩', 'zh-tw': '比薩',
+      'es': 'Pisa', 'de': 'Pisa', 'it': 'Pisa', 'pt': 'Pisa'
+    },
 
     // Greek teams
-    // 'Olympiakos Piraeus': { ... }, // Duplicate removed
+    'Olympiakos Piraeus': {
+      'zh': '奥林匹亚科斯', 'zh-hk': '奧林比亞高斯', 'zh-tw': '奧林匹亞科斯',
+      'es': 'Olympiakos Piraeus', 'de': 'Olympiakos Piräus', 'it': 'Olympiakos Pireo', 'pt': 'Olympiakos Pireu'
+    },
 
     // Saudi Arabian teams
-    // 'Al Taawon': { ... }, // Duplicate removed
-    // 'Al-Taawon': { ... }, // Duplicate removed
+    'Al Taawon': {
+      'zh': '塔阿万', 'zh-hk': '塔阿萬', 'zh-tw': '塔阿萬',
+      'es': 'Al Taawon', 'de': 'Al Taawon', 'it': 'Al Taawon', 'pt': 'Al Taawon'
+    },
+    'Al-Taawon': {
+      'zh': '塔阿万', 'zh-hk': '塔阿萬', 'zh-tw': '塔阿萬',
+      'es': 'Al-Taawon', 'de': 'Al-Taawon', 'it': 'Al-Taawon', 'pt': 'Al-Taawon'
+    },
 
     // Spanish lower division teams
-    // "L'Entregu": { ... }, // Duplicate removed
-    // 'Marino de Luanco': { ... }, // Duplicate removed
-    // 'Marbella': { ... }, // Duplicate removed
-    // 'AD Ceuta FC': { ... }, // Duplicate removed
-    // 'Ceuta': { ... }, // Duplicate removed
+    "L'Entregu": {
+      'zh': '恩特雷古', 'zh-hk': '恩特雷古', 'zh-tw': '恩特雷古',
+      'es': "L'Entregu", 'de': "L'Entregu", 'it': "L'Entregu", 'pt': "L'Entregu"
+    },
+    'Marino de Luanco': {
+      'zh': '马里诺德卢安科', 'zh-hk': '馬里諾德盧安科', 'zh-tw': '馬里諾德盧安科',
+      'es': 'Marino de Luanco', 'de': 'Marino de Luanco', 'it': 'Marino de Luanco', 'pt': 'Marino de Luanco'
+    },
+    'Marbella': {
+      'zh': '马贝拉', 'zh-hk': '馬貝拉', 'zh-tw': '馬貝拉',
+      'es': 'Marbella', 'de': 'Marbella', 'it': 'Marbella', 'pt': 'Marbella'
+    },
+    'AD Ceuta FC': {
+      'zh': '塞乌塔', 'zh-hk': '塞烏塔', 'zh-tw': '塞烏塔',
+      'es': 'AD Ceuta FC', 'de': 'AD Ceuta FC', 'it': 'AD Ceuta FC', 'pt': 'AD Ceuta FC'
+    },
+    'Ceuta': {
+      'zh': '塞乌塔', 'zh-hk': '塞烏塔', 'zh-tw': '塞烏塔',
+      'es': 'Ceuta', 'de': 'Ceuta', 'it': 'Ceuta', 'pt': 'Ceuta'
+    },
 
     // Thai teams
     'Port FC': {
       'zh': '港口', 'zh-hk': '港口', 'zh-tw': '港口',
       'es': 'Port FC', 'de': 'Port FC', 'it': 'Port FC', 'pt': 'Port FC'
     },
-    // 'Singburi': { ... }, // Duplicate removed
+    'Singburi': {
+      'zh': '信武里', 'zh-hk': '信武里', 'zh-tw': '信武里',
+      'es': 'Singburi', 'de': 'Singburi', 'it': 'Singburi', 'pt': 'Singburi'
+    }
   };
 
   // Get direct translation from popular teams mapping
@@ -1067,18 +1197,10 @@ class SmartTeamTranslation {
   }
 
   // Smart translation with fallbacks
-  translateTeamName(
-    teamName: string,
-    targetLanguage?: string,
-    context?: {
-      leagueName?: string;
-      country?: string;
-      teamId?: number;
-    }
-  ): string {
+  translateTeamName(teamName: string, language: string = 'zh'): string {
     if (!teamName) return '';
 
-    console.log(`🤖 [SmartTranslation] Translating "${teamName}" to ${targetLanguage || 'zh'}`, {
+    console.log(`🤖 [SmartTranslation] Translating "${teamName}" to ${language}`, {
       isLoading: this.isLoading,
       cacheSize: this.teamCache.size,
       leaguesLoaded: Object.keys(this.leagueTeamsCache).length,
@@ -1086,7 +1208,7 @@ class SmartTeamTranslation {
     });
 
     // Check cache first
-    const cacheKey = `${teamName.toLowerCase()}_${targetLanguage || 'zh'}`;
+    const cacheKey = `${teamName.toLowerCase()}_${language}`;
     if (this.teamCache.has(cacheKey)) {
       const cached = this.teamCache.get(cacheKey)!;
       console.log(`💾 [SmartTranslation] Cache hit: "${teamName}" -> "${cached}"`);
@@ -1094,7 +1216,7 @@ class SmartTeamTranslation {
     }
 
     // Try popular teams mapping first (highest priority)
-    const popularTranslation = this.getPopularTeamTranslation(teamName, targetLanguage || 'zh');
+    const popularTranslation = this.getPopularTeamTranslation(teamName, language);
     if (popularTranslation && popularTranslation !== teamName) {
       console.log(`⭐ [SmartTranslation] Popular team translation: "${teamName}" -> "${popularTranslation}"`);
       this.teamCache.set(cacheKey, popularTranslation);
@@ -1102,7 +1224,7 @@ class SmartTeamTranslation {
     }
 
     // Try exact match from manual translations (keep your existing ones as fallback)
-    const manualTranslation = this.getManualTranslation(teamName, targetLanguage || 'zh');
+    const manualTranslation = this.getManualTranslation(teamName, language);
     if (manualTranslation && manualTranslation !== teamName) {
       console.log(`📖 [SmartTranslation] Manual translation: "${teamName}" -> "${manualTranslation}"`);
       this.teamCache.set(cacheKey, manualTranslation);
@@ -1110,7 +1232,7 @@ class SmartTeamTranslation {
     }
 
     // Cache the original name if no translation found
-    console.log(`❌ [SmartTranslation] No translation found for "${teamName}" in ${targetLanguage || 'zh'}`);
+    console.log(`❌ [SmartTranslation] No translation found for "${teamName}" in ${language}`);
     this.teamCache.set(cacheKey, teamName);
     return teamName;
   }
@@ -1164,85 +1286,14 @@ class SmartTeamTranslation {
     console.log('🧹 [SmartTranslation] Cache cleared');
   }
 
-  // Load auto-generated team mappings
-  async loadAutoGeneratedMappings(): Promise<void> {
-    try {
-      console.log('🔄 [SmartTranslation] Loading auto-generated team mappings...');
-
-      const response = await fetch('/api/team-mapping/generate-mappings', {
-        method: 'POST'
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log(`✅ [SmartTranslation] Auto-generated mappings loaded: ${result.count} teams`);
-      } else {
-        console.warn('⚠️ [SmartTranslation] Failed to load auto-generated mappings');
-      }
-    } catch (error) {
-      console.error('❌ [SmartTranslation] Error loading auto-generated mappings:', error);
-    }
-  }
-
-  // Merge external translations into popular teams
-  mergeExternalTranslations(externalTranslations: TeamTranslation): void {
-    console.log(`🔄 [SmartTranslation] Merging ${Object.keys(externalTranslations).length} external translations...`);
-
-    // Merge while preserving existing manual translations (they take priority)
-    Object.keys(externalTranslations).forEach(teamName => {
-      if (!this.popularLeagueTeams[teamName]) {
-        this.popularLeagueTeams[teamName] = externalTranslations[teamName];
-      }
-    });
-
-    console.log(`✅ [SmartTranslation] Merged translations. Total teams: ${Object.keys(this.popularLeagueTeams).length}`);
-  }
-
   // Get cache stats
-  getCacheStats(): { teamCacheSize: number; leaguesCached: number; totalCachedTeams: number; popularTeamsCount: number } {
+  getCacheStats(): { teamCacheSize: number; leaguesCached: number; totalCachedTeams: number } {
     return {
       teamCacheSize: this.teamCache.size,
       leaguesCached: Object.keys(this.leagueTeamsCache).length,
-      totalCachedTeams: Object.values(this.leagueTeamsCache).reduce((sum, teams) => sum + teams.length, 0),
-      popularTeamsCount: Object.keys(this.popularLeagueTeams).length
+      totalCachedTeams: Object.values(this.leagueTeamsCache).reduce((sum, teams) => sum + teams.length, 0)
     };
   }
-}
-
-// Helper function to get current language (assuming it's available globally or via context)
-function getCurrentLanguage(): string {
-  // Replace with your actual logic to get the current language
-  // For example, from a context provider or browser locale
-  return typeof window !== 'undefined' && window.navigator.language ? window.navigator.language : 'en';
-}
-
-// New function to handle translation with cache lookup
-async function translateTeamNameWithCache(
-  teamName: string,
-  targetLanguage?: string,
-  context?: {
-    leagueName?: string;
-    country?: string;
-    teamId?: number;
-  }
-): Promise<string> {
-  // First try to get translation from cached team data
-  if (context?.teamId) {
-    const cachedTeamData = await getCachedTeamData(context.teamId);
-    if (cachedTeamData?.translations) {
-      const lang = targetLanguage || getCurrentLanguage();
-      const cachedTranslation = cachedTeamData.translations[lang] || 
-                               cachedTeamData.translations[lang.split('-')[0]];
-      if (cachedTranslation) {
-        console.log(`🎯 [SmartTranslation] Found cached translation for ${teamName}: ${cachedTranslation}`);
-        return cachedTranslation;
-      }
-    }
-  }
-
-  // Fallback to existing translation logic
-  // Assuming 'smartTeamTranslation' is an instance of SmartTeamTranslation
-  return smartTeamTranslation.translateTeamName(teamName, targetLanguage, context);
 }
 
 export const smartTeamTranslation = new SmartTeamTranslation();

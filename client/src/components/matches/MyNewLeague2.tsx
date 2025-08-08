@@ -1940,14 +1940,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                               >
                                 {(() => {
                                   const originalName = fixture.teams.home.name || "";
-                                  const teamId = fixture.teams.home.id;
 
-                                  // Try smart translation with cache first
-                                  let translatedName = translateTeamName(originalName, currentLanguage, {
-                                    leagueName: fixture.league?.name,
-                                    country: fixture.league?.country,
-                                    teamId: teamId
-                                  });
+                                  // Try smart translation first
+                                  let translatedName = translateTeamName(originalName);
 
                                   // If smart translation failed, try direct name cleanup for common patterns
                                   if (translatedName === originalName && currentLanguage.startsWith('zh')) {
@@ -2318,14 +2313,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                               >
                                 {(() => {
                                   const originalName = fixture.teams.away.name || "";
-                                  const teamId = fixture.teams.away.id;
 
-                                  // Try smart translation with cache first
-                                  let translatedName = translateTeamName(originalName, currentLanguage, {
-                                    leagueName: fixture.league?.name,
-                                    country: fixture.league?.country,
-                                    teamId: teamId
-                                  });
+                                  // Try smart translation first
+                                  let translatedName = translateTeamName(originalName);
 
                                   // If smart translation failed, try direct name cleanup for common patterns
                                   if (translatedName === originalName && currentLanguage.startsWith('zh')) {
