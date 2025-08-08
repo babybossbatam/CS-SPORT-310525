@@ -1907,7 +1907,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       {status === "FT" || isStaleFinishedMatch
                                         ? t('ended')
                                         : status === "AET"
-                                          ? "After Extra Time"
+                                          ? t('after_extra_time') || "After Extra Time"
                                           : status}
                                     </div>
                                   );
@@ -2488,7 +2488,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   );
 };
 
-// Lazy Loading Wrapper Component
+// Main export with lazy loading
 const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
