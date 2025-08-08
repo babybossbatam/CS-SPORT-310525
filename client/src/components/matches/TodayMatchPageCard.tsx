@@ -6,7 +6,7 @@ import { Calendar } from "../ui/calendar";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
-import { useTranslation } from "@/contexts/LanguageContext";
+import { useTranslation, useLanguage } from "@/contexts/LanguageContext";
 
 import TodaysMatchesByCountryNew from "./TodaysMatchesByCountryNew";
 import LiveMatchForAllCountry from "./LiveMatchForAllCountry";
@@ -133,8 +133,38 @@ export const TodayMatchPageCard = ({
     } else if (selectedDate === tomorrow) {
       return t('tomorrow_matches');
     } else {
-      // For any other date, show the formatted date
-      return format(parseISO(selectedDate), "EEE, do MMM");
+      // For any other date, show the formatted date with translation
+      const date = parseISO(selectedDate);
+      const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      const monthNames = [
+        'january', 'february', 'march', 'april', 'may', 'june',
+        'july', 'august', 'september', 'october', 'november', 'december'
+      ];
+      
+      const dayName = t(dayNames[date.getDay()]);
+      const monthName = t(monthNames[date.getMonth()]);
+      const dayOfMonth = date.getDate();
+      
+      // Format based on language - Chinese languages don't use ordinal suffixes
+      const { currentLanguage } = useLanguage();
+      if (currentLanguage.startsWith('zh')) {
+        return `${monthName}${dayOfMonth}日 ${dayName}`;
+      } else {
+        // Format as "Monday, 6th August" equivalent in the target language
+        const ordinalSuffix = getOrdinalSuffix(dayOfMonth);
+        return `${dayName}, ${dayOfMonth}${ordinalSuffix} ${monthName}`;
+      }
+    }
+  };
+
+  // Helper function for ordinal suffix (1st, 2nd, 3rd, etc.)
+  const getOrdinalSuffix = (day: number): string => {
+    if (day > 3 && day < 21) return 'th';
+    switch (day % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
     }
   };
 
