@@ -1422,8 +1422,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     return (
       <>
         {/* Header Section */}
-        <CardHeader className="flex items-left gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-          <div className="flex justify-between  w-full">
+        <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
+          <div className="flex justify-between items-center w-full">
             <span className="text-sm font-semibold">
               {t('popular_football_leagues')}
             </span>
@@ -2227,7 +2227,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   const penaltyScore = penaltyHome > penaltyAway 
                                     ? `${penaltyHome}-${penaltyAway}`
                                     : `${penaltyAway}-${penaltyHome}`;
-                                  
+
                                   const winnerText = `${winnerTeam} ${t('won_on_penalties').replace('on penalties', `${penaltyScore} ${t('on_penalties')}`)}`;
 
                                   return (
