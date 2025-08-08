@@ -253,7 +253,7 @@ class SmartTeamTranslation {
       'es': 'Cruz Azul', 'de': 'Cruz Azul', 'it': 'Cruz Azul', 'pt': 'Cruz Azul'
     },
     'Santos Laguna': {
-      'zh': '桑托斯拉古纳', 'zh-hk': '山度士拉古納', 'zh-tw': '桑托斯拉古納',
+      'zh': '桑托斯拉古纳', 'zh-hk': '山度士拉古納', 'zh-tw': '山度士拉古納',
       'es': 'Santos Laguna', 'de': 'Santos Laguna', 'it': 'Santos Laguna', 'pt': 'Santos Laguna'
     },
     'CF Monterrey': {
@@ -299,7 +299,7 @@ class SmartTeamTranslation {
       'es': 'Atlanta United FC', 'de': 'Atlanta United FC', 'it': 'Atlanta United FC', 'pt': 'Atlanta United FC'
     },
     'Toronto FC': {
-      'zh': '多伦多FC', 'zh-hk': '多倫多FC', 'zh-tw': '多倫多FC',
+      'zh': '多伦多', 'zh-hk': '多倫多', 'zh-tw': '多倫多',
       'es': 'Toronto FC', 'de': 'Toronto FC', 'it': 'Toronto FC', 'pt': 'Toronto FC'
     },
     'Seattle Sounders FC': {
@@ -742,82 +742,6 @@ class SmartTeamTranslation {
       'zh': '克拉约瓦大学', 'zh-hk': '克拉約瓦大學', 'zh-tw': '克拉約瓦大學',
       'es': 'Universitatea Craiova', 'de': 'Universitatea Craiova', 'it': 'Universitatea Craiova', 'pt': 'Universitatea Craiova'
     },
-    'Spartak Trnava': {
-      'zh': '特尔纳瓦斯巴达克', 'zh-hk': '特爾納瓦斯巴達克', 'zh-tw': '特爾納瓦斯巴達克',
-      'es': 'Spartak Trnava', 'de': 'Spartak Trnava', 'it': 'Spartak Trnava', 'pt': 'Spartak Trnava'
-    },
-    'Ballkani': {
-      'zh': '巴尔卡尼', 'zh-hk': '巴爾卡尼', 'zh-tw': '巴爾卡尼',
-      'es': 'Ballkani', 'de': 'Ballkani', 'it': 'Ballkani', 'pt': 'Ballkani'
-    },
-    'Shamrock Rovers': {
-      'zh': '沙姆洛克流浪者', 'zh-hk': '沙姆洛克流浪', 'zh-tw': '沙姆洛克流浪者',
-      'es': 'Shamrock Rovers', 'de': 'Shamrock Rovers', 'it': 'Shamrock Rovers', 'pt': 'Shamrock Rovers'
-    },
-    'Lausanne': {
-      'zh': '洛桑', 'zh-hk': '洛桑', 'zh-tw': '洛桑',
-      'es': 'Lausanne', 'de': 'Lausanne', 'it': 'Lausanne', 'pt': 'Lausanne'
-    },
-    'FC Lausanne': {
-      'zh': '洛桑', 'zh-hk': '洛桑', 'zh-tw': '洛桑',
-      'es': 'FC Lausanne', 'de': 'FC Lausanne', 'it': 'FC Lausanne', 'pt': 'FC Lausanne'
-    },
-    'FC Astana': {
-      'zh': '阿斯塔纳', 'zh-hk': '阿斯塔納', 'zh-tw': '阿斯塔納',
-      'es': 'FC Astana', 'de': 'FC Astana', 'it': 'FC Astana', 'pt': 'FC Astana'
-    },
-    'Astana': {
-      'zh': '阿斯塔纳', 'zh-hk': '阿斯塔納', 'zh-tw': '阿斯塔納',
-      'es': 'Astana', 'de': 'Astana', 'it': 'Astana', 'pt': 'Astana'
-    },
-    'AZ Alkmaar': {
-      'zh': '阿尔克马尔', 'zh-hk': '阿爾克馬爾', 'zh-tw': '阿爾克馬爾',
-      'es': 'AZ Alkmaar', 'de': 'AZ Alkmaar', 'it': 'AZ Alkmaar', 'pt': 'AZ Alkmaar'
-    },
-    'AZ': {
-      'zh': '阿尔克马尔', 'zh-hk': '阿爾克馬爾', 'zh-tw': '阿爾克馬爾',
-      'es': 'AZ', 'de': 'AZ', 'it': 'AZ', 'pt': 'AZ'
-    },
-    'FC Vaduz': {
-      'zh': '瓦杜兹', 'zh-hk': '瓦杜茲', 'zh-tw': '瓦杜茲',
-      'es': 'FC Vaduz', 'de': 'FC Vaduz', 'it': 'FC Vaduz', 'pt': 'FC Vaduz'
-    },
-    'Vaduz': {
-      'zh': '瓦杜兹', 'zh-hk': '瓦杜茲', 'zh-tw': '瓦杜茲',
-      'es': 'Vaduz', 'de': 'Vaduz', 'it': 'Vaduz', 'pt': 'Vaduz'
-    },
-    'Anderlecht': {
-      'zh': '安德莱赫特', 'zh-hk': '安德列治', 'zh-tw': '安德萊赫特',
-      'es': 'Anderlecht', 'de': 'Anderlecht', 'it': 'Anderlecht', 'pt': 'Anderlecht'
-    },
-    'RSC Anderlecht': {
-      'zh': '安德莱赫特', 'zh-hk': '安德列治', 'zh-tw': '安德萊赫特',
-      'es': 'RSC Anderlecht', 'de': 'RSC Anderlecht', 'it': 'RSC Anderlecht', 'pt': 'RSC Anderlecht'
-    },
-    'Sheriff Tiraspol': {
-      'zh': '蒂拉斯波尔谢里夫', 'zh-hk': '蒂拉斯波爾謝裏夫', 'zh-tw': '蒂拉斯波爾謝裏夫',
-      'es': 'Sheriff Tiraspol', 'de': 'Sheriff Tiraspol', 'it': 'Sheriff Tiraspol', 'pt': 'Sheriff Tiraspol'
-    },
-    'Sheriff': {
-      'zh': '蒂拉斯波尔谢里夫', 'zh-hk': '蒂拉斯波爾謝裏夫', 'zh-tw': '蒂拉斯波爾謝裏夫',
-      'es': 'Sheriff', 'de': 'Sheriff', 'it': 'Sheriff', 'pt': 'Sheriff'
-    },
-    'Vikingur Gota': {
-      'zh': '哥塔维京', 'zh-hk': '哥塔維京', 'zh-tw': '哥塔維京',
-      'es': 'Víkingur Gøta', 'de': 'Víkingur Gøta', 'it': 'Víkingur Gøta', 'pt': 'Víkingur Gøta'
-    },
-    'Víkingur Gøta': {
-      'zh': '哥塔维京', 'zh-hk': '哥塔維京', 'zh-tw': '哥塔維京',
-      'es': 'Víkingur Gøta', 'de': 'Víkingur Gøta', 'it': 'Víkingur Gøta', 'pt': 'Víkingur Gøta'
-    },
-    'Linfield': {
-      'zh': '连菲尔德', 'zh-hk': '連菲爾德', 'zh-tw': '連菲爾德',
-      'es': 'Linfield', 'de': 'Linfield', 'it': 'Linfield', 'pt': 'Linfield'
-    },
-    'Linfield FC': {
-      'zh': '连菲尔德', 'zh-hk': '連菲爾德', 'zh-tw': '連菲爾德',
-      'es': 'Linfield FC', 'de': 'Linfield FC', 'it': 'Linfield FC', 'pt': 'Linfield FC'
-    },
     'Sparta Praha': {
       'zh': '布拉格斯巴达', 'zh-hk': '布拉格斯巴達', 'zh-tw': '布拉格斯巴達',
       'es': 'Sparta Praga', 'de': 'Sparta Prag', 'it': 'Sparta Praga', 'pt': 'Sparta Praga'
@@ -1023,30 +947,10 @@ class SmartTeamTranslation {
       'es': 'Gimnasia La Plata', 'de': 'Gimnasia La Plata', 'it': 'Gimnasia La Plata', 'pt': 'Gimnasia La Plata'
     },
 
-    // Italian teams
-    'Frosinone': {
-      'zh': '弗罗西诺内', 'zh-hk': '弗羅西諾內', 'zh-tw': '弗羅西諾內',
-      'es': 'Frosinone', 'de': 'Frosinone', 'it': 'Frosinone', 'pt': 'Frosinone'
-    },
-    'Benevento': {
-      'zh': '贝内文托', 'zh-hk': '賓尼雲圖', 'zh-tw': '貝內文托',
-      'es': 'Benevento', 'de': 'Benevento', 'it': 'Benevento', 'pt': 'Benevento'
-    },
-
-    // German teams
-    'FC Augsburg': {
-      'zh': '奥格斯堡', 'zh-hk': '奧格斯堡', 'zh-tw': '奧格斯堡',
-      'es': 'FC Augsburg', 'de': 'FC Augsburg', 'it': 'FC Augsburg', 'pt': 'FC Augsburg'
-    },
+    // Italian teams (avoid duplicates)
     'Pisa': {
       'zh': '比萨', 'zh-hk': '比薩', 'zh-tw': '比薩',
       'es': 'Pisa', 'de': 'Pisa', 'it': 'Pisa', 'pt': 'Pisa'
-    },
-
-    // Greek teams
-    'Olympiakos Piraeus': {
-      'zh': '奥林匹亚科斯', 'zh-hk': '奧林比亞高斯', 'zh-tw': '奧林匹亞科斯',
-      'es': 'Olympiakos Piraeus', 'de': 'Olympiakos Piräus', 'it': 'Olympiakos Pireo', 'pt': 'Olympiakos Pireu'
     },
 
     // Saudi Arabian teams
@@ -1064,14 +968,6 @@ class SmartTeamTranslation {
       'zh': '恩特雷古', 'zh-hk': '恩特雷古', 'zh-tw': '恩特雷古',
       'es': "L'Entregu", 'de': "L'Entregu", 'it': "L'Entregu", 'pt': "L'Entregu"
     },
-    'Marino de Luanco': {
-      'zh': '马里诺德卢安科', 'zh-hk': '馬里諾德盧安科', 'zh-tw': '馬里諾德盧安科',
-      'es': 'Marino de Luanco', 'de': 'Marino de Luanco', 'it': 'Marino de Luanco', 'pt': 'Marino de Luanco'
-    },
-    'Marbella': {
-      'zh': '马贝拉', 'zh-hk': '馬貝拉', 'zh-tw': '馬貝拉',
-      'es': 'Marbella', 'de': 'Marbella', 'it': 'Marbella', 'pt': 'Marbella'
-    },
     'AD Ceuta FC': {
       'zh': '塞乌塔', 'zh-hk': '塞烏塔', 'zh-tw': '塞烏塔',
       'es': 'AD Ceuta FC', 'de': 'AD Ceuta FC', 'it': 'AD Ceuta FC', 'pt': 'AD Ceuta FC'
@@ -1085,10 +981,6 @@ class SmartTeamTranslation {
     'Port FC': {
       'zh': '港口', 'zh-hk': '港口', 'zh-tw': '港口',
       'es': 'Port FC', 'de': 'Port FC', 'it': 'Port FC', 'pt': 'Port FC'
-    },
-    'Singburi': {
-      'zh': '信武里', 'zh-hk': '信武里', 'zh-tw': '信武里',
-      'es': 'Singburi', 'de': 'Singburi', 'it': 'Singburi', 'pt': 'Singburi'
     }
   };
 
@@ -1157,7 +1049,7 @@ class SmartTeamTranslation {
       const mappedTeamLower = mappedTeam.toLowerCase();
 
       // More sophisticated partial matching
-      if (teamNameLower.includes(mappedTeamLower) || 
+      if (teamNameLower.includes(mappedTeamLower) ||
           mappedTeamLower.includes(teamNameLower)) {
         const translation = translations[language as keyof TeamTranslation[string]];
         if (translation) return translation;
@@ -1168,7 +1060,7 @@ class SmartTeamTranslation {
       const mappedWords = mappedTeamLower.split(/\s+/).filter(word => word.length >= 4);
 
       // If any significant word matches
-      if (teamWords.some(word => mappedWords.includes(word)) || 
+      if (teamWords.some(word => mappedWords.includes(word)) ||
           mappedWords.some(word => teamWords.includes(word))) {
         const translation = translations[language as keyof TeamTranslation[string]];
         if (translation) return translation;
