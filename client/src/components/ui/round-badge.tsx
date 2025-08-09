@@ -145,18 +145,18 @@ export function RoundBadge({
     return null;
   }
 
-  // Determine badge styling based on match status
+  // Determine badge styling based on match status with dark mode support
   const isLive = matchStatus && ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(matchStatus);
   const isFinished = matchStatus && ["FT", "AET", "PEN"].includes(matchStatus);
 
   let badgeClass = "text-xs px-2 py-1 font-medium border";
 
   if (isLive) {
-    badgeClass += " border-gray-500 text-gray-600 bg-gray-50 ";
+    badgeClass += " border-gray-500 text-gray-600 bg-gray-50 dark:border-gray-400 dark:text-white dark:bg-gray-800";
   } else if (isFinished) {
-    badgeClass += " border-gray-500 text-gray-600 bg-gray-50";
+    badgeClass += " border-gray-500 text-gray-600 bg-gray-50 dark:border-gray-400 dark:text-white dark:bg-gray-800";
   } else {
-    badgeClass += " border-green-500 text-green-600";
+    badgeClass += " border-green-500 text-green-600 dark:border-green-400 dark:text-white dark:bg-green-900/20";
   }
 
   return (
