@@ -152,11 +152,11 @@ export function RoundBadge({
   let badgeClass = "text-xs px-2 py-1 font-medium border";
 
   if (isLive) {
-    badgeClass += " border-gray-500 text-gray-600 bg-gray-50 dark:border-white dark:text-white dark:bg-gray-800";
+    badgeClass += " border-gray-500 text-gray-600 bg-gray-50 dark:!border-white dark:text-white dark:bg-gray-800";
   } else if (isFinished) {
-    badgeClass += " border-gray-500 text-gray-600 bg-gray-50 dark:border-white dark:text-white dark:bg-gray-800";
+    badgeClass += " border-gray-500 text-gray-600 bg-gray-50 dark:!border-white dark:text-white dark:bg-gray-800";
   } else {
-    badgeClass += " border-green-500 text-green-600 dark:border-white dark:text-white dark:bg-green-900/20";
+    badgeClass += " border-green-500 text-green-600 dark:!border-white dark:text-white dark:bg-green-900/20";
   }
 
   return (
