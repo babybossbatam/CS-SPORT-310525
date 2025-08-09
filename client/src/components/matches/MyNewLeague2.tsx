@@ -153,12 +153,12 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       home: {
         id: 2382,
         name: "Portugal U21",
-        logo: "https://media.api-sports.io/football/teams/2382.png",
+        logo: "https://media.api.sports.io/football/teams/2382.png",
       },
       away: {
         id: 768,
         name: "France U21",
-        logo: "https://media.api-sports.io/football/teams/768.png",
+        logo: "https://media.api.sports.io/football/teams/768.png",
       },
     },
     goals: {
@@ -1058,7 +1058,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         // Learn from current fixture data automatically
         try {
           smartTeamTranslation.learnTeamsFromFixtures(leagueFixtures);
-          
+
           // Log learned mappings stats
           const stats = smartTeamTranslation.getLearnedMappingsStats();
           console.log(`🎓 [SmartTranslation] Current learned mappings:`, stats);
@@ -1111,22 +1111,22 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             if (typeof window !== 'undefined') {
               (window as any).generateCompleteTeamMappingForMyNewLeague2 = () => 
                 generateCompleteTeamMapping(selectedDate);
-              
+
               (window as any).generateAllTeamMappings = () => 
                 generateSeasonWideTeamMapping();
-              
+
               (window as any).generateMappingForLeagues = (leagueIds: number[]) => 
                 smartTeamTranslation.generateMappingForLeagues(leagueIds);
-              
+
               (window as any).getLearnedMappingsStats = () => 
                 smartTeamTranslation.getLearnedMappingsStats();
-              
+
               (window as any).clearLearnedMappings = () => {
                 localStorage.removeItem('smart_translation_learned_mappings');
                 smartTeamTranslation.clearCache();
                 console.log('🗑️ [SmartTranslation] Cleared all learned mappings');
               };
-              
+
               console.log(`🛠️ [Developer Tools Available]:`);
               console.log(`   • generateCompleteTeamMappingForMyNewLeague2() - Current date mapping`);
               console.log(`   • generateAllTeamMappings() - Complete season mapping (recommended!)`);
@@ -1158,7 +1158,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     try {
       // Clear smart translation cache to fix any incorrect mappings
       smartTeamTranslation.clearCache();
-      
+
       // Force clear localStorage cache for corrupted translations
       const corruptedKeys = [
         'smart_translation_AEL_zh-hk',
@@ -1166,11 +1166,11 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         'smart_translation_Alianza Petrolera_zh-hk',
         'smart_translation_Masr_zh-hk'
       ];
-      
+
       corruptedKeys.forEach(key => {
         localStorage.removeItem(key);
       });
-      
+
       console.log('🔄 [MyNewLeague2] Translation cache cleared and corrupted entries removed');
     } catch (error) {
       console.warn('Failed to clear translation cache:', error);
@@ -1599,7 +1599,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               <div className="text-xs mt-2 text-gray-400">
                 Searched {leagueIds.length} popular leagues
               </div>
-              <div className="text-xs mt-1 text-gray-400">
+              <div className="text-xs mt-2 text-gray-400">
                 Total fixtures available: {allFixtures?.length || 0}
               </div>
               {allFixtures && allFixtures.length > 0 && (
@@ -1659,7 +1659,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing mobile-card rounded-none"
             >
               {/* League Header - Clickable and collapsible */}
-              <button
+              <div
                 onClick={() => toggleLeague(leagueIdNum)}
                 className="w-full flex items-center gap-2 p-2 md:p-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 transition-colors cursor-pointer group hover:bg-gray-50 dark:hover:bg-gray-700 min-h-[56px] touch-target"
               >
@@ -1778,12 +1778,12 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                     {(() => {
                       // Use actual API country data first, only use mapping as fallback for missing/invalid data
                       const originalCountry = league.country;
-                      
+
                       // Handle World competitions
                       if (originalCountry?.toLowerCase() === "world") {
                         return t('world');
                       }
-                      
+
                       // Enhanced country name translations
                       const countryTranslations: { [key: string]: { [key: string]: string } } = {
                         'russia': {
@@ -1957,24 +1957,24 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                           'pt': 'Estados Unidos'
                         }
                       };
-                      
+
                       // If we have valid country data from API, translate it
                       if (originalCountry && 
                           originalCountry.trim() !== "" && 
                           originalCountry.toLowerCase() !== "unknown" &&
                           originalCountry.toLowerCase() !== "null") {
-                        
+
                         const countryKey = originalCountry.toLowerCase();
                         const translation = countryTranslations[countryKey];
-                        
+
                         if (translation && translation[currentLanguage]) {
                           return translation[currentLanguage];
                         }
-                        
+
                         // Fall back to context translation if no direct match
                         return contextTranslateLeagueName(originalCountry);
                       }
-                      
+
                       // Only use mapping as fallback for missing/invalid country data
                       const leagueCountryMap: { [key: number]: string } = {
                         38: "England",           // Premier League
@@ -2000,7 +2000,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         667: "Spain",            // Segunda Division
                         940: "World",            // UEFA Conference League
                         908: "World",            // UEFA Europa League
-                        1169: "World",           // UEFA Women's Euro
+                        1169: "World",           // UEFA Nations League Women
                         23: "Italy",             // Serie A Italy
                         1077: "World",           // UEFA Nations League Women
                         253: "USA",              // MLS
@@ -2016,31 +2016,42 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         235: "Ecuador",          // Primera A
                         743: "World"             // CONMEBOL Libertadores
                       };
-                      
+
                       const mappedCountry = leagueCountryMap[leagueIdNum];
                       if (mappedCountry) {
                         if (mappedCountry === "World") {
                           return t('world');
                         }
-                        
+
                         // Apply country translations for mapped countries too
                         const countryKey = mappedCountry.toLowerCase();
                         const translation = countryTranslations[countryKey];
-                        
+
                         if (translation && translation[currentLanguage]) {
                           return translation[currentLanguage];
                         }
-                        
+
                         return contextTranslateLeagueName(mappedCountry);
                       }
-                      
+
                       // Final fallback
                       return contextTranslateLeagueName("International");
                     })()}
                   </span>
                 </div>
-                <div className="flex gap-2 items-center"></div>
-              </button>
+                <div className="flex items-center">
+                  <button
+                    onClick={() => toggleLeague(leagueIdNum)}
+                    className="p-1"
+                  >
+                    {isExpanded ? (
+                      <ChevronUp className="h-4 w-4 text-gray-500" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 text-gray-500" />
+                    )}
+                  </button>
+                </div>
+              </div>
 
               {/* Matches - Show when league is expanded */}
               {isExpanded && (
@@ -2385,7 +2396,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       'Alcorcon': '阿爾科爾孔',
                                       'Espanyol': '愛斯賓奴',
                                       'Mallorca': '馬洛卡',
-                                      
+
                                       // International teams
                                       'Al Ain': '艾恩',
                                       'Bergantinos': '貝爾甘蒂諾斯',
@@ -2395,7 +2406,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       'Guadalajara Chivas': '瓜達拉哈拉芝華士',
                                       'Hamburger SV': '漢堡',
                                       'Ham堡er SV': '漢堡',
-                                      
+
                                       // Other European teams
                                       'FK Partizan': '贝尔格莱德游击队',
                                       'Hibernian': '希伯尼安',
@@ -2793,7 +2804,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       'Alcorcon': '阿爾科爾孔',
                                       'Espanyol': '愛斯賓奴',
                                       'Mallorca': '馬洛卡',
-                                      
+
                                       // International teams
                                       'Al Ain': '艾恩',
                                       'Bergantinos': '貝爾甘蒂諾斯',
@@ -2803,7 +2814,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       'Guadalajara Chivas': '瓜達拉哈拉芝華士',
                                       'Hamburger SV': '漢堡',
                                       'Ham堡er SV': '漢堡',
-                                      
+
                                       // Other European teams
                                       'FK Partizan': '贝尔格莱德游击队',
                                       'Hibernian': '希伯尼安',

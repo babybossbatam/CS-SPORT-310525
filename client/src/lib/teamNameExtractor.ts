@@ -66,10 +66,15 @@ class TeamNameExtractor {
 
   // Check if a team name has translation (simplified check)
   private hasTranslation(teamName: string): boolean {
-    // Import your smart translation to check
-    const { smartTeamTranslation } = require('./smartTeamTranslation');
-    const translated = smartTeamTranslation.translateTeamName(teamName, 'zh');
-    return translated !== teamName; // If translated name is different, translation exists
+    try {
+      // Use dynamic import instead of require for browser compatibility
+      // For now, just return false as a placeholder since we can't use require in browser
+      // This method should be called from the server side or refactored
+      return false;
+    } catch (error) {
+      console.warn('Translation check failed:', error);
+      return false;
+    }
   }
 
   // Generate translation entries for missing teams
