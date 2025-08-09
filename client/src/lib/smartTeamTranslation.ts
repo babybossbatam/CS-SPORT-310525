@@ -1410,10 +1410,6 @@ class SmartTeamTranslation {
       'zh': '沙巴足协', 'zh-hk': '沙巴足協', 'zh-tw': '沙巴足協',
       'es': 'Sabah FA', 'de': 'Sabah FA', 'it': 'Sabah FA', 'pt': 'Sabah FA'
     },
-    'Sabah FK': {
-      'zh': '沙巴足协', 'zh-hk': '沙巴足協', 'zh-tw': '沙巴足協',
-      'es': 'Sabah FK', 'de': 'Sabah FK', 'it': 'Sabah FK', 'pt': 'Sabah FK'
-    },
     'Olimpija Ljubljana': {
       'zh': '卢布尔雅那奥林匹亚', 'zh-hk': '盧布爾雅那奧林比亞', 'zh-tw': '盧布爾雅那奧林匹亞',
       'es': 'Olimpija Ljubljana', 'de': 'Olimpija Ljubljana', 'it': 'Olimpija Ljubljana', 'pt': 'Olimpija Ljubljana'
@@ -1830,10 +1826,6 @@ class SmartTeamTranslation {
       'zh': '沙巴足协', 'zh-hk': '沙巴足協', 'zh-tw': '沙巴足協',
       'es': 'Sabah FA', 'de': 'Sabah FA', 'it': 'Sabah FA', 'pt': 'Sabah FA'
     },
-    'Sabah FK': {
-      'zh': '沙巴足协', 'zh-hk': '沙巴足協', 'zh-tw': '沙巴足協',
-      'es': 'Sabah FK', 'de': 'Sabah FK', 'it': 'Sabah FK', 'pt': 'Sabah FK'
-    },
     'Olimpija Ljubljana': {
       'zh': '卢布尔雅那奥林匹亚', 'zh-hk': '盧布爾雅那奧林比亞', 'zh-tw': '盧布爾雅那奧林匹亞',
       'es': 'Olimpija Ljubljana', 'de': 'Olimpija Ljubljana', 'it': 'Olimpija Ljubljana', 'pt': 'Olimpija Ljubljana'
@@ -2233,7 +2225,7 @@ class SmartTeamTranslation {
 
     // If no translation found, learn from context if available
     if (leagueInfo && !this.getPopularTeamTranslation(teamName, 'zh')) {
-      this.learnNewTeam(teamName, leagueInfo);
+      this.learnNewTeam(teamName, leagueInfo); // Pass leagueInfo to learnNewTeam
 
       // Try again after learning
       const newTranslation = this.getPopularTeamTranslation(teamName, language);
@@ -2392,22 +2384,23 @@ class SmartTeamTranslation {
     try {
       const stored = localStorage.getItem('smart_translation_learned_mappings');
       if (stored) {
-        const mappings = JSON.parse(stored);
-        this.learnedTeamMappings = new Map(Object.entries(mappings));
-        console.log(`📚 [SmartTranslation] Loaded ${this.learnedTeamMappings.size} learned team mappings`);
+        const parsed = JSON.parse(stored);
+        this.learnedTeamMappings = new Map(Object.entries(parsed));
+        console.log(`🎓 [SmartTranslation] Loaded ${this.learnedTeamMappings.size} learned mappings from localStorage`);
       }
     } catch (error) {
-      console.warn('⚠️ [SmartTranslation] Failed to load learned mappings:', error);
+      console.warn('🚨 [SmartTranslation] Failed to load learned mappings:', error);
+      this.learnedTeamMappings = new Map();
     }
   }
 
   // Save learned mappings to localStorage
-  private saveLearnedMappings(): void {
+  private saveLearnedMappings() {
     try {
-      const mappingsObj = Object.fromEntries(this.learnedTeamMappings);
-      localStorage.setItem('smart_translation_learned_mappings', JSON.stringify(mappingsObj));
+      const mappingsObject = Object.fromEntries(this.learnedTeamMappings.entries());
+      localStorage.setItem('smart_translation_learned_mappings', JSON.stringify(mappingsObject));
     } catch (error) {
-      console.warn('⚠️ [SmartTranslation] Failed to save learned mappings:', error);
+      console.warn('🚨 [SmartTranslation] Failed to save learned mappings:', error);
     }
   }
 
@@ -2419,7 +2412,7 @@ class SmartTeamTranslation {
 
     try {
       const teamKey = teamName.toLowerCase().trim();
-      
+
       // Check if we already have learned mappings for this team
       if (!this.learnedTeamMappings.has(teamKey)) {
         this.learnedTeamMappings.set(teamKey, {
@@ -2434,10 +2427,10 @@ class SmartTeamTranslation {
       const existingMapping = this.learnedTeamMappings.get(teamKey);
       if (existingMapping && existingMapping[teamName]) {
         existingMapping[teamName][language as keyof typeof existingMapping[typeof teamName]] = translatedName;
-        
+
         // Save to localStorage for persistence
         this.saveLearnedMappings();
-        
+
         console.log(`🎓 [SmartTranslation] Learned new mapping: "${teamName}" -> "${translatedName}" (${language})`);
       }
     } catch (error) {
