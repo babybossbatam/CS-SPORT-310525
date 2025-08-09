@@ -63,12 +63,12 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       );
       return logoSources[0]?.url || fallbackUrl || "/assets/fallback-logo.svg";
     }
-    
+
     // Force England to use correct circular flag
     if (teamName?.toLowerCase() === "england") {
       return "https://hatscripts.github.io/circle-flags/flags/gb-eng.svg";
     }
-    
+
     return getCircleFlagUrl(teamName, fallbackUrl);
   };
 
@@ -101,6 +101,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     // South American teams
     Brazil: "br",
     Argentina: "ar",
+
     Colombia: "co",
     Peru: "pe",
     Chile: "cl",
@@ -123,15 +124,18 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     Bangladesh: "bd",
     Brunei: "bn",
     Cambodia: "kh",
+    China: "cn",
     Dominican: "do",
     Estonia: "ee",
     Guadeloupe: "gp",
     India: "in",
+    Iran: "ir",
     Jordan: "jo",
     Kyrgyzstan: "kg",
     Lebanon: "lb",
     Latvia: "lv",
     Lithuania: "lt",
+    "Saudi Arabia": "sa",
     Tanzania: "tz",
     Turkmenistan: "tm",
     "Timor-Leste": "tl",
@@ -150,6 +154,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     Nigeria: "ng",
     Nepal: "np",
     Namibia: "na",
+    Korea: "kr",
     Pakistan: "pk",
     Palestine: "ps",
     Philippines: "ph",
@@ -163,6 +168,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     Japan: "jp",
     Singapore: "sg",
     Senegal: "sn",
+    Syria: "sy",
     "Hong Kong": "hk",
     Australia: "au",
     "Chinese Taipei": "tw",
@@ -187,7 +193,9 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     const countryCode = getCountryCode(teamName);
 
     if (countryCode) {
-      console.log(`🎯 [MyCircularFlag] Using country code ${countryCode} for ${teamName}`);
+      console.log(
+        `🎯 [MyCircularFlag] Using country code ${countryCode} for ${teamName}`,
+      );
       // Use Circle Flags from hatscripts.github.io
       return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
     }
@@ -195,12 +203,16 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     // Try to find a pattern match in the team name
     for (const [country, code] of Object.entries(teamCountryPatterns)) {
       if (teamName.toLowerCase().includes(country.toLowerCase())) {
-        console.log(`🔍 [MyCircularFlag] Pattern match: ${country} -> ${code} for ${teamName}`);
+        console.log(
+          `🔍 [MyCircularFlag] Pattern match: ${country} -> ${code} for ${teamName}`,
+        );
         return `https://hatscripts.github.io/circle-flags/flags/${code}.svg`;
       }
     }
 
-    console.log(`❌ [MyCircularFlag] No match found for ${teamName}, using fallback`);
+    console.log(
+      `❌ [MyCircularFlag] No match found for ${teamName}, using fallback`,
+    );
     // Final fallback
     return fallbackUrl || "/assets/fallback-logo.svg";
   };
