@@ -189,22 +189,38 @@ export function getDateTimeRange(dateString: string) {
 
 // Get current date in client's timezone
 export const getCurrentClientDateString = (): string => {
-  const now = new Date();
-  return format(now, 'yyyy-MM-dd');
+  try {
+    const now = new Date();
+    return format(now, 'yyyy-MM-dd');
+  } catch (error) {
+    console.error('Error getting current client date:', error);
+    // Fallback to basic date format
+    const now = new Date();
+    return now.toISOString().split('T')[0];
+  }
 };
 
 // Convert UTC fixture time to client's local date
 export function getFixtureClientDate(utcDateString: string): string {
   try {
+    // Safety check for undefined or invalid input
+    if (!utcDateString || utcDateString === 'undefined' || typeof utcDateString !== 'string') {
+      console.warn('Invalid UTC date string provided:', utcDateString);
+      return getCurrentClientDateString();
+    }
+    
     const utcDate = parseISO(utcDateString);
-    if (!isValid(utcDate)) return utcDateString.split('T')[0];
+    if (!isValid(utcDate)) {
+      console.warn('Invalid date parsed:', utcDateString);
+      return utcDateString.includes('T') ? utcDateString.split('T')[0] : getCurrentClientDateString();
+    }
     
     // Convert to client's local timezone and get the date part
     const clientDate = new Date(utcDate.getTime());
     return format(clientDate, 'yyyy-MM-dd');
   } catch (error) {
     console.error('Error converting to client date:', error);
-    return utcDateString.split('T')[0];
+    return getCurrentClientDateString();
   }
 }
 

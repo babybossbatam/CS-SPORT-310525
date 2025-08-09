@@ -195,6 +195,16 @@ export class SimpleDateFilter {
       timezoneConversions: number;
     };
   } {
+    // Safety check for selectedDate
+    if (!selectedDate || selectedDate === 'undefined' || typeof selectedDate !== 'string') {
+      console.error('Invalid selectedDate provided to filterFixturesForDate:', selectedDate);
+      return {
+        validFixtures: [],
+        rejectedFixtures: fixtures.map(fixture => ({ fixture, reason: 'Invalid selectedDate parameter' })),
+        stats: { total: fixtures.length, valid: 0, rejected: fixtures.length, timezoneConversions: 0 }
+      };
+    }
+
     const validFixtures: any[] = [];
     const rejectedFixtures: Array<{ fixture: any; reason: string }> = [];
     let timezoneConversions = 0;

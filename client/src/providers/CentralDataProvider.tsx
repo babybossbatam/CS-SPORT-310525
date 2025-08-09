@@ -27,6 +27,9 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
   const dispatch = useAppDispatch();
   const queryClient = useQueryClient();
 
+  // Ensure selectedDate is a valid date string, otherwise default to today
+  const validDate = selectedDate || new Date().toISOString().slice(0, 10);
+
   // Single source of truth for date fixtures
   const {
     data: dateFixtures = [],
@@ -34,13 +37,13 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     error: dateError,
     refetch: refetchDate
   } = useQuery({
-    queryKey: ['central-date-fixtures', selectedDate],
+    queryKey: ['central-date-fixtures', validDate],
     queryFn: async () => {
       try {
-        console.log(`🔄 [CentralDataProvider] Fetching fixtures for ${selectedDate}`);
-        const response = await fetch(`/api/fixtures/date/${selectedDate}?all=true`);
+        console.log(`🔄 [CentralDataProvider] Fetching fixtures for ${validDate}`);
+        const response = await fetch(`/api/fixtures/date/${validDate}?all=true`);
         if (!response.ok) {
-          console.warn(`Date fixtures API returned ${response.status} for ${selectedDate}`);
+          console.warn(`Date fixtures API returned ${response.status} for ${validDate}`);
           return [];
         }
         const data: FixtureResponse[] = await response.json();
@@ -56,13 +59,13 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
 
         // Update Redux store with all valid fixtures
         dispatch(fixturesActions.setFixturesByDate({ 
-          date: selectedDate, 
+          date: validDate, 
           fixtures: basicFiltered as any
         }));
 
         return basicFiltered;
       } catch (error) {
-        console.error(`API request error for GET /api/fixtures/date/${selectedDate}:`, error);
+        console.error(`❌ [CentralDataProvider] Error fetching fixtures for ${validDate}:`, error);
         return [];
       }
     },
@@ -71,6 +74,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     refetchOnWindowFocus: false,
     retry: false, // Disable retries to prevent cascading errors
     throwOnError: false, // Don't throw errors to prevent unhandled rejections
+    enabled: !!validDate,
   });
 
   // Single source of truth for live fixtures
@@ -84,7 +88,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     queryFn: async () => {
       try {
         console.log(`🔴 [CentralDataProvider] Fetching live fixtures`);
-        
+
         try {
           const response = await fetch('/api/fixtures/live', {
             headers: {
@@ -93,25 +97,25 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
             },
             signal: AbortSignal.timeout(10000), // 10 second timeout
           });
-          
+
           if (!response.ok) {
             console.warn(`Live fixtures API returned ${response.status}`);
             return [];
           }
-          
+
           const data: FixtureResponse[] = await response.json();
           console.log(`Central cache: Received ${data.length} live fixtures`);
 
           // Update Redux store
           dispatch(fixturesActions.setLiveFixtures(data as any));
           return data;
-          
+
         } catch (fetchError) {
           console.warn(`Failed to fetch live fixtures:`, fetchError);
           // Return empty array instead of throwing
           return [];
         }
-        
+
       } catch (error) {
         console.error(`❌ [CentralDataProvider] Failed to fetch live fixtures:`, error);
         return [];
