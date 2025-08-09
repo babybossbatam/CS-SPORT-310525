@@ -55,41 +55,9 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     console.log(`🔍 [MyAvatarInfo-${componentId}] Loading image for: ${playerName} (ID: ${playerId})`);
 
     try {
-      // Try the enhanced name-based search first if we have a player name
-      if (playerName) {
-        try {
-          const nameSearchUrl = `/api/player-photo-by-name?name=${encodeURIComponent(playerName)}`;
-          const response = await fetch(nameSearchUrl, { method: 'HEAD' });
-          
-          if (response.ok && response.url && 
-              !response.url.includes('ui-avatars.com') && 
-              !response.url.includes('default.png') &&
-              !response.url.includes('placeholder')) {
-            
-            // Additional validation: check if it's a real image
-            const img = new Image();
-            img.onload = () => {
-              console.log(`✅ [MyAvatarInfo-${componentId}] Verified photo via name search: ${response.url}`);
-              setImageUrl(response.url);
-              setIsLoading(false);
-            };
-            img.onerror = () => {
-              console.log(`❌ [MyAvatarInfo-${componentId}] Photo validation failed: ${response.url}`);
-              // Continue to try other methods
-              tryIdBasedSearch();
-            };
-            img.src = response.url;
-            return;
-          }
-        } catch (error) {
-          console.log(`⚠️ [MyAvatarInfo-${componentId}] Name search failed: ${error}`);
-        }
-      }
-
       // Helper function for ID-based search
       const tryIdBasedSearch = async () => {
-
-      // Try ID-based search as backup
+        // Try ID-based search as backup
         if (playerId) {
           try {
             const idSearchUrl = `/api/player-photo/${playerId}`;
@@ -111,8 +79,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       };
 
       const tryCachedSystem = async () => {
-
-      // Try cached system as final backup
+        // Try cached system as final backup
         try {
           const cachedImageUrl = await getPlayerImage(playerId, playerName, teamId);
           
@@ -144,12 +111,36 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         setIsLoading(false);
       };
 
-      // Start the chain
+      // Try the enhanced name-based search first if we have a player name
       if (playerName) {
-        // Name search first
-      } else {
-        tryIdBasedSearch();
+        try {
+          const nameSearchUrl = `/api/player-photo-by-name?name=${encodeURIComponent(playerName)}`;
+          console.log(`🔍 [MyAvatarInfo-${componentId}] Trying name search: ${nameSearchUrl}`);
+          const response = await fetch(nameSearchUrl);
+          
+          if (response.ok && response.url && 
+              !response.url.includes('ui-avatars.com') && 
+              !response.url.includes('default.png') &&
+              !response.url.includes('placeholder')) {
+            
+            console.log(`✅ [MyAvatarInfo-${componentId}] Found photo via name search: ${response.url}`);
+            setImageUrl(response.url);
+            setIsLoading(false);
+            return;
+          } else {
+            console.log(`⚠️ [MyAvatarInfo-${componentId}] Name search failed, trying ID search`);
+            tryIdBasedSearch();
+            return;
+          }
+        } catch (error) {
+          console.log(`⚠️ [MyAvatarInfo-${componentId}] Name search error: ${error}`);
+          tryIdBasedSearch();
+          return;
+        }
       }
+
+      // Start with ID search if no player name
+      tryIdBasedSearch();
 
     } catch (error) {
       console.log(`❌ [MyAvatarInfo-${componentId}] Error loading image: ${error?.message || error}`);
