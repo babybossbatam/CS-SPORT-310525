@@ -1122,12 +1122,25 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     setExpandedLeagues(new Set(leagueKeys));
   }, [fixturesByLeague]);
 
-  // Clear translation cache on mount to fix any corrupted translations
+  // Clear translation cache on mount and fix corrupted entries
   useEffect(() => {
     try {
       // Clear smart translation cache to fix any incorrect mappings
       smartTeamTranslation.clearCache();
-      console.log('🔄 [MyNewLeague2] Translation cache cleared on component mount');
+      
+      // Force clear localStorage cache for corrupted translations
+      const corruptedKeys = [
+        'smart_translation_AEL_zh-hk',
+        'smart_translation_Deportivo Cali_zh-hk', 
+        'smart_translation_Alianza Petrolera_zh-hk',
+        'smart_translation_Masr_zh-hk'
+      ];
+      
+      corruptedKeys.forEach(key => {
+        localStorage.removeItem(key);
+      });
+      
+      console.log('🔄 [MyNewLeague2] Translation cache cleared and corrupted entries removed');
     } catch (error) {
       console.warn('Failed to clear translation cache:', error);
     }
