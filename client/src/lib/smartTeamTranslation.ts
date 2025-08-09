@@ -2666,6 +2666,60 @@ class SmartTeamTranslation {
     return bestMatch;
   }
 
+  /**
+   * Find alternative name patterns and variations
+   */
+  private findAlternativeNameMatch(teamName: string, language: string): string | null {
+    // Common team name variations
+    const nameVariations: Record<string, string[]> = {
+      'AEL': ['AEL Limassol', 'AEL FC'],
+      'Deportivo Cali': ['Cali', 'Deportivo Cali FC'],
+      'Alianza Petrolera': ['Petrolera', 'Alianza Petrolera FC'],
+      'Masr': ['Masr FC', 'El Masr'],
+      'Umvezzane': ['Lumezzane'],
+      'Mantova': ['AC Mantova'],
+      'Sibenik': ['HNK Sibenik'],
+      'Vodice': ['NK Vodice'],
+      'Ethnikos Achna': ['Ethnikos Achnas'],
+      'ASIL Lysi': ['ASIL'],
+    };
+
+    // Check if current team has variations
+    const variations = nameVariations[teamName];
+    if (variations) {
+      for (const variation of variations) {
+        const match = this.popularLeagueTeams[variation];
+        if (match && match[language as keyof typeof match]) {
+          return match[language as keyof typeof match];
+        }
+      }
+    }
+
+    // Reverse check: see if teamName is a variation of a known team
+    for (const [knownTeam, variations] of Object.entries(nameVariations)) {
+      if (variations.includes(teamName)) {
+        const match = this.popularLeagueTeams[knownTeam];
+        if (match && match[language as keyof typeof match]) {
+          return match[language as keyof typeof match];
+        }
+      }
+    }
+
+    // Try without common suffixes/prefixes
+    const cleanedName = teamName
+      .replace(/^(FC|AC|SC|CF|CD|FK|HNK|NK)\s+/i, '')
+      .replace(/\s+(FC|AC|SC|CF|CD|FK|HNK|NK)$/i, '');
+
+    if (cleanedName !== teamName) {
+      const match = this.popularLeagueTeams[cleanedName];
+      if (match && match[language as keyof typeof match]) {
+        return match[language as keyof typeof match];
+      }
+    }
+
+    return null;
+  }
+
   // Generate comprehensive team mappings for specific leagues
   async generateMappingForLeagues(leagueIds: number[]): Promise<void> {
     console.log(`🗺️ [SmartTranslation] Generating mappings for leagues: ${leagueIds.join(', ')}`);
