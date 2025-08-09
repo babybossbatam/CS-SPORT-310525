@@ -1055,6 +1055,17 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       if (leagueFixtures.length > 0) {
         console.log(`📊 [MyNewLeague2] Loaded ${leagueFixtures.length} fixtures for comprehensive team mapping analysis`);
 
+        // Learn from current fixture data automatically
+        try {
+          smartTeamTranslation.learnTeamsFromFixtures(leagueFixtures);
+          
+          // Log learned mappings stats
+          const stats = smartTeamTranslation.getLearnedMappingsStats();
+          console.log(`🎓 [SmartTranslation] Current learned mappings:`, stats);
+        } catch (error) {
+          console.warn('⚠️ [SmartTranslation] Failed to learn from fixtures:', error);
+        }
+
         // Enhanced team mapping extraction (only in development)
         if (process.env.NODE_ENV === 'development') {
           try {
@@ -1107,11 +1118,22 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               (window as any).generateMappingForLeagues = (leagueIds: number[]) => 
                 smartTeamTranslation.generateMappingForLeagues(leagueIds);
               
+              (window as any).getLearnedMappingsStats = () => 
+                smartTeamTranslation.getLearnedMappingsStats();
+              
+              (window as any).clearLearnedMappings = () => {
+                localStorage.removeItem('smart_translation_learned_mappings');
+                smartTeamTranslation.clearCache();
+                console.log('🗑️ [SmartTranslation] Cleared all learned mappings');
+              };
+              
               console.log(`🛠️ [Developer Tools Available]:`);
               console.log(`   • generateCompleteTeamMappingForMyNewLeague2() - Current date mapping`);
               console.log(`   • generateAllTeamMappings() - Complete season mapping (recommended!)`);
               console.log(`   • generateSeasonWideTeamMapping() - Same as above`);
               console.log(`   • generateMappingForLeagues([38, 15, 2]) - Custom league mapping`);
+              console.log(`   • getLearnedMappingsStats() - View learned translation statistics`);
+              console.log(`   • clearLearnedMappings() - Clear all learned mappings`);
             }
 
           } catch (error) {
