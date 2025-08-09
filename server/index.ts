@@ -20,19 +20,19 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Set higher limits to prevent EventEmitter warnings
-process.setMaxListeners(200);
+process.setMaxListeners(500);
 import { EventEmitter } from 'events';
-EventEmitter.defaultMaxListeners = 200;
+EventEmitter.defaultMaxListeners = 500;
 
 // Set max listeners for common event emitters
 if (typeof process !== 'undefined' && process.stdout) {
-  process.stdout.setMaxListeners(200);
+  process.stdout.setMaxListeners(500);
 }
 if (typeof process !== 'undefined' && process.stderr) {
-  process.stderr.setMaxListeners(200);
+  process.stderr.setMaxListeners(500);
 }
-if (typeof process !== 'undefined' && process.stderr) {
-  process.stderr.setMaxListeners(100);
+if (typeof process !== 'undefined' && process.stdin) {
+  process.stdin.setMaxListeners(500);
 }
 
 // Graceful shutdown handling

@@ -16,6 +16,7 @@ import { CentralDataProvider } from "./providers/CentralDataProvider";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import LanguageToast from "./components/common/LanguageToast";
 import { BrowserRouter } from "react-router-dom"; // Import BrowserRouter
+import "./lib/eventEmitterUtils"; // Initialize EventEmitter limits
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));

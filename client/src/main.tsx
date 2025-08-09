@@ -63,7 +63,18 @@ StorageMonitor.getInstance().init();
 
 // Set EventEmitter limits early
 if (typeof process !== 'undefined') {
-  process.setMaxListeners?.(50);
+  process.setMaxListeners?.(100);
+}
+
+// Set EventEmitter default max listeners globally
+if (typeof window !== 'undefined') {
+  // Increase max listeners for browser environment
+  (window as any).maxEventListeners = 100;
+  
+  // If EventEmitter is available globally, set its default
+  if ((window as any).EventEmitter) {
+    (window as any).EventEmitter.defaultMaxListeners = 100;
+  }
 }
 
 // Setup global error handlers

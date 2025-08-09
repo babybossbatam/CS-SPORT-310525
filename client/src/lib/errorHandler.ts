@@ -250,16 +250,31 @@ const reportError = (error: any, category: any, source: string) => {
 export const setupGlobalErrorHandlers = () => {
   // Increase EventEmitter max listeners to prevent warnings
   if (typeof process !== 'undefined' && process.setMaxListeners) {
-    process.setMaxListeners(50);
+    process.setMaxListeners(100);
   }
 
-  // Set max listeners for window/document if available
+  // Set max listeners for various global objects
   if (typeof window !== 'undefined') {
     if (window.addEventListener && window.setMaxListeners) {
-      (window as any).setMaxListeners?.(50);
+      (window as any).setMaxListeners?.(100);
     }
     if (document.addEventListener && document.setMaxListeners) {
-      (document as any).setMaxListeners?.(50);
+      (document as any).setMaxListeners?.(100);
+    }
+    
+    // Set max listeners for global EventEmitter if available
+    if ((window as any).EventEmitter) {
+      (window as any).EventEmitter.defaultMaxListeners = 100;
+    }
+  }
+
+  // Set EventEmitter default max listeners globally
+  if (typeof require !== 'undefined') {
+    try {
+      const EventEmitter = require('events');
+      EventEmitter.defaultMaxListeners = 100;
+    } catch (e) {
+      // EventEmitter not available in browser context
     }
   }
 
