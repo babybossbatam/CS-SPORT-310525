@@ -44,7 +44,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     'md-commentary': 'w-8 h-8 md:w-8 md:h-8 max-md:w-6 max-md:h-6'
   };
 
-  // Use the cached player image system
+  // Use the enhanced player photo system
   const loadPlayerImage = async () => {
     if (!playerId && !playerName) {
       setImageUrl('INITIALS_FALLBACK');
@@ -52,34 +52,76 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     }
 
     setIsLoading(true);
-    console.log(`🔍 [MyAvatarInfo-${componentId}] Loading cached image for: ${playerName} (ID: ${playerId})`);
+    console.log(`🔍 [MyAvatarInfo-${componentId}] Loading image for: ${playerName} (ID: ${playerId})`);
 
     try {
-      const cachedImageUrl = await getPlayerImage(playerId, playerName, teamId);
-      
-      if (cachedImageUrl && cachedImageUrl !== '' && cachedImageUrl !== 'INITIALS_FALLBACK') {
-        console.log(`✅ [MyAvatarInfo-${componentId}] Got cached image: ${cachedImageUrl}`);
-        
-        // Test if the image actually loads before setting it
-        const img = new Image();
-        img.onload = () => {
-          console.log(`🖼️ [MyAvatarInfo-${componentId}] Image verified: ${cachedImageUrl}`);
-          setImageUrl(cachedImageUrl);
-          setIsLoading(false);
-        };
-        img.onerror = () => {
-          console.log(`❌ [MyAvatarInfo-${componentId}] Image failed to load: ${cachedImageUrl}`);
-          setImageUrl('INITIALS_FALLBACK');
-          setIsLoading(false);
-        };
-        img.src = cachedImageUrl;
-      } else {
-        console.log(`🎨 [MyAvatarInfo-${componentId}] No cached image found, using fallback for: ${playerName}`);
-        setImageUrl('INITIALS_FALLBACK');
-        setIsLoading(false);
+      // Try the enhanced name-based search first if we have a player name
+      if (playerName) {
+        try {
+          const nameSearchUrl = `/api/player-photo-by-name?name=${encodeURIComponent(playerName)}`;
+          const response = await fetch(nameSearchUrl, { method: 'HEAD' });
+          
+          if (response.ok && response.url && !response.url.includes('ui-avatars.com')) {
+            console.log(`✅ [MyAvatarInfo-${componentId}] Found photo via name search: ${response.url}`);
+            setImageUrl(response.url);
+            setIsLoading(false);
+            return;
+          }
+        } catch (error) {
+          console.log(`⚠️ [MyAvatarInfo-${componentId}] Name search failed: ${error}`);
+        }
       }
+
+      // Try ID-based search as backup
+      if (playerId) {
+        try {
+          const idSearchUrl = `/api/player-photo/${playerId}`;
+          const response = await fetch(idSearchUrl, { method: 'HEAD' });
+          
+          if (response.ok && response.url) {
+            console.log(`✅ [MyAvatarInfo-${componentId}] Found photo via ID search: ${response.url}`);
+            setImageUrl(response.url);
+            setIsLoading(false);
+            return;
+          }
+        } catch (error) {
+          console.log(`⚠️ [MyAvatarInfo-${componentId}] ID search failed: ${error}`);
+        }
+      }
+
+      // Try cached system as final backup
+      try {
+        const cachedImageUrl = await getPlayerImage(playerId, playerName, teamId);
+        
+        if (cachedImageUrl && cachedImageUrl !== '' && cachedImageUrl !== 'INITIALS_FALLBACK') {
+          console.log(`✅ [MyAvatarInfo-${componentId}] Got cached image: ${cachedImageUrl}`);
+          
+          // Test if the image actually loads before setting it
+          const img = new Image();
+          img.onload = () => {
+            console.log(`🖼️ [MyAvatarInfo-${componentId}] Image verified: ${cachedImageUrl}`);
+            setImageUrl(cachedImageUrl);
+            setIsLoading(false);
+          };
+          img.onerror = () => {
+            console.log(`❌ [MyAvatarInfo-${componentId}] Image failed to load: ${cachedImageUrl}`);
+            setImageUrl('INITIALS_FALLBACK');
+            setIsLoading(false);
+          };
+          img.src = cachedImageUrl;
+          return;
+        }
+      } catch (error) {
+        console.log(`❌ [MyAvatarInfo-${componentId}] Cached image error: ${error?.message || error}`);
+      }
+
+      // All methods failed, use fallback
+      console.log(`🎨 [MyAvatarInfo-${componentId}] All methods failed, using fallback for: ${playerName}`);
+      setImageUrl('INITIALS_FALLBACK');
+      setIsLoading(false);
+
     } catch (error) {
-      console.log(`❌ [MyAvatarInfo-${componentId}] Error loading cached image: ${error?.message || error}`);
+      console.log(`❌ [MyAvatarInfo-${componentId}] Error loading image: ${error?.message || error}`);
       setImageUrl('INITIALS_FALLBACK');
       setIsLoading(false);
     }
