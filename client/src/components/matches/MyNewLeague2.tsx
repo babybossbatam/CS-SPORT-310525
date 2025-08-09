@@ -1705,62 +1705,71 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                     }}
                   >
                     {(() => {
-                      // Provide fallback country mapping for leagues with missing country data
-                      const getLeagueCountry = (leagueId: number, originalCountry: string | undefined) => {
-                        if (originalCountry?.toLowerCase() === "world") return t('world');
-                        
-                        // Known league ID to country mappings
-                        const leagueCountryMap: { [key: number]: string } = {
-                          38: "England",           // Premier League
-                          15: "England",           // Championship
-                          2: "Germany",            // Bundesliga
-                          4: "Spain",              // La Liga
-                          10: "World",             // UEFA Nations League
-                          11: "World",             // UEFA Euro
-                          848: "World",            // UEFA Euro U21
-                          886: "World",            // UEFA Champions League Qualifiers
-                          1022: "World",           // FIFA Club World Cup
-                          772: "World",            // FIFA World Cup Qualification
-                          71: "Brazil",            // Serie A Brazil
-                          3: "Netherlands",        // Eredivisie
-                          5: "France",             // Ligue 1
-                          531: "World",            // CONMEBOL Copa America
-                          22: "Argentina",         // Primera Division
-                          72: "Brazil",            // Serie B Brazil
-                          73: "England",           // League One
-                          75: "England",           // League Two
-                          76: "England",           // National League
-                          233: "Egypt",            // Premier League Egypt
-                          667: "Spain",            // Segunda Division
-                          940: "World",            // UEFA Conference League
-                          908: "World",            // UEFA Europa League
-                          1169: "World",           // UEFA Women's Euro
-                          23: "Italy",             // Serie A Italy
-                          1077: "World",           // UEFA Nations League Women
-                          253: "USA",              // MLS
-                          850: "World",            // UEFA Champions League Women
-                          893: "World",            // UEFA Europa League Women
-                          921: "World",            // UEFA Conference League Women
-                          130: "Mexico",           // Liga MX
-                          128: "Mexico",           // Liga de Expansion MX
-                          493: "World",            // CONCACAF Gold Cup
-                          239: "Colombia",         // Primera A
-                          265: "Chile",            // Primera Division
-                          237: "Peru",             // Primera Division
-                          235: "Ecuador",          // Primera A
-                          743: "World"             // CONMEBOL Libertadores
-                        };
-                        
-                        const mappedCountry = leagueCountryMap[leagueId];
-                        if (mappedCountry) {
-                          return mappedCountry === "World" ? t('world') : contextTranslateLeagueName(mappedCountry);
-                        }
-                        
-                        // If no mapping found, use original country or fallback
-                        return originalCountry ? contextTranslateLeagueName(originalCountry) : contextTranslateLeagueName("International");
+                      // Use actual API country data first, only use mapping as fallback for missing/invalid data
+                      const originalCountry = league.country;
+                      
+                      // Handle World competitions
+                      if (originalCountry?.toLowerCase() === "world") {
+                        return t('world');
+                      }
+                      
+                      // If we have valid country data from API, use it
+                      if (originalCountry && 
+                          originalCountry.trim() !== "" && 
+                          originalCountry.toLowerCase() !== "unknown" &&
+                          originalCountry.toLowerCase() !== "null") {
+                        return contextTranslateLeagueName(originalCountry);
+                      }
+                      
+                      // Only use mapping as fallback for missing/invalid country data
+                      const leagueCountryMap: { [key: number]: string } = {
+                        38: "England",           // Premier League
+                        15: "England",           // Championship
+                        2: "Germany",            // Bundesliga
+                        4: "Spain",              // La Liga
+                        10: "World",             // UEFA Nations League
+                        11: "World",             // UEFA Euro
+                        848: "World",            // UEFA Euro U21
+                        886: "World",            // UEFA Champions League Qualifiers
+                        1022: "World",           // FIFA Club World Cup
+                        772: "World",            // FIFA World Cup Qualification
+                        71: "Brazil",            // Serie A Brazil
+                        3: "Netherlands",        // Eredivisie
+                        5: "France",             // Ligue 1
+                        531: "World",            // CONMEBOL Copa America
+                        22: "Argentina",         // Primera Division
+                        72: "Brazil",            // Serie B Brazil
+                        73: "England",           // League One
+                        75: "England",           // League Two
+                        76: "England",           // National League
+                        233: "Egypt",            // Premier League Egypt
+                        667: "Spain",            // Segunda Division
+                        940: "World",            // UEFA Conference League
+                        908: "World",            // UEFA Europa League
+                        1169: "World",           // UEFA Women's Euro
+                        23: "Italy",             // Serie A Italy
+                        1077: "World",           // UEFA Nations League Women
+                        253: "USA",              // MLS
+                        850: "World",            // UEFA Champions League Women
+                        893: "World",            // UEFA Europa League Women
+                        921: "World",            // UEFA Conference League Women
+                        130: "Mexico",           // Liga MX
+                        128: "Mexico",           // Liga de Expansion MX
+                        493: "World",            // CONCACAF Gold Cup
+                        239: "Colombia",         // Primera A
+                        265: "Chile",            // Primera Division
+                        237: "Peru",             // Primera Division
+                        235: "Ecuador",          // Primera A
+                        743: "World"             // CONMEBOL Libertadores
                       };
                       
-                      return getLeagueCountry(leagueIdNum, league.country);
+                      const mappedCountry = leagueCountryMap[leagueIdNum];
+                      if (mappedCountry) {
+                        return mappedCountry === "World" ? t('world') : contextTranslateLeagueName(mappedCountry);
+                      }
+                      
+                      // Final fallback
+                      return contextTranslateLeagueName("International");
                     })()}
                   </span>
                 </div>
