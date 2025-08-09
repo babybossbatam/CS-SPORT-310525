@@ -1713,11 +1713,194 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         return t('world');
                       }
                       
-                      // If we have valid country data from API, use it
+                      // Enhanced country name translations
+                      const countryTranslations: { [key: string]: { [key: string]: string } } = {
+                        'russia': {
+                          'en': 'Russia',
+                          'es': 'Rusia',
+                          'zh-hk': '俄羅斯',
+                          'zh-tw': '俄羅斯',
+                          'zh': '俄罗斯',
+                          'de': 'Russland',
+                          'it': 'Russia',
+                          'pt': 'Rússia'
+                        },
+                        'england': {
+                          'en': 'England',
+                          'es': 'Inglaterra',
+                          'zh-hk': '英格蘭',
+                          'zh-tw': '英格蘭',
+                          'zh': '英格兰',
+                          'de': 'England',
+                          'it': 'Inghilterra',
+                          'pt': 'Inglaterra'
+                        },
+                        'spain': {
+                          'en': 'Spain',
+                          'es': 'España',
+                          'zh-hk': '西班牙',
+                          'zh-tw': '西班牙',
+                          'zh': '西班牙',
+                          'de': 'Spanien',
+                          'it': 'Spagna',
+                          'pt': 'Espanha'
+                        },
+                        'germany': {
+                          'en': 'Germany',
+                          'es': 'Alemania',
+                          'zh-hk': '德國',
+                          'zh-tw': '德國',
+                          'zh': '德国',
+                          'de': 'Deutschland',
+                          'it': 'Germania',
+                          'pt': 'Alemanha'
+                        },
+                        'italy': {
+                          'en': 'Italy',
+                          'es': 'Italia',
+                          'zh-hk': '意大利',
+                          'zh-tw': '意大利',
+                          'zh': '意大利',
+                          'de': 'Italien',
+                          'it': 'Italia',
+                          'pt': 'Itália'
+                        },
+                        'france': {
+                          'en': 'France',
+                          'es': 'Francia',
+                          'zh-hk': '法國',
+                          'zh-tw': '法國',
+                          'zh': '法国',
+                          'de': 'Frankreich',
+                          'it': 'Francia',
+                          'pt': 'França'
+                        },
+                        'brazil': {
+                          'en': 'Brazil',
+                          'es': 'Brasil',
+                          'zh-hk': '巴西',
+                          'zh-tw': '巴西',
+                          'zh': '巴西',
+                          'de': 'Brasilien',
+                          'it': 'Brasile',
+                          'pt': 'Brasil'
+                        },
+                        'argentina': {
+                          'en': 'Argentina',
+                          'es': 'Argentina',
+                          'zh-hk': '阿根廷',
+                          'zh-tw': '阿根廷',
+                          'zh': '阿根廷',
+                          'de': 'Argentinien',
+                          'it': 'Argentina',
+                          'pt': 'Argentina'
+                        },
+                        'netherlands': {
+                          'en': 'Netherlands',
+                          'es': 'Países Bajos',
+                          'zh-hk': '荷蘭',
+                          'zh-tw': '荷蘭',
+                          'zh': '荷兰',
+                          'de': 'Niederlande',
+                          'it': 'Paesi Bassi',
+                          'pt': 'Países Baixos'
+                        },
+                        'colombia': {
+                          'en': 'Colombia',
+                          'es': 'Colombia',
+                          'zh-hk': '哥倫比亞',
+                          'zh-tw': '哥倫比亞',
+                          'zh': '哥伦比亚',
+                          'de': 'Kolumbien',
+                          'it': 'Colombia',
+                          'pt': 'Colômbia'
+                        },
+                        'egypt': {
+                          'en': 'Egypt',
+                          'es': 'Egipto',
+                          'zh-hk': '埃及',
+                          'zh-tw': '埃及',
+                          'zh': '埃及',
+                          'de': 'Ägypten',
+                          'it': 'Egitto',
+                          'pt': 'Egito'
+                        },
+                        'chile': {
+                          'en': 'Chile',
+                          'es': 'Chile',
+                          'zh-hk': '智利',
+                          'zh-tw': '智利',
+                          'zh': '智利',
+                          'de': 'Chile',
+                          'it': 'Cile',
+                          'pt': 'Chile'
+                        },
+                        'peru': {
+                          'en': 'Peru',
+                          'es': 'Perú',
+                          'zh-hk': '秘魯',
+                          'zh-tw': '秘魯',
+                          'zh': '秘鲁',
+                          'de': 'Peru',
+                          'it': 'Perù',
+                          'pt': 'Peru'
+                        },
+                        'ecuador': {
+                          'en': 'Ecuador',
+                          'es': 'Ecuador',
+                          'zh-hk': '厄瓜多爾',
+                          'zh-tw': '厄瓜多爾',
+                          'zh': '厄瓜多尔',
+                          'de': 'Ecuador',
+                          'it': 'Ecuador',
+                          'pt': 'Equador'
+                        },
+                        'mexico': {
+                          'en': 'Mexico',
+                          'es': 'México',
+                          'zh-hk': '墨西哥',
+                          'zh-tw': '墨西哥',
+                          'zh': '墨西哥',
+                          'de': 'Mexiko',
+                          'it': 'Messico',
+                          'pt': 'México'
+                        },
+                        'usa': {
+                          'en': 'USA',
+                          'es': 'Estados Unidos',
+                          'zh-hk': '美國',
+                          'zh-tw': '美國',
+                          'zh': '美国',
+                          'de': 'USA',
+                          'it': 'Stati Uniti',
+                          'pt': 'Estados Unidos'
+                        },
+                        'united states': {
+                          'en': 'United States',
+                          'es': 'Estados Unidos',
+                          'zh-hk': '美國',
+                          'zh-tw': '美國',
+                          'zh': '美国',
+                          'de': 'Vereinigte Staaten',
+                          'it': 'Stati Uniti',
+                          'pt': 'Estados Unidos'
+                        }
+                      };
+                      
+                      // If we have valid country data from API, translate it
                       if (originalCountry && 
                           originalCountry.trim() !== "" && 
                           originalCountry.toLowerCase() !== "unknown" &&
                           originalCountry.toLowerCase() !== "null") {
+                        
+                        const countryKey = originalCountry.toLowerCase();
+                        const translation = countryTranslations[countryKey];
+                        
+                        if (translation && translation[currentLanguage]) {
+                          return translation[currentLanguage];
+                        }
+                        
+                        // Fall back to context translation if no direct match
                         return contextTranslateLeagueName(originalCountry);
                       }
                       
@@ -1765,7 +1948,19 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                       
                       const mappedCountry = leagueCountryMap[leagueIdNum];
                       if (mappedCountry) {
-                        return mappedCountry === "World" ? t('world') : contextTranslateLeagueName(mappedCountry);
+                        if (mappedCountry === "World") {
+                          return t('world');
+                        }
+                        
+                        // Apply country translations for mapped countries too
+                        const countryKey = mappedCountry.toLowerCase();
+                        const translation = countryTranslations[countryKey];
+                        
+                        if (translation && translation[currentLanguage]) {
+                          return translation[currentLanguage];
+                        }
+                        
+                        return contextTranslateLeagueName(mappedCountry);
                       }
                       
                       // Final fallback
