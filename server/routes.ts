@@ -362,8 +362,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { all, skipFilter } = req.query;
 
       // Validate date format first
-      if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        console.log(`❌ [Routes] Invalid date format: ${date}`);
+      if (!date || date === 'undefined' || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        console.log(`❌ [Routes] Invalid date format: ${date} (type: ${typeof date})`);
+        console.log(`❌ [Routes] Request URL: ${req.url}`);
+        console.log(`❌ [Routes] Request params:`, req.params);
         return res
           .status(400)
           .json({ error: "Invalid date format. Use YYYY-MM-DD" });

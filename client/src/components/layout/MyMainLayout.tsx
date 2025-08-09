@@ -42,7 +42,10 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
 
   // Optimized UTC date filtering with memoization
   const filteredFixtures = useMemo(() => {
-    if (!fixtures?.length || !selectedDate) return [];
+    if (!fixtures?.length || !selectedDate || selectedDate === 'undefined') {
+      console.warn('🚨 [MyMainLayout] Invalid selectedDate:', selectedDate);
+      return [];
+    }
 
     // Performance monitoring
     const startTime = performance.now();
