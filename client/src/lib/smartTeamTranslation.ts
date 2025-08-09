@@ -1584,6 +1584,364 @@ class SmartTeamTranslation {
     'Port FC': {
       'zh': '港口', 'zh-hk': '港口', 'zh-tw': '港口',
       'es': 'Port FC', 'de': 'Port FC', 'it': 'Port FC', 'pt': 'Port FC'
+    },
+
+    // Updated and new translations for teams from the user's request
+    'AZ Picerno': {
+      'zh': 'AZ皮切诺', 'zh-hk': 'AZ皮切諾', 'zh-tw': 'AZ皮切諾',
+      'es': 'AZ Picerno', 'de': 'AZ Picerno', 'it': 'AZ Picerno', 'pt': 'AZ Picerno'
+    },
+    'Sudtirol': {
+      'zh': '南蒂罗尔', 'zh-hk': '南蒂羅爾', 'zh-tw': '南蒂羅爾',
+      'es': 'Sudtirol', 'de': 'Südtirol', 'it': 'Sudtirol', 'pt': 'Sudtirol'
+    },
+    'Hercules': {
+      'zh': '赫拉克勒斯', 'zh-hk': '赫拉克勒斯', 'zh-tw': '赫拉克勒斯',
+      'es': 'Hércules', 'de': 'Hércules', 'it': 'Hércules', 'pt': 'Hércules'
+    },
+    'Poortugaal': {
+      'zh': '波尔图加尔', 'zh-hk': '波爾圖加爾', 'zh-tw': '波爾圖加爾',
+      'es': 'Poortugaal', 'de': 'Poortugaal', 'it': 'Poortugaal', 'pt': 'Poortugaal'
+    },
+    'Gemert': {
+      'zh': '格梅尔特', 'zh-hk': '格梅爾特', 'zh-tw': '格梅爾特',
+      'es': 'Gemert', 'de': 'Gemert', 'it': 'Gemert', 'pt': 'Gemert'
+    },
+    'Wittenhorst': {
+      'zh': '维滕霍斯特', 'zh-hk': '維滕霍斯特', 'zh-tw': '維滕霍斯特',
+      'es': 'Wittenhorst', 'de': 'Wittenhorst', 'it': 'Wittenhorst', 'pt': 'Wittenhorst'
+    },
+    'Osogovo': {
+      'zh': '奥索戈沃', 'zh-hk': '奧索戈沃', 'zh-tw': '奧索戈沃',
+      'es': 'Osogovo', 'de': 'Osogovo', 'it': 'Osogovo', 'pt': 'Osogovo'
+    },
+    'Detonit Plachkovica': {
+      'zh': '德托尼特普拉奇科维察', 'zh-hk': '德托尼特普拉奇科維察', 'zh-tw': '德托尼特普拉奇科維察',
+      'es': 'Detonit Plachkovica', 'de': 'Detonit Plachkovica', 'it': 'Detonit Plachkovica', 'pt': 'Detonit Plachkovica'
+    },
+    'Sloga Vinica': {
+      'zh': '斯洛加维尼察', 'zh-hk': '斯洛加維尼察', 'zh-tw': '斯洛加維尼察',
+      'es': 'Sloga Vinica', 'de': 'Sloga Vinica', 'it': 'Sloga Vinica', 'pt': 'Sloga Vinica'
+    },
+    'Pobeda': {
+      'zh': '波贝达', 'zh-hk': '波貝達', 'zh-tw': '波貝達',
+      'es': 'Pobeda', 'de': 'Pobeda', 'it': 'Pobeda', 'pt': 'Pobeda'
+    },
+    'GVVV Veenendaal': {
+      'zh': '菲嫩达尔GVVV', 'zh-hk': '菲嫩達爾GVVV', 'zh-tw': '菲嫩達爾GVVV',
+      'es': 'GVVV Veenendaal', 'de': 'GVVV Veenendaal', 'it': 'GVVV Veenendaal', 'pt': 'GVVV Veenendaal'
+    },
+    'Dovo': {
+      'zh': '多沃', 'zh-hk': '多沃', 'zh-tw': '多沃',
+      'es': 'Dovo', 'de': 'Dovo', 'it': 'Dovo', 'pt': 'Dovo'
+    },
+    'Tubize': {
+      'zh': '蒂比兹', 'zh-hk': '蒂比茲', 'zh-tw': '蒂比茲',
+      'es': 'Tubize', 'de': 'Tubize', 'it': 'Tubize', 'pt': 'Tubize'
+    },
+    'Drecht': {
+      'zh': '德雷赫特', 'zh-hk': '德雷赫特', 'zh-tw': '德雷赫特',
+      'es': 'Drecht', 'de': 'Drecht', 'it': 'Drecht', 'pt': 'Drecht'
+    },
+    'ASWH': {
+      'zh': 'ASWH', 'zh-hk': 'ASWH', 'zh-tw': 'ASWH',
+      'es': 'ASWH', 'de': 'ASWH', 'it': 'ASWH', 'pt': 'ASWH'
+    },
+    'De Treffers': {
+      'zh': '德特雷弗斯', 'zh-hk': '德特雷弗斯', 'zh-tw': '德特雷弗斯',
+      'es': 'De Treffers', 'de': 'De Treffers', 'it': 'De Treffers', 'pt': 'De Treffers'
+    },
+    'Merel': {
+      'zh': '梅雷尔', 'zh-hk': '梅雷爾', 'zh-tw': '梅雷爾',
+      'es': 'Merel', 'de': 'Merel', 'it': 'Merel', 'pt': 'Merel'
+    },
+    'Noordwijk': {
+      'zh': '诺德韦克', 'zh-hk': '諾德韋克', 'zh-tw': '諾德韋克',
+      'es': 'Noordwijk', 'de': 'Noordwijk', 'it': 'Noordwijk', 'pt': 'Noordwijk'
+    },
+    'Rijnvogels': {
+      'zh': '莱恩沃格尔斯', 'zh-hk': '萊恩沃格爾斯', 'zh-tw': '萊恩沃格爾斯',
+      'es': 'Rijnvogels', 'de': 'Rijnvogels', 'it': 'Rijnvogels', 'pt': 'Rijnvogels'
+    },
+    'Spakenburg': {
+      'zh': '斯帕肯堡', 'zh-hk': '斯帕肯堡', 'zh-tw': '斯帕肯堡',
+      'es': 'Spakenburg', 'de': 'Spakenburg', 'it': 'Spakenburg', 'pt': 'Spakenburg'
+    },
+    'AFC Amsterdam': {
+      'zh': 'AFC阿姆斯特丹', 'zh-hk': 'AFC阿姆斯特丹', 'zh-tw': 'AFC阿姆斯特丹',
+      'es': 'AFC Amsterdam', 'de': 'AFC Amsterdam', 'it': 'AFC Amsterdam', 'pt': 'AFC Amsterdam'
+    },
+    'Zwartewaal': {
+      'zh': '兹瓦特瓦尔', 'zh-hk': '茲瓦特瓦爾', 'zh-tw': '茲瓦特瓦爾',
+      'es': 'Zwartewaal', 'de': 'Zwartewaal', 'it': 'Zwartewaal', 'pt': 'Zwartewaal'
+    },
+    'Celta Vigo': {
+      'zh': '切尔塔维戈', 'zh-hk': '切爾塔維戈', 'zh-tw': '切爾塔維戈',
+      'es': 'Celta Vigo', 'de': 'Celta Vigo', 'it': 'Celta Vigo', 'pt': 'Celta Vigo'
+    },
+    'Granada CF': {
+      'zh': '格拉纳达', 'zh-hk': '格拉納達', 'zh-tw': '格拉納達',
+      'es': 'Granada CF', 'de': 'Granada CF', 'it': 'Granada CF', 'pt': 'Granada CF'
+    },
+    'Alcorcon': {
+      'zh': '阿尔科尔孔', 'zh-hk': '阿爾科爾孔', 'zh-tw': '阿爾科爾孔',
+      'es': 'Alcorcón', 'de': 'Alcorcón', 'it': 'Alcorcón', 'pt': 'Alcorcón'
+    },
+    'Espanyol': {
+      'zh': '爱斯宾奴', 'zh-hk': '愛斯賓奴', 'zh-tw': '愛斯賓奴',
+      'es': 'Espanyol', 'de': 'Espanyol', 'it': 'Espanyol', 'pt': 'Espanyol'
+    },
+    'Mallorca': {
+      'zh': '马洛卡', 'zh-hk': '馬洛卡', 'zh-tw': '馬洛卡',
+      'es': 'Mallorca', 'de': 'Mallorca', 'it': 'Mallorca', 'pt': 'Mallorca'
+    },
+    'Al Ain': {
+      'zh': '艾恩', 'zh-hk': '艾恩', 'zh-tw': '艾恩',
+      'es': 'Al Ain', 'de': 'Al Ain', 'it': 'Al Ain', 'pt': 'Al Ain'
+    },
+    'Bergantinos': {
+      'zh': '贝尔甘蒂诺斯', 'zh-hk': '貝爾甘蒂諾斯', 'zh-tw': '貝爾甘蒂諾斯',
+      'es': 'Bergantiños', 'de': 'Bergantiños', 'it': 'Bergantiños', 'pt': 'Bergantiños'
+    },
+    'Cacereño': {
+      'zh': '卡塞雷诺', 'zh-hk': '卡塞雷諾', 'zh-tw': '卡塞雷諾',
+      'es': 'Cacereño', 'de': 'Cacereño', 'it': 'Cacereño', 'pt': 'Cacereño'
+    },
+    'Le Havre': {
+      'zh': '勒阿弗尔', 'zh-hk': '勒阿弗爾', 'zh-tw': '勒阿弗爾',
+      'es': 'Le Havre', 'de': 'Le Havre', 'it': 'Le Havre', 'pt': 'Le Havre'
+    },
+    'Europa Fc': {
+      'zh': '欧罗巴', 'zh-hk': '歐羅巴', 'zh-tw': '歐羅巴',
+      'es': 'Europa FC', 'de': 'Europa FC', 'it': 'Europa FC', 'pt': 'Europa FC'
+    },
+    'Guadalajara Chivas': {
+      'zh': '瓜达拉哈拉芝华士', 'zh-hk': '瓜達拉哈拉芝華士', 'zh-tw': '瓜達拉哈拉芝華士',
+      'es': 'Guadalajara Chivas', 'de': 'Guadalajara Chivas', 'it': 'Guadalajara Chivas', 'pt': 'Guadalajara Chivas'
+    },
+    'Hamburger SV': {
+      'zh': '汉堡', 'zh-hk': '漢堡', 'zh-tw': '漢堡',
+      'es': 'Hamburger SV', 'de': 'Hamburger SV', 'it': 'Hamburger SV', 'pt': 'Hamburger SV'
+    },
+    'Ham堡er SV': {
+      'zh': '汉堡', 'zh-hk': '漢堡', 'zh-tw': '漢堡',
+      'es': 'Hamburger SV', 'de': 'Hamburger SV', 'it': 'Hamburger SV', 'pt': 'Hamburger SV'
+    },
+    'Bremen': {
+      'zh': '云达不来梅', 'zh-hk': '雲達不萊梅', 'zh-tw': '雲達不萊梅',
+      'es': 'Bremen', 'de': 'Bremen', 'it': 'Bremen', 'pt': 'Bremen'
+    },
+    'Cologne': {
+      'zh': '科隆', 'zh-hk': '科隆', 'zh-tw': '科隆',
+      'es': 'Colonia', 'de': 'Köln', 'it': 'Colonia', 'pt': 'Colônia'
+    },
+    'Augsburg': {
+      'zh': '奥格斯堡', 'zh-hk': '奧格斯堡', 'zh-tw': '奧格斯堡',
+      'es': 'Augsburgo', 'de': 'Augsburg', 'it': 'Augusta', 'pt': 'Augsburgo'
+    },
+    'Sunderland': {
+      'zh': '桑德兰', 'zh-hk': '新特蘭', 'zh-tw': '桑德蘭',
+      'es': 'Sunderland', 'de': 'Sunderland', 'it': 'Sunderland', 'pt': 'Sunderland'
+    },
+    'Brighton': {
+      'zh': '布莱顿', 'zh-hk': '白禮頓', 'zh-tw': '布萊頓',
+      'es': 'Brighton', 'de': 'Brighton', 'it': 'Brighton', 'pt': 'Brighton'
+    },
+    'Wolfsburg': {
+      'zh': '沃尔夫斯堡', 'zh-hk': '沃爾夫斯堡', 'zh-tw': '沃爾夫斯堡',
+      'es': 'Wolfsburg', 'de': 'Wolfsburg', 'it': 'Wolfsburg', 'pt': 'Wolfsburg'
+    },
+    'Bournemouth': {
+      'zh': '伯恩茅斯', 'zh-hk': '伯恩茅斯', 'zh-tw': '伯恩茅斯',
+      'es': 'Bournemouth', 'de': 'Bournemouth', 'it': 'Bournemouth', 'pt': 'Bournemouth'
+    },
+    'Real Sociedad': {
+      'zh': '皇家社会', 'zh-hk': '皇家蘇斯達', 'zh-tw': '皇家社會',
+      'es': 'Real Sociedad', 'de': 'Real Sociedad', 'it': 'Real Sociedad', 'pt': 'Real Sociedad'
+    },
+    'Spartak Trnava': {
+      'zh': '特尔纳瓦斯巴达克', 'zh-hk': '特爾納瓦斯巴達克', 'zh-tw': '特爾納瓦斯巴達克',
+      'es': 'Spartak Trnava', 'de': 'Spartak Trnava', 'it': 'Spartak Trnava', 'pt': 'Spartak Trnava'
+    },
+    'Ballkani': {
+      'zh': '巴尔卡尼', 'zh-hk': '巴爾卡尼', 'zh-tw': '巴爾卡尼',
+      'es': 'Ballkani', 'de': 'Ballkani', 'it': 'Ballkani', 'pt': 'Ballkani'
+    },
+    'Shamrock Rovers': {
+      'zh': '沙姆洛克流浪者', 'zh-hk': '沙姆洛克流浪者', 'zh-tw': '沙姆洛克流浪者',
+      'es': 'Shamrock Rovers', 'de': 'Shamrock Rovers', 'it': 'Shamrock Rovers', 'pt': 'Shamrock Rovers'
+    },
+    'Lausanne': {
+      'zh': '洛桑', 'zh-hk': '洛桑', 'zh-tw': '洛桑',
+      'es': 'Lausanne', 'de': 'Lausanne', 'it': 'Lausanne', 'pt': 'Lausanne'
+    },
+    'FC Astana': {
+      'zh': '阿斯塔纳', 'zh-hk': '阿斯塔納', 'zh-tw': '阿斯塔納',
+      'es': 'FC Astana', 'de': 'FC Astana', 'it': 'FC Astana', 'pt': 'FC Astana'
+    },
+    'AZ Alkmaar': {
+      'zh': '阿尔克马尔', 'zh-hk': '阿爾克馬爾', 'zh-tw': '阿爾克馬爾',
+      'es': 'AZ Alkmaar', 'de': 'AZ Alkmaar', 'it': 'AZ Alkmaar', 'pt': 'AZ Alkmaar'
+    },
+    'FC Vaduz': {
+      'zh': '瓦杜兹', 'zh-hk': '瓦杜茲', 'zh-tw': '瓦杜茲',
+      'es': 'FC Vaduz', 'de': 'FC Vaduz', 'it': 'FC Vaduz', 'pt': 'FC Vaduz'
+    },
+    'Anderlecht': {
+      'zh': '安德莱赫特', 'zh-hk': '安德萊赫特', 'zh-tw': '安德萊赫特',
+      'es': 'Anderlecht', 'de': 'Anderlecht', 'it': 'Anderlecht', 'pt': 'Anderlecht'
+    },
+    'Sheriff Tiraspol': {
+      'zh': '蒂拉斯波尔谢里夫', 'zh-hk': '蒂拉斯波爾謝里夫', 'zh-tw': '蒂拉斯波爾謝里夫',
+      'es': 'Sheriff Tiraspol', 'de': 'Sheriff Tiraspol', 'it': 'Sheriff Tiraspol', 'pt': 'Sheriff Tiraspol'
+    },
+    'Sheriff': {
+      'zh': '蒂拉斯波尔谢里夫', 'zh-hk': '蒂拉斯波爾謝里夫', 'zh-tw': '蒂拉斯波爾謝里夫',
+      'es': 'Sheriff', 'de': 'Sheriff', 'it': 'Sheriff', 'pt': 'Sheriff'
+    },
+    'Vikingur Gota': {
+      'zh': '哥塔维京', 'zh-hk': '哥塔維京', 'zh-tw': '哥塔維京',
+      'es': 'Vikingur Gøta', 'de': 'Vikingur Gøta', 'it': 'Vikingur Gøta', 'pt': 'Vikingur Gøta'
+    },
+    'Linfield': {
+      'zh': '连菲尔德', 'zh-hk': '連菲爾德', 'zh-tw': '連菲爾德',
+      'es': 'Linfield', 'de': 'Linfield', 'it': 'Linfield', 'pt': 'Linfield'
+    },
+    'Sparta Praha': {
+      'zh': '布拉格斯巴达', 'zh-hk': '布拉格斯巴達', 'zh-tw': '布拉格斯巴達',
+      'es': 'Sparta Praga', 'de': 'Sparta Prag', 'it': 'Sparta Praga', 'pt': 'Sparta Praga'
+    },
+    'Sparta Prague': {
+      'zh': '布拉格斯巴达', 'zh-hk': '布拉格斯巴達', 'zh-tw': '布拉格斯巴達',
+      'es': 'Sparta Praga', 'de': 'Sparta Prag', 'it': 'Sparta Praga', 'pt': 'Sparta Praga'
+    },
+    'Ararat-Armenia': {
+      'zh': '阿拉拉特亚美尼亚', 'zh-hk': '阿拉拉特亞美尼亞', 'zh-tw': '阿拉拉特亞美尼亞',
+      'es': 'Ararat-Armenia', 'de': 'Ararat-Armenia', 'it': 'Ararat-Armenia', 'pt': 'Ararat-Armenia'
+    },
+    'Levski Sofia': {
+      'zh': '索非亚列夫斯基', 'zh-hk': '索菲亞列夫斯基', 'zh-tw': '索菲亞列夫斯基',
+      'es': 'Levski Sofía', 'de': 'Levski Sofia', 'it': 'Levski Sofia', 'pt': 'Levski Sofia'
+    },
+    'Sabah FA': {
+      'zh': '沙巴足协', 'zh-hk': '沙巴足協', 'zh-tw': '沙巴足協',
+      'es': 'Sabah FA', 'de': 'Sabah FA', 'it': 'Sabah FA', 'pt': 'Sabah FA'
+    },
+    'Sabah FK': {
+      'zh': '沙巴足协', 'zh-hk': '沙巴足協', 'zh-tw': '沙巴足協',
+      'es': 'Sabah FK', 'de': 'Sabah FK', 'it': 'Sabah FK', 'pt': 'Sabah FK'
+    },
+    'Olimpija Ljubljana': {
+      'zh': '卢布尔雅那奥林匹亚', 'zh-hk': '盧布爾雅那奧林比亞', 'zh-tw': '盧布爾雅那奧林匹亞',
+      'es': 'Olimpija Ljubljana', 'de': 'Olimpija Ljubljana', 'it': 'Olimpija Ljubljana', 'pt': 'Olimpija Ljubljana'
+    },
+    'Egnatia Rrogozhinë': {
+      'zh': '罗戈日纳埃格纳蒂亚', 'zh-hk': '羅戈日納埃格納蒂亞', 'zh-tw': '羅戈日納埃格納蒂亞',
+      'es': 'Egnatia Rrogozhinë', 'de': 'Egnatia Rrogozhinë', 'it': 'Egnatia Rrogozhinë', 'pt': 'Egnatia Rrogozhinë'
+    },
+    'FC Differdange 03': {
+      'zh': '迪费当热03', 'zh-hk': '迪費當熱03', 'zh-tw': '迪費當熱03',
+      'es': 'FC Differdange 03', 'de': 'FC Differdange 03', 'it': 'FC Differdange 03', 'pt': 'FC Differdange 03'
+    },
+    'FC Levadia Tallinn': {
+      'zh': '塔林莱瓦迪亚', 'zh-hk': '塔林萊瓦迪亞', 'zh-tw': '塔林萊瓦迪亞',
+      'es': 'FC Levadia Tallinn', 'de': 'FC Levadia Tallinn', 'it': 'FC Levadia Tallinn', 'pt': 'FC Levadia Tallinn'
+    },
+    'Polessya': {
+      'zh': '波利西亚', 'zh-hk': '波利西亞', 'zh-tw': '波利西亞',
+      'es': 'Polessya', 'de': 'Polessya', 'it': 'Polessya', 'pt': 'Polessya'
+    },
+    'Paks': {
+      'zh': '帕克什', 'zh-hk': '帕克什', 'zh-tw': '帕克什',
+      'es': 'Paks', 'de': 'Paks', 'it': 'Paks', 'pt': 'Paks'
+    },
+    'AIK Stockholm': {
+      'zh': '斯德哥尔摩AIK', 'zh-hk': '斯德哥爾摩AIK', 'zh-tw': '斯德哥爾摩AIK',
+      'es': 'AIK Estocolmo', 'de': 'AIK Stockholm', 'it': 'AIK Stoccolma', 'pt': 'AIK Estocolmo'
+    },
+    'Gyori ETO FC': {
+      'zh': '捷尔ETO', 'zh-hk': '捷爾ETO', 'zh-tw': '捷爾ETO',
+      'es': 'Győri ETO FC', 'de': 'Győri ETO FC', 'it': 'Győri ETO FC', 'pt': 'Győri ETO FC'
+    },
+    'Istanbul Basaksehir': {
+      'zh': '伊斯坦布尔巴萨克谢希尔', 'zh-hk': '伊斯坦布爾巴薩克謝希爾', 'zh-tw': '伊斯坦布爾巴薩克謝希爾',
+      'es': 'Istanbul Başakşehir', 'de': 'Istanbul Başakşehir', 'it': 'Istanbul Başakşehir', 'pt': 'Istanbul Başakşehir'
+    },
+    'Silkeborg': {
+      'zh': '锡尔克堡', 'zh-hk': '錫爾克堡', 'zh-tw': '錫爾克堡',
+      'es': 'Silkeborg', 'de': 'Silkeborg', 'it': 'Silkeborg', 'pt': 'Silkeborg'
+    },
+    'Jagiellonia': {
+      'zh': '雅盖隆尼亚', 'zh-hk': '雅蓋隆尼亞', 'zh-tw': '雅蓋隆尼亞',
+      'es': 'Jagiellonia', 'de': 'Jagiellonia', 'it': 'Jagiellonia', 'pt': 'Jagiellonia'
+    },
+    'Riga': {
+      'zh': '里加', 'zh-hk': '里加', 'zh-tw': '里加',
+      'es': 'Riga', 'de': 'Riga', 'it': 'Riga', 'pt': 'Riga'
+    },
+    'RFS Riga': {
+      'zh': '里加RFS', 'zh-hk': '里加RFS', 'zh-tw': '里加RFS',
+      'es': 'RFS Riga', 'de': 'RFS Riga', 'it': 'RFS Riga', 'pt': 'RFS Riga'
+    },
+    'Beitar Jerusalem': {
+      'zh': '耶路撒冷贝塔', 'zh-hk': '耶路撒冷貝塔', 'zh-tw': '耶路撒冷貝塔',
+      'es': 'Beitar Jerusalén', 'de': 'Beitar Jerusalem', 'it': 'Beitar Gerusalemme', 'pt': 'Beitar Jerusalém'
+    },
+    'Baník Ostrava': {
+      'zh': '奥斯特拉瓦矿工', 'zh-hk': '奧斯特拉瓦礦工', 'zh-tw': '奧斯特拉瓦礦工',
+      'es': 'Baník Ostrava', 'de': 'Baník Ostrava', 'it': 'Baník Ostrava', 'pt': 'Baník Ostrava'
+    },
+    'Austria Vienna': {
+      'zh': '奥地利维也纳', 'zh-hk': '奧地利維也納', 'zh-tw': '奧地利維也納',
+      'es': 'Austria Viena', 'de': 'Austria Wien', 'it': 'Austria Vienna', 'pt': 'Austria Viena'
+    },
+    'FK Austria Wien': {
+      'zh': '奥地利维也纳', 'zh-hk': '奧地利維也納', 'zh-tw': '奧地利維也納',
+      'es': 'FK Austria Viena', 'de': 'FK Austria Wien', 'it': 'FK Austria Vienna', 'pt': 'FK Austria Viena'
+    },
+    'Rosenborg': {
+      'zh': '罗森博格', 'zh-hk': '羅森博格', 'zh-tw': '羅森博格',
+      'es': 'Rosenborg', 'de': 'Rosenborg', 'it': 'Rosenborg', 'pt': 'Rosenborg'
+    },
+    'Hammarby FF': {
+      'zh': '哈马比', 'zh-hk': '哈馬比', 'zh-tw': '哈馬比',
+      'es': 'Hammarby FF', 'de': 'Hammarby FF', 'it': 'Hammarby FF', 'pt': 'Hammarby FF'
+    },
+    'Milsami Orhei': {
+      'zh': '奥尔海米尔萨米', 'zh-hk': '奧爾海米爾薩米', 'zh-tw': '奧爾海米爾薩米',
+      'es': 'Milsami Orhei', 'de': 'Milsami Orhei', 'it': 'Milsami Orhei', 'pt': 'Milsami Orhei'
+    },
+    'Virtus': {
+      'zh': '维尔图斯', 'zh-hk': '維爾圖斯', 'zh-tw': '維爾圖斯',
+      'es': 'Virtus', 'de': 'Virtus', 'it': 'Virtus', 'pt': 'Virtus'
+    },
+    'Aris': {
+      'zh': '阿里斯', 'zh-hk': '阿里斯', 'zh-tw': '阿里斯',
+      'es': 'Aris', 'de': 'Aris', 'it': 'Aris', 'pt': 'Aris'
+    },
+    'AEK Athens FC': {
+      'zh': '雅典AEK', 'zh-hk': '雅典AEK', 'zh-tw': '雅典AEK',
+      'es': 'AEK Atenas FC', 'de': 'AEK Athen FC', 'it': 'AEK Atene FC', 'pt': 'AEK Atenas FC'
+    },
+    'Kauno Žalgiris': {
+      'zh': '考纳斯萨尔基里斯', 'zh-hk': '考納斯薩爾基里斯', 'zh-tw': '考納斯薩爾基里斯',
+      'es': 'Kauno Žalgiris', 'de': 'Kauno Žalgiris', 'it': 'Kauno Žalgiris', 'pt': 'Kauno Žalgiris'
+    },
+    'Arda Kardzhali': {
+      'zh': '卡尔扎利阿尔达', 'zh-hk': '卡爾扎利阿爾達', 'zh-tw': '卡爾扎利阿爾達',
+      'es': 'Arda Kardzhali', 'de': 'Arda Kardzhali', 'it': 'Arda Kardzhali', 'pt': 'Arda Kardzhali'
+    },
+    'Araz': {
+      'zh': '阿拉兹', 'zh-hk': '阿拉茲', 'zh-tw': '阿拉茲',
+      'es': 'Araz', 'de': 'Araz', 'it': 'Araz', 'pt': 'Araz'
+    },
+    'Viking': {
+      'zh': '维京', 'zh-hk': '維京', 'zh-tw': '維京',
+      'es': 'Viking', 'de': 'Viking', 'it': 'Viking', 'pt': 'Viking'
+    },
+    'FK Haugesund': {
+      'zh': '豪格松德', 'zh-hk': '豪格松德', 'zh-tw': '豪格松德',
+      'es': 'FK Haugesund', 'de': 'FK Haugesund', 'it': 'FK Haugesund', 'pt': 'FK Haugesund'
     }
   };
 
