@@ -1150,14 +1150,23 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     setExpandedLeagues(new Set(leagueKeys));
   }, [fixturesByLeague]);
 
-  // Clear translation cache on mount and fix corrupted entries
+  // Enhanced translation cache cleaning and validation on mount
   useEffect(() => {
     try {
-      // Clear smart translation cache to fix any incorrect mappings
-      smartTeamTranslation.clearCache();
+      console.log(`🔄 [MyNewLeague2] Starting comprehensive translation cache cleanup...`);
       
-      // Force clear localStorage cache for corrupted translations
-      const corruptedKeys = [
+      // Step 1: Fix corrupted cache entries using the enhanced system
+      smartTeamTranslation.fixCorruptedCache();
+      
+      // Step 2: Auto-fix known translation issues
+      const fixedIssues = TranslationCacheFixer.fixAllIssues();
+      if (fixedIssues > 0) {
+        console.log(`🔧 [MyNewLeague2] Auto-fixed ${fixedIssues} translation issues`);
+      }
+      
+      // Step 3: Force clear specific problematic entries (comprehensive list)
+      const problematicKeys = [
+        // Known corrupted mappings
         'smart_translation_AEL_zh-hk',
         'smart_translation_AEL_zh',
         'smart_translation_AEL_zh-tw',
@@ -1170,32 +1179,59 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         'smart_translation_Masr_zh-hk',
         'smart_translation_Masr_zh',
         'smart_translation_Masr_zh-tw',
-        // Additional problematic entries
+        // Teams wrongly mapped to "Israel"
         'smart_translation_Grosseto_zh-hk',
+        'smart_translation_Grosseto_zh',
+        'smart_translation_Grosseto_zh-tw',
         'smart_translation_Nublense_zh-hk',
+        'smart_translation_Nublense_zh',
+        'smart_translation_Nublense_zh-tw',
         'smart_translation_Lumezzane_zh-hk',
+        'smart_translation_Lumezzane_zh',
+        'smart_translation_Lumezzane_zh-tw',
         'smart_translation_Mantova_zh-hk',
+        'smart_translation_Mantova_zh',
+        'smart_translation_Mantova_zh-tw',
         'smart_translation_Sibenik_zh-hk',
+        'smart_translation_Sibenik_zh',
+        'smart_translation_Sibenik_zh-tw',
         'smart_translation_Vodice_zh-hk',
+        'smart_translation_Vodice_zh',
+        'smart_translation_Vodice_zh-tw',
       ];
       
-      let removedCount = 0;
-      corruptedKeys.forEach(key => {
+      let forceClearedCount = 0;
+      problematicKeys.forEach(key => {
         if (localStorage.getItem(key)) {
           localStorage.removeItem(key);
-          removedCount++;
+          forceClearedCount++;
         }
       });
       
-      console.log(`🔄 [MyNewLeague2] Translation cache cleared and ${removedCount} corrupted entries removed`);
+      console.log(`🧹 [MyNewLeague2] Force cleared ${forceClearedCount} problematic cache entries`);
       
-      // Auto-fix known translation issues
-      const fixedIssues = TranslationCacheFixer.fixAllIssues();
-      if (fixedIssues > 0) {
-        console.log(`🔧 [MyNewLeague2] Auto-fixed ${fixedIssues} translation issues`);
-      }
+      // Step 4: Pre-populate correct translations for known problematic teams
+      const correctTranslations = [
+        { team: 'AEL', translation: 'AEL利馬索爾' },
+        { team: 'Deportivo Cali', translation: '卡利體育' },
+        { team: 'Alianza Petrolera', translation: '石油聯盟' },
+        { team: 'Masr', translation: '埃及' },
+      ];
       
-      // Force the smart translation system to reinitialize
+      correctTranslations.forEach(({ team, translation }) => {
+        ['zh', 'zh-hk', 'zh-tw'].forEach(lang => {
+          const cacheKey = `smart_translation_${team}_${lang}`;
+          try {
+            localStorage.setItem(cacheKey, translation);
+          } catch (error) {
+            console.warn(`Failed to pre-populate translation for ${team}:`, error);
+          }
+        });
+      });
+      
+      console.log(`✅ [MyNewLeague2] Pre-populated ${correctTranslations.length} correct translations`);
+      
+      // Step 5: Make debugging tools available
       if (typeof window !== 'undefined') {
         (window as any).forceTranslationReload = () => {
           smartTeamTranslation.clearCache();
@@ -1204,18 +1240,34 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           window.location.reload();
         };
         
-        // Make translation debugging tools available
         (window as any).debugTranslations = {
           verify: TranslationCacheFixer.verifyTeamTranslation,
           bulkVerify: TranslationCacheFixer.bulkVerifyTeams,
           clearCache: TranslationCacheFixer.clearTeamCache,
           fixAll: TranslationCacheFixer.fixAllIssues,
-          emergencyReset: TranslationCacheFixer.emergencyReset
+          emergencyReset: TranslationCacheFixer.emergencyReset,
+          
+          // New debugging tools
+          testTranslation: (teamName: string, language: string = 'zh-hk') => {
+            const result = smartTeamTranslation.translateTeamName(teamName, language);
+            console.log(`🔍 Translation test: "${teamName}" -> "${result}" (${language})`);
+            return result;
+          },
+          
+          inspectCache: (teamName: string) => {
+            ['zh', 'zh-hk', 'zh-tw'].forEach(lang => {
+              const cacheKey = `smart_translation_${teamName}_${lang}`;
+              const cached = localStorage.getItem(cacheKey);
+              console.log(`📋 Cache for ${teamName} (${lang}): ${cached || 'NOT_FOUND'}`);
+            });
+          }
         };
+        
+        console.log(`🛠️ [Translation Debug Tools] Available: forceTranslationReload(), debugTranslations.testTranslation(), debugTranslations.inspectCache()`);
       }
       
     } catch (error) {
-      console.warn('Failed to clear translation cache:', error);
+      console.warn('Failed to perform translation cache cleanup:', error);
     }
   }, []);
 

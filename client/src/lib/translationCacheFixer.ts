@@ -75,24 +75,62 @@ export class TranslationCacheFixer {
     const issues = this.identifyIssues();
     let fixedCount = 0;
 
-    issues.forEach(issue => {
+    // Also check for additional corrupted entries
+    const additionalCorrupted = this.findAdditionalCorruptedEntries();
+    
+    [...issues, ...additionalCorrupted].forEach(issue => {
       const cacheKey = `smart_translation_${issue.teamName}_${issue.language}`;
       
       // Remove the incorrect cache entry
       localStorage.removeItem(cacheKey);
       
-      // Set the correct translation
-      try {
-        localStorage.setItem(cacheKey, issue.expectedTranslation);
+      // Set the correct translation if we have one
+      if (issue.expectedTranslation && issue.expectedTranslation !== issue.teamName) {
+        try {
+          localStorage.setItem(cacheKey, issue.expectedTranslation);
+          fixedCount++;
+          console.log(`✅ Fixed translation: ${issue.teamName} -> ${issue.expectedTranslation}`);
+        } catch (error) {
+          console.error(`❌ Failed to fix translation for ${issue.teamName}:`, error);
+        }
+      } else {
+        // Just remove the corrupted entry
         fixedCount++;
-        console.log(`✅ Fixed translation: ${issue.teamName} -> ${issue.expectedTranslation}`);
-      } catch (error) {
-        console.error(`❌ Failed to fix translation for ${issue.teamName}:`, error);
+        console.log(`🧹 Removed corrupted translation cache for: ${issue.teamName}`);
       }
     });
 
-    console.log(`🔧 Fixed ${fixedCount} translation issues out of ${issues.length} identified`);
+    console.log(`🔧 Fixed ${fixedCount} translation issues out of ${issues.length + additionalCorrupted.length} identified`);
     return fixedCount;
+  }
+
+  /**
+   * Find additional corrupted entries beyond known issues
+   */
+  static findAdditionalCorruptedEntries(): TranslationIssue[] {
+    const corrupted: TranslationIssue[] = [];
+    
+    // Pattern: teams that got mapped to "Israel" incorrectly
+    const israelMismaps = ['Grosseto', 'Nublense', 'Lumezzane', 'Mantova', 'Sibenik', 'Vodice'];
+    
+    israelMismaps.forEach(teamName => {
+      ['zh', 'zh-hk', 'zh-tw'].forEach(language => {
+        const cacheKey = `smart_translation_${teamName}_${language}`;
+        const cached = localStorage.getItem(cacheKey);
+        
+        if (cached && cached.toLowerCase().includes('israel')) {
+          corrupted.push({
+            teamName,
+            currentTranslation: cached,
+            expectedTranslation: teamName, // Keep original if no proper translation
+            language,
+            severity: 'high'
+          });
+        }
+      });
+    });
+
+    return corrupted;
   }
 
   /**

@@ -2199,33 +2199,37 @@ class SmartTeamTranslation {
       return teamName;
     }
 
-    // Check cache first - but verify it's not corrupted
+    // PRIORITY 1: Check popularLeagueTeams database FIRST (most reliable)
+    const exactMatch = this.popularLeagueTeams[teamName];
+    if (exactMatch && exactMatch[language as keyof typeof exactMatch]) {
+      const translation = exactMatch[language as keyof typeof exactMatch];
+      
+      // Update cache with correct translation
+      const cacheKey = `smart_translation_${teamName}_${language}`;
+      try {
+        localStorage.setItem(cacheKey, translation);
+        console.log(`🎯 [SmartTranslation] Exact match from database: "${teamName}" -> "${translation}"`);
+      } catch (error) {
+        console.warn('Failed to cache translation:', error);
+      }
+      
+      return translation;
+    }
+
+    // PRIORITY 2: Check cache ONLY if no database match (and validate it)
     const cacheKey = `smart_translation_${teamName}_${language}`;
     const cached = localStorage.getItem(cacheKey);
 
     if (cached && cached !== teamName && cached !== 'undefined' && cached !== 'null' && cached.length > 1) {
-      // Additional validation: make sure cached translation makes sense
-      if (!this.isCachedTranslationValid(teamName, cached, language)) {
+      // Validate cached translation
+      if (this.isCachedTranslationValid(teamName, cached, language)) {
+        console.log(`💾 [SmartTranslation] Valid cache hit: "${teamName}" -> "${cached}"`);
+        return cached;
+      } else {
+        // Remove invalid cache
         localStorage.removeItem(cacheKey);
         console.log(`🧹 [SmartTranslation] Removed invalid cached translation: "${teamName}" -> "${cached}"`);
-      } else {
-        console.log(`💾 [SmartTranslation] Cache hit: "${teamName}" -> "${cached}"`);
-        return cached;
       }
-    }
-
-    // Search in popular league teams with exact match first
-    const exactMatch = this.popularLeagueTeams[teamName];
-    if (exactMatch && exactMatch[language as keyof typeof exactMatch]) {
-      const translation = exactMatch[language as keyof typeof exactMatch];
-      // Cache the result
-      try {
-        localStorage.setItem(cacheKey, translation);
-      } catch (error) {
-        console.warn('Failed to cache translation:', error);
-      }
-      console.log(`🎯 [SmartTranslation] Exact match: "${teamName}" -> "${translation}"`);
-      return translation;
     }
 
     // Try alternative name patterns
@@ -2402,17 +2406,58 @@ class SmartTeamTranslation {
     return null;
   }
 
-  // Clear old cache entries when they become too large
+  // Enhanced cache cleanup and corruption detection
   private fixCorruptedCache(): void {
     try {
       const corruptedKeys = [];
+      const invalidMappings: Record<string, string[]> = {
+        'AEL': ['Israel', 'israeli'],
+        'Deportivo Cali': ['帕斯托體育', 'Deportivo Pasto'],
+        'Alianza Petrolera': ['Alianza Lima'],
+        'Masr': ['AL Masry'],
+        'Grosseto': ['Israel'],
+        'Nublense': ['Israel'],
+        'Lumezzane': ['Israel'],
+        'Mantova': ['Israel'],
+        'Sibenik': ['Israel'],
+        'Vodice': ['Israel'],
+      };
+
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key && key.startsWith('smart_translation_')) {
           try {
             const value = localStorage.getItem(key);
-            if (value && (value.length < 2 || value === 'undefined' || value === 'null')) {
+            
+            // Check for basic corruption
+            if (!value || value.length < 2 || value === 'undefined' || value === 'null') {
               corruptedKeys.push(key);
+              continue;
+            }
+
+            // Extract team name from cache key
+            const keyParts = key.replace('smart_translation_', '').split('_');
+            const language = keyParts.pop();
+            const teamName = keyParts.join('_');
+
+            // Check for known invalid mappings
+            const invalidValues = invalidMappings[teamName];
+            if (invalidValues && invalidValues.some(invalid => 
+              value.toLowerCase().includes(invalid.toLowerCase())
+            )) {
+              corruptedKeys.push(key);
+              console.log(`🚫 [SmartTranslation] Found corrupted mapping: ${teamName} -> ${value}`);
+              continue;
+            }
+
+            // Check if we have a better translation available
+            const properTranslation = this.popularLeagueTeams[teamName];
+            if (properTranslation && language && properTranslation[language as keyof typeof properTranslation]) {
+              const expected = properTranslation[language as keyof typeof properTranslation];
+              if (expected !== value && value !== teamName) {
+                corruptedKeys.push(key);
+                console.log(`🔧 [SmartTranslation] Replacing outdated cache: ${teamName} "${value}" -> "${expected}"`);
+              }
             }
           } catch (e) {
             corruptedKeys.push(key);
@@ -2477,27 +2522,46 @@ class SmartTeamTranslation {
    * Validate if a cached translation makes logical sense
    */
   private isCachedTranslationValid(originalName: string, cachedTranslation: string, language: string): boolean {
-    // Known invalid mappings to reject
+    // Known invalid mappings to reject - comprehensive list
     const invalidMappings: Record<string, string[]> = {
-      'AEL': ['Israel', 'israeli'], // AEL should not be translated to Israel
-      'Deportivo Cali': ['帕斯托體育', 'Deportivo Pasto'], // Should not be Deportivo Pasto
-      'Alianza Petrolera': ['Alianza Lima'], // Should not be Alianza Lima
-      'Masr': ['AL Masry'], // Should not be AL Masry
+      'AEL': ['Israel', 'israeli', 'IL'], // AEL should not be translated to Israel
+      'Deportivo Cali': ['帕斯托體育', 'Deportivo Pasto', 'Pasto'], // Should not be Deportivo Pasto
+      'Alianza Petrolera': ['Alianza Lima', 'Lima'], // Should not be Alianza Lima
+      'Masr': ['AL Masry', 'Masry'], // Should not be AL Masry
+      'Grosseto': ['Israel', 'israeli'], // Common mismap
+      'Nublense': ['Israel', 'israeli'], // Common mismap
+      'Lumezzane': ['Israel', 'israeli'], // Common mismap
+      'Mantova': ['Israel', 'israeli'], // Common mismap
+      'Sibenik': ['Israel', 'israeli'], // Common mismap
+      'Vodice': ['Israel', 'israeli'], // Common mismap
     };
 
     const invalidTranslations = invalidMappings[originalName];
     if (invalidTranslations && invalidTranslations.some(invalid => 
       cachedTranslation.toLowerCase().includes(invalid.toLowerCase())
     )) {
+      console.log(`🚫 [SmartTranslation] Rejected invalid cached translation: "${originalName}" -> "${cachedTranslation}"`);
       return false;
     }
 
-    // Additional logic: if translation is identical to original for Chinese languages, 
-    // it might be a sign that no proper translation was found
-    if (['zh', 'zh-hk', 'zh-tw'].includes(language) && cachedTranslation === originalName) {
-      // Check if this team should have a translation
-      const shouldHaveTranslation = this.popularLeagueTeams[originalName];
-      if (shouldHaveTranslation) {
+    // Check if cached translation is suspiciously wrong for the context
+    if (['zh', 'zh-hk', 'zh-tw'].includes(language)) {
+      // If we have a proper translation available, but cache has wrong one
+      const properTranslation = this.popularLeagueTeams[originalName];
+      if (properTranslation && properTranslation[language as keyof typeof properTranslation]) {
+        const expected = properTranslation[language as keyof typeof properTranslation];
+        if (expected !== cachedTranslation && cachedTranslation !== originalName) {
+          console.log(`🔧 [SmartTranslation] Cache mismatch detected: "${originalName}" cached="${cachedTranslation}" expected="${expected}"`);
+          return false;
+        }
+      }
+
+      // Additional logic: if translation is identical to original for Chinese languages, 
+      // it might be a sign that no proper translation was found
+      if (cachedTranslation === originalName) {
+        // Check if this team should have a translation
+        const shouldHaveTranslation = this.popularLeagueTeams[originalName];
+        if (shouldHaveTranslation) {
         return false; // Invalid cache, should be translated
       }
     }
