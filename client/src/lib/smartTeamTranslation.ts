@@ -19,7 +19,6 @@ class SmartTeamTranslation {
     // Clear cache on initialization to ensure updated translations are used
     this.clearCache();
     this.fixCorruptedCache();
-    this.fixSpecificCorruptedEntries(); // Added to fix specific known corrupted entries
     console.log('🔄 [SmartTranslation] Initialized with cache cleared for fresh translations');
   }
 
@@ -1031,7 +1030,7 @@ class SmartTeamTranslation {
       'es': 'Córdoba', 'de': 'Córdoba', 'it': 'Córdoba', 'pt': 'Córdoba'
     },
 
-    // Spanish Spanish Segunda División and lower teams
+    // Spanish Segunda División and lower teams
     'Elche': {
       'zh': '埃尔切', 'zh-hk': '埃爾切', 'zh-tw': '埃爾切',
       'es': 'Elche', 'de': 'Elche', 'it': 'Elche', 'pt': 'Elche'
@@ -1134,128 +1133,7 @@ class SmartTeamTranslation {
     },
 
 
-    'Union Magdalena': {
-      'zh': '马格达莱纳联合', 'zh-hk': '馬格達萊納聯合', 'zh-tw': '馬格達萊納聯合',
-      'es': 'Unión Magdalena', 'de': 'Unión Magdalena', 'it': 'Unión Magdalena', 'pt': 'Unión Magdalena'
-    },
-
-    'Chico': {
-      'zh': '奇科', 'zh-hk': '奇科', 'zh-tw': '奇科',
-      'es': 'Chico', 'de': 'Chico', 'it': 'Chico', 'pt': 'Chico'
-    },
-    'La Equidad': {
-      'zh': '公平竞技', 'zh-hk': '公平競技', 'zh-tw': '公平競技',
-      'es': 'La Equidad', 'de': 'La Equidad', 'it': 'La Equidad', 'pt': 'La Equidad'
-    },
-
-    // Egyptian teams
-    'Wadi Degla': {
-      'zh': '瓦迪德格拉', 'zh-hk': '瓦迪德格拉', 'zh-tw': '瓦迪德格拉',
-      'es': 'Wadi Degla', 'de': 'Wadi Degla', 'it': 'Wadi Degla', 'pt': 'Wadi Degla'
-    },
-    'Pyramids FC': {
-      'zh': '金字塔', 'zh-hk': '金字塔', 'zh-tw': '金字塔',
-      'es': 'Pyramids FC', 'de': 'Pyramids FC', 'it': 'Pyramids FC', 'pt': 'Pyramids FC'
-    },
-
-    // Argentine teams
-
-
-    'Independ. Rivadavia': {
-      'zh': '里瓦达维亚独立', 'zh-hk': '里瓦達維亞獨立', 'zh-tw': '里瓦達維亞獨立',
-      'es': 'Independiente Rivadavia', 'de': 'Independiente Rivadavia', 'it': 'Independiente Rivadavia', 'pt': 'Independiente Rivadavia'
-    },
-
-
-    'Gimnasia L.P.': {
-      'zh': '拉普拉塔体操', 'zh-hk': '拉普拉塔體操', 'zh-tw': '拉普拉塔體操',
-      'es': 'Gimnasia La Plata', 'de': 'Gimnasia La Plata', 'it': 'Gimnasia La Plata', 'pt': 'Gimnasia La Plata'
-    },
-
-    // Italian teams (avoid duplicates)
-
-
-    // Saudi Arabian teams
-
-
-
-    // Spanish lower division teams
-
-
-
-    // Thai teams
-    'Port FC': {
-      'zh': '港口', 'zh-hk': '港口', 'zh-tw': '港口',
-      'es': 'Port FC', 'de': 'Port FC', 'it': 'Port FC', 'pt': 'Port FC'
-    },
-
-    // Teams from user's screenshot that need proper translations
-    'Grosseto': {
-      'zh': '格罗塞托', 'zh-hk': '格羅塞托', 'zh-tw': '格羅塞托',
-      'es': 'Grosseto', 'de': 'Grosseto', 'it': 'Grosseto', 'pt': 'Grosseto'
-    },
-    'Nublense': {
-      'zh': '纽布伦斯', 'zh-hk': '紐布倫斯', 'zh-tw': '紐布倫斯',
-      'es': 'Nublense', 'de': 'Nublense', 'it': 'Nublense', 'pt': 'Nublense'
-    },
-    'Lumezzane': {
-      'zh': '卢梅扎内', 'zh-hk': '盧梅扎內', 'zh-tw': '盧梅扎內',
-      'es': 'Lumezzane', 'de': 'Lumezzane', 'it': 'Lumezzane', 'pt': 'Lumezzane'
-    },
-    'Mantova': {
-      'zh': '曼托瓦', 'zh-hk': '曼托瓦', 'zh-tw': '曼托瓦',
-      'es': 'Mantova', 'de': 'Mantova', 'it': 'Mantova', 'pt': 'Mantova'
-    },
-    'Rennes': {
-      'zh': '雷恩', 'zh-hk': '雷恩', 'zh-tw': '雷恩',
-      'es': 'Rennes', 'de': 'Rennes', 'it': 'Rennes', 'pt': 'Rennes'
-    },
-    'Genoa': {
-      'zh': '热那亚', 'zh-hk': '熱那亞', 'zh-tw': '熱那亞',
-      'es': 'Genoa', 'de': 'Genua', 'it': 'Genoa', 'pt': 'Génova'
-    },
-    'Šibenik': {
-      'zh': '希贝尼克', 'zh-hk': '希貝尼克', 'zh-tw': '希貝尼克',
-      'es': 'Šibenik', 'de': 'Šibenik', 'it': 'Šibenik', 'pt': 'Šibenik'
-    },
-    'Sibenik': {
-      'zh': '希贝尼克', 'zh-hk': '希貝尼克', 'zh-tw': '希貝尼克',
-      'es': 'Šibenik', 'de': 'Šibenik', 'it': 'Šibenik', 'pt': 'Šibenik'
-    },
-    'Vodice': {
-      'zh': '沃迪采', 'zh-hk': '沃迪采', 'zh-tw': '沃迪采',
-      'es': 'Vodice', 'de': 'Vodice', 'it': 'Vodice', 'pt': 'Vodice'
-    },
-    'Ethnikos Achna': {
-      'zh': '阿赫纳民族', 'zh-hk': '阿赫納民族', 'zh-tw': '阿赫納民族',
-      'es': 'Ethnikos Achna', 'de': 'Ethnikos Achna', 'it': 'Ethnikos Achna', 'pt': 'Ethnikos Achna'
-    },
-    'ASIL Lysi': {
-      'zh': 'ASIL利西', 'zh-hk': 'ASIL利西', 'zh-tw': 'ASIL利西',
-      'es': 'ASIL Lysi', 'de': 'ASIL Lysi', 'it': 'ASIL Lysi', 'pt': 'ASIL Lysi'
-    },
-    'Osogovo': {
-      'zh': '奥索戈沃', 'zh-hk': '奧索戈沃', 'zh-tw': '奧索戈沃',
-      'es': 'Osogovo', 'de': 'Osogovo', 'it': 'Osogovo', 'pt': 'Osogovo'
-    },
-    'Detonit Plachkovica': {
-      'zh': '德托尼特普拉赫科维察', 'zh-hk': '德托尼特普拉赫科維察', 'zh-tw': '德托尼特普拉赫科維察',
-      'es': 'Detonit Plachkovica', 'de': 'Detonit Plachkovica', 'it': 'Detonit Plachkovica', 'pt': 'Detonit Plachkovica'
-    },
-    'Sloga Vinica': {
-      'zh': '维尼察斯洛加', 'zh-hk': '維尼察斯洛加', 'zh-tw': '維尼察斯洛加',
-      'es': 'Sloga Vinica', 'de': 'Sloga Vinica', 'it': 'Sloga Vinica', 'pt': 'Sloga Vinica'
-    },
-    'Pobeda': {
-      'zh': '波贝达', 'zh-hk': '波貝達', 'zh-tw': '波貝達',
-      'es': 'Pobeda', 'de': 'Pobeda', 'it': 'Pobeda', 'pt': 'Pobeda'
-    },
-    'Südtirol': {
-      'zh': '南蒂罗尔', 'zh-hk': '南蒂羅爾', 'zh-tw': '南蒂羅爾',
-      'es': 'Südtirol', 'de': 'Südtirol', 'it': 'Südtirol', 'pt': 'Südtirol'
-    },
-
-    // Additional teams for MyNewLeague2
+    // Example of adding new translations for MyNewLeague2
     'Omonia Nicosia': {
       'zh': '尼科西亚奥莫尼亚', 'zh-hk': '尼科西亞奧莫尼亞', 'zh-tw': '尼科西亞奧莫尼亞',
       'es': 'Omonia Nicosia', 'de': 'Omonia Nikosia', 'it': 'Omonia Nicosia', 'pt': 'Omonia Nicosia'
@@ -1364,110 +1242,7 @@ class SmartTeamTranslation {
       'zh': '豪格松德', 'zh-hk': '豪格松德', 'zh-tw': '豪格松德',
       'es': 'FK Haugesund', 'de': 'FK Haugesund', 'it': 'FK Haugesund', 'pt': 'FK Haugesund'
     },
-    // Special handling for teams that might appear with different naming patterns
-    "L'Entregu": {
-      'zh': '恩特雷古', 'zh-hk': '恩特雷古', 'zh-tw': '恩特雷古',
-      'es': "L'Entregu", 'de': "L'Entregu", 'it': "L'Entregu", 'pt': "L'Entregu"
-    },
 
-    // Croatian teams from the image
-    'Sibeník': {
-      'zh': '希贝尼克', 'zh-hk': '希貝尼克', 'zh-tw': '希貝尼克',
-      'es': 'Sibeník', 'de': 'Sibeník', 'it': 'Sibeník', 'pt': 'Sibeník'
-    },
-    'Vodice': {
-      'zh': '沃迪采', 'zh-hk': '沃迪采', 'zh-tw': '沃迪采',
-      'es': 'Vodice', 'de': 'Vodice', 'it': 'Vodice', 'pt': 'Vodice'
-    },
-
-    // Dutch teams from the image
-    'Barendrecht': {
-      'zh': '巴伦德雷赫特', 'zh-hk': '巴倫德雷赫特', 'zh-tw': '巴倫德雷赫特',
-      'es': 'Barendrecht', 'de': 'Barendrecht', 'it': 'Barendrecht', 'pt': 'Barendrecht'
-    },
-    'ASWH': {
-      'zh': 'ASWH', 'zh-hk': 'ASWH', 'zh-tw': 'ASWH',
-      'es': 'ASWH', 'de': 'ASWH', 'it': 'ASWH', 'pt': 'ASWH'
-    },
-    'De Treffers': {
-      'zh': '德特雷弗斯', 'zh-hk': '德特雷弗斯', 'zh-tw': '德特雷弗斯',
-      'es': 'De Treffers', 'de': 'De Treffers', 'it': 'De Treffers', 'pt': 'De Treffers'
-    },
-    'URK': {
-      'zh': 'URK', 'zh-hk': 'URK', 'zh-tw': 'URK',
-      'es': 'URK', 'de': 'URK', 'it': 'URK', 'pt': 'URK'
-    },
-    'GVVV Veenendaal': {
-      'zh': 'GVVV费嫩达尔', 'zh-hk': 'GVVV費嫩達爾', 'zh-tw': 'GVVV費嫩達爾',
-      'es': 'GVVV Veenendaal', 'de': 'GVVV Veenendaal', 'it': 'GVVV Veenendaal', 'pt': 'GVVV Veenendaal'
-    },
-    'Merelbeke': {
-      'zh': '梅雷尔贝克', 'zh-hk': '梅雷爾貝克', 'zh-tw': '梅雷爾貝克',
-      'es': 'Merelbeke', 'de': 'Merelbeke', 'it': 'Merelbeke', 'pt': 'Merelbeke'
-    },
-    'Hoek': {
-      'zh': '霍克', 'zh-hk': '霍克', 'zh-tw': '霍克',
-      'es': 'Hoek', 'de': 'Hoek', 'it': 'Hoek', 'pt': 'Hoek'
-    },
-    'Noordwijk': {
-      'zh': '诺德韦克', 'zh-hk': '諾德韋克', 'zh-tw': '諾德韋克',
-      'es': 'Noordwijk', 'de': 'Noordwijk', 'it': 'Noordwijk', 'pt': 'Noordwijk'
-    },
-    'Rijnvogels': {
-      'zh': '莱茵鸟', 'zh-hk': '萊茵鳥', 'zh-tw': '萊茵鳥',
-      'es': 'Rijnvogels', 'de': 'Rijnvogels', 'it': 'Rijnvogels', 'pt': 'Rijnvogels'
-    },
-    'Poortugaal': {
-      'zh': '波尔图加尔', 'zh-hk': '波爾圖加爾', 'zh-tw': '波爾圖加爾',
-      'es': 'Poortugaal', 'de': 'Poortugaal', 'it': 'Poortugaal', 'pt': 'Poortugaal'
-    },
-    'Excelsior Maassluis': {
-      'zh': '马斯路易斯精英', 'zh-hk': '馬斯路易斯精英', 'zh-tw': '馬斯路易斯精英',
-      'es': 'Excelsior Maassluis', 'de': 'Excelsior Maassluis', 'it': 'Excelsior Maassluis', 'pt': 'Excelsior Maassluis'
-    },
-    'Dovo': {
-      'zh': '多沃', 'zh-hk': '多沃', 'zh-tw': '多沃',
-      'es': 'Dovo', 'de': 'Dovo', 'it': 'Dovo', 'pt': 'Dovo'
-    },
-    'Hercules': {
-      'zh': '海格力斯', 'zh-hk': '海格力斯', 'zh-tw': '海格力斯',
-      'es': 'Hércules', 'de': 'Hercules', 'it': 'Hercules', 'pt': 'Hércules'
-    },
-    'Spakenburg': {
-      'zh': '斯帕肯堡', 'zh-hk': '斯帕肯堡', 'zh-tw': '斯帕肯堡',
-      'es': 'Spakenburg', 'de': 'Spakenburg', 'it': 'Spakenburg', 'pt': 'Spakenburg'
-    },
-    'AFC Amsterdam': {
-      'zh': '阿姆斯特丹AFC', 'zh-hk': '阿姆斯特丹AFC', 'zh-tw': '阿姆斯特丹AFC',
-      'es': 'AFC Amsterdam', 'de': 'AFC Amsterdam', 'it': 'AFC Amsterdam', 'pt': 'AFC Amsterdam'
-    },
-    'Tubize': {
-      'zh': '蒂比兹', 'zh-hk': '蒂比茲', 'zh-tw': '蒂比茲',
-      'es': 'Tubize', 'de': 'Tubize', 'it': 'Tubize', 'pt': 'Tubize'
-    },
-    'Gemert': {
-      'zh': '格默特', 'zh-hk': '格默特', 'zh-tw': '格默特',
-      'es': 'Gemert', 'de': 'Gemert', 'it': 'Gemert', 'pt': 'Gemert'
-    },
-    'Wittenhorst': {
-      'zh': '威滕霍斯特', 'zh-hk': '威滕霍斯特', 'zh-tw': '威滕霍斯特',
-      'es': 'Wittenhorst', 'de': 'Wittenhorst', 'it': 'Wittenhorst', 'pt': 'Wittenhorst'
-    },
-
-    // Belgian teams
-    'AZ Picerno': {
-      'zh': 'AZ皮切尔诺', 'zh-hk': 'AZ皮切爾諾', 'zh-tw': 'AZ皮切爾諾',
-      'es': 'AZ Picerno', 'de': 'AZ Picerno', 'it': 'AZ Picerno', 'pt': 'AZ Picerno'
-    },
-
-    // Macedonian teams
-   
-    
-   
-    'Pobeda Valandovo': {
-      'zh': '瓦兰多沃胜利', 'zh-hk': '瓦蘭多沃勝利', 'zh-tw': '瓦蘭多沃勝利',
-      'es': 'Pobeda Valandovo', 'de': 'Pobeda Valandovo', 'it': 'Pobeda Valandovo', 'pt': 'Pobeda Valandovo'
-    },
     // Additional German teams
     'HHC': {
       'zh': 'HHC', 'zh-hk': 'HHC', 'zh-tw': 'HHC',
@@ -1799,7 +1574,6 @@ class SmartTeamTranslation {
 
 
     // Saudi Arabian teams
-
 
 
     // Spanish lower division teams
@@ -2189,88 +1963,64 @@ class SmartTeamTranslation {
 
   // Smart translation with fallbacks and learning
   translateTeamName(teamName: string, language: string = 'zh', leagueInfo?: any): string {
-    if (!teamName || typeof teamName !== 'string') {
-      console.warn('🚨 [SmartTranslation] Invalid team name provided:', teamName);
-      return teamName || '';
+    if (!teamName) return '';
+
+    console.log(`🤖 [SmartTranslation] Translating "${teamName}" to ${language}`, {
+      isLoading: this.isLoading,
+      cacheSize: this.teamCache.size,
+      leaguesLoaded: Object.keys(this.leagueTeamsCache).length,
+      totalCachedTeams: Object.values(this.leagueTeamsCache).reduce((sum, teams) => sum + teams.length, 0)
+    });
+
+    // Check cache first
+    const cacheKey = `${teamName.toLowerCase()}_${language}`;
+    if (this.teamCache.has(cacheKey)) {
+      const cached = this.teamCache.get(cacheKey)!;
+      console.log(`💾 [SmartTranslation] Cache hit: "${teamName}" -> "${cached}"`);
+      return cached;
     }
 
-    // Simple check for existing translations in target languages
-    if (this.isAlreadyTranslated(teamName, language)) {
-      return teamName;
+    // Try popular teams mapping first (highest priority)
+    const popularTranslation = this.getPopularTeamTranslation(teamName, language);
+    if (popularTranslation && popularTranslation !== teamName) {
+      console.log(`⭐ [SmartTranslation] Popular team translation: "${teamName}" -> "${popularTranslation}"`);
+      this.teamCache.set(cacheKey, popularTranslation);
+      return popularTranslation;
     }
 
-    // PRIORITY 1: Check popularLeagueTeams database FIRST (most reliable)
-    const exactMatch = this.popularLeagueTeams[teamName];
-    if (exactMatch && exactMatch[language as keyof typeof exactMatch]) {
-      const translation = exactMatch[language as keyof typeof exactMatch];
-      
-      // Update cache with correct translation
-      const cacheKey = `smart_translation_${teamName}_${language}`;
-      try {
-        localStorage.setItem(cacheKey, translation);
-        console.log(`🎯 [SmartTranslation] Exact match from database: "${teamName}" -> "${translation}"`);
-      } catch (error) {
-        console.warn('Failed to cache translation:', error);
+    // Try exact match from manual translations (keep your existing ones as fallback)
+    const manualTranslation = this.getManualTranslation(teamName, language);
+    if (manualTranslation && manualTranslation !== teamName) {
+      console.log(`📖 [SmartTranslation] Manual translation: "${teamName}" -> "${manualTranslation}"`);
+      this.teamCache.set(cacheKey, manualTranslation);
+      return manualTranslation;
+    }
+
+    // Enhanced fallback for common team patterns
+    const enhancedFallback = this.getEnhancedFallback(teamName, language);
+    if (enhancedFallback && enhancedFallback !== teamName) {
+      console.log(`🔍 [SmartTranslation] Enhanced fallback: "${teamName}" -> "${enhancedFallback}"`);
+      this.teamCache.set(cacheKey, enhancedFallback);
+      return enhancedFallback;
+    }
+
+    // If no translation found, learn from context if available
+    if (leagueInfo && !this.getPopularTeamTranslation(teamName, 'zh')) {
+      this.learnNewTeam(teamName, leagueInfo);
+
+      // Try again after learning
+      const newTranslation = this.getPopularTeamTranslation(teamName, language);
+      if (newTranslation && newTranslation !== teamName) {
+        console.log(`🎓 [SmartTranslation] Learned and translated: "${teamName}" -> "${newTranslation}"`);
+        this.teamCache.set(cacheKey, newTranslation);
+        return newTranslation;
       }
-      
-      return translation;
     }
 
-    // PRIORITY 2: Check cache ONLY if no database match (and validate it)
-    const cacheKey = `smart_translation_${teamName}_${language}`;
-    const cached = localStorage.getItem(cacheKey);
-
-    if (cached && cached !== teamName && cached !== 'undefined' && cached !== 'null' && cached.length > 1) {
-      // Validate cached translation
-      if (this.isCachedTranslationValid(teamName, cached, language)) {
-        console.log(`💾 [SmartTranslation] Valid cache hit: "${teamName}" -> "${cached}"`);
-        return cached;
-      } else {
-        // Remove invalid cache
-        localStorage.removeItem(cacheKey);
-        console.log(`🧹 [SmartTranslation] Removed invalid cached translation: "${teamName}" -> "${cached}"`);
-      }
-    }
-
-    // Try alternative name patterns
-    const alternativeMatch = this.findAlternativeNameMatch(teamName, language);
-    if (alternativeMatch) {
-      try {
-        localStorage.setItem(cacheKey, alternativeMatch);
-      } catch (error) {
-        console.warn('Failed to cache alternative translation:', error);
-      }
-      console.log(`🔄 [SmartTranslation] Alternative match: "${teamName}" -> "${alternativeMatch}"`);
-      return alternativeMatch;
-    }
-
-    // Try fuzzy matching for slight variations
-    const fuzzyMatch = this.findFuzzyMatch(teamName, language);
-    if (fuzzyMatch) {
-      try {
-        localStorage.setItem(cacheKey, fuzzyMatch);
-      } catch (error) {
-        console.warn('Failed to cache fuzzy translation:', error);
-      }
-      console.log(`🔍 [SmartTranslation] Fuzzy match: "${teamName}" -> "${fuzzyMatch}"`);
-      return fuzzyMatch;
-    }
-
-    console.log(`❌ [SmartTranslation] No translation found for: "${teamName}" in ${language}`);
+    // Cache and return original name if no translation available
+    console.log(`❌ [SmartTranslation] No translation available for: "${teamName}"`);
+    this.teamCache.set(cacheKey, teamName);
     return teamName;
-  }
-
-  private isAlreadyTranslated(teamName: string, language: string): boolean {
-    // Basic check if the team name looks like it's already translated
-    // This is a heuristic and might need refinement
-    if (language === 'zh' || language === 'zh-hk' || language === 'zh-tw') {
-      // Check for common Chinese characters or known translations
-      if (/[一-龠]/.test(teamName)) return true;
-      if (Object.values(this.popularLeagueTeams).some(t => 
-        Object.values(t).includes(teamName)
-      )) return true;
-    }
-    return false;
   }
 
   private getManualTranslation(teamName: string, language: string): string | null {
@@ -2406,318 +2156,22 @@ class SmartTeamTranslation {
     return null;
   }
 
-  // Enhanced cache cleanup and corruption detection
+  // Clear old cache entries when they become too large
   private fixCorruptedCache(): void {
     try {
-      const corruptedKeys = [];
-      const invalidMappings: Record<string, string[]> = {
-        'AEL': ['Israel', 'israeli'],
-        'Deportivo Cali': ['帕斯托體育', 'Deportivo Pasto'],
-        'Alianza Petrolera': ['Alianza Lima'],
-        'Masr': ['AL Masry'],
-        'Grosseto': ['Israel'],
-        'Nublense': ['Israel'],
-        'Lumezzane': ['Israel'],
-        'Mantova': ['Israel'],
-        'Sibenik': ['Israel'],
-        'Vodice': ['Israel'],
-      };
-
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('smart_translation_')) {
-          try {
-            const value = localStorage.getItem(key);
-            
-            // Check for basic corruption
-            if (!value || value.length < 2 || value === 'undefined' || value === 'null') {
-              corruptedKeys.push(key);
-              continue;
-            }
-
-            // Extract team name from cache key
-            const keyParts = key.replace('smart_translation_', '').split('_');
-            const language = keyParts.pop();
-            const teamName = keyParts.join('_');
-
-            // Check for known invalid mappings
-            const invalidValues = invalidMappings[teamName];
-            if (invalidValues && invalidValues.some(invalid => 
-              value.toLowerCase().includes(invalid.toLowerCase())
-            )) {
-              corruptedKeys.push(key);
-              console.log(`🚫 [SmartTranslation] Found corrupted mapping: ${teamName} -> ${value}`);
-              continue;
-            }
-
-            // Check if we have a better translation available
-            const properTranslation = this.popularLeagueTeams[teamName];
-            if (properTranslation && language && properTranslation[language as keyof typeof properTranslation]) {
-              const expected = properTranslation[language as keyof typeof properTranslation];
-              if (expected !== value && value !== teamName) {
-                corruptedKeys.push(key);
-                console.log(`🔧 [SmartTranslation] Replacing outdated cache: ${teamName} "${value}" -> "${expected}"`);
-              }
-            }
-          } catch (e) {
-            corruptedKeys.push(key);
-          }
-        }
-      }
-
-      corruptedKeys.forEach(key => {
-        localStorage.removeItem(key);
-        console.log(`🧹 [SmartTranslation] Removed corrupted cache entry: ${key}`);
-      });
-
-      if (corruptedKeys.length > 0) {
-        console.log(`🔧 [SmartTranslation] Fixed ${corruptedKeys.length} corrupted cache entries`);
+      if (this.teamCache.size > 1000) {
+        console.warn('🚨 [SmartTranslation] Cache size exceeded 1000 entries, clearing oldest entries');
+        const entries = Array.from(this.teamCache.entries());
+        // Keep only the most recent 500 entries
+        const recentEntries = entries.slice(-500);
+        this.teamCache.clear();
+        recentEntries.forEach(([key, value]) => this.teamCache.set(key, value));
+        console.log(`🧹 [SmartTranslation] Cache reduced to ${this.teamCache.size} entries`);
       }
     } catch (error) {
-      console.warn('Failed to fix corrupted cache:', error);
+      console.error('Error fixing corrupted cache:', error);
+      this.teamCache.clear();
     }
-  }
-
-  /**
-   * Fix specific known corrupted entries
-   */
-  fixSpecificCorruptedEntries() {
-    try {
-      const knownCorruptedEntries = [
-        // AEL should not be translated to "Israel"
-        'smart_translation_AEL_zh-hk',
-        'smart_translation_AEL_zh',
-        'smart_translation_AEL_zh-tw',
-
-        // Deportivo Cali should not be translated to Deportivo Pasto
-        'smart_translation_Deportivo Cali_zh-hk',
-        'smart_translation_Deportivo Cali_zh',
-        'smart_translation_Deportivo Cali_zh-tw',
-
-        // Alianza Petrolera should not be translated to Alianza Lima
-        'smart_translation_Alianza Petrolera_zh-hk',
-        'smart_translation_Alianza Petrolera_zh',
-        'smart_translation_Alianza Petrolera_zh-tw',
-
-        // Masr should not be translated to AL Masry
-        'smart_translation_Masr_zh-hk',
-        'smart_translation_Masr_zh',
-        'smart_translation_Masr_zh-tw',
-      ];
-
-      knownCorruptedEntries.forEach(key => {
-        if (localStorage.getItem(key)) {
-          localStorage.removeItem(key);
-          console.log(`🔧 [SmartTranslation] Removed known corrupted entry: ${key}`);
-        }
-      });
-
-      console.log(`✅ [SmartTranslation] Checked and fixed ${knownCorruptedEntries.length} known problematic entries`);
-    } catch (error) {
-      console.warn('Failed to fix specific corrupted entries:', error);
-    }
-  }
-
-  /**
-   * Validate if a cached translation makes logical sense
-   */
-  private isCachedTranslationValid(originalName: string, cachedTranslation: string, language: string): boolean {
-    // Known invalid mappings to reject - comprehensive list
-    const invalidMappings: Record<string, string[]> = {
-      'AEL': ['Israel', 'israeli', 'IL'], // AEL should not be translated to Israel
-      'Deportivo Cali': ['帕斯托體育', 'Deportivo Pasto', 'Pasto'], // Should not be Deportivo Pasto
-      'Alianza Petrolera': ['Alianza Lima', 'Lima'], // Should not be Alianza Lima
-      'Masr': ['AL Masry', 'Masry'], // Should not be AL Masry
-      'Grosseto': ['Israel', 'israeli'], // Common mismap
-      'Nublense': ['Israel', 'israeli'], // Common mismap
-      'Lumezzane': ['Israel', 'israeli'], // Common mismap
-      'Mantova': ['Israel', 'israeli'], // Common mismap
-      'Sibenik': ['Israel', 'israeli'], // Common mismap
-      'Vodice': ['Israel', 'israeli'], // Common mismap
-    };
-
-    const invalidTranslations = invalidMappings[originalName];
-    if (invalidTranslations && invalidTranslations.some(invalid => 
-      cachedTranslation.toLowerCase().includes(invalid.toLowerCase())
-    )) {
-      console.log(`🚫 [SmartTranslation] Rejected invalid cached translation: "${originalName}" -> "${cachedTranslation}"`);
-      return false;
-    }
-
-    // Check if cached translation is suspiciously wrong for the context
-    if (['zh', 'zh-hk', 'zh-tw'].includes(language)) {
-      // If we have a proper translation available, but cache has wrong one
-      const properTranslation = this.popularLeagueTeams[originalName];
-      if (properTranslation && properTranslation[language as keyof typeof properTranslation]) {
-        const expected = properTranslation[language as keyof typeof properTranslation];
-        if (expected !== cachedTranslation && cachedTranslation !== originalName) {
-          console.log(`🔧 [SmartTranslation] Cache mismatch detected: "${originalName}" cached="${cachedTranslation}" expected="${expected}"`);
-          return false;
-        }
-      }
-
-      // Additional logic: if translation is identical to original for Chinese languages, 
-      // it might be a sign that no proper translation was found
-      if (cachedTranslation === originalName) {
-        // Check if this team should have a translation
-        const shouldHaveTranslation = this.popularLeagueTeams[originalName];
-        if (shouldHaveTranslation) {
-        return false; // Invalid cache, should be translated
-      }
-    }
-
-    return true;
-  }
-
-  /**
-   * Find alternative name patterns and variations
-   */
-  private findAlternativeNameMatch(teamName: string, language: string): string | null {
-    // Common team name variations
-    const nameVariations: Record<string, string[]> = {
-      'AEL': ['AEL Limassol', 'AEL FC'],
-      'Deportivo Cali': ['Cali', 'Deportivo Cali FC'],
-      'Alianza Petrolera': ['Petrolera', 'Alianza Petrolera FC'],
-      'Masr': ['Masr FC', 'El Masr'],
-      'Umvezzane': ['Lumezzane'],
-      'Mantova': ['AC Mantova'],
-      'Sibenik': ['HNK Sibenik'],
-      'Vodice': ['NK Vodice'],
-      'Ethnikos Achna': ['Ethnikos Achnas'],
-      'ASIL Lysi': ['ASIL'],
-    };
-
-    // Check if current team has variations
-    const variations = nameVariations[teamName];
-    if (variations) {
-      for (const variation of variations) {
-        const match = this.popularLeagueTeams[variation];
-        if (match && match[language as keyof typeof match]) {
-          return match[language as keyof typeof match];
-        }
-      }
-    }
-
-    // Reverse check: see if teamName is a variation of a known team
-    for (const [knownTeam, variations] of Object.entries(nameVariations)) {
-      if (variations.includes(teamName)) {
-        const match = this.popularLeagueTeams[knownTeam];
-        if (match && match[language as keyof typeof match]) {
-          return match[language as keyof typeof match];
-        }
-      }
-    }
-
-    // Try without common suffixes/prefixes
-    const cleanedName = teamName
-      .replace(/^(FC|AC|SC|CF|CD|FK|HNK|NK)\s+/i, '')
-      .replace(/\s+(FC|AC|SC|CF|CD|FK|HNK|NK)$/i, '');
-
-    if (cleanedName !== teamName) {
-      const match = this.popularLeagueTeams[cleanedName];
-      if (match && match[language as keyof typeof match]) {
-        return match[language as keyof typeof match];
-      }
-    }
-
-    return null;
-  }
-  }
-
-  private findFuzzyMatch(teamName: string, language: string): string | null {
-    // Using a simple Levenshtein distance for fuzzy matching
-    // More advanced fuzzy matching libraries could be integrated if needed
-    const calculateLevenshteinDistance = (s1: string, s2: string): number => {
-      const len1 = s1.length;
-      const len2 = s2.length;
-      const matrix: number[][] = Array(len1 + 1).fill(0).map(() => Array(len2 + 1).fill(0));
-
-      for (let i = 0; i <= len1; i++) matrix[i][0] = i;
-      for (let j = 0; j <= len2; j++) matrix[0][j] = j;
-
-      for (let i = 1; i <= len1; i++) {
-        for (let j = 1; j <= len2; j++) {
-          const cost = s1[i - 1] === s2[j - 1] ? 0 : 1;
-          matrix[i][j] = Math.min(
-            matrix[i - 1][j] + 1,      // Deletion
-            matrix[i][j - 1] + 1,      // Insertion
-            matrix[i - 1][j - 1] + cost // Substitution
-          );
-        }
-      }
-      return matrix[len1][len2];
-    };
-
-    let bestMatch: string | null = null;
-    let minDistance = Infinity;
-    const threshold = 3; // Maximum allowed distance for a match
-
-    for (const [knownTeam, translations] of Object.entries(this.popularLeagueTeams)) {
-      const distance = calculateLevenshteinDistance(teamName.toLowerCase(), knownTeam.toLowerCase());
-      if (distance < minDistance && distance <= threshold) {
-        minDistance = distance;
-        const translation = translations[language as keyof typeof translations];
-        if (translation && translation !== teamName) {
-          bestMatch = translation;
-        }
-      }
-    }
-
-    return bestMatch;
-  }
-
-  /**
-   * Find alternative name patterns and variations
-   */
-  private findAlternativeNameMatch(teamName: string, language: string): string | null {
-    // Common team name variations
-    const nameVariations: Record<string, string[]> = {
-      'AEL': ['AEL Limassol', 'AEL FC'],
-      'Deportivo Cali': ['Cali', 'Deportivo Cali FC'],
-      'Alianza Petrolera': ['Petrolera', 'Alianza Petrolera FC'],
-      'Masr': ['Masr FC', 'El Masr'],
-      'Umvezzane': ['Lumezzane'],
-      'Mantova': ['AC Mantova'],
-      'Sibenik': ['HNK Sibenik'],
-      'Vodice': ['NK Vodice'],
-      'Ethnikos Achna': ['Ethnikos Achnas'],
-      'ASIL Lysi': ['ASIL'],
-    };
-
-    // Check if current team has variations
-    const variations = nameVariations[teamName];
-    if (variations) {
-      for (const variation of variations) {
-        const match = this.popularLeagueTeams[variation];
-        if (match && match[language as keyof typeof match]) {
-          return match[language as keyof typeof match];
-        }
-      }
-    }
-
-    // Reverse check: see if teamName is a variation of a known team
-    for (const [knownTeam, variations] of Object.entries(nameVariations)) {
-      if (variations.includes(teamName)) {
-        const match = this.popularLeagueTeams[knownTeam];
-        if (match && match[language as keyof typeof match]) {
-          return match[language as keyof typeof match];
-        }
-      }
-    }
-
-    // Try without common suffixes/prefixes
-    const cleanedName = teamName
-      .replace(/^(FC|AC|SC|CF|CD|FK|HNK|NK)\s+/i, '')
-      .replace(/\s+(FC|AC|SC|CF|CD|FK|HNK|NK)$/i, '');
-
-    if (cleanedName !== teamName) {
-      const match = this.popularLeagueTeams[cleanedName];
-      if (match && match[language as keyof typeof match]) {
-        return match[language as keyof typeof match];
-      }
-    }
-
-    return null;
   }
 
   // Generate comprehensive team mappings for specific leagues
@@ -2802,6 +2256,43 @@ class SmartTeamTranslation {
       leaguesCached: Object.keys(this.leagueTeamsCache).length,
       totalCachedTeams: Object.values(this.leagueTeamsCache).reduce((sum, teams) => sum + teams.length, 0)
     };
+  }
+
+  // Fix corrupted cache entries
+  fixCorruptedCache(): void {
+    try {
+      const corruptedEntries = [
+        'AEL_zh-hk_Israel', // AEL should not translate to Israel
+        'Deportivo Cali_zh-hk_帕斯托體育', // Wrong translation
+        'Alianza Petrolera_zh-hk_Alianza Lima', // Wrong team
+        'Masr_zh-hk_AL Masry' // Should be consistent
+      ];
+
+      corruptedEntries.forEach(entry => {
+        const [team, lang, wrongTranslation] = entry.split('_');
+        const cacheKey = `${team}_${lang}`;
+        const cached = this.teamCache.get(cacheKey);
+        if (cached === wrongTranslation) {
+          this.teamCache.delete(cacheKey);
+          console.log(`🔧 [SmartTranslation] Fixed corrupted cache: ${team} -> ${wrongTranslation}`);
+        }
+      });
+
+      // Also clear localStorage for these corrupted entries
+      const localStorageKeys = [
+        'smart_translation_AEL_zh-hk',
+        'smart_translation_Deportivo Cali_zh-hk',
+        'smart_translation_Alianza Petrolera_zh-hk',
+        'smart_translation_Masr_zh-hk'
+      ];
+
+      localStorageKeys.forEach(key => {
+        localStorage.removeItem(key);
+      });
+
+    } catch (error) {
+      console.warn('Error fixing corrupted cache:', error);
+    }
   }
 
   // Force refresh specific team translations
