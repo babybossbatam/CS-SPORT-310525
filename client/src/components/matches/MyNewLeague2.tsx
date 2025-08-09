@@ -27,6 +27,7 @@ import { teamNameExtractor } from '@/lib/teamNameExtractor';
 import { teamMappingExtractor } from '@/lib/teamMappingExtractor';
 import { generateCompleteTeamMapping } from '@/lib/generateCompleteTeamMapping';
 import { useLeagueNameTranslation, translateLeagueName } from '@/lib/leagueNameMapping';
+import { TranslationCacheFixer } from '@/lib/translationCacheFixer';
 
 // Intersection Observer Hook for lazy loading
 const useIntersectionObserver = (
@@ -1158,16 +1159,61 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       // Force clear localStorage cache for corrupted translations
       const corruptedKeys = [
         'smart_translation_AEL_zh-hk',
-        'smart_translation_Deportivo Cali_zh-hk', 
+        'smart_translation_AEL_zh',
+        'smart_translation_AEL_zh-tw',
+        'smart_translation_Deportivo Cali_zh-hk',
+        'smart_translation_Deportivo Cali_zh',
+        'smart_translation_Deportivo Cali_zh-tw',
         'smart_translation_Alianza Petrolera_zh-hk',
-        'smart_translation_Masr_zh-hk'
+        'smart_translation_Alianza Petrolera_zh',
+        'smart_translation_Alianza Petrolera_zh-tw',
+        'smart_translation_Masr_zh-hk',
+        'smart_translation_Masr_zh',
+        'smart_translation_Masr_zh-tw',
+        // Additional problematic entries
+        'smart_translation_Grosseto_zh-hk',
+        'smart_translation_Nublense_zh-hk',
+        'smart_translation_Lumezzane_zh-hk',
+        'smart_translation_Mantova_zh-hk',
+        'smart_translation_Sibenik_zh-hk',
+        'smart_translation_Vodice_zh-hk',
       ];
       
+      let removedCount = 0;
       corruptedKeys.forEach(key => {
-        localStorage.removeItem(key);
+        if (localStorage.getItem(key)) {
+          localStorage.removeItem(key);
+          removedCount++;
+        }
       });
       
-      console.log('🔄 [MyNewLeague2] Translation cache cleared and corrupted entries removed');
+      console.log(`🔄 [MyNewLeague2] Translation cache cleared and ${removedCount} corrupted entries removed`);
+      
+      // Auto-fix known translation issues
+      const fixedIssues = TranslationCacheFixer.fixAllIssues();
+      if (fixedIssues > 0) {
+        console.log(`🔧 [MyNewLeague2] Auto-fixed ${fixedIssues} translation issues`);
+      }
+      
+      // Force the smart translation system to reinitialize
+      if (typeof window !== 'undefined') {
+        (window as any).forceTranslationReload = () => {
+          smartTeamTranslation.clearCache();
+          smartTeamTranslation.fixCorruptedCache();
+          TranslationCacheFixer.fixAllIssues();
+          window.location.reload();
+        };
+        
+        // Make translation debugging tools available
+        (window as any).debugTranslations = {
+          verify: TranslationCacheFixer.verifyTeamTranslation,
+          bulkVerify: TranslationCacheFixer.bulkVerifyTeams,
+          clearCache: TranslationCacheFixer.clearTeamCache,
+          fixAll: TranslationCacheFixer.fixAllIssues,
+          emergencyReset: TranslationCacheFixer.emergencyReset
+        };
+      }
+      
     } catch (error) {
       console.warn('Failed to clear translation cache:', error);
     }
