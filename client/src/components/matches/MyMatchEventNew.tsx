@@ -666,10 +666,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 </div>
               </div>
             )}
-        </div>
+          </div>
 
-        {/* Center - Time */}
-        <div className={`relative z-10 flex items-center justify-center w-12 h-12 border-2 rounded-full ${isDarkTheme ? "bg-gray-700 border-gray-500" : "bg-white border-gray-300"}`}>
+          {/* Center - Time */}
+          <div className={`relative z-10 flex items-center justify-center w-12 h-12 border-2 rounded-full ${isDarkTheme ? "bg-gray-700 border-gray-500" : "bg-white border-gray-300"}`}>
           <span className={`text-xs font-bold ${isDarkTheme ? "text-gray-100" : "text-gray-700"}`}>
             {formatTime(event.time.elapsed, event.time.extra)}
           </span>
