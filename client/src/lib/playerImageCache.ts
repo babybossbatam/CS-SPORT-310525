@@ -64,71 +64,57 @@ class PlayerImageCache {
     console.log(`💾 [PlayerImageCache] Cached image for player: ${playerName} (${playerId}) | Source: ${source}`);
   }
 
-  // Optimized image loading with parallel requests and faster validation
-  async getPlayerImageWithFallback(playerId?: number, playerName?: string, teamId?: number, forceRefresh: boolean = false): Promise<string> {
-    // Check cache first (unless force refresh)
-    if (!forceRefresh) {
-      const cached = this.getCachedImage(playerId, playerName);
-      if (cached && cached.verified) {
-        console.log(`⚡ [PlayerImageCache] Cache hit: ${playerName}`);
-        return cached.url;
-      }
+  // Simple image loading with 3 reliable sources only
+  async getPlayerImageWithFallback(playerId?: number, playerName?: string, teamId?: number): Promise<string> {
+    // Check cache first
+    const cached = this.getCachedImage(playerId, playerName);
+    if (cached && cached.verified) {
+      console.log(`✅ [PlayerImageCache] Using cached image: ${playerName}`);
+      return cached.url;
     }
 
     console.log(`🔍 [PlayerImageCache] Loading fresh image for: ${playerName} (${playerId})`);
 
-    // Create all image source promises simultaneously
-    const imagePromises: Promise<{ url: string; source: CachedPlayerImage['source']; priority: number } | null>[] = [];
-
-    // Source 1: Backend name-based search (highest priority)
+    // Source 1: Our backend name-based search (most reliable)
     if (playerName) {
-      const nameBasedPromise = this.tryImageSource(
-        `/api/player-photo-by-name?name=${encodeURIComponent(playerName)}`,
-        'api',
-        1,
-        2000 // 2 second timeout
-      );
-      imagePromises.push(nameBasedPromise);
-    }
-
-    // Source 2: API-Sports.io (medium priority)
-    if (playerId) {
-      const apiSportsPromise = this.tryImageSource(
-        `https://media.api-sports.io/football/players/${playerId}.png`,
-        'api',
-        2,
-        1500 // 1.5 second timeout
-      );
-      imagePromises.push(apiSportsPromise);
-    }
-
-    // Source 3: 365Scores CDN (lower priority)
-    if (playerId) {
-      const cdnPromise = this.tryImageSource(
-        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`,
-        'api',
-        3,
-        1000 // 1 second timeout
-      );
-      imagePromises.push(cdnPromise);
-    }
-
-    try {
-      // Wait for all promises to settle and get first successful result
-      const results = await Promise.allSettled(imagePromises);
-      const validResults = results
-        .map(result => result.status === 'fulfilled' ? result.value : null)
-        .filter(result => result !== null)
-        .sort((a, b) => a!.priority - b!.priority);
-
-      if (validResults.length > 0) {
-        const bestResult = validResults[0]!;
-        this.setCachedImage(playerId, playerName, bestResult.url, bestResult.source);
-        console.log(`✅ [PlayerImageCache] Found image via parallel loading: ${bestResult.url}`);
-        return bestResult.url;
+      try {
+        const nameBasedUrl = `/api/player-photo-by-name?name=${encodeURIComponent(playerName)}`;
+        const isValid = await this.validateImageUrl(nameBasedUrl);
+        if (isValid) {
+          this.setCachedImage(playerId, playerName, nameBasedUrl, 'api');
+          return nameBasedUrl;
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerImageCache] Name-based search failed for ${playerName}`);
       }
-    } catch (error) {
-      console.log(`⚠️ [PlayerImageCache] Parallel loading failed: ${error}`);
+    }
+
+    // Source 2: API-Sports.io (if ID available)
+    if (playerId) {
+      try {
+        const apiSportsUrl = `https://media.api-sports.io/football/players/${playerId}.png`;
+        const isValid = await this.validateImageUrl(apiSportsUrl);
+        if (isValid) {
+          this.setCachedImage(playerId, playerName, apiSportsUrl, 'api');
+          return apiSportsUrl;
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerImageCache] API-Sports failed for ${playerName}`);
+      }
+    }
+
+    // Source 3: 365Scores CDN (if ID available)
+    if (playerId) {
+      try {
+        const cdnUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`;
+        const isValid = await this.validateImageUrl(cdnUrl);
+        if (isValid) {
+          this.setCachedImage(playerId, playerName, cdnUrl, 'api');
+          return cdnUrl;
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerImageCache] 365Scores CDN failed for ${playerName}`);
+      }
     }
 
     // Final: Generate initials fallback
@@ -138,70 +124,6 @@ class PlayerImageCache {
     this.setCachedImage(playerId, playerName, fallbackUrl, 'initials');
     console.log(`🎨 [PlayerImageCache] Using initials fallback for ${playerName}: ${fallbackUrl}`);
     return fallbackUrl;
-  }
-
-  // Helper method for trying image sources with timeout
-  private async tryImageSource(
-    url: string, 
-    source: CachedPlayerImage['source'], 
-    priority: number, 
-    timeout: number
-  ): Promise<{ url: string; source: CachedPlayerImage['source']; priority: number } | null> {
-    try {
-      const isValid = await this.validateImageUrlFast(url, timeout);
-      if (isValid) {
-        return { url, source, priority };
-      }
-    } catch (error) {
-      // Silently fail and return null
-    }
-    return null;
-  }
-
-  // Faster image validation with shorter timeouts
-  private async validateImageUrlFast(url: string, timeout: number = 1000): Promise<boolean> {
-    try {
-      // For local API endpoints, use fetch with shorter timeout
-      if (url.startsWith('/api/')) {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), timeout);
-        
-        try {
-          const response = await fetch(url, { 
-            method: 'HEAD',
-            signal: controller.signal
-          });
-          clearTimeout(timeoutId);
-          return response.ok;
-        } catch {
-          clearTimeout(timeoutId);
-          return false;
-        }
-      }
-
-      // For external URLs, use Image object with shorter timeout
-      return new Promise((resolve) => {
-        const img = new Image();
-        const timeoutId = setTimeout(() => {
-          img.onload = img.onerror = null;
-          resolve(false);
-        }, timeout);
-
-        img.onload = () => {
-          clearTimeout(timeoutId);
-          resolve(true);
-        };
-
-        img.onerror = () => {
-          clearTimeout(timeoutId);
-          resolve(false);
-        };
-
-        img.src = url;
-      });
-    } catch (error) {
-      return false;
-    }
   }
 
   private generateInitials(playerName?: string): string {
@@ -318,20 +240,7 @@ export const getPlayerImageFunc = async (playerId?: number, playerName?: string,
 };
 
 export const preloadPlayerImagesFunc = async (players: Array<{ id?: number; name?: string }>): Promise<void> => {
-    // Batch preload player images for better performance
-    const preloadPromises = players.slice(0, 22).map(async (player) => {
-      try {
-        await playerImageCache.getPlayerImageWithFallback(player.id, player.name);
-      } catch (error) {
-        // Silently fail individual preloads
-      }
-    });
-    
-    // Wait for first 11 players (likely starters) with priority
-    await Promise.allSettled(preloadPromises.slice(0, 11));
-    
-    // Continue loading remaining players in background
-    Promise.allSettled(preloadPromises.slice(11));
+    return playerImageCache.preloadPlayerImages(players);
 };
 
 export const clearPlayerImageCacheFunc = (): void => {
