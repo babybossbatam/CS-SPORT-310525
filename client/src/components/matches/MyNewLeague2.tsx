@@ -1107,11 +1107,29 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               (window as any).generateMappingForLeagues = (leagueIds: number[]) => 
                 smartTeamTranslation.generateMappingForLeagues(leagueIds);
               
+              (window as any).fixTranslationCache = () => {
+                smartTeamTranslation.fixCorruptedCache();
+                smartTeamTranslation.clearCache();
+                window.location.reload();
+              };
+              
+              (window as any).debugTeamTranslations = (teams: string[]) => {
+                teams.forEach(team => {
+                  const zhHk = smartTeamTranslation.translateTeamName(team, 'zh-hk');
+                  const zh = smartTeamTranslation.translateTeamName(team, 'zh');
+                  console.log(`🔍 ${team}:`);
+                  console.log(`   zh-hk: ${zhHk}`);
+                  console.log(`   zh: ${zh}`);
+                });
+              };
+              
               console.log(`🛠️ [Developer Tools Available]:`);
               console.log(`   • generateCompleteTeamMappingForMyNewLeague2() - Current date mapping`);
               console.log(`   • generateAllTeamMappings() - Complete season mapping (recommended!)`);
               console.log(`   • generateSeasonWideTeamMapping() - Same as above`);
               console.log(`   • generateMappingForLeagues([38, 15, 2]) - Custom league mapping`);
+              console.log(`   • fixTranslationCache() - Fix corrupted translations and reload`);
+              console.log(`   • debugTeamTranslations(['AEL', 'Deportivo Cali']) - Debug specific teams`);
             }
 
           } catch (error) {
