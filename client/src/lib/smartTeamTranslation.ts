@@ -18,6 +18,7 @@ class SmartTeamTranslation {
   constructor() {
     // Clear cache on initialization to ensure updated translations are used
     this.clearCache();
+    this.fixCorruptedCache();
     console.log('🔄 [SmartTranslation] Initialized with cache cleared for fresh translations');
   }
 
@@ -2158,6 +2159,23 @@ class SmartTeamTranslation {
     this.teamCache.clear();
     this.leagueTeamsCache = {};
     console.log('🧹 [SmartTranslation] Cache cleared');
+  }
+
+  // Force refresh cache for specific problematic teams
+  fixCorruptedCache(): void {
+    const corruptedTeams = [
+      'AEL', 'Deportivo Cali', 'Alianza Petrolera', 'Masr', 'Valencia U21'
+    ];
+    
+    corruptedTeams.forEach(teamName => {
+      // Remove all cached entries for this team across all languages
+      ['zh', 'zh-hk', 'zh-tw', 'es', 'de', 'it', 'pt'].forEach(lang => {
+        const cacheKey = `${teamName.toLowerCase()}_${lang}`;
+        this.teamCache.delete(cacheKey);
+      });
+    });
+    
+    console.log('🔧 [SmartTranslation] Fixed corrupted cache entries for problematic teams');
   }
 
   // Get cache stats
