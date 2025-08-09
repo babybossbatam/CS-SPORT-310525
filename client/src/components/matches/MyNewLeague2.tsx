@@ -2301,13 +2301,31 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   // Try smart translation first
                                   let translatedName = smartTeamTranslation.translateTeamName(originalName, currentLanguage, fixture.league);
 
-                                  // If smart translation failed, try direct name cleanup for common patterns
+                                  // If smart translation failed, try enhanced fallback translations
                                   if (translatedName === originalName && currentLanguage.startsWith('zh')) {
                                     // Handle specific team name patterns for better translation
                                     const cleanName = originalName.trim();
 
-                                    // Add fallback translations for teams that might not be in the smart translation
+                                    // Enhanced fallback translations for teams missing from smart translation
                                     const fallbackTranslations: { [key: string]: string } = {
+                                      // Spanish teams
+                                      'Celta Vigo': '切爾塔維戈',
+                                      'Granada CF': '格拉納達',
+                                      'Alcorcon': '阿爾科爾孔',
+                                      'Espanyol': '愛斯賓奴',
+                                      'Mallorca': '馬洛卡',
+                                      
+                                      // International teams
+                                      'Al Ain': '艾恩',
+                                      'Bergantinos': '貝爾甘蒂諾斯',
+                                      'Cacereño': '卡塞雷諾',
+                                      'Le Havre': '勒阿弗爾',
+                                      'Europa Fc': '歐羅巴',
+                                      'Guadalajara Chivas': '瓜達拉哈拉芝華士',
+                                      'Hamburger SV': '漢堡',
+                                      'Ham堡er SV': '漢堡',
+                                      
+                                      // Other European teams
                                       'FK Partizan': '贝尔格莱德游击队',
                                       'Hibernian': '希伯尼安',
                                       'HNK Hajduk Split': '哈伊杜克',
@@ -2351,7 +2369,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       'Sabah FK': '沙巴足协',
                                       'Olimpija Ljubljana': '卢布尔雅那奥林匹亚',
                                       'Egnatia Rrogozhinë': '罗戈日纳埃格纳蒂亚',
-                                      // Additional teams from the image
                                       'FC Differdange 03': '迪费当热03',
                                       'FC Levadia Tallinn': '塔林莱瓦迪亚',
                                       'Polessya': '波利西亚',
@@ -2380,8 +2397,26 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       'FK Haugesund': '豪格松德'
                                     };
 
+                                    // Check for exact match first
                                     if (fallbackTranslations[cleanName]) {
                                       translatedName = fallbackTranslations[cleanName];
+                                    } else {
+                                      // Try matching without common suffixes/prefixes
+                                      const teamNameVariations = [
+                                        cleanName.replace(/^FC\s+/i, '').replace(/\s+FC$/i, ''),
+                                        cleanName.replace(/^CF\s+/i, '').replace(/\s+CF$/i, ''),
+                                        cleanName.replace(/^AC\s+/i, '').replace(/\s+AC$/i, ''),
+                                        cleanName.replace(/^SC\s+/i, '').replace(/\s+SC$/i, ''),
+                                        cleanName.replace(/^FK\s+/i, '').replace(/\s+FK$/i, ''),
+                                        cleanName.replace(/^SV\s+/i, '').replace(/\s+SV$/i, '')
+                                      ];
+
+                                      for (const variation of teamNameVariations) {
+                                        if (fallbackTranslations[variation] || fallbackTranslations[variation.trim()]) {
+                                          translatedName = fallbackTranslations[variation] || fallbackTranslations[variation.trim()];
+                                          break;
+                                        }
+                                      }
                                     }
                                   }
 
@@ -2674,13 +2709,31 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   // Try smart translation first
                                   let translatedName = smartTeamTranslation.translateTeamName(originalName, currentLanguage, fixture.league);
 
-                                  // If smart translation failed, try direct name cleanup for common patterns
+                                  // If smart translation failed, try enhanced fallback translations
                                   if (translatedName === originalName && currentLanguage.startsWith('zh')) {
                                     // Handle specific team name patterns for better translation
                                     const cleanName = originalName.trim();
 
-                                    // Add fallback translations for teams that might not be in the smart translation
+                                    // Enhanced fallback translations for teams missing from smart translation
                                     const fallbackTranslations: { [key: string]: string } = {
+                                      // Spanish teams
+                                      'Celta Vigo': '切爾塔維戈',
+                                      'Granada CF': '格拉納達',
+                                      'Alcorcon': '阿爾科爾孔',
+                                      'Espanyol': '愛斯賓奴',
+                                      'Mallorca': '馬洛卡',
+                                      
+                                      // International teams
+                                      'Al Ain': '艾恩',
+                                      'Bergantinos': '貝爾甘蒂諾斯',
+                                      'Cacereño': '卡塞雷諾',
+                                      'Le Havre': '勒阿弗爾',
+                                      'Europa Fc': '歐羅巴',
+                                      'Guadalajara Chivas': '瓜達拉哈拉芝華士',
+                                      'Hamburger SV': '漢堡',
+                                      'Ham堡er SV': '漢堡',
+                                      
+                                      // Other European teams
                                       'FK Partizan': '贝尔格莱德游击队',
                                       'Hibernian': '希伯尼安',
                                       'HNK Hajduk Split': '哈伊杜克',
@@ -2724,7 +2777,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       'Sabah FK': '沙巴足协',
                                       'Olimpija Ljubljana': '卢布尔雅那奥林匹亚',
                                       'Egnatia Rrogozhinë': '罗戈日纳埃格纳蒂亚',
-                                      // Additional teams from the image
                                       'FC Differdange 03': '迪费当热03',
                                       'FC Levadia Tallinn': '塔林莱瓦迪亚',
                                       'Polessya': '波利西亚',
@@ -2753,8 +2805,26 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       'FK Haugesund': '豪格松德'
                                     };
 
+                                    // Check for exact match first
                                     if (fallbackTranslations[cleanName]) {
                                       translatedName = fallbackTranslations[cleanName];
+                                    } else {
+                                      // Try matching without common suffixes/prefixes
+                                      const teamNameVariations = [
+                                        cleanName.replace(/^FC\s+/i, '').replace(/\s+FC$/i, ''),
+                                        cleanName.replace(/^CF\s+/i, '').replace(/\s+CF$/i, ''),
+                                        cleanName.replace(/^AC\s+/i, '').replace(/\s+AC$/i, ''),
+                                        cleanName.replace(/^SC\s+/i, '').replace(/\s+SC$/i, ''),
+                                        cleanName.replace(/^FK\s+/i, '').replace(/\s+FK$/i, ''),
+                                        cleanName.replace(/^SV\s+/i, '').replace(/\s+SV$/i, '')
+                                      ];
+
+                                      for (const variation of teamNameVariations) {
+                                        if (fallbackTranslations[variation] || fallbackTranslations[variation.trim()]) {
+                                          translatedName = fallbackTranslations[variation] || fallbackTranslations[variation.trim()];
+                                          break;
+                                        }
+                                      }
                                     }
                                   }
 
