@@ -2644,6 +2644,53 @@ class SmartTeamTranslation {
     }
   }
 
+  // Enhanced fallback for common team patterns
+  private getEnhancedFallback(teamName: string, language: string): string | null {
+    if (!teamName || !language) return null;
+
+    // Enhanced pattern matching for team names
+    const enhancedPatterns: Record<string, Record<string, string>> = {
+      // Add pattern-based translations here
+      'FC': {
+        'zh': '足球俱乐部', 'zh-hk': '足球會', 'zh-tw': '足球俱樂部',
+        'es': 'FC', 'de': 'FC', 'it': 'FC', 'pt': 'FC'
+      },
+      'United': {
+        'zh': '联合', 'zh-hk': '聯合', 'zh-tw': '聯合',
+        'es': 'United', 'de': 'United', 'it': 'United', 'pt': 'United'
+      },
+      'City': {
+        'zh': '城', 'zh-hk': '城', 'zh-tw': '城',
+        'es': 'City', 'de': 'City', 'it': 'City', 'pt': 'City'
+      }
+    };
+
+    // Try pattern-based matching
+    for (const [pattern, translations] of Object.entries(enhancedPatterns)) {
+      if (teamName.toLowerCase().includes(pattern.toLowerCase())) {
+        const translation = translations[language as keyof typeof translations];
+        if (translation && translation !== pattern) {
+          return teamName.replace(new RegExp(pattern, 'gi'), translation);
+        }
+      }
+    }
+
+    // Try removing common prefixes/suffixes and check again
+    const cleanedName = teamName
+      .replace(/^(FC|CF|AC|AS|Real|Club|CD|SD|AD|FK|NK|KF|PFC|SC)\s+/i, '')
+      .replace(/\s+(FC|CF|AC|AS|United|City|CF|SC|II|2|B|LP)$/i, '')
+      .trim();
+
+    if (cleanedName !== teamName && cleanedName.length > 2) {
+      const cleanTranslation = this.getPopularTeamTranslation(cleanedName, language);
+      if (cleanTranslation && cleanTranslation !== cleanedName) {
+        return cleanTranslation;
+      }
+    }
+
+    return null;
+  }
+
   // Helper method to get translation for a team name
   private getTranslationForTeam(teamName: string, language: string): string | null {
     // Check popular league teams first
