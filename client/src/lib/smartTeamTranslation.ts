@@ -1030,7 +1030,7 @@ class SmartTeamTranslation {
       'es': 'Córdoba', 'de': 'Córdoba', 'it': 'Córdoba', 'pt': 'Córdoba'
     },
 
-    // Spanish Segunda División and lower teams
+    // Spanish lower division teams
     'Elche': {
       'zh': '埃尔切', 'zh-hk': '埃爾切', 'zh-tw': '埃爾切',
       'es': 'Elche', 'de': 'Elche', 'it': 'Elche', 'pt': 'Elche'
@@ -2562,55 +2562,20 @@ class SmartTeamTranslation {
   // Fix corrupted cache entries
   fixCorruptedCache(): void {
     try {
-      const corruptedEntries = [
-        'AEL_zh-hk',
-        'Deportivo Cali_zh-hk',
-        'Alianza Petrolera_zh-hk',
-        'Masr_zh-hk'
-      ];
-
-      corruptedEntries.forEach(entry => {
-        const [team, lang] = entry.split('_');
-        const cacheKey = `${team}_${lang}`;
-        const cached = this.teamCache.get(cacheKey);
-        if (cached) {
-          this.teamCache.delete(cacheKey);
-          console.log(`🔧 [SmartTranslation] Fixed corrupted cache entry: ${team} (${lang})`);
-        }
-      });
-
-      // Also clear localStorage for these corrupted entries
-      const localStorageKeys = [
+      const corruptedKeys = [
         'smart_translation_AEL_zh-hk',
         'smart_translation_Deportivo Cali_zh-hk',
         'smart_translation_Alianza Petrolera_zh-hk',
         'smart_translation_Masr_zh-hk'
       ];
 
-      localStorageKeys.forEach(key => {
+      corruptedKeys.forEach(key => {
         localStorage.removeItem(key);
       });
 
+      console.log('🔧 [SmartTranslation] Fixed corrupted cache entries');
     } catch (error) {
-      console.warn('Error fixing corrupted cache:', error);
-    }
-  }
-
-  // Force refresh specific team translations
-  forceRefreshTranslations(teams: string[], language: string = 'zh-hk'): void {
-    teams.forEach(team => {
-      const cacheKey = `${team}_${language}`;
-      this.teamCache.delete(cacheKey);
-      localStorage.removeItem(`smart_translation_${team}_${language}`);
-      console.log(`🔄 [SmartTranslation] Force refreshed: ${team}`);
-    });
-  }
-
-  // Cache and store league teams for future use
-  cacheLeagueTeams(leagueId: number, teams: any[]): void {
-    if (teams && teams.length > 0) {
-      this.leagueTeamsCache[leagueId] = teams;
-      console.log(`💾 [SmartTranslation] Cached ${teams.length} teams for league ${leagueId}`);
+      console.warn('Failed to fix corrupted cache:', error);
     }
   }
 
@@ -2659,6 +2624,42 @@ class SmartTeamTranslation {
 
     console.log('📋 Generated team mappings from fixtures:', output);
     return output;
+  }
+
+  // Force refresh specific team translations
+  forceRefreshTranslations(teams: string[], language: string = 'zh-hk'): void {
+    teams.forEach(team => {
+      const cacheKey = `${team}_${language}`;
+      this.teamCache.delete(cacheKey);
+      localStorage.removeItem(`smart_translation_${team}_${language}`);
+      console.log(`🔄 [SmartTranslation] Force refreshed: ${team}`);
+    });
+  }
+
+  // Cache and store league teams for future use
+  cacheLeagueTeams(leagueId: number, teams: any[]): void {
+    if (teams && teams.length > 0) {
+      this.leagueTeamsCache[leagueId] = teams;
+      console.log(`💾 [SmartTranslation] Cached ${teams.length} teams for league ${leagueId}`);
+    }
+  }
+
+  // Helper method to get translation for a team name
+  private getTranslationForTeam(teamName: string, language: string): string | null {
+    // Check popular league teams first
+    const teamTranslations = this.popularLeagueTeams[teamName];
+    if (teamTranslations && teamTranslations[language as keyof typeof teamTranslations]) {
+      return teamTranslations[language as keyof typeof teamTranslations];
+    }
+
+    // Check cache
+    const cacheKey = `smart_translation_${teamName}_${language}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    return null;
   }
 }
 
