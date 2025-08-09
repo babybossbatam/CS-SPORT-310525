@@ -1576,6 +1576,7 @@ class SmartTeamTranslation {
     // Saudi Arabian teams
 
 
+
     // Spanish lower division teams
 
 
@@ -2430,106 +2431,48 @@ class SmartTeamTranslation {
     console.log('🧹 [SmartTranslation] Cache cleared');
   }
 
-  // Auto-fix incorrect mappings and learn correct ones
+  // Validate and fix known incorrect mappings
   private validateAndFixIncorrectMappings(): void {
-    const correctMappings = [
-      { original: 'Deportivo Cali', correct: '卡利体育', wrongTranslation: '帕斯托體育' },
-      { original: 'AEL', correct: 'AEL利马索尔', wrongTranslation: 'Israel' },
-      { original: 'Masr', correct: '埃及', wrongTranslation: 'AL Masry' },
-      { original: 'Alianza Petrolera', correct: '石油联盟', wrongTranslation: 'Alianza Lima' }
+    const incorrectMappings = [
+      'AEL_zh-hk',
+      'Deportivo Cali_zh-hk',
+      'Alianza Petrolera_zh-hk',
+      'Masr_zh-hk',
+      'ASA_zh-hk', // Fix: ASA should not be Istanbul Basaksehir
+      'Santa Cruz_zh-hk', // Fix: Santa Cruz should not be Cruz Azul (different teams)
+      'Água Santa_zh-hk', // Fix: Should not be Santa Clara
+      'Ferroviario_zh-hk', // Fix: Should not be Operario Ferroviario
+      'Atletico Tucuman_zh-hk', // Fix: Should not be Atletico Madrid
+      'Belgrano Cordoba_zh-hk', // Fix: Should not be Talleres Cordoba
+      'Rosario Central_zh-hk', // Fix: Should not be Central Cordoba
+      'Union La Calera_zh-hk', // Fix: Should not be Union Magdalena
+      'Union Espanola_zh-hk', // Fix: Should not be Union Magdalena
+      'Sarmiento Junin_zh-hk', // Fix: Should not be Sarmiento de La Banda
+      'San Martin S.J._zh-hk', // Fix: Should not be St. Martin i.M.
+      'Dynamo_zh-hk', // Fix: Should not be Dynamo Kyiv (different teams)
+      'FC Orenburg_zh-hk' // Fix: Should not have incorrect suffix
     ];
 
-    correctMappings.forEach(({ original, correct, wrongTranslation }) => {
-      // Clear wrong cache entries
-      ['zh', 'zh-hk', 'zh-tw'].forEach(lang => {
-        const cacheKey = `${original.toLowerCase()}_${lang}`;
-        if (this.teamCache.get(cacheKey) === wrongTranslation) {
-          this.teamCache.delete(cacheKey);
-          console.log(`🔧 [SmartTranslation] Fixed incorrect mapping: ${original} -> ${wrongTranslation}`);
-        }
-      });
+    incorrectMappings.forEach(key => {
+      this.teamCache.delete(key);
+      // Also clear from localStorage
+      localStorage.removeItem(`smart_translation_${key}`);
+    });
 
-      // Add correct mapping to popular teams
-      if (!this.popularLeagueTeams[original]) {
-        this.popularLeagueTeams[original] = {
-          'zh': correct,
-          'zh-hk': correct,
-          'zh-tw': correct,
-          'es': original,
-          'de': original,
-          'it': original,
-          'pt': original
-        };
-        console.log(`✅ [SmartTranslation] Auto-learned correct translation: ${original} -> ${correct}`);
+    // Fix incorrect entries in popularLeagueTeams
+    const teamNamesToFix = [
+      'ASA', 'Santa Cruz', 'Água Santa', 'Ferroviario', 'Atletico Tucuman',
+      'Belgrano Cordoba', 'Rosario Central', 'Union La Calera', 'Union Espanola',
+      'Sarmiento Junin', 'San Martin S.J.', 'Dynamo', 'FC Orenburg'
+    ];
+
+    teamNamesToFix.forEach(teamName => {
+      if (this.popularLeagueTeams[teamName]) {
+        delete this.popularLeagueTeams[teamName];
       }
     });
-  }
 
-  // Enhanced fallback for common team patterns
-  private getEnhancedFallback(teamName: string, language: string): string | null {
-    if (language !== 'zh' && language !== 'zh-hk' && language !== 'zh-tw') {
-      return null;
-    }
-
-    // Common English team patterns
-    const englishTeamPatterns: Record<string, string> = {
-      'Leeds': '利兹联',
-      'Brentford': '布伦特福德',
-      'Sheffield': '谢菲尔德',
-      'Brighton': '布莱顿',
-      'Burnley': '伯恩利',
-      'Norwich': '诺维奇',
-      'Cardiff': '卡迪夫',
-      'Swansea': '斯旺西'
-    };
-
-    // Italian team patterns
-    const italianTeamPatterns: Record<string, string> = {
-      'Trento': '特伦托',
-      'Ravenna': '拉文纳',
-      'Bari': '巴里',
-      'Lecce': '莱切',
-      'Spezia': '斯佩齐亚',
-      'Empoli': '恩波利',
-      'Sassuolo': '萨索洛'
-    };
-
-    // German team patterns
-    const germanTeamPatterns: Record<string, string> = {
-      'Darmstadt': '达姆施塔特',
-      'Kaiserslautern': '凯泽斯劳滕',
-      'Nuremberg': '纽伦堡',
-      'Greuther': '菲尔特'
-    };
-
-    // Check patterns
-    const allPatterns = { ...englishTeamPatterns, ...italianTeamPatterns, ...germanTeamPatterns };
-
-    for (const [pattern, translation] of Object.entries(allPatterns)) {
-      if (teamName.toLowerCase().includes(pattern.toLowerCase())) {
-        return translation;
-      }
-    }
-
-    return null;
-  }
-
-  // Clear old cache entries when they become too large
-  private fixCorruptedCache(): void {
-    try {
-      if (this.teamCache.size > 1000) {
-        console.warn('🚨 [SmartTranslation] Cache size exceeded 1000 entries, clearing oldest entries');
-        const entries = Array.from(this.teamCache.entries());
-        // Keep only the most recent 500 entries
-        const recentEntries = entries.slice(-500);
-        this.teamCache.clear();
-        recentEntries.forEach(([key, value]) => this.teamCache.set(key, value));
-        console.log(`🧹 [SmartTranslation] Cache reduced to ${this.teamCache.size} entries`);
-      }
-    } catch (error) {
-      console.error('Error fixing corrupted cache:', error);
-      this.teamCache.clear();
-    }
+    console.log('🔧 [SmartTranslation] Fixed known incorrect mappings and cleared corrupted cache');
   }
 
   // Generate comprehensive team mappings for specific leagues
@@ -2620,19 +2563,19 @@ class SmartTeamTranslation {
   fixCorruptedCache(): void {
     try {
       const corruptedEntries = [
-        'AEL_zh-hk_Israel', // AEL should not translate to Israel
-        'Deportivo Cali_zh-hk_帕斯托體育', // Wrong translation
-        'Alianza Petrolera_zh-hk_Alianza Lima', // Wrong team
-        'Masr_zh-hk_AL Masry' // Should be consistent
+        'AEL_zh-hk',
+        'Deportivo Cali_zh-hk',
+        'Alianza Petrolera_zh-hk',
+        'Masr_zh-hk'
       ];
 
       corruptedEntries.forEach(entry => {
-        const [team, lang, wrongTranslation] = entry.split('_');
+        const [team, lang] = entry.split('_');
         const cacheKey = `${team}_${lang}`;
         const cached = this.teamCache.get(cacheKey);
-        if (cached === wrongTranslation) {
+        if (cached) {
           this.teamCache.delete(cacheKey);
-          console.log(`🔧 [SmartTranslation] Fixed corrupted cache: ${team} -> ${wrongTranslation}`);
+          console.log(`🔧 [SmartTranslation] Fixed corrupted cache entry: ${team} (${lang})`);
         }
       });
 
@@ -2661,6 +2604,61 @@ class SmartTeamTranslation {
       localStorage.removeItem(`smart_translation_${team}_${language}`);
       console.log(`🔄 [SmartTranslation] Force refreshed: ${team}`);
     });
+  }
+
+  // Cache and store league teams for future use
+  cacheLeagueTeams(leagueId: number, teams: any[]): void {
+    if (teams && teams.length > 0) {
+      this.leagueTeamsCache[leagueId] = teams;
+      console.log(`💾 [SmartTranslation] Cached ${teams.length} teams for league ${leagueId}`);
+    }
+  }
+
+  // Generate team mappings from current fixture data
+  generateTeamMappingsFromCurrentFixtures(fixtures: any[]): string {
+    const teamsByCountry = new Map<string, Set<string>>();
+    const teamsByLeague = new Map<string, Set<string>>();
+
+    fixtures.forEach(fixture => {
+      if (!fixture?.teams?.home?.name || !fixture?.teams?.away?.name) return;
+
+      const country = fixture.league?.country || 'Unknown';
+      const leagueName = fixture.league?.name || 'Unknown League';
+
+      if (!teamsByCountry.has(country)) {
+        teamsByCountry.set(country, new Set());
+      }
+      if (!teamsByLeague.has(leagueName)) {
+        teamsByLeague.set(leagueName, new Set());
+      }
+
+      teamsByCountry.get(country)!.add(fixture.teams.home.name);
+      teamsByCountry.get(country)!.add(fixture.teams.away.name);
+      teamsByLeague.get(leagueName)!.add(fixture.teams.home.name);
+      teamsByLeague.get(leagueName)!.add(fixture.teams.away.name);
+    });
+
+    let output = '// Auto-generated team mappings from current fixtures\n\n';
+
+    // Group by country
+    Array.from(teamsByCountry.entries()).forEach(([country, teams]) => {
+      if (teams.size > 0) {
+        output += `// ${country} Teams (${teams.size} teams)\n`;
+        Array.from(teams).sort().forEach(teamName => {
+          const existing = this.getPopularTeamTranslation(teamName, 'zh-hk');
+          if (!existing || existing === teamName) {
+            output += `'${teamName}': {\n`;
+            output += `  'zh': '${teamName}', 'zh-hk': '${teamName}', 'zh-tw': '${teamName}',\n`;
+            output += `  'es': '${teamName}', 'de': '${teamName}', 'it': '${teamName}', 'pt': '${teamName}'\n`;
+            output += `},\n`;
+          }
+        });
+        output += '\n';
+      }
+    });
+
+    console.log('📋 Generated team mappings from fixtures:', output);
+    return output;
   }
 }
 

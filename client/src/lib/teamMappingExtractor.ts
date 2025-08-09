@@ -204,12 +204,74 @@ class TeamMappingExtractor {
    * Get teams missing from smart translation
    */
   getMissingTranslations(currentLanguage: string): string[] {
-    // Import smart translation to check existing mappings
-    // This would need to be implemented based on your smart translation system
+    const allTeams = this.getAllTeamsSortedByFrequency();
+    const missingTeams: string[] = [];
+    
+    // Check which teams need translations
+    allTeams.forEach(team => {
+      // This would integrate with your smart translation system
+      // For now, we'll assume teams that are not translated are missing
+      const teamName = team.name;
+      
+      // Skip teams that are too short or likely acronyms
+      if (teamName.length <= 3 && /^[A-Z]+$/.test(teamName)) {
+        return;
+      }
+      
+      // Add to missing if no proper translation exists
+      missingTeams.push(teamName);
+    });
+    
+    return missingTeams;
+  }
+
+  /**
+   * Generate translation suggestions based on team frequency and league context
+   */
+  generateTranslationSuggestions(): Array<{
+    teamName: string;
+    frequency: number;
+    leagueName: string;
+    country: string;
+    suggestedTranslation: string;
+  }> {
     const allTeams = this.getAllTeamsSortedByFrequency();
     
-    // For now, return all team names for manual checking
-    return allTeams.map(team => team.name);
+    return allTeams.map(team => ({
+      teamName: team.name,
+      frequency: team.frequency,
+      leagueName: team.leagueName,
+      country: this.getCountryFromLeagueName(team.leagueName),
+      suggestedTranslation: this.generateSmartTranslationSuggestion(team.name, team.leagueName)
+    }));
+  }
+
+  private getCountryFromLeagueName(leagueName: string): string {
+    const lowerName = leagueName.toLowerCase();
+    
+    if (lowerName.includes('brazil') || lowerName.includes('serie a') || lowerName.includes('serie b')) {
+      return 'Brazil';
+    }
+    if (lowerName.includes('argentina') || lowerName.includes('primera division')) {
+      return 'Argentina';
+    }
+    if (lowerName.includes('premier league') && lowerName.includes('egypt')) {
+      return 'Egypt';
+    }
+    if (lowerName.includes('segunda division')) {
+      return 'Spain';
+    }
+    if (lowerName.includes('liga mx') || lowerName.includes('expansion mx')) {
+      return 'Mexico';
+    }
+    
+    return 'Unknown';
+  }
+
+  private generateSmartTranslationSuggestion(teamName: string, leagueName: string): string {
+    // This could integrate with your existing translation logic
+    // For now, return the original name as a placeholder
+    return teamName;
   }
 }
 
