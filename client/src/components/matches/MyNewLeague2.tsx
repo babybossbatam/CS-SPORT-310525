@@ -245,25 +245,34 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       console.warn('🚨 [MyNewLeague2] localStorage quota exceeded, emergency cleanup...');
 
       try {
-        // Emergency cleanup - remove ALL cache entries to free up space
+        // More conservative cleanup - only remove old cache entries
         const keysToRemove: string[] = [];
+        const now = Date.now();
+        const maxAge = 2 * 60 * 60 * 1000; // 2 hours
 
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
           if (key && (
             key.startsWith('ended_matches_') ||
             key.startsWith('league-fixtures-') ||
-            key.startsWith('featured-match-') ||
-            key.startsWith('popular_') ||
-            key.includes('cache') ||
-            key.includes('logo') ||
-            key.includes('flag')
+            key.startsWith('featured-match-')
           )) {
-            keysToRemove.push(key);
+            try {
+              const cached = localStorage.getItem(key);
+              if (cached) {
+                const parsedCache = JSON.parse(cached);
+                const timestamp = parsedCache.timestamp || parsedCache.t || 0;
+                if (now - timestamp > maxAge) {
+                  keysToRemove.push(key);
+                }
+              }
+            } catch (e) {
+              keysToRemove.push(key); // Remove corrupted entries
+            }
           }
         }
 
-        // Remove all cache entries in emergency
+        // Remove only old cache entries
         keysToRemove.forEach(key => {
           try {
             localStorage.removeItem(key);
@@ -272,7 +281,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           }
         });
 
-        console.log(`🧹 [MyNewLeague2] Emergency cleanup: removed ${keysToRemove.length} cache entries`);
+        console.log(`🧹 [MyNewLeague2] Emergency cleanup: removed ${keysToRemove.length} old cache entries`);
 
         // Try to set test again after cleanup
         try {
@@ -1407,8 +1416,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   const cachedData = queryClient.getQueryData(["myNewLeague2", "allFixtures", selectedDate]);
   const hasCachedData = cachedData && Array.isArray(cachedData) && cachedData.length > 0;
 
-  // Only show loading spinner if we have no cached data AND no processed fixtures
-  if (isLoading && Object.keys(fixturesByLeague).length === 0 && !hasCachedData) {
+  // Show loading with better error handling
+  if ((isLoading || isFetching) && Object.keys(fixturesByLeague).length === 0 && !hasCachedData) {
     return (
       <>
         {/* Header Section */}
@@ -1494,40 +1503,62 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     );
   }
 
-  if (error) {
+  if (error && !hasCachedData && Object.keys(fixturesByLeague).length === 0) {
     const isRateLimit =
       error.message?.toLowerCase().includes("429") ||
       error.message?.toLowerCase().includes("rate limit") ||
       error.message?.toLowerCase().includes("too many requests");
 
+    const isNetworkError = 
+      error.message?.toLowerCase().includes("fetch") ||
+      error.message?.toLowerCase().includes("network");
+
     return (
-      <Card className="mb-4">
-        <CardContent className="p-4">
-          <div className="text-center">
-            <div className={isRateLimit ? "text-orange-500" : "text-red-500"}>
-              {isRateLimit
-                ? "⚠️ API Rate Limit Reached"
-                : "❌ Error loading leagues"}
-            </div>
-            <div className="text-xs mt-2 text-gray-600">
-              {isRateLimit
-                ? "Too many requests to the API. Please wait a moment and the data will refresh automatically."
-                : error.message}
-            </div>
-            {isRateLimit && (
-              <div className="text-xs mt-1 text-blue-600">
-                Using cached data where available...
-              </div>
-            )}
+      <>
+        {/* Header Section */}
+        <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
+          <div className="flex justify-between items-center w-full">
+            <span className="text-sm font-semibold">
+              {t('popular_football_leagues')}
+            </span>
           </div>
-        </CardContent>
-      </Card>
+        </CardHeader>
+
+        <Card className="mb-4">
+          <CardContent className="p-4">
+            <div className="text-center">
+              <div className={isRateLimit ? "text-orange-500" : isNetworkError ? "text-blue-500" : "text-red-500"}>
+                {isRateLimit
+                  ? "⚠️ API Rate Limit Reached"
+                  : isNetworkError
+                    ? "🌐 Connection Issue"
+                    : "❌ Error loading leagues"}
+              </div>
+              <div className="text-xs mt-2 text-gray-600">
+                {isRateLimit
+                  ? "Too many requests to the API. Please wait a moment and the data will refresh automatically."
+                  : isNetworkError
+                    ? "Unable to connect to the server. Please check your internet connection."
+                    : "There was an issue loading the match data. Please try again later."}
+              </div>
+              <div className="text-xs mt-2 text-gray-500">
+                Error: {error.message || "Unknown error"}
+              </div>
+              {(isRateLimit || isNetworkError) && (
+                <div className="text-xs mt-1 text-blue-600">
+                  The page will automatically retry in a moment...
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </>
     );
   }
 
   const leagueEntries = Object.entries(fixturesByLeague);
 
-  if (leagueEntries.length === 0) {
+  if (leagueEntries.length === 0 && !isLoading && !isFetching) {
     return (
       <>
         {/* Header Section */}
@@ -1542,13 +1573,18 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         <Card className="mb-4">
           <CardContent className="p-4">
             <div className="text-center text-gray-500">
-              <div>No matches found</div>
-              <div className="text-xs mt-2">
-                Searched {leagueIds.length} leagues: {leagueIds.join(", ")}
+              <div className="mb-2">📅 No matches found for {selectedDate}</div>
+              <div className="text-xs mt-2 text-gray-400">
+                Searched {leagueIds.length} popular leagues
               </div>
-              <div className="text-xs mt-1">
-                Raw fixtures count: {allFixtures?.length || 0}
+              <div className="text-xs mt-1 text-gray-400">
+                Total fixtures available: {allFixtures?.length || 0}
               </div>
+              {allFixtures && allFixtures.length > 0 && (
+                <div className="text-xs mt-2 text-blue-600">
+                  Fixtures found but filtered for different dates
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
