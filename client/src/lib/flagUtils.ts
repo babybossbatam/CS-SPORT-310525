@@ -380,17 +380,11 @@ function safeStorageWrite(key: string, value: string): boolean {
     
     if (available < requiredSpace) {
       console.warn('⚠️ Insufficient storage space, attempting cleanup');
-      cleanupExpiredFlags();
       
-      const { available: availableAfterCleanup } = getStorageSize();
-      if (availableAfterCleanup < requiredSpace) {
-        emergencyCleanup();
-        
-        const { available: finalAvailable } = getStorageSize();
-        if (finalAvailable < requiredSpace) {
-          console.error('❌ Still not enough space after emergency cleanup');
-          return false;
-        }
+      // Try progressive cleanup levels
+      if (!progressiveStorageCleanup(requiredSpace)) {
+        console.error('❌ All cleanup attempts failed, storage critically full');
+        return false;
       }
     }
     
@@ -398,77 +392,178 @@ function safeStorageWrite(key: string, value: string): boolean {
     return true;
   } catch (e) {
     console.error('Storage write failed:', e);
-    emergencyCleanup();
+    
+    // Emergency: Clear everything and try once more
+    nuclearStorageCleanup();
     try {
       localStorage.setItem(key, value);
       return true;
     } catch (e2) {
-      console.error('Storage write failed even after cleanup:', e2);
+      console.error('Storage write failed even after nuclear cleanup:', e2);
       return false;
     }
   }
 }
 
 /**
- * Check available localStorage spacece
+ * Check available localStorage space with better error handling
  */
 function getStorageSize(): { used: number; available: number } {
   let used = 0;
-  for (let key in localStorage) {
-    if (localStorage.hasOwnProperty(key)) {
-      used += localStorage[key].length + key.length;
+  
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key) {
+        const value = localStorage.getItem(key);
+        if (value) {
+          used += key.length + value.length;
+        }
+      }
     }
+  } catch (e) {
+    console.warn('Error calculating storage size:', e);
+    // If we can't calculate, assume it's nearly full
+    used = 4.5 * 1024 * 1024; // 4.5MB
   }
-  // Most browsers have 5MB limit, we'll use 3MB as safer limit
-  const maxSize = 3 * 1024 * 1024; // 3MB
-  return { used, available: maxSize - used };
+  
+  // Conservative 4MB limit to ensure we don't hit quota
+  const maxSize = 4 * 1024 * 1024; // 4MB
+  const available = Math.max(0, maxSize - used);
+  
+  return { used, available };
 }
 
 /**
- * Emergency storage cleanup when space is critically low
+ * Progressive storage cleanup - tries different levels of cleanup
  */
-function emergencyCleanup(): void {
-  console.warn('🚨 Emergency storage cleanup initiated');
+function progressiveStorageCleanup(requiredSpace: number): boolean {
+  console.warn('🚨 Progressive storage cleanup initiated');
   
-  // Clear all cache entries older than 1 hour
-  const emergencyExpiry = 60 * 60 * 1000; // 1 hour
+  // Level 1: Remove expired entries (older than 1 hour)
+  cleanupExpiredEntries(60 * 60 * 1000); // 1 hour
+  if (getStorageSize().available >= requiredSpace) {
+    console.log('✅ Level 1 cleanup sufficient');
+    return true;
+  }
+  
+  // Level 2: Remove older entries (older than 30 minutes)
+  cleanupExpiredEntries(30 * 60 * 1000); // 30 minutes
+  if (getStorageSize().available >= requiredSpace) {
+    console.log('✅ Level 2 cleanup sufficient');
+    return true;
+  }
+  
+  // Level 3: Remove all cache entries
+  removeAllCacheEntries();
+  if (getStorageSize().available >= requiredSpace) {
+    console.log('✅ Level 3 cleanup sufficient');
+    return true;
+  }
+  
+  // Level 4: Remove everything except essential app data
+  emergencyCleanup();
+  if (getStorageSize().available >= requiredSpace) {
+    console.log('✅ Level 4 cleanup sufficient');
+    return true;
+  }
+  
+  return false;
+}
+
+/**
+ * Remove all cache-related entries
+ */
+function removeAllCacheEntries(): void {
+  const keysToRemove: string[] = [];
+  
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && (
+      key.includes('_cache') || 
+      key.includes('cssport_') ||
+      key.includes('standings_') ||
+      key.includes('fixtures_') ||
+      key.includes('logos_') ||
+      key.includes('flag_')
+    )) {
+      keysToRemove.push(key);
+    }
+  }
+  
+  keysToRemove.forEach(key => localStorage.removeItem(key));
+  console.warn(`🗑️ Removed ${keysToRemove.length} cache entries`);
+}
+
+/**
+ * Remove expired entries based on age threshold
+ */
+function cleanupExpiredEntries(maxAge: number): void {
   const now = Date.now();
+  const keysToRemove: string[] = [];
   
-  for (let i = localStorage.length - 1; i >= 0; i--) {
+  for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     if (key && (key.includes('_cache') || key.includes('cssport_'))) {
       try {
         const item = localStorage.getItem(key);
         if (item) {
           const data = JSON.parse(item);
-          if (data.timestamp && (now - data.timestamp) > emergencyExpiry) {
-            localStorage.removeItem(key);
+          if (data.timestamp && (now - data.timestamp) > maxAge) {
+            keysToRemove.push(key);
           }
         }
       } catch (e) {
         // Remove corrupted entries
-        localStorage.removeItem(key);
+        keysToRemove.push(key);
       }
     }
   }
   
-  // If still not enough space, clear half of all cache entries
-  const { available } = getStorageSize();
-  if (available < 100 * 1024) { // Less than 100KB available
-    const cacheKeys = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && (key.includes('_cache') || key.includes('cssport_'))) {
-        cacheKeys.push(key);
-      }
-    }
-    
-    // Remove half of cache entries
-    const keysToRemove = cacheKeys.slice(0, Math.floor(cacheKeys.length / 2));
-    keysToRemove.forEach(key => localStorage.removeItem(key));
-    
-    console.warn(`🧹 Emergency cleanup removed ${keysToRemove.length} cache entries`);
+  keysToRemove.forEach(key => localStorage.removeItem(key));
+  if (keysToRemove.length > 0) {
+    console.log(`🧹 Removed ${keysToRemove.length} expired entries (older than ${Math.round(maxAge / 1000 / 60)} minutes)`);
   }
+}
+
+/**
+ * Nuclear option - clear almost everything
+ */
+function nuclearStorageCleanup(): void {
+  console.error('☢️ Nuclear storage cleanup - clearing almost everything');
+  
+  // Keep only essential settings
+  const essentialKeys = ['darkMode', 'language', 'timezone'];
+  const essentialData: { [key: string]: string } = {};
+  
+  // Save essential data
+  essentialKeys.forEach(key => {
+    const value = localStorage.getItem(key);
+    if (value) {
+      essentialData[key] = value;
+    }
+  });
+  
+  // Clear everything
+  localStorage.clear();
+  
+  // Restore essential data
+  Object.entries(essentialData).forEach(([key, value]) => {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
+      console.warn(`Failed to restore essential key: ${key}`);
+    }
+  });
+  
+  console.warn('☢️ Nuclear cleanup completed - all cache cleared');
+}
+
+/**
+ * Emergency storage cleanup when space is critically low (legacy function kept for compatibility)
+ */
+function emergencyCleanup(): void {
+  removeAllCacheEntries();
 }
 
 /**
