@@ -1020,7 +1020,7 @@ const LeagueStandingsFilter = () => {
                   <div className="text-center mt-6 pt-4 border-t border-gray-100">
                     <button 
                       onClick={() => window.location.href = `/league/${selectedLeague}/standings`}
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-200"
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium transition-colors duration-200"
                     >
                       {selectedLeagueName} Group Standings →
                     </button>
