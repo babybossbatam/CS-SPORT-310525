@@ -26,6 +26,7 @@ import { smartTeamTranslation } from '@/lib/smartTeamTranslation';
 import { teamNameExtractor } from '@/lib/teamNameExtractor';
 import { teamMappingExtractor } from '@/lib/teamMappingExtractor';
 import { generateCompleteTeamMapping } from '@/lib/generateCompleteTeamMapping';
+import { useLeagueNameTranslation, translateLeagueName } from '@/lib/leagueNameMapping';
 
 // Intersection Observer Hook for lazy loading
 const useIntersectionObserver = (
@@ -131,7 +132,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   onMatchCardClick,
   match,
 }) => {
-  const { t, translateLeagueName, translateTeamName, currentLanguage } = useTranslation();
+  const { t, translateLeagueName: contextTranslateLeagueName, translateTeamName, currentLanguage } = useTranslation();
+  const { translateLeague } = useLeagueNameTranslation();
   // Sample match data for demonstration (similar to MyMatchdetailsScoreboard)
   const sampleMatch = {
     fixture: {
@@ -1632,7 +1634,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         lineHeight: "1.3",
                       }}
                     >
-                      {translateLeagueName(league.name || "Unknown League")}
+                      {translateLeague(leagueIdNum, league.name) || contextTranslateLeagueName(league.name || "Unknown League")}
                     </span>
 
                     {(() => {
@@ -1702,7 +1704,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                       lineHeight: "1.2",
                     }}
                   >
-                    {league.country?.toLowerCase() === "world" ? t('world') : translateLeagueName(league.country || "Unknown Country")}
+                    {league.country?.toLowerCase() === "world" ? t('world') : contextTranslateLeagueName(league.country || "Unknown Country")}
                   </span>
                 </div>
                 <div className="flex gap-2 items-center"></div>
