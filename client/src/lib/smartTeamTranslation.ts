@@ -1364,7 +1364,110 @@ class SmartTeamTranslation {
       'zh': '豪格松德', 'zh-hk': '豪格松德', 'zh-tw': '豪格松德',
       'es': 'FK Haugesund', 'de': 'FK Haugesund', 'it': 'FK Haugesund', 'pt': 'FK Haugesund'
     },
+    // Special handling for teams that might appear with different naming patterns
+    "L'Entregu": {
+      'zh': '恩特雷古', 'zh-hk': '恩特雷古', 'zh-tw': '恩特雷古',
+      'es': "L'Entregu", 'de': "L'Entregu", 'it': "L'Entregu", 'pt': "L'Entregu"
+    },
 
+    // Croatian teams from the image
+    'Sibeník': {
+      'zh': '希贝尼克', 'zh-hk': '希貝尼克', 'zh-tw': '希貝尼克',
+      'es': 'Sibeník', 'de': 'Sibeník', 'it': 'Sibeník', 'pt': 'Sibeník'
+    },
+    'Vodice': {
+      'zh': '沃迪采', 'zh-hk': '沃迪采', 'zh-tw': '沃迪采',
+      'es': 'Vodice', 'de': 'Vodice', 'it': 'Vodice', 'pt': 'Vodice'
+    },
+
+    // Dutch teams from the image
+    'Barendrecht': {
+      'zh': '巴伦德雷赫特', 'zh-hk': '巴倫德雷赫特', 'zh-tw': '巴倫德雷赫特',
+      'es': 'Barendrecht', 'de': 'Barendrecht', 'it': 'Barendrecht', 'pt': 'Barendrecht'
+    },
+    'ASWH': {
+      'zh': 'ASWH', 'zh-hk': 'ASWH', 'zh-tw': 'ASWH',
+      'es': 'ASWH', 'de': 'ASWH', 'it': 'ASWH', 'pt': 'ASWH'
+    },
+    'De Treffers': {
+      'zh': '德特雷弗斯', 'zh-hk': '德特雷弗斯', 'zh-tw': '德特雷弗斯',
+      'es': 'De Treffers', 'de': 'De Treffers', 'it': 'De Treffers', 'pt': 'De Treffers'
+    },
+    'URK': {
+      'zh': 'URK', 'zh-hk': 'URK', 'zh-tw': 'URK',
+      'es': 'URK', 'de': 'URK', 'it': 'URK', 'pt': 'URK'
+    },
+    'GVVV Veenendaal': {
+      'zh': 'GVVV费嫩达尔', 'zh-hk': 'GVVV費嫩達爾', 'zh-tw': 'GVVV費嫩達爾',
+      'es': 'GVVV Veenendaal', 'de': 'GVVV Veenendaal', 'it': 'GVVV Veenendaal', 'pt': 'GVVV Veenendaal'
+    },
+    'Merelbeke': {
+      'zh': '梅雷尔贝克', 'zh-hk': '梅雷爾貝克', 'zh-tw': '梅雷爾貝克',
+      'es': 'Merelbeke', 'de': 'Merelbeke', 'it': 'Merelbeke', 'pt': 'Merelbeke'
+    },
+    'Hoek': {
+      'zh': '霍克', 'zh-hk': '霍克', 'zh-tw': '霍克',
+      'es': 'Hoek', 'de': 'Hoek', 'it': 'Hoek', 'pt': 'Hoek'
+    },
+    'Noordwijk': {
+      'zh': '诺德韦克', 'zh-hk': '諾德韋克', 'zh-tw': '諾德韋克',
+      'es': 'Noordwijk', 'de': 'Noordwijk', 'it': 'Noordwijk', 'pt': 'Noordwijk'
+    },
+    'Rijnvogels': {
+      'zh': '莱茵鸟', 'zh-hk': '萊茵鳥', 'zh-tw': '萊茵鳥',
+      'es': 'Rijnvogels', 'de': 'Rijnvogels', 'it': 'Rijnvogels', 'pt': 'Rijnvogels'
+    },
+    'Poortugaal': {
+      'zh': '波尔图加尔', 'zh-hk': '波爾圖加爾', 'zh-tw': '波爾圖加爾',
+      'es': 'Poortugaal', 'de': 'Poortugaal', 'it': 'Poortugaal', 'pt': 'Poortugaal'
+    },
+    'Excelsior Maassluis': {
+      'zh': '马斯路易斯精英', 'zh-hk': '馬斯路易斯精英', 'zh-tw': '馬斯路易斯精英',
+      'es': 'Excelsior Maassluis', 'de': 'Excelsior Maassluis', 'it': 'Excelsior Maassluis', 'pt': 'Excelsior Maassluis'
+    },
+    'Dovo': {
+      'zh': '多沃', 'zh-hk': '多沃', 'zh-tw': '多沃',
+      'es': 'Dovo', 'de': 'Dovo', 'it': 'Dovo', 'pt': 'Dovo'
+    },
+    'Hercules': {
+      'zh': '海格力斯', 'zh-hk': '海格力斯', 'zh-tw': '海格力斯',
+      'es': 'Hércules', 'de': 'Hercules', 'it': 'Hercules', 'pt': 'Hércules'
+    },
+    'Spakenburg': {
+      'zh': '斯帕肯堡', 'zh-hk': '斯帕肯堡', 'zh-tw': '斯帕肯堡',
+      'es': 'Spakenburg', 'de': 'Spakenburg', 'it': 'Spakenburg', 'pt': 'Spakenburg'
+    },
+    'AFC Amsterdam': {
+      'zh': '阿姆斯特丹AFC', 'zh-hk': '阿姆斯特丹AFC', 'zh-tw': '阿姆斯特丹AFC',
+      'es': 'AFC Amsterdam', 'de': 'AFC Amsterdam', 'it': 'AFC Amsterdam', 'pt': 'AFC Amsterdam'
+    },
+    'Tubize': {
+      'zh': '蒂比兹', 'zh-hk': '蒂比茲', 'zh-tw': '蒂比茲',
+      'es': 'Tubize', 'de': 'Tubize', 'it': 'Tubize', 'pt': 'Tubize'
+    },
+    'Gemert': {
+      'zh': '格默特', 'zh-hk': '格默特', 'zh-tw': '格默特',
+      'es': 'Gemert', 'de': 'Gemert', 'it': 'Gemert', 'pt': 'Gemert'
+    },
+    'Wittenhorst': {
+      'zh': '威滕霍斯特', 'zh-hk': '威滕霍斯特', 'zh-tw': '威滕霍斯特',
+      'es': 'Wittenhorst', 'de': 'Wittenhorst', 'it': 'Wittenhorst', 'pt': 'Wittenhorst'
+    },
+
+    // Belgian teams
+    'AZ Picerno': {
+      'zh': 'AZ皮切尔诺', 'zh-hk': 'AZ皮切爾諾', 'zh-tw': 'AZ皮切爾諾',
+      'es': 'AZ Picerno', 'de': 'AZ Picerno', 'it': 'AZ Picerno', 'pt': 'AZ Picerno'
+    },
+
+    // Macedonian teams
+   
+    
+   
+    'Pobeda Valandovo': {
+      'zh': '瓦兰多沃胜利', 'zh-hk': '瓦蘭多沃勝利', 'zh-tw': '瓦蘭多沃勝利',
+      'es': 'Pobeda Valandovo', 'de': 'Pobeda Valandovo', 'it': 'Pobeda Valandovo', 'pt': 'Pobeda Valandovo'
+    },
     // Additional German teams
     'HHC': {
       'zh': 'HHC', 'zh-hk': 'HHC', 'zh-tw': 'HHC',
