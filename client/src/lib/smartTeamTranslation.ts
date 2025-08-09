@@ -2622,6 +2622,7 @@ class SmartTeamTranslation {
 
     return null;
   }
+  }
 
   private findFuzzyMatch(teamName: string, language: string): string | null {
     // Using a simple Levenshtein distance for fuzzy matching
