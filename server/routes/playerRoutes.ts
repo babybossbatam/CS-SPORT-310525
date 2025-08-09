@@ -36,28 +36,38 @@ router.get('/player-photo-by-name', async (req, res) => {
         } else if (response.ok) {
           const data = await response.json();
           if (data.response && data.response.length > 0) {
-            const player = data.response[0];
+            // Try to find the best match (exact name match first)
+            let bestPlayer = data.response[0];
+            for (const playerData of data.response) {
+              if (playerData.player?.name && playerData.player.name.toLowerCase() === name.toLowerCase()) {
+                bestPlayer = playerData;
+                break;
+              }
+            }
 
-            // Check if player has a good photo (not default)
-            if (player.player?.photo && !player.player.photo.includes('default.png') && !player.player.photo.includes('placeholder')) {
-              console.log(`✅ [PlayerPhotoByName] Found photo via RapidAPI for "${name}" (variation: "${variation}"): ${player.player.photo}`);
-              return res.redirect(player.player.photo);
+            // Check if player has a good photo (not default or placeholder)
+            if (bestPlayer.player?.photo && 
+                !bestPlayer.player.photo.includes('default.png') && 
+                !bestPlayer.player.photo.includes('placeholder') &&
+                !bestPlayer.player.photo.includes('ui-avatars.com')) {
+              console.log(`✅ [PlayerPhotoByName] Found RapidAPI photo for "${name}" (variation: "${variation}"): ${bestPlayer.player.photo}`);
+              return res.redirect(bestPlayer.player.photo);
             }
 
             // If photo exists but is default, try with player ID using API-Sports
-            if (player.player?.id) {
-              const idBasedUrl = `https://media.api-sports.io/football/players/${player.player.id}.png`;
-              console.log(`🔄 [PlayerPhotoByName] Trying ID-based URL for "${name}": ${idBasedUrl}`);
+            if (bestPlayer.player?.id) {
+              const idBasedUrl = `https://media.api-sports.io/football/players/${bestPlayer.player.id}.png`;
+              console.log(`🔄 [PlayerPhotoByName] Trying API-Sports ID-based URL for "${name}": ${idBasedUrl}`);
 
               // Quick validation
               try {
                 const testResponse = await fetch(idBasedUrl, { method: 'HEAD', timeout: 3000 });
-                if (testResponse.ok) {
-                  console.log(`✅ [PlayerPhotoByName] ID-based photo works for "${name}"`);
+                if (testResponse.ok && testResponse.headers.get('content-type')?.startsWith('image/')) {
+                  console.log(`✅ [PlayerPhotoByName] API-Sports photo works for "${name}"`);
                   return res.redirect(idBasedUrl);
                 }
               } catch (error) {
-                console.log(`❌ [PlayerPhotoByName] ID-based photo failed for "${name}"`);
+                console.log(`❌ [PlayerPhotoByName] API-Sports photo failed for "${name}"`);
               }
             }
           }
@@ -68,42 +78,30 @@ router.get('/player-photo-by-name', async (req, res) => {
       }
     }
 
-    // Source 2: Try 365Scores CDN patterns with known player mappings
-    const knownPlayerMappings = getKnownPlayerMappings();
-    if (knownPlayerMappings[name.toLowerCase()]) {
-      const playerId = knownPlayerMappings[name.toLowerCase()];
-      const cdn365Url = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
-      
-      try {
-        const response = await fetch(cdn365Url, { method: 'HEAD', timeout: 3000 });
-        if (response.ok) {
-          console.log(`✅ [PlayerPhotoByName] Found 365Scores photo for "${name}": ${cdn365Url}`);
-          return res.redirect(cdn365Url);
-        }
-      } catch (error) {
-        console.log(`⚠️ [PlayerPhotoByName] 365Scores photo failed for "${name}"`);
-      }
-    }
-
-    // Source 3: Try common name patterns for well-known sources
+    // Source 2: Try direct API-Sports patterns first (more reliable)
     const cleanName = name
       .toLowerCase()
       .replace(/[^a-z\s]/g, '')
       .replace(/\s+/g, '-')
       .trim();
 
+    // Source 3: Try common name patterns for well-known sources
     const nameParts = name.split(' ');
     if (nameParts.length >= 2) {
       const firstName = nameParts[0].toLowerCase();
       const lastName = nameParts[nameParts.length - 1].toLowerCase();
 
-      // Enhanced patterns with more sources
+      // More reliable patterns prioritizing official sources
       const patterns = [
+        // Premier League official photos
         `https://resources.premierleague.com/premierleague/photos/players/250x250/${firstName}-${lastName}.png`,
-        `https://img.a.transfermarkt.technology/portrait/medium/${firstName}-${lastName}.jpg`,
-        `https://img.a.transfermarkt.technology/portrait/big/${firstName}-${lastName}.jpg`,
+        `https://resources.premierleague.com/premierleague/photos/players/110x140/${firstName}-${lastName}.png`,
+        // FIFA official photos
         `https://cdn.sofifa.net/players/${firstName}_${lastName}.png`,
-        `https://media.futdb.app/fifa-cards/players/${firstName}-${lastName}.png`
+        // Transfermarkt (reliable source)
+        `https://img.a.transfermarkt.technology/portrait/medium/${firstName}-${lastName}.jpg?lm=1`,
+        // ESPN photos
+        `https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/${firstName}_${lastName}.png`,
       ];
 
       for (const pattern of patterns) {
@@ -115,6 +113,23 @@ router.get('/player-photo-by-name', async (req, res) => {
           }
         } catch (error) {
           // Continue to next pattern
+        }
+      }
+
+      // Try 365Scores only if we have verified player ID mapping
+      const knownPlayerMappings = getKnownPlayerMappings();
+      if (knownPlayerMappings[name.toLowerCase()]) {
+        const playerId = knownPlayerMappings[name.toLowerCase()];
+        const cdn365Url = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
+        
+        try {
+          const response = await fetch(cdn365Url, { method: 'HEAD', timeout: 3000 });
+          if (response.ok) {
+            console.log(`✅ [PlayerPhotoByName] Found 365Scores photo for "${name}": ${cdn365Url}`);
+            return res.redirect(cdn365Url);
+          }
+        } catch (error) {
+          console.log(`⚠️ [PlayerPhotoByName] 365Scores photo failed for "${name}"`);
         }
       }
     }
