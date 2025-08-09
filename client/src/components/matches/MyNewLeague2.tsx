@@ -1090,7 +1090,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               (window as any).generateCompleteTeamMappingForMyNewLeague2 = () => 
                 generateCompleteTeamMapping(selectedDate);
               
-              console.log(`🛠️ [Developer Tool] Run 'generateCompleteTeamMappingForMyNewLeague2()' in console to generate complete team mapping`);
+              (window as any).generateAllTeamMappings = () => 
+                generateSeasonWideTeamMapping();
+              
+              console.log(`🛠️ [Developer Tools Available]:`);
+              console.log(`   • generateCompleteTeamMappingForMyNewLeague2() - Current date mapping`);
+              console.log(`   • generateAllTeamMappings() - Complete season mapping (recommended!)`);
+              console.log(`   • generateSeasonWideTeamMapping() - Same as above`);
+              console.log(`   • generateMappingForLeagues([38, 15, 2]) - Custom league mapping`);
             }
 
           } catch (error) {
