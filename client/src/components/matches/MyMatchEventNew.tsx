@@ -167,12 +167,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       setError(null);
     } catch (error) {
       console.error(`❌ [MyMatchEventNew] Error fetching events (attempt ${retryCount + 1}):`, error);
-
+      
       // Check if it's an abort error (timeout)
       if (error instanceof Error && error.name === 'AbortError') {
         console.log(`⏱️ [MyMatchEventNew] Request timeout for fixture ${fixtureId}`);
       }
-
+      
       // Check if it's a network error that might be temporary
       const isNetworkError = error instanceof Error && (
         error.message.includes('fetch') ||
@@ -489,7 +489,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   const isDarkTheme = useMemo(() => theme === "dark", [theme]);
   const groupedEvents = useMemo(() => groupEventsByPeriod(events), [events]);
-
+  
   // Get current scores from API data - moved here to ensure it's called consistently
   const getCurrentScores = useMemo(() => {
     if (matchData?.goals) {
@@ -554,7 +554,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   if (events.length === 0 && !isLoading) {
     const matchStatus = matchData?.fixture?.status?.short;
     const isUpcoming = ["NS", "TBD"].includes(matchStatus);
-
+    
     if (isUpcoming) {
       return null; // Hide the component completely
     }
@@ -665,12 +665,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   )}
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
 
-          {/* Center - Time */}
-          <div className={`relative z-10 flex items-center justify-center w-12 h-12 border-2 rounded-full ${isDarkTheme ? "bg-gray-700 border-gray-500" : "bg-white border-gray-300"}`}>
-          <span className={`text-xs font-bold ${isDarkTheme ? "text-gray-100" : "text-gray-700"}`}>
+        {/* Center - Time */}
+        <div className="relative z-10 flex items-center justify-center w-12 h-12 bg-white border-2 border-gray-300 rounded-full">
+          <span className="text-xs font-bold text-gray-700">
             {formatTime(event.time.elapsed, event.time.extra)}
           </span>
         </div>
@@ -892,11 +893,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               const firstPenalty = penaltySequence[i];
               const secondPenalty = penaltySequence[i + 1];
               const roundNumber = Math.floor(i / 2) + 1;
-
+              
               // Determine which penalty belongs to which team based on team name
               let homePenalty = null;
               let awayPenalty = null;
-
+              
               if (firstPenalty && firstPenalty.event && 'team' in firstPenalty.event) {
                 const isFirstHome = firstPenalty.event.team.name === homeTeam;
                 if (isFirstHome) {
@@ -907,7 +908,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   homePenalty = secondPenalty;
                 }
               }
-
+              
               rounds.push({
                 roundNumber,
                 homePenalty,
@@ -1083,7 +1084,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   };
 
-
+  
 
   return (
     <Card
@@ -1153,7 +1154,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             {/* Render content based on active tab */}
             {activeTab === "all" && (
               <>
-
+                
                 {/* All events in chronological order with period score markers */}
                 {(() => {
                   const sortedEvents = [...events].sort(
@@ -1258,7 +1259,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                   // Filter out events with elapsed time > 110' from regular display (they go to penalty section)
                   const filteredEvents = sortedEvents.filter(event => event.time.elapsed <= 110);
-
+                  
                   // Combine filtered events and period markers safely
                   const allItems: EventOrMarker[] = [...filteredEvents, ...periodMarkers].sort(
                     (a, b) => {
@@ -1337,11 +1338,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           key={event.id || `period-score-${index}`}
                           className="match-event-container "
                         >
-                          <div className={`period-score-marker ${isDarkTheme ? "bg-gray-700 border-gray-600" : "bg-gray-100 border-gray-200"} border rounded-lg p-3 mb-4`}>
-                            <div className={`period-score-label text-center font-medium mb-1 ${isDarkTheme ? "text-gray-300" : "text-gray-600"}`}>
+                          <div className="period-score-marker">
+                            <div className="period-score-label">
                               {event.detail || "Period Marker"}
                             </div>
-                            <div className={`period-score-display text-center text-lg font-bold ${isDarkTheme ? "text-white" : "text-gray-900"}`}>
+                            <div className="period-score-display">
                               {event.score || "0 - 0"}
                             </div>
                           </div>
@@ -1353,7 +1354,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       // Get actual penalty scores from match data
                       const penaltyHomeScore = matchData?.score?.penalty?.home || 4;
                       const penaltyAwayScore = matchData?.score?.penalty?.away || 3;
-
+                      
                       return (
                         <div
                           key={event.id || `penalty-shootout-${index}`}
@@ -1361,11 +1362,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         >
                           {/* Penalties header - same style as period markers */}
                           <div className="match-event-container ">
-                            <div className={`period-score-marker ${isDarkTheme ? "bg-gray-700 border-gray-600" : "bg-gray-100 border-gray-200"} border rounded-lg p-3 mb-4`}>
-                              <div className={`period-score-label text-center font-medium mb-1 ${isDarkTheme ? "text-gray-300" : "text-gray-600"}`}>
+                            <div className="period-score-marker">
+                              <div className="period-score-label ">
                                 Penalties
                               </div>
-                              <div className={`period-score-display text-center text-lg font-bold ${isDarkTheme ? "text-white" : "text-gray-900"}`}>
+                              <div className="period-score-display">
                                 {penaltyHomeScore} - {penaltyAwayScore}
                               </div>
                             </div>
@@ -1460,14 +1461,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     )}
                                     {event.type === "goal" &&
                                       event.assist?.name && (
-                                        <div className={`text-xs ${isDarkTheme ? "text-gray-400" : "text-gray-600"}`}>
+                                        <div className="text-xs text-gray-600">
                                           (Assist: {event.assist.name})
                                         </div>
                                       )}
                                     {event.type !== "subst" &&
                                       event.type !== "Card" &&
                                       event.type !== "Goal" && (
-                                        <div className={`text-xs ${isDarkTheme ? "text-gray-500" : "text-gray-400"}`}>
+                                        <div className="text-xs text-gray-400">
                                           {event.type === "foul" ||
                                           event.detail
                                             ?.toLowerCase()
@@ -1702,7 +1703,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 <div className="match-event-away-player-info">
                                   <div className="text-right w-36">
                                     {event.type === "subst" &&
-                                      event.assist?.name ? (
+                                    event.assist?.name ? (
                                       <>
                                         <div className="text-xs font-medium text-green-600 text-right">
                                           {event.assist.name}
@@ -1973,11 +1974,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           key={event.id || `period-score-top-${index}`}
                           className="match-event-container "
                         >
-                          <div className={`period-score-marker ${isDarkTheme ? "bg-gray-700 border-gray-600" : "bg-gray-100 border-gray-200"} border rounded-lg p-3 mb-4`}>
-                            <div className={`period-score-label text-center font-medium mb-1 ${isDarkTheme ? "text-gray-300" : "text-gray-600"}`}>
+                          <div className="period-score-marker">
+                            <div className="period-score-label">
                               {event.detail || "Period Marker"}
                             </div>
-                            <div className={`period-score-display text-center text-lg font-bold ${isDarkTheme ? "text-white" : "text-gray-900"}`}>
+                            <div className="period-score-display">
                               {event.score || "0 - 0"}
                             </div>
                           </div>
@@ -2077,14 +2078,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     )}
                                     {event.type === "goal" &&
                                       event.assist?.name && (
-                                        <div className={`text-xs ${isDarkTheme ? "text-gray-400" : "text-gray-600"}`}>
+                                        <div className="text-xs text-gray-600">
                                           (Assist: {event.assist.name})
                                         </div>
                                       )}
                                     {event.type !== "subst" &&
                                       event.type !== "Card" &&
                                       event.type !== "Goal" && (
-                                        <div className={`text-xs ${isDarkTheme ? "text-gray-500" : "text-gray-400"}`}>
+                                        <div className="text-xs text-gray-400">
                                           {event.type === "foul" ||
                                           event.detail
                                             ?.toLowerCase()
@@ -2320,7 +2321,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 <div className="match-event-away-player-info">
                                   <div className="text-right w-36">
                                     {event.type === "subst" &&
-                                      event.assist?.name ? (
+                                    event.assist?.name ? (
                                       <>
                                         <div className="text-xs font-medium text-green-600 text-right">
                                           {event.assist.name}
