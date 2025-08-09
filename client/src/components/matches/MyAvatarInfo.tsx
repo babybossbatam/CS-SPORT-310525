@@ -57,17 +57,30 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     try {
       const cachedImageUrl = await getPlayerImage(playerId, playerName, teamId);
       
-      if (cachedImageUrl && cachedImageUrl !== '') {
+      if (cachedImageUrl && cachedImageUrl !== '' && cachedImageUrl !== 'INITIALS_FALLBACK') {
         console.log(`✅ [MyAvatarInfo-${componentId}] Got cached image: ${cachedImageUrl}`);
-        setImageUrl(cachedImageUrl);
+        
+        // Test if the image actually loads before setting it
+        const img = new Image();
+        img.onload = () => {
+          console.log(`🖼️ [MyAvatarInfo-${componentId}] Image verified: ${cachedImageUrl}`);
+          setImageUrl(cachedImageUrl);
+          setIsLoading(false);
+        };
+        img.onerror = () => {
+          console.log(`❌ [MyAvatarInfo-${componentId}] Image failed to load: ${cachedImageUrl}`);
+          setImageUrl('INITIALS_FALLBACK');
+          setIsLoading(false);
+        };
+        img.src = cachedImageUrl;
       } else {
         console.log(`🎨 [MyAvatarInfo-${componentId}] No cached image found, using fallback for: ${playerName}`);
         setImageUrl('INITIALS_FALLBACK');
+        setIsLoading(false);
       }
     } catch (error) {
-      console.log(`❌ [MyAvatarInfo-${componentId}] Error loading cached image: ${error.message}`);
+      console.log(`❌ [MyAvatarInfo-${componentId}] Error loading cached image: ${error?.message || error}`);
       setImageUrl('INITIALS_FALLBACK');
-    } finally {
       setIsLoading(false);
     }
   };
