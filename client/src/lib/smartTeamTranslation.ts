@@ -347,7 +347,7 @@ class SmartTeamTranslation {
       'zh': '亚马逊', 'zh-hk': '亞馬遜', 'zh-tw': '亞馬遜',
       'es': 'Amazonas', 'de': 'Amazonas', 'it': 'Amazonas', 'pt': 'Amazonas'
     },
-   
+
     'Atlético Mineiro': {
       'zh': '米内罗竞技', 'zh-hk': '米內羅競技', 'zh-tw': '米內羅競技',
       'es': 'Atlético Mineiro', 'de': 'Atlético Mineiro', 'it': 'Atlético Mineiro', 'pt': 'Atlético Mineiro'
@@ -414,7 +414,7 @@ class SmartTeamTranslation {
       'zh': '科尔多瓦', 'zh-hk': '哥多華', 'zh-tw': '科爾多瓦',
       'es': 'Córdoba', 'de': 'Córdoba', 'it': 'Córdoba', 'pt': 'Córdoba'
     },
-  
+
     'Lanús': {
       'zh': '拉努斯', 'zh-hk': '拉努斯', 'zh-tw': '拉努斯',
       'es': 'Lanús', 'de': 'Lanús', 'it': 'Lanús', 'pt': 'Lanús'
@@ -720,7 +720,7 @@ class SmartTeamTranslation {
       'es': 'CD Azuqueca', 'de': 'CD Azuqueca', 'it': 'CD Azuqueca', 'pt': 'CD Azuqueca'
     },
 
-    // Italian Serie A teams
+    // Italian teams
     'Cagliari': {
       'zh': '卡利亚里', 'zh-hk': '卡利亞里', 'zh-tw': '卡利亞里',
       'es': 'Cagliari', 'de': 'Cagliari', 'it': 'Cagliari', 'pt': 'Cagliari'
@@ -1650,7 +1650,7 @@ class SmartTeamTranslation {
       'zh': '马格达莱纳联合', 'zh-hk': '馬格達萊納聯合', 'zh-tw': '馬格達萊納聯合',
       'es': 'Unión Magdalena', 'de': 'Unión Magdalena', 'it': 'Unión Magdalena', 'pt': 'Unión Magdalena'
     },
-   
+
     'Chico': {
       'zh': '奇科', 'zh-hk': '奇科', 'zh-tw': '奇科',
       'es': 'Chico', 'de': 'Chico', 'it': 'Chico', 'pt': 'Chico'
@@ -1671,28 +1671,28 @@ class SmartTeamTranslation {
     },
 
     // Argentine teams
- 
-   
+
+
     'Independ. Rivadavia': {
       'zh': '里瓦达维亚独立', 'zh-hk': '里瓦達維亞獨立', 'zh-tw': '里瓦達維亞獨立',
       'es': 'Independiente Rivadavia', 'de': 'Independiente Rivadavia', 'it': 'Independiente Rivadavia', 'pt': 'Independiente Rivadavia'
     },
-    
-    
+
+
     'Gimnasia L.P.': {
       'zh': '拉普拉塔体操', 'zh-hk': '拉普拉塔體操', 'zh-tw': '拉普拉塔體操',
       'es': 'Gimnasia La Plata', 'de': 'Gimnasia La Plata', 'it': 'Gimnasia La Plata', 'pt': 'Gimnasia La Plata'
     },
 
     // Italian teams (avoid duplicates)
-    
+
 
     // Saudi Arabian teams
-    
+
 
     // Spanish lower division teams
-   
- 
+
+
 
     // Thai teams
     'Port FC': {
@@ -1816,7 +1816,7 @@ class SmartTeamTranslation {
       if (fixture.teams?.home?.name && fixture.teams?.away?.name) {
         const homeTeam = fixture.teams.home.name.trim();
         const awayTeam = fixture.teams.away.name.trim();
-        
+
         // Learn both teams
         [homeTeam, awayTeam].forEach(teamName => {
           if (teamName && !learnedTeams.has(teamName.toLowerCase())) {
@@ -1837,7 +1837,7 @@ class SmartTeamTranslation {
   // Enhanced team learning with better pattern detection
   private learnNewTeam(teamName: string, leagueInfo?: any): boolean {
     const normalizedName = teamName.trim();
-    
+
     // Check if already exists in our mappings
     if (this.getPopularTeamTranslation(normalizedName, 'zh')) {
       return false; // Already exists
@@ -1882,16 +1882,16 @@ class SmartTeamTranslation {
     let germanTranslation = teamName;
     let italianTranslation = teamName;
     let portugueseTranslation = teamName;
-    
+
     // Apply intelligent translation rules based on country/league
     if (leagueInfo?.country) {
       chineseTranslation = this.generateSmartChineseTranslation(teamName, leagueInfo.country);
-      
+
       // Generate other language variations if needed
       if (leagueInfo.country === 'Spain' && teamName.includes('Athletic')) {
         spanishTranslation = teamName.replace('Athletic', 'Athletic Club');
       }
-      
+
       if (leagueInfo.country === 'Germany' && teamName.includes('FC')) {
         germanTranslation = teamName; // Keep German names as-is typically
       }
@@ -1960,22 +1960,22 @@ class SmartTeamTranslation {
       'Eindhoven': '埃因霍温', 'Tilburg': '蒂尔堡', 'Groningen': '格罗宁根',
       'Breda': '布雷达', 'Nijmegen': '奈梅亨', 'Haarlem': '哈勒姆',
       'Arnhem': '阿纳姆', 'Zwolle': '兹沃勒', 'Enschede': '恩斯赫德',
-      
+
       // Belgian cities
       'Antwerp': '安特卫普', 'Gent': '根特', 'Charleroi': '沙勒罗瓦',
       'Liege': '列日', 'Bruges': '布鲁日', 'Namur': '那慕尔',
-      
+
       // Croatian cities
       'Zagreb': '萨格勒布', 'Split': '斯普利特', 'Rijeka': '里耶卡',
       'Osijek': '奥西耶克', 'Zadar': '扎达尔', 'Pula': '普拉',
-      
+
       // German cities (additional)
       'Mönchengladbach': '门兴格拉德巴赫', 'Gelsenkirchen': '盖尔森基兴',
       'Kaiserslautern': '凯泽斯劳滕', 'Karlsruhe': '卡尔斯鲁厄'
     };
 
     let translation = teamName;
-    
+
     // Apply country-specific rules
     const rules = translationRules[country];
     if (rules) {
@@ -2016,7 +2016,7 @@ class SmartTeamTranslation {
         'Sibeník': '希贝尼克', 'Vodice': '沃迪采', 'Osijek': '奥西耶克',
         'Varaždin': '瓦拉日丁', 'Karlovac': '卡尔洛瓦茨'
       };
-      
+
       for (const [croatian, chinese] of Object.entries(croatianMap)) {
         if (teamName.includes(croatian)) {
           return teamName.replace(croatian, chinese);
@@ -2031,7 +2031,7 @@ class SmartTeamTranslation {
         'Noordwijk': '诺德韦克', 'Spakenburg': '斯帕肯堡',
         'Katwijk': '卡特韦克', 'Poortugaal': '波尔图加尔'
       };
-      
+
       if (dutchCities[teamName]) {
         return dutchCities[teamName];
       }
@@ -2066,7 +2066,7 @@ class SmartTeamTranslation {
       isLoading: this.isLoading,
       cacheSize: this.teamCache.size,
       leaguesLoaded: Object.keys(this.leagueTeamsCache).length,
-      totalTeams: Object.values(this.leagueTeamsCache).reduce((sum, teams) => sum + teams.length, 0)
+      totalCachedTeams: Object.values(this.leagueTeamsCache).reduce((sum, teams) => sum + teams.length, 0)
     });
 
     // Check cache first
@@ -2093,10 +2093,18 @@ class SmartTeamTranslation {
       return manualTranslation;
     }
 
-    // If no translation found, try to learn this team
+    // Enhanced fallback for common team patterns
+    const enhancedFallback = this.getEnhancedFallback(teamName, language);
+    if (enhancedFallback && enhancedFallback !== teamName) {
+      console.log(`🔍 [SmartTranslation] Enhanced fallback: "${teamName}" -> "${enhancedFallback}"`);
+      this.teamCache.set(cacheKey, enhancedFallback);
+      return enhancedFallback;
+    }
+
+    // If no translation found, learn from context if available
     if (leagueInfo && !this.getPopularTeamTranslation(teamName, 'zh')) {
       this.learnNewTeam(teamName, leagueInfo);
-      
+
       // Try again after learning
       const newTranslation = this.getPopularTeamTranslation(teamName, language);
       if (newTranslation && newTranslation !== teamName) {
@@ -2106,8 +2114,8 @@ class SmartTeamTranslation {
       }
     }
 
-    // Cache the original name if no translation found
-    console.log(`❌ [SmartTranslation] No translation found for "${teamName}" in ${language}`);
+    // Cache and return original name if no translation available
+    console.log(`❌ [SmartTranslation] No translation available for: "${teamName}"`);
     this.teamCache.set(cacheKey, teamName);
     return teamName;
   }
@@ -2161,21 +2169,89 @@ class SmartTeamTranslation {
     console.log('🧹 [SmartTranslation] Cache cleared');
   }
 
-  // Force refresh cache for specific problematic teams
-  fixCorruptedCache(): void {
-    const corruptedTeams = [
-      'AEL', 'Deportivo Cali', 'Alianza Petrolera', 'Masr', 'Valencia U21'
+  // Validate and fix incorrect mappings in cache
+  private validateAndFixIncorrectMappings(): void {
+    const incorrectMappings = [
+      { original: 'Deportivo Cali', wrongTranslation: '帕斯托體育' },
+      { original: 'AEL', wrongTranslation: 'Israel' },
+      { original: 'Masr', wrongTranslation: 'AL Masry' },
+      { original: 'Alianza Petrolera', wrongTranslation: 'Alianza Lima' }
     ];
-    
-    corruptedTeams.forEach(teamName => {
-      // Remove all cached entries for this team across all languages
-      ['zh', 'zh-hk', 'zh-tw', 'es', 'de', 'it', 'pt'].forEach(lang => {
-        const cacheKey = `${teamName.toLowerCase()}_${lang}`;
+
+    incorrectMappings.forEach(({ original, wrongTranslation }) => {
+      const cacheKey = `${original.toLowerCase()}_zh-hk`;
+      if (this.teamCache.get(cacheKey) === wrongTranslation) {
         this.teamCache.delete(cacheKey);
-      });
+        console.log(`🔧 [SmartTranslation] Fixed incorrect mapping: ${original} -> ${wrongTranslation}`);
+      }
     });
-    
-    console.log('🔧 [SmartTranslation] Fixed corrupted cache entries for problematic teams');
+  }
+
+  // Enhanced fallback for common team patterns
+  private getEnhancedFallback(teamName: string, language: string): string | null {
+    if (language !== 'zh' && language !== 'zh-hk' && language !== 'zh-tw') {
+      return null;
+    }
+
+    // Common English team patterns
+    const englishTeamPatterns: Record<string, string> = {
+      'Leeds': '利兹联',
+      'Brentford': '布伦特福德',
+      'Sheffield': '谢菲尔德',
+      'Brighton': '布莱顿',
+      'Burnley': '伯恩利',
+      'Norwich': '诺维奇',
+      'Cardiff': '卡迪夫',
+      'Swansea': '斯旺西'
+    };
+
+    // Italian team patterns
+    const italianTeamPatterns: Record<string, string> = {
+      'Trento': '特伦托',
+      'Ravenna': '拉文纳',
+      'Bari': '巴里',
+      'Lecce': '莱切',
+      'Spezia': '斯佩齐亚',
+      'Empoli': '恩波利',
+      'Sassuolo': '萨索洛'
+    };
+
+    // German team patterns
+    const germanTeamPatterns: Record<string, string> = {
+      'Darmstadt': '达姆施塔特',
+      'Kaiserslautern': '凯泽斯劳滕',
+      'Nuremberg': '纽伦堡',
+      'Greuther': '菲尔特'
+    };
+
+    // Check patterns
+    const allPatterns = { ...englishTeamPatterns, ...italianTeamPatterns, ...germanTeamPatterns };
+
+    for (const [pattern, translation] of Object.entries(allPatterns)) {
+      if (teamName.toLowerCase().includes(pattern.toLowerCase())) {
+        return translation;
+      }
+    }
+
+    return null;
+  }
+
+  // Clear old cache entries when they become too large
+  private fixCorruptedCache(): void {
+    try {
+      if (this.teamCache.size > 1000) {
+        console.warn('🚨 [SmartTranslation] Cache size exceeded 1000 entries, clearing oldest entries');
+        const entries = Array.from(this.teamCache.entries());
+        // Keep only the most recent 500 entries
+        const recentEntries = entries.slice(-500);
+        this.teamCache.clear();
+        recentEntries.forEach(([key, value]) => this.teamCache.set(key, value));
+        console.log(`🧹 [SmartTranslation] Cache reduced to ${this.teamCache.size} entries`);
+      }
+    } catch (error) {
+      console.error('Error fixing corrupted cache:', error);
+      this.teamCache.clear();
+    }
   }
 
   // Get cache stats

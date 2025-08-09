@@ -1117,6 +1117,17 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     setExpandedLeagues(new Set(leagueKeys));
   }, [fixturesByLeague]);
 
+  // Clear translation cache on mount to fix any corrupted translations
+  useEffect(() => {
+    try {
+      // Clear smart translation cache to fix any incorrect mappings
+      smartTeamTranslation.clearCache();
+      console.log('🔄 [MyNewLeague2] Translation cache cleared on component mount');
+    } catch (error) {
+      console.warn('Failed to clear translation cache:', error);
+    }
+  }, []);
+
   // Listen for external match clearing and reset selected match ID
   useEffect(() => {
     if (!match) {
