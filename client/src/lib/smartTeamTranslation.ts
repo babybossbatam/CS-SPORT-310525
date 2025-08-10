@@ -2622,6 +2622,163 @@ class SmartTeamTranslation {
     }
   }
 
+  // Translate league names using smart translation system
+  translateLeagueName(leagueName: string, language: string = 'zh-hk'): string {
+    if (!leagueName) return '';
+
+    console.log(`🏆 [SmartTranslation] Translating league: "${leagueName}" to ${language}`);
+
+    // Check cache first
+    const cacheKey = `league_${leagueName.toLowerCase()}_${language}`;
+    if (this.teamCache.has(cacheKey)) {
+      const cached = this.teamCache.get(cacheKey)!;
+      console.log(`💾 [SmartTranslation] League cache hit: "${leagueName}" -> "${cached}"`);
+      return cached;
+    }
+
+    // League name translation patterns
+    const leagueTranslations: Record<string, Record<string, string>> = {
+      'Friendlies Clubs': {
+        'zh': '俱乐部友谊赛', 'zh-hk': '球會友誼賽', 'zh-tw': '球會友誼賽',
+        'es': 'Amistosos de Clubes', 'de': 'Vereinsfreundschaftsspiele', 'it': 'Amichevoli di Club', 'pt': 'Amigáveis de Clubes'
+      },
+      'UEFA Europa League': {
+        'zh': 'UEFA欧洲联赛', 'zh-hk': 'UEFA歐洲聯賽', 'zh-tw': 'UEFA歐洲聯賽',
+        'es': 'UEFA Liga Europa', 'de': 'UEFA Europa League', 'it': 'UEFA Europa League', 'pt': 'UEFA Liga Europa'
+      },
+      'UEFA Champions League': {
+        'zh': 'UEFA欧洲冠军联赛', 'zh-hk': 'UEFA歐洲冠軍聯賽', 'zh-tw': 'UEFA歐洲冠軍聯賽',
+        'es': 'UEFA Liga de Campeones', 'de': 'UEFA Champions League', 'it': 'UEFA Champions League', 'pt': 'UEFA Liga dos Campeões'
+      },
+      'UEFA Europa Conference League': {
+        'zh': 'UEFA欧洲协会联赛', 'zh-hk': 'UEFA歐洲協會聯賽', 'zh-tw': 'UEFA歐洲協會聯賽',
+        'es': 'UEFA Liga de la Conferencia', 'de': 'UEFA Conference League', 'it': 'UEFA Conference League', 'pt': 'UEFA Liga da Conferência'
+      },
+      'Premier League': {
+        'zh': '英超', 'zh-hk': '英超', 'zh-tw': '英超',
+        'es': 'Premier League', 'de': 'Premier League', 'it': 'Premier League', 'pt': 'Premier League'
+      },
+      'La Liga': {
+        'zh': '西甲', 'zh-hk': '西甲', 'zh-tw': '西甲',
+        'es': 'La Liga', 'de': 'La Liga', 'it': 'La Liga', 'pt': 'La Liga'
+      },
+      'Serie A': {
+        'zh': '意甲', 'zh-hk': '意甲', 'zh-tw': '意甲',
+        'es': 'Serie A', 'de': 'Serie A', 'it': 'Serie A', 'pt': 'Serie A'
+      },
+      'Bundesliga': {
+        'zh': '德甲', 'zh-hk': '德甲', 'zh-tw': '德甲',
+        'es': 'Bundesliga', 'de': 'Bundesliga', 'it': 'Bundesliga', 'pt': 'Bundesliga'
+      },
+      'Ligue 1': {
+        'zh': '法甲', 'zh-hk': '法甲', 'zh-tw': '法甲',
+        'es': 'Ligue 1', 'de': 'Ligue 1', 'it': 'Ligue 1', 'pt': 'Ligue 1'
+      },
+      'Copa do Brasil': {
+        'zh': '巴西杯', 'zh-hk': '巴西盃', 'zh-tw': '巴西盃',
+        'es': 'Copa de Brasil', 'de': 'Copa do Brasil', 'it': 'Copa do Brasil', 'pt': 'Copa do Brasil'
+      },
+      'Primera A Colombia': {
+        'zh': '哥伦比亚甲级联赛', 'zh-hk': '哥倫比亞甲級聯賽', 'zh-tw': '哥倫比亞甲級聯賽',
+        'es': 'Primera A Colombia', 'de': 'Primera A Kolumbien', 'it': 'Primera A Colombia', 'pt': 'Primeira Divisão Colômbia'
+      }
+    };
+
+    // Check for exact match first
+    const exactTranslation = leagueTranslations[leagueName];
+    if (exactTranslation && exactTranslation[language]) {
+      const translation = exactTranslation[language];
+      this.teamCache.set(cacheKey, translation);
+      console.log(`✅ [SmartTranslation] League exact match: "${leagueName}" -> "${translation}"`);
+      return translation;
+    }
+
+    // Pattern-based matching for partial league names
+    const lowerLeagueName = leagueName.toLowerCase();
+    for (const [pattern, translations] of Object.entries(leagueTranslations)) {
+      if (lowerLeagueName.includes(pattern.toLowerCase()) || pattern.toLowerCase().includes(lowerLeagueName)) {
+        const translation = translations[language] || pattern;
+        this.teamCache.set(cacheKey, translation);
+        console.log(`🔍 [SmartTranslation] League pattern match: "${leagueName}" -> "${translation}"`);
+        return translation;
+      }
+    }
+
+    // Cache and return original if no translation found
+    this.teamCache.set(cacheKey, leagueName);
+    console.log(`❌ [SmartTranslation] No league translation found for: "${leagueName}"`);
+    return leagueName;
+  }
+
+  // Add translateCountryName method if missing
+  translateCountryName(countryName: string, language: string = 'zh-hk'): string {
+    if (!countryName) return '';
+
+    console.log(`🌍 [SmartTranslation] Translating country: "${countryName}" to ${language}`);
+
+    // Check cache first
+    const cacheKey = `country_${countryName.toLowerCase()}_${language}`;
+    if (this.teamCache.has(cacheKey)) {
+      const cached = this.teamCache.get(cacheKey)!;
+      console.log(`💾 [SmartTranslation] Country cache hit: "${countryName}" -> "${cached}"`);
+      return cached;
+    }
+
+    // Country name translations
+    const countryTranslations: Record<string, Record<string, string>> = {
+      'England': {
+        'zh': '英格兰', 'zh-hk': '英格蘭', 'zh-tw': '英格蘭',
+        'es': 'Inglaterra', 'de': 'England', 'it': 'Inghilterra', 'pt': 'Inglaterra'
+      },
+      'Spain': {
+        'zh': '西班牙', 'zh-hk': '西班牙', 'zh-tw': '西班牙',
+        'es': 'España', 'de': 'Spanien', 'it': 'Spagna', 'pt': 'Espanha'
+      },
+      'Italy': {
+        'zh': '意大利', 'zh-hk': '意大利', 'zh-tw': '意大利',
+        'es': 'Italia', 'de': 'Italien', 'it': 'Italia', 'pt': 'Itália'
+      },
+      'Germany': {
+        'zh': '德国', 'zh-hk': '德國', 'zh-tw': '德國',
+        'es': 'Alemania', 'de': 'Deutschland', 'it': 'Germania', 'pt': 'Alemanha'
+      },
+      'France': {
+        'zh': '法国', 'zh-hk': '法國', 'zh-tw': '法國',
+        'es': 'Francia', 'de': 'Frankreich', 'it': 'Francia', 'pt': 'França'
+      },
+      'Brazil': {
+        'zh': '巴西', 'zh-hk': '巴西', 'zh-tw': '巴西',
+        'es': 'Brasil', 'de': 'Brasilien', 'it': 'Brasile', 'pt': 'Brasil'
+      },
+      'Colombia': {
+        'zh': '哥伦比亚', 'zh-hk': '哥倫比亞', 'zh-tw': '哥倫比亞',
+        'es': 'Colombia', 'de': 'Kolumbien', 'it': 'Colombia', 'pt': 'Colômbia'
+      },
+      'Argentina': {
+        'zh': '阿根廷', 'zh-hk': '阿根廷', 'zh-tw': '阿根廷',
+        'es': 'Argentina', 'de': 'Argentinien', 'it': 'Argentina', 'pt': 'Argentina'
+      },
+      'World': {
+        'zh': '世界', 'zh-hk': '世界', 'zh-tw': '世界',
+        'es': 'Mundial', 'de': 'Welt', 'it': 'Mondo', 'pt': 'Mundo'
+      }
+    };
+
+    // Check for exact match
+    const exactTranslation = countryTranslations[countryName];
+    if (exactTranslation && exactTranslation[language]) {
+      const translation = exactTranslation[language];
+      this.teamCache.set(cacheKey, translation);
+      console.log(`✅ [SmartTranslation] Country exact match: "${countryName}" -> "${translation}"`);
+      return translation;
+    }
+
+    // Cache and return original if no translation found
+    this.teamCache.set(cacheKey, countryName);
+    console.log(`❌ [SmartTranslation] No country translation found for: "${countryName}"`);
+    return countryName;
+  }
+
   // Smart translation with fallbacks and learning
   translateTeamName(teamName: string, language: string = 'zh', leagueInfo?: any): string {
     if (!teamName) return '';
