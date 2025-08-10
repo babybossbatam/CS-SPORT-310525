@@ -628,20 +628,22 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           }
 
           try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => {
+                controller.abort(new Error(`Request timeout after 10 seconds for league ${leagueId}`));
+              }, 10000); // 10 second timeout
 
-            const response = await fetch(`/api/leagues/${leagueId}/fixtures`, {
-              signal: controller.signal
-            }).catch(fetchError => {
+              const response = await fetch(`/api/leagues/${leagueId}/fixtures`, {
+                signal: controller.signal
+              }).catch(fetchError => {
+                clearTimeout(timeoutId);
+                console.warn(
+                  `🌐 [MyNewLeague2] Network error for league ${leagueId}: ${fetchError.message}`,
+                );
+                return null;
+              });
+
               clearTimeout(timeoutId);
-              console.warn(
-                `🌐 [MyNewLeague2] Network error for league ${leagueId}: ${fetchError.message}`,
-              );
-              return null;
-            });
-
-            clearTimeout(timeoutId);
 
             if (!response) {
               return {

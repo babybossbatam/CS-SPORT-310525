@@ -998,6 +998,60 @@ name: "Bundesliga",
         const cacheKey = `topscorers-${id}-${season}`;
         const cachedTopScorers = await storage.getCachedFixture(cacheKey);
 
+
+// Popular teams endpoint
+router.get('/api/teams/popular', async (req, res) => {
+  try {
+    console.log('🔄 [API] Fetching popular teams...');
+    
+    // Return a structured response with popular teams
+    const popularTeams = [
+      {
+        id: 33,
+        name: "Manchester United",
+        logo: "https://media.api-sports.io/football/teams/33.png",
+        country: { name: "England" },
+        popularity: 95,
+      },
+      {
+        id: 40,
+        name: "Liverpool",
+        logo: "https://media.api-sports.io/football/teams/40.png",
+        country: { name: "England" },
+        popularity: 92,
+      },
+      {
+        id: 50,
+        name: "Manchester City",
+        logo: "https://media.api-sports.io/football/teams/50.png",
+        country: { name: "England" },
+        popularity: 90,
+      },
+      {
+        id: 541,
+        name: "Real Madrid",
+        logo: "https://media.api-sports.io/football/teams/541.png",
+        country: { name: "Spain" },
+        popularity: 88,
+      },
+      {
+        id: 529,
+        name: "FC Barcelona",
+        logo: "https://media.api-sports.io/football/teams/529.png",
+        country: { name: "Spain" },
+        popularity: 85,
+      }
+    ];
+
+    console.log(`✅ [API] Returning ${popularTeams.length} popular teams`);
+    res.json(popularTeams);
+  } catch (error) {
+    console.error('❌ [API] Error fetching popular teams:', error);
+    res.status(500).json({ error: 'Failed to fetch popular teams' });
+  }
+});
+
+
         if (cachedTopScorers) {
           const now = new Date();
           const cacheTime = new Date(cachedTopScorers.timestamp);

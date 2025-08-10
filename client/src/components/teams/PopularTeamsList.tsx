@@ -129,6 +129,18 @@ const PopularTeamsList = () => {
       try {
         console.log("🔄 [PopularTeamsList] Fetching popular teams from API...");
         const response = await apiRequest("GET", "/api/teams/popular");
+        
+        // Check if response is ok and has proper content type
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          console.warn("❌ [PopularTeamsList] API returned non-JSON response, using fallback data");
+          throw new Error("API returned HTML instead of JSON");
+        }
+
         const teams = await response.json();
 
         if (teams && teams.length > 0) {
