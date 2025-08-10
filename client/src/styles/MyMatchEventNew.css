@@ -1086,12 +1086,13 @@
 
 .dark .pl-28.pr-28.py-4.flex button:hover {
   background-color: rgb(55 65 81) !important; /* bg-gray-700 */
+  border: 1px solid white !important;
 }
 
 .dark .pl-28.pr-28.py-4.flex button.bg-blue-500 {
   background-color: rgb(59 130 246) !important; /* bg-blue-500 */
   color: white !important;
-  border: 1px solid rgb(59 130 246) !important;
+  border: 1px solid white !important;
 }
 
 /* Focus states for accessibility */
