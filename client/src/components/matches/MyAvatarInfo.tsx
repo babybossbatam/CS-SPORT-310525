@@ -219,18 +219,16 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       onClick={handleClick}
     >
       {imageUrl === 'INITIALS_FALLBACK' ? (
-        <img
-          src="/assets/matchdetaillogo/fallback_player.png"
-          alt={playerName || 'Player'}
-          className="w-full h-full object-cover"
-        />
+        <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm rounded-full">
+          {generateInitials(playerName)}
+        </div>
       ) : (
         <img
           src={imageUrl}
           alt={playerName || 'Player'}
           className="w-full h-full object-cover"
           onError={() => {
-            console.log(`🖼️ [MyAvatarInfo-${componentId}] Image error, falling back to fallback player image`);
+            console.log(`🖼️ [MyAvatarInfo-${componentId}] Image error, falling back to initials: ${playerName}`);
             setImageUrl('INITIALS_FALLBACK');
           }}
           onLoad={() => {
