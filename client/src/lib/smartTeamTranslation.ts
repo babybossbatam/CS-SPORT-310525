@@ -1695,6 +1695,144 @@ class SmartTeamTranslation {
       'zh': '斯波文莫珀廷根', 'zh-hk': '斯波文莫珀廷根', 'zh-tw': '斯波文莫珀廷根',
       'es': 'Spouwen-Mopertingen', 'de': 'Spouwen-Mopertingen', 'it': 'Spouwen-Mopertingen', 'pt': 'Spouwen-Mopertingen'
     },
+
+    // AUTOMATED TEAM MAPPINGS - Enhanced with proper translations where available
+    // Generated from leagues: 38, 15, 2, 4, 10, 11, 848, 886, 1022, 772, 71, 3, 5, 531, 22, etc.
+    
+    // MLS Teams (enhanced)
+    'Austin': {
+      'zh': '奥斯汀', 'zh-hk': '奧斯汀', 'zh-tw': '奧斯汀',
+      'es': 'Austin', 'de': 'Austin', 'it': 'Austin', 'pt': 'Austin'
+    },
+    'St. Louis City': {
+      'zh': '圣路易斯城', 'zh-hk': '聖路易斯城', 'zh-tw': '聖路易斯城',
+      'es': 'St. Louis City', 'de': 'St. Louis City', 'it': 'St. Louis City', 'pt': 'St. Louis City'
+    },
+    'CF Montreal': {
+      'zh': '蒙特利尔', 'zh-hk': '蒙特利爾', 'zh-tw': '蒙特利爾',
+      'es': 'CF Montreal', 'de': 'CF Montreal', 'it': 'CF Montreal', 'pt': 'CF Montreal'
+    },
+    'Columbus Crew': {
+      'zh': '哥伦布机员', 'zh-hk': '哥倫布機員', 'zh-tw': '哥倫布機員',
+      'es': 'Columbus Crew', 'de': 'Columbus Crew', 'it': 'Columbus Crew', 'pt': 'Columbus Crew'
+    },
+    'Orlando City SC': {
+      'zh': '奥兰多城', 'zh-hk': '奧蘭多城', 'zh-tw': '奧蘭多城',
+      'es': 'Orlando City SC', 'de': 'Orlando City SC', 'it': 'Orlando City SC', 'pt': 'Orlando City SC'
+    },
+    'Philadelphia Union': {
+      'zh': '费城联合', 'zh-hk': '費城聯合', 'zh-tw': '費城聯合',
+      'es': 'Philadelphia Union', 'de': 'Philadelphia Union', 'it': 'Philadelphia Union', 'pt': 'Philadelphia Union'
+    },
+    'DC United': {
+      'zh': '华盛顿联', 'zh-hk': '華盛頓聯', 'zh-tw': '華盛頓聯',
+      'es': 'DC United', 'de': 'DC United', 'it': 'DC United', 'pt': 'DC United'
+    },
+    'New England Revolution': {
+      'zh': '新英格兰革命', 'zh-hk': '新英格蘭革命', 'zh-tw': '新英格蘭革命',
+      'es': 'New England Revolution', 'de': 'New England Revolution', 'it': 'New England Revolution', 'pt': 'New England Revolution'
+    },
+    'Chicago Fire': {
+      'zh': '芝加哥火焰', 'zh-hk': '芝加哥火焰', 'zh-tw': '芝加哥火焰',
+      'es': 'Chicago Fire', 'de': 'Chicago Fire', 'it': 'Chicago Fire', 'pt': 'Chicago Fire'
+    },
+    'Houston Dynamo': {
+      'zh': '休斯顿迪纳摩', 'zh-hk': '休斯頓迪納摩', 'zh-tw': '休斯頓迪納摩',
+      'es': 'Houston Dynamo', 'de': 'Houston Dynamo', 'it': 'Houston Dynamo', 'pt': 'Houston Dynamo'
+    },
+    'Minnesota United FC': {
+      'zh': '明尼苏达联', 'zh-hk': '明尼蘇達聯', 'zh-tw': '明尼蘇達聯',
+      'es': 'Minnesota United FC', 'de': 'Minnesota United FC', 'it': 'Minnesota United FC', 'pt': 'Minnesota United FC'
+    },
+    'Real Salt Lake': {
+      'zh': '皇家盐湖城', 'zh-hk': '皇家鹽湖城', 'zh-tw': '皇家鹽湖城',
+      'es': 'Real Salt Lake', 'de': 'Real Salt Lake', 'it': 'Real Salt Lake', 'pt': 'Real Salt Lake'
+    },
+    'Nashville SC': {
+      'zh': '纳什维尔', 'zh-hk': '納什維爾', 'zh-tw': '納什維爾',
+      'es': 'Nashville SC', 'de': 'Nashville SC', 'it': 'Nashville SC', 'pt': 'Nashville SC'
+    },
+
+    // Additional Colombian Teams
+    'Envigado': {
+      'zh': '恩维加多', 'zh-hk': '恩維加多', 'zh-tw': '恩維加多',
+      'es': 'Envigado', 'de': 'Envigado', 'it': 'Envigado', 'pt': 'Envigado'
+    },
+    'Deportivo Pereira': {
+      'zh': '佩雷拉体育', 'zh-hk': '佩雷拉體育', 'zh-tw': '佩雷拉體育',
+      'es': 'Deportivo Pereira', 'de': 'Deportivo Pereira', 'it': 'Deportivo Pereira', 'pt': 'Deportivo Pereira'
+    },
+    'Rionegro Aguilas': {
+      'zh': '里奥内格罗老鹰', 'zh-hk': '里奧內格羅老鷹', 'zh-tw': '里奧內格羅老鷹',
+      'es': 'Rionegro Aguilas', 'de': 'Rionegro Aguilas', 'it': 'Rionegro Aguilas', 'pt': 'Rionegro Aguilas'
+    },
+    'Bucaramanga': {
+      'zh': '布卡拉曼加', 'zh-hk': '布卡拉曼加', 'zh-tw': '布卡拉曼加',
+      'es': 'Bucaramanga', 'de': 'Bucaramanga', 'it': 'Bucaramanga', 'pt': 'Bucaramanga'
+    },
+
+    // Additional Russian Teams
+    'FC Rostov': {
+      'zh': '顿河罗斯托夫', 'zh-hk': '頓河羅斯托夫', 'zh-tw': '頓河羅斯托夫',
+      'es': 'FC Rostov', 'de': 'FC Rostov', 'it': 'FC Rostov', 'pt': 'FC Rostov'
+    },
+    'Torpedo Moskva': {
+      'zh': '莫斯科鱼雷', 'zh-hk': '莫斯科魚雷', 'zh-tw': '莫斯科魚雷',
+      'es': 'Torpedo Moskva', 'de': 'Torpedo Moskva', 'it': 'Torpedo Moskva', 'pt': 'Torpedo Moskva'
+    },
+
+    // Additional Brazilian Teams (Serie B/C)
+    'Operario-PR': {
+      'zh': '巴拉那工人', 'zh-hk': '巴拉那工人', 'zh-tw': '巴拉那工人',
+      'es': 'Operario-PR', 'de': 'Operario-PR', 'it': 'Operario-PR', 'pt': 'Operario-PR'
+    },
+    'Novorizontino': {
+      'zh': '新地平线', 'zh-hk': '新地平線', 'zh-tw': '新地平線',
+      'es': 'Novorizontino', 'de': 'Novorizontino', 'it': 'Novorizontino', 'pt': 'Novorizontino'
+    },
+    'Mirassol': {
+      'zh': '米拉索尔', 'zh-hk': '米拉索爾', 'zh-tw': '米拉索爾',
+      'es': 'Mirassol', 'de': 'Mirassol', 'it': 'Mirassol', 'pt': 'Mirassol'
+    },
+    'Volta Redonda': {
+      'zh': '伏尔塔雷东达', 'zh-hk': '伏爾塔雷東達', 'zh-tw': '伏爾塔雷東達',
+      'es': 'Volta Redonda', 'de': 'Volta Redonda', 'it': 'Volta Redonda', 'pt': 'Volta Redonda'
+    },
+
+    // Additional European Teams
+    'Sparta Praha': {
+      'zh': '布拉格斯巴达', 'zh-hk': '布拉格斯巴達', 'zh-tw': '布拉格斯巴達',
+      'es': 'Sparta Praha', 'de': 'Sparta Prag', 'it': 'Sparta Praga', 'pt': 'Sparta Praga'
+    },
+    'FK Crvena Zvezda': {
+      'zh': '贝尔格莱德红星', 'zh-hk': '貝爾格萊德紅星', 'zh-tw': '貝爾格萊德紅星',
+      'es': 'FK Crvena Zvezda', 'de': 'FK Roter Stern Belgrad', 'it': 'FK Stella Rossa Belgrado', 'pt': 'FK Estrela Vermelha'
+    },
+    'Slovan Bratislava': {
+      'zh': '布拉迪斯拉发斯洛万', 'zh-hk': '布拉迪斯拉發斯洛萬', 'zh-tw': '布拉迪斯拉發斯洛萬',
+      'es': 'Slovan Bratislava', 'de': 'Slovan Bratislava', 'it': 'Slovan Bratislava', 'pt': 'Slovan Bratislava'
+    },
+    'Ludogorets': {
+      'zh': '卢多戈雷茨', 'zh-hk': '盧多戈雷茨', 'zh-tw': '盧多戈雷茨',
+      'es': 'Ludogorets', 'de': 'Ludogorets', 'it': 'Ludogorets', 'pt': 'Ludogorets'
+    },
+    'Red Bull Salzburg': {
+      'zh': '萨尔茨堡红牛', 'zh-hk': '薩爾茨堡紅牛', 'zh-tw': '薩爾茨堡紅牛',
+      'es': 'Red Bull Salzburg', 'de': 'Red Bull Salzburg', 'it': 'Red Bull Salzburg', 'pt': 'Red Bull Salzburg'
+    },
+
+    // Egyptian Teams
+    'Al Ahly': {
+      'zh': '开罗国民', 'zh-hk': '開羅國民', 'zh-tw': '開羅國民',
+      'es': 'Al Ahly', 'de': 'Al Ahly', 'it': 'Al Ahly', 'pt': 'Al Ahly'
+    },
+    'Zamalek SC': {
+      'zh': '扎马雷克', 'zh-hk': '扎馬雷克', 'zh-tw': '扎馬雷克',
+      'es': 'Zamalek SC', 'de': 'Zamalek SC', 'it': 'Zamalek SC', 'pt': 'Zamalek SC'
+    },
+    
+    // Keep some key teams with enhanced translations, others can use the phonetic ones as fallback
+    // Add the rest of the automated mappings but with better logic for known teams
     'Rochefort': {
       'zh': '罗什福尔', 'zh-hk': '羅什福爾', 'zh-tw': '羅什福爾',
       'es': 'Rochefort', 'de': 'Rochefort', 'it': 'Rochefort', 'pt': 'Rochefort'
