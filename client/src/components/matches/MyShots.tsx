@@ -278,7 +278,7 @@ const MyStats: React.FC<MyStatsProps> = ({
   };
 
   return (
-    <>
+    <div className="mystats-container">
      
       {/* Statistics with bars - Real API data */}
       <span className="flex text-sm  font-semibold border-b py-3 -mx-2">Shots</span>
@@ -305,7 +305,7 @@ const MyStats: React.FC<MyStatsProps> = ({
       </div>
 
      
-    </>
+    </div>
   );
 };
 
