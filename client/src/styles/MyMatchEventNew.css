@@ -1093,6 +1093,11 @@
   border: 1px solid rgb(59 130 246) !important;
 }
 
+/* Dark mode elapsed time styling */
+.dark .match-event-time-display {
+  color: white !important;
+}
+
 /* Focus states for accessibility */
 .match-event-icon:focus,
 .match-event-time-center:focus,
