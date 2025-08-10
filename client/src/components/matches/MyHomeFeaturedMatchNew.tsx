@@ -2492,6 +2492,7 @@ id: fixture.teams.away.id,
                               const matchDate = new Date(
                                 currentMatch.fixture.date,
                               );
+                              const statusInfo = getStatusDisplay(currentMatch);
 
                               // Get day name and translate it
                               const dayName = format(matchDate, "EEEE");
@@ -2514,7 +2515,7 @@ id: fixture.teams.away.id,
                               // Build translated date string
                               const translatedDate = `${translatedDayName}, ${dayNumber} ${translatedMonthName}`;
 
-                              // Safely get venue with proper fallbacks
+                              // Safely get venue with proper fallbacks - SHOW FOR ALL MATCH TYPES
                               let displayVenue = currentMatch.fixture?.venue?.name || null;
 
                               // Check if venue is missing or has placeholder values
@@ -2528,6 +2529,7 @@ id: fixture.teams.away.id,
                                 displayVenue = null; // No valid venue found
                               }
 
+                              // Show date, time, and venue for ALL match types (upcoming, live, ended)
                               return (
                                 <>
                                   {translatedDate} | {timeOnly}
