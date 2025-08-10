@@ -1104,9 +1104,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       <div className="pl-28 pr-28 py-4 flex">
         <button
           onClick={() => setActiveTab("all")}
-          className={`flex-1  text-xs font-small  transition-colors ${
+          className={`flex-1 py-3 text-xs font-small text-center transition-colors ${
             activeTab === "all"
-              ? "bg-blue-500 text-white "
+              ? "bg-blue-500 text-white"
               : `${isDarkTheme ? "bg-gray-800 text-white border-white hover:bg-gray-700" : "bg-white text-blue-400 border-blue-400 hover:bg-gray-200"} border`
           }`}
         >
@@ -1114,17 +1114,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         </button>
         <button
           onClick={() => setActiveTab("top")}
-          className={`flex-1 py-3  text-xs font-small text-center transition-colors ${
+          className={`flex-1 py-3 text-xs font-small text-center transition-colors ${
             activeTab === "top"
               ? "bg-blue-500 text-white"
-              : `${isDarkTheme ? "bg-gray-800 text-white border-bg-white hover:bg-gray-700" : "bg-white text-blue-400 border-blue-400 hover:bg-gray-200"} border`
+              : `${isDarkTheme ? "bg-gray-800 text-white border-white hover:bg-gray-700" : "bg-white text-blue-400 border-blue-400 hover:bg-gray-200"} border`
           }`}
         >
           Top
         </button>
         <button
           onClick={() => setActiveTab("commentary")}
-          className={`flex-1 py-3  text-xs font-small text-center transition-colors ${
+          className={`flex-1 py-3 text-xs font-small text-center transition-colors ${
             activeTab === "commentary"
               ? "bg-blue-500 text-white"
               : `${isDarkTheme ? "bg-gray-800 text-white border-white hover:bg-gray-700" : "bg-white text-blue-400 border-blue-400 hover:bg-gray-200"} border`
