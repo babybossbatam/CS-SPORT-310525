@@ -629,237 +629,121 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 if (Array.isArray(fixturesData)) {
                   const cachedFixtures = fixturesData
                     .filter((fixture: any) => {
-                      // Must have valid teams and NOT be live (since we already fetched live matches)
-                      const hasValidTeams = isValidMatch(fixture);
-                      const isNotLive = !isLiveMatch(
-                        fixture.fixture.status.short,
-                      );
+                      // Common filtering function to avoid duplication
+                      const filterFixture = (fixture: any, skipLiveCheck: boolean = false) => {
+                        // Must have valid teams
+                        const hasValidTeams = isValidMatch(fixture);
+                        if (!hasValidTeams) return false;
 
-                      // CRITICAL: Exclude matches that ended more than 2 hours ago
-                      const isOldEnded = isMatchOldEnded(fixture);
-                      if (isOldEnded) {
-                        console.log(
-                          `⏰ [MyHomeFeaturedMatchNew] Excluding old ended match (${fixture.fixture.status.short}):`,
-                          {
-                            home: fixture.teams?.home?.name,
-                            away: fixture.teams?.away?.name,
-                            league: fixture.league?.name,
-                            date: fixture.fixture.date,
-                          },
-                        );
-                        return false;
-                      }
+                        // CRITICAL: Exclude matches that ended more than 2 hours ago
+                        const isOldEnded = isMatchOldEnded(fixture);
+                        if (isOldEnded) {
+                          console.log(
+                            `⏰ [MyHomeFeaturedMatchNew] Excluding old ended match (${fixture.fixture.status.short}):`,
+                            {
+                              home: fixture.teams?.home?.name,
+                              away: fixture.teams?.away?.name,
+                              league: fixture.league?.name,
+                              date: fixture.fixture.date,
+                            },
+                          );
+                          return false;
+                        }
 
-                      // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
-                      const matchDate = new Date(fixture.fixture.date);
-                      const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
-                      const hoursFromKickoff = minutesFromKickoff / 60;
-                      const status = fixture.fixture.status.short;
+                        // Check match status and time consistency
+                        const matchDate = new Date(fixture.fixture.date);
+                        const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
+                        const hoursFromKickoff = minutesFromKickoff / 60;
+                        const status = fixture.fixture.status.short;
 
-                      // CRITICAL: Never exclude live matches regardless of time discrepancies
-                      const isCurrentlyLive = ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status);
-                      if (isCurrentlyLive) {
-                        console.log(
-                          `🔴 [MyHomeFeaturedMatchNew] Preserving live match:`,
-                          {
-                            home: fixture.teams?.home?.name,
-                            away: fixture.teams?.away?.name,
-                            league: fixture.league?.name,
-                            status: status,
-                            minutesFromKickoff: minutesFromKickoff.toFixed(1),
-                          },
-                        );
-                        // For live matches, bypass the isNotLive check
-                        return hasValidTeams && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga && !isExplicitlyExcluded;
-                      }
+                        // CRITICAL: Never exclude live matches regardless of time discrepancies
+                        const isCurrentlyLive = ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status);
+                        if (isCurrentlyLive) {
+                          console.log(
+                            `🔴 [MyHomeFeaturedMatchNew] Preserving live match:`,
+                            {
+                              home: fixture.teams?.home?.name,
+                              away: fixture.teams?.away?.name,
+                              league: fixture.league?.name,
+                              status: status,
+                              minutesFromKickoff: minutesFromKickoff.toFixed(1),
+                            },
+                          );
+                          // For live matches, skip all other filtering except basic exclusions
+                          skipLiveCheck = true;
+                        }
 
-                      // Check for various types of conflicting data (excluding live matches)
-                      let hasConflictingData = false;
-                      let conflictReason = "";
+                        // Check for conflicting data (excluding live matches)
+                        if (!isCurrentlyLive) {
+                          let hasConflictingData = false;
+                          let conflictReason = "";
 
-                      // 1. Ended status but match is far in future (more than 12 hours away)
-                      if ((minutesFromKickoff < -720) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
-                        hasConflictingData = true;
-                        conflictReason = `ended status (${status}) for future match`;
-                      }
+                          // 1. Ended status but match is far in future (more than 12 hours away)
+                          if ((minutesFromKickoff < -720) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                            hasConflictingData = true;
+                            conflictReason = `ended status (${status}) for future match`;
+                          }
 
-                      // 2. "Not Started" status but match is more than 2 hours past kickoff
-                      if ((minutesFromKickoff > 120) && ["NS", "TBD", "PST"].includes(status)) {
-                        hasConflictingData = true;
-                        conflictReason = `not started status (${status}) for overdue match`;
-                      }
+                          // 2. "Not Started" status but match is more than 2 hours past kickoff
+                          if ((minutesFromKickoff > 120) && ["NS", "TBD", "PST"].includes(status)) {
+                            hasConflictingData = true;
+                            conflictReason = `not started status (${status}) for overdue match`;
+                          }
 
-                      // 3. Ended match that's more than 12 hours old (stale ended matches)
-                      if ((hoursFromKickoff > 12) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
-                        hasConflictingData = true;
-                        conflictReason = `stale ended match (${status}) more than 12 hours old`;
-                      }
+                          // 3. Ended match that's more than 12 hours old (stale ended matches)
+                          if ((hoursFromKickoff > 12) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                            hasConflictingData = true;
+                            conflictReason = `stale ended match (${status}) more than 12 hours old`;
+                          }
 
-                      if (hasConflictingData) {
-                        console.log(
-                          `🔄 [MyHomeFeaturedMatchNew] Excluding match with conflicting data - ${conflictReason}:`,
-                          {
-                            home: fixture.teams?.home?.name,
-                            away: fixture.teams?.away?.name,
-                            league: fixture.league?.name,
-                            date: fixture.fixture.date,
-                            status: status,
-                            hoursFromNow: hoursFromKickoff.toFixed(1),
-                            conflictReason: conflictReason,
-                          },
-                        );
-                        return false;
-                      }
+                          if (hasConflictingData) {
+                            console.log(
+                              `🔄 [MyHomeFeaturedMatchNew] Excluding match with conflicting data - ${conflictReason}:`,
+                              {
+                                home: fixture.teams?.home?.name,
+                                away: fixture.teams?.away?.name,
+                                league: fixture.league?.name,
+                                date: fixture.fixture.date,
+                                status: status,
+                                hoursFromNow: hoursFromKickoff.toFixed(1),
+                                conflictReason: conflictReason,
+                              },
+                            );
+                            return false;
+                          }
+                        }
 
-                      // Exclude women's competitions and Oberliga leagues
-                      const leagueName = fixture.league?.name?.toLowerCase() || "";
-                      const country = fixture.league?.country?.toLowerCase() || "";
+                        // Common exclusion checks
+                        const leagueName = fixture.league?.name?.toLowerCase() || "";
+                        const isExplicitlyExcluded = EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league?.id);
+                        const isWomensCompetition = leagueName.includes("women") ||
+                          leagueName.includes("femenina") ||
+                          leagueName.includes("feminine") ||
+                          leagueName.includes("feminin");
+                        const isOberligaLeague = leagueName.includes("oberliga");
+                        const isRegionalligaLeague = leagueName.includes("regionalliga") || leagueName.includes("regional liga");
+                        const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
 
-                      // EXPLICIT EXCLUSION: UEFA Europa Conference League and Regionalliga - Bayern
-                      const isExplicitlyExcluded = EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league?.id);
+                        // Apply exclusions
+                        if (isWomensCompetition || isOberligaLeague || isRegionalligaLeague || is3Liga || isExplicitlyExcluded) {
+                          return false;
+                        }
 
-                      // Exclude women's competitions
-                      const isWomensCompetition = leagueName.includes("women") ||
-                        leagueName.includes("femenina") ||
-                        leagueName.includes("feminine") ||
-                        leagueName.includes("feminin");
+                        // For live matches, we're done with filtering
+                        if (skipLiveCheck || isCurrentlyLive) {
+                          return true;
+                        }
 
-                      // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
-                      const isOberligaLeague = leagueName.includes("oberliga");
-                      const isRegionalligaLeague = leagueName.includes("regionalliga") || leagueName.includes("regional liga");
-                      const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
+                        // For non-live matches, also check if they should be excluded from this specific context
+                        const isNotLive = !isLiveMatch(fixture.fixture.status.short);
+                        return isNotLive;
+                      };
 
-                      const shouldInclude = hasValidTeams && isNotLive && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga && !isExplicitlyExcluded;
+                      const shouldInclude = filterFixture(fixture);
+</new_str>
 
-                      if (shouldInclude) {
-                        console.log(
-                          `✅ [MyHomeFeaturedMatchNew] Including priority league ${leagueId} fixture:`,
-                          {
-                            home: fixture.teams?.home?.name,
-                            away: fixture.teams?.away?.name,
-                            league: fixture.league?.name,
-                            leagueId: fixture.league?.id,
-                            status: fixture.fixture.status.short,
-                          },
-                        );
-                      } else if (isWomensCompetition) {
-                        console.log(
-                          `❌ [MyHomeFeaturedMatchNew] Excluding women's competition:`,
-                          {
-                            league: fixture.league?.name,
-                            leagueId: fixture.league?.id,
-                          },
-                        );
-                      } else if (isOberligaLeague) {
-                        console.log(
-                          `❌ [MyHomeFeaturedMatchNew] Excluding Oberliga league:`,
-                          {
-                            league: fixture.league?.name,
-                            leagueId: fixture.league?.id,
-                          },
-                        );
-                      } else if (isRegionalligaLeague) {
-                        console.log(
-                          `❌ [MyHomeFeaturedMatchNew] Excluding Regionalliga league:`,
-                          {
-                            league: fixture.league?.name,
-                            leagueId: fixture.league?.id,
-                          },
-                        );
-                      } else if (is3Liga) {
-                        console.log(
-                          `❌ [MyHomeFeaturedMatchNew] Excluding 3. Liga league:`,
-                          {
-                            league: fixture.league?.name,
-                            leagueId: fixture.league?.id,
-                          },
-                        );
-                      }
-
-                      return shouldInclude;
-                    })
-                    .map((fixture: any) => ({
-                      fixture: {
-                        id: fixture.fixture.id,
-                        date: fixture.fixture.date,
-                        status: fixture.fixture.status,
-                        venue: fixture.fixture.venue,
-                      },
-                      league: {
-                        id: fixture.league.id,
-                        name: fixture.league.name,
-                        country: fixture.league.country,
-                        logo: fixture.league.logo,
-                        round: fixture.league.round,
-                      },
-                      teams: {
-                        home: {
-                          id: fixture.teams.home.id,
-                          name: fixture.teams.home.name,
-                          logo: fixture.teams.home.logo,
-                        },
-                        away: {
-                          id: fixture.teams.away.id,
-                          name: fixture.teams.away.name,
-                          logo: fixture.teams.away.logo,
-                        },
-                      },
-                      goals: {
-                        home: fixture.goals?.home ?? null,
-                        away: fixture.goals?.away ?? null,
-                      },
-                      venue: fixture.venue,
-                    }));
-
-                  allFixtures.push(...cachedFixtures);
-                }
-              } catch (leagueError) {
-                console.warn(
-                  `Failed to fetch cached data for league ${leagueId}:`,
-                  leagueError,
-                );
-              }
-            }
-
-          // Fetch popular team friendlies from Friendlies Clubs league (667)
-          try {
-            console.log(
-              `🔍 [MyHomeFeaturedMatchNew] Fetching Friendlies Clubs fixtures for popular teams`,
-            );
-
-            const friendliesResponse = await apiRequest(
-              "GET",
-              `/api/featured-match/leagues/667/fixtures?skipFilter=true`,
-            );
-            const friendliesData = await friendliesResponse.json();
-
-            if (Array.isArray(friendliesData)) {
-              const popularFriendlies = friendliesData
-                .filter((fixture: any) => {
-                  // Must have valid teams and NOT be live
-                  const hasValidTeams = isValidMatch(fixture);
-                  const isNotLive = !isLiveMatch(
-                    fixture.fixture.status.short,
-                  );
-
-                  if (!hasValidTeams || !isNotLive) {
-                    return false;
-                  }
-
-                  // Check if it involves popular teams
-                  const homeTeamId = fixture.teams?.home?.id;
-                  const awayTeamId = fixture.teams?.away?.id;
-                  const homeTeam = fixture.teams?.home?.name || "";
-                  const awayTeam = fixture.teams?.away?.name || "";
-
-                  const isPopular = isPopularTeamMatch(homeTeam, awayTeam, homeTeamId, awayTeamId);
-
-                  if (isPopular) {
-                    console.log(`🎯 [MyHomeFeaturedMatchNew] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
-                    return true;
-                  }
-
-                  return false;
+                  // For live matches, bypass the isNotLive check
+                  return hasValidTeams && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga && !isExplicitlyExcluded;
                 })
                 .map((fixture: any) => ({
                   fixture: {
@@ -894,23 +778,331 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   venue: fixture.venue,
                 }));
 
-              console.log(`🎯 [MyHomeFeaturedMatchNew] Found ${popularFriendlies.length} popular team friendlies`);
-              allFixtures.push(...popularFriendlies);
+              allFixtures.push(...cachedFixtures);
             }
-          } catch (friendliesError) {
+          } catch (leagueError) {
             console.warn(
-              `Failed to fetch Friendlies Clubs data:`,
-              friendliesError,
+              `Failed to fetch cached data for league ${leagueId}:`,
+              leagueError,
             );
           }
+        }
 
-          // Fetch non-live matches from cached date-based data
+        // Fetch popular team friendlies from Friendlies Clubs league (667)
+        try {
+          console.log(
+            `🔍 [MyHomeFeaturedMatchNew] Fetching Friendlies Clubs fixtures for popular teams`,
+          );
+
+          const friendliesResponse = await apiRequest(
+            "GET",
+            `/api/featured-match/leagues/667/fixtures?skipFilter=true`,
+          );
+          const friendliesData = await friendliesResponse.json();
+
+          if (Array.isArray(friendliesData)) {
+            const popularFriendlies = friendliesData
+              .filter((fixture: any) => {
+                // Must have valid teams and NOT be live
+                const hasValidTeams = isValidMatch(fixture);
+                const isNotLive = !isLiveMatch(
+                  fixture.fixture.status.short,
+                );
+
+                if (!hasValidTeams || !isNotLive) {
+                  return false;
+                }
+
+                // Check if it involves popular teams
+                const homeTeamId = fixture.teams?.home?.id;
+                const awayTeamId = fixture.teams?.away?.id;
+                const homeTeam = fixture.teams?.home?.name || "";
+                const awayTeam = fixture.teams?.away?.name || "";
+
+                const isPopular = isPopularTeamMatch(homeTeam, awayTeam, homeTeamId, awayTeamId);
+
+                if (isPopular) {
+                  console.log(`🎯 [MyHomeFeaturedMatchNew] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                  return true;
+                }
+
+                return false;
+              })
+              .map((fixture: any) => ({
+                fixture: {
+                  id: fixture.fixture.id,
+                  date: fixture.fixture.date,
+                  status: fixture.fixture.status,
+                  venue: fixture.fixture.venue,
+                },
+                league: {
+                  id: fixture.league.id,
+                  name: fixture.league.name,
+                  country: fixture.league.country,
+                  logo: fixture.league.logo,
+                  round: fixture.league.round,
+                },
+                teams: {
+                  home: {
+                    id: fixture.teams.home.id,
+                    name: fixture.teams.home.name,
+                    logo: fixture.teams.home.logo,
+                  },
+                  away: {
+                    id: fixture.teams.away.id,
+                    name: fixture.teams.away.name,
+                    logo: fixture.teams.away.logo,
+                  },
+                },
+                goals: {
+                  home: fixture.goals?.home ?? null,
+                  away: fixture.goals?.away ?? null,
+                },
+                venue: fixture.venue,
+              }));
+
+            console.log(`🎯 [MyHomeFeaturedMatchNew] Found ${popularFriendlies.length} popular team friendlies`);
+            allFixtures.push(...popularFriendlies);
+          }
+        } catch (friendliesError) {
+          console.warn(
+            `Failed to fetch Friendlies Clubs data:`,
+            friendliesError,
+          );
+        }
+
+        // Fetch non-live matches from cached date-based data
+        for (const dateInfo of dates) {
+          try {
+            console.log(
+              `🔍 [MyHomeFeaturedMatchNew] Fetching cached data for ${dateInfo.label}: ${dateInfo.date}`,
+            );
+
+            const response = await apiRequest(
+              "GET",
+              `/api/featured-match/date/${dateInfo.date}?all=true&skipFilter=true`,
+            );
+            const fixtures = await response.json();
+
+            if (fixtures?.length) {
+              const cachedFixtures = fixtures
+                .filter((fixture: any) => {
+                  // Must have valid teams and NOT be live (since we already fetched live matches)
+                  const hasValidTeams = isValidMatch(fixture);
+                  const isNotLive = !isLiveMatch(
+                    fixture.fixture.status.short,
+                  );
+
+                  // CRITICAL: Exclude matches that ended more than 2 hours ago
+                  const isOldEnded = isMatchOldEnded(fixture);
+                  if (isOldEnded) {
+                    console.log(
+                      `⏰ [MyHomeFeaturedMatchNew] Excluding old ended match (${fixture.fixture.status.short}):`,
+                      {
+                        home: fixture.teams?.home?.name,
+                        away: fixture.teams?.away?.name,
+                        league: fixture.league?.name,
+                        date: fixture.fixture.date,
+                      },
+                    );
+                    return false;
+                  }
+
+                  // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
+                  const matchDate = new Date(fixture.fixture.date);
+                  const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
+                  const hoursFromKickoff = minutesFromKickoff / 60;
+                  const status = fixture.fixture.status.short;
+
+                  // CRITICAL: Never exclude live matches regardless of time discrepancies
+                  const isCurrentlyLive = ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status);
+                  if (isCurrentlyLive) {
+                    console.log(
+                      `🔴 [MyHomeFeaturedMatchNew] Preserving live match in date-based search:`,
+                      {
+                        home: fixture.teams?.home?.name,
+                        away: fixture.teams?.away?.name,
+                        league: fixture.league?.name,
+                        status: status,
+                        minutesFromKickoff: minutesFromKickoff.toFixed(1),
+                      },
+                    );
+                    // Skip all time-based filtering for live matches
+                    return hasValidTeams && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga;
+                  }
+
+                  // Check for various types of conflicting data (excluding live matches)
+                  let hasConflictingData = false;
+                  let conflictReason = "";
+
+                  // 1. Ended status but match is far in future (more than 12 hours away)
+                  if ((minutesFromKickoff < -720) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                    hasConflictingData = true;
+                    conflictReason = `ended status (${status}) for future match`;
+                  }
+
+                  // 2. "Not Started" status but match is more than 2 hours past kickoff
+                  if ((minutesFromKickoff > 120) && ["NS", "TBD", "PST"].includes(status)) {
+                    hasConflictingData = true;
+                    conflictReason = `not started status (${status}) for overdue match`;
+                  }
+
+                  // 3. Ended match that's more than 8 hours old (stale ended matches)
+                  if ((hoursFromKickoff > 8) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                    hasConflictingData = true;
+                    conflictReason = `stale ended match (${status}) more than 8 hours old`;
+                  }
+
+                  if (hasConflictingData) {
+                    console.log(
+                      `🔄 [MyHomeFeaturedMatchNew] Excluding match with conflicting data - ${conflictReason}:`,
+                      {
+                        home: fixture.teams?.home?.name,
+                        away: fixture.teams?.away?.name,
+                        league: fixture.league?.name,
+                        date: fixture.fixture.date,
+                        status: status,
+                        hoursFromNow: hoursFromKickoff.toFixed(1),
+                        conflictReason: conflictReason,
+                      },
+                    );
+                    return false;
+                  }
+
+                  // Exclude women's competitions and Oberliga leagues
+                  const leagueName = fixture.league?.name?.toLowerCase() || "";
+                  const country = fixture.league?.country?.toLowerCase() || "";
+
+                  // Exclude women's competitions
+                  const isWomensCompetition = leagueName.includes("women") ||
+                    leagueName.includes("femenina") ||
+                    leagueName.includes("feminine") ||
+                    leagueName.includes("feminin");
+
+                  // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
+                  const isOberligaLeague = leagueName.includes("oberliga");
+                  const isRegionalligaLeague = leagueName.includes("regionalliga") || leagueName.includes("regional liga");
+                  const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
+
+                  // Check if it's a popular league or from a popular country
+                  const isPopularLeague = POPULAR_LEAGUES.some(
+                    (league) => league.id === fixture.league?.id,
+                  );
+                  const isFromPopularCountry = POPULAR_LEAGUES.some(
+                    (league) => league.country.toLowerCase() === country,
+                  );
+                  const isPriorityLeague = priorityLeagueIds.includes(
+                    fixture.league?.id,
+                  );
+
+                  // Check if it's an international competition
+                  const isInternationalCompetition =
+                    leagueName.includes("champions league") ||
+                    leagueName.includes("europa league") ||
+
+                    leagueName.includes("uefa") ||
+                    leagueName.includes("world cup") ||
+                    leagueName.includes("fifa club world cup") ||
+                    leagueName.includes("fifa") ||
+                    leagueName.includes("conmebol") ||
+                    leagueName.includes("copa america") ||
+                    leagueName.includes("copa libertadores") ||
+                    leagueName.includes("copa sudamericana") ||
+                    leagueName.includes("libertadores") ||
+                    leagueName.includes("sudamericana") ||
+                    (leagueName.includes("friendlies") && !leagueName.includes("international") && !leagueName.includes("women")) ||
+                    (leagueName.includes("international") && !leagueName.includes("women")) ||
+                    country.includes("world") ||
+                    country.includes("europe") ||
+                    country.includes("international");
+
+                  // Check if it's a club friendly with popular teams using the imported popular teams list
+                  const isPopularClubFriendly = () => {
+                    if (leagueName.includes("club friendlies") ||
+                        leagueName.includes("friendlies clubs") ||
+                        fixture.league?.id === 667 ||
+                        (leagueName.includes("friendlies") && !leagueName.includes("international") && !leagueName.includes("women"))) {
+                      const homeTeamId = fixture.teams?.home?.id;
+                      const awayTeamId = fixture.teams?.away?.id;
+                      const homeTeam = fixture.teams?.home?.name || "";
+                      const awayTeam = fixture.teams?.away?.name || "";
+
+                      const isPopular = isPopularTeamMatch(homeTeam, awayTeam, homeTeamId, awayTeamId);
+
+                      if (isPopular) {
+                        console.log(`✅ [MyHomeFeaturedMatchNew] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
+                        return true;
+                      }
+
+                      console.log(`❌ [MyHomeFeaturedMatchNew] Club friendly excluded (no popular teams): ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
+                      return false;
+                    }
+                    return false;
+                  };
+
+                  return (
+                    hasValidTeams &&
+                    (isPopularLeague ||
+                    isFromPopularCountry ||
+                    isInternationalCompetition ||
+                    isPopularClubFriendly()) &&
+                    !isPriorityLeague &&
+                    isNotLive &&
+                    !isWomensCompetition &&
+                    !isOberligaLeague
+                  );
+                })
+                .map((fixture: any) => ({
+                  fixture: {
+                    id: fixture.fixture.id,
+                    date: fixture.fixture.date,
+                    status: fixture.fixture.status,
+                    venue: fixture.fixture.venue,
+                  },
+                  league: {
+                    id: fixture.league.id,
+                    name: fixture.league.name,
+                    country: fixture.league.country,
+                    logo: fixture.league.logo,
+                    round: fixture.league.round,
+                  },
+                  teams: {
+                    home: {
+                      id: fixture.teams.home.id,
+                      name: fixture.teams.home.name,
+                      logo: fixture.teams.home.logo,
+                    },
+                    away: {
+                      id: fixture.teams.away.id,
+                      name: fixture.teams.away.name,
+                      logo: fixture.teams.away.logo,
+                    },
+                  },
+                  goals: {
+                    home: fixture.goals?.home ?? null,
+                    away: fixture.goals?.away ?? null,
+                  },
+                  venue: fixture.venue,
+                }));
+
+              allFixtures.push(...cachedFixtures);
+            }
+          } catch (error) {
+            console.error(
+              `❌ [MyHomeFeaturedMatchNew] Error fetching cached data for ${dateInfo.label}:`,
+              error,
+            );
+          }
+        }
+
+        // If we still don't have enough fixtures, expand search to all popular leagues
+        if (allFixtures.length < 3) {
+          console.log(
+            `🔄 [MyHomeFeaturedMatchNew] Only ${allFixtures.length} fixtures found, expanding to all popular leagues`,
+          );
+
           for (const dateInfo of dates) {
             try {
-              console.log(
-                `🔍 [MyHomeFeaturedMatchNew] Fetching cached data for ${dateInfo.label}: ${dateInfo.date}`,
-              );
-
               const response = await apiRequest(
                 "GET",
                 `/api/featured-match/date/${dateInfo.date}?all=true&skipFilter=true`,
@@ -918,167 +1110,104 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               const fixtures = await response.json();
 
               if (fixtures?.length) {
-                const cachedFixtures = fixtures
+                const expandedFixtures = fixtures
                   .filter((fixture: any) => {
-                    // Must have valid teams, be from popular leagues, not priority leagues, and NOT be live
                     const hasValidTeams =
                       fixture.teams?.home?.name && fixture.teams?.away?.name;
-                    
+                    const isNotLive = !isLiveMatch(
+                      fixture.fixture.status.short,
+                    );
                     const isNotDuplicate = !allFixtures.some(
                       (existing) =>
                         existing.fixture.id === fixture.fixture.id,
                     );
 
-                    // Learn team mappings for smart translation
-                    if (hasValidTeams && fixture.teams?.home?.name && fixture.teams?.away?.name) {
-                      smartTeamTranslation.learnTeamsFromFixtures([fixture]);
-                    }
+                  // Learn team mappings for smart translation
+                  if (hasValidTeams && fixture.teams?.home?.name && fixture.teams?.away?.name) {
+                    smartTeamTranslation.learnTeamsFromFixtures([fixture]);
+                  }
 
-                    // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
-                    const matchDate = new Date(fixture.fixture.date);
-                    const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
-                    const hoursFromKickoff = minutesFromKickoff / 60;
-                    const status = fixture.fixture.status.short;
+                  // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
+                  const matchDate = new Date(fixture.fixture.date);
+                  const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
+                  const hoursFromKickoff = minutesFromKickoff / 60;
+                  const status = fixture.fixture.status.short;
 
-                    // CRITICAL: Never exclude live matches regardless of time discrepancies
-                    const isCurrentlyLive = ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status);
-                    if (isCurrentlyLive) {
-                      console.log(
-                        `🔴 [MyHomeFeaturedMatchNew] Preserving live match in date-based search:`,
-                        {
-                          home: fixture.teams?.home?.name,
-                          away: fixture.teams?.away?.name,
-                          league: fixture.league?.name,
-                          status: status,
-                          minutesFromKickoff: minutesFromKickoff.toFixed(1),
-                        },
-                      );
-                      // Skip all time-based filtering for live matches
-                      return hasValidTeams && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga;
-                    }
-
-                    // Check for various types of conflicting data (excluding live matches)
-                    let hasConflictingData = false;
-                    let conflictReason = "";
-
-                    // 1. Ended status but match is far in future (more than 12 hours away)
-                    if ((minutesFromKickoff < -720) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
-                      hasConflictingData = true;
-                      conflictReason = `ended status (${status}) for future match`;
-                    }
-
-                    // 2. "Not Started" status but match is more than 2 hours past kickoff
-                    if ((minutesFromKickoff > 120) && ["NS", "TBD", "PST"].includes(status)) {
-                      hasConflictingData = true;
-                      conflictReason = `not started status (${status}) for overdue match`;
-                    }
-
-                    // 3. Ended match that's more than 8 hours old (stale ended matches)
-                    if ((hoursFromKickoff > 8) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
-                      hasConflictingData = true;
-                      conflictReason = `stale ended match (${status}) more than 8 hours old`;
-                    }
-
-                    if (hasConflictingData) {
-                      console.log(
-                        `🔄 [MyHomeFeaturedMatchNew] Excluding match with conflicting data - ${conflictReason}:`,
-                        {
-                          home: fixture.teams?.home?.name,
-                          away: fixture.teams?.away?.name,
-                          league: fixture.league?.name,
-                          date: fixture.fixture.date,
-                          status: status,
-                          hoursFromNow: hoursFromKickoff.toFixed(1),
-                          conflictReason: conflictReason,
-                        },
-                      );
-                      return false;
-                    }
-
-                    // Exclude women's competitions and Oberliga leagues
-                    const leagueName = fixture.league?.name?.toLowerCase() || "";
-                    const country = fixture.league?.country?.toLowerCase() || "";
-
-                    // Exclude women's competitions
-                    const isWomensCompetition = leagueName.includes("women") ||
-                      leagueName.includes("femenina") ||
-                      leagueName.includes("feminine") ||
-                      leagueName.includes("femmin");
-
-                    // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
-                    const isOberligaLeague = leagueName.includes("oberliga");
-                    const isRegionalligaLeague = leagueName.includes("regionalliga") || leagueName.includes("regional liga");
-                    const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
-
-                    // Check if it's a popular league or from a popular country
-                    const isPopularLeague = POPULAR_LEAGUES.some(
-                      (league) => league.id === fixture.league?.id,
+                  // CRITICAL: Never exclude live matches regardless of time discrepancies
+                  const isCurrentlyLive = ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status);
+                  if (isCurrentlyLive) {
+                    console.log(
+                      `🔴 [MyHomeFeaturedMatchNew] Preserving live match in expanded search:`,
+                      {
+                        home: fixture.teams?.home?.name,
+                        away: fixture.teams?.away?.name,
+                        league: fixture.league?.name,
+                        status: status,
+                        minutesFromKickoff: minutesFromKickoff.toFixed(1),
+                      },
                     );
-                    const isFromPopularCountry = POPULAR_LEAGUES.some(
-                      (league) => league.country.toLowerCase() === country,
+                    // Skip all filtering for live matches except basic validity
+                    return hasValidTeams && isNotDuplicate && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga;
+                  }
+
+                  // Check for various types of conflicting data (excluding live matches)
+                  let hasConflictingData = false;
+                  let conflictReason = "";
+
+                  // 1. Ended status but match is far in future (more than 12 hours away)
+                  if ((minutesFromKickoff < -720) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                    hasConflictingData = true;
+                    conflictReason = `ended status (${status}) for future match`;
+                  }
+
+                  // 2. "Not Started" status but match is more than 2 hours past kickoff
+                  if ((minutesFromKickoff > 120) && ["NS", "TBD", "PST"].includes(status)) {
+                    hasConflictingData = true;
+                    conflictReason = `not started status (${status}) for overdue match`;
+                  }
+
+                  // 3. Ended match that's more than 12 hours old (stale ended matches)
+                  if ((hoursFromKickoff > 12) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                    hasConflictingData = true;
+                    conflictReason = `stale ended match (${status}) more than 12 hours old`;
+                  }
+
+                  if (hasConflictingData) {
+                    console.log(
+                      `🔄 [MyHomeFeaturedMatchNew] Excluding expanded search match with conflicting data - ${conflictReason}:`,
+                      {
+                        home: fixture.teams?.home?.name,
+                        away: fixture.teams?.away?.name,
+                        league: fixture.league?.name,
+                        date: fixture.fixture.date,
+                        status: status,
+                        hoursFromNow: hoursFromKickoff.toFixed(1),
+                        conflictReason: conflictReason,
+                      },
                     );
-                    const isPriorityLeague = priorityLeagueIds.includes(
-                      fixture.league?.id,
-                    );
-                    
-                    // Check if it's an international competition
-                    const isInternationalCompetition =
-                      leagueName.includes("champions league") ||
-                      leagueName.includes("europa league") ||
+                    return false;
+                  }
 
-                      leagueName.includes("uefa") ||
-                      leagueName.includes("world cup") ||
-                      leagueName.includes("fifa club world cup") ||
-                      leagueName.includes("fifa") ||
-                      leagueName.includes("conmebol") ||
-                      leagueName.includes("copa america") ||
-                      leagueName.includes("copa libertadores") ||
-                      leagueName.includes("copa sudamericana") ||
-                      leagueName.includes("libertadores") ||
-                      leagueName.includes("sudamericana") ||
-                      (leagueName.includes("friendlies") && !leagueName.includes("international") && !leagueName.includes("women")) ||
-                      (leagueName.includes("international") && !leagueName.includes("women")) ||
-                      country.includes("world") ||
-                      country.includes("europe") ||
-                      country.includes("international");
+                  // Exclude women's competitions and Oberliga leagues
+                  const leagueName = fixture.league?.name?.toLowerCase() || "";
+                  const country = fixture.league?.country?.toLowerCase() || "";
 
-                    // Check if it's a club friendly with popular teams using the imported popular teams list
-                    const isPopularClubFriendly = () => {
-                      if (leagueName.includes("club friendlies") ||
-                          leagueName.includes("friendlies clubs") ||
-                          fixture.league?.id === 667 ||
-                          (leagueName.includes("friendlies") && !leagueName.includes("international") && !leagueName.includes("women"))) {
-                        const homeTeamId = fixture.teams?.home?.id;
-                        const awayTeamId = fixture.teams?.away?.id;
-                        const homeTeam = fixture.teams?.home?.name || "";
-                        const awayTeam = fixture.teams?.away?.name || "";
+                  // Exclude women's competitions
+                  const isWomensCompetition = leagueName.includes("women") ||
+                    leagueName.includes("femenina") ||
+                    leagueName.includes("feminine") ||
+                    leagueName.includes("feminin");
 
-                        const isPopular = isPopularTeamMatch(homeTeam, awayTeam, homeTeamId, awayTeamId);
+                  // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
+                  const isOberligaLeague = leagueName.includes("oberliga");
+                  const isRegionalligaLeague = leagueName.includes("regionalliga");
+                  const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
 
-                        if (isPopular) {
-                          console.log(`✅ [MyHomeFeaturedMatchNew] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
-                          return true;
-                        }
-
-                        console.log(`❌ [MyHomeFeaturedMatchNew] Club friendly excluded (no popular teams): ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
-                        return false;
-                      }
-                      return false;
-                    };
-
-                    return (
-                      hasValidTeams &&
-                      (isPopularLeague ||
-                      isFromPopularCountry ||
-                      isInternationalCompetition ||
-                      isPopularClubFriendly()) &&
-                      !isPriorityLeague &&
-                      isNotLive &&
-                      !isWomensCompetition &&
-                      !isOberligaLeague
-                    );
+                    return hasValidTeams && isNotLive && isNotDuplicate && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga;
                   })
+                  .slice(0, 5) // Limit to prevent overwhelming
                   .map((fixture: any) => ({
+
                     fixture: {
                       id: fixture.fixture.id,
                       date: fixture.fixture.date,
@@ -1099,7 +1228,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         logo: fixture.teams.home.logo,
                       },
                       away: {
-                        id: fixture.teams.away.id,
+
+id: fixture.teams.away.id,
                         name: fixture.teams.away.name,
                         logo: fixture.teams.away.logo,
                       },
@@ -1111,170 +1241,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     venue: fixture.venue,
                   }));
 
-                allFixtures.push(...cachedFixtures);
+                allFixtures.push(...expandedFixtures);
               }
             } catch (error) {
               console.error(
-                `❌ [MyHomeFeaturedMatchNew] Error fetching cached data for ${dateInfo.label}:`,
+                `❌ [MyHomeFeaturedMatchNew] Error in expanded search for ${dateInfo.label}:`,
                 error,
               );
-            }
-          }
-
-          // If we still don't have enough fixtures, expand search to all popular leagues
-          if (allFixtures.length < 3) {
-            console.log(
-              `🔄 [MyHomeFeaturedMatchNew] Only ${allFixtures.length} fixtures found, expanding to all popular leagues`,
-            );
-
-            for (const dateInfo of dates) {
-              try {
-                const response = await apiRequest(
-                  "GET",
-                  `/api/featured-match/date/${dateInfo.date}?all=true&skipFilter=true`,
-                );
-                const fixtures = await response.json();
-
-                if (fixtures?.length) {
-                  const expandedFixtures = fixtures
-                    .filter((fixture: any) => {
-                      const hasValidTeams =
-                        fixture.teams?.home?.name && fixture.teams?.away?.name;
-                      const isNotLive = !isLiveMatch(
-                        fixture.fixture.status.short,
-                      );
-                      const isNotDuplicate = !allFixtures.some(
-                        (existing) =>
-                          existing.fixture.id === fixture.fixture.id,
-                      );
-
-                    // Learn team mappings for smart translation
-                    if (hasValidTeams && fixture.teams?.home?.name && fixture.teams?.away?.name) {
-                      smartTeamTranslation.learnTeamsFromFixtures([fixture]);
-                    }
-
-                    // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
-                    const matchDate = new Date(fixture.fixture.date);
-                    const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
-                    const hoursFromKickoff = minutesFromKickoff / 60;
-                    const status = fixture.fixture.status.short;
-
-                    // CRITICAL: Never exclude live matches regardless of time discrepancies
-                    const isCurrentlyLive = ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status);
-                    if (isCurrentlyLive) {
-                      console.log(
-                        `🔴 [MyHomeFeaturedMatchNew] Preserving live match in expanded search:`,
-                        {
-                          home: fixture.teams?.home?.name,
-                          away: fixture.teams?.away?.name,
-                          league: fixture.league?.name,
-                          status: status,
-                          minutesFromKickoff: minutesFromKickoff.toFixed(1),
-                        },
-                      );
-                      // Skip all filtering for live matches except basic validity
-                      return hasValidTeams && isNotDuplicate && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga;
-                    }
-
-                    // Check for various types of conflicting data (excluding live matches)
-                    let hasConflictingData = false;
-                    let conflictReason = "";
-
-                    // 1. Ended status but match is far in future (more than 12 hours away)
-                    if ((minutesFromKickoff < -720) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
-                      hasConflictingData = true;
-                      conflictReason = `ended status (${status}) for future match`;
-                    }
-
-                    // 2. "Not Started" status but match is more than 2 hours past kickoff
-                    if ((minutesFromKickoff > 120) && ["NS", "TBD", "PST"].includes(status)) {
-                      hasConflictingData = true;
-                      conflictReason = `not started status (${status}) for overdue match`;
-                    }
-
-                    // 3. Ended match that's more than 12 hours old (stale ended matches)
-                    if ((hoursFromKickoff > 12) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
-                      hasConflictingData = true;
-                      conflictReason = `stale ended match (${status}) more than 12 hours old`;
-                    }
-
-                    if (hasConflictingData) {
-                      console.log(
-                        `🔄 [MyHomeFeaturedMatchNew] Excluding expanded search match with conflicting data - ${conflictReason}:`,
-                        {
-                          home: fixture.teams?.home?.name,
-                          away: fixture.teams?.away?.name,
-                          league: fixture.league?.name,
-                          date: fixture.fixture.date,
-                          status: status,
-                          hoursFromNow: hoursFromKickoff.toFixed(1),
-                          conflictReason: conflictReason,
-                        },
-                      );
-                      return false;
-                    }
-
-                    // Exclude women's competitions and Oberliga leagues
-                    const leagueName = fixture.league?.name?.toLowerCase() || "";
-                    const country = fixture.league?.country?.toLowerCase() || "";
-
-                    // Exclude women's competitions
-                    const isWomensCompetition = leagueName.includes("women") ||
-                      leagueName.includes("femenina") ||
-                      leagueName.includes("feminine") ||
-                      leagueName.includes("feminin");
-
-                    // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
-                    const isOberligaLeague = leagueName.includes("oberliga");
-                    const isRegionalligaLeague = leagueName.includes("regionalliga");
-                    const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
-
-                      return hasValidTeams && isNotLive && isNotDuplicate && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga;
-                    })
-                    .slice(0, 5) // Limit to prevent overwhelming
-                    .map((fixture: any) => ({
-
-                      fixture: {
-                        id: fixture.fixture.id,
-                        date: fixture.fixture.date,
-                        status: fixture.fixture.status,
-                        venue: fixture.fixture.venue,
-                      },
-                      league: {
-                        id: fixture.league.id,
-                        name: fixture.league.name,
-                        country: fixture.league.country,
-                        logo: fixture.league.logo,
-                        round: fixture.league.round,
-                      },
-                      teams: {
-                        home: {
-                          id: fixture.teams.home.id,
-                          name: fixture.teams.home.name,
-                          logo: fixture.teams.home.logo,
-                        },
-                        away: {
-
-id: fixture.teams.away.id,
-                          name: fixture.teams.away.name,
-                          logo: fixture.teams.away.logo,
-                        },
-                      },
-                      goals: {
-                        home: fixture.goals?.home ?? null,
-                        away: fixture.goals?.away ?? null,
-                      },
-                      venue: fixture.venue,
-                    }));
-
-                  allFixtures.push(...expandedFixtures);
-                }
-              } catch (error) {
-                console.error(
-                  `❌ [MyHomeFeaturedMatchNew] Error in expanded search for ${dateInfo.label}:`,
-                  error,
-                );
-              }
             }
           }
         }
