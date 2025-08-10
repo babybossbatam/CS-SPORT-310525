@@ -1655,12 +1655,83 @@ export const useTranslation = () => {
   };
 
 
+  // Match status translation function
+  const getMatchStatusTranslation = (status: string, language: string): string => {
+    const statusTranslations: { [key: string]: { [key: string]: string } } = {
+      'FT': {
+        'en': 'Ended',
+        'zh': '已结束',
+        'zh-hk': '已結束',
+        'zh-tw': '已結束',
+        'es': 'Finalizado',
+        'de': 'Beendet',
+        'it': 'Finito',
+        'pt': 'Terminado'
+      },
+      'AET': {
+        'en': 'After Extra Time',
+        'zh': '加时后结束',
+        'zh-hk': '加時後結束',
+        'zh-tw': '加時後結束',
+        'es': 'Después del Tiempo Extra',
+        'de': 'Nach Verlängerung',
+        'it': 'Dopo Tempo Supplementare',
+        'pt': 'Após Tempo Extra'
+      },
+      'PEN': {
+        'en': 'After Penalties',
+        'zh': '点球后结束',
+        'zh-hk': '點球後結束',
+        'zh-tw': '點球後結束',
+        'es': 'Después de Penales',
+        'de': 'Nach Elfmeterschießen',
+        'it': 'Dopo Rigori',
+        'pt': 'Após Penaltis'
+      },
+      'LIVE': {
+        'en': 'Live',
+        'zh': '直播中',
+        'zh-hk': '直播中',
+        'zh-tw': '直播中',
+        'es': 'En Vivo',
+        'de': 'Live',
+        'it': 'In Diretta',
+        'pt': 'Ao Vivo'
+      },
+      'NS': {
+        'en': 'Starting now',
+        'zh': '即将开始',
+        'zh-hk': '即將開始',
+        'zh-tw': '即將開始',
+        'es': 'Comenzando',
+        'de': 'Startet jetzt',
+        'it': 'Inizia ora',
+        'pt': 'Iniciando'
+      },
+      'UPCOMING': {
+        'en': 'Upcoming',
+        'zh': '即将到来',
+        'zh-hk': '即將到來',
+        'zh-tw': '即將到來',
+        'es': 'Próximo',
+        'de': 'Demnächst',
+        'it': 'Prossimo',
+        'pt': 'Próximo'
+      }
+    };
+
+    // Default to "Ended" for finished matches
+    const translation = statusTranslations[status] || statusTranslations['FT'];
+    return translation[language] || translation['en'] || 'Ended';
+  };
+
   return {
     currentLanguage,
     t,
     translateLeagueName,
     translateCountryName,
-    translateTeamName
+    translateTeamName,
+    getMatchStatusTranslation
   };
 };
 
