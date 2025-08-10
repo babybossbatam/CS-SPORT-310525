@@ -1,4 +1,3 @@
-
 import { teamMappingExtractor } from './teamMappingExtractor';
 
 /**
@@ -21,7 +20,7 @@ export async function generateCompleteTeamMapping(selectedDate: string = new Dat
       try {
         console.log(`📡 [Complete Team Mapping] Fetching league ${leagueId}...`);
         const response = await fetch(`/api/leagues/${leagueId}/fixtures`);
-        
+
         if (response.ok) {
           const data = await response.json();
           const fixtures = data.response || data || [];
@@ -54,7 +53,7 @@ export async function generateCompleteTeamMapping(selectedDate: string = new Dat
 
     // Generate translation templates for different languages
     const languages = ['zh-hk', 'zh-cn', 'en', 'es', 'fr', 'de', 'it', 'pt'];
-    
+
     languages.forEach(lang => {
       const template = teamMappingExtractor.generateTranslationTemplate(lang);
       console.log(`📋 [Translation Template - ${lang.toUpperCase()}]:`);
@@ -95,24 +94,24 @@ export async function generateCompleteTeamMapping(selectedDate: string = new Dat
     const generateSmartTranslationCode = (language: string) => {
       const teams = teamMappingExtractor.getAllTeamsSortedByFrequency();
       const mappings: string[] = [];
-      
+
       teams.forEach(team => {
         // Generate translations for common teams
         const teamName = team.name;
         let translation = teamName; // Default to original name
-        
+
         // Add specific translations for Chinese languages
         if (language === 'zh-hk' || language === 'zh-cn') {
           // You can extend this with your translation logic
           translation = translateTeamNameToLanguage(teamName, language);
         }
-        
+
         mappings.push(`    '${teamName}': {
       'zh': '${translation}', 'zh-hk': '${translation}', 'zh-tw': '${translation}',
       'es': '${teamName}', 'de': '${teamName}', 'it': '${teamName}', 'pt': '${teamName}'
     }`);
       });
-      
+
       return mappings.join(',\n');
     };
 
@@ -171,7 +170,7 @@ ${JSON.stringify(exportData, null, 2)}
  */
 export async function generateSeasonWideTeamMapping(): Promise<void> {
   console.log('🏆 [Season Mapping] Starting season-wide team mapping...');
-  
+
   const leagueIds = [
     38, 15, 2, 4, 10, 11, 848, 886, 1022, 772, 71, 3, 5, 531, 22, 72, 73, 75,
     76, 233, 667, 940, 908, 1169, 23, 1077, 253, 850, 893, 921, 130, 128, 493,
@@ -180,15 +179,15 @@ export async function generateSeasonWideTeamMapping(): Promise<void> {
 
   try {
     console.log(`📡 [Season Mapping] Fetching all teams from ${leagueIds.length} leagues...`);
-    
+
     const allSeasonFixtures: any[] = [];
-    
+
     // Fetch all fixtures from each league (regardless of date)
     for (const leagueId of leagueIds) {
       try {
         console.log(`📊 [Season Mapping] Processing league ${leagueId}...`);
         const response = await fetch(`/api/leagues/${leagueId}/fixtures`);
-        
+
         if (response.ok) {
           const data = await response.json();
           const fixtures = data.response || data || [];
@@ -200,7 +199,7 @@ export async function generateSeasonWideTeamMapping(): Promise<void> {
       } catch (error) {
         console.error(`❌ [Season Mapping] Error fetching league ${leagueId}:`, error);
       }
-      
+
       // Add small delay to be API-friendly
       await new Promise(resolve => setTimeout(resolve, 100));
     }
@@ -219,10 +218,10 @@ export async function generateSeasonWideTeamMapping(): Promise<void> {
 
     // Generate ready-to-paste TypeScript code
     const allTeams = teamMappingExtractor.getAllTeamsSortedByFrequency();
-    
+
     let tsCode = '// ============= COMPLETE TEAM TRANSLATIONS =============\n';
     tsCode += '// Copy these into your smartTeamTranslation.ts file\n\n';
-    
+
     allTeams.forEach(team => {
       const teamName = team.name;
       tsCode += `    '${teamName}': {\n`;
@@ -242,10 +241,10 @@ export async function generateSeasonWideTeamMapping(): Promise<void> {
     };
 
     localStorage.setItem('seasonTeamMapping', JSON.stringify(seasonResults, null, 2));
-    
+
     // Create downloadable file
     const fullContent = `${tsCode}\n\n// ============= ANALYSIS DATA =============\n${JSON.stringify(seasonResults, null, 2)}`;
-    
+
     const blob = new Blob([fullContent], { type: 'text/typescript' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -269,7 +268,7 @@ export async function generateSeasonWideTeamMapping(): Promise<void> {
  */
 export function analyzeCurrentPageTeams(): void {
   console.log('🔍 [Quick Analysis] Analyzing teams from current page...');
-  
+
   // This would be called from the browser console to analyze currently loaded data
   const event = new CustomEvent('analyzeTeams');
   window.dispatchEvent(event);
@@ -296,7 +295,7 @@ export async function generateAutomatedTeamMappingForLeagues(leagueIds: number[]
       try {
         console.log(`📡 [Automated] Fetching league ${leagueId}...`);
         const response = await fetch(`/api/leagues/${leagueId}/fixtures`);
-        
+
         if (response.ok) {
           const data = await response.json();
           const fixtures = data.response || data || [];
@@ -328,19 +327,19 @@ export async function generateAutomatedTeamMappingForLeagues(leagueIds: number[]
     const generateAutomatedTranslations = (language: string) => {
       const teams = teamMappingExtractor.getAllTeamsSortedByFrequency();
       const mappings: string[] = [];
-      
+
       teams.forEach(team => {
         const teamName = team.name;
-        
+
         // Use smart translation (you can enhance this with ML or external translation APIs)
         const translations = generateSmartTranslationForTeam(teamName, language);
-        
+
         mappings.push(`    '${teamName}': {
       'zh': '${translations.zh}', 'zh-hk': '${translations.zhHk}', 'zh-tw': '${translations.zhTw}',
       'es': '${translations.es}', 'de': '${translations.de}', 'it': '${translations.it}', 'pt': '${translations.pt}'
     }`);
       });
-      
+
       return mappings.join(',\n');
     };
 
@@ -402,7 +401,7 @@ ${generateAutomatedTranslations('zh-hk')}
 function generateSmartTranslationForTeam(teamName: string, language: string): any {
   // Enhanced smart translation logic
   const lowerName = teamName.toLowerCase();
-  
+
   // Common team name translations
   const commonTranslations: { [key: string]: any } = {
     // Spanish teams
@@ -414,7 +413,7 @@ function generateSmartTranslationForTeam(teamName: string, language: string): an
     'villarreal': { zh: '比利亚雷亚尔', zhHk: '維拉利爾', zhTw: '比利亞雷爾', es: 'Villarreal', de: 'Villarreal', it: 'Villarreal', pt: 'Villarreal' },
     'real betis': { zh: '皇家贝蒂斯', zhHk: '皇家貝迪斯', zhTw: '皇家貝蒂斯', es: 'Real Betis', de: 'Real Betis', it: 'Real Betis', pt: 'Real Betis' },
     'athletic bilbao': { zh: '毕尔巴鄂竞技', zhHk: '畢爾包體育會', zhTw: '畢爾包競技', es: 'Athletic Bilbao', de: 'Athletic Bilbao', it: 'Athletic Bilbao', pt: 'Athletic Bilbao' },
-    
+
     // English teams
     'arsenal': { zh: '阿森纳', zhHk: '阿仙奴', zhTw: '阿森納', es: 'Arsenal', de: 'Arsenal', it: 'Arsenal', pt: 'Arsenal' },
     'chelsea': { zh: '切尔西', zhHk: '車路士', zhTw: '切爾西', es: 'Chelsea', de: 'Chelsea', it: 'Chelsea', pt: 'Chelsea' },
@@ -422,18 +421,18 @@ function generateSmartTranslationForTeam(teamName: string, language: string): an
     'manchester united': { zh: '曼联', zhHk: '曼聯', zhTw: '曼聯', es: 'Manchester United', de: 'Manchester United', it: 'Manchester United', pt: 'Manchester United' },
     'manchester city': { zh: '曼城', zhHk: '曼城', zhTw: '曼城', es: 'Manchester City', de: 'Manchester City', it: 'Manchester City', pt: 'Manchester City' },
     'tottenham': { zh: '热刺', zhHk: '熱刺', zhTw: '熱刺', es: 'Tottenham', de: 'Tottenham', it: 'Tottenham', pt: 'Tottenham' },
-    
+
     // Italian teams
     'juventus': { zh: '尤文图斯', zhHk: '祖雲達斯', zhTw: '尤文圖斯', es: 'Juventus', de: 'Juventus', it: 'Juventus', pt: 'Juventus' },
     'ac milan': { zh: 'AC米兰', zhHk: 'AC米蘭', zhTw: 'AC米蘭', es: 'AC Milan', de: 'AC Mailand', it: 'AC Milan', pt: 'AC Milan' },
     'inter milan': { zh: '国际米兰', zhHk: '國際米蘭', zhTw: '國際米蘭', es: 'Inter de Milán', de: 'Inter Mailand', it: 'Inter', pt: 'Inter de Milão' },
     'as roma': { zh: '罗马', zhHk: '羅馬', zhTw: '羅馬', es: 'AS Roma', de: 'AS Rom', it: 'AS Roma', pt: 'AS Roma' },
     'napoli': { zh: '那不勒斯', zhHk: '拿坡里', zhTw: '那不勒斯', es: 'Nápoles', de: 'Neapel', it: 'Napoli', pt: 'Napoli' },
-    
+
     // German teams
     'bayern munich': { zh: '拜仁慕尼黑', zhHk: '拜仁慕尼黑', zhTw: '拜仁慕尼黑', es: 'Bayern Múnich', de: 'Bayern München', it: 'Bayern Monaco', pt: 'Bayern de Munique' },
     'borussia dortmund': { zh: '多特蒙德', zhHk: '多蒙特', zhTw: '多特蒙德', es: 'Borussia Dortmund', de: 'Borussia Dortmund', it: 'Borussia Dortmund', pt: 'Borussia Dortmund' },
-    
+
     // French teams
     'paris saint germain': { zh: '巴黎圣日耳曼', zhHk: '巴黎聖日耳門', zhTw: '巴黎聖日耳曼', es: 'París Saint-Germain', de: 'Paris Saint-Germain', it: 'Paris Saint-Germain', pt: 'Paris Saint-Germain' },
     'marseille': { zh: '马赛', zhHk: '馬賽', zhTw: '馬賽', es: 'Marsella', de: 'Marseille', it: 'Marsiglia', pt: 'Marselha' },
@@ -507,54 +506,55 @@ export async function mapMajorEuropeanLeagues(): Promise<void> {
  */
 export async function generateAutomatedTeamMappingForAllLeagues(): Promise<void> {
   console.log('🌍 [All Leagues Mapping] Fetching all available leagues...');
-  
+
   try {
-    // Fetch all available leagues from the API
-    const response = await fetch('/api/leagues');
-    
+    // Try to fetch leagues from API first
+    console.log('📡 [All Leagues Mapping] Attempting to fetch from /api/leagues/all...');
+
+    const response = await fetch('/api/leagues/all', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
+
+    // Check if the response was successful and if it's JSON
     if (!response.ok) {
-      throw new Error(`Failed to fetch leagues: ${response.status} ${response.statusText}`);
+      console.warn(`⚠️ [All Leagues Mapping] Failed to fetch leagues from /api/leagues/all: ${response.status} ${response.statusText}`);
+      throw new Error(`Failed to fetch leagues from /api/leagues/all: ${response.status} ${response.statusText}`);
     }
-    
-    // Check if response is actually JSON
+
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
+      console.warn(`⚠️ [All Leagues Mapping] Unexpected content type from /api/leagues/all: ${contentType}`);
       throw new Error(`Expected JSON response but got: ${contentType}`);
     }
-    
-    const responseText = await response.text();
-    
-    // Try to parse as JSON
-    let leagues;
-    try {
-      leagues = JSON.parse(responseText);
-    } catch (jsonError) {
-      console.error('❌ [All Leagues Mapping] Invalid JSON response:', responseText.substring(0, 200));
-      throw new Error(`Invalid JSON response from /api/leagues`);
-    }
-    
+
+    const leagues = await response.json();
+
     // Validate the response structure
     if (!Array.isArray(leagues)) {
       throw new Error(`Expected array of leagues but got: ${typeof leagues}`);
     }
-    
+
     const allLeagueIds = leagues
       .map((league: any) => league.league?.id || league.id)
       .filter((id: any) => typeof id === 'number' && id > 0);
-    
+
     if (allLeagueIds.length === 0) {
       throw new Error('No valid league IDs found in API response');
     }
-    
+
     console.log(`🎯 [All Leagues Mapping] Found ${allLeagueIds.length} total leagues`);
     console.log(`📋 [All Leagues Mapping] League IDs: ${allLeagueIds.slice(0, 20).join(', ')}${allLeagueIds.length > 20 ? '...' : ''}`);
-    
+
     // Generate mappings for all leagues
     await generateAutomatedTeamMappingForLeagues(allLeagueIds);
-    
+
   } catch (error) {
     console.error('❌ [All Leagues Mapping] Failed to fetch all leagues:', error);
-    
+
     // Fallback to predefined comprehensive list
     console.log('🔄 [All Leagues Mapping] Using fallback comprehensive league list...');
     const fallbackLeagues = [
@@ -562,7 +562,7 @@ export async function generateAutomatedTeamMappingForAllLeagues(): Promise<void>
       76, 233, 667, 940, 908, 1169, 23, 1077, 253, 850, 893, 921, 130, 128, 493,
       239, 265, 237, 235, 743
     ];
-    
+
     await generateAutomatedTeamMappingForLeagues(fallbackLeagues);
   }
 }
@@ -576,13 +576,13 @@ if (typeof window !== 'undefined') {
   (window as any).generateAutomatedTeamMappingForAllLeagues = generateAutomatedTeamMappingForAllLeagues;
   (window as any).mapSpanishLeagueTeams = mapSpanishLeagueTeams;
   (window as any).mapMajorEuropeanLeagues = mapMajorEuropeanLeagues;
-  
+
   // Helper function to directly generate team mappings for specific leagues
   (window as any).generateMappingForLeagues = async (leagueIds: number[]) => {
     console.log(`🎯 [Custom Mapping] Generating mappings for leagues: ${leagueIds.join(', ')}`);
-    
+
     const allFixtures: any[] = [];
-    
+
     for (const leagueId of leagueIds) {
       try {
         const response = await fetch(`/api/leagues/${leagueId}/fixtures`);
@@ -597,14 +597,14 @@ if (typeof window !== 'undefined') {
       }
       await new Promise(resolve => setTimeout(resolve, 100));
     }
-    
+
     const teamData = teamMappingExtractor.extractTeamsFromFixtures(allFixtures);
     const analysis = teamMappingExtractor.generateAnalysisReport();
-    
+
     console.log(`🎯 Custom mapping complete: ${analysis.totalTeams} teams from ${analysis.totalFixtures} fixtures`);
     return analysis;
   };
-  
+
   console.log(`🛠️ [Automated Team Mapping] Available functions:`);
   console.log(`   • generateAutomatedTeamMappingForLeagues([4, 667]) - Map specific leagues`);
   console.log(`   • mapSpanishLeagueTeams() - Map all Spanish league teams`);
