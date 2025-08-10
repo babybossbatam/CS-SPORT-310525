@@ -41,11 +41,25 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     queryFn: async () => {
       try {
         console.log(`🔄 [CentralDataProvider] Fetching fixtures for ${validDate}`);
-        const response = await fetch(`/api/fixtures/date/${validDate}?all=true`);
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+        
+        const response = await fetch(`/api/fixtures/date/${validDate}?all=true`, {
+          signal: controller.signal,
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        clearTimeout(timeoutId);
+        
         if (!response.ok) {
           console.warn(`Date fixtures API returned ${response.status} for ${validDate}`);
           return [];
         }
+        
         const data: FixtureResponse[] = await response.json();
 
         console.log(`📊 [CentralDataProvider] Raw data received: ${data.length} fixtures`);
@@ -65,7 +79,11 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
 
         return basicFiltered;
       } catch (error) {
-        console.error(`❌ [CentralDataProvider] Error fetching fixtures for ${validDate}:`, error);
+        if (error.name === 'AbortError') {
+          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate}`);
+        } else {
+          console.error(`❌ [CentralDataProvider] Error fetching fixtures for ${validDate}:`, error);
+        }
         return [];
       }
     },
@@ -90,13 +108,18 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         console.log(`🔴 [CentralDataProvider] Fetching live fixtures`);
 
         try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+          
           const response = await fetch('/api/fixtures/live', {
+            signal: controller.signal,
             headers: {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
-            },
-            signal: AbortSignal.timeout(10000), // 10 second timeout
+            }
           });
+
+          clearTimeout(timeoutId);
 
           if (!response.ok) {
             console.warn(`Live fixtures API returned ${response.status}`);
@@ -111,7 +134,11 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           return data;
 
         } catch (fetchError) {
-          console.warn(`Failed to fetch live fixtures:`, fetchError);
+          if (fetchError.name === 'AbortError') {
+            console.warn(`⏰ [CentralDataProvider] Live fixtures request timeout`);
+          } else {
+            console.warn(`Failed to fetch live fixtures:`, fetchError);
+          }
           // Return empty array instead of throwing
           return [];
         }

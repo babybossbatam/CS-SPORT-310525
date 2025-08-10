@@ -2204,6 +2204,47 @@ class SmartTeamTranslation {
     };
   }
 
+  // Initialize team translations for a specific language
+  async initializeTeamTranslations(language: string): Promise<void> {
+    try {
+      console.log(`🔄 [SmartTranslation] Initializing team translations for language: ${language}`);
+      
+      // Load cached mappings
+      this.loadLearnedMappings();
+      
+      // Load automated mappings
+      await this.loadAutomatedMappings();
+      
+      // Clear any stale cache entries
+      this.clearStaleCache();
+      
+      console.log(`✅ [SmartTranslation] Successfully initialized for ${language} with ${this.learnedTeamMappings.size} learned mappings`);
+    } catch (error) {
+      console.error(`❌ [SmartTranslation] Failed to initialize for ${language}:`, error);
+    }
+  }
+
+  // Get translation statistics
+  getTranslationStats() {
+    return {
+      learnedMappings: this.learnedTeamMappings.size,
+      automatedMappings: this.automatedMappings.size,
+      cacheSize: this.translationCache.size
+    };
+  }
+
+  // Clear stale cache entries
+  private clearStaleCache(): void {
+    const now = Date.now();
+    const staleThreshold = 24 * 60 * 60 * 1000; // 24 hours
+
+    for (const [key, entry] of this.translationCache.entries()) {
+      if (now - entry.timestamp > staleThreshold) {
+        this.translationCache.delete(key);
+      }
+    }
+  }
+
   // Learn from translation context (when we see translated vs original names)
   learnFromTranslationContext(originalName: string, translatedName: string, language: string): void {
     if (!originalName || !translatedName || originalName === translatedName) return;
