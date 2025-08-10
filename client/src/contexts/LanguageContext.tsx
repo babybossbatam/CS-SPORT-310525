@@ -279,7 +279,7 @@ const translations = {
       'vs': "對",
       'football': "足球",
       'basketball': "籃球",
-      'tv': "電 ��",
+      'tv': "電 ",
       'horse_racing': "賽馬",
       'snooker': "桌球",
       'esports': "電子競技",
@@ -899,6 +899,8 @@ export const LanguageProvider: React.FC<{
       try {
         console.log(`🤖 [LanguageContext] Initializing smart team translation for language: ${currentLanguage}`);
         await smartTeamTranslation.initializeTeamTranslations(currentLanguage);
+        // Make smart translation available globally for components that need it
+        (window as any).smartTeamTranslation = smartTeamTranslation;
 
         // Log translation statistics
         const stats = smartTeamTranslation.getTranslationStats();
