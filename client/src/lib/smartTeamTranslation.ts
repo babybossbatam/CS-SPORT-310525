@@ -1339,12 +1339,12 @@ class SmartTeamTranslation {
       'zh': '科隆', 'zh-hk': '科隆', 'zh-tw': '科隆',
       'es': 'Colonia', 'de': 'Köln', 'it': 'Colonia', 'pt': 'Colônia'
     },
-    
+
     'Bournemouth': {
       'zh': '伯恩茅斯', 'zh-hk': '伯恩茅斯', 'zh-tw': '伯恩茅斯',
       'es': 'Bournemouth', 'de': 'Bournemouth', 'it': 'Bournemouth', 'pt': 'Bournemouth'
     },
-    
+
     'Sparta Trnava': {
       'zh': '特尔纳瓦斯巴达克', 'zh-hk': '特爾納瓦斯巴達克', 'zh-tw': '特爾納瓦斯巴達克',
       'es': 'Spartak Trnava', 'de': 'Spartak Trnava', 'it': 'Spartak Trnava', 'pt': 'Spartak Trnava'
@@ -1537,10 +1537,10 @@ class SmartTeamTranslation {
     },
 
     // Colombian teams
-    
+
 
     // Egyptian teams
-   
+
     // Argentine teams
 
 
@@ -1556,10 +1556,10 @@ class SmartTeamTranslation {
 
 
     // Thai teams
-   
+
 
     // Updated and new translations for teams from the user's request
-   
+
     'FC Differdange 03': {
       'zh': '迪费当热03', 'zh-hk': '迪費當熱03', 'zh-tw': '迪費當熱03',
       'es': 'FC Differdange 03', 'de': 'FC Differdange 03', 'it': 'FC Differdange 03', 'pt': 'FC Differdange 03'
@@ -1805,7 +1805,7 @@ class SmartTeamTranslation {
       'zh': '克拉约瓦大学', 'zh-hk': '克拉約瓦大學', 'zh-tw': '克拉約瓦大學',
       'es': 'Universitatea Craiova', 'de': 'Universitatea Craiova', 'it': 'Universitatea Craiova', 'pt': 'Universitatea Craiova'
     },
-   
+
   };
 
   // Get direct translation from popular teams mapping
@@ -2094,7 +2094,7 @@ class SmartTeamTranslation {
     }
   }
 
-  
+
 
   // Enhanced fallback for common team patterns
   private getEnhancedFallback(teamName: string, language: string): string | null {
@@ -2387,7 +2387,7 @@ class SmartTeamTranslation {
     }
   }
 
- 
+
 
 
   // Learn new team mapping dynamically
