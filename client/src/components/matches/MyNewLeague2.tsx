@@ -232,7 +232,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     const matchDate = new Date(fixture.fixture.date);
     const hoursAgo = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
 
-    return hoursOld > 2;
+    return hoursAgo > 2;
   }, []);
 
   // Check localStorage quota and manage storage efficiently
