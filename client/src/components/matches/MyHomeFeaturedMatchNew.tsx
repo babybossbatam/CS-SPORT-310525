@@ -27,7 +27,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { RoundBadge } from "@/components/ui/round-badge";
 
 // Import context for translation
-import { useTranslationContext } from "@/lib/context/LanguageContext";
+import { useTranslation } from "@/contexts/LanguageContext";
 
 
 // Import popular teams data from the same source as PopularTeamsList
@@ -228,7 +228,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   maxMatches = 15,
   onMatchSelect,
 }) => {
-  const { translate: translateTeamName, translateLeague: contextTranslateLeagueName } = useTranslationContext();
+  const { translateTeamName } = useTranslation();
 
   // Add CSS for truePulse animation
   const truePulseStyle = `
