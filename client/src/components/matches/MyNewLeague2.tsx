@@ -1190,7 +1190,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           }
         }
       }
-    }
+    };
   }, [fixturesByLeague, currentLanguage, selectedDate]);
 
 
