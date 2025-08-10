@@ -390,6 +390,15 @@ ${generateAutomatedTranslations('zh-hk')}
       generatedAt: new Date().toISOString()
     }, null, 2));
 
+    // Auto-process the mappings immediately
+    try {
+      const { AutomatedMappingProcessor } = await import('./automatedMappingProcessor');
+      AutomatedMappingProcessor.processAutomatedMappings(automatedCode);
+      console.log('🤖 [Automated] Auto-processed mappings for immediate use');
+    } catch (processingError) {
+      console.warn('⚠️ [Automated] Failed to auto-process mappings:', processingError);
+    }
+
   } catch (error) {
     console.error('❌ [Automated] Failed:', error);
   }

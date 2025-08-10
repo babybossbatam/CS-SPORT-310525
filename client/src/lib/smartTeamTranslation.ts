@@ -14,6 +14,7 @@ class SmartTeamTranslation {
   private teamCache = new Map<string, string>();
   private leagueTeamsCache: Record<number, any[]> = {};
   private learnedTeamMappings = new Map<string, TeamTranslation>(); // Stores learned mappings
+  private automatedMappingsCache: any = null; // Cache for automated mappings
   private isLoading = false;
 
   constructor() {
@@ -21,7 +22,8 @@ class SmartTeamTranslation {
     this.clearCache();
     this.fixCorruptedCache();
     this.loadLearnedMappings(); // Load existing learned mappings from localStorage
-    console.log('🔄 [SmartTranslation] Initialized with cache cleared for fresh translations');
+    this.integrateAutomatedMappings(); // Automatically integrate any generated mappings
+    console.log('🔄 [SmartTranslation] Initialized with cache cleared for fresh translations and automated mappings integrated');
   }
 
   // Comprehensive team translations for popular leagues
@@ -1906,7 +1908,7 @@ class SmartTeamTranslation {
     'Vancouver Whitecaps': {
       'zh': '温哥华白帽', 'zh-hk': '溫哥華白帽', 'zh-tw': '溫哥華白帽',
       'es': 'Vancouver Whitecaps', 'de': 'Vancouver Whitecaps', 'it': 'Vancouver Whitecaps', 'pt': 'Vancouver Whitecaps'
-    }
+    },
     'Rochefort': {
       'zh': '罗什福尔', 'zh-hk': '羅什福爾', 'zh-tw': '羅什福爾',
       'es': 'Rochefort', 'de': 'Rochefort', 'it': 'Rochefort', 'pt': 'Rochefort'
@@ -2324,13 +2326,18 @@ class SmartTeamTranslation {
 
 
 
-  // Enhanced fallback for common team patterns
+  // Enhanced fallback for common team patterns with automated mapping integration
   private getEnhancedFallback(teamName: string, language: string): string | null {
     if (!teamName || !language) return null;
 
+    // First, try to load automated mappings from the generated file
+    const automatedTranslation = this.getAutomatedTeamTranslation(teamName, language);
+    if (automatedTranslation && automatedTranslation !== teamName) {
+      return automatedTranslation;
+    }
+
     // Try pattern-based matching
     const enhancedPatterns: Record<string, Record<string, string>> = {
-      // Add pattern-based translations here
       'FC': {
         'zh': '足球俱乐部', 'zh-hk': '足球會', 'zh-tw': '足球俱樂部',
         'es': 'FC', 'de': 'FC', 'it': 'FC', 'pt': 'FC'
@@ -2342,6 +2349,18 @@ class SmartTeamTranslation {
       'City': {
         'zh': '城', 'zh-hk': '城', 'zh-tw': '城',
         'es': 'City', 'de': 'City', 'it': 'City', 'pt': 'City'
+      },
+      'Real': {
+        'zh': '皇家', 'zh-hk': '皇家', 'zh-tw': '皇家',
+        'es': 'Real', 'de': 'Real', 'it': 'Real', 'pt': 'Real'
+      },
+      'Atletico': {
+        'zh': '竞技', 'zh-hk': '競技', 'zh-tw': '競技',
+        'es': 'Atlético', 'de': 'Atlético', 'it': 'Atlético', 'pt': 'Atlético'
+      },
+      'Deportivo': {
+        'zh': '体育', 'zh-hk': '體育', 'zh-tw': '體育',
+        'es': 'Deportivo', 'de': 'Deportivo', 'it': 'Deportivo', 'pt': 'Deportivo'
       }
     };
 
@@ -2368,7 +2387,53 @@ class SmartTeamTranslation {
       }
     }
 
+    // Generate smart phonetic translation as last resort
+    return this.generateSmartPhoneticTranslation(teamName, language);
+  }
+
+  // Get translation from automated team mappings
+  private getAutomatedTeamTranslation(teamName: string, language: string): string | null {
+    try {
+      // Check if automated mappings are stored in localStorage
+      const automatedMappings = localStorage.getItem('automatedTeamMapping');
+      if (automatedMappings) {
+        const data = JSON.parse(automatedMappings);
+        // Look for the team in the automated data
+        if (data.teams && data.teams[teamName]) {
+          return data.teams[teamName][language] || null;
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load automated team mappings:', error);
+    }
     return null;
+  }
+
+  // Generate smart phonetic translation for unknown teams
+  private generateSmartPhoneticTranslation(teamName: string, language: string): string | null {
+    if (!language.startsWith('zh')) {
+      return null; // Only generate phonetic translations for Chinese languages
+    }
+
+    // Basic phonetic mapping for Chinese
+    const phoneticMap: Record<string, string> = {
+      'a': '阿', 'b': '巴', 'c': '卡', 'd': '达', 'e': '埃', 'f': '法', 'g': '加', 'h': '哈',
+      'i': '伊', 'j': '雅', 'k': '卡', 'l': '拉', 'm': '马', 'n': '纳', 'o': '奥', 'p': '帕',
+      'q': '库', 'r': '拉', 's': '萨', 't': '塔', 'u': '乌', 'v': '维', 'w': '瓦', 'x': '克',
+      'y': '伊', 'z': '扎'
+    };
+
+    let phoneticTranslation = '';
+    const cleanName = teamName.replace(/[^a-zA-Z]/g, '').toLowerCase();
+    
+    for (let i = 0; i < Math.min(cleanName.length, 6); i++) { // Limit to 6 characters
+      const char = cleanName[i];
+      if (phoneticMap[char]) {
+        phoneticTranslation += phoneticMap[char];
+      }
+    }
+
+    return phoneticTranslation || null;
   }
 
   // Helper method to get translation for a team name
@@ -2480,6 +2545,71 @@ class SmartTeamTranslation {
     });
 
     return stats;
+  }
+
+  // Automatically integrate generated team mappings from the automated system
+  integrateAutomatedMappings(): void {
+    try {
+      const automatedData = localStorage.getItem('automatedTeamMapping');
+      if (automatedData) {
+        const data = JSON.parse(automatedData);
+        console.log(`🤖 [SmartTranslation] Found automated mappings for ${data.teams || 0} teams`);
+        
+        // Store reference to automated data for quick access
+        this.automatedMappingsCache = data;
+        console.log(`✅ [SmartTranslation] Integrated automated mappings cache`);
+      }
+
+      // Also check for complete team mapping data
+      const completeMapping = localStorage.getItem('completeTeamMapping');
+      if (completeMapping) {
+        const completeData = JSON.parse(completeMapping);
+        console.log(`📋 [SmartTranslation] Found complete team mapping data with ${completeData.totalTeams || 0} teams`);
+        
+        // Merge with existing learned mappings
+        if (completeData.allTeamsSortedByFrequency) {
+          completeData.allTeamsSortedByFrequency.forEach((team: any) => {
+            if (team.name && !this.learnedTeamMappings.has(team.name)) {
+              // Create basic mapping structure for new teams
+              this.learnedTeamMappings.set(team.name, {
+                'zh': team.name,
+                'zh-hk': team.name,
+                'zh-tw': team.name,
+                'es': team.name,
+                'de': team.name,
+                'it': team.name,
+                'pt': team.name
+              });
+            }
+          });
+          
+          this.saveLearnedMappings();
+          console.log(`🎓 [SmartTranslation] Integrated ${completeData.allTeamsSortedByFrequency.length} teams from complete mapping`);
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to integrate automated mappings:', error);
+    }
+  }
+
+  // Method to bulk update translations from automated mappings
+  bulkUpdateFromAutomatedMappings(automatedMappings: Record<string, any>): void {
+    let updatedCount = 0;
+    
+    Object.entries(automatedMappings).forEach(([teamName, translations]) => {
+      if (typeof translations === 'object' && translations !== null) {
+        // Only update if we don't already have a high-quality manual translation
+        if (!this.popularLeagueTeams[teamName]) {
+          this.learnedTeamMappings.set(teamName, translations as TeamTranslation);
+          updatedCount++;
+        }
+      }
+    });
+    
+    if (updatedCount > 0) {
+      this.saveLearnedMappings();
+      console.log(`📦 [SmartTranslation] Bulk updated ${updatedCount} team translations`);
+    }
   }
 
   // Smart translation with fallbacks and learning
