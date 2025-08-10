@@ -1117,7 +1117,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           className={`flex-1 py-3  text-xs font-small text-center transition-colors ${
             activeTab === "top"
               ? "bg-blue-500 text-white"
-              : `${isDarkTheme ? "bg-gray-800 text-white border-white hover:bg-gray-700" : "bg-white text-blue-400 border-blue-400 hover:bg-gray-200"} border`
+              : `${isDarkTheme ? "bg-gray-800 text-white border-bg-white hover:bg-gray-700" : "bg-white text-blue-400 border-blue-400 hover:bg-gray-200"} border`
           }`}
         >
           Top
