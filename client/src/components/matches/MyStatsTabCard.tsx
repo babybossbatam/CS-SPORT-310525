@@ -5,6 +5,7 @@ import MyStats from "./MyStats";
 import MyShots from "./MyShots";
 import MyPass from "./MyPass";
 import MyDiscipline from "./MyDiscipline";
+import "./MyStats.css"; // Import the CSS file
 
 interface MyStatsTabCardProps {
   match?: any;
@@ -176,7 +177,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({
     <div className="space-y-4">
       {/* Main Statistics Card */}
       <Card>
-       
+
         <CardContent className="">
           <MyStats
             homeStats={homeStats}
@@ -199,7 +200,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({
 
       {/* Shots Statistics Card */}
       <Card>
-       
+
         <CardContent className="py-2">
           <MyShots
             homeStats={homeStats}
@@ -221,7 +222,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({
       </Card>
 
       {/* Pass Statistics Card */}
-      <Card>
+      <Card className="mystats-container">
 
         <CardContent className="py-2">
           <MyPass
@@ -244,7 +245,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({
       </Card>
 
       {/* Pass Statistics Card */}
-      <Card>
+      <Card className="mystats-container">
 
         <CardContent className="py-2">
           <MyDiscipline
