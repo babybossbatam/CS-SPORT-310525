@@ -277,7 +277,10 @@ export function analyzeCurrentPageTeams(): void {
 
 // Export to window for console access
 if (typeof window !== 'undefined') {
-
+  (window as any).generateCompleteTeamMapping = generateCompleteTeamMapping;
+  (window as any).generateSeasonWideTeamMapping = generateSeasonWideTeamMapping;
+  (window as any).analyzeCurrentPageTeams = analyzeCurrentPageTeams;
+}
 
 /**
  * Generate complete team mapping for specific league IDs with automatic translation
