@@ -82,7 +82,6 @@ interface FixtureData {
     name: string;
     country: string;
     logo: string;
-    flag: string;
   };
   teams: {
     home: {
@@ -1567,7 +1566,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                 Error: {error.message || "Unknown error"}
               </div>
               {(isRateLimit || isNetworkError) && (
-                <div className="text-xs mt-1 text-blue-600">
+                <div className="text-xs mt-2 text-blue-600">
                   The page will automatically retry in a moment...
                 </div>
               )}
@@ -2390,6 +2389,19 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
                                     // Enhanced fallback translations for teams missing from smart translation
                                     const fallbackTranslations: { [key: string]: string } = {
+                                      // Brazilian teams (priority for your screenshot)
+                                      'São Paulo': '聖保羅',
+                                      'Sao Paulo': '聖保羅',
+                                      'Vitoria': '維多利亞',
+                                      'Mirassol': '米拉索爾',
+                                      'RB Bragantino': '布拉甘蒂諾',
+                                      'Bragantino': '布拉甘蒂諾',
+                                      'Internacional': '國際',
+                                      'Fortaleza': '福塔雷薩',
+                                      'Botafogo': '博塔弗戈',
+                                      'Bahia': '巴伊亞',
+                                      'Fluminense': '富明尼斯',
+
                                       // Spanish teams
                                       'Celta Vigo': '切爾塔維戈',
                                       'Granada CF': '格拉納達',
@@ -2406,77 +2418,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       'Guadalajara Chivas': '瓜達拉哈拉芝華士',
                                       'Hamburger SV': '漢堡',
                                       'Ham堡er SV': '漢堡',
-
-                                      // Other European teams
-                                      'FK Partizan': '贝尔格莱德游击队',
-                                      'Hibernian': '希伯尼安',
-                                      'HNK Hajduk Split': '哈伊杜克',
-                                      'Hajduk Split': '哈伊杜克',
-                                      'Dinamo Tirana': '地拉那迪纳摩',
-                                      'Rapid Vienna': '维也纳快速',
-                                      'Dundee Utd': '邓迪联',
-                                      'Dundee United': '邓迪联',
-                                      'Raków Częstochowa': '琴斯托霍瓦拉科夫',
-                                      'Maccabi Haifa': '海法马卡比',
-                                      'Larne': '拉恩',
-                                      'Santa Clara': '圣克拉拉',
-                                      'Vikingur Reykjavik': '雷克雅未克维京',
-                                      'Brondby': '布隆德比',
-                                      'Brøndby': '布隆德比',
-                                      'St Patrick\'s Athl.': '圣帕特里克竞技',
-                                      'St Patrick\'s Athletic': '圣帕特里克竞技',
-                                      'Besiktas': '贝西克塔斯',
-                                      'Beşiktaş': '贝西克塔斯',
-                                      'FC Lugano': '卢加诺',
-                                      'Lugano': '卢加诺',
-                                      'Celje': '采列',
-                                      'Universitatea Craiova': '克拉约瓦大学',
-                                      'Spartak Trnava': '特尔纳瓦斯巴达克',
-                                      'Ballkani': '巴尔卡尼',
-                                      'Shamrock Rovers': '沙姆洛克流浪者',
-                                      'Lausanne': '洛桑',
-                                      'FC Astana': '阿斯塔纳',
-                                      'AZ Alkmaar': '阿尔克马尔',
-                                      'FC Vaduz': '瓦杜兹',
-                                      'Anderlecht': '安德莱赫特',
-                                      'Sheriff Tiraspol': '蒂拉斯波尔谢里夫',
-                                      'Sheriff': '蒂拉斯波尔谢里夫',
-                                      'Vikingur Gota': '哥塔维京',
-                                      'Linfield': '连菲尔德',
-                                      'Sparta Praha': '布拉格斯巴达',
-                                      'Sparta Prague': '布拉格斯巴达',
-                                      'Ararat-Armenia': '阿拉拉特亚美尼亚',
-                                      'Levski Sofia': '索非亚列夫斯基',
-                                      'Sabah FA': '沙巴足协',
-                                      'Sabah FK': '沙巴足协',
-                                      'Olimpija Ljubljana': '卢布尔雅那奥林匹亚',
-                                      'Egnatia Rrogozhinë': '罗戈日纳埃格纳蒂亚',
-                                      'FC Differdange 03': '迪费当热03',
-                                      'FC Levadia Tallinn': '塔林莱瓦迪亚',
-                                      'Polessya': '波利西亚',
-                                      'Paks': '帕克什',
-                                      'AIK Stockholm': '斯德哥尔摩AIK',
-                                      'Gyori ETO FC': '捷尔ETO',
-                                      'Istanbul Basaksehir': '伊斯坦布尔巴萨克谢希尔',
-                                      'Silkeborg': '锡尔克堡',
-                                      'Jagiellonia': '雅盖隆尼亚',
-                                      'Riga': '里加',
-                                      'RFS Riga': '里加RFS',
-                                      'Beitar Jerusalem': '耶路撒冷贝塔',
-                                      'Baník Ostrava': '奥斯特拉瓦矿工',
-                                      'Austria Vienna': '奥地利维也纳',
-                                      'FK Austria Wien': '奥地利维也纳',
-                                      'Rosenborg': '罗森博格',
-                                      'Hammarby FF': '哈马比',
-                                      'Milsami Orhei': '奥尔海米尔萨米',
-                                      'Virtus': '维尔图斯',
-                                      'Aris': '阿里斯',
-                                      'AEK Athens FC': '雅典AEK',
-                                      'Kauno Žalgiris': '考纳斯萨尔基里斯',
-                                      'Arda Kardzhali': '卡尔扎利阿尔达',
-                                      'Araz': '阿拉兹',
-                                      'Viking': '维京',
-                                      'FK Haugesund': '豪格松德'
                                     };
 
                                     // Check for exact match first
@@ -2798,6 +2739,19 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
                                     // Enhanced fallback translations for teams missing from smart translation
                                     const fallbackTranslations: { [key: string]: string } = {
+                                      // Brazilian teams (priority for your screenshot)
+                                      'São Paulo': '聖保羅',
+                                      'Sao Paulo': '聖保羅',
+                                      'Vitoria': '維多利亞',
+                                      'Mirassol': '米拉索爾',
+                                      'RB Bragantino': '布拉甘蒂諾',
+                                      'Bragantino': '布拉甘蒂諾',
+                                      'Internacional': '國際',
+                                      'Fortaleza': '福塔雷薩',
+                                      'Botafogo': '博塔弗戈',
+                                      'Bahia': '巴伊亞',
+                                      'Fluminense': '富明尼斯',
+
                                       // Spanish teams
                                       'Celta Vigo': '切爾塔維戈',
                                       'Granada CF': '格拉納達',
@@ -2814,77 +2768,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       'Guadalajara Chivas': '瓜達拉哈拉芝華士',
                                       'Hamburger SV': '漢堡',
                                       'Ham堡er SV': '漢堡',
-
-                                      // Other European teams
-                                      'FK Partizan': '贝尔格莱德游击队',
-                                      'Hibernian': '希伯尼安',
-                                      'HNK Hajduk Split': '哈伊杜克',
-                                      'Hajduk Split': '哈伊杜克',
-                                      'Dinamo Tirana': '地拉那迪纳摩',
-                                      'Rapid Vienna': '维也纳快速',
-                                      'Dundee Utd': '邓迪联',
-                                      'Dundee United': '邓迪联',
-                                      'Raków Częstochowa': '琴斯托霍瓦拉科夫',
-                                      'Maccabi Haifa': '海法马卡比',
-                                      'Larne': '拉恩',
-                                      'Santa Clara': '圣克拉拉',
-                                      'Vikingur Reykjavik': '雷克雅未克维京',
-                                      'Brondby': '布隆德比',
-                                      'Brøndby': '布隆德比',
-                                      'St Patrick\'s Athl.': '圣帕特里克竞技',
-                                      'St Patrick\'s Athletic': '圣帕特里克竞技',
-                                      'Besiktas': '贝西克塔斯',
-                                      'Beşiktaş': '贝西克塔斯',
-                                      'FC Lugano': '卢加诺',
-                                      'Lugano': '卢加诺',
-                                      'Celje': '采列',
-                                      'Universitatea Craiova': '克拉约瓦大学',
-                                      'Spartak Trnava': '特尔纳瓦斯巴达克',
-                                      'Ballkani': '巴尔卡尼',
-                                      'Shamrock Rovers': '沙姆洛克流浪者',
-                                      'Lausanne': '洛桑',
-                                      'FC Astana': '阿斯塔纳',
-                                      'AZ Alkmaar': '阿尔克马尔',
-                                      'FC Vaduz': '瓦杜兹',
-                                      'Anderlecht': '安德莱赫特',
-                                      'Sheriff Tiraspol': '蒂拉斯波尔谢里夫',
-                                      'Sheriff': '蒂拉斯波尔谢里夫',
-                                      'Vikingur Gota': '哥塔维京',
-                                      'Linfield': '连菲尔德',
-                                      'Sparta Praha': '布拉格斯巴达',
-                                      'Sparta Prague': '布拉格斯巴达',
-                                      'Ararat-Armenia': '阿拉拉特亚美尼亚',
-                                      'Levski Sofia': '索非亚列夫斯基',
-                                      'Sabah FA': '沙巴足协',
-                                      'Sabah FK': '沙巴足协',
-                                      'Olimpija Ljubljana': '卢布尔雅那奥林匹亚',
-                                      'Egnatia Rrogozhinë': '罗戈日纳埃格纳蒂亚',
-                                      'FC Differdange 03': '迪费当热03',
-                                      'FC Levadia Tallinn': '塔林莱瓦迪亚',
-                                      'Polessya': '波利西亚',
-                                      'Paks': '帕克什',
-                                      'AIK Stockholm': '斯德哥尔摩AIK',
-                                      'Gyori ETO FC': '捷尔ETO',
-                                      'Istanbul Basaksehir': '伊斯坦布尔巴萨克谢希尔',
-                                      'Silkeborg': '锡尔克堡',
-                                      'Jagiellonia': '雅盖隆尼亚',
-                                      'Riga': '里加',
-                                      'RFS Riga': '里加RFS',
-                                      'Beitar Jerusalem': '耶路撒冷贝塔',
-                                      'Baník Ostrava': '奥斯特拉瓦矿工',
-                                      'Austria Vienna': '奥地利维也纳',
-                                      'FK Austria Wien': '奥地利维也纳',
-                                      'Rosenborg': '罗森博格',
-                                      'Hammarby FF': '哈马比',
-                                      'Milsami Orhei': '奥尔海米尔萨米',
-                                      'Virtus': '维尔图斯',
-                                      'Aris': '阿里斯',
-                                      'AEK Athens FC': '雅典AEK',
-                                      'Kauno Žalgiris': '考纳斯萨尔基里斯',
-                                      'Arda Kardzhali': '卡尔扎利阿尔达',
-                                      'Araz': '阿拉兹',
-                                      'Viking': '维京',
-                                      'FK Haugesund': '豪格松德'
                                     };
 
                                     // Check for exact match first
