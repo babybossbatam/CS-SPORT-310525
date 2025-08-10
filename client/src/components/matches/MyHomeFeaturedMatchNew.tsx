@@ -482,7 +482,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // Helper function to determine if match is live
         const isLiveMatch = (status: string) => {
-          return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+          return ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(
             status,
           );
         };
@@ -740,7 +740,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       };
 
                       const shouldInclude = filterFixture(fixture);
-                      
+
                       if (!shouldInclude) {
                         return false;
                       }
