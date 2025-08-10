@@ -167,12 +167,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       setError(null);
     } catch (error) {
       console.error(`❌ [MyMatchEventNew] Error fetching events (attempt ${retryCount + 1}):`, error);
-      
+
       // Check if it's an abort error (timeout)
       if (error instanceof Error && error.name === 'AbortError') {
         console.log(`⏱️ [MyMatchEventNew] Request timeout for fixture ${fixtureId}`);
       }
-      
+
       // Check if it's a network error that might be temporary
       const isNetworkError = error instanceof Error && (
         error.message.includes('fetch') ||
@@ -489,7 +489,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   const isDarkTheme = useMemo(() => theme === "dark", [theme]);
   const groupedEvents = useMemo(() => groupEventsByPeriod(events), [events]);
-  
+
   // Get current scores from API data - moved here to ensure it's called consistently
   const getCurrentScores = useMemo(() => {
     if (matchData?.goals) {
@@ -554,7 +554,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   if (events.length === 0 && !isLoading) {
     const matchStatus = matchData?.fixture?.status?.short;
     const isUpcoming = ["NS", "TBD"].includes(matchStatus);
-    
+
     if (isUpcoming) {
       return null; // Hide the component completely
     }
@@ -893,11 +893,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               const firstPenalty = penaltySequence[i];
               const secondPenalty = penaltySequence[i + 1];
               const roundNumber = Math.floor(i / 2) + 1;
-              
+
               // Determine which penalty belongs to which team based on team name
               let homePenalty = null;
               let awayPenalty = null;
-              
+
               if (firstPenalty && firstPenalty.event && 'team' in firstPenalty.event) {
                 const isFirstHome = firstPenalty.event.team.name === homeTeam;
                 if (isFirstHome) {
@@ -908,7 +908,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   homePenalty = secondPenalty;
                 }
               }
-              
+
               rounds.push({
                 roundNumber,
                 homePenalty,
@@ -1084,7 +1084,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   };
 
-  
+
 
   return (
     <Card
@@ -1154,7 +1154,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             {/* Render content based on active tab */}
             {activeTab === "all" && (
               <>
-                
+
                 {/* All events in chronological order with period score markers */}
                 {(() => {
                   const sortedEvents = [...events].sort(
@@ -1259,7 +1259,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                   // Filter out events with elapsed time > 110' from regular display (they go to penalty section)
                   const filteredEvents = sortedEvents.filter(event => event.time.elapsed <= 110);
-                  
+
                   // Combine filtered events and period markers safely
                   const allItems: EventOrMarker[] = [...filteredEvents, ...periodMarkers].sort(
                     (a, b) => {
@@ -1354,7 +1354,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       // Get actual penalty scores from match data
                       const penaltyHomeScore = matchData?.score?.penalty?.home || 4;
                       const penaltyAwayScore = matchData?.score?.penalty?.away || 3;
-                      
+
                       return (
                         <div
                           key={event.id || `penalty-shootout-${index}`}
@@ -1590,7 +1590,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 height: "100%",
                               }}
                             >
-                              <span style={{ color: "black", lineHeight: "1" }}>
+                              <span style={{ color: isDarkTheme ? "white" : "black", lineHeight: "1" }}>
                                 {event.time?.elapsed}'
                               </span>
                               {event.time?.extra && (
@@ -1703,7 +1703,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 <div className="match-event-away-player-info">
                                   <div className="text-right w-36">
                                     {event.type === "subst" &&
-                                    event.assist?.name ? (
+                                      event.assist?.name ? (
                                       <>
                                         <div className="text-xs font-medium text-green-600 text-right">
                                           {event.assist.name}
@@ -2208,7 +2208,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 height: "100%",
                               }}
                             >
-                              <span style={{ color: "black", lineHeight: "1" }}>
+                              <span style={{ color: isDarkTheme ? "white" : "black", lineHeight: "1" }}>
                                 {event.time?.elapsed}'
                               </span>
                               {event.time?.extra && (
@@ -2321,7 +2321,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 <div className="match-event-away-player-info">
                                   <div className="text-right w-36">
                                     {event.type === "subst" &&
-                                    event.assist?.name ? (
+                                      event.assist?.name ? (
                                       <>
                                         <div className="text-xs font-medium text-green-600 text-right">
                                           {event.assist.name}
