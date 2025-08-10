@@ -2204,8 +2204,8 @@ id: fixture.teams.away.id,
                       title={`League ID: ${currentMatch.league.id} | ${currentMatch.league.name} | ${currentMatch.league.country}`}
                     >
                       {(() => {
-                        const { translateText } = useTranslation();
-                        return translateText(currentMatch.league.name);
+                        const { translateLeagueName } = useTranslation();
+                        return translateLeagueName(currentMatch.league.name);
                       })()}
                     </span>
 
