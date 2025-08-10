@@ -26,7 +26,8 @@ import { smartTeamTranslation } from '@/lib/smartTeamTranslation';
 import { teamNameExtractor } from '@/lib/teamNameExtractor';
 import { teamMappingExtractor } from '@/lib/teamMappingExtractor';
 import { generateCompleteTeamMapping } from '@/lib/generateCompleteTeamMapping';
-import { useLeagueNameTranslation, translateLeagueName } from '@/lib/leagueNameMapping';
+import { smartLeagueTranslation } from '@/lib/leagueNameMapping';
+import { smartCountryTranslation } from '@/lib/countryNameMapping';
 
 // Intersection Observer Hook for lazy loading
 const useIntersectionObserver = (
@@ -133,7 +134,34 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   match,
 }) => {
   const { t, translateLeagueName: contextTranslateLeagueName, translateTeamName, currentLanguage } = useTranslation();
-  const { translateLeague } = useLeagueNameTranslation();
+  // Add league name translation
+  const translateLeagueName = (originalLeague: string): string => {
+    if (!originalLeague) return "";
+
+    // Use smart league translation
+    const translated = smartLeagueTranslation.translateLeague(originalLeague, currentLanguage);
+    if (translated !== originalLeague) {
+      return translated;
+    }
+
+    // Fallback to context translation
+    return contextTranslateLeagueName(originalLeague);
+  };
+
+  // Use the enhanced country translation function
+  const translateEnhancedCountryName = (originalCountry: string): string => {
+    if (!originalCountry) return "";
+
+    // Use smart country translation
+    const translated = smartCountryTranslation.translateCountry(originalCountry, currentLanguage);
+    if (translated !== originalCountry) {
+      return translated;
+    }
+
+    // Fallback to context translation for untranslated countries
+    return contextTranslateLeagueName(originalCountry);
+  };
+
   // Sample match data for demonstration (similar to MyMatchdetailsScoreboard)
   const sampleMatch = {
     fixture: {
@@ -639,7 +667,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                 signal: controller.signal
               }).catch(fetchError => {
                 clearTimeout(timeoutId);
-                
+
                 // Handle specific timeout errors
                 if (fetchError.name === 'AbortError' || fetchError.message.includes('aborted')) {
                   console.warn(
@@ -647,7 +675,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                   );
                   return null;
                 }
-                
+
                 console.warn(
                   `🌐 [MyNewLeague2] Network error for league ${leagueId}: ${fetchError.message}`,
                 );
@@ -763,7 +791,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       }
 
       // Learn teams from fixtures before processing
-      smartTeamTranslation.learnTeamsFromFixtures(results.flatMap(batch => batch.flatMap((res: any) => res.fixtures)));
+      smartTeamTranslation.learnTeamsFromFixtures(results.flatMap((batch: any[]) => batch.flatMap((res: any) => res.fixtures)));
 
       // Combine fresh fixtures with cached ended matches
       const allFixturesMap = new Map<number, FixtureData>();
@@ -792,18 +820,19 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         });
       });
 
-      const allFixtures = Array.from(allFixturesMap.values());
+      const finalFixtures = Array.from(allFixturesMap.values());
 
       // Log detailed results
       console.log(`🔄 [MyNewLeague2] Fetch results:`, {
-        totalLeagues: results.length,
+        totalBatches: results.length,
         successfulFetches: results.reduce((sum, batch) => sum + batch.filter((r: any) => r.fixtures.length > 0).length, 0),
         cachedEndedMatches: cachedEndedMatches.length,
-        totalFixtures: allFixtures.length,
+        totalFixtures: finalFixtures.length,
+        fixturesFetchedInBatches: results.reduce((sum, batch) => sum + batch.reduce((bSum, r: any) => bSum + r.fixtures.length, 0), 0),
         duplicatesRemoved:
           results.reduce((sum, batch) => sum + batch.reduce((bSum, r: any) => bSum + r.fixtures.length, 0), 0) +
           cachedEndedMatches.length -
-          allFixtures.length,
+          finalFixtures.length,
         leagueBreakdown: results.flatMap((batch) => batch.map((r: any) => ({
           league: r.leagueId,
           fixtures: r.fixtures.length,
@@ -811,7 +840,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         }))),
       });
 
-      return allFixtures;
+      return finalFixtures;
     },
     // Apply dynamic cache configuration
     ...dynamicCacheConfig,
@@ -1116,16 +1145,16 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       if (leagueFixtures.length > 0) {
         console.log(`📊 [MyNewLeague2] Loaded ${leagueFixtures.length} fixtures for comprehensive team mapping analysis`);
 
-        // Learn from current fixture data automatically
-        try {
-          smartTeamTranslation.learnTeamsFromFixtures(leagueFixtures);
+        // Learn team names (existing functionality)
+        smartTeamTranslation.learnTeamsFromFixtures(leagueFixtures);
 
-          // Log learned mappings stats
-          const stats = smartTeamTranslation.getLearnedMappingsStats();
-          console.log(`🎓 [SmartTranslation] Current learned mappings:`, stats);
-        } catch (error) {
-          console.warn('⚠️ [SmartTranslation] Failed to learn from fixtures:', error);
-        }
+        // Learn league names
+        smartLeagueTranslation.learnLeaguesFromFixtures(leagueFixtures);
+
+        // Learn country names
+        smartCountryTranslation.learnCountriesFromFixtures(leagueFixtures);
+
+        console.log(`🎓 [MyNewLeague2] Auto-learned from ${leagueFixtures.length} fixtures`);
       }
     }
 
@@ -1231,6 +1260,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     try {
       // Clear smart translation cache to fix any incorrect mappings
       smartTeamTranslation.clearCache();
+      smartLeagueTranslation.clearCache();
+      smartCountryTranslation.clearCache();
 
       // Force clear localStorage cache for corrupted translations
       const corruptedKeys = [
@@ -1518,7 +1549,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         {/* Header Section */}
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
           <div className="flex justify-between items-center w-full">
-            <Skeleton className="h-4 w-48" />
+            <span className="text-sm font-semibold">
+              {t('popular_football_leagues')}
+            </span>
           </div>
         </CardHeader>
 
@@ -1778,7 +1811,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         lineHeight: "1.3",
                       }}
                     >
-                      {translateLeague(leagueIdNum, league.name) || contextTranslateLeagueName(league.name || "Unknown League")}
+                      {translateLeagueName(league.name)}
                     </span>
 
                     {(() => {
@@ -2796,7 +2829,7 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const queryClient = useQueryClient();
-  const { t, translateLeagueName } = useTranslation();
+  const { t, translateLeagueName: contextTranslateLeagueName } = useTranslation();
   const { hasIntersected } = useIntersectionObserver(containerRef, {
     threshold: 0.01, // Trigger even earlier
     rootMargin: '200px' // Start loading 200px before it comes into view

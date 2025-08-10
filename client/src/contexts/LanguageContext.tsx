@@ -7,6 +7,10 @@ interface LanguageContextType {
   setLanguageWithUrlUpdate: (language: string) => void;
   setLanguageByCountry: (countryName: string) => void;
   translations: { [key: string]: { [key: string]: string } };
+  translateLeagueName: (leagueName: string) => string;
+  translateCountryName: (countryName: string) => string;
+  translateTeamName: (teamName: string) => string;
+  getMatchStatusTranslation: (status: string, language: string) => string;
 }
 
 const translations = {
@@ -279,7 +283,7 @@ const translations = {
       'vs': "對",
       'football': "足球",
       'basketball': "籃球",
-      'tv': "電 ��",
+      'tv': "電 ",
       'horse_racing': "賽馬",
       'snooker': "桌球",
       'esports': "電子競技",
@@ -920,45 +924,6 @@ export const LanguageProvider: React.FC<{
     initializeTranslations();
   }, [currentLanguage]);
 
-  const contextValue = {
-    currentLanguage,
-    setLanguage,
-    setLanguageWithUrlUpdate,
-    setLanguageByCountry,
-    translations
-  };
-
-  return (
-    <LanguageContext.Provider value={contextValue}>
-      {children}
-    </LanguageContext.Provider>
-  );
-};
-
-export const useLanguage = () => {
-  const context = useContext(LanguageContext);
-  if (context === undefined) {
-    console.error('useLanguage must be used within a LanguageProvider');
-    // Return a fallback context to prevent app crashes
-    return {
-      currentLanguage: 'en',
-      setLanguage: () => {},
-      setLanguageWithUrlUpdate: () => {},
-      setLanguageByCountry: () => {},
-      translations
-    };
-  }
-  return context;
-};
-
-export const useTranslation = () => {
-  const { currentLanguage, translations } = useLanguage();
-
-  const t = (key: string): string => {
-    return translations[currentLanguage]?.[key] || translations['en']?.[key] || key;
-  };
-
-  // Dynamic league name translation function using smart translation system
   const translateLeagueName = (leagueName: string): string => {
     if (!leagueName) return leagueName;
 
@@ -1676,7 +1641,7 @@ export const useTranslation = () => {
         'es': 'Después del Tiempo Extra',
         'de': 'Nach Verlängerung',
         'it': 'Dopo Tempo Supplementare',
-        'pt': 'Após Tempo Extra'
+        'pt': 'Após Penaltis'
       },
       'PEN': {
         'en': 'After Penalties',
@@ -1725,14 +1690,41 @@ export const useTranslation = () => {
     return translation[language] || translation['en'] || 'Ended';
   };
 
-  return {
+  const contextValue = {
     currentLanguage,
-    t,
+    setLanguage,
+    setLanguageWithUrlUpdate,
+    setLanguageByCountry,
+    translations,
     translateLeagueName,
     translateCountryName,
     translateTeamName,
     getMatchStatusTranslation
   };
+
+  return (
+    <LanguageContext.Provider value={contextValue}>
+      {children}
+    </LanguageContext.Provider>
+  );
 };
 
-export { countryToLanguageMap };
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (context === undefined) {
+    console.error('useLanguage must be used within a LanguageProvider');
+    // Return a fallback context to prevent app crashes
+    return {
+      currentLanguage: 'en',
+      setLanguage: () => {},
+      setLanguageWithUrlUpdate: () => {},
+      setLanguageByCountry: () => {},
+      translations,
+      translateLeagueName: (name: string) => name,
+      translateCountryName: (name: string) => name,
+      translateTeamName: (name: string) => name,
+      getMatchStatusTranslation: (status: string) => status
+    };
+  }
+  return context;
+};

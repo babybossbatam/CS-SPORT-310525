@@ -43,6 +43,126 @@ export const LEAGUE_NAME_MAP: Record<number, string> = {
   743: 'Baltic Cup'
 };
 
+// Automated league name detection and mapping
+class SmartLeagueTranslation {
+  private leagueCache = new Map<string, string>();
+  private learnedLeagueMappings = new Map<string, any>();
+  
+  constructor() {
+    this.loadLearnedMappings();
+  }
+
+  private loadLearnedMappings() {
+    try {
+      const stored = localStorage.getItem('learnedLeagueMappings');
+      if (stored) {
+        const mappings = JSON.parse(stored);
+        this.learnedLeagueMappings = new Map(Object.entries(mappings));
+        console.log(`🎓 [LeagueTranslation] Loaded ${this.learnedLeagueMappings.size} learned league mappings`);
+      }
+    } catch (error) {
+      console.warn('[LeagueTranslation] Failed to load learned mappings:', error);
+    }
+  }
+
+  private saveLearnedMappings() {
+    try {
+      const mappings = Object.fromEntries(this.learnedLeagueMappings);
+      localStorage.setItem('learnedLeagueMappings', JSON.stringify(mappings));
+    } catch (error) {
+      console.warn('[LeagueTranslation] Failed to save learned mappings:', error);
+    }
+  }
+
+  // Learn league names from API responses
+  learnLeaguesFromFixtures(fixtures: any[]): void {
+    let newMappingsCount = 0;
+    
+    fixtures.forEach(fixture => {
+      if (!fixture?.league?.name || !fixture?.league?.country) return;
+      
+      const leagueName = fixture.league.name;
+      const countryName = fixture.league.country;
+      const leagueId = fixture.league.id;
+      
+      if (!this.learnedLeagueMappings.has(leagueName)) {
+        const mapping = this.createLeagueMapping(leagueName, countryName, leagueId);
+        if (mapping) {
+          this.learnedLeagueMappings.set(leagueName, mapping);
+          newMappingsCount++;
+        }
+      }
+    });
+    
+    if (newMappingsCount > 0) {
+      this.saveLearnedMappings();
+      console.log(`📖 [LeagueTranslation] Learned ${newMappingsCount} new league mappings`);
+    }
+  }
+
+  private createLeagueMapping(leagueName: string, countryName: string, leagueId: number) {
+    return {
+      id: leagueId,
+      name: leagueName,
+      country: countryName,
+      translations: this.generateLeagueTranslations(leagueName, countryName)
+    };
+  }
+
+  private generateLeagueTranslations(leagueName: string, countryName: string) {
+    // Basic translation patterns based on common league structures
+    const translations: Record<string, string> = {
+      'en': leagueName
+    };
+
+    // Add specific translations based on league patterns
+    if (leagueName.toLowerCase().includes('premier league')) {
+      translations['zh'] = '超级联赛';
+      translations['zh-hk'] = '超級聯賽';
+      translations['zh-tw'] = '超級聯賽';
+      translations['es'] = 'Liga Premier';
+      translations['de'] = 'Premier League';
+      translations['it'] = 'Premier League';
+      translations['pt'] = 'Liga Premier';
+    } else if (leagueName.toLowerCase().includes('championship')) {
+      translations['zh'] = '冠军联赛';
+      translations['zh-hk'] = '冠軍聯賽';
+      translations['zh-tw'] = '冠軍聯賽';
+      translations['es'] = 'Championship';
+      translations['de'] = 'Championship';
+      translations['it'] = 'Championship';
+      translations['pt'] = 'Championship';
+    } else if (leagueName.toLowerCase().includes('primera división') || leagueName.toLowerCase().includes('primera division')) {
+      translations['zh'] = '甲级联赛';
+      translations['zh-hk'] = '甲級聯賽';
+      translations['zh-tw'] = '甲級聯賽';
+      translations['es'] = 'Primera División';
+      translations['de'] = 'Primera División';
+      translations['it'] = 'Primera División';
+      translations['pt'] = 'Primeira Divisão';
+    }
+
+    return translations;
+  }
+
+  translateLeague(leagueName: string, language: string): string {
+    // Check static mappings first
+    const staticTranslation = LEAGUE_TRANSLATION_PATTERNS[language]?.[leagueName];
+    if (staticTranslation) return staticTranslation;
+
+    // Check learned mappings
+    const learned = this.learnedLeagueMappings.get(leagueName);
+    if (learned?.translations?.[language]) {
+      return learned.translations[language];
+    }
+
+    return leagueName;
+  }
+}
+
+// Create singleton instance
+export const smartLeagueTranslation = new SmartLeagueTranslation();
+
 // Translation patterns for different languages
 export const LEAGUE_TRANSLATION_PATTERNS: Record<string, Record<string, string>> = {
   'zh-hk': {
