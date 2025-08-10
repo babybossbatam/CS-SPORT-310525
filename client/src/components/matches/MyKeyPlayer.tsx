@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import MyAvatarInfo from './MyAvatarInfo';
+import '@/styles/MyStats.css';
 
 interface MyKeyPlayerProps {
   match?: any;
@@ -455,7 +456,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
 
   if (isLoading) {
     return (
-      <Card className="w-full">
+      <Card className="w-full mystats-container">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Key Players</CardTitle>
         </CardHeader>
@@ -481,7 +482,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
   const topPlayers = getTopPlayersByPosition(selectedPosition);
 
   return (
-    <Card className="w-full">
+    <Card className="w-full mystats-container">
       <CardHeader>
         <CardTitle className="text-sm font-normal">Key Players</CardTitle>
       </CardHeader>
