@@ -7,7 +7,19 @@ import { cn } from "@/lib/utils"
 
 const TooltipProvider = TooltipPrimitive.Provider
 
-const Tooltip = TooltipPrimitive.Root
+const Tooltip = React.forwardRef<
+  React.ElementRef<typeof TooltipPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Root>
+>(({ open, defaultOpen, onOpenChange, ...props }, ref) => (
+  <TooltipPrimitive.Root 
+    ref={ref} 
+    open={open}
+    defaultOpen={defaultOpen ?? false}
+    onOpenChange={onOpenChange}
+    {...props} 
+  />
+))
+Tooltip.displayName = TooltipPrimitive.Root.displayName
 
 const TooltipTrigger = TooltipPrimitive.Trigger
 

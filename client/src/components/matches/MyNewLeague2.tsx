@@ -697,9 +697,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             console.warn(
               `⚠️ [MyNewLeague2] Error fetching league ${leagueId}: ${errorMessage}`,
             );
-            return { 
-              leagueId, 
-              fixtures: [], 
+            return {
+              leagueId,
+              fixtures: [],
               error: errorMessage.includes("abort") ? "Request timeout" : errorMessage,
               networkError: true
             };
@@ -708,7 +708,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
         try {
           const batchResults = await Promise.allSettled(batchPromises);
-          const processedResults = batchResults.map(result => 
+          const processedResults = batchResults.map(result =>
             result.status === 'fulfilled' ? result.value : {
               leagueId: 0,
               fixtures: [],
