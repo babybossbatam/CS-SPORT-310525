@@ -1728,3 +1728,14 @@ export const useLanguage = () => {
   }
   return context;
 };
+
+// Add useTranslation hook for convenience
+export const useTranslation = () => {
+  const { currentLanguage, translations } = useLanguage();
+  
+  const t = (key: string): string => {
+    return translations[currentLanguage]?.[key] || translations['en']?.[key] || key;
+  };
+
+  return { t, currentLanguage };
+};

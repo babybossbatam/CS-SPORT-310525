@@ -16,6 +16,7 @@ class SmartTeamTranslation {
   private learnedTeamMappings = new Map<string, TeamTranslation>(); // Stores learned mappings
   private automatedMappingsCache: any = null; // Cache for automated mappings
   private automatedMappings = new Map<string, any>(); // Store automated mappings
+  private translationCache = new Map<string, { translation: string; timestamp: number }>(); // Add missing cache
   private isLoading = false;
 
   constructor() {
@@ -2204,11 +2205,16 @@ class SmartTeamTranslation {
 
   // Clear stale cache entries
   private clearStaleCache(): void {
+    if (!this.translationCache) {
+      this.translationCache = new Map();
+      return;
+    }
+
     const now = Date.now();
     const staleThreshold = 24 * 60 * 60 * 1000; // 24 hours
 
     for (const [key, entry] of this.translationCache.entries()) {
-      if (now - entry.timestamp > staleThreshold) {
+      if (entry && entry.timestamp && now - entry.timestamp > staleThreshold) {
         this.translationCache.delete(key);
       }
     }
