@@ -85,6 +85,7 @@ const translations = {
       'ended': "Ended",
       'won_on_penalties': "won on penalties",
       'on_penalties': "on penalties",
+      'tomorrow': "Tomorrow",
       // Match statuses
       'halftime': 'Halftime',
       'penalties': 'Penalties',
@@ -99,6 +100,7 @@ const translations = {
       'walkover': 'Walkover',
       'time_tbd': 'Time TBD',
       'after_extra_time': 'After Extra Time',
+      'starting_now': 'Starting now',
     },
     'en-us': {
       'today_matches': "Today's Games",
@@ -254,6 +256,7 @@ const translations = {
       'tottenham': "Tottenham",
       'won_on_penalties': "ganó en penales",
       'on_penalties': "en penales",
+      'tomorrow': "Mañana",
       // Match statuses
       'halftime': 'Medio Tiempo',
       'penalties': 'Penales',
@@ -268,6 +271,7 @@ const translations = {
       'walkover': 'Walkover',
       'time_tbd': 'Hora por determinar',
       'after_extra_time': 'Después del Tiempo Extra',
+      'starting_now': 'Comenzando ahora',
     },
     'zh-hk': {
       'today_matches': "今日比賽",
@@ -346,6 +350,7 @@ const translations = {
       'tottenham': "熱刺",
       'won_on_penalties': "互射十二碼獲勝",
       'on_penalties': "互射十二碼",
+      'tomorrow': "明天",
       // Match statuses
       'halftime': '中場',
       'penalties': '點球',
@@ -360,6 +365,7 @@ const translations = {
       'walkover': '棄權',
       'time_tbd': '時間待定',
       'after_extra_time': '加時賽後',
+      'starting_now': '即將開始',
     },
     'de': {
       'today_matches': "Heutige Spiele",
@@ -1657,7 +1663,7 @@ export const LanguageProvider: React.FC<{
         'es': 'Después del Tiempo Extra',
         'de': 'Nach Verlängerung',
         'it': 'Dopo Tempo Supplementare',
-        'pt': 'Após Penaltis'
+        'pt': 'Após Tempo Extra'
       },
       'PEN': {
         'en': 'After Penalties',
@@ -1679,15 +1685,95 @@ export const LanguageProvider: React.FC<{
         'it': 'In Diretta',
         'pt': 'Ao Vivo'
       },
+      '1H': {
+        'en': 'First Half',
+        'zh': '上半场',
+        'zh-hk': '上半場',
+        'zh-tw': '上半場',
+        'es': 'Primer Tiempo',
+        'de': 'Erste Halbzeit',
+        'it': 'Primo Tempo',
+        'pt': 'Primeiro Tempo'
+      },
+      '2H': {
+        'en': 'Second Half',
+        'zh': '下半场',
+        'zh-hk': '下半場',
+        'zh-tw': '下半場',
+        'es': 'Segundo Tiempo',
+        'de': 'Zweite Halbzeit',
+        'it': 'Secondo Tempo',
+        'pt': 'Segundo Tempo'
+      },
+      'HT': {
+        'en': 'Halftime',
+        'zh': '中场休息',
+        'zh-hk': '中場休息',
+        'zh-tw': '中場休息',
+        'es': 'Medio Tiempo',
+        'de': 'Halbzeit',
+        'it': 'Intervallo',
+        'pt': 'Intervalo'
+      },
+      'ET': {
+        'en': 'Extra Time',
+        'zh': '加时赛',
+        'zh-hk': '加時賽',
+        'zh-tw': '加時賽',
+        'es': 'Tiempo Extra',
+        'de': 'Verlängerung',
+        'it': 'Tempi Supplementari',
+        'pt': 'Tempo Extra'
+      },
+      'P': {
+        'en': 'Penalties',
+        'zh': '点球大战',
+        'zh-hk': '點球大戰',
+        'zh-tw': '點球大戰',
+        'es': 'Penales',
+        'de': 'Elfmeterschießen',
+        'it': 'Rigori',
+        'pt': 'Penaltis'
+      },
       'NS': {
         'en': 'Starting now',
         'zh': '即将开始',
         'zh-hk': '即將開始',
         'zh-tw': '即將開始',
-        'es': 'Comenzando',
+        'es': 'Comenzando ahora',
         'de': 'Startet jetzt',
         'it': 'Inizia ora',
-        'pt': 'Iniciando'
+        'pt': 'Iniciando agora'
+      },
+      'PST': {
+        'en': 'Postponed',
+        'zh': '推迟',
+        'zh-hk': '延期',
+        'zh-tw': '延期',
+        'es': 'Aplazado',
+        'de': 'Verschoben',
+        'it': 'Rinviato',
+        'pt': 'Adiado'
+      },
+      'CANC': {
+        'en': 'Cancelled',
+        'zh': '取消',
+        'zh-hk': '取消',
+        'zh-tw': '取消',
+        'es': 'Cancelado',
+        'de': 'Abgesagt',
+        'it': 'Annullato',
+        'pt': 'Cancelado'
+      },
+      'SUSP': {
+        'en': 'Suspended',
+        'zh': '暂停',
+        'zh-hk': '暫停',
+        'zh-tw': '暫停',
+        'es': 'Suspendido',
+        'de': 'Unterbrochen',
+        'it': 'Sospeso',
+        'pt': 'Suspenso'
       },
       'UPCOMING': {
         'en': 'Upcoming',

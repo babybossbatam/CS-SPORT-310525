@@ -2253,6 +2253,7 @@ id: fixture.teams.away.id,
                             <div className="space-y-1">
                               <div className="text-red-600 text-sm flex items-center justify-center gap-2">
                                 {elapsed && <span className="animate-pulse" style={{animation: 'truePulse 2s infinite ease-in-out'}}> {elapsed}'</span>}
+                                {!elapsed && <span className="animate-pulse" style={{animation: 'truePulse 2s infinite ease-in-out'}}>{getMatchStatusTranslation('LIVE', currentLanguage)}</span>}
                               </div>
                               <div className="text-2xl font-md">
                                 {homeScore} - {awayScore}
@@ -2281,7 +2282,7 @@ id: fixture.teams.away.id,
                               {/* Show penalty scores if match ended in penalties */}
                               {matchStatus === "PEN" && currentMatch.score?.penalty && (
                                 <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                  Penalties: {currentMatch.score.penalty.home} - {currentMatch.score.penalty.away}
+                                  {t('penalties')}: {currentMatch.score.penalty.home} - {currentMatch.score.penalty.away}
                                 </div>
                               )}
                             </div>
@@ -2297,14 +2298,18 @@ id: fixture.teams.away.id,
                             countdownTimer !== "Loading..." &&
                             countdownTimer !== "--:--:--"
                           ) {
+                            // Check if countdown shows "Starting now" and translate it
+                            if (countdownTimer === "Starting now") {
+                              return getMatchStatusTranslation('NS', currentLanguage);
+                            }
                             return countdownTimer;
                           }
 
-                          // Fallback to date labeling
+                          // Fallback to date labeling with translations
                           if (matchDateString === todayString) {
-                            return "Today";
+                            return t('today');
                           } else if (matchDateString === tomorrowString) {
-                            return "Tomorrow";
+                            return t('tomorrow') || "Tomorrow";
                           } else {
                             // Calculate days difference for upcoming matches using date-only comparison
                             const matchDateOnly = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate());
