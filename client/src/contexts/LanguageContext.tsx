@@ -101,6 +101,8 @@ const translations = {
       'time_tbd': 'Time TBD',
       'after_extra_time': 'After Extra Time',
       'starting_now': 'Starting now',
+      'day': 'Day',
+      'days': 'Days',
     },
     'en-us': {
       'today_matches': "Today's Games",
@@ -272,6 +274,8 @@ const translations = {
       'time_tbd': 'Hora por determinar',
       'after_extra_time': 'Después del Tiempo Extra',
       'starting_now': 'Comenzando ahora',
+      'day': 'Día',
+      'days': 'Días',
     },
     'zh-hk': {
       'today_matches': "今日比賽",
@@ -366,6 +370,8 @@ const translations = {
       'time_tbd': '時間待定',
       'after_extra_time': '加時賽後',
       'starting_now': '即將開始',
+      'day': '日',
+      'days': '日',
     },
     'de': {
       'today_matches': "Heutige Spiele",
@@ -739,6 +745,8 @@ const translations = {
       'time_tbd': '时间待定',
       'after_extra_time': '加时赛后',
       'starting_now': '即将开始',
+      'day': '日',
+      'days': '日',
     },
     'zh-tw': {
       'today_matches': "今日比賽",
