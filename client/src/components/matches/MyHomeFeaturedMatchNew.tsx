@@ -897,18 +897,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     // Must have valid teams, be from popular leagues, not priority leagues, and NOT be live
                     const hasValidTeams =
                       fixture.teams?.home?.name && fixture.teams?.away?.name;
-
-                    const leagueName = fixture.league?.name?.toLowerCase() || "";
-                    const country = fixture.league?.country?.toLowerCase() || "";
-
-                    // Exclude women's competitions and Oberliga leagues
-                    const isWomensCompetition = leagueName.includes("women") ||
-                      leagueName.includes("femenina") ||
-                      leagueName.includes("feminine") ||
-                      leagueName.includes("femmin");
-
-                    // Exclude Oberliga leagues (German regional leagues)
-                    const isOberligaLeague = leagueName.includes("oberliga");
+                    const isNotLive = !isLiveMatch(
+                      fixture.fixture.status.short,
+                    );
+                    const isNotPriorityLeague = !priorityLeagueIds.includes(fixture.league?.id);
 
                     // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
                     const matchDate = new Date(fixture.fixture.date);
@@ -978,12 +970,21 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const isFromPopularCountry = POPULAR_LEAGUES.some(
                       (league) => league.country.toLowerCase() === country,
                     );
-                    const isPriorityLeague = priorityLeagueIds.includes(
-                      fixture.league?.id,
-                    );
-                    const isNotLive = !isLiveMatch(
-                      fixture.fixture.status.short,
-                    );
+
+                    // Exclude women's competitions and Oberliga leagues
+                    const leagueName = fixture.league?.name?.toLowerCase() || "";
+                    const country = fixture.league?.country?.toLowerCase() || "";
+
+                    // Exclude women's competitions
+                    const isWomensCompetition = leagueName.includes("women") ||
+                      leagueName.includes("femenina") ||
+                      leagueName.includes("feminine") ||
+                      leagueName.includes("feminin");
+
+                    // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
+                    const isOberligaLeague = leagueName.includes("oberliga");
+                    const isRegionalligaLeague = leagueName.includes("regionalliga") || leagueName.includes("regional liga");
+                    const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
 
                     // Check if it's an international competition
                     const isInternationalCompetition =
@@ -1032,14 +1033,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     return (
                       hasValidTeams &&
+                      isNotLive &&
+                      isNotPriorityLeague &&
+                      !isWomensCompetition &&
+                      !isOberligaLeague &&
+                      !isRegionalligaLeague &&
+                      !is3Liga &&
                       (isPopularLeague ||
                       isFromPopularCountry ||
                       isInternationalCompetition ||
-                      isPopularClubFriendly()) &&
-                      !isPriorityLeague &&
-                      isNotLive &&
-                      !isWomensCompetition &&
-                      !isOberligaLeague
+                      isPopularClubFriendly())
                     );
                   })
                   .map((fixture: any) => ({
@@ -1185,7 +1188,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
                     const isOberligaLeague = leagueName.includes("oberliga");
-                    const isRegionalligaLeague = leagueName.includes("regionalliga");
+                    const isRegionalligaLeague = leagueName.includes("regionalliga") || leagueName.includes("regional liga");
                     const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
 
                       return hasValidTeams && isNotLive && isNotDuplicate && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga;
@@ -1548,7 +1551,7 @@ id: fixture.teams.away.id,
         key.includes('regionalliga') ||
         key.includes('bayern') ||
         key.includes('fixtures_date') ||
-        key.startsWith('finished_fixtures_') ||
+        key.startsWith('ended_matches_') ||
         key.startsWith('league-fixtures-') ||
         key.startsWith('featured-match-') ||
         key.startsWith('all-fixtures-by-date')
