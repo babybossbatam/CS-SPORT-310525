@@ -19,7 +19,7 @@ import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import BrandedLoading from "../common/BrandedLoading";
 import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";
-import { useTranslation } from "@/contexts/LanguageContext";
+import { useLanguage, useTranslation } from "@/contexts/LanguageContext";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
 import { smartTeamTranslation } from '@/lib/smartTeamTranslation';
@@ -133,7 +133,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   onMatchCardClick,
   match,
 }) => {
-  const { t, translateLeagueName: contextTranslateLeagueName, translateTeamName, currentLanguage } = useTranslation();
+  const { translateLeagueName: contextTranslateLeagueName, translateTeamName, currentLanguage } = useLanguage();
+  const { t } = useTranslation();
   // Add league name translation
   const translateLeagueName = (originalLeague: string): string => {
     if (!originalLeague) return "";
