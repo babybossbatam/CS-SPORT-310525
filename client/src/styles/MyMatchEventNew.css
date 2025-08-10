@@ -1177,6 +1177,19 @@
   background-color: rgb(55 65 81) !important; /* bg-gray-700 */
 }
 
+/* Dark mode backgrounds for commentary event headers (goal, card, substitution containers) */
+.dark .commentary-event-container .bg-gradient-to-r {
+  background: rgb(55 65 81) !important; /* bg-gray-700 */
+}
+
+.dark .commentary-event-container .from-green-50 {
+  background: rgb(55 65 81) !important; /* bg-gray-700 */
+}
+
+.dark .commentary-event-container .to-blue-50 {
+  background: rgb(55 65 81) !important; /* bg-gray-700 */
+}
+
 /* Focus states for accessibility */
 .match-event-icon:focus,
 .match-event-time-center:focus,
