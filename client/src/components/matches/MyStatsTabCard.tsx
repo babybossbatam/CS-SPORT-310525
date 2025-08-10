@@ -5,7 +5,7 @@ import MyStats from "./MyStats";
 import MyShots from "./MyShots";
 import MyPass from "./MyPass";
 import MyDiscipline from "./MyDiscipline";
-import "./MyStats.css"; // Import the CSS file
+import "@/styles/MyStats.css";
 
 interface MyStatsTabCardProps {
   match?: any;
