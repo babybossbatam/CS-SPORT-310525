@@ -665,6 +665,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   )}
                 </div>
               </div>
+              </div>
             )}
           </div>
 

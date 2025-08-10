@@ -1,0 +1,137 @@
+9:48:39 AM [express] GET /api/leagues/886/fixtures 304 in 3ms :: [{"fixture":{"id":1286030,"referee"…
+API: Fetching fixtures for league 1022, season 2025
+API: Retrieved 6 fixtures for league 1022
+9:48:39 AM [express] GET /api/leagues/1022/fixtures 304 in 1ms :: [{"fixture":{"id":1360808,"referee…
+API: Fetching fixtures for league 772, season 2025
+API: Retrieved 54 fixtures for league 772
+9:48:39 AM [express] GET /api/leagues/772/fixtures 304 in 1ms :: [{"fixture":{"id":1351423,"referee"…
+API: Fetching fixtures for league 71, season 2025
+API: Retrieved 380 fixtures for league 71
+9:48:40 AM [express] GET /api/leagues/71/fixtures 304 in 4ms :: [{"fixture":{"id":1351046,"referee":…
+API: Fetching fixtures for league 3, season 2025
+API: Retrieved 58 fixtures for league 3
+9:48:40 AM [express] GET /api/leagues/3/fixtures 304 in 1ms :: [{"fixture":{"id":1383540,"referee":"…
+API: Fetching fixtures for league 5, season 2025
+API: Retrieved 188 fixtures for league 5
+9:48:40 AM [express] GET /api/leagues/5/fixtures 304 in 2ms :: [{"fixture":{"id":1172987,"referee":"…
+API: Fetching fixtures for league 531, season 2025
+API: Retrieved 1 fixtures for league 531
+9:48:40 AM [express] GET /api/leagues/531/fixtures 304 in 1ms :: [{"fixture":{"id":1377400,"referee"…
+API: Fetching fixtures for league 22, season 2025
+API: Retrieved 31 fixtures for league 22
+9:48:40 AM [express] GET /api/leagues/22/fixtures 304 in 1ms :: [{"fixture":{"id":1371356,"referee":…
+API: Fetching fixtures for league 73, season 2025
+API: Retrieved 108 fixtures for league 73
+9:48:41 AM [express] GET /api/leagues/73/fixtures 304 in 2ms :: [{"fixture":{"id":1349591,"referee":…
+API: Fetching fixtures for league 75, season 2025
+API: Retrieved 190 fixtures for league 75
+9:48:41 AM [express] GET /api/leagues/75/fixtures 304 in 2ms :: [{"fixture":{"id":1357580,"referee":…
+API: Fetching fixtures for league 72, season 2025
+API: Retrieved 380 fixtures for league 72
+9:48:41 AM [express] GET /api/leagues/72/fixtures 304 in 3ms :: [{"fixture":{"id":1353261,"referee":…
+API: Fetching fixtures for league 76, season 2025
+API: Retrieved 480 fixtures for league 76
+9:48:41 AM [express] GET /api/leagues/76/fixtures 304 in 4ms :: [{"fixture":{"id":1357150,"referee":…
+API: Fetching fixtures for league 233, season 2025
+API: Retrieved 202 fixtures for league 233
+9:48:41 AM [express] GET /api/leagues/233/fixtures 304 in 3ms :: [{"fixture":{"id":1418747,"referee"…
+API: Fetching fixtures for league 667, season 2025
+API: Retrieved 5289 fixtures for league 667
+9:48:41 AM [express] GET /api/leagues/667/fixtures 304 in 48ms :: [{"fixture":{"id":1333066,"referee…
+API: Fetching fixtures for league 23, season 2025
+API: Retrieved 6 fixtures for league 23
+9:48:41 AM [express] GET /api/leagues/23/fixtures 304 in 0ms :: [{"fixture":{"id":1390619,"referee":…
+API: Fetching fixtures for league 940, season 2025
+API: Retrieved 16 fixtures for league 940
+9:48:41 AM [express] GET /api/leagues/940/fixtures 304 in 0ms :: [{"fixture":{"id":1405688,"referee"…
+API: Fetching fixtures for league 908, season 2025
+API: Retrieved 16 fixtures for league 908
+9:48:41 AM [express] GET /api/leagues/908/fixtures 304 in 1ms :: [{"fixture":{"id":1377388,"referee"…
+API: Fetching fixtures for league 1169, season 2025
+API: Retrieved 7 fixtures for league 1169
+9:48:41 AM [express] GET /api/leagues/1169/fixtures 304 in 0ms :: [{"fixture":{"id":1322460,"referee…
+API: Fetching fixtures for league 253, season 2025
+API: Retrieved 510 fixtures for league 253
+9:48:44 AM [express] GET /api/leagues/253/fixtures 304 in 8ms :: [{"fixture":{"id":1326234,"referee"…
+API: Fetching fixtures for league 893, season 2025
+API: Retrieved 78 fixtures for league 893
+9:48:44 AM [express] GET /api/leagues/893/fixtures 304 in 1ms :: [{"fixture":{"id":1366909,"referee"…
+API: Fetching fixtures for league 850, season 2025
+API: Retrieved 240 fixtures for league 850
+9:48:44 AM [express] GET /api/leagues/850/fixtures 304 in 3ms :: [{"fixture":{"id":1349978,"referee"…
+API: Fetching fixtures for league 921, season 2025
+API: Retrieved 15 fixtures for league 921
+9:48:44 AM [express] GET /api/leagues/921/fixtures 304 in 1ms :: [{"fixture":{"id":1367487,"referee"…
+API: Fetching fixtures for league 130, season 2025
+API: Retrieved 58 fixtures for league 130
+9:48:44 AM [express] GET /api/leagues/130/fixtures 304 in 0ms :: [{"fixture":{"id":1330788,"referee"…
+API: Fetching fixtures for league 128, season 2025
+API: Retrieved 495 fixtures for league 128
+9:48:44 AM [express] GET /api/leagues/128/fixtures 304 in 5ms :: [{"fixture":{"id":1334278,"referee"…
+API: Fetching fixtures for league 239, season 2025
+API: Retrieved 417 fixtures for league 239
+9:48:44 AM [express] GET /api/leagues/239/fixtures 304 in 4ms :: [{"fixture":{"id":1336526,"referee"…
+API: Fetching fixtures for league 493, season 2025
+API: Retrieved 15 fixtures for league 493
+9:48:44 AM [express] GET /api/leagues/493/fixtures 304 in 1ms :: [{"fixture":{"id":1371743,"referee"…
+API: Fetching fixtures for league 265, season 2025
+API: Retrieved 240 fixtures for league 265
+9:48:44 AM [express] GET /api/leagues/265/fixtures 304 in 3ms :: [{"fixture":{"id":1339008,"referee"…
+API: Fetching fixtures for league 237, season 2025
+API: Retrieved 90 fixtures for league 237
+9:48:44 AM [express] GET /api/leagues/237/fixtures 304 in 1ms :: [{"fixture":{"id":1423830,"referee"…
+API: Fetching fixtures for league 235, season 2025
+API: Retrieved 240 fixtures for league 235
+9:48:45 AM [express] GET /api/leagues/235/fixtures 304 in 3ms :: [{"fixture":{"id":1400031,"referee"…
+API: Fetching fixtures for league 743, season 2025
+API: Retrieved 31 fixtures for league 743
+9:48:45 AM [express] GET /api/leagues/743/fixtures 304 in 1ms :: [{"fixture":{"id":1367624,"referee"…
+📊 [RapidAPI] Fetching events for fixture: 1351223
+✅ [RapidAPI] Found 13 events for fixture 1351223
+📊 [Events API] Fetched 13 events for fixture 1351223
+9:48:52 AM [express] GET /api/fixtures/1351223/events 200 in 272ms :: [{"time":{"elapsed":83,"extra"…
+Database connection removed from pool
+🎯 [Routes] Processing multi-timezone request for date: 2025-08-10 (all=true)
+🎯 [Routes] Current server date: 2025-08-10T09:49:01.940Z, requested date: 2025-08-10
+Database connection established
+✅ [Routes] Returning 2337 cached fixtures for date 2025-08-10 (age: 5min, maxAge: 120min)
+9:49:02 AM [express] GET /api/fixtures/date/2025-08-10 304 in 541ms :: [{"goals":{"away":null,"home"…
+📊 [RapidAPI] Fetching events for fixture: 1351223
+✅ [RapidAPI] Found 13 events for fixture 1351223
+📊 [Events API] Fetched 13 events for fixture 1351223
+9:49:06 AM [express] GET /api/fixtures/1351223/events 200 in 366ms :: [{"time":{"elapsed":83,"extra"…
+📊 [RapidAPI] Fetching events for fixture: 1351223
+✅ [RapidAPI] Found 13 events for fixture 1351223
+📊 [Events API] Fetched 13 events for fixture 1351223
+9:49:21 AM [express] GET /api/fixtures/1351223/events 200 in 258ms :: [{"time":{"elapsed":83,"extra"…
+API: Fetching fixtures for league 38, season 2025
+API: Retrieved 31 fixtures for league 38
+9:49:31 AM [express] GET /api/leagues/38/fixtures 304 in 1ms :: [{"fixture":{"id":1320041,"referee":…
+API: Fetching fixtures for league 15, season 2025
+API: Retrieved 63 fixtures for league 15
+9:49:31 AM [express] GET /api/leagues/15/fixtures 304 in 1ms :: [{"fixture":{"id":1321680,"referee":…
+API: Fetching fixtures for league 2, season 2025
+API: Retrieved 80 fixtures for league 2
+9:49:31 AM [express] GET /api/leagues/2/fixtures 304 in 2ms :: [{"fixture":{"id":1383422,"referee":"…
+API: Fetching fixtures for league 4, season 2025
+API: Retrieved 51 fixtures for league 4
+9:49:31 AM [express] GET /api/leagues/4/fixtures 304 in 2ms :: [{"fixture":{"id":1145509,"referee":"…
+API: Fetching fixtures for league 10, season 2025
+API: Retrieved 201 fixtures for league 10
+9:49:31 AM [express] GET /api/leagues/10/fixtures 304 in 3ms :: [{"fixture":{"id":1376553,"referee":…
+Database connection removed from pool
+API: Fetching fixtures for league 11, season 2025
+API: Retrieved 144 fixtures for league 11
+9:49:32 AM [express] GET /api/leagues/11/fixtures 304 in 2ms :: [{"fixture":{"id":1326748,"referee":…
+API: Fetching fixtures for league 848, season 2025
+API: Retrieved 208 fixtures for league 848
+9:49:32 AM [express] GET /api/leagues/848/fixtures 304 in 2ms :: [{"fixture":{"id":1383458,"referee"…
+API: Fetching fixtures for league 886, season 2025
+API: Retrieved 156 fixtures for league 886
+9:49:32 AM [express] GET /api/leagues/886/fixtures 304 in 2ms :: [{"fixture":{"id":1286030,"referee"…
+API: Fetching fixtures for league 772, season 2025
+API: Retrieved 54 fixtures for league 772
+9:49:32 AM [express] GET /api/leagues/772/fixtures 304 in 1ms :: [{"fixture":{"id":1351423,"referee"…
+API: Fetching fixtures for league 1022, season 2025
+API: Retrieved 6 fixtures for league 1022
+9:49:32 AM [express] GET /api/leagues/1022/fixtures 304 in 0ms :: [{"fixture":{"id":1360808,"referee…
