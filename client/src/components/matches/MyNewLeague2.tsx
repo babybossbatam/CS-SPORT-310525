@@ -82,6 +82,7 @@ interface FixtureData {
     name: string;
     country: string;
     logo: string;
+    flag?: string; // Added flag property
   };
   teams: {
     home: {
@@ -146,7 +147,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       id: 135,
       name: "World Cup - Qualification South America",
       country: "World",
-      round: "Group Stage - 16",
+      logo: "https://media.api.sports.io/football/leagues/135.png",
+      flag: "https://media.api.sports.io/flags/world.svg", // Example flag
     },
     teams: {
       home: {
@@ -230,7 +232,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     const matchDate = new Date(fixture.fixture.date);
     const hoursAgo = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
 
-    return hoursAgo > 2;
+    return hoursOld > 2;
   }, []);
 
   // Check localStorage quota and manage storage efficiently
@@ -1326,7 +1328,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             name: fixture.league.name || '',
             country: fixture.league.country || '',
             logo: fixture.league.logo || '',
-            flag: fixture.league.flag || ''
+            flag: fixture.league.flag || '' // Pass flag
           },
           teams: {
             home: {
@@ -1869,7 +1871,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                           'es': 'Alemania',
                           'zh-hk': '德國',
                           'zh-tw': '德國',
-                          'zh': '德国',
+                          'zh': '德國',
                           'de': 'Deutschland',
                           'it': 'Germania',
                           'pt': 'Alemanha'

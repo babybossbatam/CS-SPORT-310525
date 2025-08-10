@@ -424,10 +424,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
             : 12 * 60 * 60 * 1000;
 
         if (cacheAge < maxCacheAge) {
-          console.log(
-            `✅ [Routes] Returning ${cachedFixtures.length} cached fixtures for date ${date} (age: ${Math.round(cacheAge / 60000)}min, maxAge: ${Math.round(maxCacheAge / 60000)}min)`,
-          );
-          return res.json(cachedFixtures.map((fixture) => fixture.data));
+          // Check response size and limit if necessary
+          const responseData = cachedFixtures.map(fixture => fixture.data);
+          const dataSize = JSON.stringify(responseData).length;
+
+          if (dataSize > 200000) { // 200KB limit
+            console.log(`⚠️ [Routes] Large response detected (${Math.round(dataSize/1024)}KB), applying optimizations`);
+
+            // Remove unnecessary fields to reduce size
+            const optimizedData = responseData.map(fixture => ({
+              fixture: {
+                id: fixture.fixture.id,
+                date: fixture.fixture.date,
+                status: fixture.fixture.status,
+                venue: fixture.fixture.venue ? {
+                  name: fixture.fixture.venue.name,
+                  city: fixture.fixture.venue.city
+                } : null
+              },
+              league: {
+                id: fixture.league.id,
+                name: fixture.league.name,
+                country: fixture.league.country,
+                logo: fixture.league.logo,
+                round: fixture.league.round
+              },
+              teams: fixture.teams,
+              goals: fixture.goals,
+              score: fixture.score
+            }));
+
+            console.log(`✅ [Routes] Returning ${optimizedData.length} optimized cached fixtures for date ${date} (age: ${Math.round(cacheAge / 60000)}min, maxAge: ${Math.round(maxCacheAge / 60000)}min)`);
+            res.json(optimizedData);
+          } else {
+            console.log(`✅ [Routes] Returning ${responseData.length} cached fixtures for date ${date} (age: ${Math.round(cacheAge / 60000)}min, maxAge: ${Math.round(maxCacheAge / 60000)}min)`);
+            res.json(responseData);
+          }
+          return;
         } else {
           console.log(
             `⏰ [Routes] Cache expired for date ${date} (age: ${Math.round(cacheAge / 60000)}min > maxAge: ${Math.round(maxCacheAge / 60000)}min)`,
@@ -1280,7 +1313,7 @@ app.get('/api/teams/popular', async (req, res) => {
     },
   );
 
-  // Europa Leaguefixtures endpoint (League ID 3)
+  // Europa League fixtures endpoint (League ID 3)
   apiRouter.get(
     "/europa-league/fixtures",
     async (_req: Request, res: Response) => {

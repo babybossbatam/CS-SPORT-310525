@@ -21,41 +21,49 @@ export const handleImageError = (
   }
 };
 
-export const handleApiError = (error: any, context: string = 'API'): string => {
-  if (!error) return 'Unknown error occurred';
+export const handleApiError = (error: any, context: string = 'API') => {
+  console.error(`❌ [${context}] Error:`, error);
 
-  // Handle stallwart connection issues
-  if (error.message?.includes('stallwart') || error.message?.includes('session stalled')) {
-    return 'Connection temporarily unstable. Retrying automatically...';
+  // Handle specific HTTP status codes
+  if (error?.response?.status === 429) {
+    console.warn(`⚠️ [${context}] Rate limit exceeded, implementing backoff`);
+    return {
+      retry: true,
+      delay: 5000,
+      message: 'Rate limit exceeded, retrying...'
+    };
+  }
+
+  if (error?.response?.status === 400) {
+    console.warn(`⚠️ [${context}] Bad request (400), not retrying`);
+    return {
+      retry: false,
+      message: 'Invalid request data'
+    };
+  }
+
+  if (error?.response?.status === 500) {
+    console.warn(`⚠️ [${context}] Server error (500), will retry once`);
+    return {
+      retry: true,
+      delay: 2000,
+      maxRetries: 1,
+      message: 'Server error, retrying...'
+    };
   }
 
   // Handle network errors
-  if (error.name === 'NetworkError' || error.message?.includes('fetch')) {
-    return 'Network connection failed. Please check your internet connection.';
+  if (error?.name === 'AbortError') {
+    return {
+      retry: false,
+      message: 'Request timeout - please try again'
+    };
   }
 
-  // Handle timeout errors
-  if (error.name === 'TimeoutError' || error.message?.includes('timeout')) {
-    return 'Request timed out. Please try again.';
-  }
-
-  // Handle rate limiting
-  if (error.status === 429 || error.message?.includes('rate limit')) {
-    return 'Too many requests. Please wait a moment before trying again.';
-  }
-
-  // Handle server errors
-  if (error.status >= 500) {
-    return 'Server error. Please try again later.';
-  }
-
-  // Handle client errors
-  if (error.status >= 400 && error.status < 500) {
-    return `Request failed: ${error.message || 'Invalid request'}`;
-  }
-
-  // Default error message
-  return error.message || 'An unexpected error occurred';
+  return {
+    retry: false,
+    message: error?.message || 'Unknown error occurred'
+  };
 };
 
 // Add network recovery helper

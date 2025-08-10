@@ -47,16 +47,16 @@ router.get('/headtohead', async (req, res) => {
     
     console.log(`✅ [H2H API] Valid team IDs: ${team1} vs ${team2}`);
     
-    // Quick validation - check if team IDs are reasonable (not too high/low)
+    // More lenient validation - check if team IDs are reasonable
     const team1Num = Number(team1);
     const team2Num = Number(team2);
-    if (team1Num < 1 || team1Num > 50000 || team2Num < 1 || team2Num > 50000) {
+    if (team1Num < 1 || team1Num > 100000 || team2Num < 1 || team2Num > 100000) {
       console.log(`⚠️ [H2H API] Suspicious team IDs: ${team1} vs ${team2}`);
       return res.status(200).json({ 
         response: [],
         message: 'Invalid team IDs provided',
         teams: { team1: team1Num, team2: team2Num },
-        suggestion: 'Team IDs must be between 1 and 50000',
+        suggestion: 'Team IDs must be between 1 and 100000',
         reason: 'Invalid team ID range'
       });
     }
