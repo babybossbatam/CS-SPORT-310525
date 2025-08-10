@@ -1076,6 +1076,22 @@
     --dividerPrimary: #4b5563;
   }
 }
+/* Dark mode tab navigation styles */
+.dark .pl-28.pr-28.py-4.flex button {
+  background-color: rgb(31 41 55) !important; /* bg-gray-800 */
+  
+  border: 1px solid #e3e3e3 !important;
+}
+
+.dark .pl-28.pr-28.py-4.flex button:hover {
+  background-color: rgb(55 65 81) !important; /* bg-gray-700 */
+}
+
+.dark .pl-28.pr-28.py-4.flex button.bg-blue-500 {
+  background-color: rgb(59 130 246) !important; /* bg-blue-500 */
+  color: white !important;
+  border: 1px solid rgb(59 130 246) !important;
+}
 
 /* Focus states for accessibility */
 .match-event-icon:focus,
