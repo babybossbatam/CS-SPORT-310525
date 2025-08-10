@@ -2516,7 +2516,9 @@ id: fixture.teams.away.id,
                               const translatedDate = `${translatedDayName}, ${dayNumber} ${translatedMonthName}`;
 
                               // Safely get venue with proper fallbacks - SHOW FOR ALL MATCH TYPES
-                              let displayVenue = currentMatch.fixture?.venue?.name || null;
+                              let displayVenue = currentMatch.fixture?.venue?.name || 
+                                               currentMatch.venue?.name || 
+                                               null;
 
                               // Check if venue is missing or has placeholder values
                               if (
@@ -2524,7 +2526,9 @@ id: fixture.teams.away.id,
                                 displayVenue === "TBD" ||
                                 displayVenue === "Venue TBA" ||
                                 displayVenue === "" ||
-                                displayVenue === "Unknown"
+                                displayVenue === "Unknown" ||
+                                displayVenue === "null" ||
+                                displayVenue.trim() === ""
                               ) {
                                 displayVenue = null; // No valid venue found
                               }
