@@ -1831,8 +1831,82 @@ class SmartTeamTranslation {
       'es': 'Zamalek SC', 'de': 'Zamalek SC', 'it': 'Zamalek SC', 'pt': 'Zamalek SC'
     },
     
-    // Keep some key teams with enhanced translations, others can use the phonetic ones as fallback
-    // Add the rest of the automated mappings but with better logic for known teams
+    // AUTOMATED TEAM MAPPINGS - merged from generateCompleteTeamMapping
+    // These provide broad coverage but manual translations above take priority
+    
+    // Only add teams not already covered by manual translations above
+    'Cruzeiro': {
+      'zh': '克鲁塞罗', 'zh-hk': '克魯塞羅', 'zh-tw': '克魯塞羅',
+      'es': 'Cruzeiro', 'de': 'Cruzeiro', 'it': 'Cruzeiro', 'pt': 'Cruzeiro'
+    },
+    'Operario-PR': {
+      'zh': '巴拉那工人', 'zh-hk': '巴拉那工人', 'zh-tw': '巴拉那工人',
+      'es': 'Operario-PR', 'de': 'Operario-PR', 'it': 'Operario-PR', 'pt': 'Operario-PR'
+    },
+    'Novorizontino': {
+      'zh': '新地平线', 'zh-hk': '新地平線', 'zh-tw': '新地平線',
+      'es': 'Novorizontino', 'de': 'Novorizontino', 'it': 'Novorizontino', 'pt': 'Novorizontino'
+    },
+    'Mirassol': {
+      'zh': '米拉索尔', 'zh-hk': '米拉索爾', 'zh-tw': '米拉索爾',
+      'es': 'Mirassol', 'de': 'Mirassol', 'it': 'Mirassol', 'pt': 'Mirassol'
+    },
+    'Volta Redonda': {
+      'zh': '伏尔塔雷东达', 'zh-hk': '伏爾塔雷東達', 'zh-tw': '伏爾塔雷東達',
+      'es': 'Volta Redonda', 'de': 'Volta Redonda', 'it': 'Volta Redonda', 'pt': 'Volta Redonda'
+    },
+    'CRB': {
+      'zh': 'CRB', 'zh-hk': 'CRB', 'zh-tw': 'CRB',
+      'es': 'CRB', 'de': 'CRB', 'it': 'CRB', 'pt': 'CRB'
+    },
+    'Vila Nova': {
+      'zh': '维拉诺瓦', 'zh-hk': '維拉諾瓦', 'zh-tw': '維拉諾瓦',
+      'es': 'Vila Nova', 'de': 'Vila Nova', 'it': 'Vila Nova', 'pt': 'Vila Nova'
+    },
+    'Makhachkala': {
+      'zh': '马哈奇卡拉', 'zh-hk': '馬哈奇卡拉', 'zh-tw': '馬哈奇卡拉',
+      'es': 'Makhachkala', 'de': 'Makhachkala', 'it': 'Makhachkala', 'pt': 'Makhachkala'
+    },
+    'Akron': {
+      'zh': '阿克伦', 'zh-hk': '阿克倫', 'zh-tw': '阿克倫',
+      'es': 'Akron', 'de': 'Akron', 'it': 'Akron', 'pt': 'Akron'
+    },
+    'Rubin': {
+      'zh': '喀山红宝石', 'zh-hk': '喀山紅寶石', 'zh-tw': '喀山紅寶石',
+      'es': 'Rubin Kazan', 'de': 'Rubin Kasan', 'it': 'Rubin Kazan', 'pt': 'Rubin Kazan'
+    },
+    'Baltika': {
+      'zh': '波罗的海', 'zh-hk': '波羅的海', 'zh-tw': '波羅的海',
+      'es': 'Baltika', 'de': 'Baltika', 'it': 'Baltika', 'pt': 'Baltika'
+    },
+    'St. Louis City': {
+      'zh': '圣路易斯城', 'zh-hk': '聖路易斯城', 'zh-tw': '聖路易斯城',
+      'es': 'St. Louis City', 'de': 'St. Louis City', 'it': 'St. Louis City', 'pt': 'St. Louis City'
+    },
+    'Austin': {
+      'zh': '奥斯汀', 'zh-hk': '奧斯汀', 'zh-tw': '奧斯汀',
+      'es': 'Austin', 'de': 'Austin', 'it': 'Austin', 'pt': 'Austin'
+    },
+    'San Diego': {
+      'zh': '圣迭戈', 'zh-hk': '聖迭戈', 'zh-tw': '聖迭戈',
+      'es': 'San Diego', 'de': 'San Diego', 'it': 'San Diego', 'pt': 'San Diego'
+    },
+    'CF Montreal': {
+      'zh': '蒙特利尔', 'zh-hk': '蒙特利爾', 'zh-tw': '蒙特利爾',
+      'es': 'CF Montreal', 'de': 'CF Montreal', 'it': 'CF Montreal', 'pt': 'CF Montreal'
+    },
+    'Sporting Kansas City': {
+      'zh': '堪萨斯城体育', 'zh-hk': '堪薩斯城體育', 'zh-tw': '堪薩斯城體育',
+      'es': 'Sporting Kansas City', 'de': 'Sporting Kansas City', 'it': 'Sporting Kansas City', 'pt': 'Sporting Kansas City'
+    },
+    'FC Dallas': {
+      'zh': '达拉斯', 'zh-hk': '達拉斯', 'zh-tw': '達拉斯',
+      'es': 'FC Dallas', 'de': 'FC Dallas', 'it': 'FC Dallas', 'pt': 'FC Dallas'
+    },
+    'Vancouver Whitecaps': {
+      'zh': '温哥华白帽', 'zh-hk': '溫哥華白帽', 'zh-tw': '溫哥華白帽',
+      'es': 'Vancouver Whitecaps', 'de': 'Vancouver Whitecaps', 'it': 'Vancouver Whitecaps', 'pt': 'Vancouver Whitecaps'
+    }
     'Rochefort': {
       'zh': '罗什福尔', 'zh-hk': '羅什福爾', 'zh-tw': '羅什福爾',
       'es': 'Rochefort', 'de': 'Rochefort', 'it': 'Rochefort', 'pt': 'Rochefort'
