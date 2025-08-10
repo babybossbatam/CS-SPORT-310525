@@ -2456,11 +2456,27 @@ id: fixture.teams.away.id,
                               const matchDate = new Date(
                                 currentMatch.fixture.date,
                               );
-                              const formattedDate = format(
-                                matchDate,
-                                "EEEE, do MMMM",
-                              );
+
+                              // Get day name and translate it
+                              const dayName = format(matchDate, "EEEE");
+                              const translatedDayName = (() => {
+                                const dayKey = dayName.toLowerCase();
+                                return t(dayKey) !== dayKey ? t(dayKey) : dayName;
+                              })();
+
+                              // Get month name and translate it
+                              const monthName = format(matchDate, "MMMM");
+                              const translatedMonthName = (() => {
+                                const monthKey = monthName.toLowerCase();
+                                return t(monthKey) !== monthKey ? t(monthKey) : monthName;
+                              })();
+
+                              // Get day number with ordinal
+                              const dayNumber = format(matchDate, "do");
                               const timeOnly = format(matchDate, "HH:mm");
+
+                              // Build translated date string
+                              const translatedDate = `${translatedDayName}, ${dayNumber} ${translatedMonthName}`;
 
                               // Safely get venue with proper fallbacks
                               let displayVenue = currentMatch.fixture?.venue?.name || null;
@@ -2478,7 +2494,7 @@ id: fixture.teams.away.id,
 
                               return (
                                 <>
-                                  {formattedDate} | {timeOnly}
+                                  {translatedDate} | {timeOnly}
                                   {displayVenue ? ` | ${displayVenue.toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}` : ""}
                                 </>
                               );
