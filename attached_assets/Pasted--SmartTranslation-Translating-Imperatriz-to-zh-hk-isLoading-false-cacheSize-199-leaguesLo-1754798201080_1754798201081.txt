@@ -1,0 +1,39 @@
+🤖 [SmartTranslation] Translating "Imperatriz" to zh-hk {isLoading: false, cacheSize: 199, leaguesLoaded: 0, totalCachedTeams: 0}
+Console.js:61 💾 [SmartTranslation] Cache hit: "Imperatriz" -> "Imperatriz"
+Console.js:61 🤖 [SmartTranslation] Translating "Manaus FC" to zh-hk {isLoading: false, cacheSize: 199, leaguesLoaded: 0, totalCachedTeams: 0}
+Console.js:61 💾 [SmartTranslation] Cache hit: "Manaus FC" -> "Manaus 足球會"
+Console.js:61 ✈️ [MyNewLeague2] Away team translation: {original: 'Manaus FC', translated: 'Manaus 足球會', language: 'zh-hk', changed: true, fixtureId: 1419256, …}
+Console.js:61 🤖 [SmartTranslation] Translating "Imperatriz" to zh-hk {isLoading: false, cacheSize: 199, leaguesLoaded: 0, totalCachedTeams: 0}
+Console.js:61 💾 [SmartTranslation] Cache hit: "Imperatriz" -> "Imperatriz"
+Console.js:61 🤖 [SmartTranslation] Translating "Sao Jose" to zh-hk {isLoading: false, cacheSize: 199, leaguesLoaded: 0, totalCachedTeams: 0}
+Console.js:61 💾 [SmartTranslation] Cache hit: "Sao Jose" -> "Sao Jose"
+Console.js:61 🤖 [SmartTranslation] Translating "Goiatuba EC" to zh-hk {isLoading: false, cacheSize: 199, leaguesLoaded: 0, totalCachedTeams: 0}
+Console.js:61 💾 [SmartTranslation] Cache hit: "Goiatuba EC" -> "Goiatuba EC"
+Console.js:61 🤖 [SmartTranslation] Translating "Santa Cruz" to zh-hk {isLoading: false, cacheSize: 199, leaguesLoaded: 0, totalCachedTeams: 0}
+Console.js:61 💾 [SmartTranslation] Cache hit: "Santa Cruz" -> "藍十字"
+Console.js:61 🏠 [MyNewLeague2] Home team translation: {original: 'Santa Cruz', translated: '藍十字', language: 'zh-hk', changed: true, fixtureId: 1419260, …}
+Console.js:61 🤖 [SmartTranslation] Translating "Sergipe" to zh-hk {isLoading: false, cacheSize: 199, leaguesLoaded: 0, totalCachedTeams: 0}
+Console.js:61 💾 [SmartTranslation] Cache hit: "Sergipe" -> "Sergipe"
+Console.js:61 🤖 [SmartTranslation] Translating "Santa Cruz" to zh-hk {isLoading: false, cacheSize: 199, leaguesLoaded: 0, totalCachedTeams: 0}
+Console.js:61 💾 [SmartTranslation] Cache hit: "Santa Cruz" -> "藍十字"
+Console.js:61 🤖 [SmartTranslation] Translating "Altos" to zh-hk {isLoading: false, cacheSize: 199, leaguesLoaded: 0, totalCachedTeams: 0}
+Console.js:61 💾 [SmartTranslation] Cache hit: "Altos" -> "Altos"
+Console.js:61 🤖 [SmartTranslation] Translating "Independência" to zh-hk {isLoading: false, cacheSize: 199, leaguesLoaded: 0, totalCachedTeams: 0}
+Console.js:61 💾 [SmartTranslation] Cache hit: "Independência" -> "Independência"
+Console.js:61 🤖 [SmartTranslation] Translating "ASA" to zh-hk {isLoading: false, cacheSize: 199, leaguesLoaded: 0, totalCachedTeams: 0}
+Console.js:61 💾 [SmartTranslation] Cache hit: "ASA" -> "伊斯坦布爾巴薩克謝希爾"
+Console.js:61 🏠 [MyNewLeague2] Home team translation: {original: 'ASA', translated: '伊斯坦布爾巴薩克謝希爾', language: 'zh-hk', changed: true, fixtureId: 1419254, …}
+Console.js:61 🤖 [SmartTranslation] Translating "Ferroviario" to zh-hk {isLoading: false, cacheSize: 199, leaguesLoaded: 0, totalCachedTeams: 0}
+Console.js:61 💾 [SmartTranslation] Cache hit: "Ferroviario" -> "Ferroviario"
+Console.js:61 🤖 [SmartTranslation] Translating "Rio Branco ES" to zh-hk {isLoading: false, cacheSize: 199, leaguesLoaded: 0, totalCachedTeams: 0}
+Console.js:61 💾 [SmartTranslation] Cache hit: "Rio Branco ES" -> "Rio Branco ES"
+Console.js:61 🤖 [SmartTranslation] Translating "Luverdense" to zh-hk {isLoading: false, cacheSize: 199, leaguesLoaded: 0, totalCachedTeams: 0}
+Console.js:61 💾 [SmartTranslation] Cache hit: "Luverdense" -> "Luverdense"
+Console.js:61 🤖 [SmartTranslation] Translating "Inter De Limeira" to zh-hk {isLoading: false, cacheSize: 199, leaguesLoaded: 0, totalCachedTeams: 0}
+Console.js:61 💾 [SmartTranslation] Cache hit: "Inter De Limeira" -> "國際米蘭"
+Console.js:61 🏠 [MyNewLeague2] Home team translation: {original: 'Inter De Limeira', translated: '國際米蘭', language: 'zh-hk', changed: true, fixtureId: 1419251, …}
+Console.js:61 🤖 [SmartTranslation] Translating "Marcílio Dias" to zh-hk {isLoading: false, cacheSize: 199, leaguesLoaded: 0, totalCachedTeams: 0}
+Console.js:61 💾 [SmartTranslation] Cache hit: "Marcílio Dias" -> "Marcílio Dias"
+Console.js:61 🤖 [SmartTranslation] Translating "Aparecidense" to zh-hk {isLoading: false, cacheSize: 199, leaguesLoaded: 0, totalCachedTeams: 0}
+Console.js:61 💾 [SmartTranslation] Cache hit: "Aparecidense" -> "Aparecidense"
+Console.js:61 🤖 [SmartTranslation] Translating "CFRJ / Maricá" to zh-hk {isLoading: false, cacheSize: 199, leaguesLoaded: 0, totalCachedTeams: 0}
