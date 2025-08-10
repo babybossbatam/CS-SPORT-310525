@@ -665,9 +665,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   )}
                 </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
         {/* Center - Time */}
         <div className="relative z-10 flex items-center justify-center w-12 h-12 bg-white border-2 border-gray-300 rounded-full">
@@ -1590,7 +1589,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 height: "100%",
                               }}
                             >
-                              <span style={{ color: isDarkTheme ? "white" : "black", lineHeight: "1" }}>
+                              <span style={{ lineHeight: "1" }}>
                                 {event.time?.elapsed}'
                               </span>
                               {event.time?.extra && (
@@ -2208,7 +2207,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 height: "100%",
                               }}
                             >
-                              <span style={{ color: isDarkTheme ? "white" : "black", lineHeight: "1" }}>
+                              <span style={{ lineHeight: "1" }}>
                                 {event.time?.elapsed}'
                               </span>
                               {event.time?.extra && (
