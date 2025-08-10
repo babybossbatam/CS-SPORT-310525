@@ -811,7 +811,7 @@ const translations = {
   }
 };
 
-const countryToLanguageMap: { [key: string]: string } = {
+export const countryToLanguageMap: { [key: string]: string } = {
   'United States': 'en-us',
   'United Kingdom': 'en',
   'Spain': 'es',
