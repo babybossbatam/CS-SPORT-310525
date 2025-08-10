@@ -1093,7 +1093,11 @@
   border: 1px solid rgb(59 130 246) !important;
 }
 
-/* Dark mode elapsed time styling */
+/* Dark mode elapsed time styling - more specific selector */
+.dark .match-event-time-center-simple .match-event-time-display {
+  color: white !important;
+}
+
 .dark .match-event-time-display {
   color: white !important;
 }
