@@ -1,0 +1,35 @@
+Console.js:61 ✈️ [MyNewLeague2] Away team translation: Object
+Console.js:61 🤖 [SmartTranslation] Translating "San Martin S.J." to zh-hk Object
+Console.js:61 ❌ [SmartTranslation] No translation available for: "San Martin S.J."
+Console.js:61 🤖 [SmartTranslation] Translating "Sarmiento Junin" to zh-hk Object
+Console.js:61 ❌ [SmartTranslation] No translation available for: "Sarmiento Junin"
+Console.js:61 🤖 [SmartTranslation] Translating "FC Orenburg" to zh-hk Object
+Console.js:61 🎓 [SmartTranslation] Using learned mapping: "FC Orenburg" -> "足球會 Orenburg" (zh-hk)
+Console.js:61 ⭐ [SmartTranslation] Popular team translation: "FC Orenburg" -> "足球會 Orenburg"
+Console.js:61 🏠 [MyNewLeague2] Home team translation: Object
+Console.js:61 🤖 [SmartTranslation] Translating "FC Krasnodar" to zh-hk Object
+Console.js:61 🎓 [SmartTranslation] Using learned mapping: "FC Krasnodar" -> "足球會 Krasnodar" (zh-hk)
+Console.js:61 ⭐ [SmartTranslation] Popular team translation: "FC Krasnodar" -> "足球會 Krasnodar"
+Console.js:61 ✈️ [MyNewLeague2] Away team translation: Object
+Console.js:61 🤖 [SmartTranslation] Translating "FC Sochi" to zh-hk Object
+Console.js:61 🎓 [SmartTranslation] Using learned mapping: "FC Sochi" -> "足球會 Sochi" (zh-hk)
+Console.js:61 ⭐ [SmartTranslation] Popular team translation: "FC Sochi" -> "足球會 Sochi"
+Console.js:61 🏠 [MyNewLeague2] Home team translation: Object
+Console.js:61 🤖 [SmartTranslation] Translating "Dynamo" to zh-hk Object
+Console.js:61 ❌ [SmartTranslation] No translation available for: "Dynamo"
+Console.js:61 🤖 [SmartTranslation] Translating "Akhmat" to zh-hk Object
+Console.js:61 ❌ [SmartTranslation] No translation available for: "Akhmat"
+Console.js:61 🤖 [SmartTranslation] Translating "Zenit" to zh-hk Object
+Console.js:61 ❌ [SmartTranslation] No translation available for: "Zenit"
+Console.js:61 🤖 [SmartTranslation] Translating "D. La Serena" to zh-hk Object
+Console.js:61 ❌ [SmartTranslation] No translation available for: "D. La Serena"
+Console.js:61 🤖 [SmartTranslation] Translating "O'Higgins" to zh-hk Object
+Console.js:61 ❌ [SmartTranslation] No translation available for: "O'Higgins"
+Console.js:61 🤖 [SmartTranslation] Translating "Universidad de Chile" to zh-hk Object
+Console.js:61 ⭐ [SmartTranslation] Popular team translation: "Universidad de Chile" -> "智利大學"
+Console.js:61 🏠 [MyNewLeague2] Home team translation: Object
+Console.js:61 🤖 [SmartTranslation] Translating "Union Espanola" to zh-hk Object
+Console.js:61 ⭐ [SmartTranslation] Popular team translation: "Union Espanola" -> "馬格達萊納聯合"
+Console.js:61 ✈️ [MyNewLeague2] Away team translation: Object
+Console.js:61 🤖 [SmartTranslation] Translating "Huachipato" to zh-hk Object
+Console.js:61 ❌ [SmartTranslation] No translation available for: "Huachipato"
