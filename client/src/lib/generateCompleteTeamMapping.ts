@@ -502,12 +502,51 @@ export async function mapMajorEuropeanLeagues(): Promise<void> {
   await generateAutomatedTeamMappingForLeagues(majorLeagues);
 }
 
+/**
+ * Generate automated team mapping for ALL available leagues
+ */
+export async function generateAutomatedTeamMappingForAllLeagues(): Promise<void> {
+  console.log('🌍 [All Leagues Mapping] Fetching all available leagues...');
+  
+  try {
+    // Fetch all available leagues from the API
+    const response = await fetch('/api/leagues');
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch leagues: ${response.status}`);
+    }
+    
+    const leagues = await response.json();
+    const allLeagueIds = leagues.map((league: any) => league.league?.id || league.id).filter(Boolean);
+    
+    console.log(`🎯 [All Leagues Mapping] Found ${allLeagueIds.length} total leagues`);
+    console.log(`📋 [All Leagues Mapping] League IDs: ${allLeagueIds.slice(0, 20).join(', ')}${allLeagueIds.length > 20 ? '...' : ''}`);
+    
+    // Generate mappings for all leagues
+    await generateAutomatedTeamMappingForLeagues(allLeagueIds);
+    
+  } catch (error) {
+    console.error('❌ [All Leagues Mapping] Failed to fetch all leagues:', error);
+    
+    // Fallback to predefined comprehensive list
+    console.log('🔄 [All Leagues Mapping] Using fallback comprehensive league list...');
+    const fallbackLeagues = [
+      38, 15, 2, 4, 10, 11, 848, 886, 1022, 772, 71, 3, 5, 531, 22, 72, 73, 75,
+      76, 233, 667, 940, 908, 1169, 23, 1077, 253, 850, 893, 921, 130, 128, 493,
+      239, 265, 237, 235, 743
+    ];
+    
+    await generateAutomatedTeamMappingForLeagues(fallbackLeagues);
+  }
+}
+
 // Make functions available in browser console
 if (typeof window !== 'undefined') {
   (window as any).generateCompleteTeamMapping = generateCompleteTeamMapping;
   (window as any).generateSeasonWideTeamMapping = generateSeasonWideTeamMapping;
   (window as any).analyzeCurrentPageTeams = analyzeCurrentPageTeams;
   (window as any).generateAutomatedTeamMappingForLeagues = generateAutomatedTeamMappingForLeagues;
+  (window as any).generateAutomatedTeamMappingForAllLeagues = generateAutomatedTeamMappingForAllLeagues;
   (window as any).mapSpanishLeagueTeams = mapSpanishLeagueTeams;
   (window as any).mapMajorEuropeanLeagues = mapMajorEuropeanLeagues;
   
