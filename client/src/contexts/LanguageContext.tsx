@@ -444,6 +444,9 @@ const translations = {
       'tottenham': "Tottenham",
       'won_on_penalties': "gewann im Elfmeterschießen",
       'on_penalties': "im Elfmeterschießen",
+      'tomorrow': "Morgen",
+      'day': "Tag",
+      'days': "Tage",
       // Match statuses
       'halftime': 'Halbzeit',
       'penalties': 'Elfmeterschießen',
@@ -458,6 +461,7 @@ const translations = {
       'walkover': 'Walkover',
       'time_tbd': 'Zeit wird noch festgelegt',
       'after_extra_time': 'Nach Verlängerung',
+      'starting_now': 'Startet jetzt',
     },
     'it': {
       'today_matches': "Partite di Oggi",
@@ -536,6 +540,9 @@ const translations = {
       'tottenham': "Tottenham",
       'won_on_penalties': "ha vinto ai rigori",
       'on_penalties': "ai rigori",
+      'tomorrow': "Domani",
+      'day': "Giorno",
+      'days': "Giorni",
       // Match statuses
       'halftime': 'Intervallo',
       'penalties': 'Rigori',
@@ -550,6 +557,7 @@ const translations = {
       'walkover': 'Walkover',
       'time_tbd': 'Ora da definire',
       'after_extra_time': 'Dopo Tempo Supplementare',
+      'starting_now': 'Inizia ora',
     },
     'pt': {
       'today_matches': "Jogos de Hoje",
@@ -628,6 +636,9 @@ const translations = {
       'tottenham': "Tottenham",
       'won_on_penalties': "venceu nos pênaltis",
       'on_penalties': "nos pênaltis",
+      'tomorrow': "Amanhã",
+      'day': "Dia",
+      'days': "Dias",
       // Match statuses
       'halftime': 'Intervalo',
       'penalties': 'Pênaltis',
@@ -642,6 +653,7 @@ const translations = {
       'walkover': 'Walkover',
       'time_tbd': 'Hora a definir',
       'after_extra_time': 'Após Tempo Extra',
+      'starting_now': 'Iniciando agora',
     },
     'zh': {
       'today_matches': "今日比赛",
@@ -710,6 +722,8 @@ const translations = {
       'leagues_cup': "联赛杯",
       'world': "世界",
       'ended': "已结束",
+      'day': "日",
+      'days': "日",
       // Match statuses
       'halftime': '中场',
       'penalties': '点球',
@@ -724,6 +738,7 @@ const translations = {
       'walkover': '不战而胜',
       'time_tbd': '时间待定',
       'after_extra_time': '加时赛后',
+      'starting_now': '即将开始',
     },
     'zh-tw': {
       'today_matches': "今日比賽",
@@ -802,6 +817,9 @@ const translations = {
       'tottenham': "熱刺",
       'won_on_penalties': "PK大戰獲勝",
       'on_penalties': "PK大戰",
+      'tomorrow': "明天",
+      'day': "日",
+      'days': "日",
       // Match statuses
     'halftime': '中場',
     'penalties': '點球',
@@ -816,6 +834,7 @@ const translations = {
     'walkover': '不戰而勝',
     'time_tbd': '時間待定',
     'after_extra_time': '加時賽後',
+    'starting_now': '即將開始',
   }
 };
 
@@ -1845,7 +1864,7 @@ export const useLanguage = () => {
 // Add useTranslation hook for convenience
 export const useTranslation = () => {
   const { currentLanguage, translations } = useLanguage();
-  
+
   const t = (key: string): string => {
     return translations[currentLanguage]?.[key] || translations['en']?.[key] || key;
   };

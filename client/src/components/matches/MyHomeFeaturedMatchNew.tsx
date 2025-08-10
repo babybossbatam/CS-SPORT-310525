@@ -2320,14 +2320,45 @@ id: fixture.teams.away.id,
                             );
 
                             if (daysDiff > 0 && daysDiff <= 7) {
-                              // For matches within a week, show just the number of days
-                              return `${daysDiff} ${daysDiff === 1 ? "Day" : "Days"}`;
+                              // For matches within a week, show just the number of days with translation
+                              const dayText = daysDiff === 1 ? 
+                                (t('day') !== 'day' ? t('day') : 'Day') : 
+                                (t('days') !== 'days' ? t('days') : 'Days');
+                              return `${daysDiff} ${dayText}`;
                             } else if (daysDiff > 7) {
-                              // For matches more than a week away, show date
-                              return format(matchDate, "EEEE, do MMMM");
+                              // For matches more than a week away, show translated date
+                              const dayName = format(matchDate, "EEEE");
+                              const monthName = format(matchDate, "MMMM");
+                              const dayNumber = format(matchDate, "do");
+                              
+                              const translatedDayName = (() => {
+                                const dayKey = dayName.toLowerCase();
+                                return t(dayKey) !== dayKey ? t(dayKey) : dayName;
+                              })();
+                              
+                              const translatedMonthName = (() => {
+                                const monthKey = monthName.toLowerCase();
+                                return t(monthKey) !== monthKey ? t(monthKey) : monthName;
+                              })();
+                              
+                              return `${translatedDayName}, ${dayNumber} ${translatedMonthName}`;
                             } else {
                               // For past matches that aren't ended (edge case)
-                              return format(matchDate, "EEEE, MMM d");
+                              const dayName = format(matchDate, "EEEE");
+                              const monthName = format(matchDate, "MMM");
+                              const dayNumber = format(matchDate, "d");
+                              
+                              const translatedDayName = (() => {
+                                const dayKey = dayName.toLowerCase();
+                                return t(dayKey) !== dayKey ? t(dayKey) : dayName;
+                              })();
+                              
+                              const translatedMonthName = (() => {
+                                const monthKey = monthName.toLowerCase();
+                                return t(monthKey) !== monthKey ? t(monthKey) : monthName;
+                              })();
+                              
+                              return `${translatedDayName}, ${translatedMonthName} ${dayNumber}`;
                             }
                           }
                         })();
