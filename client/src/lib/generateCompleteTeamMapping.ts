@@ -513,11 +513,38 @@ export async function generateAutomatedTeamMappingForAllLeagues(): Promise<void>
     const response = await fetch('/api/leagues');
     
     if (!response.ok) {
-      throw new Error(`Failed to fetch leagues: ${response.status}`);
+      throw new Error(`Failed to fetch leagues: ${response.status} ${response.statusText}`);
     }
     
-    const leagues = await response.json();
-    const allLeagueIds = leagues.map((league: any) => league.league?.id || league.id).filter(Boolean);
+    // Check if response is actually JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      throw new Error(`Expected JSON response but got: ${contentType}`);
+    }
+    
+    const responseText = await response.text();
+    
+    // Try to parse as JSON
+    let leagues;
+    try {
+      leagues = JSON.parse(responseText);
+    } catch (jsonError) {
+      console.error('❌ [All Leagues Mapping] Invalid JSON response:', responseText.substring(0, 200));
+      throw new Error(`Invalid JSON response from /api/leagues`);
+    }
+    
+    // Validate the response structure
+    if (!Array.isArray(leagues)) {
+      throw new Error(`Expected array of leagues but got: ${typeof leagues}`);
+    }
+    
+    const allLeagueIds = leagues
+      .map((league: any) => league.league?.id || league.id)
+      .filter((id: any) => typeof id === 'number' && id > 0);
+    
+    if (allLeagueIds.length === 0) {
+      throw new Error('No valid league IDs found in API response');
+    }
     
     console.log(`🎯 [All Leagues Mapping] Found ${allLeagueIds.length} total leagues`);
     console.log(`📋 [All Leagues Mapping] League IDs: ${allLeagueIds.slice(0, 20).join(', ')}${allLeagueIds.length > 20 ? '...' : ''}`);
