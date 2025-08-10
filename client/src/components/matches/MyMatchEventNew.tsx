@@ -1357,7 +1357,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       return (
                         <div
-                          key={event.id || `penalty-shootout-${index}`}
+                          key={('id' in event && event.id) || `penalty-shootout-${index}`}
                           className="match-event-container"
                         >
                           {/* Penalties header - same style as period markers */}
