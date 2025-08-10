@@ -1989,16 +1989,22 @@ class SmartTeamTranslation {
     if (!teamName || !language) return null;
 
     // Check exact match in static mappings first
-    const exactTranslation = this.popularLeagueTeams[teamName]?.[language as keyof TeamTranslation];
-    if (exactTranslation && exactTranslation !== teamName) {
-      return exactTranslation;
+    const teamTranslations = this.popularLeagueTeams[teamName];
+    if (teamTranslations) {
+      const exactTranslation = teamTranslations[language as keyof typeof teamTranslations];
+      if (exactTranslation && exactTranslation !== teamName) {
+        return exactTranslation;
+      }
     }
 
     // Check learned mappings
-    const learnedTranslation = this.learnedTeamMappings.get(teamName)?.[language as keyof TeamTranslation];
-    if (learnedTranslation && learnedTranslation !== teamName) {
-      console.log(`🎓 [SmartTranslation] Using learned mapping: "${teamName}" -> "${learnedTranslation}" (${language})`);
-      return learnedTranslation;
+    const learnedTeamTranslations = this.learnedTeamMappings.get(teamName);
+    if (learnedTeamTranslations) {
+      const learnedTranslation = learnedTeamTranslations[language as keyof typeof learnedTeamTranslations];
+      if (learnedTranslation && learnedTranslation !== teamName) {
+        console.log(`🎓 [SmartTranslation] Using learned mapping: "${teamName}" -> "${learnedTranslation}" (${language})`);
+        return learnedTranslation;
+      }
     }
 
     // Try without common suffixes/prefixes (enhanced patterns)
