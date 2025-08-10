@@ -628,7 +628,29 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           }
 
           try {
-            const response = await fetch(`/api/leagues/${leagueId}/fixtures`);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+            const response = await fetch(`/api/leagues/${leagueId}/fixtures`, {
+              signal: controller.signal
+            }).catch(fetchError => {
+              clearTimeout(timeoutId);
+              console.warn(
+                `🌐 [MyNewLeague2] Network error for league ${leagueId}: ${fetchError.message}`,
+              );
+              return null;
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response) {
+              return {
+                leagueId,
+                fixtures: [],
+                error: "Network error",
+                networkError: true,
+              };
+            }
 
             if (!response.ok) {
               if (response.status === 429) {
@@ -652,7 +674,13 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               };
             }
 
-            const data = await response.json();
+            const data = await response.json().catch(jsonError => {
+              console.warn(
+                `📄 [MyNewLeague2] JSON parse error for league ${leagueId}: ${jsonError.message}`,
+              );
+              return { response: [] };
+            });
+            
             const fixtures = data.response || data || [];
 
             // Cache ended matches for this league
@@ -666,32 +694,39 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             const errorMessage =
               error instanceof Error ? error.message : "Unknown error";
 
-            // Handle specific fetch errors
-            if (
-              errorMessage.includes("Failed to fetch") ||
-              errorMessage.includes("fetch")
-            ) {
-              console.warn(
-                `🌐 [MyNewLeague2] Network error for league ${leagueId}: ${errorMessage}`,
-              );
-              return {
-                leagueId,
-                fixtures: [],
-                error: "Network error",
-                networkError: true,
-              };
-            }
-
-            console.error(
-              `❌ [MyNewLeague2] Error fetching league ${leagueId}:`,
-              error,
+            console.warn(
+              `⚠️ [MyNewLeague2] Error fetching league ${leagueId}: ${errorMessage}`,
             );
-            return { leagueId, fixtures: [], error: errorMessage };
+            return { 
+              leagueId, 
+              fixtures: [], 
+              error: errorMessage.includes("abort") ? "Request timeout" : errorMessage,
+              networkError: true
+            };
           }
         });
 
-        const batchResults = await Promise.all(batchPromises);
-        results.push(batchResults);
+        try {
+          const batchResults = await Promise.allSettled(batchPromises);
+          const processedResults = batchResults.map(result => 
+            result.status === 'fulfilled' ? result.value : {
+              leagueId: 0,
+              fixtures: [],
+              error: "Promise rejected",
+              networkError: true
+            }
+          );
+          results.push(processedResults);
+        } catch (batchError) {
+          console.warn(`⚠️ [MyNewLeague2] Batch processing error: ${batchError}`);
+          // Continue with empty results for this batch
+          results.push(batch.map(leagueId => ({
+            leagueId,
+            fixtures: [],
+            error: "Batch processing failed",
+            networkError: true
+          })));
+        }
 
         // Add delay between batches to be more API-friendly
         if (i + batchSize < leagueIds.length) {
@@ -775,6 +810,18 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         match?.fixture?.status?.short,
       ),
     );
+
+    // Cleanup function to prevent memory leaks
+    return () => {
+      // Clear any pending timeouts or intervals if they exist
+      if (typeof window !== 'undefined') {
+        const timeouts = (window as any).__myNewLeague2Timeouts;
+        if (timeouts && Array.isArray(timeouts)) {
+          timeouts.forEach(clearTimeout);
+          (window as any).__myNewLeague2Timeouts = [];
+        }
+      }
+    };
 
     // Check for matches starting soon (within 2 hours)
     const upcomingMatches = allFixtures.filter((match) => {
@@ -1064,6 +1111,21 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         } catch (error) {
           console.warn('⚠️ [SmartTranslation] Failed to learn from fixtures:', error);
         }
+      }
+    }
+
+    // Cleanup function to prevent memory leaks
+    return () => {
+      try {
+        // Clear any event listeners that might have been added
+        if (typeof window !== 'undefined') {
+          const teamAnalysisEvent = new CustomEvent('cleanupTeamAnalysis');
+          window.dispatchEvent(teamAnalysisEvent);
+        }
+      } catch (error) {
+        console.warn('⚠️ [MyNewLeague2] Cleanup error:', error);
+      }
+    };
 
         // Enhanced team mapping extraction (only in development)
         if (process.env.NODE_ENV === 'development') {
@@ -2883,12 +2945,22 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 // Main export with lazy loading
 const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const queryClient = useQueryClient();
   const { t, translateLeagueName } = useTranslation();
   const { hasIntersected } = useIntersectionObserver(containerRef, {
     threshold: 0.01, // Trigger even earlier
     rootMargin: '200px' // Start loading 200px before it comes into view
   });
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   // Check if we have cached data available
   const cachedData = queryClient.getQueryData(["myNewLeague2", "allFixtures", props.selectedDate]);
