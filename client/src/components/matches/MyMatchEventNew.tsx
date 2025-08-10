@@ -1314,14 +1314,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       if (
                         a.time.elapsed === 46 &&
                         b.time.elapsed === 45 &&
-                        b.time.extra
+                        'extra' in b.time && b.time.extra
                       ) {
                         return -1; // 46' comes first
                       }
                       if (
                         b.time.elapsed === 46 &&
                         a.time.elapsed === 45 &&
-                        a.time.extra
+                        'extra' in a.time && a.time.extra
                       ) {
                         return 1; // 46' comes first
                       }
@@ -1936,14 +1936,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       if (
                         a.time.elapsed === 46 &&
                         b.time.elapsed === 45 &&
-                        b.time.extra
+                        'extra' in b.time && b.time.extra
                       ) {
                         return -1; // 46' comes first
                       }
                       if (
                         b.time.elapsed === 46 &&
                         a.time.elapsed === 45 &&
-                        a.time.extra
+                        'extra' in a.time && a.time.extra
                       ) {
                         return 1; // 46' comes first
                       }
