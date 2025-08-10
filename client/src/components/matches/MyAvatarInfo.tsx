@@ -129,7 +129,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
             return cachedImageUrl;
           }
         } catch (error) {
-          console.log(`❌ [MyAvatarInfo-${componentId}] Cache system error: ${error?.message || error}`);
+          console.log(`❌ [MyAvatarInfo-${componentId}] Cache system error: ${(error as Error)?.message || error}`);
         }
 
         // All methods failed, cache the fallback to prevent future attempts
