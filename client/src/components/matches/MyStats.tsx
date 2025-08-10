@@ -1,5 +1,6 @@
 
 import React from 'react';
+import '@/styles/MyStats.css';
 
 interface MyStatsProps {
   homeStats: any;
@@ -278,7 +279,7 @@ const MyStats: React.FC<MyStatsProps> = ({
   };
 
   return (
-    <>
+    <div className="mystats-container">
       {/* Team Headers */}
        <span className="flex text-sm  font-semibold  border-b py-3 ">Top Stats</span>
       
@@ -340,7 +341,7 @@ const MyStats: React.FC<MyStatsProps> = ({
         )}
       </div>
 
-    </>
+    </div>
   );
 };
 
