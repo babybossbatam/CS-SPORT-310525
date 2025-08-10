@@ -533,6 +533,7 @@ export async function generateAutomatedTeamMappingForAllLeagues(): Promise<void>
 
     const leagues = await response.json();
     console.log(`✅ [All Leagues Mapping] Successfully fetched leagues data`);
+    console.log(`🔍 [All Leagues Mapping] Raw response type: ${typeof leagues}, Array: ${Array.isArray(leagues)}, Length: ${leagues?.length}`);
 
     // Validate the response structure
     if (!Array.isArray(leagues)) {
@@ -544,20 +545,26 @@ export async function generateAutomatedTeamMappingForAllLeagues(): Promise<void>
       .map((league: any) => {
         // Handle both direct league object and nested league.league structure
         const leagueData = league.league || league;
-        return leagueData?.id || league.id;
+        const id = leagueData?.id || league.id;
+        return typeof id === 'number' && id > 0 ? id : null;
       })
-      .filter((id: any) => typeof id === 'number' && id > 0);
+      .filter((id: any) => id !== null);
 
     if (allLeagueIds.length === 0) {
       console.error(`❌ [All Leagues Mapping] No valid league IDs found in response`);
+      console.error(`📋 [All Leagues Mapping] Sample raw data:`, leagues.slice(0, 3));
       throw new Error('No valid league IDs found in API response');
     }
 
     console.log(`🎯 [All Leagues Mapping] Found ${allLeagueIds.length} total leagues`);
     console.log(`📋 [All Leagues Mapping] Sample league IDs: ${allLeagueIds.slice(0, 20).join(', ')}${allLeagueIds.length > 20 ? '...' : ''}`);
 
-    // Generate mappings for all leagues
-    await generateAutomatedTeamMappingForLeagues(allLeagueIds);
+    // Ensure we have a valid array before calling the function
+    if (Array.isArray(allLeagueIds) && allLeagueIds.length > 0) {
+      await generateAutomatedTeamMappingForLeagues(allLeagueIds);
+    } else {
+      throw new Error('Failed to extract valid league IDs from API response');
+    }
 
   } catch (error) {
     console.error('❌ [All Leagues Mapping] Failed to fetch all leagues:', error);
