@@ -488,12 +488,12 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
       </CardHeader>
       <CardContent className="p-4">
         {/* Position selector tabs */}
-        <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
+        <div className="flex mb-6 bg-gray-100 p-1">
           {(['Attacker', 'Midfielder', 'Defender'] as const).map((position) => (
             <button
               key={position}
               onClick={() => setSelectedPosition(position)}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+              className={`flex-1 py-2 px-4 text-sm font-medium transition-colors ${
                 selectedPosition === position
                   ? 'bg-blue-500 text-white'
                   : 'text-gray-600 hover:text-gray-800'
