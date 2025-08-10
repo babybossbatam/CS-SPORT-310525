@@ -23,6 +23,7 @@ import {
   getEnhancedHomeTeamGradient,
 } from "@/lib/colorExtractor";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "@/contexts/LanguageContext";
 
 import { RoundBadge } from "@/components/ui/round-badge";
 
@@ -2202,7 +2203,10 @@ id: fixture.teams.away.id,
                       className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center"
                       title={`League ID: ${currentMatch.league.id} | ${currentMatch.league.name} | ${currentMatch.league.country}`}
                     >
-                      {currentMatch.league.name}
+                      {(() => {
+                        const { translateText } = useTranslation();
+                        return translateText(currentMatch.league.name);
+                      })()}
                     </span>
 
                     {/* Round/Bracket Status Display using RoundBadge component */}
