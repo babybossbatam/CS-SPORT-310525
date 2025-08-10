@@ -39,12 +39,11 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
   } = useQuery({
     queryKey: ['central-date-fixtures', validDate],
     queryFn: async () => {
+      console.log(`🔄 [CentralDataProvider] Fetching fixtures for ${validDate}`);
       try {
-        console.log(`🔄 [CentralDataProvider] Fetching fixtures for ${validDate}`);
-        
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-        
+
         const response = await fetch(`/api/fixtures/date/${validDate}?all=true`, {
           signal: controller.signal,
           headers: {
@@ -52,14 +51,14 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
             'Content-Type': 'application/json',
           }
         });
-        
+
         clearTimeout(timeoutId);
-        
+
         if (!response.ok) {
           console.warn(`Date fixtures API returned ${response.status} for ${validDate}`);
           return [];
         }
-        
+
         const data: FixtureResponse[] = await response.json();
 
         console.log(`📊 [CentralDataProvider] Raw data received: ${data.length} fixtures`);
@@ -104,49 +103,43 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
   } = useQuery({
     queryKey: ['central-live-fixtures'],
     queryFn: async () => {
+      console.log('🔴 [CentralDataProvider] Fetching live fixtures');
       try {
-        console.log(`🔴 [CentralDataProvider] Fetching live fixtures`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
-          
-          const response = await fetch('/api/fixtures/live', {
-            signal: controller.signal,
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json',
-            }
-          });
-
-          clearTimeout(timeoutId);
-
-          if (!response.ok) {
-            console.warn(`Live fixtures API returned ${response.status}`);
-            return [];
+        const response = await fetch('/api/fixtures/live', {
+          signal: controller.signal,
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
           }
+        });
 
-          const data: FixtureResponse[] = await response.json();
-          console.log(`Central cache: Received ${data.length} live fixtures`);
+        clearTimeout(timeoutId);
 
-          // Update Redux store
-          dispatch(fixturesActions.setLiveFixtures(data as any));
-          return data;
-
-        } catch (fetchError) {
-          if (fetchError.name === 'AbortError') {
-            console.warn(`⏰ [CentralDataProvider] Live fixtures request timeout`);
-          } else {
-            console.warn(`Failed to fetch live fixtures:`, fetchError);
-          }
-          // Return empty array instead of throwing
+        if (!response.ok) {
+          console.warn(`Live fixtures API returned ${response.status}`);
           return [];
         }
 
-      } catch (error) {
-        console.error(`❌ [CentralDataProvider] Failed to fetch live fixtures:`, error);
+        const data: FixtureResponse[] = await response.json();
+        console.log(`Central cache: Received ${data.length} live fixtures`);
+
+        // Update Redux store
+        dispatch(fixturesActions.setLiveFixtures(data as any));
+        return data;
+
+      } catch (fetchError) {
+        if (fetchError.name === 'AbortError') {
+          console.warn(`⏰ [CentralDataProvider] Live fixtures request timeout`);
+        } else {
+          console.warn(`Failed to fetch live fixtures:`, fetchError);
+        }
+        // Return empty array instead of throwing
         return [];
       }
+
     },
     staleTime: 120000, // 2 minutes for live data
     gcTime: 10 * 60 * 1000, // 10 minutes

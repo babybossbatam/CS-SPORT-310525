@@ -15,6 +15,7 @@ class SmartTeamTranslation {
   private leagueTeamsCache: Record<number, any[]> = {};
   private learnedTeamMappings = new Map<string, TeamTranslation>(); // Stores learned mappings
   private automatedMappingsCache: any = null; // Cache for automated mappings
+  private automatedMappings = new Map<string, any>(); // Store automated mappings
   private isLoading = false;
 
   constructor() {
@@ -2204,6 +2205,23 @@ class SmartTeamTranslation {
     };
   }
 
+  // Load automated mappings from localStorage or external sources
+  private async loadAutomatedMappings(): Promise<void> {
+    try {
+      const automatedData = localStorage.getItem('automatedTeamMapping');
+      if (automatedData) {
+        const data = JSON.parse(automatedData);
+        if (data.teams) {
+          this.automatedMappings = new Map(Object.entries(data.teams));
+          console.log(`🤖 [SmartTranslation] Loaded ${this.automatedMappings.size} automated mappings`);
+        }
+      }
+    } catch (error) {
+      console.warn('🚨 [SmartTranslation] Failed to load automated mappings:', error);
+      this.automatedMappings = new Map();
+    }
+  }
+
   // Initialize team translations for a specific language
   async initializeTeamTranslations(language: string): Promise<void> {
     try {
@@ -2228,8 +2246,8 @@ class SmartTeamTranslation {
   getTranslationStats() {
     return {
       learnedMappings: this.learnedTeamMappings.size,
-      automatedMappings: this.automatedMappings.size,
-      cacheSize: this.translationCache.size
+      automatedMappings: this.automatedMappings?.size || 0,
+      cacheSize: this.teamCache?.size || 0
     };
   }
 
