@@ -187,14 +187,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       }
 
       if (!hasError && retryCount < 3) {
-        console.warn(
-          `🖼️ [LazyImage] Failed to load image: ${imageSrc}, retry ${retryCount + 1}`,
-        );
-
-        // Add cache busting parameter to force fresh fetch
-        const cacheBuster = `?t=${Date.now()}`;
-
-        // League logo fallback strategy (like MyNewLeague2)
+        // Enhanced league logo fallback strategy
         if (isLeagueLogo && retryCount === 0) {
           // Extract league ID from various sources
           let leagueId = null;
@@ -220,10 +213,10 @@ const LazyImage: React.FC<LazyImageProps> = ({
           }
 
           if (leagueId) {
-            // Try server proxy endpoint first
-            const fallbackUrl = `/api/league-logo/${leagueId}${cacheBuster}`;
+            // Try regular API without square parameter
+            const fallbackUrl = `/api/league-logo/${leagueId}`;
             console.log(
-              `🔄 [LazyImage] Trying league logo server proxy: ${fallbackUrl}`,
+              `🏆 [LazyImage] League logo fallback: trying regular API for ${leagueId}`,
             );
             setImageSrc(fallbackUrl);
             setRetryCount(retryCount + 1);
@@ -232,62 +225,24 @@ const LazyImage: React.FC<LazyImageProps> = ({
           }
         }
 
-        // Second retry: Try square endpoint if not already tried
+        // Try direct media URL as final attempt
         if (isLeagueLogo && retryCount === 1) {
-          let leagueId = null;
-
-          const apiMatch = imageSrc.match(
-            /\/api\/league-logo\/(?:square\/)?(\d+)/,
-          );
-          if (apiMatch) {
-            leagueId = apiMatch[1];
-            const squareUrl = `/api/league-logo/square/${leagueId}${cacheBuster}`;
+          const leagueIdMatch = imageSrc.match(/\/api\/league-logo\/(?:square\/)?(\d+)/);
+          if (leagueIdMatch) {
+            const leagueId = leagueIdMatch[1];
+            const directMediaUrl = `https://media.api-sports.io/football/leagues/${leagueId}.png`;
             console.log(
-              `🔄 [LazyImage] Trying square league logo endpoint: ${squareUrl}`,
+              `🏆 [LazyImage] League logo direct media attempt for ${leagueId}`,
             );
-            setImageSrc(squareUrl);
+            setImageSrc(directMediaUrl);
             setRetryCount(retryCount + 1);
             setIsLoading(true);
             return;
           }
         }
 
-        // Third retry: Try direct API-Sports URL
-        if (isLeagueLogo && retryCount === 2) {
-          let leagueId = null;
-
-          const apiMatch = imageSrc.match(
-            /\/api\/league-logo\/(?:square\/)?(\d+)/,
-          );
-          if (apiMatch) {
-            leagueId = apiMatch[1];
-            const directUrl = `https://media.api-sports.io/football/leagues/${leagueId}.png${cacheBuster}`;
-            console.log(
-              `🔄 [LazyImage] Trying direct API-Sports URL: ${directUrl}`,
-            );
-            setImageSrc(directUrl);
-            setRetryCount(retryCount + 1);
-            setIsLoading(true);
-            return;
-          }
-        }
-
-        // General retry with cache buster for non-league logos
-        if (
-          !isLeagueLogo &&
-          !imageSrc.includes("?") &&
-          !imageSrc.includes("t=")
-        ) {
-          const freshUrl = imageSrc + cacheBuster;
-          console.log(`🔄 [LazyImage] Retrying with cache buster: ${freshUrl}`);
-          setImageSrc(freshUrl);
-          setRetryCount(retryCount + 1);
-          setIsLoading(true);
-          return;
-        }
-
-        // Final fallback after all retries (increased limit for league logos)
-        const maxRetries = isLeagueLogo ? 3 : 2;
+        // Standard retry logic for non-league images or final attempts
+        const maxRetries = isLeagueLogo ? 2 : 1; // Reduced retries to prevent spam
         if (retryCount >= maxRetries) {
           console.warn(
             `🚫 [LazyImage] All retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
@@ -296,8 +251,20 @@ const LazyImage: React.FC<LazyImageProps> = ({
           setImageSrc("/assets/matchdetaillogo/fallback.png");
           onError?.();
         } else {
+          console.warn(
+            `🖼️ [LazyImage] Retrying image load: ${imageSrc} (attempt ${retryCount + 1})`,
+          );
+          setImageSrc(`${src}?retry=${retryCount + 1}&t=${Date.now()}`);
           setRetryCount(retryCount + 1);
+          setIsLoading(true);
         }
+      } else if (!hasError && retryCount >= 3 && isLeagueLogo) { // Specific handling for league logos that failed all 3 specific retries
+          console.warn(
+            `🚫 [LazyImage] All league logo retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
+          );
+          setHasError(true);
+          setImageSrc("/assets/matchdetaillogo/fallback.png");
+          onError?.();
       }
     } catch (error) {
       console.warn("⚠️ [LazyImage] Error in handleError function:", error);
