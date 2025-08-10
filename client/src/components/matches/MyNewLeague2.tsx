@@ -2114,7 +2114,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                     return (
                       <div key={matchId} className="country-matches-container ">
                         <div
-                          className={`match-card-container group border-b border-gray-200 ${
+                          className={`match-card-container ${
                             isHalftimeFlash ? "halftime-flash" : ""
                           }${isFulltimeFlash ? "fulltime-flash" : ""} ${
                             isGoalFlash ? "goal-flash" : ""
@@ -2215,18 +2215,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   (Date.now() - matchDateTime.getTime()) /
                                   (1000 * 60 * 60);
                                 const isStaleFinishedMatch =
-                                  (["FT", "AET", "PEN"].includes(status) &&
-                                    hoursOld > 4) ||
-                                  ([
-                                    "FT",
-                                    "AET",
-                                    "PEN",
-                                    "AWD",
-                                    "WO",
-                                    "ABD",
-                                    "CANC",
-                                    "SUSP",
-                                  ].includes(status) &&
+                                  (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) &&
                                     hoursOld > 4) ||
                                   (hoursOld > 4 &&
                                     [
@@ -2426,8 +2415,16 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 {(() => {
                                   const originalName = fixture.teams.home.name || "";
 
-                                  // Try smart translation first
-                                  let translatedName = smartTeamTranslation.translateTeamName(originalName, currentLanguage, fixture.league);
+                                  // Try smart translation first with safety checks
+                                  let translatedName = originalName;
+                                  try {
+                                    if (smartTeamTranslation && typeof smartTeamTranslation.translateTeamName === 'function') {
+                                      translatedName = smartTeamTranslation.translateTeamName(originalName, currentLanguage, fixture.league) || originalName;
+                                    }
+                                  } catch (translationError) {
+                                    console.warn('Smart translation error for home team:', translationError);
+                                    translatedName = originalName;
+                                  }
 
                                   // If smart translation failed, try enhanced fallback translations
                                   if (translatedName === originalName && currentLanguage.startsWith('zh')) {
@@ -2776,8 +2773,16 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 {(() => {
                                   const originalName = fixture.teams.away.name || "";
 
-                                  // Try smart translation first
-                                  let translatedName = smartTeamTranslation.translateTeamName(originalName, currentLanguage, fixture.league);
+                                  // Try smart translation first with safety checks
+                                  let translatedName = originalName;
+                                  try {
+                                    if (smartTeamTranslation && typeof smartTeamTranslation.translateTeamName === 'function') {
+                                      translatedName = smartTeamTranslation.translateTeamName(originalName, currentLanguage, fixture.league) || originalName;
+                                    }
+                                  } catch (translationError) {
+                                    console.warn('Smart translation error for away team:', translationError);
+                                    translatedName = originalName;
+                                  }
 
                                   // If smart translation failed, try enhanced fallback translations
                                   if (translatedName === originalName && currentLanguage.startsWith('zh')) {

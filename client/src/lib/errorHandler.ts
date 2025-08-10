@@ -21,23 +21,41 @@ export const handleImageError = (
   }
 };
 
-export const handleApiError = (error: unknown): string => {
-  console.error('API Error:', error);
+export const handleApiError = (error: any, context: string = 'API'): string => {
+  if (!error) return 'Unknown error occurred';
 
-  if (error instanceof Error) {
-    if (error.message.includes('Network') || error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
-      return "Network error: Please check your internet connection and try again.";
-    }
-    if (error.message.includes('timeout') || error.message.includes('AbortError')) {
-      return "Request timeout: Please try again.";
-    }
-    if (error.message.includes('server connection lost')) {
-      return "Server connection lost: Reconnecting...";
-    }
-    return error.message;
+  // Handle stallwart connection issues
+  if (error.message?.includes('stallwart') || error.message?.includes('session stalled')) {
+    return 'Connection temporarily unstable. Retrying automatically...';
   }
 
-  return "An unexpected error occurred. Please try again.";
+  // Handle network errors
+  if (error.name === 'NetworkError' || error.message?.includes('fetch')) {
+    return 'Network connection failed. Please check your internet connection.';
+  }
+
+  // Handle timeout errors
+  if (error.name === 'TimeoutError' || error.message?.includes('timeout')) {
+    return 'Request timed out. Please try again.';
+  }
+
+  // Handle rate limiting
+  if (error.status === 429 || error.message?.includes('rate limit')) {
+    return 'Too many requests. Please wait a moment before trying again.';
+  }
+
+  // Handle server errors
+  if (error.status >= 500) {
+    return 'Server error. Please try again later.';
+  }
+
+  // Handle client errors
+  if (error.status >= 400 && error.status < 500) {
+    return `Request failed: ${error.message || 'Invalid request'}`;
+  }
+
+  // Default error message
+  return error.message || 'An unexpected error occurred';
 };
 
 // Add network recovery helper
