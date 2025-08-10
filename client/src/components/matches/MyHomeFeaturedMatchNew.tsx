@@ -254,7 +254,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [countdownTimer, setCountdownTimer] = useState<string>("Loading...");
   const [roundsCache, setRoundsCache] = useState<Record<string, string[]>>({});
-  const { currentLanguage, getMatchStatusTranslation, translateTeamName } = useTranslation();
+  const { translateTeamName, currentLanguage, getMatchStatusTranslation } = useLanguage();
+  const { t } = useTranslation();
 
 
   const fetchRoundsForLeague = useCallback(async (leagueId: number, season: number) => {
