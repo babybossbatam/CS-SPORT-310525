@@ -143,21 +143,22 @@ const PopularTeamsList = () => {
 
         const teams = await response.json();
 
-        if (teams && teams.length > 0) {
+        if (teams && Array.isArray(teams) && teams.length > 0) {
           console.log(
             `✅ [PopularTeamsList] Fetched ${teams.length} popular teams from API`,
           );
 
           // Transform API response to match our Team interface
           const transformedTeams = teams
-            .map((team: any) => ({
+            .map((team: any, index: number) => ({
               id: team.team?.id || team.id,
               name: team.team?.name || team.name,
               logo: team.team?.logo || team.logo,
               country: team.country?.name || team.team?.country || team.country,
-              popularity: 100 - teams.indexOf(team) * 2, // Generate popularity scores
+              popularity: team.popularity || (100 - index * 2), // Use API popularity or generate
             }))
             .filter((team: any) => {
+              if (!team.id || !team.name) return false;
               const teamName = team.name?.toLowerCase() || "";
               const country = team.country?.toLowerCase() || "";
               // Exclude reserve teams and youth teams
@@ -170,15 +171,20 @@ const PopularTeamsList = () => {
               );
             });
 
-          setTeamData(transformedTeams);
-        } else {
-          throw new Error("No teams data received from API");
+          if (transformedTeams.length > 0) {
+            setTeamData(transformedTeams);
+            return;
+          }
         }
+        
+        throw new Error("No valid teams data received from API");
       } catch (error) {
         console.error(
           "❌ [PopularTeamsList] Error fetching popular teams:",
           error,
         );
+        console.log("🔄 [PopularTeamsList] Using fallback popular teams data");
+        
         // Fallback to hardcoded popular teams if API fails
         const sortedTeams = [...CURRENT_POPULAR_TEAMS]
           .filter((team) => {

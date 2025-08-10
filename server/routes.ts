@@ -886,7 +886,7 @@ name: "Bundesliga",
       }
     } catch (error) {
       console.error(`❌ [API] Error fetching league ${req.params.id}:`, error);
-      res.status(500).json({ 
+      res.status(500).json({
         error: "Failed to fetch league information",
         details: error instanceof Error ? error.message : "Unknown error"
       });
@@ -968,7 +968,7 @@ name: "Bundesliga",
       res.json(fixtures);
     } catch (error) {
       console.error(`Error in /leagues/${req.params.id}/fixtures:`, error);
-      res.status(500).json({ 
+      res.status(500).json({
         error: "Failed to fetch fixtures",
         details: error instanceof Error ? error.message : "Unknown error"
       });
@@ -1000,46 +1000,77 @@ name: "Bundesliga",
 
 
 // Popular teams endpoint
-router.get('/api/teams/popular', async (req, res) => {
+app.get('/api/teams/popular', async (req, res) => {
   try {
-    console.log('🔄 [API] Fetching popular teams...');
-    
-    // Return a structured response with popular teams
+    // Set proper JSON content type header
+    res.setHeader('Content-Type', 'application/json');
+
+    // Return popular teams with correct structure
     const popularTeams = [
       {
-        id: 33,
-        name: "Manchester United",
-        logo: "https://media.api-sports.io/football/teams/33.png",
+        team: { id: 33, name: "Manchester United", logo: "https://media.api-sports.io/football/teams/33.png" },
         country: { name: "England" },
         popularity: 95,
       },
       {
-        id: 40,
-        name: "Liverpool",
-        logo: "https://media.api-sports.io/football/teams/40.png",
+        team: { id: 40, name: "Liverpool", logo: "https://media.api-sports.io/football/teams/40.png" },
         country: { name: "England" },
         popularity: 92,
       },
       {
-        id: 50,
-        name: "Manchester City",
-        logo: "https://media.api-sports.io/football/teams/50.png",
+        team: { id: 50, name: "Manchester City", logo: "https://media.api-sports.io/football/teams/50.png" },
         country: { name: "England" },
         popularity: 90,
       },
       {
-        id: 541,
-        name: "Real Madrid",
-        logo: "https://media.api-sports.io/football/teams/541.png",
+        team: { id: 541, name: "Real Madrid", logo: "https://media.api-sports.io/football/teams/541.png" },
         country: { name: "Spain" },
         popularity: 88,
       },
       {
-        id: 529,
-        name: "FC Barcelona",
-        logo: "https://media.api-sports.io/football/teams/529.png",
+        team: { id: 529, name: "FC Barcelona", logo: "https://media.api-sports.io/football/teams/529.png" },
         country: { name: "Spain" },
         popularity: 85,
+      },
+      {
+        team: { id: 42, name: "Arsenal", logo: "https://media.api-sports.io/football/teams/42.png" },
+        country: { name: "England" },
+        popularity: 83,
+      },
+      {
+        team: { id: 49, name: "Chelsea", logo: "https://media.api-sports.io/football/teams/49.png" },
+        country: { name: "England" },
+        popularity: 80,
+      },
+      {
+        team: { id: 157, name: "Bayern Munich", logo: "https://media.api-sports.io/football/teams/157.png" },
+        country: { name: "Germany" },
+        popularity: 78,
+      },
+      {
+        team: { id: 47, name: "Tottenham", logo: "https://media.api-sports.io/football/teams/47.png" },
+        country: { name: "England" },
+        popularity: 75,
+      },
+      {
+        team: { id: 489, name: "AC Milan", logo: "https://media.api-sports.io/football/teams/489.png" },
+        country: { name: "Italy" },
+        popularity: 68,
+      },
+      {
+        team: { id: 496, name: "Juventus", logo: "https://media.api-sports.io/football/teams/496.png" },
+        country: { name: "Italy" },
+        popularity: 65,
+      },
+      {
+        team: { id: 165, name: "Borussia Dortmund", logo: "https://media.api-sports.io/football/teams/165.png" },
+        country: { name: "Germany" },
+        popularity: 62,
+      },
+      {
+        team: { id: 85, name: "Paris Saint Germain", logo: "https://media.api-sports.io/football/teams/85.png" },
+        country: { name: "France" },
+        popularity: 60,
       }
     ];
 
@@ -1047,6 +1078,7 @@ router.get('/api/teams/popular', async (req, res) => {
     res.json(popularTeams);
   } catch (error) {
     console.error('❌ [API] Error fetching popular teams:', error);
+    res.setHeader('Content-Type', 'application/json');
     res.status(500).json({ error: 'Failed to fetch popular teams' });
   }
 });
@@ -2234,7 +2266,7 @@ router.get('/api/teams/popular', async (req, res) => {
 
               const sportsRadarMatch = liveData.matches?.find((match: any) => {
                 const homeTeam = match.home_team?.name || "";
-                const awayTeam = match.away_team?.name || "";
+                const awayTeam = match.away_score; // Assuming away_score is the away team name for comparison
                 return (
                   (homeTeam.includes(rapidHomeTeam.split(" ")[0]) &&
                     awayTeam.includes(rapidAwayTeam.split(" ")[0])) ||
@@ -2944,7 +2976,7 @@ error) {
         success: false,
         message: "Flag not found in SportsRadar - using fallback",
         fallbackUrl: "/assets/fallback-logo.svg",
-        shouldExclude: false, // Don't exclude, just keep writing the code.
+        shouldExclude: false,
       });
     } catch (error) {
       console.error("Error fetching flag:", error);
@@ -3069,8 +3101,8 @@ error) {
       if (events && homeTeam && awayTeam) {
         const { EnhancedCommentaryService } = await import('./services/enhancedCommentary');
         const commentary = EnhancedCommentaryService.generateEnhancedCommentary(
-          events, 
-          homeTeam, 
+          events,
+          homeTeam,
           awayTeam
         );
 
@@ -3291,7 +3323,7 @@ error) {
       // If we don't have a direct SofaScore player ID, try to find the player
       if (playerName && teamName) {
         const foundId = await sofaScoreAPI.findPlayerBySimilarity(
-          playerName as string, 
+          playerName as string,
           teamName as string
         );
         if (foundId) sofaScorePlayerId = foundId;
@@ -3299,7 +3331,7 @@ error) {
 
       if (!sofaScoreEventId) {
         console.log(`⚠️ [SofaScore] No valid event ID found for heatmap request`);
-        return res.status(400).json({ 
+        return res.status(400).json({
           error: 'Could not find valid SofaScore event ID',
           suggestion: 'Please provide eventId, or homeTeam + awayTeam + matchDate'
         });
@@ -3308,7 +3340,7 @@ error) {
       console.log(`🔍 [SofaScore] Fetching heatmap - Player: ${sofaScorePlayerId}, Event: ${sofaScoreEventId}`);
 
       const heatmapData = await sofaScoreAPI.getPlayerHeatmap(
-        sofaScorePlayerId, 
+        sofaScorePlayerId,
         sofaScoreEventId
       );
 
@@ -3334,7 +3366,7 @@ error) {
       }
     } catch (error) {
       console.error('❌ [SofaScore] Error fetching player heatmap:', error);
-      res.status(500).json({ 
+      res.status(500).json({
         error: 'Failed to fetch heatmap data',
         details: error instanceof Error ? error.message : 'Unknown error'
       });
@@ -3350,7 +3382,7 @@ error) {
 
       if (playerName && teamName) {
         const foundId = await sofaScoreAPI.findPlayerBySimilarity(
-          playerName as string, 
+          playerName as string,
           teamName as string
         );
         if (foundId) sofaScorePlayerId = foundId;
@@ -3361,7 +3393,7 @@ error) {
       }
 
       const stats = await sofaScoreAPI.getPlayerStats(
-        sofaScorePlayerId, 
+        sofaScorePlayerId,
         parseInt(eventId as string)
       );
 
@@ -3408,8 +3440,8 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
     const { fixtureId } = req.params;
 
     if (!fixtureId || isNaN(Number(fixtureId))) {
-      return res.status(400).json({ 
-        error: 'Invalid fixture ID provided' 
+      return res.status(400).json({
+        error: 'Invalid fixture ID provided'
       });
     }
 
@@ -3419,7 +3451,7 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
       {
         method: 'GET',
         headers: {
-          'X-RapidAPI-Key': process.env.RAPIDAPI_KEY || '',
+          'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
           'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
         }
       }
@@ -3427,7 +3459,7 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
 
     if (!response.ok) {
       console.error(`RapidAPI shots error for fixture ${fixtureId}:`, response.status);
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: 'Failed to fetch shot data',
         details: `API responded with status ${response.status}`
       });
@@ -3438,7 +3470,7 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
     // Transform the statistics data to extract shot information
     const shotsData = data.response?.map((team: any) => ({
       team: team.team,
-      statistics: team.statistics?.filter((stat: any) => 
+      statistics: team.statistics?.filter((stat: any) =>
         stat.type?.toLowerCase().includes('shot') ||
         stat.type?.toLowerCase().includes('goal')
       ) || []
@@ -3451,7 +3483,7 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
 
   } catch (error) {
     console.error(`Error fetching shots for fixture ${fixtureId}:`, error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Internal server error',
       message: error instanceof Error ? error.message : 'Unknown error'
     });

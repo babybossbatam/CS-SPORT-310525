@@ -24,15 +24,42 @@ interface MyMainLayoutProps {
   children?: React.ReactNode;
   activeTab?: string;
   onTabChange?: (tab: string) => void;
+  selectedDate?: string; // Assuming selectedDate is passed as a prop
 }
 
-const MyMainLayout: React.FC<MyMainLayoutProps> = ({ 
-  selectedMatchId, 
-  selectedMatch, 
+// Helper function to validate date format
+const isValidDate = (dateString: string): boolean => {
+  // Allow 'today' as a special case
+  if (dateString === 'today') return true;
+
+  // Check if date string matches YYYY-MM-DD format
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateRegex.test(dateString)) return false;
+
+  // Check if it's a valid date
+  const date = new Date(dateString + 'T00:00:00.000Z');
+  const [year, month, day] = dateString.split('-').map(Number);
+
+  return date instanceof Date &&
+         !isNaN(date.getTime()) &&
+         date.getUTCFullYear() === year &&
+         date.getUTCMonth() === month - 1 &&
+         date.getUTCDate() === day;
+};
+
+const MyMainLayout: React.FC<MyMainLayoutProps> = ({
+  selectedMatchId,
+  selectedMatch,
   children,
   activeTab,
-  onTabChange
+  onTabChange,
+  selectedDate
 }) => {
+  // Validate selectedDate prop
+  if (selectedDate && selectedDate !== 'today' && !isValidDate(selectedDate)) {
+    console.warn(`🚨 [MyMainLayout] Invalid selectedDate: ${selectedDate}`);
+  }
+
   const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
   const currentActiveTab = activeTab || internalActiveTab;
 
@@ -50,7 +77,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
       setInternalActiveTab(tab);
     }
   };
-  const isLive = selectedMatch?.fixture?.status?.short === 'LIVE' || 
+  const isLive = selectedMatch?.fixture?.status?.short === 'LIVE' ||
                 selectedMatch?.fixture?.status?.short === 'HT' ||
                 selectedMatch?.fixture?.status?.short === '1H' ||
                 selectedMatch?.fixture?.status?.short === '2H' ||
@@ -65,7 +92,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
     <div className={`w-full space-y-6 ${actualIsMobile ? 'mobile-layout px-2 mobile-layout-active' : ''}`}>
       {/* MyLiveAction component - show for live matches */}
       {isLive && (
-        <MyLiveAction 
+        <MyLiveAction
           matchId={selectedMatchId}
           homeTeam={selectedMatch?.teams?.home}
           awayTeam={selectedMatch?.teams?.away}
