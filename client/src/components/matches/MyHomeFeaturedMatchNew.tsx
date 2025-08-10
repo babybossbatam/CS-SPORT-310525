@@ -254,7 +254,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [countdownTimer, setCountdownTimer] = useState<string>("Loading...");
   const [roundsCache, setRoundsCache] = useState<Record<string, string[]>>({});
-  const { translateTeamName, currentLanguage, getMatchStatusTranslation } = useLanguage();
+  const { translateTeamName, translateLeagueName, currentLanguage, getMatchStatusTranslation, learnFromFixtures } = useLanguage();
   const { t } = useTranslation();
 
 
@@ -1254,6 +1254,14 @@ id: fixture.teams.away.id,
           uniqueFixtures.length,
         );
 
+        // Learn from fixtures data to improve translations
+        try {
+          learnFromFixtures(uniqueFixtures);
+          console.log(`📚 [MyHomeFeaturedMatchNew] Learning from ${uniqueFixtures.length} fixtures for translation improvement`);
+        } catch (error) {
+          console.warn('Error learning from fixtures:', error);
+        }
+
         // Enhanced debug logging with league IDs
         const fixtureDetails = uniqueFixtures.map((f) => ({
           id: f.fixture.id,
@@ -2209,10 +2217,7 @@ id: fixture.teams.away.id,
                       className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center"
                       title={`League ID: ${currentMatch.league.id} | ${currentMatch.league.name} | ${currentMatch.league.country}`}
                     >
-                      {(() => {
-                        const { translateLeagueName } = useLanguage();
-                        return translateLeagueName(currentMatch.league.name);
-                      })()}
+                      {translateLeagueName(currentMatch.league.name)}
                     </span>
 
                     {/* Round/Bracket Status Display using RoundBadge component */}

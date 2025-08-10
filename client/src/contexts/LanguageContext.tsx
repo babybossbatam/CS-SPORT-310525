@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { smartTeamTranslation } from '@/lib/smartTeamTranslation';
+import { smartLeagueCountryTranslation } from '@/lib/smartLeagueCountryTranslation';
 
 interface LanguageContextType {
   currentLanguage: string;
@@ -11,6 +12,7 @@ interface LanguageContextType {
   translateCountryName: (countryName: string) => string;
   translateTeamName: (teamName: string) => string;
   getMatchStatusTranslation: (status: string, language: string) => string;
+  learnFromFixtures: (fixtures: any[]) => void;
 }
 
 const translations = {
@@ -927,13 +929,20 @@ export const LanguageProvider: React.FC<{
   const translateLeagueName = (leagueName: string): string => {
     if (!leagueName) return leagueName;
 
-    // First try the smart translation system
-    const smartTranslation = smartTeamTranslation.translateLeagueName(leagueName, currentLanguage);
+    // First try the comprehensive smart translation system
+    const smartTranslation = smartLeagueCountryTranslation.translateLeagueName(leagueName, currentLanguage);
     console.log(`🏆 [LanguageContext] Smart league translation: "${leagueName}" -> "${smartTranslation}"`);
 
     if (smartTranslation !== leagueName) {
       console.log(`✅ [LanguageContext] Using smart league translation: "${smartTranslation}"`);
       return smartTranslation;
+    }
+
+    // Fallback to team translation system for league names
+    const teamSmartTranslation = smartTeamTranslation.translateLeagueName(leagueName, currentLanguage);
+    if (teamSmartTranslation !== leagueName) {
+      console.log(`✅ [LanguageContext] Using team system league translation: "${teamSmartTranslation}"`);
+      return teamSmartTranslation;
     }
 
     // Fallback to manual patterns if smart translation doesn't find a match
@@ -1430,13 +1439,20 @@ export const LanguageProvider: React.FC<{
 
     console.log(`🌍 [LanguageContext] Translating country: "${countryName}" for language: ${currentLanguage}`);
 
-    // First try the smart translation system
-    const smartTranslation = smartTeamTranslation.translateCountryName(countryName, currentLanguage);
+    // First try the comprehensive smart translation system
+    const smartTranslation = smartLeagueCountryTranslation.translateCountryName(countryName, currentLanguage);
     console.log(`🤖 [LanguageContext] Smart country translation: "${countryName}" -> "${smartTranslation}"`);
 
     if (smartTranslation !== countryName) {
       console.log(`✅ [LanguageContext] Using smart country translation: "${smartTranslation}"`);
       return smartTranslation;
+    }
+
+    // Fallback to team translation system for country names
+    const teamSmartTranslation = smartTeamTranslation.translateCountryName(countryName, currentLanguage);
+    if (teamSmartTranslation !== countryName) {
+      console.log(`✅ [LanguageContext] Using team system country translation: "${teamSmartTranslation}"`);
+      return teamSmartTranslation;
     }
 
     // Return original if no translation found
@@ -1690,6 +1706,16 @@ export const LanguageProvider: React.FC<{
     return translation[language] || translation['en'] || 'Ended';
   };
 
+  // Function to learn from fixtures data
+  const learnFromFixtures = (fixtures: any[]) => {
+    try {
+      smartLeagueCountryTranslation.learnFromFixtures(fixtures);
+      console.log(`📚 [LanguageContext] Learning from ${fixtures.length} fixtures`);
+    } catch (error) {
+      console.error('Error learning from fixtures:', error);
+    }
+  };
+
   const contextValue = {
     currentLanguage,
     setLanguage,
@@ -1699,7 +1725,8 @@ export const LanguageProvider: React.FC<{
     translateLeagueName,
     translateCountryName,
     translateTeamName,
-    getMatchStatusTranslation
+    getMatchStatusTranslation,
+    learnFromFixtures
   };
 
   return (
