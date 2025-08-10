@@ -370,8 +370,8 @@ const translations = {
     'time_tbd': '時間待定',
     'after_extra_time': '加時賽後',
     'starting_now': '即將開始',
-    'day': '日',
-    'days': '日',
+    'day': '天',
+    'days': '天',
   },
   'de': {
     'today_matches': "Heutige Spiele",
@@ -728,8 +728,8 @@ const translations = {
     'leagues_cup': "联赛杯",
     'world': "世界",
     'ended': "已结束",
-    'day': "日",
-    'days': "日",
+    'day': '天',
+    'days': '天',
     // Match statuses
     'halftime': '中场',
     'penalties': '点球',
@@ -745,8 +745,8 @@ const translations = {
     'time_tbd': '时间待定',
     'after_extra_time': '加时赛后',
     'starting_now': '即将开始',
-    'day': '日',
-    'days': '日',
+    'day': '天',
+    'days': '天',
   },
   'zh-tw': {
     'today_matches': "今天的比賽",
@@ -826,8 +826,6 @@ const translations = {
     'won_on_penalties': "PK大戰獲勝",
     'on_penalties': "PK大戰",
     'tomorrow': "明天",
-    'day': "日",
-    'days': "日",
     // Match statuses
     'halftime': '中場',
     'penalties': '點球',
@@ -843,6 +841,8 @@ const translations = {
     'time_tbd': '時間待定',
     'after_extra_time': '加時賽後',
     'starting_now': '即將開始',
+    'day': '天',
+    'days': '天',
   }
 };
 
