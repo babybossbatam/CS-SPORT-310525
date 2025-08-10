@@ -1202,8 +1202,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           }
         }
       }
-    }
-  }, [fixturesByLeague, currentLanguage, selectedDate]);
+    }, [fixturesByLeague, currentLanguage, selectedDate]);
 
 
   // Auto-expand all leagues by default when data changes
