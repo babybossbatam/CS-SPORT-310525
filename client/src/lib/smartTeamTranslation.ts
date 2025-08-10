@@ -349,6 +349,18 @@ class SmartTeamTranslation {
       'zh': '亚马逊', 'zh-hk': '亞馬遜', 'zh-tw': '亞馬遜',
       'es': 'Amazonas', 'de': 'Amazonas', 'it': 'Amazonas', 'pt': 'Amazonas'
     },
+    'Imperatriz': {
+      'zh': '因佩拉特里斯', 'zh-hk': '因佩拉特里斯', 'zh-tw': '因佩拉特里斯',
+      'es': 'Imperatriz', 'de': 'Imperatriz', 'it': 'Imperatriz', 'pt': 'Imperatriz'
+    },
+    'Sao Jose': {
+      'zh': '圣若泽', 'zh-hk': '聖若澤', 'zh-tw': '聖若澤',
+      'es': 'São José', 'de': 'São José', 'it': 'São José', 'pt': 'São José'
+    },
+    'Manaus FC': {
+      'zh': '马瑙斯', 'zh-hk': '馬瑙斯足球會', 'zh-tw': '馬瑙斯',
+      'es': 'Manaus FC', 'de': 'Manaus FC', 'it': 'Manaus FC', 'pt': 'Manaus FC'
+    },
 
     'Atlético Mineiro': {
       'zh': '米内罗竞技', 'zh-hk': '米內羅競技', 'zh-tw': '米內羅競技',
@@ -1587,6 +1599,10 @@ class SmartTeamTranslation {
     'Istanbul Basaksehir': {
       'zh': '伊斯坦布尔巴萨克谢希尔', 'zh-hk': '伊斯坦布爾巴薩克謝希爾', 'zh-tw': '伊斯坦布爾巴薩克謝希爾',
       'es': 'Istanbul Başakşehir', 'de': 'Istanbul Başakşehir', 'it': 'Istanbul Başakşehir', 'pt': 'Istanbul Başakşehir'
+    },
+    'ASA': {
+      'zh': 'ASA', 'zh-hk': 'ASA', 'zh-tw': 'ASA',
+      'es': 'ASA', 'de': 'ASA', 'it': 'ASA', 'pt': 'ASA'
     },
     'Silkeborg': {
       'zh': '锡尔克堡', 'zh-hk': '錫爾克堡', 'zh-tw': '錫爾克堡',
