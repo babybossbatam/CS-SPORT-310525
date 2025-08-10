@@ -218,7 +218,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     primarySearchQuery;
 
   // Broader search without quotes for difficult matches
-  const broadSearchQuery = `${rawHome} ${rawAway} highlights ${matchYear} ${teamExclusions}`.trim();
+  const broadSearchQuery = `${rawHome} ${away} highlights ${matchYear} ${teamExclusions}`.trim();
 
   // Year-flexible search for older matches
   const flexibleYearQuery = `"${rawHome}" vs "${rawAway}" highlights ${teamExclusions}`.trim();
@@ -367,7 +367,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
       // Bonus for "vs" or similar separators between teams
       const teamSection = titleLower.substring(homePos, awayPos + awayLower.length);
-      const vsKeywords = ['vs', 'v ', 'versus', ' x ', ' - ', ' against '];
+      const vsKeywords = ['vs', 'v ', 'versus', ' - ', ' against '];
       if (vsKeywords.some(keyword => teamSection.includes(keyword))) {
         score += 10;
       }
@@ -604,6 +604,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         const concacafChannelId = 'UCqn7r-so0mBLaJTtTms9dAQ';
         // Try multiple search queries for better match accuracy, prioritizing specificity
         const queries = [exactTeamMatchQuery, leagueSpecificQuery, brazilianSafeQuery, primarySearchQuery, secondarySearchQuery];
+
         let data;
 
         for (const query of queries) {
@@ -651,28 +652,26 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         throw new Error('No CONCACAF official videos found');
       }
     }] : []),
-    // Brazilian Highlights Channel - PREFERRED option for Brazilian leagues (but not exclusive)
+    // Brazilian Futebol Official Channel (priority for Brazilian league matches)
     ...(isBrazilianLeague ? [{
       name: 'Canal do Futebol BR',
       type: 'youtube' as const,
       searchFn: async () => {
-        const brazilianChannelId = 'UCw5-xj3AKqEizC7MvHaIPqA';
+        const brazilianChannelId = 'UCsHUdM7CCtjdLsM0Vw4wQIQ';
 
-        // Special exclusions for commonly confused Brazilian teams
-        const getTeamExclusions = (teamName: string) => {
-          const exclusions = ['-botafogo-sp', '-atletico-pr', '-athletico-pr'];
-
-          // If we're looking for main Botafogo, exclude Botafogo-SP
-          if (teamName.toLowerCase().includes('botafogo') && !teamName.toLowerCase().includes('sp')) {
-            exclusions.push('-"botafogo-sp"', '-"botafogo sp"');
-          }
-
-          // If we're looking for Sport Recife, be very specific
-          if (teamName.toLowerCase().includes('sport') && teamName.toLowerCase().includes('recife')) {
-            exclusions.push('-"sport club"', '-"sporting"');
-          }
-
-          return exclusions.join(' ');
+        // Enhanced team exclusion function
+        const getTeamExclusions = (teamName: string): string => {
+          const exclusions: { [key: string]: string[] } = {
+            'São Paulo': ['-"São Paulo FC"', '-"SPFC"', '-"Tricolor"'],
+            'Santos': ['-"Santos FC"', '-"Peixe"'],
+            'Palmeiras': ['-"Palmeiras"', '-"Verdão"'],
+            'Corinthians': ['-"Corinthians"', '-"Timão"'],
+            'Flamengo': ['-"Flamengo"', '-"Mengão"'],
+            'Vasco': ['-"Vasco da Gama"', '-"Gigante da Colina"'],
+            'Botafogo': ['-"Botafogo"', '-"Glorioso"'],
+            'Fluminense': ['-"Fluminense"', '-"Tricolor das Laranjeiras"']
+          };
+          return exclusions[teamName]?.join(' ') || '';
         };
 
         const homeExclusions = getTeamExclusions(rawHome);
@@ -709,18 +708,16 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
               // Filter and sort by title order preference
               const sortedVideos = filterAndSortVideos(data.items, home, away);
               data.items = sortedVideos;
-              if (sortedVideos.length > 0) {
-                break;
-              }
+              break;
             }
           } catch (error) {
-            console.warn(`🎬 [Highlights] Canal do Futebol BR search failed for query: ${query}`, error);
+            console.warn(`🎬 [Highlights] Brazilian channel search failed for query: ${query}`, error);
             continue;
           }
         }
 
         if (data.error || data.quotaExceeded) {
-          throw new Error(data.error || 'Canal do Futebol BR search failed');
+          throw new Error(data.error || 'Brazilian channel search failed');
         }
 
         if (data.items && data.items.length > 0) {
@@ -776,7 +773,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         }
 
         if (data.error || data.quotaExceeded) {
-          throw new Error(data.error || 'FIFA official channel search failed');
+          throw new Error(data.error || 'FIFA channel search failed');
         }
 
         if (data.items && data.items.length > 0) {
@@ -793,54 +790,43 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       }
     }] : []),
     {
-      name: 'YouTube',
+      name: 'YouTube Official Highlights',
       type: 'youtube' as const,
       searchFn: async () => {
-        // Create dynamic query list based on league type and match characteristics
-        let queries;
+        // Enhanced exclusion terms to filter out reaction videos and unofficial content
+        const strongExclusions = `-"React" -"reaction" -"reação" -"reagindo" -"análise" -"preview" -"predictions" -"betting" -"fifa" -"pes" -"efootball" -"gaming" -"gameplay" -"stream" -"live chat" -"compilation" -"fan reaction" -"watch party" -"primeira vez" -"first time watching" -"assistindo" -"comentando"`;
 
-        if (isBrazilianLeague) {
-          // For Brazilian matches, prioritize Portuguese terms and broader search
-          queries = [
-            primarySearchQuery, // Most specific with team exclusions
-            `"${rawHome}" x "${rawAway}" melhores momentos ${matchYear} ${teamExclusions}`,
-            `"${rawHome}" vs "${rawAway}" brasileiro ${matchYear} ${teamExclusions}`,
-            `${home} vs ${away} serie a ${matchYear} highlights ${teamExclusions}`,
-            brazilianSafeQuery,
-            secondarySearchQuery,
-            broadSearchQuery,
-            flexibleYearQuery
-          ];
-        } else {
-          // For non-Brazilian matches, use strategic ordering
-          queries = [
-            primarySearchQuery, // Most specific search
-            leagueSpecificQuery, // League context helps
-            secondarySearchQuery, // Cleaned team names
-            broadSearchQuery, // Broader search without quotes
-            flexibleYearQuery, // Year-flexible for older matches
-            brazilianSafeQuery // Fallback
-          ];
-        }
+        // Prioritize official channels and highlights
+        const officialKeywords = `highlights OR "melhores momentos" OR "gols" OR "goals" OR "resumo"`;
+
+        const queries = [
+          `(${officialKeywords}) "${rawHome}" vs "${rawAway}" ${matchYear} ${strongExclusions}`,
+          `"${rawHome}" "${rawAway}" highlights ${matchYear} official ${strongExclusions}`,
+          `${home} vs ${away} goals highlights ${matchYear} ${strongExclusions}`,
+          `"${home}" "${away}" match highlights ${matchYear} ${strongExclusions}`,
+          `${rawHome} x ${rawAway} melhores momentos ${matchYear} ${strongExclusions}`
+        ];
 
         // Add league-specific optimizations
         if (league) {
           const leagueTerms = league.toLowerCase();
           if (leagueTerms.includes('champions league')) {
-            queries.unshift(`"${rawHome}" vs "${rawAway}" "champions league" ${matchYear} highlights ${teamExclusions}`);
+            queries.unshift(`"${rawHome}" vs "${rawAway}" "UEFA Champions League" highlights ${matchYear} ${strongExclusions}`);
           } else if (leagueTerms.includes('premier league')) {
-            queries.unshift(`"${rawHome}" vs "${rawAway}" "premier league" ${matchYear} highlights ${teamExclusions}`);
+            queries.unshift(`"${rawHome}" vs "${rawAway}" "Premier League" highlights ${matchYear} ${strongExclusions}`);
           } else if (leagueTerms.includes('la liga')) {
-            queries.unshift(`"${rawHome}" vs "${rawAway}" "la liga" ${matchYear} highlights ${teamExclusions}`);
+            queries.unshift(`"${rawHome}" vs "${rawAway}" "La Liga" highlights ${matchYear} ${strongExclusions}`);
+          } else if (leagueTerms.includes('brasileirão') || leagueTerms.includes('serie a')) {
+            queries.unshift(`"${rawHome}" vs "${rawAway}" "Brasileirão" highlights ${matchYear} ${strongExclusions}`);
           }
         }
 
         for (let i = 0; i < queries.length; i++) {
           const query = queries[i];
           try {
-            console.log(`🔍 [Highlights] Trying query ${i + 1}/${queries.length} for ${rawHome} vs ${rawAway}: "${query}"`);
+            console.log(`🔍 [Highlights] Trying official query ${i + 1}/${queries.length} for ${rawHome} vs ${rawAway}: "${query}"`);
 
-            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=15&order=relevance`);
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=20&order=relevance`);
             const data = await response.json();
 
             // Handle quota exceeded errors specifically
@@ -850,41 +836,119 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             }
 
             if (data.error) {
-              console.warn(`❌ [Highlights] Query ${i + 1} failed:`, data.error);
-              throw new Error(data.error);
+              console.warn(`❌ [Highlights] Query ${i + 1} error:`, data.error);
+              continue; // Try next query
             }
 
             if (data.items && data.items.length > 0) {
-              console.log(`📝 [Highlights] Query ${i + 1} returned ${data.items.length} raw results`);
+              // Enhanced filtering for better results - strict filtering against reaction content
+              const filteredVideos = data.items.filter((video: any) => {
+                const title = video.snippet.title.toLowerCase();
+                const channelTitle = video.snippet.channelTitle.toLowerCase();
+                const description = video.snippet.description?.toLowerCase() || '';
 
-              // Filter and sort by relevance and title order preference
-              const sortedVideos = filterAndSortVideos(data.items, home, away);
+                // Strict exclusion of reaction and unofficial content
+                const excludeTerms = [
+                  'react', 'reaction', 'reação', 'reagindo', 'análise', 'preview', 
+                  'predictions', 'betting', 'fifa', 'pes', 'efootball', 'gaming', 
+                  'gameplay', 'stream', 'live chat', 'compilation', 'fan reaction', 
+                  'watch party', 'primeira vez', 'first time watching', 'assistindo',
+                  'comentando', 'podcast', 'talk show', 'entrevista', 'interview',
+                  'channel react', 'youtuber', 'streamer', 'twitch', 'discord'
+                ];
 
-              console.log(`🎯 [Highlights] Query ${i + 1} after filtering: ${sortedVideos.length} relevant videos`);
-              console.log(`🎬 [Highlights] Top 3 results for "${query}":`, sortedVideos.slice(0, 3).map(v => ({
-                title: v.snippet?.title,
-                channelTitle: v.snippet?.channelTitle,
-                relevanceScore: v.relevanceScore,
-                correctOrder: v.correctOrder,
-                combinedScore: v.combinedScore
-              })));
+                // Check title, channel, and description for excluded terms
+                if (excludeTerms.some(term => 
+                  title.includes(term) || 
+                  channelTitle.includes(term) || 
+                  description.includes(term)
+                )) {
+                  console.log(`🚫 [Highlights] Filtered out: "${video.snippet.title}" by ${video.snippet.channelTitle} (contains excluded terms)`);
+                  return false;
+                }
+
+                // Must contain official highlight terms
+                const mustHaveTerms = ['highlights', 'goals', 'melhores momentos', 'resumo', 'gols', 'best moments'];
+                const hasOfficialTerms = mustHaveTerms.some(term => title.includes(term));
+
+                if (!hasOfficialTerms) {
+                  console.log(`🚫 [Highlights] Filtered out: "${video.snippet.title}" (no official highlight terms)`);
+                  return false;
+                }
+
+                // Both team names should be present
+                const homeInTitle = title.includes(home.toLowerCase()) || title.includes(rawHome.toLowerCase());
+                const awayInTitle = title.includes(away.toLowerCase()) || title.includes(rawAway.toLowerCase());
+
+                if (!homeInTitle || !awayInTitle) {
+                  console.log(`🚫 [Highlights] Filtered out: "${video.snippet.title}" (missing team names)`);
+                  return false;
+                }
+
+                console.log(`✅ [Highlights] Approved: "${video.snippet.title}" by ${video.snippet.channelTitle}`);
+                return true;
+              });
+
+              // Sort filtered videos by relevance and official status
+              const sortedVideos = filteredVideos.sort((a: any, b: any) => {
+                const aTitle = a.snippet.title.toLowerCase();
+                const bTitle = b.snippet.title.toLowerCase();
+                const aChannel = a.snippet.channelTitle.toLowerCase();
+                const bChannel = b.snippet.channelTitle.toLowerCase();
+
+                // Calculate official channel score
+                const getOfficialScore = (channel: string): number => {
+                  const officialChannels = [
+                    'fifa', 'uefa', 'conmebol', 'concacaf', 'premier league', 
+                    'la liga', 'serie a', 'bundesliga', 'ligue 1', 'brasileirão',
+                    'cbf', 'sportv', 'globoesporte', 'espn', 'fox sports'
+                  ];
+                  return officialChannels.filter(official => channel.includes(official)).length * 10;
+                };
+
+                const aOfficialScore = getOfficialScore(aChannel);
+                const bOfficialScore = getOfficialScore(bChannel);
+
+                if (aOfficialScore !== bOfficialScore) {
+                  return bOfficialScore - aOfficialScore;
+                }
+
+                // Prioritize exact team name matches
+                const aExactMatch = aTitle.includes(`${home.toLowerCase()} vs ${away.toLowerCase()}`) || 
+                                   aTitle.includes(`${rawHome.toLowerCase()} x ${rawAway.toLowerCase()}`);
+                const bExactMatch = bTitle.includes(`${home.toLowerCase()} vs ${away.toLowerCase()}`) || 
+                                   bTitle.includes(`${rawHome.toLowerCase()} x ${rawAway.toLowerCase()}`);
+
+                if (aExactMatch && !bExactMatch) return -1;
+                if (!aExactMatch && bExactMatch) return 1;
+
+                // Prioritize videos with year in title
+                const aHasYear = aTitle.includes(matchYear.toString());
+                const bHasYear = bTitle.includes(matchYear.toString());
+
+                if (aHasYear && !bHasYear) return -1;
+                if (!aHasYear && bHasYear) return 1;
+
+                return 0;
+              });
 
               if (sortedVideos.length > 0) {
                 const video = sortedVideos[0];
-                console.log(`✅ [Highlights] Selected video from query ${i + 1}:`, {
+                console.log(`✅ [Highlights] Selected official video from query ${i + 1}:`, {
                   title: video.snippet.title,
                   channel: video.snippet.channelTitle,
-                  score: video.combinedScore
+                  filteredCount: filteredVideos.length,
+                  totalCount: data.items.length
                 });
                 return {
-                  name: 'YouTube',
+                  name: 'YouTube Official Highlights',
                   type: 'youtube' as const,
                   url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
                   embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
                   title: video.snippet.title
                 };
               } else {
-                console.log(`⚠️ [Highlights] Query ${i + 1} had results but none passed filtering`);
+                console.log(`⚠️ [Highlights] Query ${i + 1} had ${data.items.length} results but none passed strict filtering`);
               }
             } else {
               console.log(`📭 [Highlights] Query ${i + 1} returned no results`);
@@ -894,140 +958,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             continue;
           }
         }
-        throw new Error('No YouTube videos found');
-      }
-    },
-    {
-      name: 'Vimeo',
-      type: 'vimeo' as const,
-      searchFn: async () => {
-        const response = await fetch(`/api/vimeo/search?q=${encodeURIComponent(primarySearchQuery)}&maxResults=1`);
-        const data = await response.json();
-
-        if (data.items && data.items.length > 0) {
-          const video = data.items[0];
-          return {
-            name: 'Vimeo',
-            type: 'vimeo' as const,
-            url: video.url,
-            embedUrl: `https://player.vimeo.com/video/${video.id}?autoplay=0`,
-            title: video.title
-          };
-        }
-        throw new Error('No Vimeo videos found');
-      }
-    },
-    {
-      name: 'Dailymotion',
-      type: 'dailymotion' as const,
-      searchFn: async () => {
-        const response = await fetch(`/api/dailymotion/search?q=${encodeURIComponent(primarySearchQuery)}&maxResults=1`);
-        const data = await response.json();
-
-        if (data.items && data.items.length > 0) {
-          const video = data.items[0];
-          return {
-            name: 'Dailymotion',
-            type: 'dailymotion' as const,
-            url: `https://www.dailymotion.com/video/${video.id}`,
-            embedUrl: `https://www.dailymotion.com/embed/video/${video.id}?autoplay=0`,
-            title: video.title
-          };
-        }
-        throw new Error('No Dailymotion videos found');
-      }
-    },
-    // Additional Brazilian-focused search (broader channels)
-    ...(isBrazilianLeague ? [{
-      name: 'YouTube Brazilian Extended',
-      type: 'youtube' as const,
-      searchFn: async () => {
-        // Very broad Brazilian football search terms
-        const brazilianQueries = [
-          `${rawHome} ${rawAway} ${matchYear}`,
-          `${home} ${away} futebol ${matchYear}`,
-          `${home} vs ${away} brasileiro`,
-          `${rawHome} x ${rawAway} gols`,
-          `"${home}" "${away}" highlights`,
-          `${home} ${away} resumo ${matchYear}`
-        ];
-
-        for (const query of brazilianQueries) {
-          try {
-            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=20&order=relevance`);
-            const data = await response.json();
-
-            if (data.error || data.quotaExceeded) {
-              continue; // Try next query
-            }
-
-            if (data.items && data.items.length > 0) {
-              // Filter and sort by title order preference
-              const sortedVideos = filterAndSortVideos(data.items, home, away);
-              if (sortedVideos.length > 0) {
-                const video = sortedVideos[0];
-                return {
-                  name: 'YouTube Brazilian Extended',
-                  type: 'youtube' as const,
-                  url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
-                  embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
-                  title: video.snippet.title
-                };
-              }
-            }
-          } catch (error) {
-            console.warn(`🎬 [Highlights] Brazilian extended search failed for query: ${query}`, error);
-            continue;
-          }
-        }
-        throw new Error('No Brazilian extended videos found');
-      }
-    }] : []),
-    // Additional fallback with broader search terms
-    {
-      name: 'YouTube Extended',
-      type: 'youtube' as const,
-      searchFn: async () => {
-        // Try different combinations for better results with year emphasis and exact order
-        const fallbackQueries = [
-          `"${home}" v "${away}" highlights ${matchYear}`,
-          `"${home}" vs "${away}" highlights ${matchYear}`,
-          `${home} ${away} highlights football ${matchYear}`,
-          `"${rawHome}" v "${rawAway}" highlights ${matchYear}`,
-          `${home} vs ${away} ${league} ${matchYear}`,
-          `${home} ${away} goals highlights ${matchYear}`,
-          `${home} ${away} ${matchYear} match highlights`,
-          `${home} vs ${away} ${matchYear}`,
-          fallbackSearchQuery
-        ];
-
-        for (const query of fallbackQueries) {
-          try {
-            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&order=relevance`);
-            const data = await response.json();
-
-            if (data.error || data.quotaExceeded) {
-              continue; // Try next query
-            }
-
-            if (data.items && data.items.length > 0) {
-              // Filter and sort by title order preference
-              const sortedVideos = filterAndSortVideos(data.items, home, away);
-              const video = sortedVideos[0];
-              return {
-                name: 'YouTube Extended',
-                type: 'youtube' as const,
-                url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
-                embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
-                title: video.snippet.title
-              };
-            }
-          } catch (error) {
-            console.warn(`🎬 [Highlights] Extended search failed for query: ${query}`, error);
-            continue;
-          }
-        }
-        throw new Error('No extended YouTube videos found');
+        throw new Error('No official YouTube highlights found');
       }
     }
   ];
