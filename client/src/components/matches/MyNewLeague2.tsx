@@ -611,8 +611,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         `💾 [MyNewLeague2] Retrieved ${cachedEndedMatches.length} cached ended matches`,
       );
 
-      // Process leagues in batches to avoid rate limiting
-      const batchSize = 3; // Reduce concurrent requests
+      // Process leagues in optimized batches
+      const batchSize = 5; // Increase concurrent requests for priority leagues
       const results: any[] = [];
 
       for (let i = 0; i < leagueIds.length; i += batchSize) {
@@ -622,9 +622,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         );
 
         const batchPromises = batch.map(async (leagueId, index) => {
-          // Add small delay between requests in the same batch
-          if (index > 0) {
-            await delay(25); // 25ms delay between requests
+          // Minimal delay only for large batches
+          if (index > 2) {
+            await delay(10); // Reduced to 10ms delay
           }
 
           try {
@@ -1289,7 +1289,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         isCurrentlySelected: selectedMatchId === matchId,
       });
 
-      // Force re-selection by clearing first, then setting (allows re-highlighting)
+      // Force re-selection by clearing first, then setting (allows re-render)
       if (selectedMatchId === matchId) {
         // If clicking the same match, clear first to trigger re-render
         setSelectedMatchId(null);
@@ -2417,96 +2417,12 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 {(() => {
                                   const originalName = fixture.teams.home.name || "";
 
-                                  // Try smart translation first with safety checks
-                                  let translatedName = originalName;
+                                  // Simplified translation - only use context translation for performance
                                   try {
-                                    if (smartTeamTranslation && typeof smartTeamTranslation.translateTeamName === 'function') {
-                                      translatedName = smartTeamTranslation.translateTeamName(originalName, currentLanguage, fixture.league) || originalName;
-                                    }
-                                  } catch (translationError) {
-                                    console.warn('Smart translation error for home team:', translationError);
-                                    translatedName = originalName;
+                                    return translateTeamName ? translateTeamName(originalName) : originalName;
+                                  } catch (error) {
+                                    return originalName;
                                   }
-
-                                  // If smart translation failed, try enhanced fallback translations
-                                  if (translatedName === originalName && currentLanguage.startsWith('zh')) {
-                                    // Handle specific team name patterns for better translation
-                                    const cleanName = originalName.trim();
-
-                                    // Enhanced fallback translations for teams missing from smart translation
-                                    const fallbackTranslations: { [key: string]: string } = {
-                                      // Brazilian teams (priority for your screenshot)
-                                      'São Paulo': '聖保羅',
-                                      'Sao Paulo': '聖保羅',
-                                      'Vitoria': '維多利亞',
-                                      'Mirassol': '米拉索爾',
-                                      'RB Bragantino': '布拉甘蒂諾',
-                                      'Bragantino': '布拉甘蒂諾',
-                                      'Internacional': '國際',
-                                      'Fortaleza': '福塔雷薩',
-                                      'Botafogo': '博塔弗戈',
-                                      'Bahia': '巴伊亞',
-                                      'Fluminense': '富明尼斯',
-
-                                      // Spanish teams
-                                      'Celta Vigo': '切爾塔維戈',
-                                      'Granada CF': '格拉納達',
-                                      'Alcorcon': '阿爾科爾孔',
-                                      'Espanyol': '愛斯賓奴',
-                                      'Mallorca': '馬洛卡',
-
-                                      // International teams
-                                      'Al Ain': '艾恩',
-                                      'Bergantinos': '貝爾甘蒂諾斯',
-                                      'Cacereño': '卡塞雷諾',
-                                      'Le Havre': '勒阿弗爾',
-                                      'Europa Fc': '歐羅巴',
-                                      'Guadalajara Chivas': '瓜達拉哈拉芝華士',
-                                      'Hamburger SV': '漢堡',
-                                      'Ham堡er SV': '漢堡',
-                                    };
-
-                                    // Check for exact match first
-                                    if (fallbackTranslations[cleanName]) {
-                                      translatedName = fallbackTranslations[cleanName];
-                                    } else {
-                                      // Try matching without common suffixes/prefixes
-                                      const teamNameVariations = [
-                                        cleanName.replace(/^FC\s+/i, '').replace(/\s+FC$/i, ''),
-                                        cleanName.replace(/^CF\s+/i, '').replace(/\s+CF$/i, ''),
-                                        cleanName.replace(/^AC\s+/i, '').replace(/\s+AC$/i, ''),
-                                        cleanName.replace(/^SC\s+/i, '').replace(/\s+SC$/i, ''),
-                                        cleanName.replace(/^FK\s+/i, '').replace(/\s+FK$/i, ''),
-                                        cleanName.replace(/^SV\s+/i, '').replace(/\s+SV$/i, '')
-                                      ];
-
-                                      for (const variation of teamNameVariations) {
-                                        if (fallbackTranslations[variation] || fallbackTranslations[variation.trim()]) {
-                                          translatedName = fallbackTranslations[variation] || fallbackTranslations[variation.trim()];
-                                          break;
-                                        }
-                                      }
-                                    }
-                                  }
-
-                                  // Enhanced debug logging for translation
-                                  if (process.env.NODE_ENV === 'development' && translatedName !== originalName) {
-                                    console.log(`🏠 [MyNewLeague2] Home team translation:`, {
-                                      original: originalName,
-                                      translated: translatedName,
-                                      language: currentLanguage,
-                                      changed: translatedName !== originalName,
-                                      fixtureId: fixture.fixture.id,
-                                      leagueId: fixture.league.id
-                                    });
-                                  }
-
-                                  // Ensure we always return a valid name
-                                  const finalName = translatedName && translatedName.trim() !== ""
-                                    ? translatedName
-                                    : originalName || "Unknown Team";
-
-                                  return finalName;
                                 })()}
                               </div>
 
@@ -2775,96 +2691,12 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 {(() => {
                                   const originalName = fixture.teams.away.name || "";
 
-                                  // Try smart translation first with safety checks
-                                  let translatedName = originalName;
+                                  // Simplified translation - only use context translation for performance
                                   try {
-                                    if (smartTeamTranslation && typeof smartTeamTranslation.translateTeamName === 'function') {
-                                      translatedName = smartTeamTranslation.translateTeamName(originalName, currentLanguage, fixture.league) || originalName;
-                                    }
-                                  } catch (translationError) {
-                                    console.warn('Smart translation error for away team:', translationError);
-                                    translatedName = originalName;
+                                    return translateTeamName ? translateTeamName(originalName) : originalName;
+                                  } catch (error) {
+                                    return originalName;
                                   }
-
-                                  // If smart translation failed, try enhanced fallback translations
-                                  if (translatedName === originalName && currentLanguage.startsWith('zh')) {
-                                    // Handle specific team name patterns for better translation
-                                    const cleanName = originalName.trim();
-
-                                    // Enhanced fallback translations for teams missing from smart translation
-                                    const fallbackTranslations: { [key: string]: string } = {
-                                      // Brazilian teams (priority for your screenshot)
-                                      'São Paulo': '聖保羅',
-                                      'Sao Paulo': '聖保羅',
-                                      'Vitoria': '維多利亞',
-                                      'Mirassol': '米拉索爾',
-                                      'RB Bragantino': '布拉甘蒂諾',
-                                      'Bragantino': '布拉甘蒂諾',
-                                      'Internacional': '國際',
-                                      'Fortaleza': '福塔雷薩',
-                                      'Botafogo': '博塔弗戈',
-                                      'Bahia': '巴伊亞',
-                                      'Fluminense': '富明尼斯',
-
-                                      // Spanish teams
-                                      'Celta Vigo': '切爾塔維戈',
-                                      'Granada CF': '格拉納達',
-                                      'Alcorcon': '阿爾科爾孔',
-                                      'Espanyol': '愛斯賓奴',
-                                      'Mallorca': '馬洛卡',
-
-                                      // International teams
-                                      'Al Ain': '艾恩',
-                                      'Bergantinos': '貝爾甘蒂諾斯',
-                                      'Cacereño': '卡塞雷諾',
-                                      'Le Havre': '勒阿弗爾',
-                                      'Europa Fc': '歐羅巴',
-                                      'Guadalajara Chivas': '瓜達拉哈拉芝華士',
-                                      'Hamburger SV': '漢堡',
-                                      'Ham堡er SV': '漢堡',
-                                    };
-
-                                    // Check for exact match first
-                                    if (fallbackTranslations[cleanName]) {
-                                      translatedName = fallbackTranslations[cleanName];
-                                    } else {
-                                      // Try matching without common suffixes/prefixes
-                                      const teamNameVariations = [
-                                        cleanName.replace(/^FC\s+/i, '').replace(/\s+FC$/i, ''),
-                                        cleanName.replace(/^CF\s+/i, '').replace(/\s+CF$/i, ''),
-                                        cleanName.replace(/^AC\s+/i, '').replace(/\s+AC$/i, ''),
-                                        cleanName.replace(/^SC\s+/i, '').replace(/\s+SC$/i, ''),
-                                        cleanName.replace(/^FK\s+/i, '').replace(/\s+FK$/i, ''),
-                                        cleanName.replace(/^SV\s+/i, '').replace(/\s+SV$/i, '')
-                                      ];
-
-                                      for (const variation of teamNameVariations) {
-                                        if (fallbackTranslations[variation] || fallbackTranslations[variation.trim()]) {
-                                          translatedName = fallbackTranslations[variation] || fallbackTranslations[variation.trim()];
-                                          break;
-                                        }
-                                      }
-                                    }
-                                  }
-
-                                  // Enhanced debug logging for translation
-                                  if (process.env.NODE_ENV === 'development' && translatedName !== originalName) {
-                                    console.log(`✈️ [MyNewLeague2] Away team translation:`, {
-                                      original: originalName,
-                                      translated: translatedName,
-                                      language: currentLanguage,
-                                      changed: translatedName !== originalName,
-                                      fixtureId: fixture.fixture.id,
-                                      leagueId: fixture.league.id
-                                    });
-                                  }
-
-                                  // Ensure we always return a valid name
-                                  const finalName = translatedName && translatedName.trim() !== ""
-                                    ? translatedName
-                                    : originalName || "Unknown Team";
-
-                                  return finalName;
                                 })()}
                               </div>
                             </div>
