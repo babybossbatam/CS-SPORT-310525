@@ -25,8 +25,33 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 
 import { RoundBadge } from "@/components/ui/round-badge";
+import { useTranslation } from "react-i18next"; // Assuming you have i18next setup
 
-// Import popular teams data from the same source as PopularTeamsList
+// Import smart translation utility (assuming it's available globally or imported)
+// import { translateTeamName, translateLeague } from "@/lib/translationUtils"; // Example import path
+
+// Mock translation functions for demonstration purposes if not imported
+const translateTeamName = (name: string, lang: string): string => {
+  // Replace with actual translation logic
+  // console.log(`Translating team: ${name} to ${lang}`);
+  return name;
+};
+
+const translateLeague = (name: string, lang: string): string => {
+  // Replace with actual translation logic
+  // console.log(`Translating league: ${name} to ${lang}`);
+  return name;
+};
+
+// Mock smartTeamTranslation for demonstration
+const smartTeamTranslation = {
+  learnTeamsFromFixtures: (fixtures: any[]) => {
+    // console.log("Learning teams from fixtures:", fixtures.length);
+    // In a real scenario, this would populate a translation map
+  },
+};
+
+// Popular teams data
 const POPULAR_TEAMS_DATA = [
   { id: 33, name: 'Manchester United', country: 'England' },
   { id: 40, name: 'Liverpool', country: 'England' },
@@ -121,7 +146,7 @@ interface MyHomeFeaturedMatchNewProps {
   onMatchSelect?: (matchId: number) => void;
 }
 
-// Popular leagues from PopularLeaguesList.tsx
+// Popular leagues data
 const POPULAR_LEAGUES = [
   { id: 39, name: "Premier League", country: "England" },
   { id: 140, name: "La Liga", country: "Spain" },
@@ -253,6 +278,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [countdownTimer, setCountdownTimer] = useState<string>("Loading...");
   const [roundsCache, setRoundsCache] = useState<Record<string, string[]>>({});
+  const { i18n } = useTranslation(); // Get current language
+
+  const currentLanguage = i18n.language || 'en'; // Default to 'en' if not set
+
 
   const fetchRoundsForLeague = useCallback(async (leagueId: number, season: number) => {
     const cacheKey = `${leagueId}-${season}`;
@@ -894,18 +923,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     // Must have valid teams, be from popular leagues, not priority leagues, and NOT be live
                     const hasValidTeams =
                       fixture.teams?.home?.name && fixture.teams?.away?.name;
+                    const isNotLive = !isLiveMatch(
+                      fixture.fixture.status.short,
+                    );
+                    const isNotDuplicate = !allFixtures.some(
+                      (existing) =>
+                        existing.fixture.id === fixture.fixture.id,
+                    );
 
-                    const leagueName = fixture.league?.name?.toLowerCase() || "";
-                    const country = fixture.league?.country?.toLowerCase() || "";
-
-                    // Exclude women's competitions and Oberliga leagues
-                    const isWomensCompetition = leagueName.includes("women") ||
-                      leagueName.includes("femenina") ||
-                      leagueName.includes("feminine") ||
-                      leagueName.includes("femmin");
-
-                    // Exclude Oberliga leagues (German regional leagues)
-                    const isOberligaLeague = leagueName.includes("oberliga");
+                    // Learn team mappings for smart translation
+                    if (hasValidTeams && fixture.teams?.home?.name && fixture.teams?.away?.name) {
+                      smartTeamTranslation.learnTeamsFromFixtures([fixture]);
+                    }
 
                     // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
                     const matchDate = new Date(fixture.fixture.date);
@@ -967,6 +996,21 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       );
                       return false;
                     }
+
+                    // Exclude women's competitions and Oberliga leagues
+                    const leagueName = fixture.league?.name?.toLowerCase() || "";
+                    const country = fixture.league?.country?.toLowerCase() || "";
+
+                    // Exclude women's competitions
+                    const isWomensCompetition = leagueName.includes("women") ||
+                      leagueName.includes("femenina") ||
+                      leagueName.includes("feminine") ||
+                      leagueName.includes("femmin");
+
+                    // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
+                    const isOberligaLeague = leagueName.includes("oberliga");
+                    const isRegionalligaLeague = leagueName.includes("regionalliga") || leagueName.includes("regional liga");
+                    const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
 
                     // Check if it's a popular league or from a popular country
                     const isPopularLeague = POPULAR_LEAGUES.some(
@@ -1108,6 +1152,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         (existing) =>
                           existing.fixture.id === fixture.fixture.id,
                       );
+
+                    // Learn team mappings for smart translation
+                    if (hasValidTeams && fixture.teams?.home?.name && fixture.teams?.away?.name) {
+                      smartTeamTranslation.learnTeamsFromFixtures([fixture]);
+                    }
 
                     // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
                     const matchDate = new Date(fixture.fixture.date);
@@ -1350,11 +1399,6 @@ id: fixture.teams.away.id,
                 return false;
               }
 
-              if (fixture.league.id === 772) {
-                console.log(`🚫 [EXPLICIT EXCLUSION] League 772 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
-                return false;
-              }
-
               // Additional name-based exclusion for Regionalliga leagues
               const leagueName = fixture.league?.name?.toLowerCase() || "";
               if (leagueName.includes('regionalliga') && leagueName.includes('bayern')) {
@@ -1527,7 +1571,7 @@ id: fixture.teams.away.id,
         setIsLoading(false);
       }
     },
-    [maxMatches],
+    [maxMatches, featuredMatches], // Added featuredMatches dependency
   );
 
   // Function to clear all related caches for excluded leagues
@@ -1948,7 +1992,8 @@ id: fixture.teams.away.id,
     // Only show countdown for upcoming matches
     if (!statusInfo.isUpcoming) {
       setCountdownTimer("");
-      return;    }
+      return;
+    }
 
     function updateTimer() {
       try {
@@ -2202,7 +2247,7 @@ id: fixture.teams.away.id,
                       className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center"
                       title={`League ID: ${currentMatch.league.id} | ${currentMatch.league.name} | ${currentMatch.league.country}`}
                     >
-                      {currentMatch.league.name}
+                      {translateLeague(currentMatch?.league?.name || "League Name", currentLanguage)}
                     </span>
 
                     {/* Round/Bracket Status Display using RoundBadge component */}
@@ -2396,16 +2441,10 @@ id: fixture.teams.away.id,
                           )}
                         </div>
 
-                        <div
-                          className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
-                          style={{
-                            top: "calc(50% - 15px)",
-                            left: "85px",
-                            fontSize: "1.24rem",
-                            fontWeight: "normal",
-                          }}
-                        >
-                          {currentMatch?.teams?.home?.name || "TBD"}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg font-bold text-right truncate">
+                            {translateTeamName(currentMatch.teams.home.name, currentLanguage)}
+                          </h3>
                         </div>
 
                         {/* VS circle */}
@@ -2423,61 +2462,28 @@ id: fixture.teams.away.id,
 
                         {/* Match date and venue - centered below VS */}
                         <div
-                          className=" absolute text-center text-xs text-black dark:text-gray-300 font-medium"
-                          style={{
-                            fontSize: "0.875rem",
-                            whiteSpace: "nowrap",
-                            overflow: "visible",
-                            textAlign: "center",
-                            position: "absolute",
-                            left: "50%",
-                            transform: "translateX(-50%)",
-
-                            bottom: "-70px",
-                            width: "max-content",
-                            fontFamily: "'Inter', system-ui, sans-serif",
-
+                          className="text-center text-xs text-gray-600 dark:text-gray-400 mt-2"
+                          onClick={() => {
+                            console.log("Debug Venue and Match Details Click");
                           }}
                         >
-                          {(() => {
-                            try {
-                              const matchDate = new Date(
-                                currentMatch.fixture.date,
-                              );
-                              const formattedDate = format(
-                                matchDate,
-                                "EEEE, do MMMM",
-                              );
-                              const timeOnly = format(matchDate, "HH:mm");
-
-                              // Safely get venue with proper fallbacks
-                              let displayVenue = currentMatch.fixture?.venue?.name || null;
-
-                              // Check if venue is missing or has placeholder values
-                              if (
-                                !displayVenue ||
-                                displayVenue === "TBD" ||
-                                displayVenue === "Venue TBA" ||
-                                displayVenue === "" ||
-                                displayVenue === "Unknown"
-                              ) {
-                                displayVenue = null; // No valid venue found
-                              }
-
-                              return (
-                                <>
-                                  {formattedDate} | {timeOnly}
-                                  {displayVenue ? ` | ${displayVenue.toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}` : ""}
-                                </>
-                              );
-                            } catch (e) {
-                              console.warn(
-                                "Error formatting match date/venue:",
-                                e,
-                              );
-                              return "Match details unavailable";
-                            }
-                          })()}
+                          <div className="flex items-center justify-center gap-1">
+                            {currentMatch?.fixture?.venue?.name && (
+                              <>
+                                <span>{currentMatch.fixture.venue.name}</span>
+                                {currentMatch?.fixture?.venue?.city && (
+                                  <span>, {currentMatch.fixture.venue.city}</span>
+                                )}
+                              </>
+                            )}
+                          </div>
+                          {currentMatch?.league?.round && (
+                            <div className="mt-1">
+                              <span className="text-xs text-gray-500 dark:text-gray-500">
+                                {currentMatch.league.round}
+                              </span>
+                            </div>
+                          )}
                         </div>
 
                         {/* Away team colored bar and logo */}
@@ -2495,16 +2501,10 @@ id: fixture.teams.away.id,
                           }}
                         ></div>
 
-                        <div
-                          className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
-                          style={{
-                            top: "calc(50% - 15px)",
-                            right: "85px",
-                            fontSize: "1.24rem",
-                            fontWeight: "normal",
-                          }}
-                        >
-                          {currentMatch?.teams?.away?.name || "Away Team"}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg font-bold text-left truncate">
+                            {translateTeamName(currentMatch.teams.away.name, currentLanguage)}
+                          </h3>
                         </div>
 
                         <div
