@@ -23,7 +23,7 @@ import {
   getEnhancedHomeTeamGradient,
 } from "@/lib/colorExtractor";
 import { motion, AnimatePresence } from "framer-motion";
-import { useTranslation } from "@/contexts/LanguageContext";
+import { useTranslation, useLanguage } from "@/contexts/LanguageContext";
 
 import { RoundBadge } from "@/components/ui/round-badge";
 
@@ -2206,7 +2206,7 @@ id: fixture.teams.away.id,
                       title={`League ID: ${currentMatch.league.id} | ${currentMatch.league.name} | ${currentMatch.league.country}`}
                     >
                       {(() => {
-                        const { translateLeagueName } = useTranslation();
+                        const { translateLeagueName } = useLanguage();
                         return translateLeagueName(currentMatch.league.name);
                       })()}
                     </span>
