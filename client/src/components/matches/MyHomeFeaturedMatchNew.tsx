@@ -391,6 +391,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     [getCacheKey, isMatchOldEnded],
   );
 
+  // handlePrevious and handleNext callbacks
+
   const fetchFeaturedMatches = useCallback(
     async (forceRefresh = false) => {
       try {
