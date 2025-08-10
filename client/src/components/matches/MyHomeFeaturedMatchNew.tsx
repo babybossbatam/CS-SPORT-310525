@@ -254,6 +254,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [countdownTimer, setCountdownTimer] = useState<string>("Loading...");
   const [roundsCache, setRoundsCache] = useState<Record<string, string[]>>({});
 
+  // Placeholder for translateTeamName function
+  const translateTeamName = useCallback((teamName: string): string => {
+    // In a real application, this would involve a translation lookup.
+    // For now, it returns the original name.
+    // You would integrate your smart translation system here.
+    // Example:
+    // const translations = useTranslations(); // assuming you have a hook for translations
+    // return translations(`team.${teamName}`) || teamName;
+    return teamName;
+  }, []);
+
+
   const fetchRoundsForLeague = useCallback(async (leagueId: number, season: number) => {
     const cacheKey = `${leagueId}-${season}`;
     if (roundsCache[cacheKey]) {
@@ -894,18 +906,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     // Must have valid teams, be from popular leagues, not priority leagues, and NOT be live
                     const hasValidTeams =
                       fixture.teams?.home?.name && fixture.teams?.away?.name;
-
-                    const leagueName = fixture.league?.name?.toLowerCase() || "";
-                    const country = fixture.league?.country?.toLowerCase() || "";
-
-                    // Exclude women's competitions and Oberliga leagues
-                    const isWomensCompetition = leagueName.includes("women") ||
-                      leagueName.includes("femenina") ||
-                      leagueName.includes("feminine") ||
-                      leagueName.includes("femmin");
-
-                    // Exclude Oberliga leagues (German regional leagues)
-                    const isOberligaLeague = leagueName.includes("oberliga");
+                    const isNotLive = !isLiveMatch(
+                      fixture.fixture.status.short,
+                    );
+                    const isNotDuplicate = !allFixtures.some(
+                      (existing) =>
+                        existing.fixture.id === fixture.fixture.id,
+                    );
 
                     // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
                     const matchDate = new Date(fixture.fixture.date);
@@ -1029,12 +1036,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     return (
                       hasValidTeams &&
+                      isNotDuplicate &&
                       (isPopularLeague ||
                       isFromPopularCountry ||
                       isInternationalCompetition ||
                       isPopularClubFriendly()) &&
                       !isPriorityLeague &&
-                      isNotLive &&
                       !isWomensCompetition &&
                       !isOberligaLeague
                     );
@@ -2405,7 +2412,7 @@ id: fixture.teams.away.id,
                             fontWeight: "normal",
                           }}
                         >
-                          {currentMatch?.teams?.home?.name || "TBD"}
+                          {currentMatch?.teams?.home?.name ? translateTeamName(currentMatch.teams.home.name) : "TBD"}
                         </div>
 
                         {/* VS circle */}
@@ -2496,7 +2503,7 @@ id: fixture.teams.away.id,
                         ></div>
 
                         <div
-                          className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
+                          className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
                           style={{
                             top: "calc(50% - 15px)",
                             right: "85px",
@@ -2504,7 +2511,7 @@ id: fixture.teams.away.id,
                             fontWeight: "normal",
                           }}
                         >
-                          {currentMatch?.teams?.away?.name || "Away Team"}
+                          {currentMatch?.teams?.away?.name ? translateTeamName(currentMatch.teams.away.name) : "TBD"}
                         </div>
 
                         <div
