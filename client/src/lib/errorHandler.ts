@@ -248,6 +248,35 @@ const reportError = (error: any, category: any, source: string) => {
 
 // Global unhandled rejection handler
 export const setupGlobalErrorHandlers = () => {
+  // Filter console errors to reduce noise
+  const originalConsoleError = console.error;
+  console.error = (...args) => {
+    const message = args.join(' ');
+
+    // Filter out known Replit/browser issues
+    if (
+      message.includes('Failed to load resource') ||
+      message.includes('net::ERR_FAILED') ||
+      message.includes('ChunkLoadError') ||
+      message.includes('Loading chunk') ||
+      message.includes('Loading CSS chunk') ||
+      message.includes('ResizeObserver loop limit exceeded') ||
+      message.includes('Non-Error promise rejection captured') ||
+      message.includes('AbortError') ||
+      message.includes('signal is aborted') ||
+      message.includes('runtime-error-plugin') ||
+      message.includes('MaxListenersExceededWarning') ||
+      message.includes('stallwart') ||
+      message.includes('failed ping') ||
+      message.includes('session stalled') ||
+      message.includes('fsError listeners')
+    ) {
+      return;
+    }
+
+    originalConsoleError.apply(console, args);
+  };
+
   // Increase EventEmitter max listeners to prevent warnings
   if (typeof process !== 'undefined' && process.setMaxListeners) {
     process.setMaxListeners(100);
@@ -261,7 +290,7 @@ export const setupGlobalErrorHandlers = () => {
     if (document.addEventListener && document.setMaxListeners) {
       (document as any).setMaxListeners?.(100);
     }
-    
+
     // Set max listeners for global EventEmitter if available
     if ((window as any).EventEmitter) {
       (window as any).EventEmitter.defaultMaxListeners = 100;

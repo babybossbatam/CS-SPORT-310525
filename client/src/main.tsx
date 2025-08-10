@@ -61,9 +61,27 @@ initializeFlagCachePersistence();
 // Initialize storage monitoring
 StorageMonitor.getInstance().init();
 
-// Set EventEmitter limits early
+// Set EventEmitter limits early for Replit environment
 if (typeof process !== 'undefined') {
-  process.setMaxListeners?.(100);
+  process.setMaxListeners?.(300);
+}
+
+// Enhanced EventEmitter management for Replit
+if (typeof window !== 'undefined') {
+  // Suppress stallwart and fsError warnings
+  const originalConsoleWarn = console.warn;
+  console.warn = (...args) => {
+    const message = args.join(' ');
+    if (
+      message.includes('MaxListenersExceededWarning') ||
+      message.includes('fsError listeners') ||
+      message.includes('stallwart') ||
+      message.includes('failed ping')
+    ) {
+      return; // Suppress these warnings
+    }
+    originalConsoleWarn.apply(console, args);
+  };
 }
 
 // Set EventEmitter default max listeners globally
