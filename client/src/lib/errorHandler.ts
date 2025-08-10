@@ -182,6 +182,21 @@ const categorizeError = (error: any): ErrorCategory => {
     };
   }
 
+  // Match details API errors (shots, h2h, player stats) - suppress but log
+  if (errorStr.includes('/shots:') ||
+      errorStr.includes('/headtohead') ||
+      errorStr.includes('400 (Bad Request)') ||
+      errorStr.includes('500 (Internal Server Error)') ||
+      errorStr.includes('status of 400') ||
+      errorStr.includes('status of 500')) {
+    return {
+      name: 'match-details-api',
+      shouldSuppress: true,
+      shouldReport: false,
+      action: 'monitor'
+    };
+  }
+
   // Application logic errors - need investigation
   if (errorStr.includes('Cannot read properties') ||
       errorStr.includes('is not a function') ||

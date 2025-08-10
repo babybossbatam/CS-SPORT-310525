@@ -82,6 +82,19 @@ export async function apiRequest(
       );
     }
 
+    // Handle match details API errors gracefully
+    if (url.includes('/shots') || url.includes('/headtohead') || url.includes('/players')) {
+      if (errorMessage.includes('400') || errorMessage.includes('Bad Request')) {
+        console.warn(`⚠️ [apiRequest] Invalid parameters for ${url}: ${errorMessage}`);
+        throw new Error(`Invalid request parameters`);
+      }
+      
+      if (errorMessage.includes('500') || errorMessage.includes('Internal Server Error')) {
+        console.warn(`🔧 [apiRequest] Server error for ${url}: ${errorMessage}`);
+        throw new Error(`Server temporarily unavailable`);
+      }
+    }
+
     if (errorMessage.includes("timeout") || errorMessage.includes("timed out")) {
       console.error(
         `⏱️ [apiRequest] Timeout error for ${method} ${url}: ${errorMessage}`,

@@ -47,7 +47,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api", apiRouter);
 
   // Featured match routes for MyHomeFeaturedMatch component
-  apiRouter.use("/featured-match", featuredMatchRoutes);
+  apiRouter.use("/api/featured-match", featuredMatchRoutes);
   app.use("/api/featured-match", featuredMatchRoutes);
   app.use("/api/youtube", youtubeRoutes);
   app.use("/api/highlights", highlightsRoutes);
@@ -2970,7 +2970,7 @@ error) {
 
       console.log(`Getting flag for country: ${country}`);
 
-      // If SportsRadar fails, return fallback response
+      // If SportsRadar fails, try 365scores CDN
       console.warn(`🚫 Country ${country} will use fallback flag`);
       res.json({
         success: false,
@@ -3489,6 +3489,76 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
     });
   }
 });
+
+  // Get head-to-head data
+  app.get("/api/fixtures/headtohead", async (req, res) => {
+    try {
+      const { h2h, last } = req.query;
+
+      // Validate h2h parameter
+      if (!h2h || typeof h2h !== 'string') {
+        console.warn(`❌ Missing or invalid h2h parameter: ${h2h}`);
+        return res.status(400).json({ error: "h2h parameter is required and must be in format 'team1-team2'" });
+      }
+
+      // Parse and validate team IDs
+      const teamIdParts = h2h.split("-");
+      if (teamIdParts.length !== 2) {
+        console.warn(`❌ Invalid h2h format: ${h2h}. Expected format: 'team1-team2'`);
+        return res.status(400).json({ error: "h2h parameter must be in format 'team1-team2'" });
+      }
+
+      const teamIds = teamIdParts.map(id => parseInt(id.trim()));
+
+      // Validate team IDs are valid numbers
+      if (teamIds.some(id => isNaN(id) || id <= 0)) {
+        console.warn(`❌ Invalid team IDs in h2h: ${h2h}. Team IDs: ${teamIds}`);
+        return res.status(400).json({ error: "Invalid team IDs. Both team IDs must be positive numbers." });
+      }
+
+      // Validate limit parameter
+      let limit = 10; // default
+      if (last) {
+        const parsedLimit = parseInt(last as string);
+        if (isNaN(parsedLimit) || parsedLimit < 1 || parsedLimit > 50) {
+          console.warn(`❌ Invalid last parameter: ${last}. Using default: 10`);
+        } else {
+          limit = parsedLimit;
+        }
+      }
+
+      console.log(`🔍 Fetching H2H data for teams: ${teamIds[0]} vs ${teamIds[1]}, last ${limit} matches`);
+
+      try {
+        const h2hData = await rapidApiService.getHeadToHead(teamIds[0], teamIds[1], limit);
+
+        if (!h2hData) {
+          console.log(`📊 No H2H data available for teams ${teamIds[0]} vs ${teamIds[1]}`);
+          return res.json([]);
+        }
+
+        console.log(`✅ Successfully retrieved H2H data for teams ${teamIds[0]} vs ${teamIds[1]}`);
+        res.json(h2hData);
+      } catch (apiError: any) {
+        console.error(`🚨 RapidAPI error for H2H ${teamIds[0]} vs ${teamIds[1]}:`, apiError.message || apiError);
+
+        if (apiError.message?.includes('rate limit') || apiError.message?.includes('429')) {
+          return res.status(429).json({ error: "Rate limit exceeded. Please try again later." });
+        }
+
+        if (apiError.message?.includes('timeout')) {
+          return res.status(504).json({ error: "Request timeout. Please try again." });
+        }
+
+        // Return empty array for API failures instead of error
+        console.log(`📊 Returning empty H2H array due to API failure for teams ${teamIds[0]} vs ${teamIds[1]}`);
+        res.json([]);
+      }
+    } catch (error: any) {
+      console.error(`💥 Unexpected error fetching H2H data:`, error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
 
   return httpServer;
 }
