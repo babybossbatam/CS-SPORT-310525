@@ -1141,6 +1141,16 @@
   color: rgb(220 38 38) !important; /* Keep red for substitute out */
 }
 
+/* Dark mode commentary component background */
+.dark .commentary-event-container {
+  background-color: rgb(55 65 81) !important; /* bg-gray-700 */
+}
+
+/* Dark mode substitution player info background */
+.dark .commentary-event-container .bg-stone-200 {
+  background-color: rgb(55 65 81) !important; /* bg-gray-700 */
+}
+
 /* Focus states for accessibility */
 .match-event-icon:focus,
 .match-event-time-center:focus,
