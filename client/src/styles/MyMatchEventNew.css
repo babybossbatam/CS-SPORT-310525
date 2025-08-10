@@ -1141,37 +1141,6 @@
   color: rgb(220 38 38) !important; /* Keep red for substitute out */
 }
 
-/* Dark mode commentary text styling - white text for all commentary elements */
-.dark .commentary-event-container .text-sm,
-.dark .commentary-event-container .text-xs,
-.dark .commentary-event-container .text-lg,
-.dark .commentary-event-container .text-gray-700,
-.dark .commentary-event-container .text-gray-800,
-.dark .commentary-event-container .text-gray-900,
-.dark .commentary-event-container .text-gray-600,
-.dark .commentary-event-container .text-gray-500,
-.dark .commentary-event-container span,
-.dark .commentary-event-container div {
-  color: white !important;
-}
-
-/* Keep specific accent colors for commentary events */
-.dark .commentary-event-container .text-green-400,
-.dark .commentary-event-container .text-green-500,
-.dark .commentary-event-container .text-green-600 {
-  color: rgb(34 197 94) !important; /* Keep green colors */
-}
-
-.dark .commentary-event-container .text-red-500,
-.dark .commentary-event-container .text-red-600 {
-  color: rgb(239 68 68) !important; /* Keep red colors */
-}
-
-.dark .commentary-event-container .text-blue-400,
-.dark .commentary-event-container .text-blue-500 {
-  color: rgb(59 130 246) !important; /* Keep blue colors */
-}
-
 /* Focus states for accessibility */
 .match-event-icon:focus,
 .match-event-time-center:focus,
