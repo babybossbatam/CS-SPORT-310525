@@ -20,13 +20,6 @@ export function setupNetworkErrorHandling(): void {
         return;
       }
 
-      // Handle 425 "Too Early" errors from image services
-      if (error.message && error.message.includes('425')) {
-        console.warn('🚫 [NetworkHandler] Suppressed 425 Too Early error:', error.message);
-        event.preventDefault();
-        return;
-      }
-
       // Handle network errors and asset loading errors
       if (error.message && (
         error.message.includes('Failed to fetch') ||
@@ -35,9 +28,7 @@ export function setupNetworkErrorHandling(): void {
         error.message.includes('attached_assets') ||
         error.message.includes('background.js') ||
         error.message.includes('404 (Not Found)') ||
-        error.message.includes('Invalid or unexpected token') ||
-        error.message.includes('ChunkLoadError') ||
-        error.message.includes('Loading chunk')
+        error.message.includes('Invalid or unexpected token')
       )) {
         console.warn('🌐 [NetworkHandler] Suppressed network/asset rejection:', error.message);
         event.preventDefault();

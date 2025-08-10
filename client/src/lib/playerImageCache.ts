@@ -17,12 +17,6 @@ class PlayerImageCache {
   private readonly MAX_AGE = 24 * 60 * 60 * 1000; // 24 hours (reduced)
   private readonly MAX_SIZE = 200; // Reduced cache size
 
-  // Rate limiting state
-  private lastRequestTime = 0;
-  private requestQueue: Array<() => Promise<void>> = [];
-  private isProcessingQueue = false;
-  private readonly MIN_REQUEST_INTERVAL = 1000; // 1 second between requests
-
   private getCacheKey(playerId?: number, playerName?: string): string {
     return `player_${playerId || 'unknown'}_${playerName || 'unknown'}`;
   }
@@ -70,52 +64,7 @@ class PlayerImageCache {
     console.log(`💾 [PlayerImageCache] Cached image for player: ${playerName} (${playerId}) | Source: ${source}`);
   }
 
-  // Queue and rate-limit requests to external image services
-  private async queueRequest<T>(requestFn: () => Promise<T>): Promise<T> {
-    return new Promise((resolve, reject) => {
-      this.requestQueue.push(async () => {
-        try {
-          const now = Date.now();
-          const timeSinceLastRequest = now - this.lastRequestTime;
-
-          if (timeSinceLastRequest < this.MIN_REQUEST_INTERVAL) {
-            await new Promise(resolve => setTimeout(resolve, this.MIN_REQUEST_INTERVAL - timeSinceLastRequest));
-          }
-
-          this.lastRequestTime = Date.now();
-          const result = await requestFn();
-          resolve(result);
-        } catch (error) {
-          reject(error);
-        }
-      });
-
-      this.processQueue();
-    });
-  }
-
-  private async processQueue(): Promise<void> {
-    if (this.isProcessingQueue || this.requestQueue.length === 0) {
-      return;
-    }
-
-    this.isProcessingQueue = true;
-
-    while (this.requestQueue.length > 0) {
-      const request = this.requestQueue.shift();
-      if (request) {
-        try {
-          await request();
-        } catch (error) {
-          console.warn('🔄 [PlayerImageCache] Queued request failed:', error);
-        }
-      }
-    }
-
-    this.isProcessingQueue = false;
-  }
-
-  // Simplified image loading with 3 reliable sources and rate limiting
+  // Simple image loading with 3 reliable sources only
   async getPlayerImageWithFallback(playerId?: number, playerName?: string, teamId?: number): Promise<string> {
     // Check cache first
     const cached = this.getCachedImage(playerId, playerName);
@@ -144,7 +93,7 @@ class PlayerImageCache {
     if (playerId) {
       try {
         const apiSportsUrl = `https://media.api-sports.io/football/players/${playerId}.png`;
-        const isValid = await this.queueRequest(() => this.validateImageUrl(apiSportsUrl));
+        const isValid = await this.validateImageUrl(apiSportsUrl);
         if (isValid) {
           this.setCachedImage(playerId, playerName, apiSportsUrl, 'api');
           return apiSportsUrl;
@@ -154,17 +103,17 @@ class PlayerImageCache {
       }
     }
 
-    // Source 3: 365Scores CDN (if ID available) - with enhanced error handling
+    // Source 3: 365Scores CDN (if ID available)
     if (playerId) {
       try {
         const cdnUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`;
-        const isValid = await this.queueRequest(() => this.validateImageUrlWith425Handling(cdnUrl));
+        const isValid = await this.validateImageUrl(cdnUrl);
         if (isValid) {
           this.setCachedImage(playerId, playerName, cdnUrl, 'api');
           return cdnUrl;
         }
       } catch (error) {
-        console.log(`⚠️ [PlayerImageCache] 365Scores CDN failed for ${playerName}:`, error.message);
+        console.log(`⚠️ [PlayerImageCache] 365Scores CDN failed for ${playerName}`);
       }
     }
 
@@ -221,49 +170,6 @@ class PlayerImageCache {
     }
   }
 
-  // Validate URL with specific handling for 425 errors
-  private async validateImageUrlWith425Handling(url: string): Promise<boolean> {
-    try {
-      if (url.startsWith('/api/')) {
-        const response = await fetch(url, { method: 'HEAD' });
-        return response.ok;
-      }
-
-      return new Promise((resolve) => {
-        const img = new Image();
-        const timeout = setTimeout(() => {
-          img.onload = img.onerror = null;
-          resolve(false);
-        }, 2000);
-
-        img.onload = () => {
-          clearTimeout(timeout);
-          resolve(true);
-        };
-
-        img.onerror = (error: any) => {
-          clearTimeout(timeout);
-          // Handle 425 error specifically
-          if (error.message && error.message.includes('425')) {
-            console.warn(`⚠️ [PlayerImageCache] Received 425 error for URL: ${url}. Retrying with delay.`);
-            // Retry after a longer delay to respect rate limiting
-            setTimeout(() => {
-              this.queueRequest(() => this.validateImageUrl(url)) // Use queueRequest for retry as well
-                .then(resolve)
-                .catch(reject);
-            }, 5000); // Wait 5 seconds before retrying
-          } else {
-            resolve(false);
-          }
-        };
-
-        img.src = url;
-      });
-    } catch (error) {
-      return false;
-    }
-  }
-
   private cleanup(): void {
     const entries = Array.from(this.cache.entries());
     const now = Date.now();
@@ -293,31 +199,6 @@ class PlayerImageCache {
     const key = this.getCacheKey(playerId, playerName);
     this.cache.delete(key);
     console.log(`🔄 [PlayerImageCache] Force refreshed cache for player: ${playerName} (${playerId})`);
-  }
-
-  // Placeholder for methods that might not be directly used in the provided snippet but are exported
-  preloadPlayerImages(players: Array<{ id?: number; name?: string }>): Promise<void> {
-    console.log(`🚀 [PlayerImageCache] Preloading ${players.length} player images.`);
-    // Implement actual preloading logic if needed
-    return Promise.resolve();
-  }
-
-  clearWrongPlayerImage(playerId?: number, playerName?: string): void {
-    console.log(`❌ [PlayerImageCache] Clearing potentially wrong image for player: ${playerName} (${playerId})`);
-    // Implement logic to clear specific wrong images if needed
-  }
-
-  batchLoadPlayerImages(teamId?: number, leagueId?: number): Promise<void> {
-    console.log(`⚡ [PlayerImageCache] Batch loading images for team: ${teamId}, league: ${leagueId}`);
-    // Implement batch loading logic if needed
-    return Promise.resolve();
-  }
-
-  getPlayerImageWithFallback(playerId?: number, playerName?: string, teamId?: number, forceFetch?: boolean): Promise<string> {
-    if (forceFetch) {
-      this.forceRefresh(playerId, playerName);
-    }
-    return this.getPlayerImageWithFallback(playerId, playerName, teamId);
   }
 }
 
@@ -371,7 +252,6 @@ export const forceRefreshPlayerFunc = (playerId?: number, playerName?: string): 
 };
 
 export const refreshPlayerImageFunc = async (playerId?: number, playerName?: string, teamId?: number): Promise<string> => {
-    // This function was intended to force fetch, hence passing true for forceFetch
     return playerImageCache.getPlayerImageWithFallback(playerId, playerName, teamId, true);
 };
 

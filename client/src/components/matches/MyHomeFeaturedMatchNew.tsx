@@ -26,10 +26,6 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { RoundBadge } from "@/components/ui/round-badge";
 
-// Import context for translation
-import { useTranslation } from "@/contexts/LanguageContext";
-
-
 // Import popular teams data from the same source as PopularTeamsList
 const POPULAR_TEAMS_DATA = [
   { id: 33, name: 'Manchester United', country: 'England' },
@@ -228,8 +224,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   maxMatches = 15,
   onMatchSelect,
 }) => {
-  const { translateTeamName } = useTranslation();
-
   // Add CSS for truePulse animation
   const truePulseStyle = `
     @keyframes truePulse {
@@ -391,43 +385,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     [getCacheKey, isMatchOldEnded],
   );
 
-  // Get current match from the selected day and index
-  const currentMatch = useMemo(() => {
-    if (featuredMatches.length === 0) return null;
-    const currentDay = featuredMatches[selectedDay];
-    if (!currentDay || currentDay.matches.length === 0) return null;
-    return currentDay.matches[currentMatchIndex] || null;
-  }, [featuredMatches, selectedDay, currentMatchIndex]);
-
-  // Get all matches flattened for navigation
-  const allMatches = useMemo(() => {
-    return featuredMatches.flatMap((day) => day.matches);
-  }, [featuredMatches]);
-
-  // Handle navigation
-  const handlePrevious = useCallback(() => {
-    if (allMatches.length <= 1) return;
-    setCurrentMatchIndex((prev) => (prev === 0 ? allMatches.length - 1 : prev - 1));
-  }, [allMatches.length]);
-
-  const handleNext = useCallback(() => {
-    if (allMatches.length <= 1) return;
-    setCurrentMatchIndex((prev) => (prev === allMatches.length - 1 ? 0 : prev + 1));
-  }, [allMatches.length]);
-
-  // Helper function to get status display information
-  const getStatusDisplay = useCallback((match: FeaturedMatch) => {
-    const status = match.fixture.status.short;
-    const isLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
-    const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status);
-    const isUpcoming = ["NS", "TBD", "PST"].includes(status);
-
-    return { isLive, isEnded, isUpcoming };
-  }, []);
-
   const fetchFeaturedMatches = useCallback(
     async (forceRefresh = false) => {
-      console.log('🚀 [MyHomeFeaturedMatchNew] fetchFeaturedMatches called', { forceRefresh, currentFeaturedMatchesLength: featuredMatches.length });
       try {
         // Only show loading on initial load or force refresh
         if (forceRefresh || featuredMatches.length === 0) {
@@ -457,9 +416,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         );
 
         if (shouldForceRefresh) {
-          console.log(
-            "🔄 [MyHomeFeaturedMatchNew] Smart cache: forcing refresh due to live/imminent matches or stale data",
-          );
+          console.log("🔄 [MyHomeFeaturedMatchNew] Smart cache: forcing refresh due to live/imminent matches or stale data");
         }
 
         // Get dates for today and the next 4 days
@@ -1217,11 +1174,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const leagueName = fixture.league?.name?.toLowerCase() || "";
                     const country = fixture.league?.country?.toLowerCase() || "";
 
+                    // Exclude women's competitions
                     const isWomensCompetition = leagueName.includes("women") ||
                       leagueName.includes("femenina") ||
                       leagueName.includes("feminine") ||
                       leagueName.includes("feminin");
 
+                    // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
                     const isOberligaLeague = leagueName.includes("oberliga");
                     const isRegionalligaLeague = leagueName.includes("regionalliga");
                     const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
@@ -1558,38 +1517,285 @@ id: fixture.teams.away.id,
           const prevMatchesString = JSON.stringify(prevMatches);
 
           if (newMatchesString !== prevMatchesString) {
-            console.log('🌟 [MyHomeFeaturedMatchNew] Setting featuredMatches state');
             return allMatches;
           }
-          console.log('✅ [MyHomeFeaturedMatchNew] featuredMatches state unchanged');
           return prevMatches;
         });
       } catch (error) {
-        console.error("❌ [MyHomeFeaturedMatchNew] Error in fetchFeaturedMatches:", error);
+        console.error("❌ [MyHomeFeaturedMatchNew] Error:", error);
       } finally {
-        console.log('✅ [MyHomeFeaturedMatchNew] fetchFeaturedMatches finished');
         setIsLoading(false);
       }
     },
-    [maxMatches, featuredMatches, allMatches, currentMatchIndex, selectedDay, isLoading, currentMatch, getStatusDisplay], // Added dependencies
+    [maxMatches],
   );
 
-  useEffect(() => {
-    console.log('🚀 [MyHomeFeaturedMatchNew] Component mounted, starting initial fetch');
-    fetchFeaturedMatches(true);
+  // Function to clear all related caches for excluded leagues
+  const clearExcludedLeaguesCaches = useCallback(() => {
+    try {
+      // Clear fixture cache completely
+      fixtureCache.clearCache();
+
+      // Clear all localStorage entries that might contain excluded league data
+      const keys = Object.keys(localStorage);
+      const excludedLeagueKeys = keys.filter(key =>
+        key.includes('848') || // UEFA Europa Conference League
+        key.includes('169') || // Regionalliga - Bayern
+        key.includes('conference') ||
+        key.includes('regionalliga') ||
+        key.includes('bayern') ||
+        key.includes('fixtures_date') ||
+        key.startsWith('finished_fixtures_') ||
+        key.startsWith('league-fixtures-') ||
+        key.startsWith('featured-match-') ||
+        key.startsWith('all-fixtures-by-date')
+      );
+
+      excludedLeagueKeys.forEach(key => {
+        try {
+          localStorage.removeItem(key);
+        } catch (error) {
+          console.warn(`Failed to clear cache key: ${key}`, error);
+        }
+      });
+
+      // Clear sessionStorage as well
+      const sessionKeys = Object.keys(sessionStorage);
+      const sessionExcludedKeys = sessionKeys.filter(key =>
+        key.includes('848') ||
+        key.includes('169') ||
+        key.includes('conference') ||
+        key.includes('regionalliga') ||
+        key.includes('bayern') ||
+        key.startsWith('league-fixtures-') ||
+        key.startsWith('featured-match-')
+      );
+
+      sessionExcludedKeys.forEach(key => {
+        try {
+          sessionStorage.removeItem(key);
+        } catch (error) {
+          console.warn(`Failed to clear session cache key: ${key}`, error);
+        }
+      });
+
+      // Also clear React Query cache for these specific leagues
+      if (typeof window !== 'undefined' && window.queryClient) {
+        try {
+          window.queryClient.removeQueries({
+            predicate: (query: any) => {
+              const key = query.queryKey?.join('-') || '';
+              return key.includes('848') || key.includes('169') ||
+                     key.includes('conference') || key.includes('regionalliga') ||
+                     key.includes('bayern');
+            }
+          });
+        } catch (error) {
+          console.warn('Failed to clear React Query cache:', error);
+        }
+      }
+
+      console.log(`🧹 [CacheClean] Cleared ${excludedLeagueKeys.length + sessionExcludedKeys.length} cache entries for excluded leagues (UEFA Europa Conference League and Regionalliga - Bayern)`);
+    } catch (error) {
+      console.error('Error clearing excluded leagues caches:', error);
+    }
   }, []);
 
-  // Debug effect to log state changes
   useEffect(() => {
-    console.log('🔍 [MyHomeFeaturedMatchNew] State update:', {
-      featuredMatchesLength: featuredMatches.length,
-      allMatchesLength: allMatches.length,
-      currentMatchIndex,
-      selectedDay,
-      isLoading,
-      currentMatchExists: !!currentMatch
-    });
-  }, [featuredMatches, allMatches, currentMatchIndex, selectedDay, isLoading, currentMatch]);
+    // Clear caches first to ensure we don't show stale data
+    clearExcludedLeaguesCaches();
+
+    // Initial fetch with force refresh after clearing caches
+    setTimeout(() => {
+      fetchFeaturedMatches(true);
+    }, 100);
+  }, []); // Only run once on mount
+
+  // Smart cache interval management based on match states
+  useEffect(() => {
+    if (featuredMatches.length === 0) return;
+
+    const now = new Date();
+    let refreshInterval = 300000; // Default: 5 minutes
+    let shouldRefresh = false;
+
+    // Analyze current match states to determine optimal refresh strategy
+    const matchAnalysis = featuredMatches.reduce((analysis, dayData) => {
+      dayData.matches.forEach(match => {
+        const status = match.fixture.status.short;
+        const matchDate = new Date(match.fixture.date);
+        const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
+
+        // Categorize matches
+        if (["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+          analysis.liveMatches++;
+        } else if (status === "NS") {
+          if (Math.abs(minutesFromKickoff) <= 30) {
+            analysis.imminentMatches++; // Starting within 30 minutes
+          } else if (Math.abs(minutesFromKickoff) <= 120) {
+            analysis.upcomingMatches++; // Starting within 2 hours
+          }
+
+          // Check for stale "Starting now" matches
+          if (minutesFromKickoff > 30 && minutesFromKickoff < 180) {
+            analysis.staleMatches++;
+          }
+        }
+      });
+      return analysis;
+    }, { liveMatches: 0, imminentMatches: 0, upcomingMatches: 0, staleMatches: 0 });
+
+    // Determine refresh strategy based on match analysis
+    if (matchAnalysis.liveMatches > 0) {
+      // Most aggressive: Live matches detected
+      refreshInterval = 30000; // 30 seconds
+      shouldRefresh = true;
+      console.log(`🔴 [MyHomeFeaturedMatchNew] ${matchAnalysis.liveMatches} live matches - using aggressive refresh (30s)`);
+    } else if (matchAnalysis.staleMatches > 0) {
+      // Aggressive: Stale matches that should have updated
+      refreshInterval = 45000; // 45 seconds
+      shouldRefresh = true;
+      console.log(`🟡 [MyHomeFeaturedMatchNew] ${matchAnalysis.staleMatches} stale matches detected - using aggressive refresh (45s)`);
+    } else if (matchAnalysis.imminentMatches > 0) {
+      // Very frequent: Matches starting within 30 minutes
+      refreshInterval = 60000; // 1 minute
+      shouldRefresh = true;
+      console.log(`🟠 [MyHomeFeaturedMatchNew] ${matchAnalysis.imminentMatches} imminent matches - using frequent refresh (1min)`);
+    } else if (matchAnalysis.upcomingMatches > 0) {
+      // Moderate: Matches starting within 2 hours
+      refreshInterval = 120000; // 2 minutes
+      shouldRefresh = true;
+      console.log(`🟢 [MyHomeFeaturedMatchNew] ${matchAnalysis.upcomingMatches} upcoming matches - using moderate refresh (2min)`);
+    } else {
+      // Standard: No urgent matches
+      refreshInterval = 300000; // 5 minutes
+      shouldRefresh = false;
+      console.log(`⏸️ [MyHomeFeaturedMatchNew] No urgent matches - using standard refresh (5min)`);
+    }
+
+    if (!shouldRefresh) {
+      console.log(`⭕ [MyHomeFeaturedMatchNew] No active refresh needed`);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      console.log(`🔄 [MyHomeFeaturedMatchNew] Smart refresh triggered (interval: ${refreshInterval/1000}s)`);
+      fetchFeaturedMatches(false); // Background refresh without loading state
+    }, refreshInterval);
+
+    return () => clearInterval(interval);
+  }, [featuredMatches, fetchFeaturedMatches]);
+
+  const formatMatchTime = (dateString: string) => {
+    try {
+      return format(new Date(dateString), "HH:mm");
+    } catch {
+      return "--:--";
+    }
+  };
+
+  const getStatusDisplay = (match: FeaturedMatch) => {
+    const status = match.fixture.status.short;
+    const elapsed = match.fixture.status.elapsed;
+
+    if (status === "NS") {
+      return {
+        text: formatMatchTime(match.fixture.date),
+        color: "bg-blue-500",
+        isLive: false,
+        isUpcoming: true,
+      };
+    }
+
+    if (["1H", "2H", "HT", "ET", "BT", "P", "LIVE"].includes(status)) {
+      let displayText = status;
+
+      if (status === "HT") {
+        displayText = "Half Time";
+      } else if (status === "1H" || status === "2H" || status === "LIVE") {
+        displayText = elapsed ? `${elapsed}'` : "LIVE";
+      } else if (status === "ET") {
+        displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
+      } else if (status === "P") {
+        displayText = "Penalties";
+      }
+
+      return {
+        text: displayText,
+        color: "bg-red-500 animate-pulse",
+        isLive: true,
+        isUpcoming: false,
+      };
+    }
+
+    if (status === "FT") {
+      return {
+        text: "Full Time",
+        color: "bg-gray-500",
+        isLive: false,
+        isUpcoming: false,
+      };
+    }
+
+    if (status === "PST") {
+      return {
+        text: "Postponed",
+        color: "bg-yellow-500",
+        isLive: false,
+        isUpcoming: false,
+      };
+    }
+
+    if (status === "CANC") {
+      return {
+        text: "Cancelled",
+        color: "bg-red-600",
+        isLive: false,
+        isUpcoming: false,
+      };
+    }
+
+    return {
+      text: status,
+      color: "bg-gray-400",
+      isLive: false,
+      isUpcoming: false,
+    };
+  };
+
+  // Memoize expensive calculations
+  const allMatches = useMemo(() => {
+    return featuredMatches.reduce((acc, dayData) => {
+      return [...acc, ...dayData.matches];
+    }, [] as FeaturedMatch[]);
+  }, [featuredMatches]);
+
+  const currentMatch = useMemo(() => {
+    return allMatches[currentMatchIndex];
+  }, [allMatches, currentMatchIndex]);
+
+  // Fetch rounds data for current match league
+  useEffect(() => {
+    if (currentMatch && !roundsCache[`${currentMatch.league.id}-2025`]) {
+      fetchRoundsForLeague(currentMatch.league.id, 2025);
+    }
+  }, [currentMatch, fetchRoundsForLeague, roundsCache]);
+
+  const handlePrevious = useCallback(() => {
+    if (allMatches.length > 0) {
+      setCurrentMatchIndex((prev) =>
+        prev === 0 ? allMatches.length - 1 : prev - 1,
+      );
+    }
+  }, [allMatches.length]);
+
+  const handleNext = useCallback(() => {
+    if (allMatches.length > 0) {
+      setCurrentMatchIndex((prev) =>
+        prev === allMatches.length - 1 ? 0 : prev + 1,
+      );
+    }
+  }, [allMatches.length]);
 
   // State for storing extracted logo colors
   const [teamLogoColors, setTeamLogoColors] = useState<Record<string, string>>(
@@ -2289,9 +2495,8 @@ id: fixture.teams.away.id,
                           }}
                         ></div>
 
-                        {/* Updated away team name using translateTeamName */}
                         <div
-                          className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
+                          className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
                           style={{
                             top: "calc(50% - 15px)",
                             right: "85px",
@@ -2299,7 +2504,7 @@ id: fixture.teams.away.id,
                             fontWeight: "normal",
                           }}
                         >
-                          {translateTeamName(currentMatch?.teams?.away?.name || "TBD")}
+                          {currentMatch?.teams?.away?.name || "Away Team"}
                         </div>
 
                         <div
@@ -2326,9 +2531,7 @@ id: fixture.teams.away.id,
                                 : currentMatch?.teams?.away?.logo ||
                                   `/assets/fallback-logo.svg`
                             }
-                            alt={
-                              currentMatch?.teams?.away?.name || "Away Team"
-                            }
+                            alt={currentMatch?.teams?.away?.name || "Away Team"}
                             size="75px"
                             className="w-full hull object-contain"
                             leagueContext={{
@@ -2413,7 +2616,7 @@ id: fixture.teams.away.id,
                         className="text-blue-500"
                       >
                         <path
-                          d="M12 2C6.486 2 2 6.486 2 12C2 17.514 6.486 22 12 22C17.514 22 22 17.514 22 12C22 6.486 17.514 2 12 2ZM19.931 11H13V4.069C14.7598 4.29335 16.3953 5.09574 17.6498 6.3502C18.9043 7.60466 19.7066 9.24017 19.931 11ZM4 12C4 7.928 7.061 4.564 11 4.069V12C11.003 12.1526 11.0409 12.3024 11.111 12.438C11.126 12.468 11.133 12.501 11.152 12.531 L15.354 19.254C14.3038 19.7442 13.159 19.9988 12 20C7.589 20 4 16.411 4 12ZM17.052 18.196L13.805 13H19.931C19.6746 15.0376 18.6436 16.8982 17.052 18.196Z"
+                          d="M12 2C6.486 2 2 6.486 2 12C2 17.514 6.486 22 12 22C17.514 22 22 17.514 22 12C22 6.486 17.514 2 12 2ZM19.931 11H13V4.069C14.7598 4.29335 16.3953 5.09574 17.6498 6.3502C18.9043 7.60466 19.7066 9.24017 19.931 11ZM4 12C4 7.928 7.061 4.564 11 4.069V12C11.003 12.1526 11.0409 12.3024 11.111 12.438C11.126 12.468 11.133 12.501 11.152 12.531L15.354 19.254C14.3038 19.7442 13.159 19.9988 12 20C7.589 20 4 16.411 4 12ZM17.052 18.196L13.805 13H19.931C19.6746 15.0376 18.6436 16.8982 17.052 18.196Z"
                           fill="currentColor"
                         />
                       </svg>
