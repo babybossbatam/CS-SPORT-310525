@@ -2507,7 +2507,10 @@ id: fixture.teams.away.id,
                             fontWeight: "normal",
                           }}
                         >
-                          {currentMatch?.teams?.away?.name || "Away Team"}
+                          {(() => {
+                            const originalName = currentMatch?.teams?.away?.name || "Away Team";
+                            return translateTeamName(originalName);
+                          })()}
                         </div>
 
                         <div
