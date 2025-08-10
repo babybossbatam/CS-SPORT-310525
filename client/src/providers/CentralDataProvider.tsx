@@ -40,9 +40,17 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     queryKey: ['central-date-fixtures', validDate],
     queryFn: async () => {
       console.log(`🔄 [CentralDataProvider] Fetching fixtures for ${validDate}`);
+      
+      let timeoutId: NodeJS.Timeout | null = null;
+      const controller = new AbortController();
+      
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+        // Set up timeout that only aborts if request is still pending
+        timeoutId = setTimeout(() => {
+          if (!controller.signal.aborted) {
+            controller.abort('Request timeout after 30 seconds');
+          }
+        }, 30000);
 
         const response = await fetch(`/api/fixtures/date/${validDate}?all=true`, {
           signal: controller.signal,
@@ -52,7 +60,11 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           }
         });
 
-        clearTimeout(timeoutId);
+        // Clear timeout on successful response
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
 
         if (!response.ok) {
           console.warn(`Date fixtures API returned ${response.status} for ${validDate}`);
@@ -77,7 +89,13 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         }));
 
         return basicFiltered;
-      } catch (error) {
+      } catch (error: any) {
+        // Clear timeout on error
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
+
         if (error.name === 'AbortError') {
           console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate}`);
         } else {
@@ -104,9 +122,17 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     queryKey: ['central-live-fixtures'],
     queryFn: async () => {
       console.log('🔴 [CentralDataProvider] Fetching live fixtures');
+      
+      let timeoutId: NodeJS.Timeout | null = null;
+      const controller = new AbortController();
+      
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+        // Set up timeout that only aborts if request is still pending
+        timeoutId = setTimeout(() => {
+          if (!controller.signal.aborted) {
+            controller.abort('Request timeout after 15 seconds');
+          }
+        }, 15000);
 
         const response = await fetch('/api/fixtures/live', {
           signal: controller.signal,
@@ -116,7 +142,11 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           }
         });
 
-        clearTimeout(timeoutId);
+        // Clear timeout on successful response
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
 
         if (!response.ok) {
           console.warn(`Live fixtures API returned ${response.status}`);
@@ -130,7 +160,13 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         dispatch(fixturesActions.setLiveFixtures(data as any));
         return data;
 
-      } catch (fetchError) {
+      } catch (fetchError: any) {
+        // Clear timeout on error
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
+
         if (fetchError.name === 'AbortError') {
           console.warn(`⏰ [CentralDataProvider] Live fixtures request timeout`);
         } else {
