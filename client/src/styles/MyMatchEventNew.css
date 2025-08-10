@@ -1119,6 +1119,23 @@
   color: white !important;
 }
 
+/* Dark mode player name styling - white text for all player names */
+.dark .match-event-home-player-info .text-xs,
+.dark .match-event-away-player-info .text-xs {
+  color: white !important;
+}
+
+/* Exception for substitution events - keep their specific colors */
+.dark .match-event-home-player-info .text-xs.font-medium.text-green-600,
+.dark .match-event-away-player-info .text-xs.font-medium.text-green-600 {
+  color: rgb(22 163 74) !important; /* Keep green for substitute in */
+}
+
+.dark .match-event-home-player-info .text-xs.font-medium.text-red-600,
+.dark .match-event-away-player-info .text-xs.font-medium.text-red-600 {
+  color: rgb(220 38 38) !important; /* Keep red for substitute out */
+}
+
 /* Focus states for accessibility */
 .match-event-icon:focus,
 .match-event-time-center:focus,
