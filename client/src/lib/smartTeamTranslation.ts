@@ -2094,39 +2094,7 @@ class SmartTeamTranslation {
     }
   }
 
-  // Learn new team mapping dynamically
-  private learnNewTeam(teamName: string, translatedName: string, language: string): void {
-    if (!teamName || !translatedName || !language || teamName === translatedName) {
-      return;
-    }
-
-    try {
-      const teamKey = teamName.toLowerCase().trim();
-
-      // Check if we already have learned mappings for this team
-      if (!this.learnedTeamMappings.has(teamKey)) {
-        this.learnedTeamMappings.set(teamKey, {
-          [teamName]: {
-            'zh': teamName, 'zh-hk': teamName, 'zh-tw': teamName,
-            'es': teamName, 'de': teamName, 'it': teamName, 'pt': teamName
-          }
-        });
-      }
-
-      // Update the specific language translation
-      const existingMapping = this.learnedTeamMappings.get(teamKey);
-      if (existingMapping && existingMapping[teamName]) {
-        existingMapping[teamName][language as keyof typeof existingMapping[typeof teamName]] = translatedName;
-
-        // Save to localStorage for persistence
-        this.saveLearnedMappings();
-
-        console.log(`🎓 [SmartTranslation] Learned new mapping: "${teamName}" -> "${translatedName}" (${language})`);
-      }
-    } catch (error) {
-      console.warn('⚠️ [SmartTranslation] Failed to learn new team mapping:', error);
-    }
-  }
+  
 
   // Enhanced fallback for common team patterns
   private getEnhancedFallback(teamName: string, language: string): string | null {
