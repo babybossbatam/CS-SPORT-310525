@@ -2638,7 +2638,7 @@ id: fixture.teams.away.id,
                         />
                       </svg>
                       <span className="text-xs text-gray-600 dark:text-white mt-1">
-                        Match Page
+                        {t('match_page') || 'Match Page'}
                       </span>
                     </button>
                     <button
@@ -2673,7 +2673,7 @@ id: fixture.teams.away.id,
                         />
                       </svg>
                       <span className="text-xs text-gray-600 dark:text-white mt-1">
-                        Lineups
+                        {t('lineups') || 'Lineups'}
                       </span>
                     </button>
                     <button
@@ -2693,7 +2693,7 @@ id: fixture.teams.away.id,
                           fill="currentColor"
                         />
                       </svg>
-                      <span className="text-xs text-gray-600 dark:text-white mt-1">Stats</span>
+                      <span className="text-xs text-gray-600 dark:text-white mt-1">{t('statistics') || 'Stats'}</span>
                     </button>
                     <button
                       className="flex flex-col items-center cursor-pointer"
@@ -2712,7 +2712,7 @@ id: fixture.teams.away.id,
                           fill="currentColor"
                         />
                       </svg>
-                      <span className="text-xs text-gray-600 dark:text-white mt-1">Groups</span>
+                      <span className="text-xs text-gray-600 dark:text-white mt-1">{t('groups') || 'Groups'}</span>
                     </button>
                   </div>
 

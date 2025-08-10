@@ -103,6 +103,10 @@ const translations = {
     'starting_now': 'Starting now',
     'day': 'Day',
     'days': 'Days',
+    'match_page': 'Match Page',
+    'lineups': 'Lineups',
+    'stats': 'Stats',
+    'groups': 'Groups',
   },
   'en-us': {
     'today_matches': "Today's Games",
@@ -180,6 +184,10 @@ const translations = {
     'walkover': 'Walkover',
     'time_tbd': 'Time TBD',
     'after_extra_time': 'After Extra Time',
+    'match_page': 'Match Page',
+    'lineups': 'Lineups',
+    'stats': 'Stats',
+    'groups': 'Groups',
   },
   'es': {
     'today_matches': "Partidos de Hoy",
@@ -276,6 +284,10 @@ const translations = {
     'starting_now': 'Comenzando ahora',
     'day': 'Día',
     'days': 'Días',
+    'match_page': 'Página del Partido',
+    'lineups': 'Alineaciones',
+    'stats': 'Estadísticas',
+    'groups': 'Grupos',
   },
   'zh-hk': {
     'today_matches': "今天的比賽",
@@ -372,6 +384,10 @@ const translations = {
     'starting_now': '即將開始',
     'day': '天',
     'days': '天',
+    'match_page': '比賽頁面',
+    'lineups': '陣容',
+    'stats': '統計',
+    'groups': '小組',
   },
   'de': {
     'today_matches': "Heutige Spiele",
@@ -468,6 +484,10 @@ const translations = {
     'time_tbd': 'Zeit wird noch festgelegt',
     'after_extra_time': 'Nach Verlängerung',
     'starting_now': 'Startet jetzt',
+    'match_page': 'Spiel-Seite',
+    'lineups': 'Aufstellungen',
+    'stats': 'Statistiken',
+    'groups': 'Gruppen',
   },
   'it': {
     'today_matches': "Partite di Oggi",
@@ -564,6 +584,10 @@ const translations = {
     'time_tbd': 'Ora da definire',
     'after_extra_time': 'Dopo Tempo Supplementare',
     'starting_now': 'Inizia ora',
+    'match_page': 'Pagina Partita',
+    'lineups': 'Formazioni',
+    'stats': 'Statistiche',
+    'groups': 'Gruppi',
   },
   'pt': {
     'today_matches': "Jogos de Hoje",
@@ -660,6 +684,10 @@ const translations = {
     'time_tbd': 'Hora a definir',
     'after_extra_time': 'Após Tempo Extra',
     'starting_now': 'Iniciando agora',
+    'match_page': 'Página do Jogo',
+    'lineups': 'Escalações',
+    'stats': 'Estatísticas',
+    'groups': 'Grupos',
   },
   'zh': {
     'today_matches': "今天的比赛",
@@ -747,6 +775,10 @@ const translations = {
     'starting_now': '即将开始',
     'day': '天',
     'days': '天',
+    'match_page': '比赛页面',
+    'lineups': '阵容',
+    'stats': '统计',
+    'groups': '小组',
   },
   'zh-tw': {
     'today_matches': "今天的比賽",
@@ -843,6 +875,10 @@ const translations = {
     'starting_now': '即將開始',
     'day': '天',
     'days': '天',
+    'match_page': '比賽頁面',
+    'lineups': '陣容',
+    'stats': '統計',
+    'groups': '小組',
   }
 };
 
