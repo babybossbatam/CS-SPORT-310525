@@ -1802,7 +1802,10 @@ class SmartTeamTranslation {
     },
 
     // Additional European Teams
-   
+    'Sparta Praha': {
+      'zh': '布拉格斯巴达', 'zh-hk': '布拉格斯巴達', 'zh-tw': '布拉格斯巴達',
+      'es': 'Sparta Praha', 'de': 'Sparta Prag', 'it': 'Sparta Praga', 'pt': 'Sparta Praga'
+    },
     'FK Crvena Zvezda': {
       'zh': '贝尔格莱德红星', 'zh-hk': '貝爾格萊德紅星', 'zh-tw': '貝爾格萊德紅星',
       'es': 'FK Crvena Zvezda', 'de': 'FK Roter Stern Belgrad', 'it': 'FK Stella Rossa Belgrado', 'pt': 'FK Estrela Vermelha'
@@ -1825,22 +1828,75 @@ class SmartTeamTranslation {
       'zh': '开罗国民', 'zh-hk': '開羅國民', 'zh-tw': '開羅國民',
       'es': 'Al Ahly', 'de': 'Al Ahly', 'it': 'Al Ahly', 'pt': 'Al Ahly'
     },
+    'Zamalek SC': {
+      'zh': '扎马雷克', 'zh-hk': '扎馬雷克', 'zh-tw': '扎馬雷克',
+      'es': 'Zamalek SC', 'de': 'Zamalek SC', 'it': 'Zamalek SC', 'pt': 'Zamalek SC'
+    },
     
     // AUTOMATED TEAM MAPPINGS - merged from generateCompleteTeamMapping
     // These provide broad coverage but manual translations above take priority
     
     // Only add teams not already covered by manual translations above
-    
+    'Cruzeiro': {
+      'zh': '克鲁塞罗', 'zh-hk': '克魯塞羅', 'zh-tw': '克魯塞羅',
+      'es': 'Cruzeiro', 'de': 'Cruzeiro', 'it': 'Cruzeiro', 'pt': 'Cruzeiro'
+    },
+    'Operario-PR': {
+      'zh': '巴拉那工人', 'zh-hk': '巴拉那工人', 'zh-tw': '巴拉那工人',
+      'es': 'Operario-PR', 'de': 'Operario-PR', 'it': 'Operario-PR', 'pt': 'Operario-PR'
+    },
+    'Novorizontino': {
+      'zh': '新地平线', 'zh-hk': '新地平線', 'zh-tw': '新地平線',
+      'es': 'Novorizontino', 'de': 'Novorizontino', 'it': 'Novorizontino', 'pt': 'Novorizontino'
+    },
+    'Mirassol': {
+      'zh': '米拉索尔', 'zh-hk': '米拉索爾', 'zh-tw': '米拉索爾',
+      'es': 'Mirassol', 'de': 'Mirassol', 'it': 'Mirassol', 'pt': 'Mirassol'
+    },
+    'Volta Redonda': {
+      'zh': '伏尔塔雷东达', 'zh-hk': '伏爾塔雷東達', 'zh-tw': '伏爾塔雷東達',
+      'es': 'Volta Redonda', 'de': 'Volta Redonda', 'it': 'Volta Redonda', 'pt': 'Volta Redonda'
+    },
+    'CRB': {
+      'zh': 'CRB', 'zh-hk': 'CRB', 'zh-tw': 'CRB',
+      'es': 'CRB', 'de': 'CRB', 'it': 'CRB', 'pt': 'CRB'
+    },
     'Vila Nova': {
       'zh': '维拉诺瓦', 'zh-hk': '維拉諾瓦', 'zh-tw': '維拉諾瓦',
       'es': 'Vila Nova', 'de': 'Vila Nova', 'it': 'Vila Nova', 'pt': 'Vila Nova'
     },
-    
+    'Makhachkala': {
+      'zh': '马哈奇卡拉', 'zh-hk': '馬哈奇卡拉', 'zh-tw': '馬哈奇卡拉',
+      'es': 'Makhachkala', 'de': 'Makhachkala', 'it': 'Makhachkala', 'pt': 'Makhachkala'
+    },
+    'Akron': {
+      'zh': '阿克伦', 'zh-hk': '阿克倫', 'zh-tw': '阿克倫',
+      'es': 'Akron', 'de': 'Akron', 'it': 'Akron', 'pt': 'Akron'
+    },
+    'Rubin': {
+      'zh': '喀山红宝石', 'zh-hk': '喀山紅寶石', 'zh-tw': '喀山紅寶石',
+      'es': 'Rubin Kazan', 'de': 'Rubin Kasan', 'it': 'Rubin Kazan', 'pt': 'Rubin Kazan'
+    },
+    'Baltika': {
+      'zh': '波罗的海', 'zh-hk': '波羅的海', 'zh-tw': '波羅的海',
+      'es': 'Baltika', 'de': 'Baltika', 'it': 'Baltika', 'pt': 'Baltika'
+    },
+    'St. Louis City': {
+      'zh': '圣路易斯城', 'zh-hk': '聖路易斯城', 'zh-tw': '聖路易斯城',
+      'es': 'St. Louis City', 'de': 'St. Louis City', 'it': 'St. Louis City', 'pt': 'St. Louis City'
+    },
+    'Austin': {
+      'zh': '奥斯汀', 'zh-hk': '奧斯汀', 'zh-tw': '奧斯汀',
+      'es': 'Austin', 'de': 'Austin', 'it': 'Austin', 'pt': 'Austin'
+    },
     'San Diego': {
       'zh': '圣迭戈', 'zh-hk': '聖迭戈', 'zh-tw': '聖迭戈',
       'es': 'San Diego', 'de': 'San Diego', 'it': 'San Diego', 'pt': 'San Diego'
     },
-    
+    'CF Montreal': {
+      'zh': '蒙特利尔', 'zh-hk': '蒙特利爾', 'zh-tw': '蒙特利爾',
+      'es': 'CF Montreal', 'de': 'CF Montreal', 'it': 'CF Montreal', 'pt': 'CF Montreal'
+    },
     'Sporting Kansas City': {
       'zh': '堪萨斯城体育', 'zh-hk': '堪薩斯城體育', 'zh-tw': '堪薩斯城體育',
       'es': 'Sporting Kansas City', 'de': 'Sporting Kansas City', 'it': 'Sporting Kansas City', 'pt': 'Sporting Kansas City'
