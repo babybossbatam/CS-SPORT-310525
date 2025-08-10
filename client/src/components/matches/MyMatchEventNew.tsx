@@ -925,10 +925,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       <div className="penalty-home-player-info">
                         <div className="penalty-player-avatar">
                           <MyAvatarInfo
-                            playerId={round.homePenalty.event.player?.id}
-                            playerName={round.homePenalty.event.player?.name}
+                            playerId={round.homePenalty.event.player?.id || undefined}
+                            playerName={round.homePenalty.event.player?.name || undefined}
                             matchId={fixtureId}
-                            teamId={round.homePenalty.event.team?.id}
+                            teamId={round.homePenalty.event.team?.id || undefined}
                             size="sm"
                             className="shadow-sm border-gray-300"
                           />
@@ -961,10 +961,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       <div className="penalty-home-player-info">
                         <div className="penalty-player-avatar">
                           <MyAvatarInfo
-                            playerId={round.awayPenalty.event.player?.id}
-                            playerName={round.awayPenalty.event.player?.name}
+                            playerId={round.awayPenalty.event.player?.id || undefined}
+                            playerName={round.awayPenalty.event.player?.name || undefined}
                             matchId={fixtureId}
-                            teamId={round.awayPenalty.event.team?.id}
+                            teamId={round.awayPenalty.event.team?.id || undefined}
                             size="sm"
                             className="shadow-sm border-gray-300"
                           />
@@ -1028,10 +1028,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         </span>
                         <div className="penalty-player-avatar">
                           <MyAvatarInfo
-                            playerId={round.awayPenalty.event.player?.id}
-                            playerName={round.awayPenalty.event.player?.name}
+                            playerId={round.awayPenalty.event.player?.id || undefined}
+                            playerName={round.awayPenalty.event.player?.name || undefined}
                             matchId={fixtureId}
-                            teamId={round.awayPenalty.event.team?.id}
+                            teamId={round.awayPenalty.event.team?.id || undefined}
                             size="sm"
                             className="shadow-sm border-gray-300"
                           />
@@ -1064,10 +1064,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         </span>
                         <div className="penalty-player-avatar">
                           <MyAvatarInfo
-                            playerId={round.homePenalty.event.player?.id}
-                            playerName={round.homePenalty.event.player?.name}
+                            playerId={round.homePenalty.event.player?.id || undefined}
+                            playerName={round.homePenalty.event.player?.name || undefined}
                             matchId={fixtureId}
-                            teamId={round.homePenalty.event.team?.id}
+                            teamId={round.homePenalty.event.team?.id || undefined}
                             size="sm"
                             className="shadow-sm border-gray-300"
                           />
@@ -1402,17 +1402,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       className="cursor-pointer hover:scale-105 transition-transform"
                                       onClick={() =>
                                         handlePlayerClick(
-                                          event.player?.id,
-                                          event.team.id,
+                                          event.player?.id || undefined,
+                                          event.team?.id || undefined,
                                           event.player?.name,
                                         )
                                       }
                                     >
                                       <MyAvatarInfo
-                                        playerId={event.player?.id}
-                                        playerName={event.player?.name}
+                                        playerId={event.player?.id || undefined}
+                                        playerName={event.player?.name || undefined}
                                         matchId={fixtureId}
-                                        teamId={event.team?.id}
+                                        teamId={event.team?.id || undefined}
                                         size="md"
                                         className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       />
@@ -1424,17 +1424,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           className="-ml-4 -mr-2 relative z-20 cursor-pointer hover:scale-105 transition-transform"
                                           onClick={() =>
                                             handlePlayerClick(
-                                              event.assist?.id,
-                                              event.team.id,
+                                              event.assist?.id || undefined,
+                                              event.team?.id || undefined,
                                               event.assist?.name,
                                             )
                                           }
                                         >
                                           <MyAvatarInfo
-                                            playerId={event.assist?.id}
-                                            playerName={event.assist?.name}
+                                            playerId={event.assist?.id || undefined}
+                                            playerName={event.assist?.name || undefined}
                                             matchId={fixtureId}
-                                            teamId={event.team?.id}
+                                            teamId={event.team?.id || undefined}
                                             size="md"
                                             className="shadow-sm border-red-300"
                                           />
@@ -1745,17 +1745,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           className="-ml-4 -mr-3 relative z-20 cursor-pointer hover:scale-105 transition-transform"
                                           onClick={() =>
                                             handlePlayerClick(
-                                              event.assist?.id,
-                                              event.team.id,
+                                              event.assist?.id || undefined,
+                                              event.team?.id || undefined,
                                               event.assist?.name,
                                             )
                                           }
                                         >
                                           <MyAvatarInfo
-                                            playerId={event.assist?.id}
-                                            playerName={event.assist?.name}
+                                            playerId={event.assist?.id || undefined}
+                                            playerName={event.assist?.name || undefined}
                                             matchId={fixtureId}
-                                            teamId={event.team?.id}
+                                            teamId={event.team?.id || undefined}
                                             size="md"
                                             className="shadow-sm border-red-300"
                                           />
@@ -1766,17 +1766,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       className="cursor-pointer hover:scale-105 transition-transform"
                                       onClick={() =>
                                         handlePlayerClick(
-                                          event.player?.id,
-                                          event.team.id,
+                                          event.player?.id || undefined,
+                                          event.team?.id || undefined,
                                           event.player?.name,
                                         )
                                       }
                                     >
                                       <MyAvatarInfo
-                                        playerId={event.player?.id}
-                                        playerName={event.player?.name}
+                                        playerId={event.player?.id || undefined}
+                                        playerName={event.player?.name || undefined}
                                         matchId={fixtureId}
-                                        teamId={event.team?.id}
+                                        teamId={event.team?.id || undefined}
                                         size="md"
                                         className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       />
@@ -2019,17 +2019,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       className="cursor-pointer hover:scale-105 transition-transform"
                                       onClick={() =>
                                         handlePlayerClick(
-                                          event.player?.id,
-                                          event.team.id,
+                                          event.player?.id || undefined,
+                                          event.team?.id || undefined,
                                           event.player?.name,
                                         )
                                       }
                                     >
                                       <MyAvatarInfo
-                                        playerId={event.player?.id}
-                                        playerName={event.player?.name}
+                                        playerId={event.player?.id || undefined}
+                                        playerName={event.player?.name || undefined}
                                         matchId={fixtureId}
-                                        teamId={event.team?.id}
+                                        teamId={event.team?.id || undefined}
                                         size="md"
                                         className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       />
@@ -2041,17 +2041,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           className="-ml-4 -mr-2 relative z-20 cursor-pointer hover:scale-105 transition-transform"
                                           onClick={() =>
                                             handlePlayerClick(
-                                              event.assist?.id,
-                                              event.team.id,
+                                              event.assist?.id || undefined,
+                                              event.team?.id || undefined,
                                               event.assist?.name,
                                             )
                                           }
                                         >
                                           <MyAvatarInfo
-                                            playerId={event.assist?.id}
-                                            playerName={event.assist?.name}
+                                            playerId={event.assist?.id || undefined}
+                                            playerName={event.assist?.name || undefined}
                                             matchId={fixtureId}
-                                            teamId={event.team?.id}
+                                            teamId={event.team?.id || undefined}
                                             size="md"
                                             className="shadow-sm border-red-300"
                                           />
@@ -2363,17 +2363,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           className="-ml-4 -mr-3 relative z-20 cursor-pointer hover:scale-105 transition-transform"
                                           onClick={() =>
                                             handlePlayerClick(
-                                              event.assist?.id,
-                                              event.team.id,
+                                              event.assist?.id || undefined,
+                                              event.team?.id || undefined,
                                               event.assist?.name,
                                             )
                                           }
                                         >
                                           <MyAvatarInfo
-                                            playerId={event.assist?.id}
-                                            playerName={event.assist?.name}
+                                            playerId={event.assist?.id || undefined}
+                                            playerName={event.assist?.name || undefined}
                                             matchId={fixtureId}
-                                            teamId={event.team?.id}
+                                            teamId={event.team?.id || undefined}
                                             size="md"
                                             className="shadow-sm border-red-300"
                                           />
@@ -2384,17 +2384,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       className="cursor-pointer hover:scale-105 transition-transform"
                                       onClick={() =>
                                         handlePlayerClick(
-                                          event.player?.id,
-                                          event.team.id,
+                                          event.player?.id || undefined,
+                                          event.team?.id || undefined,
                                           event.player?.name,
                                         )
                                       }
                                     >
                                       <MyAvatarInfo
-                                        playerId={event.player?.id}
-                                        playerName={event.player?.name}
+                                        playerId={event.player?.id || undefined}
+                                        playerName={event.player?.name || undefined}
                                         matchId={fixtureId}
-                                        teamId={event.team?.id}
+                                        teamId={event.team?.id || undefined}
                                         size="md"
                                         className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       />
