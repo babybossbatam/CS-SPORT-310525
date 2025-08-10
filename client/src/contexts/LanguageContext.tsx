@@ -958,10 +958,20 @@ export const useTranslation = () => {
     return translations[currentLanguage]?.[key] || translations['en']?.[key] || key;
   };
 
-  // Dynamic league name translation function
+  // Dynamic league name translation function using smart translation system
   const translateLeagueName = (leagueName: string): string => {
     if (!leagueName) return leagueName;
 
+    // First try the smart translation system
+    const smartTranslation = smartTeamTranslation.translateLeagueName(leagueName, currentLanguage);
+    console.log(`🏆 [LanguageContext] Smart league translation: "${leagueName}" -> "${smartTranslation}"`);
+
+    if (smartTranslation !== leagueName) {
+      console.log(`✅ [LanguageContext] Using smart league translation: "${smartTranslation}"`);
+      return smartTranslation;
+    }
+
+    // Fallback to manual patterns if smart translation doesn't find a match
     const lowerName = leagueName.toLowerCase();
 
     // Enhanced mixed language patterns for complex league names
@@ -1449,6 +1459,25 @@ export const useTranslation = () => {
     return leagueName;
   };
 
+  // Country name translation function using smart translation system
+  const translateCountryName = (countryName: string): string => {
+    if (!countryName) return countryName;
+
+    console.log(`🌍 [LanguageContext] Translating country: "${countryName}" for language: ${currentLanguage}`);
+
+    // First try the smart translation system
+    const smartTranslation = smartTeamTranslation.translateCountryName(countryName, currentLanguage);
+    console.log(`🤖 [LanguageContext] Smart country translation: "${countryName}" -> "${smartTranslation}"`);
+
+    if (smartTranslation !== countryName) {
+      console.log(`✅ [LanguageContext] Using smart country translation: "${smartTranslation}"`);
+      return smartTranslation;
+    }
+
+    // Return original if no translation found
+    return countryName;
+  };
+
   // Team name translation function with comprehensive translations
   const translateTeamName = (teamName: string): string => {
     if (!teamName) return '';
@@ -1630,6 +1659,7 @@ export const useTranslation = () => {
     currentLanguage,
     t,
     translateLeagueName,
+    translateCountryName,
     translateTeamName
   };
 };
