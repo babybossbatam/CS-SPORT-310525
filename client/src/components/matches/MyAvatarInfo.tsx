@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { getPlayerImage } from '@/lib/playerImageCache';
+import { getPlayerImage, playerImageCache } from '@/lib/playerImageCache';
 
 interface Player {
   id: number;
@@ -44,7 +44,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     'md-commentary': 'w-8 h-8 md:w-8 md:h-8 max-md:w-6 max-md:h-6'
   };
 
-  // Use the enhanced player photo system
+  // Optimized player photo loading with parallel requests and faster fallbacks
   const loadPlayerImage = async () => {
     if (!playerId && !playerName) {
       setImageUrl('INITIALS_FALLBACK');
@@ -55,92 +55,89 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     console.log(`🔍 [MyAvatarInfo-${componentId}] Loading image for: ${playerName} (ID: ${playerId})`);
 
     try {
-      // Helper function for ID-based search
-      const tryIdBasedSearch = async () => {
-        // Try ID-based search as backup
-        if (playerId) {
-          try {
-            const idSearchUrl = `/api/player-photo/${playerId}`;
-            const response = await fetch(idSearchUrl, { method: 'HEAD' });
-            
-            if (response.ok && response.url) {
-              console.log(`✅ [MyAvatarInfo-${componentId}] Found photo via ID search: ${response.url}`);
-              setImageUrl(response.url);
-              setIsLoading(false);
-              return;
-            }
-          } catch (error) {
-            console.log(`⚠️ [MyAvatarInfo-${componentId}] ID search failed: ${error}`);
-          }
-        }
+      // Check cache first for instant loading
+      const cached = await getPlayerImage(playerId, playerName, teamId);
+      if (cached && cached !== '' && cached !== 'INITIALS_FALLBACK' && !cached.includes('ui-avatars.com')) {
+        console.log(`💾 [MyAvatarInfo-${componentId}] Using cached image: ${cached}`);
+        setImageUrl(cached);
+        setIsLoading(false);
+        return;
+      }
 
-        // Continue to cached system
-        tryCachedSystem();
-      };
+      // Prepare parallel requests with timeout
+      const timeoutMs = 3000; // 3 second timeout
+      const requests = [];
 
-      const tryCachedSystem = async () => {
-        // Try cached system as final backup
-        try {
-          const cachedImageUrl = await getPlayerImage(playerId, playerName, teamId);
-          
-          if (cachedImageUrl && cachedImageUrl !== '' && cachedImageUrl !== 'INITIALS_FALLBACK') {
-            console.log(`✅ [MyAvatarInfo-${componentId}] Got cached image: ${cachedImageUrl}`);
-            
-            // Test if the image actually loads before setting it
+      // Add name-based search if available
+      if (playerName) {
+        requests.push({
+          type: 'name',
+          promise: fetch(`/api/player-photo-by-name?name=${encodeURIComponent(playerName)}`, {
+            signal: AbortSignal.timeout(timeoutMs)
+          }).then(res => ({ type: 'name', response: res, url: res.url }))
+        });
+      }
+
+      // Add ID-based search if available
+      if (playerId) {
+        requests.push({
+          type: 'id',
+          promise: fetch(`/api/player-photo/${playerId}`, {
+            method: 'HEAD',
+            signal: AbortSignal.timeout(timeoutMs)
+          }).then(res => ({ type: 'id', response: res, url: res.url }))
+        });
+
+        // Add direct API-Sports URL as fallback
+        const apiSportsUrl = `https://media.api-sports.io/football/players/${playerId}.png`;
+        requests.push({
+          type: 'direct',
+          promise: new Promise((resolve) => {
             const img = new Image();
+            const timeout = setTimeout(() => resolve({ type: 'direct', response: null, url: null }), 2000);
             img.onload = () => {
-              console.log(`🖼️ [MyAvatarInfo-${componentId}] Image verified: ${cachedImageUrl}`);
-              setImageUrl(cachedImageUrl);
-              setIsLoading(false);
+              clearTimeout(timeout);
+              resolve({ type: 'direct', response: { ok: true }, url: apiSportsUrl });
             };
             img.onerror = () => {
-              console.log(`❌ [MyAvatarInfo-${componentId}] Image failed to load: ${cachedImageUrl}`);
-              setImageUrl('INITIALS_FALLBACK');
-              setIsLoading(false);
+              clearTimeout(timeout);
+              resolve({ type: 'direct', response: null, url: null });
             };
-            img.src = cachedImageUrl;
-            return;
-          }
-        } catch (error) {
-          console.log(`❌ [MyAvatarInfo-${componentId}] Cached image error: ${error?.message || error}`);
-        }
+            img.src = apiSportsUrl;
+          })
+        });
+      }
 
-        // All methods failed, use fallback
-        console.log(`🎨 [MyAvatarInfo-${componentId}] All methods failed, using fallback for: ${playerName}`);
+      if (requests.length === 0) {
         setImageUrl('INITIALS_FALLBACK');
         setIsLoading(false);
-      };
+        return;
+      }
 
-      // Try the enhanced name-based search first if we have a player name
-      if (playerName) {
-        try {
-          const nameSearchUrl = `/api/player-photo-by-name?name=${encodeURIComponent(playerName)}`;
-          console.log(`🔍 [MyAvatarInfo-${componentId}] Trying name search: ${nameSearchUrl}`);
-          const response = await fetch(nameSearchUrl);
+      // Execute all requests in parallel and use the first successful one
+      const results = await Promise.allSettled(requests.map(r => r.promise));
+      
+      for (const result of results) {
+        if (result.status === 'fulfilled' && result.value.response?.ok && result.value.url) {
+          const url = result.value.url;
           
-          if (response.ok && response.url && 
-              !response.url.includes('ui-avatars.com') && 
-              !response.url.includes('default.png') &&
-              !response.url.includes('placeholder')) {
+          // Skip ui-avatars and placeholder URLs for better quality
+          if (!url.includes('ui-avatars.com') && 
+              !url.includes('default.png') && 
+              !url.includes('placeholder')) {
             
-            console.log(`✅ [MyAvatarInfo-${componentId}] Found photo via name search: ${response.url}`);
-            setImageUrl(response.url);
+            console.log(`✅ [MyAvatarInfo-${componentId}] Found photo via ${result.value.type}: ${url}`);
+            setImageUrl(url);
             setIsLoading(false);
             return;
-          } else {
-            console.log(`⚠️ [MyAvatarInfo-${componentId}] Name search failed, trying ID search`);
-            tryIdBasedSearch();
-            return;
           }
-        } catch (error) {
-          console.log(`⚠️ [MyAvatarInfo-${componentId}] Name search error: ${error}`);
-          tryIdBasedSearch();
-          return;
         }
       }
 
-      // Start with ID search if no player name
-      tryIdBasedSearch();
+      // If all requests failed, use fallback
+      console.log(`🎨 [MyAvatarInfo-${componentId}] All requests failed, using fallback for: ${playerName}`);
+      setImageUrl('INITIALS_FALLBACK');
+      setIsLoading(false);
 
     } catch (error) {
       console.log(`❌ [MyAvatarInfo-${componentId}] Error loading image: ${error?.message || error}`);
@@ -149,7 +146,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     }
   };
 
-  // Intersection Observer for lazy loading
+  // Optimized Intersection Observer for faster lazy loading
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -161,17 +158,28 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           observer.disconnect();
         }
       },
-      { rootMargin: '50px', threshold: 0.1 }
+      { 
+        rootMargin: '100px', // Increased margin for earlier loading
+        threshold: 0.01 // Lower threshold for faster trigger
+      }
     );
 
     observer.observe(container);
     return () => observer.disconnect();
   }, []);
 
-  // Load image when visible
+  // Load image when visible with immediate cache check
   useEffect(() => {
     if (isVisible) {
-      loadPlayerImage();
+      // Try immediate synchronous cache check first
+      const cached = playerImageCache?.getCachedImage(playerId, playerName);
+      if (cached && cached.url && cached.url !== 'INITIALS_FALLBACK' && !cached.url.includes('ui-avatars.com')) {
+        console.log(`⚡ [MyAvatarInfo-${componentId}] Instant cache hit: ${cached.url}`);
+        setImageUrl(cached.url);
+        setIsLoading(false);
+      } else {
+        loadPlayerImage();
+      }
     }
   }, [isVisible, playerId, playerName]);
 
