@@ -421,12 +421,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const isLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
     const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status);
     const isUpcoming = ["NS", "TBD", "PST"].includes(status);
-    
+
     return { isLive, isEnded, isUpcoming };
   }, []);
 
   const fetchFeaturedMatches = useCallback(
     async (forceRefresh = false) => {
+      console.log('🚀 [MyHomeFeaturedMatchNew] fetchFeaturedMatches called', { forceRefresh, currentFeaturedMatchesLength: featuredMatches.length });
       try {
         // Only show loading on initial load or force refresh
         if (forceRefresh || featuredMatches.length === 0) {
@@ -456,7 +457,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         );
 
         if (shouldForceRefresh) {
-          console.log("🔄 [MyHomeFeaturedMatchNew] Smart cache: forcing refresh due to live/imminent matches or stale data");
+          console.log(
+            "🔄 [MyHomeFeaturedMatchNew] Smart cache: forcing refresh due to live/imminent matches or stale data",
+          );
         }
 
         // Get dates for today and the next 4 days
@@ -1555,18 +1558,38 @@ id: fixture.teams.away.id,
           const prevMatchesString = JSON.stringify(prevMatches);
 
           if (newMatchesString !== prevMatchesString) {
+            console.log('🌟 [MyHomeFeaturedMatchNew] Setting featuredMatches state');
             return allMatches;
           }
+          console.log('✅ [MyHomeFeaturedMatchNew] featuredMatches state unchanged');
           return prevMatches;
         });
       } catch (error) {
-        console.error("❌ [MyHomeFeaturedMatchNew] Error:", error);
+        console.error("❌ [MyHomeFeaturedMatchNew] Error in fetchFeaturedMatches:", error);
       } finally {
+        console.log('✅ [MyHomeFeaturedMatchNew] fetchFeaturedMatches finished');
         setIsLoading(false);
       }
     },
-    [maxMatches],
+    [maxMatches, featuredMatches, allMatches, currentMatchIndex, selectedDay, isLoading, currentMatch, getStatusDisplay], // Added dependencies
   );
+
+  useEffect(() => {
+    console.log('🚀 [MyHomeFeaturedMatchNew] Component mounted, starting initial fetch');
+    fetchFeaturedMatches(true);
+  }, []);
+
+  // Debug effect to log state changes
+  useEffect(() => {
+    console.log('🔍 [MyHomeFeaturedMatchNew] State update:', {
+      featuredMatchesLength: featuredMatches.length,
+      allMatchesLength: allMatches.length,
+      currentMatchIndex,
+      selectedDay,
+      isLoading,
+      currentMatchExists: !!currentMatch
+    });
+  }, [featuredMatches, allMatches, currentMatchIndex, selectedDay, isLoading, currentMatch]);
 
   // State for storing extracted logo colors
   const [teamLogoColors, setTeamLogoColors] = useState<Record<string, string>>(
@@ -2390,7 +2413,7 @@ id: fixture.teams.away.id,
                         className="text-blue-500"
                       >
                         <path
-                          d="M12 2C6.486 2 2 6.486 2 12C2 17.514 6.486 22 12 22C17.514 22 22 17.514 22 12C22 6.486 17.514 2 12 2ZM19.931 11H13V4.069C14.7598 4.29335 16.3953 5.09574 17.6498 6.3502C18.9043 7.60466 19.7066 9.24017 19.931 11ZM4 12C4 7.928 7.061 4.564 11 4.069V12C11.003 12.1526 11.0409 12.3024 11.111 12.438C11.126 12.468 11.133 12.501 11.152 12.531L15.354 19.254C14.3038 19.7442 13.159 19.9988 12 20C7.589 20 4 16.411 4 12ZM17.052 18.196L13.805 13H19.931C19.6746 15.0376 18.6436 16.8982 17.052 18.196Z"
+                          d="M12 2C6.486 2 2 6.486 2 12C2 17.514 6.486 22 12 22C17.514 22 22 17.514 22 12C22 6.486 17.514 2 12 2ZM19.931 11H13V4.069C14.7598 4.29335 16.3953 5.09574 17.6498 6.3502C18.9043 7.60466 19.7066 9.24017 19.931 11ZM4 12C4 7.928 7.061 4.564 11 4.069V12C11.003 12.1526 11.0409 12.3024 11.111 12.438C11.126 12.468 11.133 12.501 11.152 12.531 L15.354 19.254C14.3038 19.7442 13.159 19.9988 12 20C7.589 20 4 16.411 4 12ZM17.052 18.196L13.805 13H19.931C19.6746 15.0376 18.6436 16.8982 17.052 18.196Z"
                           fill="currentColor"
                         />
                       </svg>
