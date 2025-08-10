@@ -1,0 +1,68 @@
+Promise {<rejected>: TypeError: Cannot read properties of undefined (reading 'join')
+    at generateAutomatedTeamMapping…}
+Console.js:61 🚨 application-logic Error Report
+Console.js:61 Error: TypeError: Cannot read properties of undefined (reading 'join')
+    at generateAutomatedTeamMappingForLeagues (generateCompleteTeamMapping.ts:288:96)
+    at <anonymous>:1:1
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ main.tsx:49
+console.error @ errorHandler.ts:295
+console.error @ errorHandler.ts:295
+console.error @ errorHandler.ts:295
+reportError @ errorHandler.ts:261
+(anonymous) @ errorHandler.ts:348Understand this error
+Console.js:61 Context: {timestamp: '2025-08-10T05:35:28.550Z', error: "Cannot read properties of undefined (reading 'join')", category: 'application-logic', source: 'unhandledrejection', stack: 'TypeError: Cannot read properties of undefined (re…ts?t=1754804052379:283:96)\n    at <anonymous>:1:1', …}
+Console.js:61 🚨 Unhandled Promise Rejection: TypeError: Cannot read properties of undefined (reading 'join')
+    at generateAutomatedTeamMappingForLeagues (generateCompleteTeamMapping.ts:288:96)
+    at <anonymous>:1:1
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ main.tsx:49
+console.error @ errorHandler.ts:295
+console.error @ errorHandler.ts:295
+console.error @ errorHandler.ts:295
+(anonymous) @ errorHandler.ts:367Understand this error
+Console.js:61 🖼️ Frame/memory-related error detected, suppressing cascade...
+Console.js:61 🚨 application-logic Error Report
+Console.js:61 Error: TypeError: Cannot read properties of undefined (reading 'join')
+    at generateAutomatedTeamMappingForLeagues (generateCompleteTeamMapping.ts:288:96)
+    at <anonymous>:1:1
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ main.tsx:49
+console.error @ errorHandler.ts:295
+console.error @ errorHandler.ts:295
+console.error @ errorHandler.ts:295
+reportError @ errorHandler.ts:261
+(anonymous) @ errorHandler.ts:348Understand this error
+Console.js:61 Context: {timestamp: '2025-08-10T05:35:28.551Z', error: "Cannot read properties of undefined (reading 'join')", category: 'application-logic', source: 'unhandledrejection', stack: 'TypeError: Cannot read properties of undefined (re…ts?t=1754804052379:283:96)\n    at <anonymous>:1:1', …}
+Console.js:61 🚨 Unhandled Promise Rejection: TypeError: Cannot read properties of undefined (reading 'join')
+    at generateAutomatedTeamMappingForLeagues (generateCompleteTeamMapping.ts:288:96)
+    at <anonymous>:1:1
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ main.tsx:49
+console.error @ errorHandler.ts:295
+console.error @ errorHandler.ts:295
+console.error @ errorHandler.ts:295
+(anonymous) @ errorHandler.ts:367Understand this error
+Console.js:61 🖼️ Frame/memory-related error detected, suppressing cascade...
+Console.js:61 🚨 application-logic Error Report
+Console.js:61 Error: TypeError: Cannot read properties of undefined (reading 'join')
+    at generateAutomatedTeamMappingForLeagues (generateCompleteTeamMapping.ts:288:96)
+    at <anonymous>:1:1
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ main.tsx:49
+console.error @ errorHandler.ts:295
+console.error @ errorHandler.ts:295
+console.error @ errorHandler.ts:295
+reportError @ errorHandler.ts:261
+(anonymous) @ errorHandler.ts:348Understand this error
+Console.js:61 Context: {timestamp: '2025-08-10T05:35:28.552Z', error: "Cannot read properties of undefined (reading 'join')", category: 'application-logic', source: 'unhandledrejection', stack: 'TypeError: Cannot read properties of undefined (re…ts?t=1754804052379:283:96)\n    at <anonymous>:1:1', …}
+Console.js:61 🚨 Unhandled Promise Rejection: TypeError: Cannot read properties of undefined (reading 'join')
+    at generateAutomatedTeamMappingForLeagues (generateCompleteTeamMapping.ts:288:96)
+    at <anonymous>:1:1
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ main.tsx:49
+console.error @ errorHandler.ts:295
+console.error @ errorHandler.ts:295
+console.error @ errorHandler.ts:295
+(anonymous) @ errorHandler.ts:367Understand this error
+Console.js:61 🖼️ Frame/memory-related error detected, suppressing cascade...
