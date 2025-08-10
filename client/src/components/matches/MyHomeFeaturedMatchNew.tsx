@@ -923,9 +923,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     // Must have valid teams, be from popular leagues, not priority leagues, and NOT be live
                     const hasValidTeams =
                       fixture.teams?.home?.name && fixture.teams?.away?.name;
-                    const isNotLive = !isLiveMatch(
-                      fixture.fixture.status.short,
-                    );
+                    
                     const isNotDuplicate = !allFixtures.some(
                       (existing) =>
                         existing.fixture.id === fixture.fixture.id,
@@ -1022,10 +1020,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const isPriorityLeague = priorityLeagueIds.includes(
                       fixture.league?.id,
                     );
-                    const isNotLive = !isLiveMatch(
-                      fixture.fixture.status.short,
-                    );
-
+                    
                     // Check if it's an international competition
                     const isInternationalCompetition =
                       leagueName.includes("champions league") ||
