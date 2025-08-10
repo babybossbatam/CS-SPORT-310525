@@ -1113,7 +1113,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       } catch (error) {
         console.warn('⚠️ [MyNewLeague2] Cleanup error:', error);
       }
-    };
+    
 
         // Enhanced team mapping extraction (only in development)
         if (process.env.NODE_ENV === 'development') {
