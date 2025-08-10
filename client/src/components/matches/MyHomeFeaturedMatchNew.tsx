@@ -740,10 +740,20 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       };
 
                       const shouldInclude = filterFixture(fixture);
-</new_str>
+                      
+                      if (!shouldInclude) {
+                        return false;
+                      }
 
-                  // For live matches, bypass the isNotLive check
-                  return hasValidTeams && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga && !isExplicitlyExcluded;
+                      // For live matches, bypass additional checks
+                      const isCurrentlyLive = ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(fixture.fixture.status.short);
+                      if (isCurrentlyLive) {
+                        return hasValidTeams && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga && !isExplicitlyExcluded;
+                      }
+
+                      // For non-live matches, also check if they should be excluded from this specific context
+                      const isNotLive = !isLiveMatch(fixture.fixture.status.short);
+                      return hasValidTeams && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga && !isExplicitlyExcluded && isNotLive;
                 })
                 .map((fixture: any) => ({
                   fixture: {
