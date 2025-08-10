@@ -632,13 +632,22 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           try {
               const controller = new AbortController();
               const timeoutId = setTimeout(() => {
-                controller.abort(new Error(`Request timeout after 10 seconds for league ${leagueId}`));
-              }, 10000); // 10 second timeout
+                controller.abort();
+              }, 15000); // Increased to 15 second timeout
 
               const response = await fetch(`/api/leagues/${leagueId}/fixtures`, {
                 signal: controller.signal
               }).catch(fetchError => {
                 clearTimeout(timeoutId);
+                
+                // Handle specific timeout errors
+                if (fetchError.name === 'AbortError' || fetchError.message.includes('aborted')) {
+                  console.warn(
+                    `⏰ [MyNewLeague2] Request timeout for league ${leagueId} after 15 seconds`,
+                  );
+                  return null;
+                }
+                
                 console.warn(
                   `🌐 [MyNewLeague2] Network error for league ${leagueId}: ${fetchError.message}`,
                 );
@@ -651,7 +660,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               return {
                 leagueId,
                 fixtures: [],
-                error: "Network error",
+                error: "Request timeout or network error",
                 networkError: true,
               };
             }
@@ -698,13 +707,27 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             const errorMessage =
               error instanceof Error ? error.message : "Unknown error";
 
+            // Handle timeout errors specifically
+            if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes("abort") || errorMessage.includes("timeout"))) {
+              console.warn(
+                `⏰ [MyNewLeague2] Timeout error for league ${leagueId}: Request exceeded 15 seconds`,
+              );
+              return {
+                leagueId,
+                fixtures: [],
+                error: "Request timeout",
+                networkError: true,
+                timeout: true
+              };
+            }
+
             console.warn(
               `⚠️ [MyNewLeague2] Error fetching league ${leagueId}: ${errorMessage}`,
             );
             return {
               leagueId,
               fixtures: [],
-              error: errorMessage.includes("abort") ? "Request timeout" : errorMessage,
+              error: errorMessage,
               networkError: true
             };
           }
