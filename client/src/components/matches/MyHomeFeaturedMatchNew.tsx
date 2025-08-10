@@ -391,7 +391,39 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     [getCacheKey, isMatchOldEnded],
   );
 
-  // handlePrevious and handleNext callbacks
+  // Get current match from the selected day and index
+  const currentMatch = useMemo(() => {
+    if (featuredMatches.length === 0) return null;
+    const currentDay = featuredMatches[selectedDay];
+    if (!currentDay || currentDay.matches.length === 0) return null;
+    return currentDay.matches[currentMatchIndex] || null;
+  }, [featuredMatches, selectedDay, currentMatchIndex]);
+
+  // Get all matches flattened for navigation
+  const allMatches = useMemo(() => {
+    return featuredMatches.flatMap((day) => day.matches);
+  }, [featuredMatches]);
+
+  // Handle navigation
+  const handlePrevious = useCallback(() => {
+    if (allMatches.length <= 1) return;
+    setCurrentMatchIndex((prev) => (prev === 0 ? allMatches.length - 1 : prev - 1));
+  }, [allMatches.length]);
+
+  const handleNext = useCallback(() => {
+    if (allMatches.length <= 1) return;
+    setCurrentMatchIndex((prev) => (prev === allMatches.length - 1 ? 0 : prev + 1));
+  }, [allMatches.length]);
+
+  // Helper function to get status display information
+  const getStatusDisplay = useCallback((match: FeaturedMatch) => {
+    const status = match.fixture.status.short;
+    const isLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
+    const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status);
+    const isUpcoming = ["NS", "TBD", "PST"].includes(status);
+    
+    return { isLive, isEnded, isUpcoming };
+  }, []);
 
   const fetchFeaturedMatches = useCallback(
     async (forceRefresh = false) => {
