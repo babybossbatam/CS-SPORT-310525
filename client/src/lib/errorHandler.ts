@@ -400,8 +400,12 @@ export const setupGlobalErrorHandlers = () => {
          errorString.includes('[plugin:runtime-error-plugin]') ||
          errorString.includes('riker.replit.dev') ||
          errorString.includes('482be3e5-72e0-4aaf-ab33-69660b136cf5') ||
-         errorString.includes('signal is aborted'))) {
-      console.log('🌐 Network/import/abort/replit error string detected, suppressing...');
+         errorString.includes('signal is aborted') ||
+         errorString.includes('attached_assets') ||
+         errorString.includes('background.js') ||
+         errorString.includes('404 (Not Found)') ||
+         errorString.includes('Invalid or unexpected token'))) {
+      console.log('🌐 Network/import/abort/replit/assets error string detected, suppressing...');
       event.preventDefault();
       return;
     }
@@ -444,10 +448,13 @@ export const setupGlobalErrorHandlers = () => {
       return;
     }
 
-    // Handle network-related errors
+    // Handle network-related errors and asset loading errors
     if (error?.message?.includes('Failed to fetch') || 
-        error?.message?.includes('NetworkError')) {
-      console.log('🌐 Network error in global handler');
+        error?.message?.includes('NetworkError') ||
+        error?.message?.includes('attached_assets') ||
+        error?.message?.includes('background.js') ||
+        error?.message?.includes('Invalid or unexpected token')) {
+      console.log('🌐 Network/asset error in global handler');
       event.preventDefault();
       handleNetworkRecovery();
       return;
