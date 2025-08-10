@@ -9,6 +9,7 @@ import MyStats from './MyStats';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import MyStatsTabCard from './MyStatsTabCard';
 import MyH2HNew from './MyH2HNew';
+import '@/styles/MyStats.css';
 
 interface MyMatchTabCardProps {
   match: any;
@@ -128,7 +129,7 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
 
       
       {/* Match Statistics */}
-      <Card className="">
+      <Card className="mystats-container">
         <CardHeader>
           <CardTitle className="text-xs">Stats</CardTitle>
         </CardHeader>

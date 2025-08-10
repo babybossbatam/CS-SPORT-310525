@@ -1,0 +1,41 @@
+
+/* MyStats.css - Dedicated styling for MyStats component */
+
+/* Dark mode text styling for MyStats component */
+.dark .text-gray-700 {
+  color: white !important;
+}
+
+/* Dark mode styling for stats labels */
+.dark .mystats-container .text-gray-700,
+.dark .mystats-container .text-gray-600,
+.dark .mystats-container .text-gray-500 {
+  color: white !important;
+}
+
+/* Dark mode button styling for "See All Stats" */
+.dark .mystats-container button {
+  color: white !important;
+  border-color: rgb(55 65 81) !important; /* border-gray-700 */
+}
+
+.dark .mystats-container button:hover {
+  background-color: rgb(55 65 81) !important; /* bg-gray-700 */
+  color: white !important;
+}
+
+/* Dark mode card styling for stats */
+.dark .mystats-container .bg-white {
+  background-color: rgb(31 41 55) !important; /* bg-gray-800 */
+}
+
+.dark .mystats-container .border-gray-200 {
+  border-color: rgb(55 65 81) !important; /* border-gray-700 */
+}
+
+/* Ensure all text elements in MyStats are white in dark mode */
+.dark .mystats-container span,
+.dark .mystats-container div,
+.dark .mystats-container p {
+  color: white !important;
+}
