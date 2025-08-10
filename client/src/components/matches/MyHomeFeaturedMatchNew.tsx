@@ -254,7 +254,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [countdownTimer, setCountdownTimer] = useState<string>("Loading...");
   const [roundsCache, setRoundsCache] = useState<Record<string, string[]>>({});
-  const { currentLanguage, getMatchStatusTranslation } = useTranslation();
+  const { currentLanguage, getMatchStatusTranslation, translateTeamName } = useTranslation();
 
 
   const fetchRoundsForLeague = useCallback(async (leagueId: number, season: number) => {
@@ -2310,7 +2310,7 @@ id: fixture.teams.away.id,
                               return `${daysDiff} ${daysDiff === 1 ? "Day" : "Days"}`;
                             } else if (daysDiff > 7) {
                               // For matches more than a week away, show date
-                              return format(matchDate, "EEEE, MMM d");
+                              return format(matchDate, "EEEE, do MMMM");
                             } else {
                               // For past matches that aren't ended (edge case)
                               return format(matchDate, "EEEE, MMM d");
@@ -2397,15 +2397,18 @@ id: fixture.teams.away.id,
                         </div>
 
                         <div
-                          className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
+                          className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
                           style={{
                             top: "calc(50% - 15px)",
                             left: "85px",
-                            fontSize: "1.24rem",
+                            fontSize: "clamp(12px, 2.5vw, 16px)",
                             fontWeight: "normal",
                           }}
                         >
-                          {currentMatch?.teams?.home?.name || "TBD"}
+                          {(() => {
+                            const originalName = currentMatch?.teams?.home?.name || "TBD";
+                            return translateTeamName(originalName);
+                          })()}
                         </div>
 
                         {/* VS circle */}
@@ -2500,7 +2503,7 @@ id: fixture.teams.away.id,
                           style={{
                             top: "calc(50% - 15px)",
                             right: "85px",
-                            fontSize: "1.24rem",
+                            fontSize: "clamp(12px, 2.5vw, 16px)",
                             fontWeight: "normal",
                           }}
                         >
