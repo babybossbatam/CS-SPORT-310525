@@ -13,6 +13,11 @@
   color: white !important;
 }
 
+/* More specific dark mode text styling for stat row labels */
+.dark .mystats-container span.text-gray-700 {
+  color: white !important;
+}
+
 /* Dark mode button styling for "See All Stats" */
 .dark .mystats-container button {
   color: white !important;
