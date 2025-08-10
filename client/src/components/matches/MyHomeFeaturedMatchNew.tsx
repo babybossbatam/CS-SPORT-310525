@@ -254,6 +254,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [countdownTimer, setCountdownTimer] = useState<string>("Loading...");
   const [roundsCache, setRoundsCache] = useState<Record<string, string[]>>({});
+  const { currentLanguage, getMatchStatusTranslation } = useTranslation();
+
 
   const fetchRoundsForLeague = useCallback(async (leagueId: number, season: number) => {
     const cacheKey = `${leagueId}-${season}`;
@@ -2262,13 +2264,7 @@ id: fixture.teams.away.id,
                           return (
                             <div className="space-y-0">
                               <div className="text-gray-600 dark:text-gray-400 text-sm ">
-                                {matchStatus === "FT"
-                                  ? "Ended"
-                                  : matchStatus === "AET"
-                                    ? "After Extra Time"
-                                    : matchStatus === "PEN"
-                                      ? "After Penalties"
-                                      : "Ended"}
+                                {getMatchStatusTranslation(matchStatus, currentLanguage)}
                               </div>
                               <div className="text-3xl font-bold">
                                 {homeScore} - {awayScore}
