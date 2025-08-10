@@ -504,19 +504,12 @@ export async function mapMajorEuropeanLeagues(): Promise<void> {
 
 // Make functions available in browser console
 if (typeof window !== 'undefined') {
-  (window as any).generateAutomatedTeamMappingForLeagues = generateAutomatedTeamMappingForLeagues;
-  (window as any).mapSpanishLeagueTeams = mapSpanishLeagueTeams;
-  (window as any).mapMajorEuropeanLeagues = mapMajorEuropeanLeagues;
-  
-  console.log(`🛠️ [Automated Team Mapping] Available functions:`);
-  console.log(`   • generateAutomatedTeamMappingForLeagues([4, 667]) - Map specific leagues`);
-  console.log(`   • mapSpanishLeagueTeams() - Map all Spanish league teams`);
-  console.log(`   • mapMajorEuropeanLeagues() - Map all major European leagues`);
-}
-
   (window as any).generateCompleteTeamMapping = generateCompleteTeamMapping;
   (window as any).generateSeasonWideTeamMapping = generateSeasonWideTeamMapping;
   (window as any).analyzeCurrentPageTeams = analyzeCurrentPageTeams;
+  (window as any).generateAutomatedTeamMappingForLeagues = generateAutomatedTeamMappingForLeagues;
+  (window as any).mapSpanishLeagueTeams = mapSpanishLeagueTeams;
+  (window as any).mapMajorEuropeanLeagues = mapMajorEuropeanLeagues;
   
   // Helper function to directly generate team mappings for specific leagues
   (window as any).generateMappingForLeagues = async (leagueIds: number[]) => {
@@ -545,4 +538,9 @@ if (typeof window !== 'undefined') {
     console.log(`🎯 Custom mapping complete: ${analysis.totalTeams} teams from ${analysis.totalFixtures} fixtures`);
     return analysis;
   };
+  
+  console.log(`🛠️ [Automated Team Mapping] Available functions:`);
+  console.log(`   • generateAutomatedTeamMappingForLeagues([4, 667]) - Map specific leagues`);
+  console.log(`   • mapSpanishLeagueTeams() - Map all Spanish league teams`);
+  console.log(`   • mapMajorEuropeanLeagues() - Map all major European leagues`);
 }
