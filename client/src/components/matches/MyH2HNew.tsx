@@ -190,7 +190,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
 
   if (loading) {
     return (
-      <Card>
+      <Card className="mystats-container">
         <CardHeader>
           <CardTitle className="text-sm font-medium">Head to Head</CardTitle>
         </CardHeader>
@@ -206,7 +206,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
 
   if (error) {
     return (
-      <Card>
+      <Card className="mystats-container">
         <CardHeader>
           <CardTitle className="text-sm font-medium">Head to Head</CardTitle>
         </CardHeader>
@@ -231,7 +231,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
   // Only show "No Previous Meetings" if we have no data AND no error (meaning successful fetch with empty result)
   if (!h2hData.length && !error) {
     return (
-      <Card className="mobile-card">
+      <Card className="mobile-card mystats-container">
         <CardHeader>
           <CardTitle className="text-sm font-medium">Head to Head</CardTitle>
         </CardHeader>
@@ -741,7 +741,7 @@ const TopTrendsCard: React.FC<{ homeTeamId?: number; awayTeamId?: number }> = ({
 
   if (loading) {
     return (
-      <Card className="mt-4">
+      <Card className="mt-4 mystats-container">
         <CardHeader>
           <CardTitle className="text-sm font-medium">Top Trends</CardTitle>
         </CardHeader>
@@ -756,7 +756,7 @@ const TopTrendsCard: React.FC<{ homeTeamId?: number; awayTeamId?: number }> = ({
 
   if (!homeStats || !awayStats || trends.length === 0) {
     return (
-      <Card className="mt-4">
+      <Card className="mt-4 mystats-container">
         <CardHeader>
           <CardTitle className="text-sm font-medium">Top Trends</CardTitle>
         </CardHeader>
@@ -770,7 +770,7 @@ const TopTrendsCard: React.FC<{ homeTeamId?: number; awayTeamId?: number }> = ({
   }
 
   return (
-    <Card className="mt-3 md:mt-4 mobile-card">
+    <Card className="mt-3 md:mt-4 mobile-card mystats-container">
       <CardHeader>
         <CardTitle className="mobile-text-sm font-medium">Top Trends</CardTitle>
       </CardHeader>
