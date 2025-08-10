@@ -25,21 +25,13 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 
 import { RoundBadge } from "@/components/ui/round-badge";
-import { useTranslation } from "react-i18next"; // Assuming you have i18next setup
 
-// Import smart translation utility (assuming it's available globally or imported)
-// import { translateTeamName, translateLeague } from "@/lib/translationUtils"; // Example import path
-
-// Mock translation functions for demonstration purposes if not imported
-const translateTeamName = (name: string, lang: string): string => {
-  // Replace with actual translation logic
-  // console.log(`Translating team: ${name} to ${lang}`);
+// Translation functions that return the original name for now
+const translateTeamName = (name: string): string => {
   return name;
 };
 
-const translateLeague = (name: string, lang: string): string => {
-  // Replace with actual translation logic
-  // console.log(`Translating league: ${name} to ${lang}`);
+const translateLeague = (name: string): string => {
   return name;
 };
 
@@ -278,9 +270,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [countdownTimer, setCountdownTimer] = useState<string>("Loading...");
   const [roundsCache, setRoundsCache] = useState<Record<string, string[]>>({});
-  const { i18n } = useTranslation(); // Get current language
-
-  const currentLanguage = i18n.language || 'en'; // Default to 'en' if not set
 
 
   const fetchRoundsForLeague = useCallback(async (leagueId: number, season: number) => {
@@ -2250,7 +2239,7 @@ id: fixture.teams.away.id,
                       className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center"
                       title={`League ID: ${currentMatch.league.id} | ${currentMatch.league.name} | ${currentMatch.league.country}`}
                     >
-                      {translateLeague(currentMatch?.league?.name || "League Name", currentLanguage)}
+                      {translateLeague(currentMatch?.league?.name || "League Name")}
                     </span>
 
                     {/* Round/Bracket Status Display using RoundBadge component */}
@@ -2446,7 +2435,7 @@ id: fixture.teams.away.id,
 
                         <div className="flex-1 min-w-0">
                           <h3 className="text-lg font-bold text-right truncate">
-                            {translateTeamName(currentMatch.teams.home.name, currentLanguage)}
+                            {translateTeamName(currentMatch.teams.home.name)}
                           </h3>
                         </div>
 
@@ -2506,7 +2495,7 @@ id: fixture.teams.away.id,
 
                         <div className="flex-1 min-w-0">
                           <h3 className="text-lg font-bold text-left truncate">
-                            {translateTeamName(currentMatch.teams.away.name, currentLanguage)}
+                            {translateTeamName(currentMatch.teams.away.name)}
                           </h3>
                         </div>
 
