@@ -1158,7 +1158,8 @@ const HomeTopScorersList = () => {
                     playerName: scorer.player.name,
                     playerPosition: scorer.player.position,
                     gamesPosition: playerStats?.games?.position,
-                    finalPosition: position,
+                    finalPosition: rawPosition,
+                    translatedPosition: translatedPosition,
                     fullPlayerData: scorer.player,
                     fullStatsData: playerStats,
                   });
