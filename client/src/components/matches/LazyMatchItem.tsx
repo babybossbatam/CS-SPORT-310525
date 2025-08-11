@@ -1,15 +1,20 @@
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface LazyMatchItemProps {
-  children: React.ReactNode;
-  fallback?: React.ReactNode;
-  rootMargin?: string;
-  threshold?: number;
-  prefetchMargin?: string;
-  onPrefetch?: () => Promise<void>;
-  priority?: 'high' | 'normal' | 'low';
+  match: any;
+  onMatchClick?: (fixture: any) => void;
+  isStarred?: boolean;
+  onToggleStar?: () => void;
+  flashStates?: {
+    halftime: boolean;
+    fulltime: boolean;
+    goal: boolean;
+  };
+  leagueContext?: {
+    name: string;
+    country: string;
+  };
 }
 
 // Global intersection observer for better performance
@@ -19,7 +24,12 @@ const observedElements = new Map<Element, () => void>();
 const prefetchElements = new Map<Element, () => Promise<void>>();
 
 const LazyMatchItem: React.FC<LazyMatchItemProps> = ({
-  children,
+  match,
+  onMatchClick,
+  isStarred,
+  onToggleStar,
+  flashStates,
+  leagueContext,
   fallback,
   rootMargin = '100px',
   threshold = 0.1,
@@ -112,7 +122,7 @@ const LazyMatchItem: React.FC<LazyMatchItemProps> = ({
       if (element) {
         observedElements.delete(element);
         globalObserver?.unobserve(element);
-        
+
         if (prefetchObserver) {
           prefetchElements.delete(element);
           prefetchObserver.unobserve(element);
@@ -170,9 +180,9 @@ const LazyMatchItem: React.FC<LazyMatchItemProps> = ({
   );
 
   return (
-    <div 
+    <div
       ref={elementRef}
-      style={{ 
+      style={{
         minHeight: priority === 'high' ? '80px' : '60px',
         transition: 'opacity 0.2s ease-in-out'
       }}

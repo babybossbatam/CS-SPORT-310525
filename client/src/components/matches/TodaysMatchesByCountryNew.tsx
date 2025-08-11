@@ -45,6 +45,7 @@ import "../../styles/MyLogoPositioning.css";
 import "../../styles/TodaysMatchByCountryNew.css";
 import "../../styles/flasheffect.css";
 import MyCountryGroupFlag from "../common/MyCountryGroupFlag";
+import { useDebounceCallback, batchDOMUpdates } from "../../lib/performanceOptimizations";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -705,71 +706,45 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [processedFixtures, selectedDate]);
 
-// Group fixtures by country and league using MyNewLeague2's robust approach
+// Optimized fixture grouping with better performance
   const fixturesByCountry = useMemo(() => {
-    const filteredFixtures = validFixtures;
-    if (!filteredFixtures?.length) {
-      console.log(`❌ [TodaysMatchesByCountryNew] No valid fixtures to group`);
-      return {};
-    }
+    if (!validFixtures?.length) return {};
 
-    const grouped: { [key: string]: { country: string; leagues: any; hasPopularLeague: boolean } } = {};
-    const seenFixtures = new Set<number>(); // Additional duplicate prevention at grouping level
-    const seenMatchups = new Set<string>(); // Track unique team matchups
-
-    filteredFixtures.forEach((fixture: any) => {
-      // Additional validation at grouping level
-      if (
-        !fixture ||
-        !fixture.league ||
-        !fixture.teams ||
-        !fixture.fixture?.date ||
-        !fixture.fixture?.id
-      ) {
-        return;
-      }
-
-      // Additional duplicate check at grouping level
-      if (seenFixtures.has(fixture.fixture.id)) {
-        return;
-      }
-
-      // Create unique matchup key
-      const matchupKey = `${fixture.teams.home.id}-${fixture.teams.away.id}-${fixture.league.id}-${fixture.fixture.date}`;
-
-      // Check for duplicate team matchups
-      if (seenMatchups.has(matchupKey)) {
-        return;
-      }
-
-      const country = fixture.league.country || "Unknown";
-      const leagueId = fixture.league.id;
-
-      // Apply exclusion filter
+    // Pre-filter valid fixtures to reduce processing
+    const filteredFixtures = validFixtures.filter((fixture: any) => {
+      if (!fixture?.league?.country || !fixture?.fixture?.id || !fixture?.teams) return false;
+      
+      // Early exclusion check to reduce processing
       const leagueName = fixture.league.name || "";
       const homeTeamName = fixture.teams?.home?.name || "";
       const awayTeamName = fixture.teams?.away?.name || "";
+      
+      return !shouldExcludeMatchByCountry(
+        leagueName,
+        homeTeamName,
+        awayTeamName,
+        false,
+        fixture.league.country,
+      );
+    });
 
-      if (
-        shouldExcludeMatchByCountry(
-          leagueName,
-          homeTeamName,
-          awayTeamName,
-          false,
-          country,
-        )
-      ) {
-        return;
-      }
+    const grouped: { [key: string]: { country: string; leagues: any; hasPopularLeague: boolean } } = {};
+    const seenIds = new Set<number>();
 
+    // Single pass processing
+    for (const fixture of filteredFixtures) {
+      if (seenIds.has(fixture.fixture.id)) continue;
+      seenIds.add(fixture.fixture.id);
+
+      const country = fixture.league.country;
+      const leagueId = fixture.league.id;
+
+      // Initialize country if needed
       if (!grouped[country]) {
-        grouped[country] = {
-          country,
-          leagues: {},
-          hasPopularLeague: false,
-        };
+        grouped[country] = { country, leagues: {}, hasPopularLeague: false };
       }
 
+      // Initialize league if needed
       if (!grouped[country].leagues[leagueId]) {
         grouped[country].leagues[leagueId] = {
           league: fixture.league,
@@ -778,79 +753,35 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         };
       }
 
-      // Mark as seen and add to the group
-      seenFixtures.add(fixture.fixture.id);
-      seenMatchups.add(matchupKey);
       grouped[country].leagues[leagueId].matches.push(fixture);
-    });
+    }
 
-    // Sort fixtures within each league by priority (same as MyNewLeague2): Live > Upcoming > Ended
+    // Sort matches by priority (moved outside of loop for better performance)
+    const statusPriority = {
+      'LIVE': 1, 'LIV': 1, '1H': 1, 'HT': 1, '2H': 1, 'ET': 1, 'BT': 1, 'P': 1, 'INT': 1,
+      'NS': 2, 'TBD': 2,
+      'FT': 3, 'AET': 3, 'PEN': 3, 'AWD': 3, 'WO': 3, 'ABD': 3, 'CANC': 3, 'SUSP': 3
+    };
+
     Object.values(grouped).forEach((countryGroup) => {
       Object.values(countryGroup.leagues).forEach((leagueGroup: any) => {
         leagueGroup.matches.sort((a: any, b: any) => {
-          const aStatus = a.fixture.status.short;
-          const bStatus = b.fixture.status.short;
+          const aPriority = statusPriority[a.fixture.status.short] || 4;
+          const bPriority = statusPriority[b.fixture.status.short] || 4;
+
+          if (aPriority !== bPriority) return aPriority - bPriority;
+
           const aDate = new Date(a.fixture.date).getTime();
           const bDate = new Date(b.fixture.date).getTime();
 
-          // Define status priorities (same as MyNewLeague2)
-          const getStatusPriority = (status: string) => {
-            // Priority 1: Live matches (highest priority)
-            if (
-              ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-                status,
-              )
-            ) {
-              return 1;
-            }
-            // Priority 2: Upcoming matches (second priority)
-            if (["NS", "TBD"].includes(status)) {
-              return 2;
-            }
-            // Priority 3: Ended matches (third priority)
-            if (
-              ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(
-                status,
-              )
-            ) {
-              return 3;
-            }
-            // Priority 4: Other/unknown statuses (lowest priority)
-            return 4;
-          };
-
-          const aPriority = getStatusPriority(aStatus);
-          const bPriority = getStatusPriority(bStatus);
-
-          // Primary sort: by status priority (Live -> Upcoming -> Ended -> Other)
-          if (aPriority !== bPriority) {
-            return aPriority - bPriority;
-          }
-
-          // Secondary sort: within same status category
-          if (aPriority === 1) {
-            // Live matches: sort by elapsed time (shortest elapsed time first)
+          // Same priority sorting
+          if (aPriority === 1) { // Live matches
             const aElapsed = Number(a.fixture.status.elapsed) || 0;
             const bElapsed = Number(b.fixture.status.elapsed) || 0;
-            if (aElapsed !== bElapsed) {
-              return aElapsed - bElapsed;
-            }
-            // If same elapsed time, sort by date
-            return aDate - bDate;
+            return aElapsed !== bElapsed ? aElapsed - bElapsed : aDate - bDate;
           }
-
-          if (aPriority === 2) {
-            // Upcoming matches: sort by earliest start time first (soonest first)
-            return aDate - bDate;
-          }
-
-          if (aPriority === 3) {
-            // Ended matches: sort by most recent end time first (latest finished first)
-            return bDate - aDate;
-          }
-
-          // For other statuses, sort by date (earliest first)
-          return aDate - bDate;
+          
+          return aPriority === 2 ? aDate - bDate : bDate - aDate; // Upcoming vs Ended
         });
       });
     });
@@ -905,43 +836,33 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   console.log(`📊 [DEBUG] Comprehensive Grouping Analysis:`, groupingAnalysis);
 
-  // Live match prioritization: Live World matches are sorted first
+  // Optimized country sorting with cached live status
   const sortedCountries = useMemo(() => {
-    return Object.values(fixturesByCountry).sort(
-      (a: any, b: any) => {
-        const countryA = a.country || "";
-        const countryB = b.country || "";
-
-        // Check if either country is World
-        const aIsWorld = countryA.toLowerCase() === "world";
-        const bIsWorld = countryB.toLowerCase() === "world";
-
-        // Check for live matches in each country
-        const aHasLive = Object.values(a.leagues).some((league: any) =>
+    const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
+    
+    return Object.values(fixturesByCountry)
+      .map((countryData: any) => ({
+        ...countryData,
+        isWorld: countryData.country?.toLowerCase() === 'world',
+        hasLive: Object.values(countryData.leagues).some((league: any) =>
           league.matches.some((match: any) =>
-            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-              match.fixture.status.short,
-            ),
-          ),
-        );
-        const bHasLive = Object.values(b.leagues).some((league: any) =>
-          league.matches.some((match: any) =>
-            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-              match.fixture.status.short,
-            ),
-          ),
-        );
-
-        // Priority: World with live matches first, then World without live, then others alphabetically
-        if (aIsWorld && aHasLive && (!bIsWorld || !bHasLive)) return -1;
-        if (bIsWorld && bHasLive && (!aIsWorld || !aHasLive)) return 1;
-        if (aIsWorld && !bIsWorld) return -1;
-        if (bIsWorld && !aIsWorld) return 1;
-
-        return countryA.localeCompare(countryB);
-      },
-    );
-  }, [Object.keys(fixturesByCountry).length, validFixtures.length]);
+            liveStatuses.includes(match.fixture.status.short)
+          )
+        )
+      }))
+      .sort((a: any, b: any) => {
+        // World + Live first
+        if (a.isWorld && a.hasLive && (!b.isWorld || !b.hasLive)) return -1;
+        if (b.isWorld && b.hasLive && (!a.isWorld || !a.hasLive)) return 1;
+        
+        // World second
+        if (a.isWorld && !b.isWorld) return -1;
+        if (b.isWorld && !a.isWorld) return 1;
+        
+        // Alphabetical
+        return a.country.localeCompare(b.country);
+      });
+  }, [fixturesByCountry]);
 
   // Start with all countries collapsed by default
   useEffect(() => {
@@ -1004,44 +925,37 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     setExpandedLeagues(firstLeagues);
   }, [selectedDate, Object.keys(fixturesByCountry).length]);
 
-  // Single flag fetching effect with deduplication
+  // Optimized flag fetching with reduced frequency
+  const flagFetchingRef = useRef(new Set<string>());
+  
   useEffect(() => {
     if (!validFixtures.length) return;
 
-    const countries = Object.values(fixturesByCountry)
-      .map((c: any) => c.country)
-      .filter(Boolean);
-    const uniqueCountries = [...new Set(countries)];
-
-    // Only process countries that aren't already in flagMap
-    const missingCountries = uniqueCountries.filter(
-      (country) => !flagMap[country],
+    const countries = Object.keys(fixturesByCountry).filter(Boolean);
+    const missingCountries = countries.filter(
+      (country) => !flagMap[country] && !flagFetchingRef.current.has(country),
     );
 
-    if (missingCountries.length === 0) {
-      return;
-    }
+    if (missingCountries.length === 0) return;
 
-    console.log(
-      `🎯 Need flags for ${missingCountries.length} countries: ${missingCountries.join(", ")}`,
-    );
+    // Mark as being fetched to prevent duplicate calls
+    missingCountries.forEach(country => flagFetchingRef.current.add(country));
 
-    // Pre-populate flagMap with sync flags to prevent redundant calls
-    const syncFlags: { [country: string]: string } = {};
-    missingCountries.forEach((country) => {
-      const syncFlag = getCountryFlagWithFallbackSync(country);
-      if (syncFlag) {
-        syncFlags[country] = syncFlag;
+    // Batch process flags asynchronously
+    requestIdleCallback(() => {
+      const syncFlags: { [country: string]: string } = {};
+      missingCountries.forEach((country) => {
+        const syncFlag = getCountryFlagWithFallbackSync(country);
+        if (syncFlag) {
+          syncFlags[country] = syncFlag;
+        }
+      });
+
+      if (Object.keys(syncFlags).length > 0) {
+        setFlagMap((prev) => ({ ...prev, ...syncFlags }));
       }
     });
-
-    if (Object.keys(syncFlags).length > 0) {
-      setFlagMap((prev) => ({ ...prev, ...syncFlags }));
-      console.log(
-        `⚡ Pre-populated ${Object.keys(syncFlags).length} flags synchronously`,
-      );
-    }
-  }, [Object.keys(fixturesByCountry).length]); // Only depend on country count, not the actual data
+  }, [fixturesByCountry, flagMap]); // Simplified dependencies
 
   const toggleCountry = useCallback((country: string) => {
     setExpandedCountries((prev) => {
@@ -1701,7 +1615,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               </div>
                             </button>
 
-                            {/* Matches - Show when league is expanded OR when it's the first league */}
+                            {/* Matches - Show when league is expanded with lazy loading */}
                             {isLeagueExpanded && (
                               <div
                                 className="space-y-0 league-matches-container"
@@ -1712,38 +1626,26 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                 }}
                               >
                                 {leagueData.matches
-                                  .filter((match: any) => {
-                                    // Only filter out hidden matches
-                                    return !hiddenMatches.has(match.fixture.id);
-                                  })
+                                  .filter((match: any) => !hiddenMatches.has(match.fixture.id))
+                                  .slice(0, matchIndex < 10 ? 10 : leagueData.matches.length) // Show first 10, then all
                                   .map((match: any, matchIndex) => (
 
-                                    <div
-                                      key={`${match.fixture.id}-${countryData.country}-${leagueData.league.id}-${matchIndex}`}
-                                      className={`match-card-container group ${
-                                        halftimeFlashMatches.has(match.fixture.id) ? 'halftime-flash' : ''
-                                      } ${
-                                        fulltimeFlashMatches.has(match.fixture.id) ? 'fulltime-flash' : ''
-                                      } ${
-                                        goalFlashMatches.has(match.fixture.id) ? 'goal-flash' : ''
-                                      }`}
-                                      onClick={() => {
-                                        console.log(`🔍 [MATCH DEBUG] Clicked match:`, {
-                                          fixtureId: match.fixture.id,
-                                          fixtureDate: match.fixture.date,
-                                          teams: `${match.teams.home.name} vs ${match.teams.away.name}`,
-                                          selectedDate,
-                                          status: match.fixture.status.short,
-                                          dataSource: 'TodaysMatchesByCountryNew'
-                                        });
-                                        onMatchCardClick?.(match);
+                                    <LazyMatchItem
+                                      key={`${match.fixture.id}-${countryData.country}-${leagueData.league.id}`}
+                                      match={match}
+                                      onMatchClick={onMatchCardClick}
+                                      isStarred={starredMatches.has(match.fixture.id)}
+                                      onToggleStar={() => toggleStarMatch(match.fixture.id)}
+                                      flashStates={{
+                                        halftime: halftimeFlashMatches.has(match.fixture.id),
+                                        fulltime: fulltimeFlashMatches.has(match.fixture.id),
+                                        goal: goalFlashMatches.has(match.fixture.id)
                                       }}
-                                      style={{
-                                        cursor: onMatchCardClick
-                                          ? "pointer"
-                                          : "default",
+                                      leagueContext={{
+                                        name: leagueData.league.name,
+                                        country: leagueData.league.country,
                                       }}
-                                    >
+                                    />
                                       {/* Star Button with true slide-in effect */}
                                       <button
                                         onClick={(e) => {
