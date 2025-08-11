@@ -197,6 +197,7 @@ const HomeTopScorersList = () => {
   useEffect(() => {
     const checkLeaguesWithData = async () => {
       const leaguesWithData = [];
+      const leagueDataForLearning: any[] = [];
 
       for (const league of POPULAR_LEAGUES) {
         try {
@@ -239,11 +240,26 @@ const HomeTopScorersList = () => {
 
             if (freshData.length > 0) {
               leaguesWithData.push(league);
+              
+              // Collect league data for learning
+              freshData.forEach((scorer: any) => {
+                if (scorer.statistics[0]?.league) {
+                  leagueDataForLearning.push({
+                    league: scorer.statistics[0].league
+                  });
+                }
+              });
             }
           }
         } catch (error) {
           console.warn(`Failed to check data for league ${league.id}`);
         }
+      }
+
+      // Auto-learn from the collected league data
+      if (leagueDataForLearning.length > 0) {
+        smartLeagueCountryTranslation.learnFromFixtures(leagueDataForLearning);
+        console.log(`🎓 [HomeTopScorers] Auto-learned from ${leagueDataForLearning.length} league data points`);
       }
 
       setAvailableLeagues(leaguesWithData);

@@ -179,6 +179,24 @@ class SmartLeagueCountryTranslation {
         'ko': 'AFC 챔피언스리그'
       },
 
+    // Africa Cup of Nations
+    'Africa Cup of Nations': {
+      'zh': '非洲国家杯', 'zh-hk': '非洲國家盃', 'zh-tw': '非洲國家盃',
+      'es': 'Copa Africana de Naciones', 'de': 'Afrika-Cup', 'it': 'Coppa d\'Africa', 'pt': 'Taça das Nações Africanas'
+    },
+    'AFCON': {
+      'zh': '非洲国家杯', 'zh-hk': '非洲國家盃', 'zh-tw': '非洲國家盃',
+      'es': 'Copa Africana de Naciones', 'de': 'Afrika-Cup', 'it': 'Coppa d\'Africa', 'pt': 'Taça das Nações Africanas'
+    },
+    'afcon': {
+      'zh': '非洲国家杯', 'zh-hk': '非洲國家盃', 'zh-tw': '非洲國家盃',
+      'es': 'Copa Africana de Naciones', 'de': 'Afrika-Cup', 'it': 'Coppa d\'Africa', 'pt': 'Taça das Nações Africanas'
+    },
+    'Asian Cup': {
+      'zh': '亚洲杯', 'zh-hk': '亞洲盃', 'zh-tw': '亞洲盃',
+      'es': 'Copa Asiática', 'de': 'Asienmeisterschaft', 'it': 'Coppa d\'Asia', 'pt': 'Taça da Ásia'
+    },
+
       // Additional AFC variations
       'afc challenge league': {
         'en': 'AFC Challenge League',
