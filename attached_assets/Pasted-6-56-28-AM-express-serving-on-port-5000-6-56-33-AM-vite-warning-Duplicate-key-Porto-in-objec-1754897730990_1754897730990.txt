@@ -1,0 +1,194 @@
+6:56:28 AM [express] serving on port 5000
+6:56:33 AM [vite] warning: Duplicate key "Porto" in object literal
+948|        'es': 'Oporto', 'de': 'Porto', 'it': 'Porto', 'pt': 'Porto'
+949|      },
+950|      'Porto': {
+   |      ^
+951|        'zh': '波尔图', 'zh-hk': '波圖', 'zh-tw': '波爾圖',
+952|        'es': 'Oporto', 'de': 'Porto', 'it': 'Porto', 'pt': 'Porto'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+6:56:33 AM [vite] warning: Duplicate key "Benfica" in object literal
+952|        'es': 'Oporto', 'de': 'Porto', 'it': 'Porto', 'pt': 'Porto'
+953|      },
+954|      'Benfica': {
+   |      ^
+955|        'zh': '本菲卡', 'zh-hk': '賓菲加', 'zh-tw': '本菲卡',
+956|        'es': 'Benfica', 'de': 'Benfica', 'it': 'Benfica', 'pt': 'Benfica'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+6:56:33 AM [vite] warning: Duplicate key "Sporting CP" in object literal
+960|        'es': 'SL Benfica', 'de': 'SL Benfica', 'it': 'SL Benfica', 'pt': 'SL Benfica'
+961|      },
+962|      'Sporting CP': {
+   |      ^
+963|        'zh': '里斯本竞技', 'zh-hk': '士砵亭', 'zh-tw': '里斯本競技',
+964|        'es': 'Sporting de Lisboa', 'de': 'Sporting Lissabon', 'it': 'Sporting Lisbona', 'pt': 'Sporting'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+6:56:33 AM [vite] warning: Duplicate key "SC Braga" in object literal
+1554|        'es': 'CFR Cluj', 'de': 'CFR Cluj', 'it': 'CFR Cluj', 'pt': 'CFR Cluj'
+1555|      },
+1556|      'SC Braga': {
+   |      ^
+1557|        'zh': '布拉加', 'zh-hk': '布拉加', 'zh-tw': '布拉加',
+1558|        'es': 'SC Braga', 'de': 'SC Braga', 'it': 'SC Braga', 'pt': 'SC Braga'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+6:56:33 AM [vite] warning: Duplicate member "generateTeamMappingsFromCurrentFixtures" in class body
+2641|  
+2642|    // Generate team mappings from current fixtures
+2643|    generateTeamMappingsFromCurrentFixtures(fixtures: any[]): string {
+   |    ^
+2644|      const mapping: { [key: string]: string } = {};
+2645|      const teamCounts: { [key: string]: number } = {};
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+6:56:33 AM [vite] warning: Duplicate member "getPopularTeamTranslation" in class body
+3198|     * Get translation from popular league teams
+3199|     */
+3200|    private getPopularTeamTranslation(teamName: string, language: string): string {
+   |            ^
+3201|      const normalizedName = teamName.toLowerCase();
+3202|  
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-WIIJQEXM.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-SD42OOGP.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-VRF373B3.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+6:58:53 AM [vite] hmr update /src/contexts/LanguageContext.tsx, /src/index.css?v=5MhUxkh1Lp-LcLClnx2UR
+7:00:18 AM [vite] hmr update /src/contexts/LanguageContext.tsx, /src/index.css?v=5MhUxkh1Lp-LcLClnx2UR (x2)
+7:00:20 AM [vite] hmr update /src/contexts/LanguageContext.tsx, /src/index.css?v=5MhUxkh1Lp-LcLClnx2UR (x3)
+7:00:23 AM [vite] hmr update /src/contexts/LanguageContext.tsx, /src/index.css?v=5MhUxkh1Lp-LcLClnx2UR (x4)
+7:00:25 AM [vite] hmr update /src/contexts/LanguageContext.tsx, /src/index.css?v=5MhUxkh1Lp-LcLClnx2UR (x5)
+7:00:54 AM [vite] hmr update /src/contexts/LanguageContext.tsx, /src/index.css?v=5MhUxkh1Lp-LcLClnx2UR (x6)
+7:02:33 AM [vite] hmr update /src/contexts/LanguageContext.tsx, /src/index.css?v=5MhUxkh1Lp-LcLClnx2UR (x7)
+7:04:15 AM [vite] hmr update /src/contexts/LanguageContext.tsx, /src/index.css?v=5MhUxkh1Lp-LcLClnx2UR (x8)
+7:10:06 AM [vite] hmr update /src/contexts/LanguageContext.tsx, /src/index.css?v=5MhUxkh1Lp-LcLClnx2UR (x9)
+7:10:10 AM [vite] hmr update /src/contexts/LanguageContext.tsx, /src/index.css?v=5MhUxkh1Lp-LcLClnx2UR (x10)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+7:34:59 AM [vite] warning: Duplicate member "generateTeamMappingsFromCurrentFixtures" in class body
+2634|  
+2635|    // Generate team mappings from current fixtures
+2636|    generateTeamMappingsFromCurrentFixtures(fixtures: any[]): string {
+   |    ^
+2637|      const mapping: { [key: string]: string } = {};
+2638|      const teamCounts: { [key: string]: number } = {};
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+7:34:59 AM [vite] warning: Duplicate member "getPopularTeamTranslation" in class body
+3191|     * Get translation from popular league teams
+3192|     */
+3193|    private getPopularTeamTranslation(teamName: string, language: string): string {
+   |            ^
+3194|      const normalizedName = teamName.toLowerCase();
+3195|  
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartTeamTranslation.ts
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-WIIJQEXM.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-SD42OOGP.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-VRF373B3.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+7:35:06 AM [vite] hmr update /src/contexts/LanguageContext.tsx, /src/index.css?v=5MhUxkh1Lp-LcLClnx2UR
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
