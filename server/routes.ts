@@ -429,8 +429,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             ? 2 * 60 * 60 * 1000
             : 12 * 60 * 60 * 1000;
 
-        console.log(
-            `⏰ [Routes] Cache expired for date ${date} (age: ${Math.round(cacheAge / 60000)}min > maxAge: ${Math.round(maxAge / 60000)}min)`,
+        if (cacheAge > maxCacheAge) {
+          console.log(
+            `⏰ [Routes] Cache expired for date ${date} (age: ${Math.round(cacheAge / 60000)}min > maxAge: ${Math.round(maxCacheAge / 60000)}min)`,
           );
         }
       }
