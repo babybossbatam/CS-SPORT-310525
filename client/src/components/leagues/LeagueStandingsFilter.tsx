@@ -261,6 +261,16 @@ const LeagueStandingsFilter = () => {
 
         setPopularLeagues(processedLeagues);
 
+        // Auto-learn all league names for better translations
+        processedLeagues.forEach(league => {
+          if (league && league.name) {
+            smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(league.name, {
+              countryName: league.country,
+              leagueId: league.id
+            });
+          }
+        });
+
         // Set default selection to FIFA Club World Cup (ID 15) if available, otherwise fallback
         if (processedLeagues.length > 0) {
           const preferredLeague = processedLeagues.find(
@@ -524,6 +534,16 @@ const LeagueStandingsFilter = () => {
           "🔄 Using fallback leagues with all WC qualification groups",
         );
         setPopularLeagues(fallbackLeagues);
+
+        // Auto-learn fallback league names for better translations
+        fallbackLeagues.forEach(league => {
+          if (league && league.name) {
+            smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(league.name, {
+              countryName: league.country,
+              leagueId: league.id
+            });
+          }
+        });
 
         // Set default to FIFA Club World Cup
         setSelectedLeague("15");
@@ -807,7 +827,10 @@ const LeagueStandingsFilter = () => {
                       "/assets/fallback-logo.svg";
                   }}
                 />
-                {selectedLeagueName}
+                {(() => {
+                  const currentLanguage = i18n?.language || 'zh-hk';
+                  return smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, currentLanguage);
+                })()}
               </div>
             </SelectValue>
           </SelectTrigger>
@@ -834,7 +857,10 @@ const LeagueStandingsFilter = () => {
                           "/assets/fallback-logo.svg";
                       }}
                     />
-                    {league.name}
+                    {(() => {
+                      const currentLanguage = i18n?.language || 'zh-hk';
+                      return smartLeagueCountryTranslation.translateLeagueName(league.name, currentLanguage);
+                    })()}
                   </div>
                 </SelectItem>
               ))}
