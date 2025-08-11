@@ -864,8 +864,8 @@ class SmartPlayerTranslation {
     const staticTranslation = this.popularCountries[normalizedCountry];
     if (staticTranslation && staticTranslation[language as keyof typeof staticTranslation]) {
       const translation = staticTranslation[language as keyof typeof staticTranslation];
-      // Ensure we don't return concatenated values
-      if (translation && translation !== country && !translation.includes(country)) {
+      // Ensure we don't return concatenated values - check if translation contains original
+      if (translation && translation !== country && !translation.includes(country) && !country.includes(translation)) {
         return translation;
       }
     }
@@ -874,8 +874,8 @@ class SmartPlayerTranslation {
     const learnedMapping = this.learnedCountryMappings.get(normalizedCountry);
     if (learnedMapping && learnedMapping[language as keyof typeof learnedMapping]) {
       const translation = learnedMapping[language as keyof typeof learnedMapping];
-      // Ensure we don't return concatenated values
-      if (translation && translation !== country && !translation.includes(country)) {
+      // Ensure we don't return concatenated values - check if translation contains original
+      if (translation && translation !== country && !translation.includes(country) && !country.includes(translation)) {
         return translation;
       }
     }
