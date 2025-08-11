@@ -45,12 +45,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       const controller = new AbortController();
       
       try {
-        // Set up timeout that only aborts if request is still pending - increased to 60 seconds
+        // Set up timeout that only aborts if request is still pending - increased to 120 seconds for better reliability
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 60 seconds');
+            controller.abort('Request timeout after 120 seconds');
           }
-        }, 60000);
+        }, 120000);
 
         const response = await fetch(`/api/fixtures/date/${validDate}?all=true`, {
           signal: controller.signal,
@@ -97,10 +97,17 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         }
 
         if (error.name === 'AbortError') {
-          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate}`);
+          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate} - will retry with cached fallback`);
         } else {
           console.error(`❌ [CentralDataProvider] Error fetching fixtures for ${validDate}:`, error);
         }
+        
+        // Try to return cached data if available, even if stale
+        if (cached?.data && Array.isArray(cached.data)) {
+          console.log(`🚨 [CentralDataProvider] Using stale cached data for ${validDate} due to timeout`);
+          return cached.data;
+        }
+        
         return [];
       }
     },
@@ -108,14 +115,22 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     gcTime: CACHE_DURATIONS.SIX_HOURS,
     refetchOnWindowFocus: false,
     retry: (failureCount, error: any) => {
-      // Only retry on timeout errors, max 2 retries
-      if (error?.message?.includes('timeout') && failureCount < 2) {
-        console.log(`🔄 [CentralDataProvider] Retry attempt ${failureCount + 1} for ${validDate}`);
-        return true;
+      // More aggressive retry logic for timeout and network errors
+      if (failureCount < 3) {
+        const shouldRetry = 
+          error?.message?.includes('timeout') ||
+          error?.message?.includes('Failed to fetch') ||
+          error?.message?.includes('NetworkError') ||
+          error?.name === 'AbortError';
+        
+        if (shouldRetry) {
+          console.log(`🔄 [CentralDataProvider] Retry attempt ${failureCount + 1} for ${validDate} (${error?.message || 'unknown error'})`);
+          return true;
+        }
       }
       return false;
     },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // Exponential backoff
+    retryDelay: (attemptIndex) => Math.min(2000 * 2 ** attemptIndex, 15000), // More generous exponential backoff
     throwOnError: false, // Don't throw errors to prevent unhandled rejections
     enabled: !!validDate,
   });
@@ -135,12 +150,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       const controller = new AbortController();
       
       try {
-        // Set up timeout that only aborts if request is still pending - increased for consistency
+        // Set up timeout that only aborts if request is still pending - increased for better reliability
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 30 seconds');
+            controller.abort('Request timeout after 90 seconds');
           }
-        }, 30000);
+        }, 90000);
 
         const response = await fetch('/api/fixtures/live', {
           signal: controller.signal,
@@ -176,10 +191,17 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         }
 
         if (fetchError.name === 'AbortError') {
-          console.warn(`⏰ [CentralDataProvider] Live fixtures request timeout`);
+          console.warn(`⏰ [CentralDataProvider] Live fixtures request timeout - using cached fallback if available`);
         } else {
           console.warn(`Failed to fetch live fixtures:`, fetchError);
         }
+        
+        // Try to return cached live data if available, even if stale
+        if (cached?.data && Array.isArray(cached.data)) {
+          console.log(`🚨 [CentralDataProvider] Using stale cached live data due to timeout`);
+          return cached.data;
+        }
+        
         // Return empty array instead of throwing
         return [];
       }
