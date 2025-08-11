@@ -86,9 +86,20 @@ const LeagueStandingsFilter = () => {
       try {
         setLeaguesLoading(true);
         console.log(
-          "🔄 Loading leagues with World Cup qualification support...",
+          "🔄 Loading leagues with enhanced translation learning system...",
         );
         const leagues = await getPopularLeagues();
+        
+        // Auto-learn league names for enhanced translation
+        if (leagues && leagues.length > 0) {
+          console.log(`📚 [Learning] Auto-learning ${leagues.length} league names for translation`);
+          leagues.forEach(league => {
+            if (league && league.name && league.country) {
+              // This will trigger the enhanced learning system
+              smartLeagueCountryTranslation.autoLearnFromLeagueData(league.name, league.country);
+            }
+          });
+        }
 
         // Filter to show only current/active leagues (exclude historical tournaments)
         const currentDate = new Date();
