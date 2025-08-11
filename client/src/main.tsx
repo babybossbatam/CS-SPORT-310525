@@ -62,8 +62,8 @@ initializeFlagCachePersistence();
 StorageMonitor.getInstance().init();
 
 // Set EventEmitter limits early for Replit environment
-if (typeof process !== 'undefined') {
-  process.setMaxListeners?.(300);
+if (typeof process !== 'undefined' && process.setMaxListeners) {
+  process.setMaxListeners(300);
 }
 
 // Enhanced EventEmitter management for Replit
@@ -87,8 +87,8 @@ if (typeof window !== 'undefined') {
   };
 
   // Handle Replit's file watching EventEmitter warnings
-  const originalProcessEmitWarning = process.emitWarning;
-  if (process && typeof process.emitWarning === 'function') {
+  if (typeof process !== 'undefined' && process.emitWarning) {
+    const originalProcessEmitWarning = process.emitWarning;
     process.emitWarning = function(warning, type, code, ctor) {
       if (type === 'MaxListenersExceededWarning' && 
           (warning.toString().includes('changes listeners') || 
