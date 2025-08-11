@@ -11,6 +11,7 @@ import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslati
 import { useLanguage } from "@/contexts/LanguageContext";
 // Import the player translation learning function and smart translation system
 import { learnFromPlayerData, smartPlayerTranslation } from "@/lib/smartPlayerTranslation";
+import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
 
 // Add CSS to hide scrollbars
 const scrollbarHideStyle = `
