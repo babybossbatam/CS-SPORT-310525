@@ -1630,22 +1630,25 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                   .slice(0, matchIndex < 10 ? 10 : leagueData.matches.length) // Show first 10, then all
                                   .map((match: any, matchIndex) => (
 
-                                    <LazyMatchItem
+                                    <div
                                       key={`${match.fixture.id}-${countryData.country}-${leagueData.league.id}`}
-                                      match={match}
-                                      onMatchClick={onMatchCardClick}
-                                      isStarred={starredMatches.has(match.fixture.id)}
-                                      onToggleStar={() => toggleStarMatch(match.fixture.id)}
-                                      flashStates={{
-                                        halftime: halftimeFlashMatches.has(match.fixture.id),
-                                        fulltime: fulltimeFlashMatches.has(match.fixture.id),
-                                        goal: goalFlashMatches.has(match.fixture.id)
+                                      onClick={() => onMatchCardClick?.(match)}
+                                      className={`match-card-container group relative cursor-pointer bg-white dark:bg-gray-800 border-b border-stone-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 ${
+                                        halftimeFlashMatches.has(match.fixture.id) ? 'halftime-flash' : ''
+                                      } ${
+                                        fulltimeFlashMatches.has(match.fixture.id) ? 'fulltime-flash' : ''
+                                      } ${
+                                        goalFlashMatches.has(match.fixture.id) ? 'goal-flash' : ''
+                                      }`}
+                                      style={{
+                                        paddingLeft: "12px",
+                                        paddingRight: "12px",
+                                        paddingTop: "10px",
+                                        paddingBottom: "10px",
+                                        minHeight: "80px",
+                                        position: "relative",
                                       }}
-                                      leagueContext={{
-                                        name: leagueData.league.name,
-                                        country: leagueData.league.country,
-                                      }}
-                                    />
+                                    >
                                       {/* Star Button with true slide-in effect */}
                                       <button
                                         onClick={(e) => {
