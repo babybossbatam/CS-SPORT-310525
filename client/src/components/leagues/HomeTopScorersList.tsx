@@ -259,7 +259,7 @@ const HomeTopScorersList = () => {
                 if (scorer.player?.name) {
                   // Extract country from league country data
                   const leagueCountry = scorer.statistics[0]?.league?.country;
-                  
+
                   // Intelligent country extraction based on team/league
                   const extractPlayerCountry = (teamName: string, leagueCountry: string, leagueName: string) => {
                     // If it's a national team league, the country is obvious
@@ -269,13 +269,13 @@ const HomeTopScorersList = () => {
                         leagueName?.toLowerCase().includes('copa america')) {
                       return teamName; // Team name is likely the country
                     }
-                    
+
                     // For club competitions, we can make educated guesses
                     if (leagueCountry && leagueCountry !== 'World') {
                       // Many players in domestic leagues are from that country
                       return leagueCountry;
                     }
-                    
+
                     return null;
                   };
 
@@ -1116,7 +1116,7 @@ const HomeTopScorersList = () => {
 
                 // Get and translate position using the smart translation system
                 const rawPosition = scorer.player.position || playerStats?.games?.position || "";
-                
+
                 // Auto-learn the position if we haven't seen it before
                 if (rawPosition) {
                   smartPlayerTranslation.autoLearnFromAnyPositionName(rawPosition);
@@ -1128,13 +1128,13 @@ const HomeTopScorersList = () => {
 
                 // Get and translate country information
                 let playerCountry = smartPlayerTranslation.getPlayerCountry(scorer.player.id);
-                
+
                 // If we don't have the player's country stored, try to extract it
                 if (!playerCountry) {
                   const leagueCountry = playerStats?.league?.country;
                   const teamName = playerStats?.team?.name;
                   const leagueName = playerStats?.league?.name;
-                  
+
                   // Smart country extraction logic
                   if (leagueName?.toLowerCase().includes('world cup') || 
                       leagueName?.toLowerCase().includes('nations league') ||
@@ -1158,8 +1158,7 @@ const HomeTopScorersList = () => {
                     playerName: scorer.player.name,
                     playerPosition: scorer.player.position,
                     gamesPosition: playerStats?.games?.position,
-                    finalPosition: rawPosition,
-                    translatedPosition: translatedPosition,
+                    finalPosition: translatedPosition,
                     fullPlayerData: scorer.player,
                     fullStatsData: playerStats,
                   });
