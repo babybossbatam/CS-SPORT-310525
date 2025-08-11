@@ -388,6 +388,33 @@ class SmartLeagueCountryTranslation {
       translations.it = 'AFC Champions League';
       translations.pt = 'Liga dos Campeões AFC';
       translations.fr = 'Ligue des Champions AFC';
+    } else if (lowerName.includes('uefa u21 championship') || lowerName === 'uefa u21 championship') {
+      translations.zh = 'UEFA U21欧洲锦标赛';
+      translations['zh-hk'] = 'UEFA U21歐洲錦標賽';
+      translations['zh-tw'] = 'UEFA U21歐洲錦標賽';
+      translations.es = 'Campeonato Europeo Sub-21 de la UEFA';
+      translations.de = 'UEFA U21-Europameisterschaft';
+      translations.it = 'Campionato Europeo Under-21 UEFA';
+      translations.pt = 'Campeonato Europeu Sub-21 da UEFA';
+      translations.fr = 'Championnat d\'Europe des moins de 21 ans de l\'UEFA';
+    } else if (lowerName.includes('concacaf gold cup') || lowerName === 'concacaf gold cup') {
+      translations.zh = 'CONCACAF金杯赛';
+      translations['zh-hk'] = 'CONCACAF金盃賽';
+      translations['zh-tw'] = 'CONCACAF金盃賽';
+      translations.es = 'Copa de Oro de CONCACAF';
+      translations.de = 'CONCACAF Gold Cup';
+      translations.it = 'CONCACAF Gold Cup';
+      translations.pt = 'Copa Ouro da CONCACAF';
+      translations.fr = 'Coupe d\'or de la CONCACAF';
+    } else if (lowerName.includes('africa cup of nations') || lowerName === 'africa cup of nations') {
+      translations.zh = '非洲国家杯';
+      translations['zh-hk'] = '非洲國家盃';
+      translations['zh-tw'] = '非洲國家盃';
+      translations.es = 'Copa Africana de Naciones';
+      translations.de = 'Afrikanischer Nationen-Pokal';
+      translations.it = 'Coppa d\'Africa';
+      translations.pt = 'Taça das Nações Africanas';
+      translations.fr = 'Coupe d\'Afrique des Nations';
     }
 
 

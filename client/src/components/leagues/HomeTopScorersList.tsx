@@ -475,48 +475,88 @@ const HomeTopScorersList = () => {
     // First translate the league name using the smart translation system
     const translatedName = smartLeagueCountryTranslation.translateLeagueName(originalName, currentLanguage);
     
-    // Then apply shortening for display based on translated name
-    const shortenedNames: { [key: string]: string } = {
-      // English shortenings
-      "World Cup Qualification South America": "WC SA",
-      "World Cup Qualification Europe": "WC EU", 
-      "World Cup Qualification Africa": "WC AF",
-      "World Cup Qualification Asia": "WC AS",
-      "World Cup Qualification North America": "WC NA",
-      "UEFA Nations League": "Nations League",
-      "UEFA Champions League": "Champions League",
-      "UEFA Europa League": "Europa League",
-      "UEFA Conference League": "Conference League",
-      "FIFA Club World Cup": "Club World Cup",
-      "Egyptian Premier League": "Egyptian PL",
-      "Saudi Pro League": "Saudi League",
+    // Smart shortening based on language and translated content
+    const getSmartShortening = (name: string, language: string) => {
+      const lowerName = name.toLowerCase();
       
-      // Chinese Traditional shortenings
-      "AFC挑戰聯賽": "AFC挑戰",
-      "UEFA歐洲冠軍聯賽": "歐冠",
-      "UEFA歐洲聯賽": "歐霸",
-      "UEFA歐洲協會聯賽": "歐協",
-      "FIFA世界冠軍球會盃": "世冠盃",
-      "埃及超級聯賽": "埃及超",
+      // Language-specific shortening patterns
+      switch (language) {
+        case 'zh':
+        case 'zh-hk':
+        case 'zh-tw':
+          // Chinese shortenings
+          if (lowerName.includes('欧洲冠军联赛') || lowerName.includes('歐洲冠軍聯賽')) return '欧冠';
+          if (lowerName.includes('欧洲联赛') || lowerName.includes('歐洲聯賽')) return '欧霸';
+          if (lowerName.includes('欧洲协会联赛') || lowerName.includes('歐洲協會聯賽')) return '欧协';
+          if (lowerName.includes('世界杯') || lowerName.includes('世界盃')) {
+            if (lowerName.includes('南美')) return 'WC SA';
+            if (lowerName.includes('欧洲') || lowerName.includes('歐洲')) return 'WC EU';
+            if (lowerName.includes('非洲')) return 'WC AF';
+            if (lowerName.includes('亚洲') || lowerName.includes('亞洲')) return 'WC AS';
+          }
+          if (lowerName.includes('u21') || lowerName.includes('青年')) return 'U21锦标赛';
+          break;
+          
+        case 'es':
+          // Spanish shortenings
+          if (lowerName.includes('liga de campeones')) return 'Champions';
+          if (lowerName.includes('liga europa')) return 'Europa';
+          if (lowerName.includes('liga de la conferencia')) return 'Conference';
+          if (lowerName.includes('copa del mundo')) {
+            if (lowerName.includes('sudamérica')) return 'WC SA';
+            if (lowerName.includes('europa')) return 'WC EU';
+            if (lowerName.includes('áfrica')) return 'WC AF';
+          }
+          if (lowerName.includes('u21')) return 'Campeonato U21';
+          break;
+          
+        case 'de':
+          // German shortenings
+          if (lowerName.includes('champions league')) return 'Champions League';
+          if (lowerName.includes('europa league')) return 'Europa League';
+          if (lowerName.includes('conference league')) return 'Conference League';
+          if (lowerName.includes('u21')) return 'U21-EM';
+          break;
+          
+        default:
+          // English shortenings
+          if (lowerName.includes('world cup qualification')) {
+            if (lowerName.includes('south america')) return 'WC SA';
+            if (lowerName.includes('europe')) return 'WC EU';
+            if (lowerName.includes('africa')) return 'WC AF';
+            if (lowerName.includes('asia')) return 'WC AS';
+            if (lowerName.includes('north america')) return 'WC NA';
+          }
+          if (lowerName.includes('uefa champions league')) return 'Champions League';
+          if (lowerName.includes('uefa europa league')) return 'Europa League';
+          if (lowerName.includes('uefa conference league')) return 'Conference League';
+          if (lowerName.includes('uefa nations league')) return 'Nations League';
+          if (lowerName.includes('uefa u21 championship')) return 'U21 Championship';
+          if (lowerName.includes('fifa club world cup')) return 'Club World Cup';
+          if (lowerName.includes('egyptian premier league')) return 'Egyptian PL';
+          if (lowerName.includes('saudi pro league')) return 'Saudi League';
+          if (lowerName.includes('concacaf gold cup')) return 'Gold Cup';
+          if (lowerName.includes('africa cup of nations')) return 'AFCON';
+          if (lowerName.includes('asian cup')) return 'Asian Cup';
+          break;
+      }
       
-      // Chinese Simplified shortenings
-      "AFC挑战联赛": "AFC挑战",
-      "UEFA欧洲冠军联赛": "欧冠",
-      "UEFA欧洲联赛": "欧霸",
-      "UEFA欧洲协会联赛": "欧协",
-      "FIFA世界俱乐部杯": "世俱杯",
-      "埃及超级联赛": "埃及超",
-      
-      // Spanish shortenings
-      "Liga Challenge AFC": "AFC Challenge",
-      "Liga de Campeones de la UEFA": "Champions",
-      "Liga Europa de la UEFA": "Europa",
-      "Liga de la Conferencia UEFA": "Conference",
-      "Copa Mundial de Clubes FIFA": "Mundial Clubes"
+      return name; // Return original if no shortening pattern matches
     };
     
-    // Return shortened version if available, otherwise return translated name
-    return shortenedNames[translatedName] || shortenedNames[originalName] || translatedName;
+    // Apply smart shortening to the translated name
+    const smartShortened = getSmartShortening(translatedName, currentLanguage);
+    
+    // If smart shortening didn't change the name, try shortening the original English name
+    if (smartShortened === translatedName && currentLanguage !== 'en') {
+      const englishShortened = getSmartShortening(originalName, 'en');
+      if (englishShortened !== originalName) {
+        // Re-translate the shortened English name
+        return smartLeagueCountryTranslation.translateLeagueName(englishShortened, currentLanguage);
+      }
+    }
+    
+    return smartShortened;
   };
 
   // 365scores-style navigation with positioning
