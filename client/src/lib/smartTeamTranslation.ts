@@ -2858,31 +2858,7 @@ class SmartTeamTranslation {
     return null;
   }
 
-  // Clear cache when needed
-  clearCache(): void {
-    this.teamCache.clear();
-    console.log('🔄 [SmartTranslation] Cache cleared');
-  }
-
-  // Fix corrupted cache entries
-  fixCorruptedCache(): void {
-    try {
-      const corruptedKeys = [
-        'smart_translation_AEL_zh-hk',
-        'smart_translation_Deportivo Cali_zh-hk',
-        'smart_translation_Alianza Petrolera_zh-hk',
-        'smart_translation_Masr_zh-hk'
-      ];
-
-      corruptedKeys.forEach(key => {
-        localStorage.removeItem(key);
-      });
-
-      console.log('🔧 [SmartTranslation] Fixed corrupted cache entries');
-    } catch (error) {
-      console.warn('Failed to fix corrupted cache:', error);
-    }
-  }
+  
 
 
 
