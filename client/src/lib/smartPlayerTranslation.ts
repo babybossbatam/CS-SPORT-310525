@@ -480,6 +480,105 @@ class SmartPlayerTranslation {
     }
   };
 
+  // Enhanced team translation with context-aware intelligence
+  private getContextAwareTeamTranslation(normalizedTeam: string, language: string, context: {
+    leagueId?: number;
+    leagueName?: string;
+    leagueCountry?: string;
+  }): string | null {
+    // Enhanced context-aware logic for better team translations
+    const leagueName = context.leagueName?.toLowerCase() || '';
+    const leagueCountry = context.leagueCountry?.toLowerCase() || '';
+
+    // Scottish Premier League context
+    if (leagueCountry.includes('scotland') || leagueName.includes('scottish')) {
+      if (normalizedTeam.toLowerCase() === 'rangers') {
+        const scottishRangersTranslations: Record<string, string> = {
+          'zh': '流浪者', 'zh-hk': '格拉斯哥流浪者', 'zh-tw': '流浪者',
+          'es': 'Rangers', 'de': 'Rangers', 'it': 'Rangers', 'pt': 'Rangers'
+        };
+        return scottishRangersTranslations[language] || null;
+      }
+      if (normalizedTeam.toLowerCase() === 'celtic') {
+        const celticTranslations: Record<string, string> = {
+          'zh': '凯尔特人', 'zh-hk': '些路迪', 'zh-tw': '凱爾特人',
+          'es': 'Celtic', 'de': 'Celtic', 'it': 'Celtic', 'pt': 'Celtic'
+        };
+        return celticTranslations[language] || null;
+      }
+    }
+
+    // English leagues context
+    if (leagueCountry.includes('england') || leagueName.includes('premier') || leagueName.includes('championship')) {
+      const commonEnglishTeams: Record<string, Record<string, string>> = {
+        'arsenal': {
+          'zh': '阿森纳', 'zh-hk': '阿仙奴', 'zh-tw': '阿森納',
+          'es': 'Arsenal', 'de': 'Arsenal', 'it': 'Arsenal', 'pt': 'Arsenal'
+        },
+        'manchester united': {
+          'zh': '曼联', 'zh-hk': '曼聯', 'zh-tw': '曼聯',
+          'es': 'Manchester United', 'de': 'Manchester United', 'it': 'Manchester United', 'pt': 'Manchester United'
+        },
+        'liverpool': {
+          'zh': '利物浦', 'zh-hk': '利物浦', 'zh-tw': '利物浦',
+          'es': 'Liverpool', 'de': 'Liverpool', 'it': 'Liverpool', 'pt': 'Liverpool'
+        }
+      };
+
+      const teamTranslation = commonEnglishTeams[normalizedTeam.toLowerCase()];
+      if (teamTranslation) {
+        return teamTranslation[language] || null;
+      }
+    }
+
+    return null;
+  }
+
+  // Force enhanced team translation with immediate application
+  forceLearnTeamTranslation(teamName: string, context?: {
+    leagueCountry?: string;
+    leagueName?: string;
+    leagueId?: number;
+  }): void {
+    const normalizedTeam = this.normalizeTeam(teamName);
+
+    // Enhanced team translations with broader coverage
+    const enhancedTeamTranslations: Record<string, Record<string, string>> = {
+      'Rangers': {
+        'en': 'Rangers', 'zh': '流浪者', 'zh-hk': '格拉斯哥流浪者', 'zh-tw': '流浪者',
+        'es': 'Rangers', 'de': 'Rangers', 'it': 'Rangers', 'pt': 'Rangers',
+        'fr': 'Rangers', 'ar': 'رينجرز', 'ru': 'Рейнджерс', 'ja': 'レンジャーズ'
+      },
+      'Celtic': {
+        'en': 'Celtic', 'zh': '凯尔特人', 'zh-hk': '些路迪', 'zh-tw': '凱爾特人',
+        'es': 'Celtic', 'de': 'Celtic', 'it': 'Celtic', 'pt': 'Celtic',
+        'fr': 'Celtic', 'ar': 'سيلتيك', 'ru': 'Селтик', 'ja': 'セルティック'
+      },
+      'Red Star Belgrade': {
+        'en': 'Red Star Belgrade', 'zh': '贝尔格莱德红星', 'zh-hk': '貝爾格萊德紅星', 'zh-tw': '貝爾格萊德紅星',
+        'es': 'Estrella Roja', 'de': 'Roter Stern', 'it': 'Stella Rossa', 'pt': 'Estrela Vermelha',
+        'fr': 'Étoile Rouge', 'ar': 'النجم الأحمر', 'ru': 'Црвена звезда', 'ja': 'レッドスター'
+      },
+      'Crvena Zvezda': {
+        'en': 'Red Star Belgrade', 'zh': '贝尔格莱德红星', 'zh-hk': '貝爾格萊德紅星', 'zh-tw': '貝爾格萊德紅星',
+        'es': 'Estrella Roja', 'de': 'Roter Stern', 'it': 'Stella Rossa', 'pt': 'Estrela Vermelha',
+        'fr': 'Étoile Rouge', 'ar': 'النجم الأحمر', 'ru': 'Црвена звезда', 'ja': 'レッドスター'
+      }
+    };
+
+    // Apply translation for the normalized team name
+    if (enhancedTeamTranslations[normalizedTeam] || enhancedTeamTranslations[teamName]) {
+      const translationMap = enhancedTeamTranslations[normalizedTeam] || enhancedTeamTranslations[teamName];
+
+      // Store with both original and normalized names
+      this.learnedTeamMappings.set(teamName, translationMap);
+      this.learnedTeamMappings.set(normalizedTeam, translationMap);
+      this.saveLearnedMappings();
+
+      console.log(`💪 [SmartPlayerTranslation] FORCE enhanced translation for "${teamName}":`, translationMap);
+    }
+  }
+
   constructor() {
     this.loadLearnedMappings();
     this.integrateAutomatedMappings();
@@ -937,60 +1036,6 @@ class SmartPlayerTranslation {
     return finalTranslation;
   }
 
-  // Get context-aware team translation based on league information
-  private getContextAwareTeamTranslation(normalizedTeam: string, language: string, context: {
-    leagueId?: number;
-    leagueName?: string;
-    leagueCountry?: string;
-  }): string | null {
-    // Enhanced context-aware logic for better team translations
-    const leagueName = context.leagueName?.toLowerCase() || '';
-    const leagueCountry = context.leagueCountry?.toLowerCase() || '';
-
-    // Scottish Premier League context
-    if (leagueCountry.includes('scotland') || leagueName.includes('scottish')) {
-      if (normalizedTeam.toLowerCase() === 'rangers') {
-        const scottishRangersTranslations: Record<string, string> = {
-          'zh': '流浪者', 'zh-hk': '格拉斯哥流浪者', 'zh-tw': '流浪者',
-          'es': 'Rangers', 'de': 'Rangers', 'it': 'Rangers', 'pt': 'Rangers'
-        };
-        return scottishRangersTranslations[language] || null;
-      }
-      if (normalizedTeam.toLowerCase() === 'celtic') {
-        const celticTranslations: Record<string, string> = {
-          'zh': '凯尔特人', 'zh-hk': '些路迪', 'zh-tw': '凱爾特人',
-          'es': 'Celtic', 'de': 'Celtic', 'it': 'Celtic', 'pt': 'Celtic'
-        };
-        return celticTranslations[language] || null;
-      }
-    }
-
-    // English leagues context
-    if (leagueCountry.includes('england') || leagueName.includes('premier') || leagueName.includes('championship')) {
-      const commonEnglishTeams: Record<string, Record<string, string>> = {
-        'arsenal': {
-          'zh': '阿森纳', 'zh-hk': '阿仙奴', 'zh-tw': '阿森納',
-          'es': 'Arsenal', 'de': 'Arsenal', 'it': 'Arsenal', 'pt': 'Arsenal'
-        },
-        'manchester united': {
-          'zh': '曼联', 'zh-hk': '曼聯', 'zh-tw': '曼聯',
-          'es': 'Manchester United', 'de': 'Manchester United', 'it': 'Manchester United', 'pt': 'Manchester United'
-        },
-        'liverpool': {
-          'zh': '利物浦', 'zh-hk': '利物浦', 'zh-tw': '利物浦',
-          'es': 'Liverpool', 'de': 'Liverpool', 'it': 'Liverpool', 'pt': 'Liverpool'
-        }
-      };
-      
-      const teamTranslation = commonEnglishTeams[normalizedTeam.toLowerCase()];
-      if (teamTranslation) {
-        return teamTranslation[language] || null;
-      }
-    }
-
-    return null;
-  }
-
   getPlayerCountry(playerId: number): string | null {
     return this.playerCountryMappings.get(playerId.toString()) || null;
   }
@@ -1138,53 +1183,6 @@ class SmartPlayerTranslation {
     }
   }
 
-  // Force enhanced team translation with immediate application
-  private forceEnhanceTeamTranslation(teamName: string, context?: {
-    leagueCountry?: string;
-    leagueName?: string;
-    leagueId?: number;
-    forceContext?: boolean;
-  }): void {
-    const normalizedTeam = this.normalizeTeam(teamName);
-    
-    // Enhanced team translations with broader coverage
-    const enhancedTeamTranslations: Record<string, Record<string, string>> = {
-      'Rangers': {
-        'en': 'Rangers', 'zh': '流浪者', 'zh-hk': '格拉斯哥流浪者', 'zh-tw': '流浪者',
-        'es': 'Rangers', 'de': 'Rangers', 'it': 'Rangers', 'pt': 'Rangers',
-        'fr': 'Rangers', 'ar': 'رينجرز', 'ru': 'Рейнджерс', 'ja': 'レンジャーズ'
-      },
-      'Celtic': {
-        'en': 'Celtic', 'zh': '凯尔特人', 'zh-hk': '些路迪', 'zh-tw': '凱爾特人',
-        'es': 'Celtic', 'de': 'Celtic', 'it': 'Celtic', 'pt': 'Celtic',
-        'fr': 'Celtic', 'ar': 'سيلتيك', 'ru': 'Селтик', 'ja': 'セルティック'
-      },
-      'Red Star Belgrade': {
-        'en': 'Red Star Belgrade', 'zh': '贝尔格莱德红星', 'zh-hk': '貝爾格萊德紅星', 'zh-tw': '貝爾格萊德紅星',
-        'es': 'Estrella Roja', 'de': 'Roter Stern', 'it': 'Stella Rossa', 'pt': 'Estrela Vermelha',
-        'fr': 'Étoile Rouge', 'ar': 'النجم الأحمر', 'ru': 'Црвена звезда', 'ja': 'レッドスター'
-      },
-      'Crvena Zvezda': {
-        'en': 'Red Star Belgrade', 'zh': '贝尔格莱德红星', 'zh-hk': '貝爾格萊德紅星', 'zh-tw': '貝爾格萊德紅星',
-        'es': 'Estrella Roja', 'de': 'Roter Stern', 'it': 'Stella Rossa', 'pt': 'Estrela Vermelha',
-        'fr': 'Étoile Rouge', 'ar': 'النجم الأحمر', 'ru': 'Црвена звезда', 'ja': 'レッドスター'
-      }
-    };
-
-    // Apply translation for the normalized team name
-    if (enhancedTeamTranslations[normalizedTeam] || enhancedTeamTranslations[teamName]) {
-      const translationMap = enhancedTeamTranslations[normalizedTeam] || enhancedTeamTranslations[teamName];
-      
-      // Store with both original and normalized names
-      this.learnedTeamMappings.set(teamName, translationMap);
-      this.learnedTeamMappings.set(normalizedTeam, translationMap);
-      this.saveLearnedMappings();
-
-      console.log(`💪 [SmartPlayerTranslation] FORCE enhanced translation for "${teamName}":`, translationMap);
-    }
-  }
-
-  // Set player-country mapping
   setPlayerCountry(playerId: number, country: string): void {
     if (!playerId || !country) return;
 
