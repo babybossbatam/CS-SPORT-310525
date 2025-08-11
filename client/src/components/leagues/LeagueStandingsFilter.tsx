@@ -4,6 +4,9 @@ import { apiRequest } from "@/lib/queryClient";
 import { getPopularLeagues, LeagueData } from "@/lib/leagueDataCache";
 import { getCachedFixturesForDate } from "@/lib/fixtureCache";
 import { format, parseISO } from "date-fns";
+import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
+import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
+import { useTranslation } from "@/contexts/LanguageContext";
 import {
   Select,
   SelectContent,
@@ -76,6 +79,7 @@ const isNationalTeamCompetition = (leagueName: string): boolean => {
 };
 
 const LeagueStandingsFilter = () => {
+  const { currentLanguage } = useTranslation();
   const [popularLeagues, setPopularLeagues] = useState<LeagueData[]>([]);
   const [selectedLeague, setSelectedLeague] = useState("");
   const [selectedLeagueName, setSelectedLeagueName] = useState("");
@@ -529,7 +533,36 @@ const LeagueStandingsFilter = () => {
         "GET",
         `/api/leagues/${selectedLeague}/standings`,
       );
-      return response.json();
+      const data = await response.json();
+      
+      // Auto-learn from standings data
+      if (data?.league?.standings) {
+        const allTeams: any[] = [];
+        
+        // Handle both group-based and single league standings
+        if (Array.isArray(data.league.standings[0])) {
+          // Group-based standings
+          data.league.standings.forEach((group: any[]) => {
+            allTeams.push(...group);
+          });
+        } else {
+          // Single league standings
+          allTeams.push(...data.league.standings);
+        }
+        
+        // Auto-learn team translations
+        smartTeamTranslation.autoLearnFromStandingsData(allTeams);
+        
+        // Auto-learn league and country translations
+        if (data.league) {
+          smartLeagueCountryTranslation.autoLearnFromLeagueData(
+            data.league.name, 
+            data.league.country
+          );
+        }
+      }
+      
+      return data;
     },
     enabled: !!selectedLeague && selectedLeague !== "",
     staleTime: 24 * 60 * 60 * 1000, // 24 hours
@@ -901,7 +934,7 @@ const LeagueStandingsFilter = () => {
                                       />
                                     </div>
                                     <span className="text-[0.85rem] truncate">
-                                      {standing.team.name}
+                                      {smartTeamTranslation.translateTeam(standing.team.name, currentLanguage)}
                                     </span>
                                   </div>
                                 </TableCell>
@@ -1157,7 +1190,7 @@ const LeagueStandingsFilter = () => {
                                 </div>
                                 <div className="flex flex-col min-w-0 flex-1">
                                   <span className="text-xs font-medium text-gray-900 truncate hover:underline cursor-pointer">
-                                    {standing.team.name}
+                                    {smartTeamTranslation.translateTeam(standing.team.name, currentLanguage)}
                                   </span>
                                   {standing.rank <= 3 && (
                                     <span

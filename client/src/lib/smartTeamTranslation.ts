@@ -2246,6 +2246,127 @@ class SmartTeamTranslation {
     console.log(`🎓 [SmartTranslation] Learned new translation: "${originalName}" -> "${translatedName}" (${language})`);
   }
 
+  // Auto-learn from standings data
+  autoLearnFromStandingsData(standings: any[]): void {
+    let newMappingsCount = 0;
+
+    standings.forEach(standing => {
+      if (!standing?.team?.name) return;
+
+      const teamName = standing.team.name.trim();
+      
+      // Skip if already have mapping
+      if (this.popularLeagueTeams[teamName] || this.learnedTeamMappings.has(teamName)) {
+        return;
+      }
+
+      // Generate intelligent mapping based on team name patterns
+      const mapping = this.generateIntelligentTeamMapping(teamName);
+      if (mapping) {
+        this.learnedTeamMappings.set(teamName, mapping);
+        newMappingsCount++;
+        console.log(`🤖 [Auto-Learn] Generated mapping for: ${teamName}`);
+      }
+    });
+
+    if (newMappingsCount > 0) {
+      this.saveLearnedMappings();
+      console.log(`📚 [Auto-Learn] Generated ${newMappingsCount} new team mappings from standings`);
+    }
+  }
+
+  // Generate intelligent team mapping using patterns and AI-like logic
+  private generateIntelligentTeamMapping(teamName: string): TeamTranslation | null {
+    const lowerName = teamName.toLowerCase();
+
+    // Common patterns for automatic translation
+    const translationPatterns = {
+      // Portuguese/Brazilian teams
+      'santos': { zh: '桑托斯', zhHk: '山度士', zhTw: '山度士' },
+      'flamengo': { zh: '弗拉门戈', zhHk: '法林明高', zhTw: '弗拉門戈' },
+      'palmeiras': { zh: '帕尔梅拉斯', zhHk: '彭美拉斯', zhTw: '帕爾梅拉斯' },
+      'corinthians': { zh: '科林蒂安', zhHk: '哥連泰斯', zhTw: '科林蒂安' },
+      'grêmio': { zh: '格雷米奥', zhHk: '格雷米奧', zhTw: '格雷米奧' },
+      'botafogo': { zh: '博塔弗戈', zhHk: '博塔弗戈', zhTw: '博塔弗戈' },
+      'vasco': { zh: '华斯高', zhHk: '華士高', zhTw: '華斯高' },
+      
+      // Spanish teams
+      'barcelona': { zh: '巴塞罗那', zhHk: '巴塞隆拿', zhTw: '巴塞隆納' },
+      'madrid': { zh: '马德里', zhHk: '馬德里', zhTw: '馬德里' },
+      'sevilla': { zh: '塞维利亚', zhHk: '西維爾', zhTw: '塞維亞' },
+      'valencia': { zh: '瓦伦西亚', zhHk: '華倫西亞', zhTw: '瓦倫西亞' },
+      
+      // English teams
+      'united': { zh: '联合', zhHk: '聯合', zhTw: '聯合' },
+      'city': { zh: '城', zhHk: '城', zhTw: '城' },
+      'arsenal': { zh: '阿森纳', zhHk: '阿仙奴', zhTw: '阿森納' },
+      'liverpool': { zh: '利物浦', zhHk: '利物浦', zhTw: '利物浦' },
+      'chelsea': { zh: '切尔西', zhHk: '車路士', zhTw: '切爾西' },
+      
+      // American teams
+      'miami': { zh: '迈阿密', zhHk: '邁阿密', zhTw: '邁阿密' },
+      'galaxy': { zh: '银河', zhHk: '銀河', zhTw: '銀河' },
+      'sounders': { zh: '海湾人', zhHk: '海灣人', zhTw: '海灣人' },
+      
+      // Common suffixes/prefixes
+      'fc': { zh: '足球俱乐部', zhHk: '足球會', zhTw: '足球俱樂部' },
+      'cf': { zh: '足球俱乐部', zhHk: '足球會', zhTw: '足球俱樂部' },
+      'real': { zh: '皇家', zhHk: '皇家', zhTw: '皇家' },
+      'atletico': { zh: '竞技', zhHk: '競技', zhTw: '競技' },
+      'deportivo': { zh: '体育', zhHk: '體育', zhTw: '體育' }
+    };
+
+    // Check for pattern matches
+    let chineseTranslation = null;
+    for (const [pattern, translation] of Object.entries(translationPatterns)) {
+      if (lowerName.includes(pattern)) {
+        chineseTranslation = translation;
+        break;
+      }
+    }
+
+    // If no pattern match, use phonetic translation
+    if (!chineseTranslation) {
+      chineseTranslation = this.generatePhoneticTranslation(teamName);
+    }
+
+    return {
+      'zh': chineseTranslation.zh,
+      'zh-hk': chineseTranslation.zhHk,
+      'zh-tw': chineseTranslation.zhTw,
+      'es': teamName,
+      'de': teamName,
+      'it': teamName,
+      'pt': teamName
+    };
+  }
+
+  // Generate phonetic-based Chinese translation
+  private generatePhoneticTranslation(teamName: string): { zh: string; zhHk: string; zhTw: string } {
+    const phoneticMap: { [key: string]: string } = {
+      'a': '阿', 'b': '巴', 'c': '卡', 'd': '达', 'e': '埃', 'f': '法', 'g': '加', 'h': '哈',
+      'i': '伊', 'j': '雅', 'k': '卡', 'l': '拉', 'm': '马', 'n': '纳', 'o': '奥', 'p': '帕',
+      'q': '库', 'r': '拉', 's': '萨', 't': '塔', 'u': '乌', 'v': '维', 'w': '瓦', 'x': '克',
+      'y': '伊', 'z': '扎'
+    };
+
+    let phoneticTranslation = '';
+    const cleanName = teamName.toLowerCase().replace(/[^a-z]/g, '');
+    
+    for (let i = 0; i < Math.min(cleanName.length, 4); i++) { // Limit to 4 characters
+      const char = cleanName[i];
+      if (phoneticMap[char]) {
+        phoneticTranslation += phoneticMap[char];
+      }
+    }
+
+    return {
+      zh: phoneticTranslation || teamName,
+      zhHk: phoneticTranslation || teamName,
+      zhTw: phoneticTranslation || teamName
+    };
+  }
+
   // Generate team mappings from current fixtures
   generateTeamMappingsFromCurrentFixtures(fixtures: any[]): string {
     const teamsByCountry = new Map<string, Set<string>>();
