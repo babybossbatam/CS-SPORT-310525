@@ -520,13 +520,12 @@ class SmartLeagueCountryTranslation {
   // This function is assumed to be defined elsewhere or needs to be implemented.
   // It should take a league name, country, and ID and return a LeagueTranslation object.
   private createLeagueMapping(leagueName: string, countryName: string, leagueId?: number): LeagueTranslation | null {
-    // Placeholder for the actual mapping creation logic.
-    // This is where the translation generation for specific leagues like "FIFA Club World Cup" would happen.
-
-    // Example of how "FIFA Club World Cup" might be handled if it's not in coreLeagueTranslations
-    if (leagueName.toLowerCase().includes('fifa club world cup')) {
+    // Handle specific known leagues first
+    const lowerName = leagueName.toLowerCase();
+    
+    // FIFA Club World Cup and variations
+    if (lowerName.includes('fifa club world cup') || lowerName === 'fifa club world cup') {
       return {
-        'en': 'FIFA Club World Cup',
         'zh': 'FIFA世界俱乐部杯',
         'zh-hk': 'FIFA世界冠軍球會盃',
         'zh-tw': 'FIFA世界冠軍球會盃',
@@ -536,49 +535,92 @@ class SmartLeagueCountryTranslation {
         'pt': 'Copa do Mundo de Clubes da FIFA'
       };
     }
-
-    // Add more specific league mappings here based on patterns or known data
-
-    // Fallback to a more generic translation if no specific pattern matches
-    const translations: any = { en: leagueName };
-    const lowerName = leagueName.toLowerCase();
-    const countryZh = this.translateCountryName(countryName, 'zh') || this.detectCountryFromLeagueName(leagueName);
-
-    if (lowerName.includes('premier league')) {
-      translations.zh = `${countryZh}超级联赛`;
-      translations['zh-hk'] = `${this.translateCountryName(countryName, 'zh-hk') || countryZh}超級聯賽`;
-      translations['zh-tw'] = `${this.translateCountryName(countryName, 'zh-tw') || countryZh}超級聯賽`;
-      translations.es = `Liga Premier ${countryName ? 'de ' + countryName : ''}`;
-      translations.de = `${countryName || ''} Premier League`;
-      translations.it = `Premier League ${countryName ? 'di ' + countryName : ''}`;
-      translations.pt = `Liga Premier ${countryName ? 'do ' + countryName : ''}`;
-    } else if (lowerName.includes('championship')) {
-      translations.zh = `${countryZh}冠军联赛`;
-      translations['zh-hk'] = `${this.translateCountryName(countryName, 'zh-hk')}冠軍聯賽`;
-      translations['zh-tw'] = `${this.translateCountryName(countryName, 'zh-tw')}冠軍聯賽`;
-    } else if (lowerName.includes('liga')) {
-      translations.zh = `${countryZh}联赛`;
-      translations['zh-hk'] = `${this.translateCountryName(countryName, 'zh-hk')}聯賽`;
-      translations['zh-tw'] = `${this.translateCountryName(countryName, 'zh-tw')}聯賽`;
-    } else if (lowerName.includes('league')) {
-      translations.zh = `${countryZh}联赛`;
-      translations['zh-hk'] = `${this.translateCountryName(countryName, 'zh-hk')}聯賽`;
-      translations['zh-tw'] = `${this.translateCountryName(countryName, 'zh-tw')}聯賽`;
+    
+    // UEFA Champions League
+    if (lowerName.includes('uefa champions league') || lowerName === 'champions league') {
+      return {
+        'zh': 'UEFA欧洲冠军联赛',
+        'zh-hk': 'UEFA歐洲冠軍聯賽',
+        'zh-tw': 'UEFA歐洲冠軍聯賽',
+        'es': 'Liga de Campeones de la UEFA',
+        'de': 'UEFA Champions League',
+        'it': 'UEFA Champions League',
+        'pt': 'Liga dos Campeões da UEFA'
+      };
+    }
+    
+    // UEFA Europa League
+    if (lowerName.includes('uefa europa league') || lowerName === 'europa league') {
+      return {
+        'zh': 'UEFA欧洲联赛',
+        'zh-hk': 'UEFA歐洲聯賽',
+        'zh-tw': 'UEFA歐洲聯賽',
+        'es': 'Liga Europa de la UEFA',
+        'de': 'UEFA Europa League',
+        'it': 'UEFA Europa League',
+        'pt': 'Liga Europa da UEFA'
+      };
+    }
+    
+    // UEFA Conference League
+    if (lowerName.includes('conference league')) {
+      return {
+        'zh': 'UEFA欧洲协会联赛',
+        'zh-hk': 'UEFA歐洲協會聯賽',
+        'zh-tw': 'UEFA歐洲協會聯賽',
+        'es': 'Liga de la Conferencia UEFA',
+        'de': 'UEFA Conference League',
+        'it': 'UEFA Conference League',
+        'pt': 'Liga da Conferência UEFA'
+      };
     }
 
-    // Ensure all languages have defaults if not already set
-    translations.es = translations.es || leagueName;
-    translations.de = translations.de || leagueName;
-    translations.it = translations.it || leagueName;
-    translations.pt = translations.pt || leagueName;
-    translations.fr = translations.fr || leagueName; // Added for completeness
+    // Fallback to generic translation patterns
+    const translations: any = {};
+    const countryZh = this.translateCountryName(countryName, 'zh') || this.detectCountryFromLeagueName(leagueName) || '';
 
-    // Check if we have generated any translations other than 'en'
-    if (Object.keys(translations).length > 1) {
+    // Pattern matching for common league types
+    if (lowerName.includes('premier league')) {
+      translations.zh = countryZh ? `${countryZh}超级联赛` : '超级联赛';
+      translations['zh-hk'] = countryZh ? `${this.translateCountryName(countryName, 'zh-hk') || countryZh}超級聯賽` : '超級聯賽';
+      translations['zh-tw'] = countryZh ? `${this.translateCountryName(countryName, 'zh-tw') || countryZh}超級聯賽` : '超級聯賽';
+      translations.es = countryName ? `Liga Premier de ${countryName}` : 'Liga Premier';
+      translations.de = countryName ? `${countryName} Premier League` : 'Premier League';
+      translations.it = countryName ? `Premier League di ${countryName}` : 'Premier League';
+      translations.pt = countryName ? `Liga Premier do ${countryName}` : 'Liga Premier';
+    } else if (lowerName.includes('championship')) {
+      translations.zh = countryZh ? `${countryZh}冠军联赛` : '冠军联赛';
+      translations['zh-hk'] = countryZh ? `${this.translateCountryName(countryName, 'zh-hk') || countryZh}冠軍聯賽` : '冠軍聯賽';
+      translations['zh-tw'] = countryZh ? `${this.translateCountryName(countryName, 'zh-tw') || countryZh}冠軍聯賽` : '冠軍聯賽';
+      translations.es = countryName ? `Campeonato de ${countryName}` : 'Campeonato';
+      translations.de = countryName ? `${countryName} Meisterschaft` : 'Meisterschaft';
+      translations.it = countryName ? `Campionato di ${countryName}` : 'Campionato';
+      translations.pt = countryName ? `Campeonato do ${countryName}` : 'Campeonato';
+    } else if (lowerName.includes('liga') || lowerName.includes('league')) {
+      translations.zh = countryZh ? `${countryZh}联赛` : '联赛';
+      translations['zh-hk'] = countryZh ? `${this.translateCountryName(countryName, 'zh-hk') || countryZh}聯賽` : '聯賽';
+      translations['zh-tw'] = countryZh ? `${this.translateCountryName(countryName, 'zh-tw') || countryZh}聯賽` : '聯賽';
+      translations.es = countryName ? `Liga de ${countryName}` : 'Liga';
+      translations.de = countryName ? `${countryName} Liga` : 'Liga';
+      translations.it = countryName ? `Lega di ${countryName}` : 'Lega';
+      translations.pt = countryName ? `Liga do ${countryName}` : 'Liga';
+    } else {
+      // Generic fallback - keep original name for most languages
+      translations.zh = leagueName;
+      translations['zh-hk'] = leagueName;
+      translations['zh-tw'] = leagueName;
+      translations.es = leagueName;
+      translations.de = leagueName;
+      translations.it = leagueName;
+      translations.pt = leagueName;
+    }
+
+    // Only return if we have meaningful translations
+    if (Object.keys(translations).length > 0) {
       return translations as LeagueTranslation;
     }
 
-    return null; // Return null if no specific or generic translation was generated
+    return null;
   }
 
 

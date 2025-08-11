@@ -26,6 +26,9 @@ import {
 import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { teamColorMap } from "@/lib/colorExtractor";
+import { useTranslation } from "next-i18next";
+import { smartLeagueCountryTranslation } from '@/lib/smartLeagueCountryTranslation';
+import { translateLeagueName, useLeagueNameTranslation } from '@/lib/leagueNameMapping';
 
 interface Standing {
   rank: number;
@@ -80,6 +83,8 @@ const LeagueStandingsFilter = () => {
   const [selectedLeague, setSelectedLeague] = useState("");
   const [selectedLeagueName, setSelectedLeagueName] = useState("");
   const [leaguesLoading, setLeaguesLoading] = useState(true);
+  const { currentLanguage } = useTranslation();
+  const { translateLeague } = useLeagueNameTranslation();
 
   useEffect(() => {
     const loadLeagues = async () => {
@@ -89,16 +94,31 @@ const LeagueStandingsFilter = () => {
           "🔄 Loading leagues with enhanced translation learning system...",
         );
         const leagues = await getPopularLeagues();
-        
-        // Auto-learn league names for enhanced translation
-        if (leagues && leagues.length > 0) {
-          console.log(`📚 [Learning] Auto-learning ${leagues.length} league names for translation`);
+
+        // Auto-learn leagues when component loads
+        if (leagues.length > 0) {
+          const leagueFixtures = leagues.map(league => ({
+            league: {
+              id: league.id,
+              name: league.name,
+              country: league.country || 'World'
+            }
+          }));
+
+          // Learn leagues for smart translation
+          smartLeagueCountryTranslation.learnLeaguesFromFixtures(leagueFixtures);
+
+          // Auto-learn each league name for consistent translation
           leagues.forEach(league => {
-            if (league && league.name && league.country) {
-              // This will trigger the enhanced learning system
-              smartLeagueCountryTranslation.autoLearnFromLeagueData(league.name, league.country);
+            if (league.name) {
+              smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(league.name, {
+                countryName: league.country,
+                leagueId: league.id
+              });
             }
           });
+
+          console.log(`🎓 [LeagueStandingsFilter] Auto-learned ${leagues.length} leagues for translation`);
         }
 
         // Filter to show only current/active leagues (exclude historical tournaments)
@@ -277,7 +297,7 @@ const LeagueStandingsFilter = () => {
       } catch (error) {
         console.error("Failed to load league data:", error);
 
-        // Enhanced fallback to popular leagues including ALL World youth leagues
+        // Enhanced fallback to popular leagues including ALL World Youth Leagues
         const fallbackLeagues = [
           { id: 2, name: "UEFA Champions League", logo: "", country: "Europe" },
           { id: 3, name: "UEFA Europa League", logo: "", country: "Europe" },
@@ -555,13 +575,13 @@ const LeagueStandingsFilter = () => {
       // Try to get cached fixtures first
       const today = new Date().toISOString().slice(0, 10);
       const cachedTodayFixtures = getCachedFixturesForDate(today);
-      
+
       const response = await apiRequest(
         "GET",
         `/api/leagues/${selectedLeague}/fixtures`,
       );
       const fixturesData = await response.json();
-      
+
       // Merge with cached fixtures for better opponent data
       if (cachedTodayFixtures && fixturesData?.response) {
         const mergedFixtures = {
@@ -573,7 +593,7 @@ const LeagueStandingsFilter = () => {
         };
         return mergedFixtures;
       }
-      
+
       return fixturesData;
     },
     enabled: !!selectedLeague && selectedLeague !== "", // Only run when we have a valid league ID
@@ -820,15 +840,23 @@ const LeagueStandingsFilter = () => {
                 <SelectItem key={league.id} value={league.id.toString()}>
                   <div className="flex items-center gap-2">
                     <img
-                      src={league.logo || "/assets/fallback-logo.svg"}
-                      alt={league.name}
-                      className="h-5 w-5 object-contain"
+                      src={`/api/league-logo/${league.id}`}
+                      alt={league.name || "Unknown League"}
+                      className="w-4 h-4 object-contain"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          "/assets/fallback-logo.svg";
+                        const target = e.target as HTMLImageElement;
+                        console.log(`🚨 [LeagueStandingsFilter] Logo failed for league ${league.id} (${league.name})`);
+                        if (!target.src.includes("fallback-logo.svg")) {
+                          target.src = "/assets/fallback-logo.svg";
+                        }
+                      }}
+                      onLoad={() => {
+                        console.log(`✅ [LeagueStandingsFilter] Logo loaded for league ${league.id} (${league.name})`);
                       }}
                     />
-                    {league.name}
+                    <span className="text-sm">
+                      {translateLeague(league.id, league.name) || smartLeagueCountryTranslation.translateLeagueName(league.name, currentLanguage)}
+                    </span>
                   </div>
                 </SelectItem>
               ))}
@@ -1025,7 +1053,7 @@ const LeagueStandingsFilter = () => {
                     </div>
                   ),
                 )}
-                
+
                 {/* Link to view full group standings if more than 2 groups exist */}
                 {standings.league.standings.length > 2 && (
                   <div className="text-center mt-6 pt-4 border-t border-gray-100">
@@ -1055,7 +1083,7 @@ const LeagueStandingsFilter = () => {
                       <TableHead className="text-center text-xs font-regular text-gray-400 px-2 w-[50px]">
                         +/-
                       </TableHead>
-                      <TableHead className="text-center text-xs font-regular text-gray-900  px-2 w-[50px]">
+                      <TableHead className="text-center text-xs font-semi-bold text-gray-900  px-2 w-[50px]">
                         PTS
                       </TableHead>
                       <TableHead className="text-center text-xs font-semi-bold text-gray-400 py-3 px-2 w-[40px]">
@@ -1199,18 +1227,18 @@ const LeagueStandingsFilter = () => {
                                                   : standing.description
                                                         ?.toLowerCase()
                                                         .includes("conference")
-                                                    ? "#6F42C1"
-                                                    : standing.description
-                                                          ?.toLowerCase()
-                                                          .includes("promotion")
-                                                      ? "#28A745"
+                                                      ? "#6F42C1"
                                                       : standing.description
                                                             ?.toLowerCase()
-                                                            .includes(
-                                                              "relegation",
-                                                            )
-                                                        ? "#DC3545"
-                                                        : "#6B7280",
+                                                            .includes("promotion")
+                                                        ? "#28A745"
+                                                        : standing.description
+                                                              ?.toLowerCase()
+                                                              .includes(
+                                                                "relegation",
+                                                              )
+                                                          ? "#DC3545"
+                                                          : "#6B7280",
                                       }}
                                     >
                                       {getChampionshipTitle(
