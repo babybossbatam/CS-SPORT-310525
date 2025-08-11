@@ -1,3 +1,4 @@
+
 interface PlayerTranslation {
   [key: string]: {
     en: string;
@@ -162,7 +163,7 @@ class SmartPlayerTranslation {
       pl: 'Pomocnik ofensywny', sv: 'Anfallande mittfältare', da: 'Angribende midtbane', no: 'Angripende midtbane', fi: 'Hyökkäävä keskikenttäpelaaja',
       cs: 'Útočný záložník', sk: 'Útočný záložník', hu: 'Támadó középpályás', ro: 'Mijlocaș ofensiv', bg: 'Атакуващ халф',
       hr: 'Napadni vezni', sr: 'Нападни везни', sl: 'Napadalni vezni', et: 'Ründav poolkaitsja', lv: 'Uzbrūkošs pussargs',
-      lt: 'Puolantis saugos žaidėjas', mt: 'Midfield ta' attakk', ga: 'Lár páirce ionsaithe', cy: 'Canol cae ymosodol', is: 'Sóknmiðjumadur',
+      lt: 'Puolantis saugos žaidėjas', mt: 'Midfield ta\' attakk', ga: 'Lár páirce ionsaithe', cy: 'Canol cae ymosodol', is: 'Sóknmiðjumadur',
       mk: 'Напаѓачки средноредец', sq: 'Mesfushor sulmuese', eu: 'Erdilari erasotzaile', ca: 'Migcampista ofensiu', gl: 'Mediocampista ofensivo',
       he: 'קשר התקפי', hi: 'आक्रामक मिडफील्डर', th: 'กองกลางรุก', vi: 'Tiền vệ tấn công', id: 'Gelandang serang',
       ms: 'Pemain tengah serang', uk: 'Атакувальний півзахисник', be: 'Атакавальны паўзахіснік'
@@ -176,8 +177,8 @@ class SmartPlayerTranslation {
       hr: 'Defenzivni vezni', sr: 'Дефанзивни везни', sl: 'Obrambni vezni', et: 'Kaitsev poolkaitsja', lv: 'Aizsargājošs pussargs',
       lt: 'Gynybinis saugos žaidėjas', mt: 'Midfield difensiv', ga: 'Lár páirce cosanta', cy: 'Canol cae amddiffynnol', is: 'Varnarmiðjumadur',
       mk: 'Одбранбен средноредец', sq: 'Mesfushor mbrojtëse', eu: 'Erdilari defendatzaile', ca: 'Migcampista defensiu', gl: 'Mediocampista defensivo',
-      he: 'קשר הגנתי', hi: ' रक्षात्मक मिडफील्डर', th: 'กองกลางรับ', vi: 'Tiền vệ phòng ngự', id: 'Gelandang bertahan',
-      ms: 'Pemain tengah pertahanan', uk: 'Оборонний półзахисник', be: 'Абарончы паўзахіснік'
+      he: 'קשר הגנתי', hi: 'रक्षात्मक मिडफील्डर', th: 'กองกลางรับ', vi: 'Tiền vệ phòng ngự', id: 'Gelandang bertahan',
+      ms: 'Pemain tengah pertahanan', uk: 'Оборонний півзахисник', be: 'Абарончы паўзахіснік'
     },
 
     // Defender positions
