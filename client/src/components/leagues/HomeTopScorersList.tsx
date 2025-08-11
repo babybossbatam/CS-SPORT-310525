@@ -288,7 +288,7 @@ const HomeTopScorersList = () => {
                     name: scorer.player.name,
                     // Prioritize games.position if available, otherwise use player.position
                     position: scorer.statistics[0]?.games?.position || scorer.player.position,
-                    team: teamName,
+                    team: scorer.statistics[0]?.team?.name,
                     league: leagueName,
                     country: playerCountry,
                     nationality: playerCountry // Alias for country
@@ -1126,13 +1126,28 @@ const HomeTopScorersList = () => {
                 const translatedPosition = rawPosition ? 
                   smartPlayerTranslation.translatePositionName(rawPosition, currentLanguage) : "";
 
+                // Enhanced team name translation and learning system
+                const teamName = playerStats?.team?.name || "";
+                
+                // Auto-learn the team name for translation if we haven't seen it before
+                if (teamName) {
+                  smartPlayerTranslation.autoLearnFromAnyTeamName(teamName, {
+                    playerId: scorer.player.id,
+                    playerName: scorer.player.name,
+                    leagueName: playerStats?.league?.name
+                  });
+                }
+
+                // Translate the team name to the current language
+                const translatedTeamName = teamName ? 
+                  smartPlayerTranslation.translateTeamName(teamName, currentLanguage) : "";
+
                 // Enhanced country extraction and learning system
                 let playerCountry = smartPlayerTranslation.getPlayerCountry(scorer.player.id);
                 
                 // If we don't have the player's country stored, try to extract it
                 if (!playerCountry) {
                   const leagueCountry = playerStats?.league?.country;
-                  const teamName = playerStats?.team?.name;
                   const leagueName = playerStats?.league?.name;
                   
                   // Enhanced country extraction logic with better team-to-country mapping
@@ -1252,9 +1267,18 @@ const HomeTopScorersList = () => {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        {translatedCountry}
-                      </p>
+                      <div className="space-y-0.5">
+                        {translatedTeamName && (
+                          <p className="text-xs text-blue-600 dark:text-blue-400 truncate font-medium">
+                            {translatedTeamName}
+                          </p>
+                        )}
+                        {translatedCountry && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                            {translatedCountry}
+                          </p>
+                        )}
+                      </div>
                     </div>
 
                     <div className="text-center flex-shrink-0">

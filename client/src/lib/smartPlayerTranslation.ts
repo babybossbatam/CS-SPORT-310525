@@ -67,9 +67,76 @@ class SmartPlayerTranslation {
   private learnedPlayerMappings = new Map<string, PlayerTranslation[string]>();
   private learnedPositionMappings = new Map<string, PlayerTranslation[string]>();
   private learnedCountryMappings = new Map<string, PlayerTranslation[string]>();
+  private learnedTeamMappings = new Map<string, PlayerTranslation[string]>(); // Team/club translations
   private playerCountryMappings = new Map<string, string>(); // playerId -> country
+  private playerTeamMappings = new Map<string, string>(); // playerId -> team
   private translationCache = new Map<string, { translation: string; timestamp: number }>();
   private isLoading = false;
+
+  // Comprehensive team/club translations for popular football clubs
+  private popularTeams: PlayerTranslation = {
+    // European clubs
+    'Rangers': {
+      en: 'Rangers', ar: 'رينجرز', zh: '流浪者', 'zh-hk': '格拉斯哥流浪者', 'zh-tw': '流浪者',
+      fr: 'Rangers', es: 'Rangers', pt: 'Rangers', de: 'Rangers', it: 'Rangers',
+      ru: 'Рейнджерс', ja: 'レンジャーズ', ko: '레인저스', tr: 'Rangers', nl: 'Rangers',
+      pl: 'Rangers', sv: 'Rangers', da: 'Rangers', no: 'Rangers', fi: 'Rangers',
+      cs: 'Rangers', sk: 'Rangers', hu: 'Rangers', ro: 'Rangers', bg: 'Рейнджърс',
+      hr: 'Rangers', sr: 'Рејнџерс', sl: 'Rangers', et: 'Rangers', lv: 'Rangers',
+      lt: 'Rangers', mt: 'Rangers', ga: 'Rangers', cy: 'Rangers', is: 'Rangers',
+      mk: 'Рејнџерс', sq: 'Rangers', eu: 'Rangers', ca: 'Rangers', gl: 'Rangers',
+      he: 'ריינג\'רס', hi: 'रेंजर्स', th: 'เรนเจอร์ส', vi: 'Rangers', id: 'Rangers',
+      ms: 'Rangers', uk: 'Рейнджерс', be: 'Рэйнджэрс'
+    },
+    'Crvena Zvezda': {
+      en: 'Red Star Belgrade', ar: 'النجم الأحمر بلغراد', zh: '贝尔格莱德红星', 'zh-hk': '貝爾格萊德紅星', 'zh-tw': '貝爾格萊德紅星',
+      fr: 'Étoile Rouge de Belgrade', es: 'Estrella Roja de Belgrado', pt: 'Estrela Vermelha de Belgrado', de: 'Roter Stern Belgrad', it: 'Stella Rossa Belgrado',
+      ru: 'Црвена звезда', ja: 'ツルヴェナ・ズヴェズダ', ko: '츠르베나 즈베즈다', tr: 'Kızılyıldız', nl: 'Rode Ster Belgrado',
+      pl: 'Czerwona Gwiazda Belgrad', sv: 'Röda Stjärnan Belgrad', da: 'Røde Stjerne Beograd', no: 'Røde Stjerne Beograd', fi: 'Punainen Tähti Belgrad',
+      cs: 'Červená hvězda Bělehrad', sk: 'Červená hviezda Belehrad', hu: 'Vörös Csillag Belgrád', ro: 'Steaua Roșie Belgrad', bg: 'Червена звезда Белград',
+      hr: 'Crvena zvezda', sr: 'Црвена звезда', sl: 'Rdeča zvezda', et: 'Punane Täht Belgrad', lv: 'Sarkanzvaigzne Belgrada',
+      lt: 'Raudona žvaigždė Belgradas', mt: 'Stella Ħamra Belgrad', ga: 'Réalta Dhearg Bheograd', cy: 'Seren Goch Belgrad', is: 'Rauðstjarna Belgrað',
+      mk: 'Црвена Ѕвезда', sq: 'Ylli i Kuq i Beogradit', eu: 'Belgradno Izar Gorria', ca: 'Estrella Roja de Belgrad', gl: 'Estrela Vermella de Belgrado',
+      he: 'הכוכב האדום בלגרד', hi: 'रेड स्टार बेलग्रेड', th: 'เรดสตาร์ เบลเกรด', vi: 'Sao Đỏ Belgrade', id: 'Bintang Merah Belgrade',
+      ms: 'Bintang Merah Belgrade', uk: 'Црвена Звезда', be: 'Чырвоная Зорка'
+    },
+    'Real Madrid': {
+      en: 'Real Madrid', ar: 'ريال مدريد', zh: '皇家马德里', 'zh-hk': '皇家馬德里', 'zh-tw': '皇家馬德里',
+      fr: 'Real Madrid', es: 'Real Madrid', pt: 'Real Madrid', de: 'Real Madrid', it: 'Real Madrid',
+      ru: 'Реал Мадрид', ja: 'レアル・マドリード', ko: '레알 마드리드', tr: 'Real Madrid', nl: 'Real Madrid',
+      pl: 'Real Madryt', sv: 'Real Madrid', da: 'Real Madrid', no: 'Real Madrid', fi: 'Real Madrid',
+      cs: 'Real Madrid', sk: 'Real Madrid', hu: 'Real Madrid', ro: 'Real Madrid', bg: 'Реал Мадрид',
+      hr: 'Real Madrid', sr: 'Реал Мадрид', sl: 'Real Madrid', et: 'Real Madrid', lv: 'Real Madrid',
+      lt: 'Real Madrid', mt: 'Real Madrid', ga: 'Real Madrid', cy: 'Real Madrid', is: 'Real Madrid',
+      mk: 'Реал Мадрид', sq: 'Real Madrid', eu: 'Real Madrid', ca: 'Real Madrid', gl: 'Real Madrid',
+      he: 'ריאל מדריד', hi: 'रियल मैड्रिड', th: 'เรอัล มาดริด', vi: 'Real Madrid', id: 'Real Madrid',
+      ms: 'Real Madrid', uk: 'Реал Мадрид', be: 'Рэал Мадрыд'
+    },
+    'Barcelona': {
+      en: 'Barcelona', ar: 'برشلونة', zh: '巴塞罗那', 'zh-hk': '巴塞隆拿', 'zh-tw': '巴塞隆納',
+      fr: 'Barcelone', es: 'Barcelona', pt: 'Barcelona', de: 'Barcelona', it: 'Barcellona',
+      ru: 'Барселона', ja: 'バルセロナ', ko: '바르셀로나', tr: 'Barcelona', nl: 'Barcelona',
+      pl: 'Barcelona', sv: 'Barcelona', da: 'Barcelona', no: 'Barcelona', fi: 'Barcelona',
+      cs: 'Barcelona', sk: 'Barcelona', hu: 'Barcelona', ro: 'Barcelona', bg: 'Барселона',
+      hr: 'Barcelona', sr: 'Барселона', sl: 'Barcelona', et: 'Barcelona', lv: 'Barcelona',
+      lt: 'Barcelona', mt: 'Barcelona', ga: 'Barcelona', cy: 'Barcelona', is: 'Barcelona',
+      mk: 'Барселона', sq: 'Barcelona', eu: 'Barcelona', ca: 'Barcelona', gl: 'Barcelona',
+      he: 'ברצלונה', hi: 'बार्सिलोना', th: 'บาร์เซโลนา', vi: 'Barcelona', id: 'Barcelona',
+      ms: 'Barcelona', uk: 'Барселона', be: 'Барселона'
+    },
+    'Arsenal': {
+      en: 'Arsenal', ar: 'آرسنال', zh: '阿森纳', 'zh-hk': '阿仙奴', 'zh-tw': '阿森納',
+      fr: 'Arsenal', es: 'Arsenal', pt: 'Arsenal', de: 'Arsenal', it: 'Arsenal',
+      ru: 'Арсенал', ja: 'アーセナル', ko: '아스널', tr: 'Arsenal', nl: 'Arsenal',
+      pl: 'Arsenal', sv: 'Arsenal', da: 'Arsenal', no: 'Arsenal', fi: 'Arsenal',
+      cs: 'Arsenal', sk: 'Arsenal', hu: 'Arsenal', ro: 'Arsenal', bg: 'Арсенал',
+      hr: 'Arsenal', sr: 'Арсенал', sl: 'Arsenal', et: 'Arsenal', lv: 'Arsenal',
+      lt: 'Arsenal', mt: 'Arsenal', ga: 'Arsenal', cy: 'Arsenal', is: 'Arsenal',
+      mk: 'Арсенал', sq: 'Arsenal', eu: 'Arsenal', ca: 'Arsenal', gl: 'Arsenal',
+      he: 'ארסנל', hi: 'आर्सेनल', th: 'อาร์เซนอล', vi: 'Arsenal', id: 'Arsenal',
+      ms: 'Arsenal', uk: 'Арсенал', be: 'Арсенал'
+    }
+  };
 
   // Comprehensive country translations
   private popularCountries: PlayerTranslation = {
@@ -424,7 +491,9 @@ class SmartPlayerTranslation {
       const learnedPlayerMappings = localStorage.getItem('learnedPlayerMappings');
       const learnedPositionMappings = localStorage.getItem('learnedPositionMappings');
       const learnedCountryMappings = localStorage.getItem('learnedCountryMappings');
+      const learnedTeamMappings = localStorage.getItem('learnedTeamMappings');
       const playerCountryMappings = localStorage.getItem('playerCountryMappings');
+      const playerTeamMappings = localStorage.getItem('playerTeamMappings');
 
       if (learnedPlayerMappings) {
         const parsed = JSON.parse(learnedPlayerMappings);
@@ -441,12 +510,22 @@ class SmartPlayerTranslation {
         this.learnedCountryMappings = new Map(Object.entries(parsed));
       }
 
+      if (learnedTeamMappings) {
+        const parsed = JSON.parse(learnedTeamMappings);
+        this.learnedTeamMappings = new Map(Object.entries(parsed));
+      }
+
       if (playerCountryMappings) {
         const parsed = JSON.parse(playerCountryMappings);
         this.playerCountryMappings = new Map(Object.entries(parsed));
       }
 
-      console.log(`📚 [SmartPlayerTranslation] Loaded ${this.learnedPlayerMappings.size} player mappings, ${this.learnedPositionMappings.size} position mappings, and ${this.learnedCountryMappings.size} country mappings`);
+      if (playerTeamMappings) {
+        const parsed = JSON.parse(playerTeamMappings);
+        this.playerTeamMappings = new Map(Object.entries(parsed));
+      }
+
+      console.log(`📚 [SmartPlayerTranslation] Loaded ${this.learnedPlayerMappings.size} player mappings, ${this.learnedPositionMappings.size} position mappings, ${this.learnedCountryMappings.size} country mappings, and ${this.learnedTeamMappings.size} team mappings`);
     } catch (error) {
       console.warn('[SmartPlayerTranslation] Failed to load learned mappings:', error);
     }
@@ -457,12 +536,16 @@ class SmartPlayerTranslation {
       const playerMappings = Object.fromEntries(this.learnedPlayerMappings);
       const positionMappings = Object.fromEntries(this.learnedPositionMappings);
       const countryMappings = Object.fromEntries(this.learnedCountryMappings);
+      const teamMappings = Object.fromEntries(this.learnedTeamMappings);
       const playerCountryMappings = Object.fromEntries(this.playerCountryMappings);
+      const playerTeamMappings = Object.fromEntries(this.playerTeamMappings);
 
       localStorage.setItem('learnedPlayerMappings', JSON.stringify(playerMappings));
       localStorage.setItem('learnedPositionMappings', JSON.stringify(positionMappings));
       localStorage.setItem('learnedCountryMappings', JSON.stringify(countryMappings));
+      localStorage.setItem('learnedTeamMappings', JSON.stringify(teamMappings));
       localStorage.setItem('playerCountryMappings', JSON.stringify(playerCountryMappings));
+      localStorage.setItem('playerTeamMappings', JSON.stringify(playerTeamMappings));
     } catch (error) {
       console.warn('[SmartPlayerTranslation] Failed to save learned mappings:', error);
     }
@@ -497,6 +580,25 @@ class SmartPlayerTranslation {
             this.playerCountryMappings.set(playerId, playerCountry);
             newPlayerCountryMappings++;
           }
+        }
+
+        // Learn player-team associations
+        if (player.team && player.id) {
+          const playerId = player.id.toString();
+          if (!this.playerTeamMappings.has(playerId)) {
+            this.playerTeamMappings.set(playerId, player.team);
+          }
+        }
+      }
+
+      // Learn teams
+      if (player.team) {
+        const normalizedTeam = this.normalizeTeam(player.team);
+        const existingTeamMapping = this.learnedTeamMappings.get(normalizedTeam);
+
+        if (!existingTeamMapping) {
+          const newTeamMapping = this.generateTeamMapping(normalizedTeam);
+          this.learnedTeamMappings.set(normalizedTeam, newTeamMapping);
         }
       }
 
@@ -674,6 +776,50 @@ class SmartPlayerTranslation {
     return mapping;
   }
 
+  private normalizeTeam(team: string): string {
+    if (!team) return '';
+
+    // Normalize common team variations
+    const normalized = team.toLowerCase().trim();
+
+    // Map common variations to standard names
+    const teamMap: { [key: string]: string } = {
+      'rangers': 'Rangers',
+      'glasgow rangers': 'Rangers',
+      'crvena zvezda': 'Crvena Zvezda',
+      'red star belgrade': 'Crvena Zvezda',
+      'real madrid': 'Real Madrid',
+      'barcelona': 'Barcelona',
+      'fc barcelona': 'Barcelona',
+      'arsenal': 'Arsenal',
+      'arsenal fc': 'Arsenal'
+    };
+
+    return teamMap[normalized] || this.capitalizeTeam(team);
+  }
+
+  private capitalizeTeam(team: string): string {
+    return team.split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  }
+
+  private generateTeamMapping(team: string): PlayerTranslation[string] {
+    // Check if we have a predefined translation
+    const existingTranslation = this.popularTeams[team];
+    if (existingTranslation) {
+      return existingTranslation;
+    }
+
+    // Generate a basic mapping for unknown teams
+    const mapping: any = {};
+    Object.keys(this.popularTeams.Rangers).forEach(lang => {
+      mapping[lang] = team;
+    });
+
+    return mapping;
+  }
+
   // Main translation functions
   translatePlayerName(playerName: string, language: string): string {
     if (!playerName || !language) return playerName;
@@ -730,6 +876,27 @@ class SmartPlayerTranslation {
     return country;
   }
 
+  translateTeamName(team: string, language: string): string {
+    if (!team || !language) return team;
+
+    const normalizedTeam = this.normalizeTeam(team);
+
+    // Check static translations first
+    const staticTranslation = this.popularTeams[normalizedTeam];
+    if (staticTranslation && staticTranslation[language as keyof typeof staticTranslation]) {
+      return staticTranslation[language as keyof typeof staticTranslation];
+    }
+
+    // Check learned mappings
+    const learnedMapping = this.learnedTeamMappings.get(normalizedTeam);
+    if (learnedMapping && learnedMapping[language as keyof typeof learnedMapping]) {
+      return learnedMapping[language as keyof typeof learnedMapping];
+    }
+
+    // Fallback to original team
+    return team;
+  }
+
   getPlayerCountry(playerId: number): string | null {
     return this.playerCountryMappings.get(playerId.toString()) || null;
   }
@@ -762,6 +929,20 @@ class SmartPlayerTranslation {
     }
   }
 
+  // Auto-learn from any team name
+  autoLearnFromAnyTeamName(team: string, context?: any): void {
+    if (!team || team.length < 2) return;
+
+    const normalizedTeam = this.normalizeTeam(team);
+
+    if (!this.learnedTeamMappings.has(normalizedTeam)) {
+      const newMapping = this.generateTeamMapping(normalizedTeam);
+      this.learnedTeamMappings.set(normalizedTeam, newMapping);
+      this.saveLearnedMappings();
+      console.log(`🎯 [SmartPlayerTranslation] Auto-learned new team: "${team}" -> "${normalizedTeam}"`);
+    }
+  }
+
   // Set player-country mapping
   setPlayerCountry(playerId: number, country: string): void {
     if (!playerId || !country) return;
@@ -783,10 +964,13 @@ class SmartPlayerTranslation {
       playerMappings: this.learnedPlayerMappings.size,
       positionMappings: this.learnedPositionMappings.size,
       countryMappings: this.learnedCountryMappings.size,
+      teamMappings: this.learnedTeamMappings.size,
       playerCountryMappings: this.playerCountryMappings.size,
+      playerTeamMappings: this.playerTeamMappings.size,
       cacheSize: this.playerCache.size,
       availablePositions: Object.keys(this.popularPlayerPositions).length,
-      availableCountries: Object.keys(this.popularCountries).length
+      availableCountries: Object.keys(this.popularCountries).length,
+      availableTeams: Object.keys(this.popularTeams).length
     };
   }
 }
