@@ -147,7 +147,7 @@ const FEATURED_MATCH_LEAGUE_IDS = [
 ];
 
 // Explicitly excluded leagues
-const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [848, 169, 940, 85, 80, 84, 87, 86, 41, 772]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772
+const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2
 const PRIORITY_LEAGUE_IDS = [2, 15, 38, 22, 45, 550, 531]; // UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531
 
 interface FeaturedMatch {
@@ -1317,7 +1317,7 @@ id: fixture.teams.away.id,
         for (const dateInfo of dates) {
           const fixturesForDay = uniqueFixtures
             .filter((fixture) => {
-              // EXPLICIT EXCLUSION: Never show UEFA Europa Conference League (ID 848), Regionalliga - Bayern (ID 169), or League 940
+              // EXPLICIT EXCLUSION: Never show UEFA Europa Conference League (ID 848), Regionalliga - Bayern (ID 169), League 940, or Ligue 2 (ID 62)
               if (fixture.league.id === 848) {
                 console.log(`🚫 [EXPLICIT EXCLUSION] UEFA Europa Conference League match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
                 return false;
@@ -1367,6 +1367,11 @@ id: fixture.teams.away.id,
 
               if (fixture.league.id === 772) {
                 console.log(`🚫 [EXPLICIT EXCLUSION] League 772 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                return false;
+              }
+
+              if (fixture.league.id === 62) {
+                console.log(`🚫 [EXPLICIT EXCLUSION] Ligue 2 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
                 return false;
               }
 
@@ -1563,7 +1568,10 @@ id: fixture.teams.away.id,
         key.startsWith('ended_matches_') ||
         key.startsWith('league-fixtures-') ||
         key.startsWith('featured-match-') ||
-        key.startsWith('all-fixtures-by-date')
+        key.startsWith('all-fixtures-by-date') ||
+        key.includes('62') || // Ligue 2
+        key.includes('ligue 2') ||
+        key.includes('l2')
       );
 
       excludedLeagueKeys.forEach(key => {
@@ -1583,7 +1591,10 @@ id: fixture.teams.away.id,
         key.includes('regionalliga') ||
         key.includes('bayern') ||
         key.startsWith('league-fixtures-') ||
-        key.startsWith('featured-match-')
+        key.startsWith('featured-match-') ||
+        key.includes('62') || // Ligue 2
+        key.includes('ligue 2') ||
+        key.includes('l2')
       );
 
       sessionExcludedKeys.forEach(key => {
@@ -1602,7 +1613,10 @@ id: fixture.teams.away.id,
               const key = query.queryKey?.join('-') || '';
               return key.includes('848') || key.includes('169') ||
                      key.includes('conference') || key.includes('regionalliga') ||
-                     key.includes('bayern');
+                     key.includes('bayern') ||
+                     key.includes('62') || // Ligue 2
+                     key.includes('ligue 2') ||
+                     key.includes('l2');
             }
           });
         } catch (error) {
@@ -1610,7 +1624,7 @@ id: fixture.teams.away.id,
         }
       }
 
-      console.log(`🧹 [CacheClean] Cleared ${excludedLeagueKeys.length + sessionExcludedKeys.length} cache entries for excluded leagues (UEFA Europa Conference League and Regionalliga - Bayern)`);
+      console.log(`🧹 [CacheClean] Cleared ${excludedLeagueKeys.length + sessionExcludedKeys.length} cache entries for excluded leagues (UEFA Europa Conference League, Regionalliga - Bayern, Ligue 2)`);
     } catch (error) {
       console.error('Error clearing excluded leagues caches:', error);
     }
@@ -2330,34 +2344,34 @@ id: fixture.teams.away.id,
                               const dayName = format(matchDate, "EEEE");
                               const monthName = format(matchDate, "MMMM");
                               const dayNumber = format(matchDate, "do");
-                              
+
                               const translatedDayName = (() => {
                                 const dayKey = dayName.toLowerCase();
                                 return t(dayKey) !== dayKey ? t(dayKey) : dayName;
                               })();
-                              
+
                               const translatedMonthName = (() => {
                                 const monthKey = monthName.toLowerCase();
                                 return t(monthKey) !== monthKey ? t(monthKey) : monthName;
                               })();
-                              
+
                               return `${translatedDayName}, ${dayNumber} ${translatedMonthName}`;
                             } else {
                               // For past matches that aren't ended (edge case)
                               const dayName = format(matchDate, "EEEE");
                               const monthName = format(matchDate, "MMM");
                               const dayNumber = format(matchDate, "d");
-                              
+
                               const translatedDayName = (() => {
                                 const dayKey = dayName.toLowerCase();
                                 return t(dayKey) !== dayKey ? t(dayKey) : dayName;
                               })();
-                              
+
                               const translatedMonthName = (() => {
                                 const monthKey = monthName.toLowerCase();
                                 return t(monthKey) !== monthKey ? t(monthKey) : monthName;
                               })();
-                              
+
                               return `${translatedDayName}, ${translatedMonthName} ${dayNumber}`;
                             }
                           }
