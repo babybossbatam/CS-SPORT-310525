@@ -525,7 +525,6 @@ class SmartPlayerTranslation {
     // Map common variations to standard names
     const countryMap: { [key: string]: string } = {
       'brasil': 'Brazil',
-      'brasil': 'Brazil',
       'england': 'England',
       'uk': 'England',
       'united kingdom': 'England',
