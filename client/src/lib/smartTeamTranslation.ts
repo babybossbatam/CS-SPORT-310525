@@ -2268,7 +2268,11 @@ class SmartTeamTranslation {
     }
 
     // Update the specific language translation
-    mapping[language as keyof TeamTranslation] = translatedName;
+    if (language === 'zh' || language === 'zh-hk' || language === 'zh-tw' || 
+        language === 'es' || language === 'de' || language === 'it' || language === 'pt') {
+      mapping[language] = translatedName;
+    }
+    
     this.learnedTeamMappings.set(originalName, mapping);
     this.saveLearnedMappings();
 
