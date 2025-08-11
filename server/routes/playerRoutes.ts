@@ -116,22 +116,8 @@ router.get('/player-photo-by-name', async (req, res) => {
         }
       }
 
-      // Try 365Scores only if we have verified player ID mapping
-      const knownPlayerMappings = getKnownPlayerMappings();
-      if (knownPlayerMappings[name.toLowerCase()]) {
-        const playerId = knownPlayerMappings[name.toLowerCase()];
-        const cdn365Url = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
-        
-        try {
-          const response = await fetch(cdn365Url, { method: 'HEAD', timeout: 3000 });
-          if (response.ok) {
-            console.log(`✅ [PlayerPhotoByName] Found 365Scores photo for "${name}": ${cdn365Url}`);
-            return res.redirect(cdn365Url);
-          }
-        } catch (error) {
-          console.log(`⚠️ [PlayerPhotoByName] 365Scores photo failed for "${name}"`);
-        }
-      }
+      // Skip 365Scores due to rate limiting and 425 errors
+      // Focus on more reliable sources like API-Sports and Transfermarkt
     }
 
     // Source 4: Generate fallback avatar with player initials
@@ -228,13 +214,7 @@ router.get('/player-photo/:playerId', async (req, res) => {
       return res.redirect(apiSportsUrl);
     }
 
-    // Try 365Scores as backup
-    const cdnUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`;
-    const cdnResponse = await fetch(cdnUrl, { method: 'HEAD', timeout: 3000 });
-
-    if (cdnResponse.ok) {
-      return res.redirect(cdnUrl);
-    }
+    // 365Scores removed due to consistent 425 errors and rate limiting issues
 
     // No photo found
     res.status(404).json({ error: 'Player photo not found' });

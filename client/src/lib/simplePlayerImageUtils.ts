@@ -17,17 +17,16 @@ export interface PlayerImageData {
 export function getSimplePlayerImage(data: PlayerImageData): string {
   const { playerId, playerName, teamId } = data;
 
-  // Primary: Use direct player ID if available (similar to top scorer approach)
+  // Primary: Use API-Sports for player images (more reliable)
   if (playerId) {
-    return `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
+    return `https://media.api-sports.io/football/players/${playerId}.png`;
   }
 
-  // Secondary: Try team-based player lookup if we have team ID
+  // Secondary: Try alternative sources for player images
   if (teamId && playerName) {
-    // This could be enhanced to fetch team roster and match player names
-    // For now, we'll use a generic team-based approach
+    // Use BeSoccer or other reliable sources instead
     const playerSlug = playerName.toLowerCase().replace(/\s+/g, '-');
-    return `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/team-${teamId}-${playerSlug}`;
+    return `https://cdn.resfu.com/img_data/players/medium/${playerId || 'unknown'}.jpg?size=120x&lossy=1`;
   }
 
   // Fallback: Generate initials-based image (like AvatarFallback)

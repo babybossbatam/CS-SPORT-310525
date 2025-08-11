@@ -53,11 +53,11 @@ export function getTeamLogoSources(team: TeamData, isNationalTeam = false, sport
       priority: 2
     });
 
-    // 365scores alternative
+    // 365scores alternative (lower priority due to rate limiting)
     sources.push({
       url: `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${team.id}`,
       source: '365scores',
-      priority: 3
+      priority: 6
     });
 
     // API-Sports alternative - sport-specific
@@ -76,14 +76,7 @@ export function getTeamLogoSources(team: TeamData, isNationalTeam = false, sport
       priority: 4
     });
 
-    // If not tried yet, add 365scores as fallback for regular teams too
-    if (!isNationalTeam) {
-      sources.push({
-        url: `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${team.id}`,
-        source: '365scores-fallback',
-        priority: 5
-      });
-    }
+    // 365scores fallback removed due to reliability issues
   }
 
   // Final fallback
