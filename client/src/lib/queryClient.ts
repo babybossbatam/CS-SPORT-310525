@@ -43,31 +43,16 @@ export async function apiRequest(
 
     console.log(`📡 [apiRequest] Making ${method} request to: ${apiUrl}`);
 
-    // Create abort controller for timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      controller.abort('Request timeout after 15 seconds');
-    }, 15000);
-
-    try {
-      const response = await fetch(apiUrl, {
-        method,
-        signal: controller.signal,
-        headers: {
-          ...(data ? { "Content-Type": "application/json" } : {}),
-          Accept: "application/json",
-        },
-        body: data ? JSON.stringify(data) : undefined,
-        credentials: "include",
-        mode: "cors",
-      });
-
-      clearTimeout(timeoutId);
-      return response;
-    } catch (error) {
-      clearTimeout(timeoutId);
-      throw error;
-    }
+    const response = await fetch(apiUrl, {
+      method,
+      headers: {
+        ...(data ? { "Content-Type": "application/json" } : {}),
+        Accept: "application/json",
+      },
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include",
+      mode: "cors",
+    });
 
     console.log(`📡 [apiRequest] Response status: ${response.status} for ${method} ${url}`);
 
