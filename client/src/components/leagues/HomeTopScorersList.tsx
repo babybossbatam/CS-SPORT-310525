@@ -9,8 +9,8 @@ import { CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 import { useLanguage } from "@/contexts/LanguageContext";
-// Import the player translation learning function
-import { learnFromPlayerData } from "@/lib/smartPlayerTranslation";
+// Import the player translation learning function and smart translation system
+import { learnFromPlayerData, smartPlayerTranslation } from "@/lib/smartPlayerTranslation";
 
 // Add CSS to hide scrollbars
 const scrollbarHideStyle = `
@@ -253,17 +253,45 @@ const HomeTopScorersList = () => {
                 }
               });
 
-              // Auto-learn player names and positions from the fresh data
+              // Auto-learn player names, positions, and countries from the fresh data
               const playersForLearning: any[] = [];
               freshData.forEach((scorer: any) => {
                 if (scorer.player?.name) {
+                  // Extract country from league country data
+                  const leagueCountry = scorer.statistics[0]?.league?.country;
+                  
+                  // Intelligent country extraction based on team/league
+                  const extractPlayerCountry = (teamName: string, leagueCountry: string, leagueName: string) => {
+                    // If it's a national team league, the country is obvious
+                    if (leagueName?.toLowerCase().includes('world cup') || 
+                        leagueName?.toLowerCase().includes('nations league') ||
+                        leagueName?.toLowerCase().includes('euro') ||
+                        leagueName?.toLowerCase().includes('copa america')) {
+                      return teamName; // Team name is likely the country
+                    }
+                    
+                    // For club competitions, we can make educated guesses
+                    if (leagueCountry && leagueCountry !== 'World') {
+                      // Many players in domestic leagues are from that country
+                      return leagueCountry;
+                    }
+                    
+                    return null;
+                  };
+
+                  const teamName = scorer.statistics[0]?.team?.name;
+                  const leagueName = scorer.statistics[0]?.league?.name;
+                  const playerCountry = extractPlayerCountry(teamName, leagueCountry, leagueName);
+
                   playersForLearning.push({
                     id: scorer.player.id,
                     name: scorer.player.name,
                     // Prioritize games.position if available, otherwise use player.position
                     position: scorer.statistics[0]?.games?.position || scorer.player.position,
-                    team: scorer.statistics[0]?.team?.name,
-                    league: scorer.statistics[0]?.league?.name
+                    team: teamName,
+                    league: leagueName,
+                    country: playerCountry,
+                    nationality: playerCountry // Alias for country
                   });
                 }
               });
@@ -271,7 +299,7 @@ const HomeTopScorersList = () => {
               // Learn from collected player data
               if (playersForLearning.length > 0) {
                 learnFromPlayerData(playersForLearning);
-                console.log(`🎯 [HomeTopScorers] Auto-learned ${playersForLearning.length} players with positions for translation`);
+                console.log(`🎯 [HomeTopScorers] Auto-learned ${playersForLearning.length} players with positions and countries for translation`);
               }
             }
           }
@@ -1086,39 +1114,43 @@ const HomeTopScorersList = () => {
                 const playerStats = scorer.statistics[0];
                 const goals = playerStats?.goals?.total || 0;
 
-                // Try to get more specific position information
-                const rawPosition =
-                  scorer.player.position || playerStats?.games?.position || "";
+                // Get and translate position using the smart translation system
+                const rawPosition = scorer.player.position || playerStats?.games?.position || "";
+                
+                // Auto-learn the position if we haven't seen it before
+                if (rawPosition) {
+                  smartPlayerTranslation.autoLearnFromAnyPositionName(rawPosition);
+                }
 
-                // Map generic positions to more specific ones based on player data
-                const getSpecificPosition = (pos: string) => {
-                  if (!pos) return "";
+                // Translate the position to the current language
+                const translatedPosition = rawPosition ? 
+                  smartPlayerTranslation.translatePositionName(rawPosition, currentLanguage) : "";
 
-                  // If it's already specific, return as is
-                  if (
-                    pos.includes("Left") ||
-                    pos.includes("Right") ||
-                    pos.includes("Central") ||
-                    pos.includes("Centre")
-                  ) {
-                    return pos;
+                // Get and translate country information
+                let playerCountry = smartPlayerTranslation.getPlayerCountry(scorer.player.id);
+                
+                // If we don't have the player's country stored, try to extract it
+                if (!playerCountry) {
+                  const leagueCountry = playerStats?.league?.country;
+                  const teamName = playerStats?.team?.name;
+                  const leagueName = playerStats?.league?.name;
+                  
+                  // Smart country extraction logic
+                  if (leagueName?.toLowerCase().includes('world cup') || 
+                      leagueName?.toLowerCase().includes('nations league') ||
+                      leagueName?.toLowerCase().includes('euro') ||
+                      leagueName?.toLowerCase().includes('copa america')) {
+                    playerCountry = teamName; // For international competitions, team = country
+                  } else if (leagueCountry && leagueCountry !== 'World') {
+                    playerCountry = leagueCountry; // Assume domestic league players are from that country
+                  } else {
+                    playerCountry = teamName || leagueCountry || "";
                   }
+                }
 
-                  // Map common generic positions to more specific ones
-                  const positionMap: { [key: string]: string } = {
-                    Attacker: "Forward",
-                    Midfielder: "Midfielder",
-                    Defender: "Defender",
-                    Goalkeeper: "Goalkeeper",
-                  };
-
-                  // Otherwise use the mapped version or original
-                  return positionMap[pos] || pos;
-                };
-
-                const position = getSpecificPosition(rawPosition);
-                const country =
-                  playerStats?.team?.name || playerStats?.league?.country || "";
+                // Translate the country to the current language
+                const translatedCountry = playerCountry ? 
+                  smartPlayerTranslation.translateCountryName(playerCountry, currentLanguage) : "";
 
                 // Debug logging to see what position data is available
                 if (index === 0) {
@@ -1160,15 +1192,14 @@ const HomeTopScorersList = () => {
                         <h4 className="font-semibold text-sm text-gray-900 dark:text-white truncate">
                           {scorer.player.name}
                         </h4>
-                        {position && (
+                        {translatedPosition && (
                           <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                            {position.charAt(0).toUpperCase() +
-                              position.slice(1)}
+                            {translatedPosition}
                           </span>
                         )}
                       </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        {country}
+                        {translatedCountry}
                       </p>
                     </div>
 

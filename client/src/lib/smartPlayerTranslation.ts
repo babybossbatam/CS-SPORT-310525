@@ -58,14 +58,83 @@ interface PlayerData {
   position?: string;
   team?: string;
   league?: string;
+  country?: string;
+  nationality?: string;
 }
 
 class SmartPlayerTranslation {
   private playerCache = new Map<string, string>();
   private learnedPlayerMappings = new Map<string, PlayerTranslation[string]>();
   private learnedPositionMappings = new Map<string, PlayerTranslation[string]>();
+  private learnedCountryMappings = new Map<string, PlayerTranslation[string]>();
+  private playerCountryMappings = new Map<string, string>(); // playerId -> country
   private translationCache = new Map<string, { translation: string; timestamp: number }>();
   private isLoading = false;
+
+  // Comprehensive country translations
+  private popularCountries: PlayerTranslation = {
+    // Major football countries
+    'Brazil': {
+      en: 'Brazil', ar: 'البرازيل', zh: '巴西', 'zh-hk': '巴西', 'zh-tw': '巴西',
+      fr: 'Brésil', es: 'Brasil', pt: 'Brasil', de: 'Brasilien', it: 'Brasile',
+      ru: 'Бразилия', ja: 'ブラジル', ko: '브라질', tr: 'Brezilya', nl: 'Brazilië',
+      pl: 'Brazylia', sv: 'Brasilien', da: 'Brasilien', no: 'Brasil', fi: 'Brasilia',
+      cs: 'Brazílie', sk: 'Brazília', hu: 'Brazília', ro: 'Brazilia', bg: 'Бразилия',
+      hr: 'Brazil', sr: 'Бразил', sl: 'Brazilija', et: 'Brasiilia', lv: 'Brazīlija',
+      lt: 'Brazilija', mt: 'Brażil', ga: 'An Bhrasaíl', cy: 'Brasil', is: 'Brasilía',
+      mk: 'Бразил', sq: 'Brazili', eu: 'Brasil', ca: 'Brasil', gl: 'Brasil',
+      he: 'ברזיל', hi: 'ब्राज़ील', th: 'บราซิล', vi: 'Brazil', id: 'Brasil',
+      ms: 'Brazil', uk: 'Бразилія', be: 'Бразілія'
+    },
+    'Argentina': {
+      en: 'Argentina', ar: 'الأرجنتين', zh: '阿根廷', 'zh-hk': '阿根廷', 'zh-tw': '阿根廷',
+      fr: 'Argentine', es: 'Argentina', pt: 'Argentina', de: 'Argentinien', it: 'Argentina',
+      ru: 'Аргентина', ja: 'アルゼンチン', ko: '아르헨티나', tr: 'Arjantin', nl: 'Argentinië',
+      pl: 'Argentyna', sv: 'Argentina', da: 'Argentina', no: 'Argentina', fi: 'Argentiina',
+      cs: 'Argentina', sk: 'Argentína', hu: 'Argentína', ro: 'Argentina', bg: 'Аржентина',
+      hr: 'Argentina', sr: 'Аргентина', sl: 'Argentina', et: 'Argentina', lv: 'Argentīna',
+      lt: 'Argentina', mt: 'Arġentina', ga: 'An Airgintín', cy: 'Yr Ariannin', is: 'Argentína',
+      mk: 'Аргентина', sq: 'Argjentina', eu: 'Argentina', ca: 'Argentina', gl: 'Arxentina',
+      he: 'ארגנטינה', hi: 'अर्जेंटीना', th: 'อาร์เจนตินา', vi: 'Argentina', id: 'Argentina',
+      ms: 'Argentina', uk: 'Аргентина', be: 'Аргенціна'
+    },
+    'Colombia': {
+      en: 'Colombia', ar: 'كولومبيا', zh: '哥伦比亚', 'zh-hk': '哥倫比亞', 'zh-tw': '哥倫比亞',
+      fr: 'Colombie', es: 'Colombia', pt: 'Colômbia', de: 'Kolumbien', it: 'Colombia',
+      ru: 'Колумбия', ja: 'コロンビア', ko: '콜롬비아', tr: 'Kolombiya', nl: 'Colombia',
+      pl: 'Kolumbia', sv: 'Colombia', da: 'Colombia', no: 'Colombia', fi: 'Kolumbia',
+      cs: 'Kolumbie', sk: 'Kolumbia', hu: 'Kolumbia', ro: 'Columbia', bg: 'Колумбия',
+      hr: 'Kolumbija', sr: 'Колумбија', sl: 'Kolumbija', et: 'Colombia', lv: 'Kolumbija',
+      lt: 'Kolumbija', mt: 'Kolombja', ga: 'An Cholóim', cy: 'Colombia', is: 'Kólumbía',
+      mk: 'Колумбија', sq: 'Kolumbia', eu: 'Kolombia', ca: 'Colòmbia', gl: 'Colombia',
+      he: 'קולומביה', hi: 'कोलम्बिया', th: 'โคลอมเบีย', vi: 'Colombia', id: 'Kolombia',
+      ms: 'Colombia', uk: 'Колумбія', be: 'Калумбія'
+    },
+    'Spain': {
+      en: 'Spain', ar: 'إسبانيا', zh: '西班牙', 'zh-hk': '西班牙', 'zh-tw': '西班牙',
+      fr: 'Espagne', es: 'España', pt: 'Espanha', de: 'Spanien', it: 'Spagna',
+      ru: 'Испания', ja: 'スペイン', ko: '스페인', tr: 'İspanya', nl: 'Spanje',
+      pl: 'Hiszpania', sv: 'Spanien', da: 'Spanien', no: 'Spania', fi: 'Espanja',
+      cs: 'Španělsko', sk: 'Španielsko', hu: 'Spanyolország', ro: 'Spania', bg: 'Испания',
+      hr: 'Španjolska', sr: 'Шпанија', sl: 'Španija', et: 'Hispaania', lv: 'Spānija',
+      lt: 'Ispanija', mt: 'Spanja', ga: 'An Spáinn', cy: 'Sbaen', is: 'Spánn',
+      mk: 'Шпанија', sq: 'Spanja', eu: 'Espainia', ca: 'Espanya', gl: 'España',
+      he: 'ספרד', hi: 'स्पेन', th: 'สเปน', vi: 'Tây Ban Nha', id: 'Spanyol',
+      ms: 'Sepanyol', uk: 'Іспанія', be: 'Іспанія'
+    },
+    'England': {
+      en: 'England', ar: 'إنجلترا', zh: '英格兰', 'zh-hk': '英格蘭', 'zh-tw': '英格蘭',
+      fr: 'Angleterre', es: 'Inglaterra', pt: 'Inglaterra', de: 'England', it: 'Inghilterra',
+      ru: 'Англия', ja: 'イングランド', ko: '잉글랜드', tr: 'İngiltere', nl: 'Engeland',
+      pl: 'Anglia', sv: 'England', da: 'England', no: 'England', fi: 'Englanti',
+      cs: 'Anglie', sk: 'Anglicko', hu: 'Anglia', ro: 'Anglia', bg: 'Англия',
+      hr: 'Engleska', sr: 'Енглеска', sl: 'Anglija', et: 'Inglismaa', lv: 'Anglija',
+      lt: 'Anglija', mt: 'Ingilterra', ga: 'Sasana', cy: 'Lloegr', is: 'England',
+      mk: 'Англија', sq: 'Anglia', eu: 'Ingalaterra', ca: 'Anglaterra', gl: 'Inglaterra',
+      he: 'אנגליה', hi: 'इंग्लैंड', th: 'อังกฤษ', vi: 'Anh', id: 'Inggris',
+      ms: 'England', uk: 'Англія', be: 'Англія'
+    }
+  };
 
   // Comprehensive position translations
   private popularPlayerPositions: PlayerTranslation = {
@@ -263,13 +332,15 @@ class SmartPlayerTranslation {
   constructor() {
     this.loadLearnedMappings();
     this.integrateAutomatedMappings();
-    console.log('🎯 [SmartPlayerTranslation] Initialized with position learning system');
+    console.log('🎯 [SmartPlayerTranslation] Initialized with position and country learning system');
   }
 
   private loadLearnedMappings() {
     try {
       const learnedPlayerMappings = localStorage.getItem('learnedPlayerMappings');
       const learnedPositionMappings = localStorage.getItem('learnedPositionMappings');
+      const learnedCountryMappings = localStorage.getItem('learnedCountryMappings');
+      const playerCountryMappings = localStorage.getItem('playerCountryMappings');
 
       if (learnedPlayerMappings) {
         const parsed = JSON.parse(learnedPlayerMappings);
@@ -281,7 +352,17 @@ class SmartPlayerTranslation {
         this.learnedPositionMappings = new Map(Object.entries(parsed));
       }
 
-      console.log(`📚 [SmartPlayerTranslation] Loaded ${this.learnedPlayerMappings.size} player mappings and ${this.learnedPositionMappings.size} position mappings`);
+      if (learnedCountryMappings) {
+        const parsed = JSON.parse(learnedCountryMappings);
+        this.learnedCountryMappings = new Map(Object.entries(parsed));
+      }
+
+      if (playerCountryMappings) {
+        const parsed = JSON.parse(playerCountryMappings);
+        this.playerCountryMappings = new Map(Object.entries(parsed));
+      }
+
+      console.log(`📚 [SmartPlayerTranslation] Loaded ${this.learnedPlayerMappings.size} player mappings, ${this.learnedPositionMappings.size} position mappings, and ${this.learnedCountryMappings.size} country mappings`);
     } catch (error) {
       console.warn('[SmartPlayerTranslation] Failed to load learned mappings:', error);
     }
@@ -291,9 +372,13 @@ class SmartPlayerTranslation {
     try {
       const playerMappings = Object.fromEntries(this.learnedPlayerMappings);
       const positionMappings = Object.fromEntries(this.learnedPositionMappings);
+      const countryMappings = Object.fromEntries(this.learnedCountryMappings);
+      const playerCountryMappings = Object.fromEntries(this.playerCountryMappings);
 
       localStorage.setItem('learnedPlayerMappings', JSON.stringify(playerMappings));
       localStorage.setItem('learnedPositionMappings', JSON.stringify(positionMappings));
+      localStorage.setItem('learnedCountryMappings', JSON.stringify(countryMappings));
+      localStorage.setItem('playerCountryMappings', JSON.stringify(playerCountryMappings));
     } catch (error) {
       console.warn('[SmartPlayerTranslation] Failed to save learned mappings:', error);
     }
@@ -307,6 +392,8 @@ class SmartPlayerTranslation {
   learnFromPlayerData(players: PlayerData[]): void {
     let newPlayerMappings = 0;
     let newPositionMappings = 0;
+    let newCountryMappings = 0;
+    let newPlayerCountryMappings = 0;
 
     players.forEach(player => {
       // Learn player names
@@ -316,6 +403,16 @@ class SmartPlayerTranslation {
           const newPlayerMapping = this.generatePlayerMapping(player.name, player);
           this.learnedPlayerMappings.set(player.name, newPlayerMapping);
           newPlayerMappings++;
+        }
+
+        // Learn player-country associations
+        const playerCountry = player.country || player.nationality;
+        if (playerCountry && player.id) {
+          const playerId = player.id.toString();
+          if (!this.playerCountryMappings.has(playerId)) {
+            this.playerCountryMappings.set(playerId, playerCountry);
+            newPlayerCountryMappings++;
+          }
         }
       }
 
@@ -330,11 +427,24 @@ class SmartPlayerTranslation {
           newPositionMappings++;
         }
       }
+
+      // Learn countries
+      const playerCountry = player.country || player.nationality;
+      if (playerCountry) {
+        const normalizedCountry = this.normalizeCountry(playerCountry);
+        const existingCountryMapping = this.learnedCountryMappings.get(normalizedCountry);
+
+        if (!existingCountryMapping) {
+          const newCountryMapping = this.generateCountryMapping(normalizedCountry);
+          this.learnedCountryMappings.set(normalizedCountry, newCountryMapping);
+          newCountryMappings++;
+        }
+      }
     });
 
-    if (newPlayerMappings > 0 || newPositionMappings > 0) {
+    if (newPlayerMappings > 0 || newPositionMappings > 0 || newCountryMappings > 0 || newPlayerCountryMappings > 0) {
       this.saveLearnedMappings();
-      console.log(`🎓 [SmartPlayerTranslation] Learned ${newPlayerMappings} new player mappings and ${newPositionMappings} new position mappings`);
+      console.log(`🎓 [SmartPlayerTranslation] Learned ${newPlayerMappings} player mappings, ${newPositionMappings} position mappings, ${newCountryMappings} country mappings, and ${newPlayerCountryMappings} player-country associations`);
     }
   }
 
@@ -406,6 +516,58 @@ class SmartPlayerTranslation {
     return mapping;
   }
 
+  private normalizeCountry(country: string): string {
+    if (!country) return '';
+
+    // Normalize common country variations
+    const normalized = country.toLowerCase().trim();
+
+    // Map common variations to standard names
+    const countryMap: { [key: string]: string } = {
+      'brasil': 'Brazil',
+      'brasil': 'Brazil',
+      'england': 'England',
+      'uk': 'England',
+      'united kingdom': 'England',
+      'great britain': 'England',
+      'españa': 'Spain',
+      'colombia': 'Colombia',
+      'argentina': 'Argentina',
+      'france': 'France',
+      'germany': 'Germany',
+      'deutschland': 'Germany',
+      'italy': 'Italy',
+      'italia': 'Italy',
+      'portugal': 'Portugal',
+      'netherlands': 'Netherlands',
+      'holland': 'Netherlands'
+    };
+
+    return countryMap[normalized] || this.capitalizeCountry(country);
+  }
+
+  private capitalizeCountry(country: string): string {
+    return country.split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  }
+
+  private generateCountryMapping(country: string): PlayerTranslation[string] {
+    // Check if we have a predefined translation
+    const existingTranslation = this.popularCountries[country];
+    if (existingTranslation) {
+      return existingTranslation;
+    }
+
+    // Generate a basic mapping for unknown countries
+    const mapping: any = {};
+    Object.keys(this.popularCountries.Brazil).forEach(lang => {
+      mapping[lang] = country;
+    });
+
+    return mapping;
+  }
+
   // Main translation functions
   translatePlayerName(playerName: string, language: string): string {
     if (!playerName || !language) return playerName;
@@ -441,6 +603,31 @@ class SmartPlayerTranslation {
     return position;
   }
 
+  translateCountryName(country: string, language: string): string {
+    if (!country || !language) return country;
+
+    const normalizedCountry = this.normalizeCountry(country);
+
+    // Check static translations first
+    const staticTranslation = this.popularCountries[normalizedCountry];
+    if (staticTranslation && staticTranslation[language as keyof typeof staticTranslation]) {
+      return staticTranslation[language as keyof typeof staticTranslation];
+    }
+
+    // Check learned mappings
+    const learnedMapping = this.learnedCountryMappings.get(normalizedCountry);
+    if (learnedMapping && learnedMapping[language as keyof typeof learnedMapping]) {
+      return learnedMapping[language as keyof typeof learnedMapping];
+    }
+
+    // Fallback to original country
+    return country;
+  }
+
+  getPlayerCountry(playerId: number): string | null {
+    return this.playerCountryMappings.get(playerId.toString()) || null;
+  }
+
   // Auto-learn from any position name
   autoLearnFromAnyPositionName(position: string, context?: any): void {
     if (!position) return;
@@ -466,8 +653,11 @@ class SmartPlayerTranslation {
     return {
       playerMappings: this.learnedPlayerMappings.size,
       positionMappings: this.learnedPositionMappings.size,
+      countryMappings: this.learnedCountryMappings.size,
+      playerCountryMappings: this.playerCountryMappings.size,
       cacheSize: this.playerCache.size,
-      availablePositions: Object.keys(this.popularPlayerPositions).length
+      availablePositions: Object.keys(this.popularPlayerPositions).length,
+      availableCountries: Object.keys(this.popularCountries).length
     };
   }
 }
