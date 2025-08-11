@@ -83,7 +83,7 @@ export const rapidApiService = {
       console.log(`📊 [RapidAPI] Fetching predictions for fixture ${fixtureId}`);
 
       const response = await apiClient.get("/predictions", {
-        params: {
+        params: { 
           fixture: fixtureId
         },
       });
@@ -131,7 +131,7 @@ export const rapidApiService = {
       console.log(`📊 [RapidAPI] Fetching odds for fixture ${fixtureId}`);
 
       const response = await apiClient.get("/odds", {
-        params: {
+        params: { 
           fixture: fixtureId
         },
       });
@@ -237,10 +237,10 @@ export const rapidApiService = {
       console.log(`📊 [RapidAPI] Fetching team statistics for team ${teamId}, league ${leagueId}, season ${season}`);
 
       const response = await apiClient.get("/teams/statistics", {
-        params: {
-          team: teamId,
-          league: leagueId,
-          season: season
+        params: { 
+          team: teamId, 
+          league: leagueId, 
+          season: season 
         },
       });
 
@@ -678,156 +678,172 @@ export const rapidApiService = {
    * Get live fixtures - ALWAYS fetch fresh data for live matches
    */
   async getLiveFixtures(): Promise<FixtureResponse[]> {
-    let lastError: any;
+    // NO CACHE for live fixtures - always fetch fresh data for accuracy
 
-    // Retry configuration
-    const maxRetries = 3;
-    const baseDelay = 1000; // 1 second
+    try {
+      console.log(
+        "🔴 [RapidAPI PRO] Fetching live fixtures without timezone restriction...",
+      );
+      const response = await apiClient.get("/fixtures", {
+        params: {
+          live: "all",
+          // No timezone parameter - get all live fixtures regardless of timezone
+        },
+        headers: {
+          "X-RapidAPI-Key": apiKey,
+          "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
+        },
+      });
 
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        console.log(`🔴 [RapidAPI] Fetching live fixtures (attempt ${attempt}/${maxRetries})`);
+      if (
+        response.data &&
+        response.data.response &&
+        response.data.response.length > 0
+      ) {
+        // Enhanced esports filtering for live fixtures
+        const filteredLiveFixtures = response.data.response.filter(
+          (fixture: any) => {
+            const leagueName = fixture.league?.name?.toLowerCase() || "";
+            const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || "";
+            const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
 
-        const response = await apiClient.get("/fixtures", {
-          params: {
-            live: "all",
-            // No timezone parameter - get all live fixtures regardless of timezone
-          },
-          headers: {
-            "X-RapidAPI-Key": apiKey,
-            "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
-          },
-          timeout: 10000 // 10 second timeout
-        });
+            // Same expanded esports terms
+            const esportsTerms = [
+              "esoccer",
+              "ebet",
+              "cyber",
+              "esports",
+              "e-sports",
+              "virtual",
+              "fifa",
+              "pro evolution soccer",
+              "pes",
+              "efootball",
+              "e-football",
+              "volta",
+              "ultimate team",
+              "clubs",
+              "gaming",
+              "game",
+              "simulator",
+              "simulation",
+              "digital",
+              "online",
+              "battle",
+              "legend",
+              "champion",
+              "tournament online",
+              "vs online",
+              "gt sport",
+              "rocket league",
+              "fc online",
+              "dream league",
+              "top eleven",
+              "football manager",
+              "championship manager",
+              "mobile",
+              "app",
+            ];
 
-        if (
-          response.data &&
-          response.data.response &&
-          response.data.response.length > 0
-        ) {
-          // Enhanced esports filtering for live fixtures
-          const filteredLiveFixtures = response.data.response.filter(
-            (fixture: any) => {
-              const leagueName = fixture.league?.name?.toLowerCase() || "";
-              const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || "";
-              const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
+            const isEsports = esportsTerms.some(
+              (term) =>
+                leagueName.includes(term) ||
+                homeTeamName.includes(term) ||
+                awayTeamName.includes(term),
+            );
 
-              // Same expanded esports terms
-              const esportsTerms = [
-                "esoccer",
-                "ebet",
-                "cyber",
-                "esports",
-                "e-sports",
-                "virtual",
-                "fifa",
-                "pro evolution soccer",
-                "pes",
-                "efootball",
-                "e-football",
-                "volta",
-                "ultimate team",
-                "clubs",
-                "gaming",
-                "game",
-                "simulator",
-                "simulation",
-                "digital",
-                "online",
-                "battle",
-                "legend",
-                "champion",
-                "tournament online",
-                "vs online",
-                "gt sport",
-                "rocket league",
-                "fc online",
-                "dream league",
-                "top eleven",
-                "football manager",
-                "championship manager",
-                "mobile",
-                "app",
-              ];
+            // Enhanced country filtering
+            const hasInvalidCountry =
+              fixture.league?.country === null ||
+              fixture.league?.country === undefined ||
+              fixture.league?.country === "" ||
+              (typeof fixture.league?.country === "string" &&
+                fixture.league.country.toLowerCase().includes("unknown"));
+            // Check for valid international tournaments first
+            const isValidInternationalTournament =
+              (fixture.league.country === "World" ||
+                fixture.league.country === "Europe") &&
+              (fixture.league.name.toLowerCase().includes("uefa") ||
+                fixture.league.name.toLowerCase().includes("fifa") ||
+                fixture.league.name.toLowerCase().includes("euro") ||
+                fixture.league.name.toLowerCase().includes("championship") ||
+                fixture.league.name.toLowerCase().includes("nations league") ||
+                fixture.league.name.toLowerCase().includes("world cup"));
 
-              const isEsports = esportsTerms.some(
-                (term) =>
-                  leagueName.includes(term) ||
-                  homeTeamName.includes(term) ||
-                  awayTeamName.includes(term),
-              );
-
-              // Enhanced country filtering
-              const hasInvalidCountry =
-                fixture.league?.country === null ||
-                fixture.league?.country === undefined ||
-                fixture.league?.country === "" ||
-                (typeof fixture.league?.country === "string" &&
-                  fixture.league.country.toLowerCase().includes("unknown"));
-              // Check for valid international tournaments first
-              const isValidInternationalTournament =
-                (fixture.league.country === "World" ||
-                  fixture.league.country === "Europe") &&
-                (fixture.league.name.toLowerCase().includes("uefa") ||
-                  fixture.league.name.toLowerCase().includes("fifa") ||
-                  fixture.league.name.toLowerCase().includes("euro") ||
-                  fixture.league.name.toLowerCase().includes("championship") ||
-                  fixture.league.name.toLowerCase().includes("nations league") ||
-                  fixture.league.name.toLowerCase().includes("world cup"));
-
-              // Allow valid international tournaments through
-              if (isValidInternationalTournament) {
-                return true;
-              }
-
-              if (isEsports || hasInvalidCountry) {
-                console.log(
-                  `Filtering out esports/invalid live fixture: ${fixture.league?.name} (country: ${fixture.league?.country})`,
-                );
-                return false;
-              }
-
+            // Allow valid international tournaments through
+            if (isValidInternationalTournament) {
               return true;
-            },
+            }
+
+            if (isEsports || hasInvalidCountry) {
+              console.log(
+                `Filtering out esports/invalid live fixture: ${fixture.league?.name} (country: ${fixture.league?.country})`,
+              );
+              return false;
+            }
+
+            return true;
+          },
+        );
+
+        console.log(
+          `🔴 [LIVE API] Retrieved ${response.data.response.length} live fixtures, ${filteredLiveFixtures.length} after filtering (NO CACHE - always fresh)`,
+        );
+        // NO CACHING for live fixtures - always return fresh data
+        return filteredLiveFixtures;
+      }
+
+      /*  Removed B365 API fallback
+      // If RapidAPI returns no live fixtures, try B365API as fallback
+      console.log('RapidAPI: No live fixtures found, trying B365API as fallback...');
+      const b365LiveMatches = await b365ApiService.getLiveFootballMatches();
+
+      if (b365LiveMatches && b365LiveMatches.length > 0) {
+        // Convert B365 matches to RapidAPI format
+        const convertedMatches = b365LiveMatches.map(match => 
+          b365ApiService.convertToRapidApiFormat(match)
+        );
+
+        console.log(`B365API Fallback: Retrieved ${convertedMatches.length} live fixtures`);
+        fixturesCache.set(cacheKey, { 
+          data: convertedMatches, 
+          timestamp: now 
+        });
+        return convertedMatches;
+      }
+      */
+
+      return [];
+    } catch (error) {
+      console.error("RapidAPI: Error fetching live fixtures:", error);
+
+      /* Removed B365 API fallback
+      // Try B365API as fallback when RapidAPI fails
+      try {
+        console.log('RapidAPI failed, trying B365API as fallback...');
+        const b365LiveMatches = await b365ApiService.getLiveFootballMatches();
+
+        if (b365LiveMatches && b365LiveMatches.length > 0) {
+          const convertedMatches = b365LiveMatches.map(match => 
+            b365ApiService.convertToRapidApiFormat(match)
           );
 
-          console.log(
-            `✅ [RapidAPI] Successfully retrieved ${filteredLiveFixtures.length} live fixtures on attempt ${attempt}`);
-          // NO CACHING for live fixtures - always return fresh data
-          return filteredLiveFixtures;
+          console.log(`B365API Fallback: Retrieved ${convertedMatches.length} live fixtures after RapidAPI error`);
+          fixturesCache.set(cacheKey, { 
+            data: convertedMatches, 
+            timestamp: now 
+          });
+          return convertedMatches;
         }
-
-        console.log(`⚠️ [RapidAPI] No live fixtures data in response (attempt ${attempt})`);
-        return [];
-      } catch (error: any) {
-        lastError = error;
-        const statusCode = error?.response?.status || error?.status;
-        const errorCode = error?.code;
-
-        console.error(`❌ [RapidAPI] Live fixtures error (attempt ${attempt}/${maxRetries}):`, {
-          message: error?.message,
-          status: statusCode,
-          code: errorCode
-        });
-
-        // Don't retry for certain error types
-        if (statusCode === 401 || statusCode === 403 || statusCode === 429) {
-          console.log(`🚫 [RapidAPI] Not retrying for status ${statusCode} (auth/rate limit issue)`);
-          throw error;
-        }
-
-        // If this isn't the last attempt, wait before retrying
-        if (attempt < maxRetries) {
-          const delay = baseDelay * Math.pow(2, attempt - 1); // Exponential backoff
-          console.log(`⏳ [RapidAPI] Waiting ${delay}ms before retry...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
-        }
+      } catch (b365Error) {
+        console.error('B365API Fallback also failed:', b365Error);
       }
-    }
+      */
 
-    // All retries failed
-    console.error(`💥 [RapidAPI] All ${maxRetries} attempts failed for live fixtures`);
-    throw lastError;
+      // For live fixtures, we don't use cache as fallback since they need real-time data
+      console.error("Live fixture API request failed - returning empty array for real-time accuracy");
+      return [];
+    }
   },
 
   /**
@@ -1031,7 +1047,7 @@ timestamp: now,
       // Check for status transitions that might require fresh data
       const cachedData = cached.data;
       if (Array.isArray(cachedData)) {
-        const hasLiveMatches = cachedData.some((fixture: any) =>
+        const hasLiveMatches = cachedData.some((fixture: any) => 
           ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture?.status?.short)
         );
 

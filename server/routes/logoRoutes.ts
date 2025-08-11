@@ -111,14 +111,14 @@ router.get('/league-logo/:leagueId', async (req, res) => {
     } catch (altError) {
       console.error(`❌ [Logo Proxy] Alternative URL also failed for league ${leagueId}:`, altError?.message);
 
-      // Final fallback - serve fallback logo directly
+      // Final fallback
       try {
         const fallbackPath = '/assets/fallback-logo.svg';
         console.log(`🔄 [Logo Proxy] Sending fallback for league ${leagueId}: ${fallbackPath}`);
         res.redirect(302, fallbackPath);
       } catch (fallbackError) {
         console.error(`💥 [Logo Proxy] Even fallback failed for league ${leagueId}:`, fallbackError);
-        res.status(404).json({ error: 'Logo not found' });
+        res.status(404).send('Logo not found');
       }
     }
   }

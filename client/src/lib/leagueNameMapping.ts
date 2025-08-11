@@ -275,7 +275,7 @@ export const LEAGUE_TRANSLATION_PATTERNS: Record<string, Record<string, string>>
   }
 };
 
-// Main translation function for league names with enhanced smart translation integration
+// Main translation function for league names
 export function translateLeagueName(leagueId: number | string, leagueName?: string, currentLanguage: string = 'en'): string {
   // Convert to number if string
   const numericLeagueId = typeof leagueId === 'string' ? parseInt(leagueId, 10) : leagueId;
@@ -288,28 +288,13 @@ export function translateLeagueName(leagueId: number | string, leagueName?: stri
   }
   
   // If current language is English or not supported, return English name
-  if (currentLanguage === 'en') {
+  if (currentLanguage === 'en' || !LEAGUE_TRANSLATION_PATTERNS[currentLanguage]) {
     return englishName;
   }
   
-  // First try static translations
-  const staticTranslations = LEAGUE_TRANSLATION_PATTERNS[currentLanguage];
-  if (staticTranslations && staticTranslations[englishName]) {
-    return staticTranslations[englishName];
-  }
-  
-  // Use smart translation system as fallback
-  try {
-    const smartTranslation = smartLeagueTranslation.translateLeague(englishName, currentLanguage);
-    if (smartTranslation && smartTranslation !== englishName) {
-      console.log(`🤖 [Smart Translation] ${englishName} -> ${smartTranslation} (${currentLanguage})`);
-      return smartTranslation;
-    }
-  } catch (error) {
-    console.warn(`⚠️ [Translation Error] Failed to translate ${englishName}:`, error);
-  }
-  
-  return englishName;
+  // Get translation for the current language
+  const translations = LEAGUE_TRANSLATION_PATTERNS[currentLanguage];
+  return translations[englishName] || englishName;
 }
 
 // Hook for easy integration with React components
