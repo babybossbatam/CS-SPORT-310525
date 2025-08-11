@@ -46,10 +46,6 @@ import "../../styles/TodaysMatchByCountryNew.css";
 import "../../styles/flasheffect.css";
 import MyCountryGroupFlag from "../common/MyCountryGroupFlag";
 
-// Assume these are imported or defined elsewhere in your project
-import { smartTeamTranslation } from "../../lib/smartTeamTranslation"; // Placeholder for actual import
-import { smartLeagueCountryTranslation } from "../../lib/smartLeagueCountryTranslation"; // Placeholder for actual import
-
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
   if (!teamName) return teamName;
@@ -245,26 +241,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       console.log(`✅ [TodaysMatchesByCountryNew] Smart cached: ${data?.length || 0} fixtures`);
 
-      // Learn teams from the fetched fixtures
-      smartTeamTranslation.learnTeamsFromFixtures(data.response || []);
-      smartLeagueCountryTranslation.learnFromFixtures(data.response || []);
-
-      // Auto-learn from any league/team data we encounter
-      (data.response || []).forEach((fixture: any) => {
-        if (fixture.league?.name) {
-          smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(
-            fixture.league.name,
-            { countryName: fixture.league.country, leagueId: fixture.league.id }
-          );
-        }
-        if (fixture.teams?.home?.name) {
-          smartTeamTranslation.autoLearnFromAnyLeagueName(fixture.teams.home.name);
-        }
-        if (fixture.teams?.away?.name) {
-          smartTeamTranslation.autoLearnFromAnyLeagueName(fixture.teams.away.name);
-        }
-      });
-
       return Array.isArray(data) ? data : [];
     },
     {
@@ -279,7 +255,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       onError: (err: any) => {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error';
 
-        if (errorMessage.includes('Failed to fetch') ||
+        if (errorMessage.includes('Failed to fetch') || 
             errorMessage.includes('NetworkError')) {
           console.warn(`🌐 [TodaysMatchesByCountryNew] Network issue for date: ${selectedDate}`);
         } else if (errorMessage.includes('timeout')) {
@@ -293,7 +269,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Error handling with user-friendly messages
   const error = queryError ? (
-    queryError instanceof Error ?
+    queryError instanceof Error ? 
       queryError.message.includes('Failed to fetch') || queryError.message.includes('NetworkError') ?
         "Network connection issue. Please check your internet connection and try again." :
       queryError.message.includes('timeout') ?
@@ -821,7 +797,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           const getStatusPriority = (status: string) => {
             // Priority 1: Live matches (highest priority)
             if (
-              ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+              ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
                 status,
               )
             ) {
@@ -929,7 +905,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   console.log(`📊 [DEBUG] Comprehensive Grouping Analysis:`, groupingAnalysis);
 
-  // Live match prioritization: World matches are sorted first
+  // Live match prioritization: Live World matches are sorted first
   const sortedCountries = useMemo(() => {
     return Object.values(fixturesByCountry).sort(
       (a: any, b: any) => {
@@ -1470,8 +1446,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                       (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
 
                     // Only count as live if status indicates live and match is not stale
-                    return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) &&
-                           !isStaleFinishedMatch &&
+                    return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) && 
+                           !isStaleFinishedMatch && 
                            hoursOld <= 4;
                   }).length
                 );
@@ -1701,8 +1677,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                           (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
 
                                         // Only count as live if status indicates live and match is not stale
-                                        return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) &&
-                                               !isStaleFinishedMatch &&
+                                        return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) && 
+                                               !isStaleFinishedMatch && 
                                                hoursOld <= 4;
                                       }).length;
 

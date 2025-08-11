@@ -4,10 +4,6 @@ import { apiRequest } from "@/lib/queryClient";
 import { getPopularLeagues, LeagueData } from "@/lib/leagueDataCache";
 import { getCachedFixturesForDate } from "@/lib/fixtureCache";
 import { format, parseISO } from "date-fns";
-import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
-import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
-import { autoLearningTrigger } from "@/lib/autoLearningTrigger";
-import { useTranslation } from "@/contexts/LanguageContext";
 import {
   Select,
   SelectContent,
@@ -30,6 +26,9 @@ import {
 import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { teamColorMap } from "@/lib/colorExtractor";
+import { smartLeagueCountryTranslation } from '@/lib/smartLeagueCountryTranslation';
+import { translateLeagueName, useLeagueNameTranslation } from '@/lib/leagueNameMapping';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Standing {
   rank: number;
@@ -80,20 +79,47 @@ const isNationalTeamCompetition = (leagueName: string): boolean => {
 };
 
 const LeagueStandingsFilter = () => {
-  const { currentLanguage } = useTranslation();
   const [popularLeagues, setPopularLeagues] = useState<LeagueData[]>([]);
   const [selectedLeague, setSelectedLeague] = useState("");
   const [selectedLeagueName, setSelectedLeagueName] = useState("");
   const [leaguesLoading, setLeaguesLoading] = useState(true);
+  const { currentLanguage } = useLanguage();
+  const { translateLeague } = useLeagueNameTranslation();
 
   useEffect(() => {
     const loadLeagues = async () => {
       try {
         setLeaguesLoading(true);
         console.log(
-          "🔄 Loading leagues with World Cup qualification support...",
+          "🔄 Loading leagues with enhanced translation learning system...",
         );
         const leagues = await getPopularLeagues();
+
+        // Auto-learn leagues when component loads
+        if (leagues.length > 0) {
+          const leagueFixtures = leagues.map(league => ({
+            league: {
+              id: league.id,
+              name: league.name,
+              country: league.country || 'World'
+            }
+          }));
+
+          // Learn leagues for smart translation
+          smartLeagueCountryTranslation.learnLeaguesFromFixtures(leagueFixtures);
+
+          // Auto-learn each league name for consistent translation
+          leagues.forEach(league => {
+            if (league.name) {
+              smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(league.name, {
+                countryName: league.country,
+                leagueId: league.id
+              });
+            }
+          });
+
+          console.log(`🎓 [LeagueStandingsFilter] Auto-learned ${leagues.length} leagues for translation`);
+        }
 
         // Filter to show only current/active leagues (exclude historical tournaments)
         const currentDate = new Date();
@@ -515,7 +541,7 @@ const LeagueStandingsFilter = () => {
 
         // Set default to FIFA Club World Cup
         setSelectedLeague("15");
-        setSelectedLeagueName("FIFA World Cup");
+        setSelectedLeagueName("FIFA Club World Cup");
       } finally {
         setLeaguesLoading(false);
       }
@@ -534,46 +560,7 @@ const LeagueStandingsFilter = () => {
         "GET",
         `/api/leagues/${selectedLeague}/standings`,
       );
-      const data = await response.json();
-
-      // Auto-learn from standings data
-      if (data?.league?.standings) {
-        const allTeams: any[] = [];
-
-        // Handle both group-based and single league standings
-        if (Array.isArray(data.league.standings[0])) {
-          // Group-based standings
-          data.league.standings.forEach((group: any[]) => {
-            allTeams.push(...group);
-          });
-        } else {
-          // Single league standings
-          allTeams.push(...data.league.standings);
-        }
-
-        // Auto-learn team translations
-        smartTeamTranslation.autoLearnFromStandingsData(allTeams);
-
-        // Auto-learn league and country translations
-        if (data.league) {
-          smartLeagueCountryTranslation.autoLearnFromLeagueData(
-            data.league.name,
-            data.league.country
-          );
-
-          // Trigger auto-learning for league
-          autoLearningTrigger.addLeagueForLearning(data.league.name, data.league.country);
-        }
-
-        // Trigger auto-learning for all teams in standings
-        allTeams.forEach(team => {
-          if (team?.team?.name) {
-            autoLearningTrigger.addTeamForLearning(team.team.name);
-          }
-        });
-      }
-
-      return data;
+      return response.json();
     },
     enabled: !!selectedLeague && selectedLeague !== "",
     staleTime: 24 * 60 * 60 * 1000, // 24 hours
@@ -600,7 +587,7 @@ const LeagueStandingsFilter = () => {
         const mergedFixtures = {
           ...fixturesData,
           response: [...fixturesData.response, ...cachedTodayFixtures]
-            .filter((fixture, index, arr) =>
+            .filter((fixture, index, arr) => 
               index === arr.findIndex(f => f.fixture.id === fixture.fixture.id)
             ) // Remove duplicates
         };
@@ -834,7 +821,7 @@ const LeagueStandingsFilter = () => {
                       "/assets/fallback-logo.svg";
                   }}
                 />
-                {smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, currentLanguage)}
+                {selectedLeagueName}
               </div>
             </SelectValue>
           </SelectTrigger>
@@ -853,15 +840,23 @@ const LeagueStandingsFilter = () => {
                 <SelectItem key={league.id} value={league.id.toString()}>
                   <div className="flex items-center gap-2">
                     <img
-                      src={league.logo || "/assets/fallback-logo.svg"}
-                      alt={league.name}
-                      className="h-5 w-5 object-contain"
+                      src={`/api/league-logo/${league.id}`}
+                      alt={league.name || "Unknown League"}
+                      className="w-4 h-4 object-contain"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          "/assets/fallback-logo.svg";
+                        const target = e.target as HTMLImageElement;
+                        console.log(`🚨 [LeagueStandingsFilter] Logo failed for league ${league.id} (${league.name})`);
+                        if (!target.src.includes("fallback-logo.svg")) {
+                          target.src = "/assets/fallback-logo.svg";
+                        }
+                      }}
+                      onLoad={() => {
+                        console.log(`✅ [LeagueStandingsFilter] Logo loaded for league ${league.id} (${league.name})`);
                       }}
                     />
-                    {smartLeagueCountryTranslation.translateLeagueName(league.name, currentLanguage)}
+                    <span className="text-sm">
+                      {translateLeague(league.id, league.name) || smartLeagueCountryTranslation.translateLeagueName(league.name, currentLanguage)}
+                    </span>
                   </div>
                 </SelectItem>
               ))}
@@ -879,7 +874,7 @@ const LeagueStandingsFilter = () => {
                   (group: Standing[], groupIndex: number) => (
                     <div key={groupIndex}>
                       <h3 className="text-xs font-regular mx-2 pt-2 mt-4 border-t border-b border-gray-300 dark:border-white mb-2 text-gray-700 dark:text-white flex items-center pb-1">
-                        Group {String.fromCharCode(65 + groupIndex)} - {smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, currentLanguage)}
+                        Group {String.fromCharCode(65 + groupIndex)}
                       </h3>
                       <Table>
                         <TableHeader>
@@ -945,7 +940,7 @@ const LeagueStandingsFilter = () => {
                                       />
                                     </div>
                                     <span className="text-[0.85rem] truncate">
-                                      {smartTeamTranslation.translateTeam(standing.team.name, currentLanguage)}
+                                      {standing.team.name}
                                     </span>
                                   </div>
                                 </TableCell>
@@ -978,7 +973,7 @@ const LeagueStandingsFilter = () => {
 
                                       // Get both upcoming and recent fixtures for better context
                                       const teamFixtures = fixtures.response.filter((fixture: any) => {
-                                        return fixture.teams.home.id === standing.team.id ||
+                                        return fixture.teams.home.id === standing.team.id || 
                                                fixture.teams.away.id === standing.team.id;
                                       });
 
@@ -1000,13 +995,13 @@ const LeagueStandingsFilter = () => {
 
                                       // Determine if this team is home or away to get the correct opponent
                                       const isTeamHome = relevantMatch.teams.home.id === standing.team.id;
-                                      const opponentTeam = isTeamHome
-                                        ? relevantMatch.teams.away
+                                      const opponentTeam = isTeamHome 
+                                        ? relevantMatch.teams.away 
                                         : relevantMatch.teams.home;
 
                                       // For display purposes, always show the away team logo when possible
-                                      const displayTeam = relevantMatch.teams.away.id !== standing.team.id
-                                        ? relevantMatch.teams.away
+                                      const displayTeam = relevantMatch.teams.away.id !== standing.team.id 
+                                        ? relevantMatch.teams.away 
                                         : relevantMatch.teams.home;
 
                                       const nextMatchInfo = {
@@ -1062,11 +1057,11 @@ const LeagueStandingsFilter = () => {
                 {/* Link to view full group standings if more than 2 groups exist */}
                 {standings.league.standings.length > 2 && (
                   <div className="text-center mt-6 pt-4 border-t border-gray-100">
-                    <button
+                    <button 
                       onClick={() => window.location.href = `/league/${selectedLeague}/standings`}
                       className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium transition-colors duration-200"
                     >
-                      {smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, currentLanguage)} Group Standings →
+                      {selectedLeagueName} Group Standings →
                     </button>
                   </div>
                 )}
@@ -1088,7 +1083,7 @@ const LeagueStandingsFilter = () => {
                       <TableHead className="text-center text-xs font-regular text-gray-400 px-2 w-[50px]">
                         +/-
                       </TableHead>
-                      <TableHead className="text-center text-xs font-regular text-gray-900  px-2 w-[50px]">
+                      <TableHead className="text-center text-xs font-semi-bold text-gray-900  px-2 w-[50px]">
                         PTS
                       </TableHead>
                       <TableHead className="text-center text-xs font-semi-bold text-gray-400 py-3 px-2 w-[40px]">
@@ -1201,7 +1196,7 @@ const LeagueStandingsFilter = () => {
                                 </div>
                                 <div className="flex flex-col min-w-0 flex-1">
                                   <span className="text-xs font-medium text-gray-900 truncate hover:underline cursor-pointer">
-                                    {smartTeamTranslation.translateTeam(standing.team.name, currentLanguage)}
+                                    {standing.team.name}
                                   </span>
                                   {standing.rank <= 3 && (
                                     <span
@@ -1236,14 +1231,14 @@ const LeagueStandingsFilter = () => {
                                                       : standing.description
                                                             ?.toLowerCase()
                                                             .includes("promotion")
-                                                          ? "#28A745"
-                                                          : standing.description
-                                                                ?.toLowerCase()
-                                                                .includes(
-                                                                  "relegation",
-                                                                )
-                                                            ? "#DC3545"
-                                                            : "#6B7280",
+                                                        ? "#28A745"
+                                                        : standing.description
+                                                              ?.toLowerCase()
+                                                              .includes(
+                                                                "relegation",
+                                                              )
+                                                          ? "#DC3545"
+                                                          : "#6B7280",
                                       }}
                                     >
                                       {getChampionshipTitle(

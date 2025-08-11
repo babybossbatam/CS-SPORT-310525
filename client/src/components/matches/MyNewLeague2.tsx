@@ -661,7 +661,12 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           try {
               const controller = new AbortController();
               const timeoutId = setTimeout(() => {
-                controller.abort();
+                try {
+                  controller.abort();
+                } catch (abortError) {
+                  // Suppress abort errors from timeout
+                  console.debug(`🔇 [MyNewLeague2] Abort signal error suppressed for league ${leagueId}`);
+                }
               }, 15000); // Increased to 15 second timeout
 
               const response = await fetch(`/api/leagues/${leagueId}/fixtures`, {
@@ -670,7 +675,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                 clearTimeout(timeoutId);
 
                 // Handle specific timeout errors
-                if (fetchError.name === 'AbortError' || fetchError.message.includes('aborted')) {
+                if (fetchError.name === 'AbortError' || fetchError.message.includes('aborted') || fetchError.message.includes('signal is aborted')) {
                   console.warn(
                     `⏰ [MyNewLeague2] Request timeout for league ${leagueId} after 15 seconds`,
                   );

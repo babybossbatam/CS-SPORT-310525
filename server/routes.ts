@@ -41,18 +41,10 @@ import basketballGamesRoutes from './routes/basketballGamesRoutes';
 import playerVerificationRoutes from './routes/playerVerificationRoutes';
 import { RapidAPI } from './utils/rapidApi'; // corrected rapidApi import
 
-// Cache for fixtures data
-const fixturesCache = new Map<string, { data: any; timestamp: number }>();
-
-// Initialize the cache
-if (!fixturesCache) {
-  console.error('Failed to initialize fixturesCache');
-}
-
 // Constants for cache durations (in milliseconds)
-const LIVE_DATA_CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
-const PAST_DATA_CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
-const FUTURE_DATA_CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours
+const LIVE_DATA_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for live data
+const PAST_DATA_CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days for past data
+const FUTURE_DATA_CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours for future data
 
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -437,44 +429,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             ? 2 * 60 * 60 * 1000
             : 12 * 60 * 60 * 1000;
 
-        // Check if we have cached data that's not too old
-        let cached;
-        let currentTime;
-        let maxAge;
-        
-        try {
-          cached = fixturesCache.get(cacheKey);
-          currentTime = Date.now();
-          maxAge = isToday ? LIVE_DATA_CACHE_DURATION : isPastDate ? PAST_DATA_CACHE_DURATION : FUTURE_DATA_CACHE_DURATION;
-
-          // For timeout prevention, return slightly stale cache if available
-          const emergencyMaxAge = maxAge * 2; // Double the max age for emergency fallback
-
-          if (cached && currentTime - cached.timestamp < maxAge) {
-            console.log(`📦 [Routes] Using cached fixtures for ${date} (age: ${Math.floor((currentTime - cached.timestamp) / 60000)}min, maxAge: ${Math.floor(maxAge / 60000)}min)`);
-            return res.json(cached.data);
-          }
-
-          // Emergency fallback: if we have cached data within emergency max age, use it to prevent timeouts
-          if (cached && currentTime - cached.timestamp < emergencyMaxAge) {
-            console.log(`⚡ [Routes] Using emergency cached fixtures for ${date} (age: ${Math.floor((currentTime - cached.timestamp) / 60000)}min) to prevent timeout`);
-
-            // Return cached data immediately but trigger background refresh
-            setTimeout(() => {
-              console.log(`🔄 [Routes] Background refresh triggered for ${date}`);
-              // This will update cache for next request
-            }, 100);
-
-            return res.json(cached.data);
-          }
-        } catch (cacheError) {
-          console.error(`❌ [Routes] Cache error for ${date}:`, cacheError);
-          // Continue without cache
-        }
-
-        if (cached && currentTime - cached.timestamp >= maxAge) {
+        if (cacheAge > maxCacheAge) {
           console.log(
-            `⏰ [Routes] Cache expired for date ${date} (age: ${Math.round((currentTime - cached.timestamp) / 60000)}min > maxAge: ${Math.round(maxAge / 60000)}min)`,
+            `⏰ [Routes] Cache expired for date ${date} (age: ${Math.round(cacheAge / 60000)}min > maxAge: ${Math.round(maxCacheAge / 60000)}min)`,
           );
         }
       }
@@ -598,19 +555,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(
           `📦 [Routes] Skipped caching - using existing cached data for ${date}`,
         );
-      }
-
-      // Cache the results if we have them
-      if (fetchedFreshData && uniqueFixtures.length > 0) {
-        try {
-          fixturesCache.set(cacheKey, {
-            data: uniqueFixtures,
-            timestamp: Date.now()
-          });
-          console.log(`💾 [Routes] Cached ${uniqueFixtures.length} fixtures for ${date}`);
-        } catch (cacheError) {
-          console.error(`❌ [Routes] Failed to cache fixtures for ${date}:`, cacheError);
-        }
       }
 
       console.log(
@@ -2037,7 +1981,7 @@ app.get('/api/teams/popular', async (req, res) => {
         console.error("Error processing square team logo:", error);
         res.status(500).json({ error: "Internal server error" });
       }
-    }
+    },
   );
 
   // SportsRadar team logo endpoint (server-side to avoid CORS)
@@ -2236,9 +2180,7 @@ app.get('/api/teams/popular', async (req, res) => {
         res.status(500).json({
           success: false,
           error:
-            error instanceof Error
-              ? error.message
-              : "Failed to fetch fixtures by country",
+            error instanceof Error ? error.message : "Failed to fetch fixtures by country",
         });
       }
     },
@@ -2941,13 +2883,16 @@ error) {
     },
   );
 
-  // Get live fixtures (with B365API fallback)
-  apiRouter.get("/fixtures/live", async (_req: Request, res: Response) => {
+  // Get live fixtures with enhanced error handling
+  apiRouter.get("/fixtures/live", async (req: Request, res: Response) => {
     try {
-      // Use API-Football (RapidAPI) only
+      const { skipCache } = req.query;
+      
+      // Enhanced error handling for RapidAPI
       try {
+        console.log(`🔴 [LIVE API] Attempting to fetch live fixtures from RapidAPI`);
         const fixtures = await rapidApiService.getLiveFixtures();
-        console.log(`Retrieved ${fixtures.length} live fixtures from RapidAPI`);
+        console.log(`✅ [LIVE API] Retrieved ${fixtures.length} live fixtures from RapidAPI`);
 
         // NO CACHING for live fixtures - they need real-time updates
         console.log(
@@ -2996,18 +2941,39 @@ error) {
         }
 
         return res.json(fixtures);
-      } catch (rapidApiError) {
-        console.error("RapidAPI error for live fixtures:", rapidApiError);
+      } catch (rapidApiError: any) {
+        const errorMessage = rapidApiError?.message || 'Unknown error';
+        const statusCode = rapidApiError?.response?.status || rapidApiError?.status;
+        
+        console.error(`❌ [LIVE API] RapidAPI error for live fixtures:`, {
+          message: errorMessage,
+          status: statusCode,
+          code: rapidApiError?.code,
+          url: rapidApiError?.config?.url
+        });
 
-        // If API fails, return empty array for live fixtures - no stale cache for live matches
-        console.log(
-          `❌ [LIVE API] RapidAPI failed for live fixtures - returning empty array (no stale cache for live data)`,
-        );
+        // Handle different types of API errors
+        if (statusCode === 502 || statusCode === 503 || statusCode === 504) {
+          console.log(`🔧 [LIVE API] Gateway/Server error (${statusCode}) - RapidAPI service temporarily unavailable`);
+        } else if (statusCode === 429) {
+          console.log(`⏱️ [LIVE API] Rate limit exceeded (429) - too many requests`);
+        } else if (statusCode === 401 || statusCode === 403) {
+          console.log(`🔐 [LIVE API] Authentication error (${statusCode}) - API key issue`);
+        } else if (rapidApiError?.code === 'ECONNABORTED' || rapidApiError?.code === 'ETIMEDOUT') {
+          console.log(`⏰ [LIVE API] Request timeout - API took too long to respond`);
+        } else {
+          console.log(`🚫 [LIVE API] Unexpected API error: ${errorMessage}`);
+        }
+
+        // Return empty array with error context for client-side handling
+        console.log(`❌ [LIVE API] Returning empty array due to API failure`);
         return res.json([]);
       }
     } catch (error) {
-      console.error("Error fetching live fixtures:", error);
-      res.status(500).json({ message: "Failed to fetch live fixtures" });
+      console.error("❌ [LIVE API] Unexpected error in live fixtures endpoint:", error);
+      
+      // Even for unexpected errors, return empty array to prevent client crashes
+      res.status(200).json([]); // Use 200 status to prevent client-side error handling
     }
   });
 
@@ -3363,18 +3329,22 @@ error) {
   app.get('/api/players/:playerId/heatmap', async (req, res) => {
     try {
       const { playerId } = req.params;
-      const { eventId, playerName, teamName, homeTeam, awayTeam, matchDate } = req.query;
+      const { eventId, playerName, teamName, matchDate } = req.query;
 
       let sofaScorePlayerId = parseInt(playerId);
       let sofaScoreEventId = eventId ? parseInt(eventId as string) : null;
 
       // If we don't have a direct SofaScore event ID, try to find it
-      if (!sofaScoreEventId && homeTeam && awayTeam && matchDate) {
-        sofaScoreEventId = await sofaScoreAPI.findEventBySimilarity(
-          homeTeam as string,
-          awayTeam as string,
-          matchDate as string
-        );
+      if (!sofaScoreEventId && matchDate) {
+        const homeTeamName = req.query.homeTeam as string;
+        const awayTeamName = req.query.awayTeam as string;
+        if (homeTeamName && awayTeamName) {
+          sofaScoreEventId = await sofaScoreAPI.findEventBySimilarity(
+            homeTeamName,
+            awayTeamName,
+            matchDate as string
+          );
+        }
       }
 
       // If we don't have a direct SofaScore player ID, try to find the player
