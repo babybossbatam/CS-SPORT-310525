@@ -1268,14 +1268,13 @@ const HomeTopScorersList = () => {
                         )}
                       </div>
                       <div className="space-y-0.5">
-                        {translatedTeamName && (
-                          <p className="text-xs text-blue-600 dark:text-blue-400 truncate font-medium">
-                            {translatedTeamName}
-                          </p>
-                        )}
-                        {translatedCountry && (
+                        {translatedCountry ? (
                           <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                             {translatedCountry}
+                          </p>
+                        ) : translatedTeamName && (
+                          <p className="text-xs text-blue-600 dark:text-blue-400 truncate font-medium">
+                            {translatedTeamName}
                           </p>
                         )}
                       </div>
