@@ -632,6 +632,24 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       const hoursFromKickoff = minutesFromKickoff / 60;
                       const status = fixture.fixture.status.short;
 
+                      // Exclude women's competitions and Oberliga leagues
+                      const leagueName = fixture.league?.name?.toLowerCase() || "";
+                      const country = fixture.league?.country?.toLowerCase() || "";
+
+                      // EXPLICIT EXCLUSION: UEFA Europa Conference League and Regionalliga - Bayern
+                      const isExplicitlyExcluded = EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league?.id);
+
+                      // Exclude women's competitions
+                      const isWomensCompetition = leagueName.includes("women") ||
+                        leagueName.includes("femenina") ||
+                        leagueName.includes("feminine") ||
+                        leagueName.includes("feminin");
+
+                      // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
+                      const isOberligaLeague = leagueName.includes("oberliga");
+                      const isRegionalligaLeague = leagueName.includes("regionalliga") || leagueName.includes("regional liga");
+                      const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
+
                       // CRITICAL: Never exclude live matches regardless of time discrepancies
                       const isCurrentlyLive = ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status);
                       if (isCurrentlyLive) {
@@ -686,24 +704,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         );
                         return false;
                       }
-
-                      // Exclude women's competitions and Oberliga leagues
-                      const leagueName = fixture.league?.name?.toLowerCase() || "";
-                      const country = fixture.league?.country?.toLowerCase() || "";
-
-                      // EXPLICIT EXCLUSION: UEFA Europa Conference League and Regionalliga - Bayern
-                      const isExplicitlyExcluded = EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league?.id);
-
-                      // Exclude women's competitions
-                      const isWomensCompetition = leagueName.includes("women") ||
-                        leagueName.includes("femenina") ||
-                        leagueName.includes("feminine") ||
-                        leagueName.includes("feminin");
-
-                      // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
-                      const isOberligaLeague = leagueName.includes("oberliga");
-                      const isRegionalligaLeague = leagueName.includes("regionalliga") || leagueName.includes("regional liga");
-                      const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
 
                       // Exclude Non League Premier leagues
                       const isNonLeaguePremier = leagueName.includes("non league premier");
