@@ -213,6 +213,23 @@ const LazyImage: React.FC<LazyImageProps> = ({
           }
 
           if (leagueId) {
+            // Try alternative league logo sources
+            const fallbackSources = [
+              `https://media.api-sports.io/football/leagues/${leagueId}.png`,
+              `/api/league-logo/${leagueId}`,
+              '/assets/fallback-logo.svg'
+            ];
+
+            // Use first fallback source
+            const nextSource = fallbackSources[0];
+            console.log(`🔄 [LazyImage] League ${leagueId} fallback attempt: ${nextSource}`);
+            setRetryCount(1);
+            setSrc(nextSource);
+            return;
+          }esMatch[1];
+          }
+
+          if (leagueId) {
             // Try regular API without square parameter
             const fallbackUrl = `/api/league-logo/${leagueId}`;
             console.log(

@@ -91,18 +91,39 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
         console.log(
           `✅ [MyNewLeagueLogo] Using server proxy for league ${leagueId}: ${proxyUrl}`,
         );
-        setLogoUrl(proxyUrl);
-        setIsLoading(false);
+        
+        // Test if the URL works before setting it
+        const testImage = new Image();
+        testImage.onload = () => {
+          setLogoUrl(proxyUrl);
+          setIsLoading(false);
+          setError(null);
+        };
+        testImage.onerror = () => {
+          console.warn(`⚠️ [MyNewLeagueLogo] Proxy failed for league ${leagueId}, using fallback`);
+          const fallbackUrl = fallbackUrl || '/assets/fallback-logo.svg';
+          setLogoUrl(fallbackUrl);
+          setIsLoading(false);
+          setError('Logo not available');
+        };
+        testImage.src = proxyUrl;
         return;
       } catch (error) {
         console.error(
           `❌ [MyNewLeagueLogo] Error loading logo for league ${leagueId}:`,
           error,
         );
-          // Check for specific teams/leagues that should use local assets after error
-          const shouldUseLocalAssetOnError = () => {
-            if (leagueName) {
-              const leagueNameLower = leagueName.toLowerCase();
+        
+        // Use fallback on any error
+        const fallbackImageUrl = fallbackUrl || '/assets/fallback-logo.svg';
+        setLogoUrl(fallbackImageUrl);
+        setIsLoading(false);
+        setError(error?.message || 'Failed to load logo');
+      }
+    };
+
+    loadLogo();
+  }, [leagueId, leagueName, fallbackUrl]);owerCase();
 
               // COTIF Tournament league
               if (leagueNameLower.includes("cotif") || leagueNameLower.includes("cotif tournament")) {
