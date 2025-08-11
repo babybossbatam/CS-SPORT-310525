@@ -993,7 +993,7 @@ const HomeTopScorersList = () => {
         {/* Goals title */}
         <div className="px-4 py-1 border-b border-gray-100 dark:border-gray-700 dark:bg-gray-800">
           <h3 className="text-sm font-semibold text-gray-900 dark:text-white text-center">
-            Goals
+            {smartPlayerTranslation.translateGenericTerm('Goals', currentLanguage)}
           </h3>
         </div>
         {/* Horizontal scrollable league navigation with navigation buttons */}
@@ -1197,7 +1197,7 @@ const HomeTopScorersList = () => {
                       <div className="text-lg font-bold text-gray-800 dark:text-white bg-gray-200 dark:bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center shadow-md border border-gray-300 dark:border-gray-600">
                         {goals}
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Goals</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{smartPlayerTranslation.translateGenericTerm('Goals', currentLanguage)}</div>
                     </div>
                   </div>
                 );
