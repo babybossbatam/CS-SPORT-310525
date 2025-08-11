@@ -133,6 +133,90 @@ class SmartPlayerTranslation {
       mk: 'Англија', sq: 'Anglia', eu: 'Ingalaterra', ca: 'Anglaterra', gl: 'Inglaterra',
       he: 'אנגליה', hi: 'इंग्लैंड', th: 'อังกฤษ', vi: 'Anh', id: 'Inggris',
       ms: 'England', uk: 'Англія', be: 'Англія'
+    },
+    'Bolivia': {
+      en: 'Bolivia', ar: 'بوليفيا', zh: '玻利维亚', 'zh-hk': '玻利維亞', 'zh-tw': '玻利維亞',
+      fr: 'Bolivie', es: 'Bolivia', pt: 'Bolívia', de: 'Bolivien', it: 'Bolivia',
+      ru: 'Боливия', ja: 'ボリビア', ko: '볼리비아', tr: 'Bolivya', nl: 'Bolivia',
+      pl: 'Boliwia', sv: 'Bolivia', da: 'Bolivia', no: 'Bolivia', fi: 'Bolivia',
+      cs: 'Bolívie', sk: 'Bolívia', hu: 'Bolívia', ro: 'Bolivia', bg: 'Боливия',
+      hr: 'Bolivija', sr: 'Боливија', sl: 'Bolivija', et: 'Boliivia', lv: 'Bolīvija',
+      lt: 'Bolivija', mt: 'Bolivja', ga: 'An Bholaiv', cy: 'Bolivia', is: 'Bólívía',
+      mk: 'Боливија', sq: 'Bolivia', eu: 'Bolivia', ca: 'Bolívia', gl: 'Bolivia',
+      he: 'בוליביה', hi: 'बोलीविया', th: 'โบลิเวีย', vi: 'Bolivia', id: 'Bolivia',
+      ms: 'Bolivia', uk: 'Болівія', be: 'Балівія'
+    },
+    'Chile': {
+      en: 'Chile', ar: 'شيلي', zh: '智利', 'zh-hk': '智利', 'zh-tw': '智利',
+      fr: 'Chili', es: 'Chile', pt: 'Chile', de: 'Chile', it: 'Cile',
+      ru: 'Чили', ja: 'チリ', ko: '칠레', tr: 'Şili', nl: 'Chili',
+      pl: 'Chile', sv: 'Chile', da: 'Chile', no: 'Chile', fi: 'Chile',
+      cs: 'Chile', sk: 'Chile', hu: 'Chile', ro: 'Chile', bg: 'Чили',
+      hr: 'Čile', sr: 'Чиле', sl: 'Čile', et: 'Tšiili', lv: 'Čīle',
+      lt: 'Čilė', mt: 'Ċili', ga: 'An tSile', cy: 'Chile', is: 'Síle',
+      mk: 'Чиле', sq: 'Kili', eu: 'Txile', ca: 'Xile', gl: 'Chile',
+      he: 'צ׳ילה', hi: 'चिली', th: 'ชิลี', vi: 'Chile', id: 'Chili',
+      ms: 'Chile', uk: 'Чилі', be: 'Чылі'
+    },
+    'Ecuador': {
+      en: 'Ecuador', ar: 'الإكوادور', zh: '厄瓜多尔', 'zh-hk': '厄瓜多爾', 'zh-tw': '厄瓜多爾',
+      fr: 'Équateur', es: 'Ecuador', pt: 'Equador', de: 'Ecuador', it: 'Ecuador',
+      ru: 'Эквадор', ja: 'エクアドル', ko: '에콰도르', tr: 'Ekvador', nl: 'Ecuador',
+      pl: 'Ekwador', sv: 'Ecuador', da: 'Ecuador', no: 'Ecuador', fi: 'Ecuador',
+      cs: 'Ekvádor', sk: 'Ekvádor', hu: 'Ecuador', ro: 'Ecuador', bg: 'Еквадор',
+      hr: 'Ekvador', sr: 'Еквадор', sl: 'Ekvador', et: 'Ecuador', lv: 'Ekvadora',
+      lt: 'Ekvadoras', mt: 'Ekwador', ga: 'Eacuadór', cy: 'Ecuador', is: 'Ekvador',
+      mk: 'Еквадор', sq: 'Ekuadori', eu: 'Ekuador', ca: 'Equador', gl: 'Ecuador',
+      he: 'אקוודור', hi: 'इक्वाडोर', th: 'เอกวาดอร์', vi: 'Ecuador', id: 'Ekuador',
+      ms: 'Ecuador', uk: 'Еквадор', be: 'Эквадор'
+    },
+    'Paraguay': {
+      en: 'Paraguay', ar: 'باراغواي', zh: '巴拉圭', 'zh-hk': '巴拉圭', 'zh-tw': '巴拉圭',
+      fr: 'Paraguay', es: 'Paraguay', pt: 'Paraguai', de: 'Paraguay', it: 'Paraguay',
+      ru: 'Парагвай', ja: 'パラグアイ', ko: '파라과이', tr: 'Paraguay', nl: 'Paraguay',
+      pl: 'Paragwaj', sv: 'Paraguay', da: 'Paraguay', no: 'Paraguay', fi: 'Paraguay',
+      cs: 'Paraguay', sk: 'Paraguaj', hu: 'Paraguay', ro: 'Paraguay', bg: 'Парагвай',
+      hr: 'Paragvaj', sr: 'Парагвај', sl: 'Paragvaj', et: 'Paraguay', lv: 'Paragvaja',
+      lt: 'Paragvajus', mt: 'Paragwaj', ga: 'Paragua', cy: 'Paraguay', is: 'Paragvæ',
+      mk: 'Парагвај', sq: 'Paraguai', eu: 'Paraguai', ca: 'Paraguai', gl: 'Paraguai',
+      he: 'פרגוואי', hi: 'पैराग्वे', th: 'ปารากวัย', vi: 'Paraguay', id: 'Paraguay',
+      ms: 'Paraguay', uk: 'Парагвай', be: 'Парагвай'
+    },
+    'Peru': {
+      en: 'Peru', ar: 'بيرو', zh: '秘鲁', 'zh-hk': '秘魯', 'zh-tw': '秘魯',
+      fr: 'Pérou', es: 'Perú', pt: 'Peru', de: 'Peru', it: 'Perù',
+      ru: 'Перу', ja: 'ペルー', ko: '페루', tr: 'Peru', nl: 'Peru',
+      pl: 'Peru', sv: 'Peru', da: 'Peru', no: 'Peru', fi: 'Peru',
+      cs: 'Peru', sk: 'Peru', hu: 'Peru', ro: 'Peru', bg: 'Перу',
+      hr: 'Peru', sr: 'Перу', sl: 'Peru', et: 'Peruu', lv: 'Peru',
+      lt: 'Peru', mt: 'Perù', ga: 'Peiriú', cy: 'Periw', is: 'Perú',
+      mk: 'Перу', sq: 'Peru', eu: 'Peru', ca: 'Perú', gl: 'Perú',
+      he: 'פרו', hi: 'पेरू', th: 'เปรู', vi: 'Peru', id: 'Peru',
+      ms: 'Peru', uk: 'Перу', be: 'Перу'
+    },
+    'Uruguay': {
+      en: 'Uruguay', ar: 'أوروغواي', zh: '乌拉圭', 'zh-hk': '烏拉圭', 'zh-tw': '烏拉圭',
+      fr: 'Uruguay', es: 'Uruguay', pt: 'Uruguai', de: 'Uruguay', it: 'Uruguay',
+      ru: 'Уругвай', ja: 'ウルグアイ', ko: '우루과이', tr: 'Uruguay', nl: 'Uruguay',
+      pl: 'Urugwaj', sv: 'Uruguay', da: 'Uruguay', no: 'Uruguay', fi: 'Uruguay',
+      cs: 'Uruguay', sk: 'Uruguaj', hu: 'Uruguay', ro: 'Uruguay', bg: 'Уругвай',
+      hr: 'Urugvaj', sr: 'Уругвај', sl: 'Urugvaj', et: 'Uruguay', lv: 'Urugvaja',
+      lt: 'Urugvajus', mt: 'Urugwaj', ga: 'Uragua', cy: 'Wruguay', is: 'Úrúgvæ',
+      mk: 'Уругвај', sq: 'Uruguai', eu: 'Uruguai', ca: 'Uruguai', gl: 'Uruguai',
+      he: 'אורוגוואי', hi: 'उरुग्वे', th: 'อุรุกวัย', vi: 'Uruguay', id: 'Uruguay',
+      ms: 'Uruguay', uk: 'Уругвай', be: 'Уругвай'
+    },
+    'Venezuela': {
+      en: 'Venezuela', ar: 'فنزويلا', zh: '委内瑞拉', 'zh-hk': '委內瑞拉', 'zh-tw': '委內瑞拉',
+      fr: 'Venezuela', es: 'Venezuela', pt: 'Venezuela', de: 'Venezuela', it: 'Venezuela',
+      ru: 'Венесуэла', ja: 'ベネズエラ', ko: '베네수엘라', tr: 'Venezuela', nl: 'Venezuela',
+      pl: 'Wenezuela', sv: 'Venezuela', da: 'Venezuela', no: 'Venezuela', fi: 'Venezuela',
+      cs: 'Venezuela', sk: 'Venezuela', hu: 'Venezuela', ro: 'Venezuela', bg: 'Венецуела',
+      hr: 'Venezuela', sr: 'Венецуела', sl: 'Venezuela', et: 'Venezuela', lv: 'Venecuēla',
+      lt: 'Venesuela', mt: 'Venezwela', ga: 'Veiniséala', cy: 'Venezuela', is: 'Venesúela',
+      mk: 'Венецуела', sq: 'Venezuela', eu: 'Venezuela', ca: 'Veneçuela', gl: 'Venezuela',
+      he: 'ונצואלה', hi: 'वेनेज़ुएला', th: 'เวเนซุเอลา', vi: 'Venezuela', id: 'Venezuela',
+      ms: 'Venezuela', uk: 'Венесуела', be: 'Венесуэла'
     }
   };
 
@@ -524,23 +608,45 @@ class SmartPlayerTranslation {
 
     // Map common variations to standard names
     const countryMap: { [key: string]: string } = {
+      // South American countries
       'brasil': 'Brazil',
-      'brasil': 'Brazil',
+      'brazil': 'Brazil',
+      'bolivia': 'Bolivia',
+      'chile': 'Chile',
+      'colombia': 'Colombia',
+      'ecuador': 'Ecuador',
+      'paraguay': 'Paraguay',
+      'peru': 'Peru',
+      'perú': 'Peru',
+      'uruguay': 'Uruguay',
+      'venezuela': 'Venezuela',
+      'argentina': 'Argentina',
+      
+      // European countries
       'england': 'England',
       'uk': 'England',
       'united kingdom': 'England',
       'great britain': 'England',
       'españa': 'Spain',
-      'colombia': 'Colombia',
-      'argentina': 'Argentina',
+      'spain': 'Spain',
       'france': 'France',
+      'francia': 'France',
       'germany': 'Germany',
       'deutschland': 'Germany',
+      'alemania': 'Germany',
       'italy': 'Italy',
       'italia': 'Italy',
       'portugal': 'Portugal',
       'netherlands': 'Netherlands',
-      'holland': 'Netherlands'
+      'holland': 'Netherlands',
+      'países bajos': 'Netherlands',
+      
+      // Other common variations
+      'usa': 'United States',
+      'united states': 'United States',
+      'estados unidos': 'United States',
+      'mexico': 'Mexico',
+      'méxico': 'Mexico'
     };
 
     return countryMap[normalized] || this.capitalizeCountry(country);
@@ -640,6 +746,29 @@ class SmartPlayerTranslation {
       this.saveLearnedMappings();
       console.log(`🎯 [SmartPlayerTranslation] Auto-learned new position: "${position}" -> "${normalizedPosition}"`);
     }
+  }
+
+  // Auto-learn from any country name
+  autoLearnFromAnyCountryName(country: string, context?: any): void {
+    if (!country || country.length < 2) return;
+
+    const normalizedCountry = this.normalizeCountry(country);
+
+    if (!this.learnedCountryMappings.has(normalizedCountry)) {
+      const newMapping = this.generateCountryMapping(normalizedCountry);
+      this.learnedCountryMappings.set(normalizedCountry, newMapping);
+      this.saveLearnedMappings();
+      console.log(`🎯 [SmartPlayerTranslation] Auto-learned new country: "${country}" -> "${normalizedCountry}"`);
+    }
+  }
+
+  // Set player-country mapping
+  setPlayerCountry(playerId: number, country: string): void {
+    if (!playerId || !country) return;
+    
+    const normalizedCountry = this.normalizeCountry(country);
+    this.playerCountryMappings.set(playerId.toString(), normalizedCountry);
+    this.saveLearnedMappings();
   }
 
   // Cache management

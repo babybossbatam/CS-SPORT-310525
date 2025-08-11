@@ -1126,7 +1126,7 @@ const HomeTopScorersList = () => {
                 const translatedPosition = rawPosition ? 
                   smartPlayerTranslation.translatePositionName(rawPosition, currentLanguage) : "";
 
-                // Get and translate country information
+                // Enhanced country extraction and learning system
                 let playerCountry = smartPlayerTranslation.getPlayerCountry(scorer.player.id);
                 
                 // If we don't have the player's country stored, try to extract it
@@ -1135,17 +1135,70 @@ const HomeTopScorersList = () => {
                   const teamName = playerStats?.team?.name;
                   const leagueName = playerStats?.league?.name;
                   
-                  // Smart country extraction logic
-                  if (leagueName?.toLowerCase().includes('world cup') || 
-                      leagueName?.toLowerCase().includes('nations league') ||
-                      leagueName?.toLowerCase().includes('euro') ||
-                      leagueName?.toLowerCase().includes('copa america')) {
-                    playerCountry = teamName; // For international competitions, team = country
-                  } else if (leagueCountry && leagueCountry !== 'World') {
-                    playerCountry = leagueCountry; // Assume domestic league players are from that country
-                  } else {
+                  // Enhanced country extraction logic with better team-to-country mapping
+                  const extractCountryFromTeam = (teamName: string, leagueName: string): string | null => {
+                    if (!teamName) return null;
+                    
+                    const teamLower = teamName.toLowerCase();
+                    
+                    // South American teams mapping
+                    const southAmericanTeams = {
+                      'bolivia': ['the strongest', 'bolívar', 'oriente petrolero', 'blooming', 'jorge wilstermann', 'aurora', 'nacional potosí', 'real santa cruz'],
+                      'argentina': ['river plate', 'boca juniors', 'racing club', 'independiente', 'san lorenzo', 'estudiantes', 'vélez sarsfield', 'lanús'],
+                      'brazil': ['flamengo', 'palmeiras', 'corinthians', 'santos', 'são paulo', 'vasco da gama', 'botafogo', 'grêmio'],
+                      'chile': ['colo-colo', 'universidad de chile', 'católica', 'universidad católica', 'palestino', 'audax italiano'],
+                      'colombia': ['millonarios', 'nacional', 'américa de cali', 'junior', 'santa fe', 'deportivo cali', 'once caldas'],
+                      'ecuador': ['barcelona sc', 'emelec', 'liga de quito', 'independiente del valle', 'aucas'],
+                      'paraguay': ['olimpia', 'cerro porteño', 'libertad', 'guaraní', 'nacional asunción'],
+                      'peru': ['universitario', 'alianza lima', 'sporting cristal', 'melgar', 'cienciano'],
+                      'uruguay': ['peñarol', 'nacional', 'montevideo wanderers', 'danubio', 'defensor sporting'],
+                      'venezuela': ['caracas fc', 'deportivo táchira', 'estudiantes de mérida', 'zamora']
+                    };
+                    
+                    // Check for team-based country mapping
+                    for (const [country, teams] of Object.entries(southAmericanTeams)) {
+                      if (teams.some(team => teamLower.includes(team.toLowerCase()))) {
+                        return country.charAt(0).toUpperCase() + country.slice(1);
+                      }
+                    }
+                    
+                    // For international competitions, team name is usually the country
+                    if (leagueName?.toLowerCase().includes('world cup') || 
+                        leagueName?.toLowerCase().includes('nations league') ||
+                        leagueName?.toLowerCase().includes('euro') ||
+                        leagueName?.toLowerCase().includes('copa america') ||
+                        leagueName?.toLowerCase().includes('conmebol')) {
+                      return teamName; // Team name is likely the country
+                    }
+                    
+                    return null;
+                  };
+                  
+                  // Try team-based extraction first
+                  playerCountry = extractCountryFromTeam(teamName, leagueName);
+                  
+                  // Fallback to league country if no team mapping found
+                  if (!playerCountry && leagueCountry && leagueCountry !== 'World') {
+                    playerCountry = leagueCountry;
+                  }
+                  
+                  // Final fallback
+                  if (!playerCountry) {
                     playerCountry = teamName || leagueCountry || "";
                   }
+                }
+
+                // Auto-learn the country for future translations if we found one
+                if (playerCountry && playerCountry.trim()) {
+                  smartPlayerTranslation.autoLearnFromAnyCountryName(playerCountry, {
+                    playerId: scorer.player.id,
+                    playerName: scorer.player.name,
+                    teamName: playerStats?.team?.name,
+                    leagueName: playerStats?.league?.name
+                  });
+                  
+                  // Store the player-country mapping for future use
+                  smartPlayerTranslation.setPlayerCountry(scorer.player.id, playerCountry);
                 }
 
                 // Translate the country to the current language
