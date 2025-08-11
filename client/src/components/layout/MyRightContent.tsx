@@ -42,7 +42,9 @@ const MyRightContent: React.FC = () => {
           <PopularLeaguesList />
           <PopularTeamsList />
         </div>
-        <MyAllLeagueList selectedDate={selectedDate} />
+        <div className="space-y-4">
+          <MyAllLeagueList selectedDate={selectedDate} />
+        </div>
       </div>
     </div>
   );
