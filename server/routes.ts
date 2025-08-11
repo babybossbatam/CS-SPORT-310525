@@ -425,20 +425,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Check if we have cached data that's not too old
         const cached = fixturesCache.get(cacheKey);
-        const now = Date.now();
+        const currentTime = Date.now();
         const maxAge = isToday ? LIVE_DATA_CACHE_DURATION : isPast ? PAST_DATA_CACHE_DURATION : FUTURE_DATA_CACHE_DURATION;
 
         // For timeout prevention, return slightly stale cache if available
         const emergencyMaxAge = maxAge * 2; // Double the max age for emergency fallback
 
-        if (cached && now - cached.timestamp < maxAge) {
-          console.log(`📦 [Routes] Using cached fixtures for ${date} (age: ${Math.floor((now - cached.timestamp) / 60000)}min, maxAge: ${Math.floor(maxAge / 60000)}min)`);
+        if (cached && currentTime - cached.timestamp < maxAge) {
+          console.log(`📦 [Routes] Using cached fixtures for ${date} (age: ${Math.floor((currentTime - cached.timestamp) / 60000)}min, maxAge: ${Math.floor(maxAge / 60000)}min)`);
           return res.json(cached.data);
         }
 
         // Emergency fallback: if we have cached data within emergency max age, use it to prevent timeouts
-        if (cached && now - cached.timestamp < emergencyMaxAge) {
-          console.log(`⚡ [Routes] Using emergency cached fixtures for ${date} (age: ${Math.floor((now - cached.timestamp) / 60000)}min) to prevent timeout`);
+        if (cached && currentTime - cached.timestamp < emergencyMaxAge) {
+          console.log(`⚡ [Routes] Using emergency cached fixtures for ${date} (age: ${Math.floor((currentTime - cached.timestamp) / 60000)}min) to prevent timeout`);
 
           // Return cached data immediately but trigger background refresh
           setTimeout(() => {
