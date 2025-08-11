@@ -2328,7 +2328,7 @@ class SmartTeamTranslation {
       'braga': { zh: '布拉加', zhHk: '布拉加', zhTw: '布拉加' },
       'guimarães': { zh: '吉马良斯', zhHk: '吉馬良斯', zhTw: '吉馬良斯' },
       'boavista': { zh: '博阿维斯塔', zhHk: '博阿維斯塔', zhTw: '博阿維斯塔' },
-      
+
       // Portuguese/Brazilian teams
       'santos': { zh: '桑托斯', zhHk: '山度士', zhTw: '山度士' },
       'flamengo': { zh: '弗拉门戈', zhHk: '法林明高', zhTw: '弗拉門戈' },
@@ -2885,7 +2885,7 @@ class SmartTeamTranslation {
     return leagueName;
   }
 
-  // Add translateCountryName method if missing
+  // Translate league names using smart translation system
   translateCountryName(countryName: string, language: string = 'zh-hk'): string {
     if (!countryName) return '';
 
@@ -2955,7 +2955,7 @@ class SmartTeamTranslation {
   }
 
   // Smart translation with fallbacks and learning
-  translateTeamName(teamName: string, language: string = 'zh', leagueInfo?: any): string {
+  translateTeamName(teamName: string, language: string, leagueInfo?: any): string {
     if (!teamName) return '';
 
     console.log(`🤖 [SmartTranslation] Translating "${teamName}" to ${language}`, {
