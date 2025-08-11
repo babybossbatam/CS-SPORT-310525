@@ -27,6 +27,7 @@ import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { teamColorMap } from "@/lib/colorExtractor";
 import { useTranslation } from "react-i18next"; // Import useTranslation
+import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
 
 interface Standing {
   rank: number;
@@ -83,13 +84,11 @@ const LeagueStandingsFilter = () => {
   const [selectedLeagueName, setSelectedLeagueName] = useState("");
   const [leaguesLoading, setLeaguesLoading] = useState(true);
 
-  // Function to get translated team name
+  // Function to get translated team name using smart translation system
   const getTranslatedTeamName = (teamName: string): string => {
-    // Use translation hook if available, otherwise return original name
-    if (i18n && typeof t === "function") {
-      return t(teamName, { defaultValue: teamName });
-    }
-    return teamName;
+    // Use smart team translation system with current language
+    const currentLanguage = i18n?.language || 'zh-hk';
+    return smartTeamTranslation.translateTeamName(teamName, currentLanguage);
   };
 
   useEffect(() => {
