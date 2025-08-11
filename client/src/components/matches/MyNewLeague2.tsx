@@ -642,8 +642,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         `💾 [MyNewLeague2] Retrieved ${cachedEndedMatches.length} cached ended matches`,
       );
 
-      // Process leagues in optimized batches
-      const batchSize = 5; // Increase concurrent requests for priority leagues
+      // Process leagues in smaller batches to prevent network overload
+      const batchSize = 3; // Reduced batch size for better network stability
       const results: any[] = [];
 
       for (let i = 0; i < leagueIds.length; i += batchSize) {
@@ -653,37 +653,68 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         );
 
         const batchPromises = batch.map(async (leagueId, index) => {
-          // Minimal delay only for large batches
-          if (index > 2) {
-            await delay(10); // Reduced to 10ms delay
+          // Stagger requests to avoid overwhelming the network
+          if (index > 0) {
+            await delay(index * 50); // Increased delay between requests
           }
 
           try {
               const controller = new AbortController();
               const timeoutId = setTimeout(() => {
                 controller.abort();
-              }, 15000); // Increased to 15 second timeout
+              }, 20000); // Increased to 20 second timeout
 
-              const response = await fetch(`/api/leagues/${leagueId}/fixtures`, {
-                signal: controller.signal
-              }).catch(fetchError => {
+              let response;
+              try {
+                response = await fetch(`/api/leagues/${leagueId}/fixtures`, {
+                  signal: controller.signal,
+                  headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                  }
+                });
+                clearTimeout(timeoutId);
+              } catch (fetchError) {
                 clearTimeout(timeoutId);
 
-                // Handle specific timeout errors
+                // Handle specific error types
                 if (fetchError.name === 'AbortError' || fetchError.message.includes('aborted')) {
                   console.warn(
-                    `⏰ [MyNewLeague2] Request timeout for league ${leagueId} after 15 seconds`,
+                    `⏰ [MyNewLeague2] Request timeout for league ${leagueId} after 20 seconds`,
                   );
-                  return null;
+                  return {
+                    leagueId,
+                    fixtures: [],
+                    error: "Request timeout",
+                    networkError: true,
+                    timeout: true
+                  };
+                }
+
+                if (fetchError.message.toLowerCase().includes('failed to fetch') || 
+                    fetchError.message.toLowerCase().includes('network error') ||
+                    fetchError.message.toLowerCase().includes('connection')) {
+                  console.warn(
+                    `🌐 [MyNewLeague2] Network connectivity error for league ${leagueId}: ${fetchError.message}`,
+                  );
+                  return {
+                    leagueId,
+                    fixtures: [],
+                    error: "Network connectivity error",
+                    networkError: true
+                  };
                 }
 
                 console.warn(
-                  `🌐 [MyNewLeague2] Network error for league ${leagueId}: ${fetchError.message}`,
+                  `⚠️ [MyNewLeague2] Fetch error for league ${leagueId}: ${fetchError.message}`,
                 );
-                return null;
-              });
-
-              clearTimeout(timeoutId);
+                return {
+                  leagueId,
+                  fixtures: [],
+                  error: fetchError.message,
+                  networkError: true
+                };
+              }
 
             if (!response) {
               return {
@@ -786,8 +817,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
         // Add delay between batches to be more API-friendly
         if (i + batchSize < leagueIds.length) {
-          console.log(`⏳ [MyNewLeague2] Waiting 500ms before next batch...`);
-          await delay(25);
+          console.log(`⏳ [MyNewLeague2] Waiting 1000ms before next batch...`);
+          await delay(1000); // Increased delay between batches
         }
       }
 
