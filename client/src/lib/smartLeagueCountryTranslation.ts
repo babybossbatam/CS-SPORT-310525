@@ -425,14 +425,40 @@ class SmartLeagueCountryTranslation {
 
   // Auto-learn from any league data encountered in the app
   autoLearnFromLeagueData(leagueName: string, countryName?: string): void {
-    if (!leagueName || this.learnedLeagueMappings.has(leagueName)) return;
+    if (!leagueName) return;
 
-    const mapping = this.generateLeagueMapping(leagueName, countryName || '');
-    if (mapping) {
-      this.learnedLeagueMappings.set(leagueName, mapping);
-      this.saveLearnedMappings();
-      console.log(`🎓 [Auto-Learn] Added mapping for: ${leagueName}`);
+    // Always try to improve existing mappings or add new ones
+    const existingMapping = this.learnedLeagueMappings.get(leagueName);
+    const newMapping = this.generateLeagueMapping(leagueName, countryName || '');
+    
+    if (newMapping) {
+      // If no existing mapping, add it
+      if (!existingMapping) {
+        this.learnedLeagueMappings.set(leagueName, newMapping);
+        this.saveLearnedMappings();
+        console.log(`🎓 [Auto-Learn] Added new mapping for: ${leagueName}`);
+      }
+      // If existing mapping has fewer translations, update it
+      else if (this.shouldUpdateMapping(existingMapping, newMapping)) {
+        this.learnedLeagueMappings.set(leagueName, newMapping);
+        this.saveLearnedMappings();
+        console.log(`🔄 [Auto-Learn] Updated mapping for: ${leagueName}`);
+      }
     }
+  }
+
+  // Auto-learn from any league name that appears anywhere in the app
+  autoLearnFromAnyLeagueName(leagueName: string, context?: { countryName?: string, leagueId?: number }): void {
+    if (!leagueName || leagueName.length < 3) return;
+
+    // Clean league name
+    const cleanLeagueName = leagueName.trim();
+    
+    // Skip if it's already well-known
+    if (this.coreLeagueTranslations[cleanLeagueName]) return;
+
+    // Auto-learn this league
+    this.autoLearnFromLeagueData(cleanLeagueName, context?.countryName);
   }
 
   private generateLeagueMapping(leagueName: string, countryName: string): LeagueTranslation | null {
@@ -440,12 +466,41 @@ class SmartLeagueCountryTranslation {
     const translations: any = { en: leagueName };
     const lowerName = leagueName.toLowerCase();
 
-    // Comprehensive league pattern matching
-    if (lowerName.includes('premier league')) {
+    // Detect common abbreviations and expand them
+    const abbreviationExpansions: { [key: string]: string } = {
+      'pl': 'Premier League',
+      'div': 'Division',
+      'fc': 'Football Club',
+      'cf': 'Club de Fútbol',
+      'sc': 'Sport Club',
+      'ac': 'Athletic Club',
+      'u21': 'Under-21',
+      'u20': 'Under-20',
+      'u19': 'Under-19',
+      'u18': 'Under-18',
+      'u17': 'Under-17'
+    };
+
+    // Check if league name contains abbreviations that need expansion
+    let expandedName = leagueName;
+    for (const [abbrev, expansion] of Object.entries(abbreviationExpansions)) {
+      const regex = new RegExp(`\\b${abbrev}\\b`, 'gi');
+      if (regex.test(expandedName) && !expandedName.toLowerCase().includes(expansion.toLowerCase())) {
+        expandedName = expandedName.replace(regex, expansion);
+      }
+    }
+
+    // Enhanced comprehensive league pattern matching
+    if (lowerName.includes('premier league') || lowerName.endsWith(' pl') || lowerName === 'pl') {
       const countryZh = this.translateCountryName(countryName, 'zh');
-      translations.zh = `${countryZh}超级联赛`;
-      translations['zh-hk'] = `${this.translateCountryName(countryName, 'zh-hk')}超級聯賽`;
-      translations['zh-tw'] = `${this.translateCountryName(countryName, 'zh-tw')}超級聯賽`;
+      const baseCountryZh = countryZh || this.detectCountryFromLeagueName(leagueName);
+      translations.zh = `${baseCountryZh}超级联赛`;
+      translations['zh-hk'] = `${this.translateCountryName(countryName, 'zh-hk') || baseCountryZh}超級聯賽`;
+      translations['zh-tw'] = `${this.translateCountryName(countryName, 'zh-tw') || baseCountryZh}超級聯賽`;
+      translations.es = `Liga Premier ${countryName ? 'de ' + countryName : ''}`;
+      translations.de = `${countryName || ''} Premier League`;
+      translations.it = `Premier League ${countryName ? 'di ' + countryName : ''}`;
+      translations.pt = `Liga Premier ${countryName ? 'do ' + countryName : ''}`;
     } else if (lowerName.includes('championship')) {
       const countryZh = this.translateCountryName(countryName, 'zh');
       translations.zh = `${countryZh}冠军联赛`;
@@ -574,6 +629,48 @@ class SmartLeagueCountryTranslation {
     return translations as LeagueTranslation;
   }
 
+  // Detect country from league name patterns
+  private detectCountryFromLeagueName(leagueName: string): string {
+    const lowerName = leagueName.toLowerCase();
+    
+    const countryPatterns: { [key: string]: string } = {
+      'english': '英格兰',
+      'premier league': '英格兰',
+      'championship': '英格兰',
+      'egyptian': '埃及',
+      'saudi': '沙特',
+      'spanish': '西班牙',
+      'la liga': '西班牙',
+      'serie a': '意大利',
+      'bundesliga': '德国',
+      'ligue 1': '法国',
+      'primeira liga': '葡萄牙',
+      'eredivisie': '荷兰',
+      'russian': '俄罗斯',
+      'ukrainian': '乌克兰',
+      'polish': '波兰',
+      'turkish': '土耳其',
+      'brazilian': '巴西',
+      'argentinian': '阿根廷',
+      'mexican': '墨西哥',
+      'american': '美国',
+      'canadian': '加拿大',
+      'japanese': '日本',
+      'korean': '韩国',
+      'chinese': '中国',
+      'australian': '澳大利亚',
+      'indian': '印度'
+    };
+
+    for (const [pattern, country] of Object.entries(countryPatterns)) {
+      if (lowerName.includes(pattern)) {
+        return country;
+      }
+    }
+
+    return ''; // Return empty if no pattern matches
+  }
+
   private generateCountryMapping(countryName: string): CountryTranslation | null {
     // Basic country name handling - most stay the same except Chinese
     const translations: any = {
@@ -592,6 +689,9 @@ class SmartLeagueCountryTranslation {
 
   translateLeagueName(leagueName: string, language: string): string {
     if (!leagueName) return leagueName;
+
+    // Auto-learn this league if we encounter it
+    this.autoLearnFromAnyLeagueName(leagueName);
 
     const cacheKey = `league_${leagueName}_${language}`;
 

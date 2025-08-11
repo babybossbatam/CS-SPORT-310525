@@ -262,6 +262,13 @@ const HomeTopScorersList = () => {
         console.log(`🎓 [HomeTopScorers] Auto-learned from ${leagueDataForLearning.length} league data points`);
       }
 
+      // Also auto-learn from available leagues list
+      POPULAR_LEAGUES.forEach(league => {
+        smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(league.name, {
+          leagueId: league.id
+        });
+      });
+
       setAvailableLeagues(leaguesWithData);
 
       // Set initial selected league from available leagues with data
@@ -487,6 +494,13 @@ const HomeTopScorersList = () => {
   const getLeagueDisplayName = (leagueId: number) => {
     const league = availableLeagues.find((l) => l.id === leagueId);
     const originalName = league?.name || "League";
+    
+    // Ensure this league is learned by the system
+    if (originalName !== "League") {
+      smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(originalName, {
+        leagueId: leagueId
+      });
+    }
     
     // First translate the league name using the smart translation system
     const translatedName = smartLeagueCountryTranslation.translateLeagueName(originalName, currentLanguage);
