@@ -470,9 +470,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } catch (cacheError) {
           console.error(`❌ [Routes] Cache error for ${date}:`, cacheError);
           // Continue without cache
-        } else {
+        }
+
+        if (cached && currentTime - cached.timestamp >= maxAge) {
           console.log(
-            `⏰ [Routes] Cache expired for date ${date} (age: ${Math.round(cacheAge / 60000)}min > maxAge: ${Math.round(maxAge / 60000)}min)`,
+            `⏰ [Routes] Cache expired for date ${date} (age: ${Math.round((currentTime - cached.timestamp) / 60000)}min > maxAge: ${Math.round(maxAge / 60000)}min)`,
           );
         }
       }
