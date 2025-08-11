@@ -130,11 +130,11 @@ class LogoCache {
       return null;
     }
 
-    // Check expiration - shorter cache for fallbacks, longer for valid logos
+    // Check expiration - shorter cache for fallbacks, longer for valid flags
     const age = Date.now() - item.timestamp;
     const maxAge = item.url.includes('/assets/fallback-logo.svg') 
-      ? 30 * 60 * 1000  // 30 minutes for fallbacks (shorter to retry sooner)
-      : 24 * 60 * 60 * 1000; // 24 hours for valid logos
+      ? 60 * 60 * 1000  // 1 hour for fallbacks (shorter to retry sooner)
+      : 7 * 24 * 60 * 60 * 1000; // 7 days for valid flags
 
     const ageMinutes = Math.round(age / 1000 / 60);
     const maxAgeMinutes = Math.round(maxAge / 1000 / 60);

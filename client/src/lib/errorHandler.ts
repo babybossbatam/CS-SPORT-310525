@@ -101,13 +101,7 @@ const categorizeError = (error: any): ErrorCategory => {
   const errorStr = error?.message || error?.toString?.() || String(error);
 
   // AbortError and signal aborted errors - suppress
-  if (error instanceof Error && (
-    error.name === 'AbortError' || 
-    errorStr.includes('signal is aborted') ||
-    errorStr.includes('aborted without reason') ||
-    errorStr.includes('controller.abort()') ||
-    errorStr.includes('AbortSignal')
-  )) {
+  if (error instanceof Error && (error.name === 'AbortError' || errorStr.includes('signal is aborted'))) {
     return {
       name: 'abort-signal',
       shouldSuppress: true,
