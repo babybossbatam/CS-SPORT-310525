@@ -147,7 +147,7 @@ const FEATURED_MATCH_LEAGUE_IDS = [
 ];
 
 // Explicitly excluded leagues
-const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62, 931]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2, Non League Premier - Southern Central
+const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62, 931, 59, 60]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2, Non League Premier - Southern Central, League 59, League 60
 const PRIORITY_LEAGUE_IDS = [2, 15, 38, 22, 45, 550, 531]; // UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531
 
 interface FeaturedMatch {
@@ -704,7 +704,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       const isRegionalligaLeague = leagueName.includes("regionalliga") || leagueName.includes("regional liga");
                       const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
 
-                      const shouldInclude = hasValidTeams && isNotLive && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga && !isExplicitlyExcluded;
+                      // Exclude Non League Premier leagues
+                      const isNonLeaguePremier = leagueName.includes("non league premier");
+
+                      const shouldInclude = hasValidTeams && isNotLive && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga && !isExplicitlyExcluded && !isNonLeaguePremier;
 
                       if (shouldInclude) {
                         console.log(
@@ -744,6 +747,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       } else if (is3Liga) {
                         console.log(
                           `❌ [MyHomeFeaturedMatchNew] Excluding 3. Liga league:`,
+                          {
+                            league: fixture.league?.name,
+                            leagueId: fixture.league?.id,
+                          },
+                        );
+                      } else if (isNonLeaguePremier) {
+                        console.log(
+                          `❌ [MyHomeFeaturedMatchNew] Excluding Non League Premier:`,
                           {
                             league: fixture.league?.name,
                             leagueId: fixture.league?.id,
@@ -1385,10 +1396,24 @@ id: fixture.teams.away.id,
                 return false;
               }
 
-              // Additional name-based exclusion for Regionalliga leagues
+              if (fixture.league.id === 59) {
+                console.log(`🚫 [EXPLICIT EXCLUSION] League 59 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                return false;
+              }
+
+              if (fixture.league.id === 60) {
+                console.log(`🚫 [EXPLICIT EXCLUSION] League 60 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                return false;
+              }
+
+              // Additional name-based exclusion for Regionalliga leagues and Non League Premier
               const leagueName = fixture.league?.name?.toLowerCase() || "";
               if (leagueName.includes('regionalliga') && leagueName.includes('bayern')) {
                 console.log(`🚫 [NAME-BASED EXCLUSION] Regionalliga - Bayern match excluded by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
+                return false;
+              }
+              if (leagueName.includes('non league premier')) {
+                console.log(`🚫 [NAME-BASED EXCLUSION] Non League Premier match excluded by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
                 return false;
               }
               // CRITICAL: Filter out stale "Starting now" matches
