@@ -24,6 +24,7 @@ import {
 } from "@/lib/colorExtractor";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation, useLanguage } from "@/contexts/LanguageContext";
+import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
 import { RoundBadge } from "@/components/ui/round-badge";
 
@@ -1269,6 +1270,10 @@ id: fixture.teams.away.id,
         try {
           learnFromFixtures(uniqueFixtures);
           console.log(`📚 [MyHomeFeaturedMatchNew] Learning from ${uniqueFixtures.length} fixtures for translation improvement`);
+          
+          // Additional league-specific learning for comprehensive coverage
+          smartLeagueCountryTranslation.learnFromFixtures(uniqueFixtures);
+          console.log(`🎓 [MyHomeFeaturedMatchNew] Enhanced league learning from ${uniqueFixtures.length} fixtures for better coverage`);
         } catch (error) {
           console.warn('Error learning from fixtures:', error);
         }
