@@ -28,6 +28,7 @@ import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { teamColorMap } from "@/lib/colorExtractor";
 import { useTranslation } from "react-i18next"; // Import useTranslation
 import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
+import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
 interface Standing {
   rank: number;
@@ -89,6 +90,12 @@ const LeagueStandingsFilter = () => {
     // Use smart team translation system with current language
     const currentLanguage = i18n?.language || 'zh-hk';
     return smartTeamTranslation.translateTeamName(teamName, currentLanguage);
+  };
+
+  // Function to get translated group text
+  const getTranslatedGroupText = (groupText: string): string => {
+    const currentLanguage = i18n?.language || 'zh-hk';
+    return smartLeagueCountryTranslation.translateText(groupText, currentLanguage);
   };
 
   useEffect(() => {
@@ -845,7 +852,7 @@ const LeagueStandingsFilter = () => {
                   (group: Standing[], groupIndex: number) => (
                     <div key={groupIndex}>
                       <h3 className="text-xs font-regular mx-2 pt-2 mt-4 border-t border-b border-gray-300 dark:border-white mb-2 text-gray-700 dark:text-white flex items-center pb-1">
-                        Group {String.fromCharCode(65 + groupIndex)}
+                        {getTranslatedGroupText(`Group ${String.fromCharCode(65 + groupIndex)}`)}
                       </h3>
                       <Table>
                         <TableHeader>
