@@ -45,12 +45,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       const controller = new AbortController();
       
       try {
-        // Set up timeout that only aborts if request is still pending
+        // Set up timeout that only aborts if request is still pending - increased to 60 seconds
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 30 seconds');
+            controller.abort('Request timeout after 60 seconds');
           }
-        }, 30000);
+        }, 60000);
 
         const response = await fetch(`/api/fixtures/date/${validDate}?all=true`, {
           signal: controller.signal,
@@ -107,7 +107,15 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     staleTime: CACHE_DURATIONS.ONE_HOUR,
     gcTime: CACHE_DURATIONS.SIX_HOURS,
     refetchOnWindowFocus: false,
-    retry: false, // Disable retries to prevent cascading errors
+    retry: (failureCount, error: any) => {
+      // Only retry on timeout errors, max 2 retries
+      if (error?.message?.includes('timeout') && failureCount < 2) {
+        console.log(`🔄 [CentralDataProvider] Retry attempt ${failureCount + 1} for ${validDate}`);
+        return true;
+      }
+      return false;
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // Exponential backoff
     throwOnError: false, // Don't throw errors to prevent unhandled rejections
     enabled: !!validDate,
   });
@@ -127,12 +135,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       const controller = new AbortController();
       
       try {
-        // Set up timeout that only aborts if request is still pending
+        // Set up timeout that only aborts if request is still pending - increased for consistency
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 15 seconds');
+            controller.abort('Request timeout after 30 seconds');
           }
-        }, 15000);
+        }, 30000);
 
         const response = await fetch('/api/fixtures/live', {
           signal: controller.signal,

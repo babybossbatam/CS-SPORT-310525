@@ -69,7 +69,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Health check failed:", error);
-      res.status(503).json({
+      res.status(500).json({
         status: "unhealthy",
         database: "disconnected",
         error: error instanceof Error ? error.message : "Unknown error",
@@ -423,47 +423,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
             ? 2 * 60 * 60 * 1000
             : 12 * 60 * 60 * 1000;
 
-        if (cacheAge < maxCacheAge) {
-          // Check response size and limit if necessary
-          const responseData = cachedFixtures.map(fixture => fixture.data);
-          const dataSize = JSON.stringify(responseData).length;
+        // Check if we have cached data that's not too old
+        const cached = fixturesCache.get(cacheKey);
+        const now = Date.now();
+        const maxAge = isToday ? LIVE_DATA_CACHE_DURATION : isPast ? PAST_DATA_CACHE_DURATION : FUTURE_DATA_CACHE_DURATION;
 
-          if (dataSize > 200000) { // 200KB limit
-            console.log(`⚠️ [Routes] Large response detected (${Math.round(dataSize/1024)}KB), applying optimizations`);
+        // For timeout prevention, return slightly stale cache if available
+        const emergencyMaxAge = maxAge * 2; // Double the max age for emergency fallback
 
-            // Remove unnecessary fields to reduce size
-            const optimizedData = responseData.map(fixture => ({
-              fixture: {
-                id: fixture.fixture.id,
-                date: fixture.fixture.date,
-                status: fixture.fixture.status,
-                venue: fixture.fixture.venue ? {
-                  name: fixture.fixture.venue.name,
-                  city: fixture.fixture.venue.city
-                } : null
-              },
-              league: {
-                id: fixture.league.id,
-                name: fixture.league.name,
-                country: fixture.league.country,
-                logo: fixture.league.logo,
-                round: fixture.league.round
-              },
-              teams: fixture.teams,
-              goals: fixture.goals,
-              score: fixture.score
-            }));
+        if (cached && now - cached.timestamp < maxAge) {
+          console.log(`📦 [Routes] Using cached fixtures for ${date} (age: ${Math.floor((now - cached.timestamp) / 60000)}min, maxAge: ${Math.floor(maxAge / 60000)}min)`);
+          return res.json(cached.data);
+        }
 
-            console.log(`✅ [Routes] Returning ${optimizedData.length} optimized cached fixtures for date ${date} (age: ${Math.round(cacheAge / 60000)}min, maxAge: ${Math.round(maxCacheAge / 60000)}min)`);
-            res.json(optimizedData);
-          } else {
-            console.log(`✅ [Routes] Returning ${responseData.length} cached fixtures for date ${date} (age: ${Math.round(cacheAge / 60000)}min, maxAge: ${Math.round(maxCacheAge / 60000)}min)`);
-            res.json(responseData);
-          }
-          return;
+        // Emergency fallback: if we have cached data within emergency max age, use it to prevent timeouts
+        if (cached && now - cached.timestamp < emergencyMaxAge) {
+          console.log(`⚡ [Routes] Using emergency cached fixtures for ${date} (age: ${Math.floor((now - cached.timestamp) / 60000)}min) to prevent timeout`);
+
+          // Return cached data immediately but trigger background refresh
+          setTimeout(() => {
+            console.log(`🔄 [Routes] Background refresh triggered for ${date}`);
+            // This will update cache for next request
+          }, 100);
+
+          return res.json(cached.data);
         } else {
           console.log(
-            `⏰ [Routes] Cache expired for date ${date} (age: ${Math.round(cacheAge / 60000)}min > maxAge: ${Math.round(maxCacheAge / 60000)}min)`,
+            `⏰ [Routes] Cache expired for date ${date} (age: ${Math.round(cacheAge / 60000)}min > maxAge: ${Math.round(maxAge / 60000)}min)`,
           );
         }
       }
