@@ -47,7 +47,7 @@ import "../../styles/flasheffect.css";
 import MyCountryGroupFlag from "../common/MyCountryGroupFlag";
 import { useDebounceCallback, batchDOMUpdates } from "../../lib/performanceOptimizations";
 // Import translation hook and utility
-import { useTranslation } from "@/lib/language";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -143,7 +143,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   onMatchCardClick,
 }) => {
   // Initialize translation hook
-  const { translateLeague, translateTeam, currentLanguage } = useTranslation();
+  const { translateLeagueName: translateLeague, translateTeamName: translateTeam, currentLanguage } = useLanguage();
 
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
