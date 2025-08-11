@@ -6,6 +6,7 @@ import { getCachedFixturesForDate } from "@/lib/fixtureCache";
 import { format, parseISO } from "date-fns";
 import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
+import { autoLearningTrigger } from "@/lib/autoLearningTrigger";
 import { useTranslation } from "@/contexts/LanguageContext";
 import {
   Select,
@@ -559,7 +560,17 @@ const LeagueStandingsFilter = () => {
             data.league.name, 
             data.league.country
           );
+          
+          // Trigger auto-learning for league
+          autoLearningTrigger.addLeagueForLearning(data.league.name, data.league.country);
         }
+        
+        // Trigger auto-learning for all teams in standings
+        allTeams.forEach(team => {
+          if (team?.team?.name) {
+            autoLearningTrigger.addTeamForLearning(team.team.name);
+          }
+        });
       }
       
       return data;

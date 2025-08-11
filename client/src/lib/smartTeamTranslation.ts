@@ -943,6 +943,46 @@ class SmartTeamTranslation {
     },
 
     // Portuguese teams
+    'FC Porto': {
+      'zh': '波尔图', 'zh-hk': '波圖', 'zh-tw': '波爾圖',
+      'es': 'Oporto', 'de': 'Porto', 'it': 'Porto', 'pt': 'Porto'
+    },
+    'Porto': {
+      'zh': '波尔图', 'zh-hk': '波圖', 'zh-tw': '波爾圖',
+      'es': 'Oporto', 'de': 'Porto', 'it': 'Porto', 'pt': 'Porto'
+    },
+    'Benfica': {
+      'zh': '本菲卡', 'zh-hk': '賓菲加', 'zh-tw': '本菲卡',
+      'es': 'Benfica', 'de': 'Benfica', 'it': 'Benfica', 'pt': 'Benfica'
+    },
+    'SL Benfica': {
+      'zh': '本菲卡', 'zh-hk': '賓菲加', 'zh-tw': '本菲卡',
+      'es': 'SL Benfica', 'de': 'SL Benfica', 'it': 'SL Benfica', 'pt': 'SL Benfica'
+    },
+    'Sporting CP': {
+      'zh': '里斯本竞技', 'zh-hk': '士砵亭', 'zh-tw': '里斯本競技',
+      'es': 'Sporting de Lisboa', 'de': 'Sporting Lissabon', 'it': 'Sporting Lisbona', 'pt': 'Sporting'
+    },
+    'Sporting Lisbon': {
+      'zh': '里斯本竞技', 'zh-hk': '士砵亭', 'zh-tw': '里斯本競技',
+      'es': 'Sporting de Lisboa', 'de': 'Sporting Lissabon', 'it': 'Sporting Lisbona', 'pt': 'Sporting'
+    },
+    'SC Braga': {
+      'zh': '布拉加', 'zh-hk': '布拉加', 'zh-tw': '布拉加',
+      'es': 'SC Braga', 'de': 'SC Braga', 'it': 'SC Braga', 'pt': 'SC Braga'
+    },
+    'Braga': {
+      'zh': '布拉加', 'zh-hk': '布拉加', 'zh-tw': '布拉加',
+      'es': 'Braga', 'de': 'Braga', 'it': 'Braga', 'pt': 'Braga'
+    },
+    'Vitória Guimarães': {
+      'zh': '吉马良斯', 'zh-hk': '吉馬良斯', 'zh-tw': '吉馬良斯',
+      'es': 'Vitória Guimarães', 'de': 'Vitória Guimarães', 'it': 'Vitória Guimarães', 'pt': 'Vitória Guimarães'
+    },
+    'Boavista': {
+      'zh': '博阿维斯塔', 'zh-hk': '博阿維斯塔', 'zh-tw': '博阿維斯塔',
+      'es': 'Boavista', 'de': 'Boavista', 'it': 'Boavista', 'pt': 'Boavista'
+    },
     'Portugaleᴛᴇ': {
       'zh': '葡萄牙人', 'zh-hk': '葡萄牙人', 'zh-tw': '葡萄牙人',
       'es': 'Portugaleᴛᴇ', 'de': 'Portugaleᴛᴇ', 'it': 'Portugaleᴛᴇ', 'pt': 'Portugaleᴛᴇ'
@@ -2281,6 +2321,14 @@ class SmartTeamTranslation {
 
     // Common patterns for automatic translation
     const translationPatterns = {
+      // Portuguese teams
+      'porto': { zh: '波尔图', zhHk: '波圖', zhTw: '波爾圖' },
+      'benfica': { zh: '本菲卡', zhHk: '賓菲加', zhTw: '本菲卡' },
+      'sporting': { zh: '里斯本竞技', zhHk: '士砵亭', zhTw: '里斯本競技' },
+      'braga': { zh: '布拉加', zhHk: '布拉加', zhTw: '布拉加' },
+      'guimarães': { zh: '吉马良斯', zhHk: '吉馬良斯', zhTw: '吉馬良斯' },
+      'boavista': { zh: '博阿维斯塔', zhHk: '博阿維斯塔', zhTw: '博阿維斯塔' },
+      
       // Portuguese/Brazilian teams
       'santos': { zh: '桑托斯', zhHk: '山度士', zhTw: '山度士' },
       'flamengo': { zh: '弗拉门戈', zhHk: '法林明高', zhTw: '弗拉門戈' },
