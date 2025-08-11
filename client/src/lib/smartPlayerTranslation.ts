@@ -1,4 +1,3 @@
-
 interface PlayerTranslation {
   [key: string]: {
     en: string;
@@ -177,7 +176,7 @@ class SmartPlayerTranslation {
       hr: 'Defenzivni vezni', sr: 'Дефанзивни везни', sl: 'Obrambni vezni', et: 'Kaitsev poolkaitsja', lv: 'Aizsargājošs pussargs',
       lt: 'Gynybinis saugos žaidėjas', mt: 'Midfield difensiv', ga: 'Lár páirce cosanta', cy: 'Canol cae amddiffynnol', is: 'Varnarmiðjumadur',
       mk: 'Одбранбен средноредец', sq: 'Mesfushor mbrojtëse', eu: 'Erdilari defendatzaile', ca: 'Migcampista defensiu', gl: 'Mediocampista defensivo',
-      he: 'קשר הגנתי', hi: 'रक्षात्मक मिडफील्डर', th: 'กองกลางรับ', vi: 'Tiền vệ phòng ngự', id: 'Gelandang bertahan',
+      he: 'קשר הגנתי', hi: ' रक्षात्मक मिडफील्डर', th: 'กองกลางรับ', vi: 'Tiền vệ phòng ngự', id: 'Gelandang bertahan',
       ms: 'Pemain tengah pertahanan', uk: 'Оборонний półзахисник', be: 'Абарончы паўзахіснік'
     },
 
@@ -260,8 +259,6 @@ class SmartPlayerTranslation {
     }
   };
 
-  constructor() {</old_str>
-
   constructor() {
     this.loadLearnedMappings();
     this.integrateAutomatedMappings();
@@ -325,7 +322,7 @@ class SmartPlayerTranslation {
       if (player.position) {
         const normalizedPosition = this.normalizePosition(player.position);
         const existingPositionMapping = this.learnedPositionMappings.get(normalizedPosition);
-        
+
         if (!existingPositionMapping) {
           const newPositionMapping = this.generatePositionMapping(normalizedPosition);
           this.learnedPositionMappings.set(normalizedPosition, newPositionMapping);
@@ -342,10 +339,10 @@ class SmartPlayerTranslation {
 
   private normalizePosition(position: string): string {
     if (!position) return '';
-    
+
     // Normalize common position variations
     const normalized = position.toLowerCase().trim();
-    
+
     // Map common variations to standard names
     const positionMap: { [key: string]: string } = {
       'cf': 'Centre-Forward',
@@ -384,7 +381,7 @@ class SmartPlayerTranslation {
     // For now, return the original name for all languages
     // This can be enhanced with actual translation logic
     const mapping: any = {};
-    
+
     Object.keys(this.popularPlayerPositions.Forward).forEach(lang => {
       mapping[lang] = playerName;
     });
@@ -448,7 +445,7 @@ class SmartPlayerTranslation {
     if (!position) return;
 
     const normalizedPosition = this.normalizePosition(position);
-    
+
     if (!this.learnedPositionMappings.has(normalizedPosition)) {
       const newMapping = this.generatePositionMapping(normalizedPosition);
       this.learnedPositionMappings.set(normalizedPosition, newMapping);
