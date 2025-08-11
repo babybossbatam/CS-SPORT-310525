@@ -160,7 +160,7 @@ export function RoundBadge({
   currentRound,
   matchStatus 
 }: RoundBadgeProps) {
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   
   const { data: roundData, isLoading } = useQuery({
     queryKey: ["league-rounds", leagueId, season],
@@ -200,11 +200,25 @@ export function RoundBadge({
         
         if (rule.format && match) {
           const formatValue = rule.format(match);
-          // Use the t() function directly with proper key lookup
-          translatedText = t(rule.translationKey).replace('{{value}}', formatValue);
+          // Handle nested translation objects
+          const translation = t(rule.translationKey);
+          if (typeof translation === 'object' && translation[currentLanguage]) {
+            translatedText = translation[currentLanguage].replace('{{value}}', formatValue);
+          } else if (typeof translation === 'string') {
+            translatedText = translation.replace('{{value}}', formatValue);
+          } else {
+            translatedText = `${formatValue} Round`; // fallback
+          }
         } else {
-          // Use the t() function directly for simple translations
-          translatedText = t(rule.translationKey);
+          // Handle nested translation objects for simple translations
+          const translation = t(rule.translationKey);
+          if (typeof translation === 'object' && translation[currentLanguage]) {
+            translatedText = translation[currentLanguage];
+          } else if (typeof translation === 'string') {
+            translatedText = translation;
+          } else {
+            translatedText = rule.translationKey; // fallback to key name
+          }
         }
         
         // Cache the learned translation
