@@ -45,12 +45,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       const controller = new AbortController();
       
       try {
-        // Set up timeout that only aborts if request is still pending - increased to 60 seconds
+        // Set up timeout that only aborts if request is still pending - reduced to 30 seconds
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 60 seconds');
+            controller.abort('Request timeout after 30 seconds');
           }
-        }, 60000);
+        }, 30000);
 
         const response = await fetch(`/api/fixtures/date/${validDate}?all=true`, {
           signal: controller.signal,
@@ -88,6 +88,15 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           fixtures: basicFiltered as any
         }));
 
+        // Cache successful response in localStorage for fallback
+        try {
+          const cacheKey = `fixtures_${validDate}`;
+          localStorage.setItem(cacheKey, JSON.stringify(basicFiltered));
+          console.log(`💾 [CentralDataProvider] Cached ${basicFiltered.length} fixtures for ${validDate}`);
+        } catch (cacheError) {
+          console.warn('Failed to cache fixtures:', cacheError);
+        }
+
         return basicFiltered;
       } catch (error: any) {
         // Clear timeout on error
@@ -96,8 +105,25 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           timeoutId = null;
         }
 
-        if (error.name === 'AbortError') {
-          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate}`);
+        if (error.name === 'AbortError' || error.message?.includes('timeout')) {
+          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate} - using cached data if available`);
+          
+          // Try to return cached data from Redux store as fallback
+          const cachedData = [];
+          try {
+            // Check if we have any cached fixtures in localStorage
+            const cacheKey = `fixtures_${validDate}`;
+            const cached = localStorage.getItem(cacheKey);
+            if (cached) {
+              const parsedCache = JSON.parse(cached);
+              if (Array.isArray(parsedCache) && parsedCache.length > 0) {
+                console.log(`📦 [CentralDataProvider] Using localStorage fallback for ${validDate}: ${parsedCache.length} fixtures`);
+                return parsedCache;
+              }
+            }
+          } catch (cacheError) {
+            console.warn('Failed to access cached data:', cacheError);
+          }
         } else {
           console.error(`❌ [CentralDataProvider] Error fetching fixtures for ${validDate}:`, error);
         }
@@ -108,14 +134,14 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     gcTime: CACHE_DURATIONS.SIX_HOURS,
     refetchOnWindowFocus: false,
     retry: (failureCount, error: any) => {
-      // Only retry on timeout errors, max 2 retries
-      if (error?.message?.includes('timeout') && failureCount < 2) {
+      // Only retry on timeout errors, max 1 retry to avoid long delays
+      if ((error?.message?.includes('timeout') || error?.name === 'AbortError') && failureCount < 1) {
         console.log(`🔄 [CentralDataProvider] Retry attempt ${failureCount + 1} for ${validDate}`);
         return true;
       }
       return false;
     },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // Exponential backoff
+    retryDelay: (attemptIndex) => Math.min(2000 * 2 ** attemptIndex, 5000), // Faster exponential backoff
     throwOnError: false, // Don't throw errors to prevent unhandled rejections
     enabled: !!validDate,
   });
