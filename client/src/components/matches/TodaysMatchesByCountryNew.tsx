@@ -251,12 +251,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         // For live data, allow more retries
         return failureCount < 3;
       },
-    }
+    },
   );
 
   // Error handling with user-friendly messages
   const error = queryError ? (
-    queryError instanceof Error ? 
+    queryError instanceof Error ?
       queryError.message.includes('Failed to fetch') || queryError.message.includes('NetworkError') ?
         "Network connection issue. Please check your internet connection and try again." :
       queryError.message.includes('timeout') ?
@@ -1207,8 +1207,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                       (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
 
                     // Only count as live if status indicates live and match is not stale
-                    return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) && 
-                           !isStaleFinishedMatch && 
+                    return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) &&
+                           !isStaleFinishedMatch &&
                            hoursOld <= 4;
                   }).length
                 );
@@ -1411,17 +1411,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       fontSize: "13.3px",
                                     }}
                                   >
-                                    {(() => {
-                                      const leagueName = safeSubstring(leagueData.league.name, 0) || "Unknown League";
-                                      const translated = translateLeague(leagueName);
-
-                                      // Log translation if it actually translated
-                                      if (translated !== leagueName) {
-                                        console.log(`⚽ [League Translation] ${leagueName} → ${translated} (${currentLanguage})`);
-                                      }
-
-                                      return translated;
-                                    })()}
+                                    {translateLeague(safeSubstring(leagueData.league.name, 0) || "Unknown League")}
                                   </span>
                                   <span
                                     className="text-gray-500 dark:text-white"
@@ -1447,8 +1437,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                           (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
 
                                         // Only count as live if status indicates live and match is not stale
-                                        return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) && 
-                                               !isStaleFinishedMatch && 
+                                        return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) &&
+                                               !isStaleFinishedMatch &&
                                                hoursOld <= 4;
                                       }).length;
 
