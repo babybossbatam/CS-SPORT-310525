@@ -26,9 +26,9 @@ import {
 import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { teamColorMap } from "@/lib/colorExtractor";
-import { useTranslation } from "next-i18next";
 import { smartLeagueCountryTranslation } from '@/lib/smartLeagueCountryTranslation';
 import { translateLeagueName, useLeagueNameTranslation } from '@/lib/leagueNameMapping';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Standing {
   rank: number;
@@ -83,7 +83,7 @@ const LeagueStandingsFilter = () => {
   const [selectedLeague, setSelectedLeague] = useState("");
   const [selectedLeagueName, setSelectedLeagueName] = useState("");
   const [leaguesLoading, setLeaguesLoading] = useState(true);
-  const { currentLanguage } = useTranslation();
+  const { currentLanguage } = useLanguage();
   const { translateLeague } = useLeagueNameTranslation();
 
   useEffect(() => {
