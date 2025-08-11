@@ -2582,11 +2582,16 @@ id: fixture.teams.away.id,
                                 displayVenue = null; // No valid venue found
                               }
 
+                              // Format venue name with proper capitalization
+                              const formattedVenue = displayVenue ? 
+                                displayVenue.toLowerCase().replace(/\b\w/g, l => l.toUpperCase()) : 
+                                null;
+
                               // Show date, time, and venue for ALL match types (upcoming, live, ended)
                               return (
                                 <>
                                   {translatedDate} | {timeOnly}
-                                  {displayVenue ? ` | ${displayVenue.toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}` : ""}
+                                  {formattedVenue ? ` | ${formattedVenue}` : ""}
                                 </>
                               );
                             } catch (e) {
