@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import { apiRequest } from "@/lib/queryClient"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useLanguage } from "@/contexts/LanguageContext"
+import { useTranslation } from "@/contexts/LanguageContext"
 
 interface RoundBadgeProps {
   leagueId: number
@@ -26,7 +26,7 @@ export function RoundBadge({
   currentRound,
   matchStatus 
 }: RoundBadgeProps) {
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const { data: roundData, isLoading } = useQuery({
     queryKey: ["league-rounds", leagueId, season],
     queryFn: async () => {
