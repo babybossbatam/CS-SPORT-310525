@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import { apiRequest } from "@/lib/queryClient"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface RoundBadgeProps {
   leagueId: number
@@ -25,6 +26,7 @@ export function RoundBadge({
   currentRound,
   matchStatus 
 }: RoundBadgeProps) {
+  const { translate } = useLanguage();
   const { data: roundData, isLoading } = useQuery({
     queryKey: ["league-rounds", leagueId, season],
     queryFn: async () => {
@@ -53,7 +55,8 @@ export function RoundBadge({
       const match = lowerRound.match(/(\d+)(st|nd|rd|th)\s+round/);
       if (match) {
         const roundNumber = match[1];
-        return `${roundNumber}${match[2]} Round`;
+        const suffix = match[2];
+        return translate('numbered_round', `${roundNumber}${suffix} Round`);
       }
     }
 
@@ -65,56 +68,58 @@ export function RoundBadge({
         const suffix = roundNumber === 1 ? 'st' : 
                       roundNumber === 2 ? 'nd' : 
                       roundNumber === 3 ? 'rd' : 'th';
-        return `${roundNumber}${suffix} Round`;
+        return translate('numbered_round', `${roundNumber}${suffix} Round`);
       }
     }
 
     // Handle specific round formats
     if (lowerRound.includes("final") && !lowerRound.includes("semi") && !lowerRound.includes("quarter")) {
-      return "Final";
+      return translate('final', 'Final');
     }
     if (lowerRound.includes("semi")) {
-      return "Semi-Final";
+      return translate('semi_final', 'Semi-Final');
     }
     if (lowerRound.includes("quarter")) {
-      return "Quarter-Final";
+      return translate('quarter_final', 'Quarter-Final');
     }
     if (lowerRound.includes("round of 16") || lowerRound.includes("r16")) {
-      return "Round of 16";
+      return translate('round_of_16', 'Round of 16');
     }
     if (lowerRound.includes("round of 32") || lowerRound.includes("r32")) {
-      return "Round of 32";
+      return translate('round_of_32', 'Round of 32');
     }
     if (lowerRound.includes("group")) {
-      return "Group Stage";
+      return translate('group_stage', 'Group Stage');
     }
     if (lowerRound.includes("league phase")) {
-      return "League Phase";
+      return translate('league_phase', 'League Phase');
     }
     if (lowerRound.includes("knockout")) {
-      return "Knockout Phase";
+      return translate('knockout_phase', 'Knockout Phase');
     }
 
     // Handle friendlies (only for actual friendly leagues)
     if (lowerLeague.includes("friendlies") || lowerLeague.includes("friendly")) {
       if (lowerRound.includes("summer") || lowerRound.includes("4")) {
-        return "Summer Friendlies";
+        return translate('summer_friendlies', 'Summer Friendlies');
       }
       if (lowerRound.includes("winter") || lowerRound.includes("3")) {
-        return "Winter Friendlies";
+        return translate('winter_friendlies', 'Winter Friendlies');
       }
       if (lowerRound.includes("pre") || lowerRound.includes("1")) {
-        return "Pre-Season";
+        return translate('pre_season', 'Pre-Season');
       }
-      return "Club Friendlies";
+      return translate('club_friendlies', 'Club Friendlies');
     }
 
     // Handle regular rounds
     if (lowerRound.match(/round \d+/)) {
-      return round.replace(/round (\d+)/i, "R$1");
+      const roundNum = round.match(/(\d+)/)?.[1];
+      return `R${roundNum}`;
     }
     if (lowerRound.match(/matchday \d+/)) {
-      return round.replace(/matchday (\d+)/i, "MD$1");
+      const matchdayNum = round.match(/(\d+)/)?.[1];
+      return `MD${matchdayNum}`;
     }
 
     return round.length > 20 ? round.substring(0, 17) + "..." : round;
