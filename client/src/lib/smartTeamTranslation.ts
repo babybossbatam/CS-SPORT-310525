@@ -2415,6 +2415,120 @@ class SmartTeamTranslation {
     };
   }
 
+  // Load learned mappings from localStorage
+  private loadLearnedMappings(): void {
+    try {
+      const storedMappings = localStorage.getItem('learnedTeamMappings');
+      if (storedMappings) {
+        const parsedMappings = JSON.parse(storedMappings);
+        this.learnedTeamMappings = new Map(Object.entries(parsedMappings));
+        console.log(`🎓 [SmartTranslation] Loaded ${this.learnedTeamMappings.size} learned team mappings`);
+      }
+    } catch (error) {
+      console.warn('Failed to load learned team mappings:', error);
+      this.learnedTeamMappings = new Map();
+    }
+  }
+
+  // Save learned mappings to localStorage
+  private saveLearnedMappings(): void {
+    try {
+      const mappingsObject = Object.fromEntries(this.learnedTeamMappings);
+      localStorage.setItem('learnedTeamMappings', JSON.stringify(mappingsObject));
+      console.log(`💾 [SmartTranslation] Saved ${this.learnedTeamMappings.size} learned team mappings`);
+    } catch (error) {
+      console.warn('Failed to save learned team mappings:', error);
+    }
+  }
+
+  // Clear cache
+  clearCache(): void {
+    this.teamCache.clear();
+    this.translationCache.clear();
+    console.log('🧹 [SmartTranslation] Cache cleared');
+  }
+
+  // Fix corrupted cache entries
+  private fixCorruptedCache(): void {
+    try {
+      // Clean up any corrupted cache entries
+      const keysToRemove: string[] = [];
+      
+      this.teamCache.forEach((value, key) => {
+        if (value === null || value === undefined || value === '') {
+          keysToRemove.push(key);
+        }
+      });
+
+      keysToRemove.forEach(key => this.teamCache.delete(key));
+      
+      if (keysToRemove.length > 0) {
+        console.log(`🔧 [SmartTranslation] Fixed ${keysToRemove.length} corrupted cache entries`);
+      }
+    } catch (error) {
+      console.warn('Failed to fix corrupted cache:', error);
+    }
+  }
+
+  // Generate phonetic translation for team names
+  private generatePhoneticTranslation(teamName: string): string {
+    if (!teamName) return teamName;
+
+    // Basic phonetic translation mapping for common football terms
+    const phoneticMappings: Record<string, string> = {
+      'fc': '足球俱乐部',
+      'club': '俱乐部',
+      'united': '联队',
+      'city': '城',
+      'town': '镇',
+      'athletic': '竞技',
+      'sports': '体育',
+      'real': '皇家',
+      'atletico': '竞技',
+      'sporting': '体育',
+      'junior': '青年',
+      'reserve': '预备队',
+      'youth': '青年队'
+    };
+
+    let result = teamName;
+    const words = teamName.toLowerCase().split(/\s+/);
+    
+    // Replace common football terms
+    words.forEach(word => {
+      if (phoneticMappings[word]) {
+        result = result.replace(new RegExp(word, 'gi'), phoneticMappings[word]);
+      }
+    });
+
+    // If no mapping found, return original name (will be used as fallback)
+    return result === teamName ? teamName : result;
+  }
+
+  // Main translation method
+  translate(teamName: string, language: string = 'zh-hk'): string {
+    if (!teamName || this.isLoading) return teamName;
+
+    console.log(`🔤 [SmartTranslation] Translating "${teamName}" to ${language}, isLoading: ${this.isLoading}, cacheSize: ${this.teamCache.size}, leaguesLoaded: ${Object.keys(this.leagueTeamsCache).length}`);
+
+    // Check cache first
+    const cacheKey = `${teamName.toLowerCase()}_${language}`;
+    const cached = this.translationCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < 24 * 60 * 60 * 1000) { // 24 hours
+      return cached.translation;
+    }
+
+    // Try to get translation from popular teams mapping
+    const popularTranslation = this.getPopularTeamTranslation(teamName, language);
+    if (popularTranslation && popularTranslation !== teamName) {
+      this.translationCache.set(cacheKey, { translation: popularTranslation, timestamp: Date.now() });
+      return popularTranslation;
+    }
+
+    // Return original name if no translation found
+    return teamName;
+  }
+
   // Automatically integrate generated team mappings from the automated system
   integrateAutomatedMappings(): void {
     try {
