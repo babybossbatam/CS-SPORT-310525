@@ -1065,7 +1065,12 @@ const LeagueStandingsFilter = () => {
                       onClick={() => window.location.href = `/league/${selectedLeague}/standings`}
                       className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium transition-colors duration-200"
                     >
-                      {selectedLeagueName} Group Standings →
+                      {(() => {
+                        const currentLanguage = i18n?.language || 'zh-hk';
+                        const translatedLeague = smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, currentLanguage);
+                        const translatedStandings = smartLeagueCountryTranslation.translateLeagueName('Group Standings', currentLanguage);
+                        return `${translatedLeague} ${translatedStandings} →`;
+                      })()}
                     </button>
                   </div>
                 )}

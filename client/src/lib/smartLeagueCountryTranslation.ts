@@ -139,6 +139,10 @@ class SmartLeagueCountryTranslation {
       'zh': 'FIFA世界俱乐部杯', 'zh-hk': 'FIFA世界冠軍球會盃', 'zh-tw': 'FIFA世界冠軍球會盃',
       'es': 'Copa Mundial de Clubes FIFA', 'de': 'FIFA Klub-Weltmeisterschaft', 'it': 'Coppa del Mondo per club FIFA', 'pt': 'Copa do Mundo de Clubes da FIFA'
     },
+    'Group Standings': {
+      'zh': '小组积分榜', 'zh-hk': '小組積分榜', 'zh-tw': '小組積分榜',
+      'es': 'Clasificación de Grupos', 'de': 'Gruppentabelle', 'it': 'Classifica Gironi', 'pt': 'Classificação dos Grupos'
+    },
     'World Cup': {
       'zh': '世界杯', 'zh-hk': '世界盃', 'zh-tw': '世界盃',
       'es': 'Copa del Mundo', 'de': 'Weltmeisterschaft', 'it': 'Coppa del Mondo', 'pt': 'Copa do Mundo'
