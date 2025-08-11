@@ -1273,9 +1273,9 @@ const HomeTopScorersList = () => {
                             {translatedTeamName}
                           </p>
                         )}
-                        {playerCountry && (
+                        {translatedCountry && (
                           <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                            {translatedCountry && translatedCountry !== playerCountry && !translatedCountry.includes(playerCountry) ? translatedCountry : playerCountry}
+                            {translatedCountry}
                           </p>
                         )}
                       </div>
