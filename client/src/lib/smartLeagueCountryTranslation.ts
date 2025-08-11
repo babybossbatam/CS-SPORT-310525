@@ -42,6 +42,40 @@ class SmartLeagueCountryTranslation {
 
   // Core league translations
   private coreLeagueTranslations: LeagueTranslation = {
+    // Group texts for tournaments
+    'Group A': {
+      'zh': 'A组', 'zh-hk': 'A組', 'zh-tw': 'A組',
+      'es': 'Grupo A', 'de': 'Gruppe A', 'it': 'Gruppo A', 'pt': 'Grupo A'
+    },
+    'Group B': {
+      'zh': 'B组', 'zh-hk': 'B組', 'zh-tw': 'B組',
+      'es': 'Grupo B', 'de': 'Gruppe B', 'it': 'Gruppo B', 'pt': 'Grupo B'
+    },
+    'Group C': {
+      'zh': 'C组', 'zh-hk': 'C組', 'zh-tw': 'C組',
+      'es': 'Grupo C', 'de': 'Gruppe C', 'it': 'Gruppo C', 'pt': 'Grupo C'
+    },
+    'Group D': {
+      'zh': 'D组', 'zh-hk': 'D組', 'zh-tw': 'D組',
+      'es': 'Grupo D', 'de': 'Gruppe D', 'it': 'Gruppo D', 'pt': 'Grupo D'
+    },
+    'Group E': {
+      'zh': 'E组', 'zh-hk': 'E組', 'zh-tw': 'E組',
+      'es': 'Grupo E', 'de': 'Gruppe E', 'it': 'Gruppo E', 'pt': 'Grupo E'
+    },
+    'Group F': {
+      'zh': 'F组', 'zh-hk': 'F組', 'zh-tw': 'F組',
+      'es': 'Grupo F', 'de': 'Gruppe F', 'it': 'Gruppo F', 'pt': 'Grupo F'
+    },
+    'Group G': {
+      'zh': 'G组', 'zh-hk': 'G組', 'zh-tw': 'G組',
+      'es': 'Grupo G', 'de': 'Gruppe G', 'it': 'Gruppo G', 'pt': 'Grupo G'
+    },
+    'Group H': {
+      'zh': 'H组', 'zh-hk': 'H組', 'zh-tw': 'H組',
+      'es': 'Grupo H', 'de': 'Gruppe H', 'it': 'Gruppo H', 'pt': 'Grupo H'
+    },
+
     // UEFA Competitions
     'UEFA Champions League': {
       'zh': 'UEFA欧洲冠军联赛', 'zh-hk': 'UEFA歐洲冠軍聯賽', 'zh-tw': 'UEFA歐洲冠軍聯賽',
