@@ -46,6 +46,7 @@ import "../../styles/TodaysMatchByCountryNew.css";
 import "../../styles/flasheffect.css";
 import MyCountryGroupFlag from "../common/MyCountryGroupFlag";
 import { useDebounceCallback, batchDOMUpdates } from "../../lib/performanceOptimizations";
+import { autoLearningService } from "@/lib/autoLearningService";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -343,7 +344,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     });
   }, [fixtures, selectedDate]);
 
-  // Smart fixture processing with deduplication like MyNewLeague2
+  // Smart fixture processing with deduplication and automatic learning
   const processedFixtures = useMemo(() => {
     if (!fixtures || fixtures.length === 0) return [];
 
@@ -369,6 +370,16 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     });
 
     console.log(`🔄 [TodaysMatchesByCountryNew] Processed ${fixtures.length} fixtures → ${deduplicatedFixtures.length} after deduplication`);
+
+    // Automatic learning integration via background service
+    if (deduplicatedFixtures.length > 0) {
+      try {
+        // Add fixtures to auto-learning queue for background processing
+        autoLearningService.addFixturesToQueue(deduplicatedFixtures);
+      } catch (error) {
+        console.warn('⚠️ [Auto-Learning] Error adding fixtures to learning queue:', error);
+      }
+    }
 
     return deduplicatedFixtures;
   }, [fixtures]);
