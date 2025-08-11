@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
 import { CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Add CSS to hide scrollbars
 const scrollbarHideStyle = `
@@ -180,6 +182,7 @@ interface PlayerStatistics {
 
 const HomeTopScorersList = () => {
   const [, navigate] = useLocation();
+  const { currentLanguage } = useLanguage();
   const [availableLeagues, setAvailableLeagues] = useState<
     typeof POPULAR_LEAGUES
   >([]);
@@ -467,10 +470,14 @@ const HomeTopScorersList = () => {
 
   const getLeagueDisplayName = (leagueId: number) => {
     const league = availableLeagues.find((l) => l.id === leagueId);
-    const name = league?.name || "League";
+    const originalName = league?.name || "League";
     
-    // Shorten long league names for better display
+    // First translate the league name using the smart translation system
+    const translatedName = smartLeagueCountryTranslation.translateLeagueName(originalName, currentLanguage);
+    
+    // Then apply shortening for display based on translated name
     const shortenedNames: { [key: string]: string } = {
+      // English shortenings
       "World Cup Qualification South America": "WC SA",
       "World Cup Qualification Europe": "WC EU", 
       "World Cup Qualification Africa": "WC AF",
@@ -482,10 +489,34 @@ const HomeTopScorersList = () => {
       "UEFA Conference League": "Conference League",
       "FIFA Club World Cup": "Club World Cup",
       "Egyptian Premier League": "Egyptian PL",
-      "Saudi Pro League": "Saudi League"
+      "Saudi Pro League": "Saudi League",
+      
+      // Chinese Traditional shortenings
+      "AFC挑戰聯賽": "AFC挑戰",
+      "UEFA歐洲冠軍聯賽": "歐冠",
+      "UEFA歐洲聯賽": "歐霸",
+      "UEFA歐洲協會聯賽": "歐協",
+      "FIFA世界冠軍球會盃": "世冠盃",
+      "埃及超級聯賽": "埃及超",
+      
+      // Chinese Simplified shortenings
+      "AFC挑战联赛": "AFC挑战",
+      "UEFA欧洲冠军联赛": "欧冠",
+      "UEFA欧洲联赛": "欧霸",
+      "UEFA欧洲协会联赛": "欧协",
+      "FIFA世界俱乐部杯": "世俱杯",
+      "埃及超级联赛": "埃及超",
+      
+      // Spanish shortenings
+      "Liga Challenge AFC": "AFC Challenge",
+      "Liga de Campeones de la UEFA": "Champions",
+      "Liga Europa de la UEFA": "Europa",
+      "Liga de la Conferencia UEFA": "Conference",
+      "Copa Mundial de Clubes FIFA": "Mundial Clubes"
     };
     
-    return shortenedNames[name] || name;
+    // Return shortened version if available, otherwise return translated name
+    return shortenedNames[translatedName] || shortenedNames[originalName] || translatedName;
   };
 
   // 365scores-style navigation with positioning
@@ -1080,7 +1111,7 @@ const HomeTopScorersList = () => {
                 onClick={() => navigate(`/league/${selectedLeague}/stats`)}
               >
                 <span className="hover:underline transition-all duration-200">
-                  {getCurrentLeague()?.name || "Selected League"} Stats
+                  {smartLeagueCountryTranslation.translateLeagueName(getCurrentLeague()?.name || "Selected League", currentLanguage)} Stats
                 </span>
               </button>
             </div>
