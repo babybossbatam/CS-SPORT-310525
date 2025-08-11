@@ -258,7 +258,7 @@ class SmartPlayerTranslation {
       he: 'תוקף', hi: 'हमलावर', th: 'ผู้โจมตี', vi: 'Kẻ tấn công', id: 'Penyerang',
       ms: 'Penyerang', uk: 'Атакувальний', be: 'Атакавальны'
     }
-  };
+  };</old_str>
 
   constructor() {
     this.loadLearnedMappings();

@@ -175,9 +175,7 @@ const translations = {
       be: 'Папярэдні раўнд'
     },
 
-    numbered_round: {
-      en: '{{value}} Round',
-      ar: 'الدور {{value}}',
+    // Round status translations - numbered_round moved to separate section below
       zh: '第{{value}}轮',
       'zh-hk': '第{{value}}輪',
       fr: '{{value}} tour',
@@ -1142,9 +1140,7 @@ const translations = {
     'club_friendlies': '俱乐部友谊赛',
     'after_extra_time': '加时赛后',
     'starting_now': '即将开始',
-    'day': '天',
-    'days': '天',
-    'match_page': '比赛页面',
+    'match_page': '比赛页面',</old_str>
     'lineups': '阵容',
     'stats': '统计',
     'groups': '小组',
