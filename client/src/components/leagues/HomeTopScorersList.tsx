@@ -1143,12 +1143,44 @@ const HomeTopScorersList = () => {
                 }
 
                 // Translate the team name to the current language with enhanced context
-                const translatedTeamName = teamName ? 
-                  smartPlayerTranslation.translateTeamName(teamName, currentLanguage, {
+                let translatedTeamName = "";
+                if (teamName) {
+                  // First try the smart player translation system
+                  translatedTeamName = smartPlayerTranslation.translateTeamName(teamName, currentLanguage, {
                     leagueId: playerStats?.league?.id,
                     leagueName: playerStats?.league?.name,
                     leagueCountry: playerStats?.league?.country
-                  }) : "";
+                  });
+                  
+                  // If no translation found or it's the same as original, force learn and translate
+                  if (!translatedTeamName || translatedTeamName === teamName) {
+                    // Enhanced learning with forced context
+                    smartPlayerTranslation.autoLearnFromAnyTeamName(teamName, {
+                      playerId: scorer.player.id,
+                      playerName: scorer.player.name,
+                      leagueName: playerStats?.league?.name,
+                      leagueCountry: playerStats?.league?.country,
+                      leagueId: playerStats?.league?.id,
+                      teamId: playerStats?.team?.id,
+                      season: playerStats?.league?.season,
+                      forceContext: true // Add force flag for immediate learning
+                    });
+                    
+                    // Try translation again
+                    translatedTeamName = smartPlayerTranslation.translateTeamName(teamName, currentLanguage, {
+                      leagueId: playerStats?.league?.id,
+                      leagueName: playerStats?.league?.name,
+                      leagueCountry: playerStats?.league?.country
+                    });
+                  }
+                  
+                  // Debug logging for translation status
+                  if (translatedTeamName !== teamName) {
+                    console.log(`✅ [HomeTopScorers] Team translated: "${teamName}" -> "${translatedTeamName}" (${currentLanguage})`);
+                  } else {
+                    console.log(`⚠️ [HomeTopScorers] Team NOT translated: "${teamName}" (${currentLanguage})`);
+                  }
+                }
 
                 // Enhanced country extraction and learning system
                 let playerCountry = smartPlayerTranslation.getPlayerCountry(scorer.player.id);
