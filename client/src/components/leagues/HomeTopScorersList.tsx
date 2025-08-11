@@ -8,6 +8,7 @@ import { TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
 import { CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
+import { smartPlayerTranslation } from "@/lib/smartPlayerTranslation";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 // Add CSS to hide scrollbars
@@ -260,6 +261,25 @@ const HomeTopScorersList = () => {
       if (leagueDataForLearning.length > 0) {
         smartLeagueCountryTranslation.learnFromFixtures(leagueDataForLearning);
         console.log(`🎓 [HomeTopScorers] Auto-learned from ${leagueDataForLearning.length} league data points`);
+      }
+
+      // Auto-learn player names from the collected data
+      const playersForLearning: any[] = [];
+      freshData.forEach((scorer: any) => {
+        if (scorer.player?.name) {
+          playersForLearning.push({
+            name: scorer.player.name,
+            id: scorer.player.id,
+            position: scorer.player.position,
+            team: scorer.statistics[0]?.team?.name,
+            league: scorer.statistics[0]?.league?.name
+          });
+        }
+      });
+
+      if (playersForLearning.length > 0) {
+        smartPlayerTranslation.learnFromPlayerData(playersForLearning);
+        console.log(`🎯 [HomeTopScorers] Auto-learned ${playersForLearning.length} player names for translation`);
       }
 
       // Also auto-learn from available leagues list
@@ -1140,7 +1160,7 @@ const HomeTopScorersList = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <h4 className="font-semibold text-sm text-gray-900 dark:text-white truncate">
-                          {scorer.player.name}
+                          {smartPlayerTranslation.translatePlayerName(scorer.player.name, currentLanguage)}
                         </h4>
                         {position && (
                           <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">

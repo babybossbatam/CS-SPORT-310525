@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { smartTeamTranslation } from '@/lib/smartTeamTranslation';
 import { smartLeagueCountryTranslation } from '@/lib/smartLeagueCountryTranslation';
+import { smartPlayerTranslation } from '@/lib/smartPlayerTranslation';
 
 interface LanguageContextType {
   currentLanguage: string;
