@@ -602,41 +602,25 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const fixturesByCountry = useMemo(() => {
     if (!validFixtures?.length) return {};
 
-    // Pre-filter valid fixtures to reduce processing
-    const filteredFixtures = validFixtures.filter((fixture: any) => {
-      if (!fixture?.league?.country || !fixture?.fixture?.id || !fixture?.teams) return false;
-
-      // Early exclusion check to reduce processing
-      const leagueName = fixture.league.name || "";
-      const homeTeamName = fixture.teams?.home?.name || "";
-      const awayTeamName = fixture.teams?.away?.name || "";
-
-      return !shouldExcludeMatchByCountry(
-        leagueName,
-        homeTeamName,
-        awayTeamName,
-        false,
-        fixture.league.country,
-      );
-    });
-
     const grouped: { [key: string]: { country: string; leagues: any; hasPopularLeague: boolean } } = {};
     const seenIds = new Set<number>();
 
-    // Single pass processing
-    for (const fixture of filteredFixtures) {
-      if (seenIds.has(fixture.fixture.id)) continue;
+    // Single pass processing with minimal operations
+    for (const fixture of validFixtures) {
+      if (!fixture?.league?.country || !fixture?.fixture?.id || !fixture?.teams || seenIds.has(fixture.fixture.id)) continue;
+      
+      // Quick exclusion check
+      if (shouldExcludeMatchByCountry(fixture.league.name || "", fixture.teams?.home?.name || "", fixture.teams?.away?.name || "", false, fixture.league.country)) continue;
+      
       seenIds.add(fixture.fixture.id);
 
       const country = fixture.league.country;
       const leagueId = fixture.league.id;
 
-      // Initialize country if needed
+      // Initialize structures
       if (!grouped[country]) {
         grouped[country] = { country, leagues: {}, hasPopularLeague: false };
       }
-
-      // Initialize league if needed
       if (!grouped[country].leagues[leagueId]) {
         grouped[country].leagues[leagueId] = {
           league: fixture.league,
@@ -648,32 +632,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       grouped[country].leagues[leagueId].matches.push(fixture);
     }
 
-    // Sort matches by priority (moved outside of loop for better performance)
-    const statusPriority = {
-      'LIVE': 1, 'LIV': 1, '1H': 1, 'HT': 1, '2H': 1, 'ET': 1, 'BT': 1, 'P': 1, 'INT': 1,
-      'NS': 2, 'TBD': 2,
-      'FT': 3, 'AET': 3, 'PEN': 3, 'AWD': 3, 'WO': 3, 'ABD': 3, 'CANC': 3, 'SUSP': 3
-    };
-
+    // Batch sort all matches
+    const statusPriority = { 'LIVE': 1, 'LIV': 1, '1H': 1, 'HT': 1, '2H': 1, 'ET': 1, 'BT': 1, 'P': 1, 'INT': 1, 'NS': 2, 'TBD': 2, 'FT': 3, 'AET': 3, 'PEN': 3, 'AWD': 3, 'WO': 3, 'ABD': 3, 'CANC': 3, 'SUSP': 3 };
+    
     Object.values(grouped).forEach((countryGroup) => {
       Object.values(countryGroup.leagues).forEach((leagueGroup: any) => {
         leagueGroup.matches.sort((a: any, b: any) => {
           const aPriority = statusPriority[a.fixture.status.short] || 4;
           const bPriority = statusPriority[b.fixture.status.short] || 4;
-
           if (aPriority !== bPriority) return aPriority - bPriority;
-
           const aDate = new Date(a.fixture.date).getTime();
           const bDate = new Date(b.fixture.date).getTime();
-
-          // Same priority sorting
-          if (aPriority === 1) { // Live matches
+          if (aPriority === 1) {
             const aElapsed = Number(a.fixture.status.elapsed) || 0;
             const bElapsed = Number(b.fixture.status.elapsed) || 0;
             return aElapsed !== bElapsed ? aElapsed - bElapsed : aDate - bDate;
           }
-
-          return aPriority === 2 ? aDate - bDate : bDate - aDate; // Upcoming vs Ended
+          return aPriority === 2 ? aDate - bDate : bDate - aDate;
         });
       });
     });
@@ -772,37 +747,28 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     setExpandedLeagues(firstLeagues);
   }, [selectedDate, Object.keys(fixturesByCountry).length]);
 
-  // Optimized flag fetching with reduced frequency
-  const flagFetchingRef = useRef(new Set<string>());
-
+  // Optimized flag fetching with minimal blocking
   useEffect(() => {
-    if (!validFixtures.length) return;
-
     const countries = Object.keys(fixturesByCountry).filter(Boolean);
-    const missingCountries = countries.filter(
-      (country) => !flagMap[country] && !flagFetchingRef.current.has(country),
-    );
+    if (countries.length === 0) return;
 
-    if (missingCountries.length === 0) return;
-
-    // Mark as being fetched to prevent duplicate calls
-    missingCountries.forEach(country => flagFetchingRef.current.add(country));
-
-    // Batch process flags asynchronously
+    // Use requestIdleCallback for non-blocking flag loading
     requestIdleCallback(() => {
-      const syncFlags: { [country: string]: string } = {};
-      missingCountries.forEach((country) => {
-        const syncFlag = getCountryFlagWithFallbackSync(country);
-        if (syncFlag) {
-          syncFlags[country] = syncFlag;
+      const newFlags: { [country: string]: string } = {};
+      countries.forEach((country) => {
+        if (!flagMap[country]) {
+          const syncFlag = getCountryFlagWithFallbackSync(country);
+          if (syncFlag) {
+            newFlags[country] = syncFlag;
+          }
         }
       });
 
-      if (Object.keys(syncFlags).length > 0) {
-        setFlagMap((prev) => ({ ...prev, ...syncFlags }));
+      if (Object.keys(newFlags).length > 0) {
+        setFlagMap((prev) => ({ ...prev, ...newFlags }));
       }
     });
-  }, [fixturesByCountry, flagMap]); // Simplified dependencies
+  }, [Object.keys(fixturesByCountry).join(',')]);
 
   const toggleCountry = useCallback((country: string) => {
     setExpandedCountries((prev) => {
@@ -1072,36 +1038,36 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
+  // Immediate early return for missing data
+  if (!selectedDate) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center">
+          <Calendar className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+          <p className="text-gray-500">Please select a valid date</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   // Show loading only if we're actually loading and have no data
   if (isLoading && !fixtures.length) {
     return (
       <Card className="mt-4">
         <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
           <div className="flex justify-between items-center w-full">
-            <h3
-              className="font-semibold"
-              style={{
-                fontFamily:
-                  "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                fontSize: "13.3px",
-              }}
-            >
-              {getHeaderTitle()}
-            </h3>
+            <h3 className="font-semibold text-sm">{getHeaderTitle()}</h3>
           </div>
         </CardHeader>
         <CardContent className="p-0">
           <div className="space-y-0">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="border-b border-gray-100 last:border-b-0">
-                <div className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="w-6 h-4 rounded-sm" />
-                    <Skeleton className="h-4 w-28" />
-                    <Skeleton className="h-4 w-8" />
-                    <Skeleton className="h-5 w-12 rounded-full" />
-                  </div>
-                  <Skeleton className="h-4 w-4" />
+              <div key={i} className="border-b border-gray-100 last:border-b-0 p-4">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="w-6 h-4 rounded-sm" />
+                  <Skeleton className="h-4 w-28" />
+                  <Skeleton className="h-4 w-8" />
+                  <Skeleton className="h-5 w-12 rounded-full" />
                 </div>
               </div>
             ))}
@@ -1111,7 +1077,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  if (!validFixtures.length) {
+  // Return early if no data to show
+  if (!validFixtures.length && !isLoading) {
     return null; // Let parent component handle empty state
   }
 
@@ -1667,18 +1634,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                 : ""
                                             }`}
                                           >
-                                            {(() => {
-                                              const teamName = match.teams.home.name || "Unknown Team";
-                                              const translated = translateTeam(teamName);
-                                              const shortened = shortenTeamName(translated);
-
-                                              // Log translation if it actually translated
-                                              if (translated !== teamName) {
-                                                console.log(`🏠 [Home Team Translation] ${teamName} → ${translated} (${currentLanguage})`);
-                                              }
-
-                                              return shortened;
-                                            })()}
+                                            {shortenTeamName(translateTeam(match.teams.home.name || "Unknown Team"))}
                                           </div>
 
                                           {/* Home team logo - grid area */}
@@ -1885,18 +1841,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                 : ""
                                             }`}
                                           >
-                                            {(() => {
-                                              const teamName = match.teams.away.name || "Unknown Team";
-                                              const translated = translateTeam(teamName);
-                                              const shortened = shortenTeamName(translated);
-
-                                              // Log translation if it actually translated
-                                              if (translated !== teamName) {
-                                                console.log(`✈️ [Away Team Translation] ${teamName} → ${translated} (${currentLanguage})`);
-                                              }
-
-                                              return shortened;
-                                            })()}
+                                            {shortenTeamName(translateTeam(match.teams.away.name || "Unknown Team"))}
                                           </div>
                                         </div>
 
