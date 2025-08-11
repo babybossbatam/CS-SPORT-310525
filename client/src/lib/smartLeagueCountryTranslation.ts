@@ -133,6 +133,53 @@ class SmartLeagueCountryTranslation {
       },
 
       // AFC Challenge League
+      'AFC Challenge League': {
+        'en': 'AFC Challenge League',
+        'es': 'Liga Challenge AFC',
+        'zh-hk': 'AFC挑戰聯賽',
+        'zh-tw': 'AFC挑戰聯賽',
+        'zh': 'AFC挑战联赛',
+        'de': 'AFC Challenge League',
+        'it': 'AFC Challenge League',
+        'pt': 'Liga Challenge AFC',
+        'fr': 'Ligue Challenge AFC',
+        'ar': 'دوري تحدي الاتحاد الآسيوي',
+        'ja': 'AFCチャレンジリーグ',
+        'ko': 'AFC 챌린지 리그'
+      },
+
+      // Other AFC competitions
+      'AFC Cup': {
+        'en': 'AFC Cup',
+        'es': 'Copa AFC',
+        'zh-hk': 'AFC盃',
+        'zh-tw': 'AFC盃',
+        'zh': 'AFC杯',
+        'de': 'AFC-Pokal',
+        'it': 'Coppa AFC',
+        'pt': 'Copa AFC',
+        'fr': 'Coupe AFC',
+        'ar': 'كأس الاتحاد الآسيوي',
+        'ja': 'AFCカップ',
+        'ko': 'AFC컵'
+      },
+
+      'AFC Champions League': {
+        'en': 'AFC Champions League',
+        'es': 'Liga de Campeones AFC',
+        'zh-hk': 'AFC冠軍聯賽',
+        'zh-tw': 'AFC冠軍聯賽',
+        'zh': 'AFC冠军联赛',
+        'de': 'AFC Champions League',
+        'it': 'AFC Champions League',
+        'pt': 'Liga dos Campeões AFC',
+        'fr': 'Ligue des Champions AFC',
+        'ar': 'دوري أبطال آسيا',
+        'ja': 'AFCチャンピオンズリーグ',
+        'ko': 'AFC 챔피언스리그'
+      },
+
+      // Additional AFC variations
       'afc challenge league': {
         'en': 'AFC Challenge League',
         'es': 'Liga Challenge AFC',
@@ -144,7 +191,6 @@ class SmartLeagueCountryTranslation {
         'pt': 'Liga Challenge AFC'
       },
 
-      // Other AFC competitions
       'afc cup': {
         'en': 'AFC Cup',
         'es': 'Copa AFC',
@@ -315,21 +361,33 @@ class SmartLeagueCountryTranslation {
       translations.zh = `${this.translateCountryName(countryName, 'zh')}甲级联赛`;
       translations['zh-hk'] = `${this.translateCountryName(countryName, 'zh-hk')}甲級聯賽`;
       translations['zh-tw'] = `${this.translateCountryName(countryName, 'zh-tw')}甲級聯賽`;
-    } else if (lowerName.includes('afc challenge league')) {
-      const country = this.coreCountryTranslations[countryName] || { 'zh': countryName, 'zh-hk': countryName, 'zh-tw': countryName };
-      translations.zh = `${country.zh}挑战联赛`;
-      translations['zh-hk'] = `${country['zh-hk']}挑戰聯賽`;
-      translations['zh-tw'] = `${country['zh-tw']}挑戰聯賽`;
-    } else if (lowerName.includes('afc cup')) {
-      const country = this.coreCountryTranslations[countryName] || { 'zh': countryName, 'zh-hk': countryName, 'zh-tw': countryName };
-      translations.zh = `${country.zh}杯`;
-      translations['zh-hk'] = `${country['zh-hk']}盃`;
-      translations['zh-tw'] = `${country['zh-tw']}盃`;
-    } else if (lowerName.includes('afc champions league')) {
-      const country = this.coreCountryTranslations[countryName] || { 'zh': countryName, 'zh-hk': countryName, 'zh-tw': countryName };
-      translations.zh = `${country.zh}冠军联赛`;
-      translations['zh-hk'] = `${country['zh-hk']}冠軍聯賽`;
-      translations['zh-tw'] = `${country['zh-tw']}冠軍聯賽`;
+    } else if (lowerName.includes('afc challenge league') || lowerName === 'afc challenge league') {
+      translations.zh = 'AFC挑战联赛';
+      translations['zh-hk'] = 'AFC挑戰聯賽';
+      translations['zh-tw'] = 'AFC挑戰聯賽';
+      translations.es = 'Liga Challenge AFC';
+      translations.de = 'AFC Challenge League';
+      translations.it = 'AFC Challenge League';
+      translations.pt = 'Liga Challenge AFC';
+      translations.fr = 'Ligue Challenge AFC';
+    } else if (lowerName.includes('afc cup') || lowerName === 'afc cup') {
+      translations.zh = 'AFC杯';
+      translations['zh-hk'] = 'AFC盃';
+      translations['zh-tw'] = 'AFC盃';
+      translations.es = 'Copa AFC';
+      translations.de = 'AFC-Pokal';
+      translations.it = 'Coppa AFC';
+      translations.pt = 'Copa AFC';
+      translations.fr = 'Coupe AFC';
+    } else if (lowerName.includes('afc champions league') || lowerName === 'afc champions league') {
+      translations.zh = 'AFC冠军联赛';
+      translations['zh-hk'] = 'AFC冠軍聯賽';
+      translations['zh-tw'] = 'AFC冠軍聯賽';
+      translations.es = 'Liga de Campeones AFC';
+      translations.de = 'AFC Champions League';
+      translations.it = 'AFC Champions League';
+      translations.pt = 'Liga dos Campeões AFC';
+      translations.fr = 'Ligue des Champions AFC';
     }
 
 
@@ -371,15 +429,28 @@ class SmartLeagueCountryTranslation {
 
     let translation = leagueName;
 
-    // Try core translations first
+    // Try exact match first
     const coreTranslation = this.coreLeagueTranslations[leagueName];
     if (coreTranslation && coreTranslation[language as keyof typeof coreTranslation]) {
       translation = coreTranslation[language as keyof typeof coreTranslation];
     } else {
-      // Try learned mappings
-      const learned = this.learnedLeagueMappings.get(leagueName);
-      if (learned && learned[language as keyof typeof learned]) {
-        translation = learned[language as keyof typeof learned];
+      // Try case-insensitive match
+      const lowerLeagueName = leagueName.toLowerCase();
+      const coreTranslationLower = this.coreLeagueTranslations[lowerLeagueName];
+      if (coreTranslationLower && coreTranslationLower[language as keyof typeof coreTranslationLower]) {
+        translation = coreTranslationLower[language as keyof typeof coreTranslationLower];
+      } else {
+        // Try learned mappings (exact match)
+        const learned = this.learnedLeagueMappings.get(leagueName);
+        if (learned && learned[language as keyof typeof learned]) {
+          translation = learned[language as keyof typeof learned];
+        } else {
+          // Try learned mappings (case-insensitive)
+          const learnedLower = this.learnedLeagueMappings.get(lowerLeagueName);
+          if (learnedLower && learnedLower[language as keyof typeof learnedLower]) {
+            translation = learnedLower[language as keyof typeof learnedLower];
+          }
+        }
       }
     }
 

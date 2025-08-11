@@ -2271,7 +2271,24 @@ id: fixture.teams.away.id,
                       className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center"
                       title={`League ID: ${currentMatch.league.id} | ${currentMatch.league.name} | ${currentMatch.league.country}`}
                     >
-                      {translateLeagueName(currentMatch.league.name)}
+                      {(() => {
+                        // First try smart league translation
+                        const smartTranslation = smartLeagueCountryTranslation.translateLeagueName(
+                          currentMatch.league.name, 
+                          currentLanguage
+                        );
+                        
+                        // If smart translation worked (different from original), use it
+                        if (smartTranslation !== currentMatch.league.name) {
+                          console.log(`🎯 [League Translation] Smart: "${currentMatch.league.name}" → "${smartTranslation}"`);
+                          return smartTranslation;
+                        }
+                        
+                        // Fallback to context translation
+                        const contextTranslation = translateLeagueName(currentMatch.league.name);
+                        console.log(`🔄 [League Translation] Context: "${currentMatch.league.name}" → "${contextTranslation}"`);
+                        return contextTranslation;
+                      })()}
                     </span>
 
                     {/* Round/Bracket Status Display using RoundBadge component */}
