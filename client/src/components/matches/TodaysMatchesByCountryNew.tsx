@@ -46,6 +46,8 @@ import "../../styles/TodaysMatchByCountryNew.css";
 import "../../styles/flasheffect.css";
 import MyCountryGroupFlag from "../common/MyCountryGroupFlag";
 import { useDebounceCallback, batchDOMUpdates } from "../../lib/performanceOptimizations";
+// Import translation hook and utility
+import { useTranslation } from "@/lib/language";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -140,6 +142,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   timeFilterActive = false,
   onMatchCardClick,
 }) => {
+  // Initialize translation hook
+  const { translateLeague, translateTeam, currentLanguage } = useTranslation();
+
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
   );
@@ -591,7 +596,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, "yyyy-MM-dd");
   };
 
-  
+
 
 // Optimized fixture grouping with better performance
   const fixturesByCountry = useMemo(() => {
@@ -600,12 +605,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Pre-filter valid fixtures to reduce processing
     const filteredFixtures = validFixtures.filter((fixture: any) => {
       if (!fixture?.league?.country || !fixture?.fixture?.id || !fixture?.teams) return false;
-      
+
       // Early exclusion check to reduce processing
       const leagueName = fixture.league.name || "";
       const homeTeamName = fixture.teams?.home?.name || "";
       const awayTeamName = fixture.teams?.away?.name || "";
-      
+
       return !shouldExcludeMatchByCountry(
         leagueName,
         homeTeamName,
@@ -667,7 +672,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             const bElapsed = Number(b.fixture.status.elapsed) || 0;
             return aElapsed !== bElapsed ? aElapsed - bElapsed : aDate - bDate;
           }
-          
+
           return aPriority === 2 ? aDate - bDate : bDate - aDate; // Upcoming vs Ended
         });
       });
@@ -676,12 +681,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return grouped;
   }, [validFixtures]);
 
-  
+
 
   // Optimized country sorting with cached live status
   const sortedCountries = useMemo(() => {
     const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
-    
+
     return Object.values(fixturesByCountry)
       .map((countryData: any) => ({
         ...countryData,
@@ -696,11 +701,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         // World + Live first
         if (a.isWorld && a.hasLive && (!b.isWorld || !b.hasLive)) return -1;
         if (b.isWorld && b.hasLive && (!a.isWorld || !a.hasLive)) return 1;
-        
+
         // World second
         if (a.isWorld && !b.isWorld) return -1;
         if (b.isWorld && !a.isWorld) return 1;
-        
+
         // Alphabetical
         return a.country.localeCompare(b.country);
       });
@@ -769,7 +774,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Optimized flag fetching with reduced frequency
   const flagFetchingRef = useRef(new Set<string>());
-  
+
   useEffect(() => {
     if (!validFixtures.length) return;
 
@@ -1406,8 +1411,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       fontSize: "13.3px",
                                     }}
                                   >
-                                    {safeSubstring(leagueData.league.name, 0) ||
-                                      "Unknown League"}
+                                    {(() => {
+                                      const leagueName = safeSubstring(leagueData.league.name, 0) || "Unknown League";
+                                      const translated = translateLeague(leagueName);
+
+                                      // Log translation if it actually translated
+                                      if (translated !== leagueName) {
+                                        console.log(`⚽ [League Translation] ${leagueName} → ${translated} (${currentLanguage})`);
+                                      }
+
+                                      return translated;
+                                    })()}
                                   </span>
                                   <span
                                     className="text-gray-500 dark:text-white"
@@ -1663,9 +1677,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                 : ""
                                             }`}
                                           >
-                                            {shortenTeamName(
-                                              match.teams.home.name,
-                                            ) || "Unknown Team"}
+                                            {(() => {
+                                              const teamName = match.teams.home.name || "Unknown Team";
+                                              const translated = translateTeam(teamName);
+                                              const shortened = shortenTeamName(translated);
+
+                                              // Log translation if it actually translated
+                                              if (translated !== teamName) {
+                                                console.log(`🏠 [Home Team Translation] ${teamName} → ${translated} (${currentLanguage})`);
+                                              }
+
+                                              return shortened;
+                                            })()}
                                           </div>
 
                                           {/* Home team logo - grid area */}
@@ -1872,9 +1895,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                 : ""
                                             }`}
                                           >
-                                            {shortenTeamName(
-                                              match.teams.away.name,
-                                            ) || "Unknown Team"}
+                                            {(() => {
+                                              const teamName = match.teams.away.name || "Unknown Team";
+                                              const translated = translateTeam(teamName);
+                                              const shortened = shortenTeamName(translated);
+
+                                              // Log translation if it actually translated
+                                              if (translated !== teamName) {
+                                                console.log(`✈️ [Away Team Translation] ${teamName} → ${translated} (${currentLanguage})`);
+                                              }
+
+                                              return shortened;
+                                            })()}
                                           </div>
                                         </div>
 
