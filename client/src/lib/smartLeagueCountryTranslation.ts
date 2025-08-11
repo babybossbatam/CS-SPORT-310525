@@ -317,7 +317,166 @@ class SmartLeagueCountryTranslation {
         'de': 'AFC Champions League',
         'it': 'AFC Champions League',
         'pt': 'Liga dos Campeões AFC'
-      }
+      },
+
+    'CS SPORT!': {
+      'zh': 'CS SPORT!', 'zh-hk': 'CS SPORT!', 'zh-tw': 'CS SPORT!',
+      'es': 'CS SPORT!', 'de': 'CS SPORT!', 'it': 'CS SPORT!', 'pt': 'CS SPORT!'
+    },
+
+    // MyInfo component translations
+    'Football at CS SPORT': {
+      'zh': 'CS SPORT足球', 'zh-hk': 'CS SPORT足球', 'zh-tw': 'CS SPORT足球',
+      'es': 'Fútbol en CS SPORT', 'de': 'Fußball bei CS SPORT', 'it': 'Calcio su CS SPORT', 'pt': 'Futebol no CS SPORT'
+    },
+    'Welcome to CS SPORT – your ultimate destination for everything Football! Stay on top of the action with live scores from over 1,000 competitions worldwide, including today\'s hottest matches from the UEFA Champions League Qualifiers, UEFA Champions League, and the Premier League.': {
+      'zh': '欢迎来到CS SPORT——您足球世界的终极目的地！通过来自全球1000多个赛事的实时比分掌握最新动态，包括今日最热门的UEFA欧洲冠军联赛预选赛、UEFA欧洲冠军联赛和英格兰超级联赛比赛。',
+      'zh-hk': '歡迎來到CS SPORT——您足球世界的終極目的地！透過來自全球1000多個賽事的即時比分掌握最新動態，包括今日最熱門的UEFA歐洲冠軍聯賽預選賽、UEFA歐洲冠軍聯賽和英格蘭超級聯賽比賽。',
+      'zh-tw': '歡迎來到CS SPORT——您足球世界的終極目的地！透過來自全球1000多個賽事的即時比分掌握最新動態，包括今日最熱門的UEFA歐洲冠軍聯賽預選賽、UEFA歐洲冠軍聯賽和英格蘭超級聯賽比賽。',
+      'es': '¡Bienvenido a CS SPORT, tu destino definitivo para todo sobre fútbol! Mantente al día con las puntuaciones en vivo de más de 1,000 competiciones en todo el mundo, incluyendo los partidos más emocionantes de hoy de los Clasificatorios de la Liga de Campeones de la UEFA, Liga de Campeones de la UEFA y la Premier League.',
+      'de': 'Willkommen bei CS SPORT – Ihrem ultimativen Ziel für alles rund um Fußball! Bleiben Sie mit Live-Ergebnissen von über 1.000 Wettbewerben weltweit auf dem Laufenden, einschließlich der heißesten Spiele von heute aus den UEFA Champions League Qualifiers, UEFA Champions League und der Premier League.',
+      'it': 'Benvenuto su CS SPORT – la tua destinazione definitiva per tutto ciò che riguarda il calcio! Rimani aggiornato con i punteggi in diretta di oltre 1.000 competizioni in tutto il mondo, incluse le partite più calde di oggi dai Qualificatori della UEFA Champions League, UEFA Champions League e Premier League.',
+      'pt': 'Bem-vindo ao CS SPORT – seu destino definitivo para tudo sobre futebol! Mantenha-se atualizado com placares ao vivo de mais de 1.000 competições em todo o mundo, incluindo os jogos mais quentes de hoje dos Qualificadores da Liga dos Campeões da UEFA, Liga dos Campeões da UEFA e Premier League.'
+    },
+    'Explore Your Favorite Teams & Players': {
+      'zh': '探索您喜爱的球队和球员', 'zh-hk': '探索您喜愛的球隊和球員', 'zh-tw': '探索您喜愛的球隊和球員',
+      'es': 'Explora Tus Equipos y Jugadores Favoritos', 'de': 'Entdecken Sie Ihre Lieblingsteams & Spieler', 'it': 'Esplora le Tue Squadre e Giocatori Preferiti', 'pt': 'Explore Seus Times e Jogadores Favoritos'
+    },
+    'Want to know how FC Barcelona, Real Madrid, or Manchester United are doing? Dive into the latest results, upcoming fixtures, league standings, breaking news, match highlights, and in-depth stats for top stars like Lionel Messi, Cristiano Ronaldo, and Lamine Yamal.': {
+      'zh': '想了解巴塞罗那、皇家马德里或曼联的表现如何？深入了解最新结果、即将到来的赛程、联赛排名、突发新闻、比赛精彩瞬间，以及梅西、C罗和拉明·亚马尔等顶级球星的深度统计数据。',
+      'zh-hk': '想了解巴塞隆拿、皇家馬德里或曼聯的表現如何？深入了解最新結果、即將到來的賽程、聯賽排名、突發新聞、比賽精彩瞬間，以及美斯、C朗和拉明·亞馬爾等頂級球星的深度統計數據。',
+      'zh-tw': '想了解巴塞隆納、皇家馬德里或曼聯的表現如何？深入了解最新結果、即將到來的賽程、聯賽排名、突發新聞、比賽精彩瞬間，以及梅西、C羅和拉明·亞馬爾等頂級球星的深度統計數據。',
+      'es': '¿Quieres saber cómo les va al FC Barcelona, Real Madrid o Manchester United? Sumérgete en los últimos resultados, próximos partidos, clasificaciones de liga, noticias de última hora, destacados de partidos y estadísticas detalladas de estrellas como Lionel Messi, Cristiano Ronaldo y Lamine Yamal.',
+      'de': 'Möchten Sie wissen, wie es dem FC Barcelona, Real Madrid oder Manchester United geht? Tauchen Sie ein in die neuesten Ergebnisse, anstehende Spiele, Ligatabellen, aktuelle Nachrichten, Spielhighlights und detaillierte Statistiken von Topstars wie Lionel Messi, Cristiano Ronaldo und Lamine Yamal.',
+      'it': 'Vuoi sapere come stanno andando FC Barcelona, Real Madrid o Manchester United? Immergiti negli ultimi risultati, prossime partite, classifiche di campionato, notizie dell\'ultima ora, highlights delle partite e statistiche approfondite di stelle come Lionel Messi, Cristiano Ronaldo e Lamine Yamal.',
+      'pt': 'Quer saber como estão se saindo o FC Barcelona, Real Madrid ou Manchester United? Mergulhe nos últimos resultados, próximos jogos, classificações da liga, notícias de última hora, destaques de partidas e estatísticas detalhadas de estrelas como Lionel Messi, Cristiano Ronaldo e Lamine Yamal.'
+    },
+    'Why Choose CS SPORT?': {
+      'zh': '为什么选择CS SPORT？', 'zh-hk': '為什麼選擇CS SPORT？', 'zh-tw': '為什麼選擇CS SPORT？',
+      'es': '¿Por Qué Elegir CS SPORT?', 'de': 'Warum CS SPORT wählen?', 'it': 'Perché Scegliere CS SPORT?', 'pt': 'Por Que Escolher CS SPORT?'
+    },
+    'All-in-One Platform: Get the latest news, fixtures, standings, results, and live scores for leagues, cups, and tournaments around the globe.': {
+      'zh': '一体化平台：获取全球联赛、杯赛和锦标赛的最新新闻、赛程、排名、结果和实时比分。',
+      'zh-hk': '一體化平台：獲取全球聯賽、盃賽和錦標賽的最新新聞、賽程、排名、結果和即時比分。',
+      'zh-tw': '一體化平台：獲取全球聯賽、盃賽和錦標賽的最新新聞、賽程、排名、結果和即時比分。',
+      'es': 'Plataforma Todo-en-Uno: Obtén las últimas noticias, partidos, clasificaciones, resultados y puntuaciones en vivo de ligas, copas y torneos de todo el mundo.',
+      'de': 'All-in-One-Plattform: Erhalten Sie die neuesten Nachrichten, Spiele, Tabellen, Ergebnisse und Live-Ergebnisse für Ligen, Pokale und Turniere rund um den Globus.',
+      'it': 'Piattaforma Tutto-in-Uno: Ottieni le ultime notizie, partite, classifiche, risultati e punteggi in diretta per campionati, coppe e tornei in tutto il mondo.',
+      'pt': 'Plataforma Tudo-em-Um: Obtenha as últimas notícias, jogos, classificações, resultados e placares ao vivo de ligas, copas e torneios ao redor do mundo.'
+    },
+    'Track Your Favorites: Follow your teams and players, and never miss a moment.': {
+      'zh': '跟踪您的最爱：关注您的球队和球员，不错过任何时刻。',
+      'zh-hk': '追蹤您的最愛：關注您的球隊和球員，不錯過任何時刻。',
+      'zh-tw': '追蹤您的最愛：關注您的球隊和球員，不錯過任何時刻。',
+      'es': 'Sigue a Tus Favoritos: Sigue a tus equipos y jugadores, y nunca te pierdas un momento.',
+      'de': 'Verfolgen Sie Ihre Favoriten: Folgen Sie Ihren Teams und Spielern und verpassen Sie keinen Moment.',
+      'it': 'Segui i Tuoi Preferiti: Segui le tue squadre e giocatori, e non perdere mai un momento.',
+      'pt': 'Acompanhe Seus Favoritos: Siga seus times e jogadores, e nunca perca um momento.'
+    },
+    'Smart Predictions: Use our insights and tips to make better Football predictions and outsmart your friends.': {
+      'zh': '智能预测：使用我们的洞察和技巧做出更好的足球预测，智胜您的朋友。',
+      'zh-hk': '智能預測：使用我們的洞察和技巧做出更好的足球預測，智勝您的朋友。',
+      'zh-tw': '智能預測：使用我們的洞察和技巧做出更好的足球預測，智勝您的朋友。',
+      'es': 'Predicciones Inteligentes: Usa nuestras ideas y consejos para hacer mejores predicciones de fútbol y superar a tus amigos.',
+      'de': 'Intelligente Vorhersagen: Nutzen Sie unsere Erkenntnisse und Tipps, um bessere Fußball-Vorhersagen zu treffen und Ihre Freunde zu übertreffen.',
+      'it': 'Previsioni Intelligenti: Usa le nostre intuizioni e consigli per fare migliori previsioni di calcio e superare i tuoi amici.',
+      'pt': 'Previsões Inteligentes: Use nossas percepções e dicas para fazer melhores previsões de futebol e superar seus amigos.'
+    },
+    'Ready to experience Football like never before?': {
+      'zh': '准备好以前所未有的方式体验足球了吗？',
+      'zh-hk': '準備好以前所未有的方式體驗足球了嗎？',
+      'zh-tw': '準備好以前所未有的方式體驗足球了嗎？',
+      'es': '¿Listo para experimentar el fútbol como nunca antes?',
+      'de': 'Bereit, Fußball wie nie zuvor zu erleben?',
+      'it': 'Pronto a vivere il calcio come mai prima d\'ora?',
+      'pt': 'Pronto para experimentar o futebol como nunca antes?'
+    },
+    'Start exploring now and join the CS SPORT community!': {
+      'zh': '立即开始探索，加入CS SPORT社区！',
+      'zh-hk': '立即開始探索，加入CS SPORT社區！',
+      'zh-tw': '立即開始探索，加入CS SPORT社區！',
+      'es': '¡Comienza a explorar ahora y únete a la comunidad CS SPORT!',
+      'de': 'Beginnen Sie jetzt zu erkunden und treten Sie der CS SPORT-Community bei!',
+      'it': 'Inizia a esplorare ora e unisciti alla comunità CS SPORT!',
+      'pt': 'Comece a explorar agora e junte-se à comunidade CS SPORT!'
+    },
+    'Football Info': {
+      'zh': '足球信息', 'zh-hk': '足球資訊', 'zh-tw': '足球資訊',
+      'es': 'Información de Fútbol', 'de': 'Fußball-Info', 'it': 'Info Calcio', 'pt': 'Info Futebol'
+    },
+    'Football FAQ': {
+      'zh': '足球常见问题', 'zh-hk': '足球常見問題', 'zh-tw': '足球常見問題',
+      'es': 'Preguntas Frecuentes de Fútbol', 'de': 'Fußball FAQ', 'it': 'FAQ Calcio', 'pt': 'FAQ Futebol'
+    },
+    'Who invented Football?': {
+      'zh': '谁发明了足球？', 'zh-hk': '誰發明了足球？', 'zh-tw': '誰發明了足球？',
+      'es': '¿Quién inventó el fútbol?', 'de': 'Wer hat den Fußball erfunden?', 'it': 'Chi ha inventato il calcio?', 'pt': 'Quem inventou o futebol?'
+    },
+    'Football\'s roots go way back! While ball games have been played for centuries across the world, the modern game was shaped in England in the 19th century. The English Football Association set the official rules in 1863, giving us the Football we know and love today.': {
+      'zh': '足球的根源可以追溯到很久以前！虽然球类游戏在世界各地已经进行了几个世纪，但现代足球是在19世纪的英格兰形成的。英格兰足球协会在1863年制定了官方规则，为我们带来了今天我们所知道和喜爱的足球。',
+      'zh-hk': '足球的根源可以追溯到很久以前！雖然球類遊戲在世界各地已經進行了幾個世紀，但現代足球是在19世紀的英格蘭形成的。英格蘭足球協會在1863年制定了官方規則，為我們帶來了今天我們所知道和喜愛的足球。',
+      'zh-tw': '足球的根源可以追溯到很久以前！雖然球類遊戲在世界各地已經進行了幾個世紀，但現代足球是在19世紀的英格蘭形成的。英格蘭足球協會在1863年制定了官方規則，為我們帶來了今天我們所知道和喜愛的足球。',
+      'es': '¡Las raíces del fútbol se remontan muy atrás! Aunque los juegos de pelota se han jugado durante siglos en todo el mundo, el juego moderno se formó en Inglaterra en el siglo XIX. La Asociación de Fútbol Inglesa estableció las reglas oficiales en 1863, dándonos el fútbol que conocemos y amamos hoy.',
+      'de': 'Die Wurzeln des Fußballs reichen weit zurück! Während Ballspiele jahrhundertelang auf der ganzen Welt gespielt wurden, wurde das moderne Spiel im 19. Jahrhundert in England geformt. Der englische Fußballverband stellte 1863 die offiziellen Regeln auf und gab uns den Fußball, den wir heute kennen und lieben.',
+      'it': 'Le radici del calcio risalgono a molto tempo fa! Mentre i giochi con la palla sono stati giocati per secoli in tutto il mondo, il gioco moderno è stato plasmato in Inghilterra nel XIX secolo. L\'Associazione Calcistica Inglese stabilì le regole ufficiali nel 1863, dandoci il calcio che conosciamo e amiamo oggi.',
+      'pt': 'As raízes do futebol remontam a muito tempo! Embora jogos de bola tenham sido jogados por séculos ao redor do mundo, o jogo moderno foi moldado na Inglaterra no século XIX. A Associação de Futebol Inglesa estabeleceu as regras oficiais em 1863, nos dando o futebol que conhecemos e amamos hoje.'
+    },
+    'Where was Football invented?': {
+      'zh': '足球是在哪里发明的？', 'zh-hk': '足球是在哪裡發明的？', 'zh-tw': '足球是在哪裡發明的？',
+      'es': '¿Dónde se inventó el fútbol?', 'de': 'Wo wurde der Fußball erfunden?', 'it': 'Dove è stato inventato il calcio?', 'pt': 'Onde o futebol foi inventado?'
+    },
+    'The modern version of Football was born in England. Although similar games existed globally, it was in England where the rules were standardized, making it the home of modern Football.': {
+      'zh': '现代足球诞生于英格兰。虽然全球都存在类似的游戏，但正是在英格兰规则得到了标准化，使其成为现代足球的故乡。',
+      'zh-hk': '現代足球誕生於英格蘭。雖然全球都存在類似的遊戲，但正是在英格蘭規則得到了標準化，使其成為現代足球的故鄉。',
+      'zh-tw': '現代足球誕生於英格蘭。雖然全球都存在類似的遊戲，但正是在英格蘭規則得到了標準化，使其成為現代足球的故鄉。',
+      'es': 'La versión moderna del fútbol nació en Inglaterra. Aunque existían juegos similares a nivel mundial, fue en Inglaterra donde se estandarizaron las reglas, convirtiéndolo en el hogar del fútbol moderno.',
+      'de': 'Die moderne Version des Fußballs wurde in England geboren. Obwohl ähnliche Spiele weltweit existierten, war es in England, wo die Regeln standardisiert wurden, was es zur Heimat des modernen Fußballs macht.',
+      'it': 'La versione moderna del calcio è nata in Inghilterra. Sebbene giochi simili esistessero a livello globale, è stato in Inghilterra che le regole sono state standardizzate, rendendola la casa del calcio moderno.',
+      'pt': 'A versão moderna do futebol nasceu na Inglaterra. Embora jogos similares existissem globalmente, foi na Inglaterra onde as regras foram padronizadas, tornando-a o lar do futebol moderno.'
+    },
+    'What is the length of a Football pitch?': {
+      'zh': '足球场的长度是多少？', 'zh-hk': '足球場的長度是多少？', 'zh-tw': '足球場的長度是多少？',
+      'es': '¿Cuál es la longitud de un campo de fútbol?', 'de': 'Wie lang ist ein Fußballplatz?', 'it': 'Qual è la lunghezza di un campo da calcio?', 'pt': 'Qual é o comprimento de um campo de futebol?'
+    },
+    'Great question! A standard Football pitch is rectangular, ranging from 90–120 meters in length and 45–90 meters in width, as set by the International Football Association Board (IFAB). These dimensions are used for professional and international matches.': {
+      'zh': '好问题！标准足球场是长方形的，长度为90-120米，宽度为45-90米，由国际足球协会理事会(IFAB)设定。这些尺寸用于职业和国际比赛。',
+      'zh-hk': '好問題！標準足球場是長方形的，長度為90-120米，寬度為45-90米，由國際足球協會理事會(IFAB)設定。這些尺寸用於職業和國際比賽。',
+      'zh-tw': '好問題！標準足球場是長方形的，長度為90-120米，寬度為45-90米，由國際足球協會理事會(IFAB)設定。這些尺寸用於職業和國際比賽。',
+      'es': '¡Excelente pregunta! Un campo de fútbol estándar es rectangular, con un rango de 90-120 metros de longitud y 45-90 metros de ancho, según lo establecido por la Junta de la Asociación Internacional de Fútbol (IFAB). Estas dimensiones se utilizan para partidos profesionales e internacionales.',
+      'de': 'Tolle Frage! Ein Standard-Fußballplatz ist rechteckig und reicht von 90-120 Metern in der Länge und 45-90 Metern in der Breite, wie vom International Football Association Board (IFAB) festgelegt. Diese Abmessungen werden für professionelle und internationale Spiele verwendet.',
+      'it': 'Ottima domanda! Un campo da calcio standard è rettangolare, con una lunghezza che varia da 90-120 metri e una larghezza di 45-90 metri, come stabilito dall\'International Football Association Board (IFAB). Queste dimensioni sono utilizzate per partite professionali e internazionali.',
+      'pt': 'Ótima pergunta! Um campo de futebol padrão é retangular, variando de 90-120 metros de comprimento e 45-90 metros de largura, conforme estabelecido pelo International Football Association Board (IFAB). Essas dimensões são usadas para partidas profissionais e internacionais.'
+    },
+    'Who is the best Football player in the world?': {
+      'zh': '谁是世界上最好的足球运动员？', 'zh-hk': '誰是世界上最好的足球運動員？', 'zh-tw': '誰是世界上最好的足球運動員？',
+      'es': '¿Quién es el mejor jugador de fútbol del mundo?', 'de': 'Wer ist der beste Fußballspieler der Welt?', 'it': 'Chi è il miglior giocatore di calcio al mondo?', 'pt': 'Quem é o melhor jogador de futebol do mundo?'
+    },
+    'This is always up for debate! Legends like Pelé, Diego Maradona, Lionel Messi, and Cristiano Ronaldo have all left their mark. Each has a unique style and legacy, so the \'best\' often depends on who you ask!': {
+      'zh': '这总是一个争论的话题！像贝利、马拉多纳、梅西和C罗这样的传奇人物都留下了自己的印记。每个人都有独特的风格和遗产，所以"最好的"往往取决于你问的是谁！',
+      'zh-hk': '這總是一個爭論的話題！像比利、馬勒當拿、美斯和C朗這樣的傳奇人物都留下了自己的印記。每個人都有獨特的風格和遺產，所以"最好的"往往取決於你問的是誰！',
+      'zh-tw': '這總是一個爭論的話題！像貝利、馬拉度納、梅西和C羅這樣的傳奇人物都留下了自己的印記。每個人都有獨特的風格和遺產，所以"最好的"往往取決於你問的是誰！',
+      'es': '¡Esto siempre está en debate! Leyendas como Pelé, Diego Maradona, Lionel Messi y Cristiano Ronaldo han dejado su huella. Cada uno tiene un estilo único y un legado, así que el "mejor" a menudo depende de a quién le preguntes!',
+      'de': 'Das ist immer umstritten! Legenden wie Pelé, Diego Maradona, Lionel Messi und Cristiano Ronaldo haben alle ihre Spuren hinterlassen. Jeder hat einen einzigartigen Stil und ein Vermächtnis, also hängt der "Beste" oft davon ab, wen Sie fragen!',
+      'it': 'Questo è sempre oggetto di dibattito! Leggende come Pelé, Diego Maradona, Lionel Messi e Cristiano Ronaldo hanno tutti lasciato il loro segno. Ognuno ha uno stile unico e un\'eredità, quindi il "migliore" spesso dipende da chi chiedi!',
+      'pt': 'Isso é sempre motivo de debate! Lendas como Pelé, Diego Maradona, Lionel Messi e Cristiano Ronaldo deixaram sua marca. Cada um tem um estilo único e legado, então o "melhor" frequentemente depende de quem você pergunta!'
+    },
+    'Want more Football fun?': {
+      'zh': '想要更多足球乐趣？', 'zh-hk': '想要更多足球樂趣？', 'zh-tw': '想要更多足球樂趣？',
+      'es': '¿Quieres más diversión futbolística?', 'de': 'Wollen Sie mehr Fußball-Spaß?', 'it': 'Vuoi più divertimento calcistico?', 'pt': 'Quer mais diversão futebolística?'
+    },
+    'Check out live stats, highlights, and join the conversation with fans worldwide – only on': {
+      'zh': '查看实时统计、精彩瞬间，与全球球迷一起交流——仅在',
+      'zh-hk': '查看即時統計、精彩瞬間，與全球球迷一起交流——僅在',
+      'zh-tw': '查看即時統計、精彩瞬間，與全球球迷一起交流——僅在',
+      'es': 'Consulta estadísticas en vivo, destacados y únete a la conversación con fanáticos de todo el mundo, solo en',
+      'de': 'Schauen Sie sich Live-Statistiken, Highlights an und treten Sie in das Gespräch mit Fans weltweit ein – nur auf',
+      'it': 'Controlla le statistiche live, i highlights e unisciti alla conversazione con i fan di tutto il mondo – solo su',
+      'pt': 'Confira estatísticas ao vivo, destaques e junte-se à conversa com fãs do mundo todo – apenas no'
+    },
+    'Show Less': {
+      'zh': '收起', 'zh-hk': '收起', 'zh-tw': '收起',
+      'es': 'Mostrar Menos', 'de': 'Weniger anzeigen', 'it': 'Mostra Meno', 'pt': 'Mostrar Menos'
+    }
   };
 
   // Core country translations
@@ -454,7 +613,7 @@ class SmartLeagueCountryTranslation {
     }
   }
 
-  // Check if a mapping should be updated (e.g., if new one has more complete translations)
+  // Check if a mapping should be updated (e.g. if new one has more complete translations)
   private shouldUpdateMapping(existing: any, newMapping: any): boolean {
     const existingTranslations = Object.keys(existing).length;
     const newTranslations = Object.keys(newMapping).length;
