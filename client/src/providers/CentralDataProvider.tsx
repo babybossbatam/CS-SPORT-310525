@@ -45,12 +45,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       const controller = new AbortController();
       
       try {
-        // Set up timeout that only aborts if request is still pending - reduced to 30 seconds
+        // Set up timeout that only aborts if request is still pending - reduced to 15 seconds
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 30 seconds');
+            controller.abort('Request timeout after 15 seconds');
           }
-        }, 30000);
+        }, 15000);
 
         const response = await fetch(`/api/fixtures/date/${validDate}?all=true`, {
           signal: controller.signal,
@@ -161,12 +161,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       const controller = new AbortController();
       
       try {
-        // Set up timeout that only aborts if request is still pending - reduced to 20 seconds for live data
+        // Set up timeout that only aborts if request is still pending - reduced to 10 seconds for live data
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 20 seconds');
+            controller.abort('Request timeout after 10 seconds');
           }
-        }, 20000);
+        }, 10000);
 
         const response = await fetch('/api/fixtures/live', {
           signal: controller.signal,

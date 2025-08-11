@@ -19,6 +19,16 @@ class SmartTeamTranslation {
   private translationCache = new Map<string, { translation: string; timestamp: number }>(); // Add missing cache
   private isLoading = false;
 
+  // Placeholder for a potential automated mapping processor
+  private automatedMappingProcessor: any = {
+    getTeamTranslation: (teamName: string, language: string) => {
+      // In a real scenario, this would fetch translations from an external source or a more sophisticated mapping
+      // For now, returning null to simulate no automated translation found
+      return null;
+    }
+  };
+
+
   constructor() {
     // Clear cache on initialization to ensure updated translations are used
     this.clearCache();
@@ -2453,7 +2463,7 @@ class SmartTeamTranslation {
     try {
       // Clean up any corrupted cache entries
       const keysToRemove: string[] = [];
-      
+
       this.teamCache.forEach((value, key) => {
         if (value === null || value === undefined || value === '') {
           keysToRemove.push(key);
@@ -2461,7 +2471,7 @@ class SmartTeamTranslation {
       });
 
       keysToRemove.forEach(key => this.teamCache.delete(key));
-      
+
       if (keysToRemove.length > 0) {
         console.log(`🔧 [SmartTranslation] Fixed ${keysToRemove.length} corrupted cache entries`);
       }
@@ -2493,7 +2503,7 @@ class SmartTeamTranslation {
 
     let result = teamName;
     const words = teamName.toLowerCase().split(/\s+/);
-    
+
     // Replace common football terms
     words.forEach(word => {
       if (phoneticMappings[word]) {
@@ -2858,7 +2868,7 @@ class SmartTeamTranslation {
     return null;
   }
 
-  
+
 
 
 
@@ -2912,6 +2922,53 @@ class SmartTeamTranslation {
           console.warn('⚠️ [SmartTranslation] Failed to learn new team mapping from league info:', error);
       }
   }
+
+  /**
+   * Get enhanced fallback with multiple strategies
+   */
+  private getEnhancedFallback(originalName: string, targetLanguage: string): string {
+    // Try automated mapping first
+    const automatedResult = this.automatedMappingProcessor.getTeamTranslation(originalName, targetLanguage);
+    if (automatedResult && automatedResult !== originalName) {
+      return automatedResult;
+    }
+
+    // Fallback to basic name cleanup
+    return this.getTeamNameFallback(originalName, targetLanguage);
+  }
+
+  /**
+   * Get enhanced team name using various fallback strategies
+   */
+  private getTeamNameFallback(originalName: string, targetLanguage: string): string {
+    // Basic name cleanup - remove common prefixes/suffixes and extra spaces
+    let cleanedName = originalName
+      .replace(/^(FC|CF|AC|AS|Real|Club|CD|SD|AD|FK|NK|KF|PFC|SC)\s+/i, '') // Remove common prefixes
+      .replace(/\s+(FC|CF|AC|AS|United|City|CF|SC|II|2|B|LP)$/i, '') // Remove common suffixes
+      .replace(/\s+L\.P\./i, '') // Remove specific suffix variation
+      .replace(/\s+DA\s+/i, ' ') // Normalize "da" to single space
+      .replace(/\s+Rivadavia/i, ' Rivadavia') // Specific correction for "Rivadavia"
+      .trim(); // Trim whitespace
+
+    // Try to find a translation for the cleaned name in popularLeagueTeams
+    const popularTranslation = this.getPopularTeamTranslation(cleanedName, targetLanguage);
+    if (popularTranslation && popularTranslation !== cleanedName) {
+      return popularTranslation;
+    }
+
+    // If cleaned name still doesn't yield a translation, try to learn it
+    // Note: This assumes `leagueInfo` might be accessible here, or a simplified learning mechanism is used.
+    // For now, we'll stick to returning the cleaned name if no other translation is found.
+    return cleanedName;
+  }
+
+  // Helper to learn from translation context
+  private learnFromTranslationContext(originalName: string, translatedName: string, language: string): void {
+    // This method can be expanded to update learnedTeamMappings based on successful translations
+    // For now, it's a placeholder. The `learnNewTeam` handles learning from `leagueInfo`.
+    console.log(`💡 [SmartTranslation] Context learned: "${originalName}" -> "${translatedName}" (${language})`);
+  }
+
 }
 
 export const smartTeamTranslation = new SmartTeamTranslation();

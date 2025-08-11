@@ -46,8 +46,8 @@ export async function apiRequest(
     // Create abort controller for timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
-      controller.abort('Request timeout after 25 seconds');
-    }, 25000);
+      controller.abort('Request timeout after 15 seconds');
+    }, 15000);
 
     try {
       const response = await fetch(apiUrl, {
