@@ -863,13 +863,21 @@ class SmartPlayerTranslation {
     // Check static translations first
     const staticTranslation = this.popularCountries[normalizedCountry];
     if (staticTranslation && staticTranslation[language as keyof typeof staticTranslation]) {
-      return staticTranslation[language as keyof typeof staticTranslation];
+      const translation = staticTranslation[language as keyof typeof staticTranslation];
+      // Ensure we don't return concatenated values
+      if (translation && translation !== country && !translation.includes(country)) {
+        return translation;
+      }
     }
 
     // Check learned mappings
     const learnedMapping = this.learnedCountryMappings.get(normalizedCountry);
     if (learnedMapping && learnedMapping[language as keyof typeof learnedMapping]) {
-      return learnedMapping[language as keyof typeof learnedMapping];
+      const translation = learnedMapping[language as keyof typeof learnedMapping];
+      // Ensure we don't return concatenated values
+      if (translation && translation !== country && !translation.includes(country)) {
+        return translation;
+      }
     }
 
     // Fallback to original country

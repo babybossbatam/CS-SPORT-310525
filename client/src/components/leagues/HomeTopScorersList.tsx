@@ -1273,14 +1273,9 @@ const HomeTopScorersList = () => {
                             {translatedTeamName}
                           </p>
                         )}
-                        {translatedCountry && translatedCountry !== playerCountry && (
+                        {playerCountry && (
                           <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                            {translatedCountry}
-                          </p>
-                        )}
-                        {(!translatedCountry || translatedCountry === playerCountry) && playerCountry && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                            {playerCountry}
+                            {translatedCountry && translatedCountry !== playerCountry ? translatedCountry : playerCountry}
                           </p>
                         )}
                       </div>
