@@ -2198,9 +2198,7 @@ app.get('/api/teams/popular', async (req, res) => {
         res.status(500).json({
           success: false,
           error:
-            error instanceof Error
-              ? error.message
-              : "Failed to fetch fixtures by country",
+            error instanceof Error ? error.message : "Failed to fetch fixtures by country",
         });
       }
     },
@@ -3325,18 +3323,22 @@ error) {
   app.get('/api/players/:playerId/heatmap', async (req, res) => {
     try {
       const { playerId } = req.params;
-      const { eventId, playerName, teamName, homeTeam, awayTeam, matchDate } = req.query;
+      const { eventId, playerName, teamName, matchDate } = req.query;
 
       let sofaScorePlayerId = parseInt(playerId);
       let sofaScoreEventId = eventId ? parseInt(eventId as string) : null;
 
       // If we don't have a direct SofaScore event ID, try to find it
-      if (!sofaScoreEventId && homeTeam && awayTeam && matchDate) {
-        sofaScoreEventId = await sofaScoreAPI.findEventBySimilarity(
-          homeTeam as string,
-          awayTeam as string,
-          matchDate as string
-        );
+      if (!sofaScoreEventId && matchDate) {
+        const homeTeamName = req.query.homeTeam as string;
+        const awayTeamName = req.query.awayTeam as string;
+        if (homeTeamName && awayTeamName) {
+          sofaScoreEventId = await sofaScoreAPI.findEventBySimilarity(
+            homeTeamName,
+            awayTeamName,
+            matchDate as string
+          );
+        }
       }
 
       // If we don't have a direct SofaScore player ID, try to find the player
