@@ -1126,21 +1126,29 @@ const HomeTopScorersList = () => {
                 const translatedPosition = rawPosition ? 
                   smartPlayerTranslation.translatePositionName(rawPosition, currentLanguage) : "";
 
-                // Enhanced team name translation and learning system
+                // Enhanced team name translation and learning system with context
                 const teamName = playerStats?.team?.name || "";
                 
-                // Auto-learn the team name for translation if we haven't seen it before
+                // Auto-learn the team name with enhanced context for better translation
                 if (teamName) {
                   smartPlayerTranslation.autoLearnFromAnyTeamName(teamName, {
                     playerId: scorer.player.id,
                     playerName: scorer.player.name,
-                    leagueName: playerStats?.league?.name
+                    leagueName: playerStats?.league?.name,
+                    leagueCountry: playerStats?.league?.country,
+                    leagueId: playerStats?.league?.id,
+                    teamId: playerStats?.team?.id,
+                    season: playerStats?.league?.season
                   });
                 }
 
-                // Translate the team name to the current language
+                // Translate the team name to the current language with enhanced context
                 const translatedTeamName = teamName ? 
-                  smartPlayerTranslation.translateTeamName(teamName, currentLanguage) : "";
+                  smartPlayerTranslation.translateTeamName(teamName, currentLanguage, {
+                    leagueId: playerStats?.league?.id,
+                    leagueName: playerStats?.league?.name,
+                    leagueCountry: playerStats?.league?.country
+                  }) : "";
 
                 // Enhanced country extraction and learning system
                 let playerCountry = smartPlayerTranslation.getPlayerCountry(scorer.player.id);
