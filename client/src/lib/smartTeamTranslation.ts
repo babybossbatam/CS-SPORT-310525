@@ -2242,7 +2242,7 @@ class SmartTeamTranslation {
     const now = Date.now();
     const staleThreshold = 24 * 60 * 60 * 1000; // 24 hours
 
-    for (const [key, entry] of this.translationCache.entries()) {
+    for (const [key, entry] of Array.from(this.translationCache.entries())) {
       if (entry && entry.timestamp && now - entry.timestamp > staleThreshold) {
         this.translationCache.delete(key);
       }
