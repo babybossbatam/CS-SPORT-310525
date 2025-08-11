@@ -41,6 +41,15 @@ import basketballGamesRoutes from './routes/basketballGamesRoutes';
 import playerVerificationRoutes from './routes/playerVerificationRoutes';
 import { RapidAPI } from './utils/rapidApi'; // corrected rapidApi import
 
+// Cache for fixtures data
+const fixturesCache = new Map<string, { data: any; timestamp: number }>();
+
+// Constants for cache durations (in milliseconds)
+const LIVE_DATA_CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+const PAST_DATA_CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
+const FUTURE_DATA_CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours
+
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
   const apiRouter = express.Router();
@@ -426,7 +435,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Check if we have cached data that's not too old
         const cached = fixturesCache.get(cacheKey);
         const currentTime = Date.now();
-        const maxAge = isToday ? LIVE_DATA_CACHE_DURATION : isPast ? PAST_DATA_CACHE_DURATION : FUTURE_DATA_CACHE_DURATION;
+        const maxAge = isToday ? LIVE_DATA_CACHE_DURATION : isPastDate ? PAST_DATA_CACHE_DURATION : FUTURE_DATA_CACHE_DURATION;
 
         // For timeout prevention, return slightly stale cache if available
         const emergencyMaxAge = maxAge * 2; // Double the max age for emergency fallback
