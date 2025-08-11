@@ -473,3 +473,8 @@ class SmartPlayerTranslation {
 }
 
 export const smartPlayerTranslation = new SmartPlayerTranslation();
+
+// Export the learnFromPlayerData method for external use
+export const learnFromPlayerData = (players: PlayerData[]) => {
+  return smartPlayerTranslation.learnFromPlayerData(players);
+};

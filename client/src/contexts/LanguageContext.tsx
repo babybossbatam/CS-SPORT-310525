@@ -2410,45 +2410,20 @@ export const LanguageProvider: React.FC<{
   };
 
   // Player name translation function
-  const translatePlayerName = (playerName: string): string => {
-    if (!playerName) return '';
-
-    console.log(`🎯 [LanguageContext] Translating player: "${playerName}" for language: ${currentLanguage}`);
-
-    // Use smart player translation system
-    const smartTranslation = smartPlayerTranslation.translatePlayerName(playerName, currentLanguage);
-    console.log(`🤖 [LanguageContext] Smart player translation result: "${playerName}" -> "${smartTranslation}"`);
-
-    if (smartTranslation !== playerName) {
-      console.log(`✅ [LanguageContext] Using smart player translation: "${smartTranslation}"`);
-      return smartTranslation;
-    }
-
-    // Return original name if no translation found
-    return playerName;
-  };
+  const translatePlayerName = useCallback((playerName: string): string => {
+    if (!playerName) return playerName;
+    const translated = smartPlayerTranslation.translatePlayerName(playerName, currentLanguage);
+    // Ensure we always return a string, not an object
+    return typeof translated === 'string' ? translated : playerName;
+  }, [currentLanguage]);
 
   // Position name translation function
-  const translatePositionName = (positionName: string): string => {
-    if (!positionName) return '';
-
-    console.log(`⚽ [LanguageContext] Translating position: "${positionName}" for language: ${currentLanguage}`);
-
-    // Auto-learn any position we encounter
-    smartPlayerTranslation.autoLearnFromAnyPositionName(positionName);
-
-    // Use smart position translation system
-    const smartTranslation = smartPlayerTranslation.translatePositionName(positionName, currentLanguage);
-    console.log(`🤖 [LanguageContext] Smart position translation result: "${positionName}" -> "${smartTranslation}"`);
-
-    if (smartTranslation !== positionName) {
-      console.log(`✅ [LanguageContext] Using smart position translation: "${smartTranslation}"`);
-      return smartTranslation;
-    }
-
-    // Return original position if no translation found
-    return positionName;
-  };
+  const translatePositionName = useCallback((position: string): string => {
+    if (!position) return position;
+    const translated = smartPlayerTranslation.translatePositionName(position, currentLanguage);
+    // Ensure we always return a string, not an object
+    return typeof translated === 'string' ? translated : position;
+  }, [currentLanguage]);
 
 
   // Match status translation function
