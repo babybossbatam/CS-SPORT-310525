@@ -46,8 +46,6 @@ import "../../styles/TodaysMatchByCountryNew.css";
 import "../../styles/flasheffect.css";
 import MyCountryGroupFlag from "../common/MyCountryGroupFlag";
 import { useDebounceCallback, batchDOMUpdates } from "../../lib/performanceOptimizations";
-// Import translation hook and utility
-import { useLanguage } from "@/contexts/LanguageContext";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -142,9 +140,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   timeFilterActive = false,
   onMatchCardClick,
 }) => {
-  // Initialize translation hook
-  const { translateLeagueName: translateLeague, translateTeamName: translateTeam, currentLanguage } = useLanguage();
-
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
   );
@@ -251,12 +246,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         // For live data, allow more retries
         return failureCount < 3;
       },
-    },
+    }
   );
 
   // Error handling with user-friendly messages
   const error = queryError ? (
-    queryError instanceof Error ?
+    queryError instanceof Error ? 
       queryError.message.includes('Failed to fetch') || queryError.message.includes('NetworkError') ?
         "Network connection issue. Please check your internet connection and try again." :
       queryError.message.includes('timeout') ?
@@ -596,31 +591,47 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, "yyyy-MM-dd");
   };
 
-
+  
 
 // Optimized fixture grouping with better performance
   const fixturesByCountry = useMemo(() => {
     if (!validFixtures?.length) return {};
 
+    // Pre-filter valid fixtures to reduce processing
+    const filteredFixtures = validFixtures.filter((fixture: any) => {
+      if (!fixture?.league?.country || !fixture?.fixture?.id || !fixture?.teams) return false;
+      
+      // Early exclusion check to reduce processing
+      const leagueName = fixture.league.name || "";
+      const homeTeamName = fixture.teams?.home?.name || "";
+      const awayTeamName = fixture.teams?.away?.name || "";
+      
+      return !shouldExcludeMatchByCountry(
+        leagueName,
+        homeTeamName,
+        awayTeamName,
+        false,
+        fixture.league.country,
+      );
+    });
+
     const grouped: { [key: string]: { country: string; leagues: any; hasPopularLeague: boolean } } = {};
     const seenIds = new Set<number>();
 
-    // Single pass processing with minimal operations
-    for (const fixture of validFixtures) {
-      if (!fixture?.league?.country || !fixture?.fixture?.id || !fixture?.teams || seenIds.has(fixture.fixture.id)) continue;
-      
-      // Quick exclusion check
-      if (shouldExcludeMatchByCountry(fixture.league.name || "", fixture.teams?.home?.name || "", fixture.teams?.away?.name || "", false, fixture.league.country)) continue;
-      
+    // Single pass processing
+    for (const fixture of filteredFixtures) {
+      if (seenIds.has(fixture.fixture.id)) continue;
       seenIds.add(fixture.fixture.id);
 
       const country = fixture.league.country;
       const leagueId = fixture.league.id;
 
-      // Initialize structures
+      // Initialize country if needed
       if (!grouped[country]) {
         grouped[country] = { country, leagues: {}, hasPopularLeague: false };
       }
+
+      // Initialize league if needed
       if (!grouped[country].leagues[leagueId]) {
         grouped[country].leagues[leagueId] = {
           league: fixture.league,
@@ -632,23 +643,32 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       grouped[country].leagues[leagueId].matches.push(fixture);
     }
 
-    // Batch sort all matches
-    const statusPriority = { 'LIVE': 1, 'LIV': 1, '1H': 1, 'HT': 1, '2H': 1, 'ET': 1, 'BT': 1, 'P': 1, 'INT': 1, 'NS': 2, 'TBD': 2, 'FT': 3, 'AET': 3, 'PEN': 3, 'AWD': 3, 'WO': 3, 'ABD': 3, 'CANC': 3, 'SUSP': 3 };
-    
+    // Sort matches by priority (moved outside of loop for better performance)
+    const statusPriority = {
+      'LIVE': 1, 'LIV': 1, '1H': 1, 'HT': 1, '2H': 1, 'ET': 1, 'BT': 1, 'P': 1, 'INT': 1,
+      'NS': 2, 'TBD': 2,
+      'FT': 3, 'AET': 3, 'PEN': 3, 'AWD': 3, 'WO': 3, 'ABD': 3, 'CANC': 3, 'SUSP': 3
+    };
+
     Object.values(grouped).forEach((countryGroup) => {
       Object.values(countryGroup.leagues).forEach((leagueGroup: any) => {
         leagueGroup.matches.sort((a: any, b: any) => {
           const aPriority = statusPriority[a.fixture.status.short] || 4;
           const bPriority = statusPriority[b.fixture.status.short] || 4;
+
           if (aPriority !== bPriority) return aPriority - bPriority;
+
           const aDate = new Date(a.fixture.date).getTime();
           const bDate = new Date(b.fixture.date).getTime();
-          if (aPriority === 1) {
+
+          // Same priority sorting
+          if (aPriority === 1) { // Live matches
             const aElapsed = Number(a.fixture.status.elapsed) || 0;
             const bElapsed = Number(b.fixture.status.elapsed) || 0;
             return aElapsed !== bElapsed ? aElapsed - bElapsed : aDate - bDate;
           }
-          return aPriority === 2 ? aDate - bDate : bDate - aDate;
+          
+          return aPriority === 2 ? aDate - bDate : bDate - aDate; // Upcoming vs Ended
         });
       });
     });
@@ -656,12 +676,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return grouped;
   }, [validFixtures]);
 
-
+  
 
   // Optimized country sorting with cached live status
   const sortedCountries = useMemo(() => {
     const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
-
+    
     return Object.values(fixturesByCountry)
       .map((countryData: any) => ({
         ...countryData,
@@ -676,11 +696,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         // World + Live first
         if (a.isWorld && a.hasLive && (!b.isWorld || !b.hasLive)) return -1;
         if (b.isWorld && b.hasLive && (!a.isWorld || !a.hasLive)) return 1;
-
+        
         // World second
         if (a.isWorld && !b.isWorld) return -1;
         if (b.isWorld && !a.isWorld) return 1;
-
+        
         // Alphabetical
         return a.country.localeCompare(b.country);
       });
@@ -747,28 +767,37 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     setExpandedLeagues(firstLeagues);
   }, [selectedDate, Object.keys(fixturesByCountry).length]);
 
-  // Optimized flag fetching with minimal blocking
+  // Optimized flag fetching with reduced frequency
+  const flagFetchingRef = useRef(new Set<string>());
+  
   useEffect(() => {
-    const countries = Object.keys(fixturesByCountry).filter(Boolean);
-    if (countries.length === 0) return;
+    if (!validFixtures.length) return;
 
-    // Use requestIdleCallback for non-blocking flag loading
+    const countries = Object.keys(fixturesByCountry).filter(Boolean);
+    const missingCountries = countries.filter(
+      (country) => !flagMap[country] && !flagFetchingRef.current.has(country),
+    );
+
+    if (missingCountries.length === 0) return;
+
+    // Mark as being fetched to prevent duplicate calls
+    missingCountries.forEach(country => flagFetchingRef.current.add(country));
+
+    // Batch process flags asynchronously
     requestIdleCallback(() => {
-      const newFlags: { [country: string]: string } = {};
-      countries.forEach((country) => {
-        if (!flagMap[country]) {
-          const syncFlag = getCountryFlagWithFallbackSync(country);
-          if (syncFlag) {
-            newFlags[country] = syncFlag;
-          }
+      const syncFlags: { [country: string]: string } = {};
+      missingCountries.forEach((country) => {
+        const syncFlag = getCountryFlagWithFallbackSync(country);
+        if (syncFlag) {
+          syncFlags[country] = syncFlag;
         }
       });
 
-      if (Object.keys(newFlags).length > 0) {
-        setFlagMap((prev) => ({ ...prev, ...newFlags }));
+      if (Object.keys(syncFlags).length > 0) {
+        setFlagMap((prev) => ({ ...prev, ...syncFlags }));
       }
     });
-  }, [Object.keys(fixturesByCountry).join(',')]);
+  }, [fixturesByCountry, flagMap]); // Simplified dependencies
 
   const toggleCountry = useCallback((country: string) => {
     setExpandedCountries((prev) => {
@@ -1038,36 +1067,36 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Immediate early return for missing data
-  if (!selectedDate) {
-    return (
-      <Card>
-        <CardContent className="p-6 text-center">
-          <Calendar className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-          <p className="text-gray-500">Please select a valid date</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   // Show loading only if we're actually loading and have no data
   if (isLoading && !fixtures.length) {
     return (
       <Card className="mt-4">
         <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
           <div className="flex justify-between items-center w-full">
-            <h3 className="font-semibold text-sm">{getHeaderTitle()}</h3>
+            <h3
+              className="font-semibold"
+              style={{
+                fontFamily:
+                  "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                fontSize: "13.3px",
+              }}
+            >
+              {getHeaderTitle()}
+            </h3>
           </div>
         </CardHeader>
         <CardContent className="p-0">
           <div className="space-y-0">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="border-b border-gray-100 last:border-b-0 p-4">
-                <div className="flex items-center gap-3">
-                  <Skeleton className="w-6 h-4 rounded-sm" />
-                  <Skeleton className="h-4 w-28" />
-                  <Skeleton className="h-4 w-8" />
-                  <Skeleton className="h-5 w-12 rounded-full" />
+              <div key={i} className="border-b border-gray-100 last:border-b-0">
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="w-6 h-4 rounded-sm" />
+                    <Skeleton className="h-4 w-28" />
+                    <Skeleton className="h-4 w-8" />
+                    <Skeleton className="h-5 w-12 rounded-full" />
+                  </div>
+                  <Skeleton className="h-4 w-4" />
                 </div>
               </div>
             ))}
@@ -1077,8 +1106,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Return early if no data to show
-  if (!validFixtures.length && !isLoading) {
+  if (!validFixtures.length) {
     return null; // Let parent component handle empty state
   }
 
@@ -1174,8 +1202,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                       (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
 
                     // Only count as live if status indicates live and match is not stale
-                    return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) &&
-                           !isStaleFinishedMatch &&
+                    return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) && 
+                           !isStaleFinishedMatch && 
                            hoursOld <= 4;
                   }).length
                 );
@@ -1378,7 +1406,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       fontSize: "13.3px",
                                     }}
                                   >
-                                    {translateLeague(safeSubstring(leagueData.league.name, 0) || "Unknown League")}
+                                    {safeSubstring(leagueData.league.name, 0) ||
+                                      "Unknown League"}
                                   </span>
                                   <span
                                     className="text-gray-500 dark:text-white"
@@ -1404,8 +1433,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                           (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
 
                                         // Only count as live if status indicates live and match is not stale
-                                        return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) &&
-                                               !isStaleFinishedMatch &&
+                                        return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) && 
+                                               !isStaleFinishedMatch && 
                                                hoursOld <= 4;
                                       }).length;
 
@@ -1634,7 +1663,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                 : ""
                                             }`}
                                           >
-                                            {shortenTeamName(translateTeam(match.teams.home.name || "Unknown Team"))}
+                                            {shortenTeamName(
+                                              match.teams.home.name,
+                                            ) || "Unknown Team"}
                                           </div>
 
                                           {/* Home team logo - grid area */}
@@ -1841,7 +1872,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                 : ""
                                             }`}
                                           >
-                                            {shortenTeamName(translateTeam(match.teams.away.name || "Unknown Team"))}
+                                            {shortenTeamName(
+                                              match.teams.away.name,
+                                            ) || "Unknown Team"}
                                           </div>
                                         </div>
 
