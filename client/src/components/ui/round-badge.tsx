@@ -200,9 +200,11 @@ export function RoundBadge({
         
         if (rule.format && match) {
           const formatValue = rule.format(match);
-          translatedText = t(rule.translationKey, `{{value}}`, { value: formatValue });
+          // Use the t() function directly with proper key lookup
+          translatedText = t(rule.translationKey).replace('{{value}}', formatValue);
         } else {
-          translatedText = t(rule.translationKey, round);
+          // Use the t() function directly for simple translations
+          translatedText = t(rule.translationKey);
         }
         
         // Cache the learned translation
