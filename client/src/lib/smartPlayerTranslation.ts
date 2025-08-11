@@ -642,6 +642,47 @@ class SmartPlayerTranslation {
     }
   }
 
+  // Generic term translations
+  private genericTerms: PlayerTranslation = {
+    'Goals': {
+      en: 'Goals', ar: 'أهداف', zh: '进球', 'zh-hk': '入球', 'zh-tw': '進球',
+      fr: 'Buts', es: 'Goles', pt: 'Golos', de: 'Tore', it: 'Gol',
+      ru: 'Голы', ja: 'ゴール', ko: '골', tr: 'Goller', nl: 'Doelpunten',
+      pl: 'Gole', sv: 'Mål', da: 'Mål', no: 'Mål', fi: 'Maalit',
+      cs: 'Góly', sk: 'Góly', hu: 'Gólok', ro: 'Goluri', bg: 'Голове',
+      hr: 'Golovi', sr: 'Голови', sl: 'Zadetki', et: 'Väravad', lv: 'Vārti',
+      lt: 'Įvarčiai', mt: 'Gowls', ga: 'Báire', cy: 'Goliau', is: 'Mörk',
+      mk: 'Голови', sq: 'Gola', eu: 'Golak', ca: 'Gols', gl: 'Goles',
+      he: 'שערים', hi: 'गोल', th: 'ประตู', vi: 'Bàn thắng', id: 'Gol',
+      ms: 'Gol', uk: 'Голи', be: 'Голы'
+    },
+    'Assists': {
+      en: 'Assists', ar: 'تمريرات حاسمة', zh: '助攻', 'zh-hk': '助攻', 'zh-tw': '助攻',
+      fr: 'Passes décisives', es: 'Asistencias', pt: 'Assistências', de: 'Vorlagen', it: 'Assist',
+      ru: 'Голевые передачи', ja: 'アシスト', ko: '어시스트', tr: 'Asistler', nl: 'Assists',
+      pl: 'Asysty', sv: 'Assists', da: 'Assists', no: 'Målgivende', fi: 'Syötöt',
+      cs: 'Asistence', sk: 'Asistencie', hu: 'Gólpasszok', ro: 'Pase de gol', bg: 'Асистенции',
+      hr: 'Asistencije', sr: 'Асистенције', sl: 'Podaje', et: 'Söödud', lv: 'Piespēles',
+      lt: 'Perdavimai', mt: 'Assistenzi', ga: 'Cúnamh', cy: 'Cynorthwyon', is: 'Stoðsendingar',
+      mk: 'Асистенции', sq: 'Asistime', eu: 'Laguntzak', ca: 'Assistències', gl: 'Asistencias',
+      he: 'בישולים', hi: 'सहायता', th: 'แอสซิสต์', vi: 'Kiến tạo', id: 'Assist',
+      ms: 'Bantuan', uk: 'Передачі', be: 'Падачы'
+    }
+  };
+
+  translateGenericTerm(term: string, language: string): string {
+    if (!term || !language) return term;
+
+    // Check if we have a translation for this generic term
+    const termTranslation = this.genericTerms[term];
+    if (termTranslation && termTranslation[language as keyof typeof termTranslation]) {
+      return termTranslation[language as keyof typeof termTranslation];
+    }
+
+    // Fallback to original term
+    return term;
+  }
+
   // Cache management
   clearCache(): void {
     this.playerCache.clear();
