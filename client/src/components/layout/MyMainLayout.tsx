@@ -1,4 +1,4 @@
-import React, { useState, useMemo, Suspense, lazy } from "react";
+import React, { useState, useMemo, Suspense, lazy, useCallback, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
@@ -7,6 +7,7 @@ import MyMainLayoutRight from "@/components/layout/MyMainLayoutRight";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 import { useTranslation } from "@/contexts/LanguageContext";
+import { apiRequest } from "@/lib/enhancedApiWrapper";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,7 +27,7 @@ interface MyMainLayoutProps {
 }
 
 const MyMainLayout: React.FC<MyMainLayoutProps> = ({
-  fixtures,
+  fixtures: initialFixtures,
   loading = false,
   children,
 }) => {
@@ -35,12 +36,122 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   const [location, navigate] = useLocation();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
+  const [fixtures, setFixtures] = useState<any[]>(initialFixtures);
+  const [isLoadingLive, setIsLoadingLive] = useState(false);
   const { isMobile } = useDeviceInfo();
   const { t, currentLanguage: translationLanguage } = useTranslation();
   
   console.log(`🌐 [MyMainLayout] Translation language: ${translationLanguage}`);
 
-  // Optimized UTC date filtering with memoization
+  // Check if a match ended more than 2 hours ago (performance optimization like MyNewLeague2)
+  const isMatchOldEnded = useCallback((fixture: any): boolean => {
+    const status = fixture.fixture.status.short;
+    const isEnded = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status);
+
+    if (!isEnded) return false;
+
+    const matchDate = new Date(fixture.fixture.date);
+    const hoursAgo = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
+
+    // Use 2-hour rule for better performance (same as MyNewLeague2)
+    return hoursAgo > 2;
+  }, []);
+
+  // Cache key for ended matches
+  const getCacheKey = useCallback((date: string) => {
+    return `main_layout_ended_matches_${date}`;
+  }, []);
+
+  // Cache ended matches
+  const cacheEndedMatches = useCallback((date: string, fixtures: any[]) => {
+    try {
+      const endedFixtures = fixtures.filter(isMatchOldEnded);
+
+      if (endedFixtures.length === 0) return;
+
+      const cacheKey = getCacheKey(date);
+      const cacheData = {
+        fixtures: endedFixtures,
+        timestamp: Date.now(),
+        date,
+      };
+
+      localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+      console.log(`💾 [MyMainLayout] Cached ${endedFixtures.length} ended matches for ${date}`);
+    } catch (error) {
+      console.error('Error caching ended matches:', error);
+    }
+  }, [getCacheKey, isMatchOldEnded]);
+
+  // Fetch live data similar to MyNewLeague2
+  const fetchLiveData = useCallback(async () => {
+    try {
+      setIsLoadingLive(true);
+      console.log(`🔴 [MyMainLayout] Fetching live matches`);
+      
+      const response = await apiRequest("GET", "/api/fixtures/live");
+      const liveData = await response.json();
+
+      if (Array.isArray(liveData)) {
+        console.log(`🔴 [MyMainLayout] Found ${liveData.length} live matches`);
+        
+        // Update fixtures with live data
+        setFixtures(prevFixtures => {
+          const updatedFixtures = [...prevFixtures];
+          
+          // Update existing fixtures with live data
+          liveData.forEach(liveFixture => {
+            const index = updatedFixtures.findIndex(f => f.fixture.id === liveFixture.fixture.id);
+            if (index !== -1) {
+              updatedFixtures[index] = liveFixture;
+            } else {
+              // Add new live fixture if not found
+              const fixtureDate = new Date(liveFixture.fixture.date).toISOString().split("T")[0];
+              if (fixtureDate === selectedDate) {
+                updatedFixtures.push(liveFixture);
+              }
+            }
+          });
+          
+          return updatedFixtures;
+        });
+      }
+    } catch (error) {
+      console.error(`❌ [MyMainLayout] Error fetching live data:`, error);
+    } finally {
+      setIsLoadingLive(false);
+    }
+  }, [selectedDate]);
+
+  // Update live data periodically for live matches
+  useEffect(() => {
+    // Check if there are any live matches
+    const hasLiveMatches = fixtures.some(fixture => 
+      ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(fixture.fixture.status.short)
+    );
+
+    if (!hasLiveMatches) {
+      console.log("🚫 [MyMainLayout] No live matches found, skipping live data updates");
+      return;
+    }
+
+    // Fetch live data immediately
+    fetchLiveData();
+
+    // Set up interval for live updates (every 30 seconds like MyNewLeague2)
+    const interval = setInterval(fetchLiveData, 30000);
+
+    return () => clearInterval(interval);
+  }, [fixtures, fetchLiveData]);
+
+  // Cache ended matches when fixtures change
+  useEffect(() => {
+    if (selectedDate && fixtures.length > 0) {
+      cacheEndedMatches(selectedDate, fixtures);
+    }
+  }, [fixtures, selectedDate, cacheEndedMatches]);
+
+  // Optimized UTC date filtering with memoization (using enhanced fixtures state)
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length || !selectedDate || selectedDate === 'undefined') {
       console.warn('🚨 [MyMainLayout] Invalid selectedDate:', selectedDate);
@@ -154,6 +265,11 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
                 <div>{children}</div>
               ) : (
                 <div>
+                  {isLoadingLive && (
+                    <div className="text-sm text-blue-600 mb-2 px-2">
+                      🔴 Updating live matches...
+                    </div>
+                  )}
                   <TodayMatchPageCard
                     fixtures={filteredFixtures}
                     onMatchClick={handleMatchClick}
