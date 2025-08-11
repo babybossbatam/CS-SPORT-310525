@@ -507,10 +507,6 @@ class SmartTeamTranslation {
       'zh': '波尔图', 'zh-hk': '波圖', 'zh-tw': '波爾圖',
       'es': 'Oporto', 'de': 'Porto', 'it': 'Porto', 'pt': 'Porto'
     },
-    'FC Porto': {
-      'zh': '波尔图', 'zh-hk': '波圖', 'zh-tw': '波爾圖',
-      'es': 'FC Oporto', 'de': 'FC Porto', 'it': 'FC Porto', 'pt': 'FC Porto'
-    },
     'Benfica': {
       'zh': '本菲卡', 'zh-hk': '賓菲加', 'zh-tw': '本菲卡',
       'es': 'Benfica', 'de': 'Benfica', 'it': 'Benfica', 'pt': 'Benfica'
@@ -2264,15 +2260,6 @@ class SmartTeamTranslation {
         return;
       }
 
-      // Try to find similar team in existing mappings first
-      const similarTeam = this.findSimilarTeamMapping(teamName);
-      if (similarTeam) {
-        this.learnedTeamMappings.set(teamName, similarTeam);
-        newMappingsCount++;
-        console.log(`🔗 [Auto-Learn] Linked "${teamName}" to existing mapping`);
-        return;
-      }
-
       // Generate intelligent mapping based on team name patterns
       const mapping = this.generateIntelligentTeamMapping(teamName);
       if (mapping) {
@@ -2286,29 +2273,6 @@ class SmartTeamTranslation {
       this.saveLearnedMappings();
       console.log(`📚 [Auto-Learn] Generated ${newMappingsCount} new team mappings from standings`);
     }
-  }
-
-  // Find similar team mapping (e.g., "FC Porto" -> "Porto")
-  private findSimilarTeamMapping(teamName: string): TeamTranslation | null {
-    const cleanedName = teamName
-      .replace(/^(FC|CF|AC|AS|Real|Club|CD|SD|AD|FK|NK|KF|PFC|SC)\s+/i, '')
-      .replace(/\s+(FC|CF|AC|AS|United|City|CF|SC|II|2|B|LP)$/i, '')
-      .trim();
-
-    // Check if the cleaned name exists in our mappings
-    for (const [existingTeam, translations] of Object.entries(this.popularLeagueTeams)) {
-      const existingCleaned = existingTeam
-        .replace(/^(FC|CF|AC|AS|Real|Club|CD|SD|AD|FK|NK|KF|PFC|SC)\s+/i, '')
-        .replace(/\s+(FC|CF|AC|AS|United|City|CF|SC|II|2|B|LP)$/i, '')
-        .trim();
-
-      if (cleanedName.toLowerCase() === existingCleaned.toLowerCase()) {
-        console.log(`🔗 [Auto-Learn] Found similar team: "${teamName}" -> "${existingTeam}"`);
-        return translations;
-      }
-    }
-
-    return null;
   }
 
   // Generate intelligent team mapping using patterns and AI-like logic

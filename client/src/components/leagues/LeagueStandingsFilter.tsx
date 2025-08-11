@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { LeagueData } from "@/lib/leagueDataCache";
+import { getPopularLeagues, LeagueData } from "@/lib/leagueDataCache";
 import { getCachedFixturesForDate } from "@/lib/fixtureCache";
+import { format, parseISO } from "date-fns";
 import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 import { useTranslation } from "@/contexts/LanguageContext";
@@ -18,7 +19,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -26,7 +29,6 @@ import {
 import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { teamColorMap } from "@/lib/colorExtractor";
-import { autoLearningTrigger } from "@/lib/autoLearningTrigger";
 
 interface Standing {
   rank: number;
@@ -268,7 +270,7 @@ const LeagueStandingsFilter = () => {
       } catch (error) {
         console.error("Failed to load league data:", error);
 
-        // Enhanced fallback to popular leagues including ALL World Youth leagues
+        // Enhanced fallback to popular leagues including ALL World youth leagues
         const fallbackLeagues = [
           { id: 2, name: "UEFA Champions League", logo: "", country: "Europe" },
           { id: 3, name: "UEFA Europa League", logo: "", country: "Europe" },
@@ -512,7 +514,7 @@ const LeagueStandingsFilter = () => {
 
         // Set default to FIFA Club World Cup
         setSelectedLeague("15");
-        setSelectedLeagueName("FIFA World Cup");
+        setSelectedLeagueName("FIFA Club World Cup");
       } finally {
         setLeaguesLoading(false);
       }
@@ -532,27 +534,25 @@ const LeagueStandingsFilter = () => {
         `/api/leagues/${selectedLeague}/standings`,
       );
       const data = await response.json();
-
+      
       // Auto-learn from standings data
       if (data?.league?.standings) {
         const allTeams: any[] = [];
-
+        
         // Handle both group-based and single league standings
         if (Array.isArray(data.league.standings[0])) {
           // Group-based standings
           data.league.standings.forEach((group: any[]) => {
-            group.forEach((standing: Standing) => {
-              allTeams.push(standing);
-            });
+            allTeams.push(...group);
           });
         } else {
           // Single league standings
           allTeams.push(...data.league.standings);
         }
-
+        
         // Auto-learn team translations
         smartTeamTranslation.autoLearnFromStandingsData(allTeams);
-
+        
         // Auto-learn league and country translations
         if (data.league) {
           smartLeagueCountryTranslation.autoLearnFromLeagueData(
@@ -561,7 +561,7 @@ const LeagueStandingsFilter = () => {
           );
         }
       }
-
+      
       return data;
     },
     enabled: !!selectedLeague && selectedLeague !== "",
@@ -577,13 +577,13 @@ const LeagueStandingsFilter = () => {
       // Try to get cached fixtures first
       const today = new Date().toISOString().slice(0, 10);
       const cachedTodayFixtures = getCachedFixturesForDate(today);
-
+      
       const response = await apiRequest(
         "GET",
         `/api/leagues/${selectedLeague}/fixtures`,
       );
       const fixturesData = await response.json();
-
+      
       // Merge with cached fixtures for better opponent data
       if (cachedTodayFixtures && fixturesData?.response) {
         const mergedFixtures = {
@@ -595,7 +595,7 @@ const LeagueStandingsFilter = () => {
         };
         return mergedFixtures;
       }
-
+      
       return fixturesData;
     },
     enabled: !!selectedLeague && selectedLeague !== "", // Only run when we have a valid league ID
@@ -934,14 +934,7 @@ const LeagueStandingsFilter = () => {
                                       />
                                     </div>
                                     <span className="text-[0.85rem] truncate">
-                                      {(() => {
-                                        // Queue team for learning if translation is same as original
-                                        const translation = smartTeamTranslation.translateTeam(standing.team.name, currentLanguage);
-                                        if (translation === standing.team.name) {
-                                          autoLearningTrigger.queueTeamForLearning(standing.team.name);
-                                        }
-                                        return translation;
-                                      })()}
+                                      {smartTeamTranslation.translateTeam(standing.team.name, currentLanguage)}
                                     </span>
                                   </div>
                                 </TableCell>
@@ -1054,7 +1047,7 @@ const LeagueStandingsFilter = () => {
                     </div>
                   ),
                 )}
-
+                
                 {/* Link to view full group standings if more than 2 groups exist */}
                 {standings.league.standings.length > 2 && (
                   <div className="text-center mt-6 pt-4 border-t border-gray-100">
@@ -1084,7 +1077,7 @@ const LeagueStandingsFilter = () => {
                       <TableHead className="text-center text-xs font-regular text-gray-400 px-2 w-[50px]">
                         +/-
                       </TableHead>
-                      <TableHead className="text-center text-xs font-semi-bold text-gray-900  px-2 w-[50px]">
+                      <TableHead className="text-center text-xs font-regular text-gray-900  px-2 w-[50px]">
                         PTS
                       </TableHead>
                       <TableHead className="text-center text-xs font-semi-bold text-gray-400 py-3 px-2 w-[40px]">

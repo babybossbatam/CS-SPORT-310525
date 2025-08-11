@@ -16,16 +16,6 @@ export async function triggerComprehensiveLearning(): Promise<void> {
     // 1. Learn from standings data
     console.log('📊 Learning from standings data...');
     const standingsStats = await standingsLearningSystem.learnFromMajorLeagues();
-
-    // 2. Force refresh translations for common teams like FC Porto
-    const commonTeamsNeedingTranslation = [
-      'FC Porto', 'FC Barcelona', 'Real Madrid CF', 'AC Milan', 'FC Bayern München',
-      'Manchester United FC', 'Liverpool FC', 'Arsenal FC', 'Chelsea FC'
-    ];
-    
-    commonTeamsNeedingTranslation.forEach(teamName => {
-      smartTeamTranslation.forceRefreshTranslations([teamName], 'zh-hk');
-    });
     
     // 2. Learn from fixtures data  
     console.log('⚽ Learning from fixtures data...');
