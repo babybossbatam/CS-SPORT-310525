@@ -76,12 +76,28 @@ if (typeof window !== 'undefined') {
       message.includes('MaxListenersExceededWarning') ||
       message.includes('fsError listeners') ||
       message.includes('stallwart') ||
-      message.includes('failed ping')
+      message.includes('failed ping') ||
+      message.includes('changes listeners added') ||
+      message.includes('watchTextFile') ||
+      message.includes('Possible EventEmitter memory leak')
     ) {
       return; // Suppress these warnings
     }
     originalConsoleWarn.apply(console, args);
   };
+
+  // Handle Replit's file watching EventEmitter warnings
+  const originalProcessEmitWarning = process.emitWarning;
+  if (process && typeof process.emitWarning === 'function') {
+    process.emitWarning = function(warning, type, code, ctor) {
+      if (type === 'MaxListenersExceededWarning' && 
+          (warning.toString().includes('changes listeners') || 
+           warning.toString().includes('watchTextFile'))) {
+        return; // Suppress Replit file watching warnings
+      }
+      return originalProcessEmitWarning.call(this, warning, type, code, ctor);
+    };
+  }
 }
 
 // Set EventEmitter default max listeners globally

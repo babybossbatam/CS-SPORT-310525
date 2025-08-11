@@ -1,7 +1,7 @@
 
 // EventEmitter utilities for managing listeners and preventing memory leaks
 
-export const setGlobalEventEmitterLimits = (limit: number = 200) => {
+export const setGlobalEventEmitterLimits = (limit: number = 300) => {
   // Set process max listeners
   if (typeof process !== 'undefined' && process.setMaxListeners) {
     process.setMaxListeners(limit);
@@ -25,6 +25,24 @@ export const setGlobalEventEmitterLimits = (limit: number = 200) => {
       } catch (e) {
         // Ignore if not available
       }
+    }
+
+    // Handle Replit-specific EventEmitters
+    try {
+      // Set limits for Replit file system watchers
+      if ((window as any).replit && (window as any).replit.fs) {
+        const fs = (window as any).replit.fs;
+        if (fs.setMaxListeners) {
+          fs.setMaxListeners(limit);
+        }
+      }
+
+      // Handle other Replit EventEmitters that might cause warnings
+      if ((window as any).stallwart && (window as any).stallwart.setMaxListeners) {
+        (window as any).stallwart.setMaxListeners(limit);
+      }
+    } catch (e) {
+      // Ignore Replit-specific setup errors
     }
   }
 
@@ -75,14 +93,31 @@ export const cleanupEventListeners = () => {
   }
 };
 
+// Suppress process warnings for Replit environment
+if (typeof process !== 'undefined') {
+  const originalEmitWarning = process.emitWarning;
+  process.emitWarning = function(warning, type, code, ctor) {
+    // Suppress MaxListenersExceededWarning for file watching
+    if (type === 'MaxListenersExceededWarning' && 
+        (warning.toString().includes('changes listeners') || 
+         warning.toString().includes('watchTextFile') ||
+         warning.toString().includes('fsError'))) {
+      return; // Suppress these specific warnings
+    }
+    return originalEmitWarning.call(this, warning, type, code, ctor);
+  };
+}
+
 // Initialize with high limits for Replit environment
-setGlobalEventEmitterLimits(300);
+setGlobalEventEmitterLimits(500);
 
 // Set up periodic cleanup to prevent memory leaks
 if (typeof window !== 'undefined') {
   setInterval(() => {
     try {
       cleanupEventListeners();
+      // Re-apply limits in case they were reset
+      setGlobalEventEmitterLimits(500);
     } catch (e) {
       // Ignore cleanup errors
     }
