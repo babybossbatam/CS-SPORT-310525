@@ -1,0 +1,26 @@
+
+> rest-express@1.0.0 dev
+Using RapidAPI Key: 18df8...erver/index.ts
+8:04:43 AM [express] serving on port 5000
+8:04:46 AM [vite] warning: Duplicate key "brasil" in object literal
+526|      const countryMap: { [key: string]: string } = {
+527|        'brasil': 'Brazil',
+528|        'brasil': 'Brazil',
+   |        ^
+529|        'england': 'England',
+530|        'uk': 'England',
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartPlayerTranslation.ts
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-WIIJQEXM.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-SD42OOGP.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-VRF373B3.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-WIIJQEXM.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-SD42OOGP.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-VRF373B3.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-WIIJQEXM.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-SD42OOGP.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-VRF373B3.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
