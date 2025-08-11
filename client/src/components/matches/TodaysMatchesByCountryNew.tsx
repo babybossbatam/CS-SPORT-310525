@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronDown, ChevronUp, Calendar, Star } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { apiRequest } from "@/lib/queryClient";
 import { useCachedQuery } from "@/lib/cachingHelper";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
@@ -33,6 +34,8 @@ import {
   getCountryCode,
 } from "@/lib/flagUtils";
 import { getCachedCountryName, setCachedCountryName } from "@/lib/countryCache";
+import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
+import { translateCountryName } from "@/lib/countryNameMapping";
 
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
@@ -139,6 +142,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   timeFilterActive = false,
   onMatchCardClick,
 }) => {
+  const { language } = useLanguage();
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
   );
@@ -482,7 +486,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Country code to full name mapping with caching
+  // Enhanced country name translation with smart translation system
   const getCountryDisplayName = (
     country: string | null | undefined,
   ): string => {
@@ -490,7 +494,29 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return "Unknown";
     }
 
-    // Check cache first
+    // First try smart translation system
+    try {
+      const smartTranslation = smartLeagueCountryTranslation.translateCountryName(country, language);
+      if (smartTranslation && smartTranslation !== country) {
+        console.log(`🎯 [Smart Country Translation] "${country}" -> "${smartTranslation}" (${language})`);
+        return smartTranslation;
+      }
+    } catch (error) {
+      console.warn('[Smart Country Translation] Error:', error);
+    }
+
+    // Fallback to legacy countryNameMapping
+    try {
+      const legacyTranslation = translateCountryName(country, language);
+      if (legacyTranslation && legacyTranslation !== country) {
+        console.log(`🔄 [Legacy Country Translation] "${country}" -> "${legacyTranslation}" (${language})`);
+        return legacyTranslation;
+      }
+    } catch (error) {
+      console.warn('[Legacy Country Translation] Error:', error);
+    }
+
+    // Check cache
     const cachedName = getCachedCountryName(country);
     if (cachedName) {
       return cachedName;
@@ -856,6 +882,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     });
 
     return grouped;
+  }, [validFixtures]);
+
+  // Learn country names from fixtures and generate stats
+  useEffect(() => {
+    if (validFixtures && validFixtures.length > 0) {
+      try {
+        // Learn country mappings from fixtures
+        smartLeagueCountryTranslation.learnFromFixtures(validFixtures);
+        console.log(`🎓 [Country Learning] Processed ${validFixtures.length} fixtures for country learning`);
+      } catch (error) {
+        console.warn('[Country Learning] Error:', error);
+      }
+    }
   }, [validFixtures]);
 
   // Final summary of grouped data with comprehensive analysis
@@ -1530,9 +1569,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         fontSize: "13.3px",
                       }}
                     >
-                      {typeof countryData.country === "string"
-                        ? countryData.country
-                        : countryData.country?.name || "Unknown"}
+                      {getCountryDisplayName(
+                        typeof countryData.country === "string"
+                          ? countryData.country
+                          : countryData.country?.name || "Unknown"
+                      )}
                     </span>
                     <span
                       className="text-gray-500 dark:text-white"

@@ -198,6 +198,30 @@ export const smartCountryTranslation = new SmartCountryTranslation();
 
 // Main translation function for country names
 export function translateCountryName(countryName: string, language: string = 'en'): string {
+  // Handle World as a special case first
+  if (countryName?.toLowerCase() === 'world') {
+    const worldTranslations: { [key: string]: string } = {
+      'zh': '世界',
+      'zh-hk': '世界', 
+      'zh-tw': '世界',
+      'es': 'Mundial',
+      'de': 'Welt',
+      'it': 'Mondo',
+      'pt': 'Mundial',
+      'en': 'World',
+      'fr': 'Monde',
+      'ar': 'العالم',
+      'ja': '世界',
+      'ko': '세계'
+    };
+    
+    const translation = worldTranslations[language];
+    if (translation) {
+      console.log(`🌍 [Legacy World Translation] "${countryName}" -> "${translation}" (${language})`);
+      return translation;
+    }
+  }
+  
   return smartCountryTranslation.translateCountry(countryName, language);
 }
 
