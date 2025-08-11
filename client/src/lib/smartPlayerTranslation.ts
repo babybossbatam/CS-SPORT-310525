@@ -1,4 +1,3 @@
-
 interface PlayerTranslation {
   [key: string]: {
     en: string;
@@ -723,7 +722,7 @@ class SmartPlayerTranslation {
       'uruguay': 'Uruguay',
       'venezuela': 'Venezuela',
       'argentina': 'Argentina',
-      
+
       // European countries
       'england': 'England',
       'uk': 'England',
@@ -742,7 +741,7 @@ class SmartPlayerTranslation {
       'netherlands': 'Netherlands',
       'holland': 'Netherlands',
       'países bajos': 'Netherlands',
-      
+
       // Other common variations
       'usa': 'United States',
       'united states': 'United States',
@@ -786,13 +785,18 @@ class SmartPlayerTranslation {
     const teamMap: { [key: string]: string } = {
       'rangers': 'Rangers',
       'glasgow rangers': 'Rangers',
+      'celtic': 'Celtic',
       'crvena zvezda': 'Crvena Zvezda',
       'red star belgrade': 'Crvena Zvezda',
       'real madrid': 'Real Madrid',
-      'barcelona': 'Barcelona',
       'fc barcelona': 'Barcelona',
+      'barcelona': 'Barcelona',
       'arsenal': 'Arsenal',
-      'arsenal fc': 'Arsenal'
+      'arsenal fc': 'Arsenal',
+      'sheffield united': 'Sheffield United',
+      'sheffield wednesday': 'Sheffield Wednesday',
+      'nottingham forest': 'Nottingham Forest',
+      'leicester city': 'Leicester City'
     };
 
     return teamMap[normalized] || this.capitalizeTeam(team);
@@ -884,25 +888,25 @@ class SmartPlayerTranslation {
     return country;
   }
 
-  translateTeamName(team: string, language: string): string {
-    if (!team || !language) return team;
+  // Enhanced team name translation with context
+  translateTeamName(teamName: string, language: string = 'zh-hk', context?: {
+    leagueId?: number;
+    leagueName?: string;
+    leagueCountry?: string;
+  }): string {
+    if (!teamName) return '';
 
-    const normalizedTeam = this.normalizeTeam(team);
+    console.log(`🏠 [SmartPlayerTranslation] Translating team: "${teamName}" to ${language}`, context);
 
-    // Check static translations first
-    const staticTranslation = this.popularTeams[normalizedTeam];
-    if (staticTranslation && staticTranslation[language as keyof typeof staticTranslation]) {
-      return staticTranslation[language as keyof typeof staticTranslation];
+    // Use the smart team translation system with context
+    const translated = this.learnedTeamMappings.get(this.normalizeTeam(teamName))?.[language as keyof PlayerTranslation[string]] || teamName;
+
+    // If translation is different, log it for learning
+    if (translated !== teamName) {
+      console.log(`✅ [SmartPlayerTranslation] Team translated: "${teamName}" -> "${translated}"`);
     }
 
-    // Check learned mappings
-    const learnedMapping = this.learnedTeamMappings.get(normalizedTeam);
-    if (learnedMapping && learnedMapping[language as keyof typeof learnedMapping]) {
-      return learnedMapping[language as keyof typeof learnedMapping];
-    }
-
-    // Fallback to original team
-    return team;
+    return translated;
   }
 
   getPlayerCountry(playerId: number): string | null {
@@ -931,30 +935,118 @@ class SmartPlayerTranslation {
 
     if (!this.learnedCountryMappings.has(normalizedCountry)) {
       const newMapping = this.generateCountryMapping(normalizedCountry);
-      this.learnedCountryMappings.set(normalizedCountry, newMapping);
+      this.learnedCountryMappings.set(normalizedCountry, newCountryMapping);
       this.saveLearnedMappings();
       console.log(`🎯 [SmartPlayerTranslation] Auto-learned new country: "${country}" -> "${normalizedCountry}"`);
     }
   }
 
-  // Auto-learn from any team name
-  autoLearnFromAnyTeamName(team: string, context?: any): void {
-    if (!team || team.length < 2) return;
+  // Enhanced auto-learning from team names with better context
+  autoLearnFromAnyTeamName(teamName: string, context?: {
+    playerId?: number;
+    playerName?: string;
+    leagueName?: string;
+    leagueCountry?: string;
+    leagueId?: number;
+  }): void {
+    if (!teamName || teamName.length < 2) return;
 
-    const normalizedTeam = this.normalizeTeam(team);
+    // Enhanced team mapping with league context
+    this.learnTeamMapping(teamName, context);
 
-    if (!this.learnedTeamMappings.has(normalizedTeam)) {
-      const newMapping = this.generateTeamMapping(normalizedTeam);
-      this.learnedTeamMappings.set(normalizedTeam, newMapping);
+    // Try to get proper translation based on league context
+    if (context?.leagueCountry && context?.leagueName) {
+      this.enhanceTeamTranslation(teamName, context);
+    }
+
+    console.log(`🎓 [SmartPlayerTranslation] Auto-learned team: "${teamName}" with context:`, context);
+  }
+
+  // Create a basic mapping for a team name
+  private createBasicMapping(teamName: string): PlayerTranslation[string] {
+    const mapping: any = {};
+    Object.keys(this.popularTeams.Rangers).forEach(lang => {
+      mapping[lang] = teamName;
+    });
+    return mapping;
+  }
+
+  // Learn or update team mapping
+  private learnTeamMapping(teamName: string, context?: {
+    playerId?: number;
+    playerName?: string;
+    leagueName?: string;
+    leagueCountry?: string;
+    leagueId?: number;
+  }): void {
+    const normalizedTeam = this.normalizeTeam(teamName);
+    const existingMapping = this.learnedTeamMappings.get(normalizedTeam) || this.createBasicMapping(normalizedTeam);
+
+    // Enhance mapping with context if available and not already present
+    const updatedMapping = { ...existingMapping };
+
+    if (context?.leagueName && !updatedMapping['en'] && !updatedMapping['zh']) { // Example: Add basic translations if missing
+      updatedMapping['en'] = teamName; // Default to teamName for English
+      updatedMapping['zh'] = teamName; // Default to teamName for Chinese
+    }
+
+    this.learnedTeamMappings.set(normalizedTeam, updatedMapping);
+    this.saveLearnedMappings();
+  }
+
+  // Enhanced team translation based on league context
+  private enhanceTeamTranslation(teamName: string, context: {
+    leagueCountry?: string;
+    leagueName?: string;
+    leagueId?: number;
+  }): void {
+    // Common team translations based on league context
+    const teamTranslations: Record<string, Record<string, string>> = {
+      // Scottish teams
+      'Rangers': {
+        'zh': '流浪者', 'zh-hk': '格拉斯哥流浪者', 'zh-tw': '流浪者',
+        'es': 'Rangers', 'de': 'Rangers', 'it': 'Rangers', 'pt': 'Rangers'
+      },
+      'Celtic': {
+        'zh': '凯尔特人', 'zh-hk': '些路迪', 'zh-tw': '凱爾特人',
+        'es': 'Celtic', 'de': 'Celtic', 'it': 'Celtic', 'pt': 'Celtic'
+      },
+      // English teams
+      'Sheffield United': {
+        'zh': '谢菲尔德联', 'zh-hk': '錫菲聯', 'zh-tw': '謝菲爾德聯',
+        'es': 'Sheffield United', 'de': 'Sheffield United', 'it': 'Sheffield United', 'pt': 'Sheffield United'
+      },
+      'Sheffield Wednesday': {
+        'zh': '谢菲尔德星期三', 'zh-hk': '錫周三', 'zh-tw': '謝菲爾德星期三',
+        'es': 'Sheffield Wednesday', 'de': 'Sheffield Wednesday', 'it': 'Sheffield Wednesday', 'pt': 'Sheffield Wednesday'
+      },
+      'Nottingham Forest': {
+        'zh': '诺丁汉森林', 'zh-hk': '諾定咸森林', 'zh-tw': '諾丁漢森林',
+        'es': 'Nottingham Forest', 'de': 'Nottingham Forest', 'it': 'Nottingham Forest', 'pt': 'Nottingham Forest'
+      },
+      'Leicester City': {
+        'zh': '莱斯特城', 'zh-hk': '李斯特城', 'zh-tw': '萊斯特城',
+        'es': 'Leicester City', 'de': 'Leicester City', 'it': 'Leicester City', 'pt': 'Leicester City'
+      },
+      // More teams can be added here...
+    };
+
+    if (teamTranslations[teamName]) {
+      // Store this enhanced translation
+      const existingMapping = this.learnedTeamMappings.get(teamName) || this.createBasicMapping(teamName);
+      const enhancedMapping = { ...existingMapping, ...teamTranslations[teamName] };
+
+      this.learnedTeamMappings.set(teamName, enhancedMapping);
       this.saveLearnedMappings();
-      console.log(`🎯 [SmartPlayerTranslation] Auto-learned new team: "${team}" -> "${normalizedTeam}"`);
+
+      console.log(`🎯 [SmartPlayerTranslation] Enhanced translation for "${teamName}":`, enhancedMapping);
     }
   }
 
   // Set player-country mapping
   setPlayerCountry(playerId: number, country: string): void {
     if (!playerId || !country) return;
-    
+
     const normalizedCountry = this.normalizeCountry(country);
     this.playerCountryMappings.set(playerId.toString(), normalizedCountry);
     this.saveLearnedMappings();
@@ -983,9 +1075,21 @@ class SmartPlayerTranslation {
   }
 }
 
+// Re-exporting the original smartPlayerTranslation instance and learnFromPlayerData
 export const smartPlayerTranslation = new SmartPlayerTranslation();
 
 // Export the learnFromPlayerData method for external use
 export const learnFromPlayerData = (players: PlayerData[]) => {
   return smartPlayerTranslation.learnFromPlayerData(players);
+};
+
+// Dummy smartTeamTranslation for compilation, assuming it exists elsewhere or is part of a larger system.
+// In a real scenario, this would be imported or defined.
+const smartTeamTranslation = {
+  translateTeamName: (teamName: string, language: string, context?: any): string => {
+    // Placeholder implementation
+    console.log(`[smartTeamTranslation] Called with: ${teamName}, ${language}`, context);
+    const teamData = smartPlayerTranslation.popularTeams[teamName] || smartPlayerTranslation.learnedTeamMappings.get(smartPlayerTranslation.normalizeTeam(teamName));
+    return teamData?.[language as keyof typeof teamData] || teamName;
+  }
 };

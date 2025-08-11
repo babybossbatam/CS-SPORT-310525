@@ -14,7 +14,7 @@ class SmartTeamTranslation {
   private teamCache = new Map<string, string>();
   private leagueTeamsCache: Record<number, any[]> = {};
   private learnedTeamMappings = new Map<string, TeamTranslation>(); // Stores learned mappings
-  private automatedMappingsCache: any = null; // Cache for automated mappings
+  private automatedMappingsCache: Record<string, any> | null = null; // Cache for automated mappings
   private automatedMappings = new Map<string, any>(); // Store automated mappings
   private translationCache = new Map<string, { translation: string; timestamp: number }>(); // Add missing cache
   private isLoading = false;
@@ -486,6 +486,10 @@ class SmartTeamTranslation {
       'es': 'Godoy Cruz', 'de': 'Godoy Cruz', 'it': 'Godoy Cruz', 'pt': 'Godoy Cruz'
     },
     'Gimnasia La Plata': {
+      'zh': '拉普拉塔体操', 'zh-hk': '拉普拉塔體操', 'zh-tw': '拉普拉塔體操',
+      'es': 'Gimnasia La Plata', 'de': 'Gimnasia La Plata', 'it': 'Gimnasia La Plata', 'pt': 'Gimnasia La Plata'
+    },
+    'Gimnasia L.P.': {
       'zh': '拉普拉塔体操', 'zh-hk': '拉普拉塔體操', 'zh-tw': '拉普拉塔體操',
       'es': 'Gimnasia La Plata', 'de': 'Gimnasia La Plata', 'it': 'Gimnasia La Plata', 'pt': 'Gimnasia La Plata'
     },
@@ -1184,10 +1188,28 @@ class SmartTeamTranslation {
     },
 
 
-    'Gimnasia L.P.': {
-      'zh': '拉普拉塔体操', 'zh-hk': '拉普拉塔體操', 'zh-tw': '拉普拉塔體操',
-      'es': 'Gimnasia La Plata', 'de': 'Gimnasia La Plata', 'it': 'Gimnasia La Plata', 'pt': 'Gimnasia La Plata'
+    // Scottish teams
+    'Rangers': {
+      'zh': '流浪者', 'zh-hk': '格拉斯哥流浪者', 'zh-tw': '流浪者',
+      'es': 'Rangers', 'de': 'Rangers', 'it': 'Rangers', 'pt': 'Rangers'
     },
+    'Celtic': {
+      'zh': '凯尔特人', 'zh-hk': '些路迪', 'zh-tw': '凱爾特人',
+      'es': 'Celtic', 'de': 'Celtic', 'it': 'Celtic', 'pt': 'Celtic'
+    },
+    'Aberdeen': {
+      'zh': '阿伯丁', 'zh-hk': '鴨巴甸', 'zh-tw': '阿伯丁',
+      'es': 'Aberdeen', 'de': 'Aberdeen', 'it': 'Aberdeen', 'pt': 'Aberdeen'
+    },
+    'Hearts': {
+      'zh': '哈茨', 'zh-hk': '赫斯', 'zh-tw': '哈茨',
+      'es': 'Hearts', 'de': 'Hearts', 'it': 'Hearts', 'pt': 'Hearts'
+    },
+    'Hibernian': {
+      'zh': '希伯尼安', 'zh-hk': '喜百年', 'zh-tw': '希伯尼安',
+      'es': 'Hibernian', 'de': 'Hibernian', 'it': 'Hibernian', 'pt': 'Hibernian'
+    },
+
 
     // Italian teams (avoid duplicates)
 
@@ -1534,7 +1556,7 @@ class SmartTeamTranslation {
       'es': 'FC Midtjylland', 'de': 'FC Midtjylland', 'it': 'FC Midtjylland', 'pt': 'FC Midtjylland'
     },
 
-    // Additional Brazilian teams
+    // Additional Brazilian Teams
     'CRB': {
       'zh': 'CRB', 'zh-hk': 'CRB', 'zh-tw': 'CRB',
       'es': 'CRB', 'de': 'CRB', 'it': 'CRB', 'pt': 'CRB'
@@ -1702,7 +1724,7 @@ class SmartTeamTranslation {
 
     // AUTOMATED TEAM MAPPINGS - Enhanced with proper translations where available
     // Generated from leagues: 38, 15, 2, 4, 10, 11, 848, 886, 1022, 772, 71, 3, 5, 531, 22, etc.
-    
+
     // MLS Teams (enhanced)
     'Austin': {
       'zh': '奥斯汀', 'zh-hk': '奧斯汀', 'zh-tw': '奧斯汀',
@@ -1804,7 +1826,7 @@ class SmartTeamTranslation {
     },
 
     // Additional European Teams
-    
+
     'FK Crvena Zvezda': {
       'zh': '贝尔格莱德红星', 'zh-hk': '貝爾格萊德紅星', 'zh-tw': '貝爾格萊德紅星',
       'es': 'FK Crvena Zvezda', 'de': 'FK Roter Stern Belgrad', 'it': 'FK Stella Rossa Belgrado', 'pt': 'FK Estrela Vermelha'
@@ -1827,23 +1849,23 @@ class SmartTeamTranslation {
       'zh': '开罗国民', 'zh-hk': '開羅國民', 'zh-tw': '開羅國民',
       'es': 'Al Ahly', 'de': 'Al Ahly', 'it': 'Al Ahly', 'pt': 'Al Ahly'
     },
-    
-    
+
+
     // AUTOMATED TEAM MAPPINGS - merged from generateCompleteTeamMapping
     // These provide broad coverage but manual translations above take priority
-    
+
     // Only add teams not already covered by manual translations above
-   
+
     'Vila Nova': {
       'zh': '维拉诺瓦', 'zh-hk': '維拉諾瓦', 'zh-tw': '維拉諾瓦',
       'es': 'Vila Nova', 'de': 'Vila Nova', 'it': 'Vila Nova', 'pt': 'Vila Nova'
     },
-    
+
     'San Diego': {
       'zh': '圣迭戈', 'zh-hk': '聖迭戈', 'zh-tw': '聖迭戈',
       'es': 'San Diego', 'de': 'San Diego', 'it': 'San Diego', 'pt': 'San Diego'
     },
-    
+
     'Sporting Kansas City': {
       'zh': '堪萨斯城体育', 'zh-hk': '堪薩斯城體育', 'zh-tw': '堪薩斯城體育',
       'es': 'Sporting Kansas City', 'de': 'Sporting Kansas City', 'it': 'Sporting Kansas City', 'pt': 'Sporting Kansas City'
@@ -1879,7 +1901,7 @@ class SmartTeamTranslation {
       'es': 'Partizan', 'de': 'Partizan', 'it': 'Partizan', 'pt': 'Partizan'
     },
     'Hibernian': {
-      'zh': '希伯尼安', 'zh-hk': '希伯尼安', 'zh-tw': '希伯尼安',
+      'zh': '希伯尼安', 'zh-hk': '喜百年', 'zh-tw': '希伯尼安',
       'es': 'Hibernian', 'de': 'Hibernian', 'it': 'Hibernian', 'pt': 'Hibernian'
     },
     'HNK Hajduk Split': {
@@ -1981,6 +2003,48 @@ class SmartTeamTranslation {
     'Universitatea Craiova': {
       'zh': '克拉约瓦大学', 'zh-hk': '克拉約瓦大學', 'zh-tw': '克拉約瓦大學',
       'es': 'Universitatea Craiova', 'de': 'Universitatea Craiova', 'it': 'Universitatea Craiova', 'pt': 'Universitatea Craiova'
+    },
+
+    // English team mappings
+    'Leicester City': {
+      'zh': '莱斯特城', 'zh-hk': '李斯特城', 'zh-tw': '萊斯特城',
+      'es': 'Leicester City', 'de': 'Leicester City', 'it': 'Leicester City', 'pt': 'Leicester City'
+    },
+    'Sheffield United': {
+      'zh': '谢菲尔德联', 'zh-hk': '錫菲聯', 'zh-tw': '謝菲爾德聯',
+      'es': 'Sheffield United', 'de': 'Sheffield United', 'it': 'Sheffield United', 'pt': 'Sheffield United'
+    },
+    'Sheffield Wednesday': {
+      'zh': '谢菲尔德星期三', 'zh-hk': '錫周三', 'zh-tw': '謝菲爾德星期三',
+      'es': 'Sheffield Wednesday', 'de': 'Sheffield Wednesday', 'it': 'Sheffield Wednesday', 'pt': 'Sheffield Wednesday'
+    },
+    'Nottingham Forest': {
+      'zh': '诺丁汉森林', 'zh-hk': '諾定咸森林', 'zh-tw': '諾丁漢森林',
+      'es': 'Nottingham Forest', 'de': 'Nottingham Forest', 'it': 'Nottingham Forest', 'pt': 'Nottingham Forest'
+    },
+    'Leeds United': {
+      'zh': '利兹联', 'zh-hk': '列斯聯', 'zh-tw': '里茲聯',
+      'es': 'Leeds United', 'de': 'Leeds United', 'it': 'Leeds United', 'pt': 'Leeds United'
+    },
+    'Birmingham City': {
+      'zh': '伯明翰城', 'zh-hk': '伯明翰城', 'zh-tw': '伯明翰城',
+      'es': 'Birmingham City', 'de': 'Birmingham City', 'it': 'Birmingham City', 'pt': 'Birmingham City'
+    },
+    'Coventry City': {
+      'zh': '考文垂城', 'zh-hk': '高雲地利', 'zh-tw': '考文垂城',
+      'es': 'Coventry City', 'de': 'Coventry City', 'it': 'Coventry City', 'pt': 'Coventry City'
+    },
+    'Bristol City': {
+      'zh': '布里斯托城', 'zh-hk': '布里斯托城', 'zh-tw': '布里斯托城',
+      'es': 'Bristol City', 'de': 'Bristol City', 'it': 'Bristol City', 'pt': 'Bristol City'
+    },
+    'Hull City': {
+      'zh': '赫尔城', 'zh-hk': '侯城', 'zh-tw': '赫爾城',
+      'es': 'Hull City', 'de': 'Hull City', 'it': 'Hull City', 'pt': 'Hull City'
+    },
+    'Queens Park Rangers': {
+      'zh': '女王公园巡游者', 'zh-hk': 'QPR', 'zh-tw': '女王公園巡遊者',
+      'es': 'Queens Park Rangers', 'de': 'Queens Park Rangers', 'it': 'Queens Park Rangers', 'pt': 'Queens Park Rangers'
     },
 
   };
@@ -2178,16 +2242,16 @@ class SmartTeamTranslation {
   async initializeTeamTranslations(language: string): Promise<void> {
     try {
       console.log(`🔄 [SmartTranslation] Initializing team translations for language: ${language}`);
-      
+
       // Load cached mappings
       this.loadLearnedMappings();
-      
+
       // Load automated mappings
       await this.loadAutomatedMappings();
-      
+
       // Clear any stale cache entries
       this.clearStaleCache();
-      
+
       console.log(`✅ [SmartTranslation] Successfully initialized for ${language} with ${this.learnedTeamMappings.size} learned mappings`);
     } catch (error) {
       console.error(`❌ [SmartTranslation] Failed to initialize for ${language}:`, error);
@@ -2342,6 +2406,7 @@ class SmartTeamTranslation {
 
 
 
+
   // Enhanced fallback for common team patterns with automated mapping integration
   private getEnhancedFallback(teamName: string, language: string): string | null {
     if (!teamName || !language) return null;
@@ -2441,7 +2506,7 @@ class SmartTeamTranslation {
 
     let phoneticTranslation = '';
     const cleanName = teamName.replace(/[^a-zA-Z]/g, '').toLowerCase();
-    
+
     for (let i = 0; i < Math.min(cleanName.length, 6); i++) { // Limit to 6 characters
       const char = cleanName[i];
       if (phoneticMap[char]) {
@@ -2570,7 +2635,7 @@ class SmartTeamTranslation {
       if (automatedData) {
         const data = JSON.parse(automatedData);
         console.log(`🤖 [SmartTranslation] Found automated mappings for ${data.teams || 0} teams`);
-        
+
         // Store reference to automated data for quick access
         this.automatedMappingsCache = data;
         console.log(`✅ [SmartTranslation] Integrated automated mappings cache`);
@@ -2581,7 +2646,7 @@ class SmartTeamTranslation {
       if (completeMapping) {
         const completeData = JSON.parse(completeMapping);
         console.log(`📋 [SmartTranslation] Found complete team mapping data with ${completeData.totalTeams || 0} teams`);
-        
+
         // Merge with existing learned mappings
         if (completeData.allTeamsSortedByFrequency) {
           completeData.allTeamsSortedByFrequency.forEach((team: any) => {
@@ -2598,7 +2663,7 @@ class SmartTeamTranslation {
               });
             }
           });
-          
+
           this.saveLearnedMappings();
           console.log(`🎓 [SmartTranslation] Integrated ${completeData.allTeamsSortedByFrequency.length} teams from complete mapping`);
         }
@@ -2611,7 +2676,7 @@ class SmartTeamTranslation {
   // Method to bulk update translations from automated mappings
   bulkUpdateFromAutomatedMappings(automatedMappings: Record<string, any>): void {
     let updatedCount = 0;
-    
+
     Object.entries(automatedMappings).forEach(([teamName, translations]) => {
       if (typeof translations === 'object' && translations !== null) {
         // Only update if we don't already have a high-quality manual translation
@@ -2621,7 +2686,7 @@ class SmartTeamTranslation {
         }
       }
     });
-    
+
     if (updatedCount > 0) {
       this.saveLearnedMappings();
       console.log(`📦 [SmartTranslation] Bulk updated ${updatedCount} team translations`);
