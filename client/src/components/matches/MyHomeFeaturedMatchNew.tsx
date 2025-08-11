@@ -1375,6 +1375,11 @@ id: fixture.teams.away.id,
                 return false;
               }
 
+              if (fixture.league.id === 58) {
+                console.log(`🚫 [EXPLICIT EXCLUSION] Non League Premier - Isthmian match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                return false;
+              }
+
               // Additional name-based exclusion for Regionalliga leagues
               const leagueName = fixture.league?.name?.toLowerCase() || "";
               if (leagueName.includes('regionalliga') && leagueName.includes('bayern')) {
