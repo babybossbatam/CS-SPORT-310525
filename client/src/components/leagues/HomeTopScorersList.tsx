@@ -8,7 +8,6 @@ import { TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
 import { CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
-import { smartPlayerTranslation } from "@/lib/smartPlayerTranslation";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 // Add CSS to hide scrollbars
@@ -248,19 +247,6 @@ const HomeTopScorersList = () => {
                   leagueDataForLearning.push({
                     league: scorer.statistics[0].league
                   });
-                }
-              });
-
-              // Auto-learn player names from the fresh data
-              freshData.forEach((scorer: any) => {
-                if (scorer.player?.name) {
-                  smartPlayerTranslation.learnFromPlayerData([{
-                    name: scorer.player.name,
-                    id: scorer.player.id,
-                    position: scorer.player.position,
-                    team: scorer.statistics[0]?.team?.name,
-                    league: scorer.statistics[0]?.league?.name
-                  }]);
                 }
               });
             }
@@ -1154,7 +1140,7 @@ const HomeTopScorersList = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <h4 className="font-semibold text-sm text-gray-900 dark:text-white truncate">
-                          {smartPlayerTranslation.translatePlayerName(scorer.player.name, currentLanguage)}
+                          {scorer.player.name}
                         </h4>
                         {position && (
                           <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
