@@ -17,7 +17,7 @@ import {
   NewsArticle,
 } from "@shared/schema";
 import { z } from "zod";
-import { format, addDays, subDays } from "date-fns";
+import { format, addDays, subDays, isPast } from "date-fns";
 // Removing uefaU21Routes import as requested
 import cors from "cors";
 import playerRoutes from './routes/playerRoutes';
