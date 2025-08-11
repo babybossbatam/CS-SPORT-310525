@@ -95,7 +95,7 @@ const LeagueStandingsFilter = () => {
   // Function to get translated group text
   const getTranslatedGroupText = (groupText: string): string => {
     const currentLanguage = i18n?.language || 'zh-hk';
-    return smartLeagueCountryTranslation.translateText(groupText, currentLanguage);
+    return smartLeagueCountryTranslation.translateLeagueName(groupText, currentLanguage);
   };
 
   useEffect(() => {
