@@ -9,6 +9,8 @@ import { CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 import { useLanguage } from "@/contexts/LanguageContext";
+// Import the player translation learning function
+import { learnFromPlayerData } from "@/lib/smartPlayerTranslation";
 
 // Add CSS to hide scrollbars
 const scrollbarHideStyle = `
@@ -152,6 +154,7 @@ interface Player {
   id: number;
   name: string;
   photo: string;
+  position?: string | null; // Added optional position
 }
 
 interface PlayerStatistics {
@@ -172,7 +175,7 @@ interface PlayerStatistics {
     };
     games: {
       appearences: number;
-      position: string;
+      position: string; // This might be more specific
     };
     goals: {
       total: number;
@@ -240,7 +243,7 @@ const HomeTopScorersList = () => {
 
             if (freshData.length > 0) {
               leaguesWithData.push(league);
-              
+
               // Collect league data for learning
               freshData.forEach((scorer: any) => {
                 if (scorer.statistics[0]?.league) {
@@ -249,17 +252,32 @@ const HomeTopScorersList = () => {
                   });
                 }
               });
+
+              // Auto-learn player names and positions from the fresh data
+              const playersForLearning: any[] = [];
+              freshData.forEach((scorer: any) => {
+                if (scorer.player?.name) {
+                  playersForLearning.push({
+                    id: scorer.player.id,
+                    name: scorer.player.name,
+                    // Prioritize games.position if available, otherwise use player.position
+                    position: scorer.statistics[0]?.games?.position || scorer.player.position,
+                    team: scorer.statistics[0]?.team?.name,
+                    league: scorer.statistics[0]?.league?.name
+                  });
+                }
+              });
+
+              // Learn from collected player data
+              if (playersForLearning.length > 0) {
+                learnFromPlayerData(playersForLearning);
+                console.log(`🎯 [HomeTopScorers] Auto-learned ${playersForLearning.length} players with positions for translation`);
+              }
             }
           }
         } catch (error) {
           console.warn(`Failed to check data for league ${league.id}`);
         }
-      }
-
-      // Auto-learn from the collected league data
-      if (leagueDataForLearning.length > 0) {
-        smartLeagueCountryTranslation.learnFromFixtures(leagueDataForLearning);
-        console.log(`🎓 [HomeTopScorers] Auto-learned from ${leagueDataForLearning.length} league data points`);
       }
 
       // Also auto-learn from available leagues list
@@ -384,7 +402,7 @@ const HomeTopScorersList = () => {
         const playerStats = scorer.statistics[0];
         const seasonYear = playerStats?.league?.season;
         const playerLeagueId = playerStats?.league?.id;
-        
+
         // Must have valid season and league data
         if (!seasonYear || !playerLeagueId) {
           console.log(`❌ [HomeTopScorers] Filtering out player ${scorer.player?.name} - missing season/league data:`, {
@@ -394,7 +412,7 @@ const HomeTopScorersList = () => {
           });
           return false;
         }
-        
+
         // CRITICAL: Only include players who actually played in the selected league
         if (playerLeagueId !== selectedLeague) {
           console.log(`❌ [HomeTopScorers] Filtering out player ${scorer.player?.name} - wrong league:`, {
@@ -433,7 +451,7 @@ const HomeTopScorersList = () => {
 
         // Include current season and next season for ongoing competitions
         const isValidSeason = seasonYear >= currentSeason && seasonYear <= currentYear + 1;
-        
+
         console.log(`🔍 [HomeTopScorers] Season validation for ${scorer.player?.name} in ${playerStats?.league?.name}:`, {
           seasonYear,
           currentSeason,
@@ -442,7 +460,7 @@ const HomeTopScorersList = () => {
           playerLeagueId,
           selectedLeague
         });
-        
+
         return isValidSeason;
       });
 
@@ -494,21 +512,21 @@ const HomeTopScorersList = () => {
   const getLeagueDisplayName = (leagueId: number) => {
     const league = availableLeagues.find((l) => l.id === leagueId);
     const originalName = league?.name || "League";
-    
+
     // Ensure this league is learned by the system
     if (originalName !== "League") {
       smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(originalName, {
         leagueId: leagueId
       });
     }
-    
+
     // First translate the league name using the smart translation system
     const translatedName = smartLeagueCountryTranslation.translateLeagueName(originalName, currentLanguage);
-    
+
     // Smart shortening based on language and translated content
     const getSmartShortening = (name: string, language: string) => {
       const lowerName = name.toLowerCase();
-      
+
       // Language-specific shortening patterns
       switch (language) {
         case 'zh':
@@ -526,7 +544,7 @@ const HomeTopScorersList = () => {
           }
           if (lowerName.includes('u21') || lowerName.includes('青年')) return 'U21锦标赛';
           break;
-          
+
         case 'es':
           // Spanish shortenings
           if (lowerName.includes('liga de campeones')) return 'Champions';
@@ -539,7 +557,7 @@ const HomeTopScorersList = () => {
           }
           if (lowerName.includes('u21')) return 'Campeonato U21';
           break;
-          
+
         case 'de':
           // German shortenings
           if (lowerName.includes('champions league')) return 'Champions League';
@@ -547,7 +565,7 @@ const HomeTopScorersList = () => {
           if (lowerName.includes('conference league')) return 'Conference League';
           if (lowerName.includes('u21')) return 'U21-EM';
           break;
-          
+
         default:
           // English shortenings
           if (lowerName.includes('world cup qualification')) {
@@ -570,13 +588,13 @@ const HomeTopScorersList = () => {
           if (lowerName.includes('asian cup')) return 'Asian Cup';
           break;
       }
-      
+
       return name; // Return original if no shortening pattern matches
     };
-    
+
     // Apply smart shortening to the translated name
     const smartShortened = getSmartShortening(translatedName, currentLanguage);
-    
+
     // If smart shortening didn't change the name, try shortening the original English name
     if (smartShortened === translatedName && currentLanguage !== 'en') {
       const englishShortened = getSmartShortening(originalName, 'en');
@@ -585,7 +603,7 @@ const HomeTopScorersList = () => {
         return smartLeagueCountryTranslation.translateLeagueName(englishShortened, currentLanguage);
       }
     }
-    
+
     return smartShortened;
   };
 
@@ -731,7 +749,7 @@ const HomeTopScorersList = () => {
         const containerRect = container.getBoundingClientRect();
         const buttonRect = selectedButton.getBoundingClientRect();
         const contentContainer = container.querySelector('[data-content]') as HTMLElement;
-        
+
         if (!contentContainer) return false;
 
         const currentContainerWidth = containerRect.width;
@@ -776,7 +794,7 @@ const HomeTopScorersList = () => {
 
     const attemptCentering = () => {
       const success = centerSelectedLeague();
-      
+
       if (!success && attempts < maxAttempts) {
         const delay = delays[attempts] || 1000;
         setTimeout(() => {
@@ -827,7 +845,7 @@ const HomeTopScorersList = () => {
       if (selectedButton) {
         const containerRect = container.getBoundingClientRect();
         const contentContainer = container.querySelector('[data-content]') as HTMLElement;
-        
+
         if (!contentContainer) return;
 
         const currentContainerWidth = containerRect.width;
@@ -1076,14 +1094,6 @@ const HomeTopScorersList = () => {
                 const getSpecificPosition = (pos: string) => {
                   if (!pos) return "";
 
-                  // Convert common generic positions to more specific ones
-                  const positionMap: { [key: string]: string } = {
-                    Attacker: "Forward",
-                    Midfielder: "Midfielder",
-                    Defender: "Defender",
-                    Goalkeeper: "Goalkeeper",
-                  };
-
                   // If it's already specific, return as is
                   if (
                     pos.includes("Left") ||
@@ -1093,6 +1103,14 @@ const HomeTopScorersList = () => {
                   ) {
                     return pos;
                   }
+
+                  // Map common generic positions to more specific ones
+                  const positionMap: { [key: string]: string } = {
+                    Attacker: "Forward",
+                    Midfielder: "Midfielder",
+                    Defender: "Defender",
+                    Goalkeeper: "Goalkeeper",
+                  };
 
                   // Otherwise use the mapped version or original
                   return positionMap[pos] || pos;

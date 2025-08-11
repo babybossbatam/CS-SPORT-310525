@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { smartTeamTranslation } from '@/lib/smartTeamTranslation';
 import { smartLeagueCountryTranslation } from '@/lib/smartLeagueCountryTranslation';
+import { smartPlayerTranslation } from '@/lib/smartPlayerTranslation';
 
 interface LanguageContextType {
   currentLanguage: string;
@@ -11,8 +12,11 @@ interface LanguageContextType {
   translateLeagueName: (leagueName: string) => string;
   translateCountryName: (countryName: string) => string;
   translateTeamName: (teamName: string) => string;
+  translatePlayerName: (playerName: string) => string;
+  translatePositionName: (positionName: string) => string;
   getMatchStatusTranslation: (status: string, language: string) => string;
   learnFromFixtures: (fixtures: any[]) => void;
+  learnFromPlayerData: (players: any[]) => void;
 }
 
 const translations = {
@@ -2421,6 +2425,47 @@ export const LanguageProvider: React.FC<{
     return teamName;
   };
 
+  // Player name translation function
+  const translatePlayerName = (playerName: string): string => {
+    if (!playerName) return '';
+
+    console.log(`🎯 [LanguageContext] Translating player: "${playerName}" for language: ${currentLanguage}`);
+
+    // Use smart player translation system
+    const smartTranslation = smartPlayerTranslation.translatePlayerName(playerName, currentLanguage);
+    console.log(`🤖 [LanguageContext] Smart player translation result: "${playerName}" -> "${smartTranslation}"`);
+
+    if (smartTranslation !== playerName) {
+      console.log(`✅ [LanguageContext] Using smart player translation: "${smartTranslation}"`);
+      return smartTranslation;
+    }
+
+    // Return original name if no translation found
+    return playerName;
+  };
+
+  // Position name translation function
+  const translatePositionName = (positionName: string): string => {
+    if (!positionName) return '';
+
+    console.log(`⚽ [LanguageContext] Translating position: "${positionName}" for language: ${currentLanguage}`);
+
+    // Auto-learn any position we encounter
+    smartPlayerTranslation.autoLearnFromAnyPositionName(positionName);
+
+    // Use smart position translation system
+    const smartTranslation = smartPlayerTranslation.translatePositionName(positionName, currentLanguage);
+    console.log(`🤖 [LanguageContext] Smart position translation result: "${positionName}" -> "${smartTranslation}"`);
+
+    if (smartTranslation !== positionName) {
+      console.log(`✅ [LanguageContext] Using smart position translation: "${smartTranslation}"`);
+      return smartTranslation;
+    }
+
+    // Return original position if no translation found
+    return positionName;
+  };
+
 
   // Match status translation function
   const getMatchStatusTranslation = (status: string, language: string): string => {
@@ -2582,6 +2627,16 @@ export const LanguageProvider: React.FC<{
     }
   };
 
+  // Function to learn from player data
+  const learnFromPlayerData = (players: any[]) => {
+    try {
+      smartPlayerTranslation.learnFromPlayerData(players);
+      console.log(`🎯 [LanguageContext] Learning from ${players.length} players`);
+    } catch (error) {
+      console.error('Error learning from player data:', error);
+    }
+  };
+
   const contextValue = {
     currentLanguage,
     setLanguage,
@@ -2591,8 +2646,11 @@ export const LanguageProvider: React.FC<{
     translateLeagueName,
     translateCountryName,
     translateTeamName,
+    translatePlayerName,
+    translatePositionName,
     getMatchStatusTranslation,
-    learnFromFixtures
+    learnFromFixtures,
+    learnFromPlayerData
   };
 
   return (
@@ -2616,8 +2674,11 @@ export const useLanguage = () => {
       translateLeagueName: (name: string) => name,
       translateCountryName: (name: string) => name,
       translateTeamName: (name: string) => name,
+      translatePlayerName: (name: string) => name,
+      translatePositionName: (name: string) => name,
       getMatchStatusTranslation: (status: string) => status,
       learnFromFixtures: () => {},
+      learnFromPlayerData: () => {},
     };
   }
   return context;
