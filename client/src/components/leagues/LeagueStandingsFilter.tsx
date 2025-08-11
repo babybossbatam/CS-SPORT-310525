@@ -26,6 +26,7 @@ import {
 import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { teamColorMap } from "@/lib/colorExtractor";
+import { useTranslation } from "react-i18next"; // Import useTranslation
 
 interface Standing {
   rank: number;
@@ -76,10 +77,20 @@ const isNationalTeamCompetition = (leagueName: string): boolean => {
 };
 
 const LeagueStandingsFilter = () => {
+  const { t, i18n } = useTranslation(); // Initialize translation hook
   const [popularLeagues, setPopularLeagues] = useState<LeagueData[]>([]);
   const [selectedLeague, setSelectedLeague] = useState("");
   const [selectedLeagueName, setSelectedLeagueName] = useState("");
   const [leaguesLoading, setLeaguesLoading] = useState(true);
+
+  // Function to get translated team name
+  const getTranslatedTeamName = (teamName: string): string => {
+    // Use translation hook if available, otherwise return original name
+    if (i18n && typeof t === "function") {
+      return t(teamName, { defaultValue: teamName });
+    }
+    return teamName;
+  };
 
   useEffect(() => {
     const loadLeagues = async () => {
@@ -266,7 +277,7 @@ const LeagueStandingsFilter = () => {
       } catch (error) {
         console.error("Failed to load league data:", error);
 
-        // Enhanced fallback to popular leagues including ALL World youth leagues
+        // Enhanced fallback to popular leagues including ALL World Youth Leagues
         const fallbackLeagues = [
           { id: 2, name: "UEFA Champions League", logo: "", country: "Europe" },
           { id: 3, name: "UEFA Europa League", logo: "", country: "Europe" },
@@ -544,13 +555,13 @@ const LeagueStandingsFilter = () => {
       // Try to get cached fixtures first
       const today = new Date().toISOString().slice(0, 10);
       const cachedTodayFixtures = getCachedFixturesForDate(today);
-      
+
       const response = await apiRequest(
         "GET",
         `/api/leagues/${selectedLeague}/fixtures`,
       );
       const fixturesData = await response.json();
-      
+
       // Merge with cached fixtures for better opponent data
       if (cachedTodayFixtures && fixturesData?.response) {
         const mergedFixtures = {
@@ -562,7 +573,7 @@ const LeagueStandingsFilter = () => {
         };
         return mergedFixtures;
       }
-      
+
       return fixturesData;
     },
     enabled: !!selectedLeague && selectedLeague !== "", // Only run when we have a valid league ID
@@ -901,7 +912,7 @@ const LeagueStandingsFilter = () => {
                                       />
                                     </div>
                                     <span className="text-[0.85rem] truncate">
-                                      {standing.team.name}
+                                      {getTranslatedTeamName(standing.team.name)}
                                     </span>
                                   </div>
                                 </TableCell>
@@ -1014,7 +1025,7 @@ const LeagueStandingsFilter = () => {
                     </div>
                   ),
                 )}
-                
+
                 {/* Link to view full group standings if more than 2 groups exist */}
                 {standings.league.standings.length > 2 && (
                   <div className="text-center mt-6 pt-4 border-t border-gray-100">
@@ -1121,12 +1132,12 @@ const LeagueStandingsFilter = () => {
                                             : standing.description
                                                   ?.toLowerCase()
                                                   .includes("europa")
-                                              ? "#4A90E2"
-                                              : standing.description
-                                                    ?.toLowerCase()
-                                                    .includes("conference")
                                                 ? "#4A90E2"
-                                                : "#6B7280",
+                                                : standing.description
+                                                      ?.toLowerCase()
+                                                      .includes("conference")
+                                                    ? "#4A90E2"
+                                                    : "#6B7280",
                                     }}
                                   />
                                 )}
@@ -1157,7 +1168,7 @@ const LeagueStandingsFilter = () => {
                                 </div>
                                 <div className="flex flex-col min-w-0 flex-1">
                                   <span className="text-xs font-medium text-gray-900 truncate hover:underline cursor-pointer">
-                                    {standing.team.name}
+                                    {getTranslatedTeamName(standing.team.name)}
                                   </span>
                                   {standing.rank <= 3 && (
                                     <span
@@ -1184,22 +1195,22 @@ const LeagueStandingsFilter = () => {
                                                 : standing.description
                                                       ?.toLowerCase()
                                                       .includes("europa")
-                                                  ? "#17A2B8"
-                                                  : standing.description
-                                                        ?.toLowerCase()
-                                                        .includes("conference")
-                                                    ? "#6F42C1"
+                                                    ? "#17A2B8"
                                                     : standing.description
                                                           ?.toLowerCase()
-                                                          .includes("promotion")
-                                                      ? "#28A745"
-                                                      : standing.description
-                                                            ?.toLowerCase()
-                                                            .includes(
-                                                              "relegation",
-                                                            )
-                                                        ? "#DC3545"
-                                                        : "#6B7280",
+                                                          .includes("conference")
+                                                        ? "#6F42C1"
+                                                        : standing.description
+                                                              ?.toLowerCase()
+                                                              .includes("promotion")
+                                                          ? "#28A745"
+                                                          : standing.description
+                                                                ?.toLowerCase()
+                                                                .includes(
+                                                                  "relegation",
+                                                                )
+                                                            ? "#DC3545"
+                                                            : "#6B7280",
                                       }}
                                     >
                                       {getChampionshipTitle(
