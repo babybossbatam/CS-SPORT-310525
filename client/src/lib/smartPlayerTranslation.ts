@@ -1062,7 +1062,7 @@ class SmartPlayerTranslation {
 
     if (!this.learnedCountryMappings.has(normalizedCountry)) {
       const newMapping = this.generateCountryMapping(normalizedCountry);
-      this.learnedCountryMappings.set(normalizedCountry, newCountryMapping);
+      this.learnedCountryMappings.set(normalizedCountry, newMapping);
       this.saveLearnedMappings();
       console.log(`🎯 [SmartPlayerTranslation] Auto-learned new country: "${country}" -> "${normalizedCountry}"`);
     }
