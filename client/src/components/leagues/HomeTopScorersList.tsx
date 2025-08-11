@@ -31,122 +31,122 @@ const POPULAR_LEAGUES = [
   {
     id: 39,
     name: "Premier League",
-    logo: "https://media.api.sports.io/football/leagues/39.png",
+    logo: "https://media.api-sports.io/football/leagues/39.png",
   },
   {
     id: 140,
     name: "La Liga",
-    logo: "https://media.api.sports.io/football/leagues/140.png",
+    logo: "https://media.api-sports.io/football/leagues/140.png",
   },
   {
     id: 135,
     name: "Serie A",
-    logo: "https://media.api.sports.io/football/leagues/135.png",
+    logo: "https://media.api-sports.io/football/leagues/135.png",
   },
   {
     id: 78,
     name: "Bundesliga",
-    logo: "https://media.api.sports.io/football/leagues/78.png",
+    logo: "https://media.api-sports.io/football/leagues/78.png",
   },
   {
     id: 61,
     name: "Ligue 1",
-    logo: "https://media.api.sports.io/football/leagues/61.png",
+    logo: "https://media.api-sports.io/football/leagues/61.png",
   },
   {
     id: 34,
     name: "World Cup Qualification South America",
-    logo: "https://media.api.sports.io/football/leagues/34.png",
+    logo: "https://media.api-sports.io/football/leagues/34.png",
   },
   {
     id: 2,
     name: "UEFA Champions League",
-    logo: "https://media.api.sports.io/football/leagues/2.png",
+    logo: "https://media.api-sports.io/football/leagues/2.png",
   },
   {
     id: 3,
     name: "UEFA Europa League",
-    logo: "https://media.api.sports.io/football/leagues/3.png",
+    logo: "https://media.api-sports.io/football/leagues/3.png",
   },
   {
     id: 848,
     name: "UEFA Conference League",
-    logo: "https://media.api.sports.io/football/leagues/848.png",
+    logo: "https://media.api-sports.io/football/leagues/848.png",
   },
   {
     id: 5,
     name: "UEFA Nations League",
-    logo: "https://media.api.sports.io/football/leagues/5.png",
+    logo: "https://media.api-sports.io/football/leagues/5.png",
   },
   {
     id: 1,
     name: "World Cup",
-    logo: "https://media.api.sports.io/football/leagues/1.png",
+    logo: "https://media.api-sports.io/football/leagues/1.png",
   },
   {
     id: 4,
     name: "Euro Championship",
-    logo: "https://media.api.sports.io/football/leagues/4.png",
+    logo: "https://media.api-sports.io/football/leagues/4.png",
   },
   {
     id: 15,
     name: "FIFA Club World Cup",
-    logo: "https://media.api.sports.io/football/leagues/15.png",
+    logo: "https://media.api-sports.io/football/leagues/15.png",
   },
   {
     id: 307,
     name: "Saudi Pro League",
-    logo: "https://media.api.sports.io/football/leagues/307.png",
+    logo: "https://media.api-sports.io/football/leagues/307.png",
   },
   {
     id: 38,
     name: "UEFA U21 Championship",
-    logo: "https://media.api.sports.io/football/leagues/38.png",
+    logo: "https://media.api-sports.io/football/leagues/38.png",
   },
   {
     id: 9,
     name: "Copa America",
-    logo: "https://media.api.sports.io/football/leagues/9.png",
+    logo: "https://media.api-sports.io/football/leagues/9.png",
   },
   {
     id: 22,
     name: "CONCACAF Gold Cup",
-    logo: "https://media.api.sports.io/football/leagues/22.png",
+    logo: "https://media.api-sports.io/football/leagues/22.png",
   },
   {
     id: 6,
     name: "Africa Cup of Nations",
-    logo: "https://media.api.sports.io/football/leagues/6.png",
+    logo: "https://media.api-sports.io/football/leagues/6.png",
   },
   {
     id: 16,
     name: "Asian Cup",
-    logo: "https://media.api.sports.io/football/leagues/16.png",
+    logo: "https://media.api-sports.io/football/leagues/16.png",
   },
   {
     id: 137,
     name: "Coppa Italia",
-    logo: "https://media.api.sports.io/football/leagues/137.png",
+    logo: "https://media.api-sports.io/football/leagues/137.png",
   },
   {
     id: 45,
     name: "FA Cup",
-    logo: "https://media.api.sports.io/football/leagues/45.png",
+    logo: "https://media.api-sports.io/football/leagues/45.png",
   },
   {
     id: 143,
     name: "Copa del Rey",
-    logo: "https://media.api.sports.io/football/leagues/143.png",
+    logo: "https://media.api-sports.io/football/leagues/143.png",
   },
   {
     id: 81,
     name: "DFB Pokal",
-    logo: "https://media.api.sports.io/football/leagues/81.png",
+    logo: "https://media.api-sports.io/football/leagues/81.png",
   },
   {
     id: 233,
     name: "Egyptian Premier League",
-    logo: "https://media.api.sports.io/football/leagues/233.png",
+    logo: "https://media.api-sports.io/football/leagues/233.png",
   },
 ];
 
@@ -259,7 +259,7 @@ const HomeTopScorersList = () => {
                 if (scorer.player?.name) {
                   // Extract country from league country data
                   const leagueCountry = scorer.statistics[0]?.league?.country;
-
+                  
                   // Intelligent country extraction based on team/league
                   const extractPlayerCountry = (teamName: string, leagueCountry: string, leagueName: string) => {
                     // If it's a national team league, the country is obvious
@@ -269,13 +269,13 @@ const HomeTopScorersList = () => {
                         leagueName?.toLowerCase().includes('copa america')) {
                       return teamName; // Team name is likely the country
                     }
-
+                    
                     // For club competitions, we can make educated guesses
                     if (leagueCountry && leagueCountry !== 'World') {
                       // Many players in domestic leagues are from that country
                       return leagueCountry;
                     }
-
+                    
                     return null;
                   };
 
@@ -288,7 +288,7 @@ const HomeTopScorersList = () => {
                     name: scorer.player.name,
                     // Prioritize games.position if available, otherwise use player.position
                     position: scorer.statistics[0]?.games?.position || scorer.player.position,
-                    team: scorer.statistics[0]?.team?.name,
+                    team: teamName,
                     league: leagueName,
                     country: playerCountry,
                     nationality: playerCountry // Alias for country
@@ -1116,7 +1116,7 @@ const HomeTopScorersList = () => {
 
                 // Get and translate position using the smart translation system
                 const rawPosition = scorer.player.position || playerStats?.games?.position || "";
-
+                
                 // Auto-learn the position if we haven't seen it before
                 if (rawPosition) {
                   smartPlayerTranslation.autoLearnFromAnyPositionName(rawPosition);
@@ -1126,134 +1126,26 @@ const HomeTopScorersList = () => {
                 const translatedPosition = rawPosition ? 
                   smartPlayerTranslation.translatePositionName(rawPosition, currentLanguage) : "";
 
-                // Enhanced team name translation and learning system with context
-                const teamName = playerStats?.team?.name || "";
-
-                // Auto-learn the team name with enhanced context for better translation
-                if (teamName) {
-                  smartPlayerTranslation.autoLearnFromAnyTeamName(teamName, {
-                    playerId: scorer.player.id,
-                    playerName: scorer.player.name,
-                    leagueName: playerStats?.league?.name,
-                    leagueCountry: playerStats?.league?.country,
-                    leagueId: playerStats?.league?.id,
-                    teamId: playerStats?.team?.id,
-                    season: playerStats?.league?.season
-                  });
-                }
-
-                // Translate the team name to the current language with enhanced context
-                let translatedTeamName = "";
-                if (teamName) {
-                  // First try the smart player translation system
-                  translatedTeamName = smartPlayerTranslation.translateTeamName(teamName, currentLanguage, {
-                    leagueId: playerStats?.league?.id,
-                    leagueName: playerStats?.league?.name,
-                    leagueCountry: playerStats?.league?.country
-                  });
-
-                  // If no translation found or it's the same as original, force learn and translate
-                  if (!translatedTeamName || translatedTeamName === teamName) {
-                    // Enhanced learning with forced context
-                    smartPlayerTranslation.autoLearnFromAnyTeamName(teamName, {
-                      playerId: scorer.player.id,
-                      playerName: scorer.player.name,
-                      leagueName: playerStats?.league?.name,
-                      leagueCountry: playerStats?.league?.country,
-                      leagueId: playerStats?.league?.id,
-                      teamId: playerStats?.team?.id,
-                      season: playerStats?.league?.season,
-                      forceContext: true // Add force flag for immediate learning
-                    });
-
-                    // Try translation again
-                    translatedTeamName = smartPlayerTranslation.translateTeamName(teamName, currentLanguage, {
-                      leagueId: playerStats?.league?.id,
-                      leagueName: playerStats?.league?.name,
-                      leagueCountry: playerStats?.league?.country
-                    });
-                  }
-
-                  // Debug logging for translation status
-                  if (translatedTeamName !== teamName) {
-                    console.log(`✅ [HomeTopScorers] Team translated: "${teamName}" -> "${translatedTeamName}" (${currentLanguage})`);
-                  } else {
-                    console.log(`⚠️ [HomeTopScorers] Team NOT translated: "${teamName}" (${currentLanguage})`);
-                  }
-                }
-
-                // Enhanced country extraction and learning system
+                // Get and translate country information
                 let playerCountry = smartPlayerTranslation.getPlayerCountry(scorer.player.id);
-
+                
                 // If we don't have the player's country stored, try to extract it
                 if (!playerCountry) {
                   const leagueCountry = playerStats?.league?.country;
+                  const teamName = playerStats?.team?.name;
                   const leagueName = playerStats?.league?.name;
-
-                  // Enhanced country extraction logic with better team-to-country mapping
-                  const extractCountryFromTeam = (teamName: string, leagueName: string): string | null => {
-                    if (!teamName) return null;
-
-                    const teamLower = teamName.toLowerCase();
-
-                    // South American teams mapping
-                    const southAmericanTeams = {
-                      'bolivia': ['the strongest', 'bolívar', 'oriente petrolero', 'blooming', 'jorge wilstermann', 'aurora', 'nacional potosí', 'real santa cruz'],
-                      'argentina': ['river plate', 'boca juniors', 'racing club', 'independiente', 'san lorenzo', 'estudiantes', 'vélez sarsfield', 'lanús'],
-                      'brazil': ['flamengo', 'palmeiras', 'corinthians', 'santos', 'são paulo', 'vasco da gama', 'botafogo', 'grêmio'],
-                      'chile': ['colo-colo', 'universidad de chile', 'católica', 'universidad católica', 'palestino', 'audax italiano'],
-                      'colombia': ['millonarios', 'nacional', 'américa de cali', 'junior', 'santa fe', 'deportivo cali', 'once caldas'],
-                      'ecuador': ['barcelona sc', 'emelec', 'liga de quito', 'independiente del valle', 'aucas'],
-                      'paraguay': ['olimpia', 'cerro porteño', 'libertad', 'guaraní', 'nacional asunción'],
-                      'peru': ['universitario', 'alianza lima', 'sporting cristal', 'melgar', 'cienciano'],
-                      'uruguay': ['peñarol', 'nacional', 'montevideo wanderers', 'danubio', 'defensor sporting'],
-                      'venezuela': ['caracas fc', 'deportivo táchira', 'estudiantes de mérida', 'zamora']
-                    };
-
-                    // Check for team-based country mapping
-                    for (const [country, teams] of Object.entries(southAmericanTeams)) {
-                      if (teams.some(team => teamLower.includes(team.toLowerCase()))) {
-                        return country.charAt(0).toUpperCase() + country.slice(1);
-                      }
-                    }
-
-                    // For international competitions, team name is usually the country
-                    if (leagueName?.toLowerCase().includes('world cup') || 
-                        leagueName?.toLowerCase().includes('nations league') ||
-                        leagueName?.toLowerCase().includes('euro') ||
-                        leagueName?.toLowerCase().includes('copa america') ||
-                        leagueName?.toLowerCase().includes('conmebol')) {
-                      return teamName; // Team name is likely the country
-                    }
-
-                    return null;
-                  };
-
-                  // Try team-based extraction first
-                  playerCountry = extractCountryFromTeam(teamName, leagueName);
-
-                  // Fallback to league country if no team mapping found
-                  if (!playerCountry && leagueCountry && leagueCountry !== 'World') {
-                    playerCountry = leagueCountry;
-                  }
-
-                  // Final fallback
-                  if (!playerCountry) {
+                  
+                  // Smart country extraction logic
+                  if (leagueName?.toLowerCase().includes('world cup') || 
+                      leagueName?.toLowerCase().includes('nations league') ||
+                      leagueName?.toLowerCase().includes('euro') ||
+                      leagueName?.toLowerCase().includes('copa america')) {
+                    playerCountry = teamName; // For international competitions, team = country
+                  } else if (leagueCountry && leagueCountry !== 'World') {
+                    playerCountry = leagueCountry; // Assume domestic league players are from that country
+                  } else {
                     playerCountry = teamName || leagueCountry || "";
                   }
-                }
-
-                // Auto-learn the country for future translations if we found one
-                if (playerCountry && playerCountry.trim()) {
-                  smartPlayerTranslation.autoLearnFromAnyCountryName(playerCountry, {
-                    playerId: scorer.player.id,
-                    playerName: scorer.player.name,
-                    teamName: playerStats?.team?.name,
-                    leagueName: playerStats?.league?.name
-                  });
-
-                  // Store the player-country mapping for future use
-                  smartPlayerTranslation.setPlayerCountry(scorer.player.id, playerCountry);
                 }
 
                 // Translate the country to the current language
@@ -1266,8 +1158,7 @@ const HomeTopScorersList = () => {
                     playerName: scorer.player.name,
                     playerPosition: scorer.player.position,
                     gamesPosition: playerStats?.games?.position,
-                    finalPosition: rawPosition,
-                    translatedPosition: translatedPosition,
+                    finalPosition: position,
                     fullPlayerData: scorer.player,
                     fullStatsData: playerStats,
                   });
@@ -1307,17 +1198,9 @@ const HomeTopScorersList = () => {
                           </span>
                         )}
                       </div>
-                      <div className="space-y-0.5">
-                        {translatedCountry ? (
-                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                            {translatedCountry}
-                          </p>
-                        ) : translatedTeamName && (
-                          <p className="text-xs text-blue-600 dark:text-blue-400 truncate font-medium">
-                            {translatedTeamName}
-                          </p>
-                        )}
-                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                        {translatedCountry}
+                      </p>
                     </div>
 
                     <div className="text-center flex-shrink-0">
