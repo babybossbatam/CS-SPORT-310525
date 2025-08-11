@@ -834,7 +834,7 @@ const LeagueStandingsFilter = () => {
                       "/assets/fallback-logo.svg";
                   }}
                 />
-                {selectedLeagueName}
+                {smartLeagueCountryTranslation.translateLeague(selectedLeagueName, currentLanguage)}
               </div>
             </SelectValue>
           </SelectTrigger>
@@ -861,7 +861,7 @@ const LeagueStandingsFilter = () => {
                           "/assets/fallback-logo.svg";
                       }}
                     />
-                    {league.name}
+                    {smartLeagueCountryTranslation.translateLeague(league.name, currentLanguage)}
                   </div>
                 </SelectItem>
               ))}
@@ -879,7 +879,7 @@ const LeagueStandingsFilter = () => {
                   (group: Standing[], groupIndex: number) => (
                     <div key={groupIndex}>
                       <h3 className="text-xs font-regular mx-2 pt-2 mt-4 border-t border-b border-gray-300 dark:border-white mb-2 text-gray-700 dark:text-white flex items-center pb-1">
-                        Group {String.fromCharCode(65 + groupIndex)}
+                        Group {String.fromCharCode(65 + groupIndex)} - {smartLeagueCountryTranslation.translateLeague(selectedLeagueName, currentLanguage)}
                       </h3>
                       <Table>
                         <TableHeader>
@@ -1066,7 +1066,7 @@ const LeagueStandingsFilter = () => {
                       onClick={() => window.location.href = `/league/${selectedLeague}/standings`}
                       className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium transition-colors duration-200"
                     >
-                      {selectedLeagueName} Group Standings →
+                      {smartLeagueCountryTranslation.translateLeague(selectedLeagueName, currentLanguage)} Group Standings →
                     </button>
                   </div>
                 )}

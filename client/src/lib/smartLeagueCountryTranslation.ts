@@ -390,7 +390,7 @@ class SmartLeagueCountryTranslation {
       if (leagueName) {
         const existingMapping = this.learnedLeagueMappings.get(leagueName);
         const newMapping = this.generateLeagueMapping(leagueName, countryName);
-        
+
         if (!existingMapping && newMapping) {
           this.learnedLeagueMappings.set(leagueName, newMapping);
           newLeagueMappings++;
@@ -430,7 +430,7 @@ class SmartLeagueCountryTranslation {
     // Always try to improve existing mappings or add new ones
     const existingMapping = this.learnedLeagueMappings.get(leagueName);
     const newMapping = this.generateLeagueMapping(leagueName, countryName || '');
-    
+
     if (newMapping) {
       // If no existing mapping, add it
       if (!existingMapping) {
@@ -453,7 +453,7 @@ class SmartLeagueCountryTranslation {
 
     // Clean league name
     const cleanLeagueName = leagueName.trim();
-    
+
     // Skip if it's already well-known
     if (this.coreLeagueTranslations[cleanLeagueName]) return;
 
@@ -511,8 +511,8 @@ class SmartLeagueCountryTranslation {
       translations.zh = `${countryZh}甲级联赛`;
       translations['zh-hk'] = `${this.translateCountryName(countryName, 'zh-hk')}甲級聯賽`;
       translations['zh-tw'] = `${this.translateCountryName(countryName, 'zh-tw')}甲級聯賽`;
-    } 
-    
+    }
+
     // World Cup patterns - Enhanced
     else if (lowerName.includes('world cup qualification') || lowerName.includes('wc qualification')) {
       if (lowerName.includes('south america') || lowerName.includes('conmebol')) {
@@ -529,7 +529,7 @@ class SmartLeagueCountryTranslation {
         translations.es = 'Clasificación Asiática'; translations.de = 'WM-Qualifikation Asien';
       }
     }
-    
+
     // UEFA Competitions - Enhanced
     else if (lowerName.includes('uefa champions league') || lowerName === 'champions league') {
       translations.zh = 'UEFA欧洲冠军联赛'; translations['zh-hk'] = 'UEFA歐洲冠軍聯賽'; translations['zh-tw'] = 'UEFA歐洲冠軍聯賽';
@@ -547,7 +547,7 @@ class SmartLeagueCountryTranslation {
       translations.zh = 'UEFA U21欧洲锦标赛'; translations['zh-hk'] = 'UEFA U21歐洲錦標賽'; translations['zh-tw'] = 'UEFA U21歐洲錦標賽';
       translations.es = 'Campeonato Europeo Sub-21'; translations.de = 'UEFA U21-Europameisterschaft';
     }
-    
+
     // FIFA Competitions
     else if (lowerName.includes('fifa club world cup') || lowerName === 'club world cup') {
       translations.zh = 'FIFA世界俱乐部杯'; translations['zh-hk'] = 'FIFA世界冠軍球會盃'; translations['zh-tw'] = 'FIFA世界冠軍球會盃';
@@ -556,7 +556,7 @@ class SmartLeagueCountryTranslation {
       translations.zh = '世界杯'; translations['zh-hk'] = '世界盃'; translations['zh-tw'] = '世界盃';
       translations.es = 'Copa del Mundo'; translations.de = 'Weltmeisterschaft';
     }
-    
+
     // Continental Competitions
     else if (lowerName.includes('concacaf gold cup') || lowerName === 'gold cup') {
       translations.zh = 'CONCACAF金杯赛'; translations['zh-hk'] = 'CONCACAF金盃賽'; translations['zh-tw'] = 'CONCACAF金盃賽';
@@ -571,7 +571,7 @@ class SmartLeagueCountryTranslation {
       translations.zh = '美洲杯'; translations['zh-hk'] = '美洲盃'; translations['zh-tw'] = '美洲盃';
       translations.es = 'Copa América'; translations.de = 'Copa América';
     }
-    
+
     // AFC Competitions
     else if (lowerName.includes('afc champions league')) {
       translations.zh = 'AFC冠军联赛'; translations['zh-hk'] = 'AFC冠軍聯賽'; translations['zh-tw'] = 'AFC冠軍聯賽';
@@ -583,7 +583,7 @@ class SmartLeagueCountryTranslation {
       translations.zh = 'AFC杯'; translations['zh-hk'] = 'AFC盃'; translations['zh-tw'] = 'AFC盃';
       translations.es = 'Copa AFC'; translations.de = 'AFC-Pokal';
     }
-    
+
     // Domestic Cup Competitions - Enhanced patterns
     else if (lowerName.includes('fa cup')) {
       translations.zh = 'FA杯'; translations['zh-hk'] = 'FA盃'; translations['zh-tw'] = 'FA盃';
@@ -598,7 +598,7 @@ class SmartLeagueCountryTranslation {
       translations.zh = '德国杯'; translations['zh-hk'] = '德國盃'; translations['zh-tw'] = '德國盃';
       translations.es = 'Copa de Alemania'; translations.de = 'DFB-Pokal';
     }
-    
+
     // Country-specific league patterns
     else if (lowerName.includes('egyptian') && lowerName.includes('premier')) {
       translations.zh = '埃及超级联赛'; translations['zh-hk'] = '埃及超級聯賽'; translations['zh-tw'] = '埃及超級聯賽';
@@ -607,7 +607,7 @@ class SmartLeagueCountryTranslation {
       translations.zh = '沙特职业联赛'; translations['zh-hk'] = '沙特職業聯賽'; translations['zh-tw'] = '沙特職業聯賽';
       translations.es = 'Liga Profesional Saudí'; translations.de = 'Saudi Pro League';
     }
-    
+
     // Generic patterns for other leagues
     else if (lowerName.includes('liga') && countryName) {
       const countryZh = this.translateCountryName(countryName, 'zh');
@@ -632,7 +632,7 @@ class SmartLeagueCountryTranslation {
   // Detect country from league name patterns
   private detectCountryFromLeagueName(leagueName: string): string {
     const lowerName = leagueName.toLowerCase();
-    
+
     const countryPatterns: { [key: string]: string } = {
       'english': '英格兰',
       'premier league': '英格兰',
@@ -736,7 +736,7 @@ class SmartLeagueCountryTranslation {
     // If no translation found, auto-learn this league
     if (!foundTranslation) {
       this.autoLearnFromLeagueData(leagueName);
-      
+
       // Try again after auto-learning
       const newLearned = this.learnedLeagueMappings.get(leagueName);
       if (newLearned && newLearned[language as keyof typeof newLearned]) {
@@ -840,12 +840,12 @@ class SmartLeagueCountryTranslation {
         }
       }
     });
-    
+
     if (learned > 0) {
       this.saveLearnedMappings();
       console.log(`🎓 [Bulk Learn] Added ${learned} new league mappings`);
     }
-    
+
     return learned;
   }
 }
