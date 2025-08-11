@@ -224,9 +224,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
             const nextSource = fallbackSources[0];
             console.log(`🔄 [LazyImage] League ${leagueId} fallback attempt: ${nextSource}`);
             setRetryCount(1);
-            setSrc(nextSource);
+            setImageSrc(nextSource);
             return;
-          }esMatch[1];
           }
 
           if (leagueId) {
