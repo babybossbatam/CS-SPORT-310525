@@ -250,6 +250,19 @@ const HomeTopScorersList = () => {
                   });
                 }
               });
+
+              // Auto-learn player names from the fresh data
+              freshData.forEach((scorer: any) => {
+                if (scorer.player?.name) {
+                  smartPlayerTranslation.learnFromPlayerData([{
+                    name: scorer.player.name,
+                    id: scorer.player.id,
+                    position: scorer.player.position,
+                    team: scorer.statistics[0]?.team?.name,
+                    league: scorer.statistics[0]?.league?.name
+                  }]);
+                }
+              });
             }
           }
         } catch (error) {
@@ -261,25 +274,6 @@ const HomeTopScorersList = () => {
       if (leagueDataForLearning.length > 0) {
         smartLeagueCountryTranslation.learnFromFixtures(leagueDataForLearning);
         console.log(`🎓 [HomeTopScorers] Auto-learned from ${leagueDataForLearning.length} league data points`);
-      }
-
-      // Auto-learn player names from the collected data
-      const playersForLearning: any[] = [];
-      freshData.forEach((scorer: any) => {
-        if (scorer.player?.name) {
-          playersForLearning.push({
-            name: scorer.player.name,
-            id: scorer.player.id,
-            position: scorer.player.position,
-            team: scorer.statistics[0]?.team?.name,
-            league: scorer.statistics[0]?.league?.name
-          });
-        }
-      });
-
-      if (playersForLearning.length > 0) {
-        smartPlayerTranslation.learnFromPlayerData(playersForLearning);
-        console.log(`🎯 [HomeTopScorers] Auto-learned ${playersForLearning.length} player names for translation`);
       }
 
       // Also auto-learn from available leagues list
