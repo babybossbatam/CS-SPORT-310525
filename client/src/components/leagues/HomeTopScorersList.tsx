@@ -1126,31 +1126,20 @@ const HomeTopScorersList = () => {
                 const translatedPosition = rawPosition ? 
                   smartPlayerTranslation.translatePositionName(rawPosition, currentLanguage) : "";
 
-                // Get and translate country information
-                let playerCountry = smartPlayerTranslation.getPlayerCountry(scorer.player.id);
-
-                // If we don't have the player's country stored, try to extract it
-                if (!playerCountry) {
-                  const leagueCountry = playerStats?.league?.country;
-                  const teamName = playerStats?.team?.name;
-                  const leagueName = playerStats?.league?.name;
-
-                  // Smart country extraction logic
-                  if (leagueName?.toLowerCase().includes('world cup') || 
-                      leagueName?.toLowerCase().includes('nations league') ||
-                      leagueName?.toLowerCase().includes('euro') ||
-                      leagueName?.toLowerCase().includes('copa america')) {
-                    playerCountry = teamName; // For international competitions, team = country
-                  } else if (leagueCountry && leagueCountry !== 'World') {
-                    playerCountry = leagueCountry; // Assume domestic league players are from that country
-                  } else {
-                    playerCountry = teamName || leagueCountry || "";
-                  }
+                // Get and translate team name
+                const teamName = playerStats?.team?.name || "";
+                
+                // Auto-learn the team name if we haven't seen it before
+                if (teamName) {
+                  smartTeamTranslation.learnTeamsFromFixtures([{
+                    teams: { home: { name: teamName }, away: { name: "" } },
+                    league: playerStats?.league
+                  }]);
                 }
 
-                // Translate the country to the current language
-                const translatedCountry = playerCountry ? 
-                  smartPlayerTranslation.translateCountryName(playerCountry, currentLanguage) : "";
+                // Translate the team name to the current language
+                const translatedTeamName = teamName ? 
+                  smartTeamTranslation.translateTeamName(teamName, currentLanguage, playerStats?.league) : "";
 
                 // Debug logging to see what position data is available
                 if (index === 0) {
@@ -1199,7 +1188,7 @@ const HomeTopScorersList = () => {
                         )}
                       </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        {translatedCountry}
+                        {translatedTeamName}
                       </p>
                     </div>
 
