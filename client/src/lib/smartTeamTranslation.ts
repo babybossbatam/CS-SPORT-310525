@@ -947,22 +947,14 @@ class SmartTeamTranslation {
       'zh': '波尔图', 'zh-hk': '波圖', 'zh-tw': '波爾圖',
       'es': 'Oporto', 'de': 'Porto', 'it': 'Porto', 'pt': 'Porto'
     },
-    'Porto': {
-      'zh': '波尔图', 'zh-hk': '波圖', 'zh-tw': '波爾圖',
-      'es': 'Oporto', 'de': 'Porto', 'it': 'Porto', 'pt': 'Porto'
-    },
-    'Benfica': {
-      'zh': '本菲卡', 'zh-hk': '賓菲加', 'zh-tw': '本菲卡',
-      'es': 'Benfica', 'de': 'Benfica', 'it': 'Benfica', 'pt': 'Benfica'
-    },
+    
+    
     'SL Benfica': {
       'zh': '本菲卡', 'zh-hk': '賓菲加', 'zh-tw': '本菲卡',
       'es': 'SL Benfica', 'de': 'SL Benfica', 'it': 'SL Benfica', 'pt': 'SL Benfica'
     },
-    'Sporting CP': {
-      'zh': '里斯本竞技', 'zh-hk': '士砵亭', 'zh-tw': '里斯本競技',
-      'es': 'Sporting de Lisboa', 'de': 'Sporting Lissabon', 'it': 'Sporting Lisbona', 'pt': 'Sporting'
-    },
+    
+    
     'Sporting Lisbon': {
       'zh': '里斯本竞技', 'zh-hk': '士砵亭', 'zh-tw': '里斯本競技',
       'es': 'Sporting de Lisboa', 'de': 'Sporting Lissabon', 'it': 'Sporting Lisbona', 'pt': 'Sporting'
@@ -1553,10 +1545,7 @@ class SmartTeamTranslation {
       'zh': '克卢日', 'zh-hk': '克盧日', 'zh-tw': '克盧日',
       'es': 'CFR Cluj', 'de': 'CFR Cluj', 'it': 'CFR Cluj', 'pt': 'CFR Cluj'
     },
-    'SC Braga': {
-      'zh': '布拉加', 'zh-hk': '布拉加', 'zh-tw': '布拉加',
-      'es': 'SC Braga', 'de': 'SC Braga', 'it': 'SC Braga', 'pt': 'SC Braga'
-    },
+  
     'Lincoln Red Imps FC': {
       'zh': '林肯红魔', 'zh-hk': '林肯紅魔', 'zh-tw': '林肯紅魔',
       'es': 'Lincoln Red Imps FC', 'de': 'Lincoln Red Imps FC', 'it': 'Lincoln Red Imps FC', 'pt': 'Lincoln Red Imps FC'
