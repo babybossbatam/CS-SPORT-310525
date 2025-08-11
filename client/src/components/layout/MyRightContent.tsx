@@ -6,7 +6,6 @@ import HomeTopScorersList from "@/components/leagues/HomeTopScorersList";
 import LeagueStandingsFilter from "@/components/leagues/LeagueStandingsFilter";
 import PopularLeaguesList from "@/components/leagues/PopularLeaguesList";
 import MyAllLeague from "@/components/matches/MyAllLeague";
-import MyAllLeagueList from "@/components/matches/MyAllLeagueList";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
@@ -42,7 +41,7 @@ const MyRightContent: React.FC = () => {
           <PopularLeaguesList />
           <PopularTeamsList />
         </div>
-        <MyAllLeagueList selectedDate={selectedDate} />
+        <MyAllLeague />
       </div>
     </div>
   );
