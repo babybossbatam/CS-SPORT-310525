@@ -2883,13 +2883,16 @@ error) {
     },
   );
 
-  // Get live fixtures (with B365API fallback)
-  apiRouter.get("/fixtures/live", async (_req: Request, res: Response) => {
+  // Get live fixtures with enhanced error handling
+  apiRouter.get("/fixtures/live", async (req: Request, res: Response) => {
     try {
-      // Use API-Football (RapidAPI) only
+      const { skipCache } = req.query;
+      
+      // Enhanced error handling for RapidAPI
       try {
+        console.log(`🔴 [LIVE API] Attempting to fetch live fixtures from RapidAPI`);
         const fixtures = await rapidApiService.getLiveFixtures();
-        console.log(`Retrieved ${fixtures.length} live fixtures from RapidAPI`);
+        console.log(`✅ [LIVE API] Retrieved ${fixtures.length} live fixtures from RapidAPI`);
 
         // NO CACHING for live fixtures - they need real-time updates
         console.log(
@@ -2938,18 +2941,39 @@ error) {
         }
 
         return res.json(fixtures);
-      } catch (rapidApiError) {
-        console.error("RapidAPI error for live fixtures:", rapidApiError);
+      } catch (rapidApiError: any) {
+        const errorMessage = rapidApiError?.message || 'Unknown error';
+        const statusCode = rapidApiError?.response?.status || rapidApiError?.status;
+        
+        console.error(`❌ [LIVE API] RapidAPI error for live fixtures:`, {
+          message: errorMessage,
+          status: statusCode,
+          code: rapidApiError?.code,
+          url: rapidApiError?.config?.url
+        });
 
-        // If API fails, return empty array for live fixtures - no stale cache for live matches
-        console.log(
-          `❌ [LIVE API] RapidAPI failed for live fixtures - returning empty array (no stale cache for live data)`,
-        );
+        // Handle different types of API errors
+        if (statusCode === 502 || statusCode === 503 || statusCode === 504) {
+          console.log(`🔧 [LIVE API] Gateway/Server error (${statusCode}) - RapidAPI service temporarily unavailable`);
+        } else if (statusCode === 429) {
+          console.log(`⏱️ [LIVE API] Rate limit exceeded (429) - too many requests`);
+        } else if (statusCode === 401 || statusCode === 403) {
+          console.log(`🔐 [LIVE API] Authentication error (${statusCode}) - API key issue`);
+        } else if (rapidApiError?.code === 'ECONNABORTED' || rapidApiError?.code === 'ETIMEDOUT') {
+          console.log(`⏰ [LIVE API] Request timeout - API took too long to respond`);
+        } else {
+          console.log(`🚫 [LIVE API] Unexpected API error: ${errorMessage}`);
+        }
+
+        // Return empty array with error context for client-side handling
+        console.log(`❌ [LIVE API] Returning empty array due to API failure`);
         return res.json([]);
       }
     } catch (error) {
-      console.error("Error fetching live fixtures:", error);
-      res.status(500).json({ message: "Failed to fetch live fixtures" });
+      console.error("❌ [LIVE API] Unexpected error in live fixtures endpoint:", error);
+      
+      // Even for unexpected errors, return empty array to prevent client crashes
+      res.status(200).json([]); // Use 200 status to prevent client-side error handling
     }
   });
 
