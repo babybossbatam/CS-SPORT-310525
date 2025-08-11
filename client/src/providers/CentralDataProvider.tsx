@@ -161,12 +161,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       const controller = new AbortController();
       
       try {
-        // Set up timeout that only aborts if request is still pending - increased for consistency
+        // Set up timeout that only aborts if request is still pending - reduced to 20 seconds for live data
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 30 seconds');
+            controller.abort('Request timeout after 20 seconds');
           }
-        }, 30000);
+        }, 20000);
 
         const response = await fetch('/api/fixtures/live', {
           signal: controller.signal,
@@ -190,6 +190,13 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         const data: FixtureResponse[] = await response.json();
         console.log(`Central cache: Received ${data.length} live fixtures`);
 
+        // Cache successful live response
+        try {
+          localStorage.setItem('live_fixtures_fallback', JSON.stringify(data));
+        } catch (cacheError) {
+          console.warn('Failed to cache live fixtures:', cacheError);
+        }
+
         // Update Redux store
         dispatch(fixturesActions.setLiveFixtures(data as any));
         return data;
@@ -201,8 +208,22 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           timeoutId = null;
         }
 
-        if (fetchError.name === 'AbortError') {
-          console.warn(`⏰ [CentralDataProvider] Live fixtures request timeout`);
+        if (fetchError.name === 'AbortError' || fetchError.message?.includes('timeout')) {
+          console.warn(`⏰ [CentralDataProvider] Live fixtures request timeout - using cached data if available`);
+          
+          // Try to return cached live fixtures
+          try {
+            const cached = localStorage.getItem('live_fixtures_fallback');
+            if (cached) {
+              const parsedCache = JSON.parse(cached);
+              if (Array.isArray(parsedCache) && parsedCache.length > 0) {
+                console.log(`📦 [CentralDataProvider] Using localStorage fallback for live fixtures: ${parsedCache.length} fixtures`);
+                return parsedCache;
+              }
+            }
+          } catch (cacheError) {
+            console.warn('Failed to access cached live fixtures:', cacheError);
+          }
         } else {
           console.warn(`Failed to fetch live fixtures:`, fetchError);
         }
@@ -213,7 +234,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     },
     staleTime: 120000, // 2 minutes for live data
     gcTime: 10 * 60 * 1000, // 10 minutes
-    refetchInterval: 300000, // Refetch every 5 minutes (much less aggressive)
+    refetchInterval: 600000, // Refetch every 10 minutes (even less aggressive)
     refetchOnWindowFocus: false, // Disable to prevent memory leaks
     retry: 3, // Enable retries with exponential backoff
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
