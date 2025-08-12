@@ -80,6 +80,7 @@ const isNationalTeamCompetition = (leagueName: string): boolean => {
 
 const LeagueStandingsFilter = () => {
   const { t, i18n } = useTranslation(); // Initialize translation hook
+  const { currentLanguage } = useLanguage(); // Get current language from context
   const [popularLeagues, setPopularLeagues] = useState<LeagueData[]>([]);
   const [selectedLeague, setSelectedLeague] = useState("");
   const [selectedLeagueName, setSelectedLeagueName] = useState("");
@@ -87,15 +88,17 @@ const LeagueStandingsFilter = () => {
 
   // Function to get translated team name using smart translation system
   const getTranslatedTeamName = (teamName: string): string => {
-    // Use smart team translation system with current language
-    const currentLanguage = i18n?.language || 'zh-hk';
-    return smartTeamTranslation.translateTeamName(teamName, currentLanguage);
+    // Use smart team translation system with current language from context
+    const effectiveLanguage = currentLanguage || 'en';
+    console.log(`🔄 [LeagueStandings] Translating team "${teamName}" to language: ${effectiveLanguage}`);
+    return smartTeamTranslation.translateTeamName(teamName, effectiveLanguage);
   };
 
   // Function to get translated group text
   const getTranslatedGroupText = (groupText: string): string => {
-    const currentLanguage = i18n?.language || 'zh-hk';
-    return smartLeagueCountryTranslation.translateLeagueName(groupText, currentLanguage);
+    const effectiveLanguage = currentLanguage || 'en';
+    console.log(`🔄 [LeagueStandings] Translating group "${groupText}" to language: ${effectiveLanguage}`);
+    return smartLeagueCountryTranslation.translateLeagueName(groupText, effectiveLanguage);
   };
 
   useEffect(() => {
@@ -828,8 +831,9 @@ const LeagueStandingsFilter = () => {
                   }}
                 />
                 {(() => {
-                  const currentLanguage = i18n?.language || 'zh-hk';
-                  return smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, currentLanguage);
+                  const effectiveLanguage = currentLanguage || 'en';
+                  console.log(`🔄 [LeagueStandings] Translating selected league "${selectedLeagueName}" to: ${effectiveLanguage}`);
+                  return smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, effectiveLanguage);
                 })()}
               </div>
             </SelectValue>
@@ -858,8 +862,8 @@ const LeagueStandingsFilter = () => {
                       }}
                     />
                     {(() => {
-                      const currentLanguage = i18n?.language || 'zh-hk';
-                      return smartLeagueCountryTranslation.translateLeagueName(league.name, currentLanguage);
+                      const effectiveLanguage = currentLanguage || 'en';
+                      return smartLeagueCountryTranslation.translateLeagueName(league.name, effectiveLanguage);
                     })()}
                   </div>
                 </SelectItem>
@@ -1066,9 +1070,9 @@ const LeagueStandingsFilter = () => {
                       className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium transition-colors duration-200"
                     >
                       {(() => {
-                        const currentLanguage = i18n?.language || 'zh-hk';
-                        const translatedLeague = smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, currentLanguage);
-                        const translatedStandings = smartLeagueCountryTranslation.translateLeagueName('Group Standings', currentLanguage);
+                        const effectiveLanguage = currentLanguage || 'en';
+                        const translatedLeague = smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, effectiveLanguage);
+                        const translatedStandings = smartLeagueCountryTranslation.translateLeagueName('Group Standings', effectiveLanguage);
                         return `${translatedLeague} ${translatedStandings} →`;
                       })()}
                     </button>
