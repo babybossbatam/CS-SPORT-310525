@@ -129,16 +129,20 @@ export const shortenTeamName = (teamName: string): string => {
 
 interface TodaysMatchesByCountryNewProps {
   selectedDate: string;
-  liveFilterActive?: boolean;
-  timeFilterActive?: boolean;
-  onMatchCardClick?: (fixture: any) => void;
+  className?: string;
+  excludeCountries?: string[];
+  onMatchClick?: (match: any) => void;
+  enablePagination?: boolean;
+  pageSize?: number;
 }
 
 const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   selectedDate,
-  liveFilterActive = false,
-  timeFilterActive = false,
-  onMatchCardClick,
+  className = "",
+  excludeCountries = [],
+  onMatchClick,
+  enablePagination = false,
+  pageSize = 50,
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
@@ -235,9 +239,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       console.log(`🔍 [TodaysMatchesByCountryNew] Smart fetch for date: ${selectedDate}`);
 
+      // Adjust API endpoint based on pagination enablement
+      const endpoint = enablePagination
+        ? `/api/fixtures/date/${selectedDate}?page=${currentChunk + 1}&limit=${pageSize}`
+        : `/api/fixtures/date/${selectedDate}?all=true`;
+
       const response = await apiRequest(
         "GET",
-        `/api/fixtures/date/${selectedDate}?all=true`,
+        endpoint,
       );
 
       if (!response.ok) {

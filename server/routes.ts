@@ -415,7 +415,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/fixtures/date/:date", async (req: Request, res: Response) => {
     try {
       const { date } = req.params;
-      const { all, skipFilter } = req.query;
+      const { all, skipFilter, page, limit } = req.query;
+
+      // Parse pagination parameters
+      const pageNum = parseInt(page as string) || 1;
+      const limitNum = parseInt(limit as string) || 0; // 0 means no pagination
+      const offset = limitNum > 0 ? (pageNum - 1) * limitNum : 0;
 
       // Validate date format first
       if (!date || date === 'undefined' || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
@@ -438,7 +443,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log(
-        `🎯 [Routes] Processing multi-timezone request for date: ${date} (all=${all})`,
+        `🎯 [Routes] Processing multi-timezone request for date: ${date} (all=${all}, page=${pageNum}, limit=${limitNum})`,
       );
       console.log(
         `🎯 [Routes] Current server date: ${new Date().toISOString()}, requested date: ${date}`,
@@ -631,22 +636,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
       }
 
+      // Apply pagination if requested
+      let paginatedFixtures = uniqueFixtures;
+      let totalCount = uniqueFixtures.length;
+      let hasMore = false;
+
+      if (limitNum > 0) {
+        paginatedFixtures = uniqueFixtures.slice(offset, offset + limitNum);
+        hasMore = offset + limitNum < totalCount;
+        
+        console.log(
+          `📄 [Routes] Pagination applied: page ${pageNum}, showing ${paginatedFixtures.length}/${totalCount} fixtures (hasMore: ${hasMore})`,
+        );
+      }
+
       console.log(
-        `✅ [Routes] Returning ${uniqueFixtures.length} multi-timezone fixtures for ${date}`,
+        `✅ [Routes] Returning ${paginatedFixtures.length} multi-timezone fixtures for ${date}`,
       );
-      return res.json(uniqueFixtures);
+
+      // Return paginated response with metadata
+      if (limitNum > 0) {
+        return res.json({
+          fixtures: paginatedFixtures,
+          pagination: {
+            page: pageNum,
+            limit: limitNum,
+            total: totalCount,
+            hasMore: hasMore,
+            totalPages: Math.ceil(totalCount / limitNum)
+          }
+        });
+      } else {
+        return res.json(uniqueFixtures);
+      }
       // Fallback to cached fixtures if API fails
       if (cachedFixtures && cachedFixtures.length > 0) {
-        console.log(
-          `📦 [Routes] Returning ${cachedFixtures.length} stale cached fixtures for ${date}`,
-        );
-        return res.json(cachedFixtures.map((fixture) => fixture.data));
+        const cachedData = cachedFixtures.map((fixture) => fixture.data);
+        
+        // Apply pagination to cached data if requested
+        if (limitNum > 0) {
+          const paginatedCached = cachedData.slice(offset, offset + limitNum);
+          const hasMore = offset + limitNum < cachedData.length;
+          
+          console.log(
+            `📦 [Routes] Returning ${paginatedCached.length}/${cachedData.length} paginated stale cached fixtures for ${date}`,
+          );
+          
+          return res.json({
+            fixtures: paginatedCached,
+            pagination: {
+              page: pageNum,
+              limit: limitNum,
+              total: cachedData.length,
+              hasMore: hasMore,
+              totalPages: Math.ceil(cachedData.length / limitNum)
+            }
+          });
+        } else {
+          console.log(
+            `📦 [Routes] Returning ${cachedData.length} stale cached fixtures for ${date}`,
+          );
+          return res.json(cachedData);
+        }
       }
 
       console.log(
         `📭 [Routes] No fixtures found for multi-timezone request: ${date}`,
       );
-      return res.json([]);
+      
+      if (limitNum > 0) {
+        return res.json({
+          fixtures: [],
+          pagination: {
+            page: pageNum,
+            limit: limitNum,
+            total: 0,
+            hasMore: false,
+            totalPages: 0
+          }
+        });
+      } else {
+        return res.json([]);
+      }
     } catch (error) {
       console.error("Error fetching multi-timezone fixtures:", error);
       return res.json([]);
