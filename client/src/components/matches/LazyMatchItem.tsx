@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -112,7 +111,7 @@ const LazyMatchItem: React.FC<LazyMatchItemProps> = ({
       if (element) {
         observedElements.delete(element);
         globalObserver?.unobserve(element);
-        
+
         if (prefetchObserver) {
           prefetchElements.delete(element);
           prefetchObserver.unobserve(element);
@@ -178,78 +177,6 @@ const LazyMatchItem: React.FC<LazyMatchItemProps> = ({
       }}
     >
       {isVisible ? children : (fallback || defaultFallback)}
-    </div>
-  );
-};
-
-export default LazyMatchItem;
-import React, { useState, useRef, useEffect } from 'react';
-import MyWorldTeamLogo from '../common/MyWorldTeamLogo';
-
-interface LazyMatchItemProps {
-  match: any;
-}
-
-const LazyMatchItem: React.FC<LazyMatchItemProps> = ({ match }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const elementRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (elementRef.current) {
-      observer.observe(elementRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (isVisible) {
-      // Small delay to prevent all matches from loading at once
-      const timer = setTimeout(() => setIsLoaded(true), Math.random() * 200);
-      return () => clearTimeout(timer);
-    }
-  }, [isVisible]);
-
-  return (
-    <div ref={elementRef} className="match-item">
-      {isLoaded ? (
-        <>
-          <MyWorldTeamLogo 
-            teamName={match.teams.home.name}
-            size="32"
-            lazy={true}
-          />
-          <span className="match-vs">vs</span>
-          <MyWorldTeamLogo 
-            teamName={match.teams.away.name}
-            size="32"
-            lazy={true}
-          />
-          <div className="match-time">
-            {new Date(match.fixture.date).toLocaleTimeString([], { 
-              hour: '2-digit', 
-              minute: '2-digit' 
-            })}
-          </div>
-        </>
-      ) : (
-        <div className="match-skeleton">
-          <div className="skeleton-logo"></div>
-          <span className="skeleton-vs">vs</span>
-          <div className="skeleton-logo"></div>
-        </div>
-      )}
     </div>
   );
 };
