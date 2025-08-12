@@ -272,7 +272,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   );
 
-  
+
 
   // Error handling with user-friendly messages
   const error = queryError ? (
@@ -712,23 +712,45 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [processedFixtures, selectedDate]);
 
-// Lightweight country extraction for initial display only
+  // Ultra-fast country extraction with minimal processing
   const countryList = useMemo(() => {
     if (!validFixtures?.length) return [];
-    
-    const countries = new Set<string>();
-    validFixtures.forEach((fixture: any) => {
-      if (fixture?.league?.country) {
-        countries.add(fixture.league.country);
+
+    // Use Map for faster lookups and avoid repeated sorting
+    const countrySet = new Set<string>();
+    let hasWorld = false;
+
+    // Single pass through fixtures
+    for (const fixture of validFixtures) {
+      const country = fixture?.league?.country;
+      if (country) {
+        if (country === "World") hasWorld = true;
+        countrySet.add(country);
       }
-    });
-    
-    return Array.from(countries).sort((a, b) => {
-      if (a === "World") return -1;
-      if (b === "World") return 1;
-      return a.localeCompare(b);
-    });
+    }
+
+    // Fast array creation with World prioritization
+    const countries = Array.from(countrySet);
+    if (hasWorld) {
+      const filtered = countries.filter(c => c !== "World");
+      filtered.sort();
+      return ["World", ...filtered];
+    }
+
+    countries.sort();
+    return countries;
   }, [validFixtures]);
+
+  // Instant country initialization with immediate display
+  useEffect(() => {
+    if (countryList.length === 0) return;
+
+    // Show first 10 countries immediately for faster perceived loading
+    const initialCountries = countryList.slice(0, Math.min(10, countryList.length));
+    setVisibleCountries(new Set(initialCountries));
+
+    console.log(`⚡ [TodaysMatchesByCountryNew] Lightning-fast loaded ${initialCountries.length}/${countryList.length} countries`);
+  }, [countryList]);
 
   // Lazy country data processing - only process visible countries
   const [countryDataCache, setCountryDataCache] = useState<{ 
@@ -738,7 +760,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Memoized version to prevent infinite re-renders
   const processedCountryData = useMemo(() => {
     const cache: { [country: string]: any } = {};
-    
+
     countryList.forEach((country) => {
       // Process fixtures for this specific country only
       const countryFixtures = validFixtures.filter((fixture: any) => 
@@ -751,15 +773,15 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       countryFixtures.forEach((fixture: any) => {
         if (!fixture?.fixture?.id || !fixture?.teams) return;
-        
+
         if (seenFixtures.has(fixture.fixture.id)) return;
-        
+
         const matchupKey = `${fixture.teams.home.id}-${fixture.teams.away.id}-${fixture.league.id}`;
         if (seenMatchups.has(matchupKey)) return;
 
         const leagueId = fixture.league.id;
         const leagueName = fixture.league.name || "";
-        
+
         if (shouldExcludeMatchByCountry(leagueName, "", "", false, country)) {
           return;
         }
@@ -783,7 +805,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         hasPopularLeague: Object.values(leagues).some((league: any) => league.isPopular)
       };
     });
-    
+
     return cache;
   }, [validFixtures, countryList, selectedDate]);
 
@@ -803,10 +825,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Optimized batch loading with progressive enhancement
   const loadMoreCountries = useCallback(async () => {
     if (isLoadingMore) return;
-    
+
     setIsLoadingMore(true);
     const remainingCountries = countryList.filter(country => !visibleCountries.has(country));
-    
+
     if (remainingCountries.length > 0) {
       // Progressive loading in smaller chunks to prevent UI blocking
       const chunkSize = 10;
@@ -814,7 +836,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       for (let i = 0; i < remainingCountries.length; i += chunkSize) {
         chunks.push(remainingCountries.slice(i, i + chunkSize));
       }
-      
+
       // Load all chunks with micro-delays
       for (const chunk of chunks) {
         setVisibleCountries(prev => new Set([...prev, ...chunk]));
@@ -822,10 +844,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           await new Promise(resolve => setTimeout(resolve, 10));
         }
       }
-      
+
       console.log(`📈 [TodaysMatchesByCountryNew] Progressively loaded ${remainingCountries.length} countries`);
     }
-    
+
     setIsLoadingMore(false);
   }, [countryList, visibleCountries, isLoadingMore]);
 
@@ -850,7 +872,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   useEffect(() => {
     // Reset to collapsed state when selected date changes
     setExpandedCountries(new Set());
-    
+
     // Auto-expand first leagues will be handled lazily when countries are accessed
     setExpandedLeagues(new Set());
   }, [selectedDate]);
@@ -866,7 +888,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     flagObserver.current = new IntersectionObserver(
       (entries) => {
         const newFlags: { [country: string]: string } = {};
-        
+
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const country = entry.target.getAttribute('data-country');
@@ -899,12 +921,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Observe country elements for lazy flag loading
   const observeCountryElement = useCallback((element: HTMLElement | null, country: string) => {
     if (!element || !flagObserver.current) return;
-    
+
     const existingElement = countryRefs.current.get(country);
     if (existingElement) {
       flagObserver.current.unobserve(existingElement);
     }
-    
+
     countryRefs.current.set(country, element);
     element.setAttribute('data-country', country);
     flagObserver.current.observe(element);
@@ -2051,7 +2073,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               </div>
             );
           })}
-          
+
           {/* Optimized Load More Button */}
           {visibleCountries.size < countryList.length && (
             <div className="flex justify-center p-4">
