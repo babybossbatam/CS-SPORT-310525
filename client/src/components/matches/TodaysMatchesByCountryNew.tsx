@@ -215,6 +215,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     };
   };
 
+  // State for lazy loading countries
+  const [visibleCountries, setVisibleCountries] = useState<Set<string>>(new Set());
+  const [initialLoadCount] = useState(5); // Load first 5 countries initially
+
   // Use smart cached query
   const {
     data: fixtures = [],
@@ -266,6 +270,26 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       },
     }
   );
+
+  // Initialize visible countries with first few countries
+  useEffect(() => {
+    if (Object.keys(fixturesByCountry).length > 0) {
+      const countryKeys = Object.keys(fixturesByCountry);
+      const initialCountries = countryKeys.slice(0, initialLoadCount);
+      setVisibleCountries(new Set(initialCountries));
+    }
+  }, [Object.keys(fixturesByCountry).length, initialLoadCount]);
+
+  // Intersection Observer for lazy loading more countries
+  const loadMoreCountries = useCallback(() => {
+    const countryKeys = Object.keys(fixturesByCountry);
+    const currentVisible = Array.from(visibleCountries);
+    const nextCountries = countryKeys.filter(country => !visibleCountries.has(country)).slice(0, 3);
+    
+    if (nextCountries.length > 0) {
+      setVisibleCountries(prev => new Set([...prev, ...nextCountries]));
+    }
+  }, [fixturesByCountry, visibleCountries]);
 
   // Error handling with user-friendly messages
   const error = queryError ? (
@@ -1421,8 +1445,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       </CardHeader>
       <CardContent className="p-0 dark:bg-gray-800">
         <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
-          {/* Use sortedCountries directly */}
-          {sortedCountries.map((countryData: any) => {
+          {/* Use sortedCountries with lazy loading */}
+          {sortedCountries
+            .filter((countryData: any) => visibleCountries.has(countryData.country))
+            .map((countryData: any) => {
             const isExpanded = expandedCountries.has(countryData.country);
             const totalMatches = Object.values(countryData.leagues).reduce(
               (sum: number, league: any) => sum + league.matches.length,
@@ -2182,6 +2208,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               </div>
             );
           })}
+          
+          {/* Load More Button for Lazy Loading */}
+          {visibleCountries.size < Object.keys(fixturesByCountry).length && (
+            <div className="flex justify-center p-4">
+              <button
+                onClick={loadMoreCountries}
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm"
+              >
+                Load More Countries ({Object.keys(fixturesByCountry).length - visibleCountries.size} remaining)
+              </button>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
