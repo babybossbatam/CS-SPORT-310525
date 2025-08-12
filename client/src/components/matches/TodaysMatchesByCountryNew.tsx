@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronDown, ChevronUp, Calendar, Star } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
-import { useCachedQuery } from "@/lib/cachingHelper";
+import { useCachedQuery, CacheManager } from "@/lib/cachingHelper";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import { shouldExcludeMatchByCountry } from "@/lib/MyMatchByCountryNewExclusion";
@@ -334,110 +334,137 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   }, [fixtures, selectedDate, isToday]);
 
-  // Smart fixture processing with deduplication like MyNewLeague2
-  const processedFixtures = useMemo(() => {
-    if (!fixtures || fixtures.length === 0) return [];
+  // Cache key for processed data
+  const processedDataCacheKey = `processed-country-data-${selectedDate}`;
 
-    // Apply deduplication by fixture ID and matchup key
+  // Get or compute processed country data with caching
+  const processedCountryData = useMemo(() => {
+    // First, try to get from cache
+    const cached = CacheManager.getCachedData([processedDataCacheKey], 30 * 60 * 1000); // 30 minutes cache
+    if (cached) {
+      console.log(`✅ [TodaysMatchesByCountryNew] Using cached processed data for ${selectedDate}`);
+      return cached;
+    }
+
+    // If no cache or cache expired, process the data
+    if (!fixtures || fixtures.length === 0) {
+      console.log(`📊 [TodaysMatchesByCountryNew] No fixtures available for ${selectedDate}`);
+      return {};
+    }
+
+    console.log(`🔄 [TodaysMatchesByCountryNew] Processing fresh data for ${selectedDate} (${fixtures.length} fixtures)`);
+
+    // Step 1: Deduplication and validation
     const seenFixtures = new Set<number>();
     const seenMatchups = new Set<string>();
-    const deduplicatedFixtures: any[] = [];
+    const validFixtures: any[] = [];
 
     fixtures.forEach((fixture: any) => {
-      if (!fixture?.fixture?.id || !fixture?.teams) return;
+      // Basic validation
+      if (!fixture?.fixture?.id || !fixture?.teams || !fixture?.league) return;
 
-      // Check for duplicate fixture IDs
+      // Check for duplicates
       if (seenFixtures.has(fixture.fixture.id)) return;
-
-      // Create unique matchup key
+      
       const matchupKey = `${fixture.teams.home?.id}-${fixture.teams.away?.id}-${fixture.league?.id}-${fixture.fixture.date}`;
       if (seenMatchups.has(matchupKey)) return;
 
-      // Mark as seen and add to deduplicated list
-      seenFixtures.add(fixture.fixture.id);
-      seenMatchups.add(matchupKey);
-      deduplicatedFixtures.push(fixture);
-    });
-
-    console.log(`🔄 [TodaysMatchesByCountryNew] Processed ${fixtures.length} fixtures → ${deduplicatedFixtures.length} after deduplication`);
-
-    return deduplicatedFixtures;
-  }, [fixtures]);
-
-// Memoized filtering with performance optimizations using smart cached data
-  const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
-    const allFixtures = processedFixtures;
-    if (!allFixtures?.length) {
-      console.log(`📊 [TodaysMatchesByCountryNew] No processed fixtures available for ${selectedDate}`);
-      return {
-        validFixtures: [],
-        rejectedFixtures: [],
-        stats: { total: 0, valid: 0, rejected: 0, methods: {} },
-      };
-    }
-
-    const filtered: any[] = [];
-    const rejected: Array<{ fixture: any; reason: string }> = [];
-    const seenFixtures = new Set<number>(); // Track seen fixture IDs to prevent duplicates
-    const seenMatchups = new Set<string>(); // Track unique team matchups as well
-
-    allFixtures.forEach((fixture: any, index) => {
-      // Validate fixture structure (same as MyNewLeague2)
-      if (
-        !fixture ||
-        !fixture.league ||
-        !fixture.teams ||
-        !fixture.fixture?.date ||
-        !fixture.fixture?.id
-      ) {
-        rejected.push({ fixture, reason: 'Invalid fixture structure' });
-        return;
-      }
-
-      // Check for duplicate fixture IDs (same as MyNewLeague2)
-      if (seenFixtures.has(fixture.fixture.id)) {
-        rejected.push({ fixture, reason: 'Duplicate fixture ID' });
-        return;
-      }
-
-      // Create unique matchup key (same as MyNewLeague2)
-      const matchupKey = `${fixture.teams.home.id}-${fixture.teams.away.id}-${fixture.league.id}-${fixture.fixture.date}`;
-
-      // Check for duplicate team matchups
-      if (seenMatchups.has(matchupKey)) {
-        rejected.push({ fixture, reason: 'Duplicate matchup' });
-        return;
-      }
-
-      // Apply date filtering - extract date from fixture and compare with selected date (same as MyNewLeague2)
+      // Date validation
       const fixtureDate = new Date(fixture.fixture.date);
       const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
+      if (fixtureDateString !== selectedDate) return;
 
-      // Only include fixtures that match the selected date
-      if (fixtureDateString !== selectedDate) {
-        rejected.push({ fixture, reason: 'Date mismatch' });
-        return;
-      }
-
-      // Mark this fixture as seen and add it to the filtered list
       seenFixtures.add(fixture.fixture.id);
       seenMatchups.add(matchupKey);
-      filtered.push(fixture);
+      validFixtures.push(fixture);
+    });
+
+    // Step 2: Group by country and organize by leagues
+    const countryData: { [country: string]: any } = {};
+    const fixturesByCountry = new Map<string, any[]>();
+
+    // Group fixtures by country
+    validFixtures.forEach((fixture: any) => {
+      const country = fixture?.league?.country;
+      if (!country) return;
+
+      if (!fixturesByCountry.has(country)) {
+        fixturesByCountry.set(country, []);
+      }
+      fixturesByCountry.get(country)!.push(fixture);
+    });
+
+    // Process each country's fixtures
+    fixturesByCountry.forEach((countryFixtures, country) => {
+      const leagues: any = {};
+      const seenLeagueMatchups = new Set<string>();
+
+      countryFixtures.forEach((fixture: any) => {
+        const matchupKey = `${fixture.teams.home.id}-${fixture.teams.away.id}-${fixture.league.id}`;
+        if (seenLeagueMatchups.has(matchupKey)) return;
+
+        const leagueId = fixture.league.id;
+        const leagueName = fixture.league.name || "";
+
+        // Apply exclusion filters
+        if (shouldExcludeMatchByCountry(leagueName, "", "", false, country)) {
+          return;
+        }
+
+        if (!leagues[leagueId]) {
+          leagues[leagueId] = {
+            league: fixture.league,
+            matches: [],
+            isPopular: POPULAR_LEAGUES.includes(leagueId),
+          };
+        }
+
+        seenLeagueMatchups.add(matchupKey);
+        leagues[leagueId].matches.push(fixture);
+      });
+
+      countryData[country] = {
+        country,
+        leagues,
+        hasPopularLeague: Object.values(leagues).some((league: any) => league.isPopular)
+      };
+    });
+
+    // Cache the processed data
+    CacheManager.setCachedData([processedDataCacheKey], countryData);
+    console.log(`💾 [TodaysMatchesByCountryNew] Cached processed data for ${selectedDate} (${Object.keys(countryData).length} countries)`);
+
+    return countryData;
+  }, [fixtures, selectedDate, processedDataCacheKey]);
+
+  // Extract valid fixtures and country list from processed data
+  const { validFixtures, countryList } = useMemo(() => {
+    const allValidFixtures: any[] = [];
+    const countries: string[] = [];
+
+    Object.values(processedCountryData).forEach((countryData: any) => {
+      if (countryData.country) {
+        countries.push(countryData.country);
+        
+        // Extract all matches from all leagues in this country
+        Object.values(countryData.leagues).forEach((leagueData: any) => {
+          allValidFixtures.push(...leagueData.matches);
+        });
+      }
+    });
+
+    // Sort countries with World first
+    const sortedCountries = countries.sort((a, b) => {
+      if (a === "World") return -1;
+      if (b === "World") return 1;
+      return a.localeCompare(b);
     });
 
     return {
-      validFixtures: filtered,
-      rejectedFixtures: rejected,
-      stats: {
-        total: allFixtures.length,
-        valid: filtered.length,
-        rejected: rejected.length,
-        methods: {
-          "date-filter": filtered.length,
-        },
-      },
+      validFixtures: allValidFixtures,
+      countryList: sortedCountries
     };
-  }, [processedFixtures, selectedDate]);
+  }, [processedCountryData]);
 
   // Cache the last filter results
   const lastFilterCache = useRef<{
@@ -597,111 +624,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [processedFixtures.length, selectedDate]);
 
-  // Ultra-fast country extraction with minimal processing
-  const countryList = useMemo(() => {
-    if (!validFixtures?.length) return [];
-
-    // Use Map for faster lookups and avoid repeated sorting
-    const countrySet = new Set<string>();
-    let hasWorld = false;
-
-    // Single pass through fixtures
-    for (const fixture of validFixtures) {
-      const country = fixture?.league?.country;
-      if (country) {
-        if (country === "World") hasWorld = true;
-        countrySet.add(country);
-      }
-    }
-
-    // Fast array creation with World prioritization
-    const countries = Array.from(countrySet);
-    if (hasWorld) {
-      const filtered = countries.filter(c => c !== "World");
-      filtered.sort();
-      return ["World", ...filtered];
-    }
-
-    countries.sort();
-    return countries;
-  }, [validFixtures]);
-
   // Show ALL countries immediately - no lazy loading delays
   useEffect(() => {
     if (countryList.length === 0) return;
 
     // Show ALL countries immediately
     setVisibleCountries(new Set(countryList));
-    console.log(`⚡ [TodaysMatchesByCountryNew] Showing ALL ${countryList.length} countries immediately`);
+    console.log(`⚡ [TodaysMatchesByCountryNew] Showing ALL ${countryList.length} countries immediately (from cache)`);
   }, [countryList]);
-
-  // Lazy country data processing - only process visible countries
-  const [countryDataCache, setCountryDataCache] = useState<{ 
-    [country: string]: { country: string; leagues: any; hasPopularLeague: boolean } 
-  }>({});
-
-  // Optimized country data processing with better caching
-  const processedCountryData = useMemo(() => {
-    const cache: { [country: string]: any } = {};
-
-    // Create lookup maps for faster processing
-    const fixturesByCountry = new Map<string, any[]>();
-    const seenGlobal = new Set<number>();
-
-    // Single pass to group fixtures by country
-    validFixtures.forEach((fixture: any) => {
-      if (!fixture?.fixture?.id || !fixture?.teams || seenGlobal.has(fixture.fixture.id)) return;
-
-      const country = fixture?.league?.country;
-      if (!country) return;
-
-      seenGlobal.add(fixture.fixture.id);
-
-      if (!fixturesByCountry.has(country)) {
-        fixturesByCountry.set(country, []);
-      }
-      fixturesByCountry.get(country)!.push(fixture);
-    });
-
-    // Process each country's fixtures
-    countryList.forEach((country) => {
-      const countryFixtures = fixturesByCountry.get(country) || [];
-      const leagues: any = {};
-      const seenMatchups = new Set<string>();
-
-      countryFixtures.forEach((fixture: any) => {
-        const matchupKey = `${fixture.teams.home.id}-${fixture.teams.away.id}-${fixture.league.id}`;
-        if (seenMatchups.has(matchupKey)) return;
-
-        const leagueId = fixture.league.id;
-        const leagueName = fixture.league.name || "";
-
-        if (shouldExcludeMatchByCountry(leagueName, "", "", false, country)) {
-          return;
-        }
-
-        if (!leagues[leagueId]) {
-          leagues[leagueId] = {
-            league: fixture.league,
-            matches: [],
-            isPopular: POPULAR_LEAGUES.includes(leagueId),
-          };
-        }
-
-        seenMatchups.add(matchupKey);
-        leagues[leagueId].matches.push(fixture);
-      });
-
-      cache[country] = {
-        country,
-        leagues,
-        hasPopularLeague: Object.values(leagues).some((league: any) => league.isPopular)
-      };
-    });
-
-    console.log(`⚡ [TodaysMatchesByCountryNew] Processed ${countryList.length} countries with optimized algorithm`);
-    return cache;
-  }, [validFixtures, countryList.join(','), selectedDate]);
 
   const getCountryData = useCallback((country: string) => {
     return processedCountryData[country];
@@ -763,6 +693,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     console.log(`📦 [No Auto-expand] All ${countryList.length} countries start collapsed - manual expansion required`);
   }, [selectedDate, countryList.join(','), Object.keys(processedCountryData).length]);
+
+  // Invalidate processed data cache when date changes
+  useEffect(() => {
+    const previousCacheKey = `processed-country-data-${selectedDate}`;
+    // The cache will automatically check if data is stale, but we log the cache strategy
+    console.log(`🔄 [Cache Strategy] Date changed to ${selectedDate}, will use cached processed data if available`);
+  }, [selectedDate]);
 
   // Lazy flag loading with intersection observer
   const flagObserver = useRef<IntersectionObserver | null>(null);
