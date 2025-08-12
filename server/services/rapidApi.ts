@@ -15,7 +15,7 @@ interface LeagueStandings {
   };
 }
 
-// Initialize API client with timeout and retry configuration
+// Initialize API client
 const apiKey = process.env.RAPID_API_KEY || "";
 console.log(
   `Using RapidAPI Key: ${apiKey ? apiKey.substring(0, 5) + "..." : "NOT SET"}`,
@@ -23,45 +23,18 @@ console.log(
 
 const apiClient = axios.create({
   baseURL: "https://api-football-v1.p.rapidapi.com/v3",
-  timeout: 10000, // 10 second timeout
   headers: {
     "X-RapidAPI-Key": apiKey,
     "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
   },
 });
 
-// Add request interceptor to limit concurrent requests
-let activeRequests = 0;
-const MAX_CONCURRENT_REQUESTS = 3;
-
-apiClient.interceptors.request.use(async (config) => {
-  // Wait if too many concurrent requests
-  while (activeRequests >= MAX_CONCURRENT_REQUESTS) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
-  activeRequests++;
-  return config;
-});
-
-apiClient.interceptors.response.use(
-  (response) => {
-    activeRequests--;
-    return response;
-  },
-  (error) => {
-    activeRequests--;
-    return Promise.reject(error);
-  }
-);
-
 // Optimized cache control for better performance
-// Optimized cache durations for faster initial loads
-const LIVE_DATA_CACHE_DURATION = 30 * 1000; // 30 seconds for live data
-const TODAY_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes for today (faster updates)
-const FUTURE_CACHE_DURATION = 6 * 60 * 60 * 1000; // 6 hours for future dates
-const PAST_CACHE_DURATION = 24 * 60 * 60 * 1000; // 1 day for past dates (still long)
-const STATIC_DATA_CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours for static data
-const PREFETCH_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes for prefetched data
+const LIVE_DATA_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes for live data
+const TODAY_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for today
+const FUTURE_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours for future dates
+const PAST_CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days for past dates
+const STATIC_DATA_CACHE_DURATION = 6 * 60 * 60 * 1000; // 6 hours for static data
 
 // Cache objects
 const fixturesCache = new Map<string, { data: any; timestamp: number }>();
