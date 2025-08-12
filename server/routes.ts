@@ -40,6 +40,7 @@ import basketballStandingsRoutes from './routes/basketballStandingsRoutes';
 import basketballGamesRoutes from './routes/basketballGamesRoutes';
 import playerVerificationRoutes from './routes/playerVerificationRoutes';
 import { RapidAPI } from './utils/rapidApi'; // corrected rapidApi import
+import streamingFixturesRouter from './routes/streamingFixtures';
 
 // Cache duration constants
 const LIVE_DATA_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes for live data
@@ -47,7 +48,148 @@ const PAST_DATA_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours for past data
 const FUTURE_DATA_CACHE_DURATION = 6 * 60 * 60 * 1000; // 6 hours for future data
 
 // Simple in-memory cache
-const fixturesCache = new Map<string, { data: any; timestamp: number }>();
+const cache = new Map();
+
+// Background refresh system with circuit breaker
+const refreshInProgress = new Set();
+const failureCount = new Map();
+const lastFailureTime = new Map();
+const MAX_FAILURES = 3;
+const BACKOFF_TIME = 5 * 60 * 1000; // 5 minutes backoff
+const CIRCUIT_BREAKER_TIME = 15 * 60 * 1000; // 15 minutes circuit breaker
+
+// Check if circuit breaker is active
+function isCircuitBreakerActive(key: string): boolean {
+  const failures = failureCount.get(key) || 0;
+  const lastFailure = lastFailureTime.get(key) || 0;
+  const now = Date.now();
+
+  if (failures >= MAX_FAILURES) {
+    if (now - lastFailure < CIRCUIT_BREAKER_TIME) {
+      return true;
+    } else {
+      // Reset after circuit breaker timeout
+      failureCount.set(key, 0);
+      lastFailureTime.delete(key);
+      return false;
+    }
+  }
+  return false;
+}
+
+// Record failure for circuit breaker
+function recordFailure(key: string): void {
+  const failures = (failureCount.get(key) || 0) + 1;
+  failureCount.set(key, failures);
+  lastFailureTime.set(key, Date.now());
+}
+
+// Emergency cache system - serves stale cache during API issues
+function serveEmergencyCache(cacheKey: string, staleData: any, ageMinutes: number): any {
+  console.log(`⚡ [Emergency Cache] Using stale cache for ${cacheKey.replace('fixtures-date-', '')} to prevent timeout (age: ${ageMinutes}min)`);
+  return staleData;
+}
+
+// Background cache refresh with circuit breaker and backoff
+async function backgroundRefreshCache(date: string, priority: 'high' | 'normal' | 'low' = 'normal'): Promise<void> {
+  const refreshKey = `refresh-${date}`;
+
+  // Check if already in progress
+  if (refreshInProgress.has(refreshKey)) {
+    return;
+  }
+
+  // Check circuit breaker
+  if (isCircuitBreakerActive(refreshKey)) {
+    console.log(`🔌 [Circuit Breaker] Skipping refresh for ${date} - too many recent failures`);
+    return;
+  }
+
+  refreshInProgress.add(refreshKey);
+  console.log(`🔄 [Background Refresh] Updating cache for ${date}`);
+
+  try {
+    const fixtures = await rapidApiService.getFixturesByDate(date, true);
+
+    if (fixtures && fixtures.length > 0) {
+      const cacheKey = `fixtures-date-${date}-all`;
+      const cached = {
+        data: fixtures,
+        timestamp: Date.now(),
+        priority
+      };
+
+      cache.set(cacheKey, cached);
+      console.log(`✅ [Background Refresh] Successfully updated cache for ${date} with ${fixtures.length} fixtures`);
+
+      // Reset failure count on success
+      failureCount.delete(refreshKey);
+      lastFailureTime.delete(refreshKey);
+    }
+  } catch (error) {
+    console.error(`❌ [Background Refresh] Failed to update cache for ${date}:`, error);
+    recordFailure(refreshKey);
+  } finally {
+    refreshInProgress.delete(refreshKey);
+  }
+}
+
+// Schedule background refresh with intelligent frequency control
+const scheduledRefreshes = new Set();
+const lastRefreshAttempt = new Map();
+const MIN_REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes minimum between attempts
+
+function scheduleBackgroundRefreshes(currentDate: string): void {
+  const now = Date.now();
+  const dates = [];
+  const baseDate = new Date(currentDate);
+
+  // Only add today and ±1 day for focused refreshing
+  for (let i = -1; i <= 1; i++) {
+    const targetDate = new Date(baseDate);
+    targetDate.setDate(targetDate.getDate() + i);
+    const dateStr = targetDate.toISOString().split('T')[0];
+    dates.push(dateStr);
+  }
+
+  dates.forEach((date, index) => {
+    const lastAttempt = lastRefreshAttempt.get(date) || 0;
+
+    if (!scheduledRefreshes.has(date) && (now - lastAttempt > MIN_REFRESH_INTERVAL)) {
+      scheduledRefreshes.add(date);
+      lastRefreshAttempt.set(date, now);
+
+      const delay = index * 5000; // 5 second stagger
+      setTimeout(() => {
+        backgroundRefreshCache(date, index === 1 ? 'high' : 'normal'); // Prioritize current date
+        scheduledRefreshes.delete(date);
+      }, delay);
+    }
+  });
+}
+
+// Enhanced cache cleanup with circuit breaker cleanup
+setInterval(() => {
+  const now = Date.now();
+  const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+
+  // Clean old cache entries
+  for (const [key, value] of cache.entries()) {
+    if (now - value.timestamp > maxAge) {
+      cache.delete(key);
+    }
+  }
+
+  // Clean old failure records
+  for (const [key, timestamp] of lastFailureTime.entries()) {
+    if (now - timestamp > CIRCUIT_BREAKER_TIME) {
+      failureCount.delete(key);
+      lastFailureTime.delete(key);
+    }
+  }
+
+  console.log(`🧹 [Cache Cleanup] Cache size: ${cache.size}, Failure records: ${failureCount.size}`);
+}, 60 * 60 * 1000); // Run every hour
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -390,10 +532,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log(
-        `🎯 [Routes] Processing multi-timezone request for date: ${date} (all=${all})`,
+        `🌍 [Routes] Processing multi-timezone request for date: ${date} (all=${all})`,
       );
       console.log(
-        `🎯 [Routes] Current server date: ${new Date().toISOString()}, requested date: ${date}`,
+        `🌍 [Routes] Current server date: ${new Date().toISOString()}, requested date: ${date}`,
       );
 
       // Enhanced cache checking - check multiple cache layers
@@ -835,13 +977,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
               id: 39,
               name: "Premier League",
               type: "League",
-              logo: "https://media.api-sports.io/football/leagues/39.png",
+              logo: "https://media.api.sports.io/football/leagues/39.png",
               country: "England",
             },
             country: {
               name: "England",
               code: "GB",
-              flag: "https://media.api-sports.io/flags/gb.svg",
+              flag: "https://media.api.sports.io/flags/gb.svg",
             },
           },
           {
@@ -850,13 +992,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 name: "Bundesliga",
               type: "League",
-              logo: "https://media.api-sports.io/football/leagues/78.png",
+              logo: "https://media.api.sports.io/football/leagues/78.png",
               country: "Germany",
             },
             country: {
               name: "Germany",
               code: "DE",
-              flag: "https://media.api-sports.io/flags/de.svg",
+              flag: "https://media.api.sports.io/flags/de.svg",
             },
           },
           {
@@ -864,13 +1006,13 @@ name: "Bundesliga",
               id: 2,
               name: "UEFA Champions League",
               type: "Cup",
-              logo: "https://media.api-sports.io/football/leagues/2.png",
+              logo: "https://media.api.sports.io/football/leagues/2.png",
               country: "World",
             },
             country: {
               name: "World",
               code: "WO",
-              flag: "https://media.api-sports.io/flags/wo.svg",
+              flag: "https://media.api.sports.io/flags/wo.svg",
             },
           },
         ]);
@@ -1035,67 +1177,67 @@ app.get('/api/teams/popular', async (req, res) => {
     // Return popular teams with correct structure
     const popularTeams = [
       {
-        team: { id: 33, name: "Manchester United", logo: "https://media.api-sports.io/football/teams/33.png" },
+        team: { id: 33, name: "Manchester United", logo: "https://media.api.sports.io/football/teams/33.png" },
         country: { name: "England" },
         popularity: 95,
       },
       {
-        team: { id: 40, name: "Liverpool", logo: "https://media.api-sports.io/football/teams/40.png" },
+        team: { id: 40, name: "Liverpool", logo: "https://media.api.sports.io/football/teams/40.png" },
         country: { name: "England" },
         popularity: 92,
       },
       {
-        team: { id: 50, name: "Manchester City", logo: "https://media.api-sports.io/football/teams/50.png" },
+        team: { id: 50, name: "Manchester City", logo: "https://media.api.sports.io/football/teams/50.png" },
         country: { name: "England" },
         popularity: 90,
       },
       {
-        team: { id: 541, name: "Real Madrid", logo: "https://media.api-sports.io/football/teams/541.png" },
+        team: { id: 541, name: "Real Madrid", logo: "https://media.api.sports.io/football/teams/541.png" },
         country: { name: "Spain" },
         popularity: 88,
       },
       {
-        team: { id: 529, name: "FC Barcelona", logo: "https://media.api-sports.io/football/teams/529.png" },
+        team: { id: 529, name: "FC Barcelona", logo: "https://media.api.sports.io/football/teams/529.png" },
         country: { name: "Spain" },
         popularity: 85,
       },
       {
-        team: { id: 42, name: "Arsenal", logo: "https://media.api-sports.io/football/teams/42.png" },
+        team: { id: 42, name: "Arsenal", logo: "https://media.api.sports.io/football/teams/42.png" },
         country: { name: "England" },
         popularity: 83,
       },
       {
-        team: { id: 49, name: "Chelsea", logo: "https://media.api-sports.io/football/teams/49.png" },
+        team: { id: 49, name: "Chelsea", logo: "https://media.api.sports.io/football/teams/49.png" },
         country: { name: "England" },
         popularity: 80,
       },
       {
-        team: { id: 157, name: "Bayern Munich", logo: "https://media.api-sports.io/football/teams/157.png" },
+        team: { id: 157, name: "Bayern Munich", logo: "https://media.api.sports.io/football/teams/157.png" },
         country: { name: "Germany" },
         popularity: 78,
       },
       {
-        team: { id: 47, name: "Tottenham", logo: "https://media.api-sports.io/football/teams/47.png" },
+        team: { id: 47, name: "Tottenham", logo: "https://media.api.sports.io/football/teams/47.png" },
         country: { name: "England" },
         popularity: 75,
       },
       {
-        team: { id: 489, name: "AC Milan", logo: "https://media.api-sports.io/football/teams/489.png" },
+        team: { id: 489, name: "AC Milan", logo: "https://media.api.sports.io/football/teams/489.png" },
         country: { name: "Italy" },
         popularity: 68,
       },
       {
-        team: { id: 496, name: "Juventus", logo: "https://media.api-sports.io/football/teams/496.png" },
+        team: { id: 496, name: "Juventus", logo: "https://media.api.sports.io/football/teams/496.png" },
         country: { name: "Italy" },
         popularity: 65,
       },
       {
-        team: { id: 165, name: "Borussia Dortmund", logo: "https://media.api-sports.io/football/teams/165.png" },
+        team: { id: 165, name: "Borussia Dortmund", logo: "https://media.api.sports.io/football/teams/165.png" },
         country: { name: "Germany" },
         popularity: 62,
       },
       {
-        team: { id: 85, name: "Paris Saint Germain", logo: "https://media.api-sports.io/football/teams/85.png" },
+        team: { id: 85, name: "Paris Saint Germain", logo: "https://media.api.sports.io/football/teams/85.png" },
         country: { name: "France" },
         popularity: 60,
       }
@@ -1944,7 +2086,7 @@ app.get('/api/teams/popular', async (req, res) => {
 
         // Try multiple logo sources
         const logoUrls = [
-          `https://media.api-sports.io/football/teams/${teamId}.png`,
+          `https://media.api.sports.io/football/teams/${teamId}.png`,
           `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${teamId}`,
           `https://api.sportradar.com/soccer-images/production/competitors/${teamId}/logo.png`,
         ];
@@ -2206,9 +2348,7 @@ app.get('/api/teams/popular', async (req, res) => {
         res.status(500).json({
           success: false,
           error:
-            error instanceof Error
-              ? error.message
-              : "Failed to fetch fixtures by country",
+            error instanceof Error ? error.message : "Failed to fetch fixtures by country",
         });
       }
     },
@@ -2317,9 +2457,7 @@ app.get('/api/teams/popular', async (req, res) => {
           }
         } catch (error) {
           sportsRadarError =
-            error instanceof Error
-              ? error.message
-              : "Unknown SportsRadar error";
+            error instanceof Error ? error.message : "Unknown SportsRadar error";
           console.error(`Error fetching from SportsRadar:`, error);
         }
 
@@ -2772,7 +2910,7 @@ app.get('/api/teams/popular', async (req, res) => {
   apiRouter.get("/soccersapi/leagues", async (req: Request, res: Response) => {
     try {
       console.log("🏈 [SoccersAPI] Fetching leagues");
-      constleagues = await soccersApi.getLeagues();
+      const leagues = await soccersApi.getLeagues();
 
 res.json({
         success: true,
@@ -3189,13 +3327,6 @@ error) {
     }
   });
 
-  // Create HTTP server
-  const httpServer = createServer(app);
-
-  // RapidAPI Key and Base URL
-   const RAPIDAPI_KEY = process.env.RAPID_API_KEY || '';
-   const RAPIDAPI_BASE_URL = 'https://api-football-v1.p.rapidapi.com/v3';
-
   // Get fixture by ID
   apiRouter.get("/fixtures/:id", async (req: Request, res: Response) => {
     try {
@@ -3213,7 +3344,7 @@ error) {
           id: fixtureId
         },
         headers: {
-          'X-RapidAPI-Key': RAPIDAPI_KEY,
+          'X-RapidAPI-Key': RAPID_API_KEY,
           'X-RapidAPI-Host': 'v3.football.api-sports.io'
         }
       });
@@ -3449,6 +3580,7 @@ error) {
   app.use('/api', youtubeRoutes);
   app.use('/api/fixtures', selectiveLiveRoutes);
   app.use('/api/fixtures', selectiveUpdatesRoutes);
+  app.use('/api/fixtures', streamingFixturesRouter);
 
   // Predictions routes
   app.use('/api', predictionsRoutes);
