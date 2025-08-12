@@ -26,7 +26,6 @@ import {
 import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { teamColorMap } from "@/lib/colorExtractor";
-import { useTranslation } from "react-i18next"; // Import useTranslation
 import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -80,7 +79,6 @@ const isNationalTeamCompetition = (leagueName: string): boolean => {
 };
 
 const LeagueStandingsFilter = () => {
-  const { t, i18n } = useTranslation(); // Initialize translation hook
   const { currentLanguage } = useLanguage(); // Get current language from context
   const [popularLeagues, setPopularLeagues] = useState<LeagueData[]>([]);
   const [selectedLeague, setSelectedLeague] = useState("");
