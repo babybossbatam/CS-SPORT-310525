@@ -2451,33 +2451,41 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     countryData={countryData}
                                   />
                                 ) : (
-                                      {/* Star Button with true slide-in effect */}
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          toggleStarMatch(match.fixture.id);
-                                        }}
-                                        className="match-star-button"
-                                        title="Add to favorites"
-                                        onMouseEnter={(e) => {
-                                          e.currentTarget
-                                            .closest(".group")
-                                            ?.classList.add("disable-hover");
-                                        }}
-                                        onMouseLeave={(e) => {
-                                          e.currentTarget
-                                            .closest(".group")
-                                            ?.classList.remove("disable-hover");
-                                        }}
-                                      >
-                                        <Star
-                                          className={`match-star-icon ${
-                                            starredMatches.has(match.fixture.id)
-                                              ? "starred"
-                                              : ""
-                                          }`}
-                                        />
-                                      </button>
+                                  <div className="space-y-0">
+                                    {Array.from({ length: MATCH_BATCH_SIZE }, (_, i) => (
+                                      <div key={i} className="p-4 animate-pulse">
+                                        <div className="flex items-center gap-4">
+                                          <div className="w-8 h-8 bg-gray-200 rounded"></div>
+                                          <div className="flex-1 space-y-2">
+                                            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                                            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                                          </div>
+                                          <div className="w-8 h-8 bg-gray-200 rounded"></div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          
+          {/* Loading indicator for remaining countries */}
+          {renderedCountriesCount < sortedCountries.length && (
+            <div className="flex justify-center py-6 border-t border-gray-100 dark:border-gray-700">
+              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                Loading {sortedCountries.length - renderedCountriesCount} more countries...
+              </div>
+            </div>
+          )}
 
                                       {/* Three-grid layout container */}
                                       <div className="match-three-grid-container">
