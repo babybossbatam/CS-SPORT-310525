@@ -217,7 +217,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // State for lazy loading countries with performance optimization
   const [visibleCountries, setVisibleCountries] = useState<Set<string>>(new Set());
-  const [initialLoadCount] = useState(3); // Reduced to 3 for faster initial load
+  const [initialLoadCount] = useState(5); // Start with 5 countries for better UX
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // Use smart cached query
@@ -712,69 +712,60 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [processedFixtures, selectedDate]);
 
-// Optimized grouping with chunked processing for better performance
+// Optimized grouping with minimal dependencies to reduce re-renders
   const fixturesByCountry = useMemo(() => {
-    const filteredFixtures = validFixtures;
-    if (!filteredFixtures?.length) {
-      console.log(`❌ [TodaysMatchesByCountryNew] No valid fixtures to group`);
+    if (!validFixtures?.length) {
       return {};
     }
 
-    console.log(`🚀 [TodaysMatchesByCountryNew] Processing ${filteredFixtures.length} fixtures for grouping`);
+    console.log(`🚀 [TodaysMatchesByCountryNew] Processing ${validFixtures.length} fixtures for grouping`);
     
     const grouped: { [key: string]: { country: string; leagues: any; hasPopularLeague: boolean } } = {};
     const seenFixtures = new Set<number>();
     const seenMatchups = new Set<string>();
 
-    // Process fixtures in smaller chunks to avoid blocking
-    const chunkSize = 50;
-    for (let i = 0; i < filteredFixtures.length; i += chunkSize) {
-      const chunk = filteredFixtures.slice(i, i + chunkSize);
+    validFixtures.forEach((fixture: any) => {
+      // Quick validation
+      if (!fixture?.league?.country || !fixture?.fixture?.id || !fixture?.teams) {
+        return;
+      }
+
+      // Duplicate checks
+      if (seenFixtures.has(fixture.fixture.id)) return;
       
-      chunk.forEach((fixture: any) => {
-        // Quick validation
-        if (!fixture?.league?.country || !fixture?.fixture?.id || !fixture?.teams) {
-          return;
-        }
+      const matchupKey = `${fixture.teams.home.id}-${fixture.teams.away.id}-${fixture.league.id}`;
+      if (seenMatchups.has(matchupKey)) return;
 
-        // Duplicate checks
-        if (seenFixtures.has(fixture.fixture.id)) return;
-        
-        const matchupKey = `${fixture.teams.home.id}-${fixture.teams.away.id}-${fixture.league.id}`;
-        if (seenMatchups.has(matchupKey)) return;
+      const country = fixture.league.country;
+      const leagueId = fixture.league.id;
 
-        const country = fixture.league.country;
-        const leagueId = fixture.league.id;
+      // Quick exclusion check (simplified)
+      const leagueName = fixture.league.name || "";
+      if (shouldExcludeMatchByCountry(leagueName, "", "", false, country)) {
+        return;
+      }
 
-        // Quick exclusion check (simplified)
-        const leagueName = fixture.league.name || "";
-        if (shouldExcludeMatchByCountry(leagueName, "", "", false, country)) {
-          return;
-        }
+      // Group by country
+      if (!grouped[country]) {
+        grouped[country] = { country, leagues: {}, hasPopularLeague: false };
+      }
 
-        // Group by country
-        if (!grouped[country]) {
-          grouped[country] = { country, leagues: {}, hasPopularLeague: false };
-        }
+      if (!grouped[country].leagues[leagueId]) {
+        grouped[country].leagues[leagueId] = {
+          league: fixture.league,
+          matches: [],
+          isPopular: POPULAR_LEAGUES.includes(leagueId),
+        };
+      }
 
-        if (!grouped[country].leagues[leagueId]) {
-          grouped[country].leagues[leagueId] = {
-            league: fixture.league,
-            matches: [],
-            isPopular: POPULAR_LEAGUES.includes(leagueId),
-          };
-        }
+      seenFixtures.add(fixture.fixture.id);
+      seenMatchups.add(matchupKey);
+      grouped[country].leagues[leagueId].matches.push(fixture);
+    });
 
-        seenFixtures.add(fixture.fixture.id);
-        seenMatchups.add(matchupKey);
-        grouped[country].leagues[leagueId].matches.push(fixture);
-      });
-    }
-
-    // Simplified sorting - only for visible countries initially
     console.log(`✅ [TodaysMatchesByCountryNew] Grouped into ${Object.keys(grouped).length} countries`);
     return grouped;
-  }, [validFixtures]);
+  }, [validFixtures.length, selectedDate]); // Minimized dependencies
 
   // Optimized country initialization with priority-based loading
   useEffect(() => {
@@ -813,19 +804,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     console.log(`🎯 [TodaysMatchesByCountryNew] Fast-loaded ${initialCountries.length}/${countryKeys.length} countries`);
   }, [fixturesByCountry, initialLoadCount]);
 
-  // Optimized batch loading with loading state
+  // Optimized batch loading - show ALL remaining countries at once
   const loadMoreCountries = useCallback(async () => {
     if (isLoadingMore) return;
     
     setIsLoadingMore(true);
     const countryKeys = Object.keys(fixturesByCountry);
-    const nextCountries = countryKeys.filter(country => !visibleCountries.has(country)).slice(0, 5);
+    const remainingCountries = countryKeys.filter(country => !visibleCountries.has(country));
     
-    if (nextCountries.length > 0) {
+    if (remainingCountries.length > 0) {
       // Add small delay to prevent UI blocking
-      await new Promise(resolve => setTimeout(resolve, 50));
-      setVisibleCountries(prev => new Set([...prev, ...nextCountries]));
-      console.log(`📈 [TodaysMatchesByCountryNew] Loaded ${nextCountries.length} more countries`);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      setVisibleCountries(prev => new Set([...prev, ...remainingCountries]));
+      console.log(`📈 [TodaysMatchesByCountryNew] Loaded ALL ${remainingCountries.length} remaining countries`);
     }
     
     setIsLoadingMore(false);
@@ -977,31 +968,60 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     setExpandedLeagues(firstLeagues);
   }, [selectedDate, Object.keys(fixturesByCountry).length]);
 
-  // Optimized flag fetching - only for visible countries
+  // Lazy flag loading with intersection observer
+  const flagObserver = useRef<IntersectionObserver | null>(null);
+  const countryRefs = useRef<Map<string, HTMLElement>>(new Map());
+
+  // Initialize intersection observer for lazy flag loading
   useEffect(() => {
-    if (!validFixtures.length || visibleCountries.size === 0) return;
+    if (typeof window === 'undefined') return;
 
-    const visibleCountryNames = Array.from(visibleCountries);
-    const missingFlags = visibleCountryNames.filter(country => !flagMap[country]);
+    flagObserver.current = new IntersectionObserver(
+      (entries) => {
+        const newFlags: { [country: string]: string } = {};
+        
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const country = entry.target.getAttribute('data-country');
+            if (country && !flagMap[country]) {
+              const syncFlag = getCountryFlagWithFallbackSync(country);
+              if (syncFlag) {
+                newFlags[country] = syncFlag;
+              }
+            }
+          }
+        });
 
-    if (missingFlags.length === 0) return;
-
-    console.log(`🎯 [Flags] Loading flags for ${missingFlags.length} visible countries`);
-
-    // Load flags only for visible countries
-    const syncFlags: { [country: string]: string } = {};
-    missingFlags.forEach((country) => {
-      const syncFlag = getCountryFlagWithFallbackSync(country);
-      if (syncFlag) {
-        syncFlags[country] = syncFlag;
+        if (Object.keys(newFlags).length > 0) {
+          setFlagMap(prev => ({ ...prev, ...newFlags }));
+          console.log(`⚡ [Flags] Lazy-loaded ${Object.keys(newFlags).length} flags via intersection observer`);
+        }
+      },
+      {
+        root: null,
+        rootMargin: '50px',
+        threshold: 0.1
       }
-    });
+    );
 
-    if (Object.keys(syncFlags).length > 0) {
-      setFlagMap((prev) => ({ ...prev, ...syncFlags }));
-      console.log(`⚡ [Flags] Loaded ${Object.keys(syncFlags).length} flags for visible countries`);
+    return () => {
+      flagObserver.current?.disconnect();
+    };
+  }, []);
+
+  // Observe country elements for lazy flag loading
+  const observeCountryElement = useCallback((element: HTMLElement | null, country: string) => {
+    if (!element || !flagObserver.current) return;
+    
+    const existingElement = countryRefs.current.get(country);
+    if (existingElement) {
+      flagObserver.current.unobserve(existingElement);
     }
-  }, [visibleCountries, validFixtures.length]); // Only load flags for visible countries
+    
+    countryRefs.current.set(country, element);
+    element.setAttribute('data-country', country);
+    flagObserver.current.observe(element);
+  }, []);
 
   const toggleCountry = useCallback((country: string) => {
     setExpandedCountries((prev) => {
@@ -1444,6 +1464,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 }`}
               >
                 <button
+                  ref={(el) => observeCountryElement(el, countryData.country)}
                   onClick={() =>
                     toggleCountry(
                       typeof countryData.country === "string"
@@ -2145,7 +2166,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             );
           })}
           
-          {/* Optimized Load More Button */}
+          {/* Optimized Load More Button - Shows ALL remaining countries */}
           {visibleCountries.size < Object.keys(fixturesByCountry).length && (
             <div className="flex justify-center p-4">
               <button
@@ -2158,8 +2179,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 }`}
               >
                 {isLoadingMore 
-                  ? 'Loading...' 
-                  : `Load More Countries (${Object.keys(fixturesByCountry).length - visibleCountries.size} remaining)`
+                  ? 'Loading All Countries...' 
+                  : `Show All Countries (${Object.keys(fixturesByCountry).length - visibleCountries.size} remaining)`
                 }
               </button>
             </div>
