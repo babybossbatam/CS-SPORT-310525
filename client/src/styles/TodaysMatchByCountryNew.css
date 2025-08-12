@@ -24,9 +24,6 @@
   position: relative;
   display: flex;
   overflow: hidden;
-  /* Performance optimizations for virtualization */
-  contain: layout style paint;
-  will-change: transform;
 }
 
 /* Three-grid layout container - EXACTLY like MyLogoPositioning */
@@ -389,9 +386,6 @@
   outline: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-  /* Performance optimization for images */
-  image-rendering: auto;
-  contain: layout;
 }
 
 .country-matches-container .team-logo.national-team {
