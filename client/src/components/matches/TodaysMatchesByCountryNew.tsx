@@ -27,7 +27,7 @@ interface TodaysMatchesByCountryNewProps {
   today: Date;
 }
 
-function TodaysMatchesByCountryNew({ allFixtures, today }: TodaysMatchesByCountryNewProps) {
+export default function TodaysMatchesByCountryNew({ allFixtures, today }: TodaysMatchesByCountryNewProps) {
   const [loading, setLoading] = useState(true);
   const [visibleCountries, setVisibleCountries] = useState(10);
   const [expandedCountries, setExpandedCountries] = useState(new Set());
@@ -196,4 +196,3 @@ function TodaysMatchesByCountryNew({ allFixtures, today }: TodaysMatchesByCountr
   );
 }
 
-export default TodaysMatchesByCountryNew;
