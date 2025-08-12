@@ -58,7 +58,7 @@ const shortenLeagueName = (name: string): string => {
 };
 
 // Function to shorten country names for mobile display
-const shortenCountryName = (country: string): string => {
+const shortenCountryName = (country: string, currentLanguage: string = 'en'): string => {
   // Multi-language country abbreviations
   const countryAbbreviations: { [key: string]: string } = {
     // English
@@ -583,7 +583,7 @@ const PopularLeaguesList = () => {
                         const countryName = league.country?.replace(/-/g, ' ') || '';
                         // Translate the country name using smart translation
                         const translatedCountry = smartLeagueCountryTranslation.translateCountryName(countryName, currentLanguage);
-                        return shortenCountryName(translatedCountry);
+                        return shortenCountryName(translatedCountry, currentLanguage);
                       })()}
                     </span>
                   </div>
