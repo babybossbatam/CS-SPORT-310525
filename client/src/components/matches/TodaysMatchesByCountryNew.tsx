@@ -216,9 +216,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     };
   };
 
-  // Show all countries immediately - no lazy loading
+  // Progressive loading state
   const [visibleCountries, setVisibleCountries] = useState<Set<string>>(new Set());
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [currentChunk, setCurrentChunk] = useState(0);
+  const COUNTRIES_PER_CHUNK = 10; // Load 10 countries at a time
 
   // Use smart cached query
   const {
@@ -376,7 +378,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Check for duplicates
       if (seenFixtures.has(fixture.fixture.id)) return;
 
-      const matchupKey = `${fixture.teams.home?.id}-${fixture.teams.away?.id}-${fixture.league?.id}-${fixture.fixture.date}`;
+      const matchupKey = `${fixture.teams.home?.id}-${fixture.teams.away?.id}-${fixture.league.id}-${fixture.fixture.date}`;
       if (seenMatchups.has(matchupKey)) return;
 
       // Date validation
@@ -634,49 +636,37 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [validFixtures.length, selectedDate]);
 
-  // Show ALL countries immediately - no lazy loading delays
+  // Initialize visible countries with the first chunk
   useEffect(() => {
     if (countryList.length === 0) return;
 
-    // Show ALL countries immediately
-    setVisibleCountries(new Set(countryList));
-    console.log(`⚡ [TodaysMatchesByCountryNew] Showing ALL ${countryList.length} countries immediately (from cache)`);
+    const initialVisibleCountries = new Set(countryList.slice(0, COUNTRIES_PER_CHUNK));
+    setVisibleCountries(initialVisibleCountries);
+    setCurrentChunk(1); // Set current chunk to 1 (meaning the first chunk is loaded)
+    console.log(`⚡ [TodaysMatchesByCountryNew] Showing first ${initialVisibleCountries.size} countries immediately`);
   }, [countryList]);
+
 
   const getCountryData = useCallback((country: string) => {
     return processedCountryData[country];
   }, [processedCountryData]);
 
-  // No additional initialization needed - handled above
-
   // Optimized batch loading with progressive enhancement
   const loadMoreCountries = useCallback(async () => {
-    if (isLoadingMore) return;
+    if (isLoadingMore || currentChunk * COUNTRIES_PER_CHUNK >= countryList.length) return;
 
     setIsLoadingMore(true);
-    const remainingCountries = countryList.filter(country => !visibleCountries.has(country));
+    const nextChunkIndex = currentChunk + 1;
+    const startIndex = nextChunkIndex * COUNTRIES_PER_CHUNK;
+    const endIndex = Math.min(startIndex + COUNTRIES_PER_CHUNK, countryList.length);
+    const countriesToAdd = countryList.slice(startIndex, endIndex);
 
-    if (remainingCountries.length > 0) {
-      // Progressive loading in smaller chunks to prevent UI blocking
-      const chunkSize = 10;
-      const chunks = [];
-      for (let i = 0; i < remainingCountries.length; i += chunkSize) {
-        chunks.push(remainingCountries.slice(i, i + chunkSize));
-      }
-
-      // Load all chunks with micro-delays
-      for (const chunk of chunks) {
-        setVisibleCountries(prev => new Set([...prev, ...chunk]));
-        if (chunks.length > 1) {
-          await new Promise(resolve => setTimeout(resolve, 10));
-        }
-      }
-
-      console.log(`📈 [TodaysMatchesByCountryNew] Progressively loaded ${remainingCountries.length} countries`);
-    }
+    setVisibleCountries(prev => new Set([...prev, ...countriesToAdd]));
+    setCurrentChunk(nextChunkIndex);
+    console.log(`📈 [TodaysMatchesByCountryNew] Loaded chunk ${nextChunkIndex} (${countriesToAdd.length} countries)`);
 
     setIsLoadingMore(false);
-  }, [countryList, visibleCountries, isLoadingMore]);
+  }, [countryList, visibleCountries, isLoadingMore, currentChunk]);
 
   // Lightweight analysis - only when needed
   const analysisStats = useMemo(() => ({
@@ -689,25 +679,22 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   console.log(`⚡ [TodaysMatchesByCountryNew] Lightweight Analysis:`, analysisStats);
 
-  // No need for heavy sorting - countries are already sorted in countryList
+  // Use the visible countries list, which is progressively loaded
   const visibleCountriesList = useMemo(() =>
     countryList.filter(country => visibleCountries.has(country)),
     [countryList, Array.from(visibleCountries).join(',')]
   );
 
-  // No auto-expansion - all countries start collapsed
+  // Start with all countries collapsed - users must manually expand
   useEffect(() => {
-    // Start with all countries collapsed - users must manually expand
     setExpandedCountries(new Set<string>());
     setExpandedLeagues(new Set<string>());
-
-    console.log(`📦 [No Auto-expand] All ${countryList.length} countries start collapsed - manual expansion required`);
+    console.log(`📦 All ${countryList.length} countries start collapsed - manual expansion required`);
   }, [selectedDate, countryList.join(','), Object.keys(processedCountryData).length]);
 
   // Invalidate processed data cache when date changes
   useEffect(() => {
     const previousCacheKey = `processed-country-data-${selectedDate}`;
-    // The cache will automatically check if data is stale, but we log the cache strategy
     console.log(`🔄 [Cache Strategy] Date changed to ${selectedDate}, will use cached processed data if available`);
   }, [selectedDate]);
 
@@ -1143,7 +1130,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       </CardHeader>
       <CardContent className="p-0 dark:bg-gray-800">
         <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
-          {/* Use optimized visible countries list */}
+          {/* Render only the visible countries */}
           {visibleCountriesList.map((country: string) => {
             const countryData = getCountryData(country);
             const isExpanded = expandedCountries.has(countryData.country);
@@ -1869,7 +1856,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                               match.score?.penalty?.away;
                                             const hasPenaltyScores =
                                               penaltyHome !== null &&
-                                              penaltyHome !== undefined &&
                                               penaltyAway !== null &&
                                               penaltyAway !== undefined;
 
@@ -1906,8 +1892,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               </div>
             );
           })}
-
-          {/* No Load More button needed - all countries shown immediately */}
+          {/* Load More Button */}
+          {countryList.length > COUNTRIES_PER_CHUNK && visibleCountries.size < countryList.length && !isLoadingMore && (
+            <div className="flex justify-center py-4">
+              <button
+                onClick={loadMoreCountries}
+                className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm"
+              >
+                Load More Countries
+              </button>
+            </div>
+          )}
+          {/* Loading indicator for "Load More" */}
+          {isLoadingMore && (
+            <div className="flex justify-center py-4">
+              <Skeleton className="h-10 w-32 rounded-md" />
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
