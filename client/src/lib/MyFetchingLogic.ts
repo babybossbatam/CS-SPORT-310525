@@ -402,14 +402,4 @@ export const fetchLeagueFixtures = MyFetchingLogic.fetchLeagueFixtures;
 export const getCacheStats = MyFetchingLogic.getCacheStats;
 export const clearAllCaches = MyFetchingLogic.clearAllCaches;
 
-// Export getCachedFixturesForDate from fixtureCache
-export const getCachedFixturesForDate = (date: string) => {
-  return fixtureCache.getCachedFixturesForDate(date);
-};
-
-// Export shouldFetchFresh from fixtureCache
-export const shouldFetchFresh = (date: string) => {
-  return fixtureCache.shouldFetchFresh(date);
-};
-
 export default MyFetchingLogic;
