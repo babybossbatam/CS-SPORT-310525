@@ -611,18 +611,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Simplified logging for performance
   useEffect(() => {
-    if (processedFixtures && processedFixtures.length > 0) {
-      const liveMatches = processedFixtures.filter((fixture: any) =>
+    if (validFixtures && validFixtures.length > 0) {
+      const liveMatches = validFixtures.filter((fixture: any) =>
         ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
           fixture.fixture?.status?.short,
         ),
       );
 
       console.log(
-        `⚡ [TodaysMatchesByCountryNew] Processed ${processedFixtures.length} fixtures (${liveMatches.length} live) for ${selectedDate}`,
+        `⚡ [TodaysMatchesByCountryNew] Processed ${validFixtures.length} fixtures (${liveMatches.length} live) for ${selectedDate}`,
       );
     }
-  }, [processedFixtures.length, selectedDate]);
+  }, [validFixtures.length, selectedDate]);
 
   // Show ALL countries immediately - no lazy loading delays
   useEffect(() => {
