@@ -57,7 +57,11 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-          }
+          },
+          // Add explicit network settings for better reliability
+          cache: 'no-cache',
+          mode: 'cors',
+          credentials: 'same-origin'
         });
 
         // Clear timeout on successful response
@@ -96,21 +100,48 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           timeoutId = null;
         }
 
+        // Check for cached data first for any error type
+        const cachedData = queryClient.getQueryData(['central-date-fixtures', validDate]);
+
         if (error.name === 'AbortError') {
           console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate} after 30 seconds`);
-          // Try to return cached data if available
-          const cachedData = queryClient.getQueryData(['central-date-fixtures', validDate]);
-          if (cachedData && Array.isArray(cachedData)) {
-            console.log(`💾 [CentralDataProvider] Using stale cache data for ${validDate} (${cachedData.length} fixtures)`);
-            return cachedData;
-          }
+        } else if (error.message === 'Failed to fetch') {
+          console.warn(`🌐 [CentralDataProvider] Network error for ${validDate}: Server unreachable or connection lost`);
+        } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+          console.warn(`🔌 [CentralDataProvider] Fetch API error for ${validDate}: ${error.message}`);
         } else {
-          console.error(`❌ [CentralDataProvider] Error fetching fixtures for ${validDate}:`, {
+          console.error(`❌ [CentralDataProvider] Unexpected error fetching fixtures for ${validDate}:`, {
             message: error.message,
             name: error.name,
             stack: error.stack?.substring(0, 200)
           });
         }
+
+        // Always try to return cached data if available
+        if (cachedData && Array.isArray(cachedData)) {
+          console.log(`💾 [CentralDataProvider] Using stale cache data for ${validDate} (${cachedData.length} fixtures) due to ${error.name}`);
+          return cachedData;
+        }
+
+        // If no cached data available, try to get data from nearby dates
+        const yesterday = new Date(validDate);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().slice(0, 10);
+        
+        const tomorrow = new Date(validDate);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+
+        const fallbackData = 
+          queryClient.getQueryData(['central-date-fixtures', yesterdayStr]) ||
+          queryClient.getQueryData(['central-date-fixtures', tomorrowStr]);
+
+        if (fallbackData && Array.isArray(fallbackData)) {
+          console.log(`🔄 [CentralDataProvider] Using fallback data from adjacent date for ${validDate}`);
+          return fallbackData;
+        }
+
+        console.warn(`⚠️ [CentralDataProvider] No fallback data available for ${validDate}, returning empty array`);
         return [];
       }
     },
@@ -118,20 +149,30 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     gcTime: CACHE_DURATIONS.SIX_HOURS,
     refetchOnWindowFocus: false,
     retry: (failureCount, error: any) => {
-      // Retry on timeout or network errors, max 3 retries
-      const shouldRetry = (
+      // Retry on network errors, but with more specific conditions
+      const isNetworkError = (
+        error?.message === 'Failed to fetch' ||
         error?.message?.includes('timeout') || 
         error?.message?.includes('fetch') ||
-        error?.name === 'AbortError'
-      ) && failureCount < 3;
+        error?.name === 'AbortError' ||
+        error?.name === 'TypeError'
+      );
+      
+      const shouldRetry = isNetworkError && failureCount < 2; // Reduced retries to 2
       
       if (shouldRetry) {
-        console.log(`🔄 [CentralDataProvider] Retry attempt ${failureCount + 1} for ${validDate} (reason: ${error?.message || error?.name})`);
+        const delay = Math.min(3000 * Math.pow(2, failureCount), 10000); // Max 10s delay
+        console.log(`🔄 [CentralDataProvider] Retry attempt ${failureCount + 1}/2 for ${validDate} in ${delay}ms (reason: ${error?.message || error?.name})`);
         return true;
       }
+      
+      if (!shouldRetry && isNetworkError) {
+        console.log(`⛔ [CentralDataProvider] No more retries for ${validDate} after ${failureCount + 1} attempts`);
+      }
+      
       return false;
     },
-    retryDelay: (attemptIndex) => Math.min(2000 * 2 ** attemptIndex, 15000), // Exponential backoff with higher base
+    retryDelay: (attemptIndex) => Math.min(3000 * 2 ** attemptIndex, 10000), // Exponential backoff: 3s, 6s, 10s max
     throwOnError: false, // Don't throw errors to prevent unhandled rejections
     enabled: !!validDate,
   });
