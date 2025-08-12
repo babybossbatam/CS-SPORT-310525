@@ -644,7 +644,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (limitNum > 0) {
         paginatedFixtures = uniqueFixtures.slice(offset, offset + limitNum);
         hasMore = offset + limitNum < totalCount;
-        
+
         console.log(
           `📄 [Routes] Pagination applied: page ${pageNum}, showing ${paginatedFixtures.length}/${totalCount} fixtures (hasMore: ${hasMore})`,
         );
@@ -672,16 +672,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Fallback to cached fixtures if API fails
       if (cachedFixtures && cachedFixtures.length > 0) {
         const cachedData = cachedFixtures.map((fixture) => fixture.data);
-        
+
         // Apply pagination to cached data if requested
         if (limitNum > 0) {
           const paginatedCached = cachedData.slice(offset, offset + limitNum);
           const hasMore = offset + limitNum < cachedData.length;
-          
+
           console.log(
             `📦 [Routes] Returning ${paginatedCached.length}/${cachedData.length} paginated stale cached fixtures for ${date}`,
           );
-          
+
           return res.json({
             fixtures: paginatedCached,
             pagination: {
@@ -703,7 +703,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(
         `📭 [Routes] No fixtures found for multi-timezone request: ${date}`,
       );
-      
+
       if (limitNum > 0) {
         return res.json({
           fixtures: [],
@@ -2449,19 +2449,20 @@ app.get('/api/teams/popular', async (req, res) => {
           rapidApi: {
             available: !!rapidApiData,
             error: rapidApiError,
-            data: rapidApiData
-              ? {
-                  status: rapidApiData.fixture?.status?.short,
-                  statusLong: rapidApiData.fixture?.status?.long,
-                  homeTeam: rapidApiData.teams?.home?.name,
-                  awayTeam: rapidApiData.teams?.away?.name,
-                  homeGoals: rapidApiData.goals?.home,
-                  awayGoals: rapidApiData.goals?.away,
-                  date: rapidApiData.fixture?.date,
-                  elapsed: rapidApiData.fixture?.status?.elapsed,
-                  league: rapidApiData.league?.name,
-                }
-              : null,
+            data:
+              rapidApiData
+                ? {
+                    status: rapidApiData.fixture?.status?.short,
+                    statusLong: rapidApiData.fixture?.status?.long,
+                    homeTeam: rapidApiData.teams?.home?.name,
+                    awayTeam: rapidApiData.teams?.away?.name,
+                    homeGoals: rapidApiData.goals?.home,
+                    awayGoals: rapidApiData.goals?.away,
+                    date: rapidApiData.fixture?.date,
+                    elapsed: rapidApiData.fixture?.status?.elapsed,
+                    league: rapidApiData.league?.name,
+                  }
+                : null,
           },
           sportsRadar: {
             available: !!sportsRadarData,
