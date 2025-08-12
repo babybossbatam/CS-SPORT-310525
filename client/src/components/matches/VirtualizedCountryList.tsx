@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { FixedSizeList as List } from 'react-window';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -55,7 +54,7 @@ const VirtualizedCountryList: React.FC<VirtualizedCountryListProps> = ({
 
     const isExpanded = expandedCountries.has(country.country);
     const totalMatches = Object.values(country.leagues || {}).reduce(
-      (sum: number, leagueData: any) => sum + (leagueData.matches?.length || 0), 
+      (sum: number, leagueData: any) => sum + (leagueData.matches?.length || 0),
       0
     );
 
@@ -63,7 +62,7 @@ const VirtualizedCountryList: React.FC<VirtualizedCountryListProps> = ({
       <div style={{...style, paddingBottom: '8px'}}>
         <Card className="mb-2 shadow-sm">
           {/* Country Header */}
-          <CardHeader 
+          <CardHeader
             className="flex flex-row items-center justify-between p-3 cursor-pointer hover:bg-gray-50 transition-colors border-b border-gray-100"
             onClick={() => {
               if (typeof toggleCountry === 'function') {

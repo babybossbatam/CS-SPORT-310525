@@ -14,7 +14,7 @@ import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslati
 const shortenLeagueName = (name: string): string => {
   const maxLength = 25;
   if (name.length <= maxLength) return name;
-  
+
   // Common abbreviations for league names
   const abbreviations = {
     'World Cup - Qualification': 'WC Qualification',
@@ -38,7 +38,7 @@ const shortenLeagueName = (name: string): string => {
     'Championship': 'Champ',
     'International': 'Intl'
   };
-  
+
   // Check for exact matches first
   for (const [full, short] of Object.entries(abbreviations)) {
     if (name.includes(full)) {
@@ -52,7 +52,7 @@ const shortenLeagueName = (name: string): string => {
       name = name.replace(full, short);
     }
   }
-  
+
   // If still too long, truncate with ellipsis
   return name.length > maxLength ? name.substring(0, maxLength - 3) + '...' : name;
 };
@@ -72,10 +72,10 @@ const shortenCountryName = (country: string, currentLanguage: string = 'en'): st
     'Trinidad and Tobago': 'Trinidad',
     'Central African Republic': 'CAR',
     'Papua New Guinea': 'Papua NG',
-    
+
     // Chinese (Simplified)
     '沙特阿拉伯': '沙特',
-    '阿拉伯联合酋长国': 'UAE',
+    '阿拉伯聯合酋長國': 'UAE',
     '美国': '美国',
     '英国': '英国',
     '德国': '德国',
@@ -84,7 +84,7 @@ const shortenCountryName = (country: string, currentLanguage: string = 'en'): st
     '西班牙': '西班牙',
     '巴西': '巴西',
     '阿根廷': '阿根廷',
-    
+
     // Chinese (Traditional - Hong Kong)
     '沙特阿拉伯': '沙特',
     '阿拉伯聯合酋長國': 'UAE',
@@ -96,17 +96,17 @@ const shortenCountryName = (country: string, currentLanguage: string = 'en'): st
     '西班牙': '西班牙',
     '巴西': '巴西',
     '阿根廷': '阿根廷',
-    
+
     // Chinese (Traditional - Taiwan)
     '沙烏地阿拉伯': '沙烏地',
     '阿拉伯聯合大公國': 'UAE',
-    
+
     // Spanish
     'Estados Unidos': 'EEUU',
     'Reino Unido': 'Reino Unido',
     'Arabia Saudí': 'Arabia Saudí',
     'Emiratos Árabes Unidos': 'EAU',
-    
+
     // Special cases for continents and regions
     'World': currentLanguage === 'zh-hk' ? '世界' : 
              currentLanguage === 'zh-tw' ? '世界' : 
@@ -123,7 +123,7 @@ const shortenCountryName = (country: string, currentLanguage: string = 'en'): st
               currentLanguage === 'it' ? 'Europa' : 
               currentLanguage === 'pt' ? 'Europa' : 'Europe'
   };
-  
+
   return countryAbbreviations[country] || country;
 };
 
@@ -306,7 +306,7 @@ const PopularLeaguesList = () => {
     // Find the league data to get country information
     const leagueData = CURRENT_POPULAR_LEAGUES.find(l => l.id === leagueId);
     const countryName = leagueData?.country || '';
-    
+
     // Ensure this league is learned by the system with country context
     smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(leagueName, {
       leagueId: leagueId,
@@ -315,12 +315,12 @@ const PopularLeaguesList = () => {
 
     // Get smart translation
     const translatedName = smartLeagueCountryTranslation.translateLeagueName(leagueName, currentLanguage);
-    
+
     // Apply smart shortening based on language and translated content
     const getSmartShortening = (name: string, language: string) => {
       const maxLength = 25;
       const lowerName = name.toLowerCase();
-      
+
       switch (language) {
         case 'zh-hk':
         case 'zh-tw':
@@ -354,7 +354,7 @@ const PopularLeaguesList = () => {
           if (lowerName.includes('premier league')) return 'Premier League';
           break;
       }
-      
+
       // If still too long, truncate with ellipsis
       return name.length > maxLength ? name.substring(0, maxLength - 3) + '...' : name;
     };
@@ -409,7 +409,6 @@ const PopularLeaguesList = () => {
               // Exclude women's competitions
               // Exclude qualification tournaments
               // Exclude Reserve League and San Marino
-              // Exclude Super Cup from San Marino specifically
               // Exclude specific league IDs
               return (
                 leagueId !== 40 && // Exclude Championship (England)
@@ -431,7 +430,7 @@ const PopularLeaguesList = () => {
                 !leagueName.includes("conmebol") &&
                 !leagueName.includes("friendlies") &&
                 !leagueName.includes("shebelieves") &&
-                !leagueName.includes("coppa italia serie") &&
+                !leagueName.includes("coppaitalia serie") &&
                 !leagueName.includes("reserve league") &&
                 !leagueName.includes("campeones") &&
                 !leagueName.includes("africa cup") &&
