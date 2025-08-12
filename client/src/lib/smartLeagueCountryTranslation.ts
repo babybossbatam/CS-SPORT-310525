@@ -511,8 +511,7 @@ class SmartLeagueCountryTranslation {
     },
     'World': {
       'zh': '世界', 'zh-hk': '世界', 'zh-tw': '世界',
-      'es': 'Mundial', 'de': 'Welt', 'it': 'Mondo', 'pt': 'Mundial',
-      'en': 'World', 'fr': 'Monde', 'ar': 'العالم', 'ja': '世界', 'ko': '세계'
+      'es': 'Mundo', 'de': 'Welt', 'it': 'Mondo', 'pt': 'Mundo'
     },
     'Europe': {
       'zh': '欧洲', 'zh-hk': '歐洲', 'zh-tw': '歐洲',
@@ -976,35 +975,15 @@ class SmartLeagueCountryTranslation {
 
     let translation = countryName;
 
-    // Special handling for World with case-insensitive matching
-    const lowerCountryName = countryName.toLowerCase();
-    if (lowerCountryName === 'world') {
-      const worldTranslation = this.coreCountryTranslations['World'];
-      if (worldTranslation && worldTranslation[language as keyof typeof worldTranslation]) {
-        translation = worldTranslation[language as keyof typeof worldTranslation];
-        console.log(`🌍 [World Translation] "${countryName}" -> "${translation}" (${language})`);
-      }
+    // Try core translations first
+    const coreTranslation = this.coreCountryTranslations[countryName];
+    if (coreTranslation && coreTranslation[language as keyof typeof coreTranslation]) {
+      translation = coreTranslation[language as keyof typeof coreTranslation];
     } else {
-      // Try core translations first
-      const coreTranslation = this.coreCountryTranslations[countryName];
-      if (coreTranslation && coreTranslation[language as keyof typeof coreTranslation]) {
-        translation = coreTranslation[language as keyof typeof coreTranslation];
-      } else {
-        // Try case-insensitive core translation matching
-        const coreKeys = Object.keys(this.coreCountryTranslations);
-        const matchingKey = coreKeys.find(key => key.toLowerCase() === lowerCountryName);
-        if (matchingKey) {
-          const matchingTranslation = this.coreCountryTranslations[matchingKey];
-          if (matchingTranslation && matchingTranslation[language as keyof typeof matchingTranslation]) {
-            translation = matchingTranslation[language as keyof typeof matchingTranslation];
-          }
-        } else {
-          // Try learned mappings
-          const learned = this.learnedCountryMappings.get(countryName);
-          if (learned && learned[language as keyof typeof learned]) {
-            translation = learned[language as keyof typeof learned];
-          }
-        }
+      // Try learned mappings
+      const learned = this.learnedCountryMappings.get(countryName);
+      if (learned && learned[language as keyof typeof learned]) {
+        translation = learned[language as keyof typeof learned];
       }
     }
 

@@ -26,9 +26,9 @@ import {
 import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { teamColorMap } from "@/lib/colorExtractor";
+import { useTranslation } from "react-i18next"; // Import useTranslation
 import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Standing {
   rank: number;
@@ -79,7 +79,7 @@ const isNationalTeamCompetition = (leagueName: string): boolean => {
 };
 
 const LeagueStandingsFilter = () => {
-  const { currentLanguage } = useLanguage(); // Get current language from context
+  const { t, i18n } = useTranslation(); // Initialize translation hook
   const [popularLeagues, setPopularLeagues] = useState<LeagueData[]>([]);
   const [selectedLeague, setSelectedLeague] = useState("");
   const [selectedLeagueName, setSelectedLeagueName] = useState("");
@@ -87,17 +87,15 @@ const LeagueStandingsFilter = () => {
 
   // Function to get translated team name using smart translation system
   const getTranslatedTeamName = (teamName: string): string => {
-    // Use smart team translation system with current language from context
-    const effectiveLanguage = currentLanguage || 'en';
-    console.log(`🔄 [LeagueStandings] Translating team "${teamName}" to language: ${effectiveLanguage}`);
-    return smartTeamTranslation.translateTeamName(teamName, effectiveLanguage);
+    // Use smart team translation system with current language
+    const currentLanguage = i18n?.language || 'zh-hk';
+    return smartTeamTranslation.translateTeamName(teamName, currentLanguage);
   };
 
   // Function to get translated group text
   const getTranslatedGroupText = (groupText: string): string => {
-    const effectiveLanguage = currentLanguage || 'en';
-    console.log(`🔄 [LeagueStandings] Translating group "${groupText}" to language: ${effectiveLanguage}`);
-    return smartLeagueCountryTranslation.translateLeagueName(groupText, effectiveLanguage);
+    const currentLanguage = i18n?.language || 'zh-hk';
+    return smartLeagueCountryTranslation.translateLeagueName(groupText, currentLanguage);
   };
 
   useEffect(() => {
@@ -595,7 +593,7 @@ const LeagueStandingsFilter = () => {
         const mergedFixtures = {
           ...fixturesData,
           response: [...fixturesData.response, ...cachedTodayFixtures]
-            .filter((fixture, index, arr) =>
+            .filter((fixture, index, arr) => 
               index === arr.findIndex(f => f.fixture.id === fixture.fixture.id)
             ) // Remove duplicates
         };
@@ -830,9 +828,8 @@ const LeagueStandingsFilter = () => {
                   }}
                 />
                 {(() => {
-                  const effectiveLanguage = currentLanguage || 'en';
-                  console.log(`🔄 [LeagueStandings] Translating selected league "${selectedLeagueName}" to: ${effectiveLanguage}`);
-                  return smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, effectiveLanguage);
+                  const currentLanguage = i18n?.language || 'zh-hk';
+                  return smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, currentLanguage);
                 })()}
               </div>
             </SelectValue>
@@ -861,8 +858,8 @@ const LeagueStandingsFilter = () => {
                       }}
                     />
                     {(() => {
-                      const effectiveLanguage = currentLanguage || 'en';
-                      return smartLeagueCountryTranslation.translateLeagueName(league.name, effectiveLanguage);
+                      const currentLanguage = i18n?.language || 'zh-hk';
+                      return smartLeagueCountryTranslation.translateLeagueName(league.name, currentLanguage);
                     })()}
                   </div>
                 </SelectItem>
@@ -980,7 +977,7 @@ const LeagueStandingsFilter = () => {
 
                                       // Get both upcoming and recent fixtures for better context
                                       const teamFixtures = fixtures.response.filter((fixture: any) => {
-                                        return fixture.teams.home.id === standing.team.id ||
+                                        return fixture.teams.home.id === standing.team.id || 
                                                fixture.teams.away.id === standing.team.id;
                                       });
 
@@ -1002,13 +999,13 @@ const LeagueStandingsFilter = () => {
 
                                       // Determine if this team is home or away to get the correct opponent
                                       const isTeamHome = relevantMatch.teams.home.id === standing.team.id;
-                                      const opponentTeam = isTeamHome
-                                        ? relevantMatch.teams.away
+                                      const opponentTeam = isTeamHome 
+                                        ? relevantMatch.teams.away 
                                         : relevantMatch.teams.home;
 
                                       // For display purposes, always show the away team logo when possible
-                                      const displayTeam = relevantMatch.teams.away.id !== standing.team.id
-                                        ? relevantMatch.teams.away
+                                      const displayTeam = relevantMatch.teams.away.id !== standing.team.id 
+                                        ? relevantMatch.teams.away 
                                         : relevantMatch.teams.home;
 
                                       const nextMatchInfo = {
@@ -1064,14 +1061,14 @@ const LeagueStandingsFilter = () => {
                 {/* Link to view full group standings if more than 2 groups exist */}
                 {standings.league.standings.length > 2 && (
                   <div className="text-center mt-6 pt-4 border-t border-gray-100">
-                    <button
+                    <button 
                       onClick={() => window.location.href = `/league/${selectedLeague}/standings`}
                       className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium transition-colors duration-200"
                     >
                       {(() => {
-                        const effectiveLanguage = currentLanguage || 'en';
-                        const translatedLeague = smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, effectiveLanguage);
-                        const translatedStandings = smartLeagueCountryTranslation.translateLeagueName('Group Standings', effectiveLanguage);
+                        const currentLanguage = i18n?.language || 'zh-hk';
+                        const translatedLeague = smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, currentLanguage);
+                        const translatedStandings = smartLeagueCountryTranslation.translateLeagueName('Group Standings', currentLanguage);
                         return `${translatedLeague} ${translatedStandings} →`;
                       })()}
                     </button>
@@ -1225,32 +1222,32 @@ const LeagueStandingsFilter = () => {
                                                   .includes(
                                                     "champions league elite",
                                                   )
+                                              ? "#4A90E2"
+                                              : standing.description
+                                                    ?.toLowerCase()
+                                                    .includes(
+                                                      "champions league",
+                                                    )
                                                 ? "#4A90E2"
                                                 : standing.description
                                                       ?.toLowerCase()
-                                                      .includes(
-                                                        "champions league",
-                                                      )
-                                                    ? "#4A90E2"
+                                                      .includes("europa")
+                                                    ? "#17A2B8"
                                                     : standing.description
                                                           ?.toLowerCase()
-                                                          .includes("europa")
-                                                        ? "#17A2B8"
+                                                          .includes("conference")
+                                                        ? "#6F42C1"
                                                         : standing.description
                                                               ?.toLowerCase()
-                                                              .includes("conference")
-                                                            ? "#6F42C1"
-                                                            : standing.description
-                                                                  ?.toLowerCase()
-                                                                  .includes("promotion")
-                                                                ? "#28A745"
-                                                                : standing.description
-                                                                      ?.toLowerCase()
-                                                                      .includes(
-                                                                        "relegation",
-                                                                      )
-                                                                    ? "#DC3545"
-                                                                    : "#6B7280",
+                                                              .includes("promotion")
+                                                          ? "#28A745"
+                                                          : standing.description
+                                                                ?.toLowerCase()
+                                                                .includes(
+                                                                  "relegation",
+                                                                )
+                                                            ? "#DC3545"
+                                                            : "#6B7280",
                                       }}
                                     >
                                       {getChampionshipTitle(
