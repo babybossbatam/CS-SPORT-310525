@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef, lazy, Suspense } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronDown, ChevronUp, Calendar, Star } from "lucide-react";
@@ -48,6 +48,10 @@ import "../../styles/MyLogoPositioning.css";
 import "../../styles/TodaysMatchByCountryNew.css";
 import "../../styles/flasheffect.css";
 import MyCountryGroupFlag from "../common/MyCountryGroupFlag";
+
+// Lazy load components for better performance
+const LazyCountryFlag = lazy(() => import("../common/MyCountryGroupFlag"));
+const LazyTeamLogo = lazy(() => import("../common/MyWorldTeamLogo"));
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -167,6 +171,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Let World flag be fetched through the normal caching system
     return initialMap;
   });
+
+  // Lazy loading state for countries and leagues
+  const [lazyLoadedCountries, setLazyLoadedCountries] = useState<Set<string>>(new Set());
+  const [lazyLoadedLeagues, setLazyLoadedLeagues] = useState<Set<string>>(new Set());
+  
+  // Intersection observer for lazy loading
+  const intersectionObserver = useRef<IntersectionObserver | null>(null);
 
   // Popular leagues for prioritization - Significantly expanded to include more leagues worldwide
   const POPULAR_LEAGUES = [
@@ -1027,46 +1038,65 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     setExpandedLeagues(firstLeagues);
   }, [selectedDate, Object.keys(fixturesByCountry).length]);
 
-  // Optimized flag fetching with minimal processing
+  // Setup intersection observer for lazy loading
   useEffect(() => {
-    if (!validFixtures.length) return;
-
-    // Extract countries directly from fixtures to avoid processing fixturesByCountry
-    const countriesSet = new Set<string>();
-    for (let i = 0; i < validFixtures.length; i++) {
-      const country = validFixtures[i]?.league?.country;
-      if (country && !flagMap[country]) {
-        countriesSet.add(country);
+    intersectionObserver.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const countryName = entry.target.getAttribute('data-country');
+            const leagueKey = entry.target.getAttribute('data-league');
+            
+            if (countryName && !lazyLoadedCountries.has(countryName)) {
+              setLazyLoadedCountries(prev => new Set(prev).add(countryName));
+            }
+            
+            if (leagueKey && !lazyLoadedLeagues.has(leagueKey)) {
+              setLazyLoadedLeagues(prev => new Set(prev).add(leagueKey));
+            }
+          }
+        });
+      },
+      {
+        rootMargin: '50px', // Load content 50px before it comes into view
+        threshold: 0.1
       }
-    }
+    );
 
-    const missingCountries = Array.from(countriesSet);
+    return () => {
+      if (intersectionObserver.current) {
+        intersectionObserver.current.disconnect();
+      }
+    };
+  }, []);
+
+  // Lazy load flags only for visible countries
+  useEffect(() => {
+    if (!lazyLoadedCountries.size) return;
+
+    const missingCountries = Array.from(lazyLoadedCountries).filter(
+      country => !flagMap[country]
+    );
     
     if (missingCountries.length === 0) return;
 
-    console.log(`🎯 Need flags for ${missingCountries.length} countries`);
+    console.log(`🎯 Lazy loading flags for ${missingCountries.length} countries`);
 
     // Batch flag fetching to avoid blocking the main thread
     const syncFlags: { [country: string]: string } = {};
     
-    // Process in chunks to avoid blocking
-    const chunkSize = 5;
-    for (let i = 0; i < missingCountries.length; i += chunkSize) {
-      const chunk = missingCountries.slice(i, i + chunkSize);
-      
-      chunk.forEach((country) => {
-        const syncFlag = getCountryFlagWithFallbackSync(country);
-        if (syncFlag) {
-          syncFlags[country] = syncFlag;
-        }
-      });
-    }
+    missingCountries.forEach((country) => {
+      const syncFlag = getCountryFlagWithFallbackSync(country);
+      if (syncFlag) {
+        syncFlags[country] = syncFlag;
+      }
+    });
 
     if (Object.keys(syncFlags).length > 0) {
       setFlagMap((prev) => ({ ...prev, ...syncFlags }));
-      console.log(`⚡ Pre-populated ${Object.keys(syncFlags).length} flags`);
+      console.log(`⚡ Lazy loaded ${Object.keys(syncFlags).length} flags`);
     }
-  }, [validFixtures.length]); // Simpler dependency
+  }, [lazyLoadedCountries]);
 
   const toggleCountry = useCallback((country: string) => {
     setExpandedCountries((prev) => {
@@ -1091,6 +1121,71 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return newStarred;
     });
   };
+
+  // Lazy loading wrapper components
+  const LazyCountryFlagWrapper = React.memo(({ countryName, isVisible }: { countryName: string; isVisible: boolean }) => {
+    if (!isVisible) {
+      return <div className="w-6 h-6 bg-gray-200 rounded animate-pulse" />;
+    }
+
+    if (countryName === "World") {
+      return (
+        <Suspense fallback={<div className="w-6 h-6 bg-gray-200 rounded animate-pulse" />}>
+          <LazyCountryFlag
+            teamName="World"
+            fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
+            alt="World"
+            className="country-group-flag-header"
+          />
+        </Suspense>
+      );
+    }
+
+    return (
+      <Suspense fallback={<div className="w-6 h-6 bg-gray-200 rounded animate-pulse" />}>
+        <LazyCountryFlag
+          teamName={countryName}
+          fallbackUrl="/assets/fallback-logo.svg"
+          alt={countryName}
+          className="country-group-flag-header"
+        />
+      </Suspense>
+    );
+  });
+
+  const LazyTeamLogoWrapper = React.memo(({ 
+    teamName, 
+    teamId, 
+    teamLogo, 
+    alt, 
+    leagueContext, 
+    isVisible 
+  }: { 
+    teamName: string; 
+    teamId: number; 
+    teamLogo: string; 
+    alt: string; 
+    leagueContext: any; 
+    isVisible: boolean;
+  }) => {
+    if (!isVisible) {
+      return <div className="w-[34px] h-[34px] bg-gray-200 rounded animate-pulse" />;
+    }
+
+    return (
+      <Suspense fallback={<div className="w-[34px] h-[34px] bg-gray-200 rounded animate-pulse" />}>
+        <LazyTeamLogo
+          teamName={teamName}
+          teamId={teamId}
+          teamLogo={teamLogo}
+          alt={alt}
+          size="34px"
+          className="popular-leagues-size"
+          leagueContext={leagueContext}
+        />
+      </Suspense>
+    );
+  });
 
   const toggleHideMatch = (matchId: number) => {
     setHiddenMatches((prev) => {
@@ -1505,6 +1600,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 className={`border-b border-gray-100 last:border-b-0 country-section ${
                   isExpanded ? "expanded" : "collapsed"
                 }`}
+                data-country={countryData.country}
+                ref={(el) => {
+                  if (el && intersectionObserver.current) {
+                    intersectionObserver.current.observe(el);
+                  }
+                }}
               >
                 <button
                   onClick={() =>
@@ -1525,25 +1626,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                           ? countryData.country
                           : countryData.country?.name || "Unknown";
 
-                      // Special case for World - use COTIF tournament logo with consistent styling
-                      if (countryName === "World") {
-                        return (
-                          <MyCountryGroupFlag
-                            teamName="World"
-                            fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
-                            alt="World"
-                            className="country-group-flag-header"
-                          />
-                        );
-                      }
+                      const isCountryVisible = lazyLoadedCountries.has(countryName);
 
-                      // For all other countries, use MyCountryGroupFlag
                       return (
-                        <MyCountryGroupFlag
-                          teamName={countryName}
-                          fallbackUrl="/assets/fallback-logo.svg"
-                          alt={countryName}
-                          className="country-group-flag-header"
+                        <LazyCountryFlagWrapper 
+                          countryName={countryName}
+                          isVisible={isCountryVisible}
                         />
                       );
                     })()}
@@ -1732,45 +1820,52 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                             {isLeagueExpanded && (
                               <div
                                 className="space-y-0 league-matches-container"
+                                data-league={leagueKey}
+                                ref={(el) => {
+                                  if (el && intersectionObserver.current) {
+                                    intersectionObserver.current.observe(el);
+                                  }
+                                }}
                                 style={{
                                   animation: isLeagueExpanded
                                     ? "slideDown 0.3s ease-out"
                                     : "slideUp 0.3s ease-out",
                                 }}
                               >
-                                {leagueData.matches
-                                  .filter((match: any) => {
-                                    // Only filter out hidden matches
-                                    return !hiddenMatches.has(match.fixture.id);
-                                  })
-                                  .map((match: any, matchIndex) => (
+                                {lazyLoadedLeagues.has(leagueKey) ? (
+                                  leagueData.matches
+                                    .filter((match: any) => {
+                                      // Only filter out hidden matches
+                                      return !hiddenMatches.has(match.fixture.id);
+                                    })
+                                    .map((match: any, matchIndex) => (
 
-                                    <div
-                                      key={`${match.fixture.id}-${countryData.country}-${leagueData.league.id}-${matchIndex}`}
-                                      className={`match-card-container group ${
-                                        halftimeFlashMatches.has(match.fixture.id) ? 'halftime-flash' : ''
-                                      } ${
-                                        fulltimeFlashMatches.has(match.fixture.id) ? 'fulltime-flash' : ''
-                                      } ${
-                                        goalFlashMatches.has(match.fixture.id) ? 'goal-flash' : ''
-                                      }`}
-                                      onClick={() => {
-                                        console.log(`🔍 [MATCH DEBUG] Clicked match:`, {
-                                          fixtureId: match.fixture.id,
-                                          fixtureDate: match.fixture.date,
-                                          teams: `${match.teams.home.name} vs ${match.teams.away.name}`,
-                                          selectedDate,
-                                          status: match.fixture.status.short,
-                                          dataSource: 'TodaysMatchesByCountryNew'
-                                        });
-                                        onMatchCardClick?.(match);
-                                      }}
-                                      style={{
-                                        cursor: onMatchCardClick
-                                          ? "pointer"
-                                          : "default",
-                                      }}
-                                    >
+                                      <div
+                                        key={`${match.fixture.id}-${countryData.country}-${leagueData.league.id}-${matchIndex}`}
+                                        className={`match-card-container group ${
+                                          halftimeFlashMatches.has(match.fixture.id) ? 'halftime-flash' : ''
+                                        } ${
+                                          fulltimeFlashMatches.has(match.fixture.id) ? 'fulltime-flash' : ''
+                                        } ${
+                                          goalFlashMatches.has(match.fixture.id) ? 'goal-flash' : ''
+                                        }`}
+                                        onClick={() => {
+                                          console.log(`🔍 [MATCH DEBUG] Clicked match:`, {
+                                            fixtureId: match.fixture.id,
+                                            fixtureDate: match.fixture.date,
+                                            teams: `${match.teams.home.name} vs ${match.teams.away.name}`,
+                                            selectedDate,
+                                            status: match.fixture.status.short,
+                                            dataSource: 'TodaysMatchesByCountryNew'
+                                          });
+                                          onMatchCardClick?.(match);
+                                        }}
+                                        style={{
+                                          cursor: onMatchCardClick
+                                            ? "pointer"
+                                            : "default",
+                                        }}
+                                      >
                                       {/* Star Button with true slide-in effect */}
                                       <button
                                         onClick={(e) => {
@@ -1951,7 +2046,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                           {/* Home team logo - grid area */}
                                           <div className="home-team-logo-container">
-                                            <MyWorldTeamLogo
+                                            <LazyTeamLogoWrapper
                                               teamName={match.teams.home.name || ""}
                                               teamId={match.teams.home.id}
                                               teamLogo={
@@ -1960,12 +2055,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                   : "/assets/fallback-logo.svg"
                                               }
                                               alt={match.teams.home.name}
-                                              size="34px"
-                                              className="popular-leagues-size"
                                               leagueContext={{
                                                 name: leagueData.league.name,
                                                 country: leagueData.league.country,
                                               }}
+                                              isVisible={lazyLoadedLeagues.has(leagueKey)}
                                             />
                                           </div>
 
@@ -2124,7 +2218,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                           {/* Away team logo - grid area */}
                                           <div className="away-team-logo-container">
-                                            <MyWorldTeamLogo
+                                            <LazyTeamLogoWrapper
                                               teamName={match.teams.away.name || ""}
                                               teamId={match.teams.away.id}
                                               teamLogo={
@@ -2133,12 +2227,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                   : "/assets/fallback-logo.svg"
                                               }
                                               alt={match.teams.away.name}
-                                              size="34px"
-                                              className="popular-leagues-size"
                                               leagueContext={{
                                                 name: leagueData.league.name,
                                                 country: leagueData.league.country,
                                               }}
+                                              isVisible={lazyLoadedLeagues.has(leagueKey)}
                                             />
                                           </div>
 
@@ -2198,7 +2291,38 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                         </div>
                                       </div>
                                     </div>
-                                  ))}
+                                  ))
+                                ) : (
+                                  // Show skeleton loading for matches that haven't been lazy loaded yet
+                                  <div className="space-y-0">
+                                    {[1, 2, 3].map((i) => (
+                                      <div key={i} className="match-card-container">
+                                        <div className="match-three-grid-container">
+                                          <div className="match-status-top">
+                                            <Skeleton className="h-4 w-16 rounded" />
+                                          </div>
+                                          <div className="match-content-container">
+                                            <div className="home-team-name">
+                                              <Skeleton className="h-4 w-20" />
+                                            </div>
+                                            <div className="home-team-logo-container">
+                                              <Skeleton className="h-8 w-8 rounded" />
+                                            </div>
+                                            <div className="match-score-container">
+                                              <Skeleton className="h-6 w-12" />
+                                            </div>
+                                            <div className="away-team-logo-container">
+                                              <Skeleton className="h-8 w-8 rounded" />
+                                            </div>
+                                            <div className="away-team-name">
+                                              <Skeleton className="h-4 w-20" />
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>
