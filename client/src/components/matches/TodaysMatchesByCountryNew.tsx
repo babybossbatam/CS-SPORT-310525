@@ -53,6 +53,41 @@ import MyCountryGroupFlag from "../common/MyCountryGroupFlag";
 const LazyCountryFlag = lazy(() => import("../common/MyCountryGroupFlag"));
 const LazyTeamLogo = lazy(() => import("../common/MyWorldTeamLogo"));
 
+// Intersection Observer Hook for lazy loading (same as MyNewLeague2)
+const useIntersectionObserver = (
+  ref: React.RefObject<Element>,
+  options: IntersectionObserverInit = {}
+) => {
+  const [isIntersecting, setIsIntersecting] = useState(false);
+  const [hasIntersected, setHasIntersected] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      const isElementIntersecting = entry.isIntersecting;
+      setIsIntersecting(isElementIntersecting);
+
+      if (isElementIntersecting && !hasIntersected) {
+        setHasIntersected(true);
+      }
+    }, {
+      threshold: 0.01,
+      rootMargin: '200px',
+      ...options
+    });
+
+    observer.observe(element);
+
+    return () => {
+      observer.unobserve(element);
+    };
+  }, [ref, hasIntersected, options.threshold, options.rootMargin]);
+
+  return { isIntersecting, hasIntersected };
+};
+
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
   if (!teamName) return teamName;
@@ -140,7 +175,8 @@ interface TodaysMatchesByCountryNewProps {
   onMatchCardClick?: (fixture: any) => void;
 }
 
-const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
+// Main component that loads data
+const TodaysMatchesByCountryNewComponent: React.FC<TodaysMatchesByCountryNewProps> = ({
   selectedDate,
   liveFilterActive = false,
   timeFilterActive = false,
@@ -2337,6 +2373,81 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       </CardContent>
     </Card>
   );
+};
+
+};
+
+// Main export with lazy loading wrapper (same pattern as MyNewLeague2)
+const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = (props) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const { hasIntersected } = useIntersectionObserver(containerRef, {
+    threshold: 0.01,
+    rootMargin: '200px'
+  });
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
+  // Check if we have cached data available (same as MyNewLeague2)
+  const queryClient = useCachedQuery.getQueryClient?.();
+  const cachedData = queryClient?.getQueryData(['all-fixtures-by-date', props.selectedDate]);
+  const hasCachedData = cachedData && Array.isArray(cachedData) && cachedData.length > 0;
+
+  // If we have cached data OR component has intersected, show the actual component
+  if (hasCachedData || hasIntersected) {
+    return <TodaysMatchesByCountryNewComponent {...props} />;
+  }
+
+  // If no cached data and not intersected yet, show proper loading skeleton
+  if (!hasIntersected) {
+    return (
+      <div ref={containerRef}>
+        <Card className="mt-4 dark:bg-gray-800 dark:border-gray-700">
+          <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200 dark:border-gray-700 dark:bg-gray-800">
+            <div className="flex justify-between items-center w-full">
+              <h3
+                className="font-semibold text-gray-900 dark:text-white"
+                style={{
+                  fontFamily:
+                    "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                  fontSize: "13.3px",
+                }}
+              >
+                Today's Football Matches by Country
+              </h3>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0 dark:bg-gray-800">
+            <div className="space-y-0">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="border-b border-gray-100 last:border-b-0">
+                  <div className="p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="w-6 h-4 rounded-sm" />
+                      <Skeleton className="h-4 w-28" />
+                      <Skeleton className="h-4 w-8" />
+                      <Skeleton className="h-5 w-12 rounded-full" />
+                    </div>
+                    <Skeleton className="h-4 w-4" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Render actual component when intersected
+  return <TodaysMatchesByCountryNewComponent {...props} />;
 };
 
 export default TodaysMatchesByCountryNew;
