@@ -567,7 +567,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       
       renderStartTime.current = 0;
     }
-  }, [validFixtures.length, Object.keys(fixturesByCountry).length]);
+  }, [validFixtures.length]);
 
   // Now validate after all hooks are called
   if (!selectedDate) {
