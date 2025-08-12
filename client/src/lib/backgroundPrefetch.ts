@@ -65,63 +65,21 @@ class BackgroundPrefetcher {
     try {
       console.log(`🔄 [BackgroundPrefetch] Starting prefetch for ${date}`);
       
-      // Try streaming endpoint first for faster initial response
-      const streamResponse = await fetch(`/api/fixtures/date/${date}/stream?all=true`, {
+      const response = await fetch(`/api/fixtures/date/${date}?all=true`, {
         headers: { 'X-Prefetch': 'true' }
       });
       
-      if (streamResponse.ok) {
-        const reader = streamResponse.body?.getReader();
-        const decoder = new TextDecoder();
-        let allData = [];
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`✅ [BackgroundPrefetch] Prefetched ${data.length} fixtures for ${date}`);
         
-        if (reader) {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            
-            const chunk = decoder.decode(value);
-            const lines = chunk.split('\n').filter(line => line.trim());
-            
-            for (const line of lines) {
-              try {
-                const parsed = JSON.parse(line);
-                if (parsed.type === 'cached' || parsed.type === 'fresh') {
-                  allData = parsed.data;
-                  // Store partial data immediately
-                  const cacheKey = `fixtures-date-${date}-all`;
-                  sessionStorage.setItem(cacheKey, JSON.stringify({
-                    data: allData,
-                    timestamp: Date.now(),
-                    prefetched: true,
-                    type: parsed.type
-                  }));
-                }
-              } catch (parseError) {
-                console.warn('Failed to parse streaming chunk:', parseError);
-              }
-            }
-          }
-        }
-        
-        console.log(`✅ [BackgroundPrefetch] Streamed ${allData.length} fixtures for ${date}`);
-      } else {
-        // Fallback to regular endpoint
-        const response = await fetch(`/api/fixtures/date/${date}?all=true`, {
-          headers: { 'X-Prefetch': 'true' }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log(`✅ [BackgroundPrefetch] Prefetched ${data.length} fixtures for ${date} (fallback)`);
-          
-          const cacheKey = `fixtures-date-${date}-all`;
-          sessionStorage.setItem(cacheKey, JSON.stringify({
-            data,
-            timestamp: Date.now(),
-            prefetched: true
-          }));
-        }
+        // Store in cache for immediate access
+        const cacheKey = `fixtures-date-${date}-all`;
+        sessionStorage.setItem(cacheKey, JSON.stringify({
+          data,
+          timestamp: Date.now(),
+          prefetched: true
+        }));
       }
     } catch (error) {
       console.warn(`❌ [BackgroundPrefetch] Failed to prefetch ${date}:`, error);

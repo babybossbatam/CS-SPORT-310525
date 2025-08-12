@@ -74,7 +74,7 @@ export const rapidApiService = {
     const cacheKey = `predictions-${fixtureId}`;
     const cached = playersCache.get(cacheKey);
 
-    const now = Date.date.now();
+    const now = Date.now();
     // Cache predictions for 2 hours
     if (cached && now - cached.timestamp < 2 * 60 * 60 * 1000) {
       console.log(`📊 [RapidAPI] Using cached predictions for fixture ${fixtureId}`);
@@ -286,30 +286,26 @@ export const rapidApiService = {
     const isPast = date < today;
     const isFuture = date > today;
 
-    // Smart cache duration based on date type - more aggressive caching
+    // Smart cache duration based on date type
     let cacheTime;
     if (isPast) {
       cacheTime = PAST_CACHE_DURATION; // 24 hours for past dates
     } else if (isToday) {
-      cacheTime = 5 * 60 * 1000; // 5 minutes for today (reduced from 10)
+      cacheTime = TODAY_CACHE_DURATION; // 10 minutes for today
     } else if (isFuture) {
-      cacheTime = 30 * 60 * 1000; // 30 minutes for future dates (reduced from 2 hours)
+      cacheTime = FUTURE_CACHE_DURATION; // 2 hours for future dates
     } else {
-      cacheTime = 5 * 60 * 1000; // fallback
+      cacheTime = TODAY_CACHE_DURATION; // fallback
     }
 
-    // Emergency fallback - if cache is stale but exists, use it to prevent long waits
-    if (cached && now - cached.timestamp < cacheTime * 3) {
-      console.log(`⚡ [Emergency Cache] Using stale cache for ${date} to prevent timeout (age: ${Math.round((now - cached.timestamp) / 60000)}min)`);
-      // Return cached data immediately but trigger background refresh
-      setTimeout(async () => {
-        try {
-          console.log(`🔄 [Background Refresh] Updating cache for ${date}`);
-          await this.getFixturesByDate(date, fetchAll); // This will update the cache
-        } catch (error) {
-          console.error(`❌ [Background Refresh] Failed for ${date}:`, error);
-        }
-      }, 100);
+    if (cached && now - cached.timestamp < cacheTime) {
+      const ageMinutes = Math.round((now - cached.timestamp) / 60000);
+      const cacheType = isPast ? "past" : isToday ? "today" : "future";
+      const dateStr = date;
+
+      // Enhanced logging for cache status
+      console.log(`📦 [RapidAPI] Using cached fixtures for ${dateStr} (age: ${ageMinutes}min, type: ${cacheType}, size: ${cached.data.length})`);
+
       return cached.data;
     }
 
