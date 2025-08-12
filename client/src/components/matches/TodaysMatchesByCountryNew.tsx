@@ -194,30 +194,29 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const today = new Date().toISOString().slice(0, 10);
   const isToday = selectedDate === today;
 
-  // Dynamic cache configuration based on date and live match detection
+  // Immediate display cache configuration - show cached data instantly
   const getDynamicCacheConfig = () => {
     if (!isToday) {
-      // Historical or future dates - use longer cache times
+      // Historical or future dates - show cached data immediately
       return {
-        staleTime: 30 * 60 * 1000, // 30 minutes
-        refetchInterval: false, // No auto-refresh for non-today dates
+        staleTime: 0, // Always consider data fresh to show immediately
+        refetchInterval: false,
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
       };
     }
 
-    // Today's matches - more aggressive caching
+    // Today's matches - show cached data immediately, refresh in background
     return {
-      staleTime: 2 * 60 * 1000, // 2 minutes
-      refetchInterval: 30 * 1000, // 30 seconds for today
+      staleTime: 0, // Show cached data immediately
+      refetchInterval: 30 * 1000, // 30 seconds background refresh
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
     };
   };
 
-  // State for lazy loading countries with performance optimization
+  // Show all countries immediately - no lazy loading
   const [visibleCountries, setVisibleCountries] = useState<Set<string>>(new Set());
-  const [initialLoadCount] = useState(5); // Start with 5 countries for better UX
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // Use smart cached query
@@ -741,15 +740,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return countries;
   }, [validFixtures]);
 
-  // Instant country initialization with immediate display
+  // Show ALL countries immediately - no lazy loading delays
   useEffect(() => {
     if (countryList.length === 0) return;
 
-    // Show first 10 countries immediately for faster perceived loading
-    const initialCountries = countryList.slice(0, Math.min(10, countryList.length));
-    setVisibleCountries(new Set(initialCountries));
-
-    console.log(`⚡ [TodaysMatchesByCountryNew] Lightning-fast loaded ${initialCountries.length}/${countryList.length} countries`);
+    // Show ALL countries immediately
+    setVisibleCountries(new Set(countryList));
+    console.log(`⚡ [TodaysMatchesByCountryNew] Showing ALL ${countryList.length} countries immediately`);
   }, [countryList]);
 
   // Lazy country data processing - only process visible countries
@@ -813,14 +810,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return processedCountryData[country];
   }, [processedCountryData]);
 
-  // Optimized country initialization - lightweight and fast
-  useEffect(() => {
-    if (countryList.length === 0) return;
-
-    const initialCountries = countryList.slice(0, initialLoadCount);
-    setVisibleCountries(new Set(initialCountries));
-    console.log(`⚡ [TodaysMatchesByCountryNew] Instant-loaded ${initialCountries.length}/${countryList.length} countries`);
-  }, [countryList.length, initialLoadCount]);
+  // No additional initialization needed - handled above
 
   // Optimized batch loading with progressive enhancement
   const loadMoreCountries = useCallback(async () => {
@@ -868,14 +858,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     [countryList, Array.from(visibleCountries).join(',')]
   );
 
-  // Simplified collapsed state management
+  // Auto-expand first few countries and leagues for immediate data visibility
   useEffect(() => {
-    // Reset to collapsed state when selected date changes
-    setExpandedCountries(new Set());
+    // Auto-expand first 3 countries for immediate data visibility
+    const topCountries = countryList.slice(0, 3);
+    setExpandedCountries(new Set(topCountries));
 
-    // Auto-expand first leagues will be handled lazily when countries are accessed
-    setExpandedLeagues(new Set());
-  }, [selectedDate]);
+    // Auto-expand first leagues in each country
+    const autoExpandLeagues = new Set<string>();
+    topCountries.forEach(country => {
+      const countryData = processedCountryData[country];
+      if (countryData && Object.keys(countryData.leagues).length > 0) {
+        const firstLeagueId = Object.keys(countryData.leagues)[0];
+        autoExpandLeagues.add(`${country}-${firstLeagueId}`);
+      }
+    });
+    setExpandedLeagues(autoExpandLeagues);
+  }, [selectedDate, countryList, processedCountryData]);
 
   // Lazy flag loading with intersection observer
   const flagObserver = useRef<IntersectionObserver | null>(null);
@@ -1489,8 +1488,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         const leagueKey = `${countryData.country}-${leagueData.league.id}`;
                         const isFirstLeague = leagueIndex === 0;
 
-                        // First league should be expanded by default, rest should be collapsed
-                        const isLeagueExpanded = expandedLeagues.has(leagueKey);return (
+                        // First league should be expanded by default for immediate data visibility
+                        const isLeagueExpanded = isFirstLeague || expandedLeagues.has(leagueKey);return (
                           <div
                             key={leagueData.league.id}
                             className="border-b border-stone-200 dark:border-gray-700 last:border-b-0"
@@ -2074,25 +2073,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             );
           })}
 
-          {/* Optimized Load More Button */}
-          {visibleCountries.size < countryList.length && (
-            <div className="flex justify-center p-4">
-              <button
-                onClick={loadMoreCountries}
-                disabled={isLoadingMore}
-                className={`px-4 py-2 text-white rounded-md transition-colors text-sm ${
-                  isLoadingMore 
-                    ? 'bg-gray-400 cursor-not-allowed' 
-                    : 'bg-blue-500 hover:bg-blue-600'
-                }`}
-              >
-                {isLoadingMore 
-                  ? 'Loading Countries...' 
-                  : `Show All Countries (${countryList.length - visibleCountries.size} remaining)`
-                }
-              </button>
-            </div>
-          )}
+          {/* No Load More button needed - all countries shown immediately */}
         </div>
       </CardContent>
     </Card>
