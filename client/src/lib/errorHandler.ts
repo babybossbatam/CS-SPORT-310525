@@ -403,8 +403,9 @@ export const setupGlobalErrorHandlers = () => {
       }
 
       if (error.message?.includes('frame') || 
-          error.message?.includes('Cannot read properties of undefined') ||
-          error.message?.includes('space after cleanup') ||
+          error.message?.includes('ErrorOverlay') ||
+          error.message?.includes('Cannot read properties of undefined (reading \'frame\')') ||
+          error.message?.includes('reading \'frame\'') ||
           error.message?.includes('MaxListenersExceededWarning')) {
         console.log('🖼️ Frame/memory-related error detected, suppressing cascade...');
         event.preventDefault();
@@ -452,9 +453,9 @@ export const setupGlobalErrorHandlers = () => {
     console.error('🚨 Global error:', error);
 
     // Handle DOM manipulation errors
-    if (event.error?.message?.includes('removeChild') || 
-        event.error?.message?.includes('The node to be removed is not a child')) {
-      console.warn('DOM manipulation error caught and suppressed:', event.error);
+    if (error?.message?.includes('removeChild') || 
+        error?.message?.includes('The node to be removed is not a child')) {
+      console.warn('DOM manipulation error caught and suppressed:', error);
       event.preventDefault();
       return false;
     }
@@ -464,11 +465,14 @@ export const setupGlobalErrorHandlers = () => {
         error?.message?.includes('ErrorOverlay') ||
         error?.message?.includes('Cannot read properties of undefined (reading \'frame\')') ||
         error?.message?.includes('reading \'frame\'') ||
+        error?.stack?.includes('ErrorOverlay') ||
+        error?.stack?.includes('client:') ||
         event.filename?.includes('vite/client') ||
-        event.filename?.includes('client:')) {
+        event.filename?.includes('client:') ||
+        event.filename?.includes('@vite/client')) {
       console.log('🖼️ Suppressing frame/vite overlay error');
       event.preventDefault();
-      return;
+      return false;
     }
 
     // Handle network-related errors and asset loading errors
