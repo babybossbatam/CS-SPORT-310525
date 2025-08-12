@@ -232,24 +232,51 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         return critical;
       }
 
-      // Fetch fresh and filter critical
-      const allData = await smartFetch(selectedDate, { source: 'TodaysMatchesByCountryNew-Critical' });
-      const critical = allData.filter(fixture => {
-        const status = fixture.fixture.status.short;
-        const matchTime = new Date(fixture.fixture.date);
-        const now = new Date();
-        const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
-        const hoursUntil = (matchTime.getTime() - now.getTime()) / (1000 * 60 * 60);
-
-        if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) return true;
-        if (['FT', 'AET', 'PEN'].includes(status) && hoursAgo <= 2) return true;
-        if (['NS', 'TBD'].includes(status) && hoursUntil <= 1 && hoursUntil >= -0.5) return true;
-
-        return false;
+      // Add timeout to prevent infinite loading
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Critical fetch timeout')), 10000); // 10 second timeout
       });
 
-      console.log(`✅ [CRITICAL] Retrieved ${critical.length} critical fixtures from ${allData.length} total`);
-      return critical;
+      try {
+        // Race between fetch and timeout
+        const allData = await Promise.race([
+          smartFetch(selectedDate, { source: 'TodaysMatchesByCountryNew-Critical' }),
+          timeoutPromise
+        ]);
+
+        const critical = allData.filter(fixture => {
+          const status = fixture.fixture.status.short;
+          const matchTime = new Date(fixture.fixture.date);
+          const now = new Date();
+          const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+          const hoursUntil = (matchTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+          if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) return true;
+          if (['FT', 'AET', 'PEN'].includes(status) && hoursAgo <= 2) return true;
+          if (['NS', 'TBD'].includes(status) && hoursUntil <= 1 && hoursUntil >= -0.5) return true;
+
+          return false;
+        });
+
+        console.log(`✅ [CRITICAL] Retrieved ${critical.length} critical fixtures from ${allData.length} total`);
+        return critical;
+      } catch (error) {
+        console.warn(`⚠️ [CRITICAL] Fetch failed or timed out, using cache fallback:`, error);
+        
+        // Fallback to any cached data we have
+        if (cached?.length) {
+          const critical = cached.filter(fixture => {
+            const status = fixture.fixture.status.short;
+            return ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT', 'FT', 'AET', 'PEN', 'NS', 'TBD'].includes(status);
+          });
+          console.log(`📦 [CRITICAL FALLBACK] Using ${critical.length} fixtures from cache`);
+          return critical;
+        }
+        
+        // If no cache, return empty array instead of throwing
+        console.log(`📦 [CRITICAL FALLBACK] No cache available, returning empty array`);
+        return [];
+      }
     },
     {
       enabled: !!selectedDate,
@@ -292,23 +319,57 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         return background;
       }
 
-      const allData = await smartFetch(selectedDate, { source: 'TodaysMatchesByCountryNew-Background' });
-      const background = allData.filter(fixture => {
-        const status = fixture.fixture.status.short;
-        const matchTime = new Date(fixture.fixture.date);
-        const now = new Date();
-        const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
-        const hoursUntil = (matchTime.getTime() - now.getTime()) / (1000 * 60 * 60);
-
-        if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) return false;
-        if (['FT', 'AET', 'PEN'].includes(status) && hoursAgo <= 2) return false;
-        if (['NS', 'TBD'].includes(status) && hoursUntil <= 1 && hoursUntil >= -0.5) return false;
-
-        return true;
+      // Add timeout for background fetch too
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Background fetch timeout')), 15000); // 15 second timeout
       });
 
-      console.log(`✅ [BACKGROUND] Retrieved ${background.length} background fixtures`);
-      return background;
+      try {
+        const allData = await Promise.race([
+          smartFetch(selectedDate, { source: 'TodaysMatchesByCountryNew-Background' }),
+          timeoutPromise
+        ]);
+
+        const background = allData.filter(fixture => {
+          const status = fixture.fixture.status.short;
+          const matchTime = new Date(fixture.fixture.date);
+          const now = new Date();
+          const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+          const hoursUntil = (matchTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+          if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) return false;
+          if (['FT', 'AET', 'PEN'].includes(status) && hoursAgo <= 2) return false;
+          if (['NS', 'TBD'].includes(status) && hoursUntil <= 1 && hoursUntil >= -0.5) return false;
+
+          return true;
+        });
+
+        console.log(`✅ [BACKGROUND] Retrieved ${background.length} background fixtures`);
+        return background;
+      } catch (error) {
+        console.warn(`⚠️ [BACKGROUND] Fetch failed or timed out, using cache fallback:`, error);
+        
+        // Fallback to cached data
+        if (cached?.length) {
+          const background = cached.filter(fixture => {
+            const status = fixture.fixture.status.short;
+            const matchTime = new Date(fixture.fixture.date);
+            const now = new Date();
+            const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+            const hoursUntil = (matchTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+            if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) return false;
+            if (['FT', 'AET', 'PEN'].includes(status) && hoursAgo <= 2) return false;
+            if (['NS', 'TBD'].includes(status) && hoursUntil <= 1 && hoursUntil >= -0.5) return false;
+
+            return true;
+          });
+          console.log(`📦 [BACKGROUND FALLBACK] Using ${background.length} fixtures from cache`);
+          return background;
+        }
+        
+        return [];
+      }
     },
     {
       enabled: !!selectedDate && !criticalLoading, // Wait for critical to finish first
@@ -1014,8 +1075,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Show loading only if we're actually loading critical data and have no data
-  if (criticalLoading && !criticalFixtures.length) {
+  // Show loading only if we're actually loading critical data and have no data AND it's been less than 10 seconds
+  if (criticalLoading && !criticalFixtures.length && !backgroundFixtures.length) {
     return (
       <Card className="mt-4">
         <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
