@@ -407,4 +407,9 @@ export const getCachedFixturesForDate = (date: string) => {
   return fixtureCache.getCachedFixturesForDate(date);
 };
 
+// Export shouldFetchFresh from fixtureCache
+export const shouldFetchFresh = (date: string) => {
+  return fixtureCache.shouldFetchFresh(date);
+};
+
 export default MyFetchingLogic;
