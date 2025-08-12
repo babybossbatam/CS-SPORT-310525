@@ -866,12 +866,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Initialize visible countries with first few countries
   useEffect(() => {
-    if (Object.keys(fixturesByCountry).length > 0) {
-      const countryKeys = Object.keys(fixturesByCountry);
+    const countryKeys = Object.keys(fixturesByCountry);
+    if (countryKeys.length > 0) {
       const initialCountries = countryKeys.slice(0, initialLoadCount);
       setVisibleCountries(new Set(initialCountries));
+      console.log(`📊 [TodaysMatchesByCountryNew] Initialized with ${initialCountries.length} countries:`, initialCountries);
     }
-  }, [Object.keys(fixturesByCountry).length, initialLoadCount]);
+  }, [fixturesByCountry, initialLoadCount]);
 
   // Intersection Observer for lazy loading more countries
   const loadMoreCountries = useCallback(() => {
