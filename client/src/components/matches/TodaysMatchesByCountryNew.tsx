@@ -134,6 +134,8 @@ interface TodaysMatchesByCountryNewProps {
   onMatchClick?: (match: any) => void;
   enablePagination?: boolean;
   pageSize?: number;
+  liveFilterActive?: boolean;
+  timeFilterActive?: boolean;
 }
 
 const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
@@ -143,6 +145,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   onMatchClick,
   enablePagination = false,
   pageSize = 50,
+  liveFilterActive = false,
+  timeFilterActive = false,
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
