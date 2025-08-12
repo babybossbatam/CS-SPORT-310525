@@ -216,9 +216,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     };
   };
 
-  // Show all countries immediately - no lazy loading
-  const [visibleCountries, setVisibleCountries] = useState<Set<string>>(new Set());
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  // Immediate country list display
+  const [allCountriesList, setAllCountriesList] = useState<string[]>([]);
+  const [countryDataCache, setCountryDataCache] = useState<{ [country: string]: any }>({});
 
   // Use smart cached query
   const {
@@ -271,6 +271,33 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       },
     }
   );
+
+  // Extract country list immediately when fixtures are available
+  useEffect(() => {
+    if (!fixtures?.length) {
+      setAllCountriesList([]);
+      setCountryDataCache({});
+      return;
+    }
+
+    // Extract unique countries immediately for display
+    const countriesSet = new Set<string>();
+    fixtures.forEach((fixture: any) => {
+      const country = fixture.league?.country;
+      if (country && typeof country === 'string') {
+        countriesSet.add(country);
+      }
+    });
+
+    const sortedCountries = Array.from(countriesSet).sort((a, b) => {
+      if (a === "World") return -1;
+      if (b === "World") return 1;
+      return a.localeCompare(b);
+    });
+
+    setAllCountriesList(sortedCountries);
+    console.log(`🚀 [Immediate Display] Showing ${sortedCountries.length} countries instantly`);
+  }, [fixtures]);
 
 
 
@@ -335,51 +362,50 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   }, [fixtures, selectedDate, isToday]);
 
-  // Web Worker for data processing
-  const [processedCountryData, setProcessedCountryData] = useState<any>({});
-  const [isProcessingData, setIsProcessingData] = useState(false);
-  const workerRef = useRef<Worker | null>(null);
+  // Lazy load country data on-demand
+  const getCountryDataLazy = useCallback((country: string) => {
+    // Return cached data if available
+    if (countryDataCache[country]) {
+      return countryDataCache[country];
+    }
 
-  // Initialize Web Worker
-  useEffect(() => {
-    workerRef.current = new Worker(new URL('../../../workers/countryDataProcessor.worker.ts', import.meta.url));
-    
-    workerRef.current.onmessage = (e) => {
-      if (e.data.type === 'COUNTRY_DATA_PROCESSED') {
-        setProcessedCountryData(e.data.data);
-        CacheManager.setCachedData([e.data.cacheKey], e.data.data);
-        setIsProcessingData(false);
+    // Return placeholder while processing
+    if (!fixtures?.length) {
+      return { country, leagues: {}, hasPopularLeague: false };
+    }
+
+    // Process country data on-demand
+    const countryFixtures = fixtures.filter((fixture: any) => 
+      fixture.league?.country === country && 
+      fixture.fixture?.date?.startsWith(selectedDate)
+    );
+
+    const leagues: { [leagueId: number]: any } = {};
+    let hasPopularLeague = false;
+
+    countryFixtures.forEach((fixture: any) => {
+      const leagueId = fixture.league.id;
+      const isPopular = POPULAR_LEAGUES.includes(leagueId);
+      
+      if (!leagues[leagueId]) {
+        leagues[leagueId] = {
+          league: fixture.league,
+          matches: [],
+          isPopular
+        };
+        if (isPopular) hasPopularLeague = true;
       }
-    };
-
-    return () => {
-      workerRef.current?.terminate();
-    };
-  }, []);
-
-  // Process data with Web Worker
-  useEffect(() => {
-    if (!fixtures?.length || !selectedDate || !workerRef.current) {
-      setProcessedCountryData({});
-      return;
-    }
-
-    const cacheKey = `processed-country-data-${selectedDate}`;
-    const cached = CacheManager.getCachedData([cacheKey], 30 * 60 * 1000);
-    
-    if (cached) {
-      setProcessedCountryData(cached);
-      return;
-    }
-
-    setIsProcessingData(true);
-    workerRef.current.postMessage({
-      type: 'PROCESS_COUNTRY_DATA',
-      fixtures,
-      selectedDate,
-      popularLeagues: POPULAR_LEAGUES
+      
+      leagues[leagueId].matches.push(fixture);
     });
-  }, [fixtures, selectedDate]);
+
+    const countryData = { country, leagues, hasPopularLeague };
+    
+    // Cache the processed data
+    setCountryDataCache(prev => ({ ...prev, [country]: countryData }));
+    
+    return countryData;
+  }, [fixtures, selectedDate, countryDataCache]);
 
   // Batch state updates to prevent cascading re-renders
   const batchedStateUpdate = useCallback((updates: {
@@ -395,34 +421,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     if (updates.hiddenMatches) setHiddenMatches(updates.hiddenMatches);
   }, []);
 
-  // Extract valid fixtures and country list from processed data
-  const { validFixtures, countryList } = useMemo(() => {
-    const allValidFixtures: any[] = [];
-    const countries: string[] = [];
-
-    Object.values(processedCountryData).forEach((countryData: any) => {
-      if (countryData.country) {
-        countries.push(countryData.country);
-
-        // Extract all matches from all leagues in this country
-        Object.values(countryData.leagues).forEach((leagueData: any) => {
-          allValidFixtures.push(...leagueData.matches);
-        });
-      }
-    });
-
-    // Sort countries with World first
-    const sortedCountries = countries.sort((a, b) => {
-      if (a === "World") return -1;
-      if (b === "World") return 1;
-      return a.localeCompare(b);
-    });
-
-    return {
-      validFixtures: allValidFixtures,
-      countryList: sortedCountries
-    };
-  }, [processedCountryData]);
+  // Simple filtered fixtures for analysis
+  const validFixtures = useMemo(() => {
+    if (!fixtures?.length || !selectedDate) return [];
+    
+    return fixtures.filter((fixture: any) => 
+      fixture?.fixture?.date?.startsWith(selectedDate)
+    );
+  }, [fixtures, selectedDate]);
 
   // Cache the last filter results
   const lastFilterCache = useRef<{
@@ -582,135 +588,30 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [validFixtures.length, selectedDate]);
 
-  // Show countries immediately with batching for large lists
+  // Countries are now immediately available in allCountriesList
+
+  const getCountryData = getCountryDataLazy;
+
+  // Simple stats for debugging
   useEffect(() => {
-    if (countryList.length === 0) return;
-
-    // For large lists, batch the updates to prevent UI blocking
-    if (countryList.length > 50) {
-      const batchSize = 20;
-      let currentIndex = 0;
-      
-      const addBatch = () => {
-        const batch = countryList.slice(currentIndex, currentIndex + batchSize);
-        setVisibleCountries(prev => new Set([...prev, ...batch]));
-        currentIndex += batchSize;
-        
-        if (currentIndex < countryList.length) {
-          requestAnimationFrame(addBatch);
-        }
-      };
-      
-      addBatch();
-    } else {
-      // For smaller lists, show all immediately
-      setVisibleCountries(new Set(countryList));
-    }
-  }, [countryList]);
-
-  const getCountryData = useCallback((country: string) => {
-    return processedCountryData[country];
-  }, [processedCountryData]);
-
-  // No additional initialization needed - handled above
-
-  // Optimized batch loading with progressive enhancement
-  const loadMoreCountries = useCallback(async () => {
-    if (isLoadingMore) return;
-
-    setIsLoadingMore(true);
-    const remainingCountries = countryList.filter(country => !visibleCountries.has(country));
-
-    if (remainingCountries.length > 0) {
-      // Progressive loading in smaller chunks to prevent UI blocking
-      const chunkSize = 10;
-      const chunks = [];
-      for (let i = 0; i < remainingCountries.length; i += chunkSize) {
-        chunks.push(remainingCountries.slice(i, i + chunkSize));
-      }
-
-      // Load all chunks with micro-delays
-      for (const chunk of chunks) {
-        setVisibleCountries(prev => new Set([...prev, ...chunk]));
-        if (chunks.length > 1) {
-          await new Promise(resolve => setTimeout(resolve, 10));
-        }
-      }
-
-      console.log(`📈 [TodaysMatchesByCountryNew] Progressively loaded ${remainingCountries.length} countries`);
-    }
-
-    setIsLoadingMore(false);
-  }, [countryList, visibleCountries, isLoadingMore]);
-
-  // Lightweight analysis - only when needed
-  const analysisStats = useMemo(() => ({
-    selectedDate,
-    totalCountries: countryList.length,
-    totalMatches: validFixtures.length,
-    visibleCountries: visibleCountries.size,
-    cachedCountries: Object.keys(processedCountryData).length
-  }), [selectedDate, countryList.length, validFixtures.length, visibleCountries.size, processedCountryData]);
-
-  console.log(`⚡ [TodaysMatchesByCountryNew] Lightweight Analysis:`, analysisStats);
-
-  // No need for heavy sorting - countries are already sorted in countryList
-  const visibleCountriesList = useMemo(() => 
-    countryList.filter(country => visibleCountries.has(country)),
-    [countryList, Array.from(visibleCountries).join(',')]
-  );
-
-  // No auto-expansion - all countries start collapsed
-  useEffect(() => {
-    // Start with all countries collapsed - users must manually expand
-    setExpandedCountries(new Set<string>());
-    setExpandedLeagues(new Set<string>());
-
-    console.log(`📦 [No Auto-expand] All ${countryList.length} countries start collapsed - manual expansion required`);
-  }, [selectedDate, countryList.join(','), Object.keys(processedCountryData).length]);
-
-  // Invalidate processed data cache when date changes
-  useEffect(() => {
-    const previousCacheKey = `processed-country-data-${selectedDate}`;
-    // The cache will automatically check if data is stale, but we log the cache strategy
-    console.log(`🔄 [Cache Strategy] Date changed to ${selectedDate}, will use cached processed data if available`);
-  }, [selectedDate]);
-
-  // Batched flag loading system
-  const [flagsLoading, setFlagsLoading] = useState(new Set<string>());
-  
-  const loadCountryFlags = useCallback(async (countries: string[]) => {
-    const unloadedCountries = countries.filter(country => 
-      !flagMap[country] && !flagsLoading.has(country)
-    );
-    
-    if (unloadedCountries.length === 0) return;
-
-    // Mark countries as loading
-    setFlagsLoading(prev => new Set([...prev, ...unloadedCountries]));
-    
-    try {
-      const { batchedFlagLoader } = await import('../../lib/batchedFlagLoader');
-      const loadedFlags = await batchedFlagLoader.loadFlags(unloadedCountries);
-      
-      setFlagMap(prev => ({ ...prev, ...loadedFlags }));
-    } catch (error) {
-      console.warn('Failed to load flags in batch:', error);
-    } finally {
-      setFlagsLoading(prev => {
-        const newSet = new Set(prev);
-        unloadedCountries.forEach(country => newSet.delete(country));
-        return newSet;
+    if (allCountriesList.length > 0) {
+      console.log(`⚡ [Immediate Display] Stats:`, {
+        selectedDate,
+        totalCountries: allCountriesList.length,
+        totalMatches: validFixtures.length,
+        cachedCountries: Object.keys(countryDataCache).length
       });
     }
-  }, [flagMap, flagsLoading]);
+  }, [selectedDate, allCountriesList.length, validFixtures.length, Object.keys(countryDataCache).length]);
 
-  // Load flags for visible countries
+  // Reset expanded state when date changes
   useEffect(() => {
-    if (visibleCountriesList.length > 0) {
-      loadCountryFlags(visibleCountriesList);
-    }
-  }, [visibleCountriesList, loadCountryFlags]);
+    setExpandedCountries(new Set<string>());
+    setExpandedLeagues(new Set<string>());
+    console.log(`📦 [Reset] All countries collapsed for date: ${selectedDate}`);
+  }, [selectedDate]);
+
+  // Flags will be loaded by existing MyCountryGroupFlag components as needed
 
   // Simplified observe function for compatibility
   const observeCountryElement = useCallback((_element: HTMLElement | null, _country: string) => {
@@ -1876,10 +1777,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       </CardHeader>
       <CardContent className="p-0 dark:bg-gray-800">
         <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
-          {/* Use virtualized list for large datasets */}
-          {visibleCountriesList.length > 20 ? (
+          {/* Display all countries immediately */}
+          {allCountriesList.length > 20 ? (
             <VirtualizedCountryList
-              countries={visibleCountriesList}
+              countries={allCountriesList}
               getCountryData={getCountryData}
               expandedCountries={expandedCountries}
               expandedLeagues={expandedLeagues}
@@ -1897,14 +1798,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             />
           ) : (
             /* Regular rendering for smaller lists */
-            visibleCountriesList.map((country: string) => {
+            allCountriesList.map((country: string) => {
               const countryData = getCountryData(country);
-              const isExpanded = expandedCountries.has(countryData.country);
+              const isExpanded = expandedCountries.has(country);
 
               return (
                 <CountrySection
-                  key={countryData.country}
-                  country={countryData.country}
+                  key={country}
+                  country={country}
                   countryData={countryData}
                   isExpanded={isExpanded}
                   expandedLeagues={expandedLeagues}
