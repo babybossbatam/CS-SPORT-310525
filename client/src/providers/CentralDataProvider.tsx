@@ -45,12 +45,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       const controller = new AbortController();
       
       try {
-        // Set up timeout that only aborts if request is still pending - increased to 60 seconds
+        // Set up timeout that only aborts if request is still pending - optimized to 30 seconds
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 60 seconds');
+            controller.abort('Request timeout after 30 seconds');
           }
-        }, 60000);
+        }, 30000);
 
         const response = await fetch(`/api/fixtures/date/${validDate}?all=true`, {
           signal: controller.signal,
@@ -97,9 +97,19 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         }
 
         if (error.name === 'AbortError') {
-          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate}`);
+          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate} after 30 seconds`);
+          // Try to return cached data if available
+          const cachedData = queryClient.getQueryData(['central-date-fixtures', validDate]);
+          if (cachedData && Array.isArray(cachedData)) {
+            console.log(`💾 [CentralDataProvider] Using stale cache data for ${validDate} (${cachedData.length} fixtures)`);
+            return cachedData;
+          }
         } else {
-          console.error(`❌ [CentralDataProvider] Error fetching fixtures for ${validDate}:`, error);
+          console.error(`❌ [CentralDataProvider] Error fetching fixtures for ${validDate}:`, {
+            message: error.message,
+            name: error.name,
+            stack: error.stack?.substring(0, 200)
+          });
         }
         return [];
       }
@@ -108,14 +118,20 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     gcTime: CACHE_DURATIONS.SIX_HOURS,
     refetchOnWindowFocus: false,
     retry: (failureCount, error: any) => {
-      // Only retry on timeout errors, max 2 retries
-      if (error?.message?.includes('timeout') && failureCount < 2) {
-        console.log(`🔄 [CentralDataProvider] Retry attempt ${failureCount + 1} for ${validDate}`);
+      // Retry on timeout or network errors, max 3 retries
+      const shouldRetry = (
+        error?.message?.includes('timeout') || 
+        error?.message?.includes('fetch') ||
+        error?.name === 'AbortError'
+      ) && failureCount < 3;
+      
+      if (shouldRetry) {
+        console.log(`🔄 [CentralDataProvider] Retry attempt ${failureCount + 1} for ${validDate} (reason: ${error?.message || error?.name})`);
         return true;
       }
       return false;
     },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // Exponential backoff
+    retryDelay: (attemptIndex) => Math.min(2000 * 2 ** attemptIndex, 15000), // Exponential backoff with higher base
     throwOnError: false, // Don't throw errors to prevent unhandled rejections
     enabled: !!validDate,
   });
