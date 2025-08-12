@@ -271,25 +271,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   );
 
-  // Initialize visible countries with first few countries
-  useEffect(() => {
-    if (Object.keys(fixturesByCountry).length > 0) {
-      const countryKeys = Object.keys(fixturesByCountry);
-      const initialCountries = countryKeys.slice(0, initialLoadCount);
-      setVisibleCountries(new Set(initialCountries));
-    }
-  }, [Object.keys(fixturesByCountry).length, initialLoadCount]);
-
-  // Intersection Observer for lazy loading more countries
-  const loadMoreCountries = useCallback(() => {
-    const countryKeys = Object.keys(fixturesByCountry);
-    const currentVisible = Array.from(visibleCountries);
-    const nextCountries = countryKeys.filter(country => !visibleCountries.has(country)).slice(0, 3);
-    
-    if (nextCountries.length > 0) {
-      setVisibleCountries(prev => new Set([...prev, ...nextCountries]));
-    }
-  }, [fixturesByCountry, visibleCountries]);
+  
 
   // Error handling with user-friendly messages
   const error = queryError ? (
@@ -881,6 +863,26 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     return grouped;
   }, [validFixtures]);
+
+  // Initialize visible countries with first few countries
+  useEffect(() => {
+    if (Object.keys(fixturesByCountry).length > 0) {
+      const countryKeys = Object.keys(fixturesByCountry);
+      const initialCountries = countryKeys.slice(0, initialLoadCount);
+      setVisibleCountries(new Set(initialCountries));
+    }
+  }, [Object.keys(fixturesByCountry).length, initialLoadCount]);
+
+  // Intersection Observer for lazy loading more countries
+  const loadMoreCountries = useCallback(() => {
+    const countryKeys = Object.keys(fixturesByCountry);
+    const currentVisible = Array.from(visibleCountries);
+    const nextCountries = countryKeys.filter(country => !visibleCountries.has(country)).slice(0, 3);
+    
+    if (nextCountries.length > 0) {
+      setVisibleCountries(prev => new Set([...prev, ...nextCountries]));
+    }
+  }, [fixturesByCountry, visibleCountries]);
 
   // Final summary of grouped data with comprehensive analysis
   const countryStats = Object.entries(fixturesByCountry).map(
