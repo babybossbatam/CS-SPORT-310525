@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import MyCircularFlag from './MyCircularFlag'; // Assuming these components exist
-import MyWorldTeamLogo from './MyWorldTeamLogo'; // Assuming these components exist
-import LazyWrapper from './LazyWrapper'; // Assuming these components exist
-import LazyMatchItem from './LazyMatchItem'; // Assuming these components exist
+import MyCircularFlag from '../common/MyCircularFlag';
+import MyWorldTeamLogo from '../common/MyWorldTeamLogo';
+import LazyWrapper from '../common/LazyWrapper';
+import LazyMatchItem from './LazyMatchItem';
 
 interface Fixture {
   fixture: {
