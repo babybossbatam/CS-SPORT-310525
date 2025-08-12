@@ -548,6 +548,27 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return filtered;
   }, [fixtures, selectedDate]);
 
+  // Performance monitoring - must be before any conditional returns
+  useEffect(() => {
+    renderStartTime.current = performance.now();
+  });
+
+  useEffect(() => {
+    if (renderStartTime.current > 0) {
+      const endTime = performance.now();
+      const duration = Math.round(endTime - renderStartTime.current);
+      setRenderTime(duration);
+      
+      if (duration > 100) { // Log if render takes more than 100ms
+        console.warn(`⚠️ [TodaysMatchesByCountryNew] Slow render detected: ${duration}ms for ${validFixtures.length} fixtures`);
+      } else {
+        console.log(`⚡ [TodaysMatchesByCountryNew] Fast render: ${duration}ms for ${validFixtures.length} fixtures`);
+      }
+      
+      renderStartTime.current = 0;
+    }
+  }, [validFixtures.length, Object.keys(fixturesByCountry).length]);
+
   // Now validate after all hooks are called
   if (!selectedDate) {
     return (
@@ -1540,26 +1561,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return false;
   };
 
-  // Performance monitoring
-  useEffect(() => {
-    renderStartTime.current = performance.now();
-  });
-
-  useEffect(() => {
-    if (renderStartTime.current > 0) {
-      const endTime = performance.now();
-      const duration = Math.round(endTime - renderStartTime.current);
-      setRenderTime(duration);
-      
-      if (duration > 100) { // Log if render takes more than 100ms
-        console.warn(`⚠️ [TodaysMatchesByCountryNew] Slow render detected: ${duration}ms for ${validFixtures.length} fixtures`);
-      } else {
-        console.log(`⚡ [TodaysMatchesByCountryNew] Fast render: ${duration}ms for ${validFixtures.length} fixtures`);
-      }
-      
-      renderStartTime.current = 0;
-    }
-  }, [validFixtures.length, Object.keys(fixturesByCountry).length]);
+  
 
   return (
     <Card className="mt-4 dark:bg-gray-800 dark:border-gray-700">
