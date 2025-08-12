@@ -21,20 +21,12 @@ console.log(
   `Using RapidAPI Key: ${apiKey ? apiKey.substring(0, 5) + "..." : "NOT SET"}`,
 );
 
-// Base API client configuration with default timeout and retry settings
-const config = {
-  headers: {
-    'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-    'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
-  },
-  timeout: 30000, // 30 second default timeout
-  retry: 3,
-  retryDelay: 2000
-};
-
 const apiClient = axios.create({
   baseURL: "https://api-football-v1.p.rapidapi.com/v3",
-  headers: config.headers,
+  headers: {
+    "X-RapidAPI-Key": apiKey,
+    "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
+  },
 });
 
 // Optimized cache control for better performance
@@ -93,7 +85,7 @@ export const rapidApiService = {
       console.log(`📊 [RapidAPI] Fetching predictions for fixture ${fixtureId}`);
 
       const response = await apiClient.get("/predictions", {
-        params: {
+        params: { 
           fixture: fixtureId
         },
       });
@@ -141,7 +133,7 @@ export const rapidApiService = {
       console.log(`📊 [RapidAPI] Fetching odds for fixture ${fixtureId}`);
 
       const response = await apiClient.get("/odds", {
-        params: {
+        params: { 
           fixture: fixtureId
         },
       });
@@ -247,10 +239,10 @@ export const rapidApiService = {
       console.log(`📊 [RapidAPI] Fetching team statistics for team ${teamId}, league ${leagueId}, season ${season}`);
 
       const response = await apiClient.get("/teams/statistics", {
-        params: {
-          team: teamId,
-          league: leagueId,
-          season: season
+        params: { 
+          team: teamId, 
+          league: leagueId, 
+          season: season 
         },
       });
 
@@ -814,14 +806,14 @@ export const rapidApiService = {
 
       if (b365LiveMatches && b365LiveMatches.length > 0) {
         // Convert B365 matches to RapidAPI format
-        const convertedMatches = b365LiveMatches.map(match =>
+        const convertedMatches = b365LiveMatches.map(match => 
           b365ApiService.convertToRapidApiFormat(match)
         );
 
         console.log(`B365API Fallback: Retrieved ${convertedMatches.length} live fixtures`);
-        fixturesCache.set(cacheKey, {
-          data: convertedMatches,
-          timestamp: now
+        fixturesCache.set(cacheKey, { 
+          data: convertedMatches, 
+          timestamp: now 
         });
         return convertedMatches;
       }
@@ -838,14 +830,14 @@ export const rapidApiService = {
         const b365LiveMatches = await b365ApiService.getLiveFootballMatches();
 
         if (b365LiveMatches && b365LiveMatches.length > 0) {
-          const convertedMatches = b365LiveMatches.map(match =>
+          const convertedMatches = b365LiveMatches.map(match => 
             b365ApiService.convertToRapidApiFormat(match)
           );
 
           console.log(`B365API Fallback: Retrieved ${convertedMatches.length} live fixtures after RapidAPI error`);
-          fixturesCache.set(cacheKey, {
-            data: convertedMatches,
-            timestamp: now
+          fixturesCache.set(cacheKey, { 
+            data: convertedMatches, 
+            timestamp: now 
           });
           return convertedMatches;
         }
@@ -1061,8 +1053,8 @@ timestamp: now,
       // Check for status transitions that might require fresh data
       const cachedData = cached.data;
       if (Array.isArray(cachedData)) {
-        const hasLiveMatches = cachedData.some((fixture: any) =>
-          ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture?.status?.short)
+        const hasLiveMatches = cachedData.some((fixture: any) => 
+          ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture?.status?.short)
         );
 
         // Force refresh if cached data contains live matches (they need frequent updates)
@@ -1183,8 +1175,8 @@ timestamp: now,
   /**
    * Get league by ID
    */
-  async getLeagueById(leagueId: number, retryCount = 0): Promise<LeagueResponse | null> {
-    const cacheKey = `league-${leagueId}`;
+  async getLeagueById(id: number): Promise<LeagueResponse | null> {
+    const cacheKey = `league-${id}`;
     const cached = leaguesCache.get(cacheKey);
 
     const now = Date.now();
@@ -1193,11 +1185,9 @@ timestamp: now,
     }
 
     try {
-      console.log(`Fetching league with ID ${leagueId}`);
+      console.log(`Fetching league with ID ${id}`);
       const response = await apiClient.get("/leagues", {
-        params: { id: leagueId },
-        ...config,
-        timeout: 30000 // 30 second timeout
+        params: { id },
       });
 
       console.log(
@@ -1218,22 +1208,10 @@ timestamp: now,
         return leagueData;
       }
 
-      console.log(`No league data found for ID ${leagueId}`);
+      console.log(`No league data found for ID ${id}`);
       return null;
-    } catch (error: any) {
-      console.error(`Error fetching league with ID ${leagueId}:`, error);
-
-      // Handle 504 Gateway Timeout and other server errors with retry
-      if (error.response?.status === 504 || error.response?.status >= 500) {
-        if (retryCount < config.retry) {
-          console.log(`🔄 Retrying league ${leagueId} request (attempt ${retryCount + 1}/${config.retry}) after ${config.retryDelay}ms`);
-          await new Promise(resolve => setTimeout(resolve, config.retryDelay * (retryCount + 1))); // Exponential backoff
-          return this.getLeagueById(leagueId, retryCount + 1);
-        } else {
-          console.error(`❌ Max retries reached for league ${leagueId}. Using fallback data.`);
-        }
-      }
-
+    } catch (error) {
+      console.error(`Error fetching league with ID ${id}:`, error);
       if (cached?.data) {
         console.log("Using cached data due to API error");
         return cached.data;
