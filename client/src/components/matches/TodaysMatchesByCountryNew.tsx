@@ -957,6 +957,44 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return grouped;
   }, [validFixtures]);
 
+  // Live match prioritization: Live World matches are sorted first
+  const sortedCountries = useMemo(() => {
+    return Object.values(fixturesByCountry).sort(
+      (a: any, b: any) => {
+        const countryA = a.country || "";
+        const countryB = b.country || "";
+
+        // Check if either country is World
+        const aIsWorld = countryA.toLowerCase() === "world";
+        const bIsWorld = countryB.toLowerCase() === "world";
+
+        // Check for live matches in each country
+        const aHasLive = Object.values(a.leagues).some((league: any) =>
+          league.matches.some((match: any) =>
+            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+              match.fixture.status.short,
+            ),
+          ),
+        );
+        const bHasLive = Object.values(b.leagues).some((league: any) =>
+          league.matches.some((match: any) =>
+            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+              match.fixture.status.short,
+            ),
+          ),
+        );
+
+        // Priority: World with live matches first, then World without live, then others alphabetically
+        if (aIsWorld && aHasLive && (!bIsWorld || !bHasLive)) return -1;
+        if (bIsWorld && bHasLive && (!aIsWorld || !aHasLive)) return 1;
+        if (aIsWorld && !bIsWorld) return -1;
+        if (bIsWorld && !aIsWorld) return 1;
+
+        return countryA.localeCompare(countryB);
+      },
+    );
+  }, [Object.keys(fixturesByCountry).length, validFixtures.length]);
+
   // Final summary of grouped data with comprehensive analysis
   const countryStats = Object.entries(fixturesByCountry).map(
     ([country, data]: [string, any]) => ({
@@ -1003,44 +1041,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   };
 
   console.log(`📊 [DEBUG] Comprehensive Grouping Analysis:`, groupingAnalysis);
-
-  // Live match prioritization: Live World matches are sorted first
-  const sortedCountries = useMemo(() => {
-    return Object.values(fixturesByCountry).sort(
-      (a: any, b: any) => {
-        const countryA = a.country || "";
-        const countryB = b.country || "";
-
-        // Check if either country is World
-        const aIsWorld = countryA.toLowerCase() === "world";
-        const bIsWorld = countryB.toLowerCase() === "world";
-
-        // Check for live matches in each country
-        const aHasLive = Object.values(a.leagues).some((league: any) =>
-          league.matches.some((match: any) =>
-            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-              match.fixture.status.short,
-            ),
-          ),
-        );
-        const bHasLive = Object.values(b.leagues).some((league: any) =>
-          league.matches.some((match: any) =>
-            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-              match.fixture.status.short,
-            ),
-          ),
-        );
-
-        // Priority: World with live matches first, then World without live, then others alphabetically
-        if (aIsWorld && aHasLive && (!bIsWorld || !bHasLive)) return -1;
-        if (bIsWorld && bHasLive && (!aIsWorld || !aHasLive)) return 1;
-        if (aIsWorld && !bIsWorld) return -1;
-        if (bIsWorld && !aIsWorld) return 1;
-
-        return countryA.localeCompare(countryB);
-      },
-    );
-  }, [Object.keys(fixturesByCountry).length, validFixtures.length]);
 
   // Start with all countries collapsed by default
   useEffect(() => {
