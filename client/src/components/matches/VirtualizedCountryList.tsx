@@ -57,7 +57,11 @@ const VirtualizedCountryList: React.FC<VirtualizedCountryListProps> = ({
           {/* Country Header */}
           <CardHeader 
             className="flex flex-row items-center justify-between p-3 cursor-pointer hover:bg-gray-50 transition-colors"
-            onClick={() => toggleCountry(country.country)}
+            onClick={() => {
+              if (typeof toggleCountry === 'function') {
+                toggleCountry(country.country);
+              }
+            }}
           >
             <div className="flex items-center gap-3">
               <LazyImage

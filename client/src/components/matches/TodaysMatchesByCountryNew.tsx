@@ -386,7 +386,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     countryFixtures.forEach((fixture: any) => {
       const leagueId = fixture.league.id;
       const isPopular = POPULAR_LEAGUES.includes(leagueId);
-      
+
       if (!leagues[leagueId]) {
         leagues[leagueId] = {
           league: fixture.league,
@@ -395,15 +395,15 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         };
         if (isPopular) hasPopularLeague = true;
       }
-      
+
       leagues[leagueId].matches.push(fixture);
     });
 
     const countryData = { country, leagues, hasPopularLeague };
-    
+
     // Cache the processed data
     setCountryDataCache(prev => ({ ...prev, [country]: countryData }));
-    
+
     return countryData;
   }, [fixtures, selectedDate, countryDataCache]);
 
@@ -424,7 +424,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Simple filtered fixtures for analysis
   const validFixtures = useMemo(() => {
     if (!fixtures?.length || !selectedDate) return [];
-    
+
     return fixtures.filter((fixture: any) => 
       fixture?.fixture?.date?.startsWith(selectedDate)
     );
@@ -1780,17 +1780,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           {/* Display all countries immediately */}
           {allCountriesList.length > 20 ? (
             <VirtualizedCountryList
-              countries={allCountriesList}
-              getCountryData={getCountryData}
+              countries={allCountriesList.map(getCountryData)}
               expandedCountries={expandedCountries}
-              expandedLeagues={expandedLeagues}
+              toggleCountry={toggleCountry}
+              onMatchCardClick={onMatchCardClick}
               starredMatches={starredMatches}
-              hiddenMatches={hiddenMatches}
-              halftimeFlashMatches={halftimeFlashMatches}
-              fulltimeFlashMatches={fulltimeFlashMatches}
-              goalFlashMatches={goalFlashMatches}
-              onToggleCountry={toggleCountry}
-              onToggleLeague={toggleLeague}
               onStarMatch={toggleStarMatch}
               onMatchClick={onMatchCardClick}
               observeCountryElement={observeCountryElement}
