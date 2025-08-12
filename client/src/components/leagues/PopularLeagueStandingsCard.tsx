@@ -3,6 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface FixtureData {
   fixture: {
@@ -59,6 +60,8 @@ interface FixtureData {
 
 
 const PopularLeagueStandingsCard = () => {
+  const { translateTeamName } = useLanguage();
+
   const { data } = useQuery({
     queryKey: ['league-standings', 39, Date.now()], // Add timestamp to force fresh data
     queryFn: async () => {
@@ -81,7 +84,7 @@ const PopularLeagueStandingsCard = () => {
     <Card className="w-full dark:bg-gray-800 dark:border-gray-700">
       <CardHeader className="pb-3 dark:bg-gray-800 dark:border-gray-700">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold dark:text-white">Premier League</CardTitle>
+          <CardTitle className="text-lg font-semibold dark:text-white">{data?.league?.name || "Premier League"}</CardTitle>
         </div>
       </CardHeader>
       <CardContent className="p-0 dark:bg-gray-800">
@@ -121,7 +124,7 @@ const PopularLeagueStandingsCard = () => {
                         teamId={standing.team.id}
                       />
 
-                      <span className="text-[0.9em]">{standing.team.name}</span>
+                      <span className="team-name">{translateTeamName(standing.team.name)}</span>
                       {standing.rank === 1 && <span className="ml-2">👑</span>}
                     </div>
                     {standing.description && (
