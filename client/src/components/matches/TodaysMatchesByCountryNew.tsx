@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronDown, ChevronUp, Calendar, Star } from "lucide-react";
+import VirtualizedCountryList from "./VirtualizedCountryList";
 import { apiRequest } from "@/lib/queryClient";
 import { useCachedQuery, CacheManager } from "@/lib/cachingHelper";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
@@ -334,75 +335,65 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   }, [fixtures, selectedDate, isToday]);
 
-  // Optimized data processing with immediate cache return
-  const processedCountryData = useMemo(() => {
+  // Web Worker for data processing
+  const [processedCountryData, setProcessedCountryData] = useState<any>({});
+  const [isProcessingData, setIsProcessingData] = useState(false);
+  const workerRef = useRef<Worker | null>(null);
+
+  // Initialize Web Worker
+  useEffect(() => {
+    workerRef.current = new Worker(new URL('../../../workers/countryDataProcessor.worker.ts', import.meta.url));
+    
+    workerRef.current.onmessage = (e) => {
+      if (e.data.type === 'COUNTRY_DATA_PROCESSED') {
+        setProcessedCountryData(e.data.data);
+        CacheManager.setCachedData([e.data.cacheKey], e.data.data);
+        setIsProcessingData(false);
+      }
+    };
+
+    return () => {
+      workerRef.current?.terminate();
+    };
+  }, []);
+
+  // Process data with Web Worker
+  useEffect(() => {
+    if (!fixtures?.length || !selectedDate || !workerRef.current) {
+      setProcessedCountryData({});
+      return;
+    }
+
     const cacheKey = `processed-country-data-${selectedDate}`;
-    
-    // Return cached data immediately if available
     const cached = CacheManager.getCachedData([cacheKey], 30 * 60 * 1000);
+    
     if (cached) {
-      return cached;
+      setProcessedCountryData(cached);
+      return;
     }
 
-    // Early return for empty data
-    if (!fixtures?.length) return {};
-
-    // Optimized processing with reduced operations
-    const countryMap = new Map<string, any>();
-    const seenFixtures = new Set<number>();
-
-    // Single pass processing
-    for (const fixture of fixtures) {
-      // Quick validation
-      if (!fixture?.fixture?.id || !fixture?.teams || !fixture?.league || 
-          seenFixtures.has(fixture.fixture.id)) continue;
-
-      // Date validation (optimized)
-      const fixtureDate = fixture.fixture.date;
-      if (!fixtureDate || !fixtureDate.startsWith(selectedDate)) continue;
-
-      const country = fixture.league.country;
-      if (!country) continue;
-
-      seenFixtures.add(fixture.fixture.id);
-
-      // Skip exclusions for faster processing
-      const leagueId = fixture.league.id;
-      const leagueName = fixture.league.name || "";
-      
-      if (shouldExcludeMatchByCountry(leagueName, "", "", false, country)) continue;
-
-      // Build country data structure
-      if (!countryMap.has(country)) {
-        countryMap.set(country, {
-          country,
-          leagues: {},
-          hasPopularLeague: false
-        });
-      }
-
-      const countryData = countryMap.get(country);
-      if (!countryData.leagues[leagueId]) {
-        const isPopular = POPULAR_LEAGUES.includes(leagueId);
-        countryData.leagues[leagueId] = {
-          league: fixture.league,
-          matches: [],
-          isPopular
-        };
-        if (isPopular) countryData.hasPopularLeague = true;
-      }
-
-      countryData.leagues[leagueId].matches.push(fixture);
-    }
-
-    // Convert to object
-    const result = Object.fromEntries(countryMap);
-    
-    // Cache result
-    CacheManager.setCachedData([cacheKey], result);
-    
-    return result;
+    setIsProcessingData(true);
+    workerRef.current.postMessage({
+      type: 'PROCESS_COUNTRY_DATA',
+      fixtures,
+      selectedDate,
+      popularLeagues: POPULAR_LEAGUES
+    });
   }, [fixtures, selectedDate]);
+
+  // Batch state updates to prevent cascading re-renders
+  const batchedStateUpdate = useCallback((updates: {
+    expandedCountries?: Set<string>;
+    expandedLeagues?: Set<string>;
+    starredMatches?: Set<number>;
+    hiddenMatches?: Set<number>;
+  }) => {
+    // Use React 18's automatic batching or manual batching for older versions
+    if (updates.expandedCountries) setExpandedCountries(updates.expandedCountries);
+    if (updates.expandedLeagues) setExpandedLeagues(updates.expandedLeagues);
+    if (updates.starredMatches) setStarredMatches(updates.starredMatches);
+    if (updates.hiddenMatches) setHiddenMatches(updates.hiddenMatches);
+  }, []);
 
   // Extract valid fixtures and country list from processed data
   const { validFixtures, countryList } = useMemo(() => {
@@ -685,34 +676,45 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     console.log(`🔄 [Cache Strategy] Date changed to ${selectedDate}, will use cached processed data if available`);
   }, [selectedDate]);
 
-  // Simplified flag loading - load all flags immediately for better UX
-  const preloadFlags = useCallback(() => {
-    if (!countryList.length) return;
+  // Batched flag loading system
+  const [flagsLoading, setFlagsLoading] = useState(new Set<string>());
+  
+  const loadCountryFlags = useCallback(async (countries: string[]) => {
+    const unloadedCountries = countries.filter(country => 
+      !flagMap[country] && !flagsLoading.has(country)
+    );
     
-    const flagsToLoad: { [country: string]: string } = {};
-    
-    countryList.forEach(country => {
-      if (!flagMap[country]) {
-        const syncFlag = getCountryFlagWithFallbackSync(country);
-        if (syncFlag) {
-          flagsToLoad[country] = syncFlag;
-        }
-      }
-    });
+    if (unloadedCountries.length === 0) return;
 
-    if (Object.keys(flagsToLoad).length > 0) {
-      setFlagMap(prev => ({ ...prev, ...flagsToLoad }));
+    // Mark countries as loading
+    setFlagsLoading(prev => new Set([...prev, ...unloadedCountries]));
+    
+    try {
+      const { batchedFlagLoader } = await import('../../lib/batchedFlagLoader');
+      const loadedFlags = await batchedFlagLoader.loadFlags(unloadedCountries);
+      
+      setFlagMap(prev => ({ ...prev, ...loadedFlags }));
+    } catch (error) {
+      console.warn('Failed to load flags in batch:', error);
+    } finally {
+      setFlagsLoading(prev => {
+        const newSet = new Set(prev);
+        unloadedCountries.forEach(country => newSet.delete(country));
+        return newSet;
+      });
     }
-  }, [countryList, flagMap]);
+  }, [flagMap, flagsLoading]);
 
-  // Load flags immediately when countries are available
+  // Load flags for visible countries
   useEffect(() => {
-    preloadFlags();
-  }, [preloadFlags]);
+    if (visibleCountriesList.length > 0) {
+      loadCountryFlags(visibleCountriesList);
+    }
+  }, [visibleCountriesList, loadCountryFlags]);
 
-  // Simplified observe function (no-op for compatibility)
+  // Simplified observe function for compatibility
   const observeCountryElement = useCallback((_element: HTMLElement | null, _country: string) => {
-    // No-op - flags are loaded immediately now
+    // No-op - flags are loaded via batching now
   }, []);
 
   const toggleCountry = useCallback((country: string) => {
@@ -1874,31 +1876,52 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       </CardHeader>
       <CardContent className="p-0 dark:bg-gray-800">
         <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
-          {/* Use optimized visible countries list */}
-          {visibleCountriesList.map((country: string) => {
-            const countryData = getCountryData(country);
-            const isExpanded = expandedCountries.has(countryData.country);
+          {/* Use virtualized list for large datasets */}
+          {visibleCountriesList.length > 20 ? (
+            <VirtualizedCountryList
+              countries={visibleCountriesList}
+              getCountryData={getCountryData}
+              expandedCountries={expandedCountries}
+              expandedLeagues={expandedLeagues}
+              starredMatches={starredMatches}
+              hiddenMatches={hiddenMatches}
+              halftimeFlashMatches={halftimeFlashMatches}
+              fulltimeFlashMatches={fulltimeFlashMatches}
+              goalFlashMatches={goalFlashMatches}
+              onToggleCountry={toggleCountry}
+              onToggleLeague={toggleLeague}
+              onStarMatch={toggleStarMatch}
+              onMatchClick={onMatchCardClick}
+              observeCountryElement={observeCountryElement}
+              CountrySection={CountrySection}
+            />
+          ) : (
+            /* Regular rendering for smaller lists */
+            visibleCountriesList.map((country: string) => {
+              const countryData = getCountryData(country);
+              const isExpanded = expandedCountries.has(countryData.country);
 
-            return (
-              <CountrySection
-                key={countryData.country}
-                country={countryData.country}
-                countryData={countryData}
-                isExpanded={isExpanded}
-                expandedLeagues={expandedLeagues}
-                starredMatches={starredMatches}
-                hiddenMatches={hiddenMatches}
-                halftimeFlashMatches={halftimeFlashMatches}
-                fulltimeFlashMatches={fulltimeFlashMatches}
-                goalFlashMatches={goalFlashMatches}
-                onToggleCountry={toggleCountry}
-                onToggleLeague={toggleLeague}
-                onStarMatch={toggleStarMatch}
-                onMatchClick={onMatchCardClick}
-                observeCountryElement={observeCountryElement}
-              />
-            );
-          })}
+              return (
+                <CountrySection
+                  key={countryData.country}
+                  country={countryData.country}
+                  countryData={countryData}
+                  isExpanded={isExpanded}
+                  expandedLeagues={expandedLeagues}
+                  starredMatches={starredMatches}
+                  hiddenMatches={hiddenMatches}
+                  halftimeFlashMatches={halftimeFlashMatches}
+                  fulltimeFlashMatches={fulltimeFlashMatches}
+                  goalFlashMatches={goalFlashMatches}
+                  onToggleCountry={toggleCountry}
+                  onToggleLeague={toggleLeague}
+                  onStarMatch={toggleStarMatch}
+                  onMatchClick={onMatchCardClick}
+                  observeCountryElement={observeCountryElement}
+                />
+              );
+            })
+          )}
         </div>
       </CardContent>
     </Card>
