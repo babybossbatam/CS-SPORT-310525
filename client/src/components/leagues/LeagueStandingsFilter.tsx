@@ -88,13 +88,13 @@ const LeagueStandingsFilter = () => {
   // Function to get translated team name using smart translation system
   const getTranslatedTeamName = (teamName: string): string => {
     // Use smart team translation system with current language
-    const currentLanguage = i18n?.language || 'zh-hk';
+    const currentLanguage = i18n?.language || 'en';
     return smartTeamTranslation.translateTeamName(teamName, currentLanguage);
   };
 
   // Function to get translated group text
   const getTranslatedGroupText = (groupText: string): string => {
-    const currentLanguage = i18n?.language || 'zh-hk';
+    const currentLanguage = i18n?.language || 'en';
     return smartLeagueCountryTranslation.translateLeagueName(groupText, currentLanguage);
   };
 
@@ -828,7 +828,7 @@ const LeagueStandingsFilter = () => {
                   }}
                 />
                 {(() => {
-                  const currentLanguage = i18n?.language || 'zh-hk';
+                  const currentLanguage = i18n?.language || 'en';
                   return smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, currentLanguage);
                 })()}
               </div>
@@ -858,7 +858,7 @@ const LeagueStandingsFilter = () => {
                       }}
                     />
                     {(() => {
-                      const currentLanguage = i18n?.language || 'zh-hk';
+                      const currentLanguage = i18n?.language || 'en';
                       return smartLeagueCountryTranslation.translateLeagueName(league.name, currentLanguage);
                     })()}
                   </div>
@@ -1066,7 +1066,7 @@ const LeagueStandingsFilter = () => {
                       className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium transition-colors duration-200"
                     >
                       {(() => {
-                        const currentLanguage = i18n?.language || 'zh-hk';
+                        const currentLanguage = i18n?.language || 'en';
                         const translatedLeague = smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, currentLanguage);
                         const translatedStandings = smartLeagueCountryTranslation.translateLeagueName('Group Standings', currentLanguage);
                         return `${translatedLeague} ${translatedStandings} →`;
