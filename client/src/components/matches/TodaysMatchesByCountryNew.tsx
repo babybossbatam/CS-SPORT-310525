@@ -643,20 +643,20 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Optimized country data processing with better caching
   const processedCountryData = useMemo(() => {
     const cache: { [country: string]: any } = {};
-    
+
     // Create lookup maps for faster processing
     const fixturesByCountry = new Map<string, any[]>();
     const seenGlobal = new Set<number>();
-    
+
     // Single pass to group fixtures by country
     validFixtures.forEach((fixture: any) => {
       if (!fixture?.fixture?.id || !fixture?.teams || seenGlobal.has(fixture.fixture.id)) return;
-      
+
       const country = fixture?.league?.country;
       if (!country) return;
-      
+
       seenGlobal.add(fixture.fixture.id);
-      
+
       if (!fixturesByCountry.has(country)) {
         fixturesByCountry.set(country, []);
       }
@@ -755,24 +755,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     [countryList, Array.from(visibleCountries).join(',')]
   );
 
-  // Auto-expand first few countries and leagues for immediate data visibility
+  // No auto-expansion - all countries start collapsed
   useEffect(() => {
-    // Only auto-expand first country to reduce initial load
-    const topCountries = countryList.slice(0, 1);
-    setExpandedCountries(new Set(topCountries));
+    // Start with all countries collapsed - users must manually expand
+    setExpandedCountries(new Set<string>());
+    setExpandedLeagues(new Set<string>());
 
-    // Auto-expand first league in the first country only
-    const autoExpandLeagues = new Set<string>();
-    if (topCountries.length > 0) {
-      const country = topCountries[0];
-      const countryData = processedCountryData[country];
-      if (countryData && Object.keys(countryData.leagues).length > 0) {
-        const firstLeagueId = Object.keys(countryData.leagues)[0];
-        autoExpandLeagues.add(`${country}-${firstLeagueId}`);
-      }
-    }
-    setExpandedLeagues(autoExpandLeagues);
-  }, [selectedDate, countryList.slice(0, 1).join(','), Object.keys(processedCountryData).length]);
+    console.log(`📦 [No Auto-expand] All ${countryList.length} countries start collapsed - manual expansion required`);
+  }, [selectedDate, countryList.join(','), Object.keys(processedCountryData).length]);
 
   // Lazy flag loading with intersection observer
   const flagObserver = useRef<IntersectionObserver | null>(null);
