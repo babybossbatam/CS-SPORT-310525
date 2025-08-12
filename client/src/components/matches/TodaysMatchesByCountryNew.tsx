@@ -211,7 +211,7 @@ const TodaysMatchesByCountryNewComponent: React.FC<TodaysMatchesByCountryNewProp
   // Lazy loading state for countries and leagues
   const [lazyLoadedCountries, setLazyLoadedCountries] = useState<Set<string>>(new Set());
   const [lazyLoadedLeagues, setLazyLoadedLeagues] = useState<Set<string>>(new Set());
-  
+
   // Intersection observer for lazy loading
   const intersectionObserver = useRef<IntersectionObserver | null>(null);
 
@@ -393,12 +393,12 @@ const TodaysMatchesByCountryNewComponent: React.FC<TodaysMatchesByCountryNewProp
 
     for (let i = 0; i < fixtures.length; i++) {
       const fixture = fixtures[i];
-      
+
       // Early validation with minimal checks
       if (!fixture?.fixture?.id || !fixture?.teams?.home?.id || !fixture?.teams?.away?.id) continue;
 
       const fixtureId = fixture.fixture.id;
-      
+
       // Quick duplicate check
       if (seenFixtures.has(fixtureId)) continue;
 
@@ -801,12 +801,12 @@ const TodaysMatchesByCountryNewComponent: React.FC<TodaysMatchesByCountryNewProp
     // Pre-process fixtures to avoid repeated work
     for (let i = 0; i < filteredFixtures.length; i++) {
       const fixture = filteredFixtures[i];
-      
+
       // Quick validation
       if (!fixture?.league?.id || !fixture?.teams?.home?.id || !fixture?.fixture?.id) continue;
 
       const fixtureId = fixture.fixture.id;
-      
+
       // Quick duplicate check
       if (seenFixtures.has(fixtureId)) continue;
 
@@ -978,10 +978,10 @@ const TodaysMatchesByCountryNewComponent: React.FC<TodaysMatchesByCountryNewProp
   const sortedCountries = useMemo(() => {
     const countries = Object.values(fixturesByCountry);
     const liveStatuses = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"];
-    
+
     // Pre-calculate live status for better performance
     const countryLiveStatus = new Map<string, boolean>();
-    
+
     countries.forEach((countryData: any) => {
       const hasLive = Object.values(countryData.leagues).some((league: any) =>
         league.matches.some((match: any) =>
@@ -1082,11 +1082,11 @@ const TodaysMatchesByCountryNewComponent: React.FC<TodaysMatchesByCountryNewProp
           if (entry.isIntersecting) {
             const countryName = entry.target.getAttribute('data-country');
             const leagueKey = entry.target.getAttribute('data-league');
-            
+
             if (countryName && !lazyLoadedCountries.has(countryName)) {
               setLazyLoadedCountries(prev => new Set(prev).add(countryName));
             }
-            
+
             if (leagueKey && !lazyLoadedLeagues.has(leagueKey)) {
               setLazyLoadedLeagues(prev => new Set(prev).add(leagueKey));
             }
@@ -1113,14 +1113,14 @@ const TodaysMatchesByCountryNewComponent: React.FC<TodaysMatchesByCountryNewProp
     const missingCountries = Array.from(lazyLoadedCountries).filter(
       country => !flagMap[country]
     );
-    
+
     if (missingCountries.length === 0) return;
 
     console.log(`🎯 Lazy loading flags for ${missingCountries.length} countries`);
 
     // Batch flag fetching to avoid blocking the main thread
     const syncFlags: { [country: string]: string } = {};
-    
+
     missingCountries.forEach((country) => {
       const syncFlag = getCountryFlagWithFallbackSync(country);
       if (syncFlag) {
@@ -1825,7 +1825,7 @@ const TodaysMatchesByCountryNewComponent: React.FC<TodaysMatchesByCountryNewProp
                                         const isStaleFinishedMatch =
                                           (["FT", "AET", "PEN"].includes(status) && hoursOld > 4) ||
                                           (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursOld > 4) ||
-                                          (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
+                                          (hoursOld > 4 && ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status));
 
                                         // Only count as live if status indicates live and match is not stale
                                         return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) && 
@@ -2373,8 +2373,6 @@ const TodaysMatchesByCountryNewComponent: React.FC<TodaysMatchesByCountryNewProp
       </CardContent>
     </Card>
   );
-};
-
 };
 
 // Main export with lazy loading wrapper (same pattern as MyNewLeague2)
