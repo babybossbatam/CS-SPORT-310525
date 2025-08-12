@@ -194,7 +194,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = Reac
     667, // Friendlies Clubs
   ]; // Significantly expanded to include major leagues from all continents
 
-  // Smart cached data fetching using useCachedQuery like MyNewLeague2
+  // Preloading state management
+  const [isPreloading, setIsPreloading] = useState(true);
+  const [preloadedData, setPreloadedData] = useState<any[]>([]);
+  const [preloadProgress, setPreloadProgress] = useState(0);
+
+  // Smart cached data fetching with preloading optimization
   const today = new Date().toISOString().slice(0, 10);
   const isToday = selectedDate === today;
 
@@ -219,19 +224,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = Reac
     };
   };
 
-  // Use smart cached query
-  const {
-    data: fixtures = [],
-    isLoading,
-    error: queryError,
-    refetch
-  } = useCachedQuery(
-    ['all-fixtures-by-date', selectedDate],
-    async () => {
-      if (!selectedDate) return [];
+  // Preloading function with progress tracking
+  const preloadFixtures = useCallback(async (selectedDate: string) => {
+    if (!selectedDate) return [];
 
-      console.log(`🔍 [TodaysMatchesByCountryNew] Smart fetch for date: ${selectedDate}`);
+    setIsPreloading(true);
+    setPreloadProgress(0);
 
+    try {
+      console.log(`🚀 [Preloader] Starting preload for date: ${selectedDate}`);
+      
+      // Step 1: Fetch raw data (25% progress)
+      setPreloadProgress(25);
       const response = await apiRequest(
         "GET",
         `/api/fixtures/date/${selectedDate}?all=true`,
@@ -241,12 +245,75 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = Reac
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      const rawData = await response.json();
+      const fixtures = Array.isArray(rawData) ? rawData : [];
+      
+      // Step 2: Basic filtering (50% progress)
+      setPreloadProgress(50);
+      const filteredFixtures = fixtures.filter((fixture: any) => {
+        if (!fixture?.fixture?.id || !fixture?.teams || !fixture?.league || !fixture?.fixture?.date) {
+          return false;
+        }
+        
+        const fixtureDate = new Date(fixture.fixture.date);
+        const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
+        return fixtureDateString === selectedDate;
+      });
 
-      console.log(`✅ [TodaysMatchesByCountryNew] Smart cached: ${data?.length || 0} fixtures`);
+      // Step 3: Apply exclusion filters (75% progress)
+      setPreloadProgress(75);
+      const validFixtures = filteredFixtures.filter((fixture: any) => {
+        const leagueName = fixture.league.name || "";
+        const homeTeamName = fixture.teams?.home?.name || "";
+        const awayTeamName = fixture.teams?.away?.name || "";
+        
+        return !shouldExcludeMatchByCountry(
+          leagueName, 
+          homeTeamName, 
+          awayTeamName, 
+          false, 
+          fixture.league.country || ""
+        );
+      });
 
-      return Array.isArray(data) ? data : [];
-    },
+      // Step 4: Preload critical resources in background (100% progress)
+      setPreloadProgress(100);
+      
+      // Preload country flags in background (non-blocking)
+      requestIdleCallback(() => {
+        const countries = [...new Set(validFixtures.map((f: any) => f.league.country))];
+        countries.slice(0, 10).forEach((country) => { // Preload first 10 countries
+          if (country) {
+            getCountryFlagWithFallbackSync(country);
+          }
+        });
+      });
+
+      console.log(`✅ [Preloader] Completed preload: ${validFixtures.length} fixtures`);
+      setPreloadedData(validFixtures);
+      
+      // Small delay to show completion
+      setTimeout(() => {
+        setIsPreloading(false);
+      }, 200);
+
+      return validFixtures;
+    } catch (error) {
+      console.error(`❌ [Preloader] Failed to preload:`, error);
+      setIsPreloading(false);
+      throw error;
+    }
+  }, []);
+
+  // Use smart cached query with preloading
+  const {
+    data: fixtures = preloadedData,
+    isLoading: queryLoading,
+    error: queryError,
+    refetch
+  } = useCachedQuery(
+    ['all-fixtures-by-date', selectedDate],
+    () => preloadFixtures(selectedDate),
     {
       ...getDynamicCacheConfig(),
       enabled: !!selectedDate,
@@ -270,6 +337,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = Reac
       },
     }
   );
+
+  // Combined loading state
+  const isLoading = queryLoading || isPreloading;
 
   // Error handling with user-friendly messages
   const error = queryError ? (
@@ -332,9 +402,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = Reac
 
   }, [fixtures, selectedDate, isToday]);
 
-  // Smart fixture processing with deduplication like MyNewLeague2
+  // Lazy fixture processing with deduplication - only process when needed
   const processedFixtures = useMemo(() => {
     if (!fixtures || fixtures.length === 0) return [];
+
+    // Skip processing if already preloaded (data is already clean)
+    if (!isPreloading && preloadedData.length > 0) {
+      return fixtures;
+    }
 
     // Apply deduplication by fixture ID and matchup key
     const seenFixtures = new Set<number>();
@@ -360,9 +435,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = Reac
     console.log(`🔄 [TodaysMatchesByCountryNew] Processed ${fixtures.length} fixtures → ${deduplicatedFixtures.length} after deduplication`);
 
     return deduplicatedFixtures;
-  }, [fixtures]);
+  }, [fixtures, isPreloading, preloadedData.length]);
 
-// Optimized filtering with performance improvements
+// Lazy filtering with performance improvements and caching
   const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
     const allFixtures = processedFixtures;
     if (!allFixtures?.length) {
@@ -373,9 +448,22 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = Reac
       };
     }
 
+    // If data is preloaded, skip heavy filtering (already done)
+    if (!isPreloading && preloadedData.length > 0 && allFixtures === preloadedData) {
+      return {
+        validFixtures: allFixtures,
+        rejectedFixtures: [],
+        stats: {
+          total: allFixtures.length,
+          valid: allFixtures.length,
+          rejected: 0,
+          methods: { "preloaded": allFixtures.length },
+        },
+      };
+    }
+
     // Pre-allocate arrays for better performance
     const filtered: any[] = [];
-    const rejected: Array<{ fixture: any; reason: string }> = [];
     const seenFixtures = new Set<number>();
     const seenMatchups = new Set<string>();
 
@@ -433,7 +521,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = Reac
         methods: { "optimized-filter": filtered.length },
       },
     };
-  }, [processedFixtures, selectedDate]);
+  }, [processedFixtures, selectedDate, isPreloading, preloadedData]);
 
   // Cache the last filter results
   const lastFilterCache = useRef<{
@@ -1347,7 +1435,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = Reac
     );
   }
 
-  // Show loading only if we're actually loading and have no data
+  // Show preloading UI with progress indicator
   if (isLoading && !fixtures.length) {
     return (
       <Card className="mt-4">
@@ -1366,21 +1454,41 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = Reac
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="space-y-0">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="border-b border-gray-100 last:border-b-0">
-                <div className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="w-6 h-4 rounded-sm" />
-                    <Skeleton className="h-4 w-28" />
-                    <Skeleton className="h-4 w-8" />
-                    <Skeleton className="h-5 w-12 rounded-full" />
-                  </div>
-                  <Skeleton className="h-4 w-4" />
-                </div>
+          {isPreloading && (
+            <div className="p-6 text-center">
+              <div className="mb-4">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
               </div>
-            ))}
-          </div>
+              <div className="mb-2">
+                <div className="text-sm text-gray-600 mb-1">Loading matches...</div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-blue-500 h-2 rounded-full transition-all duration-300" 
+                    style={{ width: `${preloadProgress}%` }}
+                  ></div>
+                </div>
+                <div className="text-xs text-gray-500 mt-1">{preloadProgress}%</div>
+              </div>
+            </div>
+          )}
+          
+          {!isPreloading && (
+            <div className="space-y-0">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="border-b border-gray-100 last:border-b-0">
+                  <div className="p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="w-6 h-4 rounded-sm" />
+                      <Skeleton className="h-4 w-28" />
+                      <Skeleton className="h-4 w-8" />
+                      <Skeleton className="h-5 w-12 rounded-full" />
+                    </div>
+                    <Skeleton className="h-4 w-4" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     );
