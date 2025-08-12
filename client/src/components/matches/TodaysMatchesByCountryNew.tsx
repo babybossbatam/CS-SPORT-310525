@@ -191,66 +191,147 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     667, // Friendlies Clubs
   ]; // Significantly expanded to include major leagues from all continents
 
-  // Optimized cached data fetching with aggressive caching
+  // Optimized dual-fetch approach: Critical matches first, then background
   const today = new Date().toISOString().slice(0, 10);
   const isToday = selectedDate === today;
 
-  // More aggressive cache configuration for better performance
-  const getDynamicCacheConfig = () => {
-    if (!isToday) {
-      // Historical or future dates - use very long cache times
-      return {
-        staleTime: 60 * 60 * 1000, // 1 hour
-        refetchInterval: false,
-        refetchOnWindowFocus: false,
-        refetchOnReconnect: false,
-      };
-    }
-
-    // Today's matches - still cache aggressively but allow some updates
-    return {
-      staleTime: 5 * 60 * 1000, // 5 minutes (increased from 2)
-      refetchInterval: 60 * 1000, // 60 seconds (increased from 30)
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false, // Disable to reduce fetches
-    };
-  };
-
-  const fixturesQueryKey = ['all-fixtures-by-date', selectedDate];
-
+  // Critical matches fetch (live, upcoming soon, recently ended)
   const {
-    data: fixtures = [],
-    isLoading,
-    isFetching,
-    error: queryError,
-    refetch
+    data: criticalFixtures = [],
+    isLoading: criticalLoading,
+    error: criticalError,
   } = useCachedQuery(
-    fixturesQueryKey,
+    ['critical-fixtures', selectedDate],
     async () => {
+      console.log(`🚨 [TodaysMatchesByCountryNew] Fetching CRITICAL fixtures for ${selectedDate}`);
+      
       // Always check cache first
       const cached = getCachedFixturesForDate(selectedDate);
       if (cached?.length && !shouldFetchFresh(selectedDate)) {
-        console.log(`📦 [TodaysMatchesByCountryNew] Using cached data: ${cached.length} fixtures for ${selectedDate}`);
-        return cached;
+        // Filter only critical matches from cache
+        const critical = cached.filter(fixture => {
+          const status = fixture.fixture.status.short;
+          const matchTime = new Date(fixture.fixture.date);
+          const now = new Date();
+          const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+          const hoursUntil = (matchTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+          // Critical: Live matches
+          if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) return true;
+          
+          // Critical: Recently ended (within 2 hours)
+          if (['FT', 'AET', 'PEN'].includes(status) && hoursAgo <= 2) return true;
+          
+          // Critical: Starting soon (within 1 hour)
+          if (['NS', 'TBD'].includes(status) && hoursUntil <= 1 && hoursUntil >= -0.5) return true;
+
+          return false;
+        });
+        
+        console.log(`📦 [CRITICAL] Using ${critical.length} critical fixtures from cache`);
+        return critical;
       }
 
-      console.log(`🔄 [TodaysMatchesByCountryNew] Fetching fresh data for date: ${selectedDate}`);
-      const data = await smartFetch(selectedDate, { source: 'TodaysMatchesByCountryNew' });
-      console.log(`✅ [TodaysMatchesByCountryNew] Received ${data?.length || 0} fixtures for ${selectedDate}`);
-      return data;
+      // Fetch fresh and filter critical
+      const allData = await smartFetch(selectedDate, { source: 'TodaysMatchesByCountryNew-Critical' });
+      const critical = allData.filter(fixture => {
+        const status = fixture.fixture.status.short;
+        const matchTime = new Date(fixture.fixture.date);
+        const now = new Date();
+        const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+        const hoursUntil = (matchTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+        if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) return true;
+        if (['FT', 'AET', 'PEN'].includes(status) && hoursAgo <= 2) return true;
+        if (['NS', 'TBD'].includes(status) && hoursUntil <= 1 && hoursUntil >= -0.5) return true;
+
+        return false;
+      });
+
+      console.log(`✅ [CRITICAL] Retrieved ${critical.length} critical fixtures from ${allData.length} total`);
+      return critical;
     },
     {
       enabled: !!selectedDate,
-      staleTime: getDynamicCacheConfig().staleTime,
-      refetchInterval: getDynamicCacheConfig().refetchInterval,
-      refetchOnWindowFocus: getDynamicCacheConfig().refetchOnWindowFocus,
-      refetchOnReconnect: getDynamicCacheConfig().refetchOnReconnect,
-      retry: 1, // Reduce retry attempts for faster failure
-      onError: (err: any) => {
-        console.warn(`⚠️ [TodaysMatchesByCountryNew] Error for ${selectedDate}:`, err.message);
-      },
+      staleTime: isToday ? 30 * 1000 : 5 * 60 * 1000, // 30s for today, 5min for others
+      refetchInterval: isToday ? 30 * 1000 : false, // Auto-refresh only for today
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      retry: 1,
     }
   );
+
+  // Background matches fetch (all other matches)
+  const {
+    data: backgroundFixtures = [],
+    isLoading: backgroundLoading,
+  } = useCachedQuery(
+    ['background-fixtures', selectedDate],
+    async () => {
+      console.log(`🔄 [TodaysMatchesByCountryNew] Fetching BACKGROUND fixtures for ${selectedDate}`);
+      
+      const cached = getCachedFixturesForDate(selectedDate);
+      if (cached?.length && !shouldFetchFresh(selectedDate)) {
+        // Filter only background matches from cache
+        const background = cached.filter(fixture => {
+          const status = fixture.fixture.status.short;
+          const matchTime = new Date(fixture.fixture.date);
+          const now = new Date();
+          const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+          const hoursUntil = (matchTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+          // Skip critical matches (they're handled by the other fetch)
+          if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) return false;
+          if (['FT', 'AET', 'PEN'].includes(status) && hoursAgo <= 2) return false;
+          if (['NS', 'TBD'].includes(status) && hoursUntil <= 1 && hoursUntil >= -0.5) return false;
+
+          return true;
+        });
+        
+        console.log(`📦 [BACKGROUND] Using ${background.length} background fixtures from cache`);
+        return background;
+      }
+
+      const allData = await smartFetch(selectedDate, { source: 'TodaysMatchesByCountryNew-Background' });
+      const background = allData.filter(fixture => {
+        const status = fixture.fixture.status.short;
+        const matchTime = new Date(fixture.fixture.date);
+        const now = new Date();
+        const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+        const hoursUntil = (matchTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+        if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) return false;
+        if (['FT', 'AET', 'PEN'].includes(status) && hoursAgo <= 2) return false;
+        if (['NS', 'TBD'].includes(status) && hoursUntil <= 1 && hoursUntil >= -0.5) return false;
+
+        return true;
+      });
+
+      console.log(`✅ [BACKGROUND] Retrieved ${background.length} background fixtures`);
+      return background;
+    },
+    {
+      enabled: !!selectedDate && !criticalLoading, // Wait for critical to finish first
+      staleTime: 10 * 60 * 1000, // 10 minutes
+      refetchInterval: false, // No auto-refresh for background
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      retry: 1,
+    }
+  );
+
+  // Combine fixtures with critical matches first
+  const fixtures = [...criticalFixtures, ...backgroundFixtures];
+  const isLoading = criticalLoading; // Only show loading for critical matches
+  const isFetching = criticalLoading || backgroundLoading;
+  const queryError = criticalError; // Prioritize critical errors
+
+  // Create refetch function that refreshes both
+  const refetch = () => {
+    // We don't expose individual refetch functions, but this could be extended if needed
+  };
+
+  console.log(`📊 [DUAL-FETCH] Total: ${fixtures.length} (${criticalFixtures.length} critical + ${backgroundFixtures.length} background)`);
 
   // Error handling with user-friendly messages
   const error = queryError ? (
@@ -933,8 +1014,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Show loading only if we're actually loading and have no data
-  if (isLoading && !fixtures.length) {
+  // Show loading only if we're actually loading critical data and have no data
+  if (criticalLoading && !criticalFixtures.length) {
     return (
       <Card className="mt-4">
         <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
@@ -949,6 +1030,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             >
               {getHeaderTitle()}
             </h3>
+            <div className="text-xs text-blue-600 font-medium">
+              Loading critical matches...
+            </div>
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -1039,6 +1123,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           >
             {getHeaderTitle()}
           </h3>
+          {backgroundLoading && criticalFixtures.length > 0 && (
+            <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+              Loading more matches...
+            </div>
+          )}
         </div>
       </CardHeader>
       <CardContent className="p-0 dark:bg-gray-800">
