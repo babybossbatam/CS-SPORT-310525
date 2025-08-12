@@ -59,7 +59,9 @@ const shortenLeagueName = (name: string): string => {
 
 // Function to shorten country names for mobile display
 const shortenCountryName = (country: string): string => {
+  // Multi-language country abbreviations
   const countryAbbreviations: { [key: string]: string } = {
+    // English
     'United Arab Emirates': 'UAE',
     'United States': 'USA',
     'United Kingdom': 'UK',
@@ -69,7 +71,57 @@ const shortenCountryName = (country: string): string => {
     'Dominican Republic': 'Dominican Rep',
     'Trinidad and Tobago': 'Trinidad',
     'Central African Republic': 'CAR',
-    'Papua New Guinea': 'Papua NG'
+    'Papua New Guinea': 'Papua NG',
+    
+    // Chinese (Simplified)
+    '沙特阿拉伯': '沙特',
+    '阿拉伯联合酋长国': 'UAE',
+    '美国': '美国',
+    '英国': '英国',
+    '德国': '德国',
+    '法国': '法国',
+    '意大利': '意大利',
+    '西班牙': '西班牙',
+    '巴西': '巴西',
+    '阿根廷': '阿根廷',
+    
+    // Chinese (Traditional - Hong Kong)
+    '沙特阿拉伯': '沙特',
+    '阿拉伯聯合酋長國': 'UAE',
+    '美國': '美國',
+    '英國': '英國',
+    '德國': '德國',
+    '法國': '法國',
+    '意大利': '意大利',
+    '西班牙': '西班牙',
+    '巴西': '巴西',
+    '阿根廷': '阿根廷',
+    
+    // Chinese (Traditional - Taiwan)
+    '沙烏地阿拉伯': '沙烏地',
+    '阿拉伯聯合大公國': 'UAE',
+    
+    // Spanish
+    'Estados Unidos': 'EEUU',
+    'Reino Unido': 'Reino Unido',
+    'Arabia Saudí': 'Arabia Saudí',
+    'Emiratos Árabes Unidos': 'EAU',
+    
+    // Special cases for continents and regions
+    'World': currentLanguage === 'zh-hk' ? '世界' : 
+             currentLanguage === 'zh-tw' ? '世界' : 
+             currentLanguage === 'zh' ? '世界' : 
+             currentLanguage === 'es' ? 'Mundo' : 
+             currentLanguage === 'de' ? 'Welt' : 
+             currentLanguage === 'it' ? 'Mondo' : 
+             currentLanguage === 'pt' ? 'Mundo' : 'World',
+    'Europe': currentLanguage === 'zh-hk' ? '歐洲' : 
+              currentLanguage === 'zh-tw' ? '歐洲' : 
+              currentLanguage === 'zh' ? '欧洲' : 
+              currentLanguage === 'es' ? 'Europa' : 
+              currentLanguage === 'de' ? 'Europa' : 
+              currentLanguage === 'it' ? 'Europa' : 
+              currentLanguage === 'pt' ? 'Europa' : 'Europe'
   };
   
   return countryAbbreviations[country] || country;
@@ -251,9 +303,14 @@ const PopularLeaguesList = () => {
 
   // Smart league name translation function
   const getTranslatedLeagueName = (leagueName: string, leagueId: number) => {
-    // Ensure this league is learned by the system
+    // Find the league data to get country information
+    const leagueData = CURRENT_POPULAR_LEAGUES.find(l => l.id === leagueId);
+    const countryName = leagueData?.country || '';
+    
+    // Ensure this league is learned by the system with country context
     smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(leagueName, {
-      leagueId: leagueId
+      leagueId: leagueId,
+      countryName: countryName
     });
 
     // Get smart translation
@@ -522,7 +579,12 @@ const PopularLeaguesList = () => {
                   <div className="ml-3 flex-1">
                     <div className="text-sm">{getTranslatedLeagueName(league.name, league.id)}</div>
                     <span className="text-xs text-gray-500 truncate">
-                      {shortenCountryName(league.country?.replace(/-/g, ' ') || '')}
+                      {(() => {
+                        const countryName = league.country?.replace(/-/g, ' ') || '';
+                        // Translate the country name using smart translation
+                        const translatedCountry = smartLeagueCountryTranslation.translateCountryName(countryName, currentLanguage);
+                        return shortenCountryName(translatedCountry);
+                      })()}
                     </span>
                   </div>
                   <button
