@@ -139,7 +139,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   timeFilterActive = false,
   onMatchCardClick,
 }) => {
-  // Optimized state management with memory limits
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
   );
@@ -148,14 +147,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   );
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   const [hiddenMatches, setHiddenMatches] = useState<Set<number>>(new Set());
-  
-  // Performance monitoring state
-  const [renderTime, setRenderTime] = useState<number>(0);
-  const renderStartTime = useRef<number>(0);
-  
-  // Memory optimization: Limit expanded items to prevent memory issues
-  const MAX_EXPANDED_COUNTRIES = 10;
-  const MAX_EXPANDED_LEAGUES = 20;
   // Flash animation states
   const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
   const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
@@ -203,90 +194,43 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const today = new Date().toISOString().slice(0, 10);
   const isToday = selectedDate === today;
 
-  // Advanced dynamic cache configuration based on live match detection and user behavior
+  // Dynamic cache configuration based on date and live match detection
   const getDynamicCacheConfig = () => {
     if (!isToday) {
       // Historical or future dates - use longer cache times
       return {
-        staleTime: 60 * 60 * 1000, // 1 hour for non-today dates
+        staleTime: 30 * 60 * 1000, // 30 minutes
         refetchInterval: false, // No auto-refresh for non-today dates
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
-        retry: 2, // Fewer retries for historical data
       };
     }
 
-    // Today's matches - intelligent caching based on time of day
-    const now = new Date();
-    const currentHour = now.getHours();
-    
-    // Peak football hours (typically 12 PM - 11 PM)
-    const isPeakHours = currentHour >= 12 && currentHour <= 23;
-    
-    if (isPeakHours) {
-      return {
-        staleTime: 30 * 1000, // 30 seconds during peak hours
-        refetchInterval: 15 * 1000, // 15 seconds refresh during peak
-        refetchOnWindowFocus: true,
-        refetchOnReconnect: true,
-        retry: 3,
-      };
-    } else {
-      return {
-        staleTime: 5 * 60 * 1000, // 5 minutes during off-peak hours
-        refetchInterval: 2 * 60 * 1000, // 2 minutes refresh during off-peak
-        refetchOnWindowFocus: false,
-        refetchOnReconnect: true,
-        retry: 2,
-      };
-    }
+    // Today's matches - more aggressive caching
+    return {
+      staleTime: 2 * 60 * 1000, // 2 minutes
+      refetchInterval: 30 * 1000, // 30 seconds for today
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
+    };
   };
 
-  // Advanced preloading for adjacent dates
-  const preloadAdjacentDates = useCallback(() => {
-    if (!isToday) return; // Only preload when viewing today's matches
-    
-    const currentDate = new Date(selectedDate);
-    const yesterday = new Date(currentDate);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const tomorrow = new Date(currentDate);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    const yesterdayStr = yesterday.toISOString().slice(0, 10);
-    const tomorrowStr = tomorrow.toISOString().slice(0, 10);
-    
-    // Preload in background with lower priority
-    setTimeout(() => {
-      Promise.all([
-        apiRequest("GET", `/api/fixtures/date/${yesterdayStr}?all=true`).catch(() => null),
-        apiRequest("GET", `/api/fixtures/date/${tomorrowStr}?all=true`).catch(() => null),
-      ]).then(() => {
-        console.log(`🚀 [TodaysMatchesByCountryNew] Preloaded adjacent dates: ${yesterdayStr}, ${tomorrowStr}`);
-      });
-    }, 2000); // Delay to not interfere with main loading
-  }, [selectedDate, isToday]);
-
-  // Use smart cached query with enhanced features
+  // Use smart cached query
   const {
     data: fixtures = [],
     isLoading,
     error: queryError,
-    refetch,
-    isFetching,
-    isStale
+    refetch
   } = useCachedQuery(
     ['all-fixtures-by-date', selectedDate],
     async () => {
       if (!selectedDate) return [];
 
       console.log(`🔍 [TodaysMatchesByCountryNew] Smart fetch for date: ${selectedDate}`);
-      
-      // Priority-based fetching
-      const fetchStart = performance.now();
-      
+
       const response = await apiRequest(
         "GET",
-        `/api/fixtures/date/${selectedDate}?all=true&priority=${isToday ? 'high' : 'normal'}`,
+        `/api/fixtures/date/${selectedDate}?all=true`,
       );
 
       if (!response.ok) {
@@ -294,16 +238,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }
 
       const data = await response.json();
-      
-      const fetchEnd = performance.now();
-      const fetchTime = Math.round(fetchEnd - fetchStart);
-      
-      console.log(`✅ [TodaysMatchesByCountryNew] Smart cached: ${data?.length || 0} fixtures in ${fetchTime}ms`);
 
-      // Trigger preloading after successful main fetch
-      if (isToday && Array.isArray(data) && data.length > 0) {
-        setTimeout(() => preloadAdjacentDates(), 1000);
-      }
+      console.log(`✅ [TodaysMatchesByCountryNew] Smart cached: ${data?.length || 0} fixtures`);
 
       return Array.isArray(data) ? data : [];
     },
@@ -311,20 +247,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       ...getDynamicCacheConfig(),
       enabled: !!selectedDate,
       retry: (failureCount, error) => {
-        // More intelligent retry logic
+        // Don't retry too aggressively for historical data
         if (!isToday) return failureCount < 2;
-        
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        
-        // Don't retry for 404s or client errors
-        if (errorMessage.includes('404') || errorMessage.includes('400')) {
-          return false;
-        }
-        
-        // Allow more retries for network issues during peak hours
-        const now = new Date();
-        const isPeakHours = now.getHours() >= 12 && now.getHours() <= 23;
-        return failureCount < (isPeakHours ? 4 : 3);
+        // For today's data, allow more retries
+        return failureCount < 3;
       },
       onError: (err: any) => {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -337,10 +263,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         } else {
           console.error(`💥 [TodaysMatchesByCountryNew] Smart cache error for date: ${selectedDate}:`, err);
         }
-      },
-      onSuccess: (data) => {
-        // Log successful cache hit/miss
-        console.log(`📈 [TodaysMatchesByCountryNew] Cache status - isStale: ${isStale}, isFetching: ${isFetching}, dataLength: ${data?.length || 0}`);
       },
     }
   );
@@ -547,27 +469,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     return filtered;
   }, [fixtures, selectedDate]);
-
-  // Performance monitoring - must be before any conditional returns
-  useEffect(() => {
-    renderStartTime.current = performance.now();
-  });
-
-  useEffect(() => {
-    if (renderStartTime.current > 0) {
-      const endTime = performance.now();
-      const duration = Math.round(endTime - renderStartTime.current);
-      setRenderTime(duration);
-      
-      if (duration > 100) { // Log if render takes more than 100ms
-        console.warn(`⚠️ [TodaysMatchesByCountryNew] Slow render detected: ${duration}ms for ${validFixtures.length} fixtures`);
-      } else {
-        console.log(`⚡ [TodaysMatchesByCountryNew] Fast render: ${duration}ms for ${validFixtures.length} fixtures`);
-      }
-      
-      renderStartTime.current = 0;
-    }
-  }, [validFixtures.length]);
 
   // Now validate after all hooks are called
   if (!selectedDate) {
@@ -957,44 +858,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return grouped;
   }, [validFixtures]);
 
-  // Live match prioritization: Live World matches are sorted first
-  const sortedCountries = useMemo(() => {
-    return Object.values(fixturesByCountry).sort(
-      (a: any, b: any) => {
-        const countryA = a.country || "";
-        const countryB = b.country || "";
-
-        // Check if either country is World
-        const aIsWorld = countryA.toLowerCase() === "world";
-        const bIsWorld = countryB.toLowerCase() === "world";
-
-        // Check for live matches in each country
-        const aHasLive = Object.values(a.leagues).some((league: any) =>
-          league.matches.some((match: any) =>
-            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-              match.fixture.status.short,
-            ),
-          ),
-        );
-        const bHasLive = Object.values(b.leagues).some((league: any) =>
-          league.matches.some((match: any) =>
-            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-              match.fixture.status.short,
-            ),
-          ),
-        );
-
-        // Priority: World with live matches first, then World without live, then others alphabetically
-        if (aIsWorld && aHasLive && (!bIsWorld || !bHasLive)) return -1;
-        if (bIsWorld && bHasLive && (!aIsWorld || !aHasLive)) return 1;
-        if (aIsWorld && !bIsWorld) return -1;
-        if (bIsWorld && !aIsWorld) return 1;
-
-        return countryA.localeCompare(countryB);
-      },
-    );
-  }, [Object.keys(fixturesByCountry).length, validFixtures.length]);
-
   // Final summary of grouped data with comprehensive analysis
   const countryStats = Object.entries(fixturesByCountry).map(
     ([country, data]: [string, any]) => ({
@@ -1041,6 +904,44 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   };
 
   console.log(`📊 [DEBUG] Comprehensive Grouping Analysis:`, groupingAnalysis);
+
+  // Live match prioritization: Live World matches are sorted first
+  const sortedCountries = useMemo(() => {
+    return Object.values(fixturesByCountry).sort(
+      (a: any, b: any) => {
+        const countryA = a.country || "";
+        const countryB = b.country || "";
+
+        // Check if either country is World
+        const aIsWorld = countryA.toLowerCase() === "world";
+        const bIsWorld = countryB.toLowerCase() === "world";
+
+        // Check for live matches in each country
+        const aHasLive = Object.values(a.leagues).some((league: any) =>
+          league.matches.some((match: any) =>
+            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+              match.fixture.status.short,
+            ),
+          ),
+        );
+        const bHasLive = Object.values(b.leagues).some((league: any) =>
+          league.matches.some((match: any) =>
+            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+              match.fixture.status.short,
+            ),
+          ),
+        );
+
+        // Priority: World with live matches first, then World without live, then others alphabetically
+        if (aIsWorld && aHasLive && (!bIsWorld || !bHasLive)) return -1;
+        if (bIsWorld && bHasLive && (!aIsWorld || !aHasLive)) return 1;
+        if (aIsWorld && !bIsWorld) return -1;
+        if (bIsWorld && !aIsWorld) return 1;
+
+        return countryA.localeCompare(countryB);
+      },
+    );
+  }, [Object.keys(fixturesByCountry).length, validFixtures.length]);
 
   // Start with all countries collapsed by default
   useEffect(() => {
@@ -1148,38 +1049,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       if (newExpanded.has(country)) {
         newExpanded.delete(country);
       } else {
-        // Memory optimization: Limit expanded countries
-        if (newExpanded.size >= MAX_EXPANDED_COUNTRIES) {
-          // Remove oldest expanded country (first one)
-          const firstExpanded = newExpanded.values().next().value;
-          if (firstExpanded) {
-            newExpanded.delete(firstExpanded);
-            console.log(`🧹 [TodaysMatchesByCountryNew] Memory optimization: Collapsed ${firstExpanded} to make room for ${country}`);
-          }
-        }
         newExpanded.add(country);
-      }
-      return newExpanded;
-    });
-  }, []);
-
-  const toggleLeague = useCallback((country: string, leagueId: number) => {
-    const leagueKey = `${country}-${leagueId}`;
-    setExpandedLeagues((prev) => {
-      const newExpanded = new Set(prev);
-      if (newExpanded.has(leagueKey)) {
-        newExpanded.delete(leagueKey);
-      } else {
-        // Memory optimization: Limit expanded leagues
-        if (newExpanded.size >= MAX_EXPANDED_LEAGUES) {
-          // Remove oldest expanded league (first one)
-          const firstExpanded = newExpanded.values().next().value;
-          if (firstExpanded) {
-            newExpanded.delete(firstExpanded);
-            console.log(`🧹 [TodaysMatchesByCountryNew] Memory optimization: Collapsed league ${firstExpanded} to make room for ${leagueKey}`);
-          }
-        }
-        newExpanded.add(leagueKey);
       }
       return newExpanded;
     });
@@ -1211,7 +1081,16 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
 
 
-  
+  const toggleLeague = (country: string, leagueId: number) => {
+    const leagueKey = `${country}-${leagueId}`;
+    const newExpanded = new Set(expandedLeagues);
+    if (newExpanded.has(leagueKey)) {
+      newExpanded.delete(leagueKey);
+    } else {
+      newExpanded.add(leagueKey);
+    }
+    setExpandedLeagues(newExpanded);
+  };
 
   // Enhanced match status logic
   const getMatchStatus = (fixture: any) => {
@@ -1432,18 +1311,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Progressive loading with intelligent skeleton count based on time of day
+  // Show loading only if we're actually loading and have no data
   if (isLoading && !fixtures.length) {
-    const now = new Date();
-    const isPeakHours = now.getHours() >= 12 && now.getHours() <= 23;
-    const skeletonCount = isToday && isPeakHours ? 8 : 4; // More skeletons during peak hours
-    
     return (
-      <Card className="mt-4 dark:bg-gray-800 dark:border-gray-700">
-        <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200 dark:border-gray-700">
+      <Card className="mt-4">
+        <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
           <div className="flex justify-between items-center w-full">
             <h3
-              className="font-semibold text-gray-900 dark:text-white"
+              className="font-semibold"
               style={{
                 fontFamily:
                   "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
@@ -1452,18 +1327,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             >
               {getHeaderTitle()}
             </h3>
-            {isFetching && fixtures.length > 0 && (
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                <span className="text-xs text-gray-500 dark:text-gray-400">Updating...</span>
-              </div>
-            )}
           </div>
         </CardHeader>
-        <CardContent className="p-0 dark:bg-gray-800">
+        <CardContent className="p-0">
           <div className="space-y-0">
-            {Array.from({ length: skeletonCount }, (_, i) => (
-              <div key={i} className="border-b border-gray-100 dark:border-gray-700 last:border-b-0">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="border-b border-gray-100 last:border-b-0">
                 <div className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Skeleton className="w-6 h-4 rounded-sm" />
@@ -1473,33 +1342,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   </div>
                   <Skeleton className="h-4 w-4" />
                 </div>
-                {/* Progressive loading: Show expanded content skeleton for first few items */}
-                {i < 2 && (
-                  <div className="bg-gray-50 dark:bg-gray-900 px-4 pb-3">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Skeleton className="w-6 h-6 rounded" />
-                        <Skeleton className="h-4 w-32" />
-                        <Skeleton className="h-4 w-8" />
-                      </div>
-                      <div className="grid grid-cols-1 gap-2">
-                        {[1, 2].map((j) => (
-                          <div key={j} className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
-                            <div className="flex items-center gap-3">
-                              <Skeleton className="w-8 h-8 rounded" />
-                              <Skeleton className="h-4 w-24" />
-                            </div>
-                            <Skeleton className="h-4 w-12" />
-                            <div className="flex items-center gap-3">
-                              <Skeleton className="w-8 h-8 rounded" />
-                              <Skeleton className="h-4 w-24" />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             ))}
           </div>
@@ -1561,8 +1403,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return false;
   };
 
-  
-
   return (
     <Card className="mt-4 dark:bg-gray-800 dark:border-gray-700">
       <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200 dark:border-gray-700 dark:bg-gray-800">
@@ -1577,12 +1417,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           >
             {getHeaderTitle()}
           </h3>
-          {/* Performance indicator (only show in development) */}
-          {process.env.NODE_ENV === 'development' && renderTime > 0 && (
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              {renderTime}ms • {validFixtures.length} matches
-            </div>
-          )}
         </div>
       </CardHeader>
       <CardContent className="p-0 dark:bg-gray-800">
