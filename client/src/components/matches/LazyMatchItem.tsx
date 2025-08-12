@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -111,7 +112,7 @@ const LazyMatchItem: React.FC<LazyMatchItemProps> = ({
       if (element) {
         observedElements.delete(element);
         globalObserver?.unobserve(element);
-
+        
         if (prefetchObserver) {
           prefetchElements.delete(element);
           prefetchObserver.unobserve(element);
