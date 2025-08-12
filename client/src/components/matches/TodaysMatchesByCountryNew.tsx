@@ -1778,7 +1778,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       <CardContent className="p-0 dark:bg-gray-800">
         <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
           {/* Display all countries immediately */}
-          {allCountriesList.length > 20 ? (
+          {allCountriesList.length > 15 ? (
             <VirtualizedCountryList
               countries={allCountriesList.map(getCountryData)}
               expandedCountries={expandedCountries}
