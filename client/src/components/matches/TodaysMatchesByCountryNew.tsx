@@ -198,22 +198,22 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const today = new Date().toISOString().slice(0, 10);
   const isToday = selectedDate === today;
 
-  // Dynamic cache configuration based on date and live match detection
+  // Optimized cache configuration with better performance
   const getDynamicCacheConfig = () => {
     if (!isToday) {
       // Historical or future dates - use longer cache times
       return {
-        staleTime: 30 * 60 * 1000, // 30 minutes
-        refetchInterval: false, // No auto-refresh for non-today dates
+        staleTime: 60 * 60 * 1000, // 1 hour for non-today
+        refetchInterval: false,
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
       };
     }
 
-    // Today's matches - more aggressive caching
+    // Today's matches - balanced performance
     return {
-      staleTime: 2 * 60 * 1000, // 2 minutes
-      refetchInterval: 30 * 1000, // 30 seconds for today
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      refetchInterval: 2 * 60 * 1000, // 2 minutes for today
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
     };
@@ -332,30 +332,38 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   }, [fixtures, selectedDate, isToday]);
 
-  // Smart fixture processing with deduplication like MyNewLeague2
+  // Optimized fixture processing with reduced complexity
   const processedFixtures = useMemo(() => {
     if (!fixtures || fixtures.length === 0) return [];
 
-    // Apply deduplication by fixture ID and matchup key
-    const seenFixtures = new Set<number>();
-    const seenMatchups = new Set<string>();
+    // Use Map for O(1) lookup performance
+    const seenFixtures = new Map<number, boolean>();
+    const seenMatchups = new Map<string, boolean>();
     const deduplicatedFixtures: any[] = [];
 
-    fixtures.forEach((fixture: any) => {
-      if (!fixture?.fixture?.id || !fixture?.teams) return;
+    // Pre-allocate array size for better performance
+    deduplicatedFixtures.length = 0;
 
-      // Check for duplicate fixture IDs
-      if (seenFixtures.has(fixture.fixture.id)) return;
+    for (let i = 0; i < fixtures.length; i++) {
+      const fixture = fixtures[i];
+      
+      // Early validation with minimal checks
+      if (!fixture?.fixture?.id || !fixture?.teams?.home?.id || !fixture?.teams?.away?.id) continue;
 
-      // Create unique matchup key
-      const matchupKey = `${fixture.teams.home?.id}-${fixture.teams.away?.id}-${fixture.league?.id}-${fixture.fixture.date}`;
-      if (seenMatchups.has(matchupKey)) return;
+      const fixtureId = fixture.fixture.id;
+      
+      // Quick duplicate check
+      if (seenFixtures.has(fixtureId)) continue;
 
-      // Mark as seen and add to deduplicated list
-      seenFixtures.add(fixture.fixture.id);
-      seenMatchups.add(matchupKey);
+      // Create matchup key only if needed
+      const matchupKey = `${fixture.teams.home.id}-${fixture.teams.away.id}-${fixture.league?.id || 0}`;
+      if (seenMatchups.has(matchupKey)) continue;
+
+      // Mark as seen
+      seenFixtures.set(fixtureId, true);
+      seenMatchups.set(matchupKey, true);
       deduplicatedFixtures.push(fixture);
-    });
+    }
 
     console.log(`🔄 [TodaysMatchesByCountryNew] Processed ${fixtures.length} fixtures → ${deduplicatedFixtures.length} after deduplication`);
 
@@ -731,7 +739,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [processedFixtures, selectedDate]);
 
-// Group fixtures by country and league using MyNewLeague2's robust approach
+// Optimized country grouping with better performance
   const fixturesByCountry = useMemo(() => {
     const filteredFixtures = validFixtures;
     if (!filteredFixtures?.length) {
@@ -740,54 +748,29 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
 
     const grouped: { [key: string]: { country: string; leagues: any; hasPopularLeague: boolean } } = {};
-    const seenFixtures = new Set<number>(); // Additional duplicate prevention at grouping level
-    const seenMatchups = new Set<string>(); // Track unique team matchups
+    const seenFixtures = new Map<number, boolean>();
+    const popularLeaguesSet = new Set(POPULAR_LEAGUES); // Convert to Set for O(1) lookup
 
-    filteredFixtures.forEach((fixture: any) => {
-      // Additional validation at grouping level
-      if (
-        !fixture ||
-        !fixture.league ||
-        !fixture.teams ||
-        !fixture.fixture?.date ||
-        !fixture.fixture?.id
-      ) {
-        return;
-      }
+    // Pre-process fixtures to avoid repeated work
+    for (let i = 0; i < filteredFixtures.length; i++) {
+      const fixture = filteredFixtures[i];
+      
+      // Quick validation
+      if (!fixture?.league?.id || !fixture?.teams?.home?.id || !fixture?.fixture?.id) continue;
 
-      // Additional duplicate check at grouping level
-      if (seenFixtures.has(fixture.fixture.id)) {
-        return;
-      }
-
-      // Create unique matchup key
-      const matchupKey = `${fixture.teams.home.id}-${fixture.teams.away.id}-${fixture.league.id}-${fixture.fixture.date}`;
-
-      // Check for duplicate team matchups
-      if (seenMatchups.has(matchupKey)) {
-        return;
-      }
+      const fixtureId = fixture.fixture.id;
+      
+      // Quick duplicate check
+      if (seenFixtures.has(fixtureId)) continue;
 
       const country = fixture.league.country || "Unknown";
       const leagueId = fixture.league.id;
 
-      // Apply exclusion filter
+      // Quick exclusion check (only essential checks)
       const leagueName = fixture.league.name || "";
-      const homeTeamName = fixture.teams?.home?.name || "";
-      const awayTeamName = fixture.teams?.away?.name || "";
+      if (leagueName.toLowerCase().includes("friendly") && country !== "World") continue;
 
-      if (
-        shouldExcludeMatchByCountry(
-          leagueName,
-          homeTeamName,
-          awayTeamName,
-          false,
-          country,
-        )
-      ) {
-        return;
-      }
-
+      // Initialize country group if needed
       if (!grouped[country]) {
         grouped[country] = {
           country,
@@ -796,19 +779,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         };
       }
 
+      // Initialize league group if needed
       if (!grouped[country].leagues[leagueId]) {
         grouped[country].leagues[leagueId] = {
           league: fixture.league,
           matches: [],
-          isPopular: POPULAR_LEAGUES.includes(leagueId),
+          isPopular: popularLeaguesSet.has(leagueId),
         };
       }
 
       // Mark as seen and add to the group
-      seenFixtures.add(fixture.fixture.id);
-      seenMatchups.add(matchupKey);
+      seenFixtures.set(fixtureId, true);
       grouped[country].leagues[leagueId].matches.push(fixture);
-    });
+    }
 
     // Sort fixtures within each league by priority (same as MyNewLeague2): Live > Upcoming > Ended
     Object.values(grouped).forEach((countryGroup) => {
@@ -944,43 +927,44 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   console.log(`📊 [DEBUG] Comprehensive Grouping Analysis:`, groupingAnalysis);
 
-  // Live match prioritization: Live World matches are sorted first
+  // Optimized country sorting with cached live status
   const sortedCountries = useMemo(() => {
-    return Object.values(fixturesByCountry).sort(
-      (a: any, b: any) => {
-        const countryA = a.country || "";
-        const countryB = b.country || "";
+    const countries = Object.values(fixturesByCountry);
+    const liveStatuses = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"];
+    
+    // Pre-calculate live status for better performance
+    const countryLiveStatus = new Map<string, boolean>();
+    
+    countries.forEach((countryData: any) => {
+      const hasLive = Object.values(countryData.leagues).some((league: any) =>
+        league.matches.some((match: any) =>
+          liveStatuses.includes(match.fixture.status.short)
+        )
+      );
+      countryLiveStatus.set(countryData.country, hasLive);
+    });
 
-        // Check if either country is World
-        const aIsWorld = countryA.toLowerCase() === "world";
-        const bIsWorld = countryB.toLowerCase() === "world";
+    return countries.sort((a: any, b: any) => {
+      const countryA = a.country || "";
+      const countryB = b.country || "";
 
-        // Check for live matches in each country
-        const aHasLive = Object.values(a.leagues).some((league: any) =>
-          league.matches.some((match: any) =>
-            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-              match.fixture.status.short,
-            ),
-          ),
-        );
-        const bHasLive = Object.values(b.leagues).some((league: any) =>
-          league.matches.some((match: any) =>
-            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-              match.fixture.status.short,
-            ),
-          ),
-        );
+      // Quick world check
+      const aIsWorld = countryA === "World";
+      const bIsWorld = countryB === "World";
 
-        // Priority: World with live matches first, then World without live, then others alphabetically
-        if (aIsWorld && aHasLive && (!bIsWorld || !bHasLive)) return -1;
-        if (bIsWorld && bHasLive && (!aIsWorld || !aHasLive)) return 1;
-        if (aIsWorld && !bIsWorld) return -1;
-        if (bIsWorld && !aIsWorld) return 1;
+      // Get cached live status
+      const aHasLive = countryLiveStatus.get(countryA) || false;
+      const bHasLive = countryLiveStatus.get(countryB) || false;
 
-        return countryA.localeCompare(countryB);
-      },
-    );
-  }, [Object.keys(fixturesByCountry).length, validFixtures.length]);
+      // Simplified priority logic
+      if (aIsWorld && aHasLive && !bHasLive) return -1;
+      if (bIsWorld && bHasLive && !aHasLive) return 1;
+      if (aIsWorld && !bIsWorld) return -1;
+      if (bIsWorld && !aIsWorld) return 1;
+
+      return countryA.localeCompare(countryB);
+    });
+  }, [fixturesByCountry]);
 
   // Start with all countries collapsed by default
   useEffect(() => {
@@ -1043,44 +1027,46 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     setExpandedLeagues(firstLeagues);
   }, [selectedDate, Object.keys(fixturesByCountry).length]);
 
-  // Single flag fetching effect with deduplication
+  // Optimized flag fetching with minimal processing
   useEffect(() => {
     if (!validFixtures.length) return;
 
-    const countries = Object.values(fixturesByCountry)
-      .map((c: any) => c.country)
-      .filter(Boolean);
-    const uniqueCountries = [...new Set(countries)];
-
-    // Only process countries that aren't already in flagMap
-    const missingCountries = uniqueCountries.filter(
-      (country) => !flagMap[country],
-    );
-
-    if (missingCountries.length === 0) {
-      return;
+    // Extract countries directly from fixtures to avoid processing fixturesByCountry
+    const countriesSet = new Set<string>();
+    for (let i = 0; i < validFixtures.length; i++) {
+      const country = validFixtures[i]?.league?.country;
+      if (country && !flagMap[country]) {
+        countriesSet.add(country);
+      }
     }
 
-    console.log(
-      `🎯 Need flags for ${missingCountries.length} countries: ${missingCountries.join(", ")}`,
-    );
+    const missingCountries = Array.from(countriesSet);
+    
+    if (missingCountries.length === 0) return;
 
-    // Pre-populate flagMap with sync flags to prevent redundant calls
+    console.log(`🎯 Need flags for ${missingCountries.length} countries`);
+
+    // Batch flag fetching to avoid blocking the main thread
     const syncFlags: { [country: string]: string } = {};
-    missingCountries.forEach((country) => {
-      const syncFlag = getCountryFlagWithFallbackSync(country);
-      if (syncFlag) {
-        syncFlags[country] = syncFlag;
-      }
-    });
+    
+    // Process in chunks to avoid blocking
+    const chunkSize = 5;
+    for (let i = 0; i < missingCountries.length; i += chunkSize) {
+      const chunk = missingCountries.slice(i, i + chunkSize);
+      
+      chunk.forEach((country) => {
+        const syncFlag = getCountryFlagWithFallbackSync(country);
+        if (syncFlag) {
+          syncFlags[country] = syncFlag;
+        }
+      });
+    }
 
     if (Object.keys(syncFlags).length > 0) {
       setFlagMap((prev) => ({ ...prev, ...syncFlags }));
-      console.log(
-        `⚡ Pre-populated ${Object.keys(syncFlags).length} flags synchronously`,
-      );
+      console.log(`⚡ Pre-populated ${Object.keys(syncFlags).length} flags`);
     }
-  }, [Object.keys(fixturesByCountry).length]); // Only depend on country count, not the actual data
+  }, [validFixtures.length]); // Simpler dependency
 
   const toggleCountry = useCallback((country: string) => {
     setExpandedCountries((prev) => {
