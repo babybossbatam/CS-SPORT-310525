@@ -40,6 +40,7 @@ import basketballStandingsRoutes from './routes/basketballStandingsRoutes';
 import basketballGamesRoutes from './routes/basketballGamesRoutes';
 import playerVerificationRoutes from './routes/playerVerificationRoutes';
 import { RapidAPI } from './utils/rapidApi'; // corrected rapidApi import
+import streamingFixturesRouter from './routes/streamingFixtures';
 
 // Cache duration constants
 const LIVE_DATA_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes for live data
@@ -835,13 +836,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
               id: 39,
               name: "Premier League",
               type: "League",
-              logo: "https://media.api-sports.io/football/leagues/39.png",
+              logo: "https://media.api.sports.io/football/leagues/39.png",
               country: "England",
             },
             country: {
               name: "England",
               code: "GB",
-              flag: "https://media.api-sports.io/flags/gb.svg",
+              flag: "https://media.api.sports.io/flags/gb.svg",
             },
           },
           {
@@ -850,13 +851,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 name: "Bundesliga",
               type: "League",
-              logo: "https://media.api-sports.io/football/leagues/78.png",
+              logo: "https://media.api.sports.io/football/leagues/78.png",
               country: "Germany",
             },
             country: {
               name: "Germany",
               code: "DE",
-              flag: "https://media.api-sports.io/flags/de.svg",
+              flag: "https://media.api.sports.io/flags/de.svg",
             },
           },
           {
@@ -864,13 +865,13 @@ name: "Bundesliga",
               id: 2,
               name: "UEFA Champions League",
               type: "Cup",
-              logo: "https://media.api-sports.io/football/leagues/2.png",
+              logo: "https://media.api.sports.io/football/leagues/2.png",
               country: "World",
             },
             country: {
               name: "World",
               code: "WO",
-              flag: "https://media.api-sports.io/flags/wo.svg",
+              flag: "https://media.api.sports.io/flags/wo.svg",
             },
           },
         ]);
@@ -3449,6 +3450,7 @@ error) {
   app.use('/api', youtubeRoutes);
   app.use('/api/fixtures', selectiveLiveRoutes);
   app.use('/api/fixtures', selectiveUpdatesRoutes);
+  app.use('/api/fixtures', streamingFixturesRouter);
 
   // Predictions routes
   app.use('/api', predictionsRoutes);

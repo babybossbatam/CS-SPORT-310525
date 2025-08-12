@@ -30,11 +30,13 @@ const apiClient = axios.create({
 });
 
 // Optimized cache control for better performance
-const LIVE_DATA_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes for live data
-const TODAY_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for today
-const FUTURE_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours for future dates
-const PAST_CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days for past dates
-const STATIC_DATA_CACHE_DURATION = 6 * 60 * 60 * 1000; // 6 hours for static data
+// Optimized cache durations for faster initial loads
+const LIVE_DATA_CACHE_DURATION = 30 * 1000; // 30 seconds for live data
+const TODAY_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes for today (faster updates)
+const FUTURE_CACHE_DURATION = 6 * 60 * 60 * 1000; // 6 hours for future dates
+const PAST_CACHE_DURATION = 24 * 60 * 60 * 1000; // 1 day for past dates (still long)
+const STATIC_DATA_CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours for static data
+const PREFETCH_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes for prefetched data
 
 // Cache objects
 const fixturesCache = new Map<string, { data: any; timestamp: number }>();
