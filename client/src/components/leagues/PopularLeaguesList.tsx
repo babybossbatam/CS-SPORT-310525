@@ -7,6 +7,8 @@ import { RootState, userActions } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import LazyImage from "@/components/common/LazyImage";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
 // Function to shorten league names for better display
 const shortenLeagueName = (name: string): string => {
@@ -242,9 +244,78 @@ const PopularLeaguesList = () => {
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
+  const { currentLanguage } = useLanguage();
   const user = useSelector((state: RootState) => state.user);
   const [leagueData, setLeagueData] = useState(CURRENT_POPULAR_LEAGUES);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Smart league name translation function
+  const getTranslatedLeagueName = (leagueName: string, leagueId: number) => {
+    // Ensure this league is learned by the system
+    smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(leagueName, {
+      leagueId: leagueId
+    });
+
+    // Get smart translation
+    const translatedName = smartLeagueCountryTranslation.translateLeagueName(leagueName, currentLanguage);
+    
+    // Apply smart shortening based on language and translated content
+    const getSmartShortening = (name: string, language: string) => {
+      const maxLength = 25;
+      const lowerName = name.toLowerCase();
+      
+      switch (language) {
+        case 'zh-hk':
+        case 'zh-tw':
+        case 'zh':
+          // Chinese shortening patterns
+          if (lowerName.includes('uefa champions league')) return '歐冠';
+          if (lowerName.includes('uefa europa league')) return '歐霸';
+          if (lowerName.includes('uefa conference league')) return '歐協';
+          if (lowerName.includes('uefa nations league')) return '歐國聯';
+          if (lowerName.includes('fifa club world cup')) return '世冠盃';
+          if (lowerName.includes('premier league')) return '英超';
+          if (lowerName.includes('bundesliga')) return '德甲';
+          if (lowerName.includes('la liga')) return '西甲';
+          if (lowerName.includes('serie a')) return '意甲';
+          if (lowerName.includes('ligue 1')) return '法甲';
+          break;
+        case 'es':
+          // Spanish shortening patterns
+          if (lowerName.includes('uefa champions league')) return 'Champions';
+          if (lowerName.includes('uefa europa league')) return 'Europa League';
+          if (lowerName.includes('uefa conference league')) return 'Conference';
+          if (lowerName.includes('premier league')) return 'Premier League';
+          break;
+        default:
+          // English shortening patterns
+          if (lowerName.includes('uefa champions league')) return 'Champions League';
+          if (lowerName.includes('uefa europa league')) return 'Europa League';
+          if (lowerName.includes('uefa conference league')) return 'Conference League';
+          if (lowerName.includes('uefa nations league')) return 'Nations League';
+          if (lowerName.includes('fifa club world cup')) return 'Club World Cup';
+          if (lowerName.includes('premier league')) return 'Premier League';
+          break;
+      }
+      
+      // If still too long, truncate with ellipsis
+      return name.length > maxLength ? name.substring(0, maxLength - 3) + '...' : name;
+    };
+
+    // Apply smart shortening to the translated name
+    const smartShortened = getSmartShortening(translatedName, currentLanguage);
+
+    // If smart shortening didn't change the name, try shortening the original English name
+    if (smartShortened === translatedName && currentLanguage !== 'en') {
+      const englishShortened = getSmartShortening(leagueName, 'en');
+      if (englishShortened !== leagueName) {
+        // Re-translate the shortened English name
+        return smartLeagueCountryTranslation.translateLeagueName(englishShortened, currentLanguage);
+      }
+    }
+
+    return smartShortened;
+  };
 
   useEffect(() => {
     const fetchPopularLeagues = async () => {
@@ -449,7 +520,7 @@ const PopularLeaguesList = () => {
                     }}
                   />
                   <div className="ml-3 flex-1">
-                    <div className="text-sm">{shortenLeagueName(league.name)}</div>
+                    <div className="text-sm">{getTranslatedLeagueName(league.name, league.id)}</div>
                     <span className="text-xs text-gray-500 truncate">
                       {shortenCountryName(league.country?.replace(/-/g, ' ') || '')}
                     </span>
