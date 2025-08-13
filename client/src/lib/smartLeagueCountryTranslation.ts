@@ -755,19 +755,7 @@ class SmartLeagueCountryTranslation {
     }
   }
 
-  // Auto-learn from any league name that appears anywhere in the app
-  autoLearnFromAnyLeagueName(leagueName: string, context?: { countryName?: string, leagueId?: number }): void {
-    if (!leagueName || leagueName.length < 3) return;
-
-    // Clean league name
-    const cleanLeagueName = leagueName.trim();
-
-    // Skip if it's already well-known
-    if (this.coreLeagueTranslations[cleanLeagueName]) return;
-
-    // Auto-learn this league
-    this.autoLearnFromLeagueData(cleanLeagueName, context?.countryName);
-  }
+  
 
   private generateLeagueMapping(leagueName: string, countryName: string): LeagueTranslation | null {
     // Generate basic translations based on comprehensive patterns
