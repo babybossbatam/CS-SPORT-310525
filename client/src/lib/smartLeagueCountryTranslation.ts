@@ -1029,7 +1029,7 @@ class SmartLeagueCountryTranslation {
       'es': '¿Dónde se inventó el fútbol?', 'de': 'Wo wurde der Fußball erfunden?', 'it': 'Dove è stato inventato il calcio?', 'pt': 'Onde o futebol foi inventado?'
     },
     'The modern version of Football was born in England. Although similar games existed globally, it was in England where the rules were standardized, making it the home of modern Football.': {
-      'zh': '現代足球誕生於英格蘭。雖然全球都存在類似的遊戲，但正是在英格蘭規則得到了標準化，使其成為現代足球的故鄉。',
+      'zh': '现代足球诞生于英格兰。虽然全球都存在类似的游戏，但正是在英格兰规则得到了标准化，使其成为现代足球的故乡。',
       'zh-hk': '現代足球誕生於英格蘭。雖然全球都存在類似的遊戲，但正是在英格蘭規則得到了標準化，使其成為現代足球的故鄉。',
       'zh-tw': '現代足球誕生於英格蘭。雖然全球都存在類似的遊戲，但正是在英格蘭規則得到了標準化，使其成為現代足球的故鄉。',
       'es': 'La versión moderna del fútbol nació en Inglaterra. Aunque existían juegos similares a nivel mundial, fue en Inglaterra donde se estandarizaron las reglas, convirtiéndolo en el hogar del fútbol moderno.',
@@ -1038,11 +1038,11 @@ class SmartLeagueCountryTranslation {
       'pt': 'A versão moderna do futebol nasceu na Inglaterra. Embora jogos similares existissem globalmente, foi na Inglaterra onde as regras foram padronizadas, tornando-a o lar do futebol moderno.'
     },
     'What is the length of a Football pitch?': {
-      'zh': '足球場的長度是多少？', 'zh-hk': '足球場的長度是多少？', 'zh-tw': '足球場的長度是多少？',
+      'zh': '足球场的长度是多少？', 'zh-hk': '足球場的長度是多少？', 'zh-tw': '足球場的長度是多少？',
       'es': '¿Cuál es la longitud de un campo de fútbol?', 'de': 'Wie lang ist ein Fußballplatz?', 'it': 'Qual è la lunghezza di un campo da calcio?', 'pt': 'Qual é o comprimento de um campo de futebol?'
     },
     'Great question! A standard Football pitch is rectangular, ranging from 90–120 meters in length and 45–90 meters in width, as set by the International Football Association Board (IFAB). These dimensions are used for professional and international matches.': {
-      'zh': '好問題！標準足球場是長方形的，長度為90-120米，寬度為45-90米，由國際足球協會理事會(IFAB)設定。這些尺寸用於職業和國際比賽。',
+      'zh': '好问题！标准足球场是长方形的，长度为90-120米，宽度为45-90米，由国际足球协会理事会(IFAB)设定。这些尺寸用于职业和国际比赛。',
       'zh-hk': '好問題！標準足球場是長方形的，長度為90-120米，寬度為45-90米，由國際足球協會理事會(IFAB)設定。這些尺寸用於職業和國際比賽。',
       'zh-tw': '好問題！標準足球場是長方形的，長度為90-120米，寬度為45-90米，由國際足球協會理事會(IFAB)設定。這些尺寸用於職業和國際比賽。',
       'es': '¡Excelente pregunta! Un campo de fútbol estándar es rectangular, con un rango de 90-120 metros de longitud y 45-90 metros de ancho, según lo establecido por la Junta de la Asociación Internacional de Fútbol (IFAB). Estas dimensiones se utilizan para partidos profesionales e internacionales.',
@@ -1051,7 +1051,7 @@ class SmartLeagueCountryTranslation {
       'pt': 'Ótima pergunta! Um campo de futebol padrão é retangular, variando de 90-120 metros de comprimento e 45-90 metros de largura, conforme estabelecido pelo International Football Association Board (IFAB). Essas dimensões são usadas para partidas profissionais e internacionais.'
     },
     'Who is the best Football player in the world?': {
-      'zh': '誰是世界上最好的足球運動員？', 'zh-hk': '誰是世界上最好的足球運動員？', 'zh-tw': '誰是世界上最好的足球運動員？',
+      'zh': '谁是世界上最好的足球运动员？', 'zh-hk': '誰是世界上最好的足球運動員？', 'zh-tw': '誰是世界上最好的足球運動員？',
       'es': '¿Quién es el mejor jugador de fútbol del mundo?', 'de': 'Wer ist der beste Fußballspieler der Welt?', 'it': 'Chi è il miglior giocatore di calcio al mondo?', 'pt': 'Quem é o melhor jogador de futebol do mundo?'
     },
     'This is always up for debate! Legends like Pelé, Diego Maradona, Lionel Messi, and Cristiano Ronaldo have all left their mark. Each has a unique style and legacy, so the \'best\' often depends on who you ask!': {
@@ -1253,15 +1253,15 @@ class SmartLeagueCountryTranslation {
     // Immediately detect and learn mixed language leagues
     const isMixedLanguage = this.detectMixedLanguageLeague(cleanName);
     const isChinese = /[\u4e00-\u9fff]/.test(cleanName);
-    
+
     // Priority learning for problematic names
     if (isMixedLanguage || isChinese || this.isProblematicLeagueName(cleanName)) {
       console.log(`🚀 [Priority Learning] Detected problematic league: "${cleanName}"`);
-      
+
       // Force generate mapping even if one exists but is incomplete
       const existingMapping = this.learnedLeagueMappings.get(cleanName);
       const newMapping = this.generateLeagueMapping(cleanName, options.countryName || '');
-      
+
       if (newMapping && (!existingMapping || this.shouldUpdateMapping(existingMapping, newMapping))) {
         this.learnedLeagueMappings.set(cleanName, newMapping);
         this.saveLearnedMappings();
@@ -1294,8 +1294,8 @@ class SmartLeagueCountryTranslation {
       'CONMEBOL南美', 'CONMEBOL自由', 'AFC盃', 'UEFA超級', '世界聯賽',
       'Netherlands聯賽', 'Australia超级', '阿根廷', 'Copa Argentina'
     ];
-    
-    return problematicPatterns.some(pattern => 
+
+    return problematicPatterns.some(pattern =>
       leagueName.toLowerCase().includes(pattern.toLowerCase())
     );
   }
@@ -1497,7 +1497,7 @@ class SmartLeagueCountryTranslation {
       /^[a-zA-Z\s]+[聯联]賽?$/,           // "Bulgaria聯賽", "Netherlands联赛"
       /^[a-zA-Z\s]+超级?[聯联]賽?$/,       // "Australia超级联赛"
       /^[a-zA-Z\s]+甲级?[聯联]賽?$/,       // Country + 甲级联赛
-      /^[a-zA-Z\s]+乙级?[聯联]賽?$/,       // Country + 乙级联赛
+      /^[a-zA-Z\s]+乙级?[聯聯]賽?$/,       // Country + 乙级联赛
       /^[a-zA-Z\s]+丙级?[聯联]賽?$/,       // Country + 丙级联赛
       /^[a-zA-Z\s]+盃?$/,                // Country + 盃
       /^[a-zA-Z\s]+杯?$/,                // Country + 杯
@@ -2304,141 +2304,169 @@ class SmartLeagueCountryTranslation {
     return translations as CountryTranslation;
   }
 
-  translateLeagueName(leagueName: string, language: string): string {
-    if (!leagueName) return leagueName;
-
-    // Auto-learn this league if we encounter it
-    this.autoLearnFromAnyLeagueName(leagueName);
-
-    const cacheKey = `league_${leagueName}_${language}`;
-
-    // Check cache first
-    const cached = this.translationCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < 300000) { // 5 minutes
-      return cached.translation;
+  // Main translation method for league names
+  async translateLeagueName(leagueName: string, language: string): Promise<string> {
+    if (!leagueName || typeof leagueName !== 'string') {
+      return leagueName || '';
     }
 
-    let translation = leagueName;
-    let foundTranslation = false;
+    const cacheKey = `${leagueName}-${language}`;
 
-    // Try exact match first
-    const coreTranslation = this.coreLeagueTranslations[leagueName];
-    if (coreTranslation && coreTranslation[language as keyof typeof coreTranslation]) {
-      translation = coreTranslation[language as keyof typeof coreTranslation];
-      foundTranslation = true;
-    } else {
-      // Try case-insensitive match
-      const lowerLeagueName = leagueName.toLowerCase();
-      const coreTranslationLower = this.coreLeagueTranslations[lowerLeagueName];
-      if (coreTranslationLower && coreTranslationLower[language as keyof typeof coreTranslationLower]) {
-        translation = coreTranslationLower[language as keyof typeof coreTranslationLower];
-        foundTranslation = true;
-      } else {
-        // Try learned mappings (exact match)
-        const learned = this.learnedLeagueMappings.get(leagueName);
-        if (learned && learned[language as keyof typeof learned]) {
-          translation = learned[language as keyof typeof learned];
-          foundTranslation = true;
-        } else {
-          // Try learned mappings (case-insensitive)
-          const learnedLower = this.learnedLeagueMappings.get(lowerLeagueName);
-          if (learnedLower && learnedLower[language as keyof typeof learnedLower]) {
-            translation = learnedLower[language as keyof typeof learnedLower];
-            foundTranslation = true;
-          }
+    // Check local cache first
+    if (this.leagueCache.has(cacheKey)) {
+      return this.leagueCache.get(cacheKey);
+    }
+
+    try {
+      // Try to get translation from database API
+      const response = await fetch(`/api/translations/league/${encodeURIComponent(leagueName)}/${language}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.translation && data.translation !== leagueName) {
+          this.leagueCache.set(cacheKey, data.translation);
+          return data.translation;
         }
       }
+    } catch (error) {
+      console.warn(`[SmartLeagueTranslation] Database lookup failed for ${leagueName}, falling back to local methods:`, error);
     }
 
-    // If no translation found, auto-learn this league
-    if (!foundTranslation) {
-      this.autoLearnFromLeagueData(leagueName);
-
-      // Try again after auto-learning
-      const newLearned = this.learnedLeagueMappings.get(leagueName);
-      if (newLearned && newLearned[language as keyof typeof newLearned]) {
-        translation = newLearned[language as keyof typeof newLearned];
-      }
+    // Fallback to existing methods
+    // Check core translations first
+    const coreTranslation = this.coreLeagueTranslations[leagueName];
+    if (coreTranslation && coreTranslation[language]) {
+      this.leagueCache.set(cacheKey, coreTranslation[language]);
+      return coreTranslation[language];
     }
 
-    // Cache the result
-    this.translationCache.set(cacheKey, {
-      translation,
-      timestamp: Date.now()
-    });
+    // Check learned mappings
+    const learned = this.learnedLeagueMappings.get(leagueName);
+    if (learned && learned[language]) {
+      this.leagueCache.set(cacheKey, learned[language]);
+      return learned[language];
+    }
 
-    return translation;
+    // Generate translation using various methods
+    const generated = this.generateBestTranslation(leagueName, '', language);
+    if (generated && generated !== leagueName) {
+      this.leagueCache.set(cacheKey, generated);
+      return generated;
+    }
+
+    // Store original as fallback
+    this.leagueCache.set(cacheKey, leagueName);
+    return leagueName;
   }
 
-  // Translate country name using learned and static mappings, prioritizing learned ones.
-  translateCountryName(countryName: string, language: string): string {
-    if (!countryName || !language) return countryName;
+  // Sync wrapper for backwards compatibility
+  translateLeagueNameSync(leagueName: string, language: string): string {
+    const cacheKey = `${leagueName}-${language}`;
 
-    const cleanName = countryName.trim();
+    // Check local cache first
+    if (this.leagueCache.has(cacheKey)) {
+      return this.leagueCache.get(cacheKey);
+    }
 
-    // Step 1: Detect and normalize Chinese country names first
-    const normalizedName = this.detectAndNormalizeCountryName(cleanName);
+    // Check core translations
+    const coreTranslation = this.coreLeagueTranslations[leagueName];
+    if (coreTranslation && coreTranslation[language]) {
+      this.leagueCache.set(cacheKey, coreTranslation[language]);
+      return coreTranslation[language];
+    }
 
-    // Auto-learn this country for future use
-    this.autoLearnFromAnyCountryName(normalizedName);
+    // Check learned mappings
+    const learned = this.learnedLeagueMappings.get(leagueName);
+    if (learned && learned[language]) {
+      this.leagueCache.set(cacheKey, learned[language]);
+      return learned[language];
+    }
 
-    // Step 2: Special handling for World - ensure perfect translation
-    if (normalizedName.toLowerCase() === 'world' || cleanName === '世界') {
-      const worldTranslations: { [key: string]: string } = {
-        'zh': '世界',
-        'zh-hk': '世界',
-        'zh-tw': '世界',
-        'es': 'Mundial',
-        'de': 'Welt',
-        'it': 'Mondo',
-        'pt': 'Mundial',
-        'en': 'World'
-      };
-      const worldTranslation = worldTranslations[language];
-      if (worldTranslation) {
-        console.log(`🌍 [Perfect World Translation] "${cleanName}" → "${worldTranslation}" (${language})`);
-        return worldTranslation;
+    // Return original if no cache hit
+    return leagueName;
+  }
+
+  // Main translation method for country names
+  async translateCountryName(countryName: string, language: string): Promise<string> {
+    if (!countryName || typeof countryName !== 'string') {
+      return countryName || '';
+    }
+
+    const cacheKey = `${countryName}-${language}`;
+
+    // Check local cache first
+    if (this.countryCache.has(cacheKey)) {
+      return this.countryCache.get(cacheKey);
+    }
+
+    try {
+      // Try to get translation from database API
+      const response = await fetch(`/api/translations/country/${encodeURIComponent(countryName)}/${language}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.translation && data.translation !== countryName) {
+          this.countryCache.set(cacheKey, data.translation);
+          return data.translation;
+        }
+      }
+    } catch (error) {
+      console.warn(`[SmartCountryTranslation] Database lookup failed for ${countryName}, falling back to local methods:`, error);
+    }
+
+    // Fallback to existing methods
+    // Check popular countries first
+    const popularTranslation = this.popularCountries[countryName];
+    if (popularTranslation && popularTranslation[language]) {
+      this.countryCache.set(cacheKey, popularTranslation[language]);
+      return popularTranslation[language];
+    }
+
+    // Check learned mappings
+    const learned = this.learnedCountryMappings.get(countryName);
+    if (learned && learned[language]) {
+      this.countryCache.set(cacheKey, learned[language]);
+      return learned[language];
+    }
+
+    // Try Chinese to English mapping
+    const englishName = this.chineseToEnglishMap[countryName];
+    if (englishName && englishName !== countryName) {
+      const englishTranslation = await this.translateCountryName(englishName, language);
+      if (englishTranslation !== englishName) {
+        this.countryCache.set(cacheKey, englishTranslation);
+        return englishTranslation;
       }
     }
 
-    // Step 3: Check learned mappings first (highest priority for user-defined translations)
-    const learned = this.learnedCountryMappings.get(normalizedName);
-    if (learned && learned[language as keyof typeof learned] && learned[language as keyof typeof learned] !== normalizedName) {
-      console.log(`🎯 [Learned Translation] Using learned mapping: "${cleanName}" → "${learned[language as keyof typeof learned]}" (${language})`);
-      return learned[language as keyof typeof learned];
+    // Store original as fallback
+    this.countryCache.set(cacheKey, countryName);
+    return countryName;
+  }
+
+  // Sync wrapper for backwards compatibility
+  translateCountryNameSync(countryName: string, language: string): string {
+    const cacheKey = `${countryName}-${language}`;
+
+    // Check local cache first
+    if (this.countryCache.has(cacheKey)) {
+      return this.countryCache.get(cacheKey);
     }
 
-    // Step 4: Check automated mappings for preferred translations
-    const automated = this.automatedCountryMappings.get(normalizedName);
-    if (automated && automated.preferredTranslation && automated.language === language) {
-      console.log(`🤖 [Automated Translation] Using preferred translation: "${cleanName}" → "${automated.preferredTranslation}" (${language})`);
-      return automated.preferredTranslation;
+    // Check popular countries first
+    const popularTranslation = this.popularCountries[countryName];
+    if (popularTranslation && popularTranslation[language]) {
+      this.countryCache.set(cacheKey, popularTranslation[language]);
+      return popularTranslation[language];
     }
 
-    // Step 5: Check comprehensive static mappings (popularCountries)
-    const staticTranslation = this.popularCountries[normalizedName];
-    if (staticTranslation && staticTranslation[language as keyof typeof staticTranslation]) {
-      console.log(`✅ [Static Translation] Found: "${cleanName}" → "${staticTranslation[language as keyof typeof staticTranslation]}" (${language})`);
-      return staticTranslation[language as keyof typeof staticTranslation];
+    // Check learned mappings
+    const learned = this.learnedCountryMappings.get(countryName);
+    if (learned && learned[language]) {
+      this.countryCache.set(cacheKey, learned[language]);
+      return learned[language];
     }
 
-    // Step 6: Fallback to coreCountryTranslations if not found in popularCountries
-    const coreTranslation = this.coreCountryTranslations[normalizedName];
-    if (coreTranslation && coreTranslation[language as keyof typeof coreTranslation]) {
-      return coreTranslation[language as keyof typeof coreTranslation];
-    }
-
-    // Step 7: If still no translation, try to generate one automatically
-    if (normalizedName !== cleanName) {
-      // This was a Chinese name that we normalized, return the normalized English name for English
-      if (language === 'en') {
-        console.log(`🔄 [Auto-Normalized] Chinese country "${cleanName}" → English: "${normalizedName}"`);
-        return normalizedName;
-      }
-    }
-
-    console.log(`⚠️ [Translation Missing] No translation found for: "${cleanName}" (normalized: "${normalizedName}") in language: ${language}`);
-    return countryName; // Return original name if no translation found
+    // Return original if no cache hit
+    return countryName;
   }
 
 
@@ -2548,7 +2576,7 @@ class SmartLeagueCountryTranslation {
   // Fix mixed language leagues that appear in the UI
   private fixMixedLanguageLeagues(): void {
     const mixedLanguageLeagues = [
-      'CONMEBOL南美盃', 'CONMEBOL自由盃', 'AFC盃', 'UEFA超级盃', 'UEFA超級盃',
+      'CONMEBOL南美盃', 'CONMEBOL自由盃', 'AFC盃', 'UEFA超級盃', 'UEFA超級盃',
       '世界联赛', '世界聯賽', 'Netherlands聯賽', 'Australia聯賽', 'Australia超级联赛'
     ];
 
@@ -2631,7 +2659,7 @@ class SmartLeagueCountryTranslation {
       { name: '阿根廷', country: 'Argentina' },
       { name: 'Copa Argentina', country: 'Argentina' },
       { name: 'Netherlands聯賽', country: 'Netherlands' },
-      
+
       // Existing problematic leagues
       { name: 'Bulgaria聯賽', country: 'Bulgaria' },
       { name: 'Australia超级联赛', country: 'Australia' },

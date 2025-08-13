@@ -40,6 +40,8 @@ import basketballStandingsRoutes from './routes/basketballStandingsRoutes';
 import basketballGamesRoutes from './routes/basketballGamesRoutes';
 import playerVerificationRoutes from './routes/playerVerificationRoutes';
 import { RapidAPI } from './utils/rapidApi'; // corrected rapidApi import
+import translationRoutes from "./routes/translationRoutes";
+
 
 // Cache duration constants
 const LIVE_DATA_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes for live data
@@ -677,7 +679,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { id: 2, priority: 1 }, // Champions League
         { id: 3, priority: 2 }, // Europa League
         { id: 848, priority: 3 }, // Conference League
-        { id: 5, priority: 4 }, // UEFA Nations League
         { id: 4, priority: 5 }, // Euro Championship
         { id: 15, priority: 6 }, // FIFA World Cup
         // World Cup Qualifications
@@ -2330,7 +2331,8 @@ app.get('/api/teams/popular', async (req, res) => {
           rapidApi: {
             available: !!rapidApiData,
             error: rapidApiError,
-            data: rapidApiData
+            data:
+              rapidApiData
               ? {
                   status: rapidApiData.fixture?.status?.short,
                   statusLong: rapidApiData.fixture?.status?.long,
@@ -2347,7 +2349,8 @@ app.get('/api/teams/popular', async (req, res) => {
           sportsRadar: {
             available: !!sportsRadarData,
             error: sportsRadarError,
-            data: sportsRadarData
+            data:
+              sportsRadarData
               ? {
                   status: sportsRadarData.status,
                   homeTeam: sportsRadarData.home_team?.name,
@@ -2772,7 +2775,7 @@ app.get('/api/teams/popular', async (req, res) => {
   apiRouter.get("/soccersapi/leagues", async (req: Request, res: Response) => {
     try {
       console.log("🏈 [SoccersAPI] Fetching leagues");
-      constleagues = await soccersApi.getLeagues();
+      const leagues = await soccersApi.getLeagues();
 
 res.json({
         success: true,
@@ -3455,6 +3458,7 @@ error) {
   app.use('/api', basketballRoutes);
   app.use('/api/basketball/standings', basketballStandingsRoutes);
   app.use('/api/basketball', basketballGamesRoutes);
+  app.use("/api/translations", translationRoutes);
 
 // Test route for debugging
 app.get('/api/test', (req, res) => {
