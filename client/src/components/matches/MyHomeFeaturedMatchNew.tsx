@@ -30,69 +30,129 @@ import { RoundBadge } from "@/components/ui/round-badge";
 
 // Import popular teams data from the same source as PopularTeamsList
 const POPULAR_TEAMS_DATA = [
-  { id: 33, name: 'Manchester United', country: 'England' },
-  { id: 40, name: 'Liverpool', country: 'England' },
-  { id: 50, name: 'Manchester City', country: 'England' },
-  { id: 42, name: 'Arsenal', country: 'England' },
-  { id: 49, name: 'Chelsea', country: 'England' },
-  { id: 541, name: 'Real Madrid', country: 'Spain' },
-  { id: 529, name: 'FC Barcelona', country: 'Spain' },
-  { id: 47, name: 'Tottenham', country: 'England' },
-  { id: 157, name: 'Bayern Munich', country: 'Germany' },
-  { id: 489, name: 'AC Milan', country: 'Italy' },
-  { id: 492, name: 'Inter', country: 'Italy' },
-  { id: 496, name: 'Juventus', country: 'Italy' },
-  { id: 165, name: 'Borussia Dortmund', country: 'Germany' },
+  { id: 33, name: "Manchester United", country: "England" },
+  { id: 40, name: "Liverpool", country: "England" },
+  { id: 50, name: "Manchester City", country: "England" },
+  { id: 42, name: "Arsenal", country: "England" },
+  { id: 49, name: "Chelsea", country: "England" },
+  { id: 541, name: "Real Madrid", country: "Spain" },
+  { id: 529, name: "FC Barcelona", country: "Spain" },
+  { id: 47, name: "Tottenham", country: "England" },
+  { id: 157, name: "Bayern Munich", country: "Germany" },
+  { id: 489, name: "AC Milan", country: "Italy" },
+  { id: 492, name: "Inter", country: "Italy" },
+  { id: 496, name: "Juventus", country: "Italy" },
+  { id: 165, name: "Borussia Dortmund", country: "Germany" },
 
-  { id: 168, name: 'Bayer Leverkusen', country: 'Germany' },
-  { id: 81, name: 'PSG', country: 'France' },
-  { id: 85, name: 'Lyon', country: 'France' },
-  { id: 212, name: 'Marseille', country: 'France' },
-  { id: 548, name: 'Atletico Madrid', country: 'Spain' },
-  { id: 530, name: 'Sevilla', country: 'Spain' },
-  { id: 532, name: 'Valencia', country: 'Spain' },
-  { id: 533, name: 'Villarreal', country: 'Spain' },
-  { id: 610, name: 'Ajax', country: 'Netherlands' },
-  { id: 194, name: 'PSV', country: 'Netherlands' },
-  { id: 120, name: 'Feyenoord', country: 'Netherlands' },
-  { id: 211, name: 'Porto', country: 'Portugal' },
-  { id: 212, name: 'Benfica', country: 'Portugal' },
-  { id: 228, name: 'Sporting CP', country: 'Portugal' },
+  { id: 168, name: "Bayer Leverkusen", country: "Germany" },
+  { id: 81, name: "PSG", country: "France" },
+  { id: 85, name: "Lyon", country: "France" },
+  { id: 212, name: "Marseille", country: "France" },
+  { id: 548, name: "Atletico Madrid", country: "Spain" },
+  { id: 530, name: "Sevilla", country: "Spain" },
+  { id: 532, name: "Valencia", country: "Spain" },
+  { id: 533, name: "Villarreal", country: "Spain" },
+  { id: 610, name: "Ajax", country: "Netherlands" },
+  { id: 194, name: "PSV", country: "Netherlands" },
+  { id: 120, name: "Feyenoord", country: "Netherlands" },
+  { id: 211, name: "Porto", country: "Portugal" },
+  { id: 212, name: "Benfica", country: "Portugal" },
+  { id: 228, name: "Sporting CP", country: "Portugal" },
   // Additional popular teams from various leagues
-  { id: 502, name: 'Napoli', country: 'Italy' },
-  { id: 500, name: 'AS Roma', country: 'Italy' },
-  { id: 505, name: 'Lazio', country: 'Italy' },
+  { id: 502, name: "Napoli", country: "Italy" },
+  { id: 500, name: "AS Roma", country: "Italy" },
+  { id: 505, name: "Lazio", country: "Italy" },
 
   // Popular reserve/academy teams
-  { id: 1859, name: 'Bayern München II', country: 'Germany' },
-  { id: 1860, name: 'Borussia Dortmund II', country: 'Germany' },
-  { id: 8572, name: 'Jong PSV', country: 'Netherlands' },
-  { id: 8564, name: 'Jong Ajax', country: 'Netherlands' }
+  { id: 1859, name: "Bayern München II", country: "Germany" },
+  { id: 1860, name: "Borussia Dortmund II", country: "Germany" },
+  { id: 8572, name: "Jong PSV", country: "Netherlands" },
+  { id: 8564, name: "Jong Ajax", country: "Netherlands" },
 ];
 
-const POPULAR_TEAM_IDS = POPULAR_TEAMS_DATA.map(team => team.id);
-const POPULAR_TEAM_NAMES = POPULAR_TEAMS_DATA.map(team => team.name.toLowerCase());
+const POPULAR_TEAM_IDS = POPULAR_TEAMS_DATA.map((team) => team.id);
+const POPULAR_TEAM_NAMES = POPULAR_TEAMS_DATA.map((team) =>
+  team.name.toLowerCase(),
+);
 
 // Popular team keywords for enhanced matching
 const POPULAR_TEAM_KEYWORDS = [
-  "realmadrid", "barcelona", "manchestercity", "manchesterunited", "manchester",
-  "bayernmunich", "bayern", "juventus", "psg", "paris saint-germain", "paris saint germain",
-  "liverpool", "arsenal", "chelsea", "atleticomadrid", "atletico", "tottenham",
-  "ac milan", "inter milan", "inter", "napoli", "roma", "as roma",
-  "borussiadortmund", "borussia", "dortmund", "rbleipzig", "leipzig",
-  "bayerleverkusen", "leverkusen", "lyon", "olympique lyonnais", "marseille",
-  "olympique marseille", "monaco", "as monaco", "sevilla", "valencia",
-  "villarreal", "ajax", "feyenoord", "psveindhoven", "psv", "porto",
-  "fcporto", "benfica", "slbenfica", "sportingcp", "sportinglisbon", "sporting",
-  "fenerbahce", "galatasaray", "besiktas", "trabzonspor", "millwall", "southampton",
-  "elche", "valencia", "newcastle", "westham", "brighton", "brentford"
+  "realmadrid",
+  "barcelona",
+  "manchestercity",
+  "manchesterunited",
+  "manchester",
+  "bayernmunich",
+  "bayern",
+  "juventus",
+  "psg",
+  "paris saint-germain",
+  "paris saint germain",
+  "liverpool",
+  "arsenal",
+  "chelsea",
+  "atleticomadrid",
+  "atletico",
+  "tottenham",
+  "ac milan",
+  "inter milan",
+  "inter",
+  "napoli",
+  "roma",
+  "as roma",
+  "borussiadortmund",
+  "borussia",
+  "dortmund",
+  "rbleipzig",
+  "leipzig",
+  "bayerleverkusen",
+  "leverkusen",
+  "lyon",
+  "olympique lyonnais",
+  "marseille",
+  "olympique marseille",
+  "monaco",
+  "as monaco",
+  "sevilla",
+  "valencia",
+  "villarreal",
+  "ajax",
+  "feyenoord",
+  "psveindhoven",
+  "psv",
+  "porto",
+  "fcporto",
+  "benfica",
+  "slbenfica",
+  "sportingcp",
+  "sportinglisbon",
+  "sporting",
+  "fenerbahce",
+  "galatasaray",
+  "besiktas",
+  "trabzonspor",
+  "millwall",
+  "southampton",
+  "elche",
+  "valencia",
+  "newcastle",
+  "westham",
+  "brighton",
+  "brentford",
 ];
 
 // Helper function to check if a match involves popular teams
-const isPopularTeamMatch = (homeTeam: string, awayTeam: string, homeTeamId?: number, awayTeamId?: number): boolean => {
+const isPopularTeamMatch = (
+  homeTeam: string,
+  awayTeam: string,
+  homeTeamId?: number,
+  awayTeamId?: number,
+): boolean => {
   // First check by team ID (most accurate)
   if (homeTeamId && awayTeamId) {
-    const hasPopularTeamById = POPULAR_TEAM_IDS.includes(homeTeamId) || POPULAR_TEAM_IDS.includes(awayTeamId);
+    const hasPopularTeamById =
+      POPULAR_TEAM_IDS.includes(homeTeamId) ||
+      POPULAR_TEAM_IDS.includes(awayTeamId);
     if (hasPopularTeamById) {
       return true;
     }
@@ -102,8 +162,10 @@ const isPopularTeamMatch = (homeTeam: string, awayTeam: string, homeTeamId?: num
   const homeTeamLower = homeTeam.toLowerCase();
   const awayTeamLower = awayTeam.toLowerCase();
 
-  const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(popularTeam =>
-    homeTeamLower.includes(popularTeam) || awayTeamLower.includes(popularTeam)
+  const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(
+    (popularTeam) =>
+      homeTeamLower.includes(popularTeam) ||
+      awayTeamLower.includes(popularTeam),
   );
 
   if (hasPopularTeamByName) {
@@ -111,8 +173,9 @@ const isPopularTeamMatch = (homeTeam: string, awayTeam: string, homeTeamId?: num
   }
 
   // Enhanced keyword-based matching
-  const hasKeywordMatch = POPULAR_TEAM_KEYWORDS.some(keyword =>
-    homeTeamLower.includes(keyword) || awayTeamLower.includes(keyword)
+  const hasKeywordMatch = POPULAR_TEAM_KEYWORDS.some(
+    (keyword) =>
+      homeTeamLower.includes(keyword) || awayTeamLower.includes(keyword),
   );
 
   return hasKeywordMatch;
@@ -144,11 +207,13 @@ const POPULAR_LEAGUES = [
 
 // Define featured leagues (UEFA Europa Conference League ID 848 and Regionalliga - Bayern ID 169 explicitly excluded)
 const FEATURED_MATCH_LEAGUE_IDS = [
-  39, 140, 135, 78, 61, 2, 3, 5, 1, 4, 15, 38, 9, 16, 45, 550, 531
+  39, 140, 135, 78, 61, 2, 3, 5, 1, 4, 15, 38, 9, 16, 45, 550, 531,
 ];
 
 // Explicitly excluded leagues
-const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62, 931, 59, 60]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2, Non League Premier - Southern Central, League 59, League 60
+const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [
+  848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62, 931, 59, 60,
+]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2, Non League Premier - Southern Central, League 59, League 60
 const PRIORITY_LEAGUE_IDS = [2, 15, 38, 22, 45, 550, 531]; // UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531
 
 interface FeaturedMatch {
@@ -159,7 +224,7 @@ interface FeaturedMatch {
       short: string;
       long: string;
       elapsed?: number;
-     season: number;
+      season: number;
       rounds: string;
     };
     venue?: {
@@ -240,9 +305,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Inject styles if not already present
   React.useEffect(() => {
-    const styleId = 'truePulse-animation';
+    const styleId = "truePulse-animation";
     if (!document.getElementById(styleId)) {
-      const style = document.createElement('style');
+      const style = document.createElement("style");
       style.id = styleId;
       style.textContent = truePulseStyle;
       document.head.appendChild(style);
@@ -255,57 +320,65 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [countdownTimer, setCountdownTimer] = useState<string>("Loading...");
   const [roundsCache, setRoundsCache] = useState<Record<string, string[]>>({});
-  const { translateTeamName, translateLeagueName, currentLanguage, getMatchStatusTranslation, learnFromFixtures } = useLanguage();
+  const {
+    translateTeamName,
+    translateLeagueName,
+    currentLanguage,
+    getMatchStatusTranslation,
+    learnFromFixtures,
+  } = useLanguage();
   const { t } = useTranslation();
 
+  const fetchRoundsForLeague = useCallback(
+    async (leagueId: number, season: number) => {
+      const cacheKey = `${leagueId}-${season}`;
+      if (roundsCache[cacheKey]) {
+        return roundsCache[cacheKey];
+      }
 
-  const fetchRoundsForLeague = useCallback(async (leagueId: number, season: number) => {
-    const cacheKey = `${leagueId}-${season}`;
-    if (roundsCache[cacheKey]) {
-      return roundsCache[cacheKey];
-    }
+      try {
+        const response = await apiRequest(
+          "GET",
+          `/api/fixtures/rounds?league=${leagueId}&season=${season}`,
+        );
+        const rounds = await response.json();
 
-    try {
-      const response = await apiRequest("GET", `/api/fixtures/rounds?league=${leagueId}&season=${season}`);
-      const rounds = await response.json();
+        setRoundsCache((prev) => ({
+          ...prev,
+          [cacheKey]: rounds,
+        }));
 
-      setRoundsCache(prev => ({
-        ...prev,
-        [cacheKey]: rounds
-      }));
-
-      return rounds;
-    } catch (error) {
-      console.warn(`Failed to fetch rounds for league ${leagueId}:`, error);
-      return [];
-    }
-  }, [roundsCache]);
+        return rounds;
+      } catch (error) {
+        console.warn(`Failed to fetch rounds for league ${leagueId}:`, error);
+        return [];
+      }
+    },
+    [roundsCache],
+  );
 
   // Check if a match ended more than 2 hours ago (performance optimization)
-  const isMatchOldEnded = useCallback(
-    (fixture: any): boolean => {
-      const status = fixture.fixture?.status?.short;
-      const isEnded = [
-        "FT",
-        "AET",
-        "PEN",
-        "AWD",
-        "WO",
-        "ABD",
-        "CANC",
-        "SUSP",
-      ].includes(status);
+  const isMatchOldEnded = useCallback((fixture: any): boolean => {
+    const status = fixture.fixture?.status?.short;
+    const isEnded = [
+      "FT",
+      "AET",
+      "PEN",
+      "AWD",
+      "WO",
+      "ABD",
+      "CANC",
+      "SUSP",
+    ].includes(status);
 
-      if (!isEnded) return false;
+    if (!isEnded) return false;
 
-      const matchDate = new Date(fixture.fixture.date);
-      const hoursAgo = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
+    const matchDate = new Date(fixture.fixture.date);
+    const hoursAgo = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
 
-      // Use 2-hour rule for better performance
-      return hoursAgo > 2;
-    },
-    [],
-  );
+    // Use 2-hour rule for better performance
+    return hoursAgo > 2;
+  }, []);
 
   // Cache key for ended matches
   const getCacheKey = useCallback((date: string, leagueId: number) => {
@@ -338,7 +411,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         if (cacheAge < maxAge) {
           // Validate all fixtures are still old ended matches
-          const validFixtures = fixtures.filter((fixture: any) => isMatchOldEnded(fixture));
+          const validFixtures = fixtures.filter((fixture: any) =>
+            isMatchOldEnded(fixture),
+          );
 
           console.log(
             `✅ [MyHomeFeaturedMatchNew] Using cached ended matches for league ${leagueId} on ${date}: ${validFixtures.length} matches`,
@@ -400,28 +475,52 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // Smart cache decision based on current match states
         const now = new Date();
-        const shouldForceRefresh = forceRefresh || featuredMatches.some(dayData =>
-          dayData.matches.some(match => {
-            const status = match.fixture.status.short;
-            const matchDate = new Date(match.fixture.date);
-            const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
+        const shouldForceRefresh =
+          forceRefresh ||
+          featuredMatches.some((dayData) =>
+            dayData.matches.some((match) => {
+              const status = match.fixture.status.short;
+              const matchDate = new Date(match.fixture.date);
+              const minutesFromKickoff =
+                (now.getTime() - matchDate.getTime()) / (1000 * 60);
 
-            // Force refresh if:
-            // 1. Match shows "Starting now" but is old (>30 min past kickoff)
-            // 2. Match is live
-            // 3. Match is within 2 hours of kickoff
-            // 4. Match is more than 12 hours away but shows ended status (conflicting data)
-            const isStaleStartingNow = status === "NS" && minutesFromKickoff > 30 && minutesFromKickoff < 120;
-            const isLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
-            const isWithinTwoHours = Math.abs(minutesFromKickoff) <= 120;
-            const hasConflictingStatus = (minutesFromKickoff < -720) && ["FT", "AET", "PEN"].includes(status); // More than 12 hours away but shows ended
+              // Force refresh if:
+              // 1. Match shows "Starting now" but is old (>30 min past kickoff)
+              // 2. Match is live
+              // 3. Match is within 2 hours of kickoff
+              // 4. Match is more than 12 hours away but shows ended status (conflicting data)
+              const isStaleStartingNow =
+                status === "NS" &&
+                minutesFromKickoff > 30 &&
+                minutesFromKickoff < 120;
+              const isLive = [
+                "LIVE",
+                "1H",
+                "HT",
+                "2H",
+                "ET",
+                "BT",
+                "P",
+                "INT",
+              ].includes(status);
+              const isWithinTwoHours = Math.abs(minutesFromKickoff) <= 120;
+              const hasConflictingStatus =
+                minutesFromKickoff < -720 &&
+                ["FT", "AET", "PEN"].includes(status); // More than 12 hours away but shows ended
 
-            return isStaleStartingNow || isLive || (status === "NS" && isWithinTwoHours) || hasConflictingStatus;
-          })
-        );
+              return (
+                isStaleStartingNow ||
+                isLive ||
+                (status === "NS" && isWithinTwoHours) ||
+                hasConflictingStatus
+              );
+            }),
+          );
 
         if (shouldForceRefresh) {
-          console.log("🔄 [MyHomeFeaturedMatchNew] Smart cache: forcing refresh due to live/imminent matches or stale data");
+          console.log(
+            "🔄 [MyHomeFeaturedMatchNew] Smart cache: forcing refresh due to live/imminent matches or stale data",
+          );
         }
 
         // Get dates for today and the next 4 days
@@ -591,222 +690,285 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         if (shouldForceRefresh || allFixtures.length === 0) {
           // Fetch non-live matches from cached data (priority leagues)
           for (const leagueId of priorityLeagueIds) {
-              try {
-                console.log(
-                  `🔍 [MyHomeFeaturedMatchNew] Fetching cached data for league ${leagueId}`,
-                );
+            try {
+              console.log(
+                `🔍 [MyHomeFeaturedMatchNew] Fetching cached data for league ${leagueId}`,
+              );
 
-                const fixturesResponse = await apiRequest(
-                  "GET",
-                  `/api/featured-match/leagues/${leagueId}/fixtures?skipFilter=true`,
-                );
-                const fixturesData = await fixturesResponse.json();
+              const fixturesResponse = await apiRequest(
+                "GET",
+                `/api/featured-match/leagues/${leagueId}/fixtures?skipFilter=true`,
+              );
+              const fixturesData = await fixturesResponse.json();
 
-                if (Array.isArray(fixturesData)) {
-                  const cachedFixtures = fixturesData
-                    .filter((fixture: any) => {
-                      // Must have valid teams and NOT be live (since we already fetched live matches)
-                      const hasValidTeams = isValidMatch(fixture);
-                      const isNotLive = !isLiveMatch(
-                        fixture.fixture.status.short,
+              if (Array.isArray(fixturesData)) {
+                const cachedFixtures = fixturesData
+                  .filter((fixture: any) => {
+                    // Must have valid teams and NOT be live (since we already fetched live matches)
+                    const hasValidTeams = isValidMatch(fixture);
+                    const isNotLive = !isLiveMatch(
+                      fixture.fixture.status.short,
+                    );
+
+                    // CRITICAL: Exclude matches that ended more than 2 hours ago
+                    const isOldEnded = isMatchOldEnded(fixture);
+                    if (isOldEnded) {
+                      console.log(
+                        `⏰ [MyHomeFeaturedMatchNew] Excluding old ended match (${fixture.fixture.status.short}):`,
+                        {
+                          home: fixture.teams?.home?.name,
+                          away: fixture.teams?.away?.name,
+                          league: fixture.league?.name,
+                          date: fixture.fixture.date,
+                        },
+                      );
+                      return false;
+                    }
+
+                    // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
+                    const matchDate = new Date(fixture.fixture.date);
+                    const minutesFromKickoff =
+                      (now.getTime() - matchDate.getTime()) / (1000 * 60);
+                    const hoursFromKickoff = minutesFromKickoff / 60;
+                    const status = fixture.fixture.status.short;
+
+                    // Exclude women's competitions and Oberliga leagues
+                    const leagueName =
+                      fixture.league?.name?.toLowerCase() || "";
+                    const country =
+                      fixture.league?.country?.toLowerCase() || "";
+
+                    // EXPLICIT EXCLUSION: UEFA Europa Conference League and Regionalliga - Bayern
+                    const isExplicitlyExcluded =
+                      EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(
+                        fixture.league?.id,
                       );
 
-                      // CRITICAL: Exclude matches that ended more than 2 hours ago
-                      const isOldEnded = isMatchOldEnded(fixture);
-                      if (isOldEnded) {
-                        console.log(
-                          `⏰ [MyHomeFeaturedMatchNew] Excluding old ended match (${fixture.fixture.status.short}):`,
-                          {
-                            home: fixture.teams?.home?.name,
-                            away: fixture.teams?.away?.name,
-                            league: fixture.league?.name,
-                            date: fixture.fixture.date,
-                          },
-                        );
-                        return false;
-                      }
+                    // Exclude women's competitions
+                    const isWomensCompetition =
+                      leagueName.includes("women") ||
+                      leagueName.includes("femenina") ||
+                      leagueName.includes("feminine") ||
+                      leagueName.includes("feminin");
 
-                      // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
-                      const matchDate = new Date(fixture.fixture.date);
-                      const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
-                      const hoursFromKickoff = minutesFromKickoff / 60;
-                      const status = fixture.fixture.status.short;
+                    // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
+                    const isOberligaLeague = leagueName.includes("oberliga");
+                    const isRegionalligaLeague =
+                      leagueName.includes("regionalliga") ||
+                      leagueName.includes("regional liga");
+                    const is3Liga =
+                      leagueName.includes("3. liga") ||
+                      leagueName.includes("3 liga");
 
-                      // Exclude women's competitions and Oberliga leagues
-                      const leagueName = fixture.league?.name?.toLowerCase() || "";
-                      const country = fixture.league?.country?.toLowerCase() || "";
-
-                      // EXPLICIT EXCLUSION: UEFA Europa Conference League and Regionalliga - Bayern
-                      const isExplicitlyExcluded = EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league?.id);
-
-                      // Exclude women's competitions
-                      const isWomensCompetition = leagueName.includes("women") ||
-                        leagueName.includes("femenina") ||
-                        leagueName.includes("feminine") ||
-                        leagueName.includes("feminin");
-
-                      // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
-                      const isOberligaLeague = leagueName.includes("oberliga");
-                      const isRegionalligaLeague = leagueName.includes("regionalliga") || leagueName.includes("regional liga");
-                      const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
-
-                      // CRITICAL: Never exclude live matches regardless of time discrepancies
-                      const isCurrentlyLive = ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status);
-                      if (isCurrentlyLive) {
-                        console.log(
-                          `🔴 [MyHomeFeaturedMatchNew] Preserving live match:`,
-                          {
-                            home: fixture.teams?.home?.name,
-                            away: fixture.teams?.away?.name,
-                            league: fixture.league?.name,
-                            status: status,
-                            minutesFromKickoff: minutesFromKickoff.toFixed(1),
-                          },
-                        );
-                        // For live matches, bypass the isNotLive check
-                        return hasValidTeams && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga && !isExplicitlyExcluded;
-                      }
-
-                      // Check for various types of conflicting data (excluding live matches)
-                      let hasConflictingData = false;
-                      let conflictReason = "";
-
-                      // 1. Ended status but match is far in future (more than 12 hours away)
-                      if ((minutesFromKickoff < -720) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
-                        hasConflictingData = true;
-                        conflictReason = `ended status (${status}) for future match`;
-                      }
-
-                      // 2. "Not Started" status but match is more than 2 hours past kickoff
-                      if ((minutesFromKickoff > 120) && ["NS", "TBD", "PST"].includes(status)) {
-                        hasConflictingData = true;
-                        conflictReason = `not started status (${status}) for overdue match`;
-                      }
-
-                      // 3. Ended match that's more than 12 hours old (stale ended matches)
-                      if ((hoursFromKickoff > 12) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
-                        hasConflictingData = true;
-                        conflictReason = `stale ended match (${status}) more than 12 hours old`;
-                      }
-
-                      if (hasConflictingData) {
-                        console.log(
-                          `🔄 [MyHomeFeaturedMatchNew] Excluding match with conflicting data - ${conflictReason}:`,
-                          {
-                            home: fixture.teams?.home?.name,
-                            away: fixture.teams?.away?.name,
-                            league: fixture.league?.name,
-                            date: fixture.fixture.date,
-                            status: status,
-                            hoursFromNow: hoursFromKickoff.toFixed(1),
-                            conflictReason: conflictReason,
-                          },
-                        );
-                        return false;
-                      }
-
-                      // Exclude Non League Premier leagues
-                      const isNonLeaguePremier = leagueName.includes("non league premier");
-
-                      const shouldInclude = hasValidTeams && isNotLive && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga && !isExplicitlyExcluded && !isNonLeaguePremier;
-
-                      if (shouldInclude) {
-                        console.log(
-                          `✅ [MyHomeFeaturedMatchNew] Including priority league ${leagueId} fixture:`,
-                          {
-                            home: fixture.teams?.home?.name,
-                            away: fixture.teams?.away?.name,
-                            league: fixture.league?.name,
-                            leagueId: fixture.league?.id,
-                            status: fixture.fixture.status.short,
-                          },
-                        );
-                      } else if (isWomensCompetition) {
-                        console.log(
-                          `❌ [MyHomeFeaturedMatchNew] Excluding women's competition:`,
-                          {
-                            league: fixture.league?.name,
-                            leagueId: fixture.league?.id,
-                          },
-                        );
-                      } else if (isOberligaLeague) {
-                        console.log(
-                          `❌ [MyHomeFeaturedMatchNew] Excluding Oberliga league:`,
-                          {
-                            league: fixture.league?.name,
-                            leagueId: fixture.league?.id,
-                          },
-                        );
-                      } else if (isRegionalligaLeague) {
-                        console.log(
-                          `❌ [MyHomeFeaturedMatchNew] Excluding Regionalliga league:`,
-                          {
-                            league: fixture.league?.name,
-                            leagueId: fixture.league?.id,
-                          },
-                        );
-                      } else if (is3Liga) {
-                        console.log(
-                          `❌ [MyHomeFeaturedMatchNew] Excluding 3. Liga league:`,
-                          {
-                            league: fixture.league?.name,
-                            leagueId: fixture.league?.id,
-                          },
-                        );
-                      } else if (isNonLeaguePremier) {
-                        console.log(
-                          `❌ [MyHomeFeaturedMatchNew] Excluding Non League Premier:`,
-                          {
-                            league: fixture.league?.name,
-                            leagueId: fixture.league?.id,
-                          },
-                        );
-                      }
-
-                      return shouldInclude;
-                    })
-                    .map((fixture: any) => ({
-                      fixture: {
-                        id: fixture.fixture.id,
-                        date: fixture.fixture.date,
-                        status: fixture.fixture.status,
-                        venue: fixture.fixture.venue,
-                      },
-                      league: {
-                        id: fixture.league.id,
-                        name: fixture.league.name,
-                        country: fixture.league.country,
-                        logo: fixture.league.logo,
-                        round: fixture.league.round,
-                      },
-                      teams: {
-                        home: {
-                          id: fixture.teams.home.id,
-                          name: fixture.teams.home.name,
-                          logo: fixture.teams.home.logo,
+                    // CRITICAL: Never exclude live matches regardless of time discrepancies
+                    const isCurrentlyLive = [
+                      "LIVE",
+                      "1H",
+                      "2H",
+                      "HT",
+                      "ET",
+                      "BT",
+                      "P",
+                      "INT",
+                    ].includes(status);
+                    if (isCurrentlyLive) {
+                      console.log(
+                        `🔴 [MyHomeFeaturedMatchNew] Preserving live match:`,
+                        {
+                          home: fixture.teams?.home?.name,
+                          away: fixture.teams?.away?.name,
+                          league: fixture.league?.name,
+                          status: status,
+                          minutesFromKickoff: minutesFromKickoff.toFixed(1),
                         },
-                        away: {
-                          id: fixture.teams.away.id,
-                          name: fixture.teams.away.name,
-                          logo: fixture.teams.away.logo,
-                        },
-                      },
-                      goals: {
-                        home: fixture.goals?.home ?? null,
-                        away: fixture.goals?.away ?? null,
-                      },
-                      venue: fixture.venue,
-                    }));
+                      );
+                      // For live matches, bypass the isNotLive check
+                      return (
+                        hasValidTeams &&
+                        !isWomensCompetition &&
+                        !isOberligaLeague &&
+                        !isRegionalligaLeague &&
+                        !is3Liga &&
+                        !isExplicitlyExcluded
+                      );
+                    }
 
-                  allFixtures.push(...cachedFixtures);
-                }
-              } catch (leagueError) {
-                console.warn(
-                  `Failed to fetch cached data for league ${leagueId}:`,
-                  leagueError,
-                );
+                    // Check for various types of conflicting data (excluding live matches)
+                    let hasConflictingData = false;
+                    let conflictReason = "";
+
+                    // 1. Ended status but match is far in future (more than 12 hours away)
+                    if (
+                      minutesFromKickoff < -720 &&
+                      [
+                        "FT",
+                        "AET",
+                        "PEN",
+                        "AWD",
+                        "WO",
+                        "ABD",
+                        "CANC",
+                        "SUSP",
+                      ].includes(status)
+                    ) {
+                      hasConflictingData = true;
+                      conflictReason = `ended status (${status}) for future match`;
+                    }
+
+                    // 2. "Not Started" status but match is more than 2 hours past kickoff
+                    if (
+                      minutesFromKickoff > 120 &&
+                      ["NS", "TBD", "PST"].includes(status)
+                    ) {
+                      hasConflictingData = true;
+                      conflictReason = `not started status (${status}) for overdue match`;
+                    }
+
+                    // 3. Ended match that's more than 12 hours old (stale ended matches)
+                    if (
+                      hoursFromKickoff > 12 &&
+                      [
+                        "FT",
+                        "AET",
+                        "PEN",
+                        "AWD",
+                        "WO",
+                        "ABD",
+                        "CANC",
+                        "SUSP",
+                      ].includes(status)
+                    ) {
+                      hasConflictingData = true;
+                      conflictReason = `stale ended match (${status}) more than 12 hours old`;
+                    }
+
+                    if (hasConflictingData) {
+                      console.log(
+                        `🔄 [MyHomeFeaturedMatchNew] Excluding match with conflicting data - ${conflictReason}:`,
+                        {
+                          home: fixture.teams?.home?.name,
+                          away: fixture.teams?.away?.name,
+                          league: fixture.league?.name,
+                          date: fixture.fixture.date,
+                          status: status,
+                          hoursFromNow: hoursFromKickoff.toFixed(1),
+                          conflictReason: conflictReason,
+                        },
+                      );
+                      return false;
+                    }
+
+                    // Exclude Non League Premier leagues
+                    const isNonLeaguePremier =
+                      leagueName.includes("non league premier");
+
+                    const shouldInclude =
+                      hasValidTeams &&
+                      isNotLive &&
+                      !isWomensCompetition &&
+                      !isOberligaLeague &&
+                      !isRegionalligaLeague &&
+                      !is3Liga &&
+                      !isExplicitlyExcluded &&
+                      !isNonLeaguePremier;
+
+                    if (shouldInclude) {
+                      console.log(
+                        `✅ [MyHomeFeaturedMatchNew] Including priority league ${leagueId} fixture:`,
+                        {
+                          home: fixture.teams?.home?.name,
+                          away: fixture.teams?.away?.name,
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                          status: fixture.fixture.status.short,
+                        },
+                      );
+                    } else if (isWomensCompetition) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding women's competition:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isOberligaLeague) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Oberliga league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isRegionalligaLeague) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Regionalliga league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (is3Liga) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding 3. Liga league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isNonLeaguePremier) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Non League Premier:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    }
+
+                    return shouldInclude;
+                  })
+                  .map((fixture: any) => ({
+                    fixture: {
+                      id: fixture.fixture.id,
+                      date: fixture.fixture.date,
+                      status: fixture.fixture.status,
+                      venue: fixture.fixture.venue,
+                    },
+                    league: {
+                      id: fixture.league.id,
+                      name: fixture.league.name,
+                      country: fixture.league.country,
+                      logo: fixture.league.logo,
+                      round: fixture.league.round,
+                    },
+                    teams: {
+                      home: {
+                        id: fixture.teams.home.id,
+                        name: fixture.teams.home.name,
+                        logo: fixture.teams.home.logo,
+                      },
+                      away: {
+                        id: fixture.teams.away.id,
+                        name: fixture.teams.away.name,
+                        logo: fixture.teams.away.logo,
+                      },
+                    },
+                    goals: {
+                      home: fixture.goals?.home ?? null,
+                      away: fixture.goals?.away ?? null,
+                    },
+                    venue: fixture.venue,
+                  }));
+
+                allFixtures.push(...cachedFixtures);
               }
+            } catch (leagueError) {
+              console.warn(
+                `Failed to fetch cached data for league ${leagueId}:`,
+                leagueError,
+              );
             }
+          }
 
           // Fetch popular team friendlies from Friendlies Clubs league (667)
           try {
@@ -825,9 +987,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 .filter((fixture: any) => {
                   // Must have valid teams and NOT be live
                   const hasValidTeams = isValidMatch(fixture);
-                  const isNotLive = !isLiveMatch(
-                    fixture.fixture.status.short,
-                  );
+                  const isNotLive = !isLiveMatch(fixture.fixture.status.short);
 
                   if (!hasValidTeams || !isNotLive) {
                     return false;
@@ -839,10 +999,17 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   const homeTeam = fixture.teams?.home?.name || "";
                   const awayTeam = fixture.teams?.away?.name || "";
 
-                  const isPopular = isPopularTeamMatch(homeTeam, awayTeam, homeTeamId, awayTeamId);
+                  const isPopular = isPopularTeamMatch(
+                    homeTeam,
+                    awayTeam,
+                    homeTeamId,
+                    awayTeamId,
+                  );
 
                   if (isPopular) {
-                    console.log(`🎯 [MyHomeFeaturedMatchNew] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                    console.log(
+                      `🎯 [MyHomeFeaturedMatchNew] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                    );
                     return true;
                   }
 
@@ -881,7 +1048,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   venue: fixture.venue,
                 }));
 
-              console.log(`🎯 [MyHomeFeaturedMatchNew] Found ${popularFriendlies.length} popular team friendlies`);
+              console.log(
+                `🎯 [MyHomeFeaturedMatchNew] Found ${popularFriendlies.length} popular team friendlies`,
+              );
               allFixtures.push(...popularFriendlies);
             }
           } catch (friendliesError) {
@@ -913,16 +1082,28 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const isNotLive = !isLiveMatch(
                       fixture.fixture.status.short,
                     );
-                    const isNotPriorityLeague = !priorityLeagueIds.includes(fixture.league?.id);
+                    const isNotPriorityLeague = !priorityLeagueIds.includes(
+                      fixture.league?.id,
+                    );
 
                     // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
                     const matchDate = new Date(fixture.fixture.date);
-                    const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
+                    const minutesFromKickoff =
+                      (now.getTime() - matchDate.getTime()) / (1000 * 60);
                     const hoursFromKickoff = minutesFromKickoff / 60;
                     const status = fixture.fixture.status.short;
 
                     // CRITICAL: Never exclude live matches regardless of time discrepancies
-                    const isCurrentlyLive = ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status);
+                    const isCurrentlyLive = [
+                      "LIVE",
+                      "1H",
+                      "2H",
+                      "HT",
+                      "ET",
+                      "BT",
+                      "P",
+                      "INT",
+                    ].includes(status);
                     if (isCurrentlyLive) {
                       console.log(
                         `🔴 [MyHomeFeaturedMatchNew] Preserving live match in date-based search:`,
@@ -935,42 +1116,82 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         },
                       );
                       // Skip all time-based filtering for live matches
-                      return hasValidTeams && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga;
+                      return (
+                        hasValidTeams &&
+                        !isWomensCompetition &&
+                        !isOberligaLeague &&
+                        !isRegionalligaLeague &&
+                        !is3Liga
+                      );
                     }
 
                     // Exclude women's competitions and Oberliga leagues
-                    const leagueName = fixture.league?.name?.toLowerCase() || "";
-                    const country = fixture.league?.country?.toLowerCase() || "";
+                    const leagueName =
+                      fixture.league?.name?.toLowerCase() || "";
+                    const country =
+                      fixture.league?.country?.toLowerCase() || "";
 
                     // Exclude women's competitions
-                    const isWomensCompetition = leagueName.includes("women") ||
+                    const isWomensCompetition =
+                      leagueName.includes("women") ||
                       leagueName.includes("femenina") ||
                       leagueName.includes("feminine") ||
                       leagueName.includes("feminin");
 
                     // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
                     const isOberligaLeague = leagueName.includes("oberliga");
-                    const isRegionalligaLeague = leagueName.includes("regionalliga") || leagueName.includes("regional liga");
-                    const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
+                    const isRegionalligaLeague =
+                      leagueName.includes("regionalliga") ||
+                      leagueName.includes("regional liga");
+                    const is3Liga =
+                      leagueName.includes("3. liga") ||
+                      leagueName.includes("3 liga");
 
                     // Check for various types of conflicting data (excluding live matches)
                     let hasConflictingData = false;
                     let conflictReason = "";
 
                     // 1. Ended status but match is far in future (more than 12 hours away)
-                    if ((minutesFromKickoff < -720) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                    if (
+                      minutesFromKickoff < -720 &&
+                      [
+                        "FT",
+                        "AET",
+                        "PEN",
+                        "AWD",
+                        "WO",
+                        "ABD",
+                        "CANC",
+                        "SUSP",
+                      ].includes(status)
+                    ) {
                       hasConflictingData = true;
                       conflictReason = `ended status (${status}) for future match`;
                     }
 
                     // 2. "Not Started" status but match is more than 2 hours past kickoff
-                    if ((minutesFromKickoff > 120) && ["NS", "TBD", "PST"].includes(status)) {
+                    if (
+                      minutesFromKickoff > 120 &&
+                      ["NS", "TBD", "PST"].includes(status)
+                    ) {
                       hasConflictingData = true;
                       conflictReason = `not started status (${status}) for overdue match`;
                     }
 
                     // 3. Ended match that's more than 8 hours old (stale ended matches)
-                    if ((hoursFromKickoff > 8) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                    if (
+                      hoursFromKickoff > 8 &&
+                      [
+                        "FT",
+                        "AET",
+                        "PEN",
+                        "AWD",
+                        "WO",
+                        "ABD",
+                        "CANC",
+                        "SUSP",
+                      ].includes(status)
+                    ) {
                       hasConflictingData = true;
                       conflictReason = `stale ended match (${status}) more than 8 hours old`;
                     }
@@ -1003,7 +1224,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const isInternationalCompetition =
                       leagueName.includes("champions league") ||
                       leagueName.includes("europa league") ||
-
                       leagueName.includes("uefa") ||
                       leagueName.includes("world cup") ||
                       leagueName.includes("fifa club world cup") ||
@@ -1014,31 +1234,47 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       leagueName.includes("copa sudamericana") ||
                       leagueName.includes("libertadores") ||
                       leagueName.includes("sudamericana") ||
-                      (leagueName.includes("friendlies") && !leagueName.includes("international") && !leagueName.includes("women")) ||
-                      (leagueName.includes("international") && !leagueName.includes("women")) ||
+                      (leagueName.includes("friendlies") &&
+                        !leagueName.includes("international") &&
+                        !leagueName.includes("women")) ||
+                      (leagueName.includes("international") &&
+                        !leagueName.includes("women")) ||
                       country.includes("world") ||
                       country.includes("europe") ||
                       country.includes("international");
 
                     // Check if it's a club friendly with popular teams using the imported popular teams list
                     const isPopularClubFriendly = () => {
-                      if (leagueName.includes("club friendlies") ||
-                          leagueName.includes("friendlies clubs") ||
-                          fixture.league?.id === 667 ||
-                          (leagueName.includes("friendlies") && !leagueName.includes("international") && !leagueName.includes("women"))) {
+                      if (
+                        leagueName.includes("club friendlies") ||
+                        leagueName.includes("friendlies clubs") ||
+                        fixture.league?.id === 667 ||
+                        (leagueName.includes("friendlies") &&
+                          !leagueName.includes("international") &&
+                          !leagueName.includes("women"))
+                      ) {
                         const homeTeamId = fixture.teams?.home?.id;
                         const awayTeamId = fixture.teams?.away?.id;
                         const homeTeam = fixture.teams?.home?.name || "";
                         const awayTeam = fixture.teams?.away?.name || "";
 
-                        const isPopular = isPopularTeamMatch(homeTeam, awayTeam, homeTeamId, awayTeamId);
+                        const isPopular = isPopularTeamMatch(
+                          homeTeam,
+                          awayTeam,
+                          homeTeamId,
+                          awayTeamId,
+                        );
 
                         if (isPopular) {
-                          console.log(`✅ [MyHomeFeaturedMatchNew] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
+                          console.log(
+                            `✅ [MyHomeFeaturedMatchNew] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`,
+                          );
                           return true;
                         }
 
-                        console.log(`❌ [MyHomeFeaturedMatchNew] Club friendly excluded (no popular teams): ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
+                        console.log(
+                          `❌ [MyHomeFeaturedMatchNew] Club friendly excluded (no popular teams): ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`,
+                        );
                         return false;
                       }
                       return false;
@@ -1053,9 +1289,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       !isRegionalligaLeague &&
                       !is3Liga &&
                       (isPopularLeague ||
-                      isFromPopularCountry ||
-                      isInternationalCompetition ||
-                      isPopularClubFriendly())
+                        isFromPopularCountry ||
+                        isInternationalCompetition ||
+                        isPopularClubFriendly())
                     );
                   })
                   .map((fixture: any) => ({
@@ -1128,87 +1364,145 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           existing.fixture.id === fixture.fixture.id,
                       );
 
-                    // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
-                    const matchDate = new Date(fixture.fixture.date);
-                    const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
-                    const hoursFromKickoff = minutesFromKickoff / 60;
-                    const status = fixture.fixture.status.short;
+                      // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
+                      const matchDate = new Date(fixture.fixture.date);
+                      const minutesFromKickoff =
+                        (now.getTime() - matchDate.getTime()) / (1000 * 60);
+                      const hoursFromKickoff = minutesFromKickoff / 60;
+                      const status = fixture.fixture.status.short;
 
-                    // CRITICAL: Never exclude live matches regardless of time discrepancies
-                    const isCurrentlyLive = ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status);
-                    if (isCurrentlyLive) {
-                      console.log(
-                        `🔴 [MyHomeFeaturedMatchNew] Preserving live match in expanded search:`,
-                        {
-                          home: fixture.teams?.home?.name,
-                          away: fixture.teams?.away?.name,
-                          league: fixture.league?.name,
-                          status: status,
-                          minutesFromKickoff: minutesFromKickoff.toFixed(1),
-                        },
+                      // CRITICAL: Never exclude live matches regardless of time discrepancies
+                      const isCurrentlyLive = [
+                        "LIVE",
+                        "1H",
+                        "2H",
+                        "HT",
+                        "ET",
+                        "BT",
+                        "P",
+                        "INT",
+                      ].includes(status);
+                      if (isCurrentlyLive) {
+                        console.log(
+                          `🔴 [MyHomeFeaturedMatchNew] Preserving live match in expanded search:`,
+                          {
+                            home: fixture.teams?.home?.name,
+                            away: fixture.teams?.away?.name,
+                            league: fixture.league?.name,
+                            status: status,
+                            minutesFromKickoff: minutesFromKickoff.toFixed(1),
+                          },
+                        );
+                        // Skip all filtering for live matches except basic validity
+                        return (
+                          hasValidTeams &&
+                          isNotDuplicate &&
+                          !isWomensCompetition &&
+                          !isOberligaLeague &&
+                          !isRegionalligaLeague &&
+                          !is3Liga
+                        );
+                      }
+
+                      // Exclude women's competitions and Oberliga leagues
+                      const leagueName =
+                        fixture.league?.name?.toLowerCase() || "";
+                      const country =
+                        fixture.league?.country?.toLowerCase() || "";
+
+                      // Exclude women's competitions
+                      const isWomensCompetition =
+                        leagueName.includes("women") ||
+                        leagueName.includes("femenina") ||
+                        leagueName.includes("feminine") ||
+                        leagueName.includes("feminin");
+
+                      // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
+                      const isOberligaLeague = leagueName.includes("oberliga");
+                      const isRegionalligaLeague =
+                        leagueName.includes("regionalliga") ||
+                        leagueName.includes("regional liga");
+                      const is3Liga =
+                        leagueName.includes("3. liga") ||
+                        leagueName.includes("3 liga");
+
+                      // Check for various types of conflicting data (excluding live matches)
+                      let hasConflictingData = false;
+                      let conflictReason = "";
+
+                      // 1. Ended status but match is far in future (more than 12 hours away)
+                      if (
+                        minutesFromKickoff < -720 &&
+                        [
+                          "FT",
+                          "AET",
+                          "PEN",
+                          "AWD",
+                          "WO",
+                          "ABD",
+                          "CANC",
+                          "SUSP",
+                        ].includes(status)
+                      ) {
+                        hasConflictingData = true;
+                        conflictReason = `ended status (${status}) for future match`;
+                      }
+
+                      // 2. "Not Started" status but match is more than 2 hours past kickoff
+                      if (
+                        minutesFromKickoff > 120 &&
+                        ["NS", "TBD", "PST"].includes(status)
+                      ) {
+                        hasConflictingData = true;
+                        conflictReason = `not started status (${status}) for overdue match`;
+                      }
+
+                      // 3. Ended match that's more than 12 hours old (stale ended matches)
+                      if (
+                        hoursFromKickoff > 12 &&
+                        [
+                          "FT",
+                          "AET",
+                          "PEN",
+                          "AWD",
+                          "WO",
+                          "ABD",
+                          "CANC",
+                          "SUSP",
+                        ].includes(status)
+                      ) {
+                        hasConflictingData = true;
+                        conflictReason = `stale ended match (${status}) more than 12 hours old`;
+                      }
+
+                      if (hasConflictingData) {
+                        console.log(
+                          `🔄 [MyHomeFeaturedMatchNew] Excluding expanded search match with conflicting data - ${conflictReason}:`,
+                          {
+                            home: fixture.teams?.home?.name,
+                            away: fixture.teams?.away?.name,
+                            league: fixture.league?.name,
+                            date: fixture.fixture.date,
+                            status: status,
+                            hoursFromNow: hoursFromKickoff.toFixed(1),
+                            conflictReason: conflictReason,
+                          },
+                        );
+                        return false;
+                      }
+
+                      return (
+                        hasValidTeams &&
+                        isNotLive &&
+                        isNotDuplicate &&
+                        !isWomensCompetition &&
+                        !isOberligaLeague &&
+                        !isRegionalligaLeague &&
+                        !is3Liga
                       );
-                      // Skip all filtering for live matches except basic validity
-                      return hasValidTeams && isNotDuplicate && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga;
-                    }
-
-                    // Exclude women's competitions and Oberliga leagues
-                    const leagueName = fixture.league?.name?.toLowerCase() || "";
-                    const country = fixture.league?.country?.toLowerCase() || "";
-
-                    // Exclude women's competitions
-                    const isWomensCompetition = leagueName.includes("women") ||
-                      leagueName.includes("femenina") ||
-                      leagueName.includes("feminine") ||
-                      leagueName.includes("feminin");
-
-                    // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
-                    const isOberligaLeague = leagueName.includes("oberliga");
-                    const isRegionalligaLeague = leagueName.includes("regionalliga") || leagueName.includes("regional liga");
-                    const is3Liga = leagueName.includes("3. liga") || leagueName.includes("3 liga");
-
-                    // Check for various types of conflicting data (excluding live matches)
-                    let hasConflictingData = false;
-                    let conflictReason = "";
-
-                    // 1. Ended status but match is far in future (more than 12 hours away)
-                    if ((minutesFromKickoff < -720) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
-                      hasConflictingData = true;
-                      conflictReason = `ended status (${status}) for future match`;
-                    }
-
-                    // 2. "Not Started" status but match is more than 2 hours past kickoff
-                    if ((minutesFromKickoff > 120) && ["NS", "TBD", "PST"].includes(status)) {
-                      hasConflictingData = true;
-                      conflictReason = `not started status (${status}) for overdue match`;
-                    }
-
-                    // 3. Ended match that's more than 12 hours old (stale ended matches)
-                    if ((hoursFromKickoff > 12) && ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
-                      hasConflictingData = true;
-                      conflictReason = `stale ended match (${status}) more than 12 hours old`;
-                    }
-
-                    if (hasConflictingData) {
-                      console.log(
-                        `🔄 [MyHomeFeaturedMatchNew] Excluding expanded search match with conflicting data - ${conflictReason}:`,
-                        {
-                          home: fixture.teams?.home?.name,
-                          away: fixture.teams?.away?.name,
-                          league: fixture.league?.name,
-                          date: fixture.fixture.date,
-                          status: status,
-                          hoursFromNow: hoursFromKickoff.toFixed(1),
-                          conflictReason: conflictReason,
-                        },
-                      );
-                      return false;
-                    }
-
-                      return hasValidTeams && isNotLive && isNotDuplicate && !isWomensCompetition && !isOberligaLeague && !isRegionalligaLeague && !is3Liga;
                     })
                     .slice(0, 5) // Limit to prevent overwhelming
                     .map((fixture: any) => ({
-
                       fixture: {
                         id: fixture.fixture.id,
                         date: fixture.fixture.date,
@@ -1229,8 +1523,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           logo: fixture.teams.home.logo,
                         },
                         away: {
-
-id: fixture.teams.away.id,
+                          id: fixture.teams.away.id,
                           name: fixture.teams.away.name,
                           logo: fixture.teams.away.logo,
                         },
@@ -1269,61 +1562,73 @@ id: fixture.teams.away.id,
         // Learn from fixtures data to improve translations
         try {
           learnFromFixtures(uniqueFixtures);
-          console.log(`📚 [MyHomeFeaturedMatchNew] Learning from ${uniqueFixtures.length} fixtures for translation improvement`);
-          
+          console.log(
+            `📚 [MyHomeFeaturedMatchNew] Learning from ${uniqueFixtures.length} fixtures for translation improvement`,
+          );
+
           // Additional league-specific learning for comprehensive coverage
           smartLeagueCountryTranslation.learnFromFixtures(uniqueFixtures);
-          console.log(`🎓 [MyHomeFeaturedMatchNew] Enhanced league learning from ${uniqueFixtures.length} fixtures for better coverage`);
+          console.log(
+            `🎓 [MyHomeFeaturedMatchNew] Enhanced league learning from ${uniqueFixtures.length} fixtures for better coverage`,
+          );
         } catch (error) {
-          console.warn('Error learning from fixtures:', error);
+          console.warn("Error learning from fixtures:", error);
         }
 
         // Enhanced debug logging with league IDs
         const fixtureDetails = uniqueFixtures.map((f) => ({
           id: f.fixture.id,
           teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
-          league:  f.league.name,
+          league: f.league.name,
           leagueId: f.league.id,
           country: f.league.country,
           status: f.fixture.status.short,
           date: f.fixture.date,
         }));
 
-        console.log(`📋 [MyHomeFeaturedMatchNew] Fixture details with League IDs:`, fixtureDetails);
+        console.log(
+          `📋 [MyHomeFeaturedMatchNew] Fixture details with League IDs:`,
+          fixtureDetails,
+        );
 
         // Special debug for Oberliga leagues
-        const oberligaMatches = uniqueFixtures.filter(f =>
-          f.league.name?.toLowerCase().includes('oberliga')
+        const oberligaMatches = uniqueFixtures.filter((f) =>
+          f.league.name?.toLowerCase().includes("oberliga"),
         );
 
         if (oberligaMatches.length > 0) {
-          console.log(`🎯 [OBERLIGA LEAGUES FOUND] Count: ${oberligaMatches.length}`);
-          oberligaMatches.forEach(match => {
+          console.log(
+            `🎯 [OBERLIGA LEAGUES FOUND] Count: ${oberligaMatches.length}`,
+          );
+          oberligaMatches.forEach((match) => {
             console.log(`🏆 [OBERLIGA MATCH]`, {
               LEAGUE_ID: match.league.id,
               LEAGUE_NAME: match.league.name,
               MATCH: `${match.teams.home.name} vs ${match.teams.away.name}`,
               COUNTRY: match.league.country,
-              STATUS: match.fixture.status.short
+              STATUS: match.fixture.status.short,
             });
           });
         }
 
         // Special debug for Bayern Süd
-        const bayernSudMatches = uniqueFixtures.filter(f =>
-          f.league.name?.toLowerCase().includes('bayern') &&
-          f.league.name?.toLowerCase().includes('süd')
+        const bayernSudMatches = uniqueFixtures.filter(
+          (f) =>
+            f.league.name?.toLowerCase().includes("bayern") &&
+            f.league.name?.toLowerCase().includes("süd"),
         );
 
         if (bayernSudMatches.length > 0) {
-          console.log(`🏰 [BAYERN SÜD LEAGUES FOUND] Count: ${bayernSudMatches.length}`);
-          bayernSudMatches.forEach(match => {
+          console.log(
+            `🏰 [BAYERN SÜD LEAGUES FOUND] Count: ${bayernSudMatches.length}`,
+          );
+          bayernSudMatches.forEach((match) => {
             console.log(`⚽ [BAYERN SÜD MATCH]`, {
               LEAGUE_ID: match.league.id,
               LEAGUE_NAME: match.league.name,
               MATCH: `${match.teams.home.name} vs ${match.teams.away.name}`,
               COUNTRY: match.league.country,
-              STATUS: match.fixture.status.short
+              STATUS: match.fixture.status.short,
             });
           });
         }
@@ -1335,106 +1640,152 @@ id: fixture.teams.away.id,
             .filter((fixture) => {
               // EXPLICIT EXCLUSION: Never show UEFA Europa Conference League (ID 848), Regionalliga - Bayern (ID 169), League 940, or Ligue 2 (ID 62)
               if (fixture.league.id === 848) {
-                console.log(`🚫 [EXPLICIT EXCLUSION] UEFA Europa Conference League match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] UEFA Europa Conference League match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
 
               if (fixture.league.id === 169) {
-                console.log(`🚫 [EXPLICIT EXCLUSION] Regionalliga - Bayern match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - Bayern match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
 
               if (fixture.league.id === 940) {
-                console.log(`🚫 [EXPLICIT EXCLUSION] League 940 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] League 940 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
 
               if (fixture.league.id === 85) {
-                console.log(`🚫 [EXPLICIT EXCLUSION] Regionalliga - Nordost match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - Nordost match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
 
               if (fixture.league.id === 80) {
-                console.log(`🚫 [EXPLICIT EXCLUSION] 3. Liga match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] 3. Liga match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
 
               if (fixture.league.id === 84) {
-                console.log(`🚫 [EXPLICIT EXCLUSION] Regionalliga - Nord match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - Nord match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
 
               if (fixture.league.id === 87) {
-                console.log(`🚫 [EXPLICIT EXCLUSION] Regionalliga - West match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - West match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
               if (fixture.league.id === 41) {
-                console.log(`🚫 [EXPLICIT EXCLUSION] Regionalliga - SudWest match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - SudWest match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
               if (fixture.league.id === 183) {
-                console.log(`🚫 [EXPLICIT EXCLUSION] Regionalliga - SudWest match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - SudWest match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
               if (fixture.league.id === 86) {
-                console.log(`🚫 [EXPLICIT EXCLUSION] Regionalliga - SudWest match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - SudWest match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
 
               if (fixture.league.id === 772) {
-                console.log(`🚫 [EXPLICIT EXCLUSION] League 772 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] League 772 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
 
               if (fixture.league.id === 62) {
-                console.log(`🚫 [EXPLICIT EXCLUSION] Ligue 2 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Ligue 2 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
 
               if (fixture.league.id === 58) {
-                console.log(`🚫 [EXPLICIT EXCLUSION] Non League Premier - Isthmian match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Non League Premier - Isthmian match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
 
               if (fixture.league.id === 931) {
-                console.log(`🚫 [EXPLICIT EXCLUSION] Non League Premier - Southern Central match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Non League Premier - Southern Central match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
 
               if (fixture.league.id === 59) {
-                console.log(`🚫 [EXPLICIT EXCLUSION] League 59 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] League 59 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
 
               if (fixture.league.id === 60) {
-                console.log(`🚫 [EXPLICIT EXCLUSION] League 60 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] League 60 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
 
               // Additional name-based exclusion for Regionalliga leagues and Non League Premier
               const leagueName = fixture.league?.name?.toLowerCase() || "";
-              if (leagueName.includes('regionalliga') && leagueName.includes('bayern')) {
-                console.log(`🚫 [NAME-BASED EXCLUSION] Regionalliga - Bayern match excluded by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
+              if (
+                leagueName.includes("regionalliga") &&
+                leagueName.includes("bayern")
+              ) {
+                console.log(
+                  `🚫 [NAME-BASED EXCLUSION] Regionalliga - Bayern match excluded by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`,
+                );
                 return false;
               }
-              if (leagueName.includes('non league premier')) {
-                console.log(`🚫 [NAME-BASED EXCLUSION] Non League Premier match excluded by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
+              if (leagueName.includes("non league premier")) {
+                console.log(
+                  `🚫 [NAME-BASED EXCLUSION] Non League Premier match excluded by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`,
+                );
                 return false;
               }
               // CRITICAL: Filter out stale "Starting now" matches
               const status = fixture.fixture.status.short;
               const matchDate = new Date(fixture.fixture.date);
-              const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
+              const minutesFromKickoff =
+                (now.getTime() - matchDate.getTime()) / (1000 * 60);
 
               // Remove matches that show "NS" (Not Started) but are significantly past kickoff time
               if (status === "NS" && minutesFromKickoff > 120) {
-                console.log(`🚫 [STALE MATCH EXCLUSION] Removing stale "Starting now" match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(minutesFromKickoff)} min past kickoff)`);
+                console.log(
+                  `🚫 [STALE MATCH EXCLUSION] Removing stale "Starting now" match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(minutesFromKickoff)} min past kickoff)`,
+                );
                 return false;
               }
 
               // Remove matches that are postponed, cancelled, or suspended
-              if (["PST", "CANC", "SUSP", "ABD", "AWD", "WO"].includes(status)) {
-                console.log(`🚫 [STATUS EXCLUSION] Removing ${status} match: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+              if (
+                ["PST", "CANC", "SUSP", "ABD", "AWD", "WO"].includes(status)
+              ) {
+                console.log(
+                  `🚫 [STATUS EXCLUSION] Removing ${status} match: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
 
@@ -1491,11 +1842,15 @@ id: fixture.teams.away.id,
               const bLeagueName = b.league.name?.toLowerCase() || "";
 
               // Check for Friendlies Clubs vs FA Cup priority
-              const aIsFriendliesClubs = aLeagueName.includes("friendlies clubs") || a.league.id === 667;
-              const bIsFriendliesClubs = bLeagueName.includes("friendlies clubs") || b.league.id === 667;
+              const aIsFriendliesClubs =
+                aLeagueName.includes("friendlies clubs") || a.league.id === 667;
+              const bIsFriendliesClubs =
+                bLeagueName.includes("friendlies clubs") || b.league.id === 667;
 
-              const aIsFACup = aLeagueName.includes("fa cup") || a.league.id === 45;
-              const bIsFACup = bLeagueName.includes("fa cup") || b.league.id === 45;
+              const aIsFACup =
+                aLeagueName.includes("fa cup") || a.league.id === 45;
+              const bIsFACup =
+                bLeagueName.includes("fa cup") || b.league.id === 45;
 
               // Friendlies Clubs has priority over FA Cup
               if (aIsFriendliesClubs && bIsFACup) return -1;
@@ -1511,10 +1866,18 @@ id: fixture.teams.away.id,
                 return aPriority - bPriority;
 
               // Popular team friendlies get priority over regular matches
-              const aIsPopularFriendly = (aLeagueName.includes("friendlies") || aLeagueName.includes("friendlies clubs") || a.league.id === 667) &&
-                (POPULAR_TEAM_IDS.includes(a.teams.home.id) || POPULAR_TEAM_IDS.includes(a.teams.away.id));
-              const bIsPopularFriendly = (bLeagueName.includes("friendlies") || bLeagueName.includes("friendlies clubs") || b.league.id === 667) &&
-                (POPULAR_TEAM_IDS.includes(b.teams.home.id) || POPULAR_TEAM_IDS.includes(b.teams.away.id));
+              const aIsPopularFriendly =
+                (aLeagueName.includes("friendlies") ||
+                  aLeagueName.includes("friendlies clubs") ||
+                  a.league.id === 667) &&
+                (POPULAR_TEAM_IDS.includes(a.teams.home.id) ||
+                  POPULAR_TEAM_IDS.includes(a.teams.away.id));
+              const bIsPopularFriendly =
+                (bLeagueName.includes("friendlies") ||
+                  bLeagueName.includes("friendlies clubs") ||
+                  b.league.id === 667) &&
+                (POPULAR_TEAM_IDS.includes(b.teams.home.id) ||
+                  POPULAR_TEAM_IDS.includes(b.teams.away.id));
 
               if (aIsPopularFriendly && !bIsPopularFriendly) return -1;
               if (!aIsPopularFriendly && bIsPopularFriendly) return 1;
@@ -1544,12 +1907,18 @@ id: fixture.teams.away.id,
 
               if (aEnded && bEnded) {
                 // For ended matches, sort by most recent first
-                return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
+                return (
+                  new Date(b.fixture.date).getTime() -
+                  new Date(a.fixture.date).getTime()
+                );
               }
 
               if (aUpcoming && bUpcoming) {
                 // For upcoming matches, sort by earliest first
-                return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
+                return (
+                  new Date(a.fixture.date).getTime() -
+                  new Date(b.fixture.date).getTime()
+                );
               }
 
               // Default time sorting
@@ -1598,23 +1967,24 @@ id: fixture.teams.away.id,
 
       // Clear all localStorage entries that might contain excluded league data
       const keys = Object.keys(localStorage);
-      const excludedLeagueKeys = keys.filter(key =>
-        key.includes('848') || // UEFA Europa Conference League
-        key.includes('169') || // Regionalliga - Bayern
-        key.includes('conference') ||
-        key.includes('regionalliga') ||
-        key.includes('bayern') ||
-        key.includes('fixtures_date') ||
-        key.startsWith('ended_matches_') ||
-        key.startsWith('league-fixtures-') ||
-        key.startsWith('featured-match-') ||
-        key.startsWith('all-fixtures-by-date') ||
-        key.includes('62') || // Ligue 2
-        key.includes('ligue 2') ||
-        key.includes('l2')
+      const excludedLeagueKeys = keys.filter(
+        (key) =>
+          key.includes("848") || // UEFA Europa Conference League
+          key.includes("169") || // Regionalliga - Bayern
+          key.includes("conference") ||
+          key.includes("regionalliga") ||
+          key.includes("bayern") ||
+          key.includes("fixtures_date") ||
+          key.startsWith("ended_matches_") ||
+          key.startsWith("league-fixtures-") ||
+          key.startsWith("featured-match-") ||
+          key.startsWith("all-fixtures-by-date") ||
+          key.includes("62") || // Ligue 2
+          key.includes("ligue 2") ||
+          key.includes("l2"),
       );
 
-      excludedLeagueKeys.forEach(key => {
+      excludedLeagueKeys.forEach((key) => {
         try {
           localStorage.removeItem(key);
         } catch (error) {
@@ -1624,20 +1994,21 @@ id: fixture.teams.away.id,
 
       // Clear sessionStorage as well
       const sessionKeys = Object.keys(sessionStorage);
-      const sessionExcludedKeys = sessionKeys.filter(key =>
-        key.includes('848') ||
-        key.includes('169') ||
-        key.includes('conference') ||
-        key.includes('regionalliga') ||
-        key.includes('bayern') ||
-        key.startsWith('league-fixtures-') ||
-        key.startsWith('featured-match-') ||
-        key.includes('62') || // Ligue 2
-        key.includes('ligue 2') ||
-        key.includes('l2')
+      const sessionExcludedKeys = sessionKeys.filter(
+        (key) =>
+          key.includes("848") ||
+          key.includes("169") ||
+          key.includes("conference") ||
+          key.includes("regionalliga") ||
+          key.includes("bayern") ||
+          key.startsWith("league-fixtures-") ||
+          key.startsWith("featured-match-") ||
+          key.includes("62") || // Ligue 2
+          key.includes("ligue 2") ||
+          key.includes("l2"),
       );
 
-      sessionExcludedKeys.forEach(key => {
+      sessionExcludedKeys.forEach((key) => {
         try {
           sessionStorage.removeItem(key);
         } catch (error) {
@@ -1646,27 +2017,33 @@ id: fixture.teams.away.id,
       });
 
       // Also clear React Query cache for these specific leagues
-      if (typeof window !== 'undefined' && window.queryClient) {
+      if (typeof window !== "undefined" && window.queryClient) {
         try {
           window.queryClient.removeQueries({
             predicate: (query: any) => {
-              const key = query.queryKey?.join('-') || '';
-              return key.includes('848') || key.includes('169') ||
-                     key.includes('conference') || key.includes('regionalliga') ||
-                     key.includes('bayern') ||
-                     key.includes('62') || // Ligue 2
-                     key.includes('ligue 2') ||
-                     key.includes('l2');
-            }
+              const key = query.queryKey?.join("-") || "";
+              return (
+                key.includes("848") ||
+                key.includes("169") ||
+                key.includes("conference") ||
+                key.includes("regionalliga") ||
+                key.includes("bayern") ||
+                key.includes("62") || // Ligue 2
+                key.includes("ligue 2") ||
+                key.includes("l2")
+              );
+            },
           });
         } catch (error) {
-          console.warn('Failed to clear React Query cache:', error);
+          console.warn("Failed to clear React Query cache:", error);
         }
       }
 
-      console.log(`🧹 [CacheClean] Cleared ${excludedLeagueKeys.length + sessionExcludedKeys.length} cache entries for excluded leagues (UEFA Europa Conference League, Regionalliga - Bayern, Ligue 2)`);
+      console.log(
+        `🧹 [CacheClean] Cleared ${excludedLeagueKeys.length + sessionExcludedKeys.length} cache entries for excluded leagues (UEFA Europa Conference League, Regionalliga - Bayern, Ligue 2)`,
+      );
     } catch (error) {
-      console.error('Error clearing excluded leagues caches:', error);
+      console.error("Error clearing excluded leagues caches:", error);
     }
   }, []);
 
@@ -1689,57 +2066,78 @@ id: fixture.teams.away.id,
     let shouldRefresh = false;
 
     // Analyze current match states to determine optimal refresh strategy
-    const matchAnalysis = featuredMatches.reduce((analysis, dayData) => {
-      dayData.matches.forEach(match => {
-        const status = match.fixture.status.short;
-        const matchDate = new Date(match.fixture.date);
-        const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
+    const matchAnalysis = featuredMatches.reduce(
+      (analysis, dayData) => {
+        dayData.matches.forEach((match) => {
+          const status = match.fixture.status.short;
+          const matchDate = new Date(match.fixture.date);
+          const minutesFromKickoff =
+            (now.getTime() - matchDate.getTime()) / (1000 * 60);
 
-        // Categorize matches
-        if (["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
-          analysis.liveMatches++;
-        } else if (status === "NS") {
-          if (Math.abs(minutesFromKickoff) <= 30) {
-            analysis.imminentMatches++; // Starting within 30 minutes
-          } else if (Math.abs(minutesFromKickoff) <= 120) {
-            analysis.upcomingMatches++; // Starting within 2 hours
-          }
+          // Categorize matches
+          if (
+            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
+          ) {
+            analysis.liveMatches++;
+          } else if (status === "NS") {
+            if (Math.abs(minutesFromKickoff) <= 30) {
+              analysis.imminentMatches++; // Starting within 30 minutes
+            } else if (Math.abs(minutesFromKickoff) <= 120) {
+              analysis.upcomingMatches++; // Starting within 2 hours
+            }
 
-          // Check for stale "Starting now" matches
-          if (minutesFromKickoff > 30 && minutesFromKickoff < 180) {
-            analysis.staleMatches++;
+            // Check for stale "Starting now" matches
+            if (minutesFromKickoff > 30 && minutesFromKickoff < 180) {
+              analysis.staleMatches++;
+            }
           }
-        }
-      });
-      return analysis;
-    }, { liveMatches: 0, imminentMatches: 0, upcomingMatches: 0, staleMatches: 0 });
+        });
+        return analysis;
+      },
+      {
+        liveMatches: 0,
+        imminentMatches: 0,
+        upcomingMatches: 0,
+        staleMatches: 0,
+      },
+    );
 
     // Determine refresh strategy based on match analysis
     if (matchAnalysis.liveMatches > 0) {
       // Most aggressive: Live matches detected
       refreshInterval = 30000; // 30 seconds
       shouldRefresh = true;
-      console.log(`🔴 [MyHomeFeaturedMatchNew] ${matchAnalysis.liveMatches} live matches - using aggressive refresh (30s)`);
+      console.log(
+        `🔴 [MyHomeFeaturedMatchNew] ${matchAnalysis.liveMatches} live matches - using aggressive refresh (30s)`,
+      );
     } else if (matchAnalysis.staleMatches > 0) {
       // Aggressive: Stale matches that should have updated
       refreshInterval = 45000; // 45 seconds
       shouldRefresh = true;
-      console.log(`🟡 [MyHomeFeaturedMatchNew] ${matchAnalysis.staleMatches} stale matches detected - using aggressive refresh (45s)`);
+      console.log(
+        `🟡 [MyHomeFeaturedMatchNew] ${matchAnalysis.staleMatches} stale matches detected - using aggressive refresh (45s)`,
+      );
     } else if (matchAnalysis.imminentMatches > 0) {
       // Very frequent: Matches starting within 30 minutes
       refreshInterval = 60000; // 1 minute
       shouldRefresh = true;
-      console.log(`🟠 [MyHomeFeaturedMatchNew] ${matchAnalysis.imminentMatches} imminent matches - using frequent refresh (1min)`);
+      console.log(
+        `🟠 [MyHomeFeaturedMatchNew] ${matchAnalysis.imminentMatches} imminent matches - using frequent refresh (1min)`,
+      );
     } else if (matchAnalysis.upcomingMatches > 0) {
       // Moderate: Matches starting within 2 hours
       refreshInterval = 120000; // 2 minutes
       shouldRefresh = true;
-      console.log(`🟢 [MyHomeFeaturedMatchNew] ${matchAnalysis.upcomingMatches} upcoming matches - using moderate refresh (2min)`);
+      console.log(
+        `🟢 [MyHomeFeaturedMatchNew] ${matchAnalysis.upcomingMatches} upcoming matches - using moderate refresh (2min)`,
+      );
     } else {
       // Standard: No urgent matches
       refreshInterval = 300000; // 5 minutes
       shouldRefresh = false;
-      console.log(`⏸️ [MyHomeFeaturedMatchNew] No urgent matches - using standard refresh (5min)`);
+      console.log(
+        `⏸️ [MyHomeFeaturedMatchNew] No urgent matches - using standard refresh (5min)`,
+      );
     }
 
     if (!shouldRefresh) {
@@ -1748,7 +2146,9 @@ id: fixture.teams.away.id,
     }
 
     const interval = setInterval(() => {
-      console.log(`🔄 [MyHomeFeaturedMatchNew] Smart refresh triggered (interval: ${refreshInterval/1000}s)`);
+      console.log(
+        `🔄 [MyHomeFeaturedMatchNew] Smart refresh triggered (interval: ${refreshInterval / 1000}s)`,
+      );
       fetchFeaturedMatches(false); // Background refresh without loading state
     }, refreshInterval);
 
@@ -2017,7 +2417,8 @@ id: fixture.teams.away.id,
     // Only show countdown for upcoming matches
     if (!statusInfo.isUpcoming) {
       setCountdownTimer("");
-      return;    }
+      return;
+    }
 
     function updateTimer() {
       try {
@@ -2178,646 +2579,739 @@ id: fixture.teams.away.id,
           Featured Match
         </Badge>
 
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-sm"></CardTitle>
-      </CardHeader>
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-sm"></CardTitle>
+        </CardHeader>
 
-      <CardContent className="pt-0">
-        {allMatches.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400">
-            <p className="text-lg font-medium mb-1">No featured matches</p>
-            <p className="text-sm">Check back later for upcoming games</p>
-          </div>
-        ) : (
-          <div className="relative">
-            {/* Navigation arrows */}
-            {allMatches.length > 1 && (
-              <>
-                <button
-                  onClick={handlePrevious}
-                  className="absolute -left-8 top-1/2 transform -translate-y-1/2 z-10 dark:bg-gray-700 dark:hover:bg-gray-800 hover:bg-gray-200 border-2 border-gray-400 rounded-full p-3 "
-                >
-                  <ChevronLeft className="h-4 w-3 text-gray-500" />
-                </button>
+        <CardContent className="pt-0">
+          {allMatches.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400">
+              <p className="text-lg font-medium mb-1">No featured matches</p>
+              <p className="text-sm">Check back later for upcoming games</p>
+            </div>
+          ) : (
+            <div className="relative">
+              {/* Navigation arrows */}
+              {allMatches.length > 1 && (
+                <>
+                  <button
+                    onClick={handlePrevious}
+                    className="absolute -left-8 top-1/2 transform -translate-y-1/2 z-10 dark:bg-gray-700 dark:hover:bg-gray-800 hover:bg-gray-200 border-2 border-gray-400 rounded-full p-3 "
+                  >
+                    <ChevronLeft className="h-4 w-3 text-gray-500" />
+                  </button>
 
-                <button
-                  onClick={handleNext}
-                  className="absolute -right-8 top-1/2 transform -translate-y-1/2 z-10 dark:bg-gray-700 dark:hover:bg-gray-800 hover:bg-gray-200 border-2 border-gray-400 rounded-full p-3 "
-                >
-                  <ChevronRight className="h-4 w-3 text-gray-500" />
-                </button>
-              </>
-            )}
+                  <button
+                    onClick={handleNext}
+                    className="absolute -right-8 top-1/2 transform -translate-y-1/2 z-10 dark:bg-gray-700 dark:hover:bg-gray-800 hover:bg-gray-200 border-2 border-gray-400 rounded-full p-3 "
+                  >
+                    <ChevronRight className="h-4 w-3 text-gray-500" />
+                  </button>
+                </>
+              )}
 
-            {/* Single match display */}
-            <AnimatePresence mode="wait">
-              {currentMatch && (
-                <motion.div
-                  key={`match-${currentMatch.fixture.id}-${currentMatchIndex}`}
-                  initial={{ x: 100, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: -100, opacity: 0 }}
-                  transition={{
-                    type: "tween",
-                    duration: 0.15,
-                    ease: "easeInOut",
-                  }}
-                  className="cursor-pointer"
-                  onClick={() => {
-                    // Debug logging for league identification
-                    console.log(`🔍 [FEATURED MATCH DEBUG] League ID Debug:`, {
-                      leagueId: currentMatch.league.id,
-                      leagueName: currentMatch.league.name,
-                      leagueCountry: currentMatch.league.country,
-                      matchId: currentMatch.fixture.id,
-                      homeTeam: currentMatch.teams.home.name,
-                      awayTeam: currentMatch.teams.away.name,
-                      fixtureStatus: currentMatch.fixture.status.short
-                    });
-
-                    // Call onMatchSelect if provided (for Details tab)
-                    if (onMatchSelect) {
-                      console.log(`🎯 [MyHomeFeaturedMatchNew] Selecting match for Details tab:`, currentMatch.fixture.id);
-                      onMatchSelect(currentMatch.fixture.id);
-                    } else {
-                      // Navigate to match details page if no callback provided
-                      navigate(`/match/${currentMatch.fixture.id}`);
-                    }
-                  }}
-                >
-                  {/* League header */}
-                  <div
-                    className="flex items-center justify-center gap-2 mb-4 p-2"
+              {/* Single match display */}
+              <AnimatePresence mode="wait">
+                {currentMatch && (
+                  <motion.div
+                    key={`match-${currentMatch.fixture.id}-${currentMatchIndex}`}
+                    initial={{ x: 100, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: -100, opacity: 0 }}
+                    transition={{
+                      type: "tween",
+                      duration: 0.15,
+                      ease: "easeInOut",
+                    }}
+                    className="cursor-pointer"
                     onClick={() => {
-                      console.log(`🔍 [LEAGUE HEADER DEBUG] Clicked on league:`, {
-                        LEAGUE_ID: currentMatch.league.id,
-                        LEAGUE_NAME: currentMatch.league.name,
-                        LEAGUE_COUNTRY: currentMatch.league.country,
-                        LEAGUE_LOGO: currentMatch.league.logo
-                      });
+                      // Debug logging for league identification
+                      console.log(
+                        `🔍 [FEATURED MATCH DEBUG] League ID Debug:`,
+                        {
+                          leagueId: currentMatch.league.id,
+                          leagueName: currentMatch.league.name,
+                          leagueCountry: currentMatch.league.country,
+                          matchId: currentMatch.fixture.id,
+                          homeTeam: currentMatch.teams.home.name,
+                          awayTeam: currentMatch.teams.away.name,
+                          fixtureStatus: currentMatch.fixture.status.short,
+                        },
+                      );
+
+                      // Call onMatchSelect if provided (for Details tab)
+                      if (onMatchSelect) {
+                        console.log(
+                          `🎯 [MyHomeFeaturedMatchNew] Selecting match for Details tab:`,
+                          currentMatch.fixture.id,
+                        );
+                        onMatchSelect(currentMatch.fixture.id);
+                      } else {
+                        // Navigate to match details page if no callback provided
+                        navigate(`/match/${currentMatch.fixture.id}`);
+                      }
                     }}
                   >
-                    <LazyImage
-                      src={
-                        currentMatch.league.name?.toLowerCase().includes('cotif')
-                          ? "/assets/matchdetaillogo/SGCUNl9j-zkh3mv3i.png"
-                          : currentMatch.league.logo
-                      }
-                      alt={currentMatch.league.name}
-                      className="w-6 h-6"
-                      fallbackSrc="/assets/fallback.png"
-                    />
-                    <span
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center"
-                      title={`League ID: ${currentMatch.league.id} | ${currentMatch.league.name} | ${currentMatch.league.country}`}
-                    >
-                      {(() => {
-                        // First try smart league translation
-                        const smartTranslation = smartLeagueCountryTranslation.translateLeagueName(
-                          currentMatch.league.name, 
-                          currentLanguage
+                    {/* League header */}
+                    <div
+                      className="flex items-center justify-center gap-2 mb-4 p-2"
+                      onClick={() => {
+                        console.log(
+                          `🔍 [LEAGUE HEADER DEBUG] Clicked on league:`,
+                          {
+                            LEAGUE_ID: currentMatch.league.id,
+                            LEAGUE_NAME: currentMatch.league.name,
+                            LEAGUE_COUNTRY: currentMatch.league.country,
+                            LEAGUE_LOGO: currentMatch.league.logo,
+                          },
                         );
-                        
-                        // If smart translation worked (different from original), use it
-                        if (smartTranslation !== currentMatch.league.name) {
-                          console.log(`🎯 [League Translation] Smart: "${currentMatch.league.name}" → "${smartTranslation}"`);
-                          return smartTranslation;
+                      }}
+                    >
+                      <LazyImage
+                        src={
+                          currentMatch.league.name
+                            ?.toLowerCase()
+                            .includes("cotif")
+                            ? "/assets/matchdetaillogo/SGCUNl9j-zkh3mv3i.png"
+                            : currentMatch.league.logo
                         }
-                        
-                        // Fallback to context translation
-                        const contextTranslation = translateLeagueName(currentMatch.league.name);
-                        console.log(`🔄 [League Translation] Context: "${currentMatch.league.name}" → "${contextTranslation}"`);
-                        return contextTranslation;
-                      })()}
-                    </span>
+                        alt={currentMatch.league.name}
+                        className="w-6 h-6"
+                        fallbackSrc="/assets/fallback.png"
+                      />
+                      <span
+                        className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center"
+                        title={`League ID: ${currentMatch.league.id} | ${currentMatch.league.name} | ${currentMatch.league.country}`}
+                      >
+                        {(() => {
+                          // First try smart league translation
+                          const smartTranslation =
+                            smartLeagueCountryTranslation.translateLeagueName(
+                              currentMatch.league.name,
+                              currentLanguage,
+                            );
 
-                    {/* Round/Bracket Status Display using RoundBadge component */}
-                    <RoundBadge
-                      leagueId={currentMatch.league.id}
-                      currentRound={currentMatch.league?.round}
-                      matchStatus={currentMatch.fixture.status.short}
-                      className="ml-2"
-                    />
-                  </div>
+                          // If smart translation worked (different from original), use it
+                          if (smartTranslation !== currentMatch.league.name) {
+                            console.log(
+                              `🎯 [League Translation] Smart: "${currentMatch.league.name}" → "${smartTranslation}"`,
+                            );
+                            return smartTranslation;
+                          }
 
-                  {/* Match day indicator */}
-                  <div className="text-center mb-4 ">
-                    <div className="text-lg font-bold text-gray-800 dark:text-gray-200 ">
-                      {(() => {
-                        const statusInfo = getStatusDisplay(currentMatch);
-                        const matchStatus = currentMatch.fixture.status.short;
-                        const matchDate = new Date(currentMatch.fixture.date);
-                        const today = new Date();
-                        const tomorrow = addDays(today, 1);
+                          // Fallback to context translation
+                          const contextTranslation = translateLeagueName(
+                            currentMatch.league.name,
+                          );
+                          console.log(
+                            `🔄 [League Translation] Context: "${currentMatch.league.name}" → "${contextTranslation}"`,
+                          );
+                          return contextTranslation;
+                        })()}
+                      </span>
 
-                        const matchDateString = format(matchDate, "yyyy-MM-dd");
-                        const todayString = format(today, "yyyy-MM-dd");
-                        const tomorrowString = format(tomorrow, "yyyy-MM-dd");
+                      {/* Round/Bracket Status Display using RoundBadge component */}
+                      <RoundBadge
+                        leagueId={currentMatch.league.id}
+                        currentRound={currentMatch.league?.round}
+                        matchStatus={currentMatch.fixture.status.short}
+                        className="ml-2"
+                      />
+                    </div>
 
-                        // Live matches - show elapsed time and live score
-                        if (statusInfo.isLive) {
-                          const elapsed = currentMatch.fixture.status.elapsed;
-                          const homeScore = currentMatch.goals.home ?? 0;
-                          const awayScore = currentMatch.goals.away ?? 0;
+                    {/* Match day indicator */}
+                    <div className="text-center mb-4 ">
+                      <div className="text-lg font-bold text-gray-800 dark:text-gray-200 ">
+                        {(() => {
+                          const statusInfo = getStatusDisplay(currentMatch);
+                          const matchStatus = currentMatch.fixture.status.short;
+                          const matchDate = new Date(currentMatch.fixture.date);
+                          const today = new Date();
+                          const tomorrow = addDays(today, 1);
+
+                          const matchDateString = format(
+                            matchDate,
+                            "yyyy-MM-dd",
+                          );
+                          const todayString = format(today, "yyyy-MM-dd");
+                          const tomorrowString = format(tomorrow, "yyyy-MM-dd");
+
+                          // Live matches - show elapsed time and live score
+                          if (statusInfo.isLive) {
+                            const elapsed = currentMatch.fixture.status.elapsed;
+                            const homeScore = currentMatch.goals.home ?? 0;
+                            const awayScore = currentMatch.goals.away ?? 0;
+
+                            return (
+                              <div className="space-y-1">
+                                <div className="text-red-600 text-sm flex items-center justify-center gap-2">
+                                  {elapsed && (
+                                    <span
+                                      className="animate-pulse"
+                                      style={{
+                                        animation:
+                                          "truePulse 2s infinite ease-in-out",
+                                      }}
+                                    >
+                                      {" "}
+                                      {elapsed}'
+                                    </span>
+                                  )}
+                                  {!elapsed && (
+                                    <span
+                                      className="animate-pulse"
+                                      style={{
+                                        animation:
+                                          "truePulse 2s infinite ease-in-out",
+                                      }}
+                                    >
+                                      {getMatchStatusTranslation(
+                                        "LIVE",
+                                        currentLanguage,
+                                      )}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-2xl font-md">
+                                  {homeScore} - {awayScore}
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          // Ended matches - show final score
+                          if (
+                            matchStatus === "FT" ||
+                            matchStatus === "AET" ||
+                            matchStatus === "PEN"
+                          ) {
+                            const homeScore = currentMatch.goals.home ?? 0;
+                            const awayScore = currentMatch.goals.away ?? 0;
+
+                            return (
+                              <div className="space-y-0">
+                                <div className="text-gray-600 dark:text-gray-400 text-sm ">
+                                  {getMatchStatusTranslation(
+                                    matchStatus,
+                                    currentLanguage,
+                                  )}
+                                </div>
+                                <div className="text-3xl font-bold">
+                                  {homeScore} - {awayScore}
+                                </div>
+                                {/* Show penalty scores if match ended in penalties */}
+                                {matchStatus === "PEN" &&
+                                  currentMatch.score?.penalty && (
+                                    <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                      {t("penalties")}:{" "}
+                                      {currentMatch.score.penalty.home} -{" "}
+                                      {currentMatch.score.penalty.away}
+                                    </div>
+                                  )}
+                              </div>
+                            );
+                          }
+
+                          // Upcoming matches - show countdown timer if within 8 hours, otherwise date
+                          const upcomingContent = (() => {
+                            // Show countdown timer if available and not empty
+                            if (
+                              countdownTimer &&
+                              countdownTimer !== "" &&
+                              countdownTimer !== "Loading..." &&
+                              countdownTimer !== "--:--:--"
+                            ) {
+                              // Check if countdown shows "Starting now" and translate it
+                              if (countdownTimer === "Starting now") {
+                                return getMatchStatusTranslation(
+                                  "NS",
+                                  currentLanguage,
+                                );
+                              }
+                              return countdownTimer;
+                            }
+
+                            // Fallback to date labeling with translations
+                            if (matchDateString === todayString) {
+                              return t("today");
+                            } else if (matchDateString === tomorrowString) {
+                              return t("tomorrow") || "Tomorrow";
+                            } else {
+                              // Calculate days difference for upcoming matches using date-only comparison
+                              const matchDateOnly = new Date(
+                                matchDate.getFullYear(),
+                                matchDate.getMonth(),
+                                matchDate.getDate(),
+                              );
+                              const todayDateOnly = new Date(
+                                today.getFullYear(),
+                                today.getMonth(),
+                                today.getDate(),
+                              );
+                              const daysDiff = Math.round(
+                                (matchDateOnly.getTime() -
+                                  todayDateOnly.getTime()) /
+                                  (1000 * 60 * 60 * 24),
+                              );
+
+                              if (daysDiff > 0 && daysDiff <= 7) {
+                                // For matches within a week, show just the number of days with translation
+                                const dayText =
+                                  daysDiff === 1
+                                    ? t("day") !== "day"
+                                      ? t("day")
+                                      : "Day"
+                                    : t("days") !== "days"
+                                      ? t("days")
+                                      : "Days";
+                                return `${daysDiff} ${dayText}`;
+                              } else if (daysDiff > 7) {
+                                // For matches more than a week away, show translated date
+                                const dayName = format(matchDate, "EEEE");
+                                const monthName = format(matchDate, "MMMM");
+                                const dayNumber = format(matchDate, "do");
+
+                                const translatedDayName = (() => {
+                                  const dayKey = dayName.toLowerCase();
+                                  return t(dayKey) !== dayKey
+                                    ? t(dayKey)
+                                    : dayName;
+                                })();
+
+                                const translatedMonthName = (() => {
+                                  const monthKey = monthName.toLowerCase();
+                                  return t(monthKey) !== monthKey
+                                    ? t(monthKey)
+                                    : monthName;
+                                })();
+
+                                return `${translatedDayName}, ${dayNumber} ${translatedMonthName}`;
+                              } else {
+                                // For past matches that aren't ended (edge case)
+                                const dayName = format(matchDate, "EEEE");
+                                const monthName = format(matchDate, "MMM");
+                                const dayNumber = format(matchDate, "d");
+
+                                const translatedDayName = (() => {
+                                  const dayKey = dayName.toLowerCase();
+                                  return t(dayKey) !== dayKey
+                                    ? t(dayKey)
+                                    : dayName;
+                                })();
+
+                                const translatedMonthName = (() => {
+                                  const monthKey = monthName.toLowerCase();
+                                  return t(monthKey) !== monthKey
+                                    ? t(monthKey)
+                                    : monthName;
+                                })();
+
+                                return `${translatedDayName}, ${translatedMonthName} ${dayNumber}`;
+                              }
+                            }
+                          })();
 
                           return (
                             <div className="space-y-1">
-                              <div className="text-red-600 text-sm flex items-center justify-center gap-2">
-                                {elapsed && <span className="animate-pulse" style={{animation: 'truePulse 2s infinite ease-in-out'}}> {elapsed}'</span>}
-                                {!elapsed && <span className="animate-pulse" style={{animation: 'truePulse 2s infinite ease-in-out'}}>{getMatchStatusTranslation('LIVE', currentLanguage)}</span>}
+                              <div className="text-sm text-gray-600 dark:text-gray-400 invisible">
+                                {/* // Hidden status placeholder to maintain spacing */}
+                                Ended
                               </div>
-                              <div className="text-2xl font-md">
-                                {homeScore} - {awayScore}
+                              <div className="text-2xl font-md min-h-[1rem] flex items-center justify-center">
+                                {upcomingContent}
                               </div>
                             </div>
                           );
-                        }
-
-                        // Ended matches - show final score
-                        if (
-                          matchStatus === "FT" ||
-                          matchStatus === "AET" ||
-                          matchStatus === "PEN"
-                        ) {
-                          const homeScore = currentMatch.goals.home ?? 0;
-                          const awayScore = currentMatch.goals.away ?? 0;
-
-                          return (
-                            <div className="space-y-0">
-                              <div className="text-gray-600 dark:text-gray-400 text-sm ">
-                                {getMatchStatusTranslation(matchStatus, currentLanguage)}
-                              </div>
-                              <div className="text-3xl font-bold">
-                                {homeScore} - {awayScore}
-                              </div>
-                              {/* Show penalty scores if match ended in penalties */}
-                              {matchStatus === "PEN" && currentMatch.score?.penalty && (
-                                <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                  {t('penalties')}: {currentMatch.score.penalty.home} - {currentMatch.score.penalty.away}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        }
-
-                        // Upcoming matches - show countdown timer if within 8 hours, otherwise date
-                        const upcomingContent = (() => {
-                          // Show countdown timer if available and not empty
-                          if (
-                            countdownTimer &&
-                            countdownTimer !== "" &&
-                            countdownTimer !== "Loading..." &&
-                            countdownTimer !== "--:--:--"
-                          ) {
-                            // Check if countdown shows "Starting now" and translate it
-                            if (countdownTimer === "Starting now") {
-                              return getMatchStatusTranslation('NS', currentLanguage);
-                            }
-                            return countdownTimer;
-                          }
-
-                          // Fallback to date labeling with translations
-                          if (matchDateString === todayString) {
-                            return t('today');
-                          } else if (matchDateString === tomorrowString) {
-                            return t('tomorrow') || "Tomorrow";
-                          } else {
-                            // Calculate days difference for upcoming matches using date-only comparison
-                            const matchDateOnly = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate());
-                            const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-                            const daysDiff = Math.round(
-                              (matchDateOnly.getTime() - todayDateOnly.getTime()) /
-                                (1000 * 60 * 60 * 24),
-                            );
-
-                            if (daysDiff > 0 && daysDiff <= 7) {
-                              // For matches within a week, show just the number of days with translation
-                              const dayText = daysDiff === 1 ? 
-                                (t('day') !== 'day' ? t('day') : 'Day') : 
-                                (t('days') !== 'days' ? t('days') : 'Days');
-                              return `${daysDiff} ${dayText}`;
-                            } else if (daysDiff > 7) {
-                              // For matches more than a week away, show translated date
-                              const dayName = format(matchDate, "EEEE");
-                              const monthName = format(matchDate, "MMMM");
-                              const dayNumber = format(matchDate, "do");
-
-                              const translatedDayName = (() => {
-                                const dayKey = dayName.toLowerCase();
-                                return t(dayKey) !== dayKey ? t(dayKey) : dayName;
-                              })();
-
-                              const translatedMonthName = (() => {
-                                const monthKey = monthName.toLowerCase();
-                                return t(monthKey) !== monthKey ? t(monthKey) : monthName;
-                              })();
-
-                              return `${translatedDayName}, ${dayNumber} ${translatedMonthName}`;
-                            } else {
-                              // For past matches that aren't ended (edge case)
-                              const dayName = format(matchDate, "EEEE");
-                              const monthName = format(matchDate, "MMM");
-                              const dayNumber = format(matchDate, "d");
-
-                              const translatedDayName = (() => {
-                                const dayKey = dayName.toLowerCase();
-                                return t(dayKey) !== dayKey ? t(dayKey) : dayName;
-                              })();
-
-                              const translatedMonthName = (() => {
-                                const monthKey = monthName.toLowerCase();
-                                return t(monthKey) !== monthKey ? t(monthKey) : monthName;
-                              })();
-
-                              return `${translatedDayName}, ${translatedMonthName} ${dayNumber}`;
-                            }
-                          }
-                        })();
-
-                        return (
-                          <div className="space-y-1">
-                            <div className="text-sm text-gray-600 dark:text-gray-400 invisible">
-                               {/* // Hidden status placeholder to maintain spacing */}
-                              Ended
-                            </div>
-                            <div className="text-2xl font-md min-h-[1rem] flex items-center justify-center">
-                              {upcomingContent}
-                            </div>
-                          </div>
-                        );
-                      })()}
+                        })()}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Teams display using colored bar like FixedScoreboard */}
-                  <div className="relative mt-2">
-                    <div
-                      className="flex relative h-[53px] rounded-md mb-8"
-                      onClick={() =>
-                        navigate(`/match/${currentMatch.fixture.id}`)
-                      }
-                      style={{ cursor: "pointer" }}
-                    >
-                      <div className="w-full h-full flex justify-between relative">
-                        {/* Home team colored bar and logo */}
+                    {/* Teams display using colored bar like FixedScoreboard */}
+                    <div className="relative mt-2">
+                      <div
+                        className="flex relative h-[53px] rounded-md mb-8"
+                        onClick={() =>
+                          navigate(`/match/${currentMatch.fixture.id}`)
+                        }
+                        style={{ cursor: "pointer" }}
+                      >
+                        <div className="w-full h-full flex justify-between relative">
+                          {/* Home team colored bar and logo */}
 
-                        <div
-                          className="h-full w-[calc(50%+20px)] ml-[25px] transition-all duration-500 ease-in-out opacity-100 relative "
-                          style={{
-                            background: getEnhancedTeamColor(
-                              currentMatch?.teams?.home?.name || "Home Team",
-                              true,
-                            ),
-                            transition: "all 0.3s ease-in-out",
-                            clipPath:
-                              "polygon(0 0, 100% 0, 100% 100%, 100% 100%, 100%)",
-                            right: "-15px",
-                          }}
-                        >
-                          {currentMatch?.teams?.home && (
-                            <div
-                              className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out"
-                              style={{
-                                cursor: "pointer",
-                                top: "calc(50% - 35px)",
-                                left: "-35px",
-                                filter: "contrast(115%) brightness(105%)",
-                              }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate(`/match/${currentMatch.fixture.id}`);
-                              }}
-                            >
-                              <MyWorldTeamLogo
-                                teamName={
-                                  currentMatch.teams.home.name || "Home Team"
-                                }
-                                teamLogo={
-                                  currentMatch.teams.home.id
-                                    ? `/api/team-logo/square/${currentMatch.teams.home.id}?size=64`
-                                    : currentMatch.teams.home.logo ||
-                                      "/assets/fallback-logo.svg"
-                                }
-                                alt={
-                                  currentMatch.teams.home.name || "Home Team"
-                                }
-                                size="70px"
-                                className="w-full h-full object-contain"
-                                leagueContext={{
-                                  name: currentMatch.league.name,
-                                  country: currentMatch.league.country,
-                                }}
-                              />
-                            </div>
-                          )}
-                        </div>
-
-                        <div
-                          className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
-                          style={{
-                            top: "calc(50% - 15px)",
-                            left: "85px",
-                            fontSize: "clamp(12px, 2.5vw, 16px)",
-                            fontWeight: "normal",
-                          }}
-                        >
-                          {(() => {
-                            const originalName = currentMatch?.teams?.home?.name || "TBD";
-                            return translateTeamName(originalName);
-                          })()}
-                        </div>
-
-                        {/* VS circle */}
-                        <div
-                          className="absolute text-white font-md text-3xl  h-[52px] w-[52px] flex items-center justify-center z-30 overflow-hidden"
-                          style={{
-                            background: "transparent",
-                            left: "calc(50% - 35px)",
-                            top: "calc(50% - 26px)",
-                            minWidth: "52px",
-                          }}
-                        >
-                          <span className="vs-text font-bold">VS</span>
-                        </div>
-
-                        {/* Match date and venue - centered below VS */}
-                        <div
-                          className=" absolute text-center text-xs text-black dark:text-gray-300 font-medium"
-                          style={{
-                            fontSize: "0.875rem",
-                            whiteSpace: "nowrap",
-                            overflow: "visible",
-                            textAlign: "center",
-                            position: "absolute",
-                            left: "50%",
-                            transform: "translateX(-50%)",
-
-                            bottom: "-70px",
-                            width: "max-content",
-                            fontFamily: "'Inter', system-ui, sans-serif",
-
-                          }}
-                        >
-                          {(() => {
-                            try {
-                              const matchDate = new Date(
-                                currentMatch.fixture.date,
-                              );
-                              const statusInfo = getStatusDisplay(currentMatch);
-
-                              // Get day name and translate it
-                              const dayName = format(matchDate, "EEEE");
-                              const translatedDayName = (() => {
-                                const dayKey = dayName.toLowerCase();
-                                return t(dayKey) !== dayKey ? t(dayKey) : dayName;
-                              })();
-
-                              // Get month name and translate it
-                              const monthName = format(matchDate, "MMMM");
-                              const translatedMonthName = (() => {
-                                const monthKey = monthName.toLowerCase();
-                                return t(monthKey) !== monthKey ? t(monthKey) : monthName;
-                              })();
-
-                              // Get day number with ordinal
-                              const dayNumber = format(matchDate, "do");
-                              const timeOnly = format(matchDate, "HH:mm");
-
-                              // Build translated date string
-                              const translatedDate = `${translatedDayName}, ${dayNumber} ${translatedMonthName}`;
-
-                              // Safely get venue with proper fallbacks - SHOW FOR ALL MATCH TYPES
-                              let displayVenue = currentMatch.fixture?.venue?.name || 
-                                               currentMatch.venue?.name || 
-                                               null;
-
-                              // Check if venue is missing or has placeholder values
-                              if (
-                                !displayVenue ||
-                                displayVenue === "TBD" ||
-                                displayVenue === "Venue TBA" ||
-                                displayVenue === "" ||
-                                displayVenue === "Unknown" ||
-                                displayVenue === "null" ||
-                                displayVenue.trim() === ""
-                              ) {
-                                displayVenue = null; // No valid venue found
-                              }
-
-                              // Format venue name with proper capitalization
-                              const formattedVenue = displayVenue ? 
-                                displayVenue.toLowerCase().replace(/\b\w/g, l => l.toUpperCase()) : 
-                                null;
-
-                              // Show date, time, and venue for ALL match types (upcoming, live, ended)
-                              return (
-                                <>
-                                  {translatedDate} | {timeOnly}
-                                  {formattedVenue ? ` | ${formattedVenue}` : ""}
-                                </>
-                              );
-                            } catch (e) {
-                              console.warn(
-                                "Error formatting match date/venue:",
-                                e,
-                              );
-                              return "Match details unavailable";
-                            }
-                          })()}
-                        </div>
-
-                        {/* Away team colored bar and logo */}
-                        <div
-                          className="h-full w-[calc(50%+16px)] mr-[45px] transition-all duration-500 ease-in-out opacity-100"
-                          style={{
-                            background: getEnhancedTeamColor(
-                              currentMatch?.teams?.away?.name || "Away Team",
-                              false,
-                            ),
-                            transition: "all 0.3s ease-in-out",
-                            clipPath:
-                              "polygon(15px 0, 100% 0, 100% 100%, 0 100%)",
-                            marginLeft: "-15px",
-                          }}
-                        ></div>
-
-                        <div
-                          className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
-                          style={{
-                            top: "calc(50% - 15px)",
-                            right: "85px",
-                            fontSize: "clamp(12px, 2.5vw, 16px)",
-                            fontWeight: "normal",
-                          }}
-                        >
-                          {(() => {
-                            const originalName = currentMatch?.teams?.away?.name || "Away Team";
-                            return translateTeamName(originalName);
-                          })()}
-                        </div>
-
-                        <div
-                          className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out"
-                          style={{
-                            cursor: "pointer",
-                            top: "calc(50% - 38px)",
-                            right: "55px",
-                            transform: "translateX(50%)",
-                            filter: "contrast(115%) brightness(105%)",
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/match/${currentMatch.fixture.id}`);
-                          }}
-                        >
-                          <MyWorldTeamLogo
-                            teamName={
-                              currentMatch?.teams?.away?.name || "Away Team"
-                            }
-                            teamLogo={
-                              currentMatch.teams.away.id
-                                ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=70`
-                                : currentMatch?.teams?.away?.logo ||
-                                  `/assets/fallback-logo.svg`
-                            }
-                            alt={currentMatch?.teams?.away?.name || "Away Team"}
-                            size="75px"
-                            className="w-full hull object-contain"
-                            leagueContext={{
-                              name: currentMatch.league.name,
-                              country: currentMatch.league.country,
+                          <div
+                            className="h-full w-[calc(50%+20px)] ml-[25px] transition-all duration-500 ease-in-out opacity-100 relative "
+                            style={{
+                              background: getEnhancedTeamColor(
+                                currentMatch?.teams?.home?.name || "Home Team",
+                                true,
+                              ),
+                              transition: "all 0.3s ease-in-out",
+                              clipPath:
+                                "polygon(0 0, 100% 0, 100% 100%, 100% 100%, 100%)",
+                              right: "-15px",
                             }}
-                          />
+                          >
+                            {currentMatch?.teams?.home && (
+                              <div
+                                className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out"
+                                style={{
+                                  cursor: "pointer",
+                                  top: "calc(50% - 35px)",
+                                  left: "-35px",
+                                  filter: "contrast(115%) brightness(105%)",
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(`/match/${currentMatch.fixture.id}`);
+                                }}
+                              >
+                                <MyWorldTeamLogo
+                                  teamName={
+                                    currentMatch.teams.home.name || "Home Team"
+                                  }
+                                  teamLogo={
+                                    currentMatch.teams.home.id
+                                      ? `/api/team-logo/square/${currentMatch.teams.home.id}?size=64`
+                                      : currentMatch.teams.home.logo ||
+                                        "/assets/fallback-logo.svg"
+                                  }
+                                  alt={
+                                    currentMatch.teams.home.name || "Home Team"
+                                  }
+                                  size="70px"
+                                  className="w-full h-full object-contain"
+                                  leagueContext={{
+                                    name: currentMatch.league.name,
+                                    country: currentMatch.league.country,
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          <div
+                            className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
+                            style={{
+                              top: "calc(50% - 13px)",
+                              left: "80px",
+                              fontSize: "clamp(12px, 2.5vw, 16px)",
+                              fontWeight: "normal",
+                            }}
+                          >
+                            {(() => {
+                              const originalName =
+                                currentMatch?.teams?.home?.name || "TBD";
+                              return translateTeamName(originalName);
+                            })()}
+                          </div>
+
+                          {/* VS circle */}
+                          <div
+                            className="absolute text-white font-md text-3xl  h-[52px] w-[52px] flex items-center justify-center z-30 overflow-hidden"
+                            style={{
+                              background: "transparent",
+                              left: "calc(50% - 35px)",
+                              top: "calc(50% - 26px)",
+                              minWidth: "52px",
+                            }}
+                          >
+                            <span className="vs-text font-bold">VS</span>
+                          </div>
+
+                          {/* Match date and venue - centered below VS */}
+                          <div
+                            className=" absolute text-center text-xs text-black dark:text-gray-300 font-medium"
+                            style={{
+                              fontSize: "0.875rem",
+                              whiteSpace: "nowrap",
+                              overflow: "visible",
+                              textAlign: "center",
+                              position: "absolute",
+                              left: "50%",
+                              transform: "translateX(-50%)",
+
+                              bottom: "-70px",
+                              width: "max-content",
+                              fontFamily: "'Inter', system-ui, sans-serif",
+                            }}
+                          >
+                            {(() => {
+                              try {
+                                const matchDate = new Date(
+                                  currentMatch.fixture.date,
+                                );
+                                const statusInfo =
+                                  getStatusDisplay(currentMatch);
+
+                                // Get day name and translate it
+                                const dayName = format(matchDate, "EEEE");
+                                const translatedDayName = (() => {
+                                  const dayKey = dayName.toLowerCase();
+                                  return t(dayKey) !== dayKey
+                                    ? t(dayKey)
+                                    : dayName;
+                                })();
+
+                                // Get month name and translate it
+                                const monthName = format(matchDate, "MMMM");
+                                const translatedMonthName = (() => {
+                                  const monthKey = monthName.toLowerCase();
+                                  return t(monthKey) !== monthKey
+                                    ? t(monthKey)
+                                    : monthName;
+                                })();
+
+                                // Get day number with ordinal
+                                const dayNumber = format(matchDate, "do");
+                                const timeOnly = format(matchDate, "HH:mm");
+
+                                // Build translated date string
+                                const translatedDate = `${translatedDayName}, ${dayNumber} ${translatedMonthName}`;
+
+                                // Safely get venue with proper fallbacks - SHOW FOR ALL MATCH TYPES
+                                let displayVenue =
+                                  currentMatch.fixture?.venue?.name ||
+                                  currentMatch.venue?.name ||
+                                  null;
+
+                                // Check if venue is missing or has placeholder values
+                                if (
+                                  !displayVenue ||
+                                  displayVenue === "TBD" ||
+                                  displayVenue === "Venue TBA" ||
+                                  displayVenue === "" ||
+                                  displayVenue === "Unknown" ||
+                                  displayVenue === "null" ||
+                                  displayVenue.trim() === ""
+                                ) {
+                                  displayVenue = null; // No valid venue found
+                                }
+
+                                // Format venue name with proper capitalization
+                                const formattedVenue = displayVenue
+                                  ? displayVenue
+                                      .toLowerCase()
+                                      .replace(/\b\w/g, (l) => l.toUpperCase())
+                                  : null;
+
+                                // Show date, time, and venue for ALL match types (upcoming, live, ended)
+                                return (
+                                  <>
+                                    {translatedDate} | {timeOnly}
+                                    {formattedVenue
+                                      ? ` | ${formattedVenue}`
+                                      : ""}
+                                  </>
+                                );
+                              } catch (e) {
+                                console.warn(
+                                  "Error formatting match date/venue:",
+                                  e,
+                                );
+                                return "Match details unavailable";
+                              }
+                            })()}
+                          </div>
+
+                          {/* Away team colored bar and logo */}
+                          <div
+                            className="h-full w-[calc(50%+16px)] mr-[45px] transition-all duration-500 ease-in-out opacity-100"
+                            style={{
+                              background: getEnhancedTeamColor(
+                                currentMatch?.teams?.away?.name || "Away Team",
+                                false,
+                              ),
+                              transition: "all 0.3s ease-in-out",
+                              clipPath:
+                                "polygon(15px 0, 100% 0, 100% 100%, 0 100%)",
+                              marginLeft: "-15px",
+                            }}
+                          ></div>
+
+                          <div
+                            className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
+                            style={{
+                              top: "calc(50% - 13px)",
+                              right: "85px",
+                              fontSize: "clamp(12px, 2.5vw, 16px)",
+                              fontWeight: "normal",
+                            }}
+                          >
+                            {(() => {
+                              const originalName =
+                                currentMatch?.teams?.away?.name || "Away Team";
+                              return translateTeamName(originalName);
+                            })()}
+                          </div>
+
+                          <div
+                            className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out"
+                            style={{
+                              cursor: "pointer",
+                              top: "calc(50% - 38px)",
+                              right: "55px",
+                              transform: "translateX(50%)",
+                              filter: "contrast(115%) brightness(105%)",
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/match/${currentMatch.fixture.id}`);
+                            }}
+                          >
+                            <MyWorldTeamLogo
+                              teamName={
+                                currentMatch?.teams?.away?.name || "Away Team"
+                              }
+                              teamLogo={
+                                currentMatch.teams.away.id
+                                  ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=70`
+                                  : currentMatch?.teams?.away?.logo ||
+                                    `/assets/fallback-logo.svg`
+                              }
+                              alt={
+                                currentMatch?.teams?.away?.name || "Away Team"
+                              }
+                              size="75px"
+                              className="w-full hull object-contain"
+                              leagueContext={{
+                                name: currentMatch.league.name,
+                                country: currentMatch.league.country,
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex justify-around border-t border-gray-200 dark:border-gray-700 pt-4 mt-20">
-                    <button
-                      className="flex flex-col items-center cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/match/${currentMatch.fixture.id}`);
-                      }}
-                    >
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        className="text-blue-500"
+                    {/* Action Buttons */}
+                    <div className="flex justify-around border-t border-gray-200 dark:border-gray-700 pt-4 mt-20">
+                      <button
+                        className="flex flex-col items-center cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/match/${currentMatch.fixture.id}`);
+                        }}
                       >
-                        <path
-                          d="M20 3H4C3.45 3 3 3.45 3 4V20C3 20.55 3.45 21 4 21H20C20.55 21 21 20.55 21 20V4C21 3.45 20.55 3 20 3ZM7 7H17V17H7V7Z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                      <span className="text-xs text-gray-600 dark:text-white mt-1">
-                        {t('match_page') || 'Match Page'}
-                      </span>
-                    </button>
-                    <button
-                      className="flex flex-col items-center cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }}
-                    >
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        className="text-blue-500"
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          className="text-blue-500"
+                        >
+                          <path
+                            d="M20 3H4C3.45 3 3 3.45 3 4V20C3 20.55 3.45 21 4 21H20C20.55 21 21 20.55 21 20V4C21 3.45 20.55 3 20 3ZM7 7H17V17H7V7Z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                        <span className="text-xs text-gray-600 dark:text-white mt-1">
+                          {t("match_page") || "Match Page"}
+                        </span>
+                      </button>
+                      <button
+                        className="flex flex-col items-center cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
                       >
-                        <path
-                          d="M21.5 4H2.5C2.22386 4 2 4.22386 2 4.5V19.5C2 19.7761 2.22386 20 2.5 20H21.5C21.7761 20 22 19.7761 22 19.5V4.5C22 4.22386 21.7761 4 21.5 4Z"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          fill="none"
-                        />
-                        <path
-                          d="M21.5 9H18.5C18.2239 9 18 9.22386 18 9.5V14.5C18 14.7761 18.2239 15 18.5 15H21.5C21.7761 15 22 14.7761 22 14.5V9.5C22 9.22386 21.7761 9 21.5 9Z"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          fill="none"
-                        />
-                        <path
-                          d="M5.5 9H2.5C2.22386 9 2 9.22386 2 9.5V14.5C2 14.7761 2.22386 15 2.5 15H5.5C5.77614 15 6 14.7761 6 14.5V9.5C6 9.22386 5.77614 9 5.5 9Z"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          fill="none"
-                        />
-                      </svg>
-                      <span className="text-xs text-gray-600 dark:text-white mt-1">
-                        {t('lineups') || 'Lineups'}
-                      </span>
-                    </button>
-                    <button
-                      className="flex flex-col items-center cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }}
-                    >
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        className="text-blue-500"
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          className="text-blue-500"
+                        >
+                          <path
+                            d="M21.5 4H2.5C2.22386 4 2 4.22386 2 4.5V19.5C2 19.7761 2.22386 20 2.5 20H21.5C21.7761 20 22 19.7761 22 19.5V4.5C22 4.22386 21.7761 4 21.5 4Z"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            fill="none"
+                          />
+                          <path
+                            d="M21.5 9H18.5C18.2239 9 18 9.22386 18 9.5V14.5C18 14.7761 18.2239 15 18.5 15H21.5C21.7761 15 22 14.7761 22 14.5V9.5C22 9.22386 21.7761 9 21.5 9Z"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            fill="none"
+                          />
+                          <path
+                            d="M5.5 9H2.5C2.22386 9 2 9.22386 2 9.5V14.5C2 14.7761 2.22386 15 2.5 15H5.5C5.77614 15 6 14.7761 6 14.5V9.5C6 9.22386 5.77614 9 5.5 9Z"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            fill="none"
+                          />
+                        </svg>
+                        <span className="text-xs text-gray-600 dark:text-white mt-1">
+                          {t("lineups") || "Lineups"}
+                        </span>
+                      </button>
+                      <button
+                        className="flex flex-col items-center cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
                       >
-                        <path
-                          d="M12 2C6.486 2 2 6.486 2 12C2 17.514 6.486 22 12 22C17.514 22 22 17.514 22 12C22 6.486 17.514 2 12 2ZM19.931 11H13V4.069C14.7598 4.29335 16.3953 5.09574 17.6498 6.3502C18.9043 7.60466 19.7066 9.24017 19.931 11ZM4 12C4 7.928 7.061 4.564 11 4.069V12C11.003 12.1526 11.0409 12.3024 11.111 12.438C11.126 12.468 11.133 12.501 11.152 12.531L15.354 19.254C14.3038 19.7442 13.159 19.9988 12 20C7.589 20 4 16.411 4 12ZM17.052 18.196L13.805 13H19.931C19.6746 15.0376 18.6436 16.8982 17.052 18.196Z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                      <span className="text-xs text-gray-600 dark:text-white mt-1">{t('statistics') || 'Stats'}</span>
-                    </button>
-                    <button
-                      className="flex flex-col items-center cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }}
-                    >
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        className="text-blue-500"
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          className="text-blue-500"
+                        >
+                          <path
+                            d="M12 2C6.486 2 2 6.486 2 12C2 17.514 6.486 22 12 22C17.514 22 22 17.514 22 12C22 6.486 17.514 2 12 2ZM19.931 11H13V4.069C14.7598 4.29335 16.3953 5.09574 17.6498 6.3502C18.9043 7.60466 19.7066 9.24017 19.931 11ZM4 12C4 7.928 7.061 4.564 11 4.069V12C11.003 12.1526 11.0409 12.3024 11.111 12.438C11.126 12.468 11.133 12.501 11.152 12.531L15.354 19.254C14.3038 19.7442 13.159 19.9988 12 20C7.589 20 4 16.411 4 12ZM17.052 18.196L13.805 13H19.931C19.6746 15.0376 18.6436 16.8982 17.052 18.196Z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                        <span className="text-xs text-gray-600 dark:text-white mt-1">
+                          {t("statistics") || "Stats"}
+                        </span>
+                      </button>
+                      <button
+                        className="flex flex-col items-center cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
                       >
-                        <path
-                          d="M4 6H6V8H4V6ZM4 11H6V13H4V11ZM4 16H6V18H4V16ZM20 8V6H8.023V8H18.8H20ZM8 11H20V13H8V11ZM8 16H20V18H8V16Z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                      <span className="text-xs text-gray-600 dark:text-white mt-1">{t('groups') || 'Groups'}</span>
-                    </button>
-                  </div>
-
-                  {/* Slide indicators */}
-                  {allMatches.length > 1 && (
-                    <div className="flex justify-center mt-4 gap-1">
-                      {allMatches.map((_, index) => (
-                        <button
-                          key={index}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setCurrentMatchIndex(index);
-                          }}
-                          className={`w-1 h-1 rounded-sm transition-colors ${
-                            index === currentMatchIndex
-                              ? "bg-gray-500"
-                              : "bg-gray-300"
-                          }`}
-                        />
-                      ))}
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          className="text-blue-500"
+                        >
+                          <path
+                            d="M4 6H6V8H4V6ZM4 11H6V13H4V11ZM4 16H6V18H4V16ZM20 8V6H8.023V8H18.8H20ZM8 11H20V13H8V11ZM8 16H20V18H8V16Z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                        <span className="text-xs text-gray-600 dark:text-white mt-1">
+                          {t("groups") || "Groups"}
+                        </span>
+                      </button>
                     </div>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+
+                    {/* Slide indicators */}
+                    {allMatches.length > 1 && (
+                      <div className="flex justify-center mt-4 gap-1">
+                        {allMatches.map((_, index) => (
+                          <button
+                            key={index}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCurrentMatchIndex(index);
+                            }}
+                            className={`w-1 h-1 rounded-sm transition-colors ${
+                              index === currentMatchIndex
+                                ? "bg-gray-500"
+                                : "bg-gray-300"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </>
   );
 };
