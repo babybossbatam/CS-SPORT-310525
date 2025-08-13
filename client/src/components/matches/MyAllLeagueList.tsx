@@ -375,9 +375,9 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       setCachedCountryName(normalizedCountry, displayName, "enhanced-mapping");
     }
 
-    // Step 10: Enhanced World translation with fallback mappings
+    // Step 10: Enhanced World translation with perfect learning system integration
     if (displayName.toLowerCase() === "world" || normalizedCountry.toLowerCase() === "world" || originalCountry.toLowerCase() === "world") {
-      // Enhanced World translations for all supported languages
+      // Enhanced World translations for all supported languages with perfect context
       const enhancedWorldTranslations: { [key: string]: string } = {
         'zh': '世界',
         'zh-hk': '世界',
@@ -385,33 +385,54 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         'es': 'Mundial',
         'de': 'Welt',
         'it': 'Mondo',
-        'pt': 'Mundial'
+        'pt': 'Mundial',
+        'en': 'World'
       };
 
-      // Try smart translation first
+      // First, teach the smart system the perfect World translation
+      const perfectWorldTranslation = enhancedWorldTranslations[currentLanguage] || enhancedWorldTranslations['en'];
+      
+      // Proactively teach the smart system this perfect mapping
+      smartLeagueCountryTranslation.autoLearnFromAnyCountryName("World", {
+        leagueContext: "international-competitions",
+        preferredTranslation: perfectWorldTranslation,
+        language: currentLanguage,
+        fixtureContext: true,
+        normalizedName: "World",
+        occurrenceCount: 100 // High priority
+      });
+
+      // Now get the smart translation (should return our perfect mapping)
       let finalWorldTranslation = smartLeagueCountryTranslation.translateCountryName("World", currentLanguage);
       
-      // If smart translation fails, use enhanced fallback
-      if (!finalWorldTranslation || finalWorldTranslation === "World") {
-        finalWorldTranslation = enhancedWorldTranslations[currentLanguage];
+      // If smart translation doesn't work as expected, use our enhanced fallback
+      if (!finalWorldTranslation || finalWorldTranslation === "World" || finalWorldTranslation === originalCountry) {
+        finalWorldTranslation = perfectWorldTranslation;
+        console.log(`🔄 [World Fallback] Using enhanced fallback: "${finalWorldTranslation}" (${currentLanguage})`);
       }
 
-      if (finalWorldTranslation && finalWorldTranslation !== "World" && finalWorldTranslation.length > 0) {
-        console.log(`🌐 [Enhanced World Translation] Perfect translation for World: "${finalWorldTranslation}" (${currentLanguage})`);
+      if (finalWorldTranslation && finalWorldTranslation.length > 0) {
+        console.log(`🌐 [Perfect World Translation] "${originalCountry}" → "${finalWorldTranslation}" (${currentLanguage})`);
         displayName = finalWorldTranslation;
         
-        // Cache all variations
-        setCachedCountryName("World", finalWorldTranslation, "enhanced-world-translation");
-        setCachedCountryName("world", finalWorldTranslation, "enhanced-world-translation");
-        setCachedCountryName(originalCountry, finalWorldTranslation, "enhanced-world-translation");
+        // Cache all possible variations of World
+        const worldVariations = ["World", "world", "WORLD", "世界"];
+        worldVariations.forEach(variation => {
+          setCachedCountryName(variation, finalWorldTranslation, "perfect-world-translation");
+        });
+        setCachedCountryName(originalCountry, finalWorldTranslation, "perfect-world-translation");
         
-        // Teach the smart system this mapping for future use
-        smartLeagueCountryTranslation.autoLearnFromAnyCountryName("World", {
-          leagueContext: "world-competitions",
-          preferredTranslation: finalWorldTranslation,
-          language: currentLanguage,
-          fixtureContext: true,
-          normalizedName: "World"
+        // Reinforce the learning with all variations
+        const reinforceVariations = ["World", "world", "WORLD"];
+        reinforceVariations.forEach(variation => {
+          smartLeagueCountryTranslation.autoLearnFromAnyCountryName(variation, {
+            leagueContext: "international-world-competitions",
+            preferredTranslation: finalWorldTranslation,
+            language: currentLanguage,
+            fixtureContext: true,
+            normalizedName: "World",
+            occurrenceCount: 50
+          });
         });
       }
     }

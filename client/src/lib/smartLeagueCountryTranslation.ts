@@ -45,7 +45,7 @@ class SmartLeagueCountryTranslation {
   private popularCountries: CountryTranslation = {
     'World': {
       'zh': '世界', 'zh-hk': '世界', 'zh-tw': '世界',
-      'es': 'Mundo', 'de': 'Welt', 'it': 'Mondo', 'pt': 'Mundo'
+      'es': 'Mundial', 'de': 'Welt', 'it': 'Mondo', 'pt': 'Mundial'
     },
     'Europe': {
       'zh': '欧洲', 'zh-hk': '歐洲', 'zh-tw': '歐洲',
@@ -1194,6 +1194,25 @@ class SmartLeagueCountryTranslation {
     if (!countryName || !language) return countryName;
 
     const cleanName = countryName.trim();
+
+    // Special handling for World - ensure perfect translation
+    if (cleanName.toLowerCase() === 'world' || cleanName === '世界') {
+      const worldTranslations: { [key: string]: string } = {
+        'zh': '世界',
+        'zh-hk': '世界', 
+        'zh-tw': '世界',
+        'es': 'Mundial',
+        'de': 'Welt',
+        'it': 'Mondo',
+        'pt': 'Mundial',
+        'en': 'World'
+      };
+      const worldTranslation = worldTranslations[language];
+      if (worldTranslation) {
+        console.log(`🌍 [Perfect World Translation] "${cleanName}" → "${worldTranslation}" (${language})`);
+        return worldTranslation;
+      }
+    }
 
     // Check learned mappings first (highest priority for user-defined translations)
     const learned = this.learnedCountryMappings.get(cleanName);
