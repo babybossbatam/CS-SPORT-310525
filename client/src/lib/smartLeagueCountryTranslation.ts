@@ -1026,7 +1026,7 @@ class SmartLeagueCountryTranslation {
       'es': 'Preguntas Frecuentes de Fútbol', 'de': 'Fußball FAQ', 'it': 'FAQ Calcio', 'pt': 'FAQ Futebol'
     },
     'Who invented Football?': {
-      'zh': '誰發明了足球？', 'zh-hk': '誰發明了足球？', 'zh-tw': '誰發明了足球？',
+      'zh': '谁发明了足球？', 'zh-hk': '誰發明了足球？', 'zh-tw': '誰發明了足球？',
       'es': '¿Quién inventó el fútbol?', 'de': 'Wer hat den Fußball erfunden?', 'it': 'Chi ha inventato il calcio?', 'pt': 'Quem inventou o futebol?'
     },
     'Football\'s roots go way back! While ball games have been played for centuries across the world, the modern game was shaped in England in the 19th century. The English Football Association set the official rules in 1863, giving us the Football we know and love today.': {
@@ -1889,80 +1889,6 @@ class SmartLeagueCountryTranslation {
       translations.zh = '亚洲杯'; translations['zh-hk'] = '亞洲盃'; translations['zh-tw'] = '亞洲盃';
       translations.es = 'Copa Asiática'; translations.de = 'Asienmeisterschaft';
       translations.it = 'Coppa d\'Asia'; translations.pt = 'Taça da Ásia';
-    }
-
-    // World Cup Qualifications
-    else if (lowerName.includes('world cup qualification') || lowerName.includes('wc qualification') ||
-      (lowerName.includes('world cup') && lowerName.includes('qualification')) ||
-      lowerName.includes('world cup - qualification')) {
-      if (lowerName.includes('south america') || lowerName.includes('conmebol')) {
-        translations.zh = '世界杯南美洲预选赛'; translations['zh-hk'] = '世界盃南美洲預選賽'; translations['zh-tw'] = '世界盃南美洲預選賽';
-        translations.es = 'Eliminatorias Sudamericanas'; translations.de = 'WM-Qualifikation Südamerika';
-      } else if (lowerName.includes('europe') || lowerName.includes('uefa')) {
-        translations.zh = '世界杯欧洲预选赛'; translations['zh-hk'] = '世界盃歐洲預選賽'; translations['zh-tw'] = '世界盃歐洲預選賽';
-        translations.es = 'Clasificación Europea'; translations.de = 'WM-Qualifikation Europa';
-      } else if (lowerName.includes('africa') || lowerName.includes('caf')) {
-        translations.zh = '世界杯非洲预选赛'; translations['zh-hk'] = '世界盃非洲預選賽'; translations['zh-tw'] = '世界盃非洲預選賽';
-        translations.es = 'Clasificación Africana'; translations.de = 'WM-Qualifikation Afrika';
-      } else if (lowerName.includes('asia') || lowerName.includes('afc')) {
-        translations.zh = '世界杯亚洲预选赛'; translations['zh-hk'] = '世界盃亞洲預選賽'; translations['zh-tw'] = '世界盃亞洲預選賽';
-        translations.es = 'Clasificación Asiática'; translations.de = 'WM-Qualifikation Asien';
-      } else if (lowerName.includes('oceania') || lowerName.includes('ofc')) {
-        translations.zh = '世界杯大洋洲预选赛'; translations['zh-hk'] = '世界盃大洋洲預選賽'; translations['zh-tw'] = '世界盃大洋洲預選賽';
-        translations.es = 'Clasificación Oceánica'; translations.de = 'WM-Qualifikation Ozeanien';
-      } else if (lowerName.includes('intercontinental')) {
-        translations.zh = '世界杯洲际附加赛'; translations['zh-hk'] = '世界盃洲際附加賽'; translations['zh-tw'] = '世界盃洲際附加賽';
-        translations.es = 'Play-offs Intercontinentales'; translations.de = 'Interkontinentale Play-offs';
-      } else {
-        // Generic World Cup qualification
-        translations.zh = '世界杯预选赛'; translations['zh-hk'] = '世界盃預選賽'; translations['zh-tw'] = '世界盃預選賽';
-        translations.es = 'Clasificación Mundial'; translations.de = 'WM-Qualifikation';
-      }
-    }
-
-    // UEFA Competitions - Enhanced
-    else if (lowerName.includes('uefa champions league') || lowerName === 'champions league') {
-      translations.zh = 'UEFA歐洲冠軍聯賽'; translations['zh-hk'] = 'UEFA歐洲冠軍聯賽'; translations['zh-tw'] = 'UEFA歐洲冠軍聯賽';
-      translations.es = 'Liga de Campeones de la UEFA'; translations.de = 'UEFA Champions League';
-    } else if (lowerName.includes('uefa europa league') || lowerName === 'europa league') {
-      translations.zh = 'UEFA歐洲聯賽'; translations['zh-hk'] = 'UEFA歐洲聯賽'; translations['zh-tw'] = 'UEFA歐洲聯賽';
-      translations.es = 'Liga Europa de la UEFA'; translations.de = 'UEFA Europa League';
-    } else if (lowerName.includes('uefa conference league') || lowerName === 'conference league') {
-      translations.zh = 'UEFA歐洲協會聯賽'; translations['zh-hk'] = 'UEFA歐洲協會聯賽'; translations['zh-tw'] = 'UEFA歐洲協會聯賽';
-      translations.es = 'Liga de la Conferencia UEFA'; translations.de = 'UEFA Conference League';
-    } else if (lowerName.includes('uefa nations league') || lowerName === 'nations league') {
-      translations.zh = 'UEFA國家聯賽'; translations['zh-hk'] = 'UEFA國家聯賽'; translations['zh-tw'] = 'UEFA國家聯賽';
-      translations.es = 'Liga de Naciones de la UEFA'; translations.de = 'UEFA Nations League';
-    } else if (lowerName.includes('uefa u21') || lowerName.includes('u21 championship')) {
-      translations.zh = 'UEFA U21欧洲锦标赛'; translations['zh-hk'] = 'UEFA U21歐洲錦標賽'; translations['zh-tw'] = 'UEFA U21歐洲錦標賽';
-      translations.es = 'Campeonato Europeo Sub-21'; translations.de = 'UEFA U21-Europameisterschaft';
-    }
-
-    // FIFA Competitions
-    else if (lowerName.includes('fifa club world cup') || lowerName === 'club world cup') {
-      translations.zh = 'FIFA世界冠軍球會盃'; translations['zh-hk'] = 'FIFA世界冠軍球會盃'; translations['zh-tw'] = 'FIFA世界冠軍球會盃';
-      translations.es = 'Copa Mundial de Clubes FIFA'; translations.de = 'FIFA Klub-Weltmeisterschaft';
-    } else if (lowerName === 'world cup' || lowerName === 'fifa world cup') {
-      translations.zh = '世界杯'; translations['zh-hk'] = '世界盃'; translations['zh-tw'] = '世界盃';
-      translations.es = 'Copa del Mundo'; translations.de = 'Weltmeisterschaft';
-    }
-
-    // Continental Competitions
-    else if (lowerName.includes('concacaf gold cup') || lowerName === 'gold cup') {
-      translations.zh = 'CONCACAF金杯赛'; translations['zh-hk'] = 'CONCACAF金盃賽'; translations['zh-tw'] = 'CONCACAF金盃賽';
-      translations.es = 'Copa de Oro de CONCACAF'; translations.de = 'CONCACAF Gold Cup';
-    } else if (lowerName.includes('concacaf champions league')) {
-      translations.zh = 'CONCACAF冠军联赛'; translations['zh-hk'] = 'CONCACAF冠軍聯賽'; translations['zh-tw'] = 'CONCACAF冠軍聯賽';
-      translations.es = 'Liga de Campeones CONCACAF'; translations.de = 'CONCACAF Champions League';
-    } else if (lowerName.includes('africa cup of nations') || lowerName === 'afcon') {
-      translations.zh = '非洲国家杯'; translations['zh-hk'] = '非洲國家盃'; translations['zh-tw'] = '非洲國家盃';
-      translations.es = 'Copa Africana de Naciones'; translations.de = 'Afrika-Cup';
-    } else if (lowerName.includes('caf champions league')) {
-      translations.zh = 'CAF冠军联赛'; translations['zh-hk'] = 'CAF冠軍聯賽'; translations['zh-tw'] = 'CAF冠軍聯賽';
-      translations.es = 'Liga de Campeones CAF'; translations.de = 'CAF Champions League';
-    } else if (lowerName.includes('asian cup') || lowerName === 'afc asian cup') {
-      translations.zh = '亚洲杯'; translations['zh-hk'] = '亞洲盃'; translations['zh-tw'] = '亞洲盃';
-      translations.es = 'Copa Asiática'; translations.de = 'Asienmeisterschaft';
     }
 
     // Domestic Cup Competitions - Enhanced patterns
