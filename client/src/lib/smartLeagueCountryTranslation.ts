@@ -467,7 +467,7 @@ class SmartLeagueCountryTranslation {
       'zh-tw': '現代足球誕生於英格蘭。雖然全球都存在類似的遊戲，但正是在英格蘭規則得到了標準化，使其成為現代足球的故鄉。',
       'es': 'La versión moderna del fútbol nació en Inglaterra. Aunque existían juegos similares a nivel mundial, fue en Inglaterra donde se estandarizaron las reglas, convirtiéndolo en el hogar del fútbol moderno.',
       'de': 'Die moderne Version des Fußballs wurde in England geboren. Obwohl ähnliche Spiele weltweit existierten, war es in England, wo die Regeln standardisiert wurden, was es zur Heimat des modernen Fußballs macht.',
-      'it': 'La versione moderna del calcio è nata in Inghilterra. Sebbene giochi simili esistessero a livello globale, è stato in Inghilterra che le regole sono state standardizzate, rendendola la casa del calcio moderno.',
+      'it': 'La versione moderna del calcio è nata in Inghilterra. Sebbene giochi simili esistessero a livello globale, è stato in Inghilterra dove le regole sono state standardizzate, rendendola la casa del calcio moderno.',
       'pt': 'A versão moderna do futebol nasceu na Inglaterra. Embora jogos similares existissem globalmente, foi na Inglaterra onde as regras foram padronizadas, tornando-a o lar do futebol moderno.'
     },
     'What is the length of a Football pitch?': {

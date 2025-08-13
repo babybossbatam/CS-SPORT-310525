@@ -155,13 +155,14 @@ const PopularTeamsList = () => {
 
         // Check if response is ok and has proper content type
         if (!response.ok) {
+          console.warn(`⚠️ [PopularTeamsList] API request failed: ${response.status} ${response.statusText}`);
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
           console.warn(
-            "❌ [PopularTeamsList] API returned non-JSON response, using fallback data",
+            "⚠️ [PopularTeamsList] API returned non-JSON response, using fallback data",
           );
           throw new Error("API returned HTML instead of JSON");
         }
@@ -221,9 +222,9 @@ const PopularTeamsList = () => {
 
         throw new Error("No valid teams data received from API");
       } catch (error) {
-        console.error(
-          "❌ [PopularTeamsList] Error fetching popular teams:",
-          error,
+        console.warn(
+          "⚠️ [PopularTeamsList] Failed to fetch popular teams, using fallback data:",
+          error instanceof Error ? error.message : 'Unknown error',
         );
         console.log("🔄 [PopularTeamsList] Using fallback popular teams data");
 

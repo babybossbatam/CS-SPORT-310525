@@ -40,11 +40,16 @@ const isValidDate = (dateString: string): boolean => {
   const date = new Date(dateString + 'T00:00:00.000Z');
   const [year, month, day] = dateString.split('-').map(Number);
 
+  // Allow reasonable date ranges (not too far in past/future)
+  const currentYear = new Date().getFullYear();
+  const isReasonableYear = year >= currentYear - 5 && year <= currentYear + 5;
+
   return date instanceof Date &&
          !isNaN(date.getTime()) &&
          date.getUTCFullYear() === year &&
          date.getUTCMonth() === month - 1 &&
-         date.getUTCDate() === day;
+         date.getUTCDate() === day &&
+         isReasonableYear;
 };
 
 const MyMainLayout: React.FC<MyMainLayoutProps> = ({
@@ -55,9 +60,9 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   onTabChange,
   selectedDate
 }) => {
-  // Validate selectedDate prop
-  if (selectedDate && selectedDate !== 'today' && !isValidDate(selectedDate)) {
-    console.warn(`🚨 [MyMainLayout] Invalid selectedDate: ${selectedDate}`);
+  // Validate selectedDate prop - only warn for clearly invalid formats
+  if (selectedDate && selectedDate !== 'today' && selectedDate && !/^\d{4}-\d{2}-\d{2}$/.test(selectedDate)) {
+    console.warn(`🚨 [MyMainLayout] Invalid selectedDate format: ${selectedDate}`);
   }
 
   const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
