@@ -127,13 +127,13 @@ const PopularTeamsList = () => {
   const user = useSelector((state: RootState) => state.user);
   const [teamData, setTeamData] = useState(CURRENT_POPULAR_TEAMS);
   const [isLoading, setIsLoading] = useState(true);
-  const [language, setLanguage] = useState('zh-hk');
+  const [language, setLanguage] = useState("zh-hk");
 
   // Translation function that prioritizes static mappings over learned ones
   const translateTeamName = (teamName: string): string => {
     // Clear any corrupted cache entries first
     smartTeamTranslation.forceRefreshTranslations([teamName], language);
-    
+
     // Use smart translation system
     return smartTeamTranslation.translateTeamName(teamName, language);
   };
@@ -146,22 +146,24 @@ const PopularTeamsList = () => {
     const initializeTranslations = async () => {
       // Initialize smart translation system
       await smartTeamTranslation.initializeTeamTranslations(language);
-      console.log('🔄 [PopularTeamsList] Translation system initialized');
+      console.log("🔄 [PopularTeamsList] Translation system initialized");
     };
 
     const fetchPopularTeams = async () => {
       try {
         console.log("🔄 [PopularTeamsList] Fetching popular teams from API...");
         const response = await apiRequest("GET", "/api/teams/popular");
-        
+
         // Check if response is ok and has proper content type
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-        
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          console.warn("❌ [PopularTeamsList] API returned non-JSON response, using fallback data");
+
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          console.warn(
+            "❌ [PopularTeamsList] API returned non-JSON response, using fallback data",
+          );
           throw new Error("API returned HTML instead of JSON");
         }
 
@@ -179,7 +181,7 @@ const PopularTeamsList = () => {
               name: team.team?.name || team.name,
               logo: team.team?.logo || team.logo,
               country: team.country?.name || team.team?.country || team.country,
-              popularity: team.popularity || (100 - index * 2),
+              popularity: team.popularity || 100 - index * 2,
             }))
             .filter((team: any) => {
               if (!team.id || !team.name) return false;
@@ -197,27 +199,27 @@ const PopularTeamsList = () => {
           if (transformedTeams.length > 0) {
             // Learn from team data for future translations
             smartTeamTranslation.learnTeamsFromFixtures(
-              transformedTeams.map(team => ({
+              transformedTeams.map((team) => ({
                 teams: {
                   home: { name: team.name },
-                  away: { name: team.name }
+                  away: { name: team.name },
                 },
-                league: { country: team.country }
-              }))
+                league: { country: team.country },
+              })),
             );
 
             // Learn country names
             smartCountryTranslation.learnCountriesFromFixtures(
-              transformedTeams.map(team => ({
-                league: { country: team.country }
-              }))
+              transformedTeams.map((team) => ({
+                league: { country: team.country },
+              })),
             );
 
             setTeamData(transformedTeams);
             return;
           }
         }
-        
+
         throw new Error("No valid teams data received from API");
       } catch (error) {
         console.error(
@@ -225,7 +227,7 @@ const PopularTeamsList = () => {
           error,
         );
         console.log("🔄 [PopularTeamsList] Using fallback popular teams data");
-        
+
         const sortedTeams = [...CURRENT_POPULAR_TEAMS]
           .filter((team) => {
             const teamName = team.name?.toLowerCase() || "";
@@ -285,7 +287,7 @@ const PopularTeamsList = () => {
     return (
       <div className="w-full bg-white shadow-sm rounded">
         <div className="">
-          <h3 className="text-sm font-semibold ">{t('popular_football_teams')}</h3>
+          <h3 className="text-sm font-semibold ">{t("popular_teams")}</h3>
           <div className="space-y-2">
             {Array.from({ length: 8 }).map((_, i) => (
               <div
@@ -310,7 +312,7 @@ const PopularTeamsList = () => {
       <div className="w-full bg-white border border-gray-200">
         <div>
           <h3 className="text-sm font-semibold mb-3 text-gray-900 border-b border-gray-200 px-2 py-2">
-            {t('popular_football_teams')}
+            {t("Popular Teams")}
           </h3>
           <div className="">
             {teamData.map((team) => {
@@ -348,8 +350,8 @@ const PopularTeamsList = () => {
                   <button
                     onClick={() => toggleFavorite(team.id)}
                     className={`transition-colors p-1 ${
-                      isFavorite 
-                        ? "text-blue-500 hover:text-blue-600" 
+                      isFavorite
+                        ? "text-blue-500 hover:text-blue-600"
                         : "text-gray-400 hover:text-blue-500"
                     }`}
                   >
