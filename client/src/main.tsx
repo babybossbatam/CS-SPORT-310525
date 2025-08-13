@@ -63,7 +63,24 @@ StorageMonitor.getInstance().init();
 
 // Set EventEmitter limits early for Replit environment
 if (typeof process !== 'undefined' && process.setMaxListeners) {
-  process.setMaxListeners(300);
+  process.setMaxListeners(2000);
+}
+
+// Set default max listeners for EventEmitter globally
+if (typeof window !== 'undefined') {
+  // Try to set high limits on any existing EventEmitter classes
+  try {
+    if ((window as any).EventEmitter) {
+      (window as any).EventEmitter.defaultMaxListeners = 2000;
+    }
+    
+    // Set on global object if available
+    if ((window as any).events && (window as any).events.EventEmitter) {
+      (window as any).events.EventEmitter.defaultMaxListeners = 2000;
+    }
+  } catch (e) {
+    // Ignore
+  }
 }
 
 // Enhanced EventEmitter management for Replit
