@@ -24,7 +24,6 @@ interface MyAllLeagueListProps {
 
 const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   const [fixtures, setFixtures] = useState<any[]>([]);
-  const [allLeagues, setAllLeagues] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
@@ -38,26 +37,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   const { currentLanguage, setLanguage } = useLanguage();
   const { t } = useTranslation();
 
-  // Fetch all leagues data with caching
-  const {
-    data: allLeaguesData,
-    isLoading: isLeaguesLoading,
-    error: leaguesError
-  } = useCachedQuery(
-    ['all-leagues'],
-    async () => {
-      performanceMonitor.startMeasure('all-leagues-fetch');
-      const response = await apiRequest("GET", "/api/leagues/all");
-      const data = await response.json();
-      performanceMonitor.endMeasure('all-leagues-fetch');
-      return Array.isArray(data) ? data : [];
-    },
-    {
-      staleTime: 24 * 60 * 60 * 1000, // 24 hours
-      enabled: true,
-      maxAge: 24 * 60 * 60 * 1000
-    }
-  );
+  // No longer needed - league data comes from fixtures
 
   // Fetch fixtures data with caching
   const {
@@ -82,13 +62,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     }
   );
 
-  // Update local state when data changes
-  useEffect(() => {
-    if (allLeaguesData) {
-      setAllLeagues(allLeaguesData);
-    }
-  }, [allLeaguesData]);
-
+  // Update local state when fixtures data changes
   useEffect(() => {
     if (fixturesData) {
       setFixtures(fixturesData);
@@ -99,7 +73,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       }
     }
     setIsLoading(isFixturesLoading);
-    setError(fixturesError ? "Failed to load leagues. Please try again later." : null);
+    setError(fixturesError ? "Failed to load fixtures. Please try again later." : null);
   }, [fixturesData, isFixturesLoading, fixturesError]);
 
   // Process fixtures and group by country/league
@@ -141,34 +115,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     return { validFixtures: filtered };
   }, [fixtures, selectedDate]);
 
-  // Group leagues by country with live match tracking
+  // Group leagues by country with live match tracking (derived from fixtures)
   const leaguesByCountry = useMemo(() => {
     const grouped: { [key: string]: { country: string; leagues: any; totalMatches: number; liveMatches: number } } = {};
 
-    // First, initialize all leagues from allLeagues data
-    allLeagues.forEach((league: any) => {
-      const country = league.country || "Unknown";
-      const leagueId = league.id;
-
-      if (!grouped[country]) {
-        grouped[country] = {
-          country,
-          leagues: {},
-          totalMatches: 0,
-          liveMatches: 0,
-        };
-      }
-
-      if (!grouped[country].leagues[leagueId]) {
-        grouped[country].leagues[leagueId] = {
-          league: league,
-          matchCount: 0,
-          liveMatchCount: 0,
-        };
-      }
-    });
-
-    // Then, update with actual fixture data
+    // Build league data directly from fixtures
     validFixtures.forEach((fixture: any) => {
       const country = fixture.league.country || "Unknown";
       const leagueId = fixture.league.id;
@@ -220,7 +171,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     });
 
     return grouped;
-  }, [validFixtures, allLeagues]);
+  }, [validFixtures]);
 
   // Country name mapping with smart translation
   const getCountryDisplayName = (country: string | null | undefined): string => {
