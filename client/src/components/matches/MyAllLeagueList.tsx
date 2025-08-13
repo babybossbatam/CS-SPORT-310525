@@ -138,38 +138,20 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     return Object.values(leaguesByCountry).reduce((sum, countryData) => sum + countryData.totalMatches, 0);
   }, [leaguesByCountry]);
 
-  // Ultra-fast country name mapping with simple cache
+  // Smart country name translation using cached translations
   const getCountryDisplayName = useMemo(() => {
-    const cache = new Map<string, string>();
-
     return (country: string | null | undefined): string => {
       if (!country || typeof country !== "string") {
         return "Unknown";
       }
 
       const originalCountry = country.trim();
-
-      // Check cache first
-      if (cache.has(originalCountry)) {
-        return cache.get(originalCountry)!;
-      }
-
-      // Super fast mappings only for common countries
-      const fastMappings: { [key: string]: string } = {
-        "world": currentLanguage === 'zh' ? '世界' : 'World',
-        "spain": currentLanguage === 'zh' ? '西班牙' : 'Spain',
-        "england": currentLanguage === 'zh' ? '英格兰' : 'England',
-        "germany": currentLanguage === 'zh' ? '德国' : 'Germany',
-        "italy": currentLanguage === 'zh' ? '意大利' : 'Italy',
-        "france": currentLanguage === 'zh' ? '法国' : 'France',
-        "brazil": currentLanguage === 'zh' ? '巴西' : 'Brazil'
-      };
-
-      const displayName = fastMappings[originalCountry.toLowerCase()] || originalCountry;
-
-      // Cache result
-      cache.set(originalCountry, displayName);
-      return displayName;
+      
+      // Use the smart translation system with comprehensive country mappings
+      const translatedName = smartLeagueCountryTranslation.translateCountryName(originalCountry, currentLanguage);
+      
+      // Return translated name or original if no translation found
+      return translatedName || originalCountry;
     };
   }, [currentLanguage]);
 
