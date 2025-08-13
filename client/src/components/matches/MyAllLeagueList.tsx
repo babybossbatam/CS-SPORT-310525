@@ -82,8 +82,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         uniqueCountries.forEach(countryName => {
           smartLeagueCountryTranslation.autoLearnFromAnyCountryName(countryName, {
             leagueContext: "multiple fixtures",
-            occurrenceCount: fixturesData.filter(f => f?.league?.country === countryName).length,
-            fixtureContext: true
+            occurrenceCount: fixturesData.filter(f => f?.league?.country === countryName).length
           });
         });
         
