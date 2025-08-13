@@ -26,7 +26,7 @@ import {
 import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { teamColorMap } from "@/lib/colorExtractor";
-import { useTranslation } from "react-i18next"; // Import useTranslation
+import { useLanguage } from "@/contexts/LanguageContext";
 import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
@@ -79,7 +79,7 @@ const isNationalTeamCompetition = (leagueName: string): boolean => {
 };
 
 const LeagueStandingsFilter = () => {
-  const { t, i18n } = useTranslation(); // Initialize translation hook
+  const { currentLanguage } = useLanguage(); // Initialize custom language hook
   const [popularLeagues, setPopularLeagues] = useState<LeagueData[]>([]);
   const [selectedLeague, setSelectedLeague] = useState("");
   const [selectedLeagueName, setSelectedLeagueName] = useState("");
@@ -88,13 +88,11 @@ const LeagueStandingsFilter = () => {
   // Function to get translated team name using smart translation system
   const getTranslatedTeamName = (teamName: string): string => {
     // Use smart team translation system with current language
-    const currentLanguage = i18n?.language || 'en';
     return smartTeamTranslation.translateTeamName(teamName, currentLanguage);
   };
 
   // Function to get translated group text
   const getTranslatedGroupText = (groupText: string): string => {
-    const currentLanguage = i18n?.language || 'en';
     return smartLeagueCountryTranslation.translateLeagueName(groupText, currentLanguage);
   };
 
@@ -827,10 +825,7 @@ const LeagueStandingsFilter = () => {
                       "/assets/fallback-logo.svg";
                   }}
                 />
-                {(() => {
-                  const currentLanguage = i18n?.language || 'en';
-                  return smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, currentLanguage);
-                })()}
+                {smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, currentLanguage)}
               </div>
             </SelectValue>
           </SelectTrigger>
@@ -857,10 +852,7 @@ const LeagueStandingsFilter = () => {
                           "/assets/fallback-logo.svg";
                       }}
                     />
-                    {(() => {
-                      const currentLanguage = i18n?.language || 'en';
-                      return smartLeagueCountryTranslation.translateLeagueName(league.name, currentLanguage);
-                    })()}
+                    {smartLeagueCountryTranslation.translateLeagueName(league.name, currentLanguage)}
                   </div>
                 </SelectItem>
               ))}
@@ -1066,7 +1058,6 @@ const LeagueStandingsFilter = () => {
                       className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium transition-colors duration-200"
                     >
                       {(() => {
-                        const currentLanguage = i18n?.language || 'en';
                         const translatedLeague = smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, currentLanguage);
                         const translatedStandings = smartLeagueCountryTranslation.translateLeagueName('Group Standings', currentLanguage);
                         return `${translatedLeague} ${translatedStandings} →`;
