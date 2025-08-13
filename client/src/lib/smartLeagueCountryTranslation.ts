@@ -1457,7 +1457,7 @@ class SmartLeagueCountryTranslation {
       /^[a-zA-Z\s]+盃?$/,                // Country + 盃
       /^[a-zA-Z\s]+杯?$/,                // Country + 杯
       /^[a-zA-Z\s]+冠军?[聯联]賽?$/,       // Country + 冠军联赛
-      /^[a-zA-Z\s]+職業?[聯联]賽?$/,       // Country + 职业联赛
+      /^[a-zA-Z\s]+职业?[聯联]賽?$/,       // Country + 职业联赛
       /^[a-zA-Z\s]+足球?[聯联]賽?$/,       // Country + 足球联赛
       /^[a-zA-Z\s]+青年?[聯联]賽?$/,       // Country + 青年联赛
       /^[a-zA-Z\s]+女子?[聯联]賽?$/,       // Country + 女子联赛
@@ -1468,77 +1468,6 @@ class SmartLeagueCountryTranslation {
     const hasChineseLeagueTerm = chineseLeagueTerms.some(term => leagueName.includes(term));
 
     return hasChinese && hasLatin && (mixedPatterns.some(pattern => pattern.test(leagueName)) || hasChineseLeagueTerm);
-  }
-
-  // Simplified complete translation approach
-  private generateCompleteLeagueMapping(leagueName: string, countryName: string): LeagueTranslation | null {
-    // Try direct complete translation first
-    const directMapping = this.generateCompleteLeagueMapping(leagueName, countryName);
-    if (directMapping) return directMapping;
-
-    // Fallback to existing generation method
-    const existingMapping = this.generateLeagueMapping(leagueName, countryName);
-    if (existingMapping) return existingMapping;
-
-    // Last resort: mixed language handling for legacy data
-    if (this.detectMixedLanguageLeague(leagueName)) {
-      return this.generateMixedLanguageMapping(leagueName, countryName);
-    }
-
-    return null;
-  }
-
-  // Complete league name mapping - simpler approach
-  private generateCompleteLeagueMapping(leagueName: string, countryName: string): LeagueTranslation | null {
-    const lowerName = leagueName.toLowerCase();
-
-    // Enhanced complete mappings for popular competitions
-    const completeMappings: { [key: string]: LeagueTranslation } = {
-      // Premier League variations
-      'premier league': {
-        'en': 'Premier League', 'zh': '英超', 'zh-hk': '英超', 'zh-tw': '英超',
-        'es': 'Premier League', 'de': 'Premier League', 'it': 'Premier League', 'pt': 'Premier League'
-      },
-      // Netherlands League variations  
-      'eredivisie': {
-        'en': 'Eredivisie', 'zh': '荷甲', 'zh-hk': '荷甲', 'zh-tw': '荷甲',
-        'es': 'Liga de Países Bajos', 'de': 'Niederländische Liga', 'it': 'Lega Olandese', 'pt': 'Liga dos Países Baixos'
-      },
-      // International competitions
-      'conmebol sudamericana': {
-        'en': 'CONMEBOL Sudamericana', 'zh': '南美洲杯', 'zh-hk': '南美洲盃', 'zh-tw': '南美洲盃',
-        'es': 'Copa Sudamericana', 'de': 'Copa Sudamericana', 'it': 'Copa Sudamericana', 'pt': 'Copa Sul-Americana'
-      },
-      'conmebol libertadores': {
-        'en': 'CONMEBOL Libertadores', 'zh': '南美解放者杯', 'zh-hk': '南美解放者盃', 'zh-tw': '南美解放者盃',
-        'es': 'Copa Libertadores', 'de': 'Copa Libertadores', 'it': 'Copa Libertadores', 'pt': 'Copa Libertadores'
-      },
-      'afc challenge league': {
-        'en': 'AFC Challenge League', 'zh': '亚足联挑战杯', 'zh-hk': '亞足聯挑戰盃', 'zh-tw': '亞足聯挑戰盃',
-        'es': 'Liga Desafío AFC', 'de': 'AFC Challenge League', 'it': 'AFC Challenge League', 'pt': 'Liga Desafio AFC'
-      },
-      'uefa champions league': {
-        'en': 'UEFA Champions League', 'zh': '欧洲冠军联赛', 'zh-hk': '歐洲冠軍聯賽', 'zh-tw': '歐洲冠軍聯賽',
-        'es': 'Liga de Campeones UEFA', 'de': 'UEFA Champions League', 'it': 'UEFA Champions League', 'pt': 'Liga dos Campeões UEFA'
-      },
-      'uefa europa league': {
-        'en': 'UEFA Europa League', 'zh': '欧联杯', 'zh-hk': '歐聯盃', 'zh-tw': '歐聯盃',
-        'es': 'Liga Europa UEFA', 'de': 'UEFA Europa League', 'it': 'UEFA Europa League', 'pt': 'Liga Europa UEFA'
-      },
-      'uefa conference league': {
-        'en': 'UEFA Conference League', 'zh': '欧洲协会联赛', 'zh-hk': '歐洲協會聯賽', 'zh-tw': '歐洲協會聯賽',
-        'es': 'Liga Conferencia UEFA', 'de': 'UEFA Conference League', 'it': 'UEFA Conference League', 'pt': 'Liga Conferência UEFA'
-      }
-    };
-
-    // Check for direct complete mapping
-    const directTranslation = completeMappings[lowerName];
-    if (directTranslation) {
-      console.log(`✅ [Complete Translation] Direct mapping found for: "${leagueName}"`);
-      return directTranslation;
-    }
-
-    return null;
   }
 
   // Generate mappings for mixed language league names
@@ -2599,11 +2528,10 @@ class SmartLeagueCountryTranslation {
       { name: 'Australia Cup', country: 'Australia' },
       { name: 'Australia联赛', country: 'Australia' },
       { name: 'Bulgaria聯賽', country: 'Bulgaria' },
-      { name: 'Serie B', country: 'Brazil' },
-      { name: 'Serie C', country: 'Brazil' },
-      { name: 'Copa Paulista', country: 'Brazil' },
-      { name: 'Paulista - U20', country: 'Brazil' },
-      { name: 'Capixaba B', country: 'Brazil' }
+      { name: 'Brazil联赛', country: 'Brazil' },
+      { name: 'Brazil聯賽', country: 'Brazil' },
+      { name: 'Argentina联赛', country: 'Argentina' },
+      { name: 'Argentina聯賽', country: 'Argentina' }
     ];
 
     console.log('🚀 [Enhanced Learning] Learning missing and mixed language leagues...');
