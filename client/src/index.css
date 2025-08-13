@@ -5,16 +5,28 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Hide Replit development error overlay */
+/* Hide Replit development error overlay - comprehensive */
 [data-error-overlay],
 #error-overlay,
 .error-overlay,
 [class*="error-overlay"],
-[class*="ErrorOverlay"] {
+[class*="ErrorOverlay"],
+[data-runtime-error],
+.runtime-error-overlay,
+[class*="runtime-error"],
+vite-error-overlay,
+#vite-plugin-runtime-error-modal,
+[data-vite-error],
+.vite-error-overlay {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
   z-index: -9999 !important;
+  position: fixed !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 /* Prevent flash of unstyled content */

@@ -208,10 +208,41 @@ function App() {
   };
 
   useEffect(() => {
+    // Immediately remove any existing error overlays
+    const removeExistingOverlays = () => {
+      const selectors = [
+        '[data-error-overlay]',
+        '#error-overlay',
+        '.error-overlay',
+        '[class*="error-overlay"]',
+        '[class*="ErrorOverlay"]',
+        '[data-runtime-error]',
+        '.runtime-error-overlay',
+        '[class*="runtime-error"]',
+        'vite-error-overlay',
+        '#vite-plugin-runtime-error-modal',
+        '[data-vite-error]',
+        '.vite-error-overlay'
+      ];
+      
+      selectors.forEach(selector => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(element => {
+          console.log('🗑️ Removing existing error overlay:', selector);
+          element.remove();
+        });
+      });
+    };
+
+    // Run immediately and then periodically
+    removeExistingOverlays();
+    const cleanupInterval = setInterval(removeExistingOverlays, 1000);
+
     window.addEventListener("unhandledrejection", handleUnhandledRejection);
     window.addEventListener("error", handleError);
 
     return () => {
+      clearInterval(cleanupInterval);
       window.removeEventListener(
         "unhandledrejection",
         handleUnhandledRejection,

@@ -520,18 +520,26 @@ export const setupGlobalErrorHandlers = () => {
                 element.matches('.error-overlay') ||
                 element.matches('[class*="error-overlay"]') ||
                 element.matches('[class*="ErrorOverlay"]') ||
-                element.textContent?.includes('plugin:runtime-error-plugin')
+                element.matches('[data-runtime-error]') ||
+                element.matches('.runtime-error-overlay') ||
+                element.matches('[class*="runtime-error"]') ||
+                element.matches('vite-error-overlay') ||
+                element.matches('#vite-plugin-runtime-error-modal') ||
+                element.matches('[data-vite-error]') ||
+                element.matches('.vite-error-overlay') ||
+                element.textContent?.includes('plugin:runtime-error-plugin') ||
+                element.textContent?.includes('unknown runtime error')
               )) {
-              console.log('🗑️ Removing error overlay from DOM');
+              console.log('🗑️ Removing error overlay from DOM:', element.className || element.id || element.tagName);
               element.remove();
             }
             
             // Also check child elements
             const overlayChildren = element.querySelectorAll?.(
-              '[data-error-overlay], #error-overlay, .error-overlay, [class*="error-overlay"], [class*="ErrorOverlay"]'
+              '[data-error-overlay], #error-overlay, .error-overlay, [class*="error-overlay"], [class*="ErrorOverlay"], [data-runtime-error], .runtime-error-overlay, [class*="runtime-error"], vite-error-overlay, #vite-plugin-runtime-error-modal, [data-vite-error], .vite-error-overlay'
             );
             overlayChildren?.forEach(overlay => {
-              console.log('🗑️ Removing child error overlay from DOM');
+              console.log('🗑️ Removing child error overlay from DOM:', overlay.className || overlay.id || overlay.tagName);
               overlay.remove();
             });
           }
