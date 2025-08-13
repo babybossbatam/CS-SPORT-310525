@@ -285,7 +285,7 @@ const PopularTeamsList = () => {
     return (
       <div className="w-full bg-white shadow-sm rounded">
         <div className="">
-          <h3 className="text-sm font-semibold ">Popular Football Teams</h3>
+          <h3 className="text-sm font-semibold ">{t('popular_football_teams')}</h3>
           <div className="space-y-2">
             {Array.from({ length: 8 }).map((_, i) => (
               <div
@@ -310,7 +310,7 @@ const PopularTeamsList = () => {
       <div className="w-full bg-white border border-gray-200">
         <div>
           <h3 className="text-sm font-semibold mb-3 text-gray-900 border-b border-gray-200 px-2 py-2">
-            Popular Football Teams
+            {t('popular_football_teams')}
           </h3>
           <div className="">
             {teamData.map((team) => {
