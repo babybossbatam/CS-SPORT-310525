@@ -1470,19 +1470,56 @@ class SmartLeagueCountryTranslation {
     return hasChinese && hasLatin && (mixedPatterns.some(pattern => pattern.test(leagueName)) || hasChineseLeagueTerm);
   }
 
-  // Enhanced league mapping generation with intelligent pattern recognition
+  // Simplified complete translation approach
   private generateEnhancedLeagueMapping(leagueName: string, countryName: string): LeagueTranslation | null {
-    // First try the existing generation method
+    // Try direct complete translation first
+    const directMapping = this.generateCompleteLeagueMapping(leagueName, countryName);
+    if (directMapping) return directMapping;
+
+    // Fallback to existing generation method
     const existingMapping = this.generateLeagueMapping(leagueName, countryName);
     if (existingMapping) return existingMapping;
 
-    // Enhanced handling for mixed language leagues
+    // Last resort: mixed language handling for legacy data
     if (this.detectMixedLanguageLeague(leagueName)) {
       return this.generateMixedLanguageMapping(leagueName, countryName);
     }
 
-    // Try intelligent pattern-based generation
-    return this.generateIntelligentMapping(leagueName, countryName);
+    return null;
+  }
+
+  // Complete league name mapping - simpler approach
+  private generateCompleteLeagueMapping(leagueName: string, countryName: string): LeagueTranslation | null {
+    const lowerName = leagueName.toLowerCase();
+    
+    // Direct complete mappings for common mixed-language cases
+    const completeMappings: { [key: string]: LeagueTranslation } = {
+      'bulgaria聯賽': {
+        'zh': '保加利亚联赛', 'zh-hk': '保加利亞聯賽', 'zh-tw': '保加利亞聯賽',
+        'es': 'Liga de Bulgaria', 'de': 'Bulgarische Liga', 'it': 'Lega Bulgara', 'pt': 'Liga da Bulgária'
+      },
+      'australia超级联赛': {
+        'zh': '澳大利亚超级联赛', 'zh-hk': '澳洲超級聯賽', 'zh-tw': '澳洲超級聯賽',
+        'es': 'Superliga de Australia', 'de': 'Australische Superliga', 'it': 'Superlega Australiana', 'pt': 'Superliga da Austrália'
+      },
+      'australia联赛': {
+        'zh': '澳大利亚联赛', 'zh-hk': '澳洲聯賽', 'zh-tw': '澳洲聯賽',
+        'es': 'Liga de Australia', 'de': 'Australische Liga', 'it': 'Lega Australiana', 'pt': 'Liga da Austrália'
+      },
+      'netherlands联赛': {
+        'zh': '荷兰联赛', 'zh-hk': '荷蘭聯賽', 'zh-tw': '荷蘭聯賽',
+        'es': 'Liga de Países Bajos', 'de': 'Niederländische Liga', 'it': 'Lega Olandese', 'pt': 'Liga dos Países Baixos'
+      }
+    };
+
+    // Check for direct complete mapping
+    const directTranslation = completeMappings[lowerName];
+    if (directTranslation) {
+      console.log(`✅ [Complete Translation] Direct mapping found for: "${leagueName}"`);
+      return directTranslation;
+    }
+
+    return null;
   }
 
   // Generate mappings for mixed language league names
