@@ -398,6 +398,34 @@ class SmartLeagueCountryTranslation {
       'zh': '赞比亚', 'zh-hk': '贊比亞', 'zh-tw': '尚比亞',
       'es': 'Zambia', 'de': 'Sambia', 'it': 'Zambia', 'pt': 'Zâmbia'
     },
+    'Libya': {
+      'zh': '利比亚', 'zh-hk': '利比亞', 'zh-tw': '利比亞',
+      'es': 'Libia', 'de': 'Libyen', 'it': 'Libia', 'pt': 'Líbia'
+    },
+    'Macedonia': {
+      'zh': '马其顿', 'zh-hk': '馬其頓', 'zh-tw': '馬其頓',
+      'es': 'Macedonia', 'de': 'Mazedonien', 'it': 'Macedonia', 'pt': 'Macedônia'
+    },
+    'Northern Ireland': {
+      'zh': '北爱尔兰', 'zh-hk': '北愛爾蘭', 'zh-tw': '北愛爾蘭',
+      'es': 'Irlanda del Norte', 'de': 'Nordirland', 'it': 'Irlanda del Nord', 'pt': 'Irlanda do Norte'
+    },
+    'Northern-Ireland': {
+      'zh': '北爱尔兰', 'zh-hk': '北愛爾蘭', 'zh-tw': '北愛爾蘭',
+      'es': 'Irlanda del Norte', 'de': 'Nordirland', 'it': 'Irlanda del Nord', 'pt': 'Irlanda do Norte'
+    },
+    'Turkmenistan': {
+      'zh': '土库曼斯坦', 'zh-hk': '土庫曼斯坦', 'zh-tw': '土庫曼斯坦',
+      'es': 'Turkmenistán', 'de': 'Turkmenistan', 'it': 'Turkmenistan', 'pt': 'Turcomenistão'
+    },
+    'USA': {
+      'zh': '美国', 'zh-hk': '美國', 'zh-tw': '美國',
+      'es': 'Estados Unidos', 'de': 'USA', 'it': 'Stati Uniti', 'pt': 'EUA'
+    },
+    'United States of America': {
+      'zh': '美利坚合众国', 'zh-hk': '美利堅合眾國', 'zh-tw': '美利堅合眾國',
+      'es': 'Estados Unidos de América', 'de': 'Vereinigte Staaten von Amerika', 'it': 'Stati Uniti d\'America', 'pt': 'Estados Unidos da América'
+    },
     'Czech-Republic': {
       'zh': '捷克共和国', 'zh-hk': '捷克共和國', 'zh-tw': '捷克共和國',
       'es': 'República Checa', 'de': 'Tschechische Republik', 'it': 'Repubblica Ceca', 'pt': 'República Tcheca'
@@ -1617,11 +1645,16 @@ class SmartLeagueCountryTranslation {
     '布基納法索': 'Burkina Faso', '布基纳法索': 'Burkina Faso', '布吉納法索': 'Burkina Faso',
     '津巴布韋': 'Zimbabwe', '津巴布韦': 'Zimbabwe', '辛巴威': 'Zimbabwe',
     '贊比亞': 'Zambia', '赞比亚': 'Zambia', '尚比亞': 'Zambia',
+    '利比亞': 'Libya', '利比亚': 'Libya',
+    '馬其頓': 'Macedonia', '马其顿': 'Macedonia',
+    '北愛爾蘭': 'Northern Ireland', '北爱尔兰': 'Northern Ireland',
+    '土庫曼斯坦': 'Turkmenistan', '土库曼斯坦': 'Turkmenistan',
     '世界': 'World',
     // Hyphenated country names
     'Czech-Republic': 'Czech Republic',
     'North-Macedonia': 'North Macedonia',
-    'Bosnia-Herzegovina': 'Bosnia and Herzegovina'
+    'Bosnia-Herzegovina': 'Bosnia and Herzegovina',
+    'Northern-Ireland': 'Northern Ireland'
   };
 
   // Detect if a country name is in Chinese and convert to English first
@@ -1796,6 +1829,56 @@ class SmartLeagueCountryTranslation {
       translations.de = 'Albanien';
       translations.it = 'Albania';
       translations.pt = 'Albânia';
+    }
+    // Libya
+    else if (lowerName === 'libya') {
+      translations.zh = '利比亚';
+      translations['zh-hk'] = '利比亞';
+      translations['zh-tw'] = '利比亞';
+      translations.es = 'Libia';
+      translations.de = 'Libyen';
+      translations.it = 'Libia';
+      translations.pt = 'Líbia';
+    }
+    // Macedonia
+    else if (lowerName === 'macedonia') {
+      translations.zh = '马其顿';
+      translations['zh-hk'] = '馬其頓';
+      translations['zh-tw'] = '馬其頓';
+      translations.es = 'Macedonia';
+      translations.de = 'Mazedonien';
+      translations.it = 'Macedonia';
+      translations.pt = 'Macedônia';
+    }
+    // Northern Ireland
+    else if (lowerName.includes('northern ireland') || lowerName === 'northern ireland' || lowerName === 'northern-ireland') {
+      translations.zh = '北爱尔兰';
+      translations['zh-hk'] = '北愛爾蘭';
+      translations['zh-tw'] = '北愛爾蘭';
+      translations.es = 'Irlanda del Norte';
+      translations.de = 'Nordirland';
+      translations.it = 'Irlanda del Nord';
+      translations.pt = 'Irlanda do Norte';
+    }
+    // Turkmenistan
+    else if (lowerName === 'turkmenistan') {
+      translations.zh = '土库曼斯坦';
+      translations['zh-hk'] = '土庫曼斯坦';
+      translations['zh-tw'] = '土庫曼斯坦';
+      translations.es = 'Turkmenistán';
+      translations.de = 'Turkmenistan';
+      translations.it = 'Turkmenistan';
+      translations.pt = 'Turcomenistão';
+    }
+    // USA variations
+    else if (lowerName === 'usa' || lowerName === 'united states' || lowerName === 'united states of america') {
+      translations.zh = '美国';
+      translations['zh-hk'] = '美國';
+      translations['zh-tw'] = '美國';
+      translations.es = 'Estados Unidos';
+      translations.de = 'USA';
+      translations.it = 'Stati Uniti';
+      translations.pt = 'EUA';
     }
 
     return translations as CountryTranslation;
