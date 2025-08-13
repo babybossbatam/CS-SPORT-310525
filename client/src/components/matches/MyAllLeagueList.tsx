@@ -65,23 +65,17 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     if (fixturesData) {
       setFixtures(fixturesData);
 
-      // Optimized learning - only run once per session with better filtering
+      // Simplified learning - only run once per data load, no forced re-render
       if (fixturesData.length > 0) {
-        // Use requestIdleCallback for background processing with better data sampling
+        // Use requestIdleCallback for background processing
         const learnTranslations = () => {
-          // Sample diverse fixtures for better learning (every 10th fixture up to 30 samples)
-          const sampleSize = Math.min(30, Math.floor(fixturesData.length / 10));
-          const sampledFixtures = fixturesData.filter((_, index) => index % 10 === 0).slice(0, sampleSize);
-          
-          if (sampledFixtures.length > 0) {
-            smartLeagueCountryTranslation.learnFromFixtures(sampledFixtures);
-          }
+          smartLeagueCountryTranslation.learnFromFixtures(fixturesData.slice(0, 50)); // Limit learning to first 50 fixtures
         };
         
         if (window.requestIdleCallback) {
-          window.requestIdleCallback(learnTranslations, { timeout: 2000 });
+          window.requestIdleCallback(learnTranslations);
         } else {
-          setTimeout(learnTranslations, 500);
+          setTimeout(learnTranslations, 200);
         }
       }
     }
@@ -89,7 +83,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     setError(fixturesError ? "Failed to load fixtures. Please try again later." : null);
   }, [fixturesData, isFixturesLoading, fixturesError]);
 
-  // Optimized: Group leagues by country with enhanced filtering and accurate counts
+  // Optimized: Group leagues by country with full data processing for accurate counts
   const leaguesByCountry = useMemo(() => {
     const grouped: { [key: string]: { country: string; leagues: any; totalMatches: number; liveMatches: number } } = {};
     const allFixtures = fixtures || [];
@@ -98,32 +92,26 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       return grouped;
     }
 
-    // Enhanced live status detection with time validation
-    const liveStatuses = new Set(["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"]);
+    // Process all fixtures to maintain accurate match counts
+    const maxFixtures = allFixtures.length;
     const seenFixtures = new Set<number>();
+    const liveStatuses = new Set(["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"]);
+
+    // Pre-allocate objects to avoid repeated object creation
     const tempCountries: { [key: string]: { leagues: { [key: number]: any }, totalMatches: number, liveMatches: number } } = {};
 
-    // Process all fixtures with enhanced validation
-    for (const fixture of allFixtures) {
-      // Comprehensive validation
-      if (!fixture?.league?.id || !fixture?.fixture?.id || !fixture?.teams?.home || !fixture?.teams?.away) continue;
-      if (seenFixtures.has(fixture.fixture.id)) continue;
+    // Single pass processing with minimal object operations
+    for (let i = 0; i < maxFixtures; i++) {
+      const fixture = allFixtures[i];
+      
+      // Ultra-fast validation - early exit on any missing data
+      if (!fixture?.league?.id || !fixture?.fixture?.id || seenFixtures.has(fixture.fixture.id)) continue;
       
       seenFixtures.add(fixture.fixture.id);
 
       const country = fixture.league.country || "Unknown";
       const leagueId = fixture.league.id;
-      const status = fixture.fixture?.status?.short;
-      
-      // Enhanced live match detection with time validation
-      let isActuallyLive = false;
-      if (liveStatuses.has(status)) {
-        const matchDate = new Date(fixture.fixture.date);
-        const hoursOld = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
-        
-        // Only consider as live if the match isn't too old (within 4 hours)
-        isActuallyLive = hoursOld <= 4;
-      }
+      const isLive = liveStatuses.has(fixture.fixture?.status?.short);
 
       // Initialize country if needed
       if (!tempCountries[country]) {
@@ -141,17 +129,17 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         };
       }
 
-      // Update counts
+      // Increment counts in single operation
       countryData.leagues[leagueId].matchCount++;
       countryData.totalMatches++;
 
-      if (isActuallyLive) {
+      if (isLive) {
         countryData.leagues[leagueId].liveMatchCount++;
         countryData.liveMatches++;
       }
     }
 
-    // Convert to final format
+    // Convert to final format only once
     Object.keys(tempCountries).forEach(country => {
       grouped[country] = {
         country,
