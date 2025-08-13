@@ -514,13 +514,14 @@ class SmartLeagueCountryTranslation {
     this.loadLearnedMappings();
     this.integrateAutomatedMappings();
 
-    // Auto-learn problematic leagues on startup
-    setTimeout(() => {
-      this.learnProblematicLeagueNames();
-      this.fixMixedLanguageLeagues();
-    }, 1000);
+    // Auto-learn problematic leagues immediately on startup
+    this.learnProblematicLeagueNames();
+    this.fixMixedLanguageLeagues();
 
-    console.log('🔄 [SmartLeagueCountryTranslation] Initialized with cache cleared for fresh translations and automated mappings integrated');
+    // Also fix the specific leagues from your screenshot immediately
+    this.fixSpecificMixedLeagues();
+
+    console.log('🔄 [SmartLeagueCountryTranslation] Initialized with cache cleared and immediate translation fixes applied');
   }
 
   // Core league translations
@@ -1160,6 +1161,13 @@ class SmartLeagueCountryTranslation {
     this.leagueCache.clear();
     this.countryCache.clear();
     this.translationCache.clear();
+    // Also clear any localStorage cache that might be interfering
+    try {
+      localStorage.removeItem('leagueTranslationCache');
+      localStorage.removeItem('countryTranslationCache');
+    } catch (error) {
+      // Ignore localStorage errors
+    }
   }
 
   private fixCorruptedCache() {
@@ -1557,24 +1565,35 @@ class SmartLeagueCountryTranslation {
 
   // Generate mappings for mixed language league names
   private generateMixedLanguageMapping(leagueName: string, countryName: string): LeagueTranslation | null {
-    const translations: any = { en: leagueName };
-    // Extract country from the league name
-    const countryMatch = leagueName.match(/^([a-zA-Z\s]+)/);
-    const extractedCountry = countryMatch ? countryMatch[1].trim() : countryName;
+    const translations: any = {};
+    
+    // Extract country from the league name, handle hyphenated countries
+    const countryMatch = leagueName.match(/^([a-zA-Z\s-]+)/);
+    let extractedCountry = countryMatch ? countryMatch[1].trim() : countryName;
+    
+    // Handle specific hyphenated countries
+    if (extractedCountry === 'Czech-Republic') {
+      extractedCountry = 'Czech Republic';
+    } else if (extractedCountry === 'Dominican-Republic') {
+      extractedCountry = 'Dominican Republic';
+    }
+    
+    // Use provided country name if available, otherwise use extracted
+    const finalCountry = countryName || extractedCountry;
 
-    // Get country translations
-    const countryZh = this.translateCountryName(extractedCountry || countryName, 'zh');
-    const countryZhHk = this.translateCountryName(extractedCountry || countryName, 'zh-hk');
-    const countryZhTw = this.translateCountryName(extractedCountry || countryName, 'zh-tw');
-    const countryEs = this.translateCountryName(extractedCountry || countryName, 'es');
-    const countryDe = this.translateCountryName(extractedCountry || countryName, 'de');
-    const countryIt = this.translateCountryName(extractedCountry || countryName, 'it');
-    const countryPt = this.translateCountryName(extractedCountry || countryName, 'pt');
+    // Get country translations using the final country name
+    const countryZh = this.translateCountryName(finalCountry, 'zh');
+    const countryZhHk = this.translateCountryName(finalCountry, 'zh-hk');
+    const countryZhTw = this.translateCountryName(finalCountry, 'zh-tw');
+    const countryEs = this.translateCountryName(finalCountry, 'es');
+    const countryDe = this.translateCountryName(finalCountry, 'de');
+    const countryIt = this.translateCountryName(finalCountry, 'it');
+    const countryPt = this.translateCountryName(finalCountry, 'pt');
 
     // Detect league type from Chinese part
     if (leagueName.includes('聯賽') || leagueName.includes('联赛')) {
       // League/Championship
-      translations.en = `${extractedCountry} League`;
+      translations.en = `${finalCountry} League`;
       translations.zh = `${countryZh}联赛`;
       translations['zh-hk'] = `${countryZhHk}聯賽`;
       translations['zh-tw'] = `${countryZhTw}聯賽`;
@@ -2474,6 +2493,12 @@ class SmartLeagueCountryTranslation {
   }
 
 
+  // Public method to clear translation caches
+  clearTranslationCaches() {
+    this.clearCache();
+    console.log('🧹 [SmartTranslation] Cleared all translation caches for fresh translations');
+  }
+
   getTranslationStats() {
     return {
       coreLeagues: Object.keys(this.coreLeagueTranslations).length,
@@ -2679,6 +2704,44 @@ class SmartLeagueCountryTranslation {
 
     console.log(`✅ [Enhanced Learning] Completed learning ${learned} missing league translations`);
     return learned;
+  }
+
+  // Fix specific mixed language leagues that appear in the UI
+  private fixSpecificMixedLeagues(): void {
+    const specificMixedLeagues = [
+      { name: 'Czech-Republic聯賽', country: 'Czech Republic' },
+      { name: 'Dominican-Republic聯賽', country: 'Dominican Republic' },
+      { name: 'Netherlands聯賽', country: 'Netherlands' },
+      { name: 'Bulgaria聯賽', country: 'Bulgaria' },
+      { name: 'Australia聯賽', country: 'Australia' },
+      { name: 'Germany聯賽', country: 'Germany' },
+      { name: 'Spain聯賽', country: 'Spain' },
+      { name: 'Italy聯賽', country: 'Italy' },
+      { name: 'France聯賽', country: 'France' },
+      { name: 'England聯賽', country: 'England' },
+      { name: 'Brazil聯賽', country: 'Brazil' },
+      { name: 'Argentina聯賽', country: 'Argentina' }
+    ];
+
+    let fixed = 0;
+    specificMixedLeagues.forEach(({ name, country }) => {
+      const mapping = this.generateMixedLanguageMapping(name, country);
+      if (mapping) {
+        // Force override any existing mapping
+        this.learnedLeagueMappings.set(name, mapping);
+        
+        // Also add to core translations for immediate access
+        this.coreLeagueTranslations[name] = mapping;
+        fixed++;
+        
+        console.log(`🎯 [Specific Fix] "${name}" → properly translated for all languages`);
+      }
+    });
+
+    if (fixed > 0) {
+      this.saveLearnedMappings();
+      console.log(`✅ [Specific Fix] Fixed ${fixed} specific mixed language leagues immediately`);
+    }
   }
 
   // Learn from problematic league names that commonly appear

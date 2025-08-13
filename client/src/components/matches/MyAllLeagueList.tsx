@@ -83,28 +83,31 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         // Force immediate learning with all fixtures for maximum coverage
         const learnTranslations = () => {
           console.log(`🎓 [Auto-Learning] Processing ${fixturesData.length} fixtures for automatic translation learning...`);
-          
+
+          // Clear any cached translations first to force fresh translations
+          smartLeagueCountryTranslation.clearTranslationCaches();
+
           // Use all fixtures for comprehensive learning
           smartLeagueCountryTranslation.learnFromFixtures(fixturesData);
-          
+
           // Trigger aggressive learning for mixed language leagues
           smartLeagueCountryTranslation.massLearnMixedLanguageLeagues(fixturesData);
-          
+
           // Force learn all problematic league names immediately
           const allLeagueNames = fixturesData
             .filter(f => f?.league?.name)
             .map(f => ({ name: f.league.name, country: f.league.country }));
-          
+
           // Auto-learn each league name with priority for problematic ones
           allLeagueNames.forEach(league => {
-            smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(league.name, { 
-              countryName: league.country 
+            smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(league.name, {
+              countryName: league.country
             });
           });
-          
+
           // Also trigger mass learning for missing leagues
           smartLeagueCountryTranslation.learnMissingLeagueNames();
-          
+
           console.log(`✅ [Auto-Learning] Completed aggressive learning from ${fixturesData.length} fixtures`);
         };
 
@@ -159,11 +162,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     const selectedDateOnly = selectedDate; // e.g., "2025-01-15"
     const validFixtures = allFixtures.filter(fixture => {
       if (!fixture?.fixture?.date) return false;
-      
+
       // Extract date from fixture (handle both local and UTC dates)
       const fixtureDate = new Date(fixture.fixture.date);
       const fixtureDateString = fixtureDate.toISOString().split('T')[0]; // Get YYYY-MM-DD format
-      
+
       // Only include fixtures that match the selected date exactly
       return fixtureDateString === selectedDateOnly;
     });
@@ -173,7 +176,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     console.log(`🌍 [MyAllLeagueList] World fixtures for ${selectedDate} (after date filter):`, worldFixtures.length);
     console.log(`🌍 [MyAllLeagueList] Total fixtures before date filter:`, allFixtures.length);
     console.log(`🌍 [MyAllLeagueList] Total fixtures after date filter:`, validFixtures.length);
-    
+
     if (worldFixtures.length > 0) {
       const worldLeagues = [...new Set(worldFixtures.map(f => f.league?.name))];
       console.log(`🌍 [MyAllLeagueList] World leagues for ${selectedDate}:`, worldLeagues);
