@@ -125,11 +125,19 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       const homeTeamName = fixture.teams?.home?.name || "";
       const awayTeamName = fixture.teams?.away?.name || "";
 
-      // Auto-learn league name for smart translation
+      // Enhanced auto-learning for both league and country names
       if (leagueName) {
         smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(leagueName, { 
           countryName: country, 
           leagueId: leagueId 
+        });
+      }
+
+      // Auto-learn country name for better translation
+      if (country && country !== "Unknown") {
+        smartLeagueCountryTranslation.autoLearnFromAnyCountryName(country, {
+          leagueContext: leagueName,
+          occurrenceCount: 1
         });
       }
 
@@ -171,27 +179,63 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     return grouped;
   }, [validFixtures]);
 
-  // Country name mapping with smart translation
+  // Enhanced country name mapping with smart learning translation system
   const getCountryDisplayName = (country: string | null | undefined): string => {
     if (!country || typeof country !== "string" || country.trim() === "") {
       return t('unknown') || "Unknown";
     }
 
-    // First try smart translation system
-    const smartTranslation = smartLeagueCountryTranslation.translateCountryName(country, currentLanguage);
+    const originalCountry = country.trim();
+
+    // Auto-learn from the country name for future translations
+    smartLeagueCountryTranslation.autoLearnFromAnyCountryName(originalCountry);
+
+    // Get smart translation using the learning system
+    const smartTranslation = smartLeagueCountryTranslation.translateCountryName(originalCountry, currentLanguage);
     
-    // If smart translation worked (different from original), use it
-    if (smartTranslation !== country) {
-      console.log(`🌍 [Country Translation] Smart: "${country}" → "${smartTranslation}" (${currentLanguage})`);
+    // If smart translation worked and is different from original, use it
+    if (smartTranslation && smartTranslation !== originalCountry) {
+      console.log(`🌍 [Smart Country Translation] "${originalCountry}" → "${smartTranslation}" (${currentLanguage})`);
+      
+      // Cache the smart translation result
+      setCachedCountryName(originalCountry, smartTranslation, "smart-translation");
       return smartTranslation;
     }
 
-    // Fallback to cached name
-    const cachedName = getCachedCountryName(country);
-    if (cachedName) {
+    // Check if we have a cached translation
+    const cachedName = getCachedCountryName(originalCountry);
+    if (cachedName && cachedName !== originalCountry) {
+      console.log(`💾 [Cached Country Translation] "${originalCountry}" → "${cachedName}"`);
       return cachedName;
     }
 
+    // Enhanced country mappings for common variations
+    const enhancedCountryMappings: { [key: string]: string } = {
+      "czech republic": "Czech Republic",
+      "czech-republic": "Czech Republic", 
+      "united arab emirates": "United Arab Emirates",
+      "saudi arabia": "Saudi Arabia",
+      "united states": "United States",
+      "usa": "United States",
+      "korea republic": "South Korea",
+      "south korea": "South Korea",
+      "russian federation": "Russia",
+      "england": "England",
+      "scotland": "Scotland",
+      "wales": "Wales",
+      "northern ireland": "Northern Ireland",
+      "republic of ireland": "Ireland",
+      "korea dpr": "North Korea",
+      "bolivia": "Bolivia",
+      "bhutan": "Bhutan",
+      "armenia": "Armenia",
+      "australia": "Australia",
+      "dominican republic": "Dominican Republic",
+      "dominican-republic": "Dominican Republic",
+      "denmark": "Denmark"
+    };
+
+    // Use country code mapping as fallback
     const countryNameMap: { [key: string]: string } = {};
     Object.entries(countryCodeMap).forEach(([countryName, countryCode]) => {
       if (countryCode.length === 2) {
@@ -199,19 +243,20 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       }
     });
 
-    const additionalMappings: { [key: string]: string } = {
-      "czech republic": "Czech-Republic",
-      "united arab emirates": "United Arab Emirates",
-      "saudi arabia": "Saudi Arabia",
-      "united states": "United States",
-      "korea republic": "South Korea",
-      "russian federation": "Russia",
-    };
+    const cleanCountry = originalCountry.toLowerCase();
+    let displayName = enhancedCountryMappings[cleanCountry] || 
+                     countryNameMap[cleanCountry] || 
+                     originalCountry;
 
-    const cleanCountry = country.trim().toLowerCase();
-    const displayName = countryNameMap[cleanCountry] || additionalMappings[cleanCountry] || country;
+    // Auto-learn the mapping for future use
+    if (displayName !== originalCountry) {
+      smartLeagueCountryTranslation.autoLearnFromAnyCountryName(displayName, { originalName: originalCountry });
+    }
 
-    setCachedCountryName(country, displayName, "country-mapping");
+    // Cache the result
+    setCachedCountryName(originalCountry, displayName, "enhanced-mapping");
+    
+    console.log(`🗺️ [Enhanced Country Mapping] "${originalCountry}" → "${displayName}"`);
     return displayName;
   };
 
