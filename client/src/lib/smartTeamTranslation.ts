@@ -2999,9 +2999,6 @@ class SmartTeamTranslation {
     // This can be enhanced to learn from team contexts within leagues
     console.log(`🎓 [SmartTranslation] Auto-learning from league: ${leagueName}${countryName ? ` (${countryName})` : ''}`);
   }
-</new_str>
-</original>
-  if (!leagueName || leagueName.length < 3) return;
 
     // Skip if already exists in static mappings
     if (this.popularLeagueTeams[leagueName]) return;
