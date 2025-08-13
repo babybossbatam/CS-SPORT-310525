@@ -6,6 +6,9 @@ import { Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
+import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
 // Popular teams with their data - fallback data
 const CURRENT_POPULAR_TEAMS = [
@@ -121,6 +124,7 @@ const PopularTeamsList = () => {
   const dispatch = useDispatch();
   const { toast } = useToast();
   const user = useSelector((state: RootState) => state.user);
+  const { currentLanguage } = useLanguage();
   const [teamData, setTeamData] = useState(CURRENT_POPULAR_TEAMS);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -172,6 +176,13 @@ const PopularTeamsList = () => {
             });
 
           if (transformedTeams.length > 0) {
+            // Auto-learn team mappings for better translations
+            transformedTeams.forEach((team: any) => {
+              smartTeamTranslation.autoLearnFromTeamData(team.name, team.country);
+              smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(team.country);
+            });
+            
+            console.log(`🎓 [PopularTeamsList] Auto-learned ${transformedTeams.length} team mappings`);
             setTeamData(transformedTeams);
             return;
           }
@@ -200,6 +211,14 @@ const PopularTeamsList = () => {
             );
           })
           .sort((a, b) => b.popularity - a.popularity);
+        
+        // Auto-learn fallback team mappings
+        sortedTeams.forEach((team) => {
+          smartTeamTranslation.autoLearnFromTeamData(team.name, team.country);
+          smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(team.country);
+        });
+        
+        console.log(`🎓 [PopularTeamsList] Auto-learned ${sortedTeams.length} fallback team mappings`);
         setTeamData(sortedTeams);
       } finally {
         setIsLoading(false);
@@ -298,10 +317,10 @@ const PopularTeamsList = () => {
                   />
                   <div className="mx-4 flex-1">
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {team.name}
+                      {smartTeamTranslation.translateTeamName(team.name, currentLanguage)}
                     </div>
                     <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                      {team.country}
+                      {smartLeagueCountryTranslation.translateCountryName(team.country, currentLanguage)}
                     </span>
                   </div>
                   <button
