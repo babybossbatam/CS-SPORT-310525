@@ -91,6 +91,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   useEffect(() => {
     if (fixturesData) {
       setFixtures(fixturesData);
+      
+      // Auto-learn country and league names from fixtures data
+      if (Array.isArray(fixturesData) && fixturesData.length > 0) {
+        smartLeagueCountryTranslation.learnFromFixtures(fixturesData);
+      }
     }
     setIsLoading(isFixturesLoading);
     setError(fixturesError ? "Failed to load leagues. Please try again later." : null);
@@ -170,6 +175,14 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       const homeTeamName = fixture.teams?.home?.name || "";
       const awayTeamName = fixture.teams?.away?.name || "";
 
+      // Auto-learn league name for smart translation
+      if (leagueName) {
+        smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(leagueName, { 
+          countryName: country, 
+          leagueId: leagueId 
+        });
+      }
+
       // Apply exclusion filter
       if (shouldExcludeMatchByCountry(leagueName, homeTeamName, awayTeamName, false, country)) {
         return;
@@ -208,12 +221,22 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     return grouped;
   }, [validFixtures, allLeagues]);
 
-  // Country name mapping
+  // Country name mapping with smart translation
   const getCountryDisplayName = (country: string | null | undefined): string => {
     if (!country || typeof country !== "string" || country.trim() === "") {
-      return "Unknown";
+      return t('unknown') || "Unknown";
     }
 
+    // First try smart translation system
+    const smartTranslation = smartLeagueCountryTranslation.translateCountryName(country, currentLanguage);
+    
+    // If smart translation worked (different from original), use it
+    if (smartTranslation !== country) {
+      console.log(`🌍 [Country Translation] Smart: "${country}" → "${smartTranslation}" (${currentLanguage})`);
+      return smartTranslation;
+    }
+
+    // Fallback to cached name
     const cachedName = getCachedCountryName(country);
     if (cachedName) {
       return cachedName;
