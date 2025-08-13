@@ -74,66 +74,55 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     setError(fixturesError ? "Failed to load fixtures. Please try again later." : null);
   }, [fixturesData, isFixturesLoading, fixturesError]);
 
-  // Process fixtures and group by country/league
-  const { validFixtures } = useMemo(() => {
+  // Optimized: Group leagues by country with match counts only (no full fixture processing)
+  const leaguesByCountry = useMemo(() => {
+    const grouped: { [key: string]: { country: string; leagues: any; totalMatches: number; liveMatches: number } } = {};
     const allFixtures = fixtures || [];
+    
     if (!allFixtures?.length) {
-      return { validFixtures: [] };
+      return grouped;
     }
 
-    const filtered: any[] = [];
     const seenFixtures = new Set<number>();
 
+    // Process fixtures minimally for counts only
     allFixtures.forEach((fixture: any) => {
+      // Quick validation
       if (
-        !fixture ||
-        !fixture.league ||
-        !fixture.teams ||
-        !fixture.fixture?.date ||
-        !fixture.fixture?.id
+        !fixture?.league?.id ||
+        !fixture?.fixture?.id ||
+        !fixture?.fixture?.date ||
+        seenFixtures.has(fixture.fixture.id)
       ) {
         return;
       }
 
-      if (seenFixtures.has(fixture.fixture.id)) {
-        return;
-      }
-
-      const fixtureDate = new Date(fixture.fixture.date);
-      const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
-
-      if (fixtureDateString !== selectedDate) {
+      // Quick date check
+      const fixtureDate = fixture.fixture.date.substring(0, 10); // Extract YYYY-MM-DD
+      if (fixtureDate !== selectedDate) {
         return;
       }
 
       seenFixtures.add(fixture.fixture.id);
-      filtered.push(fixture);
-    });
 
-    return { validFixtures: filtered };
-  }, [fixtures, selectedDate]);
-
-  // Group leagues by country with live match tracking (derived from fixtures)
-  const leaguesByCountry = useMemo(() => {
-    const grouped: { [key: string]: { country: string; leagues: any; totalMatches: number; liveMatches: number } } = {};
-
-    // Build league data directly from fixtures
-    validFixtures.forEach((fixture: any) => {
       const country = fixture.league.country || "Unknown";
       const leagueId = fixture.league.id;
       const leagueName = fixture.league.name || "";
+
+      // Quick exclusion check (simplified)
       const homeTeamName = fixture.teams?.home?.name || "";
       const awayTeamName = fixture.teams?.away?.name || "";
+      if (shouldExcludeMatchByCountry(leagueName, homeTeamName, awayTeamName, false, country)) {
+        return;
+      }
 
-      // Enhanced auto-learning for both league and country names
+      // Auto-learn country and league names (simplified)
       if (leagueName) {
         smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(leagueName, { 
           countryName: country, 
           leagueId: leagueId 
         });
       }
-
-      // Auto-learn country name for better translation
       if (country && country !== "Unknown") {
         smartLeagueCountryTranslation.autoLearnFromAnyCountryName(country, {
           leagueContext: leagueName,
@@ -141,15 +130,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         });
       }
 
-      // Apply exclusion filter
-      if (shouldExcludeMatchByCountry(leagueName, homeTeamName, awayTeamName, false, country)) {
-        return;
-      }
-
-      // Check if match is live
+      // Quick live status check
       const statusShort = fixture.fixture?.status?.short;
-      const isLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(statusShort);
+      const isLive = statusShort && ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(statusShort);
 
+      // Initialize country group
       if (!grouped[country]) {
         grouped[country] = {
           country,
@@ -159,6 +144,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         };
       }
 
+      // Initialize league
       if (!grouped[country].leagues[leagueId]) {
         grouped[country].leagues[leagueId] = {
           league: fixture.league,
@@ -167,6 +153,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         };
       }
 
+      // Increment counts
       grouped[country].leagues[leagueId].matchCount++;
       grouped[country].totalMatches++;
 
@@ -177,7 +164,12 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     });
 
     return grouped;
-  }, [validFixtures]);
+  }, [fixtures, selectedDate]);
+
+  // Get total match count for header
+  const totalMatches = useMemo(() => {
+    return Object.values(leaguesByCountry).reduce((sum, countryData) => sum + countryData.totalMatches, 0);
+  }, [leaguesByCountry]);
 
   // Enhanced country name mapping with smart learning translation system
   const getCountryDisplayName = (country: string | null | undefined): string => {
@@ -432,7 +424,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     );
   }
 
-  if (!validFixtures.length) {
+  if (!totalMatches) {
     return null;
   }
 
@@ -487,7 +479,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                       </>
                     );
                   }
-                  return `(${validFixtures.length})`;
+                  return `(${totalMatches})`;
                 })()}
               </span>
             </div>
