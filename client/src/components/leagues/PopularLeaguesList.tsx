@@ -7,7 +7,7 @@ import { RootState, userActions } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import LazyImage from "@/components/common/LazyImage";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage, useTranslation } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
 // Function to shorten league names for better display
@@ -291,6 +291,7 @@ const PopularLeaguesList = () => {
   const { toast } = useToast();
   const user = useSelector((state: RootState) => state.user);
   const { currentLanguage, translateLeagueName, translateCountryName, learnFromFixtures } = useLanguage();
+  const { t } = useTranslation();
   const [leagueData, setLeagueData] = useState(CURRENT_POPULAR_LEAGUES);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -480,7 +481,7 @@ const PopularLeaguesList = () => {
     <div className="space-y-0">
       <Card className="w-full bg-white shadow-sm border border-stone-200">
         <CardContent className="p-0">
-          <h3 className="text-sm font-semibold p-3 border-b border-stone-200">Popular Leagues</h3>
+          <h3 className="text-sm font-semibold p-3 border-b border-stone-200">{t('popular_football_leagues')}</h3>
           <div className="divide-y divide-stone-200">
             {leagueData.slice(0, 20).map((league) => {
               const isFavorite = user.preferences.favoriteLeagues.includes(
