@@ -65,7 +65,7 @@ class SmartLeagueCountryTranslation {
       'es': 'Italia', 'de': 'Italien', 'it': 'Italia', 'pt': 'Itália'
     },
     'Germany': {
-      'zh': '德国', 'zh-hk': '德國', 'zh-tw': '德國',
+      'zh': '德國', 'zh-hk': '德國', 'zh-tw': '德國',
       'es': 'Alemania', 'de': 'Deutschland', 'it': 'Germania', 'pt': 'Alemanha'
     },
     'France': {
@@ -188,7 +188,7 @@ class SmartLeagueCountryTranslation {
       'zh': '列支敦士登', 'zh-hk': '列支敦士登', 'zh-tw': '列支敦士登',
       'es': 'Liechtenstein', 'de': 'Liechtenstein', 'it': 'Liechtenstein', 'pt': 'Liechtenstein'
     },
-    
+
     // Americas
     'Brazil': {
       'zh': '巴西', 'zh-hk': '巴西', 'zh-tw': '巴西',
@@ -246,7 +246,7 @@ class SmartLeagueCountryTranslation {
       'zh': '多米尼加共和国', 'zh-hk': '多明尼加共和國', 'zh-tw': '多明尼加共和國',
       'es': 'República Dominicana', 'de': 'Dominikanische Republik', 'it': 'Repubblica Dominicana', 'pt': 'República Dominicana'
     },
-    
+
     // Asia & Oceania
     'Japan': {
       'zh': '日本', 'zh-hk': '日本', 'zh-tw': '日本',
@@ -304,7 +304,7 @@ class SmartLeagueCountryTranslation {
       'zh': '越南', 'zh-hk': '越南', 'zh-tw': '越南',
       'es': 'Vietnam', 'de': 'Vietnam', 'it': 'Vietnam', 'pt': 'Vietnã'
     },
-    
+
     // Middle East & Africa
     'Saudi Arabia': {
       'zh': '沙特阿拉伯', 'zh-hk': '沙特阿拉伯', 'zh-tw': '沙特阿拉伯',
@@ -481,12 +481,12 @@ class SmartLeagueCountryTranslation {
     this.fixCorruptedCache();
     this.loadLearnedMappings();
     this.integrateAutomatedMappings();
-    
+
     // Auto-learn problematic leagues on startup
     setTimeout(() => {
       this.learnProblematicLeagueNames();
     }, 1000);
-    
+
     console.log('🔄 [SmartLeagueCountryTranslation] Initialized with cache cleared for fresh translations and automated mappings integrated');
   }
 
@@ -1276,7 +1276,7 @@ class SmartLeagueCountryTranslation {
       // Collect unique countries for analysis
       if (countryName && countryName.trim()) {
         uniqueCountries.add(countryName.trim());
-        
+
         // Detect Chinese country names
         if (this.chineseToEnglishMap[countryName.trim()]) {
           chineseCountries.add(countryName.trim());
@@ -1299,7 +1299,7 @@ class SmartLeagueCountryTranslation {
         if (!existingMapping && newMapping) {
           this.learnedLeagueMappings.set(leagueName, newMapping);
           newLeagueMappings++;
-          
+
           if (isMixedLanguage) {
             console.log(`🔄 [Mixed Language Fix] Auto-learned: "${leagueName}" with proper translations`);
           }
@@ -1312,7 +1312,7 @@ class SmartLeagueCountryTranslation {
       // Enhanced country learning with Chinese detection
       if (countryName) {
         const normalizedCountry = this.detectAndNormalizeCountryName(countryName);
-        
+
         // Learn both original and normalized country names
         [countryName, normalizedCountry].forEach(name => {
           if (name && !this.learnedCountryMappings.has(name)) {
@@ -1328,7 +1328,7 @@ class SmartLeagueCountryTranslation {
 
     // Log comprehensive analysis
     console.log(`🔍 [Enhanced Analysis] Countries: ${uniqueCountries.size} (${chineseCountries.size} Chinese), Mixed leagues: ${mixedLanguageLeagues}`);
-    
+
     if (mixedLeagueNames.size > 0) {
       console.log(`🔧 [Mixed Language Leagues]:`, Array.from(mixedLeagueNames).slice(0, 5).join(', ') + (mixedLeagueNames.size > 5 ? '...' : ''));
     }
@@ -1342,7 +1342,7 @@ class SmartLeagueCountryTranslation {
   // Batch process and learn from all countries in fixtures for immediate improvement
   massLearnCountriesFromFixtures(fixtures: any[]): void {
     console.log(`🚀 [Mass Learning] Processing ${fixtures.length} fixtures for comprehensive country detection...`);
-    
+
     const allCountries = new Set<string>();
     const chineseDetected = new Set<string>();
     const missingTranslations = new Set<string>();
@@ -1352,7 +1352,7 @@ class SmartLeagueCountryTranslation {
       if (fixture?.league?.country) {
         const country = fixture.league.country.trim();
         allCountries.add(country);
-        
+
         if (this.chineseToEnglishMap[country]) {
           chineseDetected.add(country);
         }
@@ -1363,11 +1363,11 @@ class SmartLeagueCountryTranslation {
     // Process each unique country
     allCountries.forEach(country => {
       const normalizedCountry = this.detectAndNormalizeCountryName(country);
-      
+
       // Check if we have translation coverage
       const hasPopularMapping = this.popularCountries[normalizedCountry];
       const hasLearnedMapping = this.learnedCountryMappings.has(normalizedCountry);
-      
+
       if (!hasPopularMapping && !hasLearnedMapping) {
         // Generate mapping for missing countries
         const mapping = this.generateCountryMapping(normalizedCountry);
@@ -1388,7 +1388,7 @@ class SmartLeagueCountryTranslation {
     console.log(`   • Chinese countries: ${chineseDetected.size}`);
     console.log(`   • Missing translations: ${missingTranslations.size}`);
     console.log(`   • Newly learned: ${newlyLearned}`);
-    
+
     if (missingTranslations.size > 0) {
       console.log(`⚠️ [Countries needing attention]:`, Array.from(missingTranslations).slice(0, 10).join(', '));
     }
@@ -1442,11 +1442,11 @@ class SmartLeagueCountryTranslation {
   // Detect mixed language league names (e.g., "Bulgaria聯賽", "Netherlands联赛")
   private detectMixedLanguageLeague(leagueName: string): boolean {
     if (!leagueName) return false;
-    
+
     // Check for mixed English/Chinese patterns
     const hasChinese = /[\u4e00-\u9fff]/.test(leagueName);
     const hasLatin = /[a-zA-Z]/.test(leagueName);
-    
+
     // Enhanced mixed patterns to catch more cases
     const mixedPatterns = [
       /^[a-zA-Z\s]+[聯联]賽?$/,           // "Bulgaria聯賽", "Netherlands联赛"
@@ -1462,16 +1462,16 @@ class SmartLeagueCountryTranslation {
       /^[a-zA-Z\s]+青年?[聯联]賽?$/,       // Country + 青年联赛
       /^[a-zA-Z\s]+女子?[聯联]賽?$/,       // Country + 女子联赛
     ];
-    
+
     // Also check for any country name followed by Chinese league terms
     const chineseLeagueTerms = ['聯賽', '联赛', '超級聯賽', '超级联赛', '甲級聯賽', '甲级联赛', '乙級聯賽', '乙级联赛', '盃', '杯', '冠軍聯賽', '冠军联赛'];
     const hasChineseLeagueTerm = chineseLeagueTerms.some(term => leagueName.includes(term));
-    
+
     return hasChinese && hasLatin && (mixedPatterns.some(pattern => pattern.test(leagueName)) || hasChineseLeagueTerm);
   }
 
   // Simplified complete translation approach
-  private generateEnhancedLeagueMapping(leagueName: string, countryName: string): LeagueTranslation | null {
+  private generateCompleteLeagueMapping(leagueName: string, countryName: string): LeagueTranslation | null {
     // Try direct complete translation first
     const directMapping = this.generateCompleteLeagueMapping(leagueName, countryName);
     if (directMapping) return directMapping;
@@ -1491,24 +1491,43 @@ class SmartLeagueCountryTranslation {
   // Complete league name mapping - simpler approach
   private generateCompleteLeagueMapping(leagueName: string, countryName: string): LeagueTranslation | null {
     const lowerName = leagueName.toLowerCase();
-    
-    // Direct complete mappings for common mixed-language cases
+
+    // Enhanced complete mappings for popular competitions
     const completeMappings: { [key: string]: LeagueTranslation } = {
-      'bulgaria聯賽': {
-        'zh': '保加利亚联赛', 'zh-hk': '保加利亞聯賽', 'zh-tw': '保加利亞聯賽',
-        'es': 'Liga de Bulgaria', 'de': 'Bulgarische Liga', 'it': 'Lega Bulgara', 'pt': 'Liga da Bulgária'
+      // Premier League variations
+      'premier league': {
+        'en': 'Premier League', 'zh': '英超', 'zh-hk': '英超', 'zh-tw': '英超',
+        'es': 'Premier League', 'de': 'Premier League', 'it': 'Premier League', 'pt': 'Premier League'
       },
-      'australia超级联赛': {
-        'zh': '澳大利亚超级联赛', 'zh-hk': '澳洲超級聯賽', 'zh-tw': '澳洲超級聯賽',
-        'es': 'Superliga de Australia', 'de': 'Australische Superliga', 'it': 'Superlega Australiana', 'pt': 'Superliga da Austrália'
-      },
-      'australia联赛': {
-        'zh': '澳大利亚联赛', 'zh-hk': '澳洲聯賽', 'zh-tw': '澳洲聯賽',
-        'es': 'Liga de Australia', 'de': 'Australische Liga', 'it': 'Lega Australiana', 'pt': 'Liga da Austrália'
-      },
-      'netherlands联赛': {
-        'zh': '荷兰联赛', 'zh-hk': '荷蘭聯賽', 'zh-tw': '荷蘭聯賽',
+      // Netherlands League variations  
+      'eredivisie': {
+        'en': 'Eredivisie', 'zh': '荷甲', 'zh-hk': '荷甲', 'zh-tw': '荷甲',
         'es': 'Liga de Países Bajos', 'de': 'Niederländische Liga', 'it': 'Lega Olandese', 'pt': 'Liga dos Países Baixos'
+      },
+      // International competitions
+      'conmebol sudamericana': {
+        'en': 'CONMEBOL Sudamericana', 'zh': '南美洲杯', 'zh-hk': '南美洲盃', 'zh-tw': '南美洲盃',
+        'es': 'Copa Sudamericana', 'de': 'Copa Sudamericana', 'it': 'Copa Sudamericana', 'pt': 'Copa Sul-Americana'
+      },
+      'conmebol libertadores': {
+        'en': 'CONMEBOL Libertadores', 'zh': '南美解放者杯', 'zh-hk': '南美解放者盃', 'zh-tw': '南美解放者盃',
+        'es': 'Copa Libertadores', 'de': 'Copa Libertadores', 'it': 'Copa Libertadores', 'pt': 'Copa Libertadores'
+      },
+      'afc challenge league': {
+        'en': 'AFC Challenge League', 'zh': '亚足联挑战杯', 'zh-hk': '亞足聯挑戰盃', 'zh-tw': '亞足聯挑戰盃',
+        'es': 'Liga Desafío AFC', 'de': 'AFC Challenge League', 'it': 'AFC Challenge League', 'pt': 'Liga Desafio AFC'
+      },
+      'uefa champions league': {
+        'en': 'UEFA Champions League', 'zh': '欧洲冠军联赛', 'zh-hk': '歐洲冠軍聯賽', 'zh-tw': '歐洲冠軍聯賽',
+        'es': 'Liga de Campeones UEFA', 'de': 'UEFA Champions League', 'it': 'UEFA Champions League', 'pt': 'Liga dos Campeões UEFA'
+      },
+      'uefa europa league': {
+        'en': 'UEFA Europa League', 'zh': '欧联杯', 'zh-hk': '歐聯盃', 'zh-tw': '歐聯盃',
+        'es': 'Liga Europa UEFA', 'de': 'UEFA Europa League', 'it': 'UEFA Europa League', 'pt': 'Liga Europa UEFA'
+      },
+      'uefa conference league': {
+        'en': 'UEFA Conference League', 'zh': '欧洲协会联赛', 'zh-hk': '歐洲協會聯賽', 'zh-tw': '歐洲協會聯賽',
+        'es': 'Liga Conferencia UEFA', 'de': 'UEFA Conference League', 'it': 'UEFA Conference League', 'pt': 'Liga Conferência UEFA'
       }
     };
 
@@ -1525,11 +1544,11 @@ class SmartLeagueCountryTranslation {
   // Generate mappings for mixed language league names
   private generateMixedLanguageMapping(leagueName: string, countryName: string): LeagueTranslation | null {
     const translations: any = { en: leagueName };
-    
+
     // Extract country from the league name
     const countryMatch = leagueName.match(/^([a-zA-Z\s]+)/);
     const extractedCountry = countryMatch ? countryMatch[1].trim() : countryName;
-    
+
     // Get country translations
     const countryZh = this.translateCountryName(extractedCountry || countryName, 'zh');
     const countryZhHk = this.translateCountryName(extractedCountry || countryName, 'zh-hk');
@@ -1538,7 +1557,7 @@ class SmartLeagueCountryTranslation {
     const countryDe = this.translateCountryName(extractedCountry || countryName, 'de');
     const countryIt = this.translateCountryName(extractedCountry || countryName, 'it');
     const countryPt = this.translateCountryName(extractedCountry || countryName, 'pt');
-    
+
     // Detect league type from Chinese part
     if (leagueName.includes('聯賽') || leagueName.includes('联赛')) {
       // League/Championship
@@ -1586,7 +1605,7 @@ class SmartLeagueCountryTranslation {
     translations.es = translations.es || `Liga de ${extractedCountry}`;
     translations.de = translations.de || `${extractedCountry} Liga`;
     translations.it = translations.it || `Lega ${extractedCountry}`;
-    translations.pt = translations.pt || `Liga de ${extractedCountry}`;
+    translations.pt = translations.pt || `Liga de ${countryPt}`;
     translations.zh = translations.zh || `${countryZh}联赛`;
     translations['zh-hk'] = translations['zh-hk'] || `${countryZhHk}聯賽`;
     translations['zh-tw'] = translations['zh-tw'] || `${countryZhTw}聯賽`;
@@ -1594,16 +1613,16 @@ class SmartLeagueCountryTranslation {
     return translations as LeagueTranslation;
   }
 
-  // Generate intelligent mappings using pattern recognition
+  // Generate mappings using pattern recognition
   private generateIntelligentMapping(leagueName: string, countryName: string): LeagueTranslation | null {
     const translations: any = { en: leagueName };
     const lowerName = leagueName.toLowerCase();
-    
+
     // Get country translations
     const countryZh = this.translateCountryName(countryName, 'zh');
     const countryZhHk = this.translateCountryName(countryName, 'zh-hk');
     const countryZhTw = this.translateCountryName(countryName, 'zh-tw');
-    
+
     // Intelligent pattern matching
     if (lowerName.includes('serie') && lowerName.includes('b')) {
       translations.zh = `${countryZh}乙级联赛`;
@@ -2050,7 +2069,6 @@ class SmartLeagueCountryTranslation {
     '馬其頓': 'Macedonia', '马其顿': 'Macedonia',
     '北愛爾蘭': 'Northern Ireland', '北爱尔兰': 'Northern Ireland',
     '土庫曼斯坦': 'Turkmenistan', '土库曼斯坦': 'Turkmenistan',
-    '世界': 'World',
     // Hyphenated country names
     'Czech-Republic': 'Czech Republic',
     'North-Macedonia': 'North Macedonia',
@@ -2061,16 +2079,16 @@ class SmartLeagueCountryTranslation {
   // Detect if a country name is in Chinese and convert to English first
   private detectAndNormalizeCountryName(countryName: string): string {
     if (!countryName || typeof countryName !== 'string') return countryName;
-    
+
     const cleanName = countryName.trim();
-    
+
     // Check if it's already in Chinese-to-English mapping
     if (this.chineseToEnglishMap[cleanName]) {
       const englishName = this.chineseToEnglishMap[cleanName];
       console.log(`🔄 [Smart Translation] Chinese detected: "${cleanName}" → English: "${englishName}"`);
       return englishName;
     }
-    
+
     // Handle hyphenated country names by checking both hyphenated and space versions
     if (cleanName.includes('-')) {
       const spacedName = cleanName.replace(/-/g, ' ');
@@ -2079,14 +2097,14 @@ class SmartLeagueCountryTranslation {
         return spacedName;
       }
     }
-    
+
     return cleanName;
   }
 
   private generateCountryMapping(countryName: string): CountryTranslation | null {
     // First normalize the country name (convert Chinese to English if needed)
     const normalizedName = this.detectAndNormalizeCountryName(countryName);
-    
+
     const translations: any = {
       en: normalizedName,
       es: normalizedName,
@@ -2100,7 +2118,7 @@ class SmartLeagueCountryTranslation {
 
     // Enhanced pattern matching for common country names
     const lowerName = normalizedName.toLowerCase();
-    
+
     // Czech Republic
     if (lowerName.includes('czech republic') || lowerName === 'czech republic') {
       translations.zh = '捷克共和国';
@@ -2195,7 +2213,7 @@ class SmartLeagueCountryTranslation {
     else if (lowerName === 'moldova') {
       translations.zh = '摩尔多瓦';
       translations['zh-hk'] = '摩爾多瓦';
-      translations['zh-tw'] = '摩爾多瓦';
+      translations['zh-tw'] = '蒙特內哥羅';
       translations.es = 'Moldavia';
       translations.de = 'Moldau';
       translations.it = 'Moldavia';
@@ -2359,7 +2377,7 @@ class SmartLeagueCountryTranslation {
 
     // Step 1: Detect and normalize Chinese country names first
     const normalizedName = this.detectAndNormalizeCountryName(cleanName);
-    
+
     // Auto-learn this country for future use
     this.autoLearnFromAnyCountryName(normalizedName);
 
@@ -2510,7 +2528,7 @@ class SmartLeagueCountryTranslation {
       if (!this.learnedLeagueMappings.has(leagueName)) {
         const fixture = fixtures.find(f => f.league?.name === leagueName);
         const countryName = fixture?.league?.country || '';
-        
+
         const mapping = this.generateMixedLanguageMapping(leagueName, countryName);
         if (mapping) {
           this.learnedLeagueMappings.set(leagueName, mapping);
@@ -2590,7 +2608,7 @@ class SmartLeagueCountryTranslation {
 
     console.log('🚀 [Enhanced Learning] Learning missing and mixed language leagues...');
     const learned = this.bulkLearnFromLeagueList(missingLeagues);
-    
+
     // Also ensure these are in core translations
     missingLeagues.forEach(league => {
       this.autoLearnFromAnyLeagueName(league.name, { countryName: league.country });
