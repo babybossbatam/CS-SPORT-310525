@@ -312,7 +312,14 @@ const PopularTeamsList = () => {
       <div className="w-full bg-white border border-gray-200">
         <div>
           <h3 className="text-sm font-semibold mb-3 text-gray-900 border-b border-gray-200 px-2 py-2">
-            {t("Popular teams")}
+            {currentLanguage === 'zh-hk' ? '熱門球隊' :
+             currentLanguage === 'zh-tw' ? '熱門球隊' :
+             currentLanguage === 'zh' ? '热门球队' :
+             currentLanguage === 'es' ? 'Equipos Populares' :
+             currentLanguage === 'de' ? 'Beliebte Teams' :
+             currentLanguage === 'it' ? 'Squadre Popolari' :
+             currentLanguage === 'pt' ? 'Equipes Populares' :
+             'Popular teams'}
           </h3>
           <div className="">
             {teamData.map((team) => {
