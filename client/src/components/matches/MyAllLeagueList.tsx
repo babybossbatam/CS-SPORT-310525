@@ -65,10 +65,13 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     if (fixturesData) {
       setFixtures(fixturesData);
 
-      // Auto-learn missing league translations in the background
+      // Enhanced auto-learning with immediate mixed language detection
       setTimeout(() => {
         smartLeagueCountryTranslation.learnMissingLeagueNames();
         smartLeagueCountryTranslation.learnFromFixtures(fixturesData);
+        
+        // Trigger additional learning for any mixed language leagues
+        smartLeagueCountryTranslation.massLearnMixedLanguageLeagues(fixturesData);
       }, 100);
     }
     setIsLoading(isFixturesLoading);

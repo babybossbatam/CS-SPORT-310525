@@ -1249,15 +1249,17 @@ class SmartLeagueCountryTranslation {
     });
   }
 
-  // Enhanced learning from fixtures data with comprehensive country detection
+  // Enhanced learning from fixtures data with comprehensive country detection and intelligent pattern recognition
   learnFromFixtures(fixtures: any[]): void {
     let newLeagueMappings = 0;
     let newCountryMappings = 0;
     let updatedMappings = 0;
     let chineseCountriesDetected = 0;
+    let mixedLanguageLeagues = 0;
 
     const uniqueCountries = new Set<string>();
     const chineseCountries = new Set<string>();
+    const mixedLeagueNames = new Set<string>();
 
     fixtures.forEach(fixture => {
       if (!fixture?.league) return;
@@ -1276,14 +1278,25 @@ class SmartLeagueCountryTranslation {
         }
       }
 
-      // Learn or update league mappings
+      // Enhanced league learning with mixed language detection
       if (leagueName) {
+        // Detect mixed language league names (like "Bulgaria聯賽")
+        const isMixedLanguage = this.detectMixedLanguageLeague(leagueName);
+        if (isMixedLanguage) {
+          mixedLeagueNames.add(leagueName);
+          mixedLanguageLeagues++;
+        }
+
         const existingMapping = this.learnedLeagueMappings.get(leagueName);
-        const newMapping = this.generateLeagueMapping(leagueName, countryName);
+        const newMapping = this.generateEnhancedLeagueMapping(leagueName, countryName);
 
         if (!existingMapping && newMapping) {
           this.learnedLeagueMappings.set(leagueName, newMapping);
           newLeagueMappings++;
+          
+          if (isMixedLanguage) {
+            console.log(`🔄 [Mixed Language Fix] Auto-learned: "${leagueName}" with proper translations`);
+          }
         } else if (existingMapping && newMapping && this.shouldUpdateMapping(existingMapping, newMapping)) {
           this.learnedLeagueMappings.set(leagueName, newMapping);
           updatedMappings++;
@@ -1308,15 +1321,15 @@ class SmartLeagueCountryTranslation {
     });
 
     // Log comprehensive analysis
-    console.log(`🔍 [Country Analysis] Found ${uniqueCountries.size} unique countries, ${chineseCountries.size} in Chinese`);
+    console.log(`🔍 [Enhanced Analysis] Countries: ${uniqueCountries.size} (${chineseCountries.size} Chinese), Mixed leagues: ${mixedLanguageLeagues}`);
     
-    if (chineseCountries.size > 0) {
-      console.log(`🈶 [Chinese Countries Detected]:`, Array.from(chineseCountries).slice(0, 10).join(', ') + (chineseCountries.size > 10 ? '...' : ''));
+    if (mixedLeagueNames.size > 0) {
+      console.log(`🔧 [Mixed Language Leagues]:`, Array.from(mixedLeagueNames).slice(0, 5).join(', ') + (mixedLeagueNames.size > 5 ? '...' : ''));
     }
 
     if (newLeagueMappings > 0 || newCountryMappings > 0 || updatedMappings > 0) {
       this.saveLearnedMappings();
-      console.log(`📖 [SmartLeagueCountryTranslation] Learned ${newLeagueMappings} new leagues, ${newCountryMappings} new countries (${chineseCountriesDetected} Chinese detected), updated ${updatedMappings} mappings`);
+      console.log(`📖 [Enhanced Learning] Leagues: +${newLeagueMappings}, Countries: +${newCountryMappings}, Updated: ${updatedMappings}, Mixed Fixed: ${mixedLanguageLeagues}`);
     }
   }
 
@@ -1418,6 +1431,195 @@ class SmartLeagueCountryTranslation {
       'zh-hk': countryName,
       'zh-tw': countryName
     };
+  }
+
+  // Detect mixed language league names (e.g., "Bulgaria聯賽", "Netherlands联赛")
+  private detectMixedLanguageLeague(leagueName: string): boolean {
+    if (!leagueName) return false;
+    
+    // Check for mixed English/Chinese patterns
+    const hasChinese = /[\u4e00-\u9fff]/.test(leagueName);
+    const hasLatin = /[a-zA-Z]/.test(leagueName);
+    
+    // Common mixed patterns
+    const mixedPatterns = [
+      /^[a-zA-Z\s]+[聯联]賽?$/,  // "Bulgaria聯賽", "Netherlands联赛"
+      /^[a-zA-Z\s]+超级?[聯联]賽?$/,  // "Australia超级联赛"
+      /^[a-zA-Z\s]+甲级?[聯联]賽?$/,  // Country + 甲级联赛
+      /^[a-zA-Z\s]+乙级?[聯联]賽?$/,  // Country + 乙级联赛
+      /^[a-zA-Z\s]+盃?$/,           // Country + 盃
+      /^[a-zA-Z\s]+杯?$/            // Country + 杯
+    ];
+    
+    return hasChinese && hasLatin && mixedPatterns.some(pattern => pattern.test(leagueName));
+  }
+
+  // Enhanced league mapping generation with intelligent pattern recognition
+  private generateEnhancedLeagueMapping(leagueName: string, countryName: string): LeagueTranslation | null {
+    // First try the existing generation method
+    const existingMapping = this.generateLeagueMapping(leagueName, countryName);
+    if (existingMapping) return existingMapping;
+
+    // Enhanced handling for mixed language leagues
+    if (this.detectMixedLanguageLeague(leagueName)) {
+      return this.generateMixedLanguageMapping(leagueName, countryName);
+    }
+
+    // Try intelligent pattern-based generation
+    return this.generateIntelligentMapping(leagueName, countryName);
+  }
+
+  // Generate mappings for mixed language league names
+  private generateMixedLanguageMapping(leagueName: string, countryName: string): LeagueTranslation | null {
+    const translations: any = { en: leagueName };
+    
+    // Extract country from the league name
+    const countryMatch = leagueName.match(/^([a-zA-Z\s]+)/);
+    const extractedCountry = countryMatch ? countryMatch[1].trim() : countryName;
+    
+    // Get country translations
+    const countryZh = this.translateCountryName(extractedCountry || countryName, 'zh');
+    const countryZhHk = this.translateCountryName(extractedCountry || countryName, 'zh-hk');
+    const countryZhTw = this.translateCountryName(extractedCountry || countryName, 'zh-tw');
+    const countryEs = this.translateCountryName(extractedCountry || countryName, 'es');
+    const countryDe = this.translateCountryName(extractedCountry || countryName, 'de');
+    const countryIt = this.translateCountryName(extractedCountry || countryName, 'it');
+    const countryPt = this.translateCountryName(extractedCountry || countryName, 'pt');
+    
+    // Detect league type from Chinese part
+    if (leagueName.includes('聯賽') || leagueName.includes('联赛')) {
+      // League/Championship
+      translations.en = `${extractedCountry} League`;
+      translations.zh = `${countryZh}联赛`;
+      translations['zh-hk'] = `${countryZhHk}聯賽`;
+      translations['zh-tw'] = `${countryZhTw}聯賽`;
+      translations.es = `Liga de ${countryEs}`;
+      translations.de = `${countryDe} Liga`;
+      translations.it = `Lega ${countryIt}`;
+      translations.pt = `Liga de ${countryPt}`;
+    } else if (leagueName.includes('超级联赛') || leagueName.includes('超級聯賽')) {
+      // Super League
+      translations.en = `${extractedCountry} Super League`;
+      translations.zh = `${countryZh}超级联赛`;
+      translations['zh-hk'] = `${countryZhHk}超級聯賽`;
+      translations['zh-tw'] = `${countryZhTw}超級聯賽`;
+      translations.es = `Superliga de ${countryEs}`;
+      translations.de = `${countryDe} Superliga`;
+      translations.it = `Superlega ${countryIt}`;
+      translations.pt = `Superliga de ${countryPt}`;
+    } else if (leagueName.includes('甲级联赛') || leagueName.includes('甲級聯賽')) {
+      // First Division
+      translations.en = `${extractedCountry} First Division`;
+      translations.zh = `${countryZh}甲级联赛`;
+      translations['zh-hk'] = `${countryZhHk}甲級聯賽`;
+      translations['zh-tw'] = `${countryZhTw}甲級聯賽`;
+      translations.es = `Primera División de ${countryEs}`;
+      translations.de = `${countryDe} Erste Liga`;
+      translations.it = `Prima Divisione ${countryIt}`;
+      translations.pt = `Primeira Divisão de ${countryPt}`;
+    } else if (leagueName.includes('盃') || leagueName.includes('杯')) {
+      // Cup
+      translations.en = `${extractedCountry} Cup`;
+      translations.zh = `${countryZh}杯`;
+      translations['zh-hk'] = `${countryZhHk}盃`;
+      translations['zh-tw'] = `${countryZhTw}盃`;
+      translations.es = `Copa de ${countryEs}`;
+      translations.de = `${countryDe} Pokal`;
+      translations.it = `Coppa ${countryIt}`;
+      translations.pt = `Taça de ${countryPt}`;
+    }
+
+    // Ensure all languages have defaults
+    translations.es = translations.es || `Liga de ${extractedCountry}`;
+    translations.de = translations.de || `${extractedCountry} Liga`;
+    translations.it = translations.it || `Lega ${extractedCountry}`;
+    translations.pt = translations.pt || `Liga de ${extractedCountry}`;
+    translations.zh = translations.zh || `${countryZh}联赛`;
+    translations['zh-hk'] = translations['zh-hk'] || `${countryZhHk}聯賽`;
+    translations['zh-tw'] = translations['zh-tw'] || `${countryZhTw}聯賽`;
+
+    return translations as LeagueTranslation;
+  }
+
+  // Generate intelligent mappings using pattern recognition
+  private generateIntelligentMapping(leagueName: string, countryName: string): LeagueTranslation | null {
+    const translations: any = { en: leagueName };
+    const lowerName = leagueName.toLowerCase();
+    
+    // Get country translations
+    const countryZh = this.translateCountryName(countryName, 'zh');
+    const countryZhHk = this.translateCountryName(countryName, 'zh-hk');
+    const countryZhTw = this.translateCountryName(countryName, 'zh-tw');
+    
+    // Intelligent pattern matching
+    if (lowerName.includes('serie') && lowerName.includes('b')) {
+      translations.zh = `${countryZh}乙级联赛`;
+      translations['zh-hk'] = `${countryZhHk}乙級聯賽`;
+      translations['zh-tw'] = `${countryZhTw}乙級聯賽`;
+      translations.es = `Serie B de ${countryName}`;
+      translations.de = `Serie B ${countryName}`;
+      translations.it = `Serie B`;
+      translations.pt = `Série B de ${countryName}`;
+    } else if (lowerName.includes('serie') && lowerName.includes('c')) {
+      translations.zh = `${countryZh}丙级联赛`;
+      translations['zh-hk'] = `${countryZhHk}丙級聯賽`;
+      translations['zh-tw'] = `${countryZhTw}丙級聯賽`;
+      translations.es = `Serie C de ${countryName}`;
+      translations.de = `Serie C ${countryName}`;
+      translations.it = `Serie C`;
+      translations.pt = `Série C de ${countryName}`;
+    } else if (lowerName.includes('primera') && lowerName.includes('a')) {
+      translations.zh = `${countryZh}甲级联赛`;
+      translations['zh-hk'] = `${countryZhHk}甲級聯賽`;
+      translations['zh-tw'] = `${countryZhTw}甲級聯賽`;
+      translations.es = `Primera A`;
+      translations.de = `Primera A ${countryName}`;
+      translations.it = `Primera A`;
+      translations.pt = `Primeira A de ${countryName}`;
+    } else if (lowerName.includes('primera') && lowerName.includes('b')) {
+      translations.zh = `${countryZh}乙级联赛`;
+      translations['zh-hk'] = `${countryZhHk}乙級聯賽`;
+      translations['zh-tw'] = `${countryZhTw}乙級聯賽`;
+      translations.es = `Primera B`;
+      translations.de = `Primera B ${countryName}`;
+      translations.it = `Primera B`;
+      translations.pt = `Primeira B de ${countryName}`;
+    } else if (lowerName.includes('copa') && lowerName.includes('paulista')) {
+      translations.zh = `保利斯塔杯`;
+      translations['zh-hk'] = `保利斯塔盃`;
+      translations['zh-tw'] = `保利斯塔盃`;
+      translations.es = `Copa Paulista`;
+      translations.de = `Copa Paulista`;
+      translations.it = `Copa Paulista`;
+      translations.pt = `Copa Paulista`;
+    } else if (lowerName.includes('paulista') && lowerName.includes('u20')) {
+      translations.zh = `保利斯塔U20联赛`;
+      translations['zh-hk'] = `保利斯塔U20聯賽`;
+      translations['zh-tw'] = `保利斯塔U20聯賽`;
+      translations.es = `Paulista U20`;
+      translations.de = `Paulista U20`;
+      translations.it = `Paulista U20`;
+      translations.pt = `Paulista U20`;
+    } else if (lowerName.includes('capixaba') && lowerName.includes('b')) {
+      translations.zh = `卡皮沙巴乙级联赛`;
+      translations['zh-hk'] = `卡皮沙巴乙級聯賽`;
+      translations['zh-tw'] = `卡皮沙巴乙級聯賽`;
+      translations.es = `Capixaba B`;
+      translations.de = `Capixaba B`;
+      translations.it = `Capixaba B`;
+      translations.pt = `Capixaba B`;
+    }
+
+    // Set defaults if no specific pattern matched
+    translations.es = translations.es || leagueName;
+    translations.de = translations.de || leagueName;
+    translations.it = translations.it || leagueName;
+    translations.pt = translations.pt || leagueName;
+    translations.zh = translations.zh || `${countryZh}联赛`;
+    translations['zh-hk'] = translations['zh-hk'] || `${countryZhHk}聯賽`;
+    translations['zh-tw'] = translations['zh-tw'] || `${countryZhTw}聯賽`;
+
+    return translations as LeagueTranslation;
   }
 
   private generateLeagueMapping(leagueName: string, countryName: string): LeagueTranslation | null {
@@ -2235,6 +2437,42 @@ class SmartLeagueCountryTranslation {
     return learned;
   }
 
+  // Mass learn mixed language leagues from fixtures
+  massLearnMixedLanguageLeagues(fixtures: any[]): void {
+    const mixedLeagues = new Set<string>();
+    let learned = 0;
+
+    // Collect all mixed language league names
+    fixtures.forEach(fixture => {
+      if (fixture?.league?.name) {
+        const leagueName = fixture.league.name;
+        if (this.detectMixedLanguageLeague(leagueName)) {
+          mixedLeagues.add(leagueName);
+        }
+      }
+    });
+
+    // Process each mixed language league
+    mixedLeagues.forEach(leagueName => {
+      if (!this.learnedLeagueMappings.has(leagueName)) {
+        const fixture = fixtures.find(f => f.league?.name === leagueName);
+        const countryName = fixture?.league?.country || '';
+        
+        const mapping = this.generateMixedLanguageMapping(leagueName, countryName);
+        if (mapping) {
+          this.learnedLeagueMappings.set(leagueName, mapping);
+          learned++;
+          console.log(`🔧 [Auto-Fix Mixed] "${leagueName}" → properly translated`);
+        }
+      }
+    });
+
+    if (learned > 0) {
+      this.saveLearnedMappings();
+      console.log(`🎯 [Mass Mixed Learning] Fixed ${learned} mixed language leagues`);
+    }
+  }
+
   // Method to learn from specific league names that need translation
   learnMissingLeagueNames() {
     const missingLeagues = [
@@ -2246,10 +2484,16 @@ class SmartLeagueCountryTranslation {
       { name: 'Western Australia NPL', country: 'Australia' },
       { name: 'New South Wales NPL 2', country: 'Australia' },
       { name: 'Australia Cup', country: 'Australia' },
-      { name: 'Australia联赛', country: 'Australia' }
+      { name: 'Australia联赛', country: 'Australia' },
+      { name: 'Bulgaria聯賽', country: 'Bulgaria' },
+      { name: 'Serie B', country: 'Brazil' },
+      { name: 'Serie C', country: 'Brazil' },
+      { name: 'Copa Paulista', country: 'Brazil' },
+      { name: 'Paulista - U20', country: 'Brazil' },
+      { name: 'Capixaba B', country: 'Brazil' }
     ];
 
-    console.log('🚀 [Smart Learning] Learning missing league translations...');
+    console.log('🚀 [Enhanced Learning] Learning missing and mixed language leagues...');
     const learned = this.bulkLearnFromLeagueList(missingLeagues);
     
     // Also ensure these are in core translations
@@ -2257,7 +2501,7 @@ class SmartLeagueCountryTranslation {
       this.autoLearnFromAnyLeagueName(league.name, { countryName: league.country });
     });
 
-    console.log(`✅ [Smart Learning] Completed learning ${learned} missing league translations`);
+    console.log(`✅ [Enhanced Learning] Completed learning ${learned} missing league translations`);
     return learned;
   }
 }
