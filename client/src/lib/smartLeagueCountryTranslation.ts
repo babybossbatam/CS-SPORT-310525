@@ -268,6 +268,18 @@ class SmartLeagueCountryTranslation {
       'zh': '澳大利亚', 'zh-hk': '澳洲', 'zh-tw': '澳洲',
       'es': 'Australia', 'de': 'Australien', 'it': 'Australia', 'pt': 'Austrália'
     },
+    'New South Wales': {
+      'zh': '新南威尔士', 'zh-hk': '新南威爾士', 'zh-tw': '新南威爾士',
+      'es': 'Nueva Gales del Sur', 'de': 'New South Wales', 'it': 'Nuovo Galles del Sud', 'pt': 'Nova Gales do Sul'
+    },
+    'Western Australia': {
+      'zh': '西澳大利亚', 'zh-hk': '西澳大利亞', 'zh-tw': '西澳大利亞',
+      'es': 'Australia Occidental', 'de': 'Western Australia', 'it': 'Australia Occidentale', 'pt': 'Austrália Ocidental'
+    },
+    'Australian Capital Territory': {
+      'zh': '澳大利亚首都地区', 'zh-hk': '澳洲首都地區', 'zh-tw': '澳洲首都地區',
+      'es': 'Territorio de la Capital Australiana', 'de': 'Australian Capital Territory', 'it': 'Territorio della Capitale Australiana', 'pt': 'Território da Capital Australiana'
+    },
     'Thailand': {
       'zh': '泰国', 'zh-hk': '泰國', 'zh-tw': '泰國',
       'es': 'Tailandia', 'de': 'Thailand', 'it': 'Thailandia', 'pt': 'Tailândia'
@@ -600,6 +612,108 @@ class SmartLeagueCountryTranslation {
         'de': 'Vereinsfreundschaftsspiele',
         'it': 'Amichevoli di Club',
         'pt': 'Amigáveis de Clubes'
+      },
+
+      // Argentina Leagues
+      'Primera Nacional': {
+        'en': 'Primera Nacional',
+        'es': 'Primera Nacional',
+        'zh-hk': '全國甲級聯賽',
+        'zh-tw': '全國甲級聯賽',
+        'zh': '全国甲级联赛',
+        'de': 'Primera Nacional',
+        'it': 'Primera Nacional',
+        'pt': 'Primera Nacional'
+      },
+
+      'Primera C': {
+        'en': 'Primera C',
+        'es': 'Primera C',
+        'zh-hk': 'C級聯賽',
+        'zh-tw': 'C級聯賽',
+        'zh': 'C级联赛',
+        'de': 'Primera C',
+        'it': 'Primera C',
+        'pt': 'Primera C'
+      },
+
+      // Australian Leagues  
+      'Capital Territory NPL': {
+        'en': 'Capital Territory NPL',
+        'es': 'Liga Nacional del Territorio de la Capital',
+        'zh-hk': '首都地區國家聯賽',
+        'zh-tw': '首都地區國家聯賽',
+        'zh': '首都地区国家联赛',
+        'de': 'Capital Territory National Premier League',
+        'it': 'Lega Nazionale del Territorio della Capitale',
+        'pt': 'Liga Nacional do Território da Capital'
+      },
+
+      'Western Australia NPL': {
+        'en': 'Western Australia NPL',
+        'es': 'Liga Nacional de Australia Occidental',
+        'zh-hk': '西澳大利亞國家聯賽',
+        'zh-tw': '西澳大利亞國家聯賽',
+        'zh': '西澳大利亚国家联赛',
+        'de': 'Western Australia National Premier League',
+        'it': 'Lega Nazionale dell\'Australia Occidentale',
+        'pt': 'Liga Nacional da Austrália Ocidental'
+      },
+
+      'New South Wales NPL 2': {
+        'en': 'New South Wales NPL 2',
+        'es': 'Liga Nacional de Nueva Gales del Sur 2',
+        'zh-hk': '新南威爾士國家聯賽2',
+        'zh-tw': '新南威爾士國家聯賽2',
+        'zh': '新南威尔士国家联赛2',
+        'de': 'New South Wales National Premier League 2',
+        'it': 'Lega Nazionale del Nuovo Galles del Sud 2',
+        'pt': 'Liga Nacional de Nova Gales do Sul 2'
+      },
+
+      'Australia Cup': {
+        'en': 'Australia Cup',
+        'es': 'Copa de Australia',
+        'zh-hk': '澳洲盃',
+        'zh-tw': '澳洲盃',
+        'zh': '澳大利亚杯',
+        'de': 'Australia Cup',
+        'it': 'Coppa d\'Australia',
+        'pt': 'Taça da Austrália'
+      },
+
+      // Dutch/Chinese Mixed Leagues
+      'Netherlands联赛': {
+        'en': 'Netherlands League',
+        'es': 'Liga de Países Bajos',
+        'zh-hk': '荷蘭聯賽',
+        'zh-tw': '荷蘭聯賽',
+        'zh': '荷兰联赛',
+        'de': 'Niederländische Liga',
+        'it': 'Lega Olandese',
+        'pt': 'Liga dos Países Baixos'
+      },
+
+      'Australia超级联赛': {
+        'en': 'Australia Super League',
+        'es': 'Superliga de Australia',
+        'zh-hk': '澳洲超級聯賽',
+        'zh-tw': '澳洲超級聯賽',
+        'zh': '澳大利亚超级联赛',
+        'de': 'Australische Superliga',
+        'it': 'Superlega Australiana',
+        'pt': 'Superliga da Austrália'
+      },
+
+      'Australia联赛': {
+        'en': 'Australia League',
+        'es': 'Liga de Australia',
+        'zh-hk': '澳洲聯賽',
+        'zh-tw': '澳洲聯賽',
+        'zh': '澳大利亚联赛',
+        'de': 'Australische Liga',
+        'it': 'Lega Australiana',
+        'pt': 'Liga da Austrália'
       },
 
       // AFC Challenge League
@@ -1347,6 +1461,38 @@ class SmartLeagueCountryTranslation {
       translations.it = `Premier League ${countryName ? 'di ' + countryName : ''}`;
       translations.pt = `Liga Premier ${countryName ? 'do ' + countryName : ''}`;
     }
+    // Specific league name patterns from the screenshot
+    else if (lowerName === 'primera nacional') {
+      translations.zh = '全国甲级联赛'; translations['zh-hk'] = '全國甲級聯賽'; translations['zh-tw'] = '全國甲級聯賽';
+      translations.es = 'Primera Nacional'; translations.de = 'Primera Nacional'; translations.it = 'Primera Nacional'; translations.pt = 'Primera Nacional';
+    } else if (lowerName === 'primera c') {
+      translations.zh = 'C级联赛'; translations['zh-hk'] = 'C級聯賽'; translations['zh-tw'] = 'C級聯賽';
+      translations.es = 'Primera C'; translations.de = 'Primera C'; translations.it = 'Primera C'; translations.pt = 'Primera C';
+    } else if (lowerName.includes('netherlands') && lowerName.includes('联赛')) {
+      translations.en = 'Netherlands League'; translations.es = 'Liga de Países Bajos'; translations.de = 'Niederländische Liga';
+      translations.it = 'Lega Olandese'; translations.pt = 'Liga dos Países Baixos';
+    } else if (lowerName === 'capital territory npl') {
+      translations.zh = '首都地区国家联赛'; translations['zh-hk'] = '首都地區國家聯賽'; translations['zh-tw'] = '首都地區國家聯賽';
+      translations.es = 'Liga Nacional del Territorio de la Capital'; translations.de = 'Capital Territory National Premier League';
+      translations.it = 'Lega Nazionale del Territorio della Capitale'; translations.pt = 'Liga Nacional do Território da Capital';
+    } else if (lowerName.includes('australia') && lowerName.includes('超级联赛')) {
+      translations.en = 'Australia Super League'; translations.es = 'Superliga de Australia'; translations.de = 'Australische Superliga';
+      translations.it = 'Superlega Australiana'; translations.pt = 'Superliga da Austrália';
+    } else if (lowerName === 'western australia npl') {
+      translations.zh = '西澳大利亚国家联赛'; translations['zh-hk'] = '西澳大利亞國家聯賽'; translations['zh-tw'] = '西澳大利亞國家聯賽';
+      translations.es = 'Liga Nacional de Australia Occidental'; translations.de = 'Western Australia National Premier League';
+      translations.it = 'Lega Nazionale dell\'Australia Occidentale'; translations.pt = 'Liga Nacional da Austrália Ocidental';
+    } else if (lowerName === 'new south wales npl 2') {
+      translations.zh = '新南威尔士国家联赛2'; translations['zh-hk'] = '新南威爾士國家聯賽2'; translations['zh-tw'] = '新南威爾士國家聯賽2';
+      translations.es = 'Liga Nacional de Nueva Gales del Sur 2'; translations.de = 'New South Wales National Premier League 2';
+      translations.it = 'Lega Nazionale del Nuovo Galles del Sud 2'; translations.pt = 'Liga Nacional de Nova Gales do Sul 2';
+    } else if (lowerName === 'australia cup') {
+      translations.zh = '澳大利亚杯'; translations['zh-hk'] = '澳洲盃'; translations['zh-tw'] = '澳洲盃';
+      translations.es = 'Copa de Australia'; translations.de = 'Australia Cup'; translations.it = 'Coppa d\'Australia'; translations.pt = 'Taça da Austrália';
+    } else if (lowerName.includes('australia') && lowerName.includes('联赛')) {
+      translations.en = 'Australia League'; translations.es = 'Liga de Australia'; translations.de = 'Australische Liga';
+      translations.it = 'Lega Australiana'; translations.pt = 'Liga da Austrália';
+    }
     // Enhanced pattern for German leagues
     else if (lowerName.includes('甲级联赛') || lowerName.includes('甲級聯賽')) {
       // Handle existing Chinese league names
@@ -2086,6 +2232,32 @@ class SmartLeagueCountryTranslation {
       console.log(`🎓 [Bulk Learn] Added ${learned} new league mappings`);
     }
 
+    return learned;
+  }
+
+  // Method to learn from specific league names that need translation
+  learnMissingLeagueNames() {
+    const missingLeagues = [
+      { name: 'Primera Nacional', country: 'Argentina' },
+      { name: 'Primera C', country: 'Argentina' },
+      { name: 'Netherlands联赛', country: 'Netherlands' },
+      { name: 'Capital Territory NPL', country: 'Australia' },
+      { name: 'Australia超级联赛', country: 'Australia' },
+      { name: 'Western Australia NPL', country: 'Australia' },
+      { name: 'New South Wales NPL 2', country: 'Australia' },
+      { name: 'Australia Cup', country: 'Australia' },
+      { name: 'Australia联赛', country: 'Australia' }
+    ];
+
+    console.log('🚀 [Smart Learning] Learning missing league translations...');
+    const learned = this.bulkLearnFromLeagueList(missingLeagues);
+    
+    // Also ensure these are in core translations
+    missingLeagues.forEach(league => {
+      this.autoLearnFromAnyLeagueName(league.name, { countryName: league.country });
+    });
+
+    console.log(`✅ [Smart Learning] Completed learning ${learned} missing league translations`);
     return learned;
   }
 }

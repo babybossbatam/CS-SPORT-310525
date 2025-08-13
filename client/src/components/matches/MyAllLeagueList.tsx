@@ -65,8 +65,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     if (fixturesData) {
       setFixtures(fixturesData);
 
-      // Skip heavy background learning for faster rendering
-      // Learning will be done on demand instead
+      // Auto-learn missing league translations in the background
+      setTimeout(() => {
+        smartLeagueCountryTranslation.learnMissingLeagueNames();
+        smartLeagueCountryTranslation.learnFromFixtures(fixturesData);
+      }, 100);
     }
     setIsLoading(isFixturesLoading);
     setError(fixturesError ? "Failed to load fixtures. Please try again later." : null);
