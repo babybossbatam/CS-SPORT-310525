@@ -1294,7 +1294,7 @@ class SmartLeagueCountryTranslation {
         }
 
         const existingMapping = this.learnedLeagueMappings.get(leagueName);
-        const newMapping = this.generateEnhancedLeagueMapping(leagueName, countryName);
+        const newMapping = this.generateLeagueMapping(leagueName, countryName);
 
         if (!existingMapping && newMapping) {
           this.learnedLeagueMappings.set(leagueName, newMapping);
