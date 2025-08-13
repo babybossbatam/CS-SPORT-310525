@@ -78,26 +78,23 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     if (fixturesData) {
       setFixtures(fixturesData);
 
-      // Optimized learning - only run once per session with better filtering
+      // Enhanced automatic learning - process all fixtures immediately for comprehensive learning
       if (fixturesData.length > 0) {
-        // Use requestIdleCallback for background processing with better data sampling
+        // Force immediate learning with all fixtures for maximum coverage
         const learnTranslations = () => {
-          // Sample diverse fixtures for better learning (every 10th fixture up to 30 samples)
-          const sampleSize = Math.min(30, Math.floor(fixturesData.length / 10));
-          const sampledFixtures = fixturesData
-            .filter((_, index) => index % 10 === 0)
-            .slice(0, sampleSize);
-
-          if (sampledFixtures.length > 0) {
-            smartLeagueCountryTranslation.learnFromFixtures(sampledFixtures);
-          }
+          console.log(`🎓 [Auto-Learning] Processing ${fixturesData.length} fixtures for automatic translation learning...`);
+          
+          // Use all fixtures for comprehensive learning
+          smartLeagueCountryTranslation.learnFromFixtures(fixturesData);
+          
+          // Also trigger mass learning for missing leagues
+          smartLeagueCountryTranslation.learnMissingLeagueNames();
+          
+          console.log(`✅ [Auto-Learning] Completed automatic learning from ${fixturesData.length} fixtures`);
         };
 
-        if (window.requestIdleCallback) {
-          window.requestIdleCallback(learnTranslations, { timeout: 2000 });
-        } else {
-          setTimeout(learnTranslations, 500);
-        }
+        // Run immediately for instant learning, not in background
+        learnTranslations();
       }
     }
     setIsLoading(isFixturesLoading);

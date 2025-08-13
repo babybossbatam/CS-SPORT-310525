@@ -804,10 +804,6 @@ class SmartLeagueCountryTranslation {
       'zh': '美洲杯', 'zh-hk': '美洲盃', 'zh-tw': '美洲盃',
       'es': 'Copa América', 'de': 'Copa América', 'it': 'Copa América', 'pt': 'Copa América'
     },
-    'Euro Championship': {
-      'zh': '欧洲锦标赛', 'zh-hk': '歐洲錦標賽', 'zh-tw': '歐洲錦標賽',
-      'es': 'Eurocopa', 'de': 'Europameisterschaft', 'it': 'Campionato Europeo', 'pt': 'Campeonato Europeu'
-    },
 
     // World Cup Qualifications
     'World Cup Qualification South America': {
@@ -1255,7 +1251,7 @@ class SmartLeagueCountryTranslation {
 
     // Check if we already have this league mapping
     if (!this.learnedLeagueMappings.has(cleanName)) {
-      const mapping = this.generateLeagueMapping(cleanName, options.countryName);
+      const mapping = this.generateLeagueMapping(leagueName, options.countryName);
       if (mapping) {
         this.learnedLeagueMappings.set(cleanName, mapping);
         this.saveLearnedMappings();
@@ -1754,7 +1750,50 @@ class SmartLeagueCountryTranslation {
       translations['zh-tw'] = `${this.translateCountryName(countryName, 'zh-tw')}甲級聯賽`;
     }
 
-    // World Cup patterns - Enhanced
+    // CONMEBOL Competitions - Enhanced Pattern Recognition
+    else if (lowerName.includes('conmebol libertadores') || lowerName.includes('copa libertadores') || lowerName === 'libertadores') {
+      translations.zh = 'CONMEBOL自由杯'; translations['zh-hk'] = 'CONMEBOL自由盃'; translations['zh-tw'] = 'CONMEBOL自由盃';
+      translations.es = 'CONMEBOL Libertadores'; translations.de = 'CONMEBOL Libertadores';
+      translations.it = 'CONMEBOL Libertadores'; translations.pt = 'CONMEBOL Libertadores';
+    } else if (lowerName.includes('conmebol sudamericana') || lowerName.includes('copa sudamericana') || lowerName === 'sudamericana') {
+      translations.zh = 'CONMEBOL南美杯'; translations['zh-hk'] = 'CONMEBOL南美盃'; translations['zh-tw'] = 'CONMEBOL南美盃';
+      translations.es = 'CONMEBOL Sudamericana'; translations.de = 'CONMEBOL Sudamericana';
+      translations.it = 'CONMEBOL Sudamericana'; translations.pt = 'CONMEBOL Sudamericana';
+    } else if (lowerName.includes('conmebol recopa') || lowerName.includes('recopa sudamericana')) {
+      translations.zh = 'CONMEBOL再杯'; translations['zh-hk'] = 'CONMEBOL再盃'; translations['zh-tw'] = 'CONMEBOL再盃';
+      translations.es = 'CONMEBOL Recopa'; translations.de = 'CONMEBOL Recopa';
+      translations.it = 'CONMEBOL Recopa'; translations.pt = 'CONMEBOL Recopa';
+    } else if (lowerName.includes('copa america')) {
+      translations.zh = '美洲杯'; translations['zh-hk'] = '美洲盃'; translations['zh-tw'] = '美洲盃';
+      translations.es = 'Copa América'; translations.de = 'Copa América';
+      translations.it = 'Copa América'; translations.pt = 'Copa América';
+    }
+
+    // CONCACAF Competitions
+    else if (lowerName.includes('concacaf gold cup') || lowerName === 'gold cup') {
+      translations.zh = 'CONCACAF金杯赛'; translations['zh-hk'] = 'CONCACAF金盃賽'; translations['zh-tw'] = 'CONCACAF金盃賽';
+      translations.es = 'Copa de Oro de CONCACAF'; translations.de = 'CONCACAF Gold Cup';
+    } else if (lowerName.includes('concacaf champions league')) {
+      translations.zh = 'CONCACAF冠军联赛'; translations['zh-hk'] = 'CONCACAF冠軍聯賽'; translations['zh-tw'] = 'CONCACAF冠軍聯賽';
+      translations.es = 'Liga de Campeones CONCACAF'; translations.de = 'CONCACAF Champions League';
+    }
+
+    // African Competitions
+    else if (lowerName.includes('africa cup of nations') || lowerName === 'afcon') {
+      translations.zh = '非洲国家杯'; translations['zh-hk'] = '非洲國家盃'; translations['zh-tw'] = '非洲國家盃';
+      translations.es = 'Copa Africana de Naciones'; translations.de = 'Afrika-Cup';
+    } else if (lowerName.includes('caf champions league')) {
+      translations.zh = 'CAF冠军联赛'; translations['zh-hk'] = 'CAF冠軍聯賽'; translations['zh-tw'] = 'CAF冠軍聯賽';
+      translations.es = 'Liga de Campeones CAF'; translations.de = 'CAF Champions League';
+    }
+
+    // Asian Competitions
+    else if (lowerName.includes('asian cup') || lowerName === 'afc asian cup') {
+      translations.zh = '亚洲杯'; translations['zh-hk'] = '亞洲盃'; translations['zh-tw'] = '亞洲盃';
+      translations.es = 'Copa Asiática'; translations.de = 'Asienmeisterschaft';
+    }
+
+    // World Cup Qualifications
     else if (lowerName.includes('world cup qualification') || lowerName.includes('wc qualification') ||
       (lowerName.includes('world cup') && lowerName.includes('qualification')) ||
       lowerName.includes('world cup - qualification')) {
@@ -1814,27 +1853,18 @@ class SmartLeagueCountryTranslation {
     else if (lowerName.includes('concacaf gold cup') || lowerName === 'gold cup') {
       translations.zh = 'CONCACAF金杯赛'; translations['zh-hk'] = 'CONCACAF金盃賽'; translations['zh-tw'] = 'CONCACAF金盃賽';
       translations.es = 'Copa de Oro de CONCACAF'; translations.de = 'CONCACAF Gold Cup';
+    } else if (lowerName.includes('concacaf champions league')) {
+      translations.zh = 'CONCACAF冠军联赛'; translations['zh-hk'] = 'CONCACAF冠軍聯賽'; translations['zh-tw'] = 'CONCACAF冠軍聯賽';
+      translations.es = 'Liga de Campeones CONCACAF'; translations.de = 'CONCACAF Champions League';
     } else if (lowerName.includes('africa cup of nations') || lowerName === 'afcon') {
       translations.zh = '非洲国家杯'; translations['zh-hk'] = '非洲國家盃'; translations['zh-tw'] = '非洲國家盃';
       translations.es = 'Copa Africana de Naciones'; translations.de = 'Afrika-Cup';
+    } else if (lowerName.includes('caf champions league')) {
+      translations.zh = 'CAF冠军联赛'; translations['zh-hk'] = 'CAF冠軍聯賽'; translations['zh-tw'] = 'CAF冠軍聯賽';
+      translations.es = 'Liga de Campeones CAF'; translations.de = 'CAF Champions League';
     } else if (lowerName.includes('asian cup') || lowerName === 'afc asian cup') {
       translations.zh = '亚洲杯'; translations['zh-hk'] = '亞洲盃'; translations['zh-tw'] = '亞洲盃';
       translations.es = 'Copa Asiática'; translations.de = 'Asienmeisterschaft';
-    } else if (lowerName.includes('copa america')) {
-      translations.zh = '美洲杯'; translations['zh-hk'] = '美洲盃'; translations['zh-tw'] = '美洲盃';
-      translations.es = 'Copa América'; translations.de = 'Copa América';
-    }
-
-    // AFC Competitions
-    else if (lowerName.includes('afc champions league')) {
-      translations.zh = 'AFC冠军联赛'; translations['zh-hk'] = 'AFC冠軍聯賽'; translations['zh-tw'] = 'AFC冠軍聯賽';
-      translations.es = 'Liga de Campeones AFC'; translations.de = 'AFC Champions League';
-    } else if (lowerName.includes('afc challenge league')) {
-      translations.zh = 'AFC挑战联赛'; translations['zh-hk'] = 'AFC挑戰聯賽'; translations['zh-tw'] = 'AFC挑戰聯賽';
-      translations.es = 'Liga Challenge AFC'; translations.de = 'AFC Challenge League';
-    } else if (lowerName.includes('afc cup')) {
-      translations.zh = 'AFC杯'; translations['zh-hk'] = 'AFC盃'; translations['zh-tw'] = 'AFC盃';
-      translations.es = 'Copa AFC'; translations.de = 'AFC-Pokal';
     }
 
     // Domestic Cup Competitions - Enhanced patterns
