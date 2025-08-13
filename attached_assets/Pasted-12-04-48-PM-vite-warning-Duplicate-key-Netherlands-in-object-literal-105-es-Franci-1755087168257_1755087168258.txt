@@ -1,0 +1,70 @@
+12:04:48 PM [vite] warning: Duplicate key "Netherlands" in object literal
+105|        'es': 'Francia', 'de': 'Frankreich', 'it': 'Francia', 'pt': 'França'
+106|      },
+107|      'Netherlands': {
+   |      ^
+108|        'zh': '荷兰', 'zh-hk': '荷蘭', 'zh-tw': '荷蘭',
+109|        'es': 'Países Bajos', 'de': 'Niederlande', 'it': 'Paesi Bassi', 'pt': 'Países Baixos'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartLeagueCountryTranslation.ts
+12:04:48 PM [vite] warning: Duplicate key "Portugal" in object literal
+109|        'es': 'Países Bajos', 'de': 'Niederlande', 'it': 'Paesi Bassi', 'pt': 'Países Baixos'
+110|      },
+111|      'Portugal': {
+   |      ^
+112|        'zh': '葡萄牙', 'zh-hk': '葡萄牙', 'zh-tw': '葡萄牙',
+113|        'es': 'Portugal', 'de': 'Portugal', 'it': 'Portogallo', 'pt': 'Portugal'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartLeagueCountryTranslation.ts
+12:04:48 PM [vite] warning: Duplicate key "Belgium" in object literal
+113|        'es': 'Portugal', 'de': 'Portugal', 'it': 'Portogallo', 'pt': 'Portugal'
+114|      },
+115|      'Belgium': {
+   |      ^
+116|        'zh': '比利时', 'zh-hk': '比利時', 'zh-tw': '比利時',
+117|        'es': 'Bélgica', 'de': 'Belgien', 'it': 'Belgio', 'pt': 'Bélgica'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartLeagueCountryTranslation.ts
+12:04:48 PM [vite] warning: Duplicate key "Czech Republic" in object literal
+125|        'es': 'Austria', 'de': 'Österreich', 'it': 'Austria', 'pt': 'Áustria'
+126|      },
+127|      'Czech Republic': {
+   |      ^
+128|        'zh': '捷克共和國', 'zh-hk': '捷克共和國', 'zh-tw': '捷克共和國',
+129|        'es': 'República Checa', 'de': 'Tschechische Republik', 'it': 'Repubblica Ceca', 'pt': 'República Tcheca'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartLeagueCountryTranslation.ts
+12:04:48 PM [vite] warning: Duplicate key "Mexico" in object literal
+249|        'es': 'Argentina', 'de': 'Argentinien', 'it': 'Argentina', 'pt': 'Argentina'
+250|      },
+251|      'Mexico': {
+   |      ^
+252|        'zh': '墨西哥', 'zh-hk': '墨西哥', 'zh-tw': '墨西哥',
+253|        'es': 'México', 'de': 'Mexiko', 'it': 'Messico', 'pt': 'México'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartLeagueCountryTranslation.ts
+12:04:48 PM [vite] warning: Duplicate key "Dominican Republic" in object literal
+293|        'es': 'Venezuela', 'de': 'Venezuela', 'it': 'Venezuela', 'pt': 'Venezuela'
+294|      },
+295|      'Dominican Republic': {
+   |      ^
+296|        'zh': '多明尼加共和國', 'zh-hk': '多明尼加共和國', 'zh-tw': '多明尼加共和國',
+297|        'es': 'República Dominicana', 'de': 'Dominikanische Republik', 'it': 'Repubblica Dominicana', 'pt': 'República Dominicana'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartLeagueCountryTranslation.ts
+12:04:48 PM [vite] warning: Duplicate key "Czech-Republic" in object literal
+489|        'es': 'Estados Unidos de América', 'de': 'Vereinigte Staaten von Amerika', 'it': 'Stati Uniti d\'America', 'pt': 'Estados Unidos da América'
+490|      },
+491|      'Czech-Republic': {
+   |      ^
+492|        'zh': '捷克共和國', 'zh-hk': '捷克共和國', 'zh-tw': '捷克共和國',
+493|        'es': 'República Checa', 'de': 'Tschechische Republik', 'it': 'Repubblica Ceca', 'pt': 'República Tcheca'
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartLeagueCountryTranslation.ts
