@@ -96,5 +96,49 @@ export const insertLeagueTranslationSchema = createInsertSchema(leagueTranslatio
 export const selectLeagueTranslationSchema = createSelectSchema(leagueTranslations);
 export const insertCountryTranslationSchema = createInsertSchema(countryTranslations);
 export const selectCountryTranslationSchema = createSelectSchema(countryTranslations);
+export const cachedFixtures = pgTable("cached_fixtures", {
+  id: serial("id").primaryKey(),
+  fixtureId: text("fixture_id").notNull().unique(),
+  data: jsonb("data").notNull(),
+  league: text("league").notNull(),
+  date: text("date").notNull(),
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
+export const cachedLeagues = pgTable("cached_leagues", {
+  id: serial("id").primaryKey(),
+  leagueId: text("league_id").notNull().unique(),
+  data: jsonb("data").notNull(),
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
+export const newsArticles = pgTable("news_articles", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  content: text("content"),
+  author: text("author"),
+  source: text("source"),
+  url: text("url"),
+  imageUrl: text("image_url"),
+  category: text("category"),
+  tags: jsonb("tags").$type<string[]>(),
+  publishedAt: timestamp("published_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type CachedFixture = typeof cachedFixtures.$inferSelect;
+export type InsertCachedFixture = typeof cachedFixtures.$inferInsert;
+export type CachedLeague = typeof cachedLeagues.$inferSelect;
+export type InsertCachedLeague = typeof cachedLeagues.$inferInsert;
+export type NewsArticle = typeof newsArticles.$inferSelect;
+export type InsertNewsArticle = typeof newsArticles.$inferInsert;
+
 export const insertTeamTranslationSchema = createInsertSchema(teamTranslations);
 export const selectTeamTranslationSchema = createSelectSchema(teamTranslations);
+export const insertCachedFixtureSchema = createInsertSchema(cachedFixtures);
+export const selectCachedFixtureSchema = createSelectSchema(cachedFixtures);
+export const insertCachedLeagueSchema = createInsertSchema(cachedLeagues);
+export const selectCachedLeagueSchema = createSelectSchema(cachedLeagues);
+export const insertNewsArticleSchema = createInsertSchema(newsArticles);
+export const selectNewsArticleSchema = createSelectSchema(newsArticles);
