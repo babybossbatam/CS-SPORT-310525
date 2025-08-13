@@ -1138,9 +1138,29 @@ const HomeTopScorersList = () => {
                   }]);
                 }
 
-                // Translate the team name to the current language
-                const translatedTeamName = teamName ? 
-                  smartTeamTranslation.translateTeamName(teamName, currentLanguage, playerStats?.league) : "";
+                // Translate the team name to the current language with enhanced fallback
+                let translatedTeamName = "";
+                if (teamName) {
+                  translatedTeamName = smartTeamTranslation.translateTeamName(teamName, currentLanguage, playerStats?.league);
+                  
+                  // If translation returns the same name or empty, try country-based translation
+                  if (!translatedTeamName || translatedTeamName === teamName) {
+                    // For national teams, use smart country translation
+                    const leagueCountry = playerStats?.league?.country;
+                    if (leagueCountry && (
+                      playerStats?.league?.name?.toLowerCase().includes('world cup') ||
+                      playerStats?.league?.name?.toLowerCase().includes('nations league') ||
+                      playerStats?.league?.name?.toLowerCase().includes('euro') ||
+                      playerStats?.league?.name?.toLowerCase().includes('copa america') ||
+                      playerStats?.league?.name?.toLowerCase().includes('qualification')
+                    )) {
+                      // This is likely a national team, use country name translation
+                      translatedTeamName = smartLeagueCountryTranslation.translateCountryName(teamName, currentLanguage) || teamName;
+                    } else {
+                      translatedTeamName = teamName;
+                    }
+                  }
+                }
 
                 // Debug logging to see what position data is available
                 if (index === 0) {
