@@ -16,6 +16,7 @@ import { userActions } from "@/lib/store";
 import { useCachedQuery } from "@/lib/cachingHelper";
 import { performanceMonitor } from "@/lib/performanceMonitor";
 import { useLanguage, useTranslation, countryToLanguageMap } from "@/contexts/LanguageContext";
+import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
 interface MyAllLeagueListProps {
   selectedDate: string;
@@ -34,7 +35,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   const dispatch = useDispatch();
 
   // Language functionality
-  const { setLanguage } = useLanguage();
+  const { currentLanguage, setLanguage } = useLanguage();
   const { t } = useTranslation();
 
   // Fetch all leagues data with caching
