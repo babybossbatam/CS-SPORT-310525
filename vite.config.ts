@@ -16,7 +16,11 @@ export default defineConfig({
       : []),
   ],
   optimizeDeps: {
-    exclude: ['lucide-react'],
+    exclude: [
+      'lucide-react',
+      '@replit/vite-plugin-runtime-error-modal',
+      '@replit/vite-plugin-cartographer'
+    ],
   },
   resolve: {
     alias: {
