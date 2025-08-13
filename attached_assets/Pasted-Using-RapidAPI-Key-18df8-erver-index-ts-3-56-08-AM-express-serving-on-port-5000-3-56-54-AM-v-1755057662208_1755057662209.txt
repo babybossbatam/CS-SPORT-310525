@@ -1,0 +1,19 @@
+Using RapidAPI Key: 18df8...erver/index.ts
+3:56:08 AM [express] serving on port 5000
+3:56:54 AM [vite] warning: Duplicate member "autoLearnFromAnyLeagueName" in class body
+757|  
+758|    // Auto-learn from any league name that appears anywhere in the app
+759|    autoLearnFromAnyLeagueName(leagueName: string, context?: { countryName?: string, leagueId?: number }): void {
+   |    ^
+760|      if (!leagueName || leagueName.length < 3) return;
+761|  
+
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/lib/smartLeagueCountryTranslation.ts
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-NVURRC7D.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-EQGEA3QH.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-KO3EV6KN.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-TPEMFX7K.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-7ZIEIKXH.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-E7IAXTU4.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+The file does not exist at "/home/runner/workspace/node_modules/.vite/deps/chunk-4PI3B2OT.js?v=9250a75f" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
