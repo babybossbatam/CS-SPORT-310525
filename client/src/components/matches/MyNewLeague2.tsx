@@ -1916,7 +1916,16 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       {/* Header Section */}
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
         <div className="flex justify-between items-center w-full">
-          <span className="text-sm font-semibold">{t("Popular Leagues")}</span>
+          <span className="text-sm font-semibold">
+            {currentLanguage === 'zh-hk' ? '熱門聯賽' :
+             currentLanguage === 'zh-tw' ? '熱門聯賽' :
+             currentLanguage === 'zh' ? '热门联赛' :
+             currentLanguage === 'es' ? 'Ligas Populares' :
+             currentLanguage === 'de' ? 'Beliebte Ligen' :
+             currentLanguage === 'it' ? 'Campionati Popolari' :
+             currentLanguage === 'pt' ? 'Ligas Populares' :
+             'Popular Leagues'}
+          </span>
         </div>
       </CardHeader>
 
