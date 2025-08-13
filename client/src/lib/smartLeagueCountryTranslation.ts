@@ -481,6 +481,12 @@ class SmartLeagueCountryTranslation {
     this.fixCorruptedCache();
     this.loadLearnedMappings();
     this.integrateAutomatedMappings();
+    
+    // Auto-learn problematic leagues on startup
+    setTimeout(() => {
+      this.learnProblematicLeagueNames();
+    }, 1000);
+    
     console.log('🔄 [SmartLeagueCountryTranslation] Initialized with cache cleared for fresh translations and automated mappings integrated');
   }
 
@@ -1441,17 +1447,27 @@ class SmartLeagueCountryTranslation {
     const hasChinese = /[\u4e00-\u9fff]/.test(leagueName);
     const hasLatin = /[a-zA-Z]/.test(leagueName);
     
-    // Common mixed patterns
+    // Enhanced mixed patterns to catch more cases
     const mixedPatterns = [
-      /^[a-zA-Z\s]+[聯联]賽?$/,  // "Bulgaria聯賽", "Netherlands联赛"
-      /^[a-zA-Z\s]+超级?[聯联]賽?$/,  // "Australia超级联赛"
-      /^[a-zA-Z\s]+甲级?[聯联]賽?$/,  // Country + 甲级联赛
-      /^[a-zA-Z\s]+乙级?[聯联]賽?$/,  // Country + 乙级联赛
-      /^[a-zA-Z\s]+盃?$/,           // Country + 盃
-      /^[a-zA-Z\s]+杯?$/            // Country + 杯
+      /^[a-zA-Z\s]+[聯联]賽?$/,           // "Bulgaria聯賽", "Netherlands联赛"
+      /^[a-zA-Z\s]+超级?[聯联]賽?$/,       // "Australia超级联赛"
+      /^[a-zA-Z\s]+甲级?[聯联]賽?$/,       // Country + 甲级联赛
+      /^[a-zA-Z\s]+乙级?[聯联]賽?$/,       // Country + 乙级联赛
+      /^[a-zA-Z\s]+丙级?[聯联]賽?$/,       // Country + 丙级联赛
+      /^[a-zA-Z\s]+盃?$/,                // Country + 盃
+      /^[a-zA-Z\s]+杯?$/,                // Country + 杯
+      /^[a-zA-Z\s]+冠军?[聯联]賽?$/,       // Country + 冠军联赛
+      /^[a-zA-Z\s]+職業?[聯联]賽?$/,       // Country + 职业联赛
+      /^[a-zA-Z\s]+足球?[聯联]賽?$/,       // Country + 足球联赛
+      /^[a-zA-Z\s]+青年?[聯联]賽?$/,       // Country + 青年联赛
+      /^[a-zA-Z\s]+女子?[聯联]賽?$/,       // Country + 女子联赛
     ];
     
-    return hasChinese && hasLatin && mixedPatterns.some(pattern => pattern.test(leagueName));
+    // Also check for any country name followed by Chinese league terms
+    const chineseLeagueTerms = ['聯賽', '联赛', '超級聯賽', '超级联赛', '甲級聯賽', '甲级联赛', '乙級聯賽', '乙级联赛', '盃', '杯', '冠軍聯賽', '冠军联赛'];
+    const hasChineseLeagueTerm = chineseLeagueTerms.some(term => leagueName.includes(term));
+    
+    return hasChinese && hasLatin && (mixedPatterns.some(pattern => pattern.test(leagueName)) || hasChineseLeagueTerm);
   }
 
   // Enhanced league mapping generation with intelligent pattern recognition
@@ -2470,6 +2486,48 @@ class SmartLeagueCountryTranslation {
     if (learned > 0) {
       this.saveLearnedMappings();
       console.log(`🎯 [Mass Mixed Learning] Fixed ${learned} mixed language leagues`);
+    }
+  }
+
+  // Enhanced method to learn all problematic league names we see
+  learnProblematicLeagueNames(): void {
+    const problematicLeagues = [
+      { name: 'Bulgaria聯賽', country: 'Bulgaria' },
+      { name: 'Australia超级联赛', country: 'Australia' },
+      { name: 'Australia聯賽', country: 'Australia' },
+      { name: 'Netherlands联赛', country: 'Netherlands' },
+      { name: 'Netherlands聯賽', country: 'Netherlands' },
+      { name: 'Germany联赛', country: 'Germany' },
+      { name: 'Germany聯賽', country: 'Germany' },
+      { name: 'Spain联赛', country: 'Spain' },
+      { name: 'Spain聯賽', country: 'Spain' },
+      { name: 'Italy联赛', country: 'Italy' },
+      { name: 'Italy聯賽', country: 'Italy' },
+      { name: 'France联赛', country: 'France' },
+      { name: 'France聯賽', country: 'France' },
+      { name: 'England联赛', country: 'England' },
+      { name: 'England聯賽', country: 'England' },
+      { name: 'Brazil联赛', country: 'Brazil' },
+      { name: 'Brazil聯賽', country: 'Brazil' },
+      { name: 'Argentina联赛', country: 'Argentina' },
+      { name: 'Argentina聯賽', country: 'Argentina' }
+    ];
+
+    let learned = 0;
+    problematicLeagues.forEach(({ name, country }) => {
+      if (!this.learnedLeagueMappings.has(name)) {
+        const mapping = this.generateMixedLanguageMapping(name, country);
+        if (mapping) {
+          this.learnedLeagueMappings.set(name, mapping);
+          learned++;
+          console.log(`🎯 [Problematic Fixed] "${name}" → learned proper translations`);
+        }
+      }
+    });
+
+    if (learned > 0) {
+      this.saveLearnedMappings();
+      console.log(`🚀 [Problematic Learning] Fixed ${learned} problematic league names`);
     }
   }
 
