@@ -191,22 +191,22 @@ class SmartLeagueCountryTranslation {
       'es': 'Estonia', 'de': 'Estland', 'it': 'Estonia', 'pt': 'Estônia'
     },
     'Bhutan': {
-      zh: '不丹',
+      'zh': '不丹',
       'zh-hk': '不丹',
       'zh-tw': '不丹',
-      es: 'Bután',
-      de: 'Bhutan',
-      it: 'Bhutan',
-      pt: 'Butão'
+      'es': 'Bután',
+      'de': 'Bhutan',
+      'it': 'Bhutan',
+      'pt': 'Butão'
     },
     'Scotland': {
-      zh: '蘇格蘭',
+      'zh': '蘇格蘭',
       'zh-hk': '蘇格蘭',
       'zh-tw': '蘇格蘭',
-      es: 'Escocia',
-      de: 'Schottland',
-      it: 'Scozia',
-      pt: 'Escócia'
+      'es': 'Escocia',
+      'de': 'Schottland',
+      'it': 'Scozia',
+      'pt': 'Escócia'
     },
     'Latvia': {
       'zh': '拉脫維亞', 'zh-hk': '拉脫維亞', 'zh-tw': '拉脫維亞',
@@ -2065,7 +2065,7 @@ class SmartLeagueCountryTranslation {
       return englishName;
     }
 
-    // Handle hyphenated country names by checking both hyphenated and space versions
+    // Handle hyphenated country names by checking space version
     if (cleanName.includes('-')) {
       const spacedName = cleanName.replace(/-/g, ' ');
       if (this.popularCountries[spacedName]) {
