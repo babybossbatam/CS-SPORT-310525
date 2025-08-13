@@ -87,10 +87,25 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
           // Use all fixtures for comprehensive learning
           smartLeagueCountryTranslation.learnFromFixtures(fixturesData);
           
+          // Trigger aggressive learning for mixed language leagues
+          smartLeagueCountryTranslation.massLearnMixedLanguageLeagues(fixturesData);
+          
+          // Force learn all problematic league names immediately
+          const allLeagueNames = fixturesData
+            .filter(f => f?.league?.name)
+            .map(f => ({ name: f.league.name, country: f.league.country }));
+          
+          // Auto-learn each league name with priority for problematic ones
+          allLeagueNames.forEach(league => {
+            smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(league.name, { 
+              countryName: league.country 
+            });
+          });
+          
           // Also trigger mass learning for missing leagues
           smartLeagueCountryTranslation.learnMissingLeagueNames();
           
-          console.log(`✅ [Auto-Learning] Completed automatic learning from ${fixturesData.length} fixtures`);
+          console.log(`✅ [Auto-Learning] Completed aggressive learning from ${fixturesData.length} fixtures`);
         };
 
         // Run immediately for instant learning, not in background

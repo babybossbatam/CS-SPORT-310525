@@ -1250,9 +1250,27 @@ class SmartLeagueCountryTranslation {
     const cleanName = leagueName.trim();
     if (!cleanName) return;
 
-    // Check if we already have this league mapping
-    if (!this.learnedLeagueMappings.has(cleanName)) {
-      const mapping = this.generateLeagueMapping(leagueName, options.countryName);
+    // Immediately detect and learn mixed language leagues
+    const isMixedLanguage = this.detectMixedLanguageLeague(cleanName);
+    const isChinese = /[\u4e00-\u9fff]/.test(cleanName);
+    
+    // Priority learning for problematic names
+    if (isMixedLanguage || isChinese || this.isProblematicLeagueName(cleanName)) {
+      console.log(`🚀 [Priority Learning] Detected problematic league: "${cleanName}"`);
+      
+      // Force generate mapping even if one exists but is incomplete
+      const existingMapping = this.learnedLeagueMappings.get(cleanName);
+      const newMapping = this.generateLeagueMapping(cleanName, options.countryName || '');
+      
+      if (newMapping && (!existingMapping || this.shouldUpdateMapping(existingMapping, newMapping))) {
+        this.learnedLeagueMappings.set(cleanName, newMapping);
+        this.saveLearnedMappings();
+        console.log(`🎯 [Auto-Fix] Learned/updated mapping for: ${cleanName}`);
+      }
+    }
+    // Regular learning for other leagues
+    else if (!this.learnedLeagueMappings.has(cleanName)) {
+      const mapping = this.generateLeagueMapping(cleanName, options.countryName);
       if (mapping) {
         this.learnedLeagueMappings.set(cleanName, mapping);
         this.saveLearnedMappings();
@@ -1268,6 +1286,18 @@ class SmartLeagueCountryTranslation {
       leagueId: options.leagueId || existingAutomated.leagueId,
       lastSeen: Date.now()
     });
+  }
+
+  // Check if a league name is problematic and needs immediate attention
+  private isProblematicLeagueName(leagueName: string): boolean {
+    const problematicPatterns = [
+      'CONMEBOL南美', 'CONMEBOL自由', 'AFC盃', 'UEFA超級', '世界聯賽',
+      'Netherlands聯賽', 'Australia超级', '阿根廷', 'Copa Argentina'
+    ];
+    
+    return problematicPatterns.some(pattern => 
+      leagueName.toLowerCase().includes(pattern.toLowerCase())
+    );
   }
 
   // Enhanced learning from fixtures data with comprehensive country detection and intelligent pattern recognition
@@ -1711,8 +1741,18 @@ class SmartLeagueCountryTranslation {
       translations.en = 'Australia League'; translations.es = 'Liga de Australia'; translations.de = 'Australische Liga';
       translations.it = 'Lega Australiana'; translations.pt = 'Liga da Austrália';
     }
-    // Enhanced pattern for German leagues
-    else if (lowerName.includes('甲级联赛') || lowerName.includes('甲級聯賽')) {
+    // Handle pure Chinese league names
+    else if (lowerName === '世界聯賽' || lowerName === '世界联赛') {
+      translations.en = 'World Cup';
+      translations.zh = '世界杯'; translations['zh-hk'] = '世界盃'; translations['zh-tw'] = '世界盃';
+      translations.es = 'Copa del Mundo'; translations.de = 'Weltmeisterschaft';
+      translations.it = 'Coppa del Mondo'; translations.pt = 'Copa do Mundo';
+    } else if (lowerName === '阿根廷') {
+      translations.en = 'Argentina Primera División';
+      translations.zh = '阿根廷甲级联赛'; translations['zh-hk'] = '阿根廷甲級聯賽'; translations['zh-tw'] = '阿根廷甲級聯賽';
+      translations.es = 'Primera División Argentina'; translations.de = 'Primera División Argentinien';
+      translations.it = 'Primera División Argentina'; translations.pt = 'Primeira Divisão Argentina';
+    } else if (lowerName.includes('甲级联赛') || lowerName.includes('甲級聯賽')) {
       // Handle existing Chinese league names
       if (leagueName.includes('德國')) {
         translations.en = 'Bundesliga';
@@ -1751,20 +1791,24 @@ class SmartLeagueCountryTranslation {
       translations['zh-tw'] = `${this.translateCountryName(countryName, 'zh-tw')}甲級聯賽`;
     }
 
-    // CONMEBOL Competitions - Enhanced Pattern Recognition
-    else if (lowerName.includes('conmebol libertadores') || lowerName.includes('copa libertadores') || lowerName === 'libertadores') {
+    // CONMEBOL Competitions - Enhanced Pattern Recognition with exact matches
+    else if (lowerName.includes('conmebol libertadores') || lowerName.includes('copa libertadores') || lowerName === 'libertadores' || lowerName.includes('conmebol自由') || lowerName.includes('自由盃')) {
+      translations.en = 'CONMEBOL Libertadores';
       translations.zh = 'CONMEBOL自由杯'; translations['zh-hk'] = 'CONMEBOL自由盃'; translations['zh-tw'] = 'CONMEBOL自由盃';
       translations.es = 'CONMEBOL Libertadores'; translations.de = 'CONMEBOL Libertadores';
       translations.it = 'CONMEBOL Libertadores'; translations.pt = 'CONMEBOL Libertadores';
-    } else if (lowerName.includes('conmebol sudamericana') || lowerName.includes('copa sudamericana') || lowerName === 'sudamericana') {
+    } else if (lowerName.includes('conmebol sudamericana') || lowerName.includes('copa sudamericana') || lowerName === 'sudamericana' || lowerName.includes('conmebol南美') || lowerName.includes('南美盃')) {
+      translations.en = 'CONMEBOL Sudamericana';
       translations.zh = 'CONMEBOL南美杯'; translations['zh-hk'] = 'CONMEBOL南美盃'; translations['zh-tw'] = 'CONMEBOL南美盃';
       translations.es = 'CONMEBOL Sudamericana'; translations.de = 'CONMEBOL Sudamericana';
       translations.it = 'CONMEBOL Sudamericana'; translations.pt = 'CONMEBOL Sudamericana';
     } else if (lowerName.includes('conmebol recopa') || lowerName.includes('recopa sudamericana')) {
+      translations.en = 'CONMEBOL Recopa Sudamericana';
       translations.zh = 'CONMEBOL再杯'; translations['zh-hk'] = 'CONMEBOL再盃'; translations['zh-tw'] = 'CONMEBOL再盃';
       translations.es = 'CONMEBOL Recopa'; translations.de = 'CONMEBOL Recopa';
       translations.it = 'CONMEBOL Recopa'; translations.pt = 'CONMEBOL Recopa';
     } else if (lowerName.includes('copa america')) {
+      translations.en = 'Copa América';
       translations.zh = '美洲杯'; translations['zh-hk'] = '美洲盃'; translations['zh-tw'] = '美洲盃';
       translations.es = 'Copa América'; translations.de = 'Copa América';
       translations.it = 'Copa América'; translations.pt = 'Copa América';
@@ -1788,10 +1832,22 @@ class SmartLeagueCountryTranslation {
       translations.es = 'Liga de Campeones CAF'; translations.de = 'CAF Champions League';
     }
 
-    // Asian Competitions
-    else if (lowerName.includes('asian cup') || lowerName === 'afc asian cup') {
+    // AFC/Asian Competitions
+    else if (lowerName.includes('afc cup') || lowerName.includes('afc盃') || lowerName.includes('afc杯')) {
+      translations.en = 'AFC Cup';
+      translations.zh = 'AFC杯'; translations['zh-hk'] = 'AFC盃'; translations['zh-tw'] = 'AFC盃';
+      translations.es = 'Copa AFC'; translations.de = 'AFC-Pokal';
+      translations.it = 'Coppa AFC'; translations.pt = 'Copa AFC';
+    } else if (lowerName.includes('afc champions league')) {
+      translations.en = 'AFC Champions League';
+      translations.zh = 'AFC冠军联赛'; translations['zh-hk'] = 'AFC冠軍聯賽'; translations['zh-tw'] = 'AFC冠軍聯賽';
+      translations.es = 'Liga de Campeones AFC'; translations.de = 'AFC Champions League';
+      translations.it = 'AFC Champions League'; translations.pt = 'Liga dos Campeões AFC';
+    } else if (lowerName.includes('asian cup') || lowerName === 'afc asian cup') {
+      translations.en = 'AFC Asian Cup';
       translations.zh = '亚洲杯'; translations['zh-hk'] = '亞洲盃'; translations['zh-tw'] = '亞洲盃';
       translations.es = 'Copa Asiática'; translations.de = 'Asienmeisterschaft';
+      translations.it = 'Coppa d\'Asia'; translations.pt = 'Taça da Ásia';
     }
 
     // World Cup Qualifications
@@ -2565,10 +2621,21 @@ class SmartLeagueCountryTranslation {
   // Learn from problematic league names that commonly appear
   private learnProblematicLeagueNames(): void {
     const problematicLeagues = [
+      // Mixed language leagues from your screenshot
+      { name: 'CONMEBOL南美盃', country: 'World' },
+      { name: 'CONMEBOL自由盃', country: 'World' },
+      { name: 'AFC盃', country: 'World' },
+      { name: 'UEFA超級盃', country: 'Europe' },
+      { name: '世界聯賽', country: 'World' },
+      { name: 'Concacaf Central American Cup', country: 'World' },
+      { name: '阿根廷', country: 'Argentina' },
+      { name: 'Copa Argentina', country: 'Argentina' },
+      { name: 'Netherlands聯賽', country: 'Netherlands' },
+      
+      // Existing problematic leagues
       { name: 'Bulgaria聯賽', country: 'Bulgaria' },
       { name: 'Australia超级联赛', country: 'Australia' },
       { name: 'Australia聯賽', country: 'Australia' },
-      { name: 'Netherlands聯賽', country: 'Netherlands' },
       { name: 'Netherlands联赛', country: 'Netherlands' },
       { name: 'Germany联赛', country: 'Germany' },
       { name: 'Germany聯賽', country: 'Germany' },
