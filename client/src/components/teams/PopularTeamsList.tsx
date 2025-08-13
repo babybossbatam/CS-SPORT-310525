@@ -312,7 +312,7 @@ const PopularTeamsList = () => {
       <div className="w-full bg-white border border-gray-200">
         <div>
           <h3 className="text-sm font-semibold mb-3 text-gray-900 border-b border-gray-200 px-2 py-2">
-            {t('popular_football_teams')}
+            {t("Popular teams")}
           </h3>
           <div className="">
             {teamData.map((team) => {
