@@ -1,3 +1,5 @@
+import React, { useState, useEffect } from 'react';
+
 interface LeagueTranslation {
   [key: string]: {
     zh: string;
@@ -50,7 +52,7 @@ class SmartLeagueCountryTranslation {
     'Netherlands': {
       'zh': '荷兰', 'zh-hk': '荷蘭', 'zh-tw': '荷蘭',
       'es': 'Países Bajos', 'de': 'Niederlande', 'it': 'Paesi Bassi', 'pt': 'Países Baixos'
-      
+
     },
     'Portugal': {
       'zh': '葡萄牙', 'zh-hk': '葡萄牙', 'zh-tw': '葡萄牙',
@@ -105,8 +107,8 @@ class SmartLeagueCountryTranslation {
       'zh': '法国', 'zh-hk': '法國', 'zh-tw': '法國',
       'es': 'Francia', 'de': 'Frankreich', 'it': 'Francia', 'pt': 'França'
     },
-    
-  
+
+
     'Switzerland': {
       'zh': '瑞士', 'zh-hk': '瑞士', 'zh-tw': '瑞士',
       'es': 'Suiza', 'de': 'Schweiz', 'it': 'Svizzera', 'pt': 'Suíça'
@@ -115,7 +117,7 @@ class SmartLeagueCountryTranslation {
       'zh': '奧地利', 'zh-hk': '奧地利', 'zh-tw': '奧地利',
       'es': 'Austria', 'de': 'Österreich', 'it': 'Austria', 'pt': 'Áustria'
     },
-    
+
     'Slovakia': {
       'zh': '斯洛伐克', 'zh-hk': '斯洛伐克', 'zh-tw': '斯洛伐克',
       'es': 'Eslovaquia', 'de': 'Slowakei', 'it': 'Slovacchia', 'pt': 'Eslováquia'
@@ -236,8 +238,8 @@ class SmartLeagueCountryTranslation {
       'zh': '阿根廷', 'zh-hk': '阿根廷', 'zh-tw': '阿根廷',
       'es': 'Argentina', 'de': 'Argentinien', 'it': 'Argentina', 'pt': 'Argentina'
     },
-    
-  
+
+
     'United States': {
       'zh': '美國', 'zh-hk': '美國', 'zh-tw': '美國',
       'es': 'Estados Unidos', 'de': 'Vereinigte Staaten', 'it': 'Stati Uniti', 'pt': 'Estados Unidos'
@@ -278,7 +280,7 @@ class SmartLeagueCountryTranslation {
       'zh': '委內瑞拉', 'zh-hk': '委內瑞拉', 'zh-tw': '委內瑞拉',
       'es': 'Venezuela', 'de': 'Venezuela', 'it': 'Venezuela', 'pt': 'Venezuela'
     },
-    
+
 
     // Asia & Oceania
     'Japan': {
@@ -471,7 +473,7 @@ class SmartLeagueCountryTranslation {
       'zh': '美利堅合眾國', 'zh-hk': '美利堅合眾國', 'zh-tw': '美利堅合眾國',
       'es': 'Estados Unidos de América', 'de': 'Vereinigte Staaten von Amerika', 'it': 'Stati Uniti d\'America', 'pt': 'Estados Unidos da América'
     },
-    
+
     'Guatemala': {
       'zh': '危地馬拉', 'zh-hk': '危地馬拉', 'zh-tw': '瓜地馬拉',
       'es': 'Guatemala', 'de': 'Guatemala', 'it': 'Guatemala', 'pt': 'Guatemala'
@@ -1351,7 +1353,7 @@ class SmartLeagueCountryTranslation {
         }
 
         const existingMapping = this.learnedLeagueMappings.get(leagueName);
-        const newMapping = this.generateLeagueMapping(leagueName, countryName);
+        const newMapping = this.generateLeagueMapping(leagueName, countryName || '');
 
         if (!existingMapping && newMapping) {
           this.learnedLeagueMappings.set(leagueName, newMapping);
@@ -1706,11 +1708,8 @@ class SmartLeagueCountryTranslation {
   }
 
   private generateLeagueMapping(leagueName: string, countryName: string): LeagueTranslation | null {
-    // Generate basic translations based on comprehensive patterns
-    const translations: any = { en: leagueName };
-    const lowerName = leagueName.toLowerCase();
-
-    // Detect common abbreviations and expand them
+    // First normalize the league name by expanding abbreviations
+    let normalizedLeagueName = leagueName;
     const abbreviationExpansions: { [key: string]: string } = {
       'pl': 'Premier League',
       'div': 'Division',
@@ -1725,19 +1724,24 @@ class SmartLeagueCountryTranslation {
       'u17': 'Under-17'
     };
 
-    // Check if league name contains abbreviations that need expansion
-    let expandedName = leagueName;
     for (const [abbrev, expansion] of Object.entries(abbreviationExpansions)) {
       const regex = new RegExp(`\\b${abbrev}\\b`, 'gi');
-      if (regex.test(expandedName) && !expandedName.toLowerCase().includes(expansion.toLowerCase())) {
-        expandedName = expandedName.replace(regex, expansion);
+      if (regex.test(normalizedLeagueName) && !normalizedLeagueName.toLowerCase().includes(expansion.toLowerCase())) {
+        normalizedLeagueName = normalizedLeagueName.replace(regex, expansion);
       }
     }
+
+    // Generate basic translations based on comprehensive patterns
+    const translations: any = { en: normalizedLeagueName };
+    const lowerName = normalizedLeagueName.toLowerCase();
+
+    // Check if league name contains abbreviations that need expansion
+    // (This part is handled above by creating normalizedLeagueName)
 
     // Enhanced comprehensive league pattern matching
     if (lowerName.includes('premier league') || lowerName.endsWith(' pl') || lowerName === 'pl') {
       const countryZh = this.translateCountryName(countryName, 'zh');
-      const baseCountryZh = countryZh || this.detectCountryFromLeagueName(leagueName);
+      const baseCountryZh = countryZh || this.detectCountryFromLeagueName(normalizedLeagueName);
       translations.zh = `${baseCountryZh}超级联赛`;
       translations['zh-hk'] = `${this.translateCountryName(countryName, 'zh-hk') || baseCountryZh}超級聯賽`;
       translations['zh-tw'] = `${this.translateCountryName(countryName, 'zh-tw') || baseCountryZh}超級聯賽`;
@@ -1791,25 +1795,25 @@ class SmartLeagueCountryTranslation {
       translations.it = 'Primera División Argentina'; translations.pt = 'Primeira Divisão Argentina';
     } else if (lowerName.includes('甲级联赛') || lowerName.includes('甲級聯賽')) {
       // Handle existing Chinese league names
-      if (leagueName.includes('德國')) {
+      if (lowerName.includes('德國')) {
         translations.en = 'Bundesliga';
         translations.es = 'Bundesliga';
         translations.de = 'Bundesliga';
         translations.it = 'Bundesliga';
         translations.pt = 'Bundesliga';
-      } else if (leagueName.includes('意大利')) {
+      } else if (lowerName.includes('意大利')) {
         translations.en = 'Serie A';
         translations.es = 'Serie A';
         translations.de = 'Serie A';
         translations.it = 'Serie A';
         translations.pt = 'Serie A';
-      } else if (leagueName.includes('西班牙')) {
+      } else if (lowerName.includes('西班牙')) {
         translations.en = 'La Liga';
         translations.es = 'La Liga';
         translations.de = 'La Liga';
         translations.it = 'La Liga';
         translations.pt = 'La Liga';
-      } else if (leagueName.includes('英格蘭') || leagueName.includes('英国')) {
+      } else if (lowerName.includes('英格蘭') || lowerName.includes('英国')) {
         translations.en = 'Premier League';
         translations.es = 'Premier League';
         translations.de = 'Premier League';
@@ -1994,6 +1998,14 @@ class SmartLeagueCountryTranslation {
       const countryZh = this.translateCountryName(countryName, 'zh');
       translations.zh = `${countryZh}联赛`; translations['zh-hk'] = `${this.translateCountryName(countryName, 'zh-hk')}聯賽`;
       translations['zh-tw'] = `${this.translateCountryName(countryName, 'zh-tw')}聯賽`;
+    }
+
+    // Add specific Czech Republic mixed league translation
+    else if (lowerName.includes('czech-republic') && lowerName.includes('聯賽')) {
+      translations.en = 'Czech Republic League';
+      translations.zh = '捷克共和国联赛'; translations['zh-hk'] = '捷克共和國聯賽'; translations['zh-tw'] = '捷克共和國聯賽';
+      translations.es = 'Liga de República Checa'; translations.de = 'Tschechische Liga';
+      translations.it = 'Lega Ceca'; translations.pt = 'Liga da República Tcheca';
     }
 
     return translations as LeagueTranslation;
