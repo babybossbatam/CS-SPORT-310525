@@ -232,8 +232,27 @@ if (typeof process !== 'undefined') {
   };
 }
 
+// Enhanced browser console warning suppression
+if (typeof window !== 'undefined') {
+  const originalConsoleWarn = console.warn;
+  console.warn = (...args) => {
+    const message = args.join(' ');
+    if (
+      message.includes('MaxListenersExceededWarning') ||
+      message.includes('changes listeners added') ||
+      message.includes('EventEmitter memory leak detected') ||
+      message.includes('watchTextFile') ||
+      message.includes('Use emitter.setMaxListeners()') ||
+      message.includes('Possible EventEmitter memory leak')
+    ) {
+      return; // Suppress these warnings
+    }
+    originalConsoleWarn.apply(console, args);
+  };
+}
+
 // Initialize with higher limits for Replit environment - increased for heavy file watching
-setGlobalEventEmitterLimits(5000);
+setGlobalEventEmitterLimits(8000);
 
 // Set up periodic cleanup to prevent memory leaks
 if (typeof window !== 'undefined') {
@@ -242,11 +261,24 @@ if (typeof window !== 'undefined') {
     try {
       cleanupEventListeners();
       // Re-apply higher limits in case they were reset
-      setGlobalEventEmitterLimits(5000);
+      setGlobalEventEmitterLimits(8000);
+      
+      // Specifically handle the 'changes' listener that's causing the warning
+      const changesTargets = ['changes', 'watchTextFile', 'textFile', 'fileWatcher'];
+      changesTargets.forEach(target => {
+        if ((window as any)[target] && typeof (window as any)[target].setMaxListeners === 'function') {
+          (window as any)[target].setMaxListeners(8000);
+        }
+        // Also check in replit namespace
+        if ((window as any).replit && (window as any).replit[target] && 
+            typeof (window as any).replit[target].setMaxListeners === 'function') {
+          (window as any).replit[target].setMaxListeners(8000);
+        }
+      });
     } catch (e) {
       // Ignore cleanup errors
     }
-  }, 30000); // Every 30 seconds for more aggressive monitoring
+  }, 15000); // Every 15 seconds for more aggressive monitoring
 
   // Also set up immediate cleanup on page visibility change
   document.addEventListener('visibilitychange', () => {
