@@ -45,12 +45,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       const controller = new AbortController();
 
       try {
-        // Set up timeout that only aborts if request is still pending - increased to 30 seconds for better reliability
+        // Set up timeout that only aborts if request is still pending - reduced to 15 seconds for faster recovery
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 30 seconds');
+            controller.abort('Request timeout after 15 seconds');
           }
-        }, 30000);
+        }, 15000);
 
         const response = await fetch(`/api/fixtures/date/${validDate}?all=true`, {
           signal: controller.signal,
@@ -87,8 +87,8 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         console.log(`📊 [CentralDataProvider] After basic filtering: ${basicFiltered.length} fixtures`);
 
         // Update Redux store with all valid fixtures
-        dispatch(fixturesActions.setFixturesByDate({ 
-          date: validDate, 
+        dispatch(fixturesActions.setFixturesByDate({
+          date: validDate,
           fixtures: basicFiltered as any
         }));
 
@@ -104,7 +104,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         const cachedData = queryClient.getQueryData(['central-date-fixtures', validDate]);
 
         if (error.name === 'AbortError') {
-          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate} after 30 seconds`);
+          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate} after 15 seconds`);
         } else if (error.message === 'Failed to fetch') {
           console.warn(`🌐 [CentralDataProvider] Network error for ${validDate}: Server unreachable or connection lost`);
         } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
@@ -152,7 +152,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       // Retry on network errors, but with more specific conditions
       const isNetworkError = (
         error?.message === 'Failed to fetch' ||
-        error?.message?.includes('timeout') || 
+        error?.message?.includes('timeout') ||
         error?.message?.includes('fetch') ||
         error?.name === 'AbortError' ||
         error?.name === 'TypeError'
@@ -192,12 +192,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       const controller = new AbortController();
 
       try {
-        // Set up timeout that only aborts if request is still pending - increased to 30 seconds for better reliability
+        // Set up timeout that only aborts if request is still pending - reduced to 10 seconds for live data
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 30 seconds');
+            controller.abort('Request timeout after 10 seconds');
           }
-        }, 30000);
+        }, 10000);
 
         const response = await fetch('/api/fixtures/live', {
           signal: controller.signal,
