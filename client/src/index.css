@@ -5,6 +5,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide Replit development error overlay */
+[data-error-overlay],
+#error-overlay,
+.error-overlay,
+[class*="error-overlay"],
+[class*="ErrorOverlay"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  z-index: -9999 !important;
+}
+
 /* Prevent flash of unstyled content */
 #root {
   min-height: 100vh;

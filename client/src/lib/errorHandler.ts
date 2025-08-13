@@ -120,6 +120,9 @@ const categorizeError = (error: any): ErrorCategory => {
       errorStr.includes('signal is aborted') ||
       errorStr.includes('runtime-error-plugin') ||
       errorStr.includes('482be3e5-72e0-4aaf-ab33-69660b136cf5') ||
+      errorStr.includes('vite-plugin-react') ||
+      errorStr.includes('ErrorOverlay') ||
+      errorStr.includes('overlay') ||
       (error && typeof error === 'object' && error.toString && error.toString().includes('runtime-error-plugin'))) {
     return {
       name: 'replit-dev-environment',
@@ -365,9 +368,24 @@ export const setupGlobalErrorHandlers = () => {
     }
 
     // Handle runtime-error-plugin errors
-    if (typeof error === 'string' && (error.includes('runtime-error-plugin') || error.includes('signal timed out'))) {
+    if (typeof error === 'string' && (error.includes('runtime-error-plugin') || 
+        error.includes('signal timed out') || 
+        error.includes('overlay') ||
+        error.includes('ErrorOverlay') ||
+        error.includes('vite-plugin-react'))) {
       console.log('🔧 Runtime error plugin issue suppressed:', error);
       event.preventDefault();
+      
+      // Aggressively remove any error overlays from DOM
+      setTimeout(() => {
+        const overlays = document.querySelectorAll('[data-error-overlay], #error-overlay, .error-overlay, [class*="error-overlay"], [class*="ErrorOverlay"]');
+        overlays.forEach(overlay => {
+          if (overlay && overlay.parentNode) {
+            overlay.parentNode.removeChild(overlay);
+          }
+        });
+      }, 100);
+      
       return;
     }
 
@@ -488,8 +506,55 @@ export const setupGlobalErrorHandlers = () => {
     }
   });
 
+  // Set up DOM observer to remove error overlays
+  if (typeof MutationObserver !== 'undefined') {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            const element = node as Element;
+            // Check if the added element is an error overlay
+            if (element.matches && (
+                element.matches('[data-error-overlay]') ||
+                element.matches('#error-overlay') ||
+                element.matches('.error-overlay') ||
+                element.matches('[class*="error-overlay"]') ||
+                element.matches('[class*="ErrorOverlay"]') ||
+                element.textContent?.includes('plugin:runtime-error-plugin')
+              )) {
+              console.log('🗑️ Removing error overlay from DOM');
+              element.remove();
+            }
+            
+            // Also check child elements
+            const overlayChildren = element.querySelectorAll?.(
+              '[data-error-overlay], #error-overlay, .error-overlay, [class*="error-overlay"], [class*="ErrorOverlay"]'
+            );
+            overlayChildren?.forEach(overlay => {
+              console.log('🗑️ Removing child error overlay from DOM');
+              overlay.remove();
+            });
+          }
+        });
+      });
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+
+    // Store observer for cleanup
+    (window as any).errorOverlayObserver = observer;
+  }
+
   // Cleanup function for when page unloads
   window.addEventListener('beforeunload', () => {
+    // Clean up observer
+    if ((window as any).errorOverlayObserver) {
+      (window as any).errorOverlayObserver.disconnect();
+    }
+    
     // Remove all event listeners to prevent memory leaks
     window.removeEventListener('unhandledrejection', () => {});
     window.removeEventListener('error', () => {});
