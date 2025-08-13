@@ -22,15 +22,84 @@ interface CountryTranslation {
   };
 }
 
+// Interface for automated country mappings, including preferred translation details
+interface AutomatedCountryMapping {
+  leagueContext?: string;
+  occurrenceCount: number;
+  lastSeen: number;
+  preferredTranslation?: string;
+  language?: string;
+}
+
 class SmartLeagueCountryTranslation {
   private leagueCache = new Map<string, string>();
   private countryCache = new Map<string, string>();
   private learnedLeagueMappings = new Map<string, LeagueTranslation>();
   private learnedCountryMappings = new Map<string, CountryTranslation>();
   private automatedLeagueMappings = new Map<string, any>();
-  private automatedCountryMappings = new Map<string, any>();
+  private automatedCountryMappings = new Map<string, AutomatedCountryMapping>(); // Use the specific interface
   private translationCache = new Map<string, { translation: string; timestamp: number }>();
   private isLoading = false;
+
+  // Hardcoded popular country translations to supplement learned ones
+  private popularCountries: CountryTranslation = {
+    'World': {
+      'zh': '世界', 'zh-hk': '世界', 'zh-tw': '世界',
+      'es': 'Mundo', 'de': 'Welt', 'it': 'Mondo', 'pt': 'Mundo'
+    },
+    'Europe': {
+      'zh': '欧洲', 'zh-hk': '歐洲', 'zh-tw': '歐洲',
+      'es': 'Europa', 'de': 'Europa', 'it': 'Europa', 'pt': 'Europa'
+    },
+    'England': {
+      'zh': '英格兰', 'zh-hk': '英格蘭', 'zh-tw': '英格蘭',
+      'es': 'Inglaterra', 'de': 'England', 'it': 'Inghilterra', 'pt': 'Inglaterra'
+    },
+    'Spain': {
+      'zh': '西班牙', 'zh-hk': '西班牙', 'zh-tw': '西班牙',
+      'es': 'España', 'de': 'Spanien', 'it': 'Spagna', 'pt': 'Espanha'
+    },
+    'Italy': {
+      'zh': '意大利', 'zh-hk': '意大利', 'zh-tw': '意大利',
+      'es': 'Italia', 'de': 'Italien', 'it': 'Italia', 'pt': 'Itália'
+    },
+    'Germany': {
+      'zh': '德国', 'zh-hk': '德國', 'zh-tw': '德國',
+      'es': 'Alemania', 'de': 'Deutschland', 'it': 'Germania', 'pt': 'Alemanha'
+    },
+    'France': {
+      'zh': '法国', 'zh-hk': '法國', 'zh-tw': '法國',
+      'es': 'Francia', 'de': 'Frankreich', 'it': 'Francia', 'pt': 'França'
+    },
+    'Brazil': {
+      'zh': '巴西', 'zh-hk': '巴西', 'zh-tw': '巴西',
+      'es': 'Brasil', 'de': 'Brasilien', 'it': 'Brasile', 'pt': 'Brasil'
+    },
+    'Argentina': {
+      'zh': '阿根廷', 'zh-hk': '阿根廷', 'zh-tw': '阿根廷',
+      'es': 'Argentina', 'de': 'Argentinien', 'it': 'Argentina', 'pt': 'Argentina'
+    },
+    'United Arab Emirates': {
+      'zh': '阿拉伯联合酋长国', 'zh-hk': '阿拉伯聯合酋長國', 'zh-tw': '阿拉伯聯合酋長國',
+      'es': 'Emiratos Árabes Unidos', 'de': 'Vereinigte Arabische Emirate', 'it': 'Emirati Arabi Uniti', 'pt': 'Emirados Árabes Unidos'
+    },
+    'UAE': {
+      'zh': '阿联酋', 'zh-hk': '阿聯酋', 'zh-tw': '阿聯酋',
+      'es': 'EAU', 'de': 'VAE', 'it': 'EAU', 'pt': 'EAU'
+    },
+    'Saudi Arabia': {
+      'zh': '沙特阿拉伯', 'zh-hk': '沙特阿拉伯', 'zh-tw': '沙特阿拉伯',
+      'es': 'Arabia Saudí', 'de': 'Saudi-Arabien', 'it': 'Arabia Saudita', 'pt': 'Arábia Saudita'
+    },
+    'Saudi': {
+      'zh': '沙特', 'zh-hk': '沙特', 'zh-tw': '沙特',
+      'es': 'Arabia Saudí', 'de': 'Saudi', 'it': 'Arabia', 'pt': 'Arábia'
+    },
+    'Egypt': {
+      'zh': '埃及', 'zh-hk': '埃及', 'zh-tw': '埃及',
+      'es': 'Egipto', 'de': 'Ägypten', 'it': 'Egitto', 'pt': 'Egito'
+    }
+  };
 
   constructor() {
     this.clearCache();
@@ -385,7 +454,7 @@ class SmartLeagueCountryTranslation {
       'es': '¿Quieres saber cómo les va al FC Barcelona, Real Madrid o Manchester United? Sumérgete en los últimos resultados, próximos partidos, clasificaciones de liga, noticias de última hora, destacados de partidos y estadísticas detalladas de estrellas como Lionel Messi, Cristiano Ronaldo y Lamine Yamal.',
       'de': 'Möchten Sie wissen, wie es dem FC Barcelona, Real Madrid oder Manchester United geht? Tauchen Sie ein in die neuesten Ergebnisse, anstehende Spiele, Ligatabellen, aktuelle Nachrichten, Spielhighlights und detaillierte Statistiken von Topstars wie Lionel Messi, Cristiano Ronaldo und Lamine Yamal.',
       'it': 'Vuoi sapere come stanno andando FC Barcelona, Real Madrid o Manchester United? Immergiti negli ultimi risultati, prossime partite, classifiche di campionato, notizie dell\'ultima ora, highlights delle partite e statistiche approfondite di stelle come Lionel Messi, Cristiano Ronaldo e Lamine Yamal.',
-      'pt': 'Quer saber como estão se saindo o FC Barcelona, Real Madrid ou Manchester United? Mergulhe nos últimos resultados, próximos jogos, classificações da liga, notícias de última hora, destaques de partidas e estatísticas detalhadas de estrelas como Lionel Messi, Cristiano Ronaldo e Lamine Yamal.'
+      'pt': 'Quer saber como estão se saindo o FC Barcelona, Real Madrid ou Manchester United? Mergulhe nos últimos resultados, próximos jogos, classificações da liga, notícias de última hora, destaques de partidas e estatísticas detalhadas de estrelas como Lionel Messi, Cristiano Ronaldo e Lionel Messi.'
     },
     'Why Choose CS SPORT?': {
       'zh': '为什么选择CS SPORT？', 'zh-hk': '為什麼選擇CS SPORT？', 'zh-tw': '為什麼選擇CS SPORT？',
@@ -628,7 +697,15 @@ class SmartLeagueCountryTranslation {
   }
 
   // Auto-learn from any country name for better translations
-  autoLearnFromAnyCountryName(countryName: string, options: { leagueContext?: string; occurrenceCount?: number; originalName?: string } = {}): void {
+  autoLearnFromAnyCountryName(countryName: string, options: {
+    leagueContext?: string;
+    occurrenceCount?: number;
+    originalName?: string;
+    fixtureContext?: boolean;
+    normalizedName?: string;
+    preferredTranslation?: string; // Added preferred translation option
+    language?: string; // Added language for preferred translation
+  } = {}): void {
     if (!countryName || typeof countryName !== 'string') return;
 
     const cleanName = countryName.trim();
@@ -648,11 +725,21 @@ class SmartLeagueCountryTranslation {
     const existingAutomated = this.automatedCountryMappings.get(cleanName) || {};
     this.automatedCountryMappings.set(cleanName, {
       ...existingAutomated,
-      occurrenceCount: (existingAutomated.occurrenceCount || 0) + (options.occurrenceCount || 1),
       leagueContext: options.leagueContext || existingAutomated.leagueContext,
-      originalName: options.originalName || existingAutomated.originalName,
-      lastSeen: Date.now()
+      occurrenceCount: (existingAutomated.occurrenceCount || 0) + (options.occurrenceCount || 1),
+      lastSeen: Date.now(),
+      preferredTranslation: options.preferredTranslation || existingAutomated.preferredTranslation, // Store preferred translation
+      language: options.language || existingAutomated.language // Store language for preferred translation
     });
+
+    // If a preferred translation is provided, create/update the learned mapping immediately
+    if (options.preferredTranslation && options.language) {
+      const existingMapping = this.learnedCountryMappings.get(cleanName) || this.createEmptyCountryMapping(cleanName);
+      existingMapping[options.language as keyof typeof existingMapping] = options.preferredTranslation;
+      this.learnedCountryMappings.set(cleanName, existingMapping);
+
+      console.log(`📖 [Enhanced Country Learning] Learned preferred translation: "${cleanName}" → "${options.preferredTranslation}" (${options.language})`);
+    }
   }
 
   // Auto-learn from any league name for better translations
@@ -755,7 +842,19 @@ class SmartLeagueCountryTranslation {
     }
   }
 
-  
+  // Helper to create an empty country mapping structure
+  private createEmptyCountryMapping(countryName: string): CountryTranslation {
+    return {
+      en: countryName,
+      es: countryName,
+      de: countryName,
+      it: countryName,
+      pt: countryName,
+      zh: countryName,
+      'zh-hk': countryName,
+      'zh-tw': countryName
+    };
+  }
 
   private generateLeagueMapping(leagueName: string, countryName: string): LeagueTranslation | null {
     // Generate basic translations based on comprehensive patterns
@@ -797,7 +896,7 @@ class SmartLeagueCountryTranslation {
       translations.de = `${countryName || ''} Premier League`;
       translations.it = `Premier League ${countryName ? 'di ' + countryName : ''}`;
       translations.pt = `Liga Premier ${countryName ? 'do ' + countryName : ''}`;
-    } 
+    }
     // Enhanced pattern for German leagues
     else if (lowerName.includes('甲级联赛') || lowerName.includes('甲級聯賽')) {
       // Handle existing Chinese league names
@@ -836,12 +935,12 @@ class SmartLeagueCountryTranslation {
       translations.zh = `${countryZh}甲级联赛`;
       translations['zh-hk'] = `${this.translateCountryName(countryName, 'zh-hk')}甲級聯賽`;
       translations['zh-tw'] = `${this.translateCountryName(countryName, 'zh-tw')}甲級聯賽`;
-    } 
+    }
 
     // World Cup patterns - Enhanced
-    else if (lowerName.includes('world cup qualification') || lowerName.includes('wc qualification') || 
-             (lowerName.includes('world cup') && lowerName.includes('qualification')) ||
-             lowerName.includes('world cup - qualification')) {
+    else if (lowerName.includes('world cup qualification') || lowerName.includes('wc qualification') ||
+      (lowerName.includes('world cup') && lowerName.includes('qualification')) ||
+      lowerName.includes('world cup - qualification')) {
       if (lowerName.includes('south america') || lowerName.includes('conmebol')) {
         translations.zh = '世界杯南美洲预选赛'; translations['zh-hk'] = '世界盃南美洲預選賽'; translations['zh-tw'] = '世界盃南美洲預選賽';
         translations.es = 'Eliminatorias Sudamericanas'; translations.de = 'WM-Qualifikation Südamerika';
@@ -1090,39 +1189,41 @@ class SmartLeagueCountryTranslation {
     return translation;
   }
 
+  // Translate country name using learned and static mappings, prioritizing learned ones.
   translateCountryName(countryName: string, language: string): string {
-    if (!countryName) return countryName;
+    if (!countryName || !language) return countryName;
 
-    const cacheKey = `country_${countryName}_${language}`;
+    const cleanName = countryName.trim();
 
-    // Check cache first
-    const cached = this.translationCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < 300000) { // 5 minutes
-      return cached.translation;
+    // Check learned mappings first (highest priority for user-defined translations)
+    const learned = this.learnedCountryMappings.get(cleanName);
+    if (learned && learned[language as keyof typeof learned] && learned[language as keyof typeof learned] !== cleanName) {
+      console.log(`🎯 [Learned Translation] Using learned mapping: "${cleanName}" → "${learned[language as keyof typeof learned]}" (${language})`);
+      return learned[language as keyof typeof learned];
     }
 
-    let translation = countryName;
+    // Check automated mappings for preferred translations
+    const automated = this.automatedCountryMappings.get(cleanName);
+    if (automated && automated.preferredTranslation && automated.language === language) {
+      console.log(`🤖 [Automated Translation] Using preferred translation: "${cleanName}" → "${automated.preferredTranslation}" (${language})`);
+      return automated.preferredTranslation;
+    }
 
-    // Try core translations first
-    const coreTranslation = this.coreCountryTranslations[countryName];
+    // Check static mappings (popularCountries)
+    const staticTranslation = this.popularCountries[cleanName];
+    if (staticTranslation && staticTranslation[language as keyof typeof staticTranslation]) {
+      return staticTranslation[language as keyof typeof staticTranslation];
+    }
+
+    // Fallback to coreCountryTranslations if not found in popularCountries
+    const coreTranslation = this.coreCountryTranslations[cleanName];
     if (coreTranslation && coreTranslation[language as keyof typeof coreTranslation]) {
-      translation = coreTranslation[language as keyof typeof coreTranslation];
-    } else {
-      // Try learned mappings
-      const learned = this.learnedCountryMappings.get(countryName);
-      if (learned && learned[language as keyof typeof learned]) {
-        translation = learned[language as keyof typeof learned];
-      }
+      return coreTranslation[language as keyof typeof coreTranslation];
     }
 
-    // Cache the result
-    this.translationCache.set(cacheKey, {
-      translation,
-      timestamp: Date.now()
-    });
-
-    return translation;
+    return countryName; // Return original name if no translation found
   }
+
 
   getTranslationStats() {
     return {
@@ -1139,7 +1240,8 @@ class SmartLeagueCountryTranslation {
     return {
       coreLeagues: this.coreLeagueTranslations,
       learnedLeagues: Object.fromEntries(this.learnedLeagueMappings),
-      coreCountries: Object.fromEntries(this.learnedCountryMappings),
+      learnedCountries: Object.fromEntries(this.learnedCountryMappings), // Include learned countries
+      automatedCountries: Object.fromEntries(this.automatedCountryMappings), // Include automated countries
       exportDate: new Date().toISOString()
     };
   }
@@ -1155,6 +1257,11 @@ class SmartLeagueCountryTranslation {
       if (mappings.learnedCountries) {
         Object.entries(mappings.learnedCountries).forEach(([key, value]) => {
           this.learnedCountryMappings.set(key, value);
+        });
+      }
+      if (mappings.automatedCountries) {
+        Object.entries(mappings.automatedCountries).forEach(([key, value]) => {
+          this.automatedCountryMappings.set(key, value as AutomatedCountryMapping);
         });
       }
       this.saveLearnedMappings();

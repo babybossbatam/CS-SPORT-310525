@@ -375,14 +375,44 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       setCachedCountryName(normalizedCountry, displayName, "enhanced-mapping");
     }
 
-    // Step 10: Final check for World translation perfection
-    if (displayName.toLowerCase() === "world") {
-      // Force one more translation attempt specifically for World
-      const finalWorldTranslation = smartLeagueCountryTranslation.translateCountryName("World", currentLanguage);
+    // Step 10: Enhanced World translation with fallback mappings
+    if (displayName.toLowerCase() === "world" || normalizedCountry.toLowerCase() === "world" || originalCountry.toLowerCase() === "world") {
+      // Enhanced World translations for all supported languages
+      const enhancedWorldTranslations: { [key: string]: string } = {
+        'zh': '世界',
+        'zh-hk': '世界',
+        'zh-tw': '世界', 
+        'es': 'Mundial',
+        'de': 'Welt',
+        'it': 'Mondo',
+        'pt': 'Mundial'
+      };
+
+      // Try smart translation first
+      let finalWorldTranslation = smartLeagueCountryTranslation.translateCountryName("World", currentLanguage);
+      
+      // If smart translation fails, use enhanced fallback
+      if (!finalWorldTranslation || finalWorldTranslation === "World") {
+        finalWorldTranslation = enhancedWorldTranslations[currentLanguage];
+      }
+
       if (finalWorldTranslation && finalWorldTranslation !== "World" && finalWorldTranslation.length > 0) {
-        console.log(`🌐 [Final World Translation] Perfect final translation for World: "${finalWorldTranslation}" (${currentLanguage})`);
+        console.log(`🌐 [Enhanced World Translation] Perfect translation for World: "${finalWorldTranslation}" (${currentLanguage})`);
         displayName = finalWorldTranslation;
-        setCachedCountryName("World", finalWorldTranslation, "smart-world-translation");
+        
+        // Cache all variations
+        setCachedCountryName("World", finalWorldTranslation, "enhanced-world-translation");
+        setCachedCountryName("world", finalWorldTranslation, "enhanced-world-translation");
+        setCachedCountryName(originalCountry, finalWorldTranslation, "enhanced-world-translation");
+        
+        // Teach the smart system this mapping for future use
+        smartLeagueCountryTranslation.autoLearnFromAnyCountryName("World", {
+          leagueContext: "world-competitions",
+          preferredTranslation: finalWorldTranslation,
+          language: currentLanguage,
+          fixtureContext: true,
+          normalizedName: "World"
+        });
       }
     }
     
