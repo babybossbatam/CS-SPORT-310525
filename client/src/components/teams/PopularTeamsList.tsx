@@ -123,29 +123,28 @@ const PopularTeamsList = () => {
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   const user = useSelector((state: RootState) => state.user);
   const [teamData, setTeamData] = useState(CURRENT_POPULAR_TEAMS);
   const [isLoading, setIsLoading] = useState(true);
-  const [language, setLanguage] = useState("zh-hk");
 
   // Translation function that prioritizes static mappings over learned ones
   const translateTeamName = (teamName: string): string => {
     // Clear any corrupted cache entries first
-    smartTeamTranslation.forceRefreshTranslations([teamName], language);
+    smartTeamTranslation.forceRefreshTranslations([teamName], currentLanguage);
 
     // Use smart translation system
-    return smartTeamTranslation.translateTeamName(teamName, language);
+    return smartTeamTranslation.translateTeamName(teamName, currentLanguage);
   };
 
   const translateCountryName = (countryName: string): string => {
-    return smartCountryTranslation.translateCountry(countryName, language);
+    return smartCountryTranslation.translateCountry(countryName, currentLanguage);
   };
 
   useEffect(() => {
     const initializeTranslations = async () => {
       // Initialize smart translation system
-      await smartTeamTranslation.initializeTeamTranslations(language);
+      await smartTeamTranslation.initializeTeamTranslations(currentLanguage);
       console.log("🔄 [PopularTeamsList] Translation system initialized");
     };
 
@@ -250,7 +249,7 @@ const PopularTeamsList = () => {
     initializeTranslations().then(() => {
       fetchPopularTeams();
     });
-  }, [language]);
+  }, [currentLanguage]);
 
   const toggleFavorite = (teamId: number) => {
     const teamIdStr = teamId.toString();
