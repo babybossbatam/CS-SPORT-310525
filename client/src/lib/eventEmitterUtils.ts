@@ -150,7 +150,8 @@ export const setGlobalEventEmitterLimits = (limit: number = 10000) => {
         'changes',
         'hook',
         'fileWatcher',
-        'textFileWatcher'
+        'textFileWatcher',
+        'fileSavedChanged'
       ];
 
       fileWatchingTargets.forEach(target => {
@@ -217,6 +218,7 @@ export const cleanupEventListeners = () => {
           fs.removeAllListeners('fsError');
           fs.removeAllListeners('changes');
           fs.removeAllListeners('watchTextFile');
+          fs.removeAllListeners('fileSavedChanged');
         }
       }
 
@@ -263,6 +265,7 @@ if (typeof process !== 'undefined') {
     // Suppress MaxListenersExceededWarning for file watching
     if (type === 'MaxListenersExceededWarning' &&
         (warning.toString().includes('changes listeners') ||
+         warning.toString().includes('fileSavedChanged listeners') ||
          warning.toString().includes('watchTextFile') ||
          warning.toString().includes('fsError') ||
          warning.toString().includes('textFile') ||
@@ -281,6 +284,7 @@ if (typeof window !== 'undefined') {
     if (
       message.includes('MaxListenersExceededWarning') ||
       message.includes('changes listeners added') ||
+      message.includes('fileSavedChanged listeners added') ||
       message.includes('EventEmitter memory leak detected') ||
       message.includes('watchTextFile') ||
       message.includes('Use emitter.setMaxListeners()') ||
@@ -304,8 +308,8 @@ if (typeof window !== 'undefined') {
       // Re-apply higher limits in case they were reset
       setGlobalEventEmitterLimits(8000);
 
-      // Specifically handle the 'changes' listener that's causing the warning
-      const changesTargets = ['changes', 'watchTextFile', 'textFile', 'fileWatcher'];
+      // Specifically handle the file watchers that are causing warnings
+      const changesTargets = ['changes', 'watchTextFile', 'textFile', 'fileWatcher', 'fileSavedChanged'];
       changesTargets.forEach(target => {
         if ((window as any)[target] && typeof (window as any)[target].setMaxListeners === 'function') {
           (window as any)[target].setMaxListeners(8000);
@@ -351,9 +355,9 @@ if (typeof window !== 'undefined') {
   const immediateSetup = () => {
     setGlobalEventEmitterLimits(8000);
 
-    // Specifically handle the changes listeners that are causing the warning
+    // Specifically handle the file watching listeners that are causing warnings
     if (typeof window !== 'undefined') {
-      const targets = ['watchTextFile', 'changes', 'hook', 'textFile'];
+      const targets = ['watchTextFile', 'changes', 'hook', 'textFile', 'fileSavedChanged'];
       targets.forEach(target => {
         const searchPaths = [
           (window as any)[target],

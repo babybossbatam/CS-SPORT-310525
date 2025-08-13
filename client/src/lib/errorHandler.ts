@@ -111,7 +111,7 @@ const categorizeError = (error: any): ErrorCategory => {
   }
 
   // Replit development environment errors - suppress but log
-  if (errorStr.includes('plugin:runtime-error-plugin') || 
+  if (errorStr.includes('plugin:runtime-error-plugin') ||
       errorStr.includes('[plugin:runtime-error-plugin]') ||
       errorStr.includes('unknown runtime error') ||
       errorStr.includes('sendError') ||
@@ -133,7 +133,7 @@ const categorizeError = (error: any): ErrorCategory => {
   }
 
   // Replit/Development environment errors
-  if (errorStr.includes('replit.dev') || 
+  if (errorStr.includes('replit.dev') ||
       errorStr.includes('482be3e5-72e0-4aaf-ab33-69660b136cf5') ||
       errorStr.includes('riker.replit.dev') ||
       errorStr.includes('eval.riker.platform.replit.com') ||
@@ -208,7 +208,7 @@ const categorizeError = (error: any): ErrorCategory => {
   }
 
   // Network/connectivity issues - attempt recovery
-  if (errorStr.includes('Failed to fetch') || 
+  if (errorStr.includes('Failed to fetch') ||
       errorStr.includes('NetworkError') ||
       errorStr.includes('timeout') ||
       errorStr.includes('ERR_INTERNET_DISCONNECTED') ||
@@ -325,7 +325,7 @@ export const setupGlobalErrorHandlers = () => {
   // Filter console errors to reduce noise
   const originalConsoleError = console.error;
   const originalConsoleWarn = console.warn;
-  
+
   console.error = (...args) => {
     const message = args.join(' ');
 
@@ -381,13 +381,13 @@ export const setupGlobalErrorHandlers = () => {
 
     if (
       message.includes('MaxListenersExceededWarning') ||
-      message.includes('Possible EventEmitter memory leak detected') ||
+      message.includes('fsError listeners') ||
+      message.includes('fileSavedChanged listeners') ||
       message.includes('stallwart') ||
-      message.includes('listeners added') ||
-      message.includes('Use emitter.setMaxListeners()') ||
-      message.includes('watchTextFile') ||
       message.includes('failed ping') ||
-      message.includes('session stalled')
+      message.includes('changes listeners added') ||
+      message.includes('watchTextFile') ||
+      message.includes('Possible EventEmitter memory leak')
     ) {
       return;
     }
@@ -438,14 +438,14 @@ export const setupGlobalErrorHandlers = () => {
     }
 
     // Handle runtime-error-plugin errors
-    if (typeof error === 'string' && (error.includes('runtime-error-plugin') || 
-        error.includes('signal timed out') || 
+    if (typeof error === 'string' && (error.includes('runtime-error-plugin') ||
+        error.includes('signal timed out') ||
         error.includes('overlay') ||
         error.includes('ErrorOverlay') ||
         error.includes('vite-plugin-react'))) {
       console.log('🔧 Runtime error plugin issue suppressed:', error);
       event.preventDefault();
-      
+
       // Aggressively remove any error overlays from DOM
       setTimeout(() => {
         const overlays = document.querySelectorAll('[data-error-overlay], #error-overlay, .error-overlay, [class*="error-overlay"], [class*="ErrorOverlay"]');
@@ -455,7 +455,7 @@ export const setupGlobalErrorHandlers = () => {
           }
         });
       }, 100);
-      
+
       return;
     }
 
@@ -483,7 +483,7 @@ export const setupGlobalErrorHandlers = () => {
 
     // Handle specific error types
     if (error instanceof Error) {
-      if (error.message?.includes('Failed to fetch') || 
+      if (error.message?.includes('Failed to fetch') ||
           error.message?.includes('not 2xx response') ||
           error.message?.includes('Network Error') ||
           error.message?.includes('NetworkError') ||
@@ -494,7 +494,7 @@ export const setupGlobalErrorHandlers = () => {
         return;
       }
 
-      if (error.message?.includes('frame') || 
+      if (error.message?.includes('frame') ||
           error.message?.includes('Cannot read properties of undefined') ||
           error.message?.includes('space after cleanup') ||
           error.message?.includes('MaxListenersExceededWarning')) {
@@ -506,9 +506,9 @@ export const setupGlobalErrorHandlers = () => {
 
     // Handle string errors that might be fetch-related or import-related
     const errorString = typeof error === 'string' ? error : (error?.message || error?.toString?.() || String(error));
-    if (typeof errorString === 'string' && 
-        (errorString.includes('Failed to fetch') || 
-         errorString.includes('Network') || 
+    if (typeof errorString === 'string' &&
+        (errorString.includes('Failed to fetch') ||
+         errorString.includes('Network') ||
          errorString.includes('dynamically imported') ||
          errorString.includes('MaxListenersExceeded') ||
          errorString.includes('runtime-error-plugin') ||
@@ -559,15 +559,15 @@ export const setupGlobalErrorHandlers = () => {
     console.error('🚨 Global error:', error);
 
     // Handle DOM manipulation errors
-    if (event.error?.message?.includes('removeChild') || 
-        event.error?.message?.includes('The node to be removed is not a child')) {
-      console.warn('DOM manipulation error caught and suppressed:', event.error);
+    if (error?.message?.includes('removeChild') ||
+        error?.message?.includes('The node to be removed is not a child')) {
+      console.warn('DOM manipulation error caught and suppressed:', error);
       event.preventDefault();
       return false;
     }
 
     // Prevent frame-related errors from crashing the app
-    if (error?.message?.includes('frame') || 
+    if (error?.message?.includes('frame') ||
         error?.message?.includes('ErrorOverlay') ||
         error?.message?.includes('Cannot read properties of undefined (reading \'frame\')') ||
         error?.message?.includes('reading \'frame\'') ||
@@ -579,7 +579,7 @@ export const setupGlobalErrorHandlers = () => {
     }
 
     // Handle network-related errors and asset loading errors
-    if (error?.message?.includes('Failed to fetch') || 
+    if (error?.message?.includes('Failed to fetch') ||
         error?.message?.includes('NetworkError') ||
         error?.message?.includes('attached_assets') ||
         error?.message?.includes('background.js') ||
@@ -618,7 +618,7 @@ export const setupGlobalErrorHandlers = () => {
               console.log('🗑️ Removing error overlay from DOM:', element.className || element.id || element.tagName);
               element.remove();
             }
-            
+
             // Also check child elements
             const overlayChildren = element.querySelectorAll?.(
               '[data-error-overlay], #error-overlay, .error-overlay, [class*="error-overlay"], [class*="ErrorOverlay"], [data-runtime-error], .runtime-error-overlay, [class*="runtime-error"], vite-error-overlay, #vite-plugin-runtime-error-modal, [data-vite-error], .vite-error-overlay'
@@ -647,7 +647,7 @@ export const setupGlobalErrorHandlers = () => {
     if ((window as any).errorOverlayObserver) {
       (window as any).errorOverlayObserver.disconnect();
     }
-    
+
     // Remove all event listeners to prevent memory leaks
     window.removeEventListener('unhandledrejection', () => {});
     window.removeEventListener('error', () => {});
