@@ -285,6 +285,42 @@ class SmartLeagueCountryTranslation {
       'es': 'Liga Profesional Saudí', 'de': 'Saudi Pro League', 'it': 'Lega Professionale Saudita', 'pt': 'Liga Profissional Saudita'
     },
 
+    // UAE Super Cup
+    'Super Cup': {
+      'zh': '超级杯', 'zh-hk': '超級盃', 'zh-tw': '超級盃',
+      'es': 'Supercopa', 'de': 'Super Cup', 'it': 'Supercoppa', 'pt': 'Supertaça'
+    },
+
+    // English Conference League
+    'English Conference League': {
+      'zh': '英格兰协会联赛', 'zh-hk': '英格蘭協會聯賽', 'zh-tw': '英格蘭協會聯賽',
+      'es': 'Liga de la Conferencia Inglesa', 'de': 'Englische Conference League', 'it': 'Conference League Inglese', 'pt': 'Liga da Conferência Inglesa'
+    },
+
+    // French Cup
+    'French Cup': {
+      'zh': '法国杯', 'zh-hk': '法國盃', 'zh-tw': '法國盃',
+      'es': 'Copa de Francia', 'de': 'Französischer Pokal', 'it': 'Coppa di Francia', 'pt': 'Taça de França'
+    },
+
+    // Spanish Cup
+    'Spanish Cup': {
+      'zh': '西班牙杯', 'zh-hk': '西班牙盃', 'zh-tw': '西班牙盃',
+      'es': 'Copa de España', 'de': 'Spanischer Pokal', 'it': 'Coppa di Spagna', 'pt': 'Taça de Espanha'
+    },
+
+    // Saudi Arabia Cup
+    'Saudi Arabia Cup': {
+      'zh': '沙特阿拉伯杯', 'zh-hk': '沙特阿拉伯盃', 'zh-tw': '沙特阿拉伯盃',
+      'es': 'Copa de Arabia Saudí', 'de': 'Saudi-Arabien Pokal', 'it': 'Coppa dell\'Arabia Saudita', 'pt': 'Taça da Arábia Saudita'
+    },
+
+    // Italian Cup
+    'Italian Cup': {
+      'zh': '意大利杯', 'zh-hk': '意大利盃', 'zh-tw': '意大利盃',
+      'es': 'Copa de Italia', 'de': 'Italienischer Pokal', 'it': 'Coppa Italia', 'pt': 'Taça de Itália'
+    },
+
       // Additional AFC variations
       'afc challenge league': {
         'en': 'AFC Challenge League',
@@ -516,6 +552,26 @@ class SmartLeagueCountryTranslation {
     'Europe': {
       'zh': '欧洲', 'zh-hk': '歐洲', 'zh-tw': '歐洲',
       'es': 'Europa', 'de': 'Europa', 'it': 'Europa', 'pt': 'Europa'
+    },
+    'United Arab Emirates': {
+      'zh': '阿拉伯联合酋长国', 'zh-hk': '阿拉伯聯合酋長國', 'zh-tw': '阿拉伯聯合酋長國',
+      'es': 'Emiratos Árabes Unidos', 'de': 'Vereinigte Arabische Emirate', 'it': 'Emirati Arabi Uniti', 'pt': 'Emirados Árabes Unidos'
+    },
+    'UAE': {
+      'zh': '阿联酋', 'zh-hk': '阿聯酋', 'zh-tw': '阿聯酋',
+      'es': 'EAU', 'de': 'VAE', 'it': 'EAU', 'pt': 'EAU'
+    },
+    'Saudi Arabia': {
+      'zh': '沙特阿拉伯', 'zh-hk': '沙特阿拉伯', 'zh-tw': '沙特阿拉伯',
+      'es': 'Arabia Saudí', 'de': 'Saudi-Arabien', 'it': 'Arabia Saudita', 'pt': 'Arábia Saudita'
+    },
+    'Saudi': {
+      'zh': '沙特', 'zh-hk': '沙特', 'zh-tw': '沙特',
+      'es': 'Arabia Saudí', 'de': 'Saudi', 'it': 'Arabia', 'pt': 'Arábia'
+    },
+    'Egypt': {
+      'zh': '埃及', 'zh-hk': '埃及', 'zh-tw': '埃及',
+      'es': 'Egipto', 'de': 'Ägypten', 'it': 'Egitto', 'pt': 'Egito'
     }
   };
 
@@ -698,6 +754,35 @@ class SmartLeagueCountryTranslation {
       translations.de = `${countryName || ''} Premier League`;
       translations.it = `Premier League ${countryName ? 'di ' + countryName : ''}`;
       translations.pt = `Liga Premier ${countryName ? 'do ' + countryName : ''}`;
+    } 
+    // Enhanced pattern for German leagues
+    else if (lowerName.includes('甲级联赛') || lowerName.includes('甲級聯賽')) {
+      // Handle existing Chinese league names
+      if (leagueName.includes('德國')) {
+        translations.en = 'Bundesliga';
+        translations.es = 'Bundesliga';
+        translations.de = 'Bundesliga';
+        translations.it = 'Bundesliga';
+        translations.pt = 'Bundesliga';
+      } else if (leagueName.includes('意大利')) {
+        translations.en = 'Serie A';
+        translations.es = 'Serie A';
+        translations.de = 'Serie A';
+        translations.it = 'Serie A';
+        translations.pt = 'Serie A';
+      } else if (leagueName.includes('西班牙')) {
+        translations.en = 'La Liga';
+        translations.es = 'La Liga';
+        translations.de = 'La Liga';
+        translations.it = 'La Liga';
+        translations.pt = 'La Liga';
+      } else if (leagueName.includes('英格蘭') || leagueName.includes('英国')) {
+        translations.en = 'Premier League';
+        translations.es = 'Premier League';
+        translations.de = 'Premier League';
+        translations.it = 'Premier League';
+        translations.pt = 'Premier League';
+      }
     } else if (lowerName.includes('championship')) {
       const countryZh = this.translateCountryName(countryName, 'zh');
       translations.zh = `${countryZh}冠军联赛`;

@@ -14,7 +14,7 @@ import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslati
 const shortenLeagueName = (name: string): string => {
   const maxLength = 25;
   if (name.length <= maxLength) return name;
-  
+
   // Common abbreviations for league names
   const abbreviations = {
     'World Cup - Qualification': 'WC Qualification',
@@ -38,7 +38,7 @@ const shortenLeagueName = (name: string): string => {
     'Championship': 'Champ',
     'International': 'Intl'
   };
-  
+
   // Check for exact matches first
   for (const [full, short] of Object.entries(abbreviations)) {
     if (name.includes(full)) {
@@ -52,7 +52,7 @@ const shortenLeagueName = (name: string): string => {
       name = name.replace(full, short);
     }
   }
-  
+
   // If still too long, truncate with ellipsis
   return name.length > maxLength ? name.substring(0, maxLength - 3) + '...' : name;
 };
@@ -61,7 +61,7 @@ const shortenLeagueName = (name: string): string => {
 const shortenCountryName = (country: string, currentLanguage: string): string => {
   // First translate the country name using the learning system
   const translatedCountry = smartLeagueCountryTranslation.translateCountryName(country, currentLanguage);
-  
+
   // Then apply shortening logic based on the translated name
   const countryAbbreviations: { [key: string]: string } = {
     // English abbreviations
@@ -75,48 +75,48 @@ const shortenCountryName = (country: string, currentLanguage: string): string =>
     'Trinidad and Tobago': 'Trinidad',
     'Central African Republic': 'CAR',
     'Papua New Guinea': 'Papua NG',
-    
+
     // Chinese (Simplified) abbreviations
     '阿拉伯联合酋长国': '阿联酋',
     '美国': '美国',
     '英国': '英国',
     '沙特阿拉伯': '沙特',
-    '南非': '南非',
+    '南非_simplified': '南非',
     '波斯尼亚和黑塞哥维那': '波黑',
-    
+
     // Chinese (Traditional/Hong Kong) abbreviations
     '阿拉伯聯合酋長國': '阿聯酋',
     '美國': '美國',
     '英國': '英國',
-    '沙特阿拉伯': '沙特',
+    '沙特阿拉伯_traditional': '沙特',
     '南非': '南非',
     '波斯尼亞和黑塞哥維那': '波黑',
-    
+
     // Spanish abbreviations
-    'Estados Unidos': 'EEUU',
+    'Estados Unidos_es': 'EEUU',
     'Reino Unido': 'Reino Unido',
     'Arabia Saudí': 'Arabia Saudí',
     'Emiratos Árabes Unidos': 'EAU',
-    
+
     // German abbreviations
     'Vereinigte Staaten': 'USA',
     'Vereinigtes Königreich': 'UK',
     'Saudi-Arabien': 'Saudi',
     'Vereinigte Arabische Emirate': 'VAE',
-    
+
     // Italian abbreviations
     'Stati Uniti': 'USA',
     'Regno Unito': 'UK',
     'Arabia Saudita': 'Arabia',
     'Emirati Arabi Uniti': 'EAU',
-    
+
     // Portuguese abbreviations
-    'Estados Unidos': 'EUA',
-    'Reino Unido': 'Reino Unido',
+    'Estados Unidos_pt': 'EUA',
+    'Reino Unido_pt': 'Reino Unido',
     'Arábia Saudita': 'Arábia',
     'Emirados Árabes Unidos': 'EAU'
   };
-  
+
   return countryAbbreviations[translatedCountry] || translatedCountry;
 };
 
@@ -125,161 +125,161 @@ export const CURRENT_POPULAR_LEAGUES = [
   {
     id: 39,
     name: "Premier League",
-    logo: "https://media.api-sports.io/football/leagues/39.png",
+    logo: "https://media.api.sports.io/football/leagues/39.png",
     country: "England",
     popularity: 95,
   },
   {
     id: 2,
     name: "UEFA Champions League",
-    logo: "https://media.api-sports.io/football/leagues/2.png",
+    logo: "https://media.api.sports.io/football/leagues/2.png",
     country: "Europe",
     popularity: 92,
   },
   {
     id: 140,
     name: "La Liga",
-    logo: "https://media.api-sports.io/football/leagues/140.png",
+    logo: "https://media.api.sports.io/football/leagues/140.png",
     country: "Spain",
     popularity: 90,
   },
   {
     id: 37,
     name: "World Cup",
-    logo: "https://media.api-sports.io/football/leagues/37.png",
+    logo: "https://media.api.sports.io/football/leagues/37.png",
     country: "World",
     popularity: 88,
   },
   {
     id: 135,
     name: "Serie A",
-    logo: "https://media.api-sports.io/football/leagues/135.png",
+    logo: "https://media.api.sports.io/football/leagues/135.png",
     country: "Italy",
     popularity: 85,
   },
   {
     id: 78,
     name: "Bundesliga",
-    logo: "https://media.api-sports.io/football/leagues/78.png",
+    logo: "https://media.api.sports.io/football/leagues/78.png",
     country: "Germany",
     popularity: 83,
   },
   {
     id: 4,
     name: "Euro Championship",
-    logo: "https://media.api-sports.io/football/leagues/4.png",
+    logo: "https://media.api.sports.io/football/leagues/4.png",
     country: "World",
     popularity: 82,
   },
   {
     id: 61,
     name: "Ligue 1",
-    logo: "https://media.api-sports.io/football/leagues/61.png",
+    logo: "https://media.api.sports.io/football/leagues/61.png",
     country: "France",
     popularity: 78,
   },
   {
     id: 3,
     name: "UEFA Europa League",
-    logo: "https://media.api-sports.io/football/leagues/3.png",
+    logo: "https://media.api.sports.io/football/leagues/3.png",
     country: "Europe",
     popularity: 75,
   },
   {
     id: 15,
     name: "FIFA Club World Cup",
-    logo: "https://media.api-sports.io/football/leagues/15.png",
+    logo: "https://media.api.sports.io/football/leagues/15.png",
     country: "World",
     popularity: 72,
   },
   {
     id: 9,
     name: "Copa America",
-    logo: "https://media.api-sports.io/football/leagues/9.png",
+    logo: "https://media.api.sports.io/football/leagues/9.png",
     country: "World",
     popularity: 70,
   },
   {
     id: 848,
     name: "UEFA Conference League",
-    logo: "https://media.api-sports.io/football/leagues/848.png",
+    logo: "https://media.api.sports.io/football/leagues/848.png",
     country: "Europe",
     popularity: 68,
   },
   {
     id: 45,
     name: "FA Cup",
-    logo: "https://media.api-sports.io/football/leagues/45.png",
+    logo: "https://media.api.sports.io/football/leagues/45.png",
     country: "England",
     popularity: 65,
   },
   {
     id: 5,
     name: "UEFA Nations League",
-    logo: "https://media.api-sports.io/football/leagues/5.png",
+    logo: "https://media.api.sports.io/football/leagues/5.png",
     country: "Europe",
     popularity: 63,
   },
   {
     id: 143,
     name: "Copa del Rey",
-    logo: "https://media.api-sports.io/football/leagues/143.png",
+    logo: "https://media.api.sports.io/football/leagues/143.png",
     country: "Spain",
     popularity: 60,
   },
   {
     id: 137,
     name: "Coppa Italia",
-    logo: "https://media.api-sports.io/football/leagues/137.png",
+    logo: "https://media.api.sports.io/football/leagues/137.png",
     country: "Italy",
     popularity: 58,
   },
   {
     id: 81,
     name: "DFB Pokal",
-    logo: "https://media.api-sports.io/football/leagues/81.png",
+    logo: "https://media.api.sports.io/football/leagues/81.png",
     country: "Germany",
     popularity: 55,
   },
   {
     id: 22,
     name: "CONCACAF Gold Cup",
-    logo: "https://media.api-sports.io/football/leagues/22.png",
+    logo: "https://media.api.sports.io/football/leagues/22.png",
     country: "World",
     popularity: 52,
   },
   {
     id: 307,
     name: "Saudi Pro League",
-    logo: "https://media.api-sports.io/football/leagues/307.png",
+    logo: "https://media.api.sports.io/football/leagues/307.png",
     country: "Saudi Arabia",
     popularity: 50,
   },
   {
     id: 850,
     name: "UEFA U21 Championship",
-    logo: "https://media.api-sports.io/football/leagues/850.png",
+    logo: "https://media.api.sports.io/football/leagues/850.png",
     country: "World",
     popularity: 48,
   },
   {
     id: 7,
     name: "Asian Cup",
-    logo: "https://media.api-sports.io/football/leagues/7.png",
+    logo: "https://media.api.sports.io/football/leagues/7.png",
     country: "World",
     popularity: 45,
   },
   {
     id: 233,
     name: "Egyptian Premier League",
-    logo: "https://media.api-sports.io/football/leagues/233.png",
+    logo: "https://media.api.sports.io/football/leagues/233.png",
     country: "Egypt",
     popularity: 42,
   },
   {
     id: 550,
     name: "Super Cup",
-    logo: "https://media.api-sports.io/football/leagues/550.png",
+    logo: "https://media.api.sports.io/football/leagues/550.png",
     country: "Portugal",
     popularity: 40,
   },
@@ -310,12 +310,12 @@ const PopularLeaguesList = () => {
 
           // Learn from the fetched league data
           console.log(`🎓 [PopularLeaguesList] Learning from ${leagues.length} leagues for translation system`);
-          
+
           // Auto-learn league names and countries for the translation system
           leagues.forEach((league: any) => {
             const leagueName = league.league?.name || league.name;
             const countryName = league.country?.name || league.league?.country || league.country;
-            
+
             if (leagueName) {
               smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(leagueName, { countryName });
             }
@@ -520,8 +520,8 @@ const PopularLeaguesList = () => {
                   <button
                     onClick={() => toggleFavorite(league.id)}
                     className={`transition-colors p-1 ${
-                      isFavorite 
-                        ? "text-blue-500 hover:text-blue-600" 
+                      isFavorite
+                        ? "text-blue-500 hover:text-blue-600"
                         : "text-gray-400 hover:text-blue-500"
                     }`}
                   >
