@@ -1515,6 +1515,32 @@ class SmartLeagueCountryTranslation {
     return hasChinese && hasLatin && (mixedPatterns.some(pattern => pattern.test(leagueName)) || hasChineseLeagueTerm);
   }
 
+  // Generate best translation for a league name
+  private generateBestTranslation(leagueName: string, countryName: string, language: string): string {
+    // First try the core league mapping generation
+    const mapping = this.generateLeagueMapping(leagueName, countryName);
+    if (mapping && mapping[language]) {
+      return mapping[language];
+    }
+
+    // Try mixed language mapping if applicable
+    if (this.detectMixedLanguageLeague(leagueName)) {
+      const mixedMapping = this.generateMixedLanguageMapping(leagueName, countryName);
+      if (mixedMapping && mixedMapping[language]) {
+        return mixedMapping[language];
+      }
+    }
+
+    // Try intelligent mapping
+    const intelligentMapping = this.generateIntelligentMapping(leagueName, countryName);
+    if (intelligentMapping && intelligentMapping[language]) {
+      return intelligentMapping[language];
+    }
+
+    // Return original if no translation found
+    return leagueName;
+  }
+
   // Generate mappings for mixed language league names
   private generateMixedLanguageMapping(leagueName: string, countryName: string): LeagueTranslation | null {
     const translations: any = { en: leagueName };
@@ -2304,8 +2330,8 @@ class SmartLeagueCountryTranslation {
     return translations as CountryTranslation;
   }
 
-  // Main translation method for league names
-  async translateLeagueName(leagueName: string, language: string): Promise<string> {
+  // Main translation method for league names - now synchronous for React rendering
+  translateLeagueName(leagueName: string, language: string): string {
     if (!leagueName || typeof leagueName !== 'string') {
       return leagueName || '';
     }
@@ -2317,21 +2343,6 @@ class SmartLeagueCountryTranslation {
       return this.leagueCache.get(cacheKey);
     }
 
-    try {
-      // Try to get translation from database API
-      const response = await fetch(`/api/translations/league/${encodeURIComponent(leagueName)}/${language}`);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.translation && data.translation !== leagueName) {
-          this.leagueCache.set(cacheKey, data.translation);
-          return data.translation;
-        }
-      }
-    } catch (error) {
-      console.warn(`[SmartLeagueTranslation] Database lookup failed for ${leagueName}, falling back to local methods:`, error);
-    }
-
-    // Fallback to existing methods
     // Check core translations first
     const coreTranslation = this.coreLeagueTranslations[leagueName];
     if (coreTranslation && coreTranslation[language]) {
@@ -2358,8 +2369,12 @@ class SmartLeagueCountryTranslation {
     return leagueName;
   }
 
-  // Sync wrapper for backwards compatibility
-  translateLeagueNameSync(leagueName: string, language: string): string {
+  // Async version for background updates
+  async translateLeagueNameAsync(leagueName: string, language: string): Promise<string> {
+    if (!leagueName || typeof leagueName !== 'string') {
+      return leagueName || '';
+    }
+
     const cacheKey = `${leagueName}-${language}`;
 
     // Check local cache first
@@ -2367,26 +2382,73 @@ class SmartLeagueCountryTranslation {
       return this.leagueCache.get(cacheKey);
     }
 
-    // Check core translations
-    const coreTranslation = this.coreLeagueTranslations[leagueName];
-    if (coreTranslation && coreTranslation[language]) {
-      this.leagueCache.set(cacheKey, coreTranslation[language]);
-      return coreTranslation[language];
+    try {
+      // Try to get translation from database API
+      const response = await fetch(`/api/translations/league/${encodeURIComponent(leagueName)}/${language}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.translation && data.translation !== leagueName) {
+          this.leagueCache.set(cacheKey, data.translation);
+          return data.translation;
+        }
+      }
+    } catch (error) {
+      console.warn(`[SmartLeagueTranslation] Database lookup failed for ${leagueName}, falling back to local methods:`, error);
+    }
+
+    // Fallback to sync method
+    return this.translateLeagueName(leagueName, language);
+  }
+
+  // Sync wrapper for backwards compatibility
+  translateLeagueNameSync(leagueName: string, language: string): string {
+    return this.translateLeagueName(leagueName, language);
+  }
+
+  // Main translation method for country names - now synchronous for React rendering
+  translateCountryName(countryName: string, language: string): string {
+    if (!countryName || typeof countryName !== 'string') {
+      return countryName || '';
+    }
+
+    const cacheKey = `${countryName}-${language}`;
+
+    // Check local cache first
+    if (this.countryCache.has(cacheKey)) {
+      return this.countryCache.get(cacheKey);
+    }
+
+    // Check popular countries first
+    const popularTranslation = this.popularCountries[countryName];
+    if (popularTranslation && popularTranslation[language]) {
+      this.countryCache.set(cacheKey, popularTranslation[language]);
+      return popularTranslation[language];
     }
 
     // Check learned mappings
-    const learned = this.learnedLeagueMappings.get(leagueName);
+    const learned = this.learnedCountryMappings.get(countryName);
     if (learned && learned[language]) {
-      this.leagueCache.set(cacheKey, learned[language]);
+      this.countryCache.set(cacheKey, learned[language]);
       return learned[language];
     }
 
-    // Return original if no cache hit
-    return leagueName;
+    // Try Chinese to English mapping (sync only)
+    const englishName = this.chineseToEnglishMap[countryName];
+    if (englishName && englishName !== countryName) {
+      const englishTranslation = this.translateCountryName(englishName, language);
+      if (englishTranslation !== englishName) {
+        this.countryCache.set(cacheKey, englishTranslation);
+        return englishTranslation;
+      }
+    }
+
+    // Store original as fallback
+    this.countryCache.set(cacheKey, countryName);
+    return countryName;
   }
 
-  // Main translation method for country names
-  async translateCountryName(countryName: string, language: string): Promise<string> {
+  // Async version for background updates
+  async translateCountryNameAsync(countryName: string, language: string): Promise<string> {
     if (!countryName || typeof countryName !== 'string') {
       return countryName || '';
     }
@@ -2412,61 +2474,13 @@ class SmartLeagueCountryTranslation {
       console.warn(`[SmartCountryTranslation] Database lookup failed for ${countryName}, falling back to local methods:`, error);
     }
 
-    // Fallback to existing methods
-    // Check popular countries first
-    const popularTranslation = this.popularCountries[countryName];
-    if (popularTranslation && popularTranslation[language]) {
-      this.countryCache.set(cacheKey, popularTranslation[language]);
-      return popularTranslation[language];
-    }
-
-    // Check learned mappings
-    const learned = this.learnedCountryMappings.get(countryName);
-    if (learned && learned[language]) {
-      this.countryCache.set(cacheKey, learned[language]);
-      return learned[language];
-    }
-
-    // Try Chinese to English mapping
-    const englishName = this.chineseToEnglishMap[countryName];
-    if (englishName && englishName !== countryName) {
-      const englishTranslation = await this.translateCountryName(englishName, language);
-      if (englishTranslation !== englishName) {
-        this.countryCache.set(cacheKey, englishTranslation);
-        return englishTranslation;
-      }
-    }
-
-    // Store original as fallback
-    this.countryCache.set(cacheKey, countryName);
-    return countryName;
+    // Fallback to sync method
+    return this.translateCountryName(countryName, language);
   }
 
   // Sync wrapper for backwards compatibility
   translateCountryNameSync(countryName: string, language: string): string {
-    const cacheKey = `${countryName}-${language}`;
-
-    // Check local cache first
-    if (this.countryCache.has(cacheKey)) {
-      return this.countryCache.get(cacheKey);
-    }
-
-    // Check popular countries first
-    const popularTranslation = this.popularCountries[countryName];
-    if (popularTranslation && popularTranslation[language]) {
-      this.countryCache.set(cacheKey, popularTranslation[language]);
-      return popularTranslation[language];
-    }
-
-    // Check learned mappings
-    const learned = this.learnedCountryMappings.get(countryName);
-    if (learned && learned[language]) {
-      this.countryCache.set(cacheKey, learned[language]);
-      return learned[language];
-    }
-
-    // Return original if no cache hit
-    return countryName;
+    return this.translateCountryName(countryName, language);
   }
 
 
