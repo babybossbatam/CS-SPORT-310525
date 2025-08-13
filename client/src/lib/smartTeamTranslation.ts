@@ -2993,6 +2993,12 @@ class SmartTeamTranslation {
 
   // Auto-learn from any league data encountered in the app
   autoLearnFromLeagueData(leagueName: string, countryName?: string): void {
+    if (!leagueName || leagueName.length < 3) return;
+    
+    // Extract team names from league data if available
+    // This can be enhanced to learn from team contexts within leagues
+    console.log(`🎓 [SmartTranslation] Auto-learning from league: ${leagueName}${countryName ? ` (${countryName})` : ''}`);
+  }
 </new_str>
 </original>
   if (!leagueName || leagueName.length < 3) return;
