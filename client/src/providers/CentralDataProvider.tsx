@@ -45,23 +45,31 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       const controller = new AbortController();
 
       try {
-        // Set up timeout that only aborts if request is still pending - reduced to 15 seconds for faster recovery
+        // Quick connection health check
+        if (!navigator.onLine) {
+          throw new Error('No internet connection');
+        }
+
+        // Set up timeout that only aborts if request is still pending - reduced to 10 seconds for faster recovery
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 15 seconds');
+            controller.abort('Request timeout after 10 seconds');
           }
-        }, 15000);
+        }, 10000);
 
         const response = await fetch(`/api/fixtures/date/${validDate}?all=true`, {
           signal: controller.signal,
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
           },
           // Add explicit network settings for better reliability
           cache: 'no-cache',
           mode: 'cors',
-          credentials: 'same-origin'
+          credentials: 'same-origin',
+          keepalive: false
         });
 
         // Clear timeout on successful response
@@ -104,16 +112,20 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         const cachedData = queryClient.getQueryData(['central-date-fixtures', validDate]);
 
         if (error.name === 'AbortError') {
-          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate} after 15 seconds`);
+          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate} after 10 seconds`);
         } else if (error.message === 'Failed to fetch') {
           console.warn(`🌐 [CentralDataProvider] Network error for ${validDate}: Server unreachable or connection lost`);
         } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
           console.warn(`🔌 [CentralDataProvider] Fetch API error for ${validDate}: ${error.message}`);
+        } else if (error.message?.includes('timeout')) {
+          console.warn(`⏰ [CentralDataProvider] Network timeout for ${validDate}: ${error.message}`);
         } else {
           console.error(`❌ [CentralDataProvider] Unexpected error fetching fixtures for ${validDate}:`, {
             message: error?.message || 'Unknown error',
             name: error?.name || 'UnknownError',
-            stack: error?.stack?.substring(0, 200) || 'No stack trace'
+            stack: error?.stack?.substring(0, 200) || 'No stack trace',
+            errorType: typeof error,
+            fullError: error
           });
         }
 
@@ -125,19 +137,35 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
 
         // If no cached data available, try to get data from nearby dates (expanded range)
         const dates = [];
-        for (let i = -2; i <= 2; i++) {
+        for (let i = -3; i <= 3; i++) {
           const date = new Date(validDate);
           date.setDate(date.getDate() + i);
           dates.push(date.toISOString().slice(0, 10));
         }
 
-        for (const date of dates) {
+        // Try most recent dates first
+        const sortedDates = dates.sort((a, b) => {
+          const diffA = Math.abs(new Date(a).getTime() - new Date(validDate).getTime());
+          const diffB = Math.abs(new Date(b).getTime() - new Date(validDate).getTime());
+          return diffA - diffB;
+        });
+
+        for (const date of sortedDates) {
           if (date !== validDate) {
             const fallbackData = queryClient.getQueryData(['central-date-fixtures', date]);
             if (fallbackData && Array.isArray(fallbackData) && fallbackData.length > 0) {
               console.log(`🔄 [CentralDataProvider] Using fallback data from ${date} for ${validDate} (${fallbackData.length} fixtures)`);
               return fallbackData;
             }
+          }
+        }
+
+        // Try to get any fixture data from the cache as last resort
+        const allQueries = queryClient.getQueryCache().findAll(['central-date-fixtures']);
+        for (const query of allQueries) {
+          if (query.state.data && Array.isArray(query.state.data) && query.state.data.length > 0) {
+            console.log(`🔄 [CentralDataProvider] Using emergency fallback data for ${validDate} (${query.state.data.length} fixtures)`);
+            return query.state.data;
           }
         }
 
@@ -155,14 +183,15 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         error?.message?.includes('timeout') ||
         error?.message?.includes('fetch') ||
         error?.name === 'AbortError' ||
-        error?.name === 'TypeError'
+        error?.name === 'TypeError' ||
+        error?.code === 'NETWORK_ERROR'
       );
 
-      const shouldRetry = isNetworkError && failureCount < 2; // Increased to 2 retries
+      const shouldRetry = isNetworkError && failureCount < 3; // Increased to 3 retries
 
       if (shouldRetry) {
-        const delay = 2000; // Fixed 2s delay
-        console.log(`🔄 [CentralDataProvider] Retry attempt ${failureCount + 1}/2 for ${validDate} in ${delay}ms (reason: ${error?.message || error?.name || 'unknown'})`);
+        const delay = Math.min(1000 * Math.pow(2, failureCount), 8000); // Exponential backoff with max 8s
+        console.log(`🔄 [CentralDataProvider] Retry attempt ${failureCount + 1}/3 for ${validDate} in ${delay}ms (reason: ${error?.message || error?.name || 'unknown'})`);
         return true;
       }
 
@@ -172,7 +201,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
 
       return false;
     },
-    retryDelay: (attemptIndex) => 2000, // Fixed 2s delay
+    retryDelay: (attemptIndex) => Math.min(1000 * Math.pow(2, attemptIndex), 8000), // Exponential backoff
     throwOnError: false, // Don't throw errors to prevent unhandled rejections
     enabled: !!validDate,
   });
