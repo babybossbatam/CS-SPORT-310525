@@ -627,6 +627,61 @@ class SmartLeagueCountryTranslation {
     console.log('✅ [SmartLeagueCountryTranslation] Integrated automated mappings cache');
   }
 
+  // Auto-learn from any country name for better translations
+  autoLearnFromAnyCountryName(countryName: string, options: { leagueContext?: string; occurrenceCount?: number; originalName?: string } = {}): void {
+    if (!countryName || typeof countryName !== 'string') return;
+
+    const cleanName = countryName.trim();
+    if (!cleanName || cleanName === 'Unknown') return;
+
+    // Check if we already have this country mapping
+    if (!this.learnedCountryMappings.has(cleanName)) {
+      const mapping = this.generateCountryMapping(cleanName);
+      if (mapping) {
+        this.learnedCountryMappings.set(cleanName, mapping);
+        this.saveLearnedMappings();
+        console.log(`🎓 [SmartLeagueCountryTranslation] Auto-learned country mapping for: ${cleanName}`);
+      }
+    }
+
+    // Store in automated mappings for future reference
+    const existingAutomated = this.automatedCountryMappings.get(cleanName) || {};
+    this.automatedCountryMappings.set(cleanName, {
+      ...existingAutomated,
+      occurrenceCount: (existingAutomated.occurrenceCount || 0) + (options.occurrenceCount || 1),
+      leagueContext: options.leagueContext || existingAutomated.leagueContext,
+      originalName: options.originalName || existingAutomated.originalName,
+      lastSeen: Date.now()
+    });
+  }
+
+  // Auto-learn from any league name for better translations
+  autoLearnFromAnyLeagueName(leagueName: string, options: { countryName?: string; leagueId?: number } = {}): void {
+    if (!leagueName || typeof leagueName !== 'string') return;
+
+    const cleanName = leagueName.trim();
+    if (!cleanName) return;
+
+    // Check if we already have this league mapping
+    if (!this.learnedLeagueMappings.has(cleanName)) {
+      const mapping = this.generateLeagueMapping(cleanName, options.countryName);
+      if (mapping) {
+        this.learnedLeagueMappings.set(cleanName, mapping);
+        this.saveLearnedMappings();
+        console.log(`🎓 [SmartLeagueCountryTranslation] Auto-learned league mapping for: ${cleanName}`);
+      }
+    }
+
+    // Store in automated mappings for future reference
+    const existingAutomated = this.automatedLeagueMappings.get(cleanName) || {};
+    this.automatedLeagueMappings.set(cleanName, {
+      ...existingAutomated,
+      countryName: options.countryName || existingAutomated.countryName,
+      leagueId: options.leagueId || existingAutomated.leagueId,
+      lastSeen: Date.now()
+    });
+  }
+
   // Enhanced learning from fixtures data
   learnFromFixtures(fixtures: any[]): void {
     let newLeagueMappings = 0;
