@@ -823,8 +823,11 @@ class SmartLeagueCountryTranslation {
     const cleanName = countryName.trim();
     if (!cleanName || cleanName === 'Unknown') return;
 
-    // Check if we already have this country mapping
-    if (!this.learnedCountryMappings.has(cleanName)) {
+    // Check if we already have this country mapping in popularCountries or learned mappings
+    const hasPopularMapping = this.popularCountries[cleanName];
+    const hasLearnedMapping = this.learnedCountryMappings.has(cleanName);
+
+    if (!hasPopularMapping && !hasLearnedMapping) {
       const mapping = this.generateCountryMapping(cleanName);
       if (mapping) {
         this.learnedCountryMappings.set(cleanName, mapping);
@@ -1220,7 +1223,6 @@ class SmartLeagueCountryTranslation {
   }
 
   private generateCountryMapping(countryName: string): CountryTranslation | null {
-    // Basic country name handling - most stay the same except Chinese
     const translations: any = {
       en: countryName,
       es: countryName,
@@ -1231,6 +1233,140 @@ class SmartLeagueCountryTranslation {
       'zh-hk': countryName,
       'zh-tw': countryName
     };
+
+    // Enhanced pattern matching for common country names
+    const lowerName = countryName.toLowerCase();
+    
+    // Czech Republic
+    if (lowerName.includes('czech republic') || lowerName === 'czech republic') {
+      translations.zh = '捷克共和国';
+      translations['zh-hk'] = '捷克共和國';
+      translations['zh-tw'] = '捷克共和國';
+      translations.es = 'República Checa';
+      translations.de = 'Tschechische Republik';
+      translations.it = 'Repubblica Ceca';
+      translations.pt = 'República Tcheca';
+    }
+    // Dominican Republic
+    else if (lowerName.includes('dominican republic') || lowerName === 'dominican republic') {
+      translations.zh = '多米尼加共和国';
+      translations['zh-hk'] = '多明尼加共和國';
+      translations['zh-tw'] = '多明尼加共和國';
+      translations.es = 'República Dominicana';
+      translations.de = 'Dominikanische Republik';
+      translations.it = 'Repubblica Dominicana';
+      translations.pt = 'República Dominicana';
+    }
+    // Ecuador
+    else if (lowerName === 'ecuador') {
+      translations.zh = '厄瓜多尔';
+      translations['zh-hk'] = '厄瓜多爾';
+      translations['zh-tw'] = '厄瓜多爾';
+      translations.es = 'Ecuador';
+      translations.de = 'Ecuador';
+      translations.it = 'Ecuador';
+      translations.pt = 'Equador';
+    }
+    // Estonia
+    else if (lowerName === 'estonia') {
+      translations.zh = '爱沙尼亚';
+      translations['zh-hk'] = '愛沙尼亞';
+      translations['zh-tw'] = '愛沙尼亞';
+      translations.es = 'Estonia';
+      translations.de = 'Estland';
+      translations.it = 'Estonia';
+      translations.pt = 'Estônia';
+    }
+    // Georgia
+    else if (lowerName === 'georgia') {
+      translations.zh = '格鲁吉亚';
+      translations['zh-hk'] = '格魯吉亞';
+      translations['zh-tw'] = '格魯吉亞';
+      translations.es = 'Georgia';
+      translations.de = 'Georgien';
+      translations.it = 'Georgia';
+      translations.pt = 'Geórgia';
+    }
+    // Slovenia
+    else if (lowerName === 'slovenia') {
+      translations.zh = '斯洛文尼亚';
+      translations['zh-hk'] = '斯洛文尼亞';
+      translations['zh-tw'] = '斯洛維尼亞';
+      translations.es = 'Eslovenia';
+      translations.de = 'Slowenien';
+      translations.it = 'Slovenia';
+      translations.pt = 'Eslovênia';
+    }
+    // Slovakia
+    else if (lowerName === 'slovakia') {
+      translations.zh = '斯洛伐克';
+      translations['zh-hk'] = '斯洛伐克';
+      translations['zh-tw'] = '斯洛伐克';
+      translations.es = 'Eslovaquia';
+      translations.de = 'Slowakei';
+      translations.it = 'Slovacchia';
+      translations.pt = 'Eslováquia';
+    }
+    // Lithuania
+    else if (lowerName === 'lithuania') {
+      translations.zh = '立陶宛';
+      translations['zh-hk'] = '立陶宛';
+      translations['zh-tw'] = '立陶宛';
+      translations.es = 'Lituania';
+      translations.de = 'Litauen';
+      translations.it = 'Lituania';
+      translations.pt = 'Lituânia';
+    }
+    // Latvia
+    else if (lowerName === 'latvia') {
+      translations.zh = '拉脱维亚';
+      translations['zh-hk'] = '拉脫維亞';
+      translations['zh-tw'] = '拉脫維亞';
+      translations.es = 'Letonia';
+      translations.de = 'Lettland';
+      translations.it = 'Lettonia';
+      translations.pt = 'Letônia';
+    }
+    // Moldova
+    else if (lowerName === 'moldova') {
+      translations.zh = '摩尔多瓦';
+      translations['zh-hk'] = '摩爾多瓦';
+      translations['zh-tw'] = '摩爾多瓦';
+      translations.es = 'Moldavia';
+      translations.de = 'Moldau';
+      translations.it = 'Moldavia';
+      translations.pt = 'Moldávia';
+    }
+    // North Macedonia
+    else if (lowerName.includes('north macedonia') || lowerName === 'north macedonia') {
+      translations.zh = '北马其顿';
+      translations['zh-hk'] = '北馬其頓';
+      translations['zh-tw'] = '北馬其頓';
+      translations.es = 'Macedonia del Norte';
+      translations.de = 'Nordmazedonien';
+      translations.it = 'Macedonia del Nord';
+      translations.pt = 'Macedônia do Norte';
+    }
+    // Montenegro
+    else if (lowerName === 'montenegro') {
+      translations.zh = '黑山';
+      translations['zh-hk'] = '黑山';
+      translations['zh-tw'] = '蒙特內哥羅';
+      translations.es = 'Montenegro';
+      translations.de = 'Montenegro';
+      translations.it = 'Montenegro';
+      translations.pt = 'Montenegro';
+    }
+    // Albania
+    else if (lowerName === 'albania') {
+      translations.zh = '阿尔巴尼亚';
+      translations['zh-hk'] = '阿爾巴尼亞';
+      translations['zh-tw'] = '阿爾巴尼亞';
+      translations.es = 'Albania';
+      translations.de = 'Albanien';
+      translations.it = 'Albania';
+      translations.pt = 'Albânia';
+    }
 
     return translations as CountryTranslation;
   }

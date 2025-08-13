@@ -46,7 +46,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     ['all-fixtures-by-date', selectedDate],
     async () => {
       if (!selectedDate) return [];
-      
+
       performanceMonitor.startMeasure('fixtures-fetch');
       const response = await apiRequest("GET", `/api/fixtures/date/${selectedDate}?all=true`);
       const data = await response.json();
@@ -64,14 +64,14 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   useEffect(() => {
     if (fixturesData) {
       setFixtures(fixturesData);
-      
+
       // Defer learning to avoid blocking UI - run in background
       if (Array.isArray(fixturesData) && fixturesData.length > 0) {
         // Use setTimeout to defer learning and not block render
         setTimeout(() => {
           try {
             smartLeagueCountryTranslation.learnFromFixtures(fixturesData);
-            
+
             // Batch process unique countries more efficiently
             const uniqueCountries = new Set<string>();
             for (let i = 0; i < Math.min(fixturesData.length, 100); i++) { // Limit processing to first 100 for speed
@@ -80,7 +80,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                 uniqueCountries.add(fixture.league.country.trim());
               }
             }
-            
+
             // Batch learn country names
             if (uniqueCountries.size > 0) {
               console.log(`📚 [Country Learning] Learning ${uniqueCountries.size} countries in background`);
@@ -99,7 +99,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   const leaguesByCountry = useMemo(() => {
     const grouped: { [key: string]: { country: string; leagues: any; totalMatches: number; liveMatches: number } } = {};
     const allFixtures = fixtures || [];
-    
+
     if (!allFixtures?.length) {
       return grouped;
     }
@@ -120,7 +120,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
       const country = fixture.league.country || "Unknown";
       const leagueId = fixture.league.id;
-      
+
       // Skip expensive exclusion check for now - do it later if needed
       // Quick live status check
       const isLive = liveStatuses.has(fixture.fixture?.status?.short);
@@ -165,14 +165,14 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   // Optimized country name mapping with caching
   const getCountryDisplayName = useMemo(() => {
     const cache = new Map<string, string>();
-    
+
     return (country: string | null | undefined): string => {
       if (!country || typeof country !== "string" || country.trim() === "") {
         return t('unknown') || "Unknown";
       }
 
       const originalCountry = country.trim();
-      
+
       // Check cache first
       if (cache.has(originalCountry)) {
         return cache.get(originalCountry)!;
@@ -222,7 +222,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       // Cache result
       cache.set(originalCountry, displayName);
       setCachedCountryName(originalCountry, displayName, "smart-translation");
-      
+
       return displayName;
     };
   }, [currentLanguage, t]);
@@ -308,19 +308,19 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
   // Define all football countries
   const allFootballCountries = [
-    "World", "Afghanistan", "Albania", "Algeria", "Angola", "Argentina", "Armenia", 
-    "Australia", "Austria", "Azerbaijan", "Bahrain", "Bangladesh", "Belgium", "Bolivia", 
-    "Bosnia and Herzegovina", "Botswana", "Brazil", "Bulgaria", "Burkina Faso", 
-    "Cameroon", "Canada", "Chile", "China", "Colombia", "Croatia", "Czech Republic", 
-    "Denmark", "Egypt", "England", "Estonia", "Ethiopia", "Faroe Islands", "Finland", 
-    "France", "Georgia", "Germany", "Ghana", "Greece", "Hungary", "Iceland", "India", 
-    "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Japan", "Jordan", 
-    "Kazakhstan", "Kenya", "Kuwait", "Lithuania", "Luxembourg", "Malaysia", "Mali", 
-    "Mexico", "Morocco", "Netherlands", "New Zealand", "Nigeria", "Norway", "Oman", 
-    "Pakistan", "Panama", "Paraguay", "Peru", "Poland", "Portugal", "Qatar", 
-    "Romania", "Russia", "Saudi Arabia", "Scotland", "Senegal", "Serbia", "Singapore", 
-    "Slovakia", "Slovenia", "South Africa", "South Korea", "Spain", "Sweden", 
-    "Switzerland", "Thailand", "Tunisia", "Turkey", "Ukraine", "United Arab Emirates", 
+    "World", "Afghanistan", "Albania", "Algeria", "Angola", "Argentina", "Armenia",
+    "Australia", "Austria", "Azerbaijan", "Bahrain", "Bangladesh", "Belgium", "Bolivia",
+    "Bosnia and Herzegovina", "Botswana", "Brazil", "Bulgaria", "Burkina Faso",
+    "Cameroon", "Canada", "Chile", "China", "Colombia", "Croatia", "Czech Republic",
+    "Denmark", "Egypt", "England", "Estonia", "Ethiopia", "Faroe Islands", "Finland",
+    "France", "Georgia", "Germany", "Ghana", "Greece", "Hungary", "Iceland", "India",
+    "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Japan", "Jordan",
+    "Kazakhstan", "Kenya", "Kuwait", "Lithuania", "Luxembourg", "Malaysia", "Mali",
+    "Mexico", "Morocco", "Netherlands", "New Zealand", "Nigeria", "Norway", "Oman",
+    "Pakistan", "Panama", "Paraguay", "Peru", "Poland", "Portugal", "Qatar",
+    "Romania", "Russia", "Saudi Arabia", "Scotland", "Senegal", "Serbia", "Singapore",
+    "Slovakia", "Slovenia", "South Africa", "South Korea", "Spain", "Sweden",
+    "Switzerland", "Thailand", "Tunisia", "Turkey", "Ukraine", "United Arab Emirates",
     "Uruguay", "USA", "Uzbekistan", "Venezuela", "Vietnam", "Wales", "Yemen", "Zambia", "Zimbabwe"
   ];
 
@@ -424,7 +424,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span 
+                <span
                   className="text-gray-900 dark:text-white font-medium"
                   style={{
                     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
@@ -436,7 +436,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                 {/* Expand/Collapse Icon */}
                 {isFootballExpanded }
               </div>
-              <span 
+              <span
                 className="text-gray-500 text-sm"
                 style={{
                   fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
@@ -484,9 +484,9 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
                       // Get the display name using smart translation
                       const displayCountryName = getCountryDisplayName(countryName);
-                      
+
                       // Check for World using both original and translated names
-                      const isWorldCountry = countryName.toLowerCase() === "world" || 
+                      const isWorldCountry = countryName.toLowerCase() === "world" ||
                                            displayCountryName.toLowerCase().includes("world") ||
                                            displayCountryName.includes("世界") ||
                                            displayCountryName.includes("世界");
@@ -509,7 +509,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
                       // Make flag clickable if country has language mapping (check both original and display names)
                       const hasLanguageMapping = countryToLanguageMap[countryName] || countryToLanguageMap[displayCountryName];
-                      
+
                       return hasLanguageMapping ? (
                         <button
                           onClick={(e) => handleCountryFlagClick(countryName, e)}
