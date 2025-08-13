@@ -67,28 +67,40 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
       // Defer learning to avoid blocking UI - run in background
       if (Array.isArray(fixturesData) && fixturesData.length > 0) {
-        // Use setTimeout to defer learning and not block render
+        // Use setTimeout to defer comprehensive learning and not block render
         setTimeout(() => {
           try {
+            // First do the comprehensive mass learning to immediately improve coverage
+            smartLeagueCountryTranslation.massLearnCountriesFromFixtures(fixturesData);
+            
+            // Then do the regular learning
             smartLeagueCountryTranslation.learnFromFixtures(fixturesData);
 
             // Batch process unique countries more efficiently
             const uniqueCountries = new Set<string>();
+            const chineseCountries = new Set<string>();
+            
             for (let i = 0; i < Math.min(fixturesData.length, 100); i++) { // Limit processing to first 100 for speed
               const fixture = fixturesData[i];
               if (fixture?.league?.country && fixture.league.country !== "Unknown") {
-                uniqueCountries.add(fixture.league.country.trim());
+                const country = fixture.league.country.trim();
+                uniqueCountries.add(country);
+                
+                // Check if it's a Chinese country name
+                if (country.match(/[\u4e00-\u9fff]/)) {
+                  chineseCountries.add(country);
+                }
               }
             }
 
-            // Batch learn country names
+            // Log comprehensive learning results
             if (uniqueCountries.size > 0) {
-              console.log(`📚 [Country Learning] Learning ${uniqueCountries.size} countries in background`);
+              console.log(`📚 [Country Learning] Processing ${uniqueCountries.size} countries (${chineseCountries.size} in Chinese) in background`);
             }
           } catch (error) {
             console.warn('Background learning failed:', error);
           }
-        }, 0);
+        }, 100); // Slight delay to ensure UI responsiveness
       }
     }
     setIsLoading(isFixturesLoading);

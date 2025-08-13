@@ -41,7 +41,7 @@ class SmartLeagueCountryTranslation {
   private translationCache = new Map<string, { translation: string; timestamp: number }>();
   private isLoading = false;
 
-  // Hardcoded popular country translations to supplement learned ones
+  // Comprehensive country translations - includes all major countries
   private popularCountries: CountryTranslation = {
     'World': {
       'zh': '世界', 'zh-hk': '世界', 'zh-tw': '世界',
@@ -51,6 +51,7 @@ class SmartLeagueCountryTranslation {
       'zh': '欧洲', 'zh-hk': '歐洲', 'zh-tw': '歐洲',
       'es': 'Europa', 'de': 'Europa', 'it': 'Europa', 'pt': 'Europa'
     },
+    // Major European Countries
     'England': {
       'zh': '英格兰', 'zh-hk': '英格蘭', 'zh-tw': '英格蘭',
       'es': 'Inglaterra', 'de': 'England', 'it': 'Inghilterra', 'pt': 'Inglaterra'
@@ -71,89 +72,69 @@ class SmartLeagueCountryTranslation {
       'zh': '法国', 'zh-hk': '法國', 'zh-tw': '法國',
       'es': 'Francia', 'de': 'Frankreich', 'it': 'Francia', 'pt': 'França'
     },
-    'Brazil': {
-      'zh': '巴西', 'zh-hk': '巴西', 'zh-tw': '巴西',
-      'es': 'Brasil', 'de': 'Brasilien', 'it': 'Brasile', 'pt': 'Brasil'
+    'Netherlands': {
+      'zh': '荷兰', 'zh-hk': '荷蘭', 'zh-tw': '荷蘭',
+      'es': 'Países Bajos', 'de': 'Niederlande', 'it': 'Paesi Bassi', 'pt': 'Países Baixos'
     },
-    'Argentina': {
-      'zh': '阿根廷', 'zh-hk': '阿根廷', 'zh-tw': '阿根廷',
-      'es': 'Argentina', 'de': 'Argentinien', 'it': 'Argentina', 'pt': 'Argentina'
+    'Portugal': {
+      'zh': '葡萄牙', 'zh-hk': '葡萄牙', 'zh-tw': '葡萄牙',
+      'es': 'Portugal', 'de': 'Portugal', 'it': 'Portogallo', 'pt': 'Portugal'
     },
-    'United Arab Emirates': {
-      'zh': '阿拉伯联合酋长国', 'zh-hk': '阿拉伯聯合酋長國', 'zh-tw': '阿拉伯聯合酋長國',
-      'es': 'Emiratos Árabes Unidos', 'de': 'Vereinigte Arabische Emirate', 'it': 'Emirati Arabi Uniti', 'pt': 'Emirados Árabes Unidos'
+    'Belgium': {
+      'zh': '比利时', 'zh-hk': '比利時', 'zh-tw': '比利時',
+      'es': 'Bélgica', 'de': 'Belgien', 'it': 'Belgio', 'pt': 'Bélgica'
     },
-    'UAE': {
-      'zh': '阿联酋', 'zh-hk': '阿聯酋', 'zh-tw': '阿聯酋',
-      'es': 'EAU', 'de': 'VAE', 'it': 'EAU', 'pt': 'EAU'
+    'Switzerland': {
+      'zh': '瑞士', 'zh-hk': '瑞士', 'zh-tw': '瑞士',
+      'es': 'Suiza', 'de': 'Schweiz', 'it': 'Svizzera', 'pt': 'Suíça'
     },
-    'Saudi Arabia': {
-      'zh': '沙特阿拉伯', 'zh-hk': '沙特阿拉伯', 'zh-tw': '沙特阿拉伯',
-      'es': 'Arabia Saudí', 'de': 'Saudi-Arabien', 'it': 'Arabia Saudita', 'pt': 'Arábia Saudita'
-    },
-    'Saudi': {
-      'zh': '沙特', 'zh-hk': '沙特', 'zh-tw': '沙特',
-      'es': 'Arabia Saudí', 'de': 'Saudi', 'it': 'Arabia', 'pt': 'Arábia'
-    },
-    'Egypt': {
-      'zh': '埃及', 'zh-hk': '埃及', 'zh-tw': '埃及',
-      'es': 'Egipto', 'de': 'Ägypten', 'it': 'Egitto', 'pt': 'Egito'
-    },
-    'Armenia': {
-      'zh': '亚美尼亚', 'zh-hk': '亞美尼亞', 'zh-tw': '亞美尼亞',
-      'es': 'Armenia', 'de': 'Armenien', 'it': 'Armenia', 'pt': 'Armênia'
-    },
-    'Australia': {
-      'zh': '澳大利亚', 'zh-hk': '澳洲', 'zh-tw': '澳洲',
-      'es': 'Australia', 'de': 'Australien', 'it': 'Australia', 'pt': 'Austrália'
-    },
-    'Bhutan': {
-      'zh': '不丹', 'zh-hk': '不丹', 'zh-tw': '不丹',
-      'es': 'Bután', 'de': 'Bhutan', 'it': 'Bhutan', 'pt': 'Butão'
-    },
-    'Bolivia': {
-      'zh': '玻利维亚', 'zh-hk': '玻利維亞', 'zh-tw': '玻利維亞',
-      'es': 'Bolivia', 'de': 'Bolivien', 'it': 'Bolivia', 'pt': 'Bolívia'
-    },
-    'Canada': {
-      'zh': '加拿大', 'zh-hk': '加拿大', 'zh-tw': '加拿大',
-      'es': 'Canadá', 'de': 'Kanada', 'it': 'Canada', 'pt': 'Canadá'
+    'Austria': {
+      'zh': '奥地利', 'zh-hk': '奧地利', 'zh-tw': '奧地利',
+      'es': 'Austria', 'de': 'Österreich', 'it': 'Austria', 'pt': 'Áustria'
     },
     'Czech Republic': {
       'zh': '捷克共和国', 'zh-hk': '捷克共和國', 'zh-tw': '捷克共和國',
       'es': 'República Checa', 'de': 'Tschechische Republik', 'it': 'Repubblica Ceca', 'pt': 'República Tcheca'
     },
-    'Dominican Republic': {
-      'zh': '多米尼加共和国', 'zh-hk': '多明尼加共和國', 'zh-tw': '多明尼加共和國',
-      'es': 'República Dominicana', 'de': 'Dominikanische Republik', 'it': 'Repubblica Dominicana', 'pt': 'República Dominicana'
+    'Slovakia': {
+      'zh': '斯洛伐克', 'zh-hk': '斯洛伐克', 'zh-tw': '斯洛伐克',
+      'es': 'Eslovaquia', 'de': 'Slowakei', 'it': 'Slovacchia', 'pt': 'Eslováquia'
     },
-    'India': {
-      'zh': '印度', 'zh-hk': '印度', 'zh-tw': '印度',
-      'es': 'India', 'de': 'Indien', 'it': 'India', 'pt': 'Índia'
+    'Slovenia': {
+      'zh': '斯洛文尼亚', 'zh-hk': '斯洛文尼亞', 'zh-tw': '斯洛維尼亞',
+      'es': 'Eslovenia', 'de': 'Slowenien', 'it': 'Slovenia', 'pt': 'Eslovênia'
     },
-    'Japan': {
-      'zh': '日本', 'zh-hk': '日本', 'zh-tw': '日本',
-      'es': 'Japón', 'de': 'Japan', 'it': 'Giappone', 'pt': 'Japão'
-    },
-    'South Korea': {
-      'zh': '韩国', 'zh-hk': '韓國', 'zh-tw': '韓國',
-      'es': 'Corea del Sur', 'de': 'Südkorea', 'it': 'Corea del Sud', 'pt': 'Coreia do Sul'
-    },
-    'Russia': {
-      'zh': '俄罗斯', 'zh-hk': '俄羅斯', 'zh-tw': '俄羅斯',
-      'es': 'Rusia', 'de': 'Russland', 'it': 'Russia', 'pt': 'Rússia'
-    },
-    'Turkey': {
-      'zh': '土耳其', 'zh-hk': '土耳其', 'zh-tw': '土耳其',
-      'es': 'Turquía', 'de': 'Türkei', 'it': 'Turchia', 'pt': 'Turquia'
-    },
-    'Ukraine': {
-      'zh': '乌克兰', 'zh-hk': '烏克蘭', 'zh-tw': '烏克蘭',
-      'es': 'Ucrania', 'de': 'Ukraine', 'it': 'Ucraina', 'pt': 'Ucrânia'
+    'Hungary': {
+      'zh': '匈牙利', 'zh-hk': '匈牙利', 'zh-tw': '匈牙利',
+      'es': 'Hungría', 'de': 'Ungarn', 'it': 'Ungheria', 'pt': 'Hungria'
     },
     'Poland': {
       'zh': '波兰', 'zh-hk': '波蘭', 'zh-tw': '波蘭',
       'es': 'Polonia', 'de': 'Polen', 'it': 'Polonia', 'pt': 'Polônia'
+    },
+    'Romania': {
+      'zh': '罗马尼亚', 'zh-hk': '羅馬尼亞', 'zh-tw': '羅馬尼亞',
+      'es': 'Rumania', 'de': 'Rumänien', 'it': 'Romania', 'pt': 'Romênia'
+    },
+    'Bulgaria': {
+      'zh': '保加利亚', 'zh-hk': '保加利亞', 'zh-tw': '保加利亞',
+      'es': 'Bulgaria', 'de': 'Bulgarien', 'it': 'Bulgaria', 'pt': 'Bulgária'
+    },
+    'Croatia': {
+      'zh': '克罗地亚', 'zh-hk': '克羅地亞', 'zh-tw': '克羅埃西亞',
+      'es': 'Croacia', 'de': 'Kroatien', 'it': 'Croazia', 'pt': 'Croácia'
+    },
+    'Serbia': {
+      'zh': '塞尔维亚', 'zh-hk': '塞爾維亞', 'zh-tw': '塞爾維亞',
+      'es': 'Serbia', 'de': 'Serbien', 'it': 'Serbia', 'pt': 'Sérvia'
+    },
+    'Greece': {
+      'zh': '希腊', 'zh-hk': '希臘', 'zh-tw': '希臘',
+      'es': 'Grecia', 'de': 'Griechenland', 'it': 'Grecia', 'pt': 'Grécia'
+    },
+    'Denmark': {
+      'zh': '丹麦', 'zh-hk': '丹麥', 'zh-tw': '丹麥',
+      'es': 'Dinamarca', 'de': 'Dänemark', 'it': 'Danimarca', 'pt': 'Dinamarca'
     },
     'Sweden': {
       'zh': '瑞典', 'zh-hk': '瑞典', 'zh-tw': '瑞典',
@@ -167,50 +148,257 @@ class SmartLeagueCountryTranslation {
       'zh': '芬兰', 'zh-hk': '芬蘭', 'zh-tw': '芬蘭',
       'es': 'Finlandia', 'de': 'Finnland', 'it': 'Finlandia', 'pt': 'Finlândia'
     },
-    'Denmark': {
-      'zh': '丹麦', 'zh-hk': '丹麥', 'zh-tw': '丹麥',
-      'es': 'Dinamarca', 'de': 'Dänemark', 'it': 'Danimarca', 'pt': 'Dinamarca'
+    'Iceland': {
+      'zh': '冰岛', 'zh-hk': '冰島', 'zh-tw': '冰島',
+      'es': 'Islandia', 'de': 'Island', 'it': 'Islanda', 'pt': 'Islândia'
     },
-    'Switzerland': {
-      'zh': '瑞士', 'zh-hk': '瑞士', 'zh-tw': '瑞士',
-      'es': 'Suiza', 'de': 'Schweiz', 'it': 'Svizzera', 'pt': 'Suíça'
+    'Russia': {
+      'zh': '俄罗斯', 'zh-hk': '俄羅斯', 'zh-tw': '俄羅斯',
+      'es': 'Rusia', 'de': 'Russland', 'it': 'Russia', 'pt': 'Rússia'
     },
-    'Austria': {
-      'zh': '奥地利', 'zh-hk': '奧地利', 'zh-tw': '奧地利',
-      'es': 'Austria', 'de': 'Österreich', 'it': 'Austria', 'pt': 'Áustria'
+    'Ukraine': {
+      'zh': '乌克兰', 'zh-hk': '烏克蘭', 'zh-tw': '烏克蘭',
+      'es': 'Ucrania', 'de': 'Ukraine', 'it': 'Ucraina', 'pt': 'Ucrânia'
     },
-    'Greece': {
-      'zh': '希腊', 'zh-hk': '希臘', 'zh-tw': '希臘',
-      'es': 'Grecia', 'de': 'Griechenland', 'it': 'Grecia', 'pt': 'Grécia'
+    'Turkey': {
+      'zh': '土耳其', 'zh-hk': '土耳其', 'zh-tw': '土耳其',
+      'es': 'Turquía', 'de': 'Türkei', 'it': 'Turchia', 'pt': 'Turquia'
     },
-    'Croatia': {
-      'zh': '克罗地亚', 'zh-hk': '克羅地亞', 'zh-tw': '克羅埃西亞',
-      'es': 'Croacia', 'de': 'Kroatien', 'it': 'Croazia', 'pt': 'Croácia'
+    'Estonia': {
+      'zh': '爱沙尼亚', 'zh-hk': '愛沙尼亞', 'zh-tw': '愛沙尼亞',
+      'es': 'Estonia', 'de': 'Estland', 'it': 'Estonia', 'pt': 'Estônia'
     },
-    'Serbia': {
-      'zh': '塞尔维亚', 'zh-hk': '塞爾維亞', 'zh-tw': '塞爾維亞',
-      'es': 'Serbia', 'de': 'Serbien', 'it': 'Serbia', 'pt': 'Sérvia'
+    'Latvia': {
+      'zh': '拉脱维亚', 'zh-hk': '拉脫維亞', 'zh-tw': '拉脫維亞',
+      'es': 'Letonia', 'de': 'Lettland', 'it': 'Lettonia', 'pt': 'Letônia'
     },
-    'Slovenia': {
-      'zh': '斯洛文尼亚', 'zh-hk': '斯洛文尼亞', 'zh-tw': '斯洛維尼亞',
-      'es': 'Eslovenia', 'de': 'Slowenien', 'it': 'Slovenia', 'pt': 'Eslovênia'
+    'Lithuania': {
+      'zh': '立陶宛', 'zh-hk': '立陶宛', 'zh-tw': '立陶宛',
+      'es': 'Lituania', 'de': 'Litauen', 'it': 'Lituania', 'pt': 'Lituânia'
     },
-    'Slovakia': {
-      'zh': '斯洛伐克', 'zh-hk': '斯洛伐克', 'zh-tw': '斯洛伐克',
-      'es': 'Eslovaquia', 'de': 'Slowakei', 'it': 'Slovacchia', 'pt': 'Eslováquia'
+    'Georgia': {
+      'zh': '格鲁吉亚', 'zh-hk': '格魯吉亞', 'zh-tw': '格魯吉亞',
+      'es': 'Georgia', 'de': 'Georgien', 'it': 'Georgia', 'pt': 'Geórgia'
     },
-    'Hungary': {
-      'zh': '匈牙利', 'zh-hk': '匈牙利', 'zh-tw': '匈牙利',
-      'es': 'Hungría', 'de': 'Ungarn', 'it': 'Ungheria', 'pt': 'Hungria'
+    'Armenia': {
+      'zh': '亚美尼亚', 'zh-hk': '亞美尼亞', 'zh-tw': '亞美尼亞',
+      'es': 'Armenia', 'de': 'Armenien', 'it': 'Armenia', 'pt': 'Armênia'
     },
-    'Romania': {
-      'zh': '罗马尼亚', 'zh-hk': '羅馬尼亞', 'zh-tw': '羅馬尼亞',
-      'es': 'Rumania', 'de': 'Rumänien', 'it': 'Romania', 'pt': 'Romênia'
+    'Liechtenstein': {
+      'zh': '列支敦士登', 'zh-hk': '列支敦士登', 'zh-tw': '列支敦士登',
+      'es': 'Liechtenstein', 'de': 'Liechtenstein', 'it': 'Liechtenstein', 'pt': 'Liechtenstein'
     },
-    'Bulgaria': {
-      'zh': '保加利亚', 'zh-hk': '保加利亞', 'zh-tw': '保加利亞',
-      'es': 'Bulgaria', 'de': 'Bulgarien', 'it': 'Bulgaria', 'pt': 'Bulgária'
+    
+    // Americas
+    'Brazil': {
+      'zh': '巴西', 'zh-hk': '巴西', 'zh-tw': '巴西',
+      'es': 'Brasil', 'de': 'Brasilien', 'it': 'Brasile', 'pt': 'Brasil'
+    },
+    'Argentina': {
+      'zh': '阿根廷', 'zh-hk': '阿根廷', 'zh-tw': '阿根廷',
+      'es': 'Argentina', 'de': 'Argentinien', 'it': 'Argentina', 'pt': 'Argentina'
+    },
+    'Mexico': {
+      'zh': '墨西哥', 'zh-hk': '墨西哥', 'zh-tw': '墨西哥',
+      'es': 'México', 'de': 'Mexiko', 'it': 'Messico', 'pt': 'México'
+    },
+    'United States': {
+      'zh': '美国', 'zh-hk': '美國', 'zh-tw': '美國',
+      'es': 'Estados Unidos', 'de': 'Vereinigte Staaten', 'it': 'Stati Uniti', 'pt': 'Estados Unidos'
+    },
+    'Canada': {
+      'zh': '加拿大', 'zh-hk': '加拿大', 'zh-tw': '加拿大',
+      'es': 'Canadá', 'de': 'Kanada', 'it': 'Canada', 'pt': 'Canadá'
+    },
+    'Colombia': {
+      'zh': '哥伦比亚', 'zh-hk': '哥倫比亞', 'zh-tw': '哥倫比亞',
+      'es': 'Colombia', 'de': 'Kolumbien', 'it': 'Colombia', 'pt': 'Colômbia'
+    },
+    'Chile': {
+      'zh': '智利', 'zh-hk': '智利', 'zh-tw': '智利',
+      'es': 'Chile', 'de': 'Chile', 'it': 'Cile', 'pt': 'Chile'
+    },
+    'Peru': {
+      'zh': '秘鲁', 'zh-hk': '秘魯', 'zh-tw': '秘魯',
+      'es': 'Perú', 'de': 'Peru', 'it': 'Perù', 'pt': 'Peru'
+    },
+    'Ecuador': {
+      'zh': '厄瓜多尔', 'zh-hk': '厄瓜多爾', 'zh-tw': '厄瓜多爾',
+      'es': 'Ecuador', 'de': 'Ecuador', 'it': 'Ecuador', 'pt': 'Equador'
+    },
+    'Uruguay': {
+      'zh': '乌拉圭', 'zh-hk': '烏拉圭', 'zh-tw': '烏拉圭',
+      'es': 'Uruguay', 'de': 'Uruguay', 'it': 'Uruguay', 'pt': 'Uruguai'
+    },
+    'Paraguay': {
+      'zh': '巴拉圭', 'zh-hk': '巴拉圭', 'zh-tw': '巴拉圭',
+      'es': 'Paraguay', 'de': 'Paraguay', 'it': 'Paraguay', 'pt': 'Paraguai'
+    },
+    'Bolivia': {
+      'zh': '玻利维亚', 'zh-hk': '玻利維亞', 'zh-tw': '玻利維亞',
+      'es': 'Bolivia', 'de': 'Bolivien', 'it': 'Bolivia', 'pt': 'Bolívia'
+    },
+    'Venezuela': {
+      'zh': '委内瑞拉', 'zh-hk': '委內瑞拉', 'zh-tw': '委內瑞拉',
+      'es': 'Venezuela', 'de': 'Venezuela', 'it': 'Venezuela', 'pt': 'Venezuela'
+    },
+    'Dominican Republic': {
+      'zh': '多米尼加共和国', 'zh-hk': '多明尼加共和國', 'zh-tw': '多明尼加共和國',
+      'es': 'República Dominicana', 'de': 'Dominikanische Republik', 'it': 'Repubblica Dominicana', 'pt': 'República Dominicana'
+    },
+    
+    // Asia & Oceania
+    'Japan': {
+      'zh': '日本', 'zh-hk': '日本', 'zh-tw': '日本',
+      'es': 'Japón', 'de': 'Japan', 'it': 'Giappone', 'pt': 'Japão'
+    },
+    'South Korea': {
+      'zh': '韩国', 'zh-hk': '韓國', 'zh-tw': '韓國',
+      'es': 'Corea del Sur', 'de': 'Südkorea', 'it': 'Corea del Sud', 'pt': 'Coreia do Sul'
+    },
+    'China': {
+      'zh': '中国', 'zh-hk': '中國', 'zh-tw': '中國',
+      'es': 'China', 'de': 'China', 'it': 'Cina', 'pt': 'China'
+    },
+    'India': {
+      'zh': '印度', 'zh-hk': '印度', 'zh-tw': '印度',
+      'es': 'India', 'de': 'Indien', 'it': 'India', 'pt': 'Índia'
+    },
+    'Australia': {
+      'zh': '澳大利亚', 'zh-hk': '澳洲', 'zh-tw': '澳洲',
+      'es': 'Australia', 'de': 'Australien', 'it': 'Australia', 'pt': 'Austrália'
+    },
+    'Thailand': {
+      'zh': '泰国', 'zh-hk': '泰國', 'zh-tw': '泰國',
+      'es': 'Tailandia', 'de': 'Thailand', 'it': 'Thailandia', 'pt': 'Tailândia'
+    },
+    'Malaysia': {
+      'zh': '马来西亚', 'zh-hk': '馬來西亞', 'zh-tw': '馬來西亞',
+      'es': 'Malasia', 'de': 'Malaysia', 'it': 'Malesia', 'pt': 'Malásia'
+    },
+    'Singapore': {
+      'zh': '新加坡', 'zh-hk': '新加坡', 'zh-tw': '新加坡',
+      'es': 'Singapur', 'de': 'Singapur', 'it': 'Singapore', 'pt': 'Singapura'
+    },
+    'Indonesia': {
+      'zh': '印度尼西亚', 'zh-hk': '印尼', 'zh-tw': '印尼',
+      'es': 'Indonesia', 'de': 'Indonesien', 'it': 'Indonesia', 'pt': 'Indonésia'
+    },
+    'Philippines': {
+      'zh': '菲律宾', 'zh-hk': '菲律賓', 'zh-tw': '菲律賓',
+      'es': 'Filipinas', 'de': 'Philippinen', 'it': 'Filippine', 'pt': 'Filipinas'
+    },
+    'Vietnam': {
+      'zh': '越南', 'zh-hk': '越南', 'zh-tw': '越南',
+      'es': 'Vietnam', 'de': 'Vietnam', 'it': 'Vietnam', 'pt': 'Vietnã'
+    },
+    
+    // Middle East & Africa
+    'Saudi Arabia': {
+      'zh': '沙特阿拉伯', 'zh-hk': '沙特阿拉伯', 'zh-tw': '沙特阿拉伯',
+      'es': 'Arabia Saudí', 'de': 'Saudi-Arabien', 'it': 'Arabia Saudita', 'pt': 'Arábia Saudita'
+    },
+    'United Arab Emirates': {
+      'zh': '阿拉伯联合酋长国', 'zh-hk': '阿拉伯聯合酋長國', 'zh-tw': '阿拉伯聯合酋長國',
+      'es': 'Emiratos Árabes Unidos', 'de': 'Vereinigte Arabische Emirate', 'it': 'Emirati Arabi Uniti', 'pt': 'Emirados Árabes Unidos'
+    },
+    'UAE': {
+      'zh': '阿联酋', 'zh-hk': '阿聯酋', 'zh-tw': '阿聯酋',
+      'es': 'EAU', 'de': 'VAE', 'it': 'EAU', 'pt': 'EAU'
+    },
+    'Egypt': {
+      'zh': '埃及', 'zh-hk': '埃及', 'zh-tw': '埃及',
+      'es': 'Egipto', 'de': 'Ägypten', 'it': 'Egitto', 'pt': 'Egito'
+    },
+    'Iran': {
+      'zh': '伊朗', 'zh-hk': '伊朗', 'zh-tw': '伊朗',
+      'es': 'Irán', 'de': 'Iran', 'it': 'Iran', 'pt': 'Irã'
+    },
+    'Iraq': {
+      'zh': '伊拉克', 'zh-hk': '伊拉克', 'zh-tw': '伊拉克',
+      'es': 'Irak', 'de': 'Irak', 'it': 'Iraq', 'pt': 'Iraque'
+    },
+    'Israel': {
+      'zh': '以色列', 'zh-hk': '以色列', 'zh-tw': '以色列',
+      'es': 'Israel', 'de': 'Israel', 'it': 'Israele', 'pt': 'Israel'
+    },
+    'Jordan': {
+      'zh': '约旦', 'zh-hk': '約旦', 'zh-tw': '約旦',
+      'es': 'Jordania', 'de': 'Jordanien', 'it': 'Giordania', 'pt': 'Jordânia'
+    },
+    'Qatar': {
+      'zh': '卡塔尔', 'zh-hk': '卡塔爾', 'zh-tw': '卡達',
+      'es': 'Catar', 'de': 'Katar', 'it': 'Qatar', 'pt': 'Catar'
+    },
+    'Kuwait': {
+      'zh': '科威特', 'zh-hk': '科威特', 'zh-tw': '科威特',
+      'es': 'Kuwait', 'de': 'Kuwait', 'it': 'Kuwait', 'pt': 'Kuwait'
+    },
+    'Bahrain': {
+      'zh': '巴林', 'zh-hk': '巴林', 'zh-tw': '巴林',
+      'es': 'Baréin', 'de': 'Bahrain', 'it': 'Bahrain', 'pt': 'Bahrein'
+    },
+    'Oman': {
+      'zh': '阿曼', 'zh-hk': '阿曼', 'zh-tw': '阿曼',
+      'es': 'Omán', 'de': 'Oman', 'it': 'Oman', 'pt': 'Omã'
+    },
+    'South Africa': {
+      'zh': '南非', 'zh-hk': '南非', 'zh-tw': '南非',
+      'es': 'Sudáfrica', 'de': 'Südafrika', 'it': 'Sudafrica', 'pt': 'África do Sul'
+    },
+    'Nigeria': {
+      'zh': '尼日利亚', 'zh-hk': '尼日利亞', 'zh-tw': '奈及利亞',
+      'es': 'Nigeria', 'de': 'Nigeria', 'it': 'Nigeria', 'pt': 'Nigéria'
+    },
+    'Morocco': {
+      'zh': '摩洛哥', 'zh-hk': '摩洛哥', 'zh-tw': '摩洛哥',
+      'es': 'Marruecos', 'de': 'Marokko', 'it': 'Marocco', 'pt': 'Marrocos'
+    },
+    'Algeria': {
+      'zh': '阿尔及利亚', 'zh-hk': '阿爾及利亞', 'zh-tw': '阿爾及利亞',
+      'es': 'Argelia', 'de': 'Algerien', 'it': 'Algeria', 'pt': 'Argélia'
+    },
+    'Tunisia': {
+      'zh': '突尼斯', 'zh-hk': '突尼斯', 'zh-tw': '突尼西亞',
+      'es': 'Túnez', 'de': 'Tunesien', 'it': 'Tunisia', 'pt': 'Tunísia'
+    },
+    'Ghana': {
+      'zh': '加纳', 'zh-hk': '加納', 'zh-tw': '迦納',
+      'es': 'Ghana', 'de': 'Ghana', 'it': 'Ghana', 'pt': 'Gana'
+    },
+    'Kenya': {
+      'zh': '肯尼亚', 'zh-hk': '肯尼亞', 'zh-tw': '肯亞',
+      'es': 'Kenia', 'de': 'Kenia', 'it': 'Kenya', 'pt': 'Quênia'
+    },
+    'Cameroon': {
+      'zh': '喀麦隆', 'zh-hk': '喀麥隆', 'zh-tw': '喀麥隆',
+      'es': 'Camerún', 'de': 'Kamerun', 'it': 'Camerun', 'pt': 'Camarões'
+    },
+    'Senegal': {
+      'zh': '塞内加尔', 'zh-hk': '塞內加爾', 'zh-tw': '塞內加爾',
+      'es': 'Senegal', 'de': 'Senegal', 'it': 'Senegal', 'pt': 'Senegal'
+    },
+    'Ivory Coast': {
+      'zh': '科特迪瓦', 'zh-hk': '科特迪瓦', 'zh-tw': '象牙海岸',
+      'es': 'Costa de Marfil', 'de': 'Elfenbeinküste', 'it': 'Costa d\'Avorio', 'pt': 'Costa do Marfim'
+    },
+    'Mali': {
+      'zh': '马里', 'zh-hk': '馬里', 'zh-tw': '馬利',
+      'es': 'Malí', 'de': 'Mali', 'it': 'Mali', 'pt': 'Mali'
+    },
+    'Burkina Faso': {
+      'zh': '布基纳法索', 'zh-hk': '布基納法索', 'zh-tw': '布吉納法索',
+      'es': 'Burkina Faso', 'de': 'Burkina Faso', 'it': 'Burkina Faso', 'pt': 'Burkina Faso'
+    },
+    'Zimbabwe': {
+      'zh': '津巴布韦', 'zh-hk': '津巴布韋', 'zh-tw': '辛巴威',
+      'es': 'Zimbabue', 'de': 'Simbabwe', 'it': 'Zimbabwe', 'pt': 'Zimbábue'
+    },
+    'Zambia': {
+      'zh': '赞比亚', 'zh-hk': '贊比亞', 'zh-tw': '尚比亞',
+      'es': 'Zambia', 'de': 'Sambia', 'it': 'Zambia', 'pt': 'Zâmbia'
     }
+  };
   };
 
   constructor() {
@@ -884,17 +1072,32 @@ class SmartLeagueCountryTranslation {
     });
   }
 
-  // Enhanced learning from fixtures data
+  // Enhanced learning from fixtures data with comprehensive country detection
   learnFromFixtures(fixtures: any[]): void {
     let newLeagueMappings = 0;
     let newCountryMappings = 0;
     let updatedMappings = 0;
+    let chineseCountriesDetected = 0;
+
+    const uniqueCountries = new Set<string>();
+    const chineseCountries = new Set<string>();
 
     fixtures.forEach(fixture => {
       if (!fixture?.league) return;
 
       const leagueName = fixture.league.name;
       const countryName = fixture.league.country;
+
+      // Collect unique countries for analysis
+      if (countryName && countryName.trim()) {
+        uniqueCountries.add(countryName.trim());
+        
+        // Detect Chinese country names
+        if (this.chineseToEnglishMap[countryName.trim()]) {
+          chineseCountries.add(countryName.trim());
+          chineseCountriesDetected++;
+        }
+      }
 
       // Learn or update league mappings
       if (leagueName) {
@@ -910,19 +1113,88 @@ class SmartLeagueCountryTranslation {
         }
       }
 
-      // Learn country mappings
-      if (countryName && !this.learnedCountryMappings.has(countryName)) {
-        const mapping = this.generateCountryMapping(countryName);
-        if (mapping) {
-          this.learnedCountryMappings.set(countryName, mapping);
-          newCountryMappings++;
+      // Enhanced country learning with Chinese detection
+      if (countryName) {
+        const normalizedCountry = this.detectAndNormalizeCountryName(countryName);
+        
+        // Learn both original and normalized country names
+        [countryName, normalizedCountry].forEach(name => {
+          if (name && !this.learnedCountryMappings.has(name)) {
+            const mapping = this.generateCountryMapping(name);
+            if (mapping) {
+              this.learnedCountryMappings.set(name, mapping);
+              newCountryMappings++;
+            }
+          }
+        });
+      }
+    });
+
+    // Log comprehensive analysis
+    console.log(`🔍 [Country Analysis] Found ${uniqueCountries.size} unique countries, ${chineseCountries.size} in Chinese`);
+    
+    if (chineseCountries.size > 0) {
+      console.log(`🈶 [Chinese Countries Detected]:`, Array.from(chineseCountries).slice(0, 10).join(', ') + (chineseCountries.size > 10 ? '...' : ''));
+    }
+
+    if (newLeagueMappings > 0 || newCountryMappings > 0 || updatedMappings > 0) {
+      this.saveLearnedMappings();
+      console.log(`📖 [SmartLeagueCountryTranslation] Learned ${newLeagueMappings} new leagues, ${newCountryMappings} new countries (${chineseCountriesDetected} Chinese detected), updated ${updatedMappings} mappings`);
+    }
+  }
+
+  // Batch process and learn from all countries in fixtures for immediate improvement
+  massLearnCountriesFromFixtures(fixtures: any[]): void {
+    console.log(`🚀 [Mass Learning] Processing ${fixtures.length} fixtures for comprehensive country detection...`);
+    
+    const allCountries = new Set<string>();
+    const chineseDetected = new Set<string>();
+    const missingTranslations = new Set<string>();
+
+    // Collect all unique country names
+    fixtures.forEach(fixture => {
+      if (fixture?.league?.country) {
+        const country = fixture.league.country.trim();
+        allCountries.add(country);
+        
+        if (this.chineseToEnglishMap[country]) {
+          chineseDetected.add(country);
         }
       }
     });
 
-    if (newLeagueMappings > 0 || newCountryMappings > 0 || updatedMappings > 0) {
+    let newlyLearned = 0;
+    // Process each unique country
+    allCountries.forEach(country => {
+      const normalizedCountry = this.detectAndNormalizeCountryName(country);
+      
+      // Check if we have translation coverage
+      const hasPopularMapping = this.popularCountries[normalizedCountry];
+      const hasLearnedMapping = this.learnedCountryMappings.has(normalizedCountry);
+      
+      if (!hasPopularMapping && !hasLearnedMapping) {
+        // Generate mapping for missing countries
+        const mapping = this.generateCountryMapping(normalizedCountry);
+        if (mapping) {
+          this.learnedCountryMappings.set(normalizedCountry, mapping);
+          newlyLearned++;
+        }
+        missingTranslations.add(normalizedCountry);
+      }
+    });
+
+    if (newlyLearned > 0) {
       this.saveLearnedMappings();
-      console.log(`📖 [SmartLeagueCountryTranslation] Learned ${newLeagueMappings} new leagues, ${newCountryMappings} new countries, updated ${updatedMappings} mappings`);
+    }
+
+    console.log(`📊 [Mass Learning Results]:`);
+    console.log(`   • Total countries found: ${allCountries.size}`);
+    console.log(`   • Chinese countries: ${chineseDetected.size}`);
+    console.log(`   • Missing translations: ${missingTranslations.size}`);
+    console.log(`   • Newly learned: ${newlyLearned}`);
+    
+    if (missingTranslations.size > 0) {
+      console.log(`⚠️ [Countries needing attention]:`, Array.from(missingTranslations).slice(0, 10).join(', '));
     }
   }
 
@@ -1222,20 +1494,130 @@ class SmartLeagueCountryTranslation {
     return ''; // Return empty if no pattern matches
   }
 
+  // Reverse mapping for Chinese country names to English
+  private chineseToEnglishMap: { [key: string]: string } = {
+    // Common Chinese country names seen in fixtures
+    '英格蘭': 'England', '英格兰': 'England',
+    '西班牙': 'Spain',
+    '意大利': 'Italy',
+    '德國': 'Germany', '德国': 'Germany',
+    '法國': 'France', '法国': 'France',
+    '荷蘭': 'Netherlands', '荷兰': 'Netherlands',
+    '葡萄牙': 'Portugal',
+    '比利時': 'Belgium', '比利时': 'Belgium',
+    '瑞士': 'Switzerland',
+    '奧地利': 'Austria', '奥地利': 'Austria',
+    '捷克共和國': 'Czech Republic', '捷克共和国': 'Czech Republic',
+    '斯洛伐克': 'Slovakia',
+    '斯洛文尼亞': 'Slovenia', '斯洛文尼亚': 'Slovenia',
+    '匈牙利': 'Hungary',
+    '波蘭': 'Poland', '波兰': 'Poland',
+    '羅馬尼亞': 'Romania', '罗马尼亚': 'Romania',
+    '保加利亞': 'Bulgaria', '保加利亚': 'Bulgaria',
+    '克羅地亞': 'Croatia', '克罗地亚': 'Croatia', '克羅埃西亞': 'Croatia',
+    '塞爾維亞': 'Serbia', '塞尔维亚': 'Serbia',
+    '希臘': 'Greece', '希腊': 'Greece',
+    '丹麥': 'Denmark', '丹麦': 'Denmark',
+    '瑞典': 'Sweden',
+    '挪威': 'Norway',
+    '芬蘭': 'Finland', '芬兰': 'Finland',
+    '冰島': 'Iceland', '冰岛': 'Iceland',
+    '俄羅斯': 'Russia', '俄罗斯': 'Russia',
+    '烏克蘭': 'Ukraine', '乌克兰': 'Ukraine',
+    '土耳其': 'Turkey',
+    '愛沙尼亞': 'Estonia', '爱沙尼亚': 'Estonia',
+    '拉脫維亞': 'Latvia', '拉脱维亚': 'Latvia',
+    '立陶宛': 'Lithuania',
+    '格魯吉亞': 'Georgia', '格鲁吉亚': 'Georgia',
+    '亞美尼亞': 'Armenia', '亚美尼亚': 'Armenia',
+    '列支敦士登': 'Liechtenstein',
+    '巴西': 'Brazil',
+    '阿根廷': 'Argentina',
+    '墨西哥': 'Mexico',
+    '美國': 'United States', '美国': 'United States',
+    '加拿大': 'Canada',
+    '哥倫比亞': 'Colombia', '哥伦比亚': 'Colombia',
+    '智利': 'Chile',
+    '秘魯': 'Peru', '秘鲁': 'Peru',
+    '厄瓜多爾': 'Ecuador', '厄瓜多尔': 'Ecuador',
+    '烏拉圭': 'Uruguay', '乌拉圭': 'Uruguay',
+    '巴拉圭': 'Paraguay',
+    '玻利維亞': 'Bolivia', '玻利维亚': 'Bolivia',
+    '委內瑞拉': 'Venezuela', '委内瑞拉': 'Venezuela',
+    '多明尼加共和國': 'Dominican Republic', '多米尼加共和国': 'Dominican Republic',
+    '日本': 'Japan',
+    '韓國': 'South Korea', '韩国': 'South Korea',
+    '中國': 'China', '中国': 'China',
+    '印度': 'India',
+    '澳洲': 'Australia', '澳大利亞': 'Australia', '澳大利亚': 'Australia',
+    '泰國': 'Thailand', '泰国': 'Thailand',
+    '馬來西亞': 'Malaysia', '马来西亚': 'Malaysia',
+    '新加坡': 'Singapore',
+    '印尼': 'Indonesia', '印度尼西亞': 'Indonesia', '印度尼西亚': 'Indonesia',
+    '菲律賓': 'Philippines', '菲律宾': 'Philippines',
+    '越南': 'Vietnam',
+    '沙特阿拉伯': 'Saudi Arabia',
+    '阿拉伯聯合酋長國': 'United Arab Emirates', '阿拉伯联合酋长国': 'United Arab Emirates',
+    '阿聯酋': 'UAE', '阿联酋': 'UAE',
+    '埃及': 'Egypt',
+    '伊朗': 'Iran',
+    '伊拉克': 'Iraq',
+    '以色列': 'Israel',
+    '約旦': 'Jordan', '约旦': 'Jordan',
+    '卡塔爾': 'Qatar', '卡塔尔': 'Qatar', '卡達': 'Qatar',
+    '科威特': 'Kuwait',
+    '巴林': 'Bahrain',
+    '阿曼': 'Oman',
+    '南非': 'South Africa',
+    '尼日利亞': 'Nigeria', '尼日利亚': 'Nigeria', '奈及利亞': 'Nigeria',
+    '摩洛哥': 'Morocco',
+    '阿爾及利亞': 'Algeria', '阿尔及利亚': 'Algeria',
+    '突尼斯': 'Tunisia', '突尼西亞': 'Tunisia',
+    '加納': 'Ghana', '加纳': 'Ghana', '迦納': 'Ghana',
+    '肯尼亞': 'Kenya', '肯尼亚': 'Kenya', '肯亞': 'Kenya',
+    '喀麥隆': 'Cameroon', '喀麦隆': 'Cameroon',
+    '塞內加爾': 'Senegal', '塞内加尔': 'Senegal',
+    '科特迪瓦': 'Ivory Coast', '象牙海岸': 'Ivory Coast',
+    '馬里': 'Mali', '马里': 'Mali', '馬利': 'Mali',
+    '布基納法索': 'Burkina Faso', '布基纳法索': 'Burkina Faso', '布吉納法索': 'Burkina Faso',
+    '津巴布韋': 'Zimbabwe', '津巴布韦': 'Zimbabwe', '辛巴威': 'Zimbabwe',
+    '贊比亞': 'Zambia', '赞比亚': 'Zambia', '尚比亞': 'Zambia',
+    '世界': 'World'
+  };
+
+  // Detect if a country name is in Chinese and convert to English first
+  private detectAndNormalizeCountryName(countryName: string): string {
+    if (!countryName || typeof countryName !== 'string') return countryName;
+    
+    const cleanName = countryName.trim();
+    
+    // Check if it's already in Chinese-to-English mapping
+    if (this.chineseToEnglishMap[cleanName]) {
+      const englishName = this.chineseToEnglishMap[cleanName];
+      console.log(`🔄 [Smart Translation] Chinese detected: "${cleanName}" → English: "${englishName}"`);
+      return englishName;
+    }
+    
+    return cleanName;
+  }
+
   private generateCountryMapping(countryName: string): CountryTranslation | null {
+    // First normalize the country name (convert Chinese to English if needed)
+    const normalizedName = this.detectAndNormalizeCountryName(countryName);
+    
     const translations: any = {
-      en: countryName,
-      es: countryName,
-      de: countryName,
-      it: countryName,
-      pt: countryName,
-      zh: countryName,
-      'zh-hk': countryName,
-      'zh-tw': countryName
+      en: normalizedName,
+      es: normalizedName,
+      de: normalizedName,
+      it: normalizedName,
+      pt: normalizedName,
+      zh: normalizedName,
+      'zh-hk': normalizedName,
+      'zh-tw': normalizedName
     };
 
     // Enhanced pattern matching for common country names
-    const lowerName = countryName.toLowerCase();
+    const lowerName = normalizedName.toLowerCase();
     
     // Czech Republic
     if (lowerName.includes('czech republic') || lowerName === 'czech republic') {
@@ -1443,8 +1825,14 @@ class SmartLeagueCountryTranslation {
 
     const cleanName = countryName.trim();
 
-    // Special handling for World - ensure perfect translation
-    if (cleanName.toLowerCase() === 'world' || cleanName === '世界') {
+    // Step 1: Detect and normalize Chinese country names first
+    const normalizedName = this.detectAndNormalizeCountryName(cleanName);
+    
+    // Auto-learn this country for future use
+    this.autoLearnFromAnyCountryName(normalizedName);
+
+    // Step 2: Special handling for World - ensure perfect translation
+    if (normalizedName.toLowerCase() === 'world' || cleanName === '世界') {
       const worldTranslations: { [key: string]: string } = {
         'zh': '世界',
         'zh-hk': '世界',
@@ -1462,32 +1850,43 @@ class SmartLeagueCountryTranslation {
       }
     }
 
-    // Check learned mappings first (highest priority for user-defined translations)
-    const learned = this.learnedCountryMappings.get(cleanName);
-    if (learned && learned[language as keyof typeof learned] && learned[language as keyof typeof learned] !== cleanName) {
+    // Step 3: Check learned mappings first (highest priority for user-defined translations)
+    const learned = this.learnedCountryMappings.get(normalizedName);
+    if (learned && learned[language as keyof typeof learned] && learned[language as keyof typeof learned] !== normalizedName) {
       console.log(`🎯 [Learned Translation] Using learned mapping: "${cleanName}" → "${learned[language as keyof typeof learned]}" (${language})`);
       return learned[language as keyof typeof learned];
     }
 
-    // Check automated mappings for preferred translations
-    const automated = this.automatedCountryMappings.get(cleanName);
+    // Step 4: Check automated mappings for preferred translations
+    const automated = this.automatedCountryMappings.get(normalizedName);
     if (automated && automated.preferredTranslation && automated.language === language) {
       console.log(`🤖 [Automated Translation] Using preferred translation: "${cleanName}" → "${automated.preferredTranslation}" (${language})`);
       return automated.preferredTranslation;
     }
 
-    // Check static mappings (popularCountries)
-    const staticTranslation = this.popularCountries[cleanName];
+    // Step 5: Check comprehensive static mappings (popularCountries) 
+    const staticTranslation = this.popularCountries[normalizedName];
     if (staticTranslation && staticTranslation[language as keyof typeof staticTranslation]) {
+      console.log(`✅ [Static Translation] Found: "${cleanName}" → "${staticTranslation[language as keyof typeof staticTranslation]}" (${language})`);
       return staticTranslation[language as keyof typeof staticTranslation];
     }
 
-    // Fallback to coreCountryTranslations if not found in popularCountries
-    const coreTranslation = this.coreCountryTranslations[cleanName];
+    // Step 6: Fallback to coreCountryTranslations if not found in popularCountries
+    const coreTranslation = this.coreCountryTranslations[normalizedName];
     if (coreTranslation && coreTranslation[language as keyof typeof coreTranslation]) {
       return coreTranslation[language as keyof typeof coreTranslation];
     }
 
+    // Step 7: If still no translation, try to generate one automatically
+    if (normalizedName !== cleanName) {
+      // This was a Chinese name that we normalized, return the normalized English name for English
+      if (language === 'en') {
+        console.log(`🔄 [Auto-Normalized] Chinese country "${cleanName}" → English: "${normalizedName}"`);
+        return normalizedName;
+      }
+    }
+
+    console.log(`⚠️ [Translation Missing] No translation found for: "${cleanName}" (normalized: "${normalizedName}") in language: ${language}`);
     return countryName; // Return original name if no translation found
   }
 
