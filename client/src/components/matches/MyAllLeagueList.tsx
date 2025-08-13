@@ -83,7 +83,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     setError(fixturesError ? "Failed to load fixtures. Please try again later." : null);
   }, [fixturesData, isFixturesLoading, fixturesError]);
 
-  // Ultra-optimized: Group leagues by country with minimal processing and early exits
+  // Optimized: Group leagues by country with full data processing for accurate counts
   const leaguesByCountry = useMemo(() => {
     const grouped: { [key: string]: { country: string; leagues: any; totalMatches: number; liveMatches: number } } = {};
     const allFixtures = fixtures || [];
@@ -92,8 +92,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       return grouped;
     }
 
-    // Reduce processing to first 100 fixtures for even better speed
-    const maxFixtures = Math.min(allFixtures.length, 100);
+    // Process all fixtures to maintain accurate match counts
+    const maxFixtures = allFixtures.length;
     const seenFixtures = new Set<number>();
     const liveStatuses = new Set(["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"]);
 
