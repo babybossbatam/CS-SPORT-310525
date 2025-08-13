@@ -65,7 +65,7 @@ class SmartLeagueCountryTranslation {
       'es': 'Italia', 'de': 'Italien', 'it': 'Italia', 'pt': 'Itália'
     },
     'Germany': {
-      'zh': '德國', 'zh-hk': '德國', 'zh-tw': '德國',
+      'zh': '德国', 'zh-hk': '德國', 'zh-tw': '德國',
       'es': 'Alemania', 'de': 'Deutschland', 'it': 'Germania', 'pt': 'Alemanha'
     },
     'France': {
@@ -167,6 +167,24 @@ class SmartLeagueCountryTranslation {
     'Estonia': {
       'zh': '爱沙尼亚', 'zh-hk': '愛沙尼亞', 'zh-tw': '愛沙尼亞',
       'es': 'Estonia', 'de': 'Estland', 'it': 'Estonia', 'pt': 'Estônia'
+    },
+    'Bhutan': {
+      zh: '不丹',
+      'zh-hk': '不丹',
+      'zh-tw': '不丹',
+      es: 'Bután',
+      de: 'Bhutan',
+      it: 'Bhutan',
+      pt: 'Butão'
+    },
+    'Scotland': {
+      zh: '苏格兰',
+      'zh-hk': '蘇格蘭',
+      'zh-tw': '蘇格蘭',
+      es: 'Escocia',
+      de: 'Schottland',
+      it: 'Scozia',
+      pt: 'Escócia'
     },
     'Latvia': {
       'zh': '拉脱维亚', 'zh-hk': '拉脫維亞', 'zh-tw': '拉脫維亞',
@@ -643,7 +661,7 @@ class SmartLeagueCountryTranslation {
         'pt': 'Primera C'
       },
 
-      // Australian Leagues  
+      // Australian Leagues
       'Capital Territory NPL': {
         'en': 'Capital Territory NPL',
         'es': 'Liga Nacional del Territorio de la Capital',
@@ -1439,7 +1457,7 @@ class SmartLeagueCountryTranslation {
     };
   }
 
-  // Detect mixed language league names (e.g., "Bulgaria聯賽", "Netherlands联赛")
+  // Detect mixed language league names (e.g., "Bulgaria聯賽")
   private detectMixedLanguageLeague(leagueName: string): boolean {
     if (!leagueName) return false;
 
@@ -2343,7 +2361,7 @@ class SmartLeagueCountryTranslation {
       return automated.preferredTranslation;
     }
 
-    // Step 5: Check comprehensive static mappings (popularCountries) 
+    // Step 5: Check comprehensive static mappings (popularCountries)
     const staticTranslation = this.popularCountries[normalizedName];
     if (staticTranslation && staticTranslation[language as keyof typeof staticTranslation]) {
       console.log(`✅ [Static Translation] Found: "${cleanName}" → "${staticTranslation[language as keyof typeof staticTranslation]}" (${language})`);
