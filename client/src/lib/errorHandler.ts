@@ -136,11 +136,37 @@ const categorizeError = (error: any): ErrorCategory => {
   if (errorStr.includes('replit.dev') || 
       errorStr.includes('482be3e5-72e0-4aaf-ab33-69660b136cf5') ||
       errorStr.includes('riker.replit.dev') ||
+      errorStr.includes('eval.riker.platform.replit.com') ||
       errorStr.includes('signal is aborted') ||
       errorStr.includes('AbortError') ||
       errorStr.includes('workspace_iframe.html') ||
       errorStr.includes('Unrecognized feature') ||
       errorStr.includes('sandbox') ||
+      errorStr.includes('stallwart') ||
+      errorStr.includes('failed ping') ||
+      errorStr.includes('session stalled') ||
+      errorStr.includes('MaxListenersExceededWarning') ||
+      errorStr.includes('Possible EventEmitter memory leak detected') ||
+      errorStr.includes('watchTextFile') ||
+      errorStr.includes('cursor listeners') ||
+      errorStr.includes('removeCursor listeners') ||
+      errorStr.includes('fileSavedChanged listeners') ||
+      errorStr.includes('error listeners') ||
+      errorStr.includes('transparentReconnect listeners') ||
+      errorStr.includes('changes listeners') ||
+      errorStr.includes('commitComplete listeners') ||
+      errorStr.includes('fileDirty listeners') ||
+      errorStr.includes('fileClean listeners') ||
+      errorStr.includes('commitStart listeners') ||
+      errorStr.includes('promptUserReconnect listeners') ||
+      errorStr.includes('WebSocket connection') ||
+      errorStr.includes('graphql_subscriptions') ||
+      errorStr.includes('logs.browser-intake') ||
+      errorStr.includes('events.launchdarkly.com') ||
+      errorStr.includes('api.sorryapp.com') ||
+      errorStr.includes('r.stripe.com') ||
+      errorStr.includes('net::ERR_INTERNET_DISCONNECTED') ||
+      errorStr.includes('net::ERR_NETWORK_IO_SUSPENDED') ||
       errorStr.includes('allow-downloads-without-user-activation') ||
       errorStr.includes('allowfullscreen') ||
       errorStr.includes('allowpaymentrequest') ||
@@ -298,6 +324,8 @@ const reportError = (error: any, category: any, source: string) => {
 export const setupGlobalErrorHandlers = () => {
   // Filter console errors to reduce noise
   const originalConsoleError = console.error;
+  const originalConsoleWarn = console.warn;
+  
   console.error = (...args) => {
     const message = args.join(' ');
 
@@ -305,6 +333,8 @@ export const setupGlobalErrorHandlers = () => {
     if (
       message.includes('Failed to load resource') ||
       message.includes('net::ERR_FAILED') ||
+      message.includes('net::ERR_INTERNET_DISCONNECTED') ||
+      message.includes('net::ERR_NETWORK_IO_SUSPENDED') ||
       message.includes('ChunkLoadError') ||
       message.includes('Loading chunk') ||
       message.includes('Loading CSS chunk') ||
@@ -317,12 +347,52 @@ export const setupGlobalErrorHandlers = () => {
       message.includes('stallwart') ||
       message.includes('failed ping') ||
       message.includes('session stalled') ||
-      message.includes('fsError listeners')
+      message.includes('fsError listeners') ||
+      message.includes('WebSocket connection') ||
+      message.includes('watchTextFile') ||
+      message.includes('cursor listeners') ||
+      message.includes('removeCursor listeners') ||
+      message.includes('fileSavedChanged listeners') ||
+      message.includes('error listeners') ||
+      message.includes('transparentReconnect listeners') ||
+      message.includes('changes listeners') ||
+      message.includes('commitComplete listeners') ||
+      message.includes('fileDirty listeners') ||
+      message.includes('fileClean listeners') ||
+      message.includes('commitStart listeners') ||
+      message.includes('promptUserReconnect listeners') ||
+      message.includes('replit.com/graphql_subscriptions') ||
+      message.includes('logs.browser-intake') ||
+      message.includes('events.launchdarkly.com') ||
+      message.includes('api.sorryapp.com') ||
+      message.includes('r.stripe.com') ||
+      message.includes('eval.riker.platform.replit.com') ||
+      message.includes('482be3e5-72e0-4aaf-ab33-69660b136cf5')
     ) {
       return;
     }
 
     originalConsoleError.apply(console, args);
+  };
+
+  // Also filter console.warn for MaxListenersExceededWarning
+  console.warn = (...args) => {
+    const message = args.join(' ');
+
+    if (
+      message.includes('MaxListenersExceededWarning') ||
+      message.includes('Possible EventEmitter memory leak detected') ||
+      message.includes('stallwart') ||
+      message.includes('listeners added') ||
+      message.includes('Use emitter.setMaxListeners()') ||
+      message.includes('watchTextFile') ||
+      message.includes('failed ping') ||
+      message.includes('session stalled')
+    ) {
+      return;
+    }
+
+    originalConsoleWarn.apply(console, args);
   };
 
   // Increase EventEmitter max listeners to prevent warnings
@@ -444,12 +514,27 @@ export const setupGlobalErrorHandlers = () => {
          errorString.includes('runtime-error-plugin') ||
          errorString.includes('[plugin:runtime-error-plugin]') ||
          errorString.includes('riker.replit.dev') ||
+         errorString.includes('eval.riker.platform.replit.com') ||
          errorString.includes('482be3e5-72e0-4aaf-ab33-69660b136cf5') ||
          errorString.includes('signal is aborted') ||
          errorString.includes('attached_assets') ||
          errorString.includes('background.js') ||
          errorString.includes('404 (Not Found)') ||
-         errorString.includes('Invalid or unexpected token'))) {
+         errorString.includes('Invalid or unexpected token') ||
+         errorString.includes('stallwart') ||
+         errorString.includes('failed ping') ||
+         errorString.includes('session stalled') ||
+         errorString.includes('watchTextFile') ||
+         errorString.includes('cursor listeners') ||
+         errorString.includes('listeners added') ||
+         errorString.includes('WebSocket connection') ||
+         errorString.includes('graphql_subscriptions') ||
+         errorString.includes('logs.browser-intake') ||
+         errorString.includes('events.launchdarkly.com') ||
+         errorString.includes('api.sorryapp.com') ||
+         errorString.includes('r.stripe.com') ||
+         errorString.includes('net::ERR_INTERNET_DISCONNECTED') ||
+         errorString.includes('net::ERR_NETWORK_IO_SUSPENDED'))) {
       console.log('🌐 Network/import/abort/replit/assets error string detected, suppressing...');
       event.preventDefault();
       return;

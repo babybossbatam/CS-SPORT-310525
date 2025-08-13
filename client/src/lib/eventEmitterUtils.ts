@@ -1,12 +1,53 @@
 // EventEmitter utilities for managing listeners and preventing memory leaks
 
-export const setGlobalEventEmitterLimits = (limit: number = 2000) => {
-  // Set process max listeners
+export const setGlobalEventEmitterLimits = (limit: number = 10000) => {
+  if (typeof window === 'undefined') return;
+
+  try {
+    // Set higher limits for common EventEmitter targets
+    const emitterTargets = [
+      'EventEmitter',
+      'process',
+      'emitter',
+      'events',
+      'watchTextFile',
+      'textFile',
+      'fileWatcher',
+      'changes',
+      'cursor',
+      'removeCursor',
+      'fileSavedChanged',
+      'error',
+      'fsError',
+      'transparentReconnect',
+      'commitComplete',
+      'fileDirty',
+      'fileClean',
+      'commitStart',
+      'promptUserReconnect'
+    ];
+
+    emitterTargets.forEach(target => {
+      if ((window as any)[target] && typeof (window as any)[target].setMaxListeners === 'function') {
+        (window as any)[target].setMaxListeners(limit);
+      }
+
+      // Also check in global scope
+      if ((globalThis as any)[target] && typeof (globalThis as any)[target].setMaxListeners === 'function') {
+        (globalThis as any)[target].setMaxListeners(limit);
+      }
+    });
+  } catch (e) {
+    // Ignore errors during setup
+    console.log('🔧 EventEmitter setup encountered minor issues.');
+  }
+
+  // Set process max listeners if available
   if (typeof process !== 'undefined' && process.setMaxListeners) {
     process.setMaxListeners(limit);
   }
 
-  // Set EventEmitter default max listeners
+  // Set EventEmitter default max listeners for browser
   if (typeof window !== 'undefined') {
     (window as any).maxEventListeners = limit;
 
@@ -44,7 +85,7 @@ export const setGlobalEventEmitterLimits = (limit: number = 2000) => {
       // Handle Replit file watching EventEmitters specifically
       const replitEventEmitters = [
         '__replitFileWatcher',
-        '__replitTextFileWatcher', 
+        '__replitTextFileWatcher',
         '__replitChangesWatcher',
         'watchTextFile'
       ];
@@ -92,8 +133,8 @@ export const setGlobalEventEmitterLimits = (limit: number = 2000) => {
         }
 
         // Also check if the key suggests it's related to file watching
-        if (key.toLowerCase().includes('file') || 
-            key.toLowerCase().includes('watch') || 
+        if (key.toLowerCase().includes('file') ||
+            key.toLowerCase().includes('watch') ||
             key.toLowerCase().includes('replit') ||
             key.toLowerCase().includes('text') ||
             key.toLowerCase().includes('change') ||
@@ -182,7 +223,7 @@ export const cleanupEventListeners = () => {
       // Clean up specific Replit file watching EventEmitters
       const replitEventEmitters = [
         '__replitFileWatcher',
-        '__replitTextFileWatcher', 
+        '__replitTextFileWatcher',
         '__replitChangesWatcher',
         'watchTextFile'
       ];
@@ -220,8 +261,8 @@ if (typeof process !== 'undefined') {
   const originalEmitWarning = process.emitWarning;
   process.emitWarning = function(warning, type, code, ctor) {
     // Suppress MaxListenersExceededWarning for file watching
-    if (type === 'MaxListenersExceededWarning' && 
-        (warning.toString().includes('changes listeners') || 
+    if (type === 'MaxListenersExceededWarning' &&
+        (warning.toString().includes('changes listeners') ||
          warning.toString().includes('watchTextFile') ||
          warning.toString().includes('fsError') ||
          warning.toString().includes('textFile') ||
@@ -262,7 +303,7 @@ if (typeof window !== 'undefined') {
       cleanupEventListeners();
       // Re-apply higher limits in case they were reset
       setGlobalEventEmitterLimits(8000);
-      
+
       // Specifically handle the 'changes' listener that's causing the warning
       const changesTargets = ['changes', 'watchTextFile', 'textFile', 'fileWatcher'];
       changesTargets.forEach(target => {
@@ -270,7 +311,7 @@ if (typeof window !== 'undefined') {
           (window as any)[target].setMaxListeners(8000);
         }
         // Also check in replit namespace
-        if ((window as any).replit && (window as any).replit[target] && 
+        if ((window as any).replit && (window as any).replit[target] &&
             typeof (window as any).replit[target].setMaxListeners === 'function') {
           (window as any).replit[target].setMaxListeners(8000);
         }
@@ -309,7 +350,7 @@ if (typeof window !== 'undefined') {
   // Set up a more aggressive initial application
   const immediateSetup = () => {
     setGlobalEventEmitterLimits(8000);
-    
+
     // Specifically handle the changes listeners that are causing the warning
     if (typeof window !== 'undefined') {
       const targets = ['watchTextFile', 'changes', 'hook', 'textFile'];
@@ -320,7 +361,7 @@ if (typeof window !== 'undefined') {
           document[target as any],
           (window as any).global?.[target]
         ];
-        
+
         searchPaths.forEach(obj => {
           if (obj && typeof obj.setMaxListeners === 'function') {
             obj.setMaxListeners(8000);
