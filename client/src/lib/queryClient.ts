@@ -1,6 +1,8 @@
 import { QueryClient, QueryCache, MutationCache, QueryFunction } from "@tanstack/react-query";
 import { CACHE_STALE_TIMES } from "./constants";
 import { CACHE_DURATIONS } from "./cacheConfig";
+import { performanceMonitor } from "./performanceMonitor";
+import { networkRetry } from "./networkRetry";
 
 // Helper to throw error for non-ok responses
 async function throwIfResNotOk(res: Response) {
@@ -88,7 +90,7 @@ export async function apiRequest(
         console.warn(`⚠️ [apiRequest] Invalid parameters for ${url}: ${errorMessage}`);
         throw new Error(`Invalid request parameters`);
       }
-      
+
       if (errorMessage.includes('500') || errorMessage.includes('Internal Server Error')) {
         console.warn(`🔧 [apiRequest] Server error for ${url}: ${errorMessage}`);
         throw new Error(`Server temporarily unavailable`);

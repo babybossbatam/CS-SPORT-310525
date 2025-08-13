@@ -181,12 +181,16 @@ const categorizeError = (error: any): ErrorCategory => {
   // Network/connectivity issues - attempt recovery
   if (errorStr.includes('Failed to fetch') || 
       errorStr.includes('NetworkError') ||
-      errorStr.includes('timeout')) {
+      errorStr.includes('timeout') ||
+      errorStr.includes('ERR_INTERNET_DISCONNECTED') ||
+      errorStr.includes('WebSocket connection') ||
+      errorStr.includes('graphql_subscriptions') ||
+      errorStr.includes('net::ERR_')) {
     return {
       name: 'network-connectivity',
-      shouldSuppress: false,
-      shouldReport: true,
-      action: 'fix'
+      shouldSuppress: true,
+      shouldReport: false,
+      action: 'retry'
     };
   }
 

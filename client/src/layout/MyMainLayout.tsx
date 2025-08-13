@@ -2,6 +2,9 @@ import React, { useState, Suspense, lazy } from 'react';
 import MyLiveAction from '@/components/matches/MyLiveAction';
 import { useDeviceInfo } from '@/hooks/use-mobile';
 import BrandedLoading from '@/components/common/BrandedLoading';
+import Header from '@/components/layout/Header'; // Assuming Header is imported
+import Footer from '@/components/layout/Footer'; // Assuming Footer is imported
+import { NetworkStatus } from "@/components/common/NetworkStatus"; // Added for network status
 
 // Immediate mobile detection to prevent layout flash
 const getIsMobileImmediate = () => {
@@ -144,6 +147,9 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           <MobileBottomNav />
         </Suspense>
       )}
+
+      {/* Render network status indicator */}
+      <NetworkStatus />
     </div>
   );
 };
