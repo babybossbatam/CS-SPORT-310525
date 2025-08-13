@@ -98,6 +98,118 @@ class SmartLeagueCountryTranslation {
     'Egypt': {
       'zh': '埃及', 'zh-hk': '埃及', 'zh-tw': '埃及',
       'es': 'Egipto', 'de': 'Ägypten', 'it': 'Egitto', 'pt': 'Egito'
+    },
+    'Armenia': {
+      'zh': '亚美尼亚', 'zh-hk': '亞美尼亞', 'zh-tw': '亞美尼亞',
+      'es': 'Armenia', 'de': 'Armenien', 'it': 'Armenia', 'pt': 'Armênia'
+    },
+    'Australia': {
+      'zh': '澳大利亚', 'zh-hk': '澳洲', 'zh-tw': '澳洲',
+      'es': 'Australia', 'de': 'Australien', 'it': 'Australia', 'pt': 'Austrália'
+    },
+    'Bhutan': {
+      'zh': '不丹', 'zh-hk': '不丹', 'zh-tw': '不丹',
+      'es': 'Bután', 'de': 'Bhutan', 'it': 'Bhutan', 'pt': 'Butão'
+    },
+    'Bolivia': {
+      'zh': '玻利维亚', 'zh-hk': '玻利維亞', 'zh-tw': '玻利維亞',
+      'es': 'Bolivia', 'de': 'Bolivien', 'it': 'Bolivia', 'pt': 'Bolívia'
+    },
+    'Canada': {
+      'zh': '加拿大', 'zh-hk': '加拿大', 'zh-tw': '加拿大',
+      'es': 'Canadá', 'de': 'Kanada', 'it': 'Canada', 'pt': 'Canadá'
+    },
+    'Czech Republic': {
+      'zh': '捷克共和国', 'zh-hk': '捷克共和國', 'zh-tw': '捷克共和國',
+      'es': 'República Checa', 'de': 'Tschechische Republik', 'it': 'Repubblica Ceca', 'pt': 'República Tcheca'
+    },
+    'Dominican Republic': {
+      'zh': '多米尼加共和国', 'zh-hk': '多明尼加共和國', 'zh-tw': '多明尼加共和國',
+      'es': 'República Dominicana', 'de': 'Dominikanische Republik', 'it': 'Repubblica Dominicana', 'pt': 'República Dominicana'
+    },
+    'India': {
+      'zh': '印度', 'zh-hk': '印度', 'zh-tw': '印度',
+      'es': 'India', 'de': 'Indien', 'it': 'India', 'pt': 'Índia'
+    },
+    'Japan': {
+      'zh': '日本', 'zh-hk': '日本', 'zh-tw': '日本',
+      'es': 'Japón', 'de': 'Japan', 'it': 'Giappone', 'pt': 'Japão'
+    },
+    'South Korea': {
+      'zh': '韩国', 'zh-hk': '韓國', 'zh-tw': '韓國',
+      'es': 'Corea del Sur', 'de': 'Südkorea', 'it': 'Corea del Sud', 'pt': 'Coreia do Sul'
+    },
+    'Russia': {
+      'zh': '俄罗斯', 'zh-hk': '俄羅斯', 'zh-tw': '俄羅斯',
+      'es': 'Rusia', 'de': 'Russland', 'it': 'Russia', 'pt': 'Rússia'
+    },
+    'Turkey': {
+      'zh': '土耳其', 'zh-hk': '土耳其', 'zh-tw': '土耳其',
+      'es': 'Turquía', 'de': 'Türkei', 'it': 'Turchia', 'pt': 'Turquia'
+    },
+    'Ukraine': {
+      'zh': '乌克兰', 'zh-hk': '烏克蘭', 'zh-tw': '烏克蘭',
+      'es': 'Ucrania', 'de': 'Ukraine', 'it': 'Ucraina', 'pt': 'Ucrânia'
+    },
+    'Poland': {
+      'zh': '波兰', 'zh-hk': '波蘭', 'zh-tw': '波蘭',
+      'es': 'Polonia', 'de': 'Polen', 'it': 'Polonia', 'pt': 'Polônia'
+    },
+    'Sweden': {
+      'zh': '瑞典', 'zh-hk': '瑞典', 'zh-tw': '瑞典',
+      'es': 'Suecia', 'de': 'Schweden', 'it': 'Svezia', 'pt': 'Suécia'
+    },
+    'Norway': {
+      'zh': '挪威', 'zh-hk': '挪威', 'zh-tw': '挪威',
+      'es': 'Noruega', 'de': 'Norwegen', 'it': 'Norvegia', 'pt': 'Noruega'
+    },
+    'Finland': {
+      'zh': '芬兰', 'zh-hk': '芬蘭', 'zh-tw': '芬蘭',
+      'es': 'Finlandia', 'de': 'Finnland', 'it': 'Finlandia', 'pt': 'Finlândia'
+    },
+    'Denmark': {
+      'zh': '丹麦', 'zh-hk': '丹麥', 'zh-tw': '丹麥',
+      'es': 'Dinamarca', 'de': 'Dänemark', 'it': 'Danimarca', 'pt': 'Dinamarca'
+    },
+    'Switzerland': {
+      'zh': '瑞士', 'zh-hk': '瑞士', 'zh-tw': '瑞士',
+      'es': 'Suiza', 'de': 'Schweiz', 'it': 'Svizzera', 'pt': 'Suíça'
+    },
+    'Austria': {
+      'zh': '奥地利', 'zh-hk': '奧地利', 'zh-tw': '奧地利',
+      'es': 'Austria', 'de': 'Österreich', 'it': 'Austria', 'pt': 'Áustria'
+    },
+    'Greece': {
+      'zh': '希腊', 'zh-hk': '希臘', 'zh-tw': '希臘',
+      'es': 'Grecia', 'de': 'Griechenland', 'it': 'Grecia', 'pt': 'Grécia'
+    },
+    'Croatia': {
+      'zh': '克罗地亚', 'zh-hk': '克羅地亞', 'zh-tw': '克羅埃西亞',
+      'es': 'Croacia', 'de': 'Kroatien', 'it': 'Croazia', 'pt': 'Croácia'
+    },
+    'Serbia': {
+      'zh': '塞尔维亚', 'zh-hk': '塞爾維亞', 'zh-tw': '塞爾維亞',
+      'es': 'Serbia', 'de': 'Serbien', 'it': 'Serbia', 'pt': 'Sérvia'
+    },
+    'Slovenia': {
+      'zh': '斯洛文尼亚', 'zh-hk': '斯洛文尼亞', 'zh-tw': '斯洛維尼亞',
+      'es': 'Eslovenia', 'de': 'Slowenien', 'it': 'Slovenia', 'pt': 'Eslovênia'
+    },
+    'Slovakia': {
+      'zh': '斯洛伐克', 'zh-hk': '斯洛伐克', 'zh-tw': '斯洛伐克',
+      'es': 'Eslovaquia', 'de': 'Slowakei', 'it': 'Slovacchia', 'pt': 'Eslováquia'
+    },
+    'Hungary': {
+      'zh': '匈牙利', 'zh-hk': '匈牙利', 'zh-tw': '匈牙利',
+      'es': 'Hungría', 'de': 'Ungarn', 'it': 'Ungheria', 'pt': 'Hungria'
+    },
+    'Romania': {
+      'zh': '罗马尼亚', 'zh-hk': '羅馬尼亞', 'zh-tw': '羅馬尼亞',
+      'es': 'Rumania', 'de': 'Rumänien', 'it': 'Romania', 'pt': 'Romênia'
+    },
+    'Bulgaria': {
+      'zh': '保加利亚', 'zh-hk': '保加利亞', 'zh-tw': '保加利亞',
+      'es': 'Bulgaria', 'de': 'Bulgarien', 'it': 'Bulgaria', 'pt': 'Bulgária'
     }
   };
 
@@ -1199,7 +1311,7 @@ class SmartLeagueCountryTranslation {
     if (cleanName.toLowerCase() === 'world' || cleanName === '世界') {
       const worldTranslations: { [key: string]: string } = {
         'zh': '世界',
-        'zh-hk': '世界', 
+        'zh-hk': '世界',
         'zh-tw': '世界',
         'es': 'Mundial',
         'de': 'Welt',
