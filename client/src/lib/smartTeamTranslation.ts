@@ -1702,7 +1702,7 @@ class SmartTeamTranslation {
 
     // AUTOMATED TEAM MAPPINGS - Enhanced with proper translations where available
     // Generated from leagues: 38, 15, 2, 4, 10, 11, 848, 886, 1022, 772, 71, 3, 5, 531, 22, etc.
-
+    
     // MLS Teams (enhanced)
     'Austin': {
       'zh': '奥斯汀', 'zh-hk': '奧斯汀', 'zh-tw': '奧斯汀',
@@ -1804,7 +1804,7 @@ class SmartTeamTranslation {
     },
 
     // Additional European Teams
-
+    
     'FK Crvena Zvezda': {
       'zh': '贝尔格莱德红星', 'zh-hk': '貝爾格萊德紅星', 'zh-tw': '貝爾格萊德紅星',
       'es': 'FK Crvena Zvezda', 'de': 'FK Roter Stern Belgrad', 'it': 'FK Stella Rossa Belgrado', 'pt': 'FK Estrela Vermelha'
@@ -1827,23 +1827,23 @@ class SmartTeamTranslation {
       'zh': '开罗国民', 'zh-hk': '開羅國民', 'zh-tw': '開羅國民',
       'es': 'Al Ahly', 'de': 'Al Ahly', 'it': 'Al Ahly', 'pt': 'Al Ahly'
     },
-
-
+    
+    
     // AUTOMATED TEAM MAPPINGS - merged from generateCompleteTeamMapping
     // These provide broad coverage but manual translations above take priority
-
+    
     // Only add teams not already covered by manual translations above
-
+   
     'Vila Nova': {
       'zh': '维拉诺瓦', 'zh-hk': '維拉諾瓦', 'zh-tw': '維拉諾瓦',
       'es': 'Vila Nova', 'de': 'Vila Nova', 'it': 'Vila Nova', 'pt': 'Vila Nova'
     },
-
+    
     'San Diego': {
       'zh': '圣迭戈', 'zh-hk': '聖迭戈', 'zh-tw': '聖迭戈',
       'es': 'San Diego', 'de': 'San Diego', 'it': 'San Diego', 'pt': 'San Diego'
     },
-
+    
     'Sporting Kansas City': {
       'zh': '堪萨斯城体育', 'zh-hk': '堪薩斯城體育', 'zh-tw': '堪薩斯城體育',
       'es': 'Sporting Kansas City', 'de': 'Sporting Kansas City', 'it': 'Sporting Kansas City', 'pt': 'Sporting Kansas City'
@@ -2178,16 +2178,16 @@ class SmartTeamTranslation {
   async initializeTeamTranslations(language: string): Promise<void> {
     try {
       console.log(`🔄 [SmartTranslation] Initializing team translations for language: ${language}`);
-
+      
       // Load cached mappings
       this.loadLearnedMappings();
-
+      
       // Load automated mappings
       await this.loadAutomatedMappings();
-
+      
       // Clear any stale cache entries
       this.clearStaleCache();
-
+      
       console.log(`✅ [SmartTranslation] Successfully initialized for ${language} with ${this.learnedTeamMappings.size} learned mappings`);
     } catch (error) {
       console.error(`❌ [SmartTranslation] Failed to initialize for ${language}:`, error);
@@ -2342,7 +2342,6 @@ class SmartTeamTranslation {
 
 
 
-
   // Enhanced fallback for common team patterns with automated mapping integration
   private getEnhancedFallback(teamName: string, language: string): string | null {
     if (!teamName || !language) return null;
@@ -2442,7 +2441,7 @@ class SmartTeamTranslation {
 
     let phoneticTranslation = '';
     const cleanName = teamName.replace(/[^a-zA-Z]/g, '').toLowerCase();
-
+    
     for (let i = 0; i < Math.min(cleanName.length, 6); i++) { // Limit to 6 characters
       const char = cleanName[i];
       if (phoneticMap[char]) {
@@ -2571,7 +2570,7 @@ class SmartTeamTranslation {
       if (automatedData) {
         const data = JSON.parse(automatedData);
         console.log(`🤖 [SmartTranslation] Found automated mappings for ${data.teams || 0} teams`);
-
+        
         // Store reference to automated data for quick access
         this.automatedMappingsCache = data;
         console.log(`✅ [SmartTranslation] Integrated automated mappings cache`);
@@ -2582,7 +2581,7 @@ class SmartTeamTranslation {
       if (completeMapping) {
         const completeData = JSON.parse(completeMapping);
         console.log(`📋 [SmartTranslation] Found complete team mapping data with ${completeData.totalTeams || 0} teams`);
-
+        
         // Merge with existing learned mappings
         if (completeData.allTeamsSortedByFrequency) {
           completeData.allTeamsSortedByFrequency.forEach((team: any) => {
@@ -2599,7 +2598,7 @@ class SmartTeamTranslation {
               });
             }
           });
-
+          
           this.saveLearnedMappings();
           console.log(`🎓 [SmartTranslation] Integrated ${completeData.allTeamsSortedByFrequency.length} teams from complete mapping`);
         }
@@ -2612,7 +2611,7 @@ class SmartTeamTranslation {
   // Method to bulk update translations from automated mappings
   bulkUpdateFromAutomatedMappings(automatedMappings: Record<string, any>): void {
     let updatedCount = 0;
-
+    
     Object.entries(automatedMappings).forEach(([teamName, translations]) => {
       if (typeof translations === 'object' && translations !== null) {
         // Only update if we don't already have a high-quality manual translation
@@ -2622,7 +2621,7 @@ class SmartTeamTranslation {
         }
       }
     });
-
+    
     if (updatedCount > 0) {
       this.saveLearnedMappings();
       console.log(`📦 [SmartTranslation] Bulk updated ${updatedCount} team translations`);
@@ -2970,95 +2969,6 @@ class SmartTeamTranslation {
       } catch (error) {
           console.warn('⚠️ [SmartTranslation] Failed to learn new team mapping from league info:', error);
       }
-  }
-
-  // Auto-learn from team data
-  autoLearnFromTeamData(teamName: string, countryName?: string): void {
-    if (!teamName || teamName.length < 3) return;
-
-    // Skip if already exists in static mappings
-    if (this.popularLeagueTeams[teamName]) return;
-
-    // Skip if already learned
-    if (this.learnedTeamMappings.has(teamName)) return;
-
-    // Create basic mapping for the team
-    const mapping = this.createTeamMappingFromName(teamName);
-    if (mapping) {
-      this.learnedTeamMappings.set(teamName, mapping);
-      this.saveLearnedMappings();
-      console.log(`🎓 [Auto-Learn] Added team mapping for: ${teamName}`);
-    }
-  }
-
-  // Auto-learn from any league data encountered in the app
-  autoLearnFromLeagueData(leagueName: string, countryName?: string): void {
-    if (!leagueName || leagueName.length < 3) return;
-
-    // Extract team names from league data if available
-    // This can be enhanced to learn from team contexts within leagues
-    console.log(`🎓 [SmartTranslation] Auto-learning from league: ${leagueName}${countryName ? ` (${countryName})` : ''}`);
-
-    // Skip if already exists in static mappings
-    if (this.popularLeagueTeams[leagueName]) return;
-
-    // Skip if already learned
-    if (this.learnedTeamMappings.has(leagueName)) return;
-
-    // Create basic mapping for the league
-    const mapping = this.createTeamMappingFromName(leagueName);
-    if (mapping) {
-      this.learnedTeamMappings.set(leagueName, mapping);
-      this.saveLearnedMappings();
-      console.log(`🎓 [Auto-Learn] Added league mapping for: ${leagueName}`);
-    }
-  }
-
-  // Get country name translation
-  getCountryTranslation(countryName: string, language: string): string {
-    if (!countryName) return '';
-
-    const countryTranslations: Record<string, Record<string, string>> = {
-      'England': {
-        'zh': '英格兰', 'zh-hk': '英格蘭', 'zh-tw': '英格蘭',
-        'es': 'Inglaterra', 'de': 'England', 'it': 'Inghilterra', 'pt': 'Inglaterra'
-      },
-      'Spain': {
-        'zh': '西班牙', 'zh-hk': '西班牙', 'zh-tw': '西班牙',
-        'es': 'España', 'de': 'Spanien', 'it': 'Spagna', 'pt': 'Espanha'
-      },
-      'Italy': {
-        'zh': '意大利', 'zh-hk': '意大利', 'zh-tw': '意大利',
-        'es': 'Italia', 'de': 'Italien', 'it': 'Italia', 'pt': 'Itália'
-      },
-      'Germany': {
-        'zh': '德国', 'zh-hk': '德國', 'zh-tw': '德國',
-        'es': 'Alemania', 'de': 'Deutschland', 'it': 'Germania', 'pt': 'Alemanha'
-      },
-      'France': {
-        'zh': '法国', 'zh-hk': '法國', 'zh-tw': '法國',
-        'es': 'Francia', 'de': 'Frankreich', 'it': 'Francia', 'pt': 'França'
-      },
-      'Brazil': {
-        'zh': '巴西', 'zh-hk': '巴西', 'zh-tw': '巴西',
-        'es': 'Brasil', 'de': 'Brasilien', 'it': 'Brasile', 'pt': 'Brasil'
-      },
-      'Colombia': {
-        'zh': '哥伦比亚', 'zh-hk': '哥倫比亞', 'zh-tw': '哥倫比亞',
-        'es': 'Colombia', 'de': 'Kolumbien', 'it': 'Colombia', 'pt': 'Colômbia'
-      },
-      'Argentina': {
-        'zh': '阿根廷', 'zh-hk': '阿根廷', 'zh-tw': '阿根廷',
-        'es': 'Argentina', 'de': 'Argentinien', 'it': 'Argentina', 'pt': 'Argentina'
-      },
-      'World': {
-        'zh': '世界', 'zh-hk': '世界', 'zh-tw': '世界',
-        'es': 'Mundial', 'de': 'Welt', 'it': 'Mondo', 'pt': 'Mundo'
-      }
-    };
-
-    const translation = countryTranslations[countryName]?.[language];
-    return translation || countryName;
   }
 }
 
