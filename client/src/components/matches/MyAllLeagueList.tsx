@@ -245,7 +245,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     smartLeagueCountryTranslation.autoLearnFromAnyCountryName(normalizedCountry, {
       leagueContext: "multiple leagues",
       occurrenceCount: 1,
-      originalForm: originalCountry !== normalizedCountry ? originalCountry : undefined
+      originalName: originalCountry !== normalizedCountry ? originalCountry : undefined
     });
 
     // Step 3: Get smart translation using the learning system with normalized name
