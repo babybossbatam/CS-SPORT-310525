@@ -6,7 +6,11 @@ import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid } from "date-fns";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import { shouldExcludeMatchByCountry } from "@/lib/MyMatchByCountryNewExclusion";
-import { isDateStringToday, isDateStringYesterday, isDateStringTomorrow } from "@/lib/dateUtilsUpdated";
+import {
+  isDateStringToday,
+  isDateStringYesterday,
+  isDateStringTomorrow,
+} from "@/lib/dateUtilsUpdated";
 import { getCachedCountryName, setCachedCountryName } from "@/lib/countryCache";
 import { countryCodeMap } from "@/lib/flagUtils";
 import MyGroupNationalFlag from "../common/MyGroupNationalFlag";
@@ -15,7 +19,11 @@ import { RootState } from "@/lib/store";
 import { userActions } from "@/lib/store";
 import { useCachedQuery } from "@/lib/cachingHelper";
 import { performanceMonitor } from "@/lib/performanceMonitor";
-import { useLanguage, useTranslation, countryToLanguageMap } from "@/contexts/LanguageContext";
+import {
+  useLanguage,
+  useTranslation,
+  countryToLanguageMap,
+} from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
 interface MyAllLeagueListProps {
@@ -26,7 +34,9 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   const [fixtures, setFixtures] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
+  const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
+    new Set(),
+  );
   const [isFootballExpanded, setIsFootballExpanded] = useState<boolean>(false);
 
   // Redux state
@@ -41,23 +51,26 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   const {
     data: fixturesData,
     isLoading: isFixturesLoading,
-    error: fixturesError
+    error: fixturesError,
   } = useCachedQuery(
-    ['all-fixtures-by-date', selectedDate],
+    ["all-fixtures-by-date", selectedDate],
     async () => {
       if (!selectedDate) return [];
 
-      performanceMonitor.startMeasure('fixtures-fetch');
-      const response = await apiRequest("GET", `/api/fixtures/date/${selectedDate}?all=true`);
+      performanceMonitor.startMeasure("fixtures-fetch");
+      const response = await apiRequest(
+        "GET",
+        `/api/fixtures/date/${selectedDate}?all=true`,
+      );
       const data = await response.json();
-      performanceMonitor.endMeasure('fixtures-fetch');
+      performanceMonitor.endMeasure("fixtures-fetch");
       return Array.isArray(data) ? data : [];
     },
     {
       enabled: !!selectedDate,
       staleTime: 5 * 60 * 1000, // 5 minutes for fixtures
-      maxAge: 30 * 60 * 1000
-    }
+      maxAge: 30 * 60 * 1000,
+    },
   );
 
   // Update local state when fixtures data changes (optimized)
@@ -65,57 +78,106 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     if (fixturesData) {
       setFixtures(fixturesData);
 
-      // Simplified learning - only run once per data load, no forced re-render
+      // Optimized learning - only run once per session with better filtering
       if (fixturesData.length > 0) {
-        // Use requestIdleCallback for background processing
+        // Use requestIdleCallback for background processing with better data sampling
         const learnTranslations = () => {
-          smartLeagueCountryTranslation.learnFromFixtures(fixturesData.slice(0, 50)); // Limit learning to first 50 fixtures
+          // Sample diverse fixtures for better learning (every 10th fixture up to 30 samples)
+          const sampleSize = Math.min(30, Math.floor(fixturesData.length / 10));
+          const sampledFixtures = fixturesData
+            .filter((_, index) => index % 10 === 0)
+            .slice(0, sampleSize);
+
+          if (sampledFixtures.length > 0) {
+            smartLeagueCountryTranslation.learnFromFixtures(sampledFixtures);
+          }
         };
-        
+
         if (window.requestIdleCallback) {
-          window.requestIdleCallback(learnTranslations);
+          window.requestIdleCallback(learnTranslations, { timeout: 2000 });
         } else {
-          setTimeout(learnTranslations, 200);
+          setTimeout(learnTranslations, 500);
         }
       }
     }
     setIsLoading(isFixturesLoading);
-    setError(fixturesError ? "Failed to load fixtures. Please try again later." : null);
+    setError(
+      fixturesError ? "Failed to load fixtures. Please try again later." : null,
+    );
   }, [fixturesData, isFixturesLoading, fixturesError]);
 
-  // Optimized: Group leagues by country with full data processing for accurate counts
+  // Optimized: Group leagues by country with enhanced filtering and accurate counts
   const leaguesByCountry = useMemo(() => {
-    const grouped: { [key: string]: { country: string; leagues: any; totalMatches: number; liveMatches: number } } = {};
+    const grouped: {
+      [key: string]: {
+        country: string;
+        leagues: any;
+        totalMatches: number;
+        liveMatches: number;
+      };
+    } = {};
     const allFixtures = fixtures || [];
 
     if (!allFixtures?.length) {
       return grouped;
     }
-
-    // Process all fixtures to maintain accurate match counts
-    const maxFixtures = allFixtures.length;
+    // Enhanced live status detection with time validation
+    const liveStatuses = new Set([
+      "LIVE",
+      "LIV",
+      "1H",
+      "HT",
+      "2H",
+      "ET",
+      "BT",
+      "P",
+      "INT",
+    ]);
     const seenFixtures = new Set<number>();
-    const liveStatuses = new Set(["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"]);
 
-    // Pre-allocate objects to avoid repeated object creation
-    const tempCountries: { [key: string]: { leagues: { [key: number]: any }, totalMatches: number, liveMatches: number } } = {};
+    const tempCountries: {
+      [key: string]: {
+        leagues: { [key: number]: any };
+        totalMatches: number;
+        liveMatches: number;
+      };
+    } = {};
 
-    // Single pass processing with minimal object operations
-    for (let i = 0; i < maxFixtures; i++) {
-      const fixture = allFixtures[i];
-      
-      // Ultra-fast validation - early exit on any missing data
-      if (!fixture?.league?.id || !fixture?.fixture?.id || seenFixtures.has(fixture.fixture.id)) continue;
-      
+    // Process all fixtures with enhanced validation
+    for (const fixture of allFixtures) {
+      // Comprehensive validation
+      if (
+        !fixture?.league?.id ||
+        !fixture?.fixture?.id ||
+        !fixture?.teams?.home ||
+        !fixture?.teams?.away
+      )
+        continue;
+      if (seenFixtures.has(fixture.fixture.id)) continue;
+
       seenFixtures.add(fixture.fixture.id);
 
       const country = fixture.league.country || "Unknown";
       const leagueId = fixture.league.id;
-      const isLive = liveStatuses.has(fixture.fixture?.status?.short);
+      const status = fixture.fixture?.status?.short;
+
+      // Enhanced live match detection with time validation
+      let isActuallyLive = false;
+      if (liveStatuses.has(status)) {
+        const matchDate = new Date(fixture.fixture.date);
+        const hoursOld = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
+
+        // Only consider as live if the match isn't too old (within 4 hours)
+        isActuallyLive = hoursOld <= 4;
+      }
 
       // Initialize country if needed
       if (!tempCountries[country]) {
-        tempCountries[country] = { leagues: {}, totalMatches: 0, liveMatches: 0 };
+        tempCountries[country] = {
+          leagues: {},
+          totalMatches: 0,
+          liveMatches: 0,
+        };
       }
 
       const countryData = tempCountries[country];
@@ -129,18 +191,18 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         };
       }
 
-      // Increment counts in single operation
+      // Update counts
       countryData.leagues[leagueId].matchCount++;
       countryData.totalMatches++;
 
-      if (isLive) {
+      if (isActuallyLive) {
         countryData.leagues[leagueId].liveMatchCount++;
         countryData.liveMatches++;
       }
     }
 
-    // Convert to final format only once
-    Object.keys(tempCountries).forEach(country => {
+    // Convert to final format
+    Object.keys(tempCountries).forEach((country) => {
       grouped[country] = {
         country,
         leagues: tempCountries[country].leagues,
@@ -154,12 +216,18 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
   // Get total match count for header
   const totalMatches = useMemo(() => {
-    return Object.values(leaguesByCountry).reduce((sum, countryData) => sum + countryData.totalMatches, 0);
+    return Object.values(leaguesByCountry).reduce(
+      (sum, countryData) => sum + countryData.totalMatches,
+      0,
+    );
   }, [leaguesByCountry]);
 
   // Optimized country name translation with local caching
-  const countryTranslationCache = useMemo(() => new Map<string, string>(), [currentLanguage]);
-  
+  const countryTranslationCache = useMemo(
+    () => new Map<string, string>(),
+    [currentLanguage],
+  );
+
   const getCountryDisplayName = useMemo(() => {
     return (country: string | null | undefined): string => {
       if (!country || typeof country !== "string") {
@@ -167,18 +235,22 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       }
 
       const originalCountry = country.trim();
-      
+
       // Check local cache first
       if (countryTranslationCache.has(originalCountry)) {
         return countryTranslationCache.get(originalCountry)!;
       }
-      
+
       // Use the smart translation system
-      const translatedName = smartLeagueCountryTranslation.translateCountryName(originalCountry, currentLanguage) || originalCountry;
-      
+      const translatedName =
+        smartLeagueCountryTranslation.translateCountryName(
+          originalCountry,
+          currentLanguage,
+        ) || originalCountry;
+
       // Cache the result
       countryTranslationCache.set(originalCountry, translatedName);
-      
+
       return translatedName;
     };
   }, [currentLanguage, countryTranslationCache]);
@@ -186,28 +258,28 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   // Get header title
   const getHeaderTitle = () => {
     if (isDateStringToday(selectedDate)) {
-      return t('today_matches');
+      return t("today_matches");
     } else if (isDateStringYesterday(selectedDate)) {
-      return t('yesterday_matches');
+      return t("yesterday_matches");
     } else if (isDateStringTomorrow(selectedDate)) {
-      return t('tomorrow_matches');
+      return t("tomorrow_matches");
     } else {
       try {
         const customDate = parseISO(selectedDate);
         if (isValid(customDate)) {
-          return `${format(customDate, "EEEE, MMMM do")} ${t('football_leagues')}`;
+          return `${format(customDate, "EEEE, MMMM do")} ${t("football_leagues")}`;
         } else {
-          return t('football_leagues');
+          return t("football_leagues");
         }
       } catch {
-        return t('football_leagues');
+        return t("football_leagues");
       }
     }
   };
 
   // Toggle country expansion
   const toggleCountry = (country: string) => {
-    setExpandedCountries(prev => {
+    setExpandedCountries((prev) => {
       const newExpanded = new Set(prev);
       if (newExpanded.has(country)) {
         newExpanded.delete(country);
@@ -219,7 +291,10 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   };
 
   // Handle country flag click for language switching
-  const handleCountryFlagClick = (countryName: string, event: React.MouseEvent) => {
+  const handleCountryFlagClick = (
+    countryName: string,
+    event: React.MouseEvent,
+  ) => {
     event.stopPropagation();
     const languageCode = countryToLanguageMap[countryName];
     if (languageCode) {
@@ -229,7 +304,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
   // Toggle Football section expansion
   const toggleFootballSection = () => {
-    setIsFootballExpanded(prev => !prev);
+    setIsFootballExpanded((prev) => !prev);
   };
 
   // Toggle favorite league
@@ -264,20 +339,104 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
   // Define all football countries
   const allFootballCountries = [
-    "World", "Afghanistan", "Albania", "Algeria", "Angola", "Argentina", "Armenia",
-    "Australia", "Austria", "Azerbaijan", "Bahrain", "Bangladesh", "Belgium", "Bolivia",
-    "Bosnia and Herzegovina", "Botswana", "Brazil", "Bulgaria", "Burkina Faso",
-    "Cameroon", "Canada", "Chile", "China", "Colombia", "Croatia", "Czech Republic",
-    "Denmark", "Egypt", "England", "Estonia", "Ethiopia", "Faroe Islands", "Finland",
-    "France", "Georgia", "Germany", "Ghana", "Greece", "Hungary", "Iceland", "India",
-    "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Japan", "Jordan",
-    "Kazakhstan", "Kenya", "Kuwait", "Lithuania", "Luxembourg", "Malaysia", "Mali",
-    "Mexico", "Morocco", "Netherlands", "New Zealand", "Nigeria", "Norway", "Oman",
-    "Pakistan", "Panama", "Paraguay", "Peru", "Poland", "Portugal", "Qatar",
-    "Romania", "Russia", "Saudi Arabia", "Scotland", "Senegal", "Serbia", "Singapore",
-    "Slovakia", "Slovenia", "South Africa", "South Korea", "Spain", "Sweden",
-    "Switzerland", "Thailand", "Tunisia", "Turkey", "Ukraine", "United Arab Emirates",
-    "Uruguay", "USA", "Uzbekistan", "Venezuela", "Vietnam", "Wales", "Yemen", "Zambia", "Zimbabwe"
+    "World",
+    "Afghanistan",
+    "Albania",
+    "Algeria",
+    "Angola",
+    "Argentina",
+    "Armenia",
+    "Australia",
+    "Austria",
+    "Azerbaijan",
+    "Bahrain",
+    "Bangladesh",
+    "Belgium",
+    "Bolivia",
+    "Bosnia and Herzegovina",
+    "Botswana",
+    "Brazil",
+    "Bulgaria",
+    "Burkina Faso",
+    "Cameroon",
+    "Canada",
+    "Chile",
+    "China",
+    "Colombia",
+    "Croatia",
+    "Czech Republic",
+    "Denmark",
+    "Egypt",
+    "England",
+    "Estonia",
+    "Ethiopia",
+    "Faroe Islands",
+    "Finland",
+    "France",
+    "Georgia",
+    "Germany",
+    "Ghana",
+    "Greece",
+    "Hungary",
+    "Iceland",
+    "India",
+    "Indonesia",
+    "Iran",
+    "Iraq",
+    "Ireland",
+    "Israel",
+    "Italy",
+    "Japan",
+    "Jordan",
+    "Kazakhstan",
+    "Kenya",
+    "Kuwait",
+    "Lithuania",
+    "Luxembourg",
+    "Malaysia",
+    "Mali",
+    "Mexico",
+    "Morocco",
+    "Netherlands",
+    "New Zealand",
+    "Nigeria",
+    "Norway",
+    "Oman",
+    "Pakistan",
+    "Panama",
+    "Paraguay",
+    "Peru",
+    "Poland",
+    "Portugal",
+    "Qatar",
+    "Romania",
+    "Russia",
+    "Saudi Arabia",
+    "Scotland",
+    "Senegal",
+    "Serbia",
+    "Singapore",
+    "Slovakia",
+    "Slovenia",
+    "South Africa",
+    "South Korea",
+    "Spain",
+    "Sweden",
+    "Switzerland",
+    "Thailand",
+    "Tunisia",
+    "Turkey",
+    "Ukraine",
+    "United Arab Emirates",
+    "Uruguay",
+    "USA",
+    "Uzbekistan",
+    "Venezuela",
+    "Vietnam",
+    "Wales",
+    "Yemen",
+    "Zambia",
+    "Zimbabwe",
   ];
 
   // Optimized sorted countries with pre-filtering
@@ -286,13 +445,19 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     if (!countries.length) return [];
 
     // Pre-filter and sort in single pass
-    const validCountries = countries.filter((countryData: any) => countryData.totalMatches > 0);
-    
+    const validCountries = countries.filter(
+      (countryData: any) => countryData.totalMatches > 0,
+    );
+
     // Separate World country and sort others
-    const worldCountry = validCountries.find((c: any) => c.country?.toLowerCase() === "world");
+    const worldCountry = validCountries.find(
+      (c: any) => c.country?.toLowerCase() === "world",
+    );
     const otherCountries = validCountries
       .filter((c: any) => c.country?.toLowerCase() !== "world")
-      .sort((a: any, b: any) => (a.country || "").localeCompare(b.country || ""));
+      .sort((a: any, b: any) =>
+        (a.country || "").localeCompare(b.country || ""),
+      );
 
     return worldCountry ? [worldCountry, ...otherCountries] : otherCountries;
   }, [leaguesByCountry]);
@@ -359,15 +524,12 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   return (
     <Card className="w-full bg-white ">
       <CardHeader className="flex flex-row justify-between items-center space-y-0 p-4 border-b border-stone-200 text-sm font-bold">
-         {/* All Leagues A-Z Section */}
+        {/* All Leagues A-Z Section */}
         <div className="flex justify-between items-center w-full">
-          {t('all_leagues')}
+          {t("all_leagues")}
         </div>
       </CardHeader>
       <CardContent className="p-0">
-
-
-
         {/* Football Section with Countries */}
         <div className="divide-y divide-gray-100">
           {/* Football Header - Clickable */}
@@ -380,30 +542,39 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                 <span
                   className="text-gray-900 dark:text-white font-medium"
                   style={{
-                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                    fontFamily:
+                      "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                     fontSize: "14px",
                   }}
                 >
-                  {t('football')}
+                  {t("football")}
                 </span>
                 {/* Expand/Collapse Icon */}
-                {isFootballExpanded }
+                {isFootballExpanded}
               </div>
               <span
                 className="text-gray-500 text-sm"
                 style={{
-                  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                  fontFamily:
+                    "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                 }}
               >
                 {(() => {
-                  const totalLiveMatches = Object.values(leaguesByCountry).reduce(
-                    (sum: number, countryData: any) => sum + (countryData.liveMatches || 0),
-                    0
+                  const totalLiveMatches = Object.values(
+                    leaguesByCountry,
+                  ).reduce(
+                    (sum: number, countryData: any) =>
+                      sum + (countryData.liveMatches || 0),
+                    0,
                   );
                   if (totalLiveMatches > 0) {
                     return (
                       <>
-                        (<span className="text-red-500 font-semibold">{totalLiveMatches}</span>/{totalMatches})
+                        (
+                        <span className="text-red-500 font-semibold">
+                          {totalLiveMatches}
+                        </span>
+                        /{totalMatches})
                       </>
                     );
                   }
@@ -414,196 +585,247 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
           </button>
 
           {/* Countries under Football - Show when expanded with virtual scrolling */}
-          {isFootballExpanded && sortedCountries.slice(0, 30).map((countryData: any) => {
-            const totalLeagues = Object.keys(countryData.leagues || {}).length;
-            const totalMatches = countryData.totalMatches || 0;
-            const liveMatches = countryData.liveMatches || 0;
+          {isFootballExpanded &&
+            sortedCountries.slice(0, 30).map((countryData: any) => {
+              const totalLeagues = Object.keys(
+                countryData.leagues || {},
+              ).length;
+              const totalMatches = countryData.totalMatches || 0;
+              const liveMatches = countryData.liveMatches || 0;
 
-            const hasMatches = totalMatches > 0;
-            const isExpanded = expandedCountries.has(countryData.country);
+              const hasMatches = totalMatches > 0;
+              const isExpanded = expandedCountries.has(countryData.country);
 
-            return (
-              <div key={countryData.country} className="border-b border-gray-100 last:border-b-0">
-                {/* Country Header - Clickable (nested under Football) */}
-                <button
-                  onClick={() => toggleCountry(countryData.country)}
-                  className={`w-full flex items-center justify-between pl-2 pr-4 py-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer `}
+              return (
+                <div
+                  key={countryData.country}
+                  className="border-b border-gray-100 last:border-b-0"
                 >
-                  <div className="flex items-center gap-3">
-                    {(() => {
-                      const countryName = typeof countryData.country === "string"
-                        ? countryData.country
-                        : countryData.country?.name || "Unknown";
+                  {/* Country Header - Clickable (nested under Football) */}
+                  <button
+                    onClick={() => toggleCountry(countryData.country)}
+                    className={`w-full flex items-center justify-between pl-2 pr-4 py-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer `}
+                  >
+                    <div className="flex items-center gap-3">
+                      {(() => {
+                        const countryName =
+                          typeof countryData.country === "string"
+                            ? countryData.country
+                            : countryData.country?.name || "Unknown";
 
-                      // Get the display name using smart translation
-                      const displayCountryName = getCountryDisplayName(countryName);
+                        // Get the display name using smart translation
+                        const displayCountryName =
+                          getCountryDisplayName(countryName);
 
-                      // Check for World using both original and translated names
-                      const isWorldCountry = countryName.toLowerCase() === "world" ||
-                                           displayCountryName.toLowerCase().includes("world") ||
-                                           displayCountryName.includes("世界") ||
-                                           displayCountryName.includes("世界");
+                        // Check for World using both original and translated names
+                        const isWorldCountry =
+                          countryName.toLowerCase() === "world" ||
+                          displayCountryName.toLowerCase().includes("world") ||
+                          displayCountryName.includes("世界") ||
+                          displayCountryName.includes("世界");
 
-                      const flagElement = isWorldCountry ? (
-                        <MyGroupNationalFlag
-                          teamName="World"
-                          fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
-                          alt={displayCountryName}
-                          size="24px"
-                        />
-                      ) : (
-                        <MyGroupNationalFlag
-                          teamName={countryName}
-                          fallbackUrl="/assets/fallback-logo.svg"
-                          alt={displayCountryName}
-                          size="24px"
-                        />
-                      );
+                        const flagElement = isWorldCountry ? (
+                          <MyGroupNationalFlag
+                            teamName="World"
+                            fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
+                            alt={displayCountryName}
+                            size="24px"
+                          />
+                        ) : (
+                          <MyGroupNationalFlag
+                            teamName={countryName}
+                            fallbackUrl="/assets/fallback-logo.svg"
+                            alt={displayCountryName}
+                            size="24px"
+                          />
+                        );
 
-                      // Make flag clickable if country has language mapping (check both original and display names)
-                      const hasLanguageMapping = countryToLanguageMap[countryName] || countryToLanguageMap[displayCountryName];
+                        // Make flag clickable if country has language mapping (check both original and display names)
+                        const hasLanguageMapping =
+                          countryToLanguageMap[countryName] ||
+                          countryToLanguageMap[displayCountryName];
 
-                      return hasLanguageMapping ? (
-                        <button
-                          onClick={(e) => handleCountryFlagClick(countryName, e)}
-                          className="hover:scale-110 transition-transform duration-200 cursor-pointer"
-                          title={`Switch to ${displayCountryName} language`}
+                        return hasLanguageMapping ? (
+                          <button
+                            onClick={(e) =>
+                              handleCountryFlagClick(countryName, e)
+                            }
+                            className="hover:scale-110 transition-transform duration-200 cursor-pointer"
+                            title={`Switch to ${displayCountryName} language`}
+                          >
+                            {flagElement}
+                          </button>
+                        ) : (
+                          flagElement
+                        );
+                      })()}
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="font-medium text-gray-900 dark:text-white"
+                          style={{
+                            fontFamily:
+                              "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                            fontSize: "14px",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            maxWidth: "150px",
+                          }}
                         >
-                          {flagElement}
-                        </button>
-                      ) : (
-                        flagElement
-                      );
-                    })()}
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="font-medium text-gray-900 dark:text-white"
-                        style={{
-                          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                          fontSize: "14px",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          maxWidth: "150px",
-                        }}
-                      >
-                        {getCountryDisplayName(countryData.country)}
-                      </span>
-                      <span
-                        className={`text-sm ${hasMatches ? 'text-gray-500' : 'text-gray-300'}`}
-                        style={{
-                          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-
-                        }}
-                      >
-                        ({liveMatches > 0 ? (
-                          <>
-                            <span className="text-red-500">{liveMatches}</span>
-                            <span>/{totalMatches}</span>
-                          </>
-                        ) : totalMatches})
-                      </span>
+                          {getCountryDisplayName(countryData.country)}
+                        </span>
+                        <span
+                          className={`text-sm ${hasMatches ? "text-gray-500" : "text-gray-300"}`}
+                          style={{
+                            fontFamily:
+                              "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                          }}
+                        >
+                          (
+                          {liveMatches > 0 ? (
+                            <>
+                              <span className="text-red-500">
+                                {liveMatches}
+                              </span>
+                              <span>/{totalMatches}</span>
+                            </>
+                          ) : (
+                            totalMatches
+                          )}
+                          )
+                        </span>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Expand/Collapse Icon for Country */}
-                  {totalLeagues > 0 && (
-                    isExpanded ? (
-                      <ChevronUp className="h-4 w-4 text-gray-500" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4 text-gray-500" />
-                    )
-                  )}
-                </button>
+                    {/* Expand/Collapse Icon for Country */}
+                    {totalLeagues > 0 &&
+                      (isExpanded ? (
+                        <ChevronUp className="h-4 w-4 text-gray-500" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4 text-gray-500" />
+                      ))}
+                  </button>
 
-                {/* Leagues List - Show when expanded and has leagues (limited for performance) */}
-                {isExpanded && totalLeagues > 0 && (
-                  <div className="   ">
-                    {Object.values(countryData.leagues)
-                      .slice(0, 15)
-                      .map((leagueData: any) => {
-                        const leagueId = leagueData.league.id;
-                        const isStarred = user.preferences.favoriteLeagues.includes(leagueId.toString());
+                  {/* Leagues List - Show when expanded and has leagues (limited for performance) */}
+                  {isExpanded && totalLeagues > 0 && (
+                    <div className="   ">
+                      {Object.values(countryData.leagues)
+                        .slice(0, 15)
+                        .map((leagueData: any) => {
+                          const leagueId = leagueData.league.id;
+                          const isStarred =
+                            user.preferences.favoriteLeagues.includes(
+                              leagueId.toString(),
+                            );
 
-                        return (
-                          <div key={leagueId} className="group relative flex items-center gap-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700  px-2 transition-colors w-full">
-                            <img
-                              src={(() => {
-                                const leagueName = leagueData.league.name?.toLowerCase() || "";
-                                if (leagueName.includes("cotif")) {
-                                  return "/assets/matchdetaillogo/cotif tournament.png";
-                                }
-                                return leagueData.league.logo || "/assets/fallback-logo.svg";
-                              })()}
-                              alt={leagueData.league.name || "Unknown League"}
-                              className="w-5 h-5 object-contain rounded-full"
-                              style={{ backgroundColor: "transparent" }}
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                const leagueName = leagueData.league.name?.toLowerCase() || "";
-                                if (leagueName.includes("cotif") && !target.src.includes("fallback-logo.svg")) {
-                                  target.src = "/assets/fallback-logo.svg";
-                                } else if (!target.src.includes("fallback-logo.svg")) {
-                                  target.src = "/assets/fallback-logo.svg";
-                                }
-                              }}
-                            />
-                            <div className="flex-1">
+                          return (
+                            <div
+                              key={leagueId}
+                              className="group relative flex items-center gap-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700  px-2 transition-colors w-full"
+                            >
+                              <img
+                                src={(() => {
+                                  const leagueName =
+                                    leagueData.league.name?.toLowerCase() || "";
+                                  if (leagueName.includes("cotif")) {
+                                    return "/assets/matchdetaillogo/cotif tournament.png";
+                                  }
+                                  return (
+                                    leagueData.league.logo ||
+                                    "/assets/fallback-logo.svg"
+                                  );
+                                })()}
+                                alt={leagueData.league.name || "Unknown League"}
+                                className="w-5 h-5 object-contain rounded-full"
+                                style={{ backgroundColor: "transparent" }}
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  const leagueName =
+                                    leagueData.league.name?.toLowerCase() || "";
+                                  if (
+                                    leagueName.includes("cotif") &&
+                                    !target.src.includes("fallback-logo.svg")
+                                  ) {
+                                    target.src = "/assets/fallback-logo.svg";
+                                  } else if (
+                                    !target.src.includes("fallback-logo.svg")
+                                  ) {
+                                    target.src = "/assets/fallback-logo.svg";
+                                  }
+                                }}
+                              />
+                              <div className="flex-1">
+                                <span
+                                  className="text-sm dark:text-white"
+                                  style={{
+                                    fontFamily:
+                                      "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                                  }}
+                                >
+                                  {(() => {
+                                    const originalName =
+                                      safeSubstring(
+                                        leagueData.league.name,
+                                        0,
+                                      ) || "Unknown League";
+                                    const translatedName =
+                                      smartLeagueCountryTranslation.translateLeagueName(
+                                        originalName,
+                                        currentLanguage,
+                                      );
+                                    return translatedName;
+                                  })()}
+                                </span>
+                              </div>
                               <span
-                                className="text-sm dark:text-white"
+                                className="text-gray-500 dark:text-gray-400 text-xs mr-8"
                                 style={{
-                                  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                                  fontFamily:
+                                    "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                                 }}
                               >
-                                {(() => {
-                                  const originalName = safeSubstring(leagueData.league.name, 0) || "Unknown League";
-                                  const translatedName = smartLeagueCountryTranslation.translateLeagueName(originalName, currentLanguage);
-                                  return translatedName;
-                                })()}
+                                {leagueData.liveMatchCount > 0 ? (
+                                  <>
+                                    (
+                                    <span className="text-red-500">
+                                      {leagueData.liveMatchCount}
+                                    </span>
+                                    /{leagueData.matchCount})
+                                  </>
+                                ) : (
+                                  `(${leagueData.matchCount})`
+                                )}
                               </span>
-                            </div>
-                            <span
-                              className="text-gray-500 dark:text-gray-400 text-xs mr-8"
-                              style={{
-                                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                              }}
-                            >
-                              {leagueData.liveMatchCount > 0 ? (
-                                <>
-                                  (<span className="text-red-500">{leagueData.liveMatchCount}</span>/{leagueData.matchCount})
-                                </>
-                              ) : `(${leagueData.matchCount})`}
-                            </span>
 
-                            {/* Star Button - Slides from right */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleFavoriteLeague(leagueId);
-                              }}
-                              className={`absolute right-2 w-6 h-full -mr-2 flex items-center justify-center transition-all duration-300 ease-out  ${
-                                isStarred
-                                  ? 'opacity-100 transform translate-x-0 bg-white'
-                                  : 'opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 group-hover:bg-white '
-                              }`}
-                              title={`${isStarred ? "Remove from" : "Add to"} favorites`}
-                            >
-                              <Star
-                                className={`h-4 w-4 transition-colors ${
+                              {/* Star Button - Slides from right */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleFavoriteLeague(leagueId);
+                                }}
+                                className={`absolute right-2 w-6 h-full -mr-2 flex items-center justify-center transition-all duration-300 ease-out  ${
                                   isStarred
-                                    ? "text-blue-500 fill-blue-500"
-                                    : "text-blue-500"
+                                    ? "opacity-100 transform translate-x-0 bg-white"
+                                    : "opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 group-hover:bg-white "
                                 }`}
-                              />
-                            </button>
-                          </div>
-                        );
-                      })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                                title={`${isStarred ? "Remove from" : "Add to"} favorites`}
+                              >
+                                <Star
+                                  className={`h-4 w-4 transition-colors ${
+                                    isStarred
+                                      ? "text-blue-500 fill-blue-500"
+                                      : "text-blue-500"
+                                  }`}
+                                />
+                              </button>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
         </div>
       </CardContent>
     </Card>
