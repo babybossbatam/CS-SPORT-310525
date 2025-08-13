@@ -791,7 +791,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         !is3Liga &&
                         !isExplicitlyExcluded
                       );
-                    }
+                    }</old_str>
 
                     // Check for various types of conflicting data (excluding live matches)
                     let hasConflictingData = false;
