@@ -63,7 +63,34 @@ StorageMonitor.getInstance().init();
 
 // Set EventEmitter limits early for Replit environment
 if (typeof process !== 'undefined' && process.setMaxListeners) {
-  process.setMaxListeners(2000);
+  process.setMaxListeners(8000);
+}
+
+// Set higher limits immediately for browser environment
+if (typeof window !== 'undefined') {
+  // Aggressively set limits before any other code runs
+  const setLimitsImmediately = () => {
+    // Set for common EventEmitter locations
+    if ((window as any).EventEmitter) {
+      (window as any).EventEmitter.defaultMaxListeners = 8000;
+    }
+    
+    if ((window as any).events && (window as any).events.EventEmitter) {
+      (window as any).events.EventEmitter.defaultMaxListeners = 8000;
+    }
+
+    // Target file watching specifically
+    const fileWatchTargets = ['watchTextFile', 'changes', 'hook', 'textFile', 'fileWatcher'];
+    fileWatchTargets.forEach(target => {
+      if ((window as any)[target] && typeof (window as any)[target].setMaxListeners === 'function') {
+        (window as any)[target].setMaxListeners(8000);
+      }
+    });
+  };
+
+  setLimitsImmediately();
+  // Run again after a brief delay to catch any late-loading EventEmitters
+  setTimeout(setLimitsImmediately, 100);
 }
 
 // Set default max listeners for EventEmitter globally

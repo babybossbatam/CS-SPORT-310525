@@ -96,9 +96,37 @@ export const setGlobalEventEmitterLimits = (limit: number = 2000) => {
             key.toLowerCase().includes('watch') || 
             key.toLowerCase().includes('replit') ||
             key.toLowerCase().includes('text') ||
-            key.toLowerCase().includes('change')) {
+            key.toLowerCase().includes('change') ||
+            key.toLowerCase().includes('hook') ||
+            key.toLowerCase().includes('listener')) {
           searchForEventEmitters(obj, key);
         }
+      });
+
+      // Specifically target the file watching system that's causing the warning
+      const fileWatchingTargets = [
+        'watchTextFile',
+        'changes',
+        'hook',
+        'fileWatcher',
+        'textFileWatcher'
+      ];
+
+      fileWatchingTargets.forEach(target => {
+        // Check in window
+        if ((window as any)[target] && typeof (window as any)[target].setMaxListeners === 'function') {
+          (window as any)[target].setMaxListeners(limit);
+          console.log(`🔧 Set max listeners for window.${target}: ${limit}`);
+        }
+
+        // Check in various common locations
+        const locations = [window, document, (window as any).replit, (window as any).global];
+        locations.forEach(location => {
+          if (location && location[target] && typeof location[target].setMaxListeners === 'function') {
+            location[target].setMaxListeners(limit);
+            console.log(`🔧 Set max listeners for ${target} in location: ${limit}`);
+          }
+        });
       });
 
     } catch (e) {
@@ -204,8 +232,8 @@ if (typeof process !== 'undefined') {
   };
 }
 
-// Initialize with high limits for Replit environment
-setGlobalEventEmitterLimits(2000);
+// Initialize with higher limits for Replit environment - increased for heavy file watching
+setGlobalEventEmitterLimits(5000);
 
 // Set up periodic cleanup to prevent memory leaks
 if (typeof window !== 'undefined') {
@@ -213,12 +241,12 @@ if (typeof window !== 'undefined') {
   setInterval(() => {
     try {
       cleanupEventListeners();
-      // Re-apply limits in case they were reset
-      setGlobalEventEmitterLimits(2000);
+      // Re-apply higher limits in case they were reset
+      setGlobalEventEmitterLimits(5000);
     } catch (e) {
       // Ignore cleanup errors
     }
-  }, 60000); // Every 1 minute for more frequent monitoring
+  }, 30000); // Every 30 seconds for more aggressive monitoring
 
   // Also set up immediate cleanup on page visibility change
   document.addEventListener('visibilitychange', () => {
@@ -236,13 +264,43 @@ if (typeof window !== 'undefined') {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
-        setGlobalEventEmitterLimits(5000);
+        setGlobalEventEmitterLimits(8000); // Even higher for DOM ready state
       }, 1000);
     });
   } else {
     // DOM is already ready
     setTimeout(() => {
-      setGlobalEventEmitterLimits(5000);
+      setGlobalEventEmitterLimits(8000);
     }, 100);
   }
+
+  // Set up a more aggressive initial application
+  const immediateSetup = () => {
+    setGlobalEventEmitterLimits(8000);
+    
+    // Specifically handle the changes listeners that are causing the warning
+    if (typeof window !== 'undefined') {
+      const targets = ['watchTextFile', 'changes', 'hook', 'textFile'];
+      targets.forEach(target => {
+        const searchPaths = [
+          (window as any)[target],
+          (window as any).replit?.[target],
+          document[target as any],
+          (window as any).global?.[target]
+        ];
+        
+        searchPaths.forEach(obj => {
+          if (obj && typeof obj.setMaxListeners === 'function') {
+            obj.setMaxListeners(8000);
+            console.log(`🔧 [Immediate] Set max listeners for ${target}: 8000`);
+          }
+        });
+      });
+    }
+  };
+
+  // Run immediately and then periodically
+  immediateSetup();
+  setTimeout(immediateSetup, 500);
+  setTimeout(immediateSetup, 2000);
 }
