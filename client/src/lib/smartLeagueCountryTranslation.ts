@@ -65,15 +65,15 @@ class SmartLeagueCountryTranslation {
       'es': 'Italia', 'de': 'Italien', 'it': 'Italia', 'pt': 'Itália'
     },
     'Germany': {
-      'zh': '德国', 'zh-hk': '德國', 'zh-tw': '德國',
+      'zh': '德國', 'zh-hk': '德國', 'zh-tw': '德國',
       'es': 'Alemania', 'de': 'Deutschland', 'it': 'Germania', 'pt': 'Alemanha'
     },
     'France': {
-      'zh': '法国', 'zh-hk': '法國', 'zh-tw': '法國',
+      'zh': '法國', 'zh-hk': '法國', 'zh-tw': '法國',
       'es': 'Francia', 'de': 'Frankreich', 'it': 'Francia', 'pt': 'França'
     },
     'Netherlands': {
-      'zh': '荷兰', 'zh-hk': '荷蘭', 'zh-tw': '荷蘭',
+      'zh': '荷蘭', 'zh-hk': '荷蘭', 'zh-tw': '荷蘭',
       'es': 'Países Bajos', 'de': 'Niederlande', 'it': 'Paesi Bassi', 'pt': 'Países Baixos'
     },
     'Portugal': {
@@ -81,7 +81,7 @@ class SmartLeagueCountryTranslation {
       'es': 'Portugal', 'de': 'Portugal', 'it': 'Portogallo', 'pt': 'Portugal'
     },
     'Belgium': {
-      'zh': '比利时', 'zh-hk': '比利時', 'zh-tw': '比利時',
+      'zh': '比利時', 'zh-hk': '比利時', 'zh-tw': '比利時',
       'es': 'Bélgica', 'de': 'Belgien', 'it': 'Belgio', 'pt': 'Bélgica'
     },
     'Switzerland': {
@@ -89,11 +89,11 @@ class SmartLeagueCountryTranslation {
       'es': 'Suiza', 'de': 'Schweiz', 'it': 'Svizzera', 'pt': 'Suíça'
     },
     'Austria': {
-      'zh': '奥地利', 'zh-hk': '奧地利', 'zh-tw': '奧地利',
+      'zh': '奧地利', 'zh-hk': '奧地利', 'zh-tw': '奧地利',
       'es': 'Austria', 'de': 'Österreich', 'it': 'Austria', 'pt': 'Áustria'
     },
     'Czech Republic': {
-      'zh': '捷克共和国', 'zh-hk': '捷克共和國', 'zh-tw': '捷克共和國',
+      'zh': '捷克共和國', 'zh-hk': '捷克共和國', 'zh-tw': '捷克共和國',
       'es': 'República Checa', 'de': 'Tschechische Republik', 'it': 'Repubblica Ceca', 'pt': 'República Tcheca'
     },
     'Slovakia': {
@@ -101,7 +101,7 @@ class SmartLeagueCountryTranslation {
       'es': 'Eslovaquia', 'de': 'Slowakei', 'it': 'Slovacchia', 'pt': 'Eslováquia'
     },
     'Slovenia': {
-      'zh': '斯洛文尼亚', 'zh-hk': '斯洛文尼亞', 'zh-tw': '斯洛維尼亞',
+      'zh': '斯洛文尼亞', 'zh-hk': '斯洛文尼亞', 'zh-tw': '斯洛維尼亞',
       'es': 'Eslovenia', 'de': 'Slowenien', 'it': 'Slovenia', 'pt': 'Eslovênia'
     },
     'Hungary': {
@@ -109,31 +109,31 @@ class SmartLeagueCountryTranslation {
       'es': 'Hungría', 'de': 'Ungarn', 'it': 'Ungheria', 'pt': 'Hungria'
     },
     'Poland': {
-      'zh': '波兰', 'zh-hk': '波蘭', 'zh-tw': '波蘭',
+      'zh': '波蘭', 'zh-hk': '波蘭', 'zh-tw': '波蘭',
       'es': 'Polonia', 'de': 'Polen', 'it': 'Polonia', 'pt': 'Polônia'
     },
     'Romania': {
-      'zh': '罗马尼亚', 'zh-hk': '羅馬尼亞', 'zh-tw': '羅馬尼亞',
+      'zh': '羅馬尼亞', 'zh-hk': '羅馬尼亞', 'zh-tw': '羅馬尼亞',
       'es': 'Rumania', 'de': 'Rumänien', 'it': 'Romania', 'pt': 'Romênia'
     },
     'Bulgaria': {
-      'zh': '保加利亚', 'zh-hk': '保加利亞', 'zh-tw': '保加利亞',
+      'zh': '保加利亞', 'zh-hk': '保加利亞', 'zh-tw': '保加利亞',
       'es': 'Bulgaria', 'de': 'Bulgarien', 'it': 'Bulgaria', 'pt': 'Bulgária'
     },
     'Croatia': {
-      'zh': '克罗地亚', 'zh-hk': '克羅地亞', 'zh-tw': '克羅埃西亞',
+      'zh': '克羅地亞', 'zh-hk': '克羅地亞', 'zh-tw': '克羅埃西亞',
       'es': 'Croacia', 'de': 'Kroatien', 'it': 'Croazia', 'pt': 'Croácia'
     },
     'Serbia': {
-      'zh': '塞尔维亚', 'zh-hk': '塞爾維亞', 'zh-tw': '塞爾維亞',
+      'zh': '塞爾維亞', 'zh-hk': '塞爾維亞', 'zh-tw': '塞爾維亞',
       'es': 'Serbia', 'de': 'Serbien', 'it': 'Serbia', 'pt': 'Sérvia'
     },
     'Greece': {
-      'zh': '希腊', 'zh-hk': '希臘', 'zh-tw': '希臘',
+      'zh': '希臘', 'zh-hk': '希臘', 'zh-tw': '希臘',
       'es': 'Grecia', 'de': 'Griechenland', 'it': 'Grecia', 'pt': 'Grécia'
     },
     'Denmark': {
-      'zh': '丹麦', 'zh-hk': '丹麥', 'zh-tw': '丹麥',
+      'zh': '丹麥', 'zh-hk': '丹麥', 'zh-tw': '丹麥',
       'es': 'Dinamarca', 'de': 'Dänemark', 'it': 'Danimarca', 'pt': 'Dinamarca'
     },
     'Sweden': {
@@ -145,19 +145,19 @@ class SmartLeagueCountryTranslation {
       'es': 'Noruega', 'de': 'Norwegen', 'it': 'Norvegia', 'pt': 'Noruega'
     },
     'Finland': {
-      'zh': '芬兰', 'zh-hk': '芬蘭', 'zh-tw': '芬蘭',
+      'zh': '芬蘭', 'zh-hk': '芬蘭', 'zh-tw': '芬蘭',
       'es': 'Finlandia', 'de': 'Finnland', 'it': 'Finlandia', 'pt': 'Finlândia'
     },
     'Iceland': {
-      'zh': '冰岛', 'zh-hk': '冰島', 'zh-tw': '冰島',
+      'zh': '冰島', 'zh-hk': '冰島', 'zh-tw': '冰島',
       'es': 'Islandia', 'de': 'Island', 'it': 'Islanda', 'pt': 'Islândia'
     },
     'Russia': {
-      'zh': '俄罗斯', 'zh-hk': '俄羅斯', 'zh-tw': '俄羅斯',
+      'zh': '俄羅斯', 'zh-hk': '俄羅斯', 'zh-tw': '俄羅斯',
       'es': 'Rusia', 'de': 'Russland', 'it': 'Russia', 'pt': 'Rússia'
     },
     'Ukraine': {
-      'zh': '乌克兰', 'zh-hk': '烏克蘭', 'zh-tw': '烏克蘭',
+      'zh': '烏克蘭', 'zh-hk': '烏克蘭', 'zh-tw': '烏克蘭',
       'es': 'Ucrania', 'de': 'Ukraine', 'it': 'Ucraina', 'pt': 'Ucrânia'
     },
     'Turkey': {
@@ -165,7 +165,7 @@ class SmartLeagueCountryTranslation {
       'es': 'Turquía', 'de': 'Türkei', 'it': 'Turchia', 'pt': 'Turquia'
     },
     'Estonia': {
-      'zh': '爱沙尼亚', 'zh-hk': '愛沙尼亞', 'zh-tw': '愛沙尼亞',
+      'zh': '愛沙尼亞', 'zh-hk': '愛沙尼亞', 'zh-tw': '愛沙尼亞',
       'es': 'Estonia', 'de': 'Estland', 'it': 'Estonia', 'pt': 'Estônia'
     },
     'Bhutan': {
@@ -178,7 +178,7 @@ class SmartLeagueCountryTranslation {
       pt: 'Butão'
     },
     'Scotland': {
-      zh: '苏格兰',
+      zh: '蘇格蘭',
       'zh-hk': '蘇格蘭',
       'zh-tw': '蘇格蘭',
       es: 'Escocia',
@@ -187,7 +187,7 @@ class SmartLeagueCountryTranslation {
       pt: 'Escócia'
     },
     'Latvia': {
-      'zh': '拉脱维亚', 'zh-hk': '拉脫維亞', 'zh-tw': '拉脫維亞',
+      'zh': '拉脫維亞', 'zh-hk': '拉脫維亞', 'zh-tw': '拉脫維亞',
       'es': 'Letonia', 'de': 'Lettland', 'it': 'Lettonia', 'pt': 'Letônia'
     },
     'Lithuania': {
@@ -195,11 +195,11 @@ class SmartLeagueCountryTranslation {
       'es': 'Lituania', 'de': 'Litauen', 'it': 'Lituania', 'pt': 'Lituânia'
     },
     'Georgia': {
-      'zh': '格鲁吉亚', 'zh-hk': '格魯吉亞', 'zh-tw': '格魯吉亞',
+      'zh': '格魯吉亞', 'zh-hk': '格魯吉亞', 'zh-tw': '格魯吉亞',
       'es': 'Georgia', 'de': 'Georgien', 'it': 'Georgia', 'pt': 'Geórgia'
     },
     'Armenia': {
-      'zh': '亚美尼亚', 'zh-hk': '亞美尼亞', 'zh-tw': '亞美尼亞',
+      'zh': '亞美尼亞', 'zh-hk': '亞美尼亞', 'zh-tw': '亞美尼亞',
       'es': 'Armenia', 'de': 'Armenien', 'it': 'Armenia', 'pt': 'Armênia'
     },
     'Liechtenstein': {
@@ -221,7 +221,7 @@ class SmartLeagueCountryTranslation {
       'es': 'México', 'de': 'Mexiko', 'it': 'Messico', 'pt': 'México'
     },
     'United States': {
-      'zh': '美国', 'zh-hk': '美國', 'zh-tw': '美國',
+      'zh': '美國', 'zh-hk': '美國', 'zh-tw': '美國',
       'es': 'Estados Unidos', 'de': 'Vereinigte Staaten', 'it': 'Stati Uniti', 'pt': 'Estados Unidos'
     },
     'Canada': {
@@ -229,7 +229,7 @@ class SmartLeagueCountryTranslation {
       'es': 'Canadá', 'de': 'Kanada', 'it': 'Canada', 'pt': 'Canadá'
     },
     'Colombia': {
-      'zh': '哥伦比亚', 'zh-hk': '哥倫比亞', 'zh-tw': '哥倫比亞',
+      'zh': '哥倫比亞', 'zh-hk': '哥倫比亞', 'zh-tw': '哥倫比亞',
       'es': 'Colombia', 'de': 'Kolumbien', 'it': 'Colombia', 'pt': 'Colômbia'
     },
     'Chile': {
@@ -237,15 +237,15 @@ class SmartLeagueCountryTranslation {
       'es': 'Chile', 'de': 'Chile', 'it': 'Cile', 'pt': 'Chile'
     },
     'Peru': {
-      'zh': '秘鲁', 'zh-hk': '秘魯', 'zh-tw': '秘魯',
+      'zh': '秘魯', 'zh-hk': '秘魯', 'zh-tw': '秘魯',
       'es': 'Perú', 'de': 'Peru', 'it': 'Perù', 'pt': 'Peru'
     },
     'Ecuador': {
-      'zh': '厄瓜多尔', 'zh-hk': '厄瓜多爾', 'zh-tw': '厄瓜多爾',
+      'zh': '厄瓜多爾', 'zh-hk': '厄瓜多爾', 'zh-tw': '厄瓜多爾',
       'es': 'Ecuador', 'de': 'Ecuador', 'it': 'Ecuador', 'pt': 'Equador'
     },
     'Uruguay': {
-      'zh': '乌拉圭', 'zh-hk': '烏拉圭', 'zh-tw': '烏拉圭',
+      'zh': '烏拉圭', 'zh-hk': '烏拉圭', 'zh-tw': '烏拉圭',
       'es': 'Uruguay', 'de': 'Uruguay', 'it': 'Uruguay', 'pt': 'Uruguai'
     },
     'Paraguay': {
@@ -253,15 +253,15 @@ class SmartLeagueCountryTranslation {
       'es': 'Paraguay', 'de': 'Paraguay', 'it': 'Paraguay', 'pt': 'Paraguai'
     },
     'Bolivia': {
-      'zh': '玻利维亚', 'zh-hk': '玻利維亞', 'zh-tw': '玻利維亞',
+      'zh': '玻利維亞', 'zh-hk': '玻利維亞', 'zh-tw': '玻利維亞',
       'es': 'Bolivia', 'de': 'Bolivien', 'it': 'Bolivia', 'pt': 'Bolívia'
     },
     'Venezuela': {
-      'zh': '委内瑞拉', 'zh-hk': '委內瑞拉', 'zh-tw': '委內瑞拉',
+      'zh': '委內瑞拉', 'zh-hk': '委內瑞拉', 'zh-tw': '委內瑞拉',
       'es': 'Venezuela', 'de': 'Venezuela', 'it': 'Venezuela', 'pt': 'Venezuela'
     },
     'Dominican Republic': {
-      'zh': '多米尼加共和国', 'zh-hk': '多明尼加共和國', 'zh-tw': '多明尼加共和國',
+      'zh': '多明尼加共和國', 'zh-hk': '多明尼加共和國', 'zh-tw': '多明尼加共和國',
       'es': 'República Dominicana', 'de': 'Dominikanische Republik', 'it': 'Repubblica Dominicana', 'pt': 'República Dominicana'
     },
 
@@ -271,11 +271,11 @@ class SmartLeagueCountryTranslation {
       'es': 'Japón', 'de': 'Japan', 'it': 'Giappone', 'pt': 'Japão'
     },
     'South Korea': {
-      'zh': '韩国', 'zh-hk': '韓國', 'zh-tw': '韓國',
+      'zh': '韓國', 'zh-hk': '韓國', 'zh-tw': '韓國',
       'es': 'Corea del Sur', 'de': 'Südkorea', 'it': 'Corea del Sud', 'pt': 'Coreia do Sul'
     },
     'China': {
-      'zh': '中国', 'zh-hk': '中國', 'zh-tw': '中國',
+      'zh': '中國', 'zh-hk': '中國', 'zh-tw': '中國',
       'es': 'China', 'de': 'China', 'it': 'Cina', 'pt': 'China'
     },
     'India': {
@@ -283,27 +283,27 @@ class SmartLeagueCountryTranslation {
       'es': 'India', 'de': 'Indien', 'it': 'India', 'pt': 'Índia'
     },
     'Australia': {
-      'zh': '澳大利亚', 'zh-hk': '澳洲', 'zh-tw': '澳洲',
+      'zh': '澳洲', 'zh-hk': '澳洲', 'zh-tw': '澳洲',
       'es': 'Australia', 'de': 'Australien', 'it': 'Australia', 'pt': 'Austrália'
     },
     'New South Wales': {
-      'zh': '新南威尔士', 'zh-hk': '新南威爾士', 'zh-tw': '新南威爾士',
+      'zh': '新南威爾士', 'zh-hk': '新南威爾士', 'zh-tw': '新南威爾士',
       'es': 'Nueva Gales del Sur', 'de': 'New South Wales', 'it': 'Nuovo Galles del Sud', 'pt': 'Nova Gales do Sul'
     },
     'Western Australia': {
-      'zh': '西澳大利亚', 'zh-hk': '西澳大利亞', 'zh-tw': '西澳大利亞',
+      'zh': '西澳大利亞', 'zh-hk': '西澳大利亞', 'zh-tw': '西澳大利亞',
       'es': 'Australia Occidental', 'de': 'Western Australia', 'it': 'Australia Occidentale', 'pt': 'Austrália Ocidental'
     },
     'Australian Capital Territory': {
-      'zh': '澳大利亚首都地区', 'zh-hk': '澳洲首都地區', 'zh-tw': '澳洲首都地區',
+      'zh': '澳洲首都地區', 'zh-hk': '澳洲首都地區', 'zh-tw': '澳洲首都地區',
       'es': 'Territorio de la Capital Australiana', 'de': 'Australian Capital Territory', 'it': 'Territorio della Capitale Australiana', 'pt': 'Território da Capital Australiana'
     },
     'Thailand': {
-      'zh': '泰国', 'zh-hk': '泰國', 'zh-tw': '泰國',
+      'zh': '泰國', 'zh-hk': '泰國', 'zh-tw': '泰國',
       'es': 'Tailandia', 'de': 'Thailand', 'it': 'Thailandia', 'pt': 'Tailândia'
     },
     'Malaysia': {
-      'zh': '马来西亚', 'zh-hk': '馬來西亞', 'zh-tw': '馬來西亞',
+      'zh': '馬來西亞', 'zh-hk': '馬來西亞', 'zh-tw': '馬來西亞',
       'es': 'Malasia', 'de': 'Malaysia', 'it': 'Malesia', 'pt': 'Malásia'
     },
     'Singapore': {
@@ -311,11 +311,11 @@ class SmartLeagueCountryTranslation {
       'es': 'Singapur', 'de': 'Singapur', 'it': 'Singapore', 'pt': 'Singapura'
     },
     'Indonesia': {
-      'zh': '印度尼西亚', 'zh-hk': '印尼', 'zh-tw': '印尼',
+      'zh': '印尼', 'zh-hk': '印尼', 'zh-tw': '印尼',
       'es': 'Indonesia', 'de': 'Indonesien', 'it': 'Indonesia', 'pt': 'Indonésia'
     },
     'Philippines': {
-      'zh': '菲律宾', 'zh-hk': '菲律賓', 'zh-tw': '菲律賓',
+      'zh': '菲律賓', 'zh-hk': '菲律賓', 'zh-tw': '菲律賓',
       'es': 'Filipinas', 'de': 'Philippinen', 'it': 'Filippine', 'pt': 'Filipinas'
     },
     'Vietnam': {
@@ -329,11 +329,11 @@ class SmartLeagueCountryTranslation {
       'es': 'Arabia Saudí', 'de': 'Saudi-Arabien', 'it': 'Arabia Saudita', 'pt': 'Arábia Saudita'
     },
     'United Arab Emirates': {
-      'zh': '阿拉伯联合酋长国', 'zh-hk': '阿拉伯聯合酋長國', 'zh-tw': '阿拉伯聯合酋長國',
+      'zh': '阿拉伯聯合酋長國', 'zh-hk': '阿拉伯聯合酋長國', 'zh-tw': '阿拉伯聯合酋長國',
       'es': 'Emiratos Árabes Unidos', 'de': 'Vereinigte Arabische Emirate', 'it': 'Emirati Arabi Uniti', 'pt': 'Emirados Árabes Unidos'
     },
     'UAE': {
-      'zh': '阿联酋', 'zh-hk': '阿聯酋', 'zh-tw': '阿聯酋',
+      'zh': '阿聯酋', 'zh-hk': '阿聯酋', 'zh-tw': '阿聯酋',
       'es': 'EAU', 'de': 'VAE', 'it': 'EAU', 'pt': 'EAU'
     },
     'Egypt': {
@@ -353,11 +353,11 @@ class SmartLeagueCountryTranslation {
       'es': 'Israel', 'de': 'Israel', 'it': 'Israele', 'pt': 'Israel'
     },
     'Jordan': {
-      'zh': '约旦', 'zh-hk': '約旦', 'zh-tw': '約旦',
+      'zh': '約旦', 'zh-hk': '約旦', 'zh-tw': '約旦',
       'es': 'Jordania', 'de': 'Jordanien', 'it': 'Giordania', 'pt': 'Jordânia'
     },
     'Qatar': {
-      'zh': '卡塔尔', 'zh-hk': '卡塔爾', 'zh-tw': '卡達',
+      'zh': '卡塔爾', 'zh-hk': '卡塔爾', 'zh-tw': '卡達',
       'es': 'Catar', 'de': 'Katar', 'it': 'Qatar', 'pt': 'Catar'
     },
     'Kuwait': {
@@ -377,7 +377,7 @@ class SmartLeagueCountryTranslation {
       'es': 'Sudáfrica', 'de': 'Südafrika', 'it': 'Sudafrica', 'pt': 'África do Sul'
     },
     'Nigeria': {
-      'zh': '尼日利亚', 'zh-hk': '尼日利亞', 'zh-tw': '奈及利亞',
+      'zh': '尼日利亞', 'zh-hk': '尼日利亞', 'zh-tw': '奈及利亞',
       'es': 'Nigeria', 'de': 'Nigeria', 'it': 'Nigeria', 'pt': 'Nigéria'
     },
     'Morocco': {
@@ -385,7 +385,7 @@ class SmartLeagueCountryTranslation {
       'es': 'Marruecos', 'de': 'Marokko', 'it': 'Marocco', 'pt': 'Marrocos'
     },
     'Algeria': {
-      'zh': '阿尔及利亚', 'zh-hk': '阿爾及利亞', 'zh-tw': '阿爾及利亞',
+      'zh': '阿爾及利亞', 'zh-hk': '阿爾及利亞', 'zh-tw': '阿爾及利亞',
       'es': 'Argelia', 'de': 'Algerien', 'it': 'Algeria', 'pt': 'Argélia'
     },
     'Tunisia': {
@@ -393,19 +393,19 @@ class SmartLeagueCountryTranslation {
       'es': 'Túnez', 'de': 'Tunesien', 'it': 'Tunisia', 'pt': 'Tunísia'
     },
     'Ghana': {
-      'zh': '加纳', 'zh-hk': '加納', 'zh-tw': '迦納',
+      'zh': '加納', 'zh-hk': '加納', 'zh-tw': '迦納',
       'es': 'Ghana', 'de': 'Ghana', 'it': 'Ghana', 'pt': 'Gana'
     },
     'Kenya': {
-      'zh': '肯尼亚', 'zh-hk': '肯尼亞', 'zh-tw': '肯亞',
+      'zh': '肯尼亞', 'zh-hk': '肯尼亞', 'zh-tw': '肯亞',
       'es': 'Kenia', 'de': 'Kenia', 'it': 'Kenya', 'pt': 'Quênia'
     },
     'Cameroon': {
-      'zh': '喀麦隆', 'zh-hk': '喀麥隆', 'zh-tw': '喀麥隆',
+      'zh': '喀麥隆', 'zh-hk': '喀麥隆', 'zh-tw': '喀麥隆',
       'es': 'Camerún', 'de': 'Kamerun', 'it': 'Camerun', 'pt': 'Camarões'
     },
     'Senegal': {
-      'zh': '塞内加尔', 'zh-hk': '塞內加爾', 'zh-tw': '塞內加爾',
+      'zh': '塞內加爾', 'zh-hk': '塞內加爾', 'zh-tw': '塞內加爾',
       'es': 'Senegal', 'de': 'Senegal', 'it': 'Senegal', 'pt': 'Senegal'
     },
     'Ivory Coast': {
@@ -413,55 +413,55 @@ class SmartLeagueCountryTranslation {
       'es': 'Costa de Marfil', 'de': 'Elfenbeinküste', 'it': 'Costa d\'Avorio', 'pt': 'Costa do Marfim'
     },
     'Mali': {
-      'zh': '马里', 'zh-hk': '馬里', 'zh-tw': '馬利',
+      'zh': '馬里', 'zh-hk': '馬里', 'zh-tw': '馬利',
       'es': 'Malí', 'de': 'Mali', 'it': 'Mali', 'pt': 'Mali'
     },
     'Burkina Faso': {
-      'zh': '布基纳法索', 'zh-hk': '布基納法索', 'zh-tw': '布吉納法索',
+      'zh': '布基納法索', 'zh-hk': '布基納法索', 'zh-tw': '布吉納法索',
       'es': 'Burkina Faso', 'de': 'Burkina Faso', 'it': 'Burkina Faso', 'pt': 'Burkina Faso'
     },
     'Zimbabwe': {
-      'zh': '津巴布韦', 'zh-hk': '津巴布韋', 'zh-tw': '辛巴威',
+      'zh': '津巴布韋', 'zh-hk': '津巴布韋', 'zh-tw': '辛巴威',
       'es': 'Zimbabue', 'de': 'Simbabwe', 'it': 'Zimbabwe', 'pt': 'Zimbábue'
     },
     'Zambia': {
-      'zh': '赞比亚', 'zh-hk': '贊比亞', 'zh-tw': '尚比亞',
+      'zh': '贊比亞', 'zh-hk': '贊比亞', 'zh-tw': '尚比亞',
       'es': 'Zambia', 'de': 'Sambia', 'it': 'Zambia', 'pt': 'Zâmbia'
     },
     'Libya': {
-      'zh': '利比亚', 'zh-hk': '利比亞', 'zh-tw': '利比亞',
+      'zh': '利比亞', 'zh-hk': '利比亞', 'zh-tw': '利比亞',
       'es': 'Libia', 'de': 'Libyen', 'it': 'Libia', 'pt': 'Líbia'
     },
     'Macedonia': {
-      'zh': '马其顿', 'zh-hk': '馬其頓', 'zh-tw': '馬其頓',
+      'zh': '馬其頓', 'zh-hk': '馬其頓', 'zh-tw': '馬其頓',
       'es': 'Macedonia', 'de': 'Mazedonien', 'it': 'Macedonia', 'pt': 'Macedônia'
     },
     'Northern Ireland': {
-      'zh': '北爱尔兰', 'zh-hk': '北愛爾蘭', 'zh-tw': '北愛爾蘭',
+      'zh': '北愛爾蘭', 'zh-hk': '北愛爾蘭', 'zh-tw': '北愛爾蘭',
       'es': 'Irlanda del Norte', 'de': 'Nordirland', 'it': 'Irlanda del Nord', 'pt': 'Irlanda do Norte'
     },
     'Northern-Ireland': {
-      'zh': '北爱尔兰', 'zh-hk': '北愛爾蘭', 'zh-tw': '北愛爾蘭',
+      'zh': '北愛爾蘭', 'zh-hk': '北愛爾蘭', 'zh-tw': '北愛爾蘭',
       'es': 'Irlanda del Norte', 'de': 'Nordirland', 'it': 'Irlanda del Nord', 'pt': 'Irlanda do Norte'
     },
     'Turkmenistan': {
-      'zh': '土库曼斯坦', 'zh-hk': '土庫曼斯坦', 'zh-tw': '土庫曼斯坦',
+      'zh': '土庫曼斯坦', 'zh-hk': '土庫曼斯坦', 'zh-tw': '土庫曼斯坦',
       'es': 'Turkmenistán', 'de': 'Turkmenistan', 'it': 'Turkmenistan', 'pt': 'Turcomenistão'
     },
     'USA': {
-      'zh': '美国', 'zh-hk': '美國', 'zh-tw': '美國',
+      'zh': '美國', 'zh-hk': '美國', 'zh-tw': '美國',
       'es': 'Estados Unidos', 'de': 'USA', 'it': 'Stati Uniti', 'pt': 'EUA'
     },
     'United States of America': {
-      'zh': '美利坚合众国', 'zh-hk': '美利堅合眾國', 'zh-tw': '美利堅合眾國',
+      'zh': '美利堅合眾國', 'zh-hk': '美利堅合眾國', 'zh-tw': '美利堅合眾國',
       'es': 'Estados Unidos de América', 'de': 'Vereinigte Staaten von Amerika', 'it': 'Stati Uniti d\'America', 'pt': 'Estados Unidos da América'
     },
     'Czech-Republic': {
-      'zh': '捷克共和国', 'zh-hk': '捷克共和國', 'zh-tw': '捷克共和國',
+      'zh': '捷克共和國', 'zh-hk': '捷克共和國', 'zh-tw': '捷克共和國',
       'es': 'República Checa', 'de': 'Tschechische Republik', 'it': 'Repubblica Ceca', 'pt': 'República Tcheca'
     },
     'Guatemala': {
-      'zh': '危地马拉', 'zh-hk': '危地馬拉', 'zh-tw': '瓜地馬拉',
+      'zh': '危地馬拉', 'zh-hk': '危地馬拉', 'zh-tw': '瓜地馬拉',
       'es': 'Guatemala', 'de': 'Guatemala', 'it': 'Guatemala', 'pt': 'Guatemala'
     },
     'Honduras': {
@@ -469,7 +469,7 @@ class SmartLeagueCountryTranslation {
       'es': 'Honduras', 'de': 'Honduras', 'it': 'Honduras', 'pt': 'Honduras'
     },
     'El Salvador': {
-      'zh': '萨尔瓦多', 'zh-hk': '薩爾瓦多', 'zh-tw': '薩爾瓦多',
+      'zh': '薩爾瓦多', 'zh-hk': '薩爾瓦多', 'zh-tw': '薩爾瓦多',
       'es': 'El Salvador', 'de': 'El Salvador', 'it': 'El Salvador', 'pt': 'El Salvador'
     },
     'Nicaragua': {
@@ -477,19 +477,19 @@ class SmartLeagueCountryTranslation {
       'es': 'Nicaragua', 'de': 'Nicaragua', 'it': 'Nicaragua', 'pt': 'Nicarágua'
     },
     'Costa Rica': {
-      'zh': '哥斯达黎加', 'zh-hk': '哥斯達黎加', 'zh-tw': '哥斯大黎加',
+      'zh': '哥斯達黎加', 'zh-hk': '哥斯達黎加', 'zh-tw': '哥斯大黎加',
       'es': 'Costa Rica', 'de': 'Costa Rica', 'it': 'Costa Rica', 'pt': 'Costa Rica'
     },
     'Panama': {
-      'zh': '巴拿马', 'zh-hk': '巴拿馬', 'zh-tw': '巴拿馬',
+      'zh': '巴拿馬', 'zh-hk': '巴拿馬', 'zh-tw': '巴拿馬',
       'es': 'Panamá', 'de': 'Panama', 'it': 'Panama', 'pt': 'Panamá'
     },
     'Jamaica': {
-      'zh': '牙买加', 'zh-hk': '牙買加', 'zh-tw': '牙買加',
+      'zh': '牙買加', 'zh-hk': '牙買加', 'zh-tw': '牙買加',
       'es': 'Jamaica', 'de': 'Jamaika', 'it': 'Giamaica', 'pt': 'Jamaica'
     },
     'Trinidad and Tobago': {
-      'zh': '特立尼达和多巴哥', 'zh-hk': '千里達及托巴哥', 'zh-tw': '千里達及托巴哥',
+      'zh': '千里達及托巴哥', 'zh-hk': '千里達及托巴哥', 'zh-tw': '千里達及托巴哥',
       'es': 'Trinidad y Tobago', 'de': 'Trinidad und Tobago', 'it': 'Trinidad e Tobago', 'pt': 'Trinidad e Tobago'
     }
   };
@@ -503,6 +503,7 @@ class SmartLeagueCountryTranslation {
     // Auto-learn problematic leagues on startup
     setTimeout(() => {
       this.learnProblematicLeagueNames();
+      this.fixMixedLanguageLeagues();
     }, 1000);
 
     console.log('🔄 [SmartLeagueCountryTranslation] Initialized with cache cleared for fresh translations and automated mappings integrated');
@@ -546,83 +547,83 @@ class SmartLeagueCountryTranslation {
 
     // UEFA Competitions
     'UEFA Champions League': {
-      'zh': 'UEFA欧洲冠军联赛', 'zh-hk': 'UEFA歐洲冠軍聯賽', 'zh-tw': 'UEFA歐洲冠軍聯賽',
+      'zh': 'UEFA歐洲冠軍聯賽', 'zh-hk': 'UEFA歐洲冠軍聯賽', 'zh-tw': 'UEFA歐洲冠軍聯賽',
       'es': 'Liga de Campeones de la UEFA', 'de': 'UEFA Champions League', 'it': 'UEFA Champions League', 'pt': 'Liga dos Campeões da UEFA'
     },
     'UEFA Europa League': {
-      'zh': 'UEFA欧洲联赛', 'zh-hk': 'UEFA歐洲聯賽', 'zh-tw': 'UEFA歐洲聯賽',
+      'zh': 'UEFA歐洲聯賽', 'zh-hk': 'UEFA歐洲聯賽', 'zh-tw': 'UEFA歐洲聯賽',
       'es': 'Liga Europa de la UEFA', 'de': 'UEFA Europa League', 'it': 'UEFA Europa League', 'pt': 'Liga Europa da UEFA'
     },
     'UEFA Conference League': {
-      'zh': 'UEFA欧洲协会联赛', 'zh-hk': 'UEFA歐洲協會聯賽', 'zh-tw': 'UEFA歐洲協會聯賽',
+      'zh': 'UEFA歐洲協會聯賽', 'zh-hk': 'UEFA歐洲協會聯賽', 'zh-tw': 'UEFA歐洲協會聯賽',
       'es': 'Liga de la Conferencia UEFA', 'de': 'UEFA Conference League', 'it': 'UEFA Conference League', 'pt': 'Liga da Conferência UEFA'
     },
     'UEFA Nations League': {
-      'zh': 'UEFA国家联赛', 'zh-hk': 'UEFA國家聯賽', 'zh-tw': 'UEFA國家聯賽',
+      'zh': 'UEFA國家聯賽', 'zh-hk': 'UEFA國家聯賽', 'zh-tw': 'UEFA國家聯賽',
       'es': 'Liga de Naciones de la UEFA', 'de': 'UEFA Nations League', 'it': 'UEFA Nations League', 'pt': 'Liga das Nações da UEFA'
     },
     'UEFA Super Cup': {
-      'zh': 'UEFA超级杯', 'zh-hk': 'UEFA超級盃', 'zh-tw': 'UEFA超級盃',
+      'zh': 'UEFA超級盃', 'zh-hk': 'UEFA超級盃', 'zh-tw': 'UEFA超級盃',
       'es': 'Supercopa de la UEFA', 'de': 'UEFA Super Cup', 'it': 'Supercoppa UEFA', 'pt': 'Supertaça Europeia'
     },
 
     // Top European Leagues
     'Premier League': {
-      'zh': '英格兰超级联赛', 'zh-hk': '英格蘭超級聯賽', 'zh-tw': '英格蘭超級聯賽',
+      'zh': '英格蘭超級聯賽', 'zh-hk': '英格蘭超級聯賽', 'zh-tw': '英格蘭超級聯賽',
       'es': 'Premier League', 'de': 'Premier League', 'it': 'Premier League', 'pt': 'Premier League'
     },
     'La Liga': {
-      'zh': '西班牙甲级联赛', 'zh-hk': '西班牙甲級聯賽', 'zh-tw': '西班牙甲級聯賽',
+      'zh': '西班牙甲級聯賽', 'zh-hk': '西班牙甲級聯賽', 'zh-tw': '西班牙甲級聯賽',
       'es': 'La Liga', 'de': 'La Liga', 'it': 'La Liga', 'pt': 'La Liga'
     },
     'Serie A': {
-      'zh': '意大利甲级联赛', 'zh-hk': '意大利甲級聯賽', 'zh-tw': '意大利甲級聯賽',
+      'zh': '意大利甲級聯賽', 'zh-hk': '意大利甲級聯賽', 'zh-tw': '意大利甲級聯賽',
       'es': 'Serie A', 'de': 'Serie A', 'it': 'Serie A', 'pt': 'Serie A'
     },
     'Bundesliga': {
-      'zh': '德国甲级联赛', 'zh-hk': '德國甲級聯賽', 'zh-tw': '德國甲級聯賽',
+      'zh': '德國甲級聯賽', 'zh-hk': '德國甲級聯賽', 'zh-tw': '德國甲級聯賽',
       'es': 'Bundesliga', 'de': 'Bundesliga', 'it': 'Bundesliga', 'pt': 'Bundesliga'
     },
     'Ligue 1': {
-      'zh': '法国甲级联赛', 'zh-hk': '法國甲級聯賽', 'zh-tw': '法國甲級聯賽',
+      'zh': '法國甲級聯賽', 'zh-hk': '法國甲級聯賽', 'zh-tw': '法國甲級聯賽',
       'es': 'Ligue 1', 'de': 'Ligue 1', 'it': 'Ligue 1', 'pt': 'Ligue 1'
     },
 
     // Friendlies
     'Friendlies Clubs': {
-      'zh': '俱乐部友谊赛', 'zh-hk': '球會友誼賽', 'zh-tw': '球會友誼賽',
+      'zh': '球會友誼賽', 'zh-hk': '球會友誼賽', 'zh-tw': '球會友誼賽',
       'es': 'Amistosos de Clubes', 'de': 'Vereinsfreundschaftsspiele', 'it': 'Amichevoli di Club', 'pt': 'Amigáveis de Clubes'
     },
     'Club Friendlies': {
-      'zh': '俱乐部友谊赛', 'zh-hk': '球會友誼賽', 'zh-tw': '球會友誼賽',
+      'zh': '球會友誼賽', 'zh-hk': '球會友誼賽', 'zh-tw': '球會友誼賽',
       'es': 'Amistosos de Clubes', 'de': 'Vereinsfreundschaftsspiele', 'it': 'Amichevoli di Club', 'pt': 'Amigáveis de Clubes'
     },
     'Friendlies': {
-      'zh': '友谊赛', 'zh-hk': '友誼賽', 'zh-tw': '友誼賽',
+      'zh': '友誼賽', 'zh-hk': '友誼賽', 'zh-tw': '友誼賽',
       'es': 'Amistosos', 'de': 'Freundschaftsspiele', 'it': 'Amichevoli', 'pt': 'Amigáveis'
     },
 
     // World Competitions
     'FIFA Club World Cup': {
-      'zh': 'FIFA世界俱乐部杯', 'zh-hk': 'FIFA世界冠軍球會盃', 'zh-tw': 'FIFA世界冠軍球會盃',
+      'zh': 'FIFA世界冠軍球會盃', 'zh-hk': 'FIFA世界冠軍球會盃', 'zh-tw': 'FIFA世界冠軍球會盃',
       'es': 'Copa Mundial de Clubes FIFA', 'de': 'FIFA Klub-Weltmeisterschaft', 'it': 'Coppa del Mondo per club FIFA', 'pt': 'Copa do Mundo de Clubes da FIFA'
     },
     'Group Standings': {
-      'zh': '小组积分榜', 'zh-hk': '小組積分榜', 'zh-tw': '小組積分榜',
+      'zh': '小組積分榜', 'zh-hk': '小組積分榜', 'zh-tw': '小組積分榜',
       'es': 'Clasificación de Grupos', 'de': 'Gruppentabelle', 'it': 'Classifica Gironi', 'pt': 'Classificação dos Grupos'
     },
     'World Cup': {
-      'zh': '世界杯', 'zh-hk': '世界盃', 'zh-tw': '世界盃',
+      'zh': '世界盃', 'zh-hk': '世界盃', 'zh-tw': '世界盃',
       'es': 'Copa del Mundo', 'de': 'Weltmeisterschaft', 'it': 'Coppa del Mondo', 'pt': 'Copa do Mundo'
     },
 
     // American Leagues
     'Major League Soccer': {
-      'zh': '美国职业足球大联盟', 'zh-hk': '美國職業足球大聯盟', 'zh-tw': '美國職業足球大聯盟',
+      'zh': '美國職業足球大聯盟', 'zh-hk': '美國職業足球大聯盟', 'zh-tw': '美國職業足球大聯盟',
       'es': 'Liga Mayor de Fútbol', 'de': 'Major League Soccer', 'it': 'Major League Soccer', 'pt': 'Liga Principal de Futebol'
     },
     'Leagues Cup': {
-      'zh': '联赛杯', 'zh-hk': '聯賽盃', 'zh-tw': '聯賽盃',
+      'zh': '聯賽盃', 'zh-hk': '聯賽盃', 'zh-tw': '聯賽盃',
       'es': 'Copa de Ligas', 'de': 'Liga-Pokal', 'it': 'Coppa delle Leghe', 'pt': 'Copa das Ligas'
     },
 
@@ -632,7 +633,7 @@ class SmartLeagueCountryTranslation {
         'es': 'Amistosos de Clubes',
         'zh-hk': '球會友誼賽',
         'zh-tw': '球會友誼賽',
-        'zh': '俱乐部友谊赛',
+        'zh': '球會友誼賽',
         'de': 'Vereinsfreundschaftsspiele',
         'it': 'Amichevoli di Club',
         'pt': 'Amigáveis de Clubes'
@@ -707,7 +708,7 @@ class SmartLeagueCountryTranslation {
       },
 
       // Dutch/Chinese Mixed Leagues
-      'Netherlands联赛': {
+      'Netherlands聯賽': {
         'en': 'Netherlands League',
         'es': 'Liga de Países Bajos',
         'zh-hk': '荷蘭聯賽',
@@ -729,7 +730,7 @@ class SmartLeagueCountryTranslation {
         'pt': 'Superliga da Austrália'
       },
 
-      'Australia联赛': {
+      'Australia聯賽': {
         'en': 'Australia League',
         'es': 'Liga de Australia',
         'zh-hk': '澳洲聯賽',
@@ -789,101 +790,101 @@ class SmartLeagueCountryTranslation {
 
     // Continental Championships
     'Africa Cup of Nations': {
-      'zh': '非洲国家杯', 'zh-hk': '非洲國家盃', 'zh-tw': '非洲國家盃',
+      'zh': '非洲國家盃', 'zh-hk': '非洲國家盃', 'zh-tw': '非洲國家盃',
       'es': 'Copa Africana de Naciones', 'de': 'Afrika-Cup', 'it': 'Coppa d\'Africa', 'pt': 'Taça das Nações Africanas'
     },
     'AFCON': {
-      'zh': '非洲国家杯', 'zh-hk': '非洲國家盃', 'zh-tw': '非洲國家盃',
+      'zh': '非洲國家盃', 'zh-hk': '非洲國家盃', 'zh-tw': '非洲國家盃',
       'es': 'Copa Africana de Naciones', 'de': 'Afrika-Cup', 'it': 'Coppa d\'Africa', 'pt': 'Taça das Nações Africanas'
     },
     'Asian Cup': {
-      'zh': '亚洲杯', 'zh-hk': '亞洲盃', 'zh-tw': '亞洲盃',
+      'zh': '亞洲盃', 'zh-hk': '亞洲盃', 'zh-tw': '亞洲盃',
       'es': 'Copa Asiática', 'de': 'Asienmeisterschaft', 'it': 'Coppa d\'Asia', 'pt': 'Taça da Ásia'
     },
     'Copa America': {
-      'zh': '美洲杯', 'zh-hk': '美洲盃', 'zh-tw': '美洲盃',
+      'zh': '美洲盃', 'zh-hk': '美洲盃', 'zh-tw': '美洲盃',
       'es': 'Copa América', 'de': 'Copa América', 'it': 'Copa América', 'pt': 'Copa América'
     },
 
     // World Cup Qualifications
     'World Cup Qualification South America': {
-      'zh': '世界杯南美洲预选赛', 'zh-hk': '世界盃南美洲預選賽', 'zh-tw': '世界盃南美洲預選賽',
+      'zh': '世界盃南美洲預選賽', 'zh-hk': '世界盃南美洲預選賽', 'zh-tw': '世界盃南美洲預選賽',
       'es': 'Eliminatorias Sudamericanas', 'de': 'WM-Qualifikation Südamerika', 'it': 'Qualificazioni Mondiali Sudamerica', 'pt': 'Eliminatórias Sul-Americanas'
     },
     'World Cup Qualification Europe': {
-      'zh': '世界杯欧洲预选赛', 'zh-hk': '世界盃歐洲預選賽', 'zh-tw': '世界盃歐洲預選賽',
+      'zh': '世界盃歐洲預選賽', 'zh-hk': '世界盃歐洲預選賽', 'zh-tw': '世界盃歐洲預選賽',
       'es': 'Clasificación Europea Mundial', 'de': 'WM-Qualifikation Europa', 'it': 'Qualificazioni Mondiali Europa', 'pt': 'Qualificação Mundial Europa'
     },
     'World Cup Qualification Africa': {
-      'zh': '世界杯非洲预选赛', 'zh-hk': '世界盃非洲預選賽', 'zh-tw': '世界盃非洲預選賽',
+      'zh': '世界盃非洲預選賽', 'zh-hk': '世界盃非洲預選賽', 'zh-tw': '世界盃非洲預選賽',
       'es': 'Clasificación Africana Mundial', 'de': 'WM-Qualifikation Afrika', 'it': 'Qualificazioni Mondiali Africa', 'pt': 'Qualificação Mundial África'
     },
     'World Cup Qualification Asia': {
-      'zh': '世界杯亚洲预选赛', 'zh-hk': '世界盃亞洲預選賽', 'zh-tw': '世界盃亞洲預選賽',
+      'zh': '世界盃亞洲預選賽', 'zh-hk': '世界盃亞洲預選賽', 'zh-tw': '世界盃亞洲預選賽',
       'es': 'Clasificación Asiática Mundial', 'de': 'WM-Qualifikation Asien', 'it': 'Qualificazioni Mondiali Asia', 'pt': 'Qualificação Mundial Ásia'
     },
 
     // Domestic Cups
     'FA Cup': {
-      'zh': 'FA杯', 'zh-hk': 'FA盃', 'zh-tw': 'FA盃',
+      'zh': 'FA盃', 'zh-hk': 'FA盃', 'zh-tw': 'FA盃',
       'es': 'Copa FA', 'de': 'FA Cup', 'it': 'FA Cup', 'pt': 'Taça FA'
     },
     'Copa del Rey': {
-      'zh': '国王杯', 'zh-hk': '國王盃', 'zh-tw': '國王盃',
+      'zh': '國王盃', 'zh-hk': '國王盃', 'zh-tw': '國王盃',
       'es': 'Copa del Rey', 'de': 'Copa del Rey', 'it': 'Copa del Rey', 'pt': 'Taça do Rei'
     },
     'Coppa Italia': {
-      'zh': '意大利杯', 'zh-hk': '意大利盃', 'zh-tw': '意大利盃',
+      'zh': '意大利盃', 'zh-hk': '意大利盃', 'zh-tw': '意大利盃',
       'es': 'Copa de Italia', 'de': 'Coppa Italia', 'it': 'Coppa Italia', 'pt': 'Taça de Itália'
     },
     'DFB Pokal': {
-      'zh': '德国杯', 'zh-hk': '德國盃', 'zh-tw': '德國盃',
+      'zh': '德國盃', 'zh-hk': '德國盃', 'zh-tw': '德國盃',
       'es': 'Copa de Alemania', 'de': 'DFB-Pokal', 'it': 'Coppa di Germania', 'pt': 'Taça da Alemanha'
     },
 
     // Regional/Other Leagues
     'Egyptian Premier League': {
-      'zh': '埃及超级联赛', 'zh-hk': '埃及超級聯賽', 'zh-tw': '埃及超級聯賽',
+      'zh': '埃及超級聯賽', 'zh-hk': '埃及超級聯賽', 'zh-tw': '埃及超級聯賽',
       'es': 'Liga Premier Egipcia', 'de': 'Ägyptische Premier League', 'it': 'Premier League Egiziana', 'pt': 'Liga Premier Egípcia'
     },
     'Saudi Pro League': {
-      'zh': '沙特职业联赛', 'zh-hk': '沙特職業聯賽', 'zh-tw': '沙特職業聯賽',
+      'zh': '沙特職業聯賽', 'zh-hk': '沙特職業聯賽', 'zh-tw': '沙特職業聯賽',
       'es': 'Liga Profesional Saudí', 'de': 'Saudi Pro League', 'it': 'Lega Professionale Saudita', 'pt': 'Liga Profissional Saudita'
     },
 
     // UAE Super Cup
     'Super Cup': {
-      'zh': '超级杯', 'zh-hk': '超級盃', 'zh-tw': '超級盃',
+      'zh': '超級盃', 'zh-hk': '超級盃', 'zh-tw': '超級盃',
       'es': 'Supercopa', 'de': 'Super Cup', 'it': 'Supercoppa', 'pt': 'Supertaça'
     },
 
     // English Conference League
     'English Conference League': {
-      'zh': '英格兰协会联赛', 'zh-hk': '英格蘭協會聯賽', 'zh-tw': '英格蘭協會聯賽',
+      'zh': '英格蘭協會聯賽', 'zh-hk': '英格蘭協會聯賽', 'zh-tw': '英格蘭協會聯賽',
       'es': 'Liga de la Conferencia Inglesa', 'de': 'Englische Conference League', 'it': 'Conference League Inglese', 'pt': 'Liga da Conferência Inglesa'
     },
 
     // French Cup
     'French Cup': {
-      'zh': '法国杯', 'zh-hk': '法國盃', 'zh-tw': '法國盃',
+      'zh': '法國盃', 'zh-hk': '法國盃', 'zh-tw': '法國盃',
       'es': 'Copa de Francia', 'de': 'Französischer Pokal', 'it': 'Coppa di Francia', 'pt': 'Taça de França'
     },
 
     // Spanish Cup
     'Spanish Cup': {
-      'zh': '西班牙杯', 'zh-hk': '西班牙盃', 'zh-tw': '西班牙盃',
+      'zh': '西班牙盃', 'zh-hk': '西班牙盃', 'zh-tw': '西班牙盃',
       'es': 'Copa de España', 'de': 'Spanischer Pokal', 'it': 'Coppa di Spagna', 'pt': 'Taça de Espanha'
     },
 
     // Saudi Arabia Cup
     'Saudi Arabia Cup': {
-      'zh': '沙特阿拉伯杯', 'zh-hk': '沙特阿拉伯盃', 'zh-tw': '沙特阿拉伯盃',
+      'zh': '沙特阿拉伯盃', 'zh-hk': '沙特阿拉伯盃', 'zh-tw': '沙特阿拉伯盃',
       'es': 'Copa de Arabia Saudí', 'de': 'Saudi-Arabien Pokal', 'it': 'Coppa dell\'Arabia Saudita', 'pt': 'Taça da Arábia Saudita'
     },
 
     // Italian Cup
     'Italian Cup': {
-      'zh': '意大利杯', 'zh-hk': '意大利盃', 'zh-tw': '意大利盃',
+      'zh': '意大利盃', 'zh-hk': '意大利盃', 'zh-tw': '意大利盃',
       'es': 'Copa de Italia', 'de': 'Italienischer Pokal', 'it': 'Coppa Italia', 'pt': 'Taça de Itália'
     },
 
@@ -941,7 +942,7 @@ class SmartLeagueCountryTranslation {
       'pt': 'Bem-vindo ao CS SPORT – seu destino definitivo para tudo sobre futebol! Mantenha-se atualizado com placares ao vivo de mais de 1.000 competições em todo o mundo, incluindo os jogos mais quentes de hoje dos Qualificadores da Liga dos Campeões da UEFA, Liga dos Campeões da UEFA e Premier League.'
     },
     'Explore Your Favorite Teams & Players': {
-      'zh': '探索您喜爱的球队和球员', 'zh-hk': '探索您喜愛的球隊和球員', 'zh-tw': '探索您喜愛的球隊和球員',
+      'zh': '探索您喜愛的球隊和球員', 'zh-hk': '探索您喜愛的球隊和球員', 'zh-tw': '探索您喜愛的球隊和球員',
       'es': 'Explora Tus Equipos y Jugadores Favoritos', 'de': 'Entdecken Sie Ihre Lieblingsteams & Spieler', 'it': 'Esplora le Tue Squadre e Giocatori Preferiti', 'pt': 'Explore Seus Times e Jogadores Favoritos'
     },
     'Want to know how FC Barcelona, Real Madrid, or Manchester United are doing? Dive into the latest results, upcoming fixtures, league standings, breaking news, match highlights, and in-depth stats for top stars like Lionel Messi, Cristiano Ronaldo, and Lamine Yamal.': {
@@ -954,11 +955,11 @@ class SmartLeagueCountryTranslation {
       'pt': 'Quer saber como estão se saindo o FC Barcelona, Real Madrid ou Manchester United? Mergulhe nos últimos resultados, próximos jogos, classificações da liga, notícias de última hora, destaques de partidas e estatísticas detalhadas de estrelas como Lionel Messi, Cristiano Ronaldo e Lionel Messi.'
     },
     'Why Choose CS SPORT?': {
-      'zh': '为什么选择CS SPORT？', 'zh-hk': '為什麼選擇CS SPORT？', 'zh-tw': '為什麼選擇CS SPORT？',
+      'zh': '為什麼選擇CS SPORT？', 'zh-hk': '為什麼選擇CS SPORT？', 'zh-tw': '為什麼選擇CS SPORT？',
       'es': '¿Por Qué Elegir CS SPORT?', 'de': 'Warum CS SPORT wählen?', 'it': 'Perché Scegliere CS SPORT?', 'pt': 'Por Que Escolher CS SPORT?'
     },
     'All-in-One Platform: Get the latest news, fixtures, standings, results, and live scores for leagues, cups, and tournaments around the globe.': {
-      'zh': '一体化平台：获取全球联赛、杯赛和锦标赛的最新新闻、赛程、排名、结果和实时比分。',
+      'zh': '一體化平台：獲取全球聯賽、盃賽和錦標賽的最新新聞、賽程、排名、結果和即時比分。',
       'zh-hk': '一體化平台：獲取全球聯賽、盃賽和錦標賽的最新新聞、賽程、排名、結果和即時比分。',
       'zh-tw': '一體化平台：獲取全球聯賽、盃賽和錦標賽的最新新聞、賽程、排名、結果和即時比分。',
       'es': 'Plataforma Todo-en-Uno: Obtén las últimas noticias, partidos, clasificaciones, resultados y puntuaciones en vivo de ligas, copas y torneos de todo el mundo.',
@@ -967,7 +968,7 @@ class SmartLeagueCountryTranslation {
       'pt': 'Plataforma Tudo-em-Um: Obtenha as últimas notícias, jogos, classificações, resultados e placares ao vivo de ligas, copas e torneios ao redor do mundo.'
     },
     'Track Your Favorites: Follow your teams and players, and never miss a moment.': {
-      'zh': '跟踪您的最爱：关注您的球队和球员，不错过任何时刻。',
+      'zh': '追蹤您的最愛：關注您的球隊和球員，不錯過任何時刻。',
       'zh-hk': '追蹤您的最愛：關注您的球隊和球員，不錯過任何時刻。',
       'zh-tw': '追蹤您的最愛：關注您的球隊和球員，不錯過任何時刻。',
       'es': 'Sigue a Tus Favoritos: Sigue a tus equipos y jugadores, y nunca te pierdas un momento.',
@@ -976,7 +977,7 @@ class SmartLeagueCountryTranslation {
       'pt': 'Acompanhe Seus Favoritos: Siga seus times e jogadores, e nunca perca um momento.'
     },
     'Smart Predictions: Use our insights and tips to make better Football predictions and outsmart your friends.': {
-      'zh': '智能预测：使用我们的洞察和技巧做出更好的足球预测，智胜您的朋友。',
+      'zh': '智能預測：使用我們的洞察和技巧做出更好的足球預測，智勝您的朋友。',
       'zh-hk': '智能預測：使用我們的洞察和技巧做出更好的足球預測，智勝您的朋友。',
       'zh-tw': '智能預測：使用我們的洞察和技巧做出更好的足球預測，智勝您的朋友。',
       'es': 'Predicciones Inteligentes: Usa nuestras ideas y consejos para hacer mejores predicciones de fútbol y superar a tus amigos.',
@@ -985,7 +986,7 @@ class SmartLeagueCountryTranslation {
       'pt': 'Previsões Inteligentes: Use nossas percepções e dicas para fazer melhores previsões de futebol e superar seus amigos.'
     },
     'Ready to experience Football like never before?': {
-      'zh': '准备好以前所未有的方式体验足球了吗？',
+      'zh': '準備好以前所未有的方式體驗足球了嗎？',
       'zh-hk': '準備好以前所未有的方式體驗足球了嗎？',
       'zh-tw': '準備好以前所未有的方式體驗足球了嗎？',
       'es': '¿Listo para experimentar el fútbol como nunca antes?',
@@ -994,7 +995,7 @@ class SmartLeagueCountryTranslation {
       'pt': 'Pronto para experimentar o futebol como nunca antes?'
     },
     'Start exploring now and join the CS SPORT community!': {
-      'zh': '立即开始探索，加入CS SPORT社区！',
+      'zh': '立即開始探索，加入CS SPORT社區！',
       'zh-hk': '立即開始探索，加入CS SPORT社區！',
       'zh-tw': '立即開始探索，加入CS SPORT社區！',
       'es': '¡Comienza a explorar ahora y únete a la comunidad CS SPORT!',
@@ -1003,15 +1004,15 @@ class SmartLeagueCountryTranslation {
       'pt': 'Comece a explorar agora e junte-se à comunidade CS SPORT!'
     },
     'Football Info': {
-      'zh': '足球信息', 'zh-hk': '足球資訊', 'zh-tw': '足球資訊',
+      'zh': '足球資訊', 'zh-hk': '足球資訊', 'zh-tw': '足球資訊',
       'es': 'Información de Fútbol', 'de': 'Fußball-Info', 'it': 'Info Calcio', 'pt': 'Info Futebol'
     },
     'Football FAQ': {
-      'zh': '足球常见问题', 'zh-hk': '足球常見問題', 'zh-tw': '足球常見問題',
+      'zh': '足球常見問題', 'zh-hk': '足球常見問題', 'zh-tw': '足球常見問題',
       'es': 'Preguntas Frecuentes de Fútbol', 'de': 'Fußball FAQ', 'it': 'FAQ Calcio', 'pt': 'FAQ Futebol'
     },
     'Who invented Football?': {
-      'zh': '谁发明了足球？', 'zh-hk': '誰發明了足球？', 'zh-tw': '誰發明了足球？',
+      'zh': '誰發明了足球？', 'zh-hk': '誰發明了足球？', 'zh-tw': '誰發明了足球？',
       'es': '¿Quién inventó el fútbol?', 'de': 'Wer hat den Fußball erfunden?', 'it': 'Chi ha inventato il calcio?', 'pt': 'Quem inventou o futebol?'
     },
     'Football\'s roots go way back! While ball games have been played for centuries across the world, the modern game was shaped in England in the 19th century. The English Football Association set the official rules in 1863, giving us the Football we know and love today.': {
@@ -1024,11 +1025,11 @@ class SmartLeagueCountryTranslation {
       'pt': 'As raízes do futebol remontam a muito tempo! Embora jogos de bola tenham sido jogados por séculos ao redor do mundo, o jogo moderno foi moldado na Inglaterra no século XIX. A Associação de Futebol Inglesa estabeleceu as regras oficiais em 1863, nos dando o futebol que conhecemos e amamos hoje.'
     },
     'Where was Football invented?': {
-      'zh': '足球是在哪里发明的？', 'zh-hk': '足球是在哪裡發明的？', 'zh-tw': '足球是在哪裡發明的？',
+      'zh': '足球是在哪裡發明的？', 'zh-hk': '足球是在哪裡發明的？', 'zh-tw': '足球是在哪裡發明的？',
       'es': '¿Dónde se inventó el fútbol?', 'de': 'Wo wurde der Fußball erfunden?', 'it': 'Dove è stato inventato il calcio?', 'pt': 'Onde o futebol foi inventado?'
     },
     'The modern version of Football was born in England. Although similar games existed globally, it was in England where the rules were standardized, making it the home of modern Football.': {
-      'zh': '现代足球诞生于英格兰。虽然全球都存在类似的游戏，但正是在英格兰规则得到了标准化，使其成为现代足球的故乡。',
+      'zh': '現代足球誕生於英格蘭。雖然全球都存在類似的遊戲，但正是在英格蘭規則得到了標準化，使其成為現代足球的故鄉。',
       'zh-hk': '現代足球誕生於英格蘭。雖然全球都存在類似的遊戲，但正是在英格蘭規則得到了標準化，使其成為現代足球的故鄉。',
       'zh-tw': '現代足球誕生於英格蘭。雖然全球都存在類似的遊戲，但正是在英格蘭規則得到了標準化，使其成為現代足球的故鄉。',
       'es': 'La versión moderna del fútbol nació en Inglaterra. Aunque existían juegos similares a nivel mundial, fue en Inglaterra donde se estandarizaron las reglas, convirtiéndolo en el hogar del fútbol moderno.',
@@ -1037,11 +1038,11 @@ class SmartLeagueCountryTranslation {
       'pt': 'A versão moderna do futebol nasceu na Inglaterra. Embora jogos similares existissem globalmente, foi na Inglaterra onde as regras foram padronizadas, tornando-a o lar do futebol moderno.'
     },
     'What is the length of a Football pitch?': {
-      'zh': '足球场的长度是多少？', 'zh-hk': '足球場的長度是多少？', 'zh-tw': '足球場的長度是多少？',
+      'zh': '足球場的長度是多少？', 'zh-hk': '足球場的長度是多少？', 'zh-tw': '足球場的長度是多少？',
       'es': '¿Cuál es la longitud de un campo de fútbol?', 'de': 'Wie lang ist ein Fußballplatz?', 'it': 'Qual è la lunghezza di un campo da calcio?', 'pt': 'Qual é o comprimento de um campo de futebol?'
     },
     'Great question! A standard Football pitch is rectangular, ranging from 90–120 meters in length and 45–90 meters in width, as set by the International Football Association Board (IFAB). These dimensions are used for professional and international matches.': {
-      'zh': '好问题！标准足球场是长方形的，长度为90-120米，宽度为45-90米，由国际足球协会理事会(IFAB)设定。这些尺寸用于职业和国际比赛。',
+      'zh': '好問題！標準足球場是長方形的，長度為90-120米，寬度為45-90米，由國際足球協會理事會(IFAB)設定。這些尺寸用於職業和國際比賽。',
       'zh-hk': '好問題！標準足球場是長方形的，長度為90-120米，寬度為45-90米，由國際足球協會理事會(IFAB)設定。這些尺寸用於職業和國際比賽。',
       'zh-tw': '好問題！標準足球場是長方形的，長度為90-120米，寬度為45-90米，由國際足球協會理事會(IFAB)設定。這些尺寸用於職業和國際比賽。',
       'es': '¡Excelente pregunta! Un campo de fútbol estándar es rectangular, con un rango de 90-120 metros de longitud y 45-90 metros de ancho, según lo establecido por la Junta de la Asociación Internacional de Fútbol (IFAB). Estas dimensiones se utilizan para partidos profesionales e internacionales.',
@@ -1050,7 +1051,7 @@ class SmartLeagueCountryTranslation {
       'pt': 'Ótima pergunta! Um campo de futebol padrão é retangular, variando de 90-120 metros de comprimento e 45-90 metros de largura, conforme estabelecido pelo International Football Association Board (IFAB). Essas dimensões são usadas para partidas profissionais e internacionais.'
     },
     'Who is the best Football player in the world?': {
-      'zh': '谁是世界上最好的足球运动员？', 'zh-hk': '誰是世界上最好的足球運動員？', 'zh-tw': '誰是世界上最好的足球運動員？',
+      'zh': '誰是世界上最好的足球運動員？', 'zh-hk': '誰是世界上最好的足球運動員？', 'zh-tw': '誰是世界上最好的足球運動員？',
       'es': '¿Quién es el mejor jugador de fútbol del mundo?', 'de': 'Wer ist der beste Fußballspieler der Welt?', 'it': 'Chi è il miglior giocatore di calcio al mondo?', 'pt': 'Quem é o melhor jogador de futebol do mundo?'
     },
     'This is always up for debate! Legends like Pelé, Diego Maradona, Lionel Messi, and Cristiano Ronaldo have all left their mark. Each has a unique style and legacy, so the \'best\' often depends on who you ask!': {
@@ -1096,11 +1097,11 @@ class SmartLeagueCountryTranslation {
       'es': 'Italia', 'de': 'Italien', 'it': 'Italia', 'pt': 'Itália'
     },
     'Germany': {
-      'zh': '德国', 'zh-hk': '德國', 'zh-tw': '德國',
+      'zh': '德國', 'zh-hk': '德國', 'zh-tw': '德國',
       'es': 'Alemania', 'de': 'Deutschland', 'it': 'Germania', 'pt': 'Alemanha'
     },
     'France': {
-      'zh': '法国', 'zh-hk': '法國', 'zh-tw': '法國',
+      'zh': '法國', 'zh-hk': '法國', 'zh-tw': '法國',
       'es': 'Francia', 'de': 'Frankreich', 'it': 'Francia', 'pt': 'França'
     },
     'Brazil': {
@@ -1116,15 +1117,15 @@ class SmartLeagueCountryTranslation {
       'es': 'Mundo', 'de': 'Welt', 'it': 'Mondo', 'pt': 'Mundo'
     },
     'Europe': {
-      'zh': '欧洲', 'zh-hk': '歐洲', 'zh-tw': '歐洲',
+      'zh': '歐洲', 'zh-hk': '歐洲', 'zh-tw': '歐洲',
       'es': 'Europa', 'de': 'Europa', 'it': 'Europa', 'pt': 'Europa'
     },
     'United Arab Emirates': {
-      'zh': '阿拉伯联合酋长国', 'zh-hk': '阿拉伯聯合酋長國', 'zh-tw': '阿拉伯聯合酋長國',
+      'zh': '阿拉伯聯合酋長國', 'zh-hk': '阿拉伯聯合酋長國', 'zh-tw': '阿拉伯聯合酋長國',
       'es': 'Emiratos Árabes Unidos', 'de': 'Vereinigte Arabische Emirate', 'it': 'Emirati Arabi Uniti', 'pt': 'Emirados Árabes Unidos'
     },
     'UAE': {
-      'zh': '阿联酋', 'zh-hk': '阿聯酋', 'zh-tw': '阿聯酋',
+      'zh': '阿聯酋', 'zh-hk': '阿聯酋', 'zh-tw': '阿聯酋',
       'es': 'EAU', 'de': 'VAE', 'it': 'EAU', 'pt': 'EAU'
     },
     'Saudi Arabia': {
@@ -1824,16 +1825,16 @@ class SmartLeagueCountryTranslation {
 
     // UEFA Competitions - Enhanced
     else if (lowerName.includes('uefa champions league') || lowerName === 'champions league') {
-      translations.zh = 'UEFA欧洲冠军联赛'; translations['zh-hk'] = 'UEFA歐洲冠軍聯賽'; translations['zh-tw'] = 'UEFA歐洲冠軍聯賽';
+      translations.zh = 'UEFA歐洲冠軍聯賽'; translations['zh-hk'] = 'UEFA歐洲冠軍聯賽'; translations['zh-tw'] = 'UEFA歐洲冠軍聯賽';
       translations.es = 'Liga de Campeones de la UEFA'; translations.de = 'UEFA Champions League';
     } else if (lowerName.includes('uefa europa league') || lowerName === 'europa league') {
-      translations.zh = 'UEFA欧洲联赛'; translations['zh-hk'] = 'UEFA歐洲聯賽'; translations['zh-tw'] = 'UEFA歐洲聯賽';
+      translations.zh = 'UEFA歐洲聯賽'; translations['zh-hk'] = 'UEFA歐洲聯賽'; translations['zh-tw'] = 'UEFA歐洲聯賽';
       translations.es = 'Liga Europa de la UEFA'; translations.de = 'UEFA Europa League';
     } else if (lowerName.includes('uefa conference league') || lowerName === 'conference league') {
-      translations.zh = 'UEFA欧洲协会联赛'; translations['zh-hk'] = 'UEFA歐洲協會聯賽'; translations['zh-tw'] = 'UEFA歐洲協會聯賽';
+      translations.zh = 'UEFA歐洲協會聯賽'; translations['zh-hk'] = 'UEFA歐洲協會聯賽'; translations['zh-tw'] = 'UEFA歐洲協會聯賽';
       translations.es = 'Liga de la Conferencia UEFA'; translations.de = 'UEFA Conference League';
     } else if (lowerName.includes('uefa nations league') || lowerName === 'nations league') {
-      translations.zh = 'UEFA国家联赛'; translations['zh-hk'] = 'UEFA國家聯賽'; translations['zh-tw'] = 'UEFA國家聯賽';
+      translations.zh = 'UEFA國家聯賽'; translations['zh-hk'] = 'UEFA國家聯賽'; translations['zh-tw'] = 'UEFA國家聯賽';
       translations.es = 'Liga de Naciones de la UEFA'; translations.de = 'UEFA Nations League';
     } else if (lowerName.includes('uefa u21') || lowerName.includes('u21 championship')) {
       translations.zh = 'UEFA U21欧洲锦标赛'; translations['zh-hk'] = 'UEFA U21歐洲錦標賽'; translations['zh-tw'] = 'UEFA U21歐洲錦標賽';
@@ -1842,7 +1843,7 @@ class SmartLeagueCountryTranslation {
 
     // FIFA Competitions
     else if (lowerName.includes('fifa club world cup') || lowerName === 'club world cup') {
-      translations.zh = 'FIFA世界俱乐部杯'; translations['zh-hk'] = 'FIFA世界冠軍球會盃'; translations['zh-tw'] = 'FIFA世界冠軍球會盃';
+      translations.zh = 'FIFA世界冠軍球會盃'; translations['zh-hk'] = 'FIFA世界冠軍球會盃'; translations['zh-tw'] = 'FIFA世界冠軍球會盃';
       translations.es = 'Copa Mundial de Clubes FIFA'; translations.de = 'FIFA Klub-Weltmeisterschaft';
     } else if (lowerName === 'world cup' || lowerName === 'fifa world cup') {
       translations.zh = '世界杯'; translations['zh-hk'] = '世界盃'; translations['zh-tw'] = '世界盃';
@@ -1901,13 +1902,6 @@ class SmartLeagueCountryTranslation {
       translations.zh = `${countryZh}联赛`; translations['zh-hk'] = `${this.translateCountryName(countryName, 'zh-hk')}聯賽`;
       translations['zh-tw'] = `${this.translateCountryName(countryName, 'zh-tw')}聯賽`;
     }
-
-    // Ensure all languages have defaults
-    translations.es = translations.es || leagueName;
-    translations.de = translations.de || leagueName;
-    translations.it = translations.it || leagueName;
-    translations.pt = translations.pt || leagueName;
-    translations.fr = translations.fr || leagueName;
 
     return translations as LeagueTranslation;
   }
@@ -2020,32 +2014,6 @@ class SmartLeagueCountryTranslation {
     '阿拉伯聯合酋長國': 'United Arab Emirates', '阿拉伯联合酋长国': 'United Arab Emirates',
     '阿聯酋': 'UAE', '阿联酋': 'UAE',
     '埃及': 'Egypt',
-    '伊朗': 'Iran',
-    '伊拉克': 'Iraq',
-    '以色列': 'Israel',
-    '約旦': 'Jordan', '约旦': 'Jordan',
-    '卡塔爾': 'Qatar', '卡塔尔': 'Qatar', '卡達': 'Qatar',
-    '科威特': 'Kuwait',
-    '巴林': 'Bahrain',
-    '阿曼': 'Oman',
-    '南非': 'South Africa',
-    '尼日利亞': 'Nigeria', '尼日利亚': 'Nigeria', '奈及利亞': 'Nigeria',
-    '摩洛哥': 'Morocco',
-    '阿爾及利亞': 'Algeria', '阿尔及利亚': 'Algeria',
-    '突尼斯': 'Tunisia', '突尼西亞': 'Tunisia',
-    '加納': 'Ghana', '加纳': 'Ghana', '迦納': 'Ghana',
-    '肯尼亞': 'Kenya', '肯尼亚': 'Kenya', '肯亞': 'Kenya',
-    '喀麥隆': 'Cameroon', '喀麦隆': 'Cameroon',
-    '塞內加爾': 'Senegal', '塞内加尔': 'Senegal',
-    '科特迪瓦': 'Ivory Coast', '象牙海岸': 'Ivory Coast',
-    '馬里': 'Mali', '马里': 'Mali', '馬利': 'Mali',
-    '布基納法索': 'Burkina Faso', '布基纳法索': 'Burkina Faso', '布吉納法索': 'Burkina Faso',
-    '津巴布韋': 'Zimbabwe', '津巴布韦': 'Zimbabwe', '辛巴威': 'Zimbabwe',
-    '贊比亞': 'Zambia', '赞比亚': 'Zambia', '尚比亞': 'Zambia',
-    '利比亞': 'Libya', '利比亚': 'Libya',
-    '馬其頓': 'Macedonia', '马其顿': 'Macedonia',
-    '北愛爾蘭': 'Northern Ireland', '北爱尔兰': 'Northern Ireland',
-    '土庫曼斯坦': 'Turkmenistan', '土库曼斯坦': 'Turkmenistan',
     // Hyphenated country names
     'Czech-Republic': 'Czech Republic',
     'North-Macedonia': 'North Macedonia',
@@ -2521,14 +2489,87 @@ class SmartLeagueCountryTranslation {
     }
   }
 
-  // Enhanced method to learn all problematic league names we see
-  learnProblematicLeagueNames(): void {
+  // Fix mixed language leagues that appear in the UI
+  private fixMixedLanguageLeagues(): void {
+    const mixedLanguageLeagues = [
+      'CONMEBOL南美盃', 'CONMEBOL自由盃', 'AFC盃', 'UEFA超级盃', 'UEFA超級盃',
+      '世界联赛', '世界聯賽', 'Netherlands聯賽', 'Australia聯賽', 'Australia超级联赛'
+    ];
+
+    mixedLanguageLeagues.forEach(leagueName => {
+      if (!this.learnedLeagueMappings.has(leagueName)) {
+        const mapping = this.generateMixedLanguageFixMapping(leagueName);
+        if (mapping) {
+          this.learnedLeagueMappings.set(leagueName, mapping);
+          console.log(`🔧 [Mixed Language Fix] Auto-learned: "${leagueName}"`);
+        }
+      }
+    });
+
+    if (mixedLanguageLeagues.length > 0) {
+      this.saveLearnedMappings();
+      console.log(`🔧 [Mixed Language Fix] Fixed ${mixedLanguageLeagues.length} mixed language leagues`);
+    }
+  }
+
+  // Generate proper mapping for mixed language league names
+  private generateMixedLanguageFixMapping(leagueName: string): LeagueTranslation | null {
+    const translations: any = {};
+
+    // Handle specific cases from the problematic leagues
+    if (leagueName.includes('CONMEBOL南美')) {
+      translations.en = 'CONMEBOL Sudamericana';
+      translations.zh = 'CONMEBOL南美杯'; translations['zh-hk'] = 'CONMEBOL南美盃'; translations['zh-tw'] = 'CONMEBOL南美盃';
+      translations.es = 'CONMEBOL Sudamericana'; translations.de = 'CONMEBOL Sudamericana';
+      translations.it = 'CONMEBOL Sudamericana'; translations.pt = 'CONMEBOL Sudamericana';
+    } else if (leagueName.includes('CONMEBOL自由')) {
+      translations.en = 'CONMEBOL Libertadores';
+      translations.zh = 'CONMEBOL自由杯'; translations['zh-hk'] = 'CONMEBOL自由盃'; translations['zh-tw'] = 'CONMEBOL自由盃';
+      translations.es = 'CONMEBOL Libertadores'; translations.de = 'CONMEBOL Libertadores';
+      translations.it = 'CONMEBOL Libertadores'; translations.pt = 'CONMEBOL Libertadores';
+    } else if (leagueName.includes('AFC盃') || leagueName.includes('AFC杯')) {
+      translations.en = 'AFC Cup';
+      translations.zh = 'AFC杯'; translations['zh-hk'] = 'AFC盃'; translations['zh-tw'] = 'AFC盃';
+      translations.es = 'Copa AFC'; translations.de = 'AFC-Pokal';
+      translations.it = 'Coppa AFC'; translations.pt = 'Copa AFC';
+    } else if (leagueName.includes('UEFA超级') || leagueName.includes('UEFA超級')) {
+      translations.en = 'UEFA Super Cup';
+      translations.zh = 'UEFA超级杯'; translations['zh-hk'] = 'UEFA超級盃'; translations['zh-tw'] = 'UEFA超級盃';
+      translations.es = 'Supercopa de la UEFA'; translations.de = 'UEFA Super Cup';
+      translations.it = 'Supercoppa UEFA'; translations.pt = 'Supertaça Europeia';
+    } else if (leagueName.includes('世界联赛') || leagueName.includes('世界聯賽')) {
+      translations.en = 'World Cup';
+      translations.zh = '世界杯'; translations['zh-hk'] = '世界盃'; translations['zh-tw'] = '世界盃';
+      translations.es = 'Copa del Mundo'; translations.de = 'Weltmeisterschaft';
+      translations.it = 'Coppa del Mondo'; translations.pt = 'Copa do Mundo';
+    } else if (leagueName.includes('Netherlands聯賽') || leagueName.includes('Netherlands联赛')) {
+      translations.en = 'Netherlands League';
+      translations.zh = '荷兰联赛'; translations['zh-hk'] = '荷蘭聯賽'; translations['zh-tw'] = '荷蘭聯賽';
+      translations.es = 'Liga de Países Bajos'; translations.de = 'Niederländische Liga';
+      translations.it = 'Lega Olandese'; translations.pt = 'Liga dos Países Baixos';
+    } else if (leagueName.includes('Australia聯賽') || leagueName.includes('Australia联赛')) {
+      translations.en = 'Australia League';
+      translations.zh = '澳大利亚联赛'; translations['zh-hk'] = '澳洲聯賽'; translations['zh-tw'] = '澳洲聯賽';
+      translations.es = 'Liga de Australia'; translations.de = 'Australische Liga';
+      translations.it = 'Lega Australiana'; translations.pt = 'Liga da Austrália';
+    } else if (leagueName.includes('Australia超级联赛') || leagueName.includes('Australia超級聯賽')) {
+      translations.en = 'Australia Super League';
+      translations.zh = '澳大利亚超级联赛'; translations['zh-hk'] = '澳洲超級聯賽'; translations['zh-tw'] = '澳洲超級聯賽';
+      translations.es = 'Superliga de Australia'; translations.de = 'Australische Superliga';
+      translations.it = 'Superlega Australiana'; translations.pt = 'Superliga da Austrália';
+    }
+
+    return Object.keys(translations).length > 0 ? translations as LeagueTranslation : null;
+  }
+
+  // Learn from problematic league names that commonly appear
+  private learnProblematicLeagueNames(): void {
     const problematicLeagues = [
       { name: 'Bulgaria聯賽', country: 'Bulgaria' },
       { name: 'Australia超级联赛', country: 'Australia' },
       { name: 'Australia聯賽', country: 'Australia' },
-      { name: 'Netherlands联赛', country: 'Netherlands' },
       { name: 'Netherlands聯賽', country: 'Netherlands' },
+      { name: 'Netherlands联赛', country: 'Netherlands' },
       { name: 'Germany联赛', country: 'Germany' },
       { name: 'Germany聯賽', country: 'Germany' },
       { name: 'Spain联赛', country: 'Spain' },
@@ -2563,18 +2604,18 @@ class SmartLeagueCountryTranslation {
     }
   }
 
-  // Method to learn from specific league names that need translation
+  // Learn from specific league names that need translation
   learnMissingLeagueNames() {
     const missingLeagues = [
       { name: 'Primera Nacional', country: 'Argentina' },
       { name: 'Primera C', country: 'Argentina' },
-      { name: 'Netherlands联赛', country: 'Netherlands' },
+      { name: 'Netherlands聯賽', country: 'Netherlands' },
       { name: 'Capital Territory NPL', country: 'Australia' },
       { name: 'Australia超级联赛', country: 'Australia' },
       { name: 'Western Australia NPL', country: 'Australia' },
       { name: 'New South Wales NPL 2', country: 'Australia' },
       { name: 'Australia Cup', country: 'Australia' },
-      { name: 'Australia联赛', country: 'Australia' },
+      { name: 'Australia聯賽', country: 'Australia' },
       { name: 'Bulgaria聯賽', country: 'Bulgaria' },
       { name: 'Brazil联赛', country: 'Brazil' },
       { name: 'Brazil聯賽', country: 'Brazil' },
