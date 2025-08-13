@@ -260,7 +260,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       onError: (err: any) => {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error';
 
-        if (errorMessage.includes('Failed to fetch') || 
+        if (errorMessage.includes('Failed to fetch') ||
             errorMessage.includes('NetworkError')) {
           console.warn(`🌐 [TodaysMatchesByCountryNew] Network issue for date: ${selectedDate}`);
         } else if (errorMessage.includes('timeout')) {
@@ -303,7 +303,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Error handling with user-friendly messages
   const error = queryError ? (
-    queryError instanceof Error ? 
+    queryError instanceof Error ?
       queryError.message.includes('Failed to fetch') || queryError.message.includes('NetworkError') ?
         "Network connection issue. Please check your internet connection and try again." :
       queryError.message.includes('timeout') ?
@@ -375,8 +375,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
 
     // Process country data on-demand
-    const countryFixtures = fixtures.filter((fixture: any) => 
-      fixture.league?.country === country && 
+    const countryFixtures = fixtures.filter((fixture: any) =>
+      fixture.league?.country === country &&
       fixture.fixture?.date?.startsWith(selectedDate)
     );
 
@@ -425,7 +425,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const validFixtures = useMemo(() => {
     if (!fixtures?.length || !selectedDate) return [];
 
-    return fixtures.filter((fixture: any) => 
+    return fixtures.filter((fixture: any) =>
       fixture?.fixture?.date?.startsWith(selectedDate)
     );
   }, [fixtures, selectedDate]);
@@ -979,10 +979,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   };
 
   // Optimized country section with stable props
-  const CountrySection = React.memo(({ 
-    country, 
-    countryData, 
-    isExpanded, 
+  const CountrySection = React.memo(({
+    country,
+    countryData,
+    isExpanded,
     expandedLeagues,
     starredMatches,
     hiddenMatches,
@@ -1029,8 +1029,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursOld > 4) ||
               (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
 
-            return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) && 
-                   !isStaleFinishedMatch && 
+            return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) &&
+                   !isStaleFinishedMatch &&
                    hoursOld <= 4;
           }).length
         );
@@ -1216,10 +1216,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   });
 
   // Optimized league section component
-  const LeagueSection = React.memo(({ 
-    leagueData, 
-    countryData, 
-    leagueKey, 
+  const LeagueSection = React.memo(({
+    leagueData,
+    countryData,
+    leagueKey,
     isLeagueExpanded,
     starredMatches,
     hiddenMatches,
@@ -1252,8 +1252,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursOld > 4) ||
         (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
 
-      return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) && 
-             !isStaleFinishedMatch && 
+      return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) &&
+             !isStaleFinishedMatch &&
              hoursOld <= 4;
     }).length;
 
@@ -1349,15 +1349,15 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   });
 
   // Memoized match card component
-  const MatchCard = React.memo(({ 
-    match, 
-    leagueData, 
+  const MatchCard = React.memo(({
+    match,
+    leagueData,
     starredMatches,
     halftimeFlashMatches,
     fulltimeFlashMatches,
     goalFlashMatches,
     onStarMatch,
-    onMatchClick 
+    onMatchClick
   }: {
     match: any;
     leagueData: any;
