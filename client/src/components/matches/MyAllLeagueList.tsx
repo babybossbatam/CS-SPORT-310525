@@ -475,7 +475,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                   if (totalLiveMatches > 0) {
                     return (
                       <>
-                        (<span className="text-red-500 font-semibold">{totalLiveMatches}</span>/{validFixtures.length})
+                        (<span className="text-red-500 font-semibold">{totalLiveMatches}</span>/{totalMatches})
                       </>
                     );
                   }
