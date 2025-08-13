@@ -40,17 +40,17 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     queryKey: ['central-date-fixtures', validDate],
     queryFn: async () => {
       console.log(`🔄 [CentralDataProvider] Fetching fixtures for ${validDate}`);
-      
+
       let timeoutId: NodeJS.Timeout | null = null;
       const controller = new AbortController();
-      
+
       try {
-        // Set up timeout that only aborts if request is still pending - reduced to 20 seconds
+        // Set up timeout that only aborts if request is still pending - increased to 30 seconds for better reliability
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 20 seconds');
+            controller.abort('Request timeout after 30 seconds');
           }
-        }, 20000);
+        }, 30000);
 
         const response = await fetch(`/api/fixtures/date/${validDate}?all=true`, {
           signal: controller.signal,
@@ -104,7 +104,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         const cachedData = queryClient.getQueryData(['central-date-fixtures', validDate]);
 
         if (error.name === 'AbortError') {
-          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate} after 20 seconds`);
+          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate} after 30 seconds`);
         } else if (error.message === 'Failed to fetch') {
           console.warn(`🌐 [CentralDataProvider] Network error for ${validDate}: Server unreachable or connection lost`);
         } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
@@ -157,19 +157,19 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         error?.name === 'AbortError' ||
         error?.name === 'TypeError'
       );
-      
-      const shouldRetry = isNetworkError && failureCount < 1; // Reduced to 1 retry only
-      
+
+      const shouldRetry = isNetworkError && failureCount < 2; // Increased to 2 retries
+
       if (shouldRetry) {
         const delay = 2000; // Fixed 2s delay
-        console.log(`🔄 [CentralDataProvider] Retry attempt ${failureCount + 1}/1 for ${validDate} in ${delay}ms (reason: ${error?.message || error?.name || 'unknown'})`);
+        console.log(`🔄 [CentralDataProvider] Retry attempt ${failureCount + 1}/2 for ${validDate} in ${delay}ms (reason: ${error?.message || error?.name || 'unknown'})`);
         return true;
       }
-      
+
       if (!shouldRetry && isNetworkError) {
         console.log(`⛔ [CentralDataProvider] No more retries for ${validDate} after ${failureCount + 1} attempts`);
       }
-      
+
       return false;
     },
     retryDelay: (attemptIndex) => 2000, // Fixed 2s delay
@@ -187,17 +187,17 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     queryKey: ['central-live-fixtures'],
     queryFn: async () => {
       console.log('🔴 [CentralDataProvider] Fetching live fixtures');
-      
+
       let timeoutId: NodeJS.Timeout | null = null;
       const controller = new AbortController();
-      
+
       try {
-        // Set up timeout that only aborts if request is still pending - reduced to 20 seconds
+        // Set up timeout that only aborts if request is still pending - increased to 30 seconds for better reliability
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 20 seconds');
+            controller.abort('Request timeout after 30 seconds');
           }
-        }, 20000);
+        }, 30000);
 
         const response = await fetch('/api/fixtures/live', {
           signal: controller.signal,
