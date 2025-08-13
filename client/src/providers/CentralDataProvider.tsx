@@ -45,12 +45,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       const controller = new AbortController();
       
       try {
-        // Set up timeout that only aborts if request is still pending - optimized to 30 seconds
+        // Set up timeout that only aborts if request is still pending - reduced to 20 seconds
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 30 seconds');
+            controller.abort('Request timeout after 20 seconds');
           }
-        }, 30000);
+        }, 20000);
 
         const response = await fetch(`/api/fixtures/date/${validDate}?all=true`, {
           signal: controller.signal,
@@ -104,41 +104,41 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         const cachedData = queryClient.getQueryData(['central-date-fixtures', validDate]);
 
         if (error.name === 'AbortError') {
-          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate} after 30 seconds`);
+          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate} after 20 seconds`);
         } else if (error.message === 'Failed to fetch') {
           console.warn(`🌐 [CentralDataProvider] Network error for ${validDate}: Server unreachable or connection lost`);
         } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
           console.warn(`🔌 [CentralDataProvider] Fetch API error for ${validDate}: ${error.message}`);
         } else {
           console.error(`❌ [CentralDataProvider] Unexpected error fetching fixtures for ${validDate}:`, {
-            message: error.message,
-            name: error.name,
-            stack: error.stack?.substring(0, 200)
+            message: error?.message || 'Unknown error',
+            name: error?.name || 'UnknownError',
+            stack: error?.stack?.substring(0, 200) || 'No stack trace'
           });
         }
 
         // Always try to return cached data if available
         if (cachedData && Array.isArray(cachedData)) {
-          console.log(`💾 [CentralDataProvider] Using stale cache data for ${validDate} (${cachedData.length} fixtures) due to ${error.name}`);
+          console.log(`💾 [CentralDataProvider] Using stale cache data for ${validDate} (${cachedData.length} fixtures) due to ${error?.name || 'unknown error'}`);
           return cachedData;
         }
 
-        // If no cached data available, try to get data from nearby dates
-        const yesterday = new Date(validDate);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().slice(0, 10);
-        
-        const tomorrow = new Date(validDate);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+        // If no cached data available, try to get data from nearby dates (expanded range)
+        const dates = [];
+        for (let i = -2; i <= 2; i++) {
+          const date = new Date(validDate);
+          date.setDate(date.getDate() + i);
+          dates.push(date.toISOString().slice(0, 10));
+        }
 
-        const fallbackData = 
-          queryClient.getQueryData(['central-date-fixtures', yesterdayStr]) ||
-          queryClient.getQueryData(['central-date-fixtures', tomorrowStr]);
-
-        if (fallbackData && Array.isArray(fallbackData)) {
-          console.log(`🔄 [CentralDataProvider] Using fallback data from adjacent date for ${validDate}`);
-          return fallbackData;
+        for (const date of dates) {
+          if (date !== validDate) {
+            const fallbackData = queryClient.getQueryData(['central-date-fixtures', date]);
+            if (fallbackData && Array.isArray(fallbackData) && fallbackData.length > 0) {
+              console.log(`🔄 [CentralDataProvider] Using fallback data from ${date} for ${validDate} (${fallbackData.length} fixtures)`);
+              return fallbackData;
+            }
+          }
         }
 
         console.warn(`⚠️ [CentralDataProvider] No fallback data available for ${validDate}, returning empty array`);
@@ -158,11 +158,11 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         error?.name === 'TypeError'
       );
       
-      const shouldRetry = isNetworkError && failureCount < 2; // Reduced retries to 2
+      const shouldRetry = isNetworkError && failureCount < 1; // Reduced to 1 retry only
       
       if (shouldRetry) {
-        const delay = Math.min(3000 * Math.pow(2, failureCount), 10000); // Max 10s delay
-        console.log(`🔄 [CentralDataProvider] Retry attempt ${failureCount + 1}/2 for ${validDate} in ${delay}ms (reason: ${error?.message || error?.name})`);
+        const delay = 2000; // Fixed 2s delay
+        console.log(`🔄 [CentralDataProvider] Retry attempt ${failureCount + 1}/1 for ${validDate} in ${delay}ms (reason: ${error?.message || error?.name || 'unknown'})`);
         return true;
       }
       
@@ -172,7 +172,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       
       return false;
     },
-    retryDelay: (attemptIndex) => Math.min(3000 * 2 ** attemptIndex, 10000), // Exponential backoff: 3s, 6s, 10s max
+    retryDelay: (attemptIndex) => 2000, // Fixed 2s delay
     throwOnError: false, // Don't throw errors to prevent unhandled rejections
     enabled: !!validDate,
   });
@@ -192,12 +192,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       const controller = new AbortController();
       
       try {
-        // Set up timeout that only aborts if request is still pending - increased for consistency
+        // Set up timeout that only aborts if request is still pending - reduced to 20 seconds
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 30 seconds');
+            controller.abort('Request timeout after 20 seconds');
           }
-        }, 30000);
+        }, 20000);
 
         const response = await fetch('/api/fixtures/live', {
           signal: controller.signal,
