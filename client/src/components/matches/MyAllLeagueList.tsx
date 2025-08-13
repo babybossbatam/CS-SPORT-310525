@@ -194,7 +194,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     return Object.values(leaguesByCountry).reduce((sum, countryData) => sum + countryData.totalMatches, 0);
   }, [leaguesByCountry]);
 
-  // Enhanced country name mapping with smart learning translation system
+  // Enhanced country name mapping with intelligent learning translation system
   const getCountryDisplayName = (country: string | null | undefined): string => {
     if (!country || typeof country !== "string" || country.trim() === "") {
       return t('unknown') || "Unknown";
@@ -202,32 +202,77 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
     const originalCountry = country.trim();
 
-    // Step 1: Auto-learn from the country name for future translations
-    smartLeagueCountryTranslation.autoLearnFromAnyCountryName(originalCountry, {
+    // Step 1: Enhanced reverse translation detection for already-translated names
+    const reverseTranslationMap: { [key: string]: string } = {
+      // Chinese translations back to English
+      "巴西": "Brazil",
+      "哥伦比亚": "Colombia", 
+      "阿根廷": "Argentina",
+      "西班牙": "Spain",
+      "德国": "Germany",
+      "意大利": "Italy",
+      "法国": "France",
+      "英格兰": "England",
+      "俄罗斯": "Russia",
+      "美国": "United States",
+      "加拿大": "Canada",
+      "澳大利亚": "Australia",
+      "荷兰": "Netherlands",
+      "葡萄牙": "Portugal",
+      "比利时": "Belgium",
+      "墨西哥": "Mexico",
+      "世界": "World",
+      // Traditional Chinese
+      "巴西": "Brazil",
+      "哥倫比亞": "Colombia",
+      "阿根廷": "Argentina", 
+      "西班牙": "Spain",
+      "德國": "Germany",
+      "意大利": "Italy",
+      "法國": "France",
+      "英格蘭": "England",
+      "俄羅斯": "Russia",
+      "美國": "United States",
+      "加拿大": "Canada",
+      "澳大利亞": "Australia",
+      "荷蘭": "Netherlands",
+      "葡萄牙": "Portugal",
+      "比利時": "Belgium",
+      "墨西哥": "Mexico",
+      "世界": "World"
+    };
+
+    // Check if this is already a translated name that needs to be normalized back to English first
+    const normalizedCountry = reverseTranslationMap[originalCountry] || originalCountry;
+
+    // Step 2: Auto-learn from the normalized country name
+    smartLeagueCountryTranslation.autoLearnFromAnyCountryName(normalizedCountry, {
       leagueContext: "multiple leagues",
-      occurrenceCount: 1
+      occurrenceCount: 1,
+      originalForm: originalCountry !== normalizedCountry ? originalCountry : undefined
     });
 
-    // Step 2: Get smart translation using the learning system
-    const smartTranslation = smartLeagueCountryTranslation.translateCountryName(originalCountry, currentLanguage);
+    // Step 3: Get smart translation using the learning system with normalized name
+    const smartTranslation = smartLeagueCountryTranslation.translateCountryName(normalizedCountry, currentLanguage);
     
-    // If smart translation worked and is different from original, use it
-    if (smartTranslation && smartTranslation !== originalCountry && smartTranslation.length > 0) {
-      console.log(`🌍 [Smart Country Translation] "${originalCountry}" → "${smartTranslation}" (${currentLanguage})`);
+    // If smart translation worked and is appropriate for current language, use it
+    if (smartTranslation && smartTranslation !== normalizedCountry && smartTranslation.length > 0) {
+      console.log(`🌍 [Smart Country Translation] "${originalCountry}" → "${normalizedCountry}" → "${smartTranslation}" (${currentLanguage})`);
       
-      // Cache the smart translation result
+      // Cache both the original and smart translation result
       setCachedCountryName(originalCountry, smartTranslation, "smart-translation");
+      setCachedCountryName(normalizedCountry, smartTranslation, "smart-translation");
       return smartTranslation;
     }
 
-    // Step 3: Check if we have a cached translation
-    const cachedName = getCachedCountryName(originalCountry);
-    if (cachedName && cachedName !== originalCountry) {
+    // Step 4: Check if we have a cached translation
+    const cachedName = getCachedCountryName(originalCountry) || getCachedCountryName(normalizedCountry);
+    if (cachedName && cachedName !== originalCountry && cachedName !== normalizedCountry) {
       console.log(`💾 [Cached Country Translation] "${originalCountry}" → "${cachedName}"`);
       return cachedName;
     }
 
-    // Step 4: Enhanced country mappings for common variations and normalization
+    // Step 5: Enhanced country mappings for common variations and normalization
     const enhancedCountryMappings: { [key: string]: string } = {
       "czech republic": "Czech Republic",
       "czech-republic": "Czech Republic", 
@@ -253,10 +298,12 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       "denmark": "Denmark",
       "canada": "Canada",
       "estonia": "Estonia",
-      "ecuador": "Ecuador"
+      "ecuador": "Ecuador",
+      "colombia": "Colombia",
+      "brazil": "Brazil"
     };
 
-    // Step 5: Use country code mapping as fallback
+    // Step 6: Use country code mapping as fallback
     const countryNameMap: { [key: string]: string } = {};
     Object.entries(countryCodeMap).forEach(([countryName, countryCode]) => {
       if (countryCode.length === 2) {
@@ -264,15 +311,16 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       }
     });
 
-    const cleanCountry = originalCountry.toLowerCase();
+    const cleanCountry = normalizedCountry.toLowerCase();
     let displayName = enhancedCountryMappings[cleanCountry] || 
                      countryNameMap[cleanCountry] || 
-                     originalCountry;
+                     normalizedCountry;
 
-    // Step 6: Auto-learn the mapping for future use and re-attempt translation
-    if (displayName !== originalCountry) {
+    // Step 7: Auto-learn the mapping for future use and re-attempt translation
+    if (displayName !== normalizedCountry) {
       smartLeagueCountryTranslation.autoLearnFromAnyCountryName(displayName, { 
         originalName: originalCountry,
+        normalizedName: normalizedCountry,
         leagueContext: "normalization"
       });
       
@@ -284,8 +332,17 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       }
     }
 
-    // Step 7: Cache the result
+    // Step 8: Final fallback - if we're in English mode and have a normalized name, use it
+    if (currentLanguage === 'en' && normalizedCountry !== originalCountry && displayName === originalCountry) {
+      displayName = normalizedCountry;
+      console.log(`📝 [Normalized Country] "${originalCountry}" → "${displayName}" (English fallback)`);
+    }
+
+    // Step 9: Cache the result
     setCachedCountryName(originalCountry, displayName, "enhanced-mapping");
+    if (normalizedCountry !== originalCountry) {
+      setCachedCountryName(normalizedCountry, displayName, "enhanced-mapping");
+    }
     
     console.log(`🗺️ [Enhanced Country Mapping] "${originalCountry}" → "${displayName}" (Language: ${currentLanguage})`);
     return displayName;
