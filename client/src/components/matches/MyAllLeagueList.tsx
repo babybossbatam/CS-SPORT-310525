@@ -202,9 +202,9 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
     const originalCountry = country.trim();
 
-    // Step 1: Enhanced reverse translation detection for already-translated names
+    // Step 1: Enhanced reverse translation detection for already-translated names (fixed duplicates)
     const reverseTranslationMap: { [key: string]: string } = {
-      // Chinese translations back to English
+      // Simplified Chinese translations back to English
       "巴西": "Brazil",
       "哥伦比亚": "Colombia", 
       "阿根廷": "Argentina",
@@ -222,24 +222,21 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       "比利时": "Belgium",
       "墨西哥": "Mexico",
       "世界": "World",
-      // Traditional Chinese
-      "巴西": "Brazil",
+      // Traditional Chinese translations back to English
       "哥倫比亞": "Colombia",
-      "阿根廷": "Argentina", 
-      "西班牙": "Spain",
+      "阿根廷_TW": "Argentina", 
+      "西班牙_TW": "Spain",
       "德國": "Germany",
-      "意大利": "Italy",
       "法國": "France",
       "英格蘭": "England",
       "俄羅斯": "Russia",
       "美國": "United States",
-      "加拿大": "Canada",
+      "加拿大_TW": "Canada",
       "澳大利亞": "Australia",
       "荷蘭": "Netherlands",
-      "葡萄牙": "Portugal",
+      "葡萄牙_TW": "Portugal",
       "比利時": "Belgium",
-      "墨西哥": "Mexico",
-      "世界": "World"
+      "墨西哥_TW": "Mexico"
     };
 
     // Check if this is already a translated name that needs to be normalized back to English first
@@ -274,6 +271,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
     // Step 5: Enhanced country mappings for common variations and normalization
     const enhancedCountryMappings: { [key: string]: string } = {
+      // Basic normalization
       "czech republic": "Czech Republic",
       "czech-republic": "Czech Republic", 
       "united arab emirates": "United Arab Emirates",
@@ -289,18 +287,35 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       "northern ireland": "Northern Ireland",
       "republic of ireland": "Ireland",
       "korea dpr": "North Korea",
-      "bolivia": "Bolivia",
-      "bhutan": "Bhutan",
+      // Countries from your image
       "armenia": "Armenia",
-      "australia": "Australia",
+      "australia": "Australia", 
+      "bhutan": "Bhutan",
+      "bolivia": "Bolivia",
+      "canada": "Canada",
       "dominican republic": "Dominican Republic",
       "dominican-republic": "Dominican Republic",
       "denmark": "Denmark",
-      "canada": "Canada",
       "estonia": "Estonia",
       "ecuador": "Ecuador",
       "colombia": "Colombia",
-      "brazil": "Brazil"
+      "brazil": "Brazil",
+      // Additional common countries
+      "netherlands": "Netherlands",
+      "germany": "Germany",
+      "france": "France",
+      "italy": "Italy",
+      "spain": "Spain",
+      "portugal": "Portugal",
+      "belgium": "Belgium",
+      "switzerland": "Switzerland",
+      "austria": "Austria",
+      "poland": "Poland",
+      "turkey": "Turkey",
+      "greece": "Greece",
+      "norway": "Norway",
+      "sweden": "Sweden",
+      "finland": "Finland"
     };
 
     // Step 6: Use country code mapping as fallback
