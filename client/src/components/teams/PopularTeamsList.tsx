@@ -6,7 +6,6 @@ import { Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 // Popular teams with their data - fallback data
 const CURRENT_POPULAR_TEAMS = [
@@ -122,31 +121,8 @@ const PopularTeamsList = () => {
   const dispatch = useDispatch();
   const { toast } = useToast();
   const user = useSelector((state: RootState) => state.user);
-  const { currentLanguage, translateTeamName, translateCountryName, learnFromFixtures } = useLanguage();
   const [teamData, setTeamData] = useState(CURRENT_POPULAR_TEAMS);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Helper function to separate team name and country if they're concatenated
-  const separateTeamAndCountry = (teamName: string, country: string) => {
-    // If country is empty but teamName contains known country patterns, try to separate
-    if (!country || country === teamName) {
-      const countryPatterns = [
-        'Germany', 'England', 'Spain', 'Italy', 'France', 'Brazil', 'Argentina',
-        'Netherlands', 'Portugal', 'Belgium', 'Colombia', 'Chile', 'Egypt'
-      ];
-      
-      for (const countryPattern of countryPatterns) {
-        if (teamName.includes(countryPattern)) {
-          const cleanTeamName = teamName.replace(countryPattern, '').trim();
-          return {
-            teamName: cleanTeamName || teamName,
-            country: countryPattern
-          };
-        }
-      }
-    }
-    return { teamName, country };
-  };
 
   useEffect(() => {
     const fetchPopularTeams = async () => {
@@ -174,61 +150,26 @@ const PopularTeamsList = () => {
 
           // Transform API response to match our Team interface
           const transformedTeams = teams
-            .map((team: any, index: number) => {
-              const rawTeamName = team.team?.name || team.name;
-              const rawCountry = team.country?.name || team.team?.country || team.country;
-              
-              // Separate team name and country if concatenated
-              const { teamName, country } = separateTeamAndCountry(rawTeamName, rawCountry);
-              
-              // Apply smart translations with debugging
-              const translatedTeamName = translateTeamName(teamName);
-              const translatedCountry = translateCountryName(country);
-              
-              // Debug log translations
-              if (translatedTeamName !== teamName || translatedCountry !== country) {
-                console.log(`🏆 [PopularTeams] Translation: "${teamName}" -> "${translatedTeamName}" | "${country}" -> "${translatedCountry}"`);
-              }
-              
-              return {
-                id: team.team?.id || team.id,
-                name: translatedTeamName,
-                originalName: teamName, // Keep original for fallback
-                logo: team.team?.logo || team.logo,
-                country: translatedCountry,
-                originalCountry: country, // Keep original for fallback
-                popularity: team.popularity || (100 - index * 2), // Use API popularity or generate
-              };
-            })
+            .map((team: any, index: number) => ({
+              id: team.team?.id || team.id,
+              name: team.team?.name || team.name,
+              logo: team.team?.logo || team.logo,
+              country: team.country?.name || team.team?.country || team.country,
+              popularity: team.popularity || (100 - index * 2), // Use API popularity or generate
+            }))
             .filter((team: any) => {
               if (!team.id || !team.name) return false;
               const teamName = team.name?.toLowerCase() || "";
-              const originalName = team.originalName?.toLowerCase() || "";
+              const country = team.country?.toLowerCase() || "";
               // Exclude reserve teams and youth teams
               return (
                 !teamName.includes("reserves") &&
                 !teamName.includes("youth") &&
                 !teamName.includes("u21") &&
                 !teamName.includes("u19") &&
-                !teamName.includes("u18") &&
-                !originalName.includes("reserves") &&
-                !originalName.includes("youth") &&
-                !originalName.includes("u21") &&
-                !originalName.includes("u19") &&
-                !originalName.includes("u18")
+                !teamName.includes("u18")
               );
             });
-
-          // Learn from the data for future translations
-          if (transformedTeams.length > 0) {
-            learnFromFixtures(transformedTeams.map(team => ({
-              teams: {
-                home: { name: team.originalName },
-                away: { name: team.originalName }
-              },
-              league: { country: team.originalCountry }
-            })));
-          }
 
           if (transformedTeams.length > 0) {
             setTeamData(transformedTeams);
@@ -246,35 +187,16 @@ const PopularTeamsList = () => {
         
         // Fallback to hardcoded popular teams if API fails
         const sortedTeams = [...CURRENT_POPULAR_TEAMS]
-          .map((team) => {
-            // Apply smart translations to fallback data
-            const { teamName, country } = separateTeamAndCountry(team.name, team.country);
-            const translatedTeamName = translateTeamName(teamName);
-            const translatedCountry = translateCountryName(country);
-            
-            return {
-              ...team,
-              name: translatedTeamName,
-              originalName: teamName,
-              country: translatedCountry,
-              originalCountry: country
-            };
-          })
           .filter((team) => {
             const teamName = team.name?.toLowerCase() || "";
-            const originalName = team.originalName?.toLowerCase() || "";
+            const country = team.country?.toLowerCase() || "";
             // Exclude reserve teams and youth teams
             return (
               !teamName.includes("reserves") &&
               !teamName.includes("youth") &&
               !teamName.includes("u21") &&
               !teamName.includes("u19") &&
-              !teamName.includes("u18") &&
-              !originalName.includes("reserves") &&
-              !originalName.includes("youth") &&
-              !originalName.includes("u21") &&
-              !originalName.includes("u19") &&
-              !originalName.includes("u18")
+              !teamName.includes("u18")
             );
           })
           .sort((a, b) => b.popularity - a.popularity);

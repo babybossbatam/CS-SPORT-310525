@@ -178,15 +178,14 @@ const categorizeError = (error: any): ErrorCategory => {
     };
   }
 
-  // Network/connectivity issues - attempt recovery but suppress frequent timeouts
+  // Network/connectivity issues - attempt recovery
   if (errorStr.includes('Failed to fetch') || 
       errorStr.includes('NetworkError') ||
-      errorStr.includes('timeout') ||
-      errorStr.includes('Request timeout')) {
+      errorStr.includes('timeout')) {
     return {
       name: 'network-connectivity',
-      shouldSuppress: errorStr.includes('Request timeout'), // Suppress timeout spam
-      shouldReport: !errorStr.includes('Request timeout'), // Don't report timeouts to reduce noise
+      shouldSuppress: false,
+      shouldReport: true,
       action: 'fix'
     };
   }
@@ -255,38 +254,13 @@ const categorizeError = (error: any): ErrorCategory => {
   };
 };
 
-// Track recent errors to prevent cascades
-const recentErrors = new Map<string, number>();
-const ERROR_THROTTLE_MS = 5000; // 5 seconds
-
 // Enhanced error reporting system
 const reportError = (error: any, category: any, source: string) => {
   if (!import.meta.env.DEV) return;
 
-  const errorString = typeof error === 'string' ? error : error?.message || 'Unknown error';
-  const errorKey = `${category.name}:${errorString}`;
-  const now = Date.now();
-
-  // Throttle identical errors
-  if (recentErrors.has(errorKey)) {
-    const lastReported = recentErrors.get(errorKey)!;
-    if (now - lastReported < ERROR_THROTTLE_MS) {
-      return; // Skip reporting this error
-    }
-  }
-
-  recentErrors.set(errorKey, now);
-
-  // Clean up old entries
-  for (const [key, timestamp] of recentErrors.entries()) {
-    if (now - timestamp > ERROR_THROTTLE_MS * 2) {
-      recentErrors.delete(key);
-    }
-  }
-
   const errorData = {
     timestamp: new Date().toISOString(),
-    error: errorString,
+    error: typeof error === 'string' ? error : error?.message || 'Unknown error',
     category: category.name,
     source,
     stack: error?.stack || 'No stack trace',
@@ -294,33 +268,22 @@ const reportError = (error: any, category: any, source: string) => {
     url: window.location.href
   };
 
-  // Store in localStorage for analysis (but limit storage for network errors)
-  if (category.name !== 'network-connectivity') {
-    try {
-      const stored = JSON.parse(localStorage.getItem('app-errors') || '[]');
-      stored.push(errorData);
+  // Store in localStorage for analysis
+  const stored = JSON.parse(localStorage.getItem('app-errors') || '[]');
+  stored.push(errorData);
 
-      // Keep only last 50 errors
-      if (stored.length > 50) {
-        stored.splice(0, stored.length - 50);
-      }
-
-      localStorage.setItem('app-errors', JSON.stringify(stored));
-    } catch (storageError) {
-      // Ignore localStorage errors
-    }
+  // Keep only last 50 errors
+  if (stored.length > 50) {
+    stored.splice(0, stored.length - 50);
   }
 
+  localStorage.setItem('app-errors', JSON.stringify(stored));
+
   if (!category.shouldSuppress) {
-    // For network errors, use a simpler log format
-    if (category.name === 'network-connectivity') {
-      console.warn(`🌐 Network connectivity issue: ${errorString}`);
-    } else {
-      console.group(`🚨 ${category.name} Error Report`);
-      console.error('Error:', error);
-      console.log('Context:', errorData);
-      console.groupEnd();
-    }
+    console.group(`🚨 ${category.name} Error Report`);
+    console.error('Error:', error);
+    console.log('Context:', errorData);
+    console.groupEnd();
   }
 };
 
@@ -417,14 +380,8 @@ export const setupGlobalErrorHandlers = () => {
     // For fixable errors, attempt recovery
     if (category.action === 'fix') {
       if (category.name === 'network-connectivity') {
-        // Only attempt recovery if not a simple timeout
-        const errorStr = typeof error === 'string' ? error : error?.message || '';
-        if (!errorStr.includes('Request timeout')) {
-          console.log('🌐 Network error detected, attempting recovery...');
-          handleNetworkRecovery();
-        } else {
-          console.warn('🌐 Request timeout detected, skipping recovery to prevent cascade');
-        }
+        console.log('🌐 Network error detected, attempting recovery...');
+        handleNetworkRecovery();
         event.preventDefault();
         return;
       }
@@ -434,12 +391,6 @@ export const setupGlobalErrorHandlers = () => {
 
     // Handle specific error types
     if (error instanceof Error) {
-      if (error.message?.includes('Request timeout')) {
-        console.warn('🌐 Request timeout detected and suppressed');
-        event.preventDefault();
-        return;
-      }
-      
       if (error.message?.includes('Failed to fetch') || 
           error.message?.includes('not 2xx response') ||
           error.message?.includes('Network Error') ||
@@ -452,9 +403,8 @@ export const setupGlobalErrorHandlers = () => {
       }
 
       if (error.message?.includes('frame') || 
-          error.message?.includes('ErrorOverlay') ||
-          error.message?.includes('Cannot read properties of undefined (reading \'frame\')') ||
-          error.message?.includes('reading \'frame\'') ||
+          error.message?.includes('Cannot read properties of undefined') ||
+          error.message?.includes('space after cleanup') ||
           error.message?.includes('MaxListenersExceededWarning')) {
         console.log('🖼️ Frame/memory-related error detected, suppressing cascade...');
         event.preventDefault();
@@ -502,9 +452,9 @@ export const setupGlobalErrorHandlers = () => {
     console.error('🚨 Global error:', error);
 
     // Handle DOM manipulation errors
-    if (error?.message?.includes('removeChild') || 
-        error?.message?.includes('The node to be removed is not a child')) {
-      console.warn('DOM manipulation error caught and suppressed:', error);
+    if (event.error?.message?.includes('removeChild') || 
+        event.error?.message?.includes('The node to be removed is not a child')) {
+      console.warn('DOM manipulation error caught and suppressed:', event.error);
       event.preventDefault();
       return false;
     }
@@ -514,14 +464,11 @@ export const setupGlobalErrorHandlers = () => {
         error?.message?.includes('ErrorOverlay') ||
         error?.message?.includes('Cannot read properties of undefined (reading \'frame\')') ||
         error?.message?.includes('reading \'frame\'') ||
-        error?.stack?.includes('ErrorOverlay') ||
-        error?.stack?.includes('client:') ||
         event.filename?.includes('vite/client') ||
-        event.filename?.includes('client:') ||
-        event.filename?.includes('@vite/client')) {
+        event.filename?.includes('client:')) {
       console.log('🖼️ Suppressing frame/vite overlay error');
       event.preventDefault();
-      return false;
+      return;
     }
 
     // Handle network-related errors and asset loading errors

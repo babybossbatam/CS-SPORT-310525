@@ -7,14 +7,12 @@ import { RootState, userActions } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import LazyImage from "@/components/common/LazyImage";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
 // Function to shorten league names for better display
 const shortenLeagueName = (name: string): string => {
   const maxLength = 25;
   if (name.length <= maxLength) return name;
-
+  
   // Common abbreviations for league names
   const abbreviations = {
     'World Cup - Qualification': 'WC Qualification',
@@ -38,7 +36,7 @@ const shortenLeagueName = (name: string): string => {
     'Championship': 'Champ',
     'International': 'Intl'
   };
-
+  
   // Check for exact matches first
   for (const [full, short] of Object.entries(abbreviations)) {
     if (name.includes(full)) {
@@ -52,16 +50,14 @@ const shortenLeagueName = (name: string): string => {
       name = name.replace(full, short);
     }
   }
-
+  
   // If still too long, truncate with ellipsis
   return name.length > maxLength ? name.substring(0, maxLength - 3) + '...' : name;
 };
 
 // Function to shorten country names for mobile display
-const shortenCountryName = (country: string, currentLanguage: string = 'en'): string => {
-  // Multi-language country abbreviations
+const shortenCountryName = (country: string): string => {
   const countryAbbreviations: { [key: string]: string } = {
-    // English
     'United Arab Emirates': 'UAE',
     'United States': 'USA',
     'United Kingdom': 'UK',
@@ -71,59 +67,9 @@ const shortenCountryName = (country: string, currentLanguage: string = 'en'): st
     'Dominican Republic': 'Dominican Rep',
     'Trinidad and Tobago': 'Trinidad',
     'Central African Republic': 'CAR',
-    'Papua New Guinea': 'Papua NG',
-
-    // Chinese (Simplified)
-    '沙特阿拉伯': '沙特',
-    '阿拉伯聯合酋長國': 'UAE',
-    '美国': '美国',
-    '英国': '英国',
-    '德国': '德国',
-    '法国': '法国',
-    '意大利': '意大利',
-    '西班牙': '西班牙',
-    '巴西': '巴西',
-    '阿根廷': '阿根廷',
-
-    // Chinese (Traditional - Hong Kong)
-    '沙特阿拉伯': '沙特',
-    '阿拉伯聯合酋長國': 'UAE',
-    '美國': '美國',
-    '英國': '英國',
-    '德國': '德國',
-    '法國': '法國',
-    '意大利': '意大利',
-    '西班牙': '西班牙',
-    '巴西': '巴西',
-    '阿根廷': '阿根廷',
-
-    // Chinese (Traditional - Taiwan)
-    '沙烏地阿拉伯': '沙烏地',
-    '阿拉伯聯合大公國': 'UAE',
-
-    // Spanish
-    'Estados Unidos': 'EEUU',
-    'Reino Unido': 'Reino Unido',
-    'Arabia Saudí': 'Arabia Saudí',
-    'Emiratos Árabes Unidos': 'EAU',
-
-    // Special cases for continents and regions
-    'World': currentLanguage === 'zh-hk' ? '世界' : 
-             currentLanguage === 'zh-tw' ? '世界' : 
-             currentLanguage === 'zh' ? '世界' : 
-             currentLanguage === 'es' ? 'Mundo' : 
-             currentLanguage === 'de' ? 'Welt' : 
-             currentLanguage === 'it' ? 'Mondo' : 
-             currentLanguage === 'pt' ? 'Mundo' : 'World',
-    'Europe': currentLanguage === 'zh-hk' ? '歐洲' : 
-              currentLanguage === 'zh-tw' ? '歐洲' : 
-              currentLanguage === 'zh' ? '欧洲' : 
-              currentLanguage === 'es' ? 'Europa' : 
-              currentLanguage === 'de' ? 'Europa' : 
-              currentLanguage === 'it' ? 'Europa' : 
-              currentLanguage === 'pt' ? 'Europa' : 'Europe'
+    'Papua New Guinea': 'Papua NG'
   };
-
+  
   return countryAbbreviations[country] || country;
 };
 
@@ -296,83 +242,9 @@ const PopularLeaguesList = () => {
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
-  const { currentLanguage } = useLanguage();
   const user = useSelector((state: RootState) => state.user);
   const [leagueData, setLeagueData] = useState(CURRENT_POPULAR_LEAGUES);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Smart league name translation function
-  const getTranslatedLeagueName = (leagueName: string, leagueId: number) => {
-    // Find the league data to get country information
-    const leagueData = CURRENT_POPULAR_LEAGUES.find(l => l.id === leagueId);
-    const countryName = leagueData?.country || '';
-
-    // Ensure this league is learned by the system with country context
-    smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(leagueName, {
-      leagueId: leagueId,
-      countryName: countryName
-    });
-
-    // Get smart translation
-    const translatedName = smartLeagueCountryTranslation.translateLeagueName(leagueName, currentLanguage);
-
-    // Apply smart shortening based on language and translated content
-    const getSmartShortening = (name: string, language: string) => {
-      const maxLength = 25;
-      const lowerName = name.toLowerCase();
-
-      switch (language) {
-        case 'zh-hk':
-        case 'zh-tw':
-        case 'zh':
-          // Chinese shortening patterns
-          if (lowerName.includes('uefa champions league')) return '歐冠';
-          if (lowerName.includes('uefa europa league')) return '歐霸';
-          if (lowerName.includes('uefa conference league')) return '歐協';
-          if (lowerName.includes('uefa nations league')) return '歐國聯';
-          if (lowerName.includes('fifa club world cup')) return '世冠盃';
-          if (lowerName.includes('premier league')) return '英超';
-          if (lowerName.includes('bundesliga')) return '德甲';
-          if (lowerName.includes('la liga')) return '西甲';
-          if (lowerName.includes('serie a')) return '意甲';
-          if (lowerName.includes('ligue 1')) return '法甲';
-          break;
-        case 'es':
-          // Spanish shortening patterns
-          if (lowerName.includes('uefa champions league')) return 'Champions';
-          if (lowerName.includes('uefa europa league')) return 'Europa League';
-          if (lowerName.includes('uefa conference league')) return 'Conference';
-          if (lowerName.includes('premier league')) return 'Premier League';
-          break;
-        default:
-          // English shortening patterns
-          if (lowerName.includes('uefa champions league')) return 'Champions League';
-          if (lowerName.includes('uefa europa league')) return 'Europa League';
-          if (lowerName.includes('uefa conference league')) return 'Conference League';
-          if (lowerName.includes('uefa nations league')) return 'Nations League';
-          if (lowerName.includes('fifa club world cup')) return 'Club World Cup';
-          if (lowerName.includes('premier league')) return 'Premier League';
-          break;
-      }
-
-      // If still too long, truncate with ellipsis
-      return name.length > maxLength ? name.substring(0, maxLength - 3) + '...' : name;
-    };
-
-    // Apply smart shortening to the translated name
-    const smartShortened = getSmartShortening(translatedName, currentLanguage);
-
-    // If smart shortening didn't change the name, try shortening the original English name
-    if (smartShortened === translatedName && currentLanguage !== 'en') {
-      const englishShortened = getSmartShortening(leagueName, 'en');
-      if (englishShortened !== leagueName) {
-        // Re-translate the shortened English name
-        return smartLeagueCountryTranslation.translateLeagueName(englishShortened, currentLanguage);
-      }
-    }
-
-    return smartShortened;
-  };
 
   useEffect(() => {
     const fetchPopularLeagues = async () => {
@@ -409,6 +281,7 @@ const PopularLeaguesList = () => {
               // Exclude women's competitions
               // Exclude qualification tournaments
               // Exclude Reserve League and San Marino
+              // Exclude Super Cup from San Marino specifically
               // Exclude specific league IDs
               return (
                 leagueId !== 40 && // Exclude Championship (England)
@@ -430,7 +303,7 @@ const PopularLeaguesList = () => {
                 !leagueName.includes("conmebol") &&
                 !leagueName.includes("friendlies") &&
                 !leagueName.includes("shebelieves") &&
-                !leagueName.includes("coppaitalia serie") &&
+                !leagueName.includes("coppa italia serie") &&
                 !leagueName.includes("reserve league") &&
                 !leagueName.includes("campeones") &&
                 !leagueName.includes("africa cup") &&
@@ -576,14 +449,9 @@ const PopularLeaguesList = () => {
                     }}
                   />
                   <div className="ml-3 flex-1">
-                    <div className="text-sm">{getTranslatedLeagueName(league.name, league.id)}</div>
+                    <div className="text-sm">{shortenLeagueName(league.name)}</div>
                     <span className="text-xs text-gray-500 truncate">
-                      {(() => {
-                        const countryName = league.country?.replace(/-/g, ' ') || '';
-                        // Translate the country name using smart translation
-                        const translatedCountry = smartLeagueCountryTranslation.translateCountryName(countryName, currentLanguage);
-                        return shortenCountryName(translatedCountry, currentLanguage);
-                      })()}
+                      {shortenCountryName(league.country?.replace(/-/g, ' ') || '')}
                     </span>
                   </div>
                   <button
