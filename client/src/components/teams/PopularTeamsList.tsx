@@ -8,6 +8,7 @@ import { apiRequest } from "@/lib/queryClient";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
 import { smartCountryTranslation } from "@/lib/countryNameMapping";
+import { useTranslation } from "@/contexts/LanguageContext";
 
 // Popular teams with their data - fallback data
 const CURRENT_POPULAR_TEAMS = [
@@ -122,6 +123,7 @@ const PopularTeamsList = () => {
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const user = useSelector((state: RootState) => state.user);
   const [teamData, setTeamData] = useState(CURRENT_POPULAR_TEAMS);
   const [isLoading, setIsLoading] = useState(true);
@@ -283,7 +285,7 @@ const PopularTeamsList = () => {
     return (
       <div className="w-full bg-white shadow-sm rounded">
         <div className="p-4">
-          <h3 className="text-sm font-semibold mb-2">Popular Teams</h3>
+          <h3 className="text-sm font-semibold mb-2">{t('popular_football_teams')}</h3>
           <div className="space-y-2">
             {Array.from({ length: 8 }).map((_, i) => (
               <div
@@ -308,7 +310,7 @@ const PopularTeamsList = () => {
       <div className="w-full bg-white border border-gray-200  shadow-sm">
         <div>
           <h3 className="text-sm font-semibold mb-3 text-gray-900 border-b border-gray-200 pb-2">
-            Popular Teams
+            {t('popular_football_teams')}
           </h3>
           <div className="">
             {teamData.map((team) => {
