@@ -399,7 +399,6 @@ class SmartLeagueCountryTranslation {
       'es': 'Zambia', 'de': 'Sambia', 'it': 'Zambia', 'pt': 'Zâmbia'
     }
   };
-  };
 
   constructor() {
     this.clearCache();
