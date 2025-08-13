@@ -206,8 +206,12 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
       let displayName = fastMappings[normalizedCountry.toLowerCase()] || normalizedCountry;
 
-      // Special World handling
-      if (displayName.toLowerCase() === "world") {
+      // Try smart country translation first (including World)
+      const smartTranslation = smartLeagueCountryTranslation.translateCountryName(normalizedCountry, currentLanguage);
+      if (smartTranslation && smartTranslation !== normalizedCountry) {
+        displayName = smartTranslation;
+      } else if (displayName.toLowerCase() === "world") {
+        // Fallback World handling if smart translation doesn't handle it
         const worldTranslations: { [key: string]: string } = {
           'zh': '世界', 'zh-hk': '世界', 'zh-tw': '世界',
           'es': 'Mundial', 'de': 'Welt', 'it': 'Mondo', 'pt': 'Mundial', 'en': 'World'
@@ -217,7 +221,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
       // Cache result
       cache.set(originalCountry, displayName);
-      setCachedCountryName(originalCountry, displayName, "fast-mapping");
+      setCachedCountryName(originalCountry, displayName, "smart-translation");
       
       return displayName;
     };
