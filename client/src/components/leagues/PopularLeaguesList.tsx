@@ -501,7 +501,14 @@ const PopularLeaguesList = () => {
       <Card className="w-full bg-white shadow-sm border border-stone-200">
         <CardContent className="p-0">
           <h3 className="text-sm font-semibold p-3 border-b border-stone-200">
-            {t("Popular Leagues")}
+            {currentLanguage === 'zh-hk' ? '熱門聯賽' :
+             currentLanguage === 'zh-tw' ? '熱門聯賽' :
+             currentLanguage === 'zh' ? '热门联赛' :
+             currentLanguage === 'es' ? 'Ligas Populares' :
+             currentLanguage === 'de' ? 'Beliebte Ligen' :
+             currentLanguage === 'it' ? 'Campionati Popolari' :
+             currentLanguage === 'pt' ? 'Ligas Populares' :
+             'Popular Leagues'}
           </h3>
           <div className="divide-y divide-stone-200">
             {leagueData.slice(0, 20).map((league) => {
