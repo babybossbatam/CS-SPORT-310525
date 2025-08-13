@@ -84,6 +84,22 @@ class SmartCountryTranslation {
     'World': {
       'zh': '世界', 'zh-hk': '世界', 'zh-tw': '世界',
       'es': 'Mundial', 'de': 'Welt', 'it': 'Mondo', 'pt': 'Mundial'
+    },
+    'Dominican Republic': {
+      'zh': '多米尼加共和国', 'zh-hk': '多明尼加共和國', 'zh-tw': '多明尼加共和國',
+      'es': 'República Dominicana', 'de': 'Dominikanische Republik', 'it': 'Repubblica Dominicana', 'pt': 'República Dominicana'
+    },
+    'Dominican-Republic': {
+      'zh': '多米尼加共和国', 'zh-hk': '多明尼加共和國', 'zh-tw': '多明尼加共和國',
+      'es': 'República Dominicana', 'de': 'Dominikanische Republik', 'it': 'Repubblica Dominicana', 'pt': 'República Dominicana'
+    },
+    'Czech Republic': {
+      'zh': '捷克共和国', 'zh-hk': '捷克共和國', 'zh-tw': '捷克共和國',
+      'es': 'República Checa', 'de': 'Tschechische Republik', 'it': 'Repubblica Ceca', 'pt': 'República Tcheca'
+    },
+    'Czech-Republic': {
+      'zh': '捷克共和国', 'zh-hk': '捷克共和國', 'zh-tw': '捷克共和國',
+      'es': 'República Checa', 'de': 'Tschechische Republik', 'it': 'Repubblica Ceca', 'pt': 'República Tcheca'
     }
   };
 

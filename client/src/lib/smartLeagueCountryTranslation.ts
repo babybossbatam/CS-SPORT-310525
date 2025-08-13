@@ -47,6 +47,38 @@ class SmartLeagueCountryTranslation {
       'zh': '世界', 'zh-hk': '世界', 'zh-tw': '世界',
       'es': 'Mundial', 'de': 'Welt', 'it': 'Mondo', 'pt': 'Mundial'
     },
+    'Netherlands': {
+      'zh': '荷兰', 'zh-hk': '荷蘭', 'zh-tw': '荷蘭',
+      'es': 'Países Bajos', 'de': 'Niederlande', 'it': 'Paesi Bassi', 'pt': 'Países Baixos'
+    },
+    'Portugal': {
+      'zh': '葡萄牙', 'zh-hk': '葡萄牙', 'zh-tw': '葡萄牙',
+      'es': 'Portugal', 'de': 'Portugal', 'it': 'Portogallo', 'pt': 'Portugal'
+    },
+    'Belgium': {
+      'zh': '比利时', 'zh-hk': '比利時', 'zh-tw': '比利時',
+      'es': 'Bélgica', 'de': 'Belgien', 'it': 'Belgio', 'pt': 'Bélgica'
+    },
+    'Mexico': {
+      'zh': '墨西哥', 'zh-hk': '墨西哥', 'zh-tw': '墨西哥',
+      'es': 'México', 'de': 'Mexiko', 'it': 'Messico', 'pt': 'México'
+    },
+    'Dominican Republic': {
+      'zh': '多米尼加共和国', 'zh-hk': '多明尼加共和國', 'zh-tw': '多明尼加共和國',
+      'es': 'República Dominicana', 'de': 'Dominikanische Republik', 'it': 'Repubblica Dominicana', 'pt': 'República Dominicana'
+    },
+    'Dominican-Republic': {
+      'zh': '多米尼加共和国', 'zh-hk': '多明尼加共和國', 'zh-tw': '多明尼加共和國',
+      'es': 'República Dominicana', 'de': 'Dominikanische Republik', 'it': 'Repubblica Dominicana', 'pt': 'República Dominicana'
+    },
+    'Czech Republic': {
+      'zh': '捷克共和国', 'zh-hk': '捷克共和國', 'zh-tw': '捷克共和國',
+      'es': 'República Checa', 'de': 'Tschechische Republik', 'it': 'Repubblica Ceca', 'pt': 'República Tcheca'
+    },
+    'Czech-Republic': {
+      'zh': '捷克共和国', 'zh-hk': '捷克共和國', 'zh-tw': '捷克共和國',
+      'es': 'República Checa', 'de': 'Tschechische Republik', 'it': 'Repubblica Ceca', 'pt': 'República Tcheca'
+    },
     'Europe': {
       'zh': '欧洲', 'zh-hk': '歐洲', 'zh-tw': '歐洲',
       'es': 'Europa', 'de': 'Europa', 'it': 'Europa', 'pt': 'Europa'
@@ -73,7 +105,7 @@ class SmartLeagueCountryTranslation {
       'es': 'Francia', 'de': 'Frankreich', 'it': 'Francia', 'pt': 'França'
     },
     'Netherlands': {
-      'zh': '荷蘭', 'zh-hk': '荷蘭', 'zh-tw': '荷蘭',
+      'zh': '荷兰', 'zh-hk': '荷蘭', 'zh-tw': '荷蘭',
       'es': 'Países Bajos', 'de': 'Niederlande', 'it': 'Paesi Bassi', 'pt': 'Países Baixos'
     },
     'Portugal': {
@@ -81,7 +113,7 @@ class SmartLeagueCountryTranslation {
       'es': 'Portugal', 'de': 'Portugal', 'it': 'Portogallo', 'pt': 'Portugal'
     },
     'Belgium': {
-      'zh': '比利時', 'zh-hk': '比利時', 'zh-tw': '比利時',
+      'zh': '比利时', 'zh-hk': '比利時', 'zh-tw': '比利時',
       'es': 'Bélgica', 'de': 'Belgien', 'it': 'Belgio', 'pt': 'Bélgica'
     },
     'Switzerland': {
@@ -2125,6 +2157,15 @@ class SmartLeagueCountryTranslation {
       }
     }
 
+    // Handle space-separated country names by trying hyphenated version
+    if (cleanName.includes(' ')) {
+      const hyphenatedName = cleanName.replace(/ /g, '-');
+      if (this.popularCountries[hyphenatedName]) {
+        console.log(`🔄 [Smart Translation] Spaced country normalized: "${cleanName}" → "${hyphenatedName}"`);
+        return hyphenatedName;
+      }
+    }
+
     return cleanName;
   }
 
@@ -2418,18 +2459,50 @@ class SmartLeagueCountryTranslation {
       return this.countryCache.get(cacheKey);
     }
 
-    // Check popular countries first
-    const popularTranslation = this.popularCountries[countryName];
-    if (popularTranslation && popularTranslation[language]) {
-      this.countryCache.set(cacheKey, popularTranslation[language]);
-      return popularTranslation[language];
+    // Check static mappings first (exact match)
+    const staticTranslation = this.popularCountries[countryName];
+    if (staticTranslation) {
+      const translation = staticTranslation[language as keyof CountryTranslation[string]];
+      if (translation && translation !== countryName) {
+        this.countryCache.set(cacheKey, translation);
+        return translation;
+      }
+    }
+
+    // Handle hyphenated country names by normalizing them
+    if (countryName.includes('-')) {
+      const normalizedName = countryName.replace(/-/g, ' ');
+      const normalizedTranslation = this.popularCountries[normalizedName];
+      if (normalizedTranslation) {
+        const translation = normalizedTranslation[language as keyof CountryTranslation[string]];
+        if (translation && translation !== countryName) {
+          this.countryCache.set(cacheKey, translation);
+          return translation;
+        }
+      }
+    }
+
+    // Handle space-separated country names by trying hyphenated version
+    if (countryName.includes(' ')) {
+      const hyphenatedName = countryName.replace(/ /g, '-');
+      const hyphenatedTranslation = this.popularCountries[hyphenatedName];
+      if (hyphenatedTranslation) {
+        const translation = hyphenatedTranslation[language as keyof CountryTranslation[string]];
+        if (translation && translation !== countryName) {
+          this.countryCache.set(cacheKey, translation);
+          return translation;
+        }
+      }
     }
 
     // Check learned mappings
     const learned = this.learnedCountryMappings.get(countryName);
-    if (learned && learned[language]) {
-      this.countryCache.set(cacheKey, learned[language]);
-      return learned[language];
+    if (learned) {
+      const translation = learned[language as keyof CountryTranslation[string]];
+      if (translation && translation !== countryName) {
+        this.countryCache.set(cacheKey, translation);
+        return translation;
+      }
     }
 
     // Try Chinese to English mapping (sync only)
@@ -2660,6 +2733,37 @@ class SmartLeagueCountryTranslation {
     return Object.keys(translations).length > 0 ? translations as LeagueTranslation : null;
   }
 
+  // Learn from specific league names that need translation
+  learnMissingLeagueNames() {
+    const missingLeagues = [
+      { name: 'Primera Nacional', country: 'Argentina' },
+      { name: 'Primera C', country: 'Argentina' },
+      { name: 'Netherlands聯賽', country: 'Netherlands' },
+      { name: 'Capital Territory NPL', country: 'Australia' },
+      { name: 'Australia超级联赛', country: 'Australia' },
+      { name: 'Western Australia NPL', country: 'Australia' },
+      { name: 'New South Wales NPL 2', country: 'Australia' },
+      { name: 'Australia Cup', country: 'Australia' },
+      { name: 'Australia聯賽', country: 'Australia' },
+      { name: 'Bulgaria聯賽', country: 'Bulgaria' },
+      { name: 'Brazil联赛', country: 'Brazil' },
+      { name: 'Brazil聯賽', country: 'Brazil' },
+      { name: 'Argentina联赛', country: 'Argentina' },
+      { name: 'Argentina聯賽', country: 'Argentina' }
+    ];
+
+    console.log('🚀 [Enhanced Learning] Learning missing and mixed language leagues...');
+    const learned = this.bulkLearnFromLeagueList(missingLeagues);
+
+    // Also ensure these are in core translations
+    missingLeagues.forEach(league => {
+      this.autoLearnFromAnyLeagueName(league.name, { countryName: league.country });
+    });
+
+    console.log(`✅ [Enhanced Learning] Completed learning ${learned} missing league translations`);
+    return learned;
+  }
+
   // Learn from problematic league names that commonly appear
   private learnProblematicLeagueNames(): void {
     const problematicLeagues = [
@@ -2711,37 +2815,6 @@ class SmartLeagueCountryTranslation {
       this.saveLearnedMappings();
       console.log(`🚀 [Problematic Learning] Fixed ${learned} problematic league names`);
     }
-  }
-
-  // Learn from specific league names that need translation
-  learnMissingLeagueNames() {
-    const missingLeagues = [
-      { name: 'Primera Nacional', country: 'Argentina' },
-      { name: 'Primera C', country: 'Argentina' },
-      { name: 'Netherlands聯賽', country: 'Netherlands' },
-      { name: 'Capital Territory NPL', country: 'Australia' },
-      { name: 'Australia超级联赛', country: 'Australia' },
-      { name: 'Western Australia NPL', country: 'Australia' },
-      { name: 'New South Wales NPL 2', country: 'Australia' },
-      { name: 'Australia Cup', country: 'Australia' },
-      { name: 'Australia聯賽', country: 'Australia' },
-      { name: 'Bulgaria聯賽', country: 'Bulgaria' },
-      { name: 'Brazil联赛', country: 'Brazil' },
-      { name: 'Brazil聯賽', country: 'Brazil' },
-      { name: 'Argentina联赛', country: 'Argentina' },
-      { name: 'Argentina聯賽', country: 'Argentina' }
-    ];
-
-    console.log('🚀 [Enhanced Learning] Learning missing and mixed language leagues...');
-    const learned = this.bulkLearnFromLeagueList(missingLeagues);
-
-    // Also ensure these are in core translations
-    missingLeagues.forEach(league => {
-      this.autoLearnFromAnyLeagueName(league.name, { countryName: league.country });
-    });
-
-    console.log(`✅ [Enhanced Learning] Completed learning ${learned} missing league translations`);
-    return learned;
   }
 }
 
