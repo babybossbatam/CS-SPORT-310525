@@ -24,8 +24,33 @@ class SmartTeamTranslation {
     this.clearCache();
     this.fixCorruptedCache();
     this.loadLearnedMappings(); // Load existing learned mappings from localStorage
+    this.cleanCorruptedLearnedMappings(); // Clean any corrupted learned mappings
     this.integrateAutomatedMappings(); // Automatically integrate any generated mappings
     console.log('🔄 [SmartTranslation] Initialized with cache cleared for fresh translations and automated mappings integrated');
+  }
+
+  // Clean corrupted learned mappings
+  private cleanCorruptedLearnedMappings(): void {
+    let cleanedCount = 0;
+    const toDelete: string[] = [];
+    
+    this.learnedTeamMappings.forEach((mapping, teamName) => {
+      Object.entries(mapping).forEach(([lang, translation]) => {
+        if (typeof translation === 'string' && this.isCorruptedTranslation(translation, teamName)) {
+          toDelete.push(teamName);
+          cleanedCount++;
+        }
+      });
+    });
+    
+    toDelete.forEach(teamName => {
+      this.learnedTeamMappings.delete(teamName);
+    });
+    
+    if (cleanedCount > 0) {
+      this.saveLearnedMappings();
+      console.log(`🧹 [SmartTranslation] Cleaned ${cleanedCount} corrupted learned mappings`);
+    }
   }
 
   // Comprehensive team translations for popular leagues
@@ -1998,13 +2023,17 @@ class SmartTeamTranslation {
       }
     }
 
-    // Check learned mappings
+    // Check learned mappings, but validate them first
     const learnedTeamTranslations = this.learnedTeamMappings.get(teamName);
     if (learnedTeamTranslations) {
       const learnedTranslation = learnedTeamTranslations[language as keyof typeof learnedTeamTranslations];
-      if (learnedTranslation && learnedTranslation !== teamName) {
+      if (learnedTranslation && learnedTranslation !== teamName && !this.isCorruptedTranslation(learnedTranslation, teamName)) {
         console.log(`🎓 [SmartTranslation] Using learned mapping: "${teamName}" -> "${learnedTranslation}" (${language})`);
         return learnedTranslation;
+      } else if (learnedTranslation && this.isCorruptedTranslation(learnedTranslation, teamName)) {
+        console.log(`🧹 [SmartTranslation] Removing corrupted learned mapping for: "${teamName}"`);
+        this.learnedTeamMappings.delete(teamName);
+        this.saveLearnedMappings();
       }
     }
 
@@ -2293,18 +2322,30 @@ class SmartTeamTranslation {
     return output;
   }
 
-  // Force refresh specific team translations
+  // Force refresh specific team translations and clear corrupted learned mappings
   forceRefreshTranslations(teams: string[], language: string = 'zh-hk'): void {
     teams.forEach(team => {
       const cacheKey = `${team.toLowerCase()}_${language}`;
       this.teamCache.delete(cacheKey);
-      localStorage.removeItem(`smart_translation_${team}_${language}`); // Also clear from learned mappings if language matches
-      if (language === 'zh-hk') { // Only remove from learned mappings if it's the primary language we might have stored
-        this.learnedTeamMappings.delete(team);
-        this.saveLearnedMappings(); // Save changes after deletion
+      
+      // Check if learned mapping is corrupted and remove it
+      const learnedMapping = this.learnedTeamMappings.get(team);
+      if (learnedMapping) {
+        const translation = learnedMapping[language as keyof typeof learnedMapping];
+        if (translation && this.isCorruptedTranslation(translation, team)) {
+          console.log(`🧹 [SmartTranslation] Removing corrupted learned mapping: "${team}" -> "${translation}"`);
+          this.learnedTeamMappings.delete(team);
+        }
       }
+      
+      // Clear any corrupted localStorage entries
+      localStorage.removeItem(`smart_translation_${team}_${language}`);
+      
       console.log(`🔄 [SmartTranslation] Force refreshed: ${team} for ${language}`);
     });
+    
+    // Save changes after cleanup
+    this.saveLearnedMappings();
   }
 
   // Cache and store league teams for future use
@@ -2796,25 +2837,31 @@ class SmartTeamTranslation {
       totalCachedTeams: Object.values(this.leagueTeamsCache).reduce((sum, teams) => sum + teams.length, 0)
     });
 
-    // Check cache first
+    // Check cache first, but skip if it contains corrupted data
     const cacheKey = `${teamName.toLowerCase()}_${language}`;
     if (this.teamCache.has(cacheKey)) {
       const cached = this.teamCache.get(cacheKey)!;
-      console.log(`💾 [SmartTranslation] Cache hit: "${teamName}" -> "${cached}"`);
-      return cached;
+      // Skip cache if it looks like corrupted phonetic translation
+      if (!this.isCorruptedTranslation(cached, teamName)) {
+        console.log(`💾 [SmartTranslation] Cache hit: "${teamName}" -> "${cached}"`);
+        return cached;
+      } else {
+        console.log(`🧹 [SmartTranslation] Clearing corrupted cache for: "${teamName}"`);
+        this.teamCache.delete(cacheKey);
+      }
     }
 
-    // Try popular teams mapping first (highest priority)
+    // Try popular teams mapping first (highest priority) - this contains proper translations
     const popularTranslation = this.getPopularTeamTranslation(teamName, language);
-    if (popularTranslation && popularTranslation !== teamName) {
+    if (popularTranslation && popularTranslation !== teamName && !this.isCorruptedTranslation(popularTranslation, teamName)) {
       console.log(`⭐ [SmartTranslation] Popular team translation: "${teamName}" -> "${popularTranslation}"`);
       this.teamCache.set(cacheKey, popularTranslation);
       return popularTranslation;
     }
 
-    // Try exact match from manual translations (keep your existing ones as fallback)
+    // Try exact match from manual translations
     const manualTranslation = this.getManualTranslation(teamName, language);
-    if (manualTranslation && manualTranslation !== teamName) {
+    if (manualTranslation && manualTranslation !== teamName && !this.isCorruptedTranslation(manualTranslation, teamName)) {
       console.log(`📖 [SmartTranslation] Manual translation: "${teamName}" -> "${manualTranslation}"`);
       this.teamCache.set(cacheKey, manualTranslation);
       return manualTranslation;
@@ -2822,32 +2869,39 @@ class SmartTeamTranslation {
 
     // Enhanced fallback for common team patterns
     const enhancedFallback = this.getEnhancedFallback(teamName, language);
-    if (enhancedFallback && enhancedFallback !== teamName) {
+    if (enhancedFallback && enhancedFallback !== teamName && !this.isCorruptedTranslation(enhancedFallback, teamName)) {
       console.log(`🔍 [SmartTranslation] Enhanced fallback: "${teamName}" -> "${enhancedFallback}"`);
-
-      // Learn from this translation context for future use
-      this.learnFromTranslationContext(teamName, enhancedFallback, language);
-
+      this.teamCache.set(cacheKey, enhancedFallback);
       return enhancedFallback;
     }
 
-    // If no translation found, learn from context if available
-    if (leagueInfo && !this.getPopularTeamTranslation(teamName, 'zh')) {
-      this.learnNewTeam(teamName, leagueInfo); // Pass leagueInfo to learnNewTeam
-
-      // Try again after learning
-      const newTranslation = this.getPopularTeamTranslation(teamName, language);
-      if (newTranslation && newTranslation !== teamName) {
-        console.log(`🎓 [SmartTranslation] Learned and translated: "${teamName}" -> "${newTranslation}"`);
-        this.teamCache.set(cacheKey, newTranslation);
-        return newTranslation;
-      }
-    }
-
-    // Cache and return original name if no translation available
+    // Cache and return original name if no valid translation available
     console.log(`❌ [SmartTranslation] No translation available for: "${teamName}"`);
     this.teamCache.set(cacheKey, teamName);
     return teamName;
+  }
+
+  // Helper to detect corrupted translations (phonetic gibberish)
+  private isCorruptedTranslation(translation: string, original: string): boolean {
+    // Skip validation for non-Chinese languages
+    if (!translation.match(/[\u4e00-\u9fff]/)) {
+      return false;
+    }
+    
+    // If translation is much longer than reasonable for a team name, likely corrupted
+    if (translation.length > original.length * 2 && translation.length > 8) {
+      return true;
+    }
+    
+    // Check for known corrupted patterns
+    const corruptedPatterns = [
+      /^[阿卡埃纳维拉马塔巴]{4,}$/, // Repeated phonetic characters
+      /卡奥拉奥马巴/, // Known corrupted translation
+      /阿拉加埃纳塔/, // Known corrupted translation
+      /维埃纳埃扎乌/ // Known corrupted translation
+    ];
+    
+    return corruptedPatterns.some(pattern => pattern.test(translation));
   }
 
   private getManualTranslation(teamName: string, language: string): string | null {

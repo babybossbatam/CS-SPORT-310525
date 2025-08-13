@@ -6,6 +6,8 @@ import { Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
+import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
+import { smartCountryTranslation } from "@/lib/countryNameMapping";
 
 // Popular teams with their data - fallback data
 const CURRENT_POPULAR_TEAMS = [
@@ -123,8 +125,28 @@ const PopularTeamsList = () => {
   const user = useSelector((state: RootState) => state.user);
   const [teamData, setTeamData] = useState(CURRENT_POPULAR_TEAMS);
   const [isLoading, setIsLoading] = useState(true);
+  const [language, setLanguage] = useState('zh-hk');
+
+  // Translation function that prioritizes static mappings over learned ones
+  const translateTeamName = (teamName: string): string => {
+    // Clear any corrupted cache entries first
+    smartTeamTranslation.forceRefreshTranslations([teamName], language);
+    
+    // Use smart translation system
+    return smartTeamTranslation.translateTeamName(teamName, language);
+  };
+
+  const translateCountryName = (countryName: string): string => {
+    return smartCountryTranslation.translateCountry(countryName, language);
+  };
 
   useEffect(() => {
+    const initializeTranslations = async () => {
+      // Initialize smart translation system
+      await smartTeamTranslation.initializeTeamTranslations(language);
+      console.log('🔄 [PopularTeamsList] Translation system initialized');
+    };
+
     const fetchPopularTeams = async () => {
       try {
         console.log("🔄 [PopularTeamsList] Fetching popular teams from API...");
@@ -148,20 +170,19 @@ const PopularTeamsList = () => {
             `✅ [PopularTeamsList] Fetched ${teams.length} popular teams from API`,
           );
 
-          // Transform API response to match our Team interface
+          // Transform API response and learn from team data
           const transformedTeams = teams
             .map((team: any, index: number) => ({
               id: team.team?.id || team.id,
               name: team.team?.name || team.name,
               logo: team.team?.logo || team.logo,
               country: team.country?.name || team.team?.country || team.country,
-              popularity: team.popularity || (100 - index * 2), // Use API popularity or generate
+              popularity: team.popularity || (100 - index * 2),
             }))
             .filter((team: any) => {
               if (!team.id || !team.name) return false;
               const teamName = team.name?.toLowerCase() || "";
               const country = team.country?.toLowerCase() || "";
-              // Exclude reserve teams and youth teams
               return (
                 !teamName.includes("reserves") &&
                 !teamName.includes("youth") &&
@@ -172,6 +193,24 @@ const PopularTeamsList = () => {
             });
 
           if (transformedTeams.length > 0) {
+            // Learn from team data for future translations
+            smartTeamTranslation.learnTeamsFromFixtures(
+              transformedTeams.map(team => ({
+                teams: {
+                  home: { name: team.name },
+                  away: { name: team.name }
+                },
+                league: { country: team.country }
+              }))
+            );
+
+            // Learn country names
+            smartCountryTranslation.learnCountriesFromFixtures(
+              transformedTeams.map(team => ({
+                league: { country: team.country }
+              }))
+            );
+
             setTeamData(transformedTeams);
             return;
           }
@@ -185,12 +224,10 @@ const PopularTeamsList = () => {
         );
         console.log("🔄 [PopularTeamsList] Using fallback popular teams data");
         
-        // Fallback to hardcoded popular teams if API fails
         const sortedTeams = [...CURRENT_POPULAR_TEAMS]
           .filter((team) => {
             const teamName = team.name?.toLowerCase() || "";
             const country = team.country?.toLowerCase() || "";
-            // Exclude reserve teams and youth teams
             return (
               !teamName.includes("reserves") &&
               !teamName.includes("youth") &&
@@ -206,8 +243,10 @@ const PopularTeamsList = () => {
       }
     };
 
-    fetchPopularTeams();
-  }, []);
+    initializeTranslations().then(() => {
+      fetchPopularTeams();
+    });
+  }, [language]);
 
   const toggleFavorite = (teamId: number) => {
     const teamIdStr = teamId.toString();
@@ -298,10 +337,10 @@ const PopularTeamsList = () => {
                   />
                   <div className="mx-4 flex-1">
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {team.name}
+                      {translateTeamName(team.name)}
                     </div>
                     <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                      {team.country}
+                      {translateCountryName(team.country)}
                     </span>
                   </div>
                   <button
