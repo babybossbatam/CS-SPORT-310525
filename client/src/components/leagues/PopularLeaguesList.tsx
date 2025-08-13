@@ -17,26 +17,26 @@ const shortenLeagueName = (name: string): string => {
 
   // Common abbreviations for league names
   const abbreviations = {
-    'World Cup - Qualification': 'WC Qualification',
-    'UEFA Champions League Qualifiers': 'UCL Qualifiers',
-    'UEFA Europa League': 'Europa League',
-    'UEFA Conference League': 'Conference League',
-    'UEFA Nations League': 'Nations League',
-    'FIFA Club World Cup': 'Club World Cup',
-    'CONCACAF Gold Cup': 'Gold Cup',
-    'Premier League': 'Premier League',
-    'Championship': 'Championship',
-    'Bundesliga': 'Bundesliga',
-    'La Liga': 'La Liga',
-    'Serie A': 'Serie A',
-    'Ligue 1': 'Ligue 1'
+    "World Cup - Qualification": "WC Qualification",
+    "UEFA Champions League Qualifiers": "UCL Qualifiers",
+    "UEFA Europa League": "Europa League",
+    "UEFA Conference League": "Conference League",
+    "UEFA Nations League": "Nations League",
+    "FIFA Club World Cup": "Club World Cup",
+    "CONCACAF Gold Cup": "Gold Cup",
+    "Premier League": "Premier League",
+    Championship: "Championship",
+    Bundesliga: "Bundesliga",
+    "La Liga": "La Liga",
+    "Serie A": "Serie A",
+    "Ligue 1": "Ligue 1",
   };
 
   // Additional mobile-friendly abbreviations
   const mobileAbbreviations = {
-    'Qualification': 'Qual',
-    'Championship': 'Champ',
-    'International': 'Intl'
+    Qualification: "Qual",
+    Championship: "Champ",
+    International: "Intl",
   };
 
   // Check for exact matches first
@@ -54,67 +54,75 @@ const shortenLeagueName = (name: string): string => {
   }
 
   // If still too long, truncate with ellipsis
-  return name.length > maxLength ? name.substring(0, maxLength - 3) + '...' : name;
+  return name.length > maxLength
+    ? name.substring(0, maxLength - 3) + "..."
+    : name;
 };
 
 // Function to shorten country names for mobile display with smart translation support
-const shortenCountryName = (country: string, currentLanguage: string): string => {
+const shortenCountryName = (
+  country: string,
+  currentLanguage: string,
+): string => {
   // First translate the country name using the learning system
-  const translatedCountry = smartLeagueCountryTranslation.translateCountryName(country, currentLanguage);
+  const translatedCountry = smartLeagueCountryTranslation.translateCountryName(
+    country,
+    currentLanguage,
+  );
 
   // Then apply shortening logic based on the translated name
   const countryAbbreviations: { [key: string]: string } = {
     // English abbreviations
-    'United Arab Emirates': 'UAE',
-    'United States': 'USA',
-    'United Kingdom': 'UK',
-    'Saudi Arabia': 'Saudi',
-    'South Africa': 'S. Africa',
-    'Bosnia and Herzegovina': 'Bosnia',
-    'Dominican Republic': 'Dominican Rep',
-    'Trinidad and Tobago': 'Trinidad',
-    'Central African Republic': 'CAR',
-    'Papua New Guinea': 'Papua NG',
+    "United Arab Emirates": "UAE",
+    "United States": "USA",
+    "United Kingdom": "UK",
+    "Saudi Arabia": "Saudi",
+    "South Africa": "S. Africa",
+    "Bosnia and Herzegovina": "Bosnia",
+    "Dominican Republic": "Dominican Rep",
+    "Trinidad and Tobago": "Trinidad",
+    "Central African Republic": "CAR",
+    "Papua New Guinea": "Papua NG",
 
     // Chinese (Simplified) abbreviations
-    '阿拉伯联合酋长国': '阿联酋',
-    '美国': '美国',
-    '英国': '英国',
-    '沙特阿拉伯': '沙特',
-    '南非_simplified': '南非',
-    '波斯尼亚和黑塞哥维那': '波黑',
+    阿拉伯联合酋长国: "阿联酋",
+    美国: "美国",
+    英国: "英国",
+    沙特阿拉伯: "沙特",
+    南非_simplified: "南非",
+    波斯尼亚和黑塞哥维那: "波黑",
 
     // Chinese (Traditional/Hong Kong) abbreviations
-    '阿拉伯聯合酋長國': '阿聯酋',
-    '美國': '美國',
-    '英國': '英國',
-    '沙特阿拉伯_traditional': '沙特',
-    '南非': '南非',
-    '波斯尼亞和黑塞哥維那': '波黑',
+    阿拉伯聯合酋長國: "阿聯酋",
+    美國: "美國",
+    英國: "英國",
+    沙特阿拉伯_traditional: "沙特",
+    南非: "南非",
+    波斯尼亞和黑塞哥維那: "波黑",
 
     // Spanish abbreviations
-    'Estados Unidos_es': 'EEUU',
-    'Reino Unido': 'Reino Unido',
-    'Arabia Saudí': 'Arabia Saudí',
-    'Emiratos Árabes Unidos': 'EAU',
+    "Estados Unidos_es": "EEUU",
+    "Reino Unido": "Reino Unido",
+    "Arabia Saudí": "Arabia Saudí",
+    "Emiratos Árabes Unidos": "EAU",
 
     // German abbreviations
-    'Vereinigte Staaten': 'USA',
-    'Vereinigtes Königreich': 'UK',
-    'Saudi-Arabien': 'Saudi',
-    'Vereinigte Arabische Emirate': 'VAE',
+    "Vereinigte Staaten": "USA",
+    "Vereinigtes Königreich": "UK",
+    "Saudi-Arabien": "Saudi",
+    "Vereinigte Arabische Emirate": "VAE",
 
     // Italian abbreviations
-    'Stati Uniti': 'USA',
-    'Regno Unito': 'UK',
-    'Arabia Saudita': 'Arabia',
-    'Emirati Arabi Uniti': 'EAU',
+    "Stati Uniti": "USA",
+    "Regno Unito": "UK",
+    "Arabia Saudita": "Arabia",
+    "Emirati Arabi Uniti": "EAU",
 
     // Portuguese abbreviations
-    'Estados Unidos_pt': 'EUA',
-    'Reino Unido_pt': 'Reino Unido',
-    'Arábia Saudita': 'Arábia',
-    'Emirados Árabes Unidos': 'EAU'
+    "Estados Unidos_pt": "EUA",
+    "Reino Unido_pt": "Reino Unido",
+    "Arábia Saudita": "Arábia",
+    "Emirados Árabes Unidos": "EAU",
   };
 
   return countryAbbreviations[translatedCountry] || translatedCountry;
@@ -283,14 +291,19 @@ export const CURRENT_POPULAR_LEAGUES = [
     country: "Portugal",
     popularity: 40,
   },
-  ];
+];
 
 const PopularLeaguesList = () => {
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
   const user = useSelector((state: RootState) => state.user);
-  const { currentLanguage, translateLeagueName, translateCountryName, learnFromFixtures } = useLanguage();
+  const {
+    currentLanguage,
+    translateLeagueName,
+    translateCountryName,
+    learnFromFixtures,
+  } = useLanguage();
   const { t } = useTranslation();
   const [leagueData, setLeagueData] = useState(CURRENT_POPULAR_LEAGUES);
   const [isLoading, setIsLoading] = useState(true);
@@ -310,15 +323,21 @@ const PopularLeaguesList = () => {
           );
 
           // Learn from the fetched league data
-          console.log(`🎓 [PopularLeaguesList] Learning from ${leagues.length} leagues for translation system`);
+          console.log(
+            `🎓 [PopularLeaguesList] Learning from ${leagues.length} leagues for translation system`,
+          );
 
           // Auto-learn league names and countries for the translation system
           leagues.forEach((league: any) => {
             const leagueName = league.league?.name || league.name;
-            const countryName = league.country?.name || league.league?.country || league.country;
+            const countryName =
+              league.country?.name || league.league?.country || league.country;
 
             if (leagueName) {
-              smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(leagueName, { countryName });
+              smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(
+                leagueName,
+                { countryName },
+              );
             }
           });
 
@@ -481,7 +500,9 @@ const PopularLeaguesList = () => {
     <div className="space-y-0">
       <Card className="w-full bg-white shadow-sm border border-stone-200">
         <CardContent className="p-0">
-          <h3 className="text-sm font-semibold p-3 border-b border-stone-200">{t('popular_football_leagues')}</h3>
+          <h3 className="text-sm font-semibold p-3 border-b border-stone-200">
+            {t("Popular Leagues")}
+          </h3>
           <div className="divide-y divide-stone-200">
             {leagueData.slice(0, 20).map((league) => {
               const isFavorite = user.preferences.favoriteLeagues.includes(
@@ -515,7 +536,10 @@ const PopularLeaguesList = () => {
                       {shortenLeagueName(translateLeagueName(league.name))}
                     </div>
                     <span className="text-xs text-gray-500 truncate">
-                      {shortenCountryName(league.country?.replace(/-/g, ' ') || '', currentLanguage)}
+                      {shortenCountryName(
+                        league.country?.replace(/-/g, " ") || "",
+                        currentLanguage,
+                      )}
                     </span>
                   </div>
                   <button
