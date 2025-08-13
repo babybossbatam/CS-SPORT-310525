@@ -143,6 +143,15 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       };
     } = {};
 
+    // Debug: Count World fixtures
+    const worldFixtures = allFixtures.filter(f => f?.league?.country === "World");
+    console.log(`🌍 [MyAllLeagueList] Total World fixtures for ${selectedDate}:`, worldFixtures.length);
+    
+    if (worldFixtures.length > 0) {
+      const worldLeagues = [...new Set(worldFixtures.map(f => f.league?.name))];
+      console.log(`🌍 [MyAllLeagueList] World leagues today:`, worldLeagues);
+    }
+
     // Process all fixtures with enhanced validation
     for (const fixture of allFixtures) {
       // Comprehensive validation
