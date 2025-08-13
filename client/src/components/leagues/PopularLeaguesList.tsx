@@ -7,6 +7,8 @@ import { RootState, userActions } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import LazyImage from "@/components/common/LazyImage";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
 // Function to shorten league names for better display
 const shortenLeagueName = (name: string): string => {
@@ -55,9 +57,14 @@ const shortenLeagueName = (name: string): string => {
   return name.length > maxLength ? name.substring(0, maxLength - 3) + '...' : name;
 };
 
-// Function to shorten country names for mobile display
-const shortenCountryName = (country: string): string => {
+// Function to shorten country names for mobile display with smart translation support
+const shortenCountryName = (country: string, currentLanguage: string): string => {
+  // First translate the country name using the learning system
+  const translatedCountry = smartLeagueCountryTranslation.translateCountryName(country, currentLanguage);
+  
+  // Then apply shortening logic based on the translated name
   const countryAbbreviations: { [key: string]: string } = {
+    // English abbreviations
     'United Arab Emirates': 'UAE',
     'United States': 'USA',
     'United Kingdom': 'UK',
@@ -67,10 +74,50 @@ const shortenCountryName = (country: string): string => {
     'Dominican Republic': 'Dominican Rep',
     'Trinidad and Tobago': 'Trinidad',
     'Central African Republic': 'CAR',
-    'Papua New Guinea': 'Papua NG'
+    'Papua New Guinea': 'Papua NG',
+    
+    // Chinese (Simplified) abbreviations
+    '阿拉伯联合酋长国': '阿联酋',
+    '美国': '美国',
+    '英国': '英国',
+    '沙特阿拉伯': '沙特',
+    '南非': '南非',
+    '波斯尼亚和黑塞哥维那': '波黑',
+    
+    // Chinese (Traditional/Hong Kong) abbreviations
+    '阿拉伯聯合酋長國': '阿聯酋',
+    '美國': '美國',
+    '英國': '英國',
+    '沙特阿拉伯': '沙特',
+    '南非': '南非',
+    '波斯尼亞和黑塞哥維那': '波黑',
+    
+    // Spanish abbreviations
+    'Estados Unidos': 'EEUU',
+    'Reino Unido': 'Reino Unido',
+    'Arabia Saudí': 'Arabia Saudí',
+    'Emiratos Árabes Unidos': 'EAU',
+    
+    // German abbreviations
+    'Vereinigte Staaten': 'USA',
+    'Vereinigtes Königreich': 'UK',
+    'Saudi-Arabien': 'Saudi',
+    'Vereinigte Arabische Emirate': 'VAE',
+    
+    // Italian abbreviations
+    'Stati Uniti': 'USA',
+    'Regno Unito': 'UK',
+    'Arabia Saudita': 'Arabia',
+    'Emirati Arabi Uniti': 'EAU',
+    
+    // Portuguese abbreviations
+    'Estados Unidos': 'EUA',
+    'Reino Unido': 'Reino Unido',
+    'Arábia Saudita': 'Arábia',
+    'Emirados Árabes Unidos': 'EAU'
   };
   
-  return countryAbbreviations[country] || country;
+  return countryAbbreviations[translatedCountry] || translatedCountry;
 };
 
 // Popular leagues list with popularity scores for sorting
@@ -243,6 +290,7 @@ const PopularLeaguesList = () => {
   const dispatch = useDispatch();
   const { toast } = useToast();
   const user = useSelector((state: RootState) => state.user);
+  const { currentLanguage, translateLeagueName, translateCountryName, learnFromFixtures } = useLanguage();
   const [leagueData, setLeagueData] = useState(CURRENT_POPULAR_LEAGUES);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -259,6 +307,19 @@ const PopularLeaguesList = () => {
           console.log(
             `✅ [PopularLeaguesList] Fetched ${leagues.length} popular leagues from API`,
           );
+
+          // Learn from the fetched league data
+          console.log(`🎓 [PopularLeaguesList] Learning from ${leagues.length} leagues for translation system`);
+          
+          // Auto-learn league names and countries for the translation system
+          leagues.forEach((league: any) => {
+            const leagueName = league.league?.name || league.name;
+            const countryName = league.country?.name || league.league?.country || league.country;
+            
+            if (leagueName) {
+              smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(leagueName, { countryName });
+            }
+          });
 
           // Transform API response to match our League interface
           const transformedLeagues = leagues
@@ -449,9 +510,11 @@ const PopularLeaguesList = () => {
                     }}
                   />
                   <div className="ml-3 flex-1">
-                    <div className="text-sm">{shortenLeagueName(league.name)}</div>
+                    <div className="text-sm">
+                      {shortenLeagueName(translateLeagueName(league.name))}
+                    </div>
                     <span className="text-xs text-gray-500 truncate">
-                      {shortenCountryName(league.country?.replace(/-/g, ' ') || '')}
+                      {shortenCountryName(league.country?.replace(/-/g, ' ') || '', currentLanguage)}
                     </span>
                   </div>
                   <button
