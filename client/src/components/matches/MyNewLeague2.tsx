@@ -22,17 +22,17 @@ import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";
 import { useLanguage, useTranslation } from "@/contexts/LanguageContext";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
-import { smartTeamTranslation } from '@/lib/smartTeamTranslation';
-import { teamNameExtractor } from '@/lib/teamNameExtractor';
-import { teamMappingExtractor } from '@/lib/teamMappingExtractor';
-import { generateCompleteTeamMapping } from '@/lib/generateCompleteTeamMapping';
-import { smartLeagueTranslation } from '@/lib/leagueNameMapping';
-import { smartCountryTranslation } from '@/lib/countryNameMapping';
+import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
+import { teamNameExtractor } from "@/lib/teamNameExtractor";
+import { teamMappingExtractor } from "@/lib/teamMappingExtractor";
+import { generateCompleteTeamMapping } from "@/lib/generateCompleteTeamMapping";
+import { smartLeagueTranslation } from "@/lib/leagueNameMapping";
+import { smartCountryTranslation } from "@/lib/countryNameMapping";
 
 // Intersection Observer Hook for lazy loading
 const useIntersectionObserver = (
   ref: React.RefObject<Element>,
-  options: IntersectionObserverInit = {}
+  options: IntersectionObserverInit = {},
 ) => {
   const [isIntersecting, setIsIntersecting] = useState(false);
   const [hasIntersected, setHasIntersected] = useState(false);
@@ -41,18 +41,21 @@ const useIntersectionObserver = (
     const element = ref.current;
     if (!element) return;
 
-    const observer = new IntersectionObserver(([entry]) => {
-      const isElementIntersecting = entry.isIntersecting;
-      setIsIntersecting(isElementIntersecting);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const isElementIntersecting = entry.isIntersecting;
+        setIsIntersecting(isElementIntersecting);
 
-      if (isElementIntersecting && !hasIntersected) {
-        setHasIntersected(true);
-      }
-    }, {
-      threshold: 0.1,
-      rootMargin: '50px',
-      ...options
-    });
+        if (isElementIntersecting && !hasIntersected) {
+          setHasIntersected(true);
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: "50px",
+        ...options,
+      },
+    );
 
     observer.observe(element);
 
@@ -133,14 +136,21 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   onMatchCardClick,
   match,
 }) => {
-  const { translateLeagueName: contextTranslateLeagueName, translateTeamName, currentLanguage } = useLanguage();
+  const {
+    translateLeagueName: contextTranslateLeagueName,
+    translateTeamName,
+    currentLanguage,
+  } = useLanguage();
   const { t } = useTranslation();
   // Add league name translation
   const translateLeagueName = (originalLeague: string): string => {
     if (!originalLeague) return "";
 
     // Use smart league translation
-    const translated = smartLeagueTranslation.translateLeague(originalLeague, currentLanguage);
+    const translated = smartLeagueTranslation.translateLeague(
+      originalLeague,
+      currentLanguage,
+    );
     if (translated !== originalLeague) {
       return translated;
     }
@@ -154,7 +164,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     if (!originalCountry) return "";
 
     // Use smart country translation
-    const translated = smartCountryTranslation.translateCountry(originalCountry, currentLanguage);
+    const translated = smartCountryTranslation.translateCountry(
+      originalCountry,
+      currentLanguage,
+    );
     if (translated !== originalCountry) {
       return translated;
     }
@@ -234,8 +247,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   // League IDs without any filtering - removed duplicates
   const leagueIds = [
     38, 15, 2, 4, 10, 11, 848, 886, 1022, 772, 71, 3, 5, 531, 22, 72, 73, 75,
-    76, 233, 667, 940, 908, 1169, 23, 253, 850, 893, 921, 130, 128, 493,
-    239, 265, 237, 235, 743,
+    76, 233, 667, 940, 908, 1169, 23, 253, 850, 893, 921, 130, 128, 493, 239,
+    265, 237, 235, 743,
   ];
 
   // Helper function to add delay between requests
@@ -267,12 +280,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   // Check localStorage quota and manage storage efficiently
   const checkStorageQuota = useCallback(() => {
     try {
-      const test = 'test';
-      localStorage.setItem('quota_test', test);
-      localStorage.removeItem('quota_test');
+      const test = "test";
+      localStorage.setItem("quota_test", test);
+      localStorage.removeItem("quota_test");
       return true;
     } catch (error) {
-      console.warn('🚨 [MyNewLeague2] localStorage quota exceeded, emergency cleanup...');
+      console.warn(
+        "🚨 [MyNewLeague2] localStorage quota exceeded, emergency cleanup...",
+      );
 
       try {
         // More conservative cleanup - only remove old cache entries
@@ -282,11 +297,12 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
-          if (key && (
-            key.startsWith('ended_matches_') ||
-            key.startsWith('league-fixtures-') ||
-            key.startsWith('featured-match-')
-          )) {
+          if (
+            key &&
+            (key.startsWith("ended_matches_") ||
+              key.startsWith("league-fixtures-") ||
+              key.startsWith("featured-match-"))
+          ) {
             try {
               const cached = localStorage.getItem(key);
               if (cached) {
@@ -303,7 +319,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         }
 
         // Remove only old cache entries
-        keysToRemove.forEach(key => {
+        keysToRemove.forEach((key) => {
           try {
             localStorage.removeItem(key);
           } catch (e) {
@@ -311,19 +327,26 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           }
         });
 
-        console.log(`🧹 [MyNewLeague2] Emergency cleanup: removed ${keysToRemove.length} old cache entries`);
+        console.log(
+          `🧹 [MyNewLeague2] Emergency cleanup: removed ${keysToRemove.length} old cache entries`,
+        );
 
         // Try to set test again after cleanup
         try {
-          localStorage.setItem('quota_test_after_cleanup', 'test');
-          localStorage.removeItem('quota_test_after_cleanup');
+          localStorage.setItem("quota_test_after_cleanup", "test");
+          localStorage.removeItem("quota_test_after_cleanup");
           return true;
         } catch (e) {
-          console.error('🚨 [MyNewLeague2] Still quota exceeded after emergency cleanup');
+          console.error(
+            "🚨 [MyNewLeague2] Still quota exceeded after emergency cleanup",
+          );
           return false;
         }
       } catch (cleanupError) {
-        console.error('🚨 [MyNewLeague2] Error during emergency cleanup:', cleanupError);
+        console.error(
+          "🚨 [MyNewLeague2] Error during emergency cleanup:",
+          cleanupError,
+        );
         return false;
       }
     }
@@ -348,7 +371,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         // Handle both old and new cache formats
         const fixtures = parsedCache.fixtures || parsedCache.f || [];
         const timestamp = parsedCache.timestamp || parsedCache.t || 0;
-        const cachedDate = parsedCache.date || parsedCache.d || '';
+        const cachedDate = parsedCache.date || parsedCache.d || "";
 
         // CRITICAL: Ensure cached date exactly matches requested date
         if (cachedDate !== date) {
@@ -379,23 +402,23 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               fixture: {
                 id: f.f.i,
                 date: f.f.d,
-                status: { short: f.f.s }
+                status: { short: f.f.s },
               },
               league: {
                 id: f.l.i,
-                name: f.l.n
+                name: f.l.n,
               },
               teams: {
                 home: {
                   id: f.t.h.i,
-                  name: f.t.h.n
+                  name: f.t.h.n,
                 },
                 away: {
                   id: f.t.a.i,
-                  name: f.t.a.n
-                }
+                  name: f.t.a.n,
+                },
               },
-              goals: f.g
+              goals: f.g,
             }));
           } else {
             // Old format - use as is
@@ -430,41 +453,52 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
         // Skip caching for large leagues to prevent quota issues
         if (endedFixtures.length > 50) {
-          console.log(`⚠️ [MyNewLeague2] Skipping cache for large league ${leagueId} (${endedFixtures.length} matches)`);
+          console.log(
+            `⚠️ [MyNewLeague2] Skipping cache for large league ${leagueId} (${endedFixtures.length} matches)`,
+          );
           return;
         }
 
         // Check quota before attempting to cache
         if (!checkStorageQuota()) {
-          console.warn(`⚠️ [MyNewLeague2] Skipping cache for league ${leagueId} due to quota limits`);
+          console.warn(
+            `⚠️ [MyNewLeague2] Skipping cache for league ${leagueId} due to quota limits`,
+          );
           return;
         }
 
         const cacheKey = getCacheKey(date, leagueId);
 
         // Create ultra-minimal cache data - only absolute essentials
-        const ultraMinimalFixtures = endedFixtures.slice(0, 20).map(fixture => ({
-          f: { // fixture
-            i: fixture.fixture.id, // id
-            d: fixture.fixture.date, // date
-            s: fixture.fixture.status.short // status
-          },
-          l: { // league
-            i: fixture.league.id, // id
-            n: fixture.league.name.substring(0, 30) // name (truncated)
-          },
-          t: { // teams
-            h: { // home
-              i: fixture.teams.home.id,
-              n: fixture.teams.home.name.substring(0, 20) // truncated name
+        const ultraMinimalFixtures = endedFixtures
+          .slice(0, 20)
+          .map((fixture) => ({
+            f: {
+              // fixture
+              i: fixture.fixture.id, // id
+              d: fixture.fixture.date, // date
+              s: fixture.fixture.status.short, // status
             },
-            a: { // away
-              i: fixture.teams.away.id,
-              n: fixture.teams.away.name.substring(0, 20) // truncated name
-            }
-          },
-          g: fixture.goals // goals
-        }));
+            l: {
+              // league
+              i: fixture.league.id, // id
+              n: fixture.league.name.substring(0, 30), // name (truncated)
+            },
+            t: {
+              // teams
+              h: {
+                // home
+                i: fixture.teams.home.id,
+                n: fixture.teams.home.name.substring(0, 20), // truncated name
+              },
+              a: {
+                // away
+                i: fixture.teams.away.id,
+                n: fixture.teams.away.name.substring(0, 20), // truncated name
+              },
+            },
+            g: fixture.goals, // goals
+          }));
 
         const cacheData = {
           f: ultraMinimalFixtures, // fixtures
@@ -477,7 +511,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
         // Check if the data is too large (> 50KB)
         if (jsonString.length > 50000) {
-          console.log(`⚠️ [MyNewLeague2] Cache data too large for league ${leagueId}, skipping`);
+          console.log(
+            `⚠️ [MyNewLeague2] Cache data too large for league ${leagueId}, skipping`,
+          );
           return;
         }
 
@@ -486,8 +522,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           `💾 [MyNewLeague2] Cached ${ultraMinimalFixtures.length} ended matches for league ${leagueId} (${jsonString.length} bytes)`,
         );
       } catch (error) {
-        if (error instanceof Error && error.name === 'QuotaExceededError') {
-          console.warn(`🚨 [MyNewLeague2] Quota exceeded while caching league ${leagueId}, cleaning up...`);
+        if (error instanceof Error && error.name === "QuotaExceededError") {
+          console.warn(
+            `🚨 [MyNewLeague2] Quota exceeded while caching league ${leagueId}, cleaning up...`,
+          );
           if (checkStorageQuota()) {
             // Try caching again with even less data after cleanup
             try {
@@ -500,7 +538,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               };
               localStorage.setItem(cacheKey, JSON.stringify(minimalData));
             } catch (retryError) {
-              console.warn(`⚠️ [MyNewLeague2] Failed to cache even after cleanup for league ${leagueId}`);
+              console.warn(
+                `⚠️ [MyNewLeague2] Failed to cache even after cleanup for league ${leagueId}`,
+              );
             }
           }
         } else {
@@ -516,17 +556,19 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     const today = new Date().toISOString().slice(0, 10);
     const isToday = selectedDate === today;
 
-    return isToday ? {
-      staleTime: 5 * 60 * 1000, // 5 minutes - default for today
-      refetchInterval: 60 * 1000, // 1 minute - default for today
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: true
-    } : {
-      staleTime: 60 * 60 * 1000, // 1 hour - for past/future dates
-      refetchInterval: false,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false
-    };
+    return isToday
+      ? {
+          staleTime: 5 * 60 * 1000, // 5 minutes - default for today
+          refetchInterval: 60 * 1000, // 1 minute - default for today
+          refetchOnWindowFocus: false,
+          refetchOnReconnect: true,
+        }
+      : {
+          staleTime: 60 * 60 * 1000, // 1 hour - for past/future dates
+          refetchInterval: false,
+          refetchOnWindowFocus: false,
+          refetchOnReconnect: false,
+        };
   });
 
   // Get query client for cache management
@@ -537,12 +579,13 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     const cleanupOldCache = () => {
       try {
         const keys = Object.keys(localStorage);
-        const allCacheKeys = keys.filter(key =>
-          key.startsWith('ended_matches_') ||
-          key.startsWith('league-fixtures-') ||
-          key.startsWith('featured-match-') ||
-          key.startsWith('popular_') ||
-          key.includes('cache')
+        const allCacheKeys = keys.filter(
+          (key) =>
+            key.startsWith("ended_matches_") ||
+            key.startsWith("league-fixtures-") ||
+            key.startsWith("featured-match-") ||
+            key.startsWith("popular_") ||
+            key.includes("cache"),
         );
 
         const now = Date.now();
@@ -552,7 +595,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         let totalCacheSize = 0;
 
         // Calculate total cache size and remove old entries
-        allCacheKeys.forEach(key => {
+        allCacheKeys.forEach((key) => {
           try {
             const cached = localStorage.getItem(key);
             if (cached) {
@@ -577,12 +620,15 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
         // If cache is still too large (> 1MB), remove more aggressively
         if (totalCacheSize > 1000000) {
-          console.warn(`🚨 [MyNewLeague2] Cache size too large (${Math.round(totalCacheSize/1024)}KB), aggressive cleanup...`);
+          console.warn(
+            `🚨 [MyNewLeague2] Cache size too large (${Math.round(totalCacheSize / 1024)}KB), aggressive cleanup...`,
+          );
 
-          const remainingKeys = Object.keys(localStorage).filter(key =>
-            key.startsWith('ended_matches_') ||
-            key.startsWith('league-fixtures-') ||
-            key.startsWith('featured-match-')
+          const remainingKeys = Object.keys(localStorage).filter(
+            (key) =>
+              key.startsWith("ended_matches_") ||
+              key.startsWith("league-fixtures-") ||
+              key.startsWith("featured-match-"),
           );
 
           // Remove 80% of remaining cache entries
@@ -594,22 +640,28 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         }
 
         if (cleanedCount > 0) {
-          console.log(`🧹 [MyNewLeague2] Cleaned up ${cleanedCount} cache entries on mount (was ${Math.round(totalCacheSize/1024)}KB)`);
+          console.log(
+            `🧹 [MyNewLeague2] Cleaned up ${cleanedCount} cache entries on mount (was ${Math.round(totalCacheSize / 1024)}KB)`,
+          );
         }
 
         // Final quota check
         checkStorageQuota();
       } catch (error) {
-        console.error('Error during cache cleanup:', error);
+        console.error("Error during cache cleanup:", error);
         // Emergency cleanup if regular cleanup fails
         try {
-          Object.keys(localStorage).forEach(key => {
-            if (key.includes('cache') || key.includes('matches') || key.includes('league')) {
+          Object.keys(localStorage).forEach((key) => {
+            if (
+              key.includes("cache") ||
+              key.includes("matches") ||
+              key.includes("league")
+            ) {
               localStorage.removeItem(key);
             }
           });
         } catch (e) {
-          console.error('Emergency cleanup also failed:', e);
+          console.error("Emergency cleanup also failed:", e);
         }
       }
     };
@@ -659,31 +711,35 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           }
 
           try {
-              const controller = new AbortController();
-              const timeoutId = setTimeout(() => {
-                controller.abort('Request timeout after 15 seconds');
-              }, 15000); // Increased to 15 second timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => {
+              controller.abort("Request timeout after 15 seconds");
+            }, 15000); // Increased to 15 second timeout
 
-              const response = await fetch(`/api/leagues/${leagueId}/fixtures`, {
-                signal: controller.signal
-              }).catch(fetchError => {
-                clearTimeout(timeoutId);
+            const response = await fetch(`/api/leagues/${leagueId}/fixtures`, {
+              signal: controller.signal,
+            }).catch((fetchError) => {
+              clearTimeout(timeoutId);
 
-                // Handle specific timeout errors
-                if (fetchError.name === 'AbortError' || fetchError.message?.includes('aborted') || fetchError.message?.includes('timeout')) {
-                  console.warn(
-                    `⏰ [MyNewLeague2] Request timeout for league ${leagueId} after 15 seconds`,
-                  );
-                  return null;
-                }
-
+              // Handle specific timeout errors
+              if (
+                fetchError.name === "AbortError" ||
+                fetchError.message?.includes("aborted") ||
+                fetchError.message?.includes("timeout")
+              ) {
                 console.warn(
-                  `🌐 [MyNewLeague2] Network error for league ${leagueId}: ${fetchError.message}`,
+                  `⏰ [MyNewLeague2] Request timeout for league ${leagueId} after 15 seconds`,
                 );
                 return null;
-              });
+              }
 
-              clearTimeout(timeoutId);
+              console.warn(
+                `🌐 [MyNewLeague2] Network error for league ${leagueId}: ${fetchError.message}`,
+              );
+              return null;
+            });
+
+            clearTimeout(timeoutId);
 
             if (!response) {
               return {
@@ -716,7 +772,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               };
             }
 
-            const data = await response.json().catch(jsonError => {
+            const data = await response.json().catch((jsonError) => {
               console.warn(
                 `📄 [MyNewLeague2] JSON parse error for league ${leagueId}: ${jsonError.message}`,
               );
@@ -737,7 +793,12 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               error instanceof Error ? error.message : "Unknown error";
 
             // Handle timeout errors specifically
-            if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes("abort") || errorMessage.includes("timeout"))) {
+            if (
+              error instanceof Error &&
+              (error.name === "AbortError" ||
+                errorMessage.includes("abort") ||
+                errorMessage.includes("timeout"))
+            ) {
               console.warn(
                 `⏰ [MyNewLeague2] Timeout error for league ${leagueId}: Request exceeded 15 seconds`,
               );
@@ -746,7 +807,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                 fixtures: [],
                 error: "Request timeout",
                 networkError: true,
-                timeout: true
+                timeout: true,
               };
             }
 
@@ -757,31 +818,37 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               leagueId,
               fixtures: [],
               error: errorMessage,
-              networkError: true
+              networkError: true,
             };
           }
         });
 
         try {
           const batchResults = await Promise.allSettled(batchPromises);
-          const processedResults = batchResults.map(result =>
-            result.status === 'fulfilled' ? result.value : {
-              leagueId: 0,
-              fixtures: [],
-              error: "Promise rejected",
-              networkError: true
-            }
+          const processedResults = batchResults.map((result) =>
+            result.status === "fulfilled"
+              ? result.value
+              : {
+                  leagueId: 0,
+                  fixtures: [],
+                  error: "Promise rejected",
+                  networkError: true,
+                },
           );
           results.push(processedResults);
         } catch (batchError) {
-          console.warn(`⚠️ [MyNewLeague2] Batch processing error: ${batchError}`);
+          console.warn(
+            `⚠️ [MyNewLeague2] Batch processing error: ${batchError}`,
+          );
           // Continue with empty results for this batch
-          results.push(batch.map(leagueId => ({
-            leagueId,
-            fixtures: [],
-            error: "Batch processing failed",
-            networkError: true
-          })));
+          results.push(
+            batch.map((leagueId) => ({
+              leagueId,
+              fixtures: [],
+              error: "Batch processing failed",
+              networkError: true,
+            })),
+          );
         }
 
         // Add delay between batches to be more API-friendly
@@ -792,7 +859,11 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       }
 
       // Learn teams from fixtures before processing
-      smartTeamTranslation.learnTeamsFromFixtures(results.flatMap((batch: any[]) => batch.flatMap((res: any) => res.fixtures)));
+      smartTeamTranslation.learnTeamsFromFixtures(
+        results.flatMap((batch: any[]) =>
+          batch.flatMap((res: any) => res.fixtures),
+        ),
+      );
 
       // Combine fresh fixtures with cached ended matches
       const allFixturesMap = new Map<number, FixtureData>();
@@ -826,19 +897,33 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       // Log detailed results
       console.log(`🔄 [MyNewLeague2] Fetch results:`, {
         totalBatches: results.length,
-        successfulFetches: results.reduce((sum, batch) => sum + batch.filter((r: any) => r.fixtures.length > 0).length, 0),
+        successfulFetches: results.reduce(
+          (sum, batch) =>
+            sum + batch.filter((r: any) => r.fixtures.length > 0).length,
+          0,
+        ),
         cachedEndedMatches: cachedEndedMatches.length,
         totalFixtures: finalFixtures.length,
-        fixturesFetchedInBatches: results.reduce((sum, batch) => sum + batch.reduce((bSum, r: any) => bSum + r.fixtures.length, 0), 0),
+        fixturesFetchedInBatches: results.reduce(
+          (sum, batch) =>
+            sum + batch.reduce((bSum, r: any) => bSum + r.fixtures.length, 0),
+          0,
+        ),
         duplicatesRemoved:
-          results.reduce((sum, batch) => sum + batch.reduce((bSum, r: any) => bSum + r.fixtures.length, 0), 0) +
+          results.reduce(
+            (sum, batch) =>
+              sum + batch.reduce((bSum, r: any) => bSum + r.fixtures.length, 0),
+            0,
+          ) +
           cachedEndedMatches.length -
           finalFixtures.length,
-        leagueBreakdown: results.flatMap((batch) => batch.map((r: any) => ({
-          league: r.leagueId,
-          fixtures: r.fixtures.length,
-          error: r.error,
-        }))),
+        leagueBreakdown: results.flatMap((batch) =>
+          batch.map((r: any) => ({
+            league: r.leagueId,
+            fixtures: r.fixtures.length,
+            error: r.error,
+          })),
+        ),
       });
 
       return finalFixtures;
@@ -872,7 +957,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     const upcomingMatches = allFixtures.filter((match) => {
       if (match?.fixture?.status?.short !== "NS") return false;
       const matchTime = new Date(match.fixture.date);
-      const minutesUntilKickoff = (matchTime.getTime() - now.getTime()) / (1000 * 60);
+      const minutesUntilKickoff =
+        (matchTime.getTime() - now.getTime()) / (1000 * 60);
       return minutesUntilKickoff > 0 && minutesUntilKickoff <= 120; // Within 2 hours
     });
 
@@ -880,7 +966,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     const imminentMatches = allFixtures.filter((match) => {
       if (match?.fixture?.status?.short !== "NS") return false;
       const matchTime = new Date(match.fixture.date);
-      const minutesUntilKickoff = (matchTime.getTime() - now.getTime()) / (1000 * 60);
+      const minutesUntilKickoff =
+        (matchTime.getTime() - now.getTime()) / (1000 * 60);
       return minutesUntilKickoff > 0 && minutesUntilKickoff <= 30; // Within 30 minutes
     });
 
@@ -892,49 +979,59 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         staleTime: 1 * 60 * 1000, // 1 minute
         refetchInterval: 30 * 1000, // 30 seconds
         refetchOnWindowFocus: false,
-        refetchOnReconnect: true
+        refetchOnReconnect: true,
       };
-      console.log(`🔴 [MyNewLeague2] ${liveMatches.length} live matches detected - using most aggressive cache (1min/30s)`);
+      console.log(
+        `🔴 [MyNewLeague2] ${liveMatches.length} live matches detected - using most aggressive cache (1min/30s)`,
+      );
     } else if (imminentMatches.length > 0 && isToday) {
       // Matches starting within 30 minutes - very aggressive cache
       newCacheConfig = {
         staleTime: 2 * 60 * 1000, // 2 minutes
         refetchInterval: 30 * 1000, // 30 seconds
         refetchOnWindowFocus: false,
-        refetchOnReconnect: true
+        refetchOnReconnect: true,
       };
-      console.log(`🟡 [MyNewLeague2] ${imminentMatches.length} matches starting within 30min - using very aggressive cache (2min/30s)`);
+      console.log(
+        `🟡 [MyNewLeague2] ${imminentMatches.length} matches starting within 30min - using very aggressive cache (2min/30s)`,
+      );
     } else if (upcomingMatches.length > 0 && isToday) {
       // Matches starting within 2 hours - aggressive cache
       newCacheConfig = {
         staleTime: 3 * 60 * 1000, // 3 minutes
         refetchInterval: 45 * 1000, // 45 seconds
         refetchOnWindowFocus: false,
-        refetchOnReconnect: true
+        refetchOnReconnect: true,
       };
-      console.log(`🟠 [MyNewLeague2] ${upcomingMatches.length} matches starting within 2h - using aggressive cache (3min/45s)`);
+      console.log(
+        `🟠 [MyNewLeague2] ${upcomingMatches.length} matches starting within 2h - using aggressive cache (3min/45s)`,
+      );
     } else if (isToday && liveMatches.length === 0) {
       // Today but no live or imminent matches - moderate cache
       newCacheConfig = {
         staleTime: 5 * 60 * 1000, // 5 minutes
         refetchInterval: 60 * 1000, // 1 minute
         refetchOnWindowFocus: false,
-        refetchOnReconnect: true
+        refetchOnReconnect: true,
       };
-      console.log(`⏸️ [MyNewLeague2] No live/imminent matches on today's date - using moderate cache (5min/1min)`);
+      console.log(
+        `⏸️ [MyNewLeague2] No live/imminent matches on today's date - using moderate cache (5min/1min)`,
+      );
     } else {
       // Past/future dates - extended cache
       newCacheConfig = {
         staleTime: 60 * 60 * 1000, // 1 hour
         refetchInterval: false,
         refetchOnWindowFocus: false,
-        refetchOnReconnect: false
+        refetchOnReconnect: false,
       };
-      console.log(`📅 [MyNewLeague2] Non-today date - using extended cache (1 hour/no refetch)`);
+      console.log(
+        `📅 [MyNewLeague2] Non-today date - using extended cache (1 hour/no refetch)`,
+      );
     }
 
     // Update cache config if it changed
-    setDynamicCacheConfig(prevConfig => {
+    setDynamicCacheConfig((prevConfig) => {
       if (JSON.stringify(prevConfig) !== JSON.stringify(newCacheConfig)) {
         console.log(`🔄 [MyNewLeague2] Cache config updated:`, newCacheConfig);
         return newCacheConfig;
@@ -1141,10 +1238,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   // Enhanced team mapping and analysis in useEffect
   useEffect(() => {
     if (fixturesByLeague && Object.keys(fixturesByLeague).length > 0) {
-      const leagueFixtures = Object.values(fixturesByLeague).flatMap(group => group.fixtures);
+      const leagueFixtures = Object.values(fixturesByLeague).flatMap(
+        (group) => group.fixtures,
+      );
 
       if (leagueFixtures.length > 0) {
-        console.log(`📊 [MyNewLeague2] Loaded ${leagueFixtures.length} fixtures for comprehensive team mapping analysis`);
+        console.log(
+          `📊 [MyNewLeague2] Loaded ${leagueFixtures.length} fixtures for comprehensive team mapping analysis`,
+        );
 
         // Learn team names (existing functionality)
         smartTeamTranslation.learnTeamsFromFixtures(leagueFixtures);
@@ -1155,53 +1256,73 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         // Learn country names
         smartCountryTranslation.learnCountriesFromFixtures(leagueFixtures);
 
-        console.log(`🎓 [MyNewLeague2] Auto-learned from ${leagueFixtures.length} fixtures`);
+        console.log(
+          `🎓 [MyNewLeague2] Auto-learned from ${leagueFixtures.length} fixtures`,
+        );
       }
     }
 
     // Enhanced team mapping extraction (only in development)
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       try {
         // Extract comprehensive team mappings
-        const leagueTeamData = teamMappingExtractor.extractTeamsFromFixtures(Object.values(fixturesByLeague).flatMap(group => group.fixtures));
+        const leagueTeamData = teamMappingExtractor.extractTeamsFromFixtures(
+          Object.values(fixturesByLeague).flatMap((group) => group.fixtures),
+        );
         const analysisReport = teamMappingExtractor.generateAnalysisReport();
 
         console.log(`🗺️ [Team Mapping Extractor] Comprehensive Analysis:`, {
           totalTeams: analysisReport.totalTeams,
           totalFixtures: analysisReport.totalFixtures,
           leagueCount: analysisReport.leagueBreakdown.length,
-          topLeagues: analysisReport.leagueBreakdown.slice(0, 10).map(league => ({
-            name: league.leagueName,
-            teamCount: league.teamCount,
-            topTeam: league.topTeams[0]?.name
-          }))
+          topLeagues: analysisReport.leagueBreakdown
+            .slice(0, 10)
+            .map((league) => ({
+              name: league.leagueName,
+              teamCount: league.teamCount,
+              topTeam: league.topTeams[0]?.name,
+            })),
         });
 
         // Log most common teams across all leagues
-        console.log(`🔥 [Top Teams] Most frequent teams across all leagues:`,
-          analysisReport.mostCommonTeams.slice(0, 20)
+        console.log(
+          `🔥 [Top Teams] Most frequent teams across all leagues:`,
+          analysisReport.mostCommonTeams.slice(0, 20),
         );
 
         // Generate translation template for copy-paste
-        const translationTemplate = teamMappingExtractor.generateTranslationTemplate(currentLanguage);
-        console.log(`📋 [Translation Template] Generated for ${currentLanguage}:`, translationTemplate);
+        const translationTemplate =
+          teamMappingExtractor.generateTranslationTemplate(currentLanguage);
+        console.log(
+          `📋 [Translation Template] Generated for ${currentLanguage}:`,
+          translationTemplate,
+        );
 
         // League-by-league breakdown
-        analysisReport.leagueBreakdown.forEach(league => {
+        analysisReport.leagueBreakdown.forEach((league) => {
           if (league.teamCount > 0) {
-            console.log(`⚽ [League ${league.leagueId}] ${league.leagueName}: ${league.teamCount} teams, top: ${league.topTeams.map(t => `${t.name} (${t.frequency})`).join(', ')}`);
+            console.log(
+              `⚽ [League ${league.leagueId}] ${league.leagueName}: ${league.teamCount} teams, top: ${league.topTeams.map((t) => `${t.name} (${t.frequency})`).join(", ")}`,
+            );
           }
         });
 
         // Legacy team name analysis for comparison
-        const legacyAnalysisResult = teamNameExtractor.analyzeFixtures(Object.values(fixturesByLeague).flatMap(group => group.fixtures));
+        const legacyAnalysisResult = teamNameExtractor.analyzeFixtures(
+          Object.values(fixturesByLeague).flatMap((group) => group.fixtures),
+        );
 
-        if (legacyAnalysisResult && legacyAnalysisResult.missingTranslations.length > 0) {
-          console.log(`🔍 [Legacy Analysis] Found ${legacyAnalysisResult.missingTranslations.length} teams missing translations`);
+        if (
+          legacyAnalysisResult &&
+          legacyAnalysisResult.missingTranslations.length > 0
+        ) {
+          console.log(
+            `🔍 [Legacy Analysis] Found ${legacyAnalysisResult.missingTranslations.length} teams missing translations`,
+          );
         }
 
         // Make complete team mapping function available in console
-        if (typeof window !== 'undefined') {
+        if (typeof window !== "undefined") {
           (window as any).generateCompleteTeamMappingForMyNewLeague2 = () =>
             generateCompleteTeamMapping(selectedDate);
 
@@ -1215,38 +1336,46 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             smartTeamTranslation.getLearnedMappingsStats();
 
           (window as any).clearLearnedMappings = () => {
-            localStorage.removeItem('smart_translation_learned_mappings');
+            localStorage.removeItem("smart_translation_learned_mappings");
             smartTeamTranslation.clearCache();
-            console.log('🗑️ [SmartTranslation] Cleared all learned mappings');
+            console.log("🗑️ [SmartTranslation] Cleared all learned mappings");
           };
 
           console.log(`🛠️ [Developer Tools Available]:`);
-          console.log(`   • generateCompleteTeamMappingForMyNewLeague2() - Current date mapping`);
-          console.log(`   • generateAllTeamMappings() - Complete season mapping (recommended!)`);
+          console.log(
+            `   • generateCompleteTeamMappingForMyNewLeague2() - Current date mapping`,
+          );
+          console.log(
+            `   • generateAllTeamMappings() - Complete season mapping (recommended!)`,
+          );
           console.log(`   • generateSeasonWideTeamMapping() - Same as above`);
-          console.log(`   • generateMappingForLeagues([38, 15, 2]) - Custom league mapping`);
-          console.log(`   • getLearnedMappingsStats() - View learned translation statistics`);
-          console.log(`   • clearLearnedMappings() - Clear all learned mappings`);
+          console.log(
+            `   • generateMappingForLeagues([38, 15, 2]) - Custom league mapping`,
+          );
+          console.log(
+            `   • getLearnedMappingsStats() - View learned translation statistics`,
+          );
+          console.log(
+            `   • clearLearnedMappings() - Clear all learned mappings`,
+          );
         }
-
       } catch (error) {
-        console.warn('Team mapping analysis failed:', error);
+        console.warn("Team mapping analysis failed:", error);
       }
     }
     // Cleanup function to prevent memory leaks
     return () => {
       try {
         // Clear any event listeners that might have been added
-        if (typeof window !== 'undefined') {
-          const teamAnalysisEvent = new CustomEvent('cleanupTeamAnalysis');
+        if (typeof window !== "undefined") {
+          const teamAnalysisEvent = new CustomEvent("cleanupTeamAnalysis");
           window.dispatchEvent(teamAnalysisEvent);
         }
       } catch (error) {
-        console.warn('⚠️ [MyNewLeague2] Cleanup error:', error);
+        console.warn("⚠️ [MyNewLeague2] Cleanup error:", error);
       }
     };
   }, [fixturesByLeague, currentLanguage, selectedDate]);
-
 
   // Auto-expand all leagues by default when data changes
   useEffect(() => {
@@ -1266,19 +1395,21 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
       // Force clear localStorage cache for corrupted translations
       const corruptedKeys = [
-        'smart_translation_AEL_zh-hk',
-        'smart_translation_Deportivo Cali_zh-hk',
-        'smart_translation_Alianza Petrolera_zh-hk',
-        'smart_translation_Masr_zh-hk'
+        "smart_translation_AEL_zh-hk",
+        "smart_translation_Deportivo Cali_zh-hk",
+        "smart_translation_Alianza Petrolera_zh-hk",
+        "smart_translation_Masr_zh-hk",
       ];
 
-      corruptedKeys.forEach(key => {
+      corruptedKeys.forEach((key) => {
         localStorage.removeItem(key);
       });
 
-      console.log('🔄 [MyNewLeague2] Translation cache cleared and corrupted entries removed');
+      console.log(
+        "🔄 [MyNewLeague2] Translation cache cleared and corrupted entries removed",
+      );
     } catch (error) {
-      console.warn('Failed to clear translation cache:', error);
+      console.warn("Failed to clear translation cache:", error);
     }
   }, []);
 
@@ -1323,14 +1454,20 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         setSelectedMatchId(null);
 
         // Also call the callback to notify parent component
-        if (onMatchCardClick && typeof onMatchCardClick === 'function') {
+        if (onMatchCardClick && typeof onMatchCardClick === "function") {
           onMatchCardClick(null);
         }
         return;
       }
 
       // Validate fixture data structure
-      if (!fixture || !fixture.fixture || !fixture.fixture.id || !fixture.teams || !fixture.league) {
+      if (
+        !fixture ||
+        !fixture.fixture ||
+        !fixture.fixture.id ||
+        !fixture.teams ||
+        !fixture.league
+      ) {
         console.error("🚨 [MyNewLeague2] Invalid fixture data:", fixture);
         return;
       }
@@ -1339,9 +1476,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
       console.log("🎯 [MyNewLeague2] Match card clicked:", {
         fixtureId: matchId,
-        teams: `${fixture.teams?.home?.name || 'Unknown'} vs ${fixture.teams?.away?.name || 'Unknown'}`,
-        league: fixture.league?.name || 'Unknown League',
-        status: fixture.fixture?.status?.short || 'Unknown',
+        teams: `${fixture.teams?.home?.name || "Unknown"} vs ${fixture.teams?.away?.name || "Unknown"}`,
+        league: fixture.league?.name || "Unknown League",
+        status: fixture.fixture?.status?.short || "Unknown",
         currentlySelected: selectedMatchId,
         isCurrentlySelected: selectedMatchId === matchId,
       });
@@ -1353,68 +1490,78 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         // Use setTimeout to ensure the state update is processed
         setTimeout(() => {
           setSelectedMatchId(matchId);
-          console.log(`🔄 [MyNewLeague2] Re-selected same match ${matchId} for re-highlighting`);
+          console.log(
+            `🔄 [MyNewLeague2] Re-selected same match ${matchId} for re-highlighting`,
+          );
         }, 10);
       } else {
         // Different match, select directly
         setSelectedMatchId(matchId);
-        console.log(`✅ [MyNewLeague2] Successfully selected new match ${matchId}`);
+        console.log(
+          `✅ [MyNewLeague2] Successfully selected new match ${matchId}`,
+        );
       }
 
       // Call the callback to pass match data to parent component
-      if (onMatchCardClick && typeof onMatchCardClick === 'function') {
+      if (onMatchCardClick && typeof onMatchCardClick === "function") {
         // Create a safe copy of fixture data
         const safeFixture = {
           fixture: {
             id: fixture.fixture.id,
-            date: fixture.fixture.date || '',
+            date: fixture.fixture.date || "",
             status: {
-              short: fixture.fixture.status?.short || 'NS',
-              long: fixture.fixture.status?.long || 'Not Started',
-              elapsed: fixture.fixture.status?.elapsed || null
+              short: fixture.fixture.status?.short || "NS",
+              long: fixture.fixture.status?.long || "Not Started",
+              elapsed: fixture.fixture.status?.elapsed || null,
             },
-            venue: fixture.fixture.venue ? {
-              name: fixture.fixture.venue.name || '',
-              city: fixture.fixture.venue.city || ''
-            } : undefined
+            venue: fixture.fixture.venue
+              ? {
+                  name: fixture.fixture.venue.name || "",
+                  city: fixture.fixture.venue.city || "",
+                }
+              : undefined,
           },
           league: {
             id: fixture.league.id || 0,
-            name: fixture.league.name || '',
-            country: fixture.league.country || '',
-            logo: fixture.league.logo || '',
-            flag: fixture.league.flag || '' // Pass flag
+            name: fixture.league.name || "",
+            country: fixture.league.country || "",
+            logo: fixture.league.logo || "",
+            flag: fixture.league.flag || "", // Pass flag
           },
           teams: {
             home: {
               id: fixture.teams.home.id || 0,
-              name: fixture.teams.home.name || '',
-              logo: fixture.teams.home.logo || ''
+              name: fixture.teams.home.name || "",
+              logo: fixture.teams.home.logo || "",
             },
             away: {
               id: fixture.teams.away.id || 0,
-              name: fixture.teams.away.name || '',
-              logo: fixture.teams.away.logo || ''
-            }
+              name: fixture.teams.away.name || "",
+              logo: fixture.teams.away.logo || "",
+            },
           },
           goals: {
             home: fixture.goals?.home || null,
-            away: fixture.goals?.away || null
+            away: fixture.goals?.away || null,
           },
-          score: fixture.score ? {
-            halftime: {
-              home: fixture.score.halftime?.home || null,
-              away: fixture.score.halftime?.away || null
-            },
-            fulltime: {
-              home: fixture.score.fulltime?.home || null,
-              away: fixture.score.fulltime?.home || null
-            },
-            penalty: fixture.score.penalty ? {
-              home: fixture.score.penalty.home || null,
-              away: fixture.score.penalty.away || null
-            } : undefined
-          } : undefined
+          score: fixture.score
+            ? {
+                halftime: {
+                  home: fixture.score.halftime?.home || null,
+                  away: fixture.score.halftime?.away || null,
+                },
+                fulltime: {
+                  home: fixture.score.fulltime?.home || null,
+                  away: fixture.score.fulltime?.home || null,
+                },
+                penalty: fixture.score.penalty
+                  ? {
+                      home: fixture.score.penalty.home || null,
+                      away: fixture.score.penalty.away || null,
+                    }
+                  : undefined,
+              }
+            : undefined,
         };
         onMatchCardClick(safeFixture);
       }
@@ -1540,18 +1687,27 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   }, [fixturesByLeague, triggerKickoffFlash, triggerFinishFlash]);
 
   // Check if we have cached data available
-  const cachedData = queryClient.getQueryData(["myNewLeague2", "allFixtures", selectedDate]);
-  const hasCachedData = cachedData && Array.isArray(cachedData) && cachedData.length > 0;
+  const cachedData = queryClient.getQueryData([
+    "myNewLeague2",
+    "allFixtures",
+    selectedDate,
+  ]);
+  const hasCachedData =
+    cachedData && Array.isArray(cachedData) && cachedData.length > 0;
 
   // Show loading with better error handling
-  if ((isLoading || isFetching) && Object.keys(fixturesByLeague).length === 0 && !hasCachedData) {
+  if (
+    (isLoading || isFetching) &&
+    Object.keys(fixturesByLeague).length === 0 &&
+    !hasCachedData
+  ) {
     return (
       <>
         {/* Header Section */}
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
           <div className="flex justify-between items-center w-full">
             <span className="text-sm font-semibold">
-              {t('popular_football_leagues')}
+              {t("Popular Leagues")}
             </span>
           </div>
         </CardHeader>
@@ -1575,7 +1731,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             {/* Enhanced Match Skeleton Cards with 3-grid layout */}
             <div className="match-cards-wrapper">
               {[1, 2, 3].map((j) => (
-                <div key={`skeleton-match-${i}-${j}`} className="country-matches-container">
+                <div
+                  key={`skeleton-match-${i}-${j}`}
+                  className="country-matches-container"
+                >
                   <div className="match-card-container">
                     {/* Star Button Skeleton */}
                     <div className="match-star-button">
@@ -1585,19 +1744,33 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                     {/* Three-grid layout container */}
                     <div className="match-three-grid-container">
                       {/* Top grid for status */}
-                      <div className="match-status-top" style={{ minHeight: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                      <div
+                        className="match-status-top"
+                        style={{
+                          minHeight: "20px",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
                         <Skeleton className="h-4 w-16 rounded" />
                       </div>
 
                       {/* Middle grid for main content */}
                       <div className="match-content-container">
                         {/* Home Team Name */}
-                        <div className="home-team-name" style={{ textAlign: "right" }}>
+                        <div
+                          className="home-team-name"
+                          style={{ textAlign: "right" }}
+                        >
                           <Skeleton className="h-4 w-20" />
                         </div>
 
                         {/* Home team logo */}
-                        <div className="home-team-logo-container" style={{ padding: "0 0.6rem" }}>
+                        <div
+                          className="home-team-logo-container"
+                          style={{ padding: "0 0.6rem" }}
+                        >
                           <Skeleton className="h-8 w-8 rounded-full" />
                         </div>
 
@@ -1607,18 +1780,27 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         </div>
 
                         {/* Away team logo */}
-                        <div className="away-team-logo-container" style={{ padding: "0 0.5rem" }}>
+                        <div
+                          className="away-team-logo-container"
+                          style={{ padding: "0 0.5rem" }}
+                        >
                           <Skeleton className="h-8 w-8 rounded-full" />
                         </div>
 
                         {/* Away Team Name */}
-                        <div className="away-team-name" style={{ paddingLeft: "0.75rem", textAlign: "left" }}>
+                        <div
+                          className="away-team-name"
+                          style={{ paddingLeft: "0.75rem", textAlign: "left" }}
+                        >
                           <Skeleton className="h-4 w-20" />
                         </div>
                       </div>
 
                       {/* Bottom grid placeholder */}
-                      <div className="match-penalty-bottom" style={{ minHeight: '16px' }}>
+                      <div
+                        className="match-penalty-bottom"
+                        style={{ minHeight: "16px" }}
+                      >
                         {/* Empty space for penalty results when applicable */}
                       </div>
                     </div>
@@ -1648,7 +1830,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
           <div className="flex justify-between items-center w-full">
             <span className="text-sm font-semibold">
-              {t('popular_football_leagues')}
+              {t("Popular Leagues")}
             </span>
           </div>
         </CardHeader>
@@ -1656,7 +1838,15 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         <Card className="mb-4">
           <CardContent className="p-4">
             <div className="text-center">
-              <div className={isRateLimit ? "text-orange-500" : isNetworkError ? "text-blue-500" : "text-red-500"}>
+              <div
+                className={
+                  isRateLimit
+                    ? "text-orange-500"
+                    : isNetworkError
+                      ? "text-blue-500"
+                      : "text-red-500"
+                }
+              >
                 {isRateLimit
                   ? "⚠️ API Rate Limit Reached"
                   : isNetworkError
@@ -1694,7 +1884,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
           <div className="flex justify-between items-center w-full">
             <span className="text-sm font-semibold">
-              {t('popular_football_leagues')}
+              {t("Popular Leagues")}
             </span>
           </div>
         </CardHeader>
@@ -1726,9 +1916,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       {/* Header Section */}
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
         <div className="flex justify-between items-center w-full">
-          <span className="text-sm font-semibold">
-            {t('popular_football_leagues')}
-          </span>
+          <span className="text-sm font-semibold">{t("Popular Leagues")}</span>
         </div>
       </CardHeader>
 
@@ -1785,7 +1973,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                 >
                   <Star
                     className="h-4 w-4"
-                    fill={starredMatches.has(leagueIdNum) ? "currentColor" : "none"}
+                    fill={
+                      starredMatches.has(leagueIdNum) ? "currentColor" : "none"
+                    }
                     stroke="currentColor"
                   />
                 </button>
@@ -1866,7 +2056,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                               fontSize: "11px",
                             }}
                           >
-                            {liveMatchesInLeague} {t('live')}
+                            {liveMatchesInLeague} {t("live")}
                           </span>
                         );
                       }
@@ -1888,189 +2078,192 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
                       // Handle World competitions
                       if (originalCountry?.toLowerCase() === "world") {
-                        return t('world');
+                        return t("world");
                       }
 
                       // Enhanced country name translations
-                      const countryTranslations: { [key: string]: { [key: string]: string } } = {
-                        'russia': {
-                          'en': 'Russia',
-                          'es': 'Rusia',
-                          'zh-hk': '俄羅斯',
-                          'zh-tw': '俄羅斯',
-                          'zh': '俄罗斯',
-                          'de': 'Russland',
-                          'it': 'Russia',
-                          'pt': 'Rússia'
+                      const countryTranslations: {
+                        [key: string]: { [key: string]: string };
+                      } = {
+                        russia: {
+                          en: "Russia",
+                          es: "Rusia",
+                          "zh-hk": "俄羅斯",
+                          "zh-tw": "俄羅斯",
+                          zh: "俄罗斯",
+                          de: "Russland",
+                          it: "Russia",
+                          pt: "Rússia",
                         },
-                        'england': {
-                          'en': 'England',
-                          'es': 'Inglaterra',
-                          'zh-hk': '英格蘭',
-                          'zh-tw': '英格蘭',
-                          'zh': '英格兰',
-                          'de': 'England',
-                          'it': 'Inghilterra',
-                          'pt': 'Inglaterra'
+                        england: {
+                          en: "England",
+                          es: "Inglaterra",
+                          "zh-hk": "英格蘭",
+                          "zh-tw": "英格蘭",
+                          zh: "英格兰",
+                          de: "England",
+                          it: "Inghilterra",
+                          pt: "Inglaterra",
                         },
-                        'spain': {
-                          'en': 'Spain',
-                          'es': 'España',
-                          'zh-hk': '西班牙',
-                          'zh-tw': '西班牙',
-                          'zh': '西班牙',
-                          'de': 'Spanien',
-                          'it': 'Spagna',
-                          'pt': 'Espanha'
+                        spain: {
+                          en: "Spain",
+                          es: "España",
+                          "zh-hk": "西班  �",
+                          "zh-tw": "西班牙",
+                          zh: "西班牙",
+                          de: "Spanien",
+                          it: "Spagna",
+                          pt: "Espanha",
                         },
-                        'germany': {
-                          'en': 'Germany',
-                          'es': 'Alemania',
-                          'zh-hk': '德國',
-                          'zh-tw': '德國',
-                          'zh': '德國',
-                          'de': 'Deutschland',
-                          'it': 'Germania',
-                          'pt': 'Alemanha'
+                        germany: {
+                          en: "Germany",
+                          es: "Alemania",
+                          "zh-hk": "德國",
+                          "zh-tw": "德國",
+                          zh: "德國",
+                          de: "Deutschland",
+                          it: "Germania",
+                          pt: "Alemanha",
                         },
-                        'italy': {
-                          'en': 'Italy',
-                          'es': 'Italia',
-                          'zh-hk': '意大利',
-                          'zh-tw': '意大利',
-                          'zh': '意大利',
-                          'de': 'Italien',
-                          'it': 'Italia',
-                          'pt': 'Itália'
+                        italy: {
+                          en: "Italy",
+                          es: "Italia",
+                          "zh-hk": "意大利",
+                          "zh-tw": "意大利",
+                          zh: "意大利",
+                          de: "Italien",
+                          it: "Italia",
+                          pt: "Itália",
                         },
-                        'france': {
-                          'en': 'France',
-                          'es': 'Francia',
-                          'zh-hk': '法國',
-                          'zh-tw': '法國',
-                          'zh': '法国',
-                          'de': 'Frankreich',
-                          'it': 'Francia',
-                          'pt': 'França'
+                        france: {
+                          en: "France",
+                          es: "Francia",
+                          "zh-hk": "法國",
+                          "zh-tw": "法國",
+                          zh: "法国",
+                          de: "Frankreich",
+                          it: "Francia",
+                          pt: "França",
                         },
-                        'brazil': {
-                          'en': 'Brazil',
-                          'es': 'Brasil',
-                          'zh-hk': '巴西',
-                          'zh-tw': '巴西',
-                          'zh': '巴西',
-                          'de': 'Brasilien',
-                          'it': 'Brasile',
-                          'pt': 'Brasil'
+                        brazil: {
+                          en: "Brazil",
+                          es: "Brasil",
+                          "zh-hk": "巴西",
+                          "zh-tw": "巴西",
+                          zh: "巴西",
+                          de: "Brasilien",
+                          it: "Brasile",
+                          pt: "Brasil",
                         },
-                        'argentina': {
-                          'en': 'Argentina',
-                          'es': 'Argentina',
-                          'zh-hk': '阿根廷',
-                          'zh-tw': '阿根廷',
-                          'zh': '阿根廷',
-                          'de': 'Argentinien',
-                          'it': 'Argentina',
-                          'pt': 'Argentina'
+                        argentina: {
+                          en: "Argentina",
+                          es: "Argentina",
+                          "zh-hk": "阿根廷",
+                          "zh-tw": "阿根廷",
+                          zh: "阿根廷",
+                          de: "Argentinien",
+                          it: "Argentina",
+                          pt: "Argentina",
                         },
-                        'netherlands': {
-                          'en': 'Netherlands',
-                          'es': 'Países Bajos',
-                          'zh-hk': '荷蘭',
-                          'zh-tw': '荷蘭',
-                          'zh': '荷兰',
-                          'de': 'Niederlande',
-                          'it': 'Paesi Bassi',
-                          'pt': 'Países Baixos'
+                        netherlands: {
+                          en: "Netherlands",
+                          es: "Países Bajos",
+                          "zh-hk": "荷蘭",
+                          "zh-tw": "荷蘭",
+                          zh: "荷兰",
+                          de: "Niederlande",
+                          it: "Paesi Bassi",
+                          pt: "Países Baixos",
                         },
-                        'colombia': {
-                          'en': 'Colombia',
-                          'es': 'Colombia',
-                          'zh-hk': '哥倫比亞',
-                          'zh-tw': '哥倫比亞',
-                          'zh': '哥伦比亚',
-                          'de': 'Kolumbien',
-                          'it': 'Colombia',
-                          'pt': 'Colômbia'
+                        colombia: {
+                          en: "Colombia",
+                          es: "Colombia",
+                          "zh-hk": "哥倫比亞",
+                          "zh-tw": "哥倫比亞",
+                          zh: "哥伦比亚",
+                          de: "Kolumbien",
+                          it: "Colombia",
+                          pt: "Colômbia",
                         },
-                        'egypt': {
-                          'en': 'Egypt',
-                          'es': 'Egipto',
-                          'zh-hk': '埃及',
-                          'zh-tw': '埃及',
-                          'zh': '埃及',
-                          'de': 'Ägypten',
-                          'it': 'Egitto',
-                          'pt': 'Egito'
+                        egypt: {
+                          en: "Egypt",
+                          es: "Egipto",
+                          "zh-hk": "埃及",
+                          "zh-tw": "埃及",
+                          zh: "埃及",
+                          de: "Ägypten",
+                          it: "Egitto",
+                          pt: "Egito",
                         },
-                        'chile': {
-                          'en': 'Chile',
-                          'es': 'Chile',
-                          'zh-hk': '智利',
-                          'zh-tw': '智利',
-                          'zh': '智利',
-                          'de': 'Chile',
-                          'it': 'Cile',
-                          'pt': 'Chile'
+                        chile: {
+                          en: "Chile",
+                          es: "Chile",
+                          "zh-hk": "智利",
+                          "zh-tw": "智利",
+                          zh: "智利",
+                          de: "Chile",
+                          it: "Cile",
+                          pt: "Chile",
                         },
-                        'peru': {
-                          'en': 'Peru',
-                          'es': 'Perú',
-                          'zh-hk': '秘魯',
-                          'zh-tw': '秘魯',
-                          'zh': '秘鲁',
-                          'de': 'Peru',
-                          'it': 'Perù',
-                          'pt': 'Peru'
+                        peru: {
+                          en: "Peru",
+                          es: "Perú",
+                          "zh-hk": "秘魯",
+                          "zh-tw": "秘魯",
+                          zh: "秘鲁",
+                          de: "Peru",
+                          it: "Perù",
+                          pt: "Peru",
                         },
-                        'ecuador': {
-                          'en': 'Ecuador',
-                          'es': 'Ecuador',
-                          'zh-hk': '厄瓜多爾',
-                          'zh-tw': '厄瓜多爾',
-                          'zh': '厄瓜多尔',
-                          'de': 'Ecuador',
-                          'it': 'Ecuador',
-                          'pt': 'Equador'
+                        ecuador: {
+                          en: "Ecuador",
+                          es: "Ecuador",
+                          "zh-hk": "厄瓜多爾",
+                          "zh-tw": "厄瓜多爾",
+                          zh: "厄瓜多尔",
+                          de: "Ecuador",
+                          it: "Ecuador",
+                          pt: "Equador",
                         },
-                        'mexico': {
-                          'en': 'Mexico',
-                          'es': 'México',
-                          'zh-hk': '墨西哥',
-                          'zh-tw': '墨西哥',
-                          'zh': '墨西哥',
-                          'de': 'Mexiko',
-                          'it': 'Messico',
-                          'pt': 'México'
+                        mexico: {
+                          en: "Mexico",
+                          es: "México",
+                          "zh-hk": "墨西哥",
+                          "zh-tw": "墨西哥",
+                          zh: "墨西哥",
+                          de: "Mexiko",
+                          it: "Messico",
+                          pt: "México",
                         },
-                        'usa': {
-                          'en': 'USA',
-                          'es': 'Estados Unidos',
-                          'zh-hk': '美國',
-                          'zh-tw': '美國',
-                          'zh': '美国',
-                          'de': 'USA',
-                          'it': 'Stati Uniti',
-                          'pt': 'Estados Unidos'
+                        usa: {
+                          en: "USA",
+                          es: "Estados Unidos",
+                          "zh-hk": "美國",
+                          "zh-tw": "美國",
+                          zh: "美国",
+                          de: "USA",
+                          it: "Stati Uniti",
+                          pt: "Estados Unidos",
                         },
-                        'united states': {
-                          'en': 'United States',
-                          'es': 'Estados Unidos',
-                          'zh-hk': '美國',
-                          'zh-tw': '美國',
-                          'zh': '美国',
-                          'de': 'Vereinigte Staaten',
-                          'it': 'Stati Uniti',
-                          'pt': 'Estados Unidos'
-                        }
+                        "united states": {
+                          en: "United States",
+                          es: "Estados Unidos",
+                          "zh-hk": "美國",
+                          "zh-tw": "美國",
+                          zh: "美国",
+                          de: "Vereinigte Staaten",
+                          it: "Stati Uniti",
+                          pt: "Estados Unidos",
+                        },
                       };
 
                       // If we have valid country data from API, translate it
-                      if (originalCountry &&
-                          originalCountry.trim() !== "" &&
-                          originalCountry.toLowerCase() !== "unknown" &&
-                          originalCountry.toLowerCase() !== "null") {
-
+                      if (
+                        originalCountry &&
+                        originalCountry.trim() !== "" &&
+                        originalCountry.toLowerCase() !== "unknown" &&
+                        originalCountry.toLowerCase() !== "null"
+                      ) {
                         const countryKey = originalCountry.toLowerCase();
                         const translation = countryTranslations[countryKey];
 
@@ -2084,50 +2277,50 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
                       // Only use mapping as fallback for missing/invalid country data
                       const leagueCountryMap: { [key: number]: string } = {
-                        38: "England",           // Premier League
-                        15: "England",           // Championship
-                        2: "Germany",            // Bundesliga
-                        4: "Spain",              // La Liga
-                        10: "World",             // UEFA Nations League
-                        11: "World",             // UEFA Euro
-                        848: "World",            // UEFA Euro U21
-                        886: "World",            // UEFA Champions League Qualifiers
-                        1022: "World",           // FIFA Club World Cup
-                        772: "World",            // FIFA World Cup Qualification
-                        71: "Brazil",            // Serie A Brazil
-                        3: "Netherlands",        // Eredivisie
-                        5: "France",             // Ligue 1
-                        531: "World",            // CONMEBOL Copa America
-                        22: "Argentina",         // Primera Division
-                        72: "Brazil",            // Serie B Brazil
-                        73: "England",           // League One
-                        75: "England",           // League Two
-                        76: "England",           // National League
-                        233: "Egypt",            // Premier League Egypt
-                        667: "Spain",            // Segunda Division
-                        940: "World",            // UEFA Conference League
-                        908: "World",            // UEFA Europa League
-                        1169: "World",           // UEFA Nations League Women
-                        23: "Italy",             // Serie A Italy
-                        1077: "World",           // UEFA Nations League Women
-                        253: "USA",              // MLS
-                        850: "World",            // UEFA Champions League Women
-                        893: "World",            // UEFA Europa League Women
-                        921: "World",            // UEFA Conference League Women
-                        130: "Mexico",           // Liga MX
-                        128: "Mexico",           // Liga de Expansion MX
-                        493: "World",            // CONCACAF Gold Cup
-                        239: "Colombia",         // Primera A
-                        265: "Chile",            // Primera Division
-                        237: "Peru",             // Primera Division
-                        235: "Ecuador",          // Primera A
-                        743: "World"             // CONMEBOL Libertadores
+                        38: "England", // Premier League
+                        15: "England", // Championship
+                        2: "Germany", // Bundesliga
+                        4: "Spain", // La Liga
+                        10: "World", // UEFA Nations League
+                        11: "World", // UEFA Euro
+                        848: "World", // UEFA Euro U21
+                        886: "World", // UEFA Champions League Qualifiers
+                        1022: "World", // FIFA Club World Cup
+                        772: "World", // FIFA World Cup Qualification
+                        71: "Brazil", // Serie A Brazil
+                        3: "Netherlands", // Eredivisie
+                        5: "France", // Ligue 1
+                        531: "World", // CONMEBOL Copa America
+                        22: "Argentina", // Primera Division
+                        72: "Brazil", // Serie B Brazil
+                        73: "England", // League One
+                        75: "England", // League Two
+                        76: "England", // National League
+                        233: "Egypt", // Premier League Egypt
+                        667: "Spain", // Segunda Division
+                        940: "World", // UEFA Conference League
+                        908: "World", // UEFA Europa League
+                        1169: "World", // UEFA Nations League Women
+                        23: "Italy", // Serie A Italy
+                        1077: "World", // UEFA Nations League Women
+                        253: "USA", // MLS
+                        850: "World", // UEFA Champions League Women
+                        893: "World", // UEFA Europa League Women
+                        921: "World", // UEFA Conference League Women
+                        130: "Mexico", // Liga MX
+                        128: "Mexico", // Liga de Expansion MX
+                        493: "World", // CONCACAF Gold Cup
+                        239: "Colombia", // Primera A
+                        265: "Chile", // Primera Division
+                        237: "Peru", // Primera Division
+                        235: "Ecuador", // Primera A
+                        743: "World", // CONMEBOL Libertadores
                       };
 
                       const mappedCountry = leagueCountryMap[leagueIdNum];
                       if (mappedCountry) {
                         if (mappedCountry === "World") {
-                          return t('world');
+                          return t("world");
                         }
 
                         // Apply country translations for mapped countries too
@@ -2190,38 +2383,60 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                           onClick={(e) => {
                             try {
                               // Safely handle event object
-                              if (e && typeof e.preventDefault === 'function') {
+                              if (e && typeof e.preventDefault === "function") {
                                 e.preventDefault();
                               }
-                              if (e && typeof e.stopPropagation === 'function') {
+                              if (
+                                e &&
+                                typeof e.stopPropagation === "function"
+                              ) {
                                 e.stopPropagation();
                               }
 
                               // Validate fixture before passing to handleMatchClick
-                              if (!fixture || !fixture.fixture || !fixture.fixture.id) {
-                                console.error("🚨 [MyNewLeague2] Invalid fixture data in click handler:", fixture);
+                              if (
+                                !fixture ||
+                                !fixture.fixture ||
+                                !fixture.fixture.id
+                              ) {
+                                console.error(
+                                  "🚨 [MyNewLeague2] Invalid fixture data in click handler:",
+                                  fixture,
+                                );
                                 return false;
                               }
 
                               // Additional safety check for required properties
-                              if (!fixture.teams || !fixture.teams.home || !fixture.teams.away) {
-                                console.error("🚨 [MyNewLeague2] Invalid teams data in click handler:", fixture.teams);
+                              if (
+                                !fixture.teams ||
+                                !fixture.teams.home ||
+                                !fixture.teams.away
+                              ) {
+                                console.error(
+                                  "🚨 [MyNewLeague2] Invalid teams data in click handler:",
+                                  fixture.teams,
+                                );
                                 return false;
                               }
 
                               if (!fixture.league) {
-                                console.error("🚨 [MyNewLeague2] Invalid league data in click handler:", fixture.league);
+                                console.error(
+                                  "🚨 [MyNewLeague2] Invalid league data in click handler:",
+                                  fixture.league,
+                                );
                                 return false;
                               }
 
                               handleMatchClick(fixture);
                             } catch (error) {
-                              console.error("🚨 [MyNewLeague2] Error in match container click handler:", error);
+                              console.error(
+                                "🚨 [MyNewLeague2] Error in match container click handler:",
+                                error,
+                              );
                               // Prevent error from propagating and causing runtime errors
                               return false;
                             }
                           }}
-
                           onMouseEnter={() => {
                             // Allow hover if not currently selected
                             if (selectedMatchId !== matchId) {
@@ -2276,7 +2491,16 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   (Date.now() - matchDateTime.getTime()) /
                                   (1000 * 60 * 60);
                                 const isStaleFinishedMatch =
-                                  (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) &&
+                                  ([
+                                    "FT",
+                                    "AET",
+                                    "PEN",
+                                    "AWD",
+                                    "WO",
+                                    "ABD",
+                                    "CANC",
+                                    "SUSP",
+                                  ].includes(status) &&
                                     hoursOld > 4) ||
                                   (hoursOld > 4 &&
                                     [
@@ -2320,10 +2544,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   let statusClass = "status-live-elapsed";
 
                                   if (status === "HT") {
-                                    displayText = t('halftime');
+                                    displayText = t("halftime");
                                     statusClass = "status-halftime";
                                   } else if (status === "P") {
-                                    displayText = t('penalties');
+                                    displayText = t("penalties");
                                   } else if (status === "ET") {
                                     if (elapsed) {
                                       const extraTime = elapsed - 90;
@@ -2332,12 +2556,12 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                           ? `90' + ${extraTime}'`
                                           : `${elapsed}'`;
                                     } else {
-                                      displayText = t('extra_time');
+                                      displayText = t("extra_time");
                                     }
                                   } else if (status === "BT") {
-                                    displayText = t('break_time');
+                                    displayText = t("break_time");
                                   } else if (status === "INT") {
-                                    displayText = t('interrupted');
+                                    displayText = t("interrupted");
                                   } else {
                                     displayText = elapsed
                                       ? `${elapsed}'`
@@ -2367,17 +2591,17 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   return (
                                     <div className="match-status-label status-postponed">
                                       {status === "PST"
-                                        ? t('postponed')
+                                        ? t("postponed")
                                         : status === "CANC"
-                                          ? t('cancelled')
+                                          ? t("cancelled")
                                           : status === "ABD"
-                                            ? t('abandoned')
+                                            ? t("abandoned")
                                             : status === "SUSP"
-                                              ? t('suspended')
+                                              ? t("suspended")
                                               : status === "AWD"
-                                                ? t('awarded')
+                                                ? t("awarded")
                                                 : status === "WO"
-                                                  ? t('walkover')
+                                                  ? t("walkover")
                                                   : status}
                                     </div>
                                   );
@@ -2397,7 +2621,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   if (hoursAgo > 2) {
                                     return (
                                       <div className="match-status-label status-postponed">
-                                        {t('postponed')}
+                                        {t("postponed")}
                                       </div>
                                     );
                                   }
@@ -2406,7 +2630,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   if (status === "TBD") {
                                     return (
                                       <div className="match-status-label status-upcoming">
-                                        {t('time_tbd')}
+                                        {t("time_tbd")}
                                       </div>
                                     );
                                   }
@@ -2440,9 +2664,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       }}
                                     >
                                       {status === "FT" || isStaleFinishedMatch
-                                        ? t('ended')
+                                        ? t("ended")
                                         : status === "AET"
-                                          ? t('after_extra_time') || "After Extra Time"
+                                          ? t("after_extra_time") ||
+                                            "After Extra Time"
                                           : status}
                                     </div>
                                   );
@@ -2474,11 +2699,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 }}
                               >
                                 {(() => {
-                                  const originalName = fixture.teams.home.name || "";
+                                  const originalName =
+                                    fixture.teams.home.name || "";
 
                                   // Simplified translation - only use context translation for performance
                                   try {
-                                    return translateTeamName ? translateTeamName(originalName) : originalName;
+                                    return translateTeamName
+                                      ? translateTeamName(originalName)
+                                      : originalName;
                                   } catch (error) {
                                     return originalName;
                                   }
@@ -2541,8 +2769,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     ].includes(status)
                                   ) {
                                     // Use fulltime score if available, otherwise use goals
-                                    const homeScore = fixture.score?.fulltime?.home ?? fixture.goals?.home ?? 0;
-                                    const awayScore = fixture.score?.fulltime?.away ?? fixture.goals?.away ?? 0;
+                                    const homeScore =
+                                      fixture.score?.fulltime?.home ??
+                                      fixture.goals?.home ??
+                                      0;
+                                    const awayScore =
+                                      fixture.score?.fulltime?.away ??
+                                      fixture.goals?.away ??
+                                      0;
 
                                     return (
                                       <div className="match-score-display">
@@ -2573,8 +2807,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     ].includes(status)
                                   ) {
                                     // Use fulltime score if available, otherwise use goals
-                                    const homeScore = fixture.score?.fulltime?.home ?? fixture.goals?.home ?? 0;
-                                    const awayScore = fixture.score?.fulltime?.away ?? fixture.goals?.away ?? 0;
+                                    const homeScore =
+                                      fixture.score?.fulltime?.home ??
+                                      fixture.goals?.home ??
+                                      0;
+                                    const awayScore =
+                                      fixture.score?.fulltime?.away ??
+                                      fixture.goals?.away ??
+                                      0;
 
                                     return (
                                       <div className="match-score-display">
@@ -2748,11 +2988,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 }}
                               >
                                 {(() => {
-                                  const originalName = fixture.teams.away.name || "";
+                                  const originalName =
+                                    fixture.teams.away.name || "";
 
                                   // Simplified translation - only use context translation for performance
                                   try {
-                                    return translateTeamName ? translateTeamName(originalName) : originalName;
+                                    return translateTeamName
+                                      ? translateTeamName(originalName)
+                                      : originalName;
                                   } catch (error) {
                                     return originalName;
                                   }
@@ -2770,31 +3013,64 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 const penaltyAway =
                                   fixture.score?.penalty?.away;
                                 const hasPenaltyScores =
-                                  penaltyHome !== null &&
-                                  penaltyAway !== null;
+                                  penaltyHome !== null && penaltyAway !== null;
 
                                 if (isPenaltyMatch && hasPenaltyScores) {
-                                  const winnerTeam = penaltyHome > penaltyAway
-                                    ? smartTeamTranslation.translateTeamName(fixture.teams.home.name, currentLanguage, fixture.league)
-                                    : smartTeamTranslation.translateTeamName(fixture.teams.away.name, currentLanguage, fixture.league);
-                                  const penaltyScore = penaltyHome > penaltyAway
-                                    ? `${penaltyHome}-${penaltyAway}`
-                                    : `${penaltyAway}-${penaltyHome}`;
+                                  const winnerTeam =
+                                    penaltyHome > penaltyAway
+                                      ? smartTeamTranslation.translateTeamName(
+                                          fixture.teams.home.name,
+                                          currentLanguage,
+                                          fixture.league,
+                                        )
+                                      : smartTeamTranslation.translateTeamName(
+                                          fixture.teams.away.name,
+                                          currentLanguage,
+                                          fixture.league,
+                                        );
+                                  const penaltyScore =
+                                    penaltyHome > penaltyAway
+                                      ? `${penaltyHome}-${penaltyAway}`
+                                      : `${penaltyAway}-${penaltyHome}`;
 
-                                  const penaltyWonText = t('won_on_penalties');
-                                  const onPenaltiesText = t('on_penalties');
+                                  const penaltyWonText = t("won_on_penalties");
+                                  const onPenaltiesText = t("on_penalties");
 
                                   // Handle Chinese languages properly
                                   let winnerText;
-                                  if (penaltyWonText.includes('互射十二碼獲勝')) {
+                                  if (
+                                    penaltyWonText.includes("互射十二碼獲勝")
+                                  ) {
                                     // For Chinese, format as "Team 5-4 互射十二碼獲勝"
                                     winnerText = `${winnerTeam} ${penaltyScore} ${penaltyWonText}`;
-                                  } else if (penaltyWonText.includes('PK大戰獲勝')) {
+                                  } else if (
+                                    penaltyWonText.includes("PK大戰獲勝")
+                                  ) {
                                     // For Taiwan Chinese, format as "Team 5-4 PK大戰獲勝"
                                     winnerText = `${winnerTeam} ${penaltyScore} ${penaltyWonText}`;
                                   } else {
                                     // For other languages, replace the penalty text with score
-                                    winnerText = `${winnerTeam} ${penaltyWonText.replace('on penalties', penaltyScore + ' ' + onPenaltiesText).replace('en penales', penaltyScore + ' ' + onPenaltiesText).replace('im Elfmeterschießen', penaltyScore + ' ' + onPenaltiesText).replace('ai rigori', penaltyScore + ' ' + onPenaltiesText).replace('nos pênaltis', penaltyScore + ' ' + onPenaltiesText)}`;
+                                    winnerText = `${winnerTeam} ${penaltyWonText
+                                      .replace(
+                                        "on penalties",
+                                        penaltyScore + " " + onPenaltiesText,
+                                      )
+                                      .replace(
+                                        "en penales",
+                                        penaltyScore + " " + onPenaltiesText,
+                                      )
+                                      .replace(
+                                        "im Elfmeterschießen",
+                                        penaltyScore + " " + onPenaltiesText,
+                                      )
+                                      .replace(
+                                        "ai rigori",
+                                        penaltyScore + " " + onPenaltiesText,
+                                      )
+                                      .replace(
+                                        "nos pênaltis",
+                                        penaltyScore + " " + onPenaltiesText,
+                                      )}`;
                                   }
 
                                   return (
@@ -2830,10 +3106,11 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const queryClient = useQueryClient();
-  const { t, translateLeagueName: contextTranslateLeagueName } = useTranslation();
+  const { t, translateLeagueName: contextTranslateLeagueName } =
+    useTranslation();
   const { hasIntersected } = useIntersectionObserver(containerRef, {
     threshold: 0.01, // Trigger even earlier
-    rootMargin: '200px' // Start loading 200px before it comes into view
+    rootMargin: "200px", // Start loading 200px before it comes into view
   });
 
   // Cleanup on unmount
@@ -2846,8 +3123,13 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
   }, []);
 
   // Check if we have cached data available
-  const cachedData = queryClient.getQueryData(["myNewLeague2", "allFixtures", props.selectedDate]);
-  const hasCachedData = cachedData && Array.isArray(cachedData) && cachedData.length > 0;
+  const cachedData = queryClient.getQueryData([
+    "myNewLeague2",
+    "allFixtures",
+    props.selectedDate,
+  ]);
+  const hasCachedData =
+    cachedData && Array.isArray(cachedData) && cachedData.length > 0;
 
   // If we have cached data OR component has intersected, show the actual component
   if (hasCachedData || hasIntersected) {
@@ -2862,7 +3144,7 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
           <div className="flex justify-between items-center w-full">
             <span className="text-sm font-semibold">
-              {t('popular_football_leagues')}
+              {t("Popular Leagues")}
             </span>
           </div>
         </CardHeader>
@@ -2886,7 +3168,10 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
             {/* Enhanced Match Skeleton Cards with 3-grid layout */}
             <div className="match-cards-wrapper">
               {[1, 2, 3].map((j) => (
-                <div key={`skeleton-match-${i}-${j}`} className="country-matches-container">
+                <div
+                  key={`skeleton-match-${i}-${j}`}
+                  className="country-matches-container"
+                >
                   <div className="match-card-container">
                     {/* Star Button Skeleton */}
                     <div className="match-star-button">
@@ -2896,19 +3181,33 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
                     {/* Three-grid layout container */}
                     <div className="match-three-grid-container">
                       {/* Top grid for status */}
-                      <div className="match-status-top" style={{ minHeight: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                      <div
+                        className="match-status-top"
+                        style={{
+                          minHeight: "20px",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
                         <Skeleton className="h-4 w-16 rounded" />
                       </div>
 
                       {/* Middle grid for main content */}
                       <div className="match-content-container">
                         {/* Home Team Name */}
-                        <div className="home-team-name" style={{ textAlign: "right" }}>
+                        <div
+                          className="home-team-name"
+                          style={{ textAlign: "right" }}
+                        >
                           <Skeleton className="h-4 w-20" />
                         </div>
 
                         {/* Home team logo */}
-                        <div className="home-team-logo-container" style={{ padding: "0 0.6rem" }}>
+                        <div
+                          className="home-team-logo-container"
+                          style={{ padding: "0 0.6rem" }}
+                        >
                           <Skeleton className="h-8 w-8 rounded-full" />
                         </div>
 
@@ -2918,18 +3217,27 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
                         </div>
 
                         {/* Away team logo */}
-                        <div className="away-team-logo-container" style={{ padding: "0 0.5rem" }}>
+                        <div
+                          className="away-team-logo-container"
+                          style={{ padding: "0 0.5rem" }}
+                        >
                           <Skeleton className="h-8 w-8 rounded-full" />
                         </div>
 
                         {/* Away Team Name */}
-                        <div className="away-team-name" style={{ paddingLeft: "0.75rem", textAlign: "left" }}>
+                        <div
+                          className="away-team-name"
+                          style={{ paddingLeft: "0.75rem", textAlign: "left" }}
+                        >
                           <Skeleton className="h-4 w-20" />
                         </div>
                       </div>
 
                       {/* Bottom grid placeholder */}
-                      <div className="match-penalty-bottom" style={{ minHeight: '16px' }}>
+                      <div
+                        className="match-penalty-bottom"
+                        style={{ minHeight: "16px" }}
+                      >
                         {/* Empty space for penalty results when applicable */}
                       </div>
                     </div>
