@@ -37,9 +37,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   const { currentLanguage, setLanguage } = useLanguage();
   const { t } = useTranslation();
 
-  // No longer needed - league data comes from fixtures
-
-  // Fetch fixtures data with caching
+  // Fetch fixtures data with caching (league data is derived from fixtures)
   const {
     data: fixturesData,
     isLoading: isFixturesLoading,
