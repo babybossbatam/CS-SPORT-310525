@@ -1,4 +1,3 @@
-
 // EventEmitter utilities for managing listeners and preventing memory leaks
 
 export const setGlobalEventEmitterLimits = (limit: number = 2000) => {
@@ -10,7 +9,7 @@ export const setGlobalEventEmitterLimits = (limit: number = 2000) => {
   // Set EventEmitter default max listeners
   if (typeof window !== 'undefined') {
     (window as any).maxEventListeners = limit;
-    
+
     if ((window as any).EventEmitter) {
       (window as any).EventEmitter.defaultMaxListeners = limit;
     }
@@ -62,7 +61,7 @@ export const setGlobalEventEmitterLimits = (limit: number = 2000) => {
       // More aggressive detection of all EventEmitter-like objects
       const searchForEventEmitters = (obj: any, path: string = '', depth: number = 0) => {
         if (depth > 3 || !obj || typeof obj !== 'object') return;
-        
+
         try {
           // Check if this object has setMaxListeners method
           if (typeof obj.setMaxListeners === 'function') {
@@ -91,7 +90,7 @@ export const setGlobalEventEmitterLimits = (limit: number = 2000) => {
         if (obj && typeof obj.setMaxListeners === 'function') {
           obj.setMaxListeners(limit);
         }
-        
+
         // Also check if the key suggests it's related to file watching
         if (key.toLowerCase().includes('file') || 
             key.toLowerCase().includes('watch') || 
@@ -124,7 +123,7 @@ export const cleanupEventListeners = () => {
   if (typeof window !== 'undefined') {
     // Remove excessive event listeners from common objects
     const commonElements = [window, document];
-    
+
     commonElements.forEach(element => {
       if (element && typeof element.removeAllListeners === 'function') {
         try {
@@ -141,7 +140,7 @@ export const cleanupEventListeners = () => {
       if ((window as any).stallwart) {
         (window as any).stallwart.removeAllListeners?.();
       }
-      
+
       // Clean up file watching listeners
       if ((window as any).replit && (window as any).replit.fs) {
         const fs = (window as any).replit.fs;
@@ -237,13 +236,13 @@ if (typeof window !== 'undefined') {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
-        setGlobalEventEmitterLimits(2000);
+        setGlobalEventEmitterLimits(5000);
       }, 1000);
     });
   } else {
     // DOM is already ready
     setTimeout(() => {
-      setGlobalEventEmitterLimits(2000);
-    }, 1000);
+      setGlobalEventEmitterLimits(5000);
+    }, 100);
   }
 }
