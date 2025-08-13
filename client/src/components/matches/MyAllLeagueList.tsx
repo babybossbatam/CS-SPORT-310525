@@ -235,17 +235,20 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       "荷蘭": "Netherlands",
       "葡萄牙_TW": "Portugal",
       "比利時": "Belgium",
-      "墨西哥_TW": "Mexico"
+      "墨西哥_TW": "Mexico",
+      "世界_TW": "World"
     };
 
     // Check if this is already a translated name that needs to be normalized back to English first
     const normalizedCountry = reverseTranslationMap[originalCountry] || originalCountry;
 
-    // Step 2: Auto-learn from the normalized country name
+    // Step 2: Auto-learn from the normalized country name with enhanced context
     smartLeagueCountryTranslation.autoLearnFromAnyCountryName(normalizedCountry, {
       leagueContext: "multiple leagues",
       occurrenceCount: 1,
-      originalName: originalCountry !== normalizedCountry ? originalCountry : undefined
+      originalName: originalCountry !== normalizedCountry ? originalCountry : undefined,
+      fixtureContext: true,
+      normalizedName: normalizedCountry
     });
 
     // Step 3: Get smart translation using the learning system with normalized name
@@ -258,6 +261,12 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       // Cache both the original and smart translation result
       setCachedCountryName(originalCountry, smartTranslation, "smart-translation");
       setCachedCountryName(normalizedCountry, smartTranslation, "smart-translation");
+      
+      // Special handling for "World" to ensure perfect translation
+      if (normalizedCountry.toLowerCase() === "world") {
+        console.log(`🌐 [World Translation] Perfect translation for "World": "${smartTranslation}" (${currentLanguage})`);
+      }
+      
       return smartTranslation;
     }
 
@@ -286,6 +295,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       "northern ireland": "Northern Ireland",
       "republic of ireland": "Ireland",
       "korea dpr": "North Korea",
+      // Special case for World
+      "world": "World",
       // Countries from your image
       "armenia": "Armenia",
       "australia": "Australia", 
@@ -335,7 +346,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       smartLeagueCountryTranslation.autoLearnFromAnyCountryName(displayName, { 
         originalName: originalCountry,
         normalizedName: normalizedCountry,
-        leagueContext: "normalization"
+        leagueContext: "normalization",
+        fixtureContext: true
       });
       
       // Try smart translation again with normalized name
@@ -343,6 +355,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       if (retryTranslation && retryTranslation !== displayName && retryTranslation.length > 0) {
         console.log(`🔄 [Retry Smart Translation] "${displayName}" → "${retryTranslation}" (${currentLanguage})`);
         displayName = retryTranslation;
+        
+        // Special logging for World translations
+        if (displayName.toLowerCase() === "world" || retryTranslation.includes("世界") || retryTranslation.includes("World")) {
+          console.log(`🌐 [World Retry Translation] Perfect retry translation for World: "${retryTranslation}" (${currentLanguage})`);
+        }
       }
     }
 
@@ -352,10 +369,21 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       console.log(`📝 [Normalized Country] "${originalCountry}" → "${displayName}" (English fallback)`);
     }
 
-    // Step 9: Cache the result
+    // Step 9: Enhanced caching and final World handling
     setCachedCountryName(originalCountry, displayName, "enhanced-mapping");
     if (normalizedCountry !== originalCountry) {
       setCachedCountryName(normalizedCountry, displayName, "enhanced-mapping");
+    }
+
+    // Step 10: Final check for World translation perfection
+    if (displayName.toLowerCase() === "world") {
+      // Force one more translation attempt specifically for World
+      const finalWorldTranslation = smartLeagueCountryTranslation.translateCountryName("World", currentLanguage);
+      if (finalWorldTranslation && finalWorldTranslation !== "World" && finalWorldTranslation.length > 0) {
+        console.log(`🌐 [Final World Translation] Perfect final translation for World: "${finalWorldTranslation}" (${currentLanguage})`);
+        displayName = finalWorldTranslation;
+        setCachedCountryName("World", finalWorldTranslation, "smart-world-translation");
+      }
     }
     
     console.log(`🗺️ [Enhanced Country Mapping] "${originalCountry}" → "${displayName}" (Language: ${currentLanguage})`);
@@ -617,30 +645,39 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                         ? countryData.country
                         : countryData.country?.name || "Unknown";
 
-                      const flagElement = countryName === "World" ? (
+                      // Get the display name using smart translation
+                      const displayCountryName = getCountryDisplayName(countryName);
+                      
+                      // Check for World using both original and translated names
+                      const isWorldCountry = countryName.toLowerCase() === "world" || 
+                                           displayCountryName.toLowerCase().includes("world") ||
+                                           displayCountryName.includes("世界") ||
+                                           displayCountryName.includes("世界");
+
+                      const flagElement = isWorldCountry ? (
                         <MyGroupNationalFlag
                           teamName="World"
                           fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
-                          alt="World"
+                          alt={displayCountryName}
                           size="24px"
                         />
                       ) : (
                         <MyGroupNationalFlag
                           teamName={countryName}
                           fallbackUrl="/assets/fallback-logo.svg"
-                          alt={countryName}
+                          alt={displayCountryName}
                           size="24px"
                         />
                       );
 
-                      // Make flag clickable if country has language mapping
-                      const hasLanguageMapping = countryToLanguageMap[countryName];
+                      // Make flag clickable if country has language mapping (check both original and display names)
+                      const hasLanguageMapping = countryToLanguageMap[countryName] || countryToLanguageMap[displayCountryName];
                       
                       return hasLanguageMapping ? (
                         <button
                           onClick={(e) => handleCountryFlagClick(countryName, e)}
                           className="hover:scale-110 transition-transform duration-200 cursor-pointer"
-                          title={`Switch to ${countryName} language`}
+                          title={`Switch to ${displayCountryName} language`}
                         >
                           {flagElement}
                         </button>
