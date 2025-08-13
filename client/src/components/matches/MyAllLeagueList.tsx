@@ -530,7 +530,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                                   fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                                 }}
                               >
-                                {safeSubstring(leagueData.league.name, 0) || "Unknown League"}
+                                {(() => {
+                                  const originalName = safeSubstring(leagueData.league.name, 0) || "Unknown League";
+                                  const translatedName = smartLeagueCountryTranslation.translateLeagueName(originalName, currentLanguage);
+                                  return translatedName;
+                                })()}
                               </span>
                             </div>
                             <span
