@@ -397,6 +397,42 @@ class SmartLeagueCountryTranslation {
     'Zambia': {
       'zh': '赞比亚', 'zh-hk': '贊比亞', 'zh-tw': '尚比亞',
       'es': 'Zambia', 'de': 'Sambia', 'it': 'Zambia', 'pt': 'Zâmbia'
+    },
+    'Czech-Republic': {
+      'zh': '捷克共和国', 'zh-hk': '捷克共和國', 'zh-tw': '捷克共和國',
+      'es': 'República Checa', 'de': 'Tschechische Republik', 'it': 'Repubblica Ceca', 'pt': 'República Tcheca'
+    },
+    'Guatemala': {
+      'zh': '危地马拉', 'zh-hk': '危地馬拉', 'zh-tw': '瓜地馬拉',
+      'es': 'Guatemala', 'de': 'Guatemala', 'it': 'Guatemala', 'pt': 'Guatemala'
+    },
+    'Honduras': {
+      'zh': '洪都拉斯', 'zh-hk': '洪都拉斯', 'zh-tw': '宏都拉斯',
+      'es': 'Honduras', 'de': 'Honduras', 'it': 'Honduras', 'pt': 'Honduras'
+    },
+    'El Salvador': {
+      'zh': '萨尔瓦多', 'zh-hk': '薩爾瓦多', 'zh-tw': '薩爾瓦多',
+      'es': 'El Salvador', 'de': 'El Salvador', 'it': 'El Salvador', 'pt': 'El Salvador'
+    },
+    'Nicaragua': {
+      'zh': '尼加拉瓜', 'zh-hk': '尼加拉瓜', 'zh-tw': '尼加拉瓜',
+      'es': 'Nicaragua', 'de': 'Nicaragua', 'it': 'Nicaragua', 'pt': 'Nicarágua'
+    },
+    'Costa Rica': {
+      'zh': '哥斯达黎加', 'zh-hk': '哥斯達黎加', 'zh-tw': '哥斯大黎加',
+      'es': 'Costa Rica', 'de': 'Costa Rica', 'it': 'Costa Rica', 'pt': 'Costa Rica'
+    },
+    'Panama': {
+      'zh': '巴拿马', 'zh-hk': '巴拿馬', 'zh-tw': '巴拿馬',
+      'es': 'Panamá', 'de': 'Panama', 'it': 'Panama', 'pt': 'Panamá'
+    },
+    'Jamaica': {
+      'zh': '牙买加', 'zh-hk': '牙買加', 'zh-tw': '牙買加',
+      'es': 'Jamaica', 'de': 'Jamaika', 'it': 'Giamaica', 'pt': 'Jamaica'
+    },
+    'Trinidad and Tobago': {
+      'zh': '特立尼达和多巴哥', 'zh-hk': '千里達及托巴哥', 'zh-tw': '千里達及托巴哥',
+      'es': 'Trinidad y Tobago', 'de': 'Trinidad und Tobago', 'it': 'Trinidad e Tobago', 'pt': 'Trinidad e Tobago'
     }
   };
 
@@ -1581,7 +1617,11 @@ class SmartLeagueCountryTranslation {
     '布基納法索': 'Burkina Faso', '布基纳法索': 'Burkina Faso', '布吉納法索': 'Burkina Faso',
     '津巴布韋': 'Zimbabwe', '津巴布韦': 'Zimbabwe', '辛巴威': 'Zimbabwe',
     '贊比亞': 'Zambia', '赞比亚': 'Zambia', '尚比亞': 'Zambia',
-    '世界': 'World'
+    '世界': 'World',
+    // Hyphenated country names
+    'Czech-Republic': 'Czech Republic',
+    'North-Macedonia': 'North Macedonia',
+    'Bosnia-Herzegovina': 'Bosnia and Herzegovina'
   };
 
   // Detect if a country name is in Chinese and convert to English first
@@ -1595,6 +1635,15 @@ class SmartLeagueCountryTranslation {
       const englishName = this.chineseToEnglishMap[cleanName];
       console.log(`🔄 [Smart Translation] Chinese detected: "${cleanName}" → English: "${englishName}"`);
       return englishName;
+    }
+    
+    // Handle hyphenated country names by checking both hyphenated and space versions
+    if (cleanName.includes('-')) {
+      const spacedName = cleanName.replace(/-/g, ' ');
+      if (this.popularCountries[spacedName]) {
+        console.log(`🔄 [Smart Translation] Hyphenated country normalized: "${cleanName}" → "${spacedName}"`);
+        return spacedName;
+      }
     }
     
     return cleanName;
