@@ -26,17 +26,40 @@
   overflow: hidden;
 }
 
-/* Three-grid layout container - EXACTLY like MyLogoPositioning */
+/* Three-grid layout container - Updated for better match display */
 .country-matches-container .match-three-grid-container {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: 24px 1fr 20px;
+  grid-template-areas: 
+    "status"
+    "match-content"
+    "penalty-info";
   width: 100%;
   min-height: 80px;
+  padding: 4px 8px;
   background: transparent !important;
   background-color: transparent !important;
 }
 
-/* Top grid for match status - EXACTLY like MyLogoPositioning */
+/* Match content area */
+.country-matches-container .match-three-grid-container > *:nth-child(1) {
+  grid-area: status;
+}
+
+.country-matches-container .match-three-grid-container > *:nth-child(2),
+.country-matches-container .match-three-grid-container > *:nth-child(3),
+.country-matches-container .match-three-grid-container > *:nth-child(4),
+.country-matches-container .match-three-grid-container > *:nth-child(5),
+.country-matches-container .match-three-grid-container > *:nth-child(6) {
+  grid-area: match-content;
+  align-self: center;
+}
+
+.country-matches-container .match-three-grid-container > *:last-child {
+  grid-area: penalty-info;
+}
+
+/* Top grid for match status */
 .country-matches-container .match-status-top {
   display: flex;
   justify-content: center;
@@ -44,12 +67,62 @@
   min-height: 24px;
   height: 24px;
   padding: 0.25rem;
+  grid-area: status;
 }
 
-/* Main match content container - Grid-based like MyLogoPositioning */
-.country-matches-container .match-content-container {
+/* Match content grid layout */
+.country-matches-container .match-three-grid-container {
   display: grid;
   grid-template-columns: 1fr 32px 80px 32px 1fr;
+  grid-template-rows: 24px 1fr 20px;
+  grid-template-areas: 
+    "status status status status status"
+    "home-name home-logo score away-logo away-name"
+    "penalty penalty penalty penalty penalty";
+  align-items: center;
+  gap: 2px 4px;
+  width: 100%;
+  min-height: 80px;
+  padding: 4px 8px;
+}
+
+/* Individual element positioning */
+.country-matches-container .home-team-name {
+  grid-area: home-name;
+  text-align: right;
+  justify-self: end;
+}
+
+.country-matches-container .home-team-logo-container {
+  grid-area: home-logo;
+  justify-self: center;
+}
+
+.country-matches-container .match-score-container {
+  grid-area: score;
+  justify-self: center;
+}
+
+.country-matches-container .away-team-logo-container {
+  grid-area: away-logo;
+  justify-self: center;
+}
+
+.country-matches-container .away-team-name {
+  grid-area: away-name;
+  text-align: left;
+  justify-self: start;
+}
+
+.country-matches-container .match-penalty-bottom {
+  grid-area: penalty;
+  justify-self: center;
+}
+
+/* Main match content container - Improved grid layout */
+.country-matches-container .match-content-container {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 32px 80px 32px minmax(0, 1fr);
   grid-template-areas: "home-team-name home-team-logo score away-team-logo away-team-name";
   grid-template-rows: 42px;
   align-items: center;
@@ -57,6 +130,58 @@
   align-content: center;
   width: 100%;
   padding: 0 8px;
+  gap: 4px;
+}
+
+/* Team name styling improvements */
+.country-matches-container .home-team-name,
+.country-matches-container .away-team-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  padding: 0 2px;
+}
+
+.country-matches-container .home-team-name {
+  text-align: right;
+  justify-self: end;
+}
+
+.country-matches-container .away-team-name {
+  text-align: left;
+  justify-self: start;
+}
+
+/* Team logo containers */
+.country-matches-container .home-team-logo-container,
+.country-matches-container .away-team-logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+/* Match score container styling */
+.country-matches-container .match-score-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  height: 100%;
+  flex-direction: column;
+}
+
+/* Winner styling */
+.country-matches-container .home-team-name.winner,
+.country-matches-container .away-team-name.winner {
+  font-weight: 600;
+  color: #059669;
 }
 
 /* Bottom grid for penalty results - EXACTLY like MyLogoPositioning */
