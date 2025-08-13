@@ -101,7 +101,7 @@ class SmartLeagueCountryTranslation {
       'es': 'Alemania', 'de': 'Deutschland', 'it': 'Germania', 'pt': 'Alemanha'
     },
     'France': {
-      'zh': '法國', 'zh-hk': '法國', 'zh-tw': '法國',
+      'zh': '法国', 'zh-hk': '法國', 'zh-tw': '法國',
       'es': 'Francia', 'de': 'Frankreich', 'it': 'Francia', 'pt': 'França'
     },
     'Netherlands': {
@@ -125,7 +125,7 @@ class SmartLeagueCountryTranslation {
       'es': 'Austria', 'de': 'Österreich', 'it': 'Austria', 'pt': 'Áustria'
     },
     'Czech Republic': {
-      'zh': '捷克共和國', 'zh-hk': '捷克共和國', 'zh-tw': '捷克共和國',
+      'zh': '捷克共和国', 'zh-hk': '捷克共和國', 'zh-tw': '捷克共和國',
       'es': 'República Checa', 'de': 'Tschechische Republik', 'it': 'Repubblica Ceca', 'pt': 'República Tcheca'
     },
     'Slovakia': {
@@ -1133,7 +1133,7 @@ class SmartLeagueCountryTranslation {
       'es': 'Alemania', 'de': 'Deutschland', 'it': 'Germania', 'pt': 'Alemanha'
     },
     'France': {
-      'zh': '法國', 'zh-hk': '法國', 'zh-tw': '法國',
+      'zh': '法国', 'zh-hk': '法國', 'zh-tw': '法國',
       'es': 'Francia', 'de': 'Frankreich', 'it': 'Francia', 'pt': 'França'
     },
     'Brazil': {
@@ -1576,7 +1576,6 @@ class SmartLeagueCountryTranslation {
   // Generate mappings for mixed language league names
   private generateMixedLanguageMapping(leagueName: string, countryName: string): LeagueTranslation | null {
     const translations: any = { en: leagueName };
-
     // Extract country from the league name
     const countryMatch = leagueName.match(/^([a-zA-Z\s]+)/);
     const extractedCountry = countryMatch ? countryMatch[1].trim() : countryName;
@@ -2035,7 +2034,7 @@ class SmartLeagueCountryTranslation {
       'serie a': '意大利',
       'bundesliga': '德国',
       'ligue 1': '法国',
-      'primeira liga': '葡萄牙',
+      'primera liga': '葡萄牙',
       'eredivisie': '荷兰',
       'russian': '俄罗斯',
       'ukrainian': '乌克兰',
@@ -2771,6 +2770,7 @@ class SmartLeagueCountryTranslation {
       { name: 'CONMEBOL南美盃', country: 'World' },
       { name: 'CONMEBOL自由盃', country: 'World' },
       { name: 'AFC盃', country: 'World' },
+      { name: 'UEFA超級盃', country: 'Europe' },
       { name: 'UEFA超級盃', country: 'Europe' },
       { name: '世界聯賽', country: 'World' },
       { name: 'Concacaf Central American Cup', country: 'World' },
