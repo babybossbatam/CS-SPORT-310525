@@ -143,17 +143,32 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       };
     } = {};
 
-    // Debug: Count World fixtures
-    const worldFixtures = allFixtures.filter(f => f?.league?.country === "World");
-    console.log(`🌍 [MyAllLeagueList] Total World fixtures for ${selectedDate}:`, worldFixtures.length);
+    // Enhanced date filtering - only include fixtures that match the selected date exactly
+    const selectedDateOnly = selectedDate; // e.g., "2025-01-15"
+    const validFixtures = allFixtures.filter(fixture => {
+      if (!fixture?.fixture?.date) return false;
+      
+      // Extract date from fixture (handle both local and UTC dates)
+      const fixtureDate = new Date(fixture.fixture.date);
+      const fixtureDateString = fixtureDate.toISOString().split('T')[0]; // Get YYYY-MM-DD format
+      
+      // Only include fixtures that match the selected date exactly
+      return fixtureDateString === selectedDateOnly;
+    });
+
+    // Debug: Count World fixtures after strict date filtering
+    const worldFixtures = validFixtures.filter(f => f?.league?.country === "World");
+    console.log(`🌍 [MyAllLeagueList] World fixtures for ${selectedDate} (after date filter):`, worldFixtures.length);
+    console.log(`🌍 [MyAllLeagueList] Total fixtures before date filter:`, allFixtures.length);
+    console.log(`🌍 [MyAllLeagueList] Total fixtures after date filter:`, validFixtures.length);
     
     if (worldFixtures.length > 0) {
       const worldLeagues = [...new Set(worldFixtures.map(f => f.league?.name))];
-      console.log(`🌍 [MyAllLeagueList] World leagues today:`, worldLeagues);
+      console.log(`🌍 [MyAllLeagueList] World leagues for ${selectedDate}:`, worldLeagues);
     }
 
-    // Process all fixtures with enhanced validation
-    for (const fixture of allFixtures) {
+    // Process only the date-filtered fixtures
+    for (const fixture of validFixtures) {
       // Comprehensive validation
       if (
         !fixture?.league?.id ||
@@ -219,6 +234,9 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         liveMatches: tempCountries[country].liveMatches,
       };
     });
+
+    // Final debug log
+    console.log(`🌍 [MyAllLeagueList] Final World country data:`, grouped["World"]);
 
     return grouped;
   }, [fixtures]);
