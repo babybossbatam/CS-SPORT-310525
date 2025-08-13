@@ -743,28 +743,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       "P",
                       "INT",
                     ].includes(status);
-                    if (isCurrentlyLive) {
-                      console.log(
-                        `🔴 [MyHomeFeaturedMatchNew] Preserving live match:`,
-                        {
-                          home: fixture.teams?.home?.name,
-                          away: fixture.teams?.away?.name,
-                          league: fixture.league?.name,
-                          status: status,
-                          minutesFromKickoff: minutesFromKickoff.toFixed(1),
-                        },
-                      );
-                      // For live matches, bypass the isNotLive check
-                      return (
-                        hasValidTeams &&
-                        !isWomensCompetition &&
-                        !isOberligaLeague &&
-                        !isRegionalligaLeague &&
-                        !is3Liga &&
-                        !isExplicitlyExcluded
-                      );
-                    }
-
+                    
                     // Exclude women's competitions and Oberliga leagues
                     const leagueName =
                       fixture.league?.name?.toLowerCase() || "";
