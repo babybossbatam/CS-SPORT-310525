@@ -2315,11 +2315,8 @@ class SmartLeagueCountryTranslation {
 
     const cacheKey = `${leagueName}-${language}`;
 
-    // For mixed language leagues, skip cache and force fresh translation
-    const isMixedLanguage = this.detectMixedLanguageLeague(leagueName);
-    
-    // Check local cache first (skip for mixed language leagues to force fresh translation)
-    if (!isMixedLanguage && this.leagueCache.has(cacheKey)) {
+    // Check local cache first
+    if (this.leagueCache.has(cacheKey)) {
       return this.leagueCache.get(cacheKey);
     }
 
@@ -2335,21 +2332,6 @@ class SmartLeagueCountryTranslation {
     if (learned && learned[language]) {
       this.leagueCache.set(cacheKey, learned[language]);
       return learned[language];
-    }
-
-    // For mixed language leagues, force generate new mapping
-    if (isMixedLanguage) {
-      const mixedMapping = this.generateMixedLanguageMapping(leagueName, '');
-      if (mixedMapping && mixedMapping[language]) {
-        // Store the mapping for future use
-        this.learnedLeagueMappings.set(leagueName, mixedMapping);
-        this.coreLeagueTranslations[leagueName] = mixedMapping;
-        this.saveLearnedMappings();
-        
-        this.leagueCache.set(cacheKey, mixedMapping[language]);
-        console.log(`🔧 [Mixed Language Translation] "${leagueName}" → "${mixedMapping[language]}" (${language})`);
-        return mixedMapping[language];
-      }
     }
 
     // Generate translation using various methods
@@ -2753,16 +2735,6 @@ class SmartLeagueCountryTranslation {
         fixed++;
         
         console.log(`🎯 [Specific Fix] "${name}" → properly translated for all languages`);
-        console.log(`🎯 [Specific Fix] Translations:`, {
-          en: mapping.en,
-          'zh-hk': mapping['zh-hk'],
-          'zh-tw': mapping['zh-tw'],
-          'zh': mapping['zh'],
-          es: mapping.es,
-          de: mapping.de,
-          it: mapping.it,
-          pt: mapping.pt
-        });
       }
     });
 

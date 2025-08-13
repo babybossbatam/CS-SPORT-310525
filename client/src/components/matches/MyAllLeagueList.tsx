@@ -108,20 +108,6 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
           // Also trigger mass learning for missing leagues
           smartLeagueCountryTranslation.learnMissingLeagueNames();
 
-          // Force immediate learning of the specific problematic leagues
-          const problematicLeagues = [
-            { name: 'Dominican-Republic聯賽', country: 'Dominican Republic' },
-            { name: 'Czech-Republic聯賽', country: 'Czech Republic' },
-            { name: 'Netherlands聯賽', country: 'Netherlands' },
-            { name: 'Bulgaria聯賽', country: 'Bulgaria' }
-          ];
-
-          problematicLeagues.forEach(league => {
-            smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(league.name, {
-              countryName: league.country
-            });
-          });
-
           console.log(`✅ [Auto-Learning] Completed aggressive learning from ${fixturesData.length} fixtures`);
         };
 
@@ -133,7 +119,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     setError(
       fixturesError ? "Failed to load fixtures. Please try again later." : null,
     );
-  }, [fixturesData, isFixturesLoading, fixturesError, currentLanguage]); // Add currentLanguage to deps
+  }, [fixturesData, isFixturesLoading, fixturesError]);
 
   // Optimized: Group leagues by country with enhanced filtering and accurate counts
   const leaguesByCountry = useMemo(() => {
@@ -824,30 +810,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                                         leagueData.league.name,
                                         0,
                                       ) || "Unknown League";
-                                    
-                                    // Force fresh translation by clearing cache for this specific league first
-                                    const cacheKey = `${originalName}-${currentLanguage}`;
-                                    
-                                    // Try to get translation, forcing a fresh lookup for mixed language leagues
-                                    let translatedName = smartLeagueCountryTranslation.translateLeagueName(
-                                      originalName,
-                                      currentLanguage,
-                                    );
-                                    
-                                    // If it's the same as original and looks like mixed language, force learning
-                                    if (translatedName === originalName && 
-                                        (originalName.includes('聯賽') || originalName.includes('联赛'))) {
-                                      // Force immediate learning for this specific league
-                                      smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(originalName, {
-                                        countryName: leagueData.league.country || ''
-                                      });
-                                      // Try translation again
-                                      translatedName = smartLeagueCountryTranslation.translateLeagueName(
+                                    const translatedName =
+                                      smartLeagueCountryTranslation.translateLeagueName(
                                         originalName,
                                         currentLanguage,
                                       );
-                                    }
-                                    
                                     return translatedName;
                                   })()}
                                 </span>
