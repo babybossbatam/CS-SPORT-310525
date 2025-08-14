@@ -26,6 +26,7 @@ import {
 } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 import { ALL_COUNTRIES } from "@/lib/constants";
+import { LEAGUES_BY_COUNTRY, getLeaguesForCountry, mergeStaticWithDynamicLeagues, LeagueInfo } from "@/lib/constants/leaguesByCountry";
 
 interface MyAllLeagueListProps {
   selectedDate: string;
@@ -101,13 +102,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     );
   }, [fixturesData, isFixturesLoading, fixturesError]);
 
-  // Optimized: Group leagues by country with better performance
+  // Optimized: Group leagues by country using static data + fixtures
   const leaguesByCountry = useMemo(() => {
     const allFixtures = fixtures || [];
-    if (!allFixtures?.length) {
-      return {};
-    }
-
+    
+    // Initialize with static league data
     const grouped: {
       [key: string]: {
         country: string;
@@ -117,15 +116,38 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       };
     } = {};
 
+    // First, populate with static leagues (no matches initially)
+    Object.keys(LEAGUES_BY_COUNTRY).forEach(country => {
+      const staticLeagues = getLeaguesForCountry(country);
+      grouped[country] = {
+        country,
+        leagues: {},
+        totalMatches: 0,
+        liveMatches: 0,
+      };
+
+      // Initialize static leagues with zero counts
+      staticLeagues.forEach(league => {
+        grouped[country].leagues[league.id] = {
+          league: {
+            id: league.id,
+            name: league.name,
+            logo: league.logo,
+            country: league.country
+          },
+          matchCount: 0,
+          liveMatchCount: 0,
+        };
+      });
+    });
+
+    // If no fixtures, return static data with zero counts
+    if (!allFixtures?.length) {
+      return grouped;
+    }
+
     const liveStatuses = new Set(["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"]);
     const seenFixtures = new Set<number>();
-    const tempCountries: {
-      [key: string]: {
-        leagues: { [key: number]: any };
-        totalMatches: number;
-        liveMatches: number;
-      };
-    } = {};
 
     // Pre-filter fixtures by date
     const validFixtures = allFixtures.filter(fixture => {
@@ -142,7 +164,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       return isValidDate;
     });
 
-    // Process fixtures efficiently
+    // Now update with actual fixture data
     for (const fixture of validFixtures) {
       const country = fixture.league.country || "Unknown";
       const leagueId = fixture.league.id;
@@ -152,12 +174,19 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       const isLive = liveStatuses.has(status) &&
         (Date.now() - new Date(fixture.fixture.date).getTime()) <= 4 * 60 * 60 * 1000;
 
-      // Initialize country/league data efficiently
-      if (!tempCountries[country]) {
-        tempCountries[country] = { leagues: {}, totalMatches: 0, liveMatches: 0 };
+      // Initialize country if not in static data
+      if (!grouped[country]) {
+        grouped[country] = {
+          country,
+          leagues: {},
+          totalMatches: 0,
+          liveMatches: 0,
+        };
       }
 
-      const countryData = tempCountries[country];
+      const countryData = grouped[country];
+      
+      // Initialize league if not in static data
       if (!countryData.leagues[leagueId]) {
         countryData.leagues[leagueId] = {
           league: fixture.league,
@@ -174,16 +203,6 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         countryData.leagues[leagueId].liveMatchCount++;
         countryData.liveMatches++;
       }
-    }
-
-    // Convert to final format
-    for (const country in tempCountries) {
-      grouped[country] = {
-        country,
-        leagues: tempCountries[country].leagues,
-        totalMatches: tempCountries[country].totalMatches,
-        liveMatches: tempCountries[country].liveMatches,
-      };
     }
 
     return grouped;
