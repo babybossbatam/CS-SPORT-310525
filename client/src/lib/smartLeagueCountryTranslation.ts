@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
+// Assuming ALL_COUNTRIES and MAJOR_LEAGUES are imported from your data source (e.g., countriesAndLeagues.ts)
+// For demonstration purposes, let's assume they are available globally or imported here.
+// You will need to replace these with your actual imports.
+declare const ALL_COUNTRIES: Array<{ name: string; code?: string; translations?: { [key: string]: string } }>;
+declare const MAJOR_LEAGUES: Array<{ name: string; country?: string }>;
+declare const COUNTRY_TRANSLATIONS: { [key: string]: { [key: string]: string } };
+
 interface LeagueTranslation {
   [key: string]: {
     zh: string;
@@ -43,8 +50,8 @@ class SmartLeagueCountryTranslation {
   private translationCache = new Map<string, { translation: string; timestamp: number }>();
   private isLoading = false;
 
-  // Comprehensive country translations - includes all major countries
-  private popularCountries: CountryTranslation = {
+  // Popular country translations - manually curated for high-quality results
+  private popularCountries: { [key: string]: any } = {
     'World': {
       'zh': '世界', 'zh-hk': '世界', 'zh-tw': '世界',
       'es': 'Mundial', 'de': 'Welt', 'it': 'Mondo', 'pt': 'Mundial'
@@ -509,19 +516,13 @@ class SmartLeagueCountryTranslation {
   };
 
   constructor() {
+    this.loadLearnedMappings();
     this.clearCache();
     this.fixCorruptedCache();
-    this.loadLearnedMappings();
-    this.integrateAutomatedMappings();
-
-    // Auto-learn problematic leagues immediately on startup
-    this.learnProblematicLeagueNames();
-    this.fixMixedLanguageLeagues();
-
-    // Also fix the specific leagues from your screenshot immediately
-    this.fixSpecificMixedLeagues();
-
-    console.log('🔄 [SmartLeagueCountryTranslation] Initialized with cache cleared and immediate translation fixes applied');
+    this.applyImmediateTranslationFixes();
+    // Initialize comprehensive country mappings from countriesAndLeagues.ts
+    this.popularCountries = { ...this.popularCountries, ...this.initializeComprehensiveCountryMappings() };
+    this.initializeLeagueMappings();
   }
 
   // Core league translations
@@ -1157,6 +1158,162 @@ class SmartLeagueCountryTranslation {
     }
   };
 
+  // Initialize comprehensive country mappings from ALL_COUNTRIES
+  private initializeComprehensiveCountryMappings(): { [key: string]: any } {
+    const mappings: { [key: string]: any } = {};
+
+    // Process all countries from countriesAndLeagues.ts
+    ALL_COUNTRIES.forEach(country => {
+      // Use existing COUNTRY_TRANSLATIONS if available
+      const existingTranslation = COUNTRY_TRANSLATIONS[country.name];
+      if (existingTranslation) {
+        mappings[country.name] = existingTranslation;
+        // Also map by country code
+        if (country.code) {
+          mappings[country.code] = existingTranslation;
+        }
+      } else {
+        // Generate basic mapping for countries not in COUNTRY_TRANSLATIONS
+        mappings[country.name] = this.generateBasicCountryMapping(country.name);
+        if (country.code) {
+          mappings[country.code] = mappings[country.name];
+        }
+      }
+
+      // Handle name variations
+      const variations = this.generateCountryNameVariations(country.name);
+      variations.forEach(variation => {
+        if (!mappings[variation]) {
+          mappings[variation] = mappings[country.name];
+        }
+      });
+    });
+
+    return mappings;
+  }
+
+  // Generate country name variations for better matching
+  private generateCountryNameVariations(countryName: string): string[] {
+    const variations = [countryName];
+
+    // Common variations
+    const variationMap: { [key: string]: string[] } = {
+      'United States': ['USA', 'United States of America', 'US'],
+      'United Kingdom': ['UK', 'Britain', 'Great Britain'],
+      'Bosnia and Herzegovina': ['Bosnia-Herzegovina', 'Bosnia & Herzegovina'],
+      'Trinidad and Tobago': ['Trinidad & Tobago'],
+      'Saint Kitts and Nevis': ['St. Kitts and Nevis'],
+      'Saint Lucia': ['St. Lucia'],
+      'Saint Vincent and the Grenadines': ['St. Vincent and the Grenadines'],
+      'São Tomé and Príncipe': ['Sao Tome and Principe'],
+      'Democratic Republic of the Congo': ['DR Congo', 'Congo DR'],
+      'Republic of the Congo': ['Congo', 'Congo Republic'],
+      'Czech Republic': ['Czechia'],
+      'North Macedonia': ['Macedonia'],
+      'South Korea': ['Korea Republic', 'Korea'],
+      'North Korea': ['Korea DPR'],
+      'Chinese Taipei': ['Taiwan'],
+      'Hong Kong': ['Hong Kong SAR']
+    };
+
+    if (variationMap[countryName]) {
+      variations.push(...variationMap[countryName]);
+    }
+
+    return variations;
+  }
+
+  // Generate basic country mapping for countries not in manual translations
+  private generateBasicCountryMapping(countryName: string): any {
+    // This is a simplified mapping - you can enhance this based on your needs
+    return {
+      zh: countryName, // Fallback to original name
+      'zh-hk': countryName,
+      'zh-tw': countryName,
+      es: countryName,
+      de: countryName,
+      it: countryName,
+      pt: countryName
+    };
+  }
+
+  // Initialize league mappings from MAJOR_LEAGUES
+  private initializeLeagueMappings(): void {
+    console.log(`🏆 [SmartLeagueCountryTranslation] Initializing ${MAJOR_LEAGUES.length} major league mappings...`);
+
+    let newLeagueMappings = 0;
+    MAJOR_LEAGUES.forEach(league => {
+      const leagueName = league.name;
+      const countryName = league.country;
+
+      // Skip if we already have this mapping
+      if (this.learnedLeagueMappings.has(leagueName)) {
+        return;
+      }
+
+      // Generate mapping for this league
+      const mapping = this.generateLeagueMapping(leagueName, countryName);
+      if (mapping) {
+        this.learnedLeagueMappings.set(leagueName, mapping);
+        newLeagueMappings++;
+
+        console.log(`🏆 [League Mapping] Added: "${leagueName}" (${countryName})`);
+      }
+
+      // Handle league name variations
+      const variations = this.generateLeagueNameVariations(leagueName);
+      variations.forEach(variation => {
+        if (!this.learnedLeagueMappings.has(variation)) {
+          const varMapping = this.generateLeagueMapping(variation, countryName);
+          if (varMapping) {
+            this.learnedLeagueMappings.set(variation, varMapping);
+            newLeagueMappings++;
+          }
+        }
+      });
+    });
+
+    if (newLeagueMappings > 0) {
+      this.saveLearnedMappings();
+      console.log(`🏆 [League Mappings] Successfully initialized ${newLeagueMappings} league mappings from major leagues`);
+    }
+  }
+
+  // Generate league name variations for better matching
+  private generateLeagueNameVariations(leagueName: string): string[] {
+    const variations = [];
+
+    // Common league name variations
+    const variationMap: { [key: string]: string[] } = {
+      'Premier League': ['English Premier League', 'EPL'],
+      'La Liga': ['LaLiga', 'Spanish La Liga', 'Primera División'],
+      'Serie A': ['Italian Serie A'],
+      'Bundesliga': ['German Bundesliga'],
+      'Ligue 1': ['French Ligue 1', 'Ligue 1 Uber Eats'],
+      'UEFA Champions League': ['Champions League', 'UCL'],
+      'UEFA Europa League': ['Europa League', 'UEL'],
+      'UEFA Europa Conference League': ['Conference League', 'UECL'],
+      'FIFA World Cup': ['World Cup', 'WC'],
+      'Copa Libertadores': ['CONMEBOL Libertadores'],
+      'Copa Sudamericana': ['CONMEBOL Sudamericana']
+    };
+
+    if (variationMap[leagueName]) {
+      variations.push(...variationMap[leagueName]);
+    }
+
+    // Generic variations
+    if (leagueName.includes('Cup')) {
+      variations.push(leagueName.replace('Cup', 'Tournament'));
+    }
+    if (leagueName.includes('League')) {
+      variations.push(leagueName.replace('League', 'Championship'));
+    }
+
+    return variations;
+  }
+
+
   private clearCache() {
     this.leagueCache.clear();
     this.countryCache.clear();
@@ -1185,13 +1342,13 @@ class SmartLeagueCountryTranslation {
       const storedCountries = localStorage.getItem('learnedCountryMappings');
 
       if (storedLeagues) {
-        const mappings = JSON.parse(storedLeagues);
+        const mappings = JSON.Parse(storedLeagues);
         this.learnedLeagueMappings = new Map(Object.entries(mappings));
         console.log(`🎓 [SmartLeagueCountryTranslation] Loaded ${this.learnedLeagueMappings.size} learned league mappings`);
       }
 
       if (storedCountries) {
-        const mappings = JSON.parse(storedCountries);
+        const mappings = JSON.Parse(storedCountries);
         this.learnedCountryMappings = new Map(Object.entries(mappings));
         console.log(`🎓 [SmartLeagueCountryTranslation] Loaded ${this.learnedCountryMappings.size} learned country mappings`);
       }
@@ -1322,8 +1479,8 @@ class SmartLeagueCountryTranslation {
     );
   }
 
-  // Enhanced learning from fixtures data with comprehensive country detection and intelligent pattern recognition
-  learnFromFixtures(fixtures: any[]): void {
+  // Enhanced league learning with mixed language detection
+  massLearnFromFixtures(fixtures: any[]): void {
     let newLeagueMappings = 0;
     let newCountryMappings = 0;
     let updatedMappings = 0;
@@ -1566,18 +1723,18 @@ class SmartLeagueCountryTranslation {
   // Generate mappings for mixed language league names
   private generateMixedLanguageMapping(leagueName: string, countryName: string): LeagueTranslation | null {
     const translations: any = {};
-    
+
     // Extract country from the league name, handle hyphenated countries
     const countryMatch = leagueName.match(/^([a-zA-Z\s-]+)/);
     let extractedCountry = countryMatch ? countryMatch[1].trim() : countryName;
-    
+
     // Handle specific hyphenated countries
     if (extractedCountry === 'Czech-Republic') {
       extractedCountry = 'Czech Republic';
     } else if (extractedCountry === 'Dominican-Republic') {
       extractedCountry = 'Dominican Republic';
     }
-    
+
     // Use provided country name if available, otherwise use extracted
     const finalCountry = countryName || extractedCountry;
 
@@ -2105,206 +2262,95 @@ class SmartLeagueCountryTranslation {
     return cleanName;
   }
 
+  // Generate mapping for missing countries
   private generateCountryMapping(countryName: string): CountryTranslation | null {
-    // First normalize the country name (convert Chinese to English if needed)
-    const normalizedName = this.detectAndNormalizeCountryName(countryName);
+    // First try to get mapping from countriesAndLeagues constants
+    const constantMapping = this.getCountryMappingFromConstants(countryName);
+    if (constantMapping) {
+      console.log(`🌍 [Country Mapping] Using countriesAndLeagues data for: ${countryName}`);
+      return constantMapping;
+    }
 
-    const translations: any = {
-      en: normalizedName,
-      es: normalizedName,
-      de: normalizedName,
-      it: normalizedName,
-      pt: normalizedName,
-      zh: normalizedName,
-      'zh-hk': normalizedName,
-      'zh-tw': normalizedName
+    // Fall back to existing logic
+    console.log(`🔄 [Country Mapping] Generating mapping for: ${countryName}`);
+
+    // Try the existing manual mappings first
+    const manualMapping = this.popularCountries[countryName];
+    if (manualMapping) {
+      return manualMapping;
+    }
+
+    // Normalize and try again
+    const normalizedName = this.detectAndNormalizeCountryName(countryName);
+    const normalizedManualMapping = this.popularCountries[normalizedName];
+    if (normalizedManualMapping) {
+      return normalizedManualMapping;
+    }
+
+    // If still no mapping found, create a basic one
+    return this.createEmptyCountryMapping(countryName);
+  }
+
+  // Get country mapping from ALL_COUNTRIES data
+  private getCountryMappingFromConstants(countryName: string): CountryTranslation | null {
+    const normalizedName = this.detectAndNormalizeCountryName(countryName); // Ensure consistent naming
+
+    // Find the country in ALL_COUNTRIES
+    const countryData = ALL_COUNTRIES.find(c =>
+      c.name === normalizedName ||
+      c.code === normalizedName ||
+      (c.name && c.name.toLowerCase() === normalizedName.toLowerCase()) ||
+      (c.code && c.code.toLowerCase() === normalizedName.toLowerCase())
+    );
+
+    if (!countryData) {
+      // Try variations as well
+      const variations = this.generateCountryNameVariations(normalizedName);
+      for (const variation of variations) {
+        const variationData = ALL_COUNTRIES.find(c => c.name === variation || c.code === variation);
+        if (variationData) {
+          return this.mapCountryDataToTranslation(variationData);
+        }
+      }
+      return null; // Not found in constants
+    }
+
+    return this.mapCountryDataToTranslation(countryData);
+  }
+
+  // Map country data to the translation interface
+  private mapCountryDataToTranslation(countryData: { name: string; code?: string; translations?: { [key: string]: string } }): CountryTranslation {
+    const translation: CountryTranslation = {
+      en: countryData.name,
+      es: countryData.name,
+      de: countryData.name,
+      it: countryData.name,
+      pt: countryData.name,
+      zh: countryData.name,
+      'zh-hk': countryData.name,
+      'zh-tw': countryData.name
     };
 
-    // Enhanced pattern matching for common country names
-    const lowerName = normalizedName.toLowerCase();
-
-    // Czech Republic
-    if (lowerName.includes('czech republic') || lowerName === 'czech republic') {
-      translations.zh = '捷克共和国';
-      translations['zh-hk'] = '捷克共和國';
-      translations['zh-tw'] = '捷克共和國';
-      translations.es = 'República Checa';
-      translations.de = 'Tschechische Republik';
-      translations.it = 'Repubblica Ceca';
-      translations.pt = 'República Tcheca';
-    }
-    // Dominican Republic
-    else if (lowerName.includes('dominican republic') || lowerName === 'dominican republic') {
-      translations.zh = '多米尼加共和国';
-      translations['zh-hk'] = '多明尼加共和國';
-      translations['zh-tw'] = '多明尼加共和國';
-      translations.es = 'República Dominicana';
-      translations.de = 'Dominikanische Republik';
-      translations.it = 'Repubblica Dominicana';
-      translations.pt = 'República Dominicana';
-    }
-    // Ecuador
-    else if (lowerName === 'ecuador') {
-      translations.zh = '厄瓜多尔';
-      translations['zh-hk'] = '厄瓜多爾';
-      translations['zh-tw'] = '厄瓜多爾';
-      translations.es = 'Ecuador';
-      translations.de = 'Ecuador';
-      translations.it = 'Ecuador';
-      translations.pt = 'Equador';
-    }
-    // Estonia
-    else if (lowerName === 'estonia') {
-      translations.zh = '爱沙尼亚';
-      translations['zh-hk'] = '愛沙尼亞';
-      translations['zh-tw'] = '愛沙尼亞';
-      translations.es = 'Estonia';
-      translations.de = 'Estland';
-      translations.it = 'Estonia';
-      translations.pt = 'Estônia';
-    }
-    // Georgia
-    else if (lowerName === 'georgia') {
-      translations.zh = '格鲁吉亚';
-      translations['zh-hk'] = '格魯吉亞';
-      translations['zh-tw'] = '格魯吉亞';
-      translations.es = 'Georgia';
-      translations.de = 'Georgien';
-      translations.it = 'Georgia';
-      translations.pt = 'Geórgia';
-    }
-    // Slovenia
-    else if (lowerName === 'slovenia') {
-      translations.zh = '斯洛文尼亚';
-      translations['zh-hk'] = '斯洛文尼亞';
-      translations['zh-tw'] = '斯洛維尼亞';
-      translations.es = 'Eslovenia';
-      translations.de = 'Slowenien';
-      translations.it = 'Slovenia';
-      translations.pt = 'Eslovênia';
-    }
-    // Slovakia
-    else if (lowerName === 'slovakia') {
-      translations.zh = '斯洛伐克';
-      translations['zh-hk'] = '斯洛伐克';
-      translations['zh-tw'] = '斯洛伐克';
-      translations.es = 'Eslovaquia';
-      translations.de = 'Slowakei';
-      translations.it = 'Slovacchia';
-      translations.pt = 'Eslováquia';
-    }
-    // Lithuania
-    else if (lowerName === 'lithuania') {
-      translations.zh = '立陶宛';
-      translations['zh-hk'] = '立陶宛';
-      translations['zh-tw'] = '立陶宛';
-      translations.es = 'Lituania';
-      translations.de = 'Litauen';
-      translations.it = 'Lituania';
-      translations.pt = 'Lituânia';
-    }
-    // Latvia
-    else if (lowerName === 'latvia') {
-      translations.zh = '拉脱维亚';
-      translations['zh-hk'] = '拉脫維亞';
-      translations['zh-tw'] = '拉脫維亞';
-      translations.es = 'Letonia';
-      translations.de = 'Lettland';
-      translations.it = 'Lettonia';
-      translations.pt = 'Letônia';
-    }
-    // Moldova
-    else if (lowerName === 'moldova') {
-      translations.zh = '摩尔多瓦';
-      translations['zh-hk'] = '摩爾多瓦';
-      translations['zh-tw'] = '蒙特內哥羅';
-      translations.es = 'Moldavia';
-      translations.de = 'Moldau';
-      translations.it = 'Moldavia';
-      translations.pt = 'Moldávia';
-    }
-    // North Macedonia
-    else if (lowerName.includes('north macedonia') || lowerName === 'north macedonia') {
-      translations.zh = '北马其顿';
-      translations['zh-hk'] = '北馬其頓';
-      translations['zh-tw'] = '北馬其頓';
-      translations.es = 'Macedonia del Norte';
-      translations.de = 'Nordmazedonien';
-      translations.it = 'Macedonia del Nord';
-      translations.pt = 'Macedônia do Norte';
-    }
-    // Montenegro
-    else if (lowerName === 'montenegro') {
-      translations.zh = '黑山';
-      translations['zh-hk'] = '黑山';
-      translations['zh-tw'] = '蒙特內哥羅';
-      translations.es = 'Montenegro';
-      translations.de = 'Montenegro';
-      translations.it = 'Montenegro';
-      translations.pt = 'Montenegro';
-    }
-    // Albania
-    else if (lowerName === 'albania') {
-      translations.zh = '阿尔巴尼亚';
-      translations['zh-hk'] = '阿爾巴尼亞';
-      translations['zh-tw'] = '阿爾巴尼亞';
-      translations.es = 'Albania';
-      translations.de = 'Albanien';
-      translations.it = 'Albania';
-      translations.pt = 'Albânia';
-    }
-    // Libya
-    else if (lowerName === 'libya') {
-      translations.zh = '利比亚';
-      translations['zh-hk'] = '利比亞';
-      translations['zh-tw'] = '利比亞';
-      translations.es = 'Libia';
-      translations.de = 'Libyen';
-      translations.it = 'Libia';
-      translations.pt = 'Líbia';
-    }
-    // Macedonia
-    else if (lowerName === 'macedonia') {
-      translations.zh = '马其顿';
-      translations['zh-hk'] = '馬其頓';
-      translations['zh-tw'] = '馬其頓';
-      translations.es = 'Macedonia';
-      translations.de = 'Mazedonien';
-      translations.it = 'Macedonia';
-      translations.pt = 'Macedônia';
-    }
-    // Northern Ireland
-    else if (lowerName.includes('northern ireland') || lowerName === 'northern ireland' || lowerName === 'northern-ireland') {
-      translations.zh = '北爱尔兰';
-      translations['zh-hk'] = '北愛爾蘭';
-      translations['zh-tw'] = '北愛爾蘭';
-      translations.es = 'Irlanda del Norte';
-      translations.de = 'Nordirland';
-      translations.it = 'Irlanda del Nord';
-      translations.pt = 'Irlanda do Norte';
-    }
-    // Turkmenistan
-    else if (lowerName === 'turkmenistan') {
-      translations.zh = '土库曼斯坦';
-      translations['zh-hk'] = '土庫曼斯坦';
-      translations['zh-tw'] = '土庫曼斯坦';
-      translations.es = 'Turkmenistán';
-      translations.de = 'Turkmenistan';
-      translations.it = 'Turkmenistan';
-      translations.pt = 'Turcomenistão';
-    }
-    // USA variations
-    else if (lowerName === 'usa' || lowerName === 'united states' || lowerName === 'united states of america') {
-      translations.zh = '美国';
-      translations['zh-hk'] = '美國';
-      translations['zh-tw'] = '美國';
-      translations.es = 'Estados Unidos';
-      translations.de = 'USA';
-      translations.it = 'Stati Uniti';
-      translations.pt = 'EUA';
+    if (countryData.translations) {
+      // Map known translations
+      Object.keys(translation).forEach(lang => {
+        if (countryData.translations && countryData.translations[lang]) {
+          translation[lang as keyof CountryTranslation[string]] = countryData.translations[lang];
+        }
+      });
     }
 
-    return translations as CountryTranslation;
+    // Use existing popularCountries for fallback if translations are missing
+    const fallbackMapping = this.popularCountries[countryData.name] || this.popularCountries[countryData.code || ''];
+    if (fallbackMapping) {
+      Object.keys(translation).forEach(lang => {
+        if (!translation[lang] || translation[lang] === countryData.name) {
+          translation[lang as keyof CountryTranslation[string]] = fallbackMapping[lang] || countryData.name;
+        }
+      });
+    }
+
+    return translation;
   }
 
   // Main translation method for league names - now synchronous for React rendering
@@ -2317,7 +2363,7 @@ class SmartLeagueCountryTranslation {
 
     // For mixed language leagues, skip cache and force fresh translation
     const isMixedLanguage = this.detectMixedLanguageLeague(leagueName);
-    
+
     // Check local cache first (skip for mixed language leagues to force fresh translation)
     if (!isMixedLanguage && this.leagueCache.has(cacheKey)) {
       return this.leagueCache.get(cacheKey);
@@ -2345,7 +2391,7 @@ class SmartLeagueCountryTranslation {
         this.learnedLeagueMappings.set(leagueName, mixedMapping);
         this.coreLeagueTranslations[leagueName] = mixedMapping;
         this.saveLearnedMappings();
-        
+
         this.leagueCache.set(cacheKey, mixedMapping[language]);
         console.log(`🔧 [Mixed Language Translation] "${leagueName}" → "${mixedMapping[language]}" (${language})`);
         return mixedMapping[language];
@@ -2747,11 +2793,11 @@ class SmartLeagueCountryTranslation {
       if (mapping) {
         // Force override any existing mapping
         this.learnedLeagueMappings.set(name, mapping);
-        
+
         // Also add to core translations for immediate access
         this.coreLeagueTranslations[name] = mapping;
         fixed++;
-        
+
         console.log(`🎯 [Specific Fix] "${name}" → properly translated for all languages`);
         console.log(`🎯 [Specific Fix] Translations:`, {
           en: mapping.en,
