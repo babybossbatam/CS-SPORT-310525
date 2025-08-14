@@ -17,7 +17,6 @@ interface LanguageContextType {
   getMatchStatusTranslation: (status: string, language: string) => string;
   learnFromFixtures: (fixtures: any[]) => void;
   learnFromPlayerData: (players: any[]) => void;
-  exportTranslationMappings: () => Record<string, Record<string, string>>;
 }
 
 const manualRoundTranslations = {
@@ -2236,13 +2235,6 @@ export const LanguageProvider: React.FC<{
     return countryName;
   };
 
-  // Debug method to export all translation mappings
-  const exportTranslationMappings = (): Record<string, Record<string, string>> => {
-    const mappings = smartLeagueCountryTranslation.exportAllMappings();
-    console.log(`🗺️ [Translation Mappings Export]`, mappings);
-    return mappings;
-  };
-
   // Team name translation function with comprehensive translations
   const translateTeamName = (teamName: string): string => {
     if (!teamName) return '';
@@ -2451,7 +2443,7 @@ export const LanguageProvider: React.FC<{
       },
       'AET': {
         'en': 'After Extra Time',
-        'zh': '加時后结束',
+        'zh': '加时后结束',
         'zh-hk': '加時後結束',
         'zh-tw': '加時後結束',
         'es': 'Después del Tiempo Extra',
@@ -2619,8 +2611,7 @@ export const LanguageProvider: React.FC<{
     translatePositionName,
     getMatchStatusTranslation,
     learnFromFixtures,
-    learnFromPlayerData,
-    exportTranslationMappings
+    learnFromPlayerData
   };
 
   return (
@@ -2649,7 +2640,6 @@ export const useLanguage = () => {
       getMatchStatusTranslation: (status: string) => status,
       learnFromFixtures: () => {},
       learnFromPlayerData: () => {},
-      exportTranslationMappings: () => ({})
     };
   }
   return context;

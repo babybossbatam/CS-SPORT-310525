@@ -1,3 +1,221 @@
+// Translation interfaces
+interface CountryTranslations {
+  [key: string]: {
+    en: string;
+    zh: string;
+    'zh-hk': string;
+    'zh-tw': string;
+    es: string;
+    de: string;
+    it: string;
+    pt: string;
+  };
+}
+
+interface LeagueTranslations {
+  [key: string]: {
+    en: string;
+    zh: string;
+    'zh-hk': string;
+    'zh-tw': string;
+    es: string;
+    de: string;
+    it: string;
+    pt: string;
+  };
+}
+
+// Country translations mapping
+const COUNTRY_TRANSLATIONS: CountryTranslations = {
+  // Europe
+  'Andorra': {
+    en: 'Andorra', zh: '安道尔', 'zh-hk': '安道爾', 'zh-tw': '安道爾',
+    es: 'Andorra', de: 'Andorra', it: 'Andorra', pt: 'Andorra'
+  },
+  'Albania': {
+    en: 'Albania', zh: '阿尔巴尼亚', 'zh-hk': '阿爾巴尼亞', 'zh-tw': '阿爾巴尼亞',
+    es: 'Albania', de: 'Albanien', it: 'Albania', pt: 'Albânia'
+  },
+  'Armenia': {
+    en: 'Armenia', zh: '亚美尼亚', 'zh-hk': '亞美尼亞', 'zh-tw': '亞美尼亞',
+    es: 'Armenia', de: 'Armenien', it: 'Armenia', pt: 'Armênia'
+  },
+  'Austria': {
+    en: 'Austria', zh: '奥地利', 'zh-hk': '奧地利', 'zh-tw': '奧地利',
+    es: 'Austria', de: 'Österreich', it: 'Austria', pt: 'Áustria'
+  },
+  'Belgium': {
+    en: 'Belgium', zh: '比利时', 'zh-hk': '比利時', 'zh-tw': '比利時',
+    es: 'Bélgica', de: 'Belgien', it: 'Belgio', pt: 'Bélgica'
+  },
+  'England': {
+    en: 'England', zh: '英格兰', 'zh-hk': '英格蘭', 'zh-tw': '英格蘭',
+    es: 'Inglaterra', de: 'England', it: 'Inghilterra', pt: 'Inglaterra'
+  },
+  'France': {
+    en: 'France', zh: '法国', 'zh-hk': '法國', 'zh-tw': '法國',
+    es: 'Francia', de: 'Frankreich', it: 'Francia', pt: 'França'
+  },
+  'Germany': {
+    en: 'Germany', zh: '德国', 'zh-hk': '德國', 'zh-tw': '德國',
+    es: 'Alemania', de: 'Deutschland', it: 'Germania', pt: 'Alemanha'
+  },
+  'Italy': {
+    en: 'Italy', zh: '意大利', 'zh-hk': '意大利', 'zh-tw': '意大利',
+    es: 'Italia', de: 'Italien', it: 'Italia', pt: 'Itália'
+  },
+  'Netherlands': {
+    en: 'Netherlands', zh: '荷兰', 'zh-hk': '荷蘭', 'zh-tw': '荷蘭',
+    es: 'Países Bajos', de: 'Niederlande', it: 'Paesi Bassi', pt: 'Países Baixos'
+  },
+  'Portugal': {
+    en: 'Portugal', zh: '葡萄牙', 'zh-hk': '葡萄牙', 'zh-tw': '葡萄牙',
+    es: 'Portugal', de: 'Portugal', it: 'Portogallo', pt: 'Portugal'
+  },
+  'Spain': {
+    en: 'Spain', zh: '西班牙', 'zh-hk': '西班牙', 'zh-tw': '西班牙',
+    es: 'España', de: 'Spanien', it: 'Spagna', pt: 'Espanha'
+  },
+  'Switzerland': {
+    en: 'Switzerland', zh: '瑞士', 'zh-hk': '瑞士', 'zh-tw': '瑞士',
+    es: 'Suiza', de: 'Schweiz', it: 'Svizzera', pt: 'Suíça'
+  },
+  'Turkey': {
+    en: 'Turkey', zh: '土耳其', 'zh-hk': '土耳其', 'zh-tw': '土耳其',
+    es: 'Turquía', de: 'Türkei', it: 'Turchia', pt: 'Turquia'
+  },
+  // Asia
+  'China': {
+    en: 'China', zh: '中国', 'zh-hk': '中國', 'zh-tw': '中國',
+    es: 'China', de: 'China', it: 'Cina', pt: 'China'
+  },
+  'Japan': {
+    en: 'Japan', zh: '日本', 'zh-hk': '日本', 'zh-tw': '日本',
+    es: 'Japón', de: 'Japan', it: 'Giappone', pt: 'Japão'
+  },
+  'South Korea': {
+    en: 'South Korea', zh: '韩国', 'zh-hk': '韓國', 'zh-tw': '韓國',
+    es: 'Corea del Sur', de: 'Südkorea', it: 'Corea del Sud', pt: 'Coreia do Sul'
+  },
+  // Americas
+  'Brazil': {
+    en: 'Brazil', zh: '巴西', 'zh-hk': '巴西', 'zh-tw': '巴西',
+    es: 'Brasil', de: 'Brasilien', it: 'Brasile', pt: 'Brasil'
+  },
+  'Argentina': {
+    en: 'Argentina', zh: '阿根廷', 'zh-hk': '阿根廷', 'zh-tw': '阿根廷',
+    es: 'Argentina', de: 'Argentinien', it: 'Argentina', pt: 'Argentina'
+  },
+  'USA': {
+    en: 'USA', zh: '美国', 'zh-hk': '美國', 'zh-tw': '美國',
+    es: 'Estados Unidos', de: 'USA', it: 'Stati Uniti', pt: 'Estados Unidos'
+  },
+  'Mexico': {
+    en: 'Mexico', zh: '墨西哥', 'zh-hk': '墨西哥', 'zh-tw': '墨西哥',
+    es: 'México', de: 'Mexiko', it: 'Messico', pt: 'México'
+  },
+  // Special regions
+  'World': {
+    en: 'World', zh: '世界', 'zh-hk': '世界', 'zh-tw': '世界',
+    es: 'Mundial', de: 'Welt', it: 'Mondo', pt: 'Mundial'
+  }
+};
+
+// League translations mapping
+const LEAGUE_TRANSLATIONS: LeagueTranslations = {
+  // England
+  'Premier League': {
+    en: 'Premier League', zh: '英超', 'zh-hk': '英超', 'zh-tw': '英超',
+    es: 'Premier League', de: 'Premier League', it: 'Premier League', pt: 'Premier League'
+  },
+  'Championship': {
+    en: 'Championship', zh: '英冠', 'zh-hk': '英冠', 'zh-tw': '英冠',
+    es: 'Championship', de: 'Championship', it: 'Championship', pt: 'Championship'
+  },
+  'FA Cup': {
+    en: 'FA Cup', zh: '足总杯', 'zh-hk': '足總盃', 'zh-tw': '足總盃',
+    es: 'Copa FA', de: 'FA Cup', it: 'FA Cup', pt: 'Taça FA'
+  },
+  // Spain
+  'La Liga': {
+    en: 'La Liga', zh: '西甲', 'zh-hk': '西甲', 'zh-tw': '西甲',
+    es: 'La Liga', de: 'La Liga', it: 'La Liga', pt: 'La Liga'
+  },
+  'Segunda División': {
+    en: 'Segunda División', zh: '西乙', 'zh-hk': '西乙', 'zh-tw': '西乙',
+    es: 'Segunda División', de: 'Segunda División', it: 'Segunda División', pt: 'Segunda División'
+  },
+  'Copa del Rey': {
+    en: 'Copa del Rey', zh: '国王杯', 'zh-hk': '國王盃', 'zh-tw': '國王盃',
+    es: 'Copa del Rey', de: 'Copa del Rey', it: 'Copa del Rey', pt: 'Taça do Rei'
+  },
+  // Italy
+  'Serie A': {
+    en: 'Serie A', zh: '意甲', 'zh-hk': '意甲', 'zh-tw': '意甲',
+    es: 'Serie A', de: 'Serie A', it: 'Serie A', pt: 'Série A'
+  },
+  'Serie B': {
+    en: 'Serie B', zh: '意乙', 'zh-hk': '意乙', 'zh-tw': '意乙',
+    es: 'Serie B', de: 'Serie B', it: 'Serie B', pt: 'Série B'
+  },
+  'Coppa Italia': {
+    en: 'Coppa Italia', zh: '意大利杯', 'zh-hk': '意大利盃', 'zh-tw': '意大利盃',
+    es: 'Copa de Italia', de: 'Coppa Italia', it: 'Coppa Italia', pt: 'Taça de Itália'
+  },
+  // Germany
+  'Bundesliga': {
+    en: 'Bundesliga', zh: '德甲', 'zh-hk': '德甲', 'zh-tw': '德甲',
+    es: 'Bundesliga', de: 'Bundesliga', it: 'Bundesliga', pt: 'Bundesliga'
+  },
+  '2. Bundesliga': {
+    en: '2. Bundesliga', zh: '德乙', 'zh-hk': '德乙', 'zh-tw': '德乙',
+    es: '2. Bundesliga', de: '2. Bundesliga', it: '2. Bundesliga', pt: '2. Bundesliga'
+  },
+  'DFB Pokal': {
+    en: 'DFB Pokal', zh: '德国杯', 'zh-hk': '德國盃', 'zh-tw': '德國盃',
+    es: 'Copa de Alemania', de: 'DFB-Pokal', it: 'Coppa di Germania', pt: 'Taça da Alemanha'
+  },
+  // France
+  'Ligue 1': {
+    en: 'Ligue 1', zh: '法甲', 'zh-hk': '法甲', 'zh-tw': '法甲',
+    es: 'Ligue 1', de: 'Ligue 1', it: 'Ligue 1', pt: 'Ligue 1'
+  },
+  'Ligue 2': {
+    en: 'Ligue 2', zh: '法乙', 'zh-hk': '法乙', 'zh-tw': '法乙',
+    es: 'Ligue 2', de: 'Ligue 2', it: 'Ligue 2', pt: 'Ligue 2'
+  },
+  'Coupe de France': {
+    en: 'Coupe de France', zh: '法国杯', 'zh-hk': '法國盃', 'zh-tw': '法國盃',
+    es: 'Copa de Francia', de: 'Französischer Pokal', it: 'Coppa di Francia', pt: 'Taça de França'
+  },
+  // UEFA Competitions
+  'UEFA Champions League': {
+    en: 'UEFA Champions League', zh: '欧冠', 'zh-hk': '歐冠', 'zh-tw': '歐冠',
+    es: 'Liga de Campeones', de: 'Champions League', it: 'Champions League', pt: 'Liga dos Campeões'
+  },
+  'UEFA Europa League': {
+    en: 'UEFA Europa League', zh: '欧联杯', 'zh-hk': '歐聯盃', 'zh-tw': '歐聯盃',
+    es: 'Liga Europa', de: 'Europa League', it: 'Europa League', pt: 'Liga Europa'
+  },
+  'UEFA Europa Conference League': {
+    en: 'UEFA Europa Conference League', zh: '欧会杯', 'zh-hk': '歐會盃', 'zh-tw': '歐會盃',
+    es: 'Conference League', de: 'Conference League', it: 'Conference League', pt: 'Conference League'
+  },
+  // International
+  'FIFA World Cup': {
+    en: 'FIFA World Cup', zh: '世界杯', 'zh-hk': '世界盃', 'zh-tw': '世界盃',
+    es: 'Copa Mundial FIFA', de: 'FIFA-Weltmeisterschaft', it: 'Coppa del Mondo FIFA', pt: 'Copa do Mundo FIFA'
+  },
+  'UEFA European Championship': {
+    en: 'UEFA European Championship', zh: '欧洲杯', 'zh-hk': '歐洲盃', 'zh-tw': '歐洲盃',
+    es: 'Eurocopa', de: 'Europameisterschaft', it: 'Campionato Europeo', pt: 'Campeonato Europeu'
+  },
+  'Copa America': {
+    en: 'Copa America', zh: '美洲杯', 'zh-hk': '美洲盃', 'zh-tw': '美洲盃',
+    es: 'Copa América', de: 'Copa América', it: 'Copa América', pt: 'Copa América'
+  }
+};
+
 // Static list of all countries from the API
 export const ALL_COUNTRIES = [
   // Europe
@@ -239,777 +457,60 @@ export const ALL_COUNTRIES = [
   { code: 'AU-WA', name: 'Western Australia', flag: "https://media.api-sports.io/flags/au-wa.svg" }
 ] as const;
 
-// Comprehensive country name translations - Expanded from API data
-const countryTranslations: { [key: string]: { [key: string]: string } } = {
-  // Major European Countries
-  'World': {
-    en: 'World', zh: '世界', 'zh-hk': '世界', 'zh-tw': '世界',
-    es: 'Mundial', de: 'Welt', it: 'Mondo', pt: 'Mundial'
-  },
-  'England': {
-    en: 'England', zh: '英格兰', 'zh-hk': '英格蘭', 'zh-tw': '英格蘭',
-    es: 'Inglaterra', de: 'England', it: 'Inghilterra', pt: 'Inglaterra'
-  },
-  'Spain': {
-    en: 'Spain', zh: '西班牙', 'zh-hk': '西班牙', 'zh-tw': '西班牙',
-    es: 'España', de: 'Spanien', it: 'Spagna', pt: 'Espanha'
-  },
-  'Italy': {
-    en: 'Italy', zh: '意大利', 'zh-hk': '意大利', 'zh-tw': '意大利',
-    es: 'Italia', de: 'Italien', it: 'Italia', pt: 'Itália'
-  },
-  'Germany': {
-    en: 'Germany', zh: '德國', 'zh-hk': '德國', 'zh-tw': '德國',
-    es: 'Alemania', de: 'Deutschland', it: 'Germania', pt: 'Alemanha'
-  },
-  'France': {
-    en: 'France', zh: '法国', 'zh-hk': '法國', 'zh-tw': '法國',
-    es: 'Francia', de: 'Frankreich', it: 'Francia', pt: 'França'
-  },
-  'Netherlands': {
-    en: 'Netherlands', zh: '荷兰', 'zh-hk': '荷蘭', 'zh-tw': '荷蘭',
-    es: 'Países Bajos', de: 'Niederlande', it: 'Paesi Bassi', pt: 'Países Baixos'
-  },
-  'Portugal': {
-    en: 'Portugal', zh: '葡萄牙', 'zh-hk': '葡萄牙', 'zh-tw': '葡萄牙',
-    es: 'Portugal', de: 'Portugal', it: 'Portogallo', pt: 'Portugal'
-  },
-  'Belgium': {
-    en: 'Belgium', zh: '比利时', 'zh-hk': '比利時', 'zh-tw': '比利時',
-    es: 'Bélgica', de: 'Belgien', it: 'Belgio', pt: 'Bélgica'
-  },
-  'Switzerland': {
-    en: 'Switzerland', zh: '瑞士', 'zh-hk': '瑞士', 'zh-tw': '瑞士',
-    es: 'Suiza', de: 'Schweiz', it: 'Svizzera', pt: 'Suíça'
-  },
-  'Austria': {
-    en: 'Austria', zh: '奧地利', 'zh-hk': '奧地利', 'zh-tw': '奧地利',
-    es: 'Austria', de: 'Österreich', it: 'Austria', pt: 'Áustria'
-  },
-  'Scotland': {
-    en: 'Scotland', zh: '蘇格蘭', 'zh-hk': '蘇格蘭', 'zh-tw': '蘇格蘭',
-    es: 'Escocia', de: 'Schottland', it: 'Scozia', pt: 'Escócia'
-  },
-  'Turkey': {
-    en: 'Turkey', zh: '土耳其', 'zh-hk': '土耳其', 'zh-tw': '土耳其',
-    es: 'Turquía', de: 'Türkei', it: 'Turchia', pt: 'Turquia'
-  },
-  'Poland': {
-    en: 'Poland', zh: '波兰', 'zh-hk': '波蘭', 'zh-tw': '波蘭',
-    es: 'Polonia', de: 'Polen', it: 'Polonia', pt: 'Polônia'
-  },
-  'Czech Republic': {
-    en: 'Czech Republic', zh: '捷克', 'zh-hk': '捷克', 'zh-tw': '捷克',
-    es: 'República Checa', de: 'Tschechien', it: 'Repubblica Ceca', pt: 'República Tcheca'
-  },
-  'Hungary': {
-    en: 'Hungary', zh: '匈牙利', 'zh-hk': '匈牙利', 'zh-tw': '匈牙利',
-    es: 'Hungría', de: 'Ungarn', it: 'Ungheria', pt: 'Hungria'
-  },
-  'Croatia': {
-    en: 'Croatia', zh: '克罗地亚', 'zh-hk': '克羅地亞', 'zh-tw': '克羅埃西亞',
-    es: 'Croacia', de: 'Kroatien', it: 'Croazia', pt: 'Croácia'
-  },
-  'Serbia': {
-    en: 'Serbia', zh: '塞尔维亚', 'zh-hk': '塞爾維亞', 'zh-tw': '塞爾維亞',
-    es: 'Serbia', de: 'Serbien', it: 'Serbia', pt: 'Sérvia'
-  },
-  'Romania': {
-    en: 'Romania', zh: '罗马尼亚', 'zh-hk': '羅馬尼亞', 'zh-tw': '羅馬尼亞',
-    es: 'Rumania', de: 'Rumänien', it: 'Romania', pt: 'Romênia'
-  },
-  'Bulgaria': {
-    en: 'Bulgaria', zh: '保加利亚', 'zh-hk': '保加利亞', 'zh-tw': '保加利亞',
-    es: 'Bulgaria', de: 'Bulgarien', it: 'Bulgaria', pt: 'Bulgária'
-  },
-  'Greece': {
-    en: 'Greece', zh: '希腊', 'zh-hk': '希臘', 'zh-tw': '希臘',
-    es: 'Grecia', de: 'Griechenland', it: 'Grecia', pt: 'Grécia'
-  },
-  'Ukraine': {
-    en: 'Ukraine', zh: '乌克兰', 'zh-hk': '烏克蘭', 'zh-tw': '烏克蘭',
-    es: 'Ucrania', de: 'Ukraine', it: 'Ucraina', pt: 'Ucrânia'
-  },
-  'Russia': {
-    en: 'Russia', zh: '俄罗斯', 'zh-hk': '俄羅斯', 'zh-tw': '俄羅斯',
-    es: 'Rusia', de: 'Russland', it: 'Russia', pt: 'Rússia'
-  },
-  'Denmark': {
-    en: 'Denmark', zh: '丹麦', 'zh-hk': '丹麥', 'zh-tw': '丹麥',
-    es: 'Dinamarca', de: 'Dänemark', it: 'Danimarca', pt: 'Dinamarca'
-  },
-  'Sweden': {
-    en: 'Sweden', zh: '瑞典', 'zh-hk': '瑞典', 'zh-tw': '瑞典',
-    es: 'Suecia', de: 'Schweden', it: 'Svezia', pt: 'Suécia'
-  },
-  'Norway': {
-    en: 'Norway', zh: '挪威', 'zh-hk': '挪威', 'zh-tw': '挪威',
-    es: 'Noruega', de: 'Norwegen', it: 'Norvegia', pt: 'Noruega'
-  },
-  'Finland': {
-    en: 'Finland', zh: '芬兰', 'zh-hk': '芬蘭', 'zh-tw': '芬蘭',
-    es: 'Finlandia', de: 'Finnland', it: 'Finlandia', pt: 'Finlândia'
-  },
-  // Asia
-  'China': {
-    en: 'China', zh: '中国', 'zh-hk': '中國', 'zh-tw': '中國',
-    es: 'China', de: 'China', it: 'Cina', pt: 'China'
-  },
-  'Japan': {
-    en: 'Japan', zh: '日本', 'zh-hk': '日本', 'zh-tw': '日本',
-    es: 'Japón', de: 'Japan', it: 'Giappone', pt: 'Japão'
-  },
-  'South Korea': {
-    en: 'South Korea', zh: '韩国', 'zh-hk': '韓國', 'zh-tw': '韓國',
-    es: 'Corea del Sur', de: 'Südkorea', it: 'Corea del Sud', pt: 'Coreia do Sul'
-  },
-  'Australia': {
-    en: 'Australia', zh: '澳洲', 'zh-hk': '澳洲', 'zh-tw': '澳洲',
-    es: 'Australia', de: 'Australien', it: 'Australia', pt: 'Austrália'
-  },
-  'Saudi Arabia': {
-    en: 'Saudi Arabia', zh: '沙特阿拉伯', 'zh-hk': '沙特阿拉伯', 'zh-tw': '沙特阿拉伯',
-    es: 'Arabia Saudí', de: 'Saudi-Arabien', it: 'Arabia Saudita', pt: 'Arábia Saudita'
-  },
-  'Iran': {
-    en: 'Iran', zh: '伊朗', 'zh-hk': '伊朗', 'zh-tw': '伊朗',
-    es: 'Irán', de: 'Iran', it: 'Iran', pt: 'Irã'
-  },
-  'Iraq': {
-    en: 'Iraq', zh: '伊拉克', 'zh-hk': '伊拉克', 'zh-tw': '伊拉克',
-    es: 'Irak', de: 'Irak', it: 'Iraq', pt: 'Iraque'
-  },
-  'UAE': {
-    en: 'UAE', zh: '阿联酋', 'zh-hk': '阿聯酋', 'zh-tw': '阿聯酋',
-    es: 'EAU', de: 'VAE', it: 'EAU', pt: 'EAU'
-  },
-  'Qatar': {
-    en: 'Qatar', zh: '卡塔尔', 'zh-hk': '卡塔爾', 'zh-tw': '卡達',
-    es: 'Catar', de: 'Katar', it: 'Qatar', pt: 'Catar'
-  },
-  'Kuwait': {
-    en: 'Kuwait', zh: '科威特', 'zh-hk': '科威特', 'zh-tw': '科威特',
-    es: 'Kuwait', de: 'Kuwait', it: 'Kuwait', pt: 'Kuwait'
-  },
-  'Bahrain': {
-    en: 'Bahrain', zh: '巴林', 'zh-hk': '巴林', 'zh-tw': '巴林',
-    es: 'Baréin', de: 'Bahrain', it: 'Bahrain', pt: 'Bahrein'
-  },
-  'Oman': {
-    en: 'Oman', zh: '阿曼', 'zh-hk': '阿曼', 'zh-tw': '阿曼',
-    es: 'Omán', de: 'Oman', it: 'Oman', pt: 'Omã'
-  },
-  'India': {
-    en: 'India', zh: '印度', 'zh-hk': '印度', 'zh-tw': '印度',
-    es: 'India', de: 'Indien', it: 'India', pt: 'Índia'
-  },
-  'Thailand': {
-    en: 'Thailand', zh: '泰国', 'zh-hk': '泰國', 'zh-tw': '泰國',
-    es: 'Tailandia', de: 'Thailand', it: 'Thailandia', pt: 'Tailândia'
-  },
-  'Vietnam': {
-    en: 'Vietnam', zh: '越南', 'zh-hk': '越南', 'zh-tw': '越南',
-    es: 'Vietnam', de: 'Vietnam', it: 'Vietnam', pt: 'Vietnã'
-  },
-  'Malaysia': {
-    en: 'Malaysia', zh: '马来西亚', 'zh-hk': '馬來西亞', 'zh-tw': '馬來西亞',
-    es: 'Malasia', de: 'Malaysia', it: 'Malesia', pt: 'Malásia'
-  },
-  'Singapore': {
-    en: 'Singapore', zh: '新加坡', 'zh-hk': '新加坡', 'zh-tw': '新加坡',
-    es: 'Singapur', de: 'Singapur', it: 'Singapore', pt: 'Singapura'
-  },
-  'Indonesia': {
-    en: 'Indonesia', zh: '印度尼西亚', 'zh-hk': '印尼', 'zh-tw': '印尼',
-    es: 'Indonesia', de: 'Indonesien', it: 'Indonesia', pt: 'Indonésia'
-  },
-  'Philippines': {
-    en: 'Philippines', zh: '菲律宾', 'zh-hk': '菲律賓', 'zh-tw': '菲律賓',
-    es: 'Filipinas', de: 'Philippinen', it: 'Filippine', pt: 'Filipinas'
-  },
-  'Kazakhstan': {
-    en: 'Kazakhstan', zh: '哈萨克斯坦', 'zh-hk': '哈薩克斯坦', 'zh-tw': '哈薩克斯坦',
-    es: 'Kazajistán', de: 'Kasachstan', it: 'Kazakistan', pt: 'Cazaquistão'
-  },
-  'Uzbekistan': {
-    en: 'Uzbekistan', zh: '乌兹别克斯坦', 'zh-hk': '烏茲別克斯坦', 'zh-tw': '烏茲別克斯坦',
-    es: 'Uzbekistán', de: 'Usbekistan', it: 'Uzbekistan', pt: 'Uzbequistão'
-  },
-  // Americas
-  'Brazil': {
-    en: 'Brazil', zh: '巴西', 'zh-hk': '巴西', 'zh-tw': '巴西',
-    es: 'Brasil', de: 'Brasilien', it: 'Brasile', pt: 'Brasil'
-  },
-  'Argentina': {
-    en: 'Argentina', zh: '阿根廷', 'zh-hk': '阿根廷', 'zh-tw': '阿根廷',
-    es: 'Argentina', de: 'Argentinien', it: 'Argentina', pt: 'Argentina'
-  },
-  'United States': {
-    en: 'United States', zh: '美国', 'zh-hk': '美國', 'zh-tw': '美國',
-    es: 'Estados Unidos', de: 'Vereinigte Staaten', it: 'Stati Uniti', pt: 'Estados Unidos'
-  },
-  'Mexico': {
-    en: 'Mexico', zh: '墨西哥', 'zh-hk': '墨西哥', 'zh-tw': '墨西哥',
-    es: 'México', de: 'Mexiko', it: 'Messico', pt: 'México'
-  },
-  'Colombia': {
-    en: 'Colombia', zh: '哥伦比亚', 'zh-hk': '哥倫比亞', 'zh-tw': '哥倫比亞',
-    es: 'Colombia', de: 'Kolumbien', it: 'Colombia', pt: 'Colômbia'
-  },
-  'Chile': {
-    en: 'Chile', zh: '智利', 'zh-hk': '智利', 'zh-tw': '智利',
-    es: 'Chile', de: 'Chile', it: 'Cile', pt: 'Chile'
-  },
-  'Peru': {
-    en: 'Peru', zh: '秘鲁', 'zh-hk': '秘魯', 'zh-tw': '秘魯',
-    es: 'Perú', de: 'Peru', it: 'Perù', pt: 'Peru'
-  },
-  'Uruguay': {
-    en: 'Uruguay', zh: '乌拉圭', 'zh-hk': '烏拉圭', 'zh-tw': '烏拉圭',
-    es: 'Uruguay', de: 'Uruguay', it: 'Uruguay', pt: 'Uruguai'
-  },
-  'Paraguay': {
-    en: 'Paraguay', zh: '巴拉圭', 'zh-hk': '巴拉圭', 'zh-tw': '巴拉圭',
-    es: 'Paraguay', de: 'Paraguay', it: 'Paraguay', pt: 'Paraguai'
-  },
-  'Ecuador': {
-    en: 'Ecuador', zh: '厄瓜多尔', 'zh-hk': '厄瓜多爾', 'zh-tw': '厄瓜多爾',
-    es: 'Ecuador', de: 'Ecuador', it: 'Ecuador', pt: 'Equador'
-  },
-  'Bolivia': {
-    en: 'Bolivia', zh: '玻利维亚', 'zh-hk': '玻利維亞', 'zh-tw': '玻利維亞',
-    es: 'Bolivia', de: 'Bolivien', it: 'Bolivia', pt: 'Bolívia'
-  },
-  'Venezuela': {
-    en: 'Venezuela', zh: '委内瑞拉', 'zh-hk': '委內瑞拉', 'zh-tw': '委內瑞拉',
-    es: 'Venezuela', de: 'Venezuela', it: 'Venezuela', pt: 'Venezuela'
-  },
-  'Canada': {
-    en: 'Canada', zh: '加拿大', 'zh-hk': '加拿大', 'zh-tw': '加拿大',
-    es: 'Canadá', de: 'Kanada', it: 'Canada', pt: 'Canadá'
-  },
-  // Africa
-  'South Africa': {
-    en: 'South Africa', zh: '南非', 'zh-hk': '南非', 'zh-tw': '南非',
-    es: 'Sudáfrica', de: 'Südafrika', it: 'Sudafrica', pt: 'África do Sul'
-  },
-  'Nigeria': {
-    en: 'Nigeria', zh: '尼日利亚', 'zh-hk': '尼日利亞', 'zh-tw': '奈及利亞',
-    es: 'Nigeria', de: 'Nigeria', it: 'Nigeria', pt: 'Nigéria'
-  },
-  'Morocco': {
-    en: 'Morocco', zh: '摩洛哥', 'zh-hk': '摩洛哥', 'zh-tw': '摩洛哥',
-    es: 'Marruecos', de: 'Marokko', it: 'Marocco', pt: 'Marrocos'
-  },
-  'Egypt': {
-    en: 'Egypt', zh: '埃及', 'zh-hk': '埃及', 'zh-tw': '埃及',
-    es: 'Egipto', de: 'Ägypten', it: 'Egitto', pt: 'Egito'
-  },
-  'Algeria': {
-    en: 'Algeria', zh: '阿尔及利亚', 'zh-hk': '阿爾及利亞', 'zh-tw': '阿爾及利亞',
-    es: 'Argelia', de: 'Algerien', it: 'Algeria', pt: 'Argélia'
-  },
-  'Tunisia': {
-    en: 'Tunisia', zh: '突尼斯', 'zh-hk': '突尼斯', 'zh-tw': '突尼西亞',
-    es: 'Túnez', de: 'Tunesien', it: 'Tunisia', pt: 'Tunísia'
-  },
-  'Ghana': {
-    en: 'Ghana', zh: '加纳', 'zh-hk': '加納', 'zh-tw': '迦納',
-    es: 'Ghana', de: 'Ghana', it: 'Ghana', pt: 'Gana'
-  },
-  'Kenya': {
-    en: 'Kenya', zh: '肯尼亚', 'zh-hk': '肯尼亞', 'zh-tw': '肯亞',
-    es: 'Kenia', de: 'Kenia', it: 'Kenya', pt: 'Quênia'
-  },
-  'Cameroon': {
-    en: 'Cameroon', zh: '喀麦隆', 'zh-hk': '喀麥隆', 'zh-tw': '喀麥隆',
-    es: 'Camerún', de: 'Kamerun', it: 'Camerun', pt: 'Camarões'
-  },
-  'Senegal': {
-    en: 'Senegal', zh: '塞内加尔', 'zh-hk': '塞內加爾', 'zh-tw': '塞內加爾',
-    es: 'Senegal', de: 'Senegal', it: 'Senegal', pt: 'Senegal'
-  }
-};
+// Static list of major leagues (add more as needed)
+export const MAJOR_LEAGUES = [
+  // England
+  { id: 39, name: "Premier League", country: "England", countryCode: "GB-ENG" },
+  { id: 40, name: "Championship", country: "England", countryCode: "GB-ENG" },
+  { id: 41, name: "League One", country: "England", countryCode: "GB-ENG" },
+  { id: 42, name: "League Two", country: "England", countryCode: "GB-ENG" },
+  { id: 45, name: "FA Cup", country: "England", countryCode: "GB-ENG" },
+  { id: 48, name: "EFL Cup", country: "England", countryCode: "GB-ENG" },
 
-// Expanded list of leagues with IDs, names, countries, logos, and types.
-// This list is significantly expanded from the original MAJOR_LEAGUES to include more leagues from various regions.
-export const MAJOR_LEAGUES: LeagueInfo[] = [
-  // FIFA International Competitions
-  { 
-    id: 1, 
-    name: 'World Cup', 
-    country: 'World',
-    logo: 'https://media.api-sports.io/football/leagues/1.png',
-    type: 'Cup'
-  },
-  { 
-    id: 21, 
-    name: 'Confederations Cup', 
-    country: 'World',
-    logo: 'https://media.api-sports.io/football/leagues/21.png',
-    type: 'Cup'
-  },
+  // Spain
+  { id: 140, name: "La Liga", country: "Spain", countryCode: "ES" },
+  { id: 141, name: "Segunda División", country: "Spain", countryCode: "ES" },
+  { id: 143, name: "Copa del Rey", country: "Spain", countryCode: "ES" },
 
-  // UEFA International
-  { 
-    id: 2, 
-    name: 'UEFA Champions League', 
-    country: 'World',
-    logo: 'https://media.api-sports.io/football/leagues/2.png',
-    type: 'Cup'
-  },
-  { 
-    id: 3, 
-    name: 'UEFA Europa League', 
-    country: 'World',
-    logo: 'https://media.api-sports.io/football/leagues/3.png',
-    type: 'Cup'
-  },
-  { 
-    id: 848, 
-    name: 'UEFA Conference League', 
-    country: 'World',
-    logo: 'https://media.api-sports.io/football/leagues/848.png',
-    type: 'Cup'
-  },
-  { 
-    id: 5, 
-    name: 'UEFA Nations League', 
-    country: 'World',
-    logo: 'https://media.api-sports.io/football/leagues/5.png',
-    type: 'Cup'
-  },
-  { 
-    id: 4, 
-    name: 'Euro Championship', 
-    country: 'World',
-    logo: 'https://media.api-sports.io/football/leagues/4.png',
-    type: 'Cup'
-  },
+  // Italy
+  { id: 135, name: "Serie A", country: "Italy", countryCode: "IT" },
+  { id: 136, name: "Serie B", country: "Italy", countryCode: "IT" },
+  { id: 137, name: "Coppa Italia", country: "Italy", countryCode: "IT" },
 
-  // Top 5 European Leagues
-  { 
-    id: 39, 
-    name: 'Premier League', 
-    country: 'England',
-    logo: 'https://media.api-sports.io/football/leagues/39.png',
-    type: 'League'
-  },
-  { 
-    id: 140, 
-    name: 'La Liga', 
-    country: 'Spain',
-    logo: 'https://media.api-sports.io/football/leagues/140.png',
-    type: 'League'
-  },
-  { 
-    id: 135, 
-    name: 'Serie A', 
-    country: 'Italy',
-    logo: 'https://media.api-sports.io/football/leagues/135.png',
-    type: 'League'
-  },
-  { 
-    id: 78, 
-    name: 'Bundesliga', 
-    country: 'Germany',
-    logo: 'https://media.api-sports.io/football/leagues/78.png',
-    type: 'League'
-  },
-  { 
-    id: 61, 
-    name: 'Ligue 1', 
-    country: 'France',
-    logo: 'https://media.api-sports.io/football/leagues/61.png',
-    type: 'League'
-  },
+  // Germany
+  { id: 78, name: "Bundesliga", country: "Germany", countryCode: "DE" },
+  { id: 79, name: "2. Bundesliga", country: "Germany", countryCode: "DE" },
+  { id: 81, name: "DFB Pokal", country: "Germany", countryCode: "DE" },
 
-  // Other Major European Leagues
-  { 
-    id: 88, 
-    name: 'Eredivisie', 
-    country: 'Netherlands',
-    logo: 'https://media.api-sports.io/football/leagues/88.png',
-    type: 'League'
-  },
-  { 
-    id: 94, 
-    name: 'Primeira Liga', 
-    country: 'Portugal',
-    logo: 'https://media.api-sports.io/football/leagues/94.png',
-    type: 'League'
-  },
-  { 
-    id: 144, 
-    name: 'Jupiler Pro League', 
-    country: 'Belgium',
-    logo: 'https://media.api-sports.io/football/leagues/144.png',
-    type: 'League'
-  },
-  { 
-    id: 179, 
-    name: 'Premiership', 
-    country: 'Scotland',
-    logo: 'https://media.api-sports.io/football/leagues/179.png',
-    type: 'League'
-  },
+  // France
+  { id: 61, name: "Ligue 1", country: "France", countryCode: "FR" },
+  { id: 62, name: "Ligue 2", country: "France", countryCode: "FR" },
+  { id: 66, name: "Coupe de France", country: "France", countryCode: "FR" },
 
-  // Extended European Leagues (from API data)
-  { 
-    id: 218, 
-    name: 'Swiss Super League', 
-    country: 'Switzerland',
-    logo: 'https://media.api-sports.io/football/leagues/218.png',
-    type: 'League'
-  },
-  { 
-    id: 197, 
-    name: 'Bundesliga', 
-    country: 'Austria',
-    logo: 'https://media.api-sports.io/football/leagues/197.png',
-    type: 'League'
-  },
-  { 
-    id: 203, 
-    name: 'Fortuna Liga', 
-    country: 'Slovakia',
-    logo: 'https://media.api-sports.io/football/leagues/203.png',
-    type: 'League'
-  },
-  { 
-    id: 345, 
-    name: 'First League', 
-    country: 'Czech Republic',
-    logo: 'https://media.api-sports.io/football/leagues/345.png',
-    type: 'League'
-  },
-  { 
-    id: 271, 
-    name: 'Ekstraklasa', 
-    country: 'Poland',
-    logo: 'https://media.api-sports.io/football/leagues/271.png',
-    type: 'League'
-  },
-  { 
-    id: 210, 
-    name: 'HNL', 
-    country: 'Croatia',
-    logo: 'https://media.api-sports.io/football/leagues/210.png',
-    type: 'League'
-  },
-  { 
-    id: 283, 
-    name: 'Liga I', 
-    country: 'Romania',
-    logo: 'https://media.api-sports.io/football/leagues/283.png',
-    type: 'League'
-  },
-  { 
-    id: 327, 
-    name: 'First League', 
-    country: 'Bulgaria',
-    logo: 'https://media.api-sports.io/football/leagues/327.png',
-    type: 'League'
-  },
-  { 
-    id: 317, 
-    name: 'Super League', 
-    country: 'Greece',
-    logo: 'https://media.api-sports.io/football/leagues/317.png',
-    type: 'League'
-  },
-  { 
-    id: 262, 
-    name: 'Premier Liga', 
-    country: 'Ukraine',
-    logo: 'https://media.api-sports.io/football/leagues/262.png',
-    type: 'League'
-  },
-  { 
-    id: 235, 
-    name: 'Premier League', 
-    country: 'Russia',
-    logo: 'https://media.api-sports.io/football/leagues/235.png',
-    type: 'League'
-  },
-  { 
-    id: 119, 
-    name: 'Superliga', 
-    country: 'Denmark',
-    logo: 'https://media.api-sports.io/football/leagues/119.png',
-    type: 'League'
-  },
-  { 
-    id: 113, 
-    name: 'Allsvenskan', 
-    country: 'Sweden',
-    logo: 'https://media.api-sports.io/football/leagues/113.png',
-    type: 'League'
-  },
-  { 
-    id: 103, 
-    name: 'Eliteserien', 
-    country: 'Norway',
-    logo: 'https://media.api-sports.io/football/leagues/103.png',
-    type: 'League'
-  },
-  { 
-    id: 244, 
-    name: 'Veikkausliiga', 
-    country: 'Finland',
-    logo: 'https://media.api-sports.io/football/leagues/244.png',
-    type: 'League'
-  },
-  { 
-    id: 203, 
-    name: 'Super Lig', 
-    country: 'Turkey',
-    logo: 'https://media.api-sports.io/football/leagues/203.png',
-    type: 'League'
-  },
+  // UEFA Competitions
+  { id: 2, name: "UEFA Champions League", country: "World", countryCode: "WORLD" },
+  { id: 3, name: "UEFA Europa League", country: "World", countryCode: "WORLD" },
+  { id: 848, name: "UEFA Europa Conference League", country: "World", countryCode: "WORLD" },
+  { id: 4, name: "UEFA Nations League", country: "World", countryCode: "WORLD" },
+  { id: 5, name: "UEFA European Championship", country: "World", countryCode: "WORLD" },
 
-  // South American Leagues
-  { 
-    id: 71, 
-    name: 'Serie A', 
-    country: 'Brazil',
-    logo: 'https://media.api-sports.io/football/leagues/71.png',
-    type: 'League'
-  },
-  { 
-    id: 128, 
-    name: 'Liga Profesional', 
-    country: 'Argentina',
-    logo: 'https://media.api-sports.io/football/leagues/128.png',
-    type: 'League'
-  },
-  { 
-    id: 239, 
-    name: 'Primera A', 
-    country: 'Colombia',
-    logo: 'https://media.api-sports.io/football/leagues/239.png',
-    type: 'League'
-  },
-  { 
-    id: 265, 
-    name: 'Liga Profesional', 
-    country: 'Chile',
-    logo: 'https://media.api-sports.io/football/leagues/265.png',
-    type: 'League'
-  },
-  { 
-    id: 281, 
-    name: 'Liga 1', 
-    country: 'Peru',
-    logo: 'https://media.api-sports.io/football/leagues/281.png',
-    type: 'League'
-  },
-  { 
-    id: 274, 
-    name: 'Primera División', 
-    country: 'Uruguay',
-    logo: 'https://media.api-sports.io/football/leagues/274.png',
-    type: 'League'
-  },
-  { 
-    id: 250, 
-    name: 'División Profesional', 
-    country: 'Paraguay',
-    logo: 'https://media.api-sports.io/football/leagues/250.png',
-    type: 'League'
-  },
-  { 
-    id: 242, 
-    name: 'Serie A', 
-    country: 'Ecuador',
-    logo: 'https://media.api-sports.io/football/leagues/242.png',
-    type: 'League'
-  },
-  { 
-    id: 293, 
-    name: 'División Profesional', 
-    country: 'Bolivia',
-    logo: 'https://media.api-sports.io/football/leagues/293.png',
-    type: 'League'
-  },
-  { 
-    id: 298, 
-    name: 'Primera División', 
-    country: 'Venezuela',
-    logo: 'https://media.api-sports.io/football/leagues/298.png',
-    type: 'League'
-  },
+  // Other Major Leagues
+  { id: 88, name: "Eredivisie", country: "Netherlands", countryCode: "NL" },
+  { id: 94, name: "Primeira Liga", country: "Portugal", countryCode: "PT" },
+  { id: 203, name: "Süper Lig", country: "Turkey", countryCode: "TR" },
+  { id: 235, name: "Russian Premier League", country: "Russia", countryCode: "RU" },
+  { id: 218, name: "Scottish Premiership", country: "Scotland", countryCode: "GB-SCT" },
 
-  // North American Leagues
-  { 
-    id: 253, 
-    name: 'Major League Soccer', 
-    country: 'United States',
-    logo: 'https://media.api-sports.io/football/leagues/253.png',
-    type: 'League'
-  },
-  { 
-    id: 906, 
-    name: 'Leagues Cup', 
-    country: 'United States',
-    logo: 'https://media.api-sports.io/football/leagues/906.png',
-    type: 'Cup'
-  },
+  // South American
+  { id: 128, name: "Copa Libertadores", country: "World", countryCode: "WORLD" },
+  { id: 129, name: "Copa Sudamericana", country: "World", countryCode: "WORLD" },
 
-  // Asian Leagues
-  { 
-    id: 188, 
-    name: 'J1 League', 
-    country: 'Japan',
-    logo: 'https://media.api-sports.io/football/leagues/188.png',
-    type: 'League'
-  },
-  { 
-    id: 292, 
-    name: 'K League 1', 
-    country: 'South Korea',
-    logo: 'https://media.api-sports.io/football/leagues/292.png',
-    type: 'League'
-  },
-  { 
-    id: 169, 
-    name: 'Chinese Super League', 
-    country: 'China',
-    logo: 'https://media.api-sports.io/football/leagues/169.png',
-    type: 'League'
-  },
-  { 
-    id: 307, 
-    name: 'Pro League', 
-    country: 'Saudi Arabia',
-    logo: 'https://media.api-sports.io/football/leagues/307.png',
-    type: 'League'
-  },
-  { 
-    id: 290, 
-    name: 'Persian Gulf Pro League', 
-    country: 'Iran',
-    logo: 'https://media.api-sports.io/football/leagues/290.png',
-    type: 'League'
-  },
-  { 
-    id: 301, 
-    name: 'Stars League', 
-    country: 'Qatar',
-    logo: 'https://media.api-sports.io/football/leagues/301.png',
-    type: 'League'
-  },
-  { 
-    id: 332, 
-    name: 'Pro League', 
-    country: 'UAE',
-    logo: 'https://media.api-sports.io/football/leagues/332.png',
-    type: 'League'
-  },
-  { 
-    id: 173, 
-    name: 'A-League', 
-    country: 'Australia',
-    logo: 'https://media.api-sports.io/football/leagues/173.png',
-    type: 'League'
-  },
-
-  // African Leagues
-  { 
-    id: 366, 
-    name: 'Premier League', 
-    country: 'South Africa',
-    logo: 'https://media.api-sports.io/football/leagues/366.png',
-    type: 'League'
-  },
-  { 
-    id: 233, 
-    name: 'Egyptian Premier League', 
-    country: 'Egypt',
-    logo: 'https://media.api-sports.io/football/leagues/233.png',
-    type: 'League'
-  },
-  { 
-    id: 320, 
-    name: 'Botola Pro', 
-    country: 'Morocco',
-    logo: 'https://media.api-sports.io/football/leagues/320.png',
-    type: 'League'
-  },
-
-  // CONMEBOL Continental
-  { 
-    id: 13, 
-    name: 'CONMEBOL Libertadores', 
-    country: 'World',
-    logo: 'https://media.api-sports.io/football/leagues/13.png',
-    type: 'Cup'
-  },
-  { 
-    id: 11, 
-    name: 'CONMEBOL Sudamericana', 
-    country: 'World',
-    logo: 'https://media.api-sports.io/football/leagues/11.png',
-    type: 'Cup'
-  },
-
-  // AFC Continental
-  { 
-    id: 15, 
-    name: 'AFC Champions League', 
-    country: 'World',
-    logo: 'https://media.api-sports.io/football/leagues/15.png',
-    type: 'Cup'
-  },
-  { 
-    id: 16, 
-    name: 'AFC Cup', 
-    country: 'World',
-    logo: 'https://media.api-sports.io/football/leagues/16.png',
-    type: 'Cup'
-  },
-
-  // CAF Continental
-  { 
-    id: 12, 
-    name: 'CAF Champions League', 
-    country: 'World',
-    logo: 'https://media.api-sports.io/football/leagues/12.png',
-    type: 'Cup'
-  },
-  { 
-    id: 17, 
-    name: 'CAF Confederation Cup', 
-    country: 'World',
-    logo: 'https://media.api-sports.io/football/leagues/17.png',
-    type: 'Cup'
-  },
-
-  // CONCACAF Continental
-  { 
-    id: 14, 
-    name: 'CONCACAF Champions League', 
-    country: 'World',
-    logo: 'https://media.api-sports.io/football/leagues/14.png',
-    type: 'Cup'
-  },
-
-  // Friendlies
-  { 
-    id: 10, 
-    name: 'Friendlies', 
-    country: 'World',
-    logo: 'https://media.api-sports.io/football/leagues/10.png',
-    type: 'Friendly'
-  },
-  { 
-    id: 667, 
-    name: 'Friendlies Clubs', 
-    country: 'World',
-    logo: 'https://media.api-sports.io/football/leagues/667.png',
-    type: 'Friendly'
-  }
-];
+  // International
+  { id: 1, name: "FIFA World Cup", country: "World", countryCode: "WORLD" },
+  { id: 15, name: "Copa America", country: "World", countryCode: "WORLD" },
+  { id: 16, name: "Africa Cup of Nations", country: "World", countryCode: "WORLD" },
+  { id: 17, name: "AFC Asian Cup", country: "World", countryCode: "WORLD" },
+] as const;
 
 // Helper functions
 export const getCountryByCode = (code: string) => {
@@ -1049,29 +550,128 @@ export const getLeaguesAsOptions = () => {
   }));
 };
 
-// Function to translate country names with smart fallback
-export function translateCountryName(countryName: string, language: string): string {
-  if (!countryName || !language) return countryName;
-
-  // First try our comprehensive static translations
-  const translations = countryTranslations[countryName];
-  if (translations && translations[language]) {
-    return translations[language];
+// Translation helper functions
+export const translateCountryName = (countryName: string, language: string = 'en'): string => {
+  const translation = COUNTRY_TRANSLATIONS[countryName];
+  if (translation && translation[language as keyof typeof translation]) {
+    return translation[language as keyof typeof translation];
   }
+  return countryName; // Return original if no translation found
+};
 
-  // Try with smart translation system (it should be imported and available)
-  // This will be handled by the smart translation system via the context
-  return countryName;
-}
+export const translateLeagueName = (leagueName: string, language: string = 'en'): string => {
+  const translation = LEAGUE_TRANSLATIONS[leagueName];
+  if (translation && translation[language as keyof typeof translation]) {
+    return translation[language as keyof typeof translation];
+  }
+  return leagueName; // Return original if no translation found
+};
 
-// Function to translate league names with smart fallback
-export function translateLeagueName(leagueName: string, language: string): string {
-  if (!leagueName || !language) return leagueName;
+// Enhanced helper functions with translation support
+export const getTranslatedCountriesAsOptions = (language: string = 'en') => {
+  return ALL_COUNTRIES.map(country => ({
+    value: country.code,
+    label: translateCountryName(country.name, language),
+    originalLabel: country.name,
+    flag: country.flag
+  }));
+};
 
-  // This will be handled by the smart translation system in the context
-  // We return the original name and let the smart system handle translation
-  return leagueName;
-}
+export const getTranslatedLeaguesAsOptions = (language: string = 'en') => {
+  return MAJOR_LEAGUES.map(league => ({
+    value: league.id,
+    label: translateLeagueName(league.name, language),
+    originalLabel: league.name,
+    country: translateCountryName(league.country, language),
+    originalCountry: league.country,
+    countryCode: league.countryCode
+  }));
+};
+
+// Get translated country by code
+export const getTranslatedCountryByCode = (code: string, language: string = 'en') => {
+  const country = ALL_COUNTRIES.find(country => country.code === code);
+  if (country) {
+    return {
+      ...country,
+      name: translateCountryName(country.name, language),
+      originalName: country.name
+    };
+  }
+  return null;
+};
+
+// Get translated league by ID
+export const getTranslatedLeagueById = (id: number, language: string = 'en') => {
+  const league = MAJOR_LEAGUES.find(league => league.id === id);
+  if (league) {
+    return {
+      ...league,
+      name: translateLeagueName(league.name, language),
+      originalName: league.name,
+      country: translateCountryName(league.country, language),
+      originalCountry: league.country
+    };
+  }
+  return null;
+};
+
+// Get leagues by country with translation support
+export const getTranslatedLeaguesByCountry = (countryName: string, language: string = 'en') => {
+  return MAJOR_LEAGUES
+    .filter(league => league.country.toLowerCase() === countryName.toLowerCase())
+    .map(league => ({
+      ...league,
+      name: translateLeagueName(league.name, language),
+      originalName: league.name,
+      country: translateCountryName(league.country, language),
+      originalCountry: league.country
+    }));
+};
+
+// Check if a country name has translation available
+export const hasCountryTranslation = (countryName: string, language: string = 'en'): boolean => {
+  const translation = COUNTRY_TRANSLATIONS[countryName];
+  return !!(translation && translation[language as keyof typeof translation]);
+};
+
+// Check if a league name has translation available
+export const hasLeagueTranslation = (leagueName: string, language: string = 'en'): boolean => {
+  const translation = LEAGUE_TRANSLATIONS[leagueName];
+  return !!(translation && translation[language as keyof typeof translation]);
+};
+
+// Get all supported languages
+export const getSupportedLanguages = () => {
+  return [
+    { code: 'en', name: 'English' },
+    { code: 'zh', name: '中文 (简体)' },
+    { code: 'zh-hk', name: '中文 (香港)' },
+    { code: 'zh-tw', name: '中文 (台灣)' },
+    { code: 'es', name: 'Español' },
+    { code: 'de', name: 'Deutsch' },
+    { code: 'it', name: 'Italiano' },
+    { code: 'pt', name: 'Português' }
+  ];
+};
+
+// Batch translate multiple countries
+export const batchTranslateCountries = (countryNames: string[], language: string = 'en') => {
+  return countryNames.map(name => ({
+    original: name,
+    translated: translateCountryName(name, language),
+    hasTranslation: hasCountryTranslation(name, language)
+  }));
+};
+
+// Batch translate multiple leagues
+export const batchTranslateLeagues = (leagueNames: string[], language: string = 'en') => {
+  return leagueNames.map(name => ({
+    original: name,
+    translated: translateLeagueName(name, language),
+    hasTranslation: hasLeagueTranslation(name, language)
+  }));
+};
 
 // Type definitions
 export type Country = typeof ALL_COUNTRIES[number];
@@ -1079,12 +679,9 @@ export type League = typeof MAJOR_LEAGUES[number];
 export type CountryOption = ReturnType<typeof getCountriesAsOptions>[number];
 export type LeagueOption = ReturnType<typeof getLeaguesAsOptions>[number];
 
-// Define LeagueInfo type for clarity, assuming it's not defined elsewhere
-interface LeagueInfo {
-  id: number;
-  name: string;
-  country: string;
-  logo?: string; // Optional logo URL
-  type: string; // e.g., 'League', 'Cup', 'Friendly'
-  countryCode?: string; // Added for consistency with LeagueOption
-}
+// Extended type definitions with translation support
+export type TranslatedCountryOption = ReturnType<typeof getTranslatedCountriesAsOptions>[number];
+export type TranslatedLeagueOption = ReturnType<typeof getTranslatedLeaguesAsOptions>[number];
+export type TranslatedCountry = ReturnType<typeof getTranslatedCountryByCode>;
+export type TranslatedLeague = ReturnType<typeof getTranslatedLeagueById>;
+export type SupportedLanguage = ReturnType<typeof getSupportedLanguages>[number];
