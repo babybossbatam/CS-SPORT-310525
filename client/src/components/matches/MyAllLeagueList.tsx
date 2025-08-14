@@ -440,6 +440,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
     // Add main countries from static data first
     allAvailableCountries.forEach(country => {
+      const translatedDisplayName = getCountryDisplayName(country);
       const mappedCountry = allFootballCountriesMapping.get(country);
       staticCountries.push({
         country,
@@ -458,10 +459,10 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         }, {}),
         totalMatches: 0,
         liveMatches: 0,
-        mappedData: mappedCountry || {
+        mappedData: {
           originalName: country,
-          displayName: getCountryDisplayName(country),
-          hasLanguageMapping: !!(countryToLanguageMap[country])
+          displayName: translatedDisplayName,
+          hasLanguageMapping: !!(countryToLanguageMap[country] || countryToLanguageMap[translatedDisplayName])
         }
       });
     });
@@ -472,7 +473,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     );
 
     return staticCountries;
-  }, [allAvailableCountries, allFootballCountriesMapping, getCountryDisplayName, countryToLanguageMap]);
+  }, [allAvailableCountries, allFootballCountriesMapping, getCountryDisplayName, countryToLanguageMap, currentLanguage]);
 
   // Dynamic countries with actual match data (when fixtures are loaded)
   const sortedCountries = useMemo(() => {
