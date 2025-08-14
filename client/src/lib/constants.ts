@@ -19,21 +19,32 @@ export const CACHE_STALE_TIMES = {
   MATCH_DETAILS: 3600000,    // 1 hour (increased from 30 minutes)
 };
 
+// Popular leagues (aligned with Redux store)
 export const POPULAR_LEAGUES = [
-  // UEFA competitions
-  2, 3, 848, // Champions League, Europa League, Conference League
-
-  // Top European leagues
-  39, 140, 135, 78, 61, // Premier League, La Liga, Serie A, Bundesliga, Ligue 1
-
-  // Other major leagues
-  88, 253, 71, // Eredivisie, Major League Soccer, Serie A Brazil
-
-  // International competitions
-  1, 4, 15, // World Cup, Euro Championship, FIFA Club World Cup
-
-  // African competitions
-  914, // COSAFA Cup
+  2,   // UEFA Champions League
+  3,   // UEFA Europa League
+  848, // UEFA Conference League
+  39,  // Premier League (England)
+  45,  // FA Cup (England)
+  140, // La Liga (Spain)
+  135, // Serie A (Italy)
+  78,  // Bundesliga (Germany)
+  207, // EFL Cup (England)
+  219, // Community Shield (England)
+  203, // Championship (England)
 ];
+
+// Re-export the countries and leagues constants
+export { 
+  ALL_COUNTRIES, 
+  MAJOR_LEAGUES,
+  getCountryByCode,
+  getCountryByName,
+  getLeagueById,
+  getLeaguesByCountry,
+  getCountriesAsOptions,
+  getLeaguesAsOptions
+} from './constants/countriesAndLeagues';
+export type { Country, League, CountryOption, LeagueOption } from './constants/countriesAndLeagues';
 
 export const API_BASE_URL = window.location.origin;
