@@ -293,115 +293,84 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     }
   }, [user.preferences.favoriteLeagues, user.isAuthenticated, user.id, dispatch]);
 
-  // Define all football countries
-  const allFootballCountries = [
-    "World",
-    "Afghanistan",
-    "Albania",
-    "Algeria",
-    "Angola",
-    "Argentina",
-    "Armenia",
-    "Australia",
-    "Austria",
-    "Azerbaijan",
-    "Bahrain",
-    "Bangladesh",
-    "Belgium",
-    "Bolivia",
-    "Bosnia and Herzegovina",
-    "Botswana",
-    "Brazil",
-    "Bulgaria",
-    "Burkina Faso",
-    "Cameroon",
-    "Canada",
-    "Chile",
-    "China",
-    "Colombia",
-    "Croatia",
-    "Czech Republic",
-    "Denmark",
-    "Egypt",
-    "England",
-    "Estonia",
-    "Ethiopia",
-    "Faroe Islands",
-    "Finland",
-    "France",
-    "Georgia",
-    "Germany",
-    "Ghana",
-    "Greece",
-    "Hungary",
-    "Iceland",
-    "India",
-    "Indonesia",
-    "Iran",
-    "Iraq",
-    "Ireland",
-    "Israel",
-    "Italy",
-    "Japan",
-    "Jordan",
-    "Kazakhstan",
-    "Kenya",
-    "Kuwait",
-    "Lithuania",
-    "Luxembourg",
-    "Malaysia",
-    "Mali",
-    "Mexico",
-    "Morocco",
-    "Netherlands",
-    "New Zealand",
-    "Nigeria",
-    "Norway",
-    "Oman",
-    "Pakistan",
-    "Panama",
-    "Paraguay",
-    "Peru",
-    "Poland",
-    "Portugal",
-    "Qatar",
-    "Romania",
-    "Russia",
-    "Saudi Arabia",
-    "Scotland",
-    "Senegal",
-    "Serbia",
-    "Singapore",
-    "Slovakia",
-    "Slovenia",
-    "South Africa",
-    "South Korea",
-    "Spain",
-    "Sweden",
-    "Switzerland",
-    "Thailand",
-    "Tunisia",
-    "Turkey",
-    "Ukraine",
-    "United Arab Emirates",
-    "Uruguay",
-    "USA",
-    "Uzbekistan",
-    "Venezuela",
-    "Vietnam",
-    "Wales",
-    "Yemen",
-    "Zambia",
-    "Zimbabwe",
-  ];
+  // Comprehensive country mapping with translations pre-loaded
+  const allFootballCountriesMapping = useMemo(() => {
+    const countries = [
+      "World", "Afghanistan", "Albania", "Algeria", "Angola", "Argentina", "Armenia", 
+      "Australia", "Austria", "Azerbaijan", "Bahrain", "Bangladesh", "Belgium", 
+      "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Bulgaria", 
+      "Burkina Faso", "Cameroon", "Canada", "Chile", "China", "Colombia", "Croatia", 
+      "Czech Republic", "Denmark", "Egypt", "England", "Estonia", "Ethiopia", 
+      "Faroe Islands", "Finland", "France", "Georgia", "Germany", "Ghana", "Greece", 
+      "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", 
+      "Italy", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kuwait", "Lithuania", 
+      "Luxembourg", "Malaysia", "Mali", "Mexico", "Morocco", "Netherlands", 
+      "New Zealand", "Nigeria", "Norway", "Oman", "Pakistan", "Panama", "Paraguay", 
+      "Peru", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Saudi Arabia", 
+      "Scotland", "Senegal", "Serbia", "Singapore", "Slovakia", "Slovenia", 
+      "South Africa", "South Korea", "Spain", "Sweden", "Switzerland", "Thailand", 
+      "Tunisia", "Turkey", "Ukraine", "United Arab Emirates", "Uruguay", "USA", 
+      "Uzbekistan", "Venezuela", "Vietnam", "Wales", "Yemen", "Zambia", "Zimbabwe",
+      // Additional countries that might appear in fixtures
+      "Czech-Republic", "Dominican Republic", "Dominican-Republic", "United States",
+      "Bosnia-Herzegovina", "South-Africa", "United-Arab-Emirates", "New-Zealand"
+    ];
 
-  // Optimized sorted countries with minimal processing
+    // Pre-map all countries with their display names
+    const countryMap = new Map();
+    countries.forEach(country => {
+      const displayName = getCountryDisplayName(country);
+      countryMap.set(country, {
+        originalName: country,
+        displayName,
+        hasLanguageMapping: !!(countryToLanguageMap[country] || countryToLanguageMap[displayName])
+      });
+    });
+
+    return countryMap;
+  }, [currentLanguage, getCountryDisplayName]);
+
+  // Get countries that actually have matches for the selected date
+  const countriesWithMatches = useMemo(() => {
+    const countriesSet = new Set();
+    
+    // Extract unique countries from fixtures efficiently
+    if (fixtures && fixtures.length > 0) {
+      fixtures.forEach(fixture => {
+        if (fixture?.league?.country) {
+          countriesSet.add(fixture.league.country);
+        }
+      });
+    }
+
+    return Array.from(countriesSet);
+  }, [fixtures]);
+
+  // Optimized sorted countries using pre-mapped data
   const sortedCountries = useMemo(() => {
-    const countries = Object.values(leaguesByCountry);
-    if (!countries.length) return [];
+    if (!countriesWithMatches.length) return [];
 
-    // Single pass: filter, separate world, and sort
-    const validCountries = countries.filter((c: any) => c.totalMatches > 0);
+    // Filter to only countries that have matches and exist in our mapping
+    const validCountries = countriesWithMatches
+      .filter(country => {
+        const countryData = leaguesByCountry[country];
+        return countryData && countryData.totalMatches > 0;
+      })
+      .map(country => {
+        const countryData = leaguesByCountry[country];
+        const mappedCountry = allFootballCountriesMapping.get(country);
+        
+        return {
+          ...countryData,
+          mappedData: mappedCountry || {
+            originalName: country,
+            displayName: getCountryDisplayName(country),
+            hasLanguageMapping: !!(countryToLanguageMap[country])
+          }
+        };
+      });
+
+    // Separate World and others
     let worldCountry = null;
     const otherCountries = [];
 
@@ -413,11 +382,13 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       }
     }
 
-    // Sort others only once
-    otherCountries.sort((a: any, b: any) => a.country?.localeCompare(b.country) || 0);
+    // Sort others alphabetically by display name
+    otherCountries.sort((a: any, b: any) => 
+      a.mappedData.displayName.localeCompare(b.mappedData.displayName)
+    );
 
     return worldCountry ? [worldCountry, ...otherCountries] : otherCountries;
-  }, [leaguesByCountry]);
+  }, [leaguesByCountry, countriesWithMatches, allFootballCountriesMapping, getCountryDisplayName, countryToLanguageMap]);
 
   if (!selectedDate) {
     return (
@@ -565,21 +536,12 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                   >
                     <div className="flex items-center gap-3">
                       {(() => {
-                        const countryName =
-                          typeof countryData.country === "string"
-                            ? countryData.country
-                            : countryData.country?.name || "Unknown";
+                        const countryName = countryData.country;
+                        const mappedData = countryData.mappedData;
+                        const displayCountryName = mappedData.displayName;
 
-                        // Get the display name using smart translation
-                        const displayCountryName =
-                          getCountryDisplayName(countryName);
-
-                        // Check for World using both original and translated names
-                        const isWorldCountry =
-                          countryName.toLowerCase() === "world" ||
-                          displayCountryName.toLowerCase().includes("world") ||
-                          displayCountryName.includes("世界") ||
-                          displayCountryName.includes("世界");
+                        // Check for World using original name
+                        const isWorldCountry = countryName.toLowerCase() === "world";
 
                         const flagElement = isWorldCountry ? (
                           <MyGroupNationalFlag
@@ -597,12 +559,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                           />
                         );
 
-                        // Make flag clickable if country has language mapping (check both original and display names)
-                        const hasLanguageMapping =
-                          countryToLanguageMap[countryName] ||
-                          countryToLanguageMap[displayCountryName];
-
-                        return hasLanguageMapping ? (
+                        // Use pre-computed language mapping check
+                        return mappedData.hasLanguageMapping ? (
                           <button
                             onClick={(e) =>
                               handleCountryFlagClick(countryName, e)
@@ -629,7 +587,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                             maxWidth: "150px",
                           }}
                         >
-                          {getCountryDisplayName(countryData.country)}
+                          {countryData.mappedData.displayName}
                         </span>
                         <span
                           className={`text-sm ${hasMatches ? "text-gray-500" : "text-gray-300"}`}
