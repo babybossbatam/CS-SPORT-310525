@@ -401,29 +401,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({
 
   // No loading or error states needed since data comes from props
 
-  // Debug logging
-  console.log(`🔍 [MyAllLeagueList] Rendering with:`, {
-    selectedDate,
-    fixturesCount: fixtures.length,
-    totalMatches,
-    leaguesByCountryCount: Object.keys(leaguesByCountry).length
-  });
-
   if (!totalMatches) {
-    console.log(`ℹ️ [MyAllLeagueList] No matches found for ${selectedDate}`);
-    return (
-      <Card className="w-full bg-white">
-        <CardHeader className="flex flex-row justify-between items-center space-y-0 p-4 border-b border-stone-200 text-sm font-bold">
-          <div className="flex justify-between items-center w-full">
-            {t("all_leagues")}
-          </div>
-        </CardHeader>
-        <CardContent className="p-4 text-center text-gray-500">
-          <p>No matches available for {selectedDate}</p>
-          <p className="text-sm mt-2">Try selecting a different date</p>
-        </CardContent>
-      </Card>
-    );
+    return null;
   }
 
   return (
