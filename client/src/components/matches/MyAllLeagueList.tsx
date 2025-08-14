@@ -28,13 +28,12 @@ import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslati
 
 interface MyAllLeagueListProps {
   selectedDate: string;
-  fixtures?: any[]; // Receive fixtures from parent component
 }
 
-const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ 
-  selectedDate, 
-  fixtures: propFixtures = [] 
-}) => {
+const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
+  const [fixtures, setFixtures] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
   );
@@ -48,26 +47,58 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({
   const { currentLanguage, setLanguage } = useLanguage();
   const { t } = useTranslation();
 
-  // Use fixtures from props (no loading needed)
-  const fixtures = propFixtures;
+  // Fetch fixtures data with caching (league data is derived from fixtures)
+  const {
+    data: fixturesData,
+    isLoading: isFixturesLoading,
+    error: fixturesError,
+  } = useCachedQuery(
+    ["all-fixtures-by-date", selectedDate],
+    async () => {
+      if (!selectedDate) return [];
 
-  // Defer translation learning when fixtures change
+      performanceMonitor.startMeasure("fixtures-fetch");
+      const response = await apiRequest(
+        "GET",
+        `/api/fixtures/date/${selectedDate}?all=true`,
+      );
+      const data = await response.json();
+      performanceMonitor.endMeasure("fixtures-fetch");
+      return Array.isArray(data) ? data : [];
+    },
+    {
+      enabled: !!selectedDate,
+      staleTime: 5 * 60 * 1000, // 5 minutes for fixtures
+      maxAge: 30 * 60 * 1000,
+    },
+  );
+
+  // Update local state when fixtures data changes (optimized)
   useEffect(() => {
-    if (fixtures.length > 0) {
-      // Use setTimeout to defer heavy operations
-      const timeoutId = setTimeout(() => {
-        console.log(`🎓 [MyAllLeagueList Auto-Learning] Processing ${fixtures.length} fixtures for automatic translation learning...`);
+    if (fixturesData) {
+      setFixtures(fixturesData);
 
-        // Learn from fixtures in background
-        smartLeagueCountryTranslation.learnFromFixtures(fixtures);
-        smartLeagueCountryTranslation.massLearnMixedLanguageLeagues(fixtures);
+      // Defer translation learning to avoid blocking UI
+      if (fixturesData.length > 0) {
+        // Use setTimeout to defer heavy operations
+        const timeoutId = setTimeout(() => {
+          console.log(`🎓 [Auto-Learning] Processing ${fixturesData.length} fixtures for automatic translation learning...`);
 
-        console.log(`✅ [MyAllLeagueList Auto-Learning] Completed learning from ${fixtures.length} fixtures`);
-      }, 100); // Small delay to let UI render first
+          // Learn from fixtures in background
+          smartLeagueCountryTranslation.learnFromFixtures(fixturesData);
+          smartLeagueCountryTranslation.massLearnMixedLanguageLeagues(fixturesData);
 
-      return () => clearTimeout(timeoutId);
+          console.log(`✅ [Auto-Learning] Completed learning from ${fixturesData.length} fixtures`);
+        }, 100); // Small delay to let UI render first
+
+        return () => clearTimeout(timeoutId);
+      }
     }
-  }, [fixtures]);
+    setIsLoading(isFixturesLoading);
+    setError(
+      fixturesError ? "Failed to load fixtures. Please try again later." : null,
+    );
+  }, [fixturesData, isFixturesLoading, fixturesError]);
 
   // Optimized: Group leagues by country with better performance
   const leaguesByCountry = useMemo(() => {
@@ -399,7 +430,49 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({
     );
   }
 
-  // No loading or error states needed since data comes from props
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="text-red-500 font-medium text-sm">{error}</div>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm"
+            >
+              Try Again
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isLoading && !fixtures.length) {
+    return (
+      <Card>
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-4 rounded-full" />
+            <Skeleton className="h-4 w-52" />
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="space-y-0">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="border-b border-gray-100 last:border-b-0">
+                <div className="p-4 flex items-center gap-3">
+                  <Skeleton className="w-6 h-6 rounded-full" />
+                  <Skeleton className="h-4 w-28" />
+                  <Skeleton className="h-4 w-8" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (!totalMatches) {
     return null;

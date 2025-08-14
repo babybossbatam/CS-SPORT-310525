@@ -45,7 +45,6 @@ import "../../styles/MyLogoPositioning.css";
 import "../../styles/TodaysMatchByCountryNew.css";
 import "../../styles/flasheffect.css";
 import MyCountryGroupFlag from "../common/MyCountryGroupFlag";
-import MyAllLeagueList from "./MyAllLeagueList";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -338,7 +337,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Optimized data processing with immediate cache return
   const processedCountryData = useMemo(() => {
     const cacheKey = `processed-country-data-${selectedDate}`;
-
+    
     // Return cached data immediately if available
     const cached = CacheManager.getCachedData([cacheKey], 30 * 60 * 1000);
     if (cached) {
@@ -370,7 +369,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Skip exclusions for faster processing
       const leagueId = fixture.league.id;
       const leagueName = fixture.league.name || "";
-
+      
       if (shouldExcludeMatchByCountry(leagueName, "", "", false, country)) continue;
 
       // Build country data structure
@@ -398,10 +397,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // Convert to object
     const result = Object.fromEntries(countryMap);
-
+    
     // Cache result
     CacheManager.setCachedData([cacheKey], result);
-
+    
     return result;
   }, [fixtures, selectedDate]);
 
@@ -600,17 +599,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     if (countryList.length > 50) {
       const batchSize = 20;
       let currentIndex = 0;
-
+      
       const addBatch = () => {
         const batch = countryList.slice(currentIndex, currentIndex + batchSize);
         setVisibleCountries(prev => new Set([...prev, ...batch]));
         currentIndex += batchSize;
-
+        
         if (currentIndex < countryList.length) {
           requestAnimationFrame(addBatch);
         }
       };
-
+      
       addBatch();
     } else {
       // For smaller lists, show all immediately
@@ -689,9 +688,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Simplified flag loading - load all flags immediately for better UX
   const preloadFlags = useCallback(() => {
     if (!countryList.length) return;
-
+    
     const flagsToLoad: { [country: string]: string } = {};
-
+    
     countryList.forEach(country => {
       if (!flagMap[country]) {
         const syncFlag = getCountryFlagWithFallbackSync(country);
@@ -1678,40 +1677,33 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursOld > 4) ||
                 (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
 
-              // Live matches - show SCORE, not status text in center
+              // Live status and elapsed time
               if (
                 !["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) &&
                 !isStaleFinishedMatch &&
                 hoursOld <= 4 &&
                 ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
               ) {
-                // For live matches (including halftime), show the SCORE in center, not status
-                const homeScore = match.goals.home;
-                const awayScore = match.goals.away;
-                const hasValidScores =
-                  homeScore !== null &&
-                  homeScore !== undefined &&
-                  awayScore !== null &&
-                  awayScore !== undefined &&
-                  !isNaN(Number(homeScore)) &&
-                  !isNaN(Number(awayScore));
-
-                if (hasValidScores) {
-                  return (
-                    <div className="match-score-display">
-                      <span className="score-number">{homeScore}</span>
-                      <span className="score-separator">-</span>
-                      <span className="score-number">{awayScore}</span>
-                    </div>
-                  );
+                let displayText = "";
+                if (status === "HT") {
+                  displayText = "Halftime";
+                } else if (status === "P") {
+                  displayText = "Penalties";
+                } else if (status === "ET") {
+                  const extraTime = elapsed ? elapsed - 90 : 0;
+                  displayText = extraTime > 0 ? `90' + ${extraTime}'` : `${elapsed}'`;
+                } else if (status === "BT") {
+                  displayText = "Break Time";
+                } else if (status === "INT") {
+                  displayText = "Interrupted";
                 } else {
-                  // If no score available during live match, show time
-                  return (
-                    <div className="match-time-display">
-                      {format(fixtureDate, "HH:mm")}
-                    </div>
-                  );
+                  displayText = elapsed ? `${elapsed}'` : "LIVE";
                 }
+                return (
+                  <div className="match-status-label status-live-elapsed">
+                    {displayText}
+                  </div>
+                );
               }
 
               // Postponed/Cancelled matches
