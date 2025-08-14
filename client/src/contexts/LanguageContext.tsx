@@ -713,8 +713,6 @@ const translations = {
     'lineups': 'Lineups',
     'stats': 'Stats',
     'groups': 'Groups',
-    'unknown': 'Unknown',
-    'unknown_league': 'Unknown League',
   },
   'en-us': {
     'today_matches': "Today's Games",
@@ -809,8 +807,6 @@ const translations = {
     'lineups': 'Lineups',
     'stats': 'Stats',
     'groups': 'Groups',
-    'unknown': 'Unknown',
-    'unknown_league': 'Unknown League',
   },
   'es': {
     'today_matches': "Partidos de Hoy",
@@ -918,12 +914,12 @@ const translations = {
     'club_friendlies': 'Amistosos de Clubes',
     'after_extra_time': 'Después del Tiempo Extra',
     'starting_now': 'Empezando ahora',
+    'day': 'Día',
+    'days': 'Días',
     'match_page': 'Página del Partido',
     'lineups': 'Alineaciones',
     'stats': 'Estadísticas',
     'groups': 'Grupos',
-    'unknown': 'Desconocido',
-    'unknown_league': 'Liga Desconocida',
   },
   'zh-hk': {
     'today_matches': "今天的比賽",
@@ -1036,8 +1032,6 @@ const translations = {
     'lineups': '陣容',
     'stats': '統計',
     'groups': '小組',
-    'unknown': '未知',
-    'unknown_league': '未知聯賽',
   },
   'zh': {
     'today_matches': "今天的比赛",
@@ -1138,8 +1132,6 @@ const translations = {
     'lineups': '阵容',
     'stats': '统计',
     'groups': '小组',
-    'unknown': '未知',
-    'unknown_league': '未知联赛',
   },
   'de': {
     'today_matches': "Heutige Spiele",
@@ -1253,8 +1245,6 @@ const translations = {
     'lineups': 'Aufstellungen',
     'stats': 'Statistiken',
     'groups': 'Gruppen',
-    'unknown': 'Unbekannt',
-    'unknown_league': 'Unbekannte Liga',
   },
   'it': {
     'today_matches': "Partite di Oggi",
@@ -1368,8 +1358,6 @@ const translations = {
     'lineups': 'Formazioni',
     'stats': 'Statistiche',
     'groups': 'Gruppi',
-    'unknown': 'Sconosciuto',
-    'unknown_league': 'Lega Sconosciuta',
   },
   'pt': {
     'today_matches': "Jogos de Hoje",
@@ -1483,8 +1471,6 @@ const translations = {
     'lineups': 'Escalações',
     'stats': 'Estatísticas',
     'groups': 'Grupos',
-    'unknown': 'Desconhecido',
-    'unknown_league': 'Liga Desconhecida',
   },
   'zh-tw': {
     'today_matches': "今天的比賽",
@@ -1597,8 +1583,6 @@ const translations = {
     'lineups': '陣容',
     'stats': '統計',
     'groups': '小組',
-    'unknown': '未知',
-    'unknown_league': '未知聯賽',
   }
 };
 
