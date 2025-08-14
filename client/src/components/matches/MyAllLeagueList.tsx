@@ -25,13 +25,7 @@ import {
   countryToLanguageMap,
 } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
-import { 
-  ALL_COUNTRIES,
-  translateCountryName,
-  translateLeagueName,
-  getTranslatedCountriesAsOptions,
-  getTranslatedLeaguesAsOptions
-} from "@/lib/constants/countriesAndLeagues";
+import { ALL_COUNTRIES } from "@/lib/constants";
 import { LEAGUES_BY_COUNTRY, getLeaguesForCountry, mergeStaticWithDynamicLeagues, LeagueInfo } from "@/lib/constants/leaguesByCountry";
 
 interface MyAllLeagueListProps {
@@ -222,7 +216,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     );
   }, [leaguesByCountry]);
 
-  // Enhanced country name translation using the comprehensive translation system
+  // Optimized country name translation with stable caching
   const getCountryDisplayName = useCallback((country: string | null | undefined): string => {
     if (!country || typeof country !== "string") {
       return "Unknown";
@@ -230,71 +224,14 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
     const originalCountry = country.trim();
 
-    // First try the comprehensive translation system from countriesAndLeagues.ts
-    let comprehensiveTranslation = translateCountryName(originalCountry, currentLanguage);
-    
-    // If no direct match, try some common variations
-    if (!comprehensiveTranslation || comprehensiveTranslation === originalCountry) {
-      // Try with common variations
-      const variations = [
+    // Use the smart translation system directly (it has its own caching)
+    const translatedName =
+      smartLeagueCountryTranslation.translateCountryName(
         originalCountry,
-        originalCountry.replace(/\s+/g, ' '), // normalize spaces
-        originalCountry.replace(/\band\b/g, 'and'), // normalize 'and'
-        originalCountry.replace(/\bAnd\b/g, 'and'), // normalize 'And'
-        originalCountry.replace(/^([A-Z][a-z]+)\s+([A-Z][a-z]+)$/, '$1 $2'), // normalize case
-        originalCountry.replace(/^([A-Z][a-z]+)-([A-Z][a-z]+)$/, '$1 $2'), // handle hyphens
-        originalCountry === 'Bosnia and Herzegovina' ? 'Bosnia-Herzegovina' : originalCountry,
-        originalCountry === 'Bosnia-Herzegovina' ? 'Bosnia and Herzegovina' : originalCountry,
-        originalCountry === 'United States' ? 'USA' : originalCountry,
-        originalCountry === 'USA' ? 'United States' : originalCountry
-      ];
+        currentLanguage,
+      ) || originalCountry;
 
-      for (const variation of variations) {
-        const translation = translateCountryName(variation, currentLanguage);
-        if (translation && translation !== variation) {
-          comprehensiveTranslation = translation;
-          break;
-        }
-      }
-    }
-    
-    // If comprehensive translation is available and different from original, use it
-    if (comprehensiveTranslation && comprehensiveTranslation !== originalCountry) {
-      return comprehensiveTranslation;
-    }
-
-    // Fallback to smart translation system (it has its own caching)
-    const smartTranslation = smartLeagueCountryTranslation.translateCountryName(
-      originalCountry,
-      currentLanguage,
-    );
-
-    return smartTranslation || originalCountry;
-  }, [currentLanguage]);
-
-  // Enhanced league name translation using the comprehensive translation system
-  const getLeagueDisplayName = useCallback((leagueName: string | null | undefined): string => {
-    if (!leagueName || typeof leagueName !== "string") {
-      return "Unknown League";
-    }
-
-    const originalLeague = leagueName.trim();
-
-    // First try the comprehensive translation system from countriesAndLeagues.ts
-    const comprehensiveTranslation = translateLeagueName(originalLeague, currentLanguage);
-    
-    // If comprehensive translation is available and different from original, use it
-    if (comprehensiveTranslation && comprehensiveTranslation !== originalLeague) {
-      return comprehensiveTranslation;
-    }
-
-    // Fallback to smart translation system
-    const smartTranslation = smartLeagueCountryTranslation.translateLeagueName(
-      originalLeague,
-      currentLanguage,
-    );
-
-    return smartTranslation || originalLeague;
+    return translatedName;
   }, [currentLanguage]);
 
   // Get header title
@@ -805,7 +742,17 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                                       "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                                   }}
                                 >
-                                  {getLeagueDisplayName(leagueData.league.name)}
+                                  {(() => {
+                                    const originalName = leagueData.league.name || "Unknown League";
+
+                                    // Simple translation without forcing refresh
+                                    const translatedName = smartLeagueCountryTranslation.translateLeagueName(
+                                      originalName,
+                                      currentLanguage,
+                                    );
+
+                                    return translatedName || originalName;
+                                  })()}
                                 </span>
                               </div>
                               <span
