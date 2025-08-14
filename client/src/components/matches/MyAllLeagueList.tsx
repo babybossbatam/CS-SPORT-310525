@@ -529,7 +529,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                       <>
                         (
                         <span className="text-red-500 font-semibold animate-pulse">
-                          {totalLiveMatches} LIVE
+                          {totalLiveMatches}
                         </span>
                         /{totalMatches})
                       </>
