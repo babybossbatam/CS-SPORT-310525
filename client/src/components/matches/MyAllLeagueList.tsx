@@ -419,118 +419,104 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
   // Dynamic countries with actual match data (when fixtures are loaded)
   const sortedCountries = useMemo(() => {
-    // Always show the static list first to ensure all countries are visible
-    // Then merge with dynamic data when available
-    const countriesData = [];
+    // If no fixtures loaded yet, return static list
+    if (!fixtures || fixtures.length === 0) {
+      return staticCountriesList;
+    }
+
+    // When real fixture data is loaded, only show countries that have matches
+    const countriesWithMatchesData = [];
     const seenDisplayNames = new Set(); // Track seen display names to avoid duplicates
     const seenOriginalNames = new Set(); // Track original names that have been translated
 
-    // First, add all countries from static list (always show all countries)
+    // Add countries from our static list that have matches
     allAvailableCountries.forEach(country => {
       const countryData = leaguesByCountry[country];
       
-      // Use the enhanced translation function that includes fallbacks
-      const displayName = getCountryDisplayName(country);
-      
-      // Skip if we've already seen this display name
-      if (seenDisplayNames.has(displayName)) {
-        console.log(`🚫 [AllCountries] Skipping duplicate display name: "${country}" -> "${displayName}"`);
-        return;
-      }
-      
-      // If this is a translation (display name differs from original), mark the original as seen
-      if (displayName !== country) {
-        seenOriginalNames.add(country);
-      }
-      
-      // Skip if this original name was already used for a translation
-      if (seenOriginalNames.has(country) && displayName === country) {
-        console.log(`🚫 [AllCountries] Skipping original name that was already translated: "${country}"`);
-        return;
-      }
-      
-      seenDisplayNames.add(displayName);
-      
-      // Use actual match data if available, otherwise use static data structure
-      const finalCountryData = countryData || {
-        country,
-        leagues: getLeaguesForCountry(country).reduce((acc, league) => {
-          acc[league.id] = {
-            league: {
-              id: league.id,
-              name: league.name,
-              logo: league.logo,
-              country: league.country
-            },
-            matchCount: 0,
-            liveMatchCount: 0,
-          };
-          return acc;
-        }, {}),
-        totalMatches: 0,
-        liveMatches: 0,
-      };
-      
-      countriesData.push({
-        ...finalCountryData,
-        mappedData: {
-          originalName: country,
-          displayName,
-          hasLanguageMapping: !!(countryToLanguageMap[country] || countryToLanguageMap[displayName])
+      // Only include countries that have matches (filter out zero counts)
+      if (countryData && countryData.totalMatches > 0) {
+        // Use the enhanced translation function that includes fallbacks
+        const displayName = getCountryDisplayName(country);
+        
+        // Skip if we've already seen this display name
+        if (seenDisplayNames.has(displayName)) {
+          console.log(`🚫 [DynamicList] Skipping duplicate display name: "${country}" -> "${displayName}"`);
+          return;
         }
-      });
-      
-      console.log(`🌍 [AllCountries] Added country: "${country}" -> "${displayName}" (matches: ${finalCountryData.totalMatches})`);
+        
+        // If this is a translation (display name differs from original), mark the original as seen
+        if (displayName !== country) {
+          seenOriginalNames.add(country);
+        }
+        
+        // Skip if this original name was already used for a translation
+        if (seenOriginalNames.has(country) && displayName === country) {
+          console.log(`🚫 [DynamicList] Skipping original name that was already translated: "${country}"`);
+          return;
+        }
+        
+        seenDisplayNames.add(displayName);
+        
+        countriesWithMatchesData.push({
+          ...countryData,
+          mappedData: {
+            originalName: country,
+            displayName,
+            hasLanguageMapping: !!(countryToLanguageMap[country] || countryToLanguageMap[displayName])
+          }
+        });
+        
+        console.log(`🎯 [DynamicList] Static country with matches: "${country}" -> "${displayName}" (${currentLanguage})`);
+      }
     });
 
-    // Then add any additional countries that have matches but aren't in our static list
-    if (fixtures && fixtures.length > 0) {
-      countriesWithMatches.forEach(country => {
-        if (!allAvailableCountries.includes(country)) {
-          const countryData = leaguesByCountry[country];
-          if (countryData && countryData.totalMatches > 0) {
-            // Use the enhanced translation function that includes fallbacks
-            const displayName = getCountryDisplayName(country);
-            
-            // Skip if we've already seen this display name
-            if (seenDisplayNames.has(displayName)) {
-              console.log(`🚫 [AllCountries] Skipping duplicate dynamic country: "${country}" -> "${displayName}"`);
-              return;
-            }
-            
-            // If this is a translation (display name differs from original), mark the original as seen
-            if (displayName !== country) {
-              seenOriginalNames.add(country);
-            }
-            
-            // Skip if this original name was already used for a translation
-            if (seenOriginalNames.has(country) && displayName === country) {
-              console.log(`🚫 [AllCountries] Skipping dynamic original name that was already translated: "${country}"`);
-              return;
-            }
-            
-            seenDisplayNames.add(displayName);
-            
-            countriesData.push({
-              ...countryData,
-              mappedData: {
-                originalName: country,
-                displayName,
-                hasLanguageMapping: !!(countryToLanguageMap[country] || countryToLanguageMap[displayName])
-              }
-            });
-            
-            console.log(`🌍 [AllCountries] Added dynamic country: "${country}" -> "${displayName}" (matches: ${countryData.totalMatches})`);
+    // Add countries that have matches but aren't in our static list
+    countriesWithMatches.forEach(country => {
+      if (!allAvailableCountries.includes(country)) {
+        const countryData = leaguesByCountry[country];
+        // Only include if they have matches (filter out zero counts)
+        if (countryData && countryData.totalMatches > 0) {
+          // Use the enhanced translation function that includes fallbacks
+          const displayName = getCountryDisplayName(country);
+          
+          // Skip if we've already seen this display name
+          if (seenDisplayNames.has(displayName)) {
+            console.log(`🚫 [DynamicList] Skipping duplicate display name: "${country}" -> "${displayName}"`);
+            return;
           }
+          
+          // If this is a translation (display name differs from original), mark the original as seen
+          if (displayName !== country) {
+            seenOriginalNames.add(country);
+          }
+          
+          // Skip if this original name was already used for a translation
+          if (seenOriginalNames.has(country) && displayName === country) {
+            console.log(`🚫 [DynamicList] Skipping original name that was already translated: "${country}"`);
+            return;
+          }
+          
+          seenDisplayNames.add(displayName);
+          
+          countriesWithMatchesData.push({
+            ...countryData,
+            mappedData: {
+              originalName: country,
+              displayName,
+              hasLanguageMapping: !!(countryToLanguageMap[country] || countryToLanguageMap[displayName])
+            }
+          });
+          
+          console.log(`🎯 [DynamicList] Dynamic country with matches: "${country}" -> "${displayName}" (${currentLanguage})`);
         }
-      });
-    }
+      }
+    });
 
     // Separate World and others
     let worldCountry = null;
     const otherCountries = [];
 
-    for (const country of countriesData) {
+    for (const country of countriesWithMatchesData) {
       if (country.country?.toLowerCase() === "world") {
         worldCountry = country;
       } else {
@@ -759,7 +745,15 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                   {isExpanded && totalLeagues > 0 && (
                     <div className="   ">
                       {Object.values(countryData.leagues)
-                        
+                        .filter((leagueData: any) => {
+                          // When real data is loaded, only show leagues with matches
+                          if (fixtures && fixtures.length > 0) {
+                            return leagueData.matchCount > 0;
+                          }
+                          // When no real data, show all leagues
+                          return true;
+                        })
+                        .slice(0, 15)
                         .map((leagueData: any) => {
                           const leagueId = leagueData.league.id;
                           const isStarred =
