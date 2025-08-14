@@ -3,20 +3,13 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
 import MyAllLeagueList from './MyAllLeagueList';
-import { useCachedQuery } from '@/lib/cachingHelper';
+import { useCentralData } from '@/providers/CentralDataProvider';
 
 const MyAllLeague: React.FC = () => {
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
-
-  // Fetch fixtures for the selected date
-  const { data: fixtures = [], isLoading } = useCachedQuery(
-    ['fixtures', selectedDate],
-    () => fetch(`/api/fixtures/date/${selectedDate}`).then(res => res.json()),
-    {
-      staleTime: 2 * 60 * 1000, // 2 minutes
-      cacheTime: 5 * 60 * 1000, // 5 minutes
-    }
-  );
+  
+  // Use cached fixtures from central data provider
+  const { fixtures, isLoading } = useCentralData();
 
   if (isLoading) {
     return (
