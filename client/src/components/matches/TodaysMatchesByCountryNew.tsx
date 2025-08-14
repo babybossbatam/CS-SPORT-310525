@@ -45,6 +45,7 @@ import "../../styles/MyLogoPositioning.css";
 import "../../styles/TodaysMatchByCountryNew.css";
 import "../../styles/flasheffect.css";
 import MyCountryGroupFlag from "../common/MyCountryGroupFlag";
+import MyAllLeagueList from "./MyAllLeagueList";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -337,7 +338,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Optimized data processing with immediate cache return
   const processedCountryData = useMemo(() => {
     const cacheKey = `processed-country-data-${selectedDate}`;
-    
+
     // Return cached data immediately if available
     const cached = CacheManager.getCachedData([cacheKey], 30 * 60 * 1000);
     if (cached) {
@@ -369,7 +370,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Skip exclusions for faster processing
       const leagueId = fixture.league.id;
       const leagueName = fixture.league.name || "";
-      
+
       if (shouldExcludeMatchByCountry(leagueName, "", "", false, country)) continue;
 
       // Build country data structure
@@ -397,10 +398,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // Convert to object
     const result = Object.fromEntries(countryMap);
-    
+
     // Cache result
     CacheManager.setCachedData([cacheKey], result);
-    
+
     return result;
   }, [fixtures, selectedDate]);
 
@@ -599,17 +600,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     if (countryList.length > 50) {
       const batchSize = 20;
       let currentIndex = 0;
-      
+
       const addBatch = () => {
         const batch = countryList.slice(currentIndex, currentIndex + batchSize);
         setVisibleCountries(prev => new Set([...prev, ...batch]));
         currentIndex += batchSize;
-        
+
         if (currentIndex < countryList.length) {
           requestAnimationFrame(addBatch);
         }
       };
-      
+
       addBatch();
     } else {
       // For smaller lists, show all immediately
@@ -688,9 +689,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Simplified flag loading - load all flags immediately for better UX
   const preloadFlags = useCallback(() => {
     if (!countryList.length) return;
-    
+
     const flagsToLoad: { [country: string]: string } = {};
-    
+
     countryList.forEach(country => {
       if (!flagMap[country]) {
         const syncFlag = getCountryFlagWithFallbackSync(country);
