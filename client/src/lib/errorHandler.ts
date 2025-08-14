@@ -529,6 +529,8 @@ export const setupGlobalErrorHandlers = () => {
          errorString.includes('listeners added') ||
          errorString.includes('WebSocket connection') ||
          errorString.includes('graphql_subscriptions') ||
+         errorString.includes('versionFrom can\'t be lower than 1') ||
+         errorString.includes('Fetch ops returned an error') ||
          errorString.includes('logs.browser-intake') ||
          errorString.includes('events.launchdarkly.com') ||
          errorString.includes('api.sorryapp.com') ||
