@@ -452,35 +452,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     );
   }
 
-  if (isLoading && !fixtures.length) {
-    return (
-      <Card>
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-4 w-4 rounded-full" />
-            <Skeleton className="h-4 w-52" />
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="space-y-0">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="border-b border-gray-100 last:border-b-0">
-                <div className="p-4 flex items-center gap-3">
-                  <Skeleton className="w-6 h-6 rounded-full" />
-                  <Skeleton className="h-4 w-28" />
-                  <Skeleton className="h-4 w-8" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!totalMatches) {
-    return null;
-  }
+  // Show the card structure immediately, even while loading
+  const shouldShowContent = true; // Always show the card structure
 
   return (
     <Card className="w-full bg-white ">
@@ -524,34 +497,58 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                     "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                 }}
               >
-                {(() => {
-                  const totalLiveMatches = Object.values(
-                    leaguesByCountry,
-                  ).reduce(
-                    (sum: number, countryData: any) =>
-                      sum + (countryData.liveMatches || 0),
-                    0,
-                  );
-                  if (totalLiveMatches > 0) {
-                    return (
-                      <>
-                        (
-                        <span className="text-red-500 font-semibold">
-                          {totalLiveMatches}
-                        </span>
-                        /{totalMatches})
-                      </>
+                {isLoading ? (
+                  <Skeleton className="h-4 w-12" />
+                ) : (
+                  (() => {
+                    const totalLiveMatches = Object.values(
+                      leaguesByCountry,
+                    ).reduce(
+                      (sum: number, countryData: any) =>
+                        sum + (countryData.liveMatches || 0),
+                      0,
                     );
-                  }
-                  return `(${totalMatches})`;
-                })()}
+                    if (totalLiveMatches > 0) {
+                      return (
+                        <>
+                          (
+                          <span className="text-red-500 font-semibold">
+                            {totalLiveMatches}
+                          </span>
+                          /{totalMatches})
+                        </>
+                      );
+                    }
+                    return `(${totalMatches})`;
+                  })()
+                )}
               </span>
             </div>
           </button>
 
           {/* Countries under Football - Show when expanded */}
-          {isFootballExpanded &&
-            sortedCountries.map((countryData: any) => {
+          {isFootballExpanded && (
+            <>
+              {isLoading && sortedCountries.length === 0 ? (
+                // Show skeleton countries while loading
+                <div className="space-y-0">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="border-b border-gray-100 last:border-b-0">
+                      <div className="flex items-center justify-between pl-2 pr-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <Skeleton className="w-6 h-6 rounded-full" />
+                          <div className="flex items-center gap-2">
+                            <Skeleton className="h-4 w-24" />
+                            <Skeleton className="h-4 w-8" />
+                          </div>
+                        </div>
+                        <Skeleton className="h-4 w-4" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                sortedCountries.map((countryData: any) => {
               const totalLeagues = Object.keys(
                 countryData.leagues || {},
               ).length;
@@ -775,7 +772,10 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                   )}
                 </div>
               );
-            })}
+            })
+              )}
+            </>
+          )}
         </div>
       </CardContent>
     </Card>
