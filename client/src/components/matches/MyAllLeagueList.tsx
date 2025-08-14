@@ -230,8 +230,32 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
     const originalCountry = country.trim();
 
-    // Use the comprehensive translation system from countriesAndLeagues.ts
-    const translation = translateCountryName(originalCountry, currentLanguage);
+    // First try the comprehensive translation system from countriesAndLeagues.ts
+    let translation = translateCountryName(originalCountry, currentLanguage);
+    
+    // If no translation found, try some common variations
+    if (!translation || translation === originalCountry) {
+      // Try with normalized formatting
+      const variations = [
+        originalCountry.toLowerCase(),
+        originalCountry.replace(/\s+/g, ' ').trim(),
+        originalCountry.replace(/-/g, ' '),
+        originalCountry.replace(/\s/g, '-'),
+      ];
+      
+      for (const variation of variations) {
+        const varTranslation = translateCountryName(variation, currentLanguage);
+        if (varTranslation && varTranslation !== variation) {
+          translation = varTranslation;
+          break;
+        }
+      }
+    }
+
+    // If still no translation, try the smart translation system as fallback
+    if (!translation || translation === originalCountry) {
+      translation = smartLeagueCountryTranslation.translateCountryName(originalCountry, currentLanguage);
+    }
     
     // Log translation for debugging
     console.log(`🌍 [MyAllLeagueList] Translating country: "${originalCountry}" -> "${translation}" (language: ${currentLanguage})`);
@@ -394,9 +418,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     
     // Add main countries from static data first
     allAvailableCountries.forEach(country => {
-      // Use the comprehensive translation system directly
-      const translatedName = translateCountryName(country, currentLanguage);
-      const displayName = translatedName || country;
+      // Use the enhanced translation function that includes fallbacks
+      const displayName = getCountryDisplayName(country);
       
       const mappedData = {
         originalName: country,
@@ -433,7 +456,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     );
 
     return staticCountries;
-  }, [allAvailableCountries, currentLanguage, countryToLanguageMap]);
+  }, [allAvailableCountries, currentLanguage, countryToLanguageMap, getCountryDisplayName]);
 
   // Dynamic countries with actual match data (when fixtures are loaded)
   const sortedCountries = useMemo(() => {
@@ -451,9 +474,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       
       // Only include countries that have matches (filter out zero counts)
       if (countryData && countryData.totalMatches > 0) {
-        // Use the comprehensive translation system directly
-        const translatedName = translateCountryName(country, currentLanguage);
-        const displayName = translatedName || country;
+        // Use the enhanced translation function that includes fallbacks
+        const displayName = getCountryDisplayName(country);
         
         countriesWithMatchesData.push({
           ...countryData,
@@ -474,9 +496,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         const countryData = leaguesByCountry[country];
         // Only include if they have matches (filter out zero counts)
         if (countryData && countryData.totalMatches > 0) {
-          // Use the comprehensive translation system directly
-          const translatedName = translateCountryName(country, currentLanguage);
-          const displayName = translatedName || country;
+          // Use the enhanced translation function that includes fallbacks
+          const displayName = getCountryDisplayName(country);
           
           countriesWithMatchesData.push({
             ...countryData,

@@ -290,7 +290,47 @@ const COUNTRY_TRANSLATIONS: CountryTranslations = {
   'World': {
     en: 'World', zh: '世界', 'zh-hk': '世界', 'zh-tw': '世界',
     es: 'Mundial', de: 'Welt', it: 'Mondo', pt: 'Mundial'
-  }
+  },
+  'Bolivia': {
+    en: 'Bolivia', zh: '玻利维亚', 'zh-hk': '玻利維亞', 'zh-tw': '玻利維亞',
+    es: 'Bolivia', de: 'Bolivien', it: 'Bolivia', pt: 'Bolívia'
+  },
+  'Colombia': {
+    en: 'Colombia', zh: '哥伦比亚', 'zh-hk': '哥倫比亞', 'zh-tw': '哥倫比亞',
+    es: 'Colombia', de: 'Kolumbien', it: 'Colombia', pt: 'Colômbia'
+  },
+  'Ecuador': {
+    en: 'Ecuador', zh: '厄瓜多尔', 'zh-hk': '厄瓜多爾', 'zh-tw': '厄瓜多爾',
+    es: 'Ecuador', de: 'Ecuador', it: 'Ecuador', pt: 'Equador'
+  },
+  'Egypt': {
+    en: 'Egypt', zh: '埃及', 'zh-hk': '埃及', 'zh-tw': '埃及',
+    es: 'Egipto', de: 'Ägypten', it: 'Egitto', pt: 'Egito'
+  },
+  'Paraguay': {
+    en: 'Paraguay', zh: '巴拉圭', 'zh-hk': '巴拉圭', 'zh-tw': '巴拉圭',
+    es: 'Paraguay', de: 'Paraguay', it: 'Paraguay', pt: 'Paraguai'
+  },
+  'Poland': {
+    en: 'Poland', zh: '波兰', 'zh-hk': '波蘭', 'zh-tw': '波蘭',
+    es: 'Polonia', de: 'Polen', it: 'Polonia', pt: 'Polônia'
+  },
+  'Romania': {
+    en: 'Romania', zh: '罗马尼亚', 'zh-hk': '羅馬尼亞', 'zh-tw': '羅馬尼亞',
+    es: 'Rumania', de: 'Rumänien', it: 'Romania', pt: 'Romênia'
+  },
+  'Russia': {
+    en: 'Russia', zh: '俄罗斯', 'zh-hk': '俄羅斯', 'zh-tw': '俄羅斯',
+    es: 'Rusia', de: 'Russland', it: 'Russia', pt: 'Rússia'
+  },
+  'Sweden': {
+    en: 'Sweden', zh: '瑞典', 'zh-hk': '瑞典', 'zh-tw': '瑞典',
+    es: 'Suecia', de: 'Schweden', it: 'Svezia', pt: 'Suécia'
+  },
+  'Ukraine': {
+    en: 'Ukraine', zh: '乌克兰', 'zh-hk': '烏克蘭', 'zh-tw': '烏克蘭',
+    es: 'Ucrania', de: 'Ukraine', it: 'Ucraina', pt: 'Ucrânia'
+  },
 };
 
 // League translations mapping
