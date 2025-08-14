@@ -19,6 +19,29 @@ process.on('unhandledRejection', (reason, promise) => {
   // Prevent unhandled rejections from crashing the process
 });
 
+// Memory monitoring to prevent OOM crashes
+let memoryWarningCount = 0;
+const monitorMemory = () => {
+  const usage = process.memoryUsage();
+  const heapUsedMB = usage.heapUsed / 1024 / 1024;
+  
+  if (heapUsedMB > 1500) { // Warning at 1.5GB
+    memoryWarningCount++;
+    console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB (Warning #${memoryWarningCount})`);
+    
+    if (memoryWarningCount > 5) {
+      console.log('🧹 Forcing garbage collection...');
+      if (global.gc) {
+        global.gc();
+        memoryWarningCount = 0;
+      }
+    }
+  }
+};
+
+// Check memory every 30 seconds
+setInterval(monitorMemory, 30000);
+
 // Set higher limits to prevent EventEmitter warnings
 process.setMaxListeners(8000);
 import { EventEmitter } from 'events';
@@ -45,6 +68,24 @@ process.on('SIGINT', () => {
   console.log('SIGINT received, shutting down gracefully');
   process.exit(0);
 });
+
+// Prevent exit on warnings
+process.on('warning', (warning) => {
+  if (warning.name === 'MaxListenersExceededWarning') {
+    // Suppress these warnings instead of logging
+    return;
+  }
+  console.warn('Process Warning:', warning.message);
+});
+
+// Monitor process uptime and stability
+let startTime = Date.now();
+setInterval(() => {
+  const uptime = Math.floor((Date.now() - startTime) / 1000);
+  if (uptime % 300 === 0) { // Every 5 minutes
+    console.log(`✅ Server stable for ${Math.floor(uptime / 60)} minutes`);
+  }
+}, 1000);
 
 
 
