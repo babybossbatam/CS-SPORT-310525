@@ -1515,6 +1515,37 @@ class SmartLeagueCountryTranslation {
     console.log('✅ [SmartLeagueCountryTranslation] Integrated automated mappings cache');
   }
 
+  // Apply immediate translation fixes for problematic mixed language leagues
+  private applyImmediateTranslationFixes(): void {
+    const immediateFixesList = [
+      'Brazil聯賽', 'Argentina聯賽', 'Netherlands聯賽', 'Australia超级联赛', 'Australia聯賽',
+      'Czech-Republic聯賽', 'Dominican-Republic聯賽', 'Bulgaria聯賽', 'Romania聯賽',
+      'Poland聯賽', 'Hungary聯賽', 'Slovakia聯賽', 'Slovenia聯賽'
+    ];
+
+    let fixesApplied = 0;
+
+    immediateFixesList.forEach(leagueName => {
+      // Check if we already have a mapping
+      if (!this.learnedLeagueMappings.has(leagueName)) {
+        const mapping = this.generateMixedLanguageMapping(leagueName, '');
+        if (mapping) {
+          this.learnedLeagueMappings.set(leagueName, mapping);
+          this.coreLeagueTranslations[leagueName] = mapping;
+          fixesApplied++;
+          
+          console.log(`🎯 [Specific Fix] "${leagueName}" → properly translated for all languages`);
+          console.log(`🎯 [Specific Fix] Translations:`, mapping);
+        }
+      }
+    });
+
+    if (fixesApplied > 0) {
+      this.saveLearnedMappings();
+      console.log(`✅ [Specific Fix] Fixed ${fixesApplied} specific mixed language leagues immediately`);
+    }
+  }
+
   // Auto-learn from any country name for better translations
   autoLearnFromAnyCountryName(countryName: string, options: {
     leagueContext?: string;
