@@ -84,13 +84,16 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       if (fixturesData.length > 0) {
         // Use setTimeout to defer heavy operations
         const timeoutId = setTimeout(() => {
-          console.log(`🎓 [Auto-Learning] Processing ${fixturesData.length} fixtures for automatic translation learning...`);
+          console.log(`🎓 [Enhanced Auto-Learning] Processing ${fixturesData.length} fixtures for comprehensive translation learning...`);
 
-          // Learn from fixtures in background
+          // Learn from fixtures in background with enhanced system
           smartLeagueCountryTranslation.learnFromFixtures(fixturesData);
           smartLeagueCountryTranslation.massLearnMixedLanguageLeagues(fixturesData);
+          
+          // Additional learning for comprehensive league and country coverage
+          smartLeagueCountryTranslation.enhanceTranslationCoverage(fixturesData);
 
-          console.log(`✅ [Auto-Learning] Completed learning from ${fixturesData.length} fixtures`);
+          console.log(`✅ [Enhanced Auto-Learning] Completed comprehensive learning from ${fixturesData.length} fixtures`);
         }, 100); // Small delay to let UI render first
 
         return () => clearTimeout(timeoutId);
