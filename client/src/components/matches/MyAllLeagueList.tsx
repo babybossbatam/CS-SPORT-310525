@@ -470,7 +470,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                   {t("football")}
                 </span>
                 {/* Expand/Collapse Icon */}
-                {isFootballExpanded}
+                {isFootballExpanded ? (
+                  <ChevronUp className="h-4 w-4 text-gray-500" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-gray-500" />
+                )}
               </div>
               <span
                 className="text-gray-500 text-sm"
