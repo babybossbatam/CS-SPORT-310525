@@ -85,17 +85,189 @@ const COUNTRY_TRANSLATIONS: CountryTranslations = {
     es: 'Turquía', de: 'Türkei', it: 'Turchia', pt: 'Turquia'
   },
   // Asia
+  'Afghanistan': {
+    en: 'Afghanistan', zh: '阿富汗', 'zh-hk': '阿富汗', 'zh-tw': '阿富汗',
+    es: 'Afganistán', de: 'Afghanistan', it: 'Afghanistan', pt: 'Afeganistão'
+  },
+  'Bangladesh': {
+    en: 'Bangladesh', zh: '孟加拉国', 'zh-hk': '孟加拉國', 'zh-tw': '孟加拉國',
+    es: 'Bangladesh', de: 'Bangladesch', it: 'Bangladesh', pt: 'Bangladesh'
+  },
+  'Bahrain': {
+    en: 'Bahrain', zh: '巴林', 'zh-hk': '巴林', 'zh-tw': '巴林',
+    es: 'Baréin', de: 'Bahrain', it: 'Bahrain', pt: 'Bahrein'
+  },
+  'Brunei': {
+    en: 'Brunei', zh: '文莱', 'zh-hk': '汶萊', 'zh-tw': '汶萊',
+    es: 'Brunéi', de: 'Brunei', it: 'Brunei', pt: 'Brunei'
+  },
+  'Bhutan': {
+    en: 'Bhutan', zh: '不丹', 'zh-hk': '不丹', 'zh-tw': '不丹',
+    es: 'Bután', de: 'Bhutan', it: 'Bhutan', pt: 'Butão'
+  },
   'China': {
     en: 'China', zh: '中国', 'zh-hk': '中國', 'zh-tw': '中國',
     es: 'China', de: 'China', it: 'Cina', pt: 'China'
+  },
+  'Hong Kong': {
+    en: 'Hong Kong', zh: '香港', 'zh-hk': '香港', 'zh-tw': '香港',
+    es: 'Hong Kong', de: 'Hongkong', it: 'Hong Kong', pt: 'Hong Kong'
+  },
+  'Indonesia': {
+    en: 'Indonesia', zh: '印度尼西亚', 'zh-hk': '印尼', 'zh-tw': '印尼',
+    es: 'Indonesia', de: 'Indonesien', it: 'Indonesia', pt: 'Indonésia'
+  },
+  'Israel': {
+    en: 'Israel', zh: '以色列', 'zh-hk': '以色列', 'zh-tw': '以色列',
+    es: 'Israel', de: 'Israel', it: 'Israele', pt: 'Israel'
+  },
+  'India': {
+    en: 'India', zh: '印度', 'zh-hk': '印度', 'zh-tw': '印度',
+    es: 'India', de: 'Indien', it: 'India', pt: 'Índia'
+  },
+  'Iraq': {
+    en: 'Iraq', zh: '伊拉克', 'zh-hk': '伊拉克', 'zh-tw': '伊拉克',
+    es: 'Irak', de: 'Irak', it: 'Iraq', pt: 'Iraque'
+  },
+  'Iran': {
+    en: 'Iran', zh: '伊朗', 'zh-hk': '伊朗', 'zh-tw': '伊朗',
+    es: 'Irán', de: 'Iran', it: 'Iran', pt: 'Irã'
+  },
+  'Jordan': {
+    en: 'Jordan', zh: '约旦', 'zh-hk': '約旦', 'zh-tw': '約旦',
+    es: 'Jordania', de: 'Jordanien', it: 'Giordania', pt: 'Jordânia'
   },
   'Japan': {
     en: 'Japan', zh: '日本', 'zh-hk': '日本', 'zh-tw': '日本',
     es: 'Japón', de: 'Japan', it: 'Giappone', pt: 'Japão'
   },
+  'Kyrgyzstan': {
+    en: 'Kyrgyzstan', zh: '吉尔吉斯斯坦', 'zh-hk': '吉爾吉斯斯坦', 'zh-tw': '吉爾吉斯斯坦',
+    es: 'Kirguistán', de: 'Kirgisistan', it: 'Kirghizistan', pt: 'Quirguistão'
+  },
+  'Cambodia': {
+    en: 'Cambodia', zh: '柬埔寨', 'zh-hk': '柬埔寨', 'zh-tw': '柬埔寨',
+    es: 'Camboya', de: 'Kambodscha', it: 'Cambogia', pt: 'Camboja'
+  },
+  'North Korea': {
+    en: 'North Korea', zh: '朝鲜', 'zh-hk': '朝鮮', 'zh-tw': '朝鮮',
+    es: 'Corea del Norte', de: 'Nordkorea', it: 'Corea del Nord', pt: 'Coreia do Norte'
+  },
   'South Korea': {
     en: 'South Korea', zh: '韩国', 'zh-hk': '韓國', 'zh-tw': '韓國',
     es: 'Corea del Sur', de: 'Südkorea', it: 'Corea del Sud', pt: 'Coreia do Sul'
+  },
+  'Kuwait': {
+    en: 'Kuwait', zh: '科威特', 'zh-hk': '科威特', 'zh-tw': '科威特',
+    es: 'Kuwait', de: 'Kuwait', it: 'Kuwait', pt: 'Kuwait'
+  },
+  'Kazakhstan': {
+    en: 'Kazakhstan', zh: '哈萨克斯坦', 'zh-hk': '哈薩克斯坦', 'zh-tw': '哈薩克斯坦',
+    es: 'Kazajistán', de: 'Kasachstan', it: 'Kazakistan', pt: 'Cazaquistão'
+  },
+  'Laos': {
+    en: 'Laos', zh: '老挝', 'zh-hk': '老撾', 'zh-tw': '老撾',
+    es: 'Laos', de: 'Laos', it: 'Laos', pt: 'Laos'
+  },
+  'Lebanon': {
+    en: 'Lebanon', zh: '黎巴嫩', 'zh-hk': '黎巴嫩', 'zh-tw': '黎巴嫩',
+    es: 'Líbano', de: 'Libanon', it: 'Libano', pt: 'Líbano'
+  },
+  'Sri Lanka': {
+    en: 'Sri Lanka', zh: '斯里兰卡', 'zh-hk': '斯里蘭卡', 'zh-tw': '斯里蘭卡',
+    es: 'Sri Lanka', de: 'Sri Lanka', it: 'Sri Lanka', pt: 'Sri Lanka'
+  },
+  'Myanmar': {
+    en: 'Myanmar', zh: '缅甸', 'zh-hk': '緬甸', 'zh-tw': '緬甸',
+    es: 'Myanmar', de: 'Myanmar', it: 'Myanmar', pt: 'Myanmar'
+  },
+  'Mongolia': {
+    en: 'Mongolia', zh: '蒙古', 'zh-hk': '蒙古', 'zh-tw': '蒙古',
+    es: 'Mongolia', de: 'Mongolei', it: 'Mongolia', pt: 'Mongólia'
+  },
+  'Macau': {
+    en: 'Macau', zh: '澳门', 'zh-hk': '澳門', 'zh-tw': '澳門',
+    es: 'Macao', de: 'Macao', it: 'Macao', pt: 'Macau'
+  },
+  'Maldives': {
+    en: 'Maldives', zh: '马尔代夫', 'zh-hk': '馬爾代夫', 'zh-tw': '馬爾代夫',
+    es: 'Maldivas', de: 'Malediven', it: 'Maldive', pt: 'Maldivas'
+  },
+  'Malaysia': {
+    en: 'Malaysia', zh: '马来西亚', 'zh-hk': '馬來西亞', 'zh-tw': '馬來西亞',
+    es: 'Malasia', de: 'Malaysia', it: 'Malesia', pt: 'Malásia'
+  },
+  'Nepal': {
+    en: 'Nepal', zh: '尼泊尔', 'zh-hk': '尼泊爾', 'zh-tw': '尼泊爾',
+    es: 'Nepal', de: 'Nepal', it: 'Nepal', pt: 'Nepal'
+  },
+  'Oman': {
+    en: 'Oman', zh: '阿曼', 'zh-hk': '阿曼', 'zh-tw': '阿曼',
+    es: 'Omán', de: 'Oman', it: 'Oman', pt: 'Omã'
+  },
+  'Philippines': {
+    en: 'Philippines', zh: '菲律宾', 'zh-hk': '菲律賓', 'zh-tw': '菲律賓',
+    es: 'Filipinas', de: 'Philippinen', it: 'Filippine', pt: 'Filipinas'
+  },
+  'Pakistan': {
+    en: 'Pakistan', zh: '巴基斯坦', 'zh-hk': '巴基斯坦', 'zh-tw': '巴基斯坦',
+    es: 'Pakistán', de: 'Pakistan', it: 'Pakistan', pt: 'Paquistão'
+  },
+  'Palestine': {
+    en: 'Palestine', zh: '巴勒斯坦', 'zh-hk': '巴勒斯坦', 'zh-tw': '巴勒斯坦',
+    es: 'Palestina', de: 'Palästina', it: 'Palestina', pt: 'Palestina'
+  },
+  'Qatar': {
+    en: 'Qatar', zh: '卡塔尔', 'zh-hk': '卡塔爾', 'zh-tw': '卡達',
+    es: 'Catar', de: 'Katar', it: 'Qatar', pt: 'Catar'
+  },
+  'Saudi Arabia': {
+    en: 'Saudi Arabia', zh: '沙特阿拉伯', 'zh-hk': '沙特阿拉伯', 'zh-tw': '沙特阿拉伯',
+    es: 'Arabia Saudí', de: 'Saudi-Arabien', it: 'Arabia Saudita', pt: 'Arábia Saudita'
+  },
+  'Singapore': {
+    en: 'Singapore', zh: '新加坡', 'zh-hk': '新加坡', 'zh-tw': '新加坡',
+    es: 'Singapur', de: 'Singapur', it: 'Singapore', pt: 'Singapura'
+  },
+  'Syria': {
+    en: 'Syria', zh: '叙利亚', 'zh-hk': '敘利亞', 'zh-tw': '敘利亞',
+    es: 'Siria', de: 'Syrien', it: 'Siria', pt: 'Síria'
+  },
+  'Thailand': {
+    en: 'Thailand', zh: '泰国', 'zh-hk': '泰國', 'zh-tw': '泰國',
+    es: 'Tailandia', de: 'Thailand', it: 'Thailandia', pt: 'Tailândia'
+  },
+  'Tajikistan': {
+    en: 'Tajikistan', zh: '塔吉克斯坦', 'zh-hk': '塔吉克斯坦', 'zh-tw': '塔吉克斯坦',
+    es: 'Tayikistán', de: 'Tadschikistan', it: 'Tagikistan', pt: 'Tadjiquistão'
+  },
+  'Timor-Leste': {
+    en: 'Timor-Leste', zh: '东帝汶', 'zh-hk': '東帝汶', 'zh-tw': '東帝汶',
+    es: 'Timor Oriental', de: 'Osttimor', it: 'Timor Est', pt: 'Timor-Leste'
+  },
+  'Turkmenistan': {
+    en: 'Turkmenistan', zh: '土库曼斯坦', 'zh-hk': '土庫曼斯坦', 'zh-tw': '土庫曼斯坦',
+    es: 'Turkmenistán', de: 'Turkmenistan', it: 'Turkmenistan', pt: 'Turcomenistão'
+  },
+  'Taiwan': {
+    en: 'Taiwan', zh: '台湾', 'zh-hk': '台灣', 'zh-tw': '台灣',
+    es: 'Taiwán', de: 'Taiwan', it: 'Taiwan', pt: 'Taiwan'
+  },
+  'Uzbekistan': {
+    en: 'Uzbekistan', zh: '乌兹别克斯坦', 'zh-hk': '烏茲別克斯坦', 'zh-tw': '烏茲別克斯坦',
+    es: 'Uzbekistán', de: 'Usbekistan', it: 'Uzbekistan', pt: 'Uzbequistão'
+  },
+  'Vietnam': {
+    en: 'Vietnam', zh: '越南', 'zh-hk': '越南', 'zh-tw': '越南',
+    es: 'Vietnam', de: 'Vietnam', it: 'Vietnam', pt: 'Vietnã'
+  },
+  'Yemen': {
+    en: 'Yemen', zh: '也门', 'zh-hk': '也門', 'zh-tw': '也門',
+    es: 'Yemen', de: 'Jemen', it: 'Yemen', pt: 'Iémen'
+  },
+  'United Arab Emirates': {
+    en: 'United Arab Emirates', zh: '阿拉伯联合酋长国', 'zh-hk': '阿拉伯聯合酋長國', 'zh-tw': '阿拉伯聯合酋長國',
+    es: 'Emiratos Árabes Unidos', de: 'Vereinigte Arabische Emirate', it: 'Emirati Arabi Uniti', pt: 'Emirados Árabes Unidos'
   },
   // Americas
   'Brazil': {
