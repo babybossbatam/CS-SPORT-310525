@@ -2726,6 +2726,19 @@ class SmartLeagueCountryTranslation {
     };
   }
 
+  // Enhanced method to process comprehensive translation coverage
+  enhanceTranslationCoverage(fixtures: any[]): void {
+    if (!Array.isArray(fixtures) || fixtures.length === 0) return;
+    
+    console.log(`🚀 [Enhanced Coverage] Processing ${fixtures.length} fixtures for comprehensive coverage...`);
+    
+    // Use existing mass learning methods
+    this.massLearnFromFixtures(fixtures);
+    this.massLearnCountriesFromFixtures(fixtures);
+    
+    console.log(`✅ [Enhanced Coverage] Completed comprehensive translation coverage enhancement`);
+  }
+
   // Import comprehensive mappings
   importMappings(mappings: any) {
     try {
