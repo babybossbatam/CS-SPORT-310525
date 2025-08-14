@@ -21,7 +21,18 @@ process.on('uncaughtException', (error) => {
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection:', reason);
   // Clean up the promise to prevent memory leaks
-  promise.catch(() => {});
+  if (promise && typeof promise.catch === 'function') {
+    promise.catch(() => {});
+  }
+});
+
+// Prevent WebSocket/HTTP connection issues that cause restarts
+process.on('ECONNRESET', () => {
+  console.log('Connection reset by peer - continuing...');
+});
+
+process.on('EPIPE', () => {
+  console.log('Broken pipe detected - continuing...');
 });
 
 // Handle EventEmitter warnings specifically
@@ -196,24 +207,39 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
   // It is the only port that is not firewalled.
   const port = process.env.PORT || 5000;
   const tryListen = (retryPort: number) => {
-    server.listen(retryPort, "0.0.0.0", () => {
+    const serverInstance = server.listen(retryPort, "0.0.0.0", () => {
       log(`serving on port ${retryPort}`);
-    }).on('error', (err: any) => {
+    });
+
+    // Improve connection handling to prevent disconnects
+    serverInstance.keepAliveTimeout = 65000; // 65 seconds
+    serverInstance.headersTimeout = 66000;   // 66 seconds (slightly higher)
+    
+    // Handle server errors gracefully
+    serverInstance.on('error', (err: any) => {
       if (err.code === 'EADDRINUSE' && retryPort < 5010) {
         log(`Port ${retryPort} in use, trying ${retryPort + 1}`);
         if (retryPort + 1 <= 5010) {
             tryListen(retryPort + 1);
         } else {
             console.error("Failed to find an open port between 5000 and 5010");
-            // Don't exit immediately, let the process manager handle restarts
             setTimeout(() => process.exit(1), 1000);
         }
       } else {
         console.error("Failed to start server:", err);
-        // Don't exit immediately, let the process manager handle restarts
         setTimeout(() => process.exit(1), 1000);
       }
     });
+
+    // Handle client disconnections gracefully
+    serverInstance.on('clientError', (err, socket) => {
+      console.warn('Client connection error:', err.message);
+      if (!socket.destroyed) {
+        socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+      }
+    });
+
+    return serverInstance;
   };
   tryListen(Number(port));
 })();
