@@ -516,6 +516,12 @@ class SmartLeagueCountryTranslation {
   };
 
   constructor() {
+    // Bind methods to ensure proper context
+    this.applyImmediateTranslationFixes = this.applyImmediateTranslationFixes.bind(this);
+    this.generateMixedLanguageMapping = this.generateMixedLanguageMapping.bind(this);
+    this.translateLeagueName = this.translateLeagueName.bind(this);
+    this.translateCountryName = this.translateCountryName.bind(this);
+    
     this.loadLearnedMappings();
     this.clearCache();
     this.fixCorruptedCache();
@@ -1544,6 +1550,64 @@ class SmartLeagueCountryTranslation {
       this.saveLearnedMappings();
       console.log(`✅ [Specific Fix] Fixed ${fixesApplied} specific mixed language leagues immediately`);
     }
+  }
+
+  // Main translation methods
+  translateLeagueName(leagueName: string, language: string): string {
+    if (!leagueName || !language) return leagueName;
+
+    const lowerLeagueName = leagueName.toLowerCase();
+    const lowerLanguage = language.toLowerCase();
+
+    // Check core translations first
+    const coreTranslation = this.coreLeagueTranslations[leagueName];
+    if (coreTranslation && coreTranslation[lowerLanguage]) {
+      return coreTranslation[lowerLanguage];
+    }
+
+    // Check learned mappings
+    const learnedMapping = this.learnedLeagueMappings.get(leagueName);
+    if (learnedMapping && learnedMapping[lowerLanguage]) {
+      return learnedMapping[lowerLanguage];
+    }
+
+    // Try case-insensitive match
+    for (const [key, value] of this.learnedLeagueMappings.entries()) {
+      if (key.toLowerCase() === lowerLeagueName && value[lowerLanguage]) {
+        return value[lowerLanguage];
+      }
+    }
+
+    return leagueName; // Return original if no translation found
+  }
+
+  translateCountryName(countryName: string, language: string): string {
+    if (!countryName || !language) return countryName;
+
+    const lowerLanguage = language.toLowerCase();
+
+    // Check popular countries first
+    const popularTranslation = this.popularCountries[countryName];
+    if (popularTranslation && popularTranslation[lowerLanguage]) {
+      return popularTranslation[lowerLanguage];
+    }
+
+    // Check learned mappings
+    const learnedMapping = this.learnedCountryMappings.get(countryName);
+    if (learnedMapping && learnedMapping[lowerLanguage]) {
+      return learnedMapping[lowerLanguage];
+    }
+
+    // Try normalized name
+    const normalizedName = this.detectAndNormalizeCountryName(countryName);
+    if (normalizedName !== countryName) {
+      const normalizedTranslation = this.popularCountries[normalizedName];
+      if (normalizedTranslation && normalizedTranslation[lowerLanguage]) {
+        return normalizedTranslation[lowerLanguage];
+      }
+    }
+
+    return countryName; // Return original if no translation found
   }
 
   // Auto-learn from any country name for better translations
