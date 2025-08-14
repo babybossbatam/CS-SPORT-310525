@@ -409,7 +409,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       return staticCountriesList;
     }
 
-    // Create country data only for countries that have matches
+    // When real fixture data is loaded, only show countries that have matches
     const countriesWithMatchesData = [];
 
     // Add countries from our static list that have matches
@@ -417,7 +417,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       const countryData = leaguesByCountry[country];
       const mappedCountry = allFootballCountriesMapping.get(country);
       
-      // Only include countries that have matches
+      // Only include countries that have matches (filter out zero counts)
       if (countryData && countryData.totalMatches > 0) {
         countriesWithMatchesData.push({
           ...countryData,
@@ -434,6 +434,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     countriesWithMatches.forEach(country => {
       if (!allAvailableCountries.includes(country)) {
         const countryData = leaguesByCountry[country];
+        // Only include if they have matches (filter out zero counts)
         if (countryData && countryData.totalMatches > 0) {
           const mappedCountry = allFootballCountriesMapping.get(country);
           countriesWithMatchesData.push({
@@ -681,6 +682,14 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                   {isExpanded && totalLeagues > 0 && (
                     <div className="   ">
                       {Object.values(countryData.leagues)
+                        .filter((leagueData: any) => {
+                          // When real data is loaded, only show leagues with matches
+                          if (fixtures && fixtures.length > 0) {
+                            return leagueData.matchCount > 0;
+                          }
+                          // When no real data, show all leagues
+                          return true;
+                        })
                         .slice(0, 15)
                         .map((leagueData: any) => {
                           const leagueId = leagueData.league.id;
