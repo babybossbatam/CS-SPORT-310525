@@ -415,11 +415,19 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   // Static countries list to show immediately (before fixtures load)
   const staticCountriesList = useMemo(() => {
     const staticCountries = [];
+    const seenDisplayNames = new Set(); // Track seen display names to avoid duplicates
     
     // Add main countries from static data first
     allAvailableCountries.forEach(country => {
       // Use the enhanced translation function that includes fallbacks
       const displayName = getCountryDisplayName(country);
+      
+      // Skip if we've already seen this display name (avoids showing both original and translated)
+      if (seenDisplayNames.has(displayName)) {
+        console.log(`🚫 [StaticList] Skipping duplicate display name: "${country}" -> "${displayName}"`);
+        return;
+      }
+      seenDisplayNames.add(displayName);
       
       const mappedData = {
         originalName: country,
@@ -467,6 +475,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
     // When real fixture data is loaded, only show countries that have matches
     const countriesWithMatchesData = [];
+    const seenDisplayNames = new Set(); // Track seen display names to avoid duplicates
 
     // Add countries from our static list that have matches
     allAvailableCountries.forEach(country => {
@@ -476,6 +485,13 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       if (countryData && countryData.totalMatches > 0) {
         // Use the enhanced translation function that includes fallbacks
         const displayName = getCountryDisplayName(country);
+        
+        // Skip if we've already seen this display name (avoids showing both original and translated)
+        if (seenDisplayNames.has(displayName)) {
+          console.log(`🚫 [DynamicList] Skipping duplicate display name: "${country}" -> "${displayName}"`);
+          return;
+        }
+        seenDisplayNames.add(displayName);
         
         countriesWithMatchesData.push({
           ...countryData,
@@ -498,6 +514,13 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         if (countryData && countryData.totalMatches > 0) {
           // Use the enhanced translation function that includes fallbacks
           const displayName = getCountryDisplayName(country);
+          
+          // Skip if we've already seen this display name (avoids showing both original and translated)
+          if (seenDisplayNames.has(displayName)) {
+            console.log(`🚫 [DynamicList] Skipping duplicate display name: "${country}" -> "${displayName}"`);
+            return;
+          }
+          seenDisplayNames.add(displayName);
           
           countriesWithMatchesData.push({
             ...countryData,
