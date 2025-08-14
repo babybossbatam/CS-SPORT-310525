@@ -69,7 +69,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({
     }
   }, [fixtures]);
 
-  // Optimized: Group leagues by country with better performance using cached fixture data
+  // Optimized: Group leagues by country with better performance
   const leaguesByCountry = useMemo(() => {
     const allFixtures = fixtures || [];
     if (!allFixtures?.length) {
@@ -95,7 +95,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({
       };
     } = {};
 
-    // Filter fixtures for the selected date from cached data
+    // Pre-filter fixtures by date
     const validFixtures = allFixtures.filter(fixture => {
       if (!fixture?.fixture?.date || !fixture?.league?.id || !fixture?.fixture?.id) return false;
       if (seenFixtures.has(fixture.fixture.id)) return false;
@@ -110,18 +110,15 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({
       return isValidDate;
     });
 
-    console.log(`📊 [MyAllLeagueList] Processing ${validFixtures.length} cached fixtures for ${selectedDate}`);
-
-    // Process fixtures efficiently from cached data
+    // Process fixtures efficiently
     for (const fixture of validFixtures) {
       const country = fixture.league.country || "Unknown";
       const leagueId = fixture.league.id;
       const status = fixture.fixture?.status?.short;
 
-      // Quick live check with time validation
-      const fixtureTime = new Date(fixture.fixture.date).getTime();
-      const timeDiff = Date.now() - fixtureTime;
-      const isLive = liveStatuses.has(status) && timeDiff <= 4 * 60 * 60 * 1000; // 4 hours max
+      // Quick live check
+      const isLive = liveStatuses.has(status) &&
+        (Date.now() - new Date(fixture.fixture.date).getTime()) <= 4 * 60 * 60 * 1000;
 
       // Initialize country/league data efficiently
       if (!tempCountries[country]) {
@@ -157,7 +154,6 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({
       };
     }
 
-    console.log(`✅ [MyAllLeagueList] Processed ${Object.keys(grouped).length} countries with match data from cache`);
     return grouped;
   }, [fixtures, selectedDate]);
 
