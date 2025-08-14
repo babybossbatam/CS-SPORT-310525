@@ -25,6 +25,7 @@ import {
   countryToLanguageMap,
 } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
+import { ALL_COUNTRIES } from "@/lib/constants";
 
 interface MyAllLeagueListProps {
   selectedDate: string;
@@ -293,32 +294,23 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     }
   }, [user.preferences.favoriteLeagues, user.isAuthenticated, user.id, dispatch]);
 
-  // Comprehensive country mapping with translations pre-loaded
+  // Use static country list from constants with translations pre-loaded
   const allFootballCountriesMapping = useMemo(() => {
-    const countries = [
-      "World", "Afghanistan", "Albania", "Algeria", "Angola", "Argentina", "Armenia", 
-      "Australia", "Austria", "Azerbaijan", "Bahrain", "Bangladesh", "Belgium", 
-      "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Bulgaria", 
-      "Burkina Faso", "Cameroon", "Canada", "Chile", "China", "Colombia", "Croatia", 
-      "Czech Republic", "Denmark", "Egypt", "England", "Estonia", "Ethiopia", 
-      "Faroe Islands", "Finland", "France", "Georgia", "Germany", "Ghana", "Greece", 
-      "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", 
-      "Italy", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kuwait", "Lithuania", 
-      "Luxembourg", "Malaysia", "Mali", "Mexico", "Morocco", "Netherlands", 
-      "New Zealand", "Nigeria", "Norway", "Oman", "Pakistan", "Panama", "Paraguay", 
-      "Peru", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Saudi Arabia", 
-      "Scotland", "Senegal", "Serbia", "Singapore", "Slovakia", "Slovenia", 
-      "South Africa", "South Korea", "Spain", "Sweden", "Switzerland", "Thailand", 
-      "Tunisia", "Turkey", "Ukraine", "United Arab Emirates", "Uruguay", "USA", 
-      "Uzbekistan", "Venezuela", "Vietnam", "Wales", "Yemen", "Zambia", "Zimbabwe",
-      // Additional countries that might appear in fixtures
+    // Extract country names from the static country list
+    const staticCountryNames = ALL_COUNTRIES.map(country => country.name);
+    
+    // Additional countries that might appear in fixtures but not in the static list
+    const additionalCountries = [
       "Czech-Republic", "Dominican Republic", "Dominican-Republic", "United States",
       "Bosnia-Herzegovina", "South-Africa", "United-Arab-Emirates", "New-Zealand"
     ];
+    
+    // Combine static countries with additional ones
+    const allCountries = [...staticCountryNames, ...additionalCountries];
 
     // Pre-map all countries with their display names
     const countryMap = new Map();
-    countries.forEach(country => {
+    allCountries.forEach(country => {
       const displayName = getCountryDisplayName(country);
       countryMap.set(country, {
         originalName: country,
