@@ -542,31 +542,27 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                     "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                 }}
               >
-                {isLoading ? (
-                  <Skeleton className="h-4 w-12" />
-                ) : (
-                  (() => {
-                    const totalLiveMatches = Object.values(
-                      leaguesByCountry,
-                    ).reduce(
-                      (sum: number, countryData: any) =>
-                        sum + (countryData.liveMatches || 0),
-                      0,
+                {(() => {
+                  const totalLiveMatches = Object.values(
+                    leaguesByCountry,
+                  ).reduce(
+                    (sum: number, countryData: any) =>
+                      sum + (countryData.liveMatches || 0),
+                    0,
+                  );
+                  if (totalLiveMatches > 0) {
+                    return (
+                      <>
+                        (
+                        <span className="text-red-500 font-semibold">
+                          {totalLiveMatches}
+                        </span>
+                        /{totalMatches})
+                      </>
                     );
-                    if (totalLiveMatches > 0) {
-                      return (
-                        <>
-                          (
-                          <span className="text-red-500 font-semibold">
-                            {totalLiveMatches}
-                          </span>
-                          /{totalMatches})
-                        </>
-                      );
-                    }
-                    return `(${totalMatches})`;
-                  })()
-                )}
+                  }
+                  return `(${totalMatches})`;
+                })()}
               </span>
             </div>
           </button>
