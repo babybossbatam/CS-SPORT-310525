@@ -8,6 +8,8 @@ import PopularLeaguesList from "@/components/leagues/PopularLeaguesList";
 import MyAllLeague from "@/components/matches/MyAllLeague";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 import PopularTeamsList from "@/components/teams/PopularTeamsList";
 import ScoreDetailsCard from "@/components/matches/ScoreDetailsCard";
@@ -20,6 +22,24 @@ const MyRightContent: React.FC = () => {
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [showAllLeagues, setShowAllLeagues] = useState(false);
   const { isMobile } = useDeviceInfo();
+
+  // Fetch fixtures for the selected date to pass to MyAllLeague
+  const { data: fixtures = [], isLoading: fixturesLoading } = useQuery({
+    queryKey: ['fixtures-for-all-leagues', selectedDate],
+    queryFn: async () => {
+      if (!selectedDate) return [];
+      console.log(`🔄 [MyRightContent] Fetching fixtures for date: ${selectedDate}`);
+      const response = await apiRequest('GET', `/api/fixtures/date/${selectedDate}?all=true`);
+      const data = await response.json();
+      console.log(`✅ [MyRightContent] Received ${data.length} fixtures for ${selectedDate}`);
+      return data;
+    },
+    enabled: !!selectedDate,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
 
   return (
     <div className="h-full min-h-0 overflow-y-auto space-y-4 pb-4">
@@ -41,7 +61,7 @@ const MyRightContent: React.FC = () => {
           <PopularLeaguesList />
           <PopularTeamsList />
         </div>
-        <MyAllLeague />
+        <MyAllLeague selectedDate={selectedDate} fixtures={fixtures} />
       </div>
     </div>
   );
