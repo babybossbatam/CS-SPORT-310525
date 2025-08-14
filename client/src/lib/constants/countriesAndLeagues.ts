@@ -227,7 +227,6 @@ export const ALL_COUNTRIES = [
   // Additional Football-Specific Regions
   { code: 'EU', name: 'Europe', flag: "https://media.api-sports.io/flags/eu.svg" },
   { code: 'WORLD', name: 'World', flag: "https://media.api-sports.io/flags/world.svg" },
-  { code: 'INT', name: 'International', flag: "https://media.api-sports.io/flags/int.svg" },
 
   // Australian States/Territories
   { code: 'AU-ACT', name: 'Australian Capital Territory', flag: "https://media.api-sports.io/flags/au-act.svg" },
