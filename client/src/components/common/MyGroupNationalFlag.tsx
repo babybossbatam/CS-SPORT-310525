@@ -1,7 +1,10 @@
-
 import React, { useState, useEffect } from "react";
 import { getCountryCode } from "@/lib/flagUtils";
-import { isNationalTeam, getTeamLogoSources, createTeamLogoErrorHandler } from "@/lib/teamLogoSources";
+import {
+  isNationalTeam,
+  getTeamLogoSources,
+  createTeamLogoErrorHandler,
+} from "@/lib/teamLogoSources";
 
 interface MyGroupNationalFlagProps {
   teamName: string;
@@ -109,6 +112,9 @@ const MyGroupNationalFlag: React.FC<MyGroupNationalFlagProps> = ({
     Malaysia: "my",
     Mauritania: "mr",
     Myanmar: "mm",
+    "New South Wales": "au-nsw",
+    "North Korea": "kp",
+    "Northern Territory": "au-nt",
     Nigeria: "ng",
     Nepal: "np",
     Namibia: "na",
@@ -116,6 +122,8 @@ const MyGroupNationalFlag: React.FC<MyGroupNationalFlagProps> = ({
     Palestine: "ps",
     Philippines: "ph",
     Thailand: "th",
+    Tokelau: "tk",
+    Tasmania: "au-tas",
     Indonesia: "id",
     "United States": "us",
     Africa: "za",
@@ -123,12 +131,15 @@ const MyGroupNationalFlag: React.FC<MyGroupNationalFlagProps> = ({
     Japan: "jp",
     Singapore: "sg",
     Senegal: "sn",
+    "São Tomé and Príncipe": "st",
     "Hong Kong": "hk",
     Australia: "au",
     "Chinese Taipei": "tw",
+    Queensland: "au-qld",
     Zambia: "zm",
     Zimbabwe: "zw",
     Vietnam: "vn",
+    Victoria: "au-vic",
   };
 
   // For club teams, use team logo sources
@@ -137,9 +148,12 @@ const MyGroupNationalFlag: React.FC<MyGroupNationalFlagProps> = ({
     if (teamName === "World") {
       return "/assets/matchdetaillogo/cotif tournament.png";
     }
-    
+
     if (!isNational && teamId) {
-      const logoSources = getTeamLogoSources({ id: teamId, name: teamName }, false);
+      const logoSources = getTeamLogoSources(
+        { id: teamId, name: teamName },
+        false,
+      );
       return logoSources[0]?.url || fallbackUrl || "/assets/fallback-logo.svg";
     }
     return getCircleFlagUrl(teamName, fallbackUrl);
@@ -224,7 +238,7 @@ const MyGroupNationalFlag: React.FC<MyGroupNationalFlagProps> = ({
           borderRadius: isNational ? "50%" : "50%",
           position: "relative",
           zIndex: 1,
-          filter: isNational 
+          filter: isNational
             ? "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)"
             : "none",
         }}
@@ -236,14 +250,18 @@ const MyGroupNationalFlag: React.FC<MyGroupNationalFlagProps> = ({
                   target.src = "/assets/fallback-logo.svg";
                 }
               }
-            : !isNational && teamId 
-            ? createTeamLogoErrorHandler({ id: teamId, name: teamName }, false, 'football')
-            : (e) => {
-                const target = e.target as HTMLImageElement;
-                if (!target.src.includes("/assets/fallback-logo.svg")) {
-                  target.src = fallbackUrl || "/assets/fallback-logo.svg";
+            : !isNational && teamId
+              ? createTeamLogoErrorHandler(
+                  { id: teamId, name: teamName },
+                  false,
+                  "football",
+                )
+              : (e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (!target.src.includes("/assets/fallback-logo.svg")) {
+                    target.src = fallbackUrl || "/assets/fallback-logo.svg";
+                  }
                 }
-              }
         }
       />
       <div className="gloss"></div>
