@@ -230,8 +230,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
     const originalCountry = country.trim();
 
-    // Use only the comprehensive translation system from countriesAndLeagues.ts
+    // Use the comprehensive translation system from countriesAndLeagues.ts
     const translation = translateCountryName(originalCountry, currentLanguage);
+    
+    // Log translation for debugging
+    console.log(`🌍 [MyAllLeagueList] Translating country: "${originalCountry}" -> "${translation}" (language: ${currentLanguage})`);
     
     // Return translation if available, otherwise return original
     return translation || originalCountry;
@@ -345,19 +348,24 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     // Combine static countries with additional ones
     const allCountries = [...staticCountryNames, ...additionalCountries];
 
-    // Pre-map all countries with their display names
+    // Pre-map all countries with their display names using the comprehensive translation system
     const countryMap = new Map();
     allCountries.forEach(country => {
-      const displayName = getCountryDisplayName(country);
+      // Use the same translation system for consistency
+      const translatedName = translateCountryName(country, currentLanguage);
+      const displayName = translatedName || country;
+      
       countryMap.set(country, {
         originalName: country,
         displayName,
         hasLanguageMapping: !!(countryToLanguageMap[country] || countryToLanguageMap[displayName])
       });
+      
+      console.log(`📋 [StaticMapping] Country: "${country}" -> "${displayName}" (${currentLanguage})`);
     });
 
     return countryMap;
-  }, [currentLanguage, getCountryDisplayName]);
+  }, [currentLanguage]);
 
   // Get countries that actually have matches for the selected date
   const countriesWithMatches = useMemo(() => {
@@ -386,7 +394,16 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     
     // Add main countries from static data first
     allAvailableCountries.forEach(country => {
-      const mappedCountry = allFootballCountriesMapping.get(country);
+      // Use the comprehensive translation system directly
+      const translatedName = translateCountryName(country, currentLanguage);
+      const displayName = translatedName || country;
+      
+      const mappedData = {
+        originalName: country,
+        displayName,
+        hasLanguageMapping: !!(countryToLanguageMap[country] || countryToLanguageMap[displayName])
+      };
+      
       staticCountries.push({
         country,
         leagues: getLeaguesForCountry(country).reduce((acc, league) => {
@@ -404,12 +421,10 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         }, {}),
         totalMatches: 0,
         liveMatches: 0,
-        mappedData: mappedCountry || {
-          originalName: country,
-          displayName: getCountryDisplayName(country),
-          hasLanguageMapping: !!(countryToLanguageMap[country])
-        }
+        mappedData
       });
+      
+      console.log(`🏁 [StaticList] Country: "${country}" -> "${displayName}" (${currentLanguage})`);
     });
 
     // Sort alphabetically by display name
@@ -418,7 +433,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     );
 
     return staticCountries;
-  }, [allAvailableCountries, allFootballCountriesMapping, getCountryDisplayName, countryToLanguageMap]);
+  }, [allAvailableCountries, currentLanguage, countryToLanguageMap]);
 
   // Dynamic countries with actual match data (when fixtures are loaded)
   const sortedCountries = useMemo(() => {
@@ -433,18 +448,23 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     // Add countries from our static list that have matches
     allAvailableCountries.forEach(country => {
       const countryData = leaguesByCountry[country];
-      const mappedCountry = allFootballCountriesMapping.get(country);
       
       // Only include countries that have matches (filter out zero counts)
       if (countryData && countryData.totalMatches > 0) {
+        // Use the comprehensive translation system directly
+        const translatedName = translateCountryName(country, currentLanguage);
+        const displayName = translatedName || country;
+        
         countriesWithMatchesData.push({
           ...countryData,
-          mappedData: mappedCountry || {
+          mappedData: {
             originalName: country,
-            displayName: getCountryDisplayName(country),
-            hasLanguageMapping: !!(countryToLanguageMap[country])
+            displayName,
+            hasLanguageMapping: !!(countryToLanguageMap[country] || countryToLanguageMap[displayName])
           }
         });
+        
+        console.log(`🎯 [DynamicList] Static country with matches: "${country}" -> "${displayName}" (${currentLanguage})`);
       }
     });
 
@@ -454,15 +474,20 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         const countryData = leaguesByCountry[country];
         // Only include if they have matches (filter out zero counts)
         if (countryData && countryData.totalMatches > 0) {
-          const mappedCountry = allFootballCountriesMapping.get(country);
+          // Use the comprehensive translation system directly
+          const translatedName = translateCountryName(country, currentLanguage);
+          const displayName = translatedName || country;
+          
           countriesWithMatchesData.push({
             ...countryData,
-            mappedData: mappedCountry || {
+            mappedData: {
               originalName: country,
-              displayName: getCountryDisplayName(country),
-              hasLanguageMapping: !!(countryToLanguageMap[country])
+              displayName,
+              hasLanguageMapping: !!(countryToLanguageMap[country] || countryToLanguageMap[displayName])
             }
           });
+          
+          console.log(`🎯 [DynamicList] Dynamic country with matches: "${country}" -> "${displayName}" (${currentLanguage})`);
         }
       }
     });
