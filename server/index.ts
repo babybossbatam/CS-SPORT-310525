@@ -8,46 +8,93 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Simplified error handlers to prevent crashes without aggressive cleanup
+// Enhanced error handlers to prevent crashes
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error.message);
-  // Don't force GC as it can cause instability
+  // Force garbage collection on critical errors
+  if (global.gc) {
+    global.gc();
+  }
+  // Log but don't exit to prevent restarts
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection:', reason);
-  // Just log the rejection without trying to handle the promise
+  // Clean up the promise to prevent memory leaks
+  promise.catch(() => {});
 });
 
-// Handle EventEmitter warnings with simple suppression
+// Handle EventEmitter warnings specifically
 process.on('warning', (warning) => {
   if (warning.name === 'MaxListenersExceededWarning') {
-    // Just suppress these warnings to prevent log spam
+    // Clean up excess listeners instead of just suppressing
+    const emitter = warning.emitter;
+    if (emitter && typeof emitter.removeAllListeners === 'function') {
+      const eventNames = emitter.eventNames();
+      eventNames.forEach(eventName => {
+        const listeners = emitter.listeners(eventName);
+        if (listeners.length > 50) {
+          // Keep only the most recent 10 listeners
+          const keepListeners = listeners.slice(-10);
+          emitter.removeAllListeners(eventName);
+          keepListeners.forEach(listener => emitter.on(eventName, listener));
+        }
+      });
+    }
     return;
   }
   console.warn('Process Warning:', warning.message);
 });
 
-// Simple memory monitoring without aggressive cleanup
+// Aggressive memory monitoring and cleanup
+let memoryWarningCount = 0;
 const monitorMemory = () => {
   const usage = process.memoryUsage();
   const heapUsedMB = usage.heapUsed / 1024 / 1024;
   
-  // Only log if memory is very high, don't take action
-  if (heapUsedMB > 1800) {
-    console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB`);
+  if (heapUsedMB > 1200) { // Earlier warning at 1.2GB
+    memoryWarningCount++;
+    console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB (Warning #${memoryWarningCount})`);
+    
+    if (memoryWarningCount > 3) { // More aggressive cleanup
+      console.log('🧹 Forcing garbage collection...');
+      if (global.gc) {
+        global.gc();
+        memoryWarningCount = 0;
+      }
+      
+      // Clear require cache for non-essential modules
+      Object.keys(require.cache).forEach(key => {
+        if (key.includes('node_modules') && 
+            !key.includes('express') && 
+            !key.includes('cors')) {
+          delete require.cache[key];
+        }
+      });
+    }
   }
 };
 
-// Check memory less frequently to reduce overhead
-setInterval(monitorMemory, 60000);
+// More frequent memory checks
+setInterval(monitorMemory, 15000);
 
 // Set reasonable limits to prevent EventEmitter warnings
-process.setMaxListeners(50);
+process.setMaxListeners(100);
 import { EventEmitter } from 'events';
-EventEmitter.defaultMaxListeners = 50;
+EventEmitter.defaultMaxListeners = 100;
 
-// Simple graceful shutdown handling
+// Set max listeners for common event emitters
+if (typeof process !== 'undefined' && process.stdout) {
+  process.stdout.setMaxListeners(100);
+}
+if (typeof process !== 'undefined' && process.stderr) {
+  process.stderr.setMaxListeners(100);
+}
+if (typeof process !== 'undefined' && process.stdin) {
+  process.stdin.setMaxListeners(50);
+}
+
+// Graceful shutdown handling
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully');
   process.exit(0);
@@ -57,6 +104,24 @@ process.on('SIGINT', () => {
   console.log('SIGINT received, shutting down gracefully');
   process.exit(0);
 });
+
+// Prevent exit on warnings
+process.on('warning', (warning) => {
+  if (warning.name === 'MaxListenersExceededWarning') {
+    // Suppress these warnings instead of logging
+    return;
+  }
+  console.warn('Process Warning:', warning.message);
+});
+
+// Monitor process uptime and stability
+let startTime = Date.now();
+setInterval(() => {
+  const uptime = Math.floor((Date.now() - startTime) / 1000);
+  if (uptime % 300 === 0) { // Every 5 minutes
+    console.log(`✅ Server stable for ${Math.floor(uptime / 60)} minutes`);
+  }
+}, 1000);
 
 
 
@@ -131,36 +196,24 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
   // It is the only port that is not firewalled.
   const port = process.env.PORT || 5000;
   const tryListen = (retryPort: number) => {
-    const serverInstance = server.listen(retryPort, "0.0.0.0", () => {
+    server.listen(retryPort, "0.0.0.0", () => {
       log(`serving on port ${retryPort}`);
-    });
-
-    // Improve connection handling to prevent disconnects
-    serverInstance.keepAliveTimeout = 65000; // 65 seconds
-    serverInstance.headersTimeout = 66000;   // 66 seconds (slightly higher)
-    
-    // Handle server errors gracefully
-    serverInstance.on('error', (err: any) => {
+    }).on('error', (err: any) => {
       if (err.code === 'EADDRINUSE' && retryPort < 5010) {
         log(`Port ${retryPort} in use, trying ${retryPort + 1}`);
         if (retryPort + 1 <= 5010) {
             tryListen(retryPort + 1);
         } else {
             console.error("Failed to find an open port between 5000 and 5010");
+            // Don't exit immediately, let the process manager handle restarts
+            setTimeout(() => process.exit(1), 1000);
         }
       } else {
         console.error("Failed to start server:", err);
+        // Don't exit immediately, let the process manager handle restarts
+        setTimeout(() => process.exit(1), 1000);
       }
     });
-
-    // Handle client disconnections gracefully
-    serverInstance.on('clientError', (err, socket) => {
-      if (!socket.destroyed) {
-        socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
-      }
-    });
-
-    return serverInstance;
   };
   tryListen(Number(port));
 })();
