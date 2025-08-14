@@ -41,7 +41,7 @@ import basketballGamesRoutes from './routes/basketballGamesRoutes';
 import playerVerificationRoutes from './routes/playerVerificationRoutes';
 import { RapidAPI } from './utils/rapidApi'; // corrected rapidApi import
 import translationRoutes from "./routes/translationRoutes";
-
+import { fixturesCache } from './storage';
 
 // Cache duration constants
 const LIVE_DATA_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes for live data
