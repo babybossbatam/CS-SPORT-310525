@@ -966,7 +966,7 @@ class SmartLeagueCountryTranslation {
       'zh-tw': '想了解巴塞隆納、皇家馬德里或曼聯的表現如何？深入了解最新結果、即將到來的賽程、聯賽排名、突發新聞、比賽精彩瞬間，以及梅西、C羅和拉明·亞馬爾等頂級球星的深度統計數據。',
       'es': '¿Quieres saber cómo les va al FC Barcelona, Real Madrid o Manchester United? Sumérgete en los últimos resultados, próximos partidos, clasificaciones de liga, noticias de última hora, destacados de partidos y estadísticas detalladas de estrellas como Lionel Messi, Cristiano Ronaldo y Lamine Yamal.',
       'de': 'Möchten Sie wissen, wie es dem FC Barcelona, Real Madrid oder Manchester United geht? Tauchen Sie ein in die neuesten Ergebnisse, anstehende Spiele, Ligatabellen, aktuelle Nachrichten, Spielhighlights und detaillierte Statistiken von Topstars wie Lionel Messi, Cristiano Ronaldo und Lamine Yamal.',
-      'it': 'Vuoi sapere come stanno andando FC Barcelona, Real Madrid o Manchester United? Immergiti negli ultimi risultati, prossime partite, classifiche di campionato, notizie dell\'ultima ora, highlights delle partite e statistiche approfondite di stelle come Lionel Messi, Cristiano Ronaldo e Lamine Yamal.',
+      'it': 'Vuoi sapere come stanno andando FC Barcelona, Real Madrid o Manchester United? Immergiti negli ultimi risultati, prossime partite, classifiche di campionato, notizie dell\'ultima ora, highlights delle partite e statistiche approfondite di stelle come Lionel Messi, Cristiano Ronaldo e Lionel Messi.',
       'pt': 'Quer saber como estão se saindo o FC Barcelona, Real Madrid ou Manchester United? Mergulhe nos últimos resultados, próximos jogos, classificações da liga, notícias de última hora, destaques de partidas e estatísticas detalhadas de estrelas como Lionel Messi, Cristiano Ronaldo e Lionel Messi.'
     },
     'Why Choose CS SPORT?': {
@@ -1566,18 +1566,18 @@ class SmartLeagueCountryTranslation {
   // Generate mappings for mixed language league names
   private generateMixedLanguageMapping(leagueName: string, countryName: string): LeagueTranslation | null {
     const translations: any = {};
-    
+
     // Extract country from the league name, handle hyphenated countries
     const countryMatch = leagueName.match(/^([a-zA-Z\s-]+)/);
     let extractedCountry = countryMatch ? countryMatch[1].trim() : countryName;
-    
+
     // Handle specific hyphenated countries
     if (extractedCountry === 'Czech-Republic') {
       extractedCountry = 'Czech Republic';
     } else if (extractedCountry === 'Dominican-Republic') {
       extractedCountry = 'Dominican Republic';
     }
-    
+
     // Use provided country name if available, otherwise use extracted
     const finalCountry = countryName || extractedCountry;
 
@@ -2307,7 +2307,7 @@ class SmartLeagueCountryTranslation {
     return translations as CountryTranslation;
   }
 
-  // Main translation method for league names - now synchronous for React rendering
+  // Sync translation method for league names
   translateLeagueName(leagueName: string, language: string): string {
     if (!leagueName || typeof leagueName !== 'string') {
       return leagueName || '';
@@ -2317,7 +2317,7 @@ class SmartLeagueCountryTranslation {
 
     // For mixed language leagues, skip cache and force fresh translation
     const isMixedLanguage = this.detectMixedLanguageLeague(leagueName);
-    
+
     // Check local cache first (skip for mixed language leagues to force fresh translation)
     if (!isMixedLanguage && this.leagueCache.has(cacheKey)) {
       return this.leagueCache.get(cacheKey);
@@ -2343,11 +2343,10 @@ class SmartLeagueCountryTranslation {
       if (mixedMapping && mixedMapping[language]) {
         // Store the mapping for future use
         this.learnedLeagueMappings.set(leagueName, mixedMapping);
-        this.coreLeagueTranslations[leagueName] = mixedMapping;
         this.saveLearnedMappings();
-        
+
         this.leagueCache.set(cacheKey, mixedMapping[language]);
-        console.log(`🔧 [Mixed Language Translation] "${leagueName}" → "${mixedMapping[language]}" (${language})`);
+        console.log(`🔄 [Mixed Language Fix] Fresh translation for "${leagueName}": ${mixedMapping[language]}`);
         return mixedMapping[language];
       }
     }
@@ -2400,7 +2399,7 @@ class SmartLeagueCountryTranslation {
     return this.translateLeagueName(leagueName, language);
   }
 
-  // Main translation method for country names - now synchronous for React rendering
+  // Sync translation method for country names
   translateCountryName(countryName: string, language: string): string {
     if (!countryName || typeof countryName !== 'string') {
       return countryName || '';
@@ -2413,65 +2412,54 @@ class SmartLeagueCountryTranslation {
       return this.countryCache.get(cacheKey);
     }
 
-    // Check static mappings first (exact match)
-    const staticTranslation = this.popularCountries[countryName];
-    if (staticTranslation) {
-      const translation = staticTranslation[language as keyof CountryTranslation[string]];
-      if (translation && translation !== countryName) {
-        this.countryCache.set(cacheKey, translation);
-        return translation;
+    // First normalize the country name (handle Chinese/hyphenated names)
+    const normalizedName = this.detectAndNormalizeCountryName(countryName);
+
+    // Check popular countries first (both original and normalized)
+    for (const checkName of [countryName, normalizedName]) {
+      const popularTranslation = this.popularCountries[checkName];
+      if (popularTranslation && popularTranslation[language]) {
+        this.countryCache.set(cacheKey, popularTranslation[language]);
+        return popularTranslation[language];
       }
     }
 
-    // Handle hyphenated country names by normalizing them
-    if (countryName.includes('-')) {
-      const normalizedName = countryName.replace(/-/g, ' ');
-      const normalizedTranslation = this.popularCountries[normalizedName];
-      if (normalizedTranslation) {
-        const translation = normalizedTranslation[language as keyof CountryTranslation[string]];
-        if (translation && translation !== countryName) {
-          this.countryCache.set(cacheKey, translation);
-          return translation;
-        }
+    // Check core translations (both original and normalized)
+    for (const checkName of [countryName, normalizedName]) {
+      const coreTranslation = this.coreCountryTranslations[checkName];
+      if (coreTranslation && coreTranslation[language]) {
+        this.countryCache.set(cacheKey, coreTranslation[language]);
+        return coreTranslation[language];
       }
     }
 
-    // Handle space-separated country names by trying hyphenated version
-    if (countryName.includes(' ')) {
-      const hyphenatedName = countryName.replace(/ /g, '-');
-      const hyphenatedTranslation = this.popularCountries[hyphenatedName];
-      if (hyphenatedTranslation) {
-        const translation = hyphenatedTranslation[language as keyof CountryTranslation[string]];
-        if (translation && translation !== countryName) {
-          this.countryCache.set(cacheKey, translation);
-          return translation;
-        }
+    // Check learned mappings (both original and normalized)
+    for (const checkName of [countryName, normalizedName]) {
+      const learned = this.learnedCountryMappings.get(checkName);
+      if (learned && learned[language]) {
+        this.countryCache.set(cacheKey, learned[language]);
+        return learned[language];
       }
     }
 
-    // Check learned mappings
-    const learned = this.learnedCountryMappings.get(countryName);
-    if (learned) {
-      const translation = learned[language as keyof CountryTranslation[string]];
-      if (translation && translation !== countryName) {
-        this.countryCache.set(cacheKey, translation);
-        return translation;
+    // Try to generate a new mapping using the normalized name
+    const newMapping = this.generateCountryMapping(normalizedName);
+    if (newMapping && newMapping[language]) {
+      // Store mapping for both original and normalized names
+      this.learnedLeagueMappings.set(countryName, newMapping); // This should be learnedCountryMappings
+      if (normalizedName !== countryName) {
+        this.learnedCountryMappings.set(normalizedName, newMapping); // This should be learnedCountryMappings
       }
+      this.saveLearnedMappings();
+
+      this.countryCache.set(cacheKey, newMapping[language]);
+      return newMapping[language];
     }
 
-    // Try Chinese to English mapping (sync only)
-    const englishName = this.chineseToEnglishMap[countryName];
-    if (englishName && englishName !== countryName) {
-      const englishTranslation = this.translateCountryName(englishName, language);
-      if (englishTranslation !== englishName) {
-        this.countryCache.set(cacheKey, englishTranslation);
-        return englishTranslation;
-      }
-    }
-
-    // Store original as fallback
-    this.countryCache.set(cacheKey, countryName);
-    return countryName;
+    // Cache and return normalized name (or original if normalization didn't change it)
+    const fallback = normalizedName || countryName;
+    this.countryCache.set(cacheKey, fallback);
+    return fallback;
   }
 
   // Async version for background updates
@@ -2747,11 +2735,11 @@ class SmartLeagueCountryTranslation {
       if (mapping) {
         // Force override any existing mapping
         this.learnedLeagueMappings.set(name, mapping);
-        
+
         // Also add to core translations for immediate access
         this.coreLeagueTranslations[name] = mapping;
         fixed++;
-        
+
         console.log(`🎯 [Specific Fix] "${name}" → properly translated for all languages`);
         console.log(`🎯 [Specific Fix] Translations:`, {
           en: mapping.en,
