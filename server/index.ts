@@ -8,102 +8,54 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Enhanced error handlers to prevent crashes
+// Global error handlers to prevent crashes
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error.message);
-  // Force garbage collection on critical errors
-  if (global.gc) {
-    global.gc();
-  }
   // Log but don't exit to prevent restarts
 });
 
-// Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection:', reason);
-
-  // Clean up the promise to prevent memory leaks and warnings
-  promise.catch((err) => {
-    // Silently handle the rejection to prevent further warnings
-    console.log('🔧 Cleaned up unhandled rejection:', err?.message || 'Unknown error');
-  });
-
-  // Force garbage collection if available to clean up resources
-  if (global.gc) {
-    setTimeout(() => {
-      global.gc();
-    }, 100);
-  }
+  // Prevent unhandled rejections from crashing the process
 });
 
-// Handle EventEmitter warnings specifically
-process.on('warning', (warning) => {
-  if (warning.name === 'MaxListenersExceededWarning') {
-    // Clean up excess listeners instead of just suppressing
-    const emitter = warning.emitter;
-    if (emitter && typeof emitter.removeAllListeners === 'function') {
-      const eventNames = emitter.eventNames();
-      eventNames.forEach(eventName => {
-        const listeners = emitter.listeners(eventName);
-        if (listeners.length > 50) {
-          // Keep only the most recent 10 listeners
-          const keepListeners = listeners.slice(-10);
-          emitter.removeAllListeners(eventName);
-          keepListeners.forEach(listener => emitter.on(eventName, listener));
-        }
-      });
-    }
-    return;
-  }
-  console.warn('Process Warning:', warning.message);
-});
-
-// Aggressive memory monitoring and cleanup
+// Memory monitoring to prevent OOM crashes
 let memoryWarningCount = 0;
 const monitorMemory = () => {
   const usage = process.memoryUsage();
   const heapUsedMB = usage.heapUsed / 1024 / 1024;
-
-  if (heapUsedMB > 1200) { // Earlier warning at 1.2GB
+  
+  if (heapUsedMB > 1500) { // Warning at 1.5GB
     memoryWarningCount++;
     console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB (Warning #${memoryWarningCount})`);
-
-    if (memoryWarningCount > 3) { // More aggressive cleanup
+    
+    if (memoryWarningCount > 5) {
       console.log('🧹 Forcing garbage collection...');
       if (global.gc) {
         global.gc();
         memoryWarningCount = 0;
       }
-
-      // Clear require cache for non-essential modules
-      Object.keys(require.cache).forEach(key => {
-        if (key.includes('node_modules') && 
-            !key.includes('express') && 
-            !key.includes('cors')) {
-          delete require.cache[key];
-        }
-      });
     }
   }
 };
 
-// More frequent memory checks
-setInterval(monitorMemory, 15000);
+// Check memory every 30 seconds
+setInterval(monitorMemory, 30000);
 
-// Set reasonable limits to prevent EventEmitter warnings
-process.setMaxListeners(100);
+// Set higher limits to prevent EventEmitter warnings
+process.setMaxListeners(8000);
 import { EventEmitter } from 'events';
-EventEmitter.defaultMaxListeners = 100;
+EventEmitter.defaultMaxListeners = 8000;
 
 // Set max listeners for common event emitters
 if (typeof process !== 'undefined' && process.stdout) {
-  process.stdout.setMaxListeners(100);
+  process.stdout.setMaxListeners(8000);
 }
 if (typeof process !== 'undefined' && process.stderr) {
-  process.stderr.setMaxListeners(100);
+  process.stderr.setMaxListeners(8000);
 }
 if (typeof process !== 'undefined' && process.stdin) {
-  process.stdin.setMaxListeners(50);
+  process.stdin.setMaxListeners(500);
 }
 
 // Graceful shutdown handling
