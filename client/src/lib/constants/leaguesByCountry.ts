@@ -1,9 +1,18 @@
+import { translateCountryName, translateLeagueName } from './countriesAndLeagues';
+
 export interface LeagueInfo {
   id: number;
   name: string;
   logo: string;
   country: string;
   priority: number;
+}
+
+export interface TranslatedLeagueInfo extends LeagueInfo {
+  translatedName: string;
+  translatedCountry: string;
+  originalName: string;
+  originalCountry: string;
 }
 
 export const LEAGUES_BY_COUNTRY: Record<string, LeagueInfo[]> = {
@@ -68,6 +77,68 @@ export function getCountriesWithLeagues(): string[] {
   return Object.keys(LEAGUES_BY_COUNTRY);
 }
 
+// Helper function to get translated leagues for a specific country
+export function getTranslatedLeaguesForCountry(country: string, language: string = 'en'): TranslatedLeagueInfo[] {
+  const leagues = LEAGUES_BY_COUNTRY[country] || [];
+  return leagues.map(league => ({
+    ...league,
+    translatedName: translateLeagueName(league.name, language),
+    translatedCountry: translateCountryName(league.country, language),
+    originalName: league.name,
+    originalCountry: league.country
+  }));
+}
+
+// Helper function to get all countries with leagues (translated)
+export function getTranslatedCountriesWithLeagues(language: string = 'en'): Array<{original: string, translated: string}> {
+  return Object.keys(LEAGUES_BY_COUNTRY).map(country => ({
+    original: country,
+    translated: translateCountryName(country, language)
+  }));
+}
+
+// Helper function to translate a single league by ID
+export function getTranslatedLeagueById(leagueId: number, language: string = 'en'): TranslatedLeagueInfo | null {
+  for (const country of Object.keys(LEAGUES_BY_COUNTRY)) {
+    const league = LEAGUES_BY_COUNTRY[country].find(l => l.id === leagueId);
+    if (league) {
+      return {
+        ...league,
+        translatedName: translateLeagueName(league.name, language),
+        translatedCountry: translateCountryName(league.country, language),
+        originalName: league.name,
+        originalCountry: league.country
+      };
+    }
+  }
+  return null;
+}
+
+// Helper function to get all leagues with translations
+export function getAllTranslatedLeagues(language: string = 'en'): TranslatedLeagueInfo[] {
+  const allLeagues: TranslatedLeagueInfo[] = [];
+  
+  Object.keys(LEAGUES_BY_COUNTRY).forEach(country => {
+    const countryLeagues = getTranslatedLeaguesForCountry(country, language);
+    allLeagues.push(...countryLeagues);
+  });
+  
+  return allLeagues.sort((a, b) => a.priority - b.priority);
+}
+
+// Helper function to search leagues by translated name
+export function searchTranslatedLeagues(searchTerm: string, language: string = 'en'): TranslatedLeagueInfo[] {
+  const allLeagues = getAllTranslatedLeagues(language);
+  const lowerSearchTerm = searchTerm.toLowerCase();
+  
+  return allLeagues.filter(league => 
+    league.translatedName.toLowerCase().includes(lowerSearchTerm) ||
+    league.originalName.toLowerCase().includes(lowerSearchTerm) ||
+    league.translatedCountry.toLowerCase().includes(lowerSearchTerm) ||
+    league.originalCountry.toLowerCase().includes(lowerSearchTerm)
+  );
+}
+
 // Helper function to merge static leagues with dynamic fixture data
 export function mergeStaticWithDynamicLeagues(
   staticLeagues: LeagueInfo[],
@@ -90,4 +161,21 @@ export function mergeStaticWithDynamicLeagues(
   });
 
   return merged.sort((a, b) => a.priority - b.priority);
+}
+
+// Helper function to merge with translation support
+export function mergeStaticWithDynamicLeaguesTranslated(
+  staticLeagues: LeagueInfo[],
+  fixtureLeagues: any[],
+  language: string = 'en'
+): TranslatedLeagueInfo[] {
+  const merged = mergeStaticWithDynamicLeagues(staticLeagues, fixtureLeagues);
+  
+  return merged.map(league => ({
+    ...league,
+    translatedName: translateLeagueName(league.name, language),
+    translatedCountry: translateCountryName(league.country, language),
+    originalName: league.name,
+    originalCountry: league.country
+  }));
 }

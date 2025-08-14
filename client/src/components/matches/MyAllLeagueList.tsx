@@ -25,12 +25,12 @@ import {
   countryToLanguageMap,
 } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
-import { 
+import {
   ALL_COUNTRIES,
   translateCountryName,
   translateLeagueName,
   getTranslatedCountriesAsOptions,
-  getTranslatedLeaguesAsOptions
+  getTranslatedLeaguesForCountry,
 } from "@/lib/constants/countriesAndLeagues";
 import { LEAGUES_BY_COUNTRY, getLeaguesForCountry, mergeStaticWithDynamicLeagues, LeagueInfo } from "@/lib/constants/leaguesByCountry";
 
@@ -125,8 +125,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   // Optimized: Group leagues by country using static data + fixtures
   const leaguesByCountry = useMemo(() => {
     const allFixtures = fixtures || [];
-    
-    // Initialize with static league data
+
+    // Initialize with static league data (with translations)
     const grouped: {
       [key: string]: {
         country: string;
@@ -136,9 +136,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       };
     } = {};
 
-    // First, populate with static leagues (no matches initially)
     Object.keys(LEAGUES_BY_COUNTRY).forEach(country => {
-      const staticLeagues = getLeaguesForCountry(country);
+      const staticLeagues = getTranslatedLeaguesForCountry(country, currentLanguage);
       grouped[country] = {
         country,
         leagues: {},
@@ -146,14 +145,16 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         liveMatches: 0,
       };
 
-      // Initialize static leagues with zero counts
+      // Initialize static leagues with zero counts (using translated data)
       staticLeagues.forEach(league => {
         grouped[country].leagues[league.id] = {
           league: {
             id: league.id,
-            name: league.name,
+            name: league.translatedName, // Use translated name
             logo: league.logo,
-            country: league.country
+            country: league.translatedCountry, // Use translated country
+            originalName: league.originalName,
+            originalCountry: league.originalCountry
           },
           matchCount: 0,
           liveMatchCount: 0,
@@ -205,7 +206,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       }
 
       const countryData = grouped[country];
-      
+
       // Initialize league if not in static data
       if (!countryData.leagues[leagueId]) {
         countryData.leagues[leagueId] = {
@@ -226,7 +227,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     }
 
     return grouped;
-  }, [fixtures, selectedDate]);
+  }, [fixtures, selectedDate, currentLanguage]);
 
   // Get total match count for header
   const totalMatches = useMemo(() => {
@@ -246,7 +247,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
     // First try the comprehensive translation system from countriesAndLeagues.ts
     const comprehensiveTranslation = translateCountryName(originalCountry, currentLanguage);
-    
+
     // If comprehensive translation is available and different from original, use it
     if (comprehensiveTranslation && comprehensiveTranslation !== originalCountry) {
       console.log(`🌍 [Country Translation] "${originalCountry}" -> "${comprehensiveTranslation}" (${currentLanguage})`);
@@ -269,16 +270,16 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   }, [currentLanguage, t]);
 
   // Enhanced league name translation using the comprehensive translation system
-  const getLeagueDisplayName = useCallback((leagueName: string | null | undefined): string => {
+  const getLeagueDisplayName = useCallback((leagueName: string | null | undefined, originalLeagueName?: string | null | undefined): string => {
     if (!leagueName || typeof leagueName !== "string") {
       return t("unknown_league") || "Unknown League";
     }
 
-    const originalLeague = leagueName.trim();
+    const originalLeague = originalLeagueName || leagueName.trim();
 
     // First try the comprehensive translation system from countriesAndLeagues.ts
     const comprehensiveTranslation = translateLeagueName(originalLeague, currentLanguage);
-    
+
     // If comprehensive translation is available and different from original, use it
     if (comprehensiveTranslation && comprehensiveTranslation !== originalLeague) {
       console.log(`🏆 [League Translation] "${originalLeague}" -> "${comprehensiveTranslation}" (${currentLanguage})`);
@@ -297,7 +298,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     }
 
     console.log(`⚠️ [League Translation] No translation found for "${originalLeague}" in ${currentLanguage}`);
-    return originalLeague;
+    return leagueName; // Return the provided leagueName if no translation found
   }, [currentLanguage, t]);
 
   // Get header title
@@ -383,13 +384,13 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   const allFootballCountriesMapping = useMemo(() => {
     // Extract country names from the static country list
     const staticCountryNames = ALL_COUNTRIES.map(country => country.name);
-    
+
     // Additional countries that might appear in fixtures but not in the static list
     const additionalCountries = [
       "Czech-Republic", "Dominican Republic", "Dominican-Republic", "United States",
       "Bosnia-Herzegovina", "South-Africa", "United-Arab-Emirates", "New-Zealand"
     ];
-    
+
     // Combine static countries with additional ones
     const allCountries = [...staticCountryNames, ...additionalCountries];
 
@@ -410,7 +411,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   // Get countries that actually have matches for the selected date
   const countriesWithMatches = useMemo(() => {
     const countriesSet = new Set();
-    
+
     // Extract unique countries from fixtures efficiently
     if (fixtures && fixtures.length > 0) {
       fixtures.forEach(fixture => {
@@ -431,7 +432,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   // Static countries list to show immediately (before fixtures load)
   const staticCountriesList = useMemo(() => {
     const staticCountries = [];
-    
+
     // Add main countries from static data first
     allAvailableCountries.forEach(country => {
       const mappedCountry = allFootballCountriesMapping.get(country);
@@ -461,7 +462,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     });
 
     // Sort alphabetically by display name
-    staticCountries.sort((a: any, b: any) => 
+    staticCountries.sort((a: any, b: any) =>
       a.mappedData.displayName.localeCompare(b.mappedData.displayName)
     );
 
@@ -482,7 +483,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     allAvailableCountries.forEach(country => {
       const countryData = leaguesByCountry[country];
       const mappedCountry = allFootballCountriesMapping.get(country);
-      
+
       // Only include countries that have matches (filter out zero counts)
       if (countryData && countryData.totalMatches > 0) {
         countriesWithMatchesData.push({
@@ -528,7 +529,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     }
 
     // Sort others alphabetically by display name
-    otherCountries.sort((a: any, b: any) => 
+    otherCountries.sort((a: any, b: any) =>
       a.mappedData.displayName.localeCompare(b.mappedData.displayName)
     );
 
@@ -808,7 +809,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                                       "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                                   }}
                                 >
-                                  {getLeagueDisplayName(leagueData.league.name)}
+                                  {getLeagueDisplayName(leagueData.league.name, leagueData.league.originalName)}
                                 </span>
                               </div>
                               <span
