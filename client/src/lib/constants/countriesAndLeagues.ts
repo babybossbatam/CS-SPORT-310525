@@ -253,6 +253,18 @@ const COUNTRY_TRANSLATIONS: CountryTranslations = {
     en: 'Taiwan', zh: '台湾', 'zh-hk': '台灣', 'zh-tw': '台灣',
     es: 'Taiwán', de: 'Taiwan', it: 'Taiwan', pt: 'Taiwan'
   },
+  'Kazakhstan': {
+    en: 'Kazakhstan', zh: '哈萨克斯坦', 'zh-hk': '哈薩克斯坦', 'zh-tw': '哈薩克斯坦',
+    es: 'Kazajistán', de: 'Kasachstan', it: 'Kazakistan', pt: 'Cazaquistão'
+  },
+  'Kyrgyzstan': {
+    en: 'Kyrgyzstan', zh: '吉尔吉斯斯坦', 'zh-hk': '吉爾吉斯斯坦', 'zh-tw': '吉爾吉斯斯坦',
+    es: 'Kirguistán', de: 'Kirgisistan', it: 'Kirghizistan', pt: 'Quirguistão'
+  },
+  'Tajikistan': {
+    en: 'Tajikistan', zh: '塔吉克斯坦', 'zh-hk': '塔吉克斯坦', 'zh-tw': '塔吉克斯坦',
+    es: 'Tayikistán', de: 'Tadschikistan', it: 'Tagikistan', pt: 'Tadjiquistão'
+  },
   'Uzbekistan': {
     en: 'Uzbekistan', zh: '乌兹别克斯坦', 'zh-hk': '烏茲別克斯坦', 'zh-tw': '烏茲別克斯坦',
     es: 'Uzbekistán', de: 'Usbekistan', it: 'Uzbekistan', pt: 'Uzbequistão'
@@ -330,6 +342,26 @@ const COUNTRY_TRANSLATIONS: CountryTranslations = {
   'Ukraine': {
     en: 'Ukraine', zh: '乌克兰', 'zh-hk': '烏克蘭', 'zh-tw': '烏克蘭',
     es: 'Ucrania', de: 'Ukraine', it: 'Ucraina', pt: 'Ucrânia'
+  },
+  'Turkey': {
+    en: 'Turkey', zh: '土耳其', 'zh-hk': '土耳其', 'zh-tw': '土耳其',
+    es: 'Turquía', de: 'Türkei', it: 'Turchia', pt: 'Turquia'
+  },
+  'Switzerland': {
+    en: 'Switzerland', zh: '瑞士', 'zh-hk': '瑞士', 'zh-tw': '瑞士',
+    es: 'Suiza', de: 'Schweiz', it: 'Svizzera', pt: 'Suíça'
+  },
+  'Norway': {
+    en: 'Norway', zh: '挪威', 'zh-hk': '挪威', 'zh-tw': '挪威',
+    es: 'Noruega', de: 'Norwegen', it: 'Norvegia', pt: 'Noruega'
+  },
+  'Denmark': {
+    en: 'Denmark', zh: '丹麦', 'zh-hk': '丹麥', 'zh-tw': '丹麥',
+    es: 'Dinamarca', de: 'Dänemark', it: 'Danimarca', pt: 'Dinamarca'
+  },
+  'Finland': {
+    en: 'Finland', zh: '芬兰', 'zh-hk': '芬蘭', 'zh-tw': '芬蘭',
+    es: 'Finlandia', de: 'Finnland', it: 'Finlandia', pt: 'Finlândia'
   },
 };
 
