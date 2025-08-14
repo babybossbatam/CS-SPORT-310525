@@ -230,21 +230,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
     const originalCountry = country.trim();
 
-    // First try the comprehensive translation system from countriesAndLeagues.ts
-    const comprehensiveTranslation = translateCountryName(originalCountry, currentLanguage);
+    // Use only the comprehensive translation system from countriesAndLeagues.ts
+    const translation = translateCountryName(originalCountry, currentLanguage);
     
-    // If comprehensive translation is available and different from original, use it
-    if (comprehensiveTranslation && comprehensiveTranslation !== originalCountry) {
-      return comprehensiveTranslation;
-    }
-
-    // Fallback to smart translation system (it has its own caching)
-    const smartTranslation = smartLeagueCountryTranslation.translateCountryName(
-      originalCountry,
-      currentLanguage,
-    );
-
-    return smartTranslation || originalCountry;
+    // Return translation if available, otherwise return original
+    return translation || originalCountry;
   }, [currentLanguage]);
 
   // Enhanced league name translation using the comprehensive translation system
@@ -255,21 +245,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
     const originalLeague = leagueName.trim();
 
-    // First try the comprehensive translation system from countriesAndLeagues.ts
-    const comprehensiveTranslation = translateLeagueName(originalLeague, currentLanguage);
+    // Use only the comprehensive translation system from countriesAndLeagues.ts
+    const translation = translateLeagueName(originalLeague, currentLanguage);
     
-    // If comprehensive translation is available and different from original, use it
-    if (comprehensiveTranslation && comprehensiveTranslation !== originalLeague) {
-      return comprehensiveTranslation;
-    }
-
-    // Fallback to smart translation system
-    const smartTranslation = smartLeagueCountryTranslation.translateLeagueName(
-      originalLeague,
-      currentLanguage,
-    );
-
-    return smartTranslation || originalLeague;
+    // Return translation if available, otherwise return original
+    return translation || originalLeague;
   }, [currentLanguage]);
 
   // Get header title
