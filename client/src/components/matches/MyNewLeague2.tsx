@@ -3022,10 +3022,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 const penaltyAway =
                                   fixture.score?.penalty?.away;
                                 const hasPenaltyScores =
-                                  penaltyHome !== null && 
-                                  penaltyAway !== null && 
-                                  penaltyHome !== undefined && 
-                                  penaltyAway !== undefined;
+                                  penaltyHome !== null && penaltyAway !== null;
 
                                 if (isPenaltyMatch && hasPenaltyScores) {
                                   const winnerTeam =
@@ -3092,40 +3089,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                         style={{ background: "transparent" }}
                                       >
                                         {winnerText}
-                                      </span>
-                                    </div>
-                                  );
-                                } else if (isPenaltyMatch) {
-                                  // If it's a penalty match but we don't have penalty scores, just show the winner
-                                  const homeScore = fixture.score?.fulltime?.home ?? fixture.goals?.home ?? 0;
-                                  const awayScore = fixture.score?.fulltime?.away ?? fixture.goals?.away ?? 0;
-                                  
-                                  // Don't show penalty result if scores are tied (since we don't know the penalty outcome)
-                                  if (homeScore === awayScore) {
-                                    return null;
-                                  }
-                                  
-                                  const winnerTeam = homeScore > awayScore
-                                    ? smartTeamTranslation.translateTeamName(
-                                        fixture.teams.home.name,
-                                        currentLanguage,
-                                        fixture.league,
-                                      )
-                                    : smartTeamTranslation.translateTeamName(
-                                        fixture.teams.away.name,
-                                        currentLanguage,
-                                        fixture.league,
-                                      );
-                                  
-                                  const penaltyWonText = t("won_on_penalties");
-                                  
-                                  return (
-                                    <div className="penalty-result-display">
-                                      <span
-                                        className="penalty-winner"
-                                        style={{ background: "transparent" }}
-                                      >
-                                        {`${winnerTeam} ${penaltyWonText}`}
                                       </span>
                                     </div>
                                   );
