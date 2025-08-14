@@ -362,8 +362,53 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     return ALL_COUNTRIES.map(country => country.name);
   }, []);
 
-  // Optimized sorted countries using pre-mapped data (only show countries with matches)
+  // Static countries list to show immediately (before fixtures load)
+  const staticCountriesList = useMemo(() => {
+    const staticCountries = [];
+    
+    // Add main countries from static data first
+    allAvailableCountries.forEach(country => {
+      const mappedCountry = allFootballCountriesMapping.get(country);
+      staticCountries.push({
+        country,
+        leagues: getLeaguesForCountry(country).reduce((acc, league) => {
+          acc[league.id] = {
+            league: {
+              id: league.id,
+              name: league.name,
+              logo: league.logo,
+              country: league.country
+            },
+            matchCount: 0,
+            liveMatchCount: 0,
+          };
+          return acc;
+        }, {}),
+        totalMatches: 0,
+        liveMatches: 0,
+        mappedData: mappedCountry || {
+          originalName: country,
+          displayName: getCountryDisplayName(country),
+          hasLanguageMapping: !!(countryToLanguageMap[country])
+        }
+      });
+    });
+
+    // Sort alphabetically by display name
+    staticCountries.sort((a: any, b: any) => 
+      a.mappedData.displayName.localeCompare(b.mappedData.displayName)
+    );
+
+    return staticCountries;
+  }, [allAvailableCountries, allFootballCountriesMapping, getCountryDisplayName, countryToLanguageMap]);
+
+  // Dynamic countries with actual match data (when fixtures are loaded)
   const sortedCountries = useMemo(() => {
+    // If no fixtures loaded yet, return static list
+    if (!fixtures || fixtures.length === 0) {
+      return staticCountriesList;
+    }
+
     // Create country data only for countries that have matches
     const countriesWithMatchesData = [];
 
@@ -421,7 +466,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     );
 
     return worldCountry ? [worldCountry, ...otherCountries] : otherCountries;
-  }, [leaguesByCountry, countriesWithMatches, allAvailableCountries, allFootballCountriesMapping, getCountryDisplayName, countryToLanguageMap]);
+  }, [leaguesByCountry, countriesWithMatches, allAvailableCountries, allFootballCountriesMapping, getCountryDisplayName, countryToLanguageMap, fixtures, staticCountriesList]);
 
   if (!selectedDate) {
     return (
@@ -529,26 +574,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
           {/* Countries under Football - Show when expanded */}
           {isFootballExpanded && (
             <>
-              {isLoading && sortedCountries.length === 0 ? (
-                // Show skeleton countries while loading
-                <div className="space-y-0">
-                  {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <div key={i} className="border-b border-gray-100 last:border-b-0">
-                      <div className="flex items-center justify-between pl-2 pr-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <Skeleton className="w-6 h-6 rounded-full" />
-                          <div className="flex items-center gap-2">
-                            <Skeleton className="h-4 w-24" />
-                            <Skeleton className="h-4 w-8" />
-                          </div>
-                        </div>
-                        <Skeleton className="h-4 w-4" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                sortedCountries.map((countryData: any) => {
+              {sortedCountries.map((countryData: any) => {
               const totalLeagues = Object.keys(
                 countryData.leagues || {},
               ).length;
@@ -772,8 +798,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                   )}
                 </div>
               );
-            })
-              )}
+            })}
             </>
           )}
         </div>
