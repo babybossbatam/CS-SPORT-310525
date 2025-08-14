@@ -1132,6 +1132,45 @@ timestamp: now,
   },
 
   /**
+   * Get all available countries
+   */
+  async getCountries(): Promise<any[]> {
+    const cacheKey = "countries-all";
+    const cached = leaguesCache.get(cacheKey);
+
+    const now = Date.now();
+    if (cached && now - cached.timestamp < STATIC_DATA_CACHE_DURATION) {
+      return cached.data;
+    }
+
+    try {
+      console.log("🌍 [RapidAPI] Fetching all countries...");
+      const response = await apiClient.get("/countries");
+
+      console.log(`🌍 [RapidAPI] Countries API response status: ${response.status}, results count: ${response.data?.results || 0}`);
+
+      if (response.data && response.data.response) {
+        leaguesCache.set(cacheKey, {
+          data: response.data.response,
+          timestamp: now,
+        });
+        console.log(`✅ [RapidAPI] Successfully cached ${response.data.response.length} countries`);
+        return response.data.response;
+      }
+
+      return [];
+    } catch (error) {
+      console.error("❌ [RapidAPI] Error fetching countries:", error);
+      if (cached?.data) {
+        console.log("Using cached data due to API error");
+        return cached.data;
+      }
+      console.error("API request failed and no cache available");
+      return [];
+    }
+  },
+
+  /**
    * Get all available leagues
    */
   async getLeagues(): Promise<LeagueResponse[]> {

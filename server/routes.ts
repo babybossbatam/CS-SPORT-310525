@@ -48,8 +48,8 @@ const LIVE_DATA_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes for live data
 const PAST_DATA_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours for past data
 const FUTURE_DATA_CACHE_DURATION = 6 * 60 * 60 * 1000; // 6 hours for future data
 
-// Simple in-memory cache
-const fixturesCache = new Map<string, { data: any; timestamp: number }>();
+// Simple in-memory cache for leagues and countries
+const leagueCache = new Map<string, { data: any; timestamp: number }>();
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -663,6 +663,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching fixture:", error);
       res.status(500).json({ message: "Failed to fetch fixture" });
+    }
+  });
+
+  // Get country data
+  apiRouter.get("/countries", async (req: Request, res: Response) => {
+    try {
+      console.log("API: Getting available countries");
+
+      // Check if we have cached country data
+      const cacheKey = "all-countries-data";
+      const cached = leagueCache.get(cacheKey);
+      const now = Date.now();
+
+      if (cached && now - cached.timestamp < 24 * 60 * 60 * 1000) { // 24 hours cache
+        console.log(`Using cached countries data (${cached.data.length} countries)`);
+        return res.json(cached.data);
+      }
+
+      const allCountries = await rapidApiService.getCountries();
+
+      if (!allCountries || allCountries.length === 0) {
+        console.log("No countries data received from API");
+        return res.json([]);
+      }
+
+      // Process and cache the countries data
+      const processedCountries = allCountries.map((country) => ({
+        name: country.name,
+        code: country.code,
+        flag: country.flag
+      }));
+
+      // Cache for 24 hours
+      leagueCache.set(cacheKey, {
+        data: processedCountries,
+        timestamp: now,
+      });
+
+      console.log(`Successfully fetched and cached ${processedCountries.length} countries`);
+      res.json(processedCountries);
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+      res.status(500).json({ error: "Failed to fetch countries data" });
     }
   });
 
@@ -2984,7 +3027,7 @@ error) {
     }
   });
 
-  // Get country flag with SportsRadar fallback
+  // Get flag with SportsRadar fallback
   apiRouter.get("/flags/:country", async (req: Request, res: Response) => {
     try {
       const { country } = req.params;
