@@ -1,0 +1,93 @@
+ [MyNewLeague2] Waiting 500ms before next batch...
+20eruda.js:sourcemap:2 🔧 network-connectivity error suppressed: Request timeout after 15 seconds
+eruda.js:sourcemap:2 🔄 [MyNewLeague2] Processing batch 5/8: leagues 667, 940, 908, 1169, 23
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 72: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 73: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 75: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+12eruda.js:sourcemap:2 🔧 network-connectivity error suppressed: Request timeout after 15 seconds
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 76: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+4eruda.js:sourcemap:2 🔧 network-connectivity error suppressed: Request timeout after 15 seconds
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 233: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 ⏳ [MyNewLeague2] Waiting 500ms before next batch...
+4eruda.js:sourcemap:2 🔧 network-connectivity error suppressed: Request timeout after 15 seconds
+eruda.js:sourcemap:2 🔄 [MyNewLeague2] Processing batch 5/8: leagues 667, 940, 908, 1169, 23
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 72: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 73: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 75: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+12eruda.js:sourcemap:2 🔧 network-connectivity error suppressed: Request timeout after 15 seconds
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 76: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 233: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 ⏳ [MyNewLeague2] Waiting 500ms before next batch...
+8eruda.js:sourcemap:2 🔧 network-connectivity error suppressed: Request timeout after 15 seconds
+eruda.js:sourcemap:2 🔄 [MyNewLeague2] Processing batch 5/8: leagues 667, 940, 908, 1169, 23
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 72: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 73: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 75: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+12eruda.js:sourcemap:2 🔧 network-connectivity error suppressed: Request timeout after 15 seconds
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 76: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 233: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 ⏳ [MyNewLeague2] Waiting 500ms before next batch...
+8eruda.js:sourcemap:2 🔧 network-connectivity error suppressed: Request timeout after 15 seconds
+eruda.js:sourcemap:2 🔄 [MyNewLeague2] Processing batch 5/8: leagues 667, 940, 908, 1169, 23
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 72: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 73: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 75: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+12eruda.js:sourcemap:2 🔧 network-connectivity error suppressed: Request timeout after 15 seconds
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 76: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 233: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 ⏳ [MyNewLeague2] Waiting 500ms before next batch...
+8eruda.js:sourcemap:2 🔧 network-connectivity error suppressed: Request timeout after 15 seconds
+eruda.js:sourcemap:2 🔄 [MyNewLeague2] Processing batch 5/8: leagues 667, 940, 908, 1169, 23
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 72: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 73: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 75: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+12eruda.js:sourcemap:2 🔧 network-connectivity error suppressed: Request timeout after 15 seconds
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 76: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 233: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 ⏳ [MyNewLeague2] Waiting 500ms before next batch...
+8eruda.js:sourcemap:2 🔧 network-connectivity error suppressed: Request timeout after 15 seconds
+eruda.js:sourcemap:2 🔄 [MyNewLeague2] Processing batch 5/8: leagues 667, 940, 908, 1169, 23
+eruda.js:sourcemap:2 💾 Saved 33 flags to localStorage (5KB)
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 235: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 743: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 🔄 [MyNewLeague2] Fetch results: Object
+8eruda.js:sourcemap:2 🔧 network-connectivity error suppressed: Request timeout after 15 seconds
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 72: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 73: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 75: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+12eruda.js:sourcemap:2 🔧 network-connectivity error suppressed: Request timeout after 15 seconds
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 76: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 🌐 [MyNewLeague2] Network error for league 233: undefined
+Mt.forEach.n.<computed> @ eruda.js:sourcemap:2Understand this warning
+eruda.js:sourcemap:2 ⏳ [MyNewLeague2] Waiting 500ms before next batch...
