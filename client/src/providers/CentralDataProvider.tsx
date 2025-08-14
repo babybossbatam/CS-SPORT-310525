@@ -37,21 +37,21 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
   const validDate = selectedDate || new Date().toISOString().slice(0, 10);
 
   // Function to fetch fixtures, now using useCallback for memoization
-  const fetchFixtures = useCallback(async (date: string) => {
+  const fetchFixtures = useCallback(async (targetDate: string) => {
     if (isLoading) return;
 
     setIsLoading(true);
     try {
-      console.log(`🔄 [CentralDataProvider] Fetching fixtures for ${date}`);
+      console.log(`🔄 [CentralDataProvider] Fetching fixtures for ${targetDate}`);
 
       // Fetch comprehensive fixture data with multiple sources
       const responses = await Promise.allSettled([
         // Primary: Multi-timezone endpoint for comprehensive coverage
-        apiRequest('GET', `/api/fixtures/date/${date}?all=true&skipFilter=true&timezone=true`),
+        apiRequest('GET', `/api/fixtures/date/${targetDate}?all=true&skipFilter=true&timezone=true`),
         // Secondary: Direct league fixtures for popular leagues
-        apiRequest('GET', `/api/fixtures/date/${date}?leagues=38,39,140,135,61,78,71,88,253,848,2,3,4,5`),
+        apiRequest('GET', `/api/fixtures/date/${targetDate}?leagues=38,39,140,135,61,78,71,88,253,848,2,3,4,5`),
         // Tertiary: Live fixtures if it's today
-        ...(date === new Date().toISOString().split('T')[0] ? [
+        ...(targetDate === new Date().toISOString().split('T')[0] ? [
           apiRequest('GET', '/api/fixtures/live')
         ] : [])
       ]);
@@ -84,7 +84,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         console.log(`🔄 [CentralDataProvider] Fetching additional fixtures (current: ${allFixtures.length})`);
 
         try {
-          const fallbackResponse = await apiRequest('GET', `/api/fixtures/date/${date}?minimal=false&world=true`);
+          const fallbackResponse = await apiRequest('GET', `/api/fixtures/date/${targetDate}?minimal=false&world=true`);
           const fallbackData = await fallbackResponse.json();
 
           if (Array.isArray(fallbackData)) {
@@ -101,13 +101,13 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       }
 
       setFixtures(allFixtures);
-      console.log(`✅ [CentralDataProvider] Loaded ${allFixtures.length} unique fixtures for ${date}`);
+      console.log(`✅ [CentralDataProvider] Loaded ${allFixtures.length} unique fixtures for ${targetDate}`);
 
       if (allFixtures.length === 0) {
-        console.warn(`⚠️ [CentralDataProvider] No fixtures found for ${date}`);
+        console.warn(`⚠️ [CentralDataProvider] No fixtures found for ${targetDate}`);
       }
     } catch (error) {
-      console.error(`❌ [CentralDataProvider] Error fetching fixtures for ${date}:`, error);
+      console.error(`❌ [CentralDataProvider] Error fetching fixtures for ${targetDate}:`, error);
       setFixtures([]);
     } finally {
       setIsLoading(false);
@@ -149,7 +149,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     queryFn: async () => {
       console.log('🔴 [CentralDataProvider] Fetching live fixtures via useQuery');
       try {
-        const response = await apiRequest('/api/fixtures/live');
+        const response = await apiRequest('GET', '/api/fixtures/live');
         const data: FixtureResponse[] = await response.json();
         console.log(`Central cache: Received ${data.length} live fixtures via useQuery`);
         setLiveFixturesState(data); // Update local state for live fixtures
