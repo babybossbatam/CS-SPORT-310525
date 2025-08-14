@@ -231,7 +231,32 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     const originalCountry = country.trim();
 
     // First try the comprehensive translation system from countriesAndLeagues.ts
-    const comprehensiveTranslation = translateCountryName(originalCountry, currentLanguage);
+    let comprehensiveTranslation = translateCountryName(originalCountry, currentLanguage);
+    
+    // If no direct match, try some common variations
+    if (!comprehensiveTranslation || comprehensiveTranslation === originalCountry) {
+      // Try with common variations
+      const variations = [
+        originalCountry,
+        originalCountry.replace(/\s+/g, ' '), // normalize spaces
+        originalCountry.replace(/\band\b/g, 'and'), // normalize 'and'
+        originalCountry.replace(/\bAnd\b/g, 'and'), // normalize 'And'
+        originalCountry.replace(/^([A-Z][a-z]+)\s+([A-Z][a-z]+)$/, '$1 $2'), // normalize case
+        originalCountry.replace(/^([A-Z][a-z]+)-([A-Z][a-z]+)$/, '$1 $2'), // handle hyphens
+        originalCountry === 'Bosnia and Herzegovina' ? 'Bosnia-Herzegovina' : originalCountry,
+        originalCountry === 'Bosnia-Herzegovina' ? 'Bosnia and Herzegovina' : originalCountry,
+        originalCountry === 'United States' ? 'USA' : originalCountry,
+        originalCountry === 'USA' ? 'United States' : originalCountry
+      ];
+
+      for (const variation of variations) {
+        const translation = translateCountryName(variation, currentLanguage);
+        if (translation && translation !== variation) {
+          comprehensiveTranslation = translation;
+          break;
+        }
+      }
+    }
     
     // If comprehensive translation is available and different from original, use it
     if (comprehensiveTranslation && comprehensiveTranslation !== originalCountry) {

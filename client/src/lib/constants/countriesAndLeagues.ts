@@ -85,6 +85,18 @@ const COUNTRY_TRANSLATIONS: CountryTranslations = {
     es: 'Turquía', de: 'Türkei', it: 'Turchia', pt: 'Turquia'
   },
   // Asia
+  'Afghanistan': {
+    en: 'Afghanistan', zh: '阿富汗', 'zh-hk': '阿富汗', 'zh-tw': '阿富汗',
+    es: 'Afganistán', de: 'Afghanistan', it: 'Afghanistan', pt: 'Afeganistão'
+  },
+  'Azerbaijan': {
+    en: 'Azerbaijan', zh: '阿塞拜疆', 'zh-hk': '阿塞拜疆', 'zh-tw': '阿塞拜疆',
+    es: 'Azerbaiyán', de: 'Aserbaidschan', it: 'Azerbaigian', pt: 'Azerbaijão'
+  },
+  'Bangladesh': {
+    en: 'Bangladesh', zh: '孟加拉国', 'zh-hk': '孟加拉', 'zh-tw': '孟加拉',
+    es: 'Bangladés', de: 'Bangladesch', it: 'Bangladesh', pt: 'Bangladesh'
+  },
   'China': {
     en: 'China', zh: '中国', 'zh-hk': '中國', 'zh-tw': '中國',
     es: 'China', de: 'China', it: 'Cina', pt: 'China'
@@ -113,6 +125,49 @@ const COUNTRY_TRANSLATIONS: CountryTranslations = {
   'Mexico': {
     en: 'Mexico', zh: '墨西哥', 'zh-hk': '墨西哥', 'zh-tw': '墨西哥',
     es: 'México', de: 'Mexiko', it: 'Messico', pt: 'México'
+  },
+  // Africa
+  'Angola': {
+    en: 'Angola', zh: '安哥拉', 'zh-hk': '安哥拉', 'zh-tw': '安哥拉',
+    es: 'Angola', de: 'Angola', it: 'Angola', pt: 'Angola'
+  },
+  'Benin': {
+    en: 'Benin', zh: '贝宁', 'zh-hk': '貝寧', 'zh-tw': '貝寧',
+    es: 'Benín', de: 'Benin', it: 'Benin', pt: 'Benin'
+  },
+  'Botswana': {
+    en: 'Botswana', zh: '博茨瓦纳', 'zh-hk': '博茨瓦納', 'zh-tw': '博茨瓦納',
+    es: 'Botsuana', de: 'Botswana', it: 'Botswana', pt: 'Botsuana'
+  },
+  // Caribbean and Americas
+  'Antigua and Barbuda': {
+    en: 'Antigua and Barbuda', zh: '安提瓜和巴布达', 'zh-hk': '安提瓜和巴布達', 'zh-tw': '安提瓜和巴布達',
+    es: 'Antigua y Barbuda', de: 'Antigua und Barbuda', it: 'Antigua e Barbuda', pt: 'Antígua e Barbuda'
+  },
+  'Bahamas': {
+    en: 'Bahamas', zh: '巴哈马', 'zh-hk': '巴哈馬', 'zh-tw': '巴哈馬',
+    es: 'Bahamas', de: 'Bahamas', it: 'Bahamas', pt: 'Bahamas'
+  },
+  'Barbados': {
+    en: 'Barbados', zh: '巴巴多斯', 'zh-hk': '巴巴多斯', 'zh-tw': '巴巴多斯',
+    es: 'Barbados', de: 'Barbados', it: 'Barbados', pt: 'Barbados'
+  },
+  'Belize': {
+    en: 'Belize', zh: '伯利兹', 'zh-hk': '伯利茲', 'zh-tw': '伯利茲',
+    es: 'Belice', de: 'Belize', it: 'Belize', pt: 'Belize'
+  },
+  // Europe
+  'Belarus': {
+    en: 'Belarus', zh: '白俄罗斯', 'zh-hk': '白俄羅斯', 'zh-tw': '白俄羅斯',
+    es: 'Bielorrusia', de: 'Belarus', it: 'Bielorussia', pt: 'Bielorrússia'
+  },
+  'Bosnia and Herzegovina': {
+    en: 'Bosnia and Herzegovina', zh: '波斯尼亚和黑塞哥维那', 'zh-hk': '波斯尼亞和黑塞哥維那', 'zh-tw': '波斯尼亞和黑塞哥維那',
+    es: 'Bosnia y Herzegovina', de: 'Bosnien und Herzegowina', it: 'Bosnia ed Erzegovina', pt: 'Bósnia e Herzegovina'
+  },
+  'Brunei': {
+    en: 'Brunei', zh: '文莱', 'zh-hk': '文萊', 'zh-tw': '汶萊',
+    es: 'Brunéi', de: 'Brunei', it: 'Brunei', pt: 'Brunei'
   },
   // Special regions
   'World': {
