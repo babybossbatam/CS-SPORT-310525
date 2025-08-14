@@ -8,104 +8,46 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Enhanced error handlers to prevent crashes
+// Simplified error handlers to prevent crashes without aggressive cleanup
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error.message);
-  // Force garbage collection on critical errors
-  if (global.gc) {
-    global.gc();
-  }
-  // Log but don't exit to prevent restarts
+  // Don't force GC as it can cause instability
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection:', reason);
-  // Clean up the promise to prevent memory leaks
-  if (promise && typeof promise.catch === 'function') {
-    promise.catch(() => {});
-  }
+  // Just log the rejection without trying to handle the promise
 });
 
-// Prevent WebSocket/HTTP connection issues that cause restarts
-process.on('ECONNRESET', () => {
-  console.log('Connection reset by peer - continuing...');
-});
-
-process.on('EPIPE', () => {
-  console.log('Broken pipe detected - continuing...');
-});
-
-// Handle EventEmitter warnings specifically
+// Handle EventEmitter warnings with simple suppression
 process.on('warning', (warning) => {
   if (warning.name === 'MaxListenersExceededWarning') {
-    // Clean up excess listeners instead of just suppressing
-    const emitter = warning.emitter;
-    if (emitter && typeof emitter.removeAllListeners === 'function') {
-      const eventNames = emitter.eventNames();
-      eventNames.forEach(eventName => {
-        const listeners = emitter.listeners(eventName);
-        if (listeners.length > 50) {
-          // Keep only the most recent 10 listeners
-          const keepListeners = listeners.slice(-10);
-          emitter.removeAllListeners(eventName);
-          keepListeners.forEach(listener => emitter.on(eventName, listener));
-        }
-      });
-    }
+    // Just suppress these warnings to prevent log spam
     return;
   }
   console.warn('Process Warning:', warning.message);
 });
 
-// Aggressive memory monitoring and cleanup
-let memoryWarningCount = 0;
+// Simple memory monitoring without aggressive cleanup
 const monitorMemory = () => {
   const usage = process.memoryUsage();
   const heapUsedMB = usage.heapUsed / 1024 / 1024;
   
-  if (heapUsedMB > 1200) { // Earlier warning at 1.2GB
-    memoryWarningCount++;
-    console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB (Warning #${memoryWarningCount})`);
-    
-    if (memoryWarningCount > 3) { // More aggressive cleanup
-      console.log('🧹 Forcing garbage collection...');
-      if (global.gc) {
-        global.gc();
-        memoryWarningCount = 0;
-      }
-      
-      // Clear require cache for non-essential modules
-      Object.keys(require.cache).forEach(key => {
-        if (key.includes('node_modules') && 
-            !key.includes('express') && 
-            !key.includes('cors')) {
-          delete require.cache[key];
-        }
-      });
-    }
+  // Only log if memory is very high, don't take action
+  if (heapUsedMB > 1800) {
+    console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB`);
   }
 };
 
-// More frequent memory checks
-setInterval(monitorMemory, 15000);
+// Check memory less frequently to reduce overhead
+setInterval(monitorMemory, 60000);
 
 // Set reasonable limits to prevent EventEmitter warnings
-process.setMaxListeners(100);
+process.setMaxListeners(50);
 import { EventEmitter } from 'events';
-EventEmitter.defaultMaxListeners = 100;
+EventEmitter.defaultMaxListeners = 50;
 
-// Set max listeners for common event emitters
-if (typeof process !== 'undefined' && process.stdout) {
-  process.stdout.setMaxListeners(100);
-}
-if (typeof process !== 'undefined' && process.stderr) {
-  process.stderr.setMaxListeners(100);
-}
-if (typeof process !== 'undefined' && process.stdin) {
-  process.stdin.setMaxListeners(50);
-}
-
-// Graceful shutdown handling
+// Simple graceful shutdown handling
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully');
   process.exit(0);
@@ -115,24 +57,6 @@ process.on('SIGINT', () => {
   console.log('SIGINT received, shutting down gracefully');
   process.exit(0);
 });
-
-// Prevent exit on warnings
-process.on('warning', (warning) => {
-  if (warning.name === 'MaxListenersExceededWarning') {
-    // Suppress these warnings instead of logging
-    return;
-  }
-  console.warn('Process Warning:', warning.message);
-});
-
-// Monitor process uptime and stability
-let startTime = Date.now();
-setInterval(() => {
-  const uptime = Math.floor((Date.now() - startTime) / 1000);
-  if (uptime % 300 === 0) { // Every 5 minutes
-    console.log(`✅ Server stable for ${Math.floor(uptime / 60)} minutes`);
-  }
-}, 1000);
 
 
 
@@ -223,17 +147,14 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
             tryListen(retryPort + 1);
         } else {
             console.error("Failed to find an open port between 5000 and 5010");
-            setTimeout(() => process.exit(1), 1000);
         }
       } else {
         console.error("Failed to start server:", err);
-        setTimeout(() => process.exit(1), 1000);
       }
     });
 
     // Handle client disconnections gracefully
     serverInstance.on('clientError', (err, socket) => {
-      console.warn('Client connection error:', err.message);
       if (!socket.destroyed) {
         socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
       }
