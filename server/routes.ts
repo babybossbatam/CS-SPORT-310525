@@ -366,244 +366,175 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  apiRouter.get("/fixtures/date/:date", async (req: Request, res: Response) => {
+  // Get fixtures by date with enhanced timezone support
+  apiRouter.get('/fixtures/date/:date', async (req: Request, res: Response) => {
     try {
       const { date } = req.params;
-      const { all, skipFilter } = req.query;
+      const {
+        all = 'false',
+        skipFilter = 'false',
+        timezone = 'false',
+        leagues,
+        minimal = 'true',
+        world = 'false'
+      } = req.query;
 
-      // Validate date format first
-      if (!date || date === 'undefined' || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        console.log(`❌ [Routes] Invalid date format: ${date} (type: ${typeof date})`);
-        console.log(`❌ [Routes] Request URL: ${req.url}`);
-        console.log(`❌ [Routes] Request params:`, req.params);
-        return res
-          .status(400)
-          .json({ error: "Invalid date format. Use YYYY-MM-DD" });
+      console.log(`🎯 [Routes] Processing fixture request for date: ${date} (all=${all}, timezone=${timezone}, world=${world})`);
+      console.log(`🎯 [Routes] Current server date: ${new Date().toISOString()}, requested date: ${date}`);
+
+      const db = await storage.getDatabase();
+
+      // Dynamic cache strategy based on request type
+      const cacheKey = `fixtures-${date}-${all === 'true' ? 'all' : 'filtered'}-${timezone === 'true' ? 'tz' : 'std'}-${world === 'true' ? 'world' : 'reg'}`;
+      const cached = await storage.getCachedFixture(cacheKey);
+
+      // More aggressive caching for comprehensive requests
+      const maxCacheAge = timezone === 'true' || world === 'true' ? 1 * 60 * 1000 : 2 * 60 * 1000; // 1-2 minutes
+
+      if (cached && (Date.now() - new Date(cached.created_at).getTime()) < maxCacheAge) {
+        const fixtures = JSON.parse(cached.data);
+        console.log(`💾 [Routes] Using cached fixtures for ${date}: ${fixtures.length} matches`);
+        return res.json(fixtures);
       }
 
-      // Additional date validation - ensure it's a valid date
-      const dateObj = new Date(date);
-      if (
-        isNaN(dateObj.getTime()) ||
-        dateObj.toISOString().split("T")[0] !== date
-      ) {
-        console.log(`❌ [Routes] Invalid date value: ${date}`);
-        return res.status(400).json({ error: "Invalid date value" });
-      }
-
-      console.log(
-        `🎯 [Routes] Processing multi-timezone request for date: ${date} (all=${all})`,
-      );
-      console.log(
-        `🎯 [Routes] Current server date: ${new Date().toISOString()}, requested date: ${date}`,
-      );
-
-      // Enhanced cache checking - check multiple cache layers
-      const cacheKey =
-        all === "true" ? `multi-tz-all:${date}` : `multi-tz:${date}`;
-      const simpleCacheKey = `fixtures-date:${date}`;
-
-      // First check dedicated multi-timezone cache
-      let cachedFixtures = await storage.getCachedFixturesByLeague(cacheKey);
-
-      // If not found, check simple date-based cache
-      if (!cachedFixtures || cachedFixtures.length === 0) {
-        cachedFixtures = await storage.getCachedFixturesByDate(date);
-        console.log(
-          `🔄 [Routes] Fallback to date cache for ${date}: ${cachedFixtures.length} fixtures found`,
-        );
-      }
-
-      if (cachedFixtures && cachedFixtures.length > 0) {
-        const now = new Date();
-        const cacheTime = new Date(cachedFixtures[0].timestamp);
-        const cacheAge = now.getTime() - cacheTime.getTime();
-
-        // Use smart cache durations based on date - EXTENDED CACHE TIMES
-        const today = new Date().toISOString().split("T")[0];
-        const isPastDate = date < today;
-        const isToday = date === today;
-
-        // Past dates: 7 days cache (matches are finished and stable)
-        // Today: 2 hours cache (only live matches need frequent updates)
-        // Future dates: 12 hours cache cache (schedules rarely change)
-        const maxCacheAge = isPastDate
-          ? 7 * 24 * 60 * 60 * 1000
-          : isToday
-            ? 2 * 60 * 60 * 1000
-            : 12 * 60 * 60 * 1000;
-
-        // Check if we have cached data that's not too old
-        const cached = fixturesCache.get(cacheKey);
-        const currentTime = Date.now();
-        const maxAge = isToday ? LIVE_DATA_CACHE_DURATION : isPast ? PAST_DATA_CACHE_DURATION : FUTURE_DATA_CACHE_DURATION;
-
-        // For timeout prevention, return slightly stale cache if available
-        const emergencyMaxAge = maxAge * 2; // Double the max age for emergency fallback
-
-        if (cached && currentTime - cached.timestamp < maxAge) {
-          console.log(`📦 [Routes] Using cached fixtures for ${date} (age: ${Math.floor((currentTime - cached.timestamp) / 60000)}min, maxAge: ${Math.floor(maxAge / 60000)}min)`);
-          return res.json(cached.data);
-        }
-
-        // Emergency fallback: if we have cached data within emergency max age, use it to prevent timeouts
-        if (cached && currentTime - cached.timestamp < emergencyMaxAge) {
-          console.log(`⚡ [Routes] Using emergency cached fixtures for ${date} (age: ${Math.floor((currentTime - cached.timestamp) / 60000)}min) to prevent timeout`);
-
-          // Return cached data immediately but trigger background refresh
-          setTimeout(() => {
-            console.log(`🔄 [Routes] Background refresh triggered for ${date}`);
-            // This will update cache for next request
-          }, 100);
-
-          return res.json(cached.data);
-        } else {
-          console.log(
-            `⏰ [Routes] Cache expired for date ${date} (age: ${Math.round(cacheAge / 60000)}min > maxAge: ${Math.round(maxAge / 60000)}min)`,
-          );
-        }
-      }
-
-      let fetchedFreshData = false;
-
-      // Calculate date ranges for multiple timezones
-      const targetDate = new Date(date + "T00:00:00Z");
-      const previousDay = new Date(targetDate);
-      previousDay.setDate(previousDay.getDate() - 1);
-      const nextDay = new Date(targetDate);
-      nextDay.setDate(nextDay.getDate() + 1);
-
-      // Format dates for API calls
-      const datesToFetch = [
-        previousDay.toISOString().split("T")[0],
-        date,
-        nextDay.toISOString().split("T")[0],
-      ];
-
-      console.log(
-        `🌍 [Routes] Fetching fixtures for multi-timezone coverage:`,
-        datesToFetch,
-      );
+      console.log(`⏰ [Routes] Cache expired for date ${date} (age: ${cached ? Math.round((Date.now() - new Date(cached.created_at).getTime()) / 60000) : 0}min > maxAge: ${Math.round(maxCacheAge / 60000)}min)`);
 
       let allFixtures: any[] = [];
+      const uniqueFixtures = new Set<number>();
 
-      // Fetch fixtures for each date to cover all timezones
-      for (const fetchDate of datesToFetch) {
-        try {
-          let dateFixtures: any[] = [];
+      // Strategy 1: Multi-timezone coverage
+      if (timezone === 'true') {
+        const previousDay = new Date(date);
+        previousDay.setDate(previousDay.getDate() - 1);
+        const nextDay = new Date(date);
+        nextDay.setDate(nextDay.getDate() + 1);
 
-          if (all === "true") {
-            dateFixtures = await rapidApiService.getFixturesByDate(
-              fetchDate,
-              true,
-            );
-            fetchedFreshData = true;
-          } else {
-            const popularLeagues = [2, 3, 15, 39, 140, 135, 78, 848];
-            dateFixtures = await rapidApiService.getFixturesByDate(
-              fetchDate,
-              false,
-            );
-            dateFixtures = dateFixtures.filter((fixture) =>
-              popularLeagues.includes(fixture.league.id),
-            );
-            fetchedFreshData = true;
-          }
+        const datesToFetch = [
+          previousDay.toISOString().split('T')[0],
+          date,
+          nextDay.toISOString().split('T')[0]
+        ];
 
-          console.log(
-            `📅 [Routes] Got ${dateFixtures.length} fixtures for ${fetchDate}`,
-          );
-          allFixtures = [...allFixtures, ...dateFixtures];
-        } catch (error) {
-          console.error(`Error fetching fixtures for ${fetchDate}:`, error);
-          continue;
-        }
-      }
+        console.log(`🌍 [Routes] Fetching fixtures for multi-timezone coverage: ${JSON.stringify(datesToFetch)}`);
 
-      // Remove duplicates based on fixture ID
-      const uniqueFixtures = allFixtures.filter(
-        (fixture, index, self) =>
-          index === self.findIndex((f) => f.fixture.id === fixture.fixture.id),
-      );
-
-      console.log(
-        `📊 [Routes] Multi-timezone fetch results: ${allFixtures.length} total, ${uniqueFixtures.length} unique fixtures`,
-      );
-
-      // Cache the multi-timezone fixtures with World competition priority (only for fresh data)
-      if (fetchedFreshData && allFixtures.length > 0) {
-        // Only cache if we fetched fresh data
-        for (const fixture of uniqueFixtures) {
+        for (const fetchDate of datesToFetch) {
           try {
-            const fixtureId = `${cacheKey}:${fixture.fixture.id}`;
-            const isWorldFixture =
-              fixture.league?.country === "World" ||
-              fixture.league?.country === "Europe" ||
-              fixture.league?.name?.toLowerCase().includes("fifa") ||
-              fixture.league?.name?.toLowerCase().includes("uefa");
+            const dayFixtures = await rapidApiService.getFixturesByDate(fetchDate);
+            console.log(`📅 [Routes] Got ${dayFixtures?.length || 0} fixtures for ${fetchDate}`);
 
-            const existingFixture = await storage.getCachedFixture(fixtureId);
+            if (dayFixtures?.length) {
+              const relevantFixtures = dayFixtures.filter((fixture: any) => {
+                if (!fixture?.fixture?.id || uniqueFixtures.has(fixture.fixture.id)) return false;
 
-            if (existingFixture) {
-              await storage.updateCachedFixture(fixtureId, fixture);
-              // Only log World competition updates for LIVE matches to reduce noise
-              if (
-                isWorldFixture &&
-                ["LIVE", "1H", "HT", "2H", "ET", "BT", "P"].includes(
-                  fixture.fixture?.status?.short,
-                )
-              ) {
-                console.log(
-                  `🌍 [Routes] Updated LIVE World competition fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${fixture.fixture.status.short})`,
-                );
-              }
-            } else {
-              await storage.createCachedFixture({
-                fixtureId: fixtureId,
-                data: fixture,
-                league: cacheKey,
-                date: date,
+                const fixtureDate = new Date(fixture.fixture.date);
+                const targetDate = new Date(date);
+                const timeDiff = Math.abs(fixtureDate.getTime() - targetDate.getTime());
+                const hoursDiff = timeDiff / (1000 * 60 * 60);
+
+                return hoursDiff <= 12;
               });
-              // Only log new World fixtures on first cache, not every refresh
-              if (isWorldFixture) {
-                console.log(
-                  `🌍 [Routes] Cached new World competition fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-              }
+
+              relevantFixtures.forEach((fixture: any) => {
+                uniqueFixtures.add(fixture.fixture.id);
+                allFixtures.push(fixture);
+              });
             }
           } catch (error) {
-            const individualError = error as Error;
-            console.error(
-              `Error caching fixture ${fixture.fixture.id}:`,
-              individualError.message,
-            );
+            console.error(`❌ [Routes] Error fetching fixtures for ${fetchDate}:`, error);
           }
         }
-      } else if (!fetchedFreshData) {
-        console.log(
-          `📦 [Routes] Skipped caching - using existing cached data for ${date}`,
-        );
       }
 
-      console.log(
-        `✅ [Routes] Returning ${uniqueFixtures.length} multi-timezone fixtures for ${date}`,
-      );
-      return res.json(uniqueFixtures);
-      // Fallback to cached fixtures if API fails
-      if (cachedFixtures && cachedFixtures.length > 0) {
-        console.log(
-          `📦 [Routes] Returning ${cachedFixtures.length} stale cached fixtures for ${date}`,
-        );
-        return res.json(cachedFixtures.map((fixture) => fixture.data));
+      // Strategy 2: Specific leagues if requested
+      if (leagues && typeof leagues === 'string') {
+        const leagueIds = leagues.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+        console.log(`🏆 [Routes] Fetching fixtures for specific leagues: ${leagueIds.join(', ')}`);
+
+        for (const leagueId of leagueIds) {
+          try {
+            const leagueFixtures = await rapidApiService.getFixturesByDate(date, undefined, leagueId);
+            if (leagueFixtures?.length) {
+              leagueFixtures.forEach((fixture: any) => {
+                if (fixture?.fixture?.id && !uniqueFixtures.has(fixture.fixture.id)) {
+                  uniqueFixtures.add(fixture.fixture.id);
+                  allFixtures.push(fixture);
+                }
+              });
+            }
+          } catch (error) {
+            console.error(`❌ [Routes] Error fetching league ${leagueId} fixtures:`, error);
+          }
+        }
       }
 
-      console.log(
-        `📭 [Routes] No fixtures found for multi-timezone request: ${date}`,
+      // Strategy 3: World competitions if requested
+      if (world === 'true') {
+        const worldLeagues = [2, 3, 4, 5, 848, 15, 22, 23]; // Major international competitions
+        console.log(`🌍 [Routes] Fetching world competition fixtures`);
+
+        for (const leagueId of worldLeagues) {
+          try {
+            const worldFixtures = await rapidApiService.getFixturesByDate(date, undefined, leagueId);
+            if (worldFixtures?.length) {
+              worldFixtures.forEach((fixture: any) => {
+                if (fixture?.fixture?.id && !uniqueFixtures.has(fixture.fixture.id)) {
+                  uniqueFixtures.add(fixture.fixture.id);
+                  allFixtures.push(fixture);
+                }
+              });
+            }
+          } catch (error) {
+            console.error(`❌ [Routes] Error fetching world league ${leagueId}:`, error);
+          }
+        }
+      }
+
+      // Strategy 4: Standard single-date fetch (fallback or primary)
+      if (allFixtures.length === 0 || (!timezone && !leagues && !world)) {
+        try {
+          const dayFixtures = await rapidApiService.getFixturesByDate(date);
+          console.log(`📅 [Routes] Got ${dayFixtures?.length || 0} standard fixtures for ${date}`);
+
+          if (dayFixtures?.length) {
+            dayFixtures.forEach((fixture: any) => {
+              if (fixture?.fixture?.id && !uniqueFixtures.has(fixture.fixture.id)) {
+                uniqueFixtures.add(fixture.fixture.id);
+                allFixtures.push(fixture);
+              }
+            });
+          }
+        } catch (error) {
+          console.error(`❌ [Routes] Error fetching standard fixtures:`, error);
+        }
+      }
+
+      // Remove duplicates and sort
+      const uniqueFixturesArray = allFixtures.filter((fixture, index, self) =>
+        index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
       );
-      return res.json([]);
+
+      uniqueFixturesArray.sort((a, b) =>
+        new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
+      );
+
+      console.log(`📊 [Routes] Comprehensive fetch results: ${allFixtures.length} total, ${uniqueFixturesArray.length} unique fixtures`);
+
+      // Cache the results
+      try {
+        await storage.createCachedFixture(cacheKey, JSON.stringify(uniqueFixturesArray), date);
+      } catch (cacheError) {
+        console.warn(`⚠️ [Routes] Failed to cache fixtures for ${date}:`, cacheError);
+      }
+
+      console.log(`✅ [Routes] Returning ${uniqueFixturesArray.length} fixtures for ${date}`);
+      res.json(uniqueFixturesArray);
+
     } catch (error) {
-      console.error("Error fetching multi-timezone fixtures:", error);
-      return res.json([]);
+      console.error(`❌ [Routes] Error in fixtures/date/${date}:`, error);
+      res.status(500).json({
+        error: 'Failed to fetch fixtures',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 

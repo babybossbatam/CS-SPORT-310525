@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useCallback, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAppDispatch } from '@/lib/store';
 import { fixturesActions } from '@/lib/store';
@@ -6,6 +6,7 @@ import { FixtureResponse } from '@/types/fixtures';
 import { CACHE_DURATIONS } from '@/lib/cacheConfig';
 import { MySmartTimeFilter } from '@/lib/MySmartTimeFilter';
 import { shouldExcludeFixture } from '@/lib/exclusionFilters';
+import { apiRequest } from '@/lib/api'; // Assuming apiRequest is available
 
 interface CentralDataContextType {
   fixtures: FixtureResponse[];
@@ -27,305 +28,164 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
   const dispatch = useAppDispatch();
   const queryClient = useQueryClient();
 
+  // State to manage fixtures and loading status within the provider
+  const [fixtures, setFixtures] = useState<FixtureResponse[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [liveFixtures, setLiveFixturesState] = useState<FixtureResponse[]>([]); // Local state for live fixtures
+
   // Ensure selectedDate is a valid date string, otherwise default to today
   const validDate = selectedDate || new Date().toISOString().slice(0, 10);
 
-  // Single source of truth for date fixtures
-  const {
-    data: dateFixtures = [],
-    isLoading: isLoadingDate,
-    error: dateError,
-    refetch: refetchDate
-  } = useQuery({
-    queryKey: ['central-date-fixtures', validDate],
-    queryFn: async () => {
-      console.log(`🔄 [CentralDataProvider] Fetching fixtures for ${validDate}`);
+  // Function to fetch fixtures, now using useCallback for memoization
+  const fetchFixtures = useCallback(async (date: string) => {
+    if (isLoading) return;
 
-      let timeoutId: NodeJS.Timeout | null = null;
-      const controller = new AbortController();
+    setIsLoading(true);
+    try {
+      console.log(`🔄 [CentralDataProvider] Fetching fixtures for ${date}`);
 
-      try {
-        // Quick connection health check
-        if (!navigator.onLine) {
-          throw new Error('No internet connection');
-        }
+      // Fetch comprehensive fixture data with multiple sources
+      const responses = await Promise.allSettled([
+        // Primary: Multi-timezone endpoint for comprehensive coverage
+        apiRequest('GET', `/api/fixtures/date/${date}?all=true&skipFilter=true&timezone=true`),
+        // Secondary: Direct league fixtures for popular leagues
+        apiRequest('GET', `/api/fixtures/date/${date}?leagues=38,39,140,135,61,78,71,88,253,848,2,3,4,5`),
+        // Tertiary: Live fixtures if it's today
+        ...(date === new Date().toISOString().split('T')[0] ? [
+          apiRequest('GET', '/api/fixtures/live')
+        ] : [])
+      ]);
 
-        // Set up timeout that only aborts if request is still pending - reduced to 10 seconds for faster recovery
-        timeoutId = setTimeout(() => {
-          if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 10 seconds');
-          }
-        }, 10000);
+      let allFixtures: any[] = [];
+      const fixtureIds = new Set<number>();
 
-        const response = await fetch(`/api/fixtures/date/${validDate}?all=true`, {
-          signal: controller.signal,
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          },
-          // Add explicit network settings for better reliability
-          cache: 'no-cache',
-          mode: 'cors',
-          credentials: 'same-origin',
-          keepalive: false
-        });
-
-        // Clear timeout on successful response
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-          timeoutId = null;
-        }
-
-        if (!response.ok) {
-          console.warn(`Date fixtures API returned ${response.status} for ${validDate}`);
-          return [];
-        }
-
-        const data: FixtureResponse[] = await response.json();
-
-        console.log(`📊 [CentralDataProvider] Raw data received: ${data.length} fixtures`);
-
-        // Basic validation only - let components handle their own filtering
-        const basicFiltered = data.filter(fixture => {
-          return fixture?.league && fixture?.teams && fixture?.teams?.home && fixture?.teams?.away;
-        });
-
-        console.log(`📊 [CentralDataProvider] After basic filtering: ${basicFiltered.length} fixtures`);
-
-        // Update Redux store with all valid fixtures
-        dispatch(fixturesActions.setFixturesByDate({
-          date: validDate,
-          fixtures: basicFiltered as any
-        }));
-
-        return basicFiltered;
-      } catch (error: any) {
-        // Clear timeout on error
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-          timeoutId = null;
-        }
-
-        // Check for cached data first for any error type
-        const cachedData = queryClient.getQueryData(['central-date-fixtures', validDate]);
-
-        if (error.name === 'AbortError') {
-          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate} after 10 seconds`);
-        } else if (error.message === 'Failed to fetch') {
-          console.warn(`🌐 [CentralDataProvider] Network error for ${validDate}: Server unreachable or connection lost`);
-        } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
-          console.warn(`🔌 [CentralDataProvider] Fetch API error for ${validDate}: ${error.message}`);
-        } else if (error.message?.includes('timeout')) {
-          console.warn(`⏰ [CentralDataProvider] Network timeout for ${validDate}: ${error.message}`);
-        } else {
-          console.error(`❌ [CentralDataProvider] Unexpected error fetching fixtures for ${validDate}:`, {
-            message: error?.message || 'Unknown error',
-            name: error?.name || 'UnknownError',
-            stack: error?.stack?.substring(0, 200) || 'No stack trace',
-            errorType: typeof error,
-            fullError: error
-          });
-        }
-
-        // Always try to return cached data if available
-        if (cachedData && Array.isArray(cachedData)) {
-          console.log(`💾 [CentralDataProvider] Using stale cache data for ${validDate} (${cachedData.length} fixtures) due to ${error?.name || 'unknown error'}`);
-          return cachedData;
-        }
-
-        // If no cached data available, try to get data from nearby dates (expanded range)
-        const dates = [];
-        for (let i = -3; i <= 3; i++) {
-          const date = new Date(validDate);
-          date.setDate(date.getDate() + i);
-          dates.push(date.toISOString().slice(0, 10));
-        }
-
-        // Try most recent dates first
-        const sortedDates = dates.sort((a, b) => {
-          const diffA = Math.abs(new Date(a).getTime() - new Date(validDate).getTime());
-          const diffB = Math.abs(new Date(b).getTime() - new Date(validDate).getTime());
-          return diffA - diffB;
-        });
-
-        for (const date of sortedDates) {
-          if (date !== validDate) {
-            const fallbackData = queryClient.getQueryData(['central-date-fixtures', date]);
-            if (fallbackData && Array.isArray(fallbackData) && fallbackData.length > 0) {
-              console.log(`🔄 [CentralDataProvider] Using fallback data from ${date} for ${validDate} (${fallbackData.length} fixtures)`);
-              return fallbackData;
+      // Process all successful responses
+      for (const response of responses) {
+        if (response.status === 'fulfilled') {
+          try {
+            const data = await response.value.json();
+            if (Array.isArray(data)) {
+              // Deduplicate by fixture ID
+              data.forEach((fixture: any) => {
+                if (fixture?.fixture?.id && !fixtureIds.has(fixture.fixture.id)) {
+                  fixtureIds.add(fixture.fixture.id);
+                  allFixtures.push(fixture);
+                }
+              });
             }
+          } catch (parseError) {
+            console.warn(`⚠️ [CentralDataProvider] Failed to parse response:`, parseError);
           }
         }
+      }
 
-        // Try to get any fixture data from the cache as last resort
-        const allQueries = queryClient.getQueryCache().findAll(['central-date-fixtures']);
-        for (const query of allQueries) {
-          if (query.state.data && Array.isArray(query.state.data) && query.state.data.length > 0) {
-            console.log(`🔄 [CentralDataProvider] Using emergency fallback data for ${validDate} (${query.state.data.length} fixtures)`);
-            return query.state.data;
+      // If we still don't have enough fixtures, try fallback sources
+      if (allFixtures.length < 50) {
+        console.log(`🔄 [CentralDataProvider] Fetching additional fixtures (current: ${allFixtures.length})`);
+
+        try {
+          const fallbackResponse = await apiRequest('GET', `/api/fixtures/date/${date}?minimal=false&world=true`);
+          const fallbackData = await fallbackResponse.json();
+
+          if (Array.isArray(fallbackData)) {
+            fallbackData.forEach((fixture: any) => {
+              if (fixture?.fixture?.id && !fixtureIds.has(fixture.fixture.id)) {
+                fixtureIds.add(fixture.fixture.id);
+                allFixtures.push(fixture);
+              }
+            });
           }
+        } catch (fallbackError) {
+          console.warn(`⚠️ [CentralDataProvider] Fallback fetch failed:`, fallbackError);
         }
-
-        console.warn(`⚠️ [CentralDataProvider] No fallback data available for ${validDate}, returning empty array`);
-        return [];
-      }
-    },
-    staleTime: CACHE_DURATIONS.ONE_HOUR,
-    gcTime: CACHE_DURATIONS.SIX_HOURS,
-    refetchOnWindowFocus: false,
-    retry: (failureCount, error: any) => {
-      // Retry on network errors, but with more specific conditions
-      const isNetworkError = (
-        error?.message === 'Failed to fetch' ||
-        error?.message?.includes('timeout') ||
-        error?.message?.includes('fetch') ||
-        error?.name === 'AbortError' ||
-        error?.name === 'TypeError' ||
-        error?.code === 'NETWORK_ERROR'
-      );
-
-      const shouldRetry = isNetworkError && failureCount < 3; // Increased to 3 retries
-
-      if (shouldRetry) {
-        const delay = Math.min(1000 * Math.pow(2, failureCount), 8000); // Exponential backoff with max 8s
-        console.log(`🔄 [CentralDataProvider] Retry attempt ${failureCount + 1}/3 for ${validDate} in ${delay}ms (reason: ${error?.message || error?.name || 'unknown'})`);
-        return true;
       }
 
-      if (!shouldRetry && isNetworkError) {
-        console.log(`⛔ [CentralDataProvider] No more retries for ${validDate} after ${failureCount + 1} attempts`);
+      setFixtures(allFixtures);
+      console.log(`✅ [CentralDataProvider] Loaded ${allFixtures.length} unique fixtures for ${date}`);
+
+      if (allFixtures.length === 0) {
+        console.warn(`⚠️ [CentralDataProvider] No fixtures found for ${date}`);
       }
+    } catch (error) {
+      console.error(`❌ [CentralDataProvider] Error fetching fixtures for ${date}:`, error);
+      setFixtures([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isLoading, setFixtures]); // Dependencies for useCallback
 
-      return false;
-    },
-    retryDelay: (attemptIndex) => Math.min(1000 * Math.pow(2, attemptIndex), 8000), // Exponential backoff
-    throwOnError: false, // Don't throw errors to prevent unhandled rejections
-    enabled: !!validDate,
-  });
+  // Fetch fixtures when date changes
+  useEffect(() => {
+    if (selectedDate) {
+      // Clear existing fixtures when date changes to ensure fresh data
+      if (fixtures.length > 0) {
+        setFixtures([]);
+      }
+      fetchFixtures(selectedDate);
+    }
+  }, [selectedDate, fetchFixtures, fixtures.length]); // Added fixtures.length as dependency
 
-  // Single source of truth for live fixtures
+  // Refresh live fixtures every 2 minutes for today
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    if (selectedDate === today) {
+      const interval = setInterval(() => {
+        console.log(`🔄 [CentralDataProvider] Auto-refreshing fixtures for today`);
+        fetchFixtures(selectedDate); // Use fetchFixtures to update the main fixtures state
+      }, 2 * 60 * 1000); // 2 minutes
+
+      return () => clearInterval(interval);
+    }
+  }, [selectedDate, fetchFixtures]); // Dependencies for useEffect
+
+  // Fetch live fixtures using React Query
   const {
-    data: liveFixtures = [],
-    isLoading: isLoadingLive,
-    error: liveError,
-    refetch: refetchLive
+    data: queryLiveFixtures = [],
+    isLoading: isLoadingLiveQuery,
+    error: liveErrorQuery,
+    refetch: refetchLive,
   } = useQuery({
     queryKey: ['central-live-fixtures'],
     queryFn: async () => {
-      console.log('🔴 [CentralDataProvider] Fetching live fixtures');
-
-      let timeoutId: NodeJS.Timeout | null = null;
-      const controller = new AbortController();
-
+      console.log('🔴 [CentralDataProvider] Fetching live fixtures via useQuery');
       try {
-        // Set up timeout that only aborts if request is still pending - reduced to 10 seconds for live data
-        timeoutId = setTimeout(() => {
-          if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 10 seconds');
-          }
-        }, 10000);
-
-        const response = await fetch('/api/fixtures/live', {
-          signal: controller.signal,
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          }
-        });
-
-        // Clear timeout on successful response
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-          timeoutId = null;
-        }
-
-        if (!response.ok) {
-          console.warn(`Live fixtures API returned ${response.status}`);
-          return [];
-        }
-
+        const response = await apiRequest('/api/fixtures/live');
         const data: FixtureResponse[] = await response.json();
-        console.log(`Central cache: Received ${data.length} live fixtures`);
-
-        // Update Redux store
-        dispatch(fixturesActions.setLiveFixtures(data as any));
+        console.log(`Central cache: Received ${data.length} live fixtures via useQuery`);
+        setLiveFixturesState(data); // Update local state for live fixtures
         return data;
-
       } catch (fetchError: any) {
-        // Clear timeout on error
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-          timeoutId = null;
-        }
-
-        if (fetchError.name === 'AbortError') {
-          console.warn(`⏰ [CentralDataProvider] Live fixtures request timeout`);
-        } else {
-          console.warn(`Failed to fetch live fixtures:`, fetchError);
-        }
-        // Return empty array instead of throwing
+        console.warn(`Failed to fetch live fixtures via useQuery:`, fetchError);
+        setLiveFixturesState([]); // Ensure state is cleared on error
         return [];
       }
-
     },
     staleTime: 120000, // 2 minutes for live data
     gcTime: 10 * 60 * 1000, // 10 minutes
     refetchInterval: 300000, // Refetch every 5 minutes (much less aggressive)
     refetchOnWindowFocus: false, // Disable to prevent memory leaks
-    retry: 3, // Enable retries with exponential backoff
+    retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    throwOnError: false, // Don't throw errors to prevent unhandled rejections
+    throwOnError: false,
   });
 
-  // Cleanup and memory management
-  useEffect(() => {
-    // Increase max listeners to prevent warnings
-    if (typeof process !== 'undefined' && process.setMaxListeners) {
-      process.setMaxListeners(20);
-    }
+  // Combined loading state
+  const isLoadingCombined = isLoading || isLoadingLiveQuery;
 
-    // Cleanup on unmount
-    return () => {
-      // Clear any pending timeouts or intervals
-      if (typeof window !== 'undefined') {
-        // Force garbage collection of unused queries
-        queryClient.clear();
-      }
-    };
-  }, []);
+  // Error handling for date fixtures (from fetchFixtures)
+  const dateError = !isLoading && fixtures.length === 0 && validDate && !(() => { // Check if there was an attempt to fetch but no data
+    const today = new Date().toISOString().split('T')[0];
+    return validDate === today && queryLiveFixtures.length === 0 && !isLoadingLiveQuery; // If today and live is also empty, might not be an error
+  })();
 
-  // Prefetch related data with reduced frequency
-  useEffect(() => {
-    const prefetchTimer = setTimeout(() => {
-      // Prefetch tomorrow's fixtures
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const tomorrowStr = tomorrow.toISOString().slice(0, 10);
-
-      queryClient.prefetchQuery({
-        queryKey: ['central-date-fixtures', tomorrowStr],
-        queryFn: async () => {
-          const response = await fetch(`/api/fixtures/date/${tomorrowStr}?all=true`);
-          if (!response.ok) return [];
-          return response.json();
-        },
-        staleTime: CACHE_DURATIONS.FOUR_HOURS,
-      });
-    }, 5000); // Delay prefetch to reduce initial load
-
-    return () => clearTimeout(prefetchTimer);
-  }, [selectedDate, queryClient]);
-
+  // Context value provided to children
   const contextValue: CentralDataContextType = {
-    fixtures: dateFixtures,
-    liveFixtures,
-    isLoading: isLoadingDate || isLoadingLive,
-    error: dateError?.message || liveError?.message || null,
-    refetchLive,
-    refetchDate
+    fixtures: fixtures, // Use local state for date fixtures
+    liveFixtures: liveFixtures, // Use local state for live fixtures
+    isLoading: isLoadingCombined,
+    error: dateError ? 'Failed to load today\'s matches.' : (liveErrorQuery?.message || null),
+    refetchLive: () => refetchLive(), // Use React Query's refetch for live data
+    refetchDate: () => fetchFixtures(selectedDate) // Use the local fetchFixtures for date data
   };
 
   return (
