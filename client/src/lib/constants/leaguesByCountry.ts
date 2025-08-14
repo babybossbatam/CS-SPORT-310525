@@ -78,7 +78,7 @@ export function mergeStaticWithDynamicLeagues(
   
   // Add any leagues from fixtures that aren't in static data
   fixtureLeagues.forEach(fixtureLeague => {
-    const exists = staticLeagues.some(static => static.id === fixtureLeague.league.id);
+    const exists = staticLeagues.some(staticLeague => staticLeague.id === fixtureLeague.league.id);
     if (!exists) {
       merged.push({
         id: fixtureLeague.league.id,
