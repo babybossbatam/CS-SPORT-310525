@@ -3022,11 +3022,17 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 const penaltyAway =
                                   fixture.score?.penalty?.away;
                                 const hasPenaltyScores =
-                                  penaltyHome !== null && penaltyAway !== null;
+                                  penaltyHome !== null && penaltyHome !== undefined &&
+                                  penaltyAway !== null && penaltyAway !== undefined &&
+                                  typeof penaltyHome === 'number' && typeof penaltyAway === 'number';
 
                                 if (isPenaltyMatch && hasPenaltyScores) {
+                                  // Ensure penalty scores are valid numbers, fallback to 0 if undefined
+                                  const validPenaltyHome = typeof penaltyHome === 'number' ? penaltyHome : 0;
+                                  const validPenaltyAway = typeof penaltyAway === 'number' ? penaltyAway : 0;
+
                                   const winnerTeam =
-                                    penaltyHome > penaltyAway
+                                    validPenaltyHome > validPenaltyAway
                                       ? smartTeamTranslation.translateTeamName(
                                           fixture.teams.home.name,
                                           currentLanguage,
@@ -3038,9 +3044,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                           fixture.league,
                                         );
                                   const penaltyScore =
-                                    penaltyHome > penaltyAway
-                                      ? `${penaltyHome}-${penaltyAway}`
-                                      : `${penaltyAway}-${penaltyHome}`;
+                                    validPenaltyHome > validPenaltyAway
+                                      ? `${validPenaltyHome}-${validPenaltyAway}`
+                                      : `${validPenaltyAway}-${validPenaltyHome}`;
 
                                   const penaltyWonText = t("won_on_penalties");
                                   const onPenaltiesText = t("on_penalties");
