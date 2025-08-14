@@ -416,17 +416,30 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   const staticCountriesList = useMemo(() => {
     const staticCountries = [];
     const seenDisplayNames = new Set(); // Track seen display names to avoid duplicates
+    const seenOriginalNames = new Set(); // Track original names that have been translated
     
     // Add main countries from static data first
     allAvailableCountries.forEach(country => {
       // Use the enhanced translation function that includes fallbacks
       const displayName = getCountryDisplayName(country);
       
-      // Skip if we've already seen this display name (avoids showing both original and translated)
+      // Skip if we've already seen this display name
       if (seenDisplayNames.has(displayName)) {
         console.log(`🚫 [StaticList] Skipping duplicate display name: "${country}" -> "${displayName}"`);
         return;
       }
+      
+      // If this is a translation (display name differs from original), mark the original as seen
+      if (displayName !== country) {
+        seenOriginalNames.add(country);
+      }
+      
+      // Skip if this original name was already used for a translation
+      if (seenOriginalNames.has(country) && displayName === country) {
+        console.log(`🚫 [StaticList] Skipping original name that was already translated: "${country}"`);
+        return;
+      }
+      
       seenDisplayNames.add(displayName);
       
       const mappedData = {
@@ -476,6 +489,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     // When real fixture data is loaded, only show countries that have matches
     const countriesWithMatchesData = [];
     const seenDisplayNames = new Set(); // Track seen display names to avoid duplicates
+    const seenOriginalNames = new Set(); // Track original names that have been translated
 
     // Add countries from our static list that have matches
     allAvailableCountries.forEach(country => {
@@ -486,11 +500,23 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         // Use the enhanced translation function that includes fallbacks
         const displayName = getCountryDisplayName(country);
         
-        // Skip if we've already seen this display name (avoids showing both original and translated)
+        // Skip if we've already seen this display name
         if (seenDisplayNames.has(displayName)) {
           console.log(`🚫 [DynamicList] Skipping duplicate display name: "${country}" -> "${displayName}"`);
           return;
         }
+        
+        // If this is a translation (display name differs from original), mark the original as seen
+        if (displayName !== country) {
+          seenOriginalNames.add(country);
+        }
+        
+        // Skip if this original name was already used for a translation
+        if (seenOriginalNames.has(country) && displayName === country) {
+          console.log(`🚫 [DynamicList] Skipping original name that was already translated: "${country}"`);
+          return;
+        }
+        
         seenDisplayNames.add(displayName);
         
         countriesWithMatchesData.push({
@@ -515,11 +541,23 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
           // Use the enhanced translation function that includes fallbacks
           const displayName = getCountryDisplayName(country);
           
-          // Skip if we've already seen this display name (avoids showing both original and translated)
+          // Skip if we've already seen this display name
           if (seenDisplayNames.has(displayName)) {
             console.log(`🚫 [DynamicList] Skipping duplicate display name: "${country}" -> "${displayName}"`);
             return;
           }
+          
+          // If this is a translation (display name differs from original), mark the original as seen
+          if (displayName !== country) {
+            seenOriginalNames.add(country);
+          }
+          
+          // Skip if this original name was already used for a translation
+          if (seenOriginalNames.has(country) && displayName === country) {
+            console.log(`🚫 [DynamicList] Skipping original name that was already translated: "${country}"`);
+            return;
+          }
+          
           seenDisplayNames.add(displayName);
           
           countriesWithMatchesData.push({
