@@ -1678,33 +1678,40 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursOld > 4) ||
                 (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
 
-              // Live status and elapsed time
+              // Live matches - show SCORE, not status text in center
               if (
                 !["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) &&
                 !isStaleFinishedMatch &&
                 hoursOld <= 4 &&
                 ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
               ) {
-                let displayText = "";
-                if (status === "HT") {
-                  displayText = "Halftime";
-                } else if (status === "P") {
-                  displayText = "Penalties";
-                } else if (status === "ET") {
-                  const extraTime = elapsed ? elapsed - 90 : 0;
-                  displayText = extraTime > 0 ? `90' + ${extraTime}'` : `${elapsed}'`;
-                } else if (status === "BT") {
-                  displayText = "Break Time";
-                } else if (status === "INT") {
-                  displayText = "Interrupted";
+                // For live matches (including halftime), show the SCORE in center, not status
+                const homeScore = match.goals.home;
+                const awayScore = match.goals.away;
+                const hasValidScores =
+                  homeScore !== null &&
+                  homeScore !== undefined &&
+                  awayScore !== null &&
+                  awayScore !== undefined &&
+                  !isNaN(Number(homeScore)) &&
+                  !isNaN(Number(awayScore));
+
+                if (hasValidScores) {
+                  return (
+                    <div className="match-score-display">
+                      <span className="score-number">{homeScore}</span>
+                      <span className="score-separator">-</span>
+                      <span className="score-number">{awayScore}</span>
+                    </div>
+                  );
                 } else {
-                  displayText = elapsed ? `${elapsed}'` : "LIVE";
+                  // If no score available during live match, show time
+                  return (
+                    <div className="match-time-display">
+                      {format(fixtureDate, "HH:mm")}
+                    </div>
+                  );
                 }
-                return (
-                  <div className="match-status-label status-live-elapsed">
-                    {displayText}
-                  </div>
-                );
               }
 
               // Postponed/Cancelled matches
