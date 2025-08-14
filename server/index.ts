@@ -18,10 +18,22 @@ process.on('uncaughtException', (error) => {
   // Log but don't exit to prevent restarts
 });
 
+// Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection:', reason);
-  // Clean up the promise to prevent memory leaks
-  promise.catch(() => {});
+
+  // Clean up the promise to prevent memory leaks and warnings
+  promise.catch((err) => {
+    // Silently handle the rejection to prevent further warnings
+    console.log('🔧 Cleaned up unhandled rejection:', err?.message || 'Unknown error');
+  });
+
+  // Force garbage collection if available to clean up resources
+  if (global.gc) {
+    setTimeout(() => {
+      global.gc();
+    }, 100);
+  }
 });
 
 // Handle EventEmitter warnings specifically
@@ -51,18 +63,18 @@ let memoryWarningCount = 0;
 const monitorMemory = () => {
   const usage = process.memoryUsage();
   const heapUsedMB = usage.heapUsed / 1024 / 1024;
-  
+
   if (heapUsedMB > 1200) { // Earlier warning at 1.2GB
     memoryWarningCount++;
     console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB (Warning #${memoryWarningCount})`);
-    
+
     if (memoryWarningCount > 3) { // More aggressive cleanup
       console.log('🧹 Forcing garbage collection...');
       if (global.gc) {
         global.gc();
         memoryWarningCount = 0;
       }
-      
+
       // Clear require cache for non-essential modules
       Object.keys(require.cache).forEach(key => {
         if (key.includes('node_modules') && 

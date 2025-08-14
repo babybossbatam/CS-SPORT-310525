@@ -441,6 +441,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           } catch (error) {
             console.error(`❌ [Routes] Error fetching fixtures for ${fetchDate}:`, error);
+            // Ensure the error is properly handled and doesn't become an unhandled rejection
+            if (error instanceof Promise) {
+              error.catch(() => {});
+            }
           }
         }
       }
@@ -463,6 +467,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           } catch (error) {
             console.error(`❌ [Routes] Error fetching league ${leagueId} fixtures:`, error);
+            // Ensure the error is properly handled
+            if (error instanceof Promise) {
+              error.catch(() => {});
+            }
           }
         }
       }
@@ -485,6 +493,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           } catch (error) {
             console.error(`❌ [Routes] Error fetching world league ${leagueId}:`, error);
+            // Ensure the error is properly handled
+            if (error instanceof Promise) {
+              error.catch(() => {});
+            }
           }
         }
       }
@@ -505,6 +517,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         } catch (error) {
           console.error(`❌ [Routes] Error fetching standard fixtures:`, error);
+          // Ensure the error is properly handled
+          if (error instanceof Promise) {
+            error.catch(() => {});
+          }
         }
       }
 
