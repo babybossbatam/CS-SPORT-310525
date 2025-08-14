@@ -83,11 +83,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         // Use setTimeout to defer heavy operations
         const timeoutId = setTimeout(() => {
           console.log(`🎓 [Auto-Learning] Processing ${fixturesData.length} fixtures for automatic translation learning...`);
-          
+
           // Learn from fixtures in background
           smartLeagueCountryTranslation.learnFromFixtures(fixturesData);
           smartLeagueCountryTranslation.massLearnMixedLanguageLeagues(fixturesData);
-          
+
           console.log(`✅ [Auto-Learning] Completed learning from ${fixturesData.length} fixtures`);
         }, 100); // Small delay to let UI render first
 
@@ -130,14 +130,14 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     const validFixtures = allFixtures.filter(fixture => {
       if (!fixture?.fixture?.date || !fixture?.league?.id || !fixture?.fixture?.id) return false;
       if (seenFixtures.has(fixture.fixture.id)) return false;
-      
+
       const fixtureDateString = new Date(fixture.fixture.date).toISOString().split('T')[0];
       const isValidDate = fixtureDateString === selectedDate;
-      
+
       if (isValidDate) {
         seenFixtures.add(fixture.fixture.id);
       }
-      
+
       return isValidDate;
     });
 
@@ -148,7 +148,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       const status = fixture.fixture?.status?.short;
 
       // Quick live check
-      const isLive = liveStatuses.has(status) && 
+      const isLive = liveStatuses.has(status) &&
         (Date.now() - new Date(fixture.fixture.date).getTime()) <= 4 * 60 * 60 * 1000;
 
       // Initialize country/league data efficiently
@@ -528,8 +528,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                     return (
                       <>
                         (
-                        <span className="text-red-500 font-semibold">
-                          {totalLiveMatches}
+                        <span className="text-red-500 font-semibold animate-pulse">
+                          {totalLiveMatches} LIVE
                         </span>
                         /{totalMatches})
                       </>
@@ -721,13 +721,13 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                                 >
                                   {(() => {
                                     const originalName = leagueData.league.name || "Unknown League";
-                                    
+
                                     // Simple translation without forcing refresh
                                     const translatedName = smartLeagueCountryTranslation.translateLeagueName(
                                       originalName,
                                       currentLanguage,
                                     );
-                                    
+
                                     return translatedName || originalName;
                                   })()}
                                 </span>
