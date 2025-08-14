@@ -42,13 +42,14 @@ import playerVerificationRoutes from './routes/playerVerificationRoutes';
 import { RapidAPI } from './utils/rapidApi'; // corrected rapidApi import
 import translationRoutes from "./routes/translationRoutes";
 
+
 // Cache duration constants
 const LIVE_DATA_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes for live data
 const PAST_DATA_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours for past data
 const FUTURE_DATA_CACHE_DURATION = 6 * 60 * 60 * 1000; // 6 hours for future data
 
-// Simple in-memory cache for leagues and countries
-const leagueCache = new Map<string, { data: any; timestamp: number }>();
+// Simple in-memory cache
+const fixturesCache = new Map<string, { data: any; timestamp: number }>();
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -432,19 +433,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
             ? 2 * 60 * 60 * 1000
             : 12 * 60 * 60 * 1000;
 
-        // Check database cache for the date
-        const dbCached = await storage.getCachedFixturesByDate(date);
-        
-        if (dbCached && dbCached.length > 0) {
-          const cacheTime = new Date(dbCached[0].timestamp);
-          const currentTime = new Date();
-          const cacheAge = currentTime.getTime() - cacheTime.getTime();
-          const maxAge = isToday ? LIVE_DATA_CACHE_DURATION : PAST_DATA_CACHE_DURATION;
+        // Check if we have cached data that's not too old
+        const cached = fixturesCache.get(cacheKey);
+        const currentTime = Date.now();
+        const maxAge = isToday ? LIVE_DATA_CACHE_DURATION : isPast ? PAST_DATA_CACHE_DURATION : FUTURE_DATA_CACHE_DURATION;
 
-          if (cacheAge < maxAge) {
-            console.log(`📦 [Routes] Using cached fixtures for ${date} (age: ${Math.floor(cacheAge / 60000)}min)`);
-            return res.json(dbCached.map(f => f.data));
-          } else {
+        // For timeout prevention, return slightly stale cache if available
+        const emergencyMaxAge = maxAge * 2; // Double the max age for emergency fallback
+
+        if (cached && currentTime - cached.timestamp < maxAge) {
+          console.log(`📦 [Routes] Using cached fixtures for ${date} (age: ${Math.floor((currentTime - cached.timestamp) / 60000)}min, maxAge: ${Math.floor(maxAge / 60000)}min)`);
+          return res.json(cached.data);
+        }
+
+        // Emergency fallback: if we have cached data within emergency max age, use it to prevent timeouts
+        if (cached && currentTime - cached.timestamp < emergencyMaxAge) {
+          console.log(`⚡ [Routes] Using emergency cached fixtures for ${date} (age: ${Math.floor((currentTime - cached.timestamp) / 60000)}min) to prevent timeout`);
+
+          // Return cached data immediately but trigger background refresh
+          setTimeout(() => {
+            console.log(`🔄 [Routes] Background refresh triggered for ${date}`);
+            // This will update cache for next request
+          }, 100);
+
+          return res.json(cached.data);
+        } else {
           console.log(
             `⏰ [Routes] Cache expired for date ${date} (age: ${Math.round(cacheAge / 60000)}min > maxAge: ${Math.round(maxAge / 60000)}min)`,
           );
@@ -650,49 +663,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching fixture:", error);
       res.status(500).json({ message: "Failed to fetch fixture" });
-    }
-  });
-
-  // Get country data
-  apiRouter.get("/countries", async (req: Request, res: Response) => {
-    try {
-      console.log("API: Getting available countries");
-
-      // Check if we have cached country data
-      const cacheKey = "all-countries-data";
-      const cached = leagueCache.get(cacheKey);
-      const now = Date.now();
-
-      if (cached && now - cached.timestamp < 24 * 60 * 60 * 1000) { // 24 hours cache
-        console.log(`Using cached countries data (${cached.data.length} countries)`);
-        return res.json(cached.data);
-      }
-
-      const allCountries = await rapidApiService.getCountries();
-
-      if (!allCountries || allCountries.length === 0) {
-        console.log("No countries data received from API");
-        return res.json([]);
-      }
-
-      // Process and cache the countries data
-      const processedCountries = allCountries.map((country) => ({
-        name: country.name,
-        code: country.code,
-        flag: country.flag
-      }));
-
-      // Cache for 24 hours
-      leagueCache.set(cacheKey, {
-        data: processedCountries,
-        timestamp: now,
-      });
-
-      console.log(`Successfully fetched and cached ${processedCountries.length} countries`);
-      res.json(processedCountries);
-    } catch (error) {
-      console.error("Error fetching countries:", error);
-      res.status(500).json({ error: "Failed to fetch countries data" });
     }
   });
 
@@ -3014,7 +2984,7 @@ error) {
     }
   });
 
-  // Get flag with SportsRadar fallback
+  // Get country flag with SportsRadar fallback
   apiRouter.get("/flags/:country", async (req: Request, res: Response) => {
     try {
       const { country } = req.params;

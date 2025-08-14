@@ -26,33 +26,6 @@ import {
 } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
-// Types for API responses
-interface CountryResponse {
-  name: string;
-  code: string;
-  flag: string;
-}
-
-interface LeagueResponse {
-  league: {
-    id: number;
-    name: string;
-    type: string;
-    logo: string;
-  };
-  country: {
-    name: string;
-    code: string;
-    flag: string;
-  };
-  seasons: Array<{
-    year: number;
-    start: string;
-    end: string;
-    current: boolean;
-  }>;
-}
-
 interface MyAllLeagueListProps {
   selectedDate: string;
 }
@@ -74,51 +47,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   const { currentLanguage, setLanguage } = useLanguage();
   const { t } = useTranslation();
 
-  // Fetch all countries - cached for 24 hours since this rarely changes
-  const {
-    data: allCountries,
-    isLoading: isCountriesLoading,
-  } = useCachedQuery(
-    ["all-countries"],
-    async () => {
-      try {
-        const response = await apiRequest("GET", "/api/countries");
-        const data = await response.json();
-        return Array.isArray(data) ? data : [];
-      } catch (error) {
-        console.error("Error fetching countries:", error);
-        return [];
-      }
-    },
-    {
-      staleTime: 24 * 60 * 60 * 1000, // 24 hours
-      maxAge: 24 * 60 * 60 * 1000,
-    },
-  );
-
-  // Fetch all leagues - cached for 24 hours since this rarely changes
-  const {
-    data: allLeagues,
-    isLoading: isLeaguesLoading,
-  } = useCachedQuery(
-    ["all-leagues"],
-    async () => {
-      try {
-        const response = await apiRequest("GET", "/api/leagues");
-        const data = await response.json();
-        return Array.isArray(data) ? data : [];
-      } catch (error) {
-        console.error("Error fetching leagues:", error);
-        return [];
-      }
-    },
-    {
-      staleTime: 24 * 60 * 60 * 1000, // 24 hours
-      maxAge: 24 * 60 * 60 * 1000,
-    },
-  );
-
-  // Fetch fixtures data with caching (only for match counting)
+  // Fetch fixtures data with caching (league data is derived from fixtures)
   const {
     data: fixturesData,
     isLoading: isFixturesLoading,
@@ -165,7 +94,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         return () => clearTimeout(timeoutId);
       }
     }
-    setIsLoading(isFixturesLoading || isCountriesLoading || isLeaguesLoading);
+    setIsLoading(isFixturesLoading);
     setError(
       fixturesError ? "Failed to load fixtures. Please try again later." : null,
     );
@@ -364,74 +293,42 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     }
   }, [user.preferences.favoriteLeagues, user.isAuthenticated, user.id, dispatch]);
 
-  // Create comprehensive country mapping from pre-fetched API data + hardcoded
+  // Comprehensive country mapping with translations pre-loaded
   const allFootballCountriesMapping = useMemo(() => {
-    const countryMap = new Map();
-    
-    // Add countries from API if available
-    if (allCountries && allCountries.length > 0) {
-      allCountries.forEach((country: CountryResponse) => {
-        if (country?.name) {
-          const displayName = getCountryDisplayName(country.name);
-          countryMap.set(country.name, {
-            originalName: country.name,
-            displayName,
-            hasLanguageMapping: !!(countryToLanguageMap[country.name] || countryToLanguageMap[displayName]),
-            code: country.code,
-            flag: country.flag
-          });
-        }
-      });
-    }
-
-    // Add hardcoded popular countries that might not be in API
-    const fallbackCountries = [
-      "World", "Europe", "International", "Copa America", "Nations League",
-      // Alternative spellings that might appear in fixtures
-      "Czech-Republic", "Dominican-Republic", "Bosnia-Herzegovina", 
-      "South-Africa", "United-Arab-Emirates", "New-Zealand", "United States"
+    const countries = [
+      "World", "Afghanistan", "Albania", "Algeria", "Angola", "Argentina", "Armenia", 
+      "Australia", "Austria", "Azerbaijan", "Bahrain", "Bangladesh", "Belgium", 
+      "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Bulgaria", 
+      "Burkina Faso", "Cameroon", "Canada", "Chile", "China", "Colombia", "Croatia", 
+      "Czech Republic", "Denmark", "Egypt", "England", "Estonia", "Ethiopia", 
+      "Faroe Islands", "Finland", "France", "Georgia", "Germany", "Ghana", "Greece", 
+      "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", 
+      "Italy", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kuwait", "Lithuania", 
+      "Luxembourg", "Malaysia", "Mali", "Mexico", "Morocco", "Netherlands", 
+      "New Zealand", "Nigeria", "Norway", "Oman", "Pakistan", "Panama", "Paraguay", 
+      "Peru", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Saudi Arabia", 
+      "Scotland", "Senegal", "Serbia", "Singapore", "Slovakia", "Slovenia", 
+      "South Africa", "South Korea", "Spain", "Sweden", "Switzerland", "Thailand", 
+      "Tunisia", "Turkey", "Ukraine", "United Arab Emirates", "Uruguay", "USA", 
+      "Uzbekistan", "Venezuela", "Vietnam", "Wales", "Yemen", "Zambia", "Zimbabwe",
+      // Additional countries that might appear in fixtures
+      "Czech-Republic", "Dominican Republic", "Dominican-Republic", "United States",
+      "Bosnia-Herzegovina", "South-Africa", "United-Arab-Emirates", "New-Zealand"
     ];
 
-    fallbackCountries.forEach(country => {
-      if (!countryMap.has(country)) {
-        const displayName = getCountryDisplayName(country);
-        countryMap.set(country, {
-          originalName: country,
-          displayName,
-          hasLanguageMapping: !!(countryToLanguageMap[country] || countryToLanguageMap[displayName]),
-          code: null,
-          flag: null
-        });
-      }
+    // Pre-map all countries with their display names
+    const countryMap = new Map();
+    countries.forEach(country => {
+      const displayName = getCountryDisplayName(country);
+      countryMap.set(country, {
+        originalName: country,
+        displayName,
+        hasLanguageMapping: !!(countryToLanguageMap[country] || countryToLanguageMap[displayName])
+      });
     });
 
     return countryMap;
-  }, [allCountries, currentLanguage, getCountryDisplayName]);
-
-  // Create leagues mapping by country from pre-fetched data
-  const leaguesByCountryMapping = useMemo(() => {
-    const mapping = new Map();
-    
-    if (allLeagues && allLeagues.length > 0) {
-      allLeagues.forEach((leagueData: LeagueResponse) => {
-        const countryName = leagueData?.country?.name || "Unknown";
-        
-        if (!mapping.has(countryName)) {
-          mapping.set(countryName, []);
-        }
-        
-        mapping.get(countryName).push({
-          id: leagueData.league.id,
-          name: leagueData.league.name,
-          type: leagueData.league.type,
-          logo: leagueData.league.logo,
-          country: leagueData.country
-        });
-      });
-    }
-
-    return mapping;
-  }, [allLeagues]);
+  }, [currentLanguage, getCountryDisplayName]);
 
   // Get countries that actually have matches for the selected date
   const countriesWithMatches = useMemo(() => {
