@@ -824,16 +824,16 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                                         leagueData.league.name,
                                         0,
                                       ) || "Unknown League";
-
+                                    
                                     // Force fresh translation by clearing cache for this specific league first
                                     const cacheKey = `${originalName}-${currentLanguage}`;
-
+                                    
                                     // Try to get translation, forcing a fresh lookup for mixed language leagues
                                     let translatedName = smartLeagueCountryTranslation.translateLeagueName(
                                       originalName,
                                       currentLanguage,
                                     );
-
+                                    
                                     // If it's the same as original and looks like mixed language, force learning
                                     if (translatedName === originalName && 
                                         (originalName.includes('聯賽') || originalName.includes('联赛'))) {
@@ -847,7 +847,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                                         currentLanguage,
                                       );
                                     }
-
+                                    
                                     return translatedName;
                                   })()}
                                 </span>

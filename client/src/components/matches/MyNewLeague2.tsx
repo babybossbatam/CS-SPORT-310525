@@ -1614,30 +1614,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     [kickoffFlashMatches],
   );
 
-  // Function to trigger the halftime flash effect
-  const triggerHalftimeFlash = useCallback(
-    (matchId: number) => {
-      if (!halftimeFlashMatches.has(matchId)) {
-        console.log(`🟠 [HALFTIME FLASH] Match ${matchId} just reached halftime!`);
-        setHalftimeFlashMatches((prev) => {
-          const newHalftimeFlashMatches = new Set(prev);
-          newHalftimeFlashMatches.add(matchId);
-          return newHalftimeFlashMatches;
-        });
-
-        // Remove the flash after a delay (5 seconds)
-        setTimeout(() => {
-          setHalftimeFlashMatches((prev) => {
-            const newHalftimeFlashMatches = new Set(prev);
-            newHalftimeFlashMatches.delete(matchId);
-            return newHalftimeFlashMatches;
-          });
-        }, 5000);
-      }
-    },
-    [halftimeFlashMatches],
-  );
-
   // Function to trigger the finish flash effect
   const triggerFinishFlash = useCallback(
     (matchId: number) => {
@@ -1662,7 +1638,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     [finishFlashMatches],
   );
 
-  // Track status changes for kickoff, halftime, and finish flash effects
+  // Track status changes for kickoff and finish flash effects
   useEffect(() => {
     if (!fixturesByLeague || Object.keys(fixturesByLeague).length === 0) return;
 
@@ -1689,33 +1665,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         triggerKickoffFlash(matchId);
       }
 
-      // Check if status just changed to halftime (HT)
-      if (
-        previousStatus &&
-        ["1H", "LIVE", "LIV"].includes(previousStatus) &&
-        currentStatus === "HT"
-      ) {
-        console.log(
-          `🟠 [HALFTIME DETECTION] Match ${matchId} transitioned from ${previousStatus} to ${currentStatus}`,
-        );
-        if (!halftimeFlashMatches.has(matchId)) {
-          setHalftimeFlashMatches((prev) => {
-            const newHalftimeFlashMatches = new Set(prev);
-            newHalftimeFlashMatches.add(matchId);
-            return newHalftimeFlashMatches;
-          });
-
-          // Remove the flash after a delay (5 seconds)
-          setTimeout(() => {
-            setHalftimeFlashMatches((prev) => {
-              const newHalftimeFlashMatches = new Set(prev);
-              newHalftimeFlashMatches.delete(matchId);
-              return newHalftimeFlashMatches;
-            });
-          }, 5000);
-        }
-      }
-
       // Check if status just changed from live to finished
       if (
         previousStatus &&
@@ -1735,7 +1684,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
     // Update previous statuses for next comparison
     setPreviousMatchStatuses(currentStatuses);
-  }, [fixturesByLeague, triggerKickoffFlash, triggerFinishFlash, halftimeFlashMatches]);
+  }, [fixturesByLeague, triggerKickoffFlash, triggerFinishFlash]);
 
   // Check if we have cached data available
   const cachedData = queryClient.getQueryData([
