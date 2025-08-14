@@ -25,13 +25,6 @@ import {
   countryToLanguageMap,
 } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
-import { 
-  ALL_COUNTRIES,
-  translateCountryName,
-  translateLeagueName,
-  getTranslatedCountriesAsOptions,
-  getTranslatedLeaguesAsOptions
-} from "@/lib/constants/countriesAndLeagues";
 import { LEAGUES_BY_COUNTRY, getLeaguesForCountry, mergeStaticWithDynamicLeagues, LeagueInfo } from "@/lib/constants/leaguesByCountry";
 
 interface MyAllLeagueListProps {
@@ -222,7 +215,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     );
   }, [leaguesByCountry]);
 
-  // Enhanced country name translation using the comprehensive translation system
+  // Enhanced country name translation using the smart translation system
   const getCountryDisplayName = useCallback((country: string | null | undefined): string => {
     if (!country || typeof country !== "string") {
       return "Unknown";
@@ -230,32 +223,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
     const originalCountry = country.trim();
 
-    // First try the comprehensive translation system from countriesAndLeagues.ts
-    let translation = translateCountryName(originalCountry, currentLanguage);
-    
-    // If no translation found, try some common variations
-    if (!translation || translation === originalCountry) {
-      // Try with normalized formatting
-      const variations = [
-        originalCountry.toLowerCase(),
-        originalCountry.replace(/\s+/g, ' ').trim(),
-        originalCountry.replace(/-/g, ' '),
-        originalCountry.replace(/\s/g, '-'),
-      ];
-      
-      for (const variation of variations) {
-        const varTranslation = translateCountryName(variation, currentLanguage);
-        if (varTranslation && varTranslation !== variation) {
-          translation = varTranslation;
-          break;
-        }
-      }
-    }
-
-    // If still no translation, try the smart translation system as fallback
-    if (!translation || translation === originalCountry) {
-      translation = smartLeagueCountryTranslation.translateCountryName(originalCountry, currentLanguage);
-    }
+    // Use the smart translation system
+    const translation = smartLeagueCountryTranslation.translateCountryName(originalCountry, currentLanguage);
     
     // Log translation for debugging
     console.log(`🌍 [MyAllLeagueList] Translating country: "${originalCountry}" -> "${translation}" (language: ${currentLanguage})`);
@@ -264,7 +233,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     return translation || originalCountry;
   }, [currentLanguage]);
 
-  // Enhanced league name translation using the comprehensive translation system
+  // Enhanced league name translation using the smart translation system
   const getLeagueDisplayName = useCallback((leagueName: string | null | undefined): string => {
     if (!leagueName || typeof leagueName !== "string") {
       return "Unknown League";
@@ -272,8 +241,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
     const originalLeague = leagueName.trim();
 
-    // Use only the comprehensive translation system from countriesAndLeagues.ts
-    const translation = translateLeagueName(originalLeague, currentLanguage);
+    // Use the smart translation system
+    const translation = smartLeagueCountryTranslation.translateLeagueName(originalLeague, currentLanguage);
     
     // Return translation if available, otherwise return original
     return translation || originalLeague;
@@ -358,38 +327,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     }
   }, [user.preferences.favoriteLeagues, user.isAuthenticated, user.id, dispatch]);
 
-  // Use static country list from constants with translations pre-loaded
-  const allFootballCountriesMapping = useMemo(() => {
-    // Extract country names from the static country list
-    const staticCountryNames = ALL_COUNTRIES.map(country => country.name);
-    
-    // Additional countries that might appear in fixtures but not in the static list
-    const additionalCountries = [
-      "Czech-Republic", "Dominican Republic", "Dominican-Republic", "United States",
-      "Bosnia-Herzegovina", "South-Africa", "United-Arab-Emirates", "New-Zealand"
-    ];
-    
-    // Combine static countries with additional ones
-    const allCountries = [...staticCountryNames, ...additionalCountries];
-
-    // Pre-map all countries with their display names using the comprehensive translation system
-    const countryMap = new Map();
-    allCountries.forEach(country => {
-      // Use the same translation system for consistency
-      const translatedName = translateCountryName(country, currentLanguage);
-      const displayName = translatedName || country;
-      
-      countryMap.set(country, {
-        originalName: country,
-        displayName,
-        hasLanguageMapping: !!(countryToLanguageMap[country] || countryToLanguageMap[displayName])
-      });
-      
-      console.log(`📋 [StaticMapping] Country: "${country}" -> "${displayName}" (${currentLanguage})`);
-    });
-
-    return countryMap;
-  }, [currentLanguage]);
+  
 
   // Get countries that actually have matches for the selected date
   const countriesWithMatches = useMemo(() => {
@@ -407,9 +345,9 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     return Array.from(countriesSet);
   }, [fixtures]);
 
-  // Get all countries from constants (whether they have matches or not)
+  // Get all countries from LEAGUES_BY_COUNTRY (whether they have matches or not)
   const allAvailableCountries = useMemo(() => {
-    return ALL_COUNTRIES.map(country => country.name);
+    return Object.keys(LEAGUES_BY_COUNTRY);
   }, []);
 
   // Static countries list to show immediately (before fixtures load)
@@ -592,7 +530,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     );
 
     return worldCountry ? [worldCountry, ...otherCountries] : otherCountries;
-  }, [leaguesByCountry, countriesWithMatches, allAvailableCountries, allFootballCountriesMapping, getCountryDisplayName, countryToLanguageMap, fixtures, staticCountriesList]);
+  }, [leaguesByCountry, countriesWithMatches, allAvailableCountries, getCountryDisplayName, countryToLanguageMap, fixtures, staticCountriesList]);
 
   if (!selectedDate) {
     return (
