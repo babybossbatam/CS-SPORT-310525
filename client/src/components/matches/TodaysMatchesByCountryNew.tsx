@@ -1509,200 +1509,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         />
       </button>
 
-      {/* Match content - your existing match grid layout */}
+      {/* Match content - updated to use proper grid positioning like MyNewLeague2 */}
       <div className="match-three-grid-container">
-        {/* Home team logo */}
-        <div className="home-team-logo-container">
-          <MyWorldTeamLogo
-            teamName={match.teams.home.name || ""}
-            teamId={match.teams.home.id}
-            teamLogo={
-              match.teams.home.id
-                ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                : "/assets/fallback-logo.svg"
-            }
-            alt={match.teams.home.name}
-            size="34px"
-            className="popular-leagues-size"
-            leagueContext={{
-              name: leagueData.league.name,
-              country: leagueData.league.country,
-            }}
-          />
-        </div>
-
-        {/* Home Team Name */}
-        <div
-          className={`home-team-name ${
-            match.goals.home !== null &&
-            match.goals.away !== null &&
-            match.goals.home > match.goals.away
-              ? "winner"
-              : ""
-          }`}
-        >
-          {shortenTeamName(match.teams.home.name) || "Unknown Team"}
-        </div>
-
-        {/* Score/Time Center */}
-        <div className="match-score-container">
-          {(() => {
-            const status = match.fixture.status.short;
-            const fixtureDate = parseISO(match.fixture.date);
-            const elapsed = match.fixture.status.elapsed;
-
-            // Check if match finished more than 4 hours ago for stale status
-            const matchDateTime = new Date(match.fixture.date);
-            const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
-            const isStaleFinishedMatch =
-              (["FT", "AET", "PEN"].includes(status) && hoursOld > 4) ||
-              (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursOld > 4) ||
-              (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
-
-            // Live status and elapsed time
-            if (
-              !["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) &&
-              !isStaleFinishedMatch &&
-              hoursOld <= 4 &&
-              ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
-            ) {
-              let displayText = "";
-              if (status === "HT") {
-                displayText = "Halftime";
-              } else if (status === "P") {
-                displayText = "Penalties";
-              } else if (status === "ET") {
-                const extraTime = elapsed ? elapsed - 90 : 0;
-                displayText = extraTime > 0 ? `90' + ${extraTime}'` : `${elapsed}'`;
-              } else if (status === "BT") {
-                displayText = "Break Time";
-              } else if (status === "INT") {
-                displayText = "Interrupted";
-              } else {
-                displayText = elapsed ? `${elapsed}'` : "LIVE";
-              }
-              return (
-                <div className="match-status-label status-live-elapsed">
-                  {displayText}
-                </div>
-              );
-            }
-
-            // Postponed/Cancelled matches
-            if (
-              ["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)
-            ) {
-              return (
-                <div className="match-status-label status-postponed">
-                  {status === "PST"
-                    ? "Postponed"
-                    : status === "CANC"
-                      ? "Cancelled"
-                      : status === "ABD"
-                        ? "Abandoned"
-                        : status === "SUSP"
-                          ? "Suspended"
-                          : status === "AWD"
-                            ? "Awarded"
-                            : status === "WO"
-                              ? "Walkover"
-                              : status}
-                </div>
-              );
-            }
-
-            // Overdue matches that should be marked as postponed
-            if (status === "NS" || status === "TBD") {
-              const matchTime = new Date(match.fixture.date);
-              const now = new Date();
-              const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
-
-              if (hoursAgo > 2) {
-                return (
-                  <div className="match-status-label status-postponed">
-                    Postponed
-                  </div>
-                );
-              }
-              if (status === "TBD") {
-                return (
-                  <div className="match-status-label status-upcoming">
-                    Time TBD
-                  </div>
-                );
-              }
-              return null; // For upcoming matches, no status here
-            }
-
-            // Finished matches or stale matches
-            if (
-              ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) ||
-              isStaleFinishedMatch
-            ) {
-              const homeScore = match.goals.home;
-              const awayScore = match.goals.away;
-              const hasValidScores =
-                homeScore !== null &&
-                homeScore !== undefined &&
-                awayScore !== null &&
-                awayScore !== undefined &&
-                !isNaN(Number(homeScore)) &&
-                !isNaN(Number(awayScore));
-
-              if (hasValidScores) {
-                return (
-                  <div className="match-score-display">
-                    <span className="score-number">{homeScore}</span>
-                    <span className="score-separator">-</span>
-                    <span className="score-number">{awayScore}</span>
-                  </div>
-                );
-              } else {
-                // Show local time if score data is missing for finished matches
-                return (
-                  <div className="match-time-display" style={{ fontSize: "0.882em" }}>
-                    {format(fixtureDate, "HH:mm")}
-                  </div>
-                );
-              }
-            }
-            return null;
-          })()}
-        </div>
-
-        {/* Away Team Name */}
-        <div
-          className={`away-team-name ${
-            match.goals.home !== null &&
-            match.goals.away !== null &&
-            match.goals.away > match.goals.home
-              ? "winner"
-              : ""
-          }`}
-        >
-          {shortenTeamName(match.teams.away.name) || "Unknown Team"}
-        </div>
-
-        {/* Away team logo */}
-        <div className="away-team-logo-container">
-          <MyWorldTeamLogo
-            teamName={match.teams.away.name || ""}
-            teamId={match.teams.away.id}
-            teamLogo={
-              match.teams.away.id
-                ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                : "/assets/fallback-logo.svg"
-            }
-            alt={match.teams.away.name}
-            size="34px"
-            className="popular-leagues-size"
-            leagueContext={{
-              name: leagueData.league.name,
-              country: leagueData.league.country,
-            }}
-          />
-        </div>
-
         {/* Top Grid: Match Status */}
         <div className="match-status-top">
           {(() => {
@@ -1817,6 +1625,205 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
             return null;
           })()}
+        </div>
+
+        {/* Main Grid: Match Content with proper grid positioning */}
+        <div className="match-content-container">
+          {/* Home Team Name */}
+          <div
+            className={`home-team-name ${
+              match.goals.home !== null &&
+              match.goals.away !== null &&
+              match.goals.home > match.goals.away
+                ? "winner"
+                : ""
+            }`}
+          >
+            {shortenTeamName(match.teams.home.name) || "Unknown Team"}
+          </div>
+
+          {/* Home team logo */}
+          <div className="home-team-logo-container">
+            <MyWorldTeamLogo
+              teamName={match.teams.home.name || ""}
+              teamId={match.teams.home.id}
+              teamLogo={
+                match.teams.home.id
+                  ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                  : "/assets/fallback-logo.svg"
+              }
+              alt={match.teams.home.name}
+              size="34px"
+              className="popular-leagues-size"
+              leagueContext={{
+                name: leagueData.league.name,
+                country: leagueData.league.country,
+              }}
+            />
+          </div>
+
+          {/* Score/Time Center */}
+          <div className="match-score-container">
+          {(() => {
+              const status = match.fixture.status.short;
+              const fixtureDate = parseISO(match.fixture.date);
+              const elapsed = match.fixture.status.elapsed;
+
+              // Check if match finished more than 4 hours ago for stale status
+              const matchDateTime = new Date(match.fixture.date);
+              const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
+              const isStaleFinishedMatch =
+                (["FT", "AET", "PEN"].includes(status) && hoursOld > 4) ||
+                (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursOld > 4) ||
+                (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
+
+              // Live status and elapsed time
+              if (
+                !["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) &&
+                !isStaleFinishedMatch &&
+                hoursOld <= 4 &&
+                ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
+              ) {
+                let displayText = "";
+                if (status === "HT") {
+                  displayText = "Halftime";
+                } else if (status === "P") {
+                  displayText = "Penalties";
+                } else if (status === "ET") {
+                  const extraTime = elapsed ? elapsed - 90 : 0;
+                  displayText = extraTime > 0 ? `90' + ${extraTime}'` : `${elapsed}'`;
+                } else if (status === "BT") {
+                  displayText = "Break Time";
+                } else if (status === "INT") {
+                  displayText = "Interrupted";
+                } else {
+                  displayText = elapsed ? `${elapsed}'` : "LIVE";
+                }
+                return (
+                  <div className="match-status-label status-live-elapsed">
+                    {displayText}
+                  </div>
+                );
+              }
+
+              // Postponed/Cancelled matches
+              if (
+                ["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)
+              ) {
+                return (
+                  <div className="match-status-label status-postponed">
+                    {status === "PST"
+                      ? "Postponed"
+                      : status === "CANC"
+                        ? "Cancelled"
+                        : status === "ABD"
+                          ? "Abandoned"
+                          : status === "SUSP"
+                            ? "Suspended"
+                            : status === "AWD"
+                              ? "Awarded"
+                              : status === "WO"
+                                ? "Walkover"
+                                : status}
+                  </div>
+                );
+              }
+
+              // Overdue matches that should be marked as postponed
+              if (status === "NS" || status === "TBD") {
+                const matchTime = new Date(match.fixture.date);
+                const now = new Date();
+                const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+
+                if (hoursAgo > 2) {
+                  return (
+                    <div className="match-status-label status-postponed">
+                      Postponed
+                    </div>
+                  );
+                }
+                if (status === "TBD") {
+                  return (
+                    <div className="match-status-label status-upcoming">
+                      Time TBD
+                    </div>
+                  );
+                }
+                return (
+                  <div className="match-time-display">
+                    {format(fixtureDate, "HH:mm")}
+                  </div>
+                );
+              }
+
+              // Finished matches or stale matches
+              if (
+                ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) ||
+                isStaleFinishedMatch
+              ) {
+                const homeScore = match.goals.home;
+                const awayScore = match.goals.away;
+                const hasValidScores =
+                  homeScore !== null &&
+                  homeScore !== undefined &&
+                  awayScore !== null &&
+                  awayScore !== undefined &&
+                  !isNaN(Number(homeScore)) &&
+                  !isNaN(Number(awayScore));
+
+                if (hasValidScores) {
+                  return (
+                    <div className="match-score-display">
+                      <span className="score-number">{homeScore}</span>
+                      <span className="score-separator">-</span>
+                      <span className="score-number">{awayScore}</span>
+                    </div>
+                  );
+                } else {
+                  // Show local time if score data is missing for finished matches
+                  return (
+                    <div className="match-time-display" style={{ fontSize: "0.882em" }}>
+                      {format(fixtureDate, "HH:mm")}
+                    </div>
+                  );
+                }
+              }
+              return null;
+            })()}
+          </div>
+
+          {/* Away team logo */}
+          <div className="away-team-logo-container">
+            <MyWorldTeamLogo
+              teamName={match.teams.away.name || ""}
+              teamId={match.teams.away.id}
+              teamLogo={
+                match.teams.away.id
+                  ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                  : "/assets/fallback-logo.svg"
+              }
+              alt={match.teams.away.name}
+              size="34px"
+              className="popular-leagues-size"
+              leagueContext={{
+                name: leagueData.league.name,
+                country: leagueData.league.country,
+              }}
+            />
+          </div>
+
+          {/* Away Team Name */}
+          <div
+            className={`away-team-name ${
+              match.goals.home !== null &&
+              match.goals.away !== null &&
+              match.goals.away > match.goals.home
+                ? "winner"
+                : ""
+            }`}
+          >
+            {shortenTeamName(match.teams.away.name) || "Unknown Team"}
+          </div>
         </div>
 
         {/* Bottom Grid: Penalty Result Status */}
