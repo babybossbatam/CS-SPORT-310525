@@ -96,6 +96,20 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
           smartLeagueCountryTranslation.learnFromFixtures(fixturesData);
           smartLeagueCountryTranslation.massLearnMixedLanguageLeagues(fixturesData);
 
+          // Extract and learn unique countries and leagues for comprehensive coverage
+          const uniqueCountries = new Set<string>();
+          const uniqueLeagues = new Set<string>();
+
+          fixturesData.forEach(fixture => {
+            if (fixture?.league?.country) {
+              uniqueCountries.add(fixture.league.country);
+            }
+            if (fixture?.league?.name) {
+              uniqueLeagues.add(fixture.league.name);
+            }
+          });
+
+          console.log(`📊 [Auto-Learning] Found ${uniqueCountries.size} unique countries and ${uniqueLeagues.size} unique leagues`);
           console.log(`✅ [Auto-Learning] Completed learning from ${fixturesData.length} fixtures`);
         }, 100); // Small delay to let UI render first
 
@@ -225,7 +239,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   // Enhanced country name translation using the comprehensive translation system
   const getCountryDisplayName = useCallback((country: string | null | undefined): string => {
     if (!country || typeof country !== "string") {
-      return "Unknown";
+      return t("unknown") || "Unknown";
     }
 
     const originalCountry = country.trim();
@@ -235,6 +249,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     
     // If comprehensive translation is available and different from original, use it
     if (comprehensiveTranslation && comprehensiveTranslation !== originalCountry) {
+      console.log(`🌍 [Country Translation] "${originalCountry}" -> "${comprehensiveTranslation}" (${currentLanguage})`);
       return comprehensiveTranslation;
     }
 
@@ -244,13 +259,19 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       currentLanguage,
     );
 
-    return smartTranslation || originalCountry;
-  }, [currentLanguage]);
+    if (smartTranslation && smartTranslation !== originalCountry) {
+      console.log(`🤖 [Smart Country Translation] "${originalCountry}" -> "${smartTranslation}" (${currentLanguage})`);
+      return smartTranslation;
+    }
+
+    console.log(`⚠️ [Country Translation] No translation found for "${originalCountry}" in ${currentLanguage}`);
+    return originalCountry;
+  }, [currentLanguage, t]);
 
   // Enhanced league name translation using the comprehensive translation system
   const getLeagueDisplayName = useCallback((leagueName: string | null | undefined): string => {
     if (!leagueName || typeof leagueName !== "string") {
-      return "Unknown League";
+      return t("unknown_league") || "Unknown League";
     }
 
     const originalLeague = leagueName.trim();
@@ -260,6 +281,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     
     // If comprehensive translation is available and different from original, use it
     if (comprehensiveTranslation && comprehensiveTranslation !== originalLeague) {
+      console.log(`🏆 [League Translation] "${originalLeague}" -> "${comprehensiveTranslation}" (${currentLanguage})`);
       return comprehensiveTranslation;
     }
 
@@ -269,8 +291,14 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       currentLanguage,
     );
 
-    return smartTranslation || originalLeague;
-  }, [currentLanguage]);
+    if (smartTranslation && smartTranslation !== originalLeague) {
+      console.log(`🤖 [Smart League Translation] "${originalLeague}" -> "${smartTranslation}" (${currentLanguage})`);
+      return smartTranslation;
+    }
+
+    console.log(`⚠️ [League Translation] No translation found for "${originalLeague}" in ${currentLanguage}`);
+    return originalLeague;
+  }, [currentLanguage, t]);
 
   // Get header title
   const getHeaderTitle = () => {
