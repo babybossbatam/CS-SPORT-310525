@@ -380,7 +380,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } = req.query;
 
       console.log(`🎯 [Routes] Processing fixture request for date: ${date} (all=${all}, timezone=${timezone}, world=${world})`);
-      console.log(`🎯 [Routes] Current server date: ${new Date().toISOString()}, requested date: ${date}`);
+      console.log(`🎯 [Routes] Current server date: ${new Date().toISOString()}, requested date: ${requestedDate}`);
 
       const db = await storage.getDatabase();
 
