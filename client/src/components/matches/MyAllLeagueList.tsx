@@ -338,20 +338,20 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     return Array.from(countriesSet);
   }, [fixtures]);
 
-  // Optimized sorted countries using pre-mapped data
-  const sortedCountries = useMemo(() => {
-    if (!countriesWithMatches.length) return [];
+  // Get all countries from constants (whether they have matches or not)
+  const allAvailableCountries = useMemo(() => {
+    return ALL_COUNTRIES.map(country => country.name);
+  }, []);
 
-    // Filter to only countries that have matches and exist in our mapping
-    const validCountries = countriesWithMatches
-      .filter(country => {
-        const countryData = leaguesByCountry[country];
-        return countryData && countryData.totalMatches > 0;
-      })
-      .map(country => {
-        const countryData = leaguesByCountry[country];
-        const mappedCountry = allFootballCountriesMapping.get(country);
-        
+  // Optimized sorted countries using pre-mapped data (show all countries)
+  const sortedCountries = useMemo(() => {
+    // Create country data for all available countries
+    const allCountriesData = allAvailableCountries.map(country => {
+      const countryData = leaguesByCountry[country];
+      const mappedCountry = allFootballCountriesMapping.get(country);
+      
+      // If country has matches, use real data; otherwise create empty data
+      if (countryData && countryData.totalMatches > 0) {
         return {
           ...countryData,
           mappedData: mappedCountry || {
@@ -360,13 +360,45 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
             hasLanguageMapping: !!(countryToLanguageMap[country])
           }
         };
-      });
+      } else {
+        // Create empty country data for countries without matches
+        return {
+          country: country,
+          leagues: {},
+          totalMatches: 0,
+          liveMatches: 0,
+          mappedData: mappedCountry || {
+            originalName: country,
+            displayName: getCountryDisplayName(country),
+            hasLanguageMapping: !!(countryToLanguageMap[country])
+          }
+        };
+      }
+    });
+
+    // Add countries that have matches but aren't in our static list
+    countriesWithMatches.forEach(country => {
+      if (!allAvailableCountries.includes(country)) {
+        const countryData = leaguesByCountry[country];
+        if (countryData && countryData.totalMatches > 0) {
+          const mappedCountry = allFootballCountriesMapping.get(country);
+          allCountriesData.push({
+            ...countryData,
+            mappedData: mappedCountry || {
+              originalName: country,
+              displayName: getCountryDisplayName(country),
+              hasLanguageMapping: !!(countryToLanguageMap[country])
+            }
+          });
+        }
+      }
+    });
 
     // Separate World and others
     let worldCountry = null;
     const otherCountries = [];
 
-    for (const country of validCountries) {
+    for (const country of allCountriesData) {
       if (country.country?.toLowerCase() === "world") {
         worldCountry = country;
       } else {
@@ -380,7 +412,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     );
 
     return worldCountry ? [worldCountry, ...otherCountries] : otherCountries;
-  }, [leaguesByCountry, countriesWithMatches, allFootballCountriesMapping, getCountryDisplayName, countryToLanguageMap]);
+  }, [leaguesByCountry, countriesWithMatches, allAvailableCountries, allFootballCountriesMapping, getCountryDisplayName, countryToLanguageMap]);
 
   if (!selectedDate) {
     return (
@@ -508,9 +540,9 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
             </div>
           </button>
 
-          {/* Countries under Football - Show when expanded with virtual scrolling */}
+          {/* Countries under Football - Show when expanded */}
           {isFootballExpanded &&
-            sortedCountries.slice(0, 30).map((countryData: any) => {
+            sortedCountries.map((countryData: any) => {
               const totalLeagues = Object.keys(
                 countryData.leagues || {},
               ).length;
