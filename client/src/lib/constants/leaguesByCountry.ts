@@ -1,4 +1,3 @@
-
 export interface LeagueInfo {
   id: number;
   name: string;
@@ -75,7 +74,7 @@ export function mergeStaticWithDynamicLeagues(
   fixtureLeagues: any[]
 ): any[] {
   const merged = [...staticLeagues];
-  
+
   // Add any leagues from fixtures that aren't in static data
   fixtureLeagues.forEach(fixtureLeague => {
     const exists = staticLeagues.some(staticLeague => staticLeague.id === fixtureLeague.league.id);
@@ -89,6 +88,6 @@ export function mergeStaticWithDynamicLeagues(
       });
     }
   });
-  
+
   return merged.sort((a, b) => a.priority - b.priority);
 }
