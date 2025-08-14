@@ -713,8 +713,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => {
-              controller.abort("Request timeout after 15 seconds");
-            }, 15000); // Increased to 15 second timeout
+              controller.abort("Request timeout after 10 seconds"); // Adjusted timeout
+            }, 10000); // Adjusted to 10 seconds
 
             const response = await fetch(`/api/leagues/${leagueId}/fixtures`, {
               signal: controller.signal,
@@ -728,7 +728,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                 fetchError.message?.includes("timeout")
               ) {
                 console.warn(
-                  `⏰ [MyNewLeague2] Request timeout for league ${leagueId} after 15 seconds`,
+                  `⏰ [MyNewLeague2] Request timeout for league ${leagueId}: Request exceeded 10 seconds - falling back to cached data`, // Adjusted log message
                 );
                 return null;
               }
@@ -799,8 +799,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                 errorMessage.includes("abort") ||
                 errorMessage.includes("timeout"))
             ) {
-              console.warn(
-                `⏰ [MyNewLeague2] Timeout error for league ${leagueId}: Request exceeded 15 seconds`,
+              console.log(
+                `⏰ [MyNewLeague2] Timeout error for league ${leagueId}: Request exceeded 10 seconds - falling back to cached data`, // Adjusted log message
               );
               return {
                 leagueId,
@@ -2117,7 +2117,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         spain: {
                           en: "Spain",
                           es: "España",
-                          "zh-hk": "西班  �",
+                          "zh-hk": "西班  ",
                           "zh-tw": "西班牙",
                           zh: "西班牙",
                           de: "Spanien",
