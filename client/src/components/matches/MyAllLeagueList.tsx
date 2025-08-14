@@ -59,19 +59,32 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     async () => {
       if (!selectedDate) return [];
 
-      performanceMonitor.startMeasure("fixtures-fetch");
-      const response = await apiRequest(
-        "GET",
-        `/api/fixtures/date/${selectedDate}?all=true`,
-      );
-      const data = await response.json();
-      performanceMonitor.endMeasure("fixtures-fetch");
-      return Array.isArray(data) ? data : [];
+      try {
+        performanceMonitor.startMeasure("fixtures-fetch");
+        const response = await apiRequest(
+          "GET",
+          `/api/fixtures/date/${selectedDate}?all=true`,
+        );
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        performanceMonitor.endMeasure("fixtures-fetch");
+        return Array.isArray(data) ? data : [];
+      } catch (error) {
+        performanceMonitor.endMeasure("fixtures-fetch");
+        console.error('Failed to fetch fixtures:', error);
+        throw error;
+      }
     },
     {
       enabled: !!selectedDate,
       staleTime: 5 * 60 * 1000, // 5 minutes for fixtures
       maxAge: 30 * 60 * 1000,
+      retry: 2,
+      retryDelay: 1000,
     },
   );
 
@@ -84,13 +97,17 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       if (fixturesData.length > 0) {
         // Use setTimeout to defer heavy operations
         const timeoutId = setTimeout(() => {
-          console.log(`🎓 [Auto-Learning] Processing ${fixturesData.length} fixtures for automatic translation learning...`);
+          console.log(`🎓 [Enhanced Auto-Learning] Processing ${fixturesData.length} fixtures for comprehensive translation learning...`);
 
-          // Learn from fixtures in background
-          smartLeagueCountryTranslation.learnFromFixtures(fixturesData);
-          smartLeagueCountryTranslation.massLearnMixedLanguageLeagues(fixturesData);
+          // Learn from fixtures in background with enhanced system
+          try {
+            smartLeagueCountryTranslation.massLearnFromFixtures(fixturesData);
+            smartLeagueCountryTranslation.massLearnMixedLanguageLeagues(fixturesData);
+          } catch (error) {
+            console.warn('Translation learning error:', error);
+          }
 
-          console.log(`✅ [Auto-Learning] Completed learning from ${fixturesData.length} fixtures`);
+          console.log(`✅ [Enhanced Auto-Learning] Completed comprehensive learning from ${fixturesData.length} fixtures`);
         }, 100); // Small delay to let UI render first
 
         return () => clearTimeout(timeoutId);
@@ -487,11 +504,55 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
           <div className="flex flex-col items-center gap-4">
             <div className="text-red-500 font-medium text-sm">{error}</div>
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => {
+                setError(null);
+                setIsLoading(true);
+                // Force refetch by invalidating the query
+                window.location.reload();
+              }}
               className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm"
             >
               Try Again
             </button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show loading state with actual content structure
+  if (isLoading) {
+    return (
+      <Card className="w-full bg-white">
+        <CardHeader className="flex flex-row justify-between items-center space-y-0 p-4 border-b border-stone-200 text-sm font-bold">
+          <div className="flex justify-between items-center w-full">
+            {t("all_leagues")}
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="divide-y divide-gray-100">
+            <div className="p-4 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-4 w-16" />
+                </div>
+                <Skeleton className="h-4 w-8" />
+              </div>
+            </div>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="border-b border-gray-100">
+                <div className="flex items-center justify-between pl-2 pr-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="h-6 w-6 rounded-full" />
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-4 w-8" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-4 w-4" />
+                </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
