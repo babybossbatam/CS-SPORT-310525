@@ -30,9 +30,8 @@ import {
   translateCountryName,
   translateLeagueName,
   getTranslatedCountriesAsOptions,
-  getTranslatedLeaguesForCountry,
 } from "@/lib/constants/countriesAndLeagues";
-import { LEAGUES_BY_COUNTRY, getLeaguesForCountry, mergeStaticWithDynamicLeagues, LeagueInfo } from "@/lib/constants/leaguesByCountry";
+import { LEAGUES_BY_COUNTRY, getLeaguesForCountry, mergeStaticWithDynamicLeagues, LeagueInfo, getTranslatedLeaguesForCountry } from "@/lib/constants/leaguesByCountry";
 
 interface MyAllLeagueListProps {
   selectedDate: string;
