@@ -1511,11 +1511,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       {/* Match content - updated to use proper grid positioning like MyNewLeague2 */}
       <div className="match-three-grid-container">
-        {/* Top Grid: Match Status */}
+        {/* Top Grid: Score or Kick-off Time */}
         <div className="match-status-top">
           {(() => {
             const status = match.fixture.status.short;
-            const elapsed = match.fixture.status.elapsed;
+            const fixtureDate = parseISO(match.fixture.date);
 
             const matchDateTime = new Date(match.fixture.date);
             const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
@@ -1524,41 +1524,68 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursOld > 4) ||
               (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
 
+            // Finished matches - show final score
             if (
-              !["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) &&
+              ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) ||
+              isStaleFinishedMatch
+            ) {
+              const homeScore = match.goals.home;
+              const awayScore = match.goals.away;
+              const hasValidScores =
+                homeScore !== null &&
+                homeScore !== undefined &&
+                awayScore !== null &&
+                awayScore !== undefined &&
+                !isNaN(Number(homeScore)) &&
+                !isNaN(Number(awayScore));
+
+              if (hasValidScores) {
+                return (
+                  <div className="match-score-display">
+                    <span className="score-number">{homeScore}</span>
+                    <span className="score-separator">-</span>
+                    <span className="score-number">{awayScore}</span>
+                  </div>
+                );
+              } else {
+                // Show time if score data is missing
+                return (
+                  <div className="match-time-display" style={{ fontSize: "0.882em" }}>
+                    {format(fixtureDate, "HH:mm")}
+                  </div>
+                );
+              }
+            }
+
+            // Live matches - show current score
+            if (
               !isStaleFinishedMatch &&
               hoursOld <= 4 &&
               ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
             ) {
-              let displayText = "";
-              let statusClass = "status-live-elapsed";
+              const homeScore = match.goals.home;
+              const awayScore = match.goals.away;
+              const hasValidScores =
+                homeScore !== null &&
+                homeScore !== undefined &&
+                awayScore !== null &&
+                awayScore !== undefined &&
+                !isNaN(Number(homeScore)) &&
+                !isNaN(Number(awayScore));
 
-              if (status === "HT") {
-                displayText = "Halftime";
-                statusClass = "status-halftime";
-              } else if (status === "P") {
-                displayText = "Penalties";
-              } else if (status === "ET") {
-                const extraTime = elapsed ? elapsed - 90 : 0;
-                displayText = extraTime > 0 ? `90' + ${extraTime}'` : `${elapsed}'`;
-              } else if (status === "BT") {
-                displayText = "Break Time";
-              } else if (status === "INT") {
-                displayText = "Interrupted";
-              } else {
-                displayText = elapsed ? `${elapsed}'` : "LIVE";
+              if (hasValidScores) {
+                return (
+                  <div className="match-score-display">
+                    <span className="score-number">{homeScore}</span>
+                    <span className="score-separator">-</span>
+                    <span className="score-number">{awayScore}</span>
+                  </div>
+                );
               }
-
-              return (
-                <div className={`match-status-label ${statusClass}`}>
-                  {displayText}
-                </div>
-              );
             }
 
-            if (
-              ["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)
-            ) {
+            // Postponed/Cancelled matches - show status
+            if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
               return (
                 <div className="match-status-label status-postponed">
                   {status === "PST"
@@ -1578,6 +1605,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               );
             }
 
+            // Upcoming matches - show kick-off time
             if (status === "NS" || status === "TBD") {
               const matchTime = new Date(match.fixture.date);
               const now = new Date();
@@ -1597,28 +1625,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   </div>
                 );
               }
-              return null;
-            }
-
-            if (
-              ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) ||
-              isStaleFinishedMatch
-            ) {
               return (
-                <div
-                  className="match-status-label status-ended"
-                  style={{
-                    minWidth: "60px",
-                    textAlign: "center",
-                    transition: "none",
-                    animation: "none",
-                  }}
-                >
-                  {status === "FT" || isStaleFinishedMatch
-                    ? "Ended"
-                    : status === "AET"
-                      ? "After Extra Time"
-                      : status}
+                <div className="match-time-display">
+                  {format(fixtureDate, "HH:mm")}
                 </div>
               );
             }
