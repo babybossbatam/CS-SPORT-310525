@@ -100,26 +100,26 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       .trim();
   };
 
-  // Extract team names prioritizing data from MyMatchdetailsScoreboard
-  // This ensures we use the same team names that are displayed in the scoreboard
-  const rawHome = homeTeamData?.name ||
-                  match?.teams?.home?.name || 
+  // Extract original English team names for search queries (not translated names)
+  // Use the original API data to ensure we get the English names for better search results
+  const rawHome = match?.teams?.home?.name || 
                   match?.homeTeam?.name ||
                   match?.homeTeam ||
                   match?.home?.name ||
                   match?.home ||
                   homeTeam || 
                   homeTeamName || 
+                  homeTeamData?.name ||
                   'Home Team';
 
-  const rawAway = awayTeamData?.name ||
-                  match?.teams?.away?.name || 
+  const rawAway = match?.teams?.away?.name || 
                   match?.awayTeam?.name ||
                   match?.awayTeam ||
                   match?.away?.name ||
                   match?.away ||
                   awayTeam || 
                   awayTeamName || 
+                  awayTeamData?.name ||
                   'Away Team';
 
   // Validate that we have actual team names and not fallbacks
