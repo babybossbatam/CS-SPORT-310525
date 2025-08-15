@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useMemo } from "react";
-import { Card, CardHeader, CardContent } from "../ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Clock, Calendar, Star } from "lucide-react";
 import { parseISO, isValid, format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
@@ -11,6 +10,7 @@ import MyCircularFlag from "../common/MyCircularFlag";
 import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
+import { useLanguage } from "@/contexts/LanguageContext"; // Import useLanguage
 
 interface FixtureData {
   fixture: {
@@ -78,6 +78,8 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   liveFilterActive,
   onMatchCardClick,
 }) => {
+  const { language } = useLanguage(); // Use the useLanguage hook
+
   const [isExpanded, setIsExpanded] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
@@ -240,7 +242,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         <CardHeader className="cursor-pointer flex items-center justify-between p-3 bg-white border-b">
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-blue-500" />
-            <span className="font-semibold text-gray-800">Matches by Time</span>
+            <span className="font-semibold text-gray-800">{language === "en" ? "Matches by Time" : " partidos por tiempo"}</span>
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -283,7 +285,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         <CardHeader className="cursor-pointer flex items-center justify-between p-3 bg-white border-b">
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-blue-500" />
-            <span className="font-semibold text-gray-800">Matches by Time</span>
+            <span className="font-semibold text-gray-800">{language === "en" ? "Matches by Time" : " partidos por tiempo"}</span>
           </div>
         </CardHeader>
         <CardContent className="p-4">
@@ -298,13 +300,12 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
   return (
     <Card className="mt-4 overflow-hidden">
-      <CardHeader 
+      <CardHeader
         className="cursor-pointer flex items-left justify-between p-3 bg-white border-b"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-2">
-     
-          <span className="font-semibold text-gray-800 text-sm">Popular Football Leagues</span>
+          <span className="font-semibold text-gray-800 text-sm">{language === "en" ? "Popular Football Leagues" : "Ligas de Fútbol Populares"}</span>
         </div>
       </CardHeader>
 

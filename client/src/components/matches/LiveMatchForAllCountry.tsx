@@ -126,6 +126,8 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
   const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
   const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
+  const { i18n } = useTranslation(); // Assuming useTranslation is available and configured
+  const currentLanguage = i18n.language;
 
   // Popular leagues for prioritization
   const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
@@ -796,13 +798,14 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
         <div className="flex justify-between items-center w-full">
           <span>
-            {liveFilterActive && timeFilterActive
-              ? "Popular Football Live Score"
-              : liveFilterActive && !timeFilterActive
-                ? "Popular Football Live Score"
-                : !liveFilterActive && timeFilterActive
-                  ? "All Matches by Time"
-                  : "Popular Football Live Score"}
+            {currentLanguage === 'zh-hk' ? '熱門足球實時比分' :
+             currentLanguage === 'zh-tw' ? '熱門足球即時比分' :
+             currentLanguage === 'zh' ? '热门足球实时比分' :
+             currentLanguage === 'es' ? 'Marcadores de Fútbol en Vivo Populares' :
+             currentLanguage === 'de' ? 'Beliebte Fußball Live-Ergebnisse' :
+             currentLanguage === 'it' ? 'Punteggi Calcio Live Popolari' :
+             currentLanguage === 'pt' ? 'Placares de Futebol Ao Vivo Populares' :
+             'Popular Football Live Score'}
           </span>
         </div>
       </CardHeader>

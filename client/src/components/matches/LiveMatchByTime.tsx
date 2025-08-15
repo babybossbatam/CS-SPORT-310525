@@ -8,6 +8,7 @@ import { RootState, userActions } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import {
@@ -116,6 +117,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
   liveFixtures: propsFixtures,
   setLiveFilterActive,
 }) => {
+  const { currentLanguage } = useLanguage();
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   
