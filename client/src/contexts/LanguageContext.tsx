@@ -1126,6 +1126,7 @@ const translations = {
     november: "十一月",
     december: "十二月",
     popular_football_leagues: "热门足球联赛",
+    popular_football_live_score: "热门足球实时比分",
     leagues_cup: "联赛杯",
     world: "世界",
     ended: "已结束",
