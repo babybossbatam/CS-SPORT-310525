@@ -160,29 +160,60 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
   // It is the only port that is not firewalled.
   const port = process.env.PORT || 5000;
   
-  // Check if server is already running
-  let isServerRunning = false;
+  // Process lock to prevent multiple instances
+  const lockFile = '/tmp/server.lock';
+  const fs = require('fs');
   
-  const startServer = () => {
-    if (isServerRunning) {
-      log('Server already running, skipping startup');
-      return;
+  try {
+    // Check if lock file exists
+    if (fs.existsSync(lockFile)) {
+      const pid = fs.readFileSync(lockFile, 'utf8').trim();
+      try {
+        // Check if process is still running
+        process.kill(Number(pid), 0);
+        console.error(`Server already running with PID ${pid}. Exiting.`);
+        process.exit(1);
+      } catch (e) {
+        // Process doesn't exist, remove stale lock file
+        fs.unlinkSync(lockFile);
+      }
     }
     
-    isServerRunning = true;
+    // Create lock file with current PID
+    fs.writeFileSync(lockFile, process.pid.toString());
+    
+    // Clean up lock file on exit
+    process.on('exit', () => {
+      try {
+        if (fs.existsSync(lockFile)) {
+          fs.unlinkSync(lockFile);
+        }
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+    });
+    
     server.listen(Number(port), "0.0.0.0", () => {
       log(`serving on port ${port}`);
     }).on('error', (err: any) => {
-      isServerRunning = false;
+      // Clean up lock file on error
+      try {
+        if (fs.existsSync(lockFile)) {
+          fs.unlinkSync(lockFile);
+        }
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+      
       if (err.code === 'EADDRINUSE') {
-        console.error(`Port ${port} is already in use. Please stop other instances first.`);
-        process.exit(1);
+        console.error(`Port ${port} is already in use. Another server instance may be running.`);
       } else {
         console.error("Failed to start server:", err);
-        process.exit(1);
       }
+      process.exit(1);
     });
-  };
-  
-  startServer();
+  } catch (error) {
+    console.error("Failed to create process lock:", error);
+    process.exit(1);
+  }
 })();

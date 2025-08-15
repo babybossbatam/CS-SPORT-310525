@@ -12,7 +12,7 @@ build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
 
 [workflows]
-runButton = "Start Dev Server (No Auto Restart)"
+runButton = "Restart Server"
 
 [[workflows.workflow]]
 name = "Project"
@@ -108,6 +108,23 @@ args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=2048' tsx server
 name = "Clean Start Server"
 author = 42256231
 mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=2048' tsx --watch=false server/index.ts"
+
+[[workflows.workflow]]
+name = "Restart Server"
+author = 42256231
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pkill -f \"tsx.*server/index.ts\" || true"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "sleep 2"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
