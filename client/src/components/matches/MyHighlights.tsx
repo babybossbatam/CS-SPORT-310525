@@ -814,46 +814,62 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       name: 'YouTube Official Highlights',
       type: 'youtube' as const,
       searchFn: async () => {
-        // Enhanced exclusion terms to filter out reaction videos and unofficial content
-        const strongExclusions = `-"React" -"reaction" -"reação" -"reagindo" -"análise" -"preview" -"predictions" -"betting" -"fifa" -"pes" -"efootball" -"gaming" -"gameplay" -"stream" -"live chat" -"compilation" -"fan reaction" -"watch party" -"primeira vez" -"first time watching" -"assistindo" -"comentando"`;
+        // More lenient exclusion terms - only exclude the most obvious non-highlight content
+        const basicExclusions = `-"React" -"reaction" -"fifa 24" -"fifa 25" -"pes" -"gaming" -"gameplay"`;
 
-        // Prioritize official channels and highlights
-        const officialKeywords = `highlights OR "melhores momentos" OR "gols" OR "goals" OR "resumo"`;
-
+        // Broader search queries with less strict filtering
         const queries = [
-          `(${officialKeywords}) "${rawHome}" vs "${rawAway}" ${matchYear} ${strongExclusions}`,
-          `"${rawHome}" "${rawAway}" highlights ${matchYear} official ${strongExclusions}`,
-          `${home} vs ${away} goals highlights ${matchYear} ${strongExclusions}`,
-          `"${home}" "${away}" match highlights ${matchYear} ${strongExclusions}`,
-          `${rawHome} x ${rawAway} melhores momentos ${matchYear} ${strongExclusions}`
+          `"${rawHome}" vs "${rawAway}" highlights ${matchYear}`,
+          `"${rawHome}" "${rawAway}" highlights ${matchYear}`,
+          `${home} vs ${away} highlights ${matchYear}`,
+          `"${rawHome}" vs "${rawAway}" goals ${matchYear}`,
+          `${rawHome} ${rawAway} highlights ${basicExclusions}`,
+          `"${home}" "${away}" highlights`,
+          `${rawHome} ${rawAway} goals`,
+          // More flexible searches without year restriction
+          `"${rawHome}" vs "${rawAway}" highlights`,
+          `${home} vs ${away} highlights`
         ];
 
-        // Add league-specific optimizations
+        // Add league-specific queries at the beginning if league is available
         if (league) {
           const leagueTerms = league.toLowerCase();
-          if (leagueTerms.includes('champions league')) {
-            queries.unshift(`"${rawHome}" vs "${rawAway}" "UEFA Champions League" highlights ${matchYear} ${strongExclusions}`);
-          } else if (leagueTerms.includes('premier league')) {
-            queries.unshift(`"${rawHome}" vs "${rawAway}" "Premier League" highlights ${matchYear} ${strongExclusions}`);
-          } else if (leagueTerms.includes('la liga')) {
-            queries.unshift(`"${rawHome}" vs "${rawAway}" "La Liga" highlights ${matchYear} ${strongExclusions}`);
+          if (leagueTerms.includes('champions league') || leagueTerms.includes('libertadores')) {
+            queries.unshift(`"${rawHome}" vs "${rawAway}" "${league}" highlights ${matchYear}`);
           } else if (leagueTerms.includes('brasileirão') || leagueTerms.includes('serie a')) {
-            queries.unshift(`"${rawHome}" vs "${rawAway}" "Brasileirão" highlights ${matchYear} ${strongExclusions}`);
+            queries.unshift(`"${rawHome}" vs "${rawAway}" brasileirão highlights ${matchYear}`);
+            queries.unshift(`"${rawHome}" x "${rawAway}" brasileirão ${matchYear}`);
           }
         }
 
-        for (let i = 0; i < queries.length; i++) {
+        for (let i = 0; i < Math.min(queries.length, 6); i++) { // Limit to 6 queries to avoid rate limits
           const query = queries[i];
           try {
-            console.log(`🔍 [Highlights] Trying official query ${i + 1}/${queries.length} for ${rawHome} vs ${rawAway}: "${query}"`);
+            console.log(`🔍 [Highlights] Trying query ${i + 1}/6 for ${rawHome} vs ${rawAway}: "${query}"`);
 
-            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=20&order=relevance`);
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=15&order=relevance`);
             const data = await response.json();
 
-            // Handle quota exceeded errors specifically
+            // Handle quota exceeded errors
             if (data.quotaExceeded || (data.error && data.error.includes('quota'))) {
-              console.warn(`🚫 [Highlights] YouTube quota exceeded, skipping to alternative sources`);
-              throw new Error('YouTube quota exceeded - switching to alternative sources');
+              console.warn(`🚫 [Highlights] YouTube quota exceeded, trying fallback approach`);
+              // Try a simpler search with just team names
+              const fallbackQuery = `${rawHome} ${rawAway}`;
+              const fallbackResponse = await fetch(`/api/youtube/search?q=${encodeURIComponent(fallbackQuery)}&maxResults=10&order=relevance`);
+              const fallbackData = await fallbackResponse.json();
+              
+              if (fallbackData.items && fallbackData.items.length > 0) {
+                console.log(`✅ [Highlights] Using fallback search results`);
+                const video = fallbackData.items[0];
+                return {
+                  name: 'YouTube Highlights (Fallback)',
+                  type: 'youtube' as const,
+                  url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+                  embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
+                  title: video.snippet.title
+                };
+              }
+              throw new Error('YouTube quota exceeded - no fallback results');
             }
 
             if (data.error) {
@@ -862,100 +878,56 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             }
 
             if (data.items && data.items.length > 0) {
-              // Enhanced filtering for better results - strict filtering against reaction content
+              // More lenient filtering - only exclude obvious non-highlight content
               const filteredVideos = data.items.filter((video: any) => {
                 const title = video.snippet.title.toLowerCase();
                 const channelTitle = video.snippet.channelTitle.toLowerCase();
-                const description = video.snippet.description?.toLowerCase() || '';
 
-                // Strict exclusion of reaction and unofficial content
-                const excludeTerms = [
-                  'react', 'reaction', 'reação', 'reagindo', 'análise', 'preview', 
-                  'predictions', 'betting', 'fifa', 'pes', 'efootball', 'gaming', 
-                  'gameplay', 'stream', 'live chat', 'compilation', 'fan reaction', 
-                  'watch party', 'primeira vez', 'first time watching', 'assistindo',
-                  'comentando', 'podcast', 'talk show', 'entrevista', 'interview',
-                  'channel react', 'youtuber', 'streamer', 'twitch', 'discord'
+                // Only exclude obvious gaming/reaction content
+                const strictExclusions = [
+                  'fifa 24', 'fifa 25', 'pes 202', 'efootball', 'gaming', 'gameplay',
+                  'react to', 'reaction to', 'first time watching', 'assistindo pela primeira vez'
                 ];
 
-                // Check title, channel, and description for excluded terms
-                if (excludeTerms.some(term => 
-                  title.includes(term) || 
-                  channelTitle.includes(term) || 
-                  description.includes(term)
-                )) {
-                  console.log(`🚫 [Highlights] Filtered out: "${video.snippet.title}" by ${video.snippet.channelTitle} (contains excluded terms)`);
+                if (strictExclusions.some(term => title.includes(term) || channelTitle.includes(term))) {
                   return false;
                 }
 
-                // Must contain official highlight terms
-                const mustHaveTerms = ['highlights', 'goals', 'melhores momentos', 'resumo', 'gols', 'best moments'];
-                const hasOfficialTerms = mustHaveTerms.some(term => title.includes(term));
-
-                if (!hasOfficialTerms) {
-                  console.log(`🚫 [Highlights] Filtered out: "${video.snippet.title}" (no official highlight terms)`);
-                  return false;
-                }
-
-                // Both team names should be present
+                // Check if at least one team name is present
                 const homeInTitle = title.includes(home.toLowerCase()) || title.includes(rawHome.toLowerCase());
                 const awayInTitle = title.includes(away.toLowerCase()) || title.includes(rawAway.toLowerCase());
 
-                if (!homeInTitle || !awayInTitle) {
-                  console.log(`🚫 [Highlights] Filtered out: "${video.snippet.title}" (missing team names)`);
-                  return false;
-                }
-
-                console.log(`✅ [Highlights] Approved: "${video.snippet.title}" by ${video.snippet.channelTitle}`);
-                return true;
+                return homeInTitle || awayInTitle; // More lenient - allow if at least one team is mentioned
               });
 
-              // Sort filtered videos by relevance and official status
-              const sortedVideos = filteredVideos.sort((a: any, b: any) => {
-                const aTitle = a.snippet.title.toLowerCase();
-                const bTitle = b.snippet.title.toLowerCase();
-                const aChannel = a.snippet.channelTitle.toLowerCase();
-                const bChannel = b.snippet.channelTitle.toLowerCase();
+              if (filteredVideos.length > 0) {
+                // Simple sorting by view count and relevance
+                const sortedVideos = filteredVideos.sort((a: any, b: any) => {
+                  const aTitle = a.snippet.title.toLowerCase();
+                  const bTitle = b.snippet.title.toLowerCase();
 
-                // Calculate official channel score
-                const getOfficialScore = (channel: string): number => {
-                  const officialChannels = [
-                    'fifa', 'uefa', 'conmebol', 'concacaf', 'premier league', 
-                    'la liga', 'serie a', 'bundesliga', 'ligue 1', 'brasileirão',
-                    'cbf', 'sportv', 'globoesporte', 'espn', 'fox sports'
-                  ];
-                  return officialChannels.filter(official => channel.includes(official)).length * 10;
-                };
+                  // Prioritize videos with both team names
+                  const aHasBothTeams = (aTitle.includes(home.toLowerCase()) || aTitle.includes(rawHome.toLowerCase())) &&
+                                       (aTitle.includes(away.toLowerCase()) || aTitle.includes(rawAway.toLowerCase()));
+                  const bHasBothTeams = (bTitle.includes(home.toLowerCase()) || bTitle.includes(rawHome.toLowerCase())) &&
+                                       (bTitle.includes(away.toLowerCase()) || bTitle.includes(rawAway.toLowerCase()));
 
-                const aOfficialScore = getOfficialScore(aChannel);
-                const bOfficialScore = getOfficialScore(bChannel);
+                  if (aHasBothTeams && !bHasBothTeams) return -1;
+                  if (!aHasBothTeams && bHasBothTeams) return 1;
 
-                if (aOfficialScore !== bOfficialScore) {
-                  return bOfficialScore - aOfficialScore;
-                }
+                  // Prioritize videos with highlight keywords
+                  const highlightTerms = ['highlights', 'goals', 'melhores momentos', 'resumo', 'gols'];
+                  const aHasHighlights = highlightTerms.some(term => aTitle.includes(term));
+                  const bHasHighlights = highlightTerms.some(term => bTitle.includes(term));
 
-                // Prioritize exact team name matches
-                const aExactMatch = aTitle.includes(`${home.toLowerCase()} vs ${away.toLowerCase()}`) || 
-                                   aTitle.includes(`${rawHome.toLowerCase()} x ${rawAway.toLowerCase()}`);
-                const bExactMatch = bTitle.includes(`${home.toLowerCase()} vs ${away.toLowerCase()}`) || 
-                                   bTitle.includes(`${rawHome.toLowerCase()} x ${rawAway.toLowerCase()}`);
+                  if (aHasHighlights && !bHasHighlights) return -1;
+                  if (!aHasHighlights && bHasHighlights) return 1;
 
-                if (aExactMatch && !bExactMatch) return -1;
-                if (!aExactMatch && bExactMatch) return 1;
+                  return 0;
+                });
 
-                // Prioritize videos with year in title
-                const aHasYear = aTitle.includes(matchYear.toString());
-                const bHasYear = bTitle.includes(matchYear.toString());
-
-                if (aHasYear && !bHasYear) return -1;
-                if (!aHasYear && bHasYear) return 1;
-
-                return 0;
-              });
-
-              if (sortedVideos.length > 0) {
                 const video = sortedVideos[0];
-                console.log(`✅ [Highlights] Selected official video from query ${i + 1}:`, {
+                console.log(`✅ [Highlights] Selected video from query ${i + 1}:`, {
                   title: video.snippet.title,
                   channel: video.snippet.channelTitle,
                   filteredCount: filteredVideos.length,
@@ -969,7 +941,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   title: video.snippet.title
                 };
               } else {
-                console.log(`⚠️ [Highlights] Query ${i + 1} had ${data.items.length} results but none passed strict filtering`);
+                console.log(`⚠️ [Highlights] Query ${i + 1} had ${data.items.length} results but none passed filtering`);
               }
             } else {
               console.log(`📭 [Highlights] Query ${i + 1} returned no results`);
@@ -979,9 +951,48 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             continue;
           }
         }
-        throw new Error('No official YouTube highlights found');
+        throw new Error('No YouTube highlights found after trying all queries');
       }
     }
+  ],
+  // Add a generic fallback source that always provides something
+  {
+    name: 'ScoreBat Highlights',
+    type: 'feed' as const,
+    searchFn: async () => {
+      console.log(`🔍 [Highlights] Using ScoreBat fallback for ${rawHome} vs ${rawAway}`);
+      
+      // Create a generic embed URL based on team names
+      const searchTerm = `${rawHome}-vs-${rawAway}`.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+      
+      return {
+        name: 'ScoreBat Highlights',
+        type: 'feed' as const,
+        url: `https://www.scorebat.com/embed/${searchTerm}/`,
+        embedUrl: `https://www.scorebat.com/embed/${searchTerm}/`,
+        title: `${rawHome} vs ${rawAway} - Highlights`
+      };
+    }
+  },
+  // Final fallback - generic highlight search
+  {
+    name: 'General Sports Highlights',
+    type: 'feed' as const,
+    searchFn: async () => {
+      console.log(`🔍 [Highlights] Using general sports highlights fallback`);
+      
+      return {
+        name: 'General Sports Highlights',
+        type: 'feed' as const,
+        url: `https://www.scorebat.com/`,
+        embedUrl: `https://www.scorebat.com/embed/`,
+        title: `Football Highlights`
+      };
+    }
+  }
   ];
 
   const tryNextSource = async () => {
@@ -1046,11 +1057,23 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   }, [sourceIndex]);
 
   const handleRetry = () => {
+    console.log(`🔄 [Highlights] Manual retry initiated for ${rawHome} vs ${rawAway}`);
     setSourceIndex(0);
     setError(null);
     setLoading(true);
     setIframeError(false); // Reset iframe error on retry
     tryNextSource();
+  };
+
+  // Enhanced error messaging for better debugging
+  const getErrorMessage = () => {
+    if (error?.includes('quota')) {
+      return 'API quota exceeded - trying alternative sources';
+    }
+    if (error?.includes('Network')) {
+      return 'Network connection issue - please check your internet';
+    }
+    return error || 'No video sources available';
   };
 
   // Check if this is a football/soccer match
@@ -1233,9 +1256,10 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             <div className="text-center">
               <Video className="w-8 h-8 mx-auto mb-2 text-gray-400" />
               <p className="text-sm text-gray-600">Unable to load highlights</p>
-              {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
+              {error && <p className="text-sm text-red-500 mt-2">{getErrorMessage()}</p>}
               <p className="text-xs text-gray-400 mt-1">Teams: {rawHome} vs {rawAway}</p>
               <p className="text-xs text-gray-400">Status: {status} | Football: {isFootball ? 'Yes' : 'No'}</p>
+              <p className="text-xs text-gray-400">Sources tried: {sourceIndex}/{videoSources.length}</p>
               <button onClick={handleRetry} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
                 Try Again
               </button>
