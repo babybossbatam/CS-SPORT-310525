@@ -60,7 +60,11 @@ class SmartLeagueCountryTranslation {
     'Azerbaijan': { en: 'Azerbaijan', 'zh': '阿塞拜疆', 'zh-hk': '阿塞拜疆', 'zh-tw': '亞塞拜然', 'es': 'Azerbaiyán', 'de': 'Aserbaidschan', 'it': 'Azerbaigian', 'pt': 'Azerbaijão' },
     'Bosnia and Herzegovina': { en: 'Bosnia and Herzegovina', 'zh': '波斯尼亞和黑塞哥維那', 'zh-hk': '波斯尼亞和黑塞哥維那', 'zh-tw': '波斯尼亞和黑塞哥維那', 'es': 'Bosnia y Herzegovina', 'de': 'Bosnien und Herzegowina', 'it': 'Bosnia ed Erzegovina', 'pt': 'Bósnia e Herzegovina' },
     'Bosnia': { en: 'Bosnia', 'zh': '波斯尼亞', 'zh-hk': '波斯尼亞', 'zh-tw': '波斯尼亞', 'es': 'Bosnia', 'de': 'Bosnien', 'it': 'Bosnia', 'pt': 'Bósnia' },
-
+    'Belgium': {
+      en: 'Belgium',
+      'zh': '比利时', 'zh-hk': '比利時', 'zh-tw': '比利時',
+      'es': 'Bélgica', 'de': 'Belgien', 'it': 'Belgio', 'pt': 'Bélgica'
+    },
     'Bulgaria': { en: 'Bulgaria', 'zh': '保加利亞', 'zh-hk': '保加利亞', 'zh-tw': '保加利亞', 'es': 'Bulgaria', 'de': 'Bulgarien', 'it': 'Bulgaria', 'pt': 'Bulgária' },
     'Belarus': { en: 'Belarus', 'zh': '白俄羅斯', 'zh-hk': '白俄羅斯', 'zh-tw': '白俄羅斯', 'es': 'Bielorrusia', 'de': 'Belarus', 'it': 'Bielorussia', 'pt': 'Bielorrússia' },
     'Switzerland': { en: 'Switzerland', 'zh': '瑞士', 'zh-hk': '瑞士', 'zh-tw': '瑞士', 'es': 'Suiza', 'de': 'Schweiz', 'it': 'Svizzera', 'pt': 'Suíça' },
@@ -1534,7 +1538,7 @@ class SmartLeagueCountryTranslation {
     const mixedPatterns = [
       /^[a-zA-Z\s]+[聯联]賽?$/,           // "Bulgaria聯賽", "Netherlands联赛"
       /^[a-zA-Z\s]+超级?[聯联]賽?$/,       // "Australia超级联赛"
-      /^[a-zA-Z\s]+甲级?[聯联]賽?$/,       // Country + 甲级联赛
+      /^[a-zA-Z\s]+甲级?[聯聯]賽?$/,       // Country + 甲级联赛
       /^[a-zA-Z\s]+乙级?[聯聯]賽?$/,       // Country + 乙级联赛
       /^[a-zA-Z\s]+丙级?[聯联]賽?$/,       // Country + 丙级联赛
       /^[a-zA-Z\s]+盃?$/,                // Country + 盃
@@ -2389,7 +2393,7 @@ class SmartLeagueCountryTranslation {
 
     // Check local cache first
     if (this.leagueCache.has(cacheKey)) {
-      return this.leagueCache.get(cacheKey);
+      return this.cache.get(cacheKey);
     }
 
     try {
@@ -2741,8 +2745,8 @@ class SmartLeagueCountryTranslation {
       { name: 'Italy聯賽', country: 'Italy' },
       { name: 'France聯賽', country: 'France' },
       { name: 'England聯賽', country: 'England' },
-      { name: 'Brazil聯賽', country: 'Brazil' },
-      { name: 'Argentina聯賽', country: 'Argentina' }
+      { name: 'Brazil聯聯賽', country: 'Brazil' },
+      { name: 'Argentina聯聯賽', country: 'Argentina' }
     ];
 
     let fixed = 0;
