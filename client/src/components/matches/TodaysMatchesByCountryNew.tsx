@@ -1561,7 +1561,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             ) {
               return (
                 <div className="match-status-label status-finished">
-                  {status === "FT" ? "Full Time" : 
+                  {status === "FT" ? "Ended" : 
                    status === "AET" ? "After ET" :
                    status === "PEN" ? "Penalties" :
                    status === "AWD" ? "Awarded" :
