@@ -76,10 +76,36 @@ const TranslatedCountryLeagueExample: React.FC<TranslatedCountryLeagueExamplePro
           <option value="">Select a country...</option>
           {translatedCountries.slice(0, 10).map(country => (
             <option key={country.value} value={country.value}>
-              {country.label}
+              {country.label} {country.flag && `🏳️`}
             </option>
           ))}
         </select>
+      </div>
+
+      {/* Individual translation examples */}
+      <div>
+        <h3 className="font-semibold mb-2">Individual Translation Examples</h3>
+        <div className="space-y-2">
+          {exampleCountries.map(country => (
+            <div key={country} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+              <span className="font-medium">{country}:</span>
+              <span>{translateCountryName(country, language)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* League translation examples */}
+      <div>
+        <h3 className="font-semibold mb-2">League Translation Examples</h3>
+        <div className="space-y-2">
+          {exampleLeagues.map(league => (
+            <div key={league} className="flex justify-between items-center p-2 bg-blue-50 rounded">
+              <span className="font-medium">{league}:</span>
+              <span>{translateLeagueName(league, language)}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* League options for dropdowns */}
