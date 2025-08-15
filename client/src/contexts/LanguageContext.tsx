@@ -1,0 +1,12 @@
+"won_on_penalties": "Won on penalties",
+    'on_penalties': "On penalties",
+    'tomorrow': "Tomorrow",
+    'no_live_matches': 'No Live Matches',
+    'no_live_matches_description': 'There are no matches currently in play. Our system is continuously monitoring for live matches.',
+    'no_live_matches_main': "It doesn't happen often, but there are no live matches being played right now.",
+    'check_later': 'Check it out later',
+    'see_all_matches': 'See All Matches',
+    'no_matches_available': 'No matches available',
+    // Match statuses
+    'halftime': 'Halftime',
+    'penalties': 'Penalties',
