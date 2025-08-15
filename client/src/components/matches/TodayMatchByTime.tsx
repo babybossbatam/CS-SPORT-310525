@@ -11,6 +11,7 @@ import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
 import { useLanguage } from "@/contexts/LanguageContext"; // Import useLanguage
+import { useTranslation } from "react-i18next"; // Import useTranslation
 
 interface FixtureData {
   fixture: {
@@ -79,6 +80,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   onMatchCardClick,
 }) => {
   const { language } = useLanguage(); // Use the useLanguage hook
+  const { t } = useTranslation(); // Initialize useTranslation
 
   const [isExpanded, setIsExpanded] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
@@ -242,7 +244,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         <CardHeader className="cursor-pointer flex items-center justify-between p-3 bg-white border-b">
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-blue-500" />
-            <span className="font-semibold text-gray-800">{language === "en" ? "Matches by Time" : " partidos por tiempo"}</span>
+            <span className="font-semibold text-gray-800">{t('popular_football_live_score')}</span>
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -285,7 +287,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         <CardHeader className="cursor-pointer flex items-center justify-between p-3 bg-white border-b">
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-blue-500" />
-            <span className="font-semibold text-gray-800">{language === "en" ? "Matches by Time" : " partidos por tiempo"}</span>
+            <span className="font-semibold text-gray-800">{t('popular_football_live_score')}</span>
           </div>
         </CardHeader>
         <CardContent className="p-4">
@@ -305,7 +307,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-gray-800 text-sm">{language === "en" ? "Popular Football Leagues" : "Ligas de Fútbol Populares"}</span>
+          <span className="font-semibold text-gray-800 text-sm">{t('popular_football_live_score')}</span>
         </div>
       </CardHeader>
 
