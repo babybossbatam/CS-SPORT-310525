@@ -10,8 +10,7 @@ import MyCircularFlag from "../common/MyCircularFlag";
 import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
-import { useLanguage } from "@/contexts/LanguageContext"; // Import useLanguage
-import { useTranslation } from "react-i18next"; // Import useTranslation
+import { useLanguage, useTranslation } from "@/contexts/LanguageContext"; // Import useLanguage and useTranslation
 
 interface FixtureData {
   fixture: {
