@@ -1,0 +1,161 @@
+
+    // Friendlies variations
+      'friendlies clubs': {
+        'en': 'Club Friendlies',
+        'es': 'Amistosos de Clubes',
+        'zh-hk': '球會友誼賽',
+        'zh-tw': '球會友誼賽',
+        'zh': '球會友誼賽',
+        'de': 'Vereinsfreundschaftsspiele',
+        'it': 'Amichevoli di Club',
+        'pt': 'Amigáveis de Clubes'
+      },
+
+      // Argentina Leagues
+      'Primera Nacional': {
+        'en': 'Primera Nacional',
+        'es': 'Primera Nacional',
+        'zh-hk': '全國甲級聯賽',
+        'zh-tw': '全國甲級聯賽',
+        'zh': '全国甲级联赛',
+        'de': 'Primera Nacional',
+        'it': 'Primera Nacional',
+        'pt': 'Primera Nacional'
+      },
+
+      'Primera C': {
+        'en': 'Primera C',
+        'es': 'Primera C',
+        'zh-hk': 'C級聯賽',
+        'zh-tw': 'C級聯賽',
+        'zh': 'C级联赛',
+        'de': 'Primera C',
+        'it': 'Primera C',
+        'pt': 'Primera C'
+      },
+
+      // Australian Leagues
+      'Capital Territory NPL': {
+        'en': 'Capital Territory NPL',
+        'es': 'Liga Nacional del Territorio de la Capital',
+        'zh-hk': '首都地區國家聯賽',
+        'zh-tw': '首都地區國家聯賽',
+        'zh': '首都地区国家联赛',
+        'de': 'Capital Territory National Premier League',
+        'it': 'Lega Nazionale del Territorio della Capitale',
+        'pt': 'Liga Nacional do Território da Capital'
+      },
+
+      'Western Australia NPL': {
+        'en': 'Western Australia NPL',
+        'es': 'Liga Nacional de Australia Occidental',
+        'zh-hk': '西澳大利亞國家聯賽',
+        'zh-tw': '西澳大利亞國家聯賽',
+        'zh': '西澳大利亚国家联赛',
+        'de': 'Western Australia National Premier League',
+        'it': 'Lega Nazionale dell\'Australia Occidentale',
+        'pt': 'Liga Nacional da Austrália Ocidental'
+      },
+
+      'New South Wales NPL 2': {
+        'en': 'New South Wales NPL 2',
+        'es': 'Liga Nacional de Nueva Gales del Sur 2',
+        'zh-hk': '新南威爾士國家聯賽2',
+        'zh-tw': '新南威爾士國家聯賽2',
+        'zh': '新南威尔士国家联赛2',
+        'de': 'New South Wales National Premier League 2',
+        'it': 'Lega Nazionale del Nuovo Galles del Sud 2',
+        'pt': 'Liga Nacional de Nova Gales do Sul 2'
+      },
+
+      'Australia Cup': {
+        'en': 'Australia Cup',
+        'es': 'Copa de Australia',
+        'zh-hk': '澳洲盃',
+        'zh-tw': '澳洲盃',
+        'zh': '澳大利亚杯',
+        'de': 'Australia Cup',
+        'it': 'Coppa d\'Australia',
+        'pt': 'Taça da Austrália'
+      },
+
+      // Dutch/Chinese Mixed Leagues
+      'Netherlands聯賽': {
+        'en': 'Netherlands League',
+        'es': 'Liga de Países Bajos',
+        'zh-hk': '荷蘭聯賽',
+        'zh-tw': '荷蘭聯賽',
+        'zh': '荷兰联赛',
+        'de': 'Niederländische Liga',
+        'it': 'Lega Olandese',
+        'pt': 'Liga dos Países Baixos'
+      },
+
+      'Australia超级联赛': {
+        'en': 'Australia Super League',
+        'es': 'Superliga de Australia',
+        'zh-hk': '澳洲超級聯賽',
+        'zh-tw': '澳洲超級聯賽',
+        'zh': '澳大利亚超级联赛',
+        'de': 'Australische Superliga',
+        'it': 'Superlega Australiana',
+        'pt': 'Superliga da Austrália'
+      },
+
+      'Australia聯賽': {
+        'en': 'Australia League',
+        'es': 'Liga de Australia',
+        'zh-hk': '澳洲聯賽',
+        'zh-tw': '澳洲聯賽',
+        'zh': '澳大利亚联赛',
+        'de': 'Australische Liga',
+        'it': 'Lega Australiana',
+        'pt': 'Liga da Austrália'
+      },
+
+      // AFC Challenge League
+      'AFC Challenge League': {
+        'en': 'AFC Challenge League',
+        'es': 'Liga Challenge AFC',
+        'zh-hk': 'AFC挑戰聯賽',
+        'zh-tw': 'AFC挑戰聯賽',
+        'zh': 'AFC挑战联赛',
+        'de': 'AFC Challenge League',
+        'it': 'AFC Challenge League',
+        'pt': 'Liga Challenge AFC',
+        'fr': 'Ligue Challenge AFC',
+        'ar': 'دوري تحدي الاتحاد الآسيوي',
+        'ja': 'AFCチャレンジリーグ',
+        'ko': 'AFC 챌린지 리그'
+      },
+
+      // Other AFC competitions
+      'AFC Cup': {
+        'en': 'AFC Cup',
+        'es': 'Copa AFC',
+        'zh-hk': 'AFC盃',
+        'zh-tw': 'AFC盃',
+        'zh': 'AFC杯',
+        'de': 'AFC-Pokal',
+        'it': 'Coppa AFC',
+        'pt': 'Copa AFC',
+        'fr': 'Coupe AFC',
+        'ar': 'كأس الاتحاد الآسيوي',
+        'ja': 'AFCカップ',
+        'ko': 'AFC컵'
+      },
+
+      'AFC Champions League': {
+        'en': 'AFC Champions League',
+        'es': 'Liga de Campeones AFC',
+        'zh-hk': 'AFC冠軍聯賽',
+        'zh-tw': 'AFC冠軍聯賽',
+        'zh': 'AFC冠军联赛',
+        'de': 'AFC Champions League',
+        'it': 'AFC Champions League',
+        'pt': 'Liga dos Campeões AFC',
+        'fr': 'Ligue des Champions AFC',
+        'ar': 'دوري أبطال آسيا',
+        'ja': 'AFCチャンピオンズリーグ',
+        'ko': 'AFC 챔피언스리그'
+      },

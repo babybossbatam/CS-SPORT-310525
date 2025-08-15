@@ -93,7 +93,7 @@ class SmartLeagueCountryTranslation {
     'Montenegro': { 'zh': '黑山', 'zh-hk': '黑山', 'zh-tw': '蒙特內哥羅', 'es': 'Montenegro', 'de': 'Montenegro', 'it': 'Montenegro', 'pt': 'Montenegro' },
     'North Macedonia': { 'zh': '北馬其頓', 'zh-hk': '北馬其頓', 'zh-tw': '北馬其頓', 'es': 'Macedonia del Norte', 'de': 'Nordmazedonien', 'it': 'Macedonia del Nord', 'pt': 'Macedônia do Norte' },
     'Macedonia': { 'zh': '馬其頓', 'zh-hk': '馬其頓', 'zh-tw': '馬其頓', 'es': 'Macedonia', 'de': 'Mazedonien', 'it': 'Macedonia', 'pt': 'Macedônia' },
-    'Malta': { 'zh': '馬耳他', 'zh-hk': '馬耳他', 'zh-tw': '馬爾他', 'es': 'Malta', 'de': 'Malta', 'it': 'Malta', 'pt': 'Malta' },</old_str>
+    'Malta': { 'zh': '馬耳他', 'zh-hk': '馬耳他', 'zh-tw': '馬爾他', 'es': 'Malta', 'de': 'Malta', 'it': 'Malta', 'pt': 'Malta' },
     'Netherlands': {
       'zh': '荷兰', 'zh-hk': '荷蘭', 'zh-tw': '荷蘭',
       'es': 'Países Bajos', 'de': 'Niederlande', 'it': 'Paesi Bassi', 'pt': 'Países Baixos'
@@ -132,36 +132,7 @@ class SmartLeagueCountryTranslation {
       'es': 'Europa', 'de': 'Europa', 'it': 'Europa', 'pt': 'Europa'
     },
     // Major European Countries
-    'England': {
-      'zh': '英格兰', 'zh-hk': '英格蘭', 'zh-tw': '英格蘭',
-      'es': 'Inglaterra', 'de': 'England', 'it': 'Inghilterra', 'pt': 'Inglaterra'
-    },
-    'Spain': {
-      'zh': '西班牙', 'zh-hk': '西班牙', 'zh-tw': '西班牙',
-      'es': 'España', 'de': 'Spanien', 'it': 'Spagna', 'pt': 'Espanha'
-    },
-    'Italy': {
-      'zh': '意大利', 'zh-hk': '意大利', 'zh-tw': '意大利',
-      'es': 'Italia', 'de': 'Italien', 'it': 'Italia', 'pt': 'Itália'
-    },
-    'Germany': {
-      'zh': '德國', 'zh-hk': '德國', 'zh-tw': '德國',
-      'es': 'Alemania', 'de': 'Deutschland', 'it': 'Germania', 'pt': 'Alemanha'
-    },
-    'France': {
-      'zh': '法国', 'zh-hk': '法國', 'zh-tw': '法國',
-      'es': 'Francia', 'de': 'Frankreich', 'it': 'Francia', 'pt': 'França'
-    },
-
-
-    'Switzerland': {
-      'zh': '瑞士', 'zh-hk': '瑞士', 'zh-tw': '瑞士',
-      'es': 'Suiza', 'de': 'Schweiz', 'it': 'Svizzera', 'pt': 'Suíça'
-    },
-    'Austria': {
-      'zh': '奧地利', 'zh-hk': '奧地利', 'zh-tw': '奧地利',
-      'es': 'Austria', 'de': 'Österreich', 'it': 'Austria', 'pt': 'Áustria'
-    },
+    
 
     'Slovakia': {
       'zh': '斯洛伐克', 'zh-hk': '斯洛伐克', 'zh-tw': '斯洛伐克',
@@ -171,10 +142,7 @@ class SmartLeagueCountryTranslation {
       'zh': '斯洛文尼亞', 'zh-hk': '斯洛文尼亞', 'zh-tw': '斯洛維尼亞',
       'es': 'Eslovenia', 'de': 'Slowenien', 'it': 'Slovenia', 'pt': 'Eslovênia'
     },
-    'Hungary': {
-      'zh': '匈牙利', 'zh-hk': '匈牙利', 'zh-tw': '匈牙利',
-      'es': 'Hungría', 'de': 'Ungarn', 'it': 'Ungheria', 'pt': 'Hungria'
-    },
+    
     'Poland': {
       'zh': '波蘭', 'zh-hk': '波蘭', 'zh-tw': '波蘭',
       'es': 'Polonia', 'de': 'Polen', 'it': 'Polonia', 'pt': 'Polônia'
@@ -183,26 +151,12 @@ class SmartLeagueCountryTranslation {
       'zh': '羅馬尼亞', 'zh-hk': '羅馬尼亞', 'zh-tw': '羅馬尼亞',
       'es': 'Rumania', 'de': 'Rumänien', 'it': 'Romania', 'pt': 'Romênia'
     },
-    'Bulgaria': {
-      'zh': '保加利亞', 'zh-hk': '保加利亞', 'zh-tw': '保加利亞',
-      'es': 'Bulgaria', 'de': 'Bulgarien', 'it': 'Bulgaria', 'pt': 'Bulgária'
-    },
-    'Croatia': {
-      'zh': '克羅地亞', 'zh-hk': '克羅地亞', 'zh-tw': '克羅埃西亞',
-      'es': 'Croacia', 'de': 'Kroatien', 'it': 'Croazia', 'pt': 'Croácia'
-    },
+    
     'Serbia': {
       'zh': '塞爾維亞', 'zh-hk': '塞爾維亞', 'zh-tw': '塞爾維亞',
       'es': 'Serbia', 'de': 'Serbien', 'it': 'Serbia', 'pt': 'Sérvia'
     },
-    'Greece': {
-      'zh': '希臘', 'zh-hk': '希臘', 'zh-tw': '希臘',
-      'es': 'Grecia', 'de': 'Griechenland', 'it': 'Grecia', 'pt': 'Grécia'
-    },
-    'Denmark': {
-      'zh': '丹麥', 'zh-hk': '丹麥', 'zh-tw': '丹麥',
-      'es': 'Dinamarca', 'de': 'Dänemark', 'it': 'Danimarca', 'pt': 'Dinamarca'
-    },
+    
     'Sweden': {
       'zh': '瑞典', 'zh-hk': '瑞典', 'zh-tw': '瑞典',
       'es': 'Suecia', 'de': 'Schweden', 'it': 'Svezia', 'pt': 'Suécia'
@@ -211,14 +165,7 @@ class SmartLeagueCountryTranslation {
       'zh': '挪威', 'zh-hk': '挪威', 'zh-tw': '挪威',
       'es': 'Noruega', 'de': 'Norwegen', 'it': 'Norvegia', 'pt': 'Noruega'
     },
-    'Finland': {
-      'zh': '芬蘭', 'zh-hk': '芬蘭', 'zh-tw': '芬蘭',
-      'es': 'Finlandia', 'de': 'Finnland', 'it': 'Finlandia', 'pt': 'Finlândia'
-    },
-    'Iceland': {
-      'zh': '冰島', 'zh-hk': '冰島', 'zh-tw': '冰島',
-      'es': 'Islandia', 'de': 'Island', 'it': 'Islanda', 'pt': 'Islândia'
-    },
+   
     'Russia': {
       'zh': '俄羅斯', 'zh-hk': '俄羅斯', 'zh-tw': '俄羅斯',
       'es': 'Rusia', 'de': 'Russland', 'it': 'Russia', 'pt': 'Rússia'
@@ -231,10 +178,7 @@ class SmartLeagueCountryTranslation {
       'zh': '土耳其', 'zh-hk': '土耳其', 'zh-tw': '土耳其',
       'es': 'Turquía', 'de': 'Türkei', 'it': 'Turchia', 'pt': 'Turquia'
     },
-    'Estonia': {
-      'zh': '愛沙尼亞', 'zh-hk': '愛沙尼亞', 'zh-tw': '愛沙尼亞',
-      'es': 'Estonia', 'de': 'Estland', 'it': 'Estonia', 'pt': 'Estônia'
-    },
+   
     'Bhutan': {
       'zh': '不丹',
       'zh-hk': '不丹',
@@ -244,35 +188,7 @@ class SmartLeagueCountryTranslation {
       'it': 'Bhutan',
       'pt': 'Butão'
     },
-    'Scotland': {
-      'zh': '蘇格蘭',
-      'zh-hk': '蘇格蘭',
-      'zh-tw': '蘇格蘭',
-      'es': 'Escocia',
-      'de': 'Schottland',
-      'it': 'Scozia',
-      'pt': 'Escócia'
-    },
-    'Latvia': {
-      'zh': '拉脫維亞', 'zh-hk': '拉脫維亞', 'zh-tw': '拉脫維亞',
-      'es': 'Letonia', 'de': 'Lettland', 'it': 'Lettonia', 'pt': 'Letônia'
-    },
-    'Lithuania': {
-      'zh': '立陶宛', 'zh-hk': '立陶宛', 'zh-tw': '立陶宛',
-      'es': 'Lituania', 'de': 'Litauen', 'it': 'Lituania', 'pt': 'Lituânia'
-    },
-    'Georgia': {
-      'zh': '格魯吉亞', 'zh-hk': '格魯吉亞', 'zh-tw': '格魯吉亞',
-      'es': 'Georgia', 'de': 'Georgien', 'it': 'Georgia', 'pt': 'Geórgia'
-    },
-    'Armenia': {
-      'zh': '亞美尼亞', 'zh-hk': '亞美尼亞', 'zh-tw': '亞美尼亞',
-      'es': 'Armenia', 'de': 'Armenien', 'it': 'Armenia', 'pt': 'Armênia'
-    },
-    'Liechtenstein': {
-      'zh': '列支敦士登', 'zh-hk': '列支敦士登', 'zh-tw': '列支敦士登',
-      'es': 'Liechtenstein', 'de': 'Liechtenstein', 'it': 'Liechtenstein', 'pt': 'Liechtenstein'
-    },
+    
 
     // Americas
     'Brazil': {
@@ -454,7 +370,7 @@ class SmartLeagueCountryTranslation {
     'Samoa': { 'zh': '薩摩亞', 'zh-hk': '薩摩亞', 'zh-tw': '薩摩亞', 'es': 'Samoa', 'de': 'Samoa', 'it': 'Samoa', 'pt': 'Samoa' },
 
     // Special regions and territories
-    'Europe': { 'zh': '歐洲', 'zh-hk': '歐洲', 'zh-tw': '歐洲', 'es': 'Europa', 'de': 'Europa', 'it': 'Europa', 'pt': 'Europa' },
+    
 
     // Australian States/Territories
     'Australian Capital Territory': { 'zh': '澳大利亞首都領地', 'zh-hk': '澳大利亞首都領地', 'zh-tw': '澳洲首都特區', 'es': 'Territorio de la Capital Australiana', 'de': 'Australisches Hauptstadtterritorium', 'it': 'Territorio della Capitale Australiana', 'pt': 'Território da Capital Australiana' },
@@ -464,185 +380,21 @@ class SmartLeagueCountryTranslation {
     'South Australia': { 'zh': '南澳大利亞', 'zh-hk': '南澳大利亞', 'zh-tw': '南澳洲', 'es': 'Australia Meridional', 'de': 'Südaustralien', 'it': 'Australia Meridionale', 'pt': 'Austrália do Sul' },
     'Tasmania': { 'zh': '塔斯馬尼亞', 'zh-hk': '塔斯馬尼亞', 'zh-tw': '塔斯馬尼亞', 'es': 'Tasmania', 'de': 'Tasmanien', 'it': 'Tasmania', 'pt': 'Tasmânia' },
     'Victoria': { 'zh': '維多利亞', 'zh-hk': '維多利亞', 'zh-tw': '維多利亞', 'es': 'Victoria', 'de': 'Victoria', 'it': 'Victoria', 'pt': 'Victoria' },
-    'Western Australia': { 'zh': '西澳大利亞', 'zh-hk': '西澳大利亞', 'zh-tw': '西澳洲', 'es': 'Australia Occidental', 'de': 'Westaustralien', 'it': 'Australia Occidentale', 'pt': 'Austrália Ocidental' },</old_str>
-    'South Korea': {
-      'zh': '韓國', 'zh-hk': '韓國', 'zh-tw': '韓國',
-      'es': 'Corea del Sur', 'de': 'Südkorea', 'it': 'Corea del Sud', 'pt': 'Coreia do Sul'
-    },
-    'China': {
-      'zh': '中國', 'zh-hk': '中國', 'zh-tw': '中國',
-      'es': 'China', 'de': 'China', 'it': 'Cina', 'pt': 'China'
-    },
-    'India': {
-      'zh': '印度', 'zh-hk': '印度', 'zh-tw': '印度',
-      'es': 'India', 'de': 'Indien', 'it': 'India', 'pt': 'Índia'
-    },
-    'Australia': {
-      'zh': '澳洲', 'zh-hk': '澳洲', 'zh-tw': '澳洲',
-      'es': 'Australia', 'de': 'Australien', 'it': 'Australia', 'pt': 'Austrália'
-    },
-    'New South Wales': {
-      'zh': '新南威爾士', 'zh-hk': '新南威爾士', 'zh-tw': '新南威爾士',
-      'es': 'Nueva Gales del Sur', 'de': 'New South Wales', 'it': 'Nuovo Galles del Sud', 'pt': 'Nova Gales do Sul'
-    },
-    'Western Australia': {
-      'zh': '西澳大利亞', 'zh-hk': '西澳大利亞', 'zh-tw': '西澳大利亞',
-      'es': 'Australia Occidental', 'de': 'Western Australia', 'it': 'Australia Occidentale', 'pt': 'Austrália Ocidental'
-    },
-    'Australian Capital Territory': {
-      'zh': '澳洲首都地區', 'zh-hk': '澳洲首都地區', 'zh-tw': '澳洲首都地區',
-      'es': 'Territorio de la Capital Australiana', 'de': 'Australian Capital Territory', 'it': 'Territorio della Capitale Australiana', 'pt': 'Território da Capital Australiana'
-    },
-    'Thailand': {
-      'zh': '泰國', 'zh-hk': '泰國', 'zh-tw': '泰國',
-      'es': 'Tailandia', 'de': 'Thailand', 'it': 'Thailandia', 'pt': 'Tailândia'
-    },
-    'Malaysia': {
-      'zh': '馬來西亞', 'zh-hk': '馬來西亞', 'zh-tw': '馬來西亞',
-      'es': 'Malasia', 'de': 'Malaysia', 'it': 'Malesia', 'pt': 'Malásia'
-    },
-    'Singapore': {
-      'zh': '新加坡', 'zh-hk': '新加坡', 'zh-tw': '新加坡',
-      'es': 'Singapur', 'de': 'Singapur', 'it': 'Singapore', 'pt': 'Singapura'
-    },
-    'Indonesia': {
-      'zh': '印尼', 'zh-hk': '印尼', 'zh-tw': '印尼',
-      'es': 'Indonesia', 'de': 'Indonesien', 'it': 'Indonesia', 'pt': 'Indonésia'
-    },
-    'Philippines': {
-      'zh': '菲律賓', 'zh-hk': '菲律賓', 'zh-tw': '菲律賓',
-      'es': 'Filipinas', 'de': 'Philippinen', 'it': 'Filippine', 'pt': 'Filipinas'
-    },
-    'Vietnam': {
-      'zh': '越南', 'zh-hk': '越南', 'zh-tw': '越南',
-      'es': 'Vietnam', 'de': 'Vietnam', 'it': 'Vietnam', 'pt': 'Vietnã'
-    },
+    'Western Australia': { 'zh': '西澳大利亞', 'zh-hk': '西澳大利亞', 'zh-tw': '西澳洲', 'es': 'Australia Occidental', 'de': 'Westaustralien', 'it': 'Australia Occidentale', 'pt': 'Austrália Ocidental' },
+   
 
     // Middle East & Africa
-    'Saudi Arabia': {
-      'zh': '沙特阿拉伯', 'zh-hk': '沙特阿拉伯', 'zh-tw': '沙特阿拉伯',
-      'es': 'Arabia Saudí', 'de': 'Saudi-Arabien', 'it': 'Arabia Saudita', 'pt': 'Arábia Saudita'
-    },
-    'United Arab Emirates': {
-      'zh': '阿拉伯聯合酋長國', 'zh-hk': '阿拉伯聯合酋長國', 'zh-tw': '阿拉伯聯合酋長國',
-      'es': 'Emiratos Árabes Unidos', 'de': 'Vereinigte Arabische Emirate', 'it': 'Emirati Arabi Uniti', 'pt': 'Emirados Árabes Unidos'
-    },
+    
     'UAE': {
       'zh': '阿聯酋', 'zh-hk': '阿聯酋', 'zh-tw': '阿聯酋',
       'es': 'EAU', 'de': 'VAE', 'it': 'EAU', 'pt': 'EAU'
     },
-    'Egypt': {
-      'zh': '埃及', 'zh-hk': '埃及', 'zh-tw': '埃及',
-      'es': 'Egipto', 'de': 'Ägypten', 'it': 'Egitto', 'pt': 'Egito'
-    },
-    'Iran': {
-      'zh': '伊朗', 'zh-hk': '伊朗', 'zh-tw': '伊朗',
-      'es': 'Irán', 'de': 'Iran', 'it': 'Iran', 'pt': 'Irã'
-    },
-    'Iraq': {
-      'zh': '伊拉克', 'zh-hk': '伊拉克', 'zh-tw': '伊拉克',
-      'es': 'Irak', 'de': 'Irak', 'it': 'Iraq', 'pt': 'Iraque'
-    },
-    'Israel': {
-      'zh': '以色列', 'zh-hk': '以色列', 'zh-tw': '以色列',
-      'es': 'Israel', 'de': 'Israel', 'it': 'Israele', 'pt': 'Israel'
-    },
-    'Jordan': {
-      'zh': '約旦', 'zh-hk': '約旦', 'zh-tw': '約旦',
-      'es': 'Jordania', 'de': 'Jordanien', 'it': 'Giordania', 'pt': 'Jordânia'
-    },
-    'Qatar': {
-      'zh': '卡塔爾', 'zh-hk': '卡塔爾', 'zh-tw': '卡達',
-      'es': 'Catar', 'de': 'Katar', 'it': 'Qatar', 'pt': 'Catar'
-    },
-    'Kuwait': {
-      'zh': '科威特', 'zh-hk': '科威特', 'zh-tw': '科威特',
-      'es': 'Kuwait', 'de': 'Kuwait', 'it': 'Kuwait', 'pt': 'Kuwait'
-    },
-    'Bahrain': {
-      'zh': '巴林', 'zh-hk': '巴林', 'zh-tw': '巴林',
-      'es': 'Baréin', 'de': 'Bahrain', 'it': 'Bahrain', 'pt': 'Bahrein'
-    },
-    'Oman': {
-      'zh': '阿曼', 'zh-hk': '阿曼', 'zh-tw': '阿曼',
-      'es': 'Omán', 'de': 'Oman', 'it': 'Oman', 'pt': 'Omã'
-    },
-    'South Africa': {
-      'zh': '南非', 'zh-hk': '南非', 'zh-tw': '南非',
-      'es': 'Sudáfrica', 'de': 'Südafrika', 'it': 'Sudafrica', 'pt': 'África do Sul'
-    },
-    'Nigeria': {
-      'zh': '尼日利亞', 'zh-hk': '尼日利亞', 'zh-tw': '奈及利亞',
-      'es': 'Nigeria', 'de': 'Nigeria', 'it': 'Nigeria', 'pt': 'Nigéria'
-    },
-    'Morocco': {
-      'zh': '摩洛哥', 'zh-hk': '摩洛哥', 'zh-tw': '摩洛哥',
-      'es': 'Marruecos', 'de': 'Marokko', 'it': 'Marocco', 'pt': 'Marrocos'
-    },
-    'Algeria': {
-      'zh': '阿爾及利亞', 'zh-hk': '阿爾及利亞', 'zh-tw': '阿爾及利亞',
-      'es': 'Argelia', 'de': 'Algerien', 'it': 'Algeria', 'pt': 'Argélia'
-    },
-    'Tunisia': {
-      'zh': '突尼斯', 'zh-hk': '突尼斯', 'zh-tw': '突尼西亞',
-      'es': 'Túnez', 'de': 'Tunesien', 'it': 'Tunisia', 'pt': 'Tunísia'
-    },
-    'Ghana': {
-      'zh': '加納', 'zh-hk': '加納', 'zh-tw': '迦納',
-      'es': 'Ghana', 'de': 'Ghana', 'it': 'Ghana', 'pt': 'Gana'
-    },
-    'Kenya': {
-      'zh': '肯尼亞', 'zh-hk': '肯尼亞', 'zh-tw': '肯亞',
-      'es': 'Kenia', 'de': 'Kenia', 'it': 'Kenya', 'pt': 'Quênia'
-    },
-    'Cameroon': {
-      'zh': '喀麥隆', 'zh-hk': '喀麥隆', 'zh-tw': '喀麥隆',
-      'es': 'Camerún', 'de': 'Kamerun', 'it': 'Camerun', 'pt': 'Camarões'
-    },
-    'Senegal': {
-      'zh': '塞內加爾', 'zh-hk': '塞內加爾', 'zh-tw': '塞內加爾',
-      'es': 'Senegal', 'de': 'Senegal', 'it': 'Senegal', 'pt': 'Senegal'
-    },
-    'Ivory Coast': {
-      'zh': '科特迪瓦', 'zh-hk': '科特迪瓦', 'zh-tw': '象牙海岸',
-      'es': 'Costa de Marfil', 'de': 'Elfenbeinküste', 'it': 'Costa d\'Avorio', 'pt': 'Costa do Marfim'
-    },
-    'Mali': {
-      'zh': '馬里', 'zh-hk': '馬里', 'zh-tw': '馬利',
-      'es': 'Malí', 'de': 'Mali', 'it': 'Mali', 'pt': 'Mali'
-    },
-    'Burkina Faso': {
-      'zh': '布基納法索', 'zh-hk': '布基納法索', 'zh-tw': '布吉納法索',
-      'es': 'Burkina Faso', 'de': 'Burkina Faso', 'it': 'Burkina Faso', 'pt': 'Burkina Faso'
-    },
-    'Zimbabwe': {
-      'zh': '津巴布韋', 'zh-hk': '津巴布韋', 'zh-tw': '辛巴威',
-      'es': 'Zimbabue', 'de': 'Simbabwe', 'it': 'Zimbabwe', 'pt': 'Zimbábue'
-    },
-    'Zambia': {
-      'zh': '贊比亞', 'zh-hk': '贊比亞', 'zh-tw': '尚比亞',
-      'es': 'Zambia', 'de': 'Sambia', 'it': 'Zambia', 'pt': 'Zâmbia'
-    },
-    'Libya': {
-      'zh': '利比亞', 'zh-hk': '利比亞', 'zh-tw': '利比亞',
-      'es': 'Libia', 'de': 'Libyen', 'it': 'Libia', 'pt': 'Líbia'
-    },
-    'Macedonia': {
-      'zh': '馬其頓', 'zh-hk': '馬其頓', 'zh-tw': '馬其頓',
-      'es': 'Macedonia', 'de': 'Mazedonien', 'it': 'Macedonia', 'pt': 'Macedônia'
-    },
-    'Northern Ireland': {
-      'zh': '北愛爾蘭', 'zh-hk': '北愛爾蘭', 'zh-tw': '北愛爾蘭',
-      'es': 'Irlanda del Norte', 'de': 'Nordirland', 'it': 'Irlanda del Nord', 'pt': 'Irlanda do Norte'
-    },
+    
     'Northern-Ireland': {
       'zh': '北愛爾蘭', 'zh-hk': '北愛爾蘭', 'zh-tw': '北愛爾蘭',
       'es': 'Irlanda del Norte', 'de': 'Nordirland', 'it': 'Irlanda del Nord', 'pt': 'Irlanda do Norte'
     },
-    'Turkmenistan': {
-      'zh': '土庫曼斯坦', 'zh-hk': '土庫曼斯坦', 'zh-tw': '土庫曼斯坦',
-      'es': 'Turkmenistán', 'de': 'Turkmenistan', 'it': 'Turkmenistan', 'pt': 'Turcomenistão'
-    },
+    
     'USA': {
       'zh': '美國', 'zh-hk': '美國', 'zh-tw': '美國',
       'es': 'Estados Unidos', 'de': 'USA', 'it': 'Stati Uniti', 'pt': 'EUA'
