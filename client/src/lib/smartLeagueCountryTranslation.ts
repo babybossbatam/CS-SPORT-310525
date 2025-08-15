@@ -765,100 +765,120 @@ class SmartLeagueCountryTranslation {
 
     // Continental Championships
     'Africa Cup of Nations': {
+      en: 'Africa Cup of Nations',
       'zh': '非洲國家盃', 'zh-hk': '非洲國家盃', 'zh-tw': '非洲國家盃',
       'es': 'Copa Africana de Naciones', 'de': 'Afrika-Cup', 'it': 'Coppa d\'Africa', 'pt': 'Taça das Nações Africanas'
     },
     'AFCON': {
+      en: 'AFCON',
       'zh': '非洲國家盃', 'zh-hk': '非洲國家盃', 'zh-tw': '非洲國家盃',
       'es': 'Copa Africana de Naciones', 'de': 'Afrika-Cup', 'it': 'Coppa d\'Africa', 'pt': 'Taça das Nações Africanas'
     },
     'Asian Cup': {
+      en: 'Asian Cup',
       'zh': '亞洲盃', 'zh-hk': '亞洲盃', 'zh-tw': '亞洲盃',
       'es': 'Copa Asiática', 'de': 'Asienmeisterschaft', 'it': 'Coppa d\'Asia', 'pt': 'Taça da Ásia'
     },
     'Copa America': {
+      en: 'Copa América',
       'zh': '美洲盃', 'zh-hk': '美洲盃', 'zh-tw': '美洲盃',
       'es': 'Copa América', 'de': 'Copa América', 'it': 'Copa América', 'pt': 'Copa América'
     },
 
     // World Cup Qualifications
     'World Cup Qualification South America': {
+      en: 'World Cup Qualification South America',
       'zh': '世界盃南美洲預選賽', 'zh-hk': '世界盃南美洲預選賽', 'zh-tw': '世界盃南美洲預選賽',
       'es': 'Eliminatorias Sudamericanas', 'de': 'WM-Qualifikation Südamerika', 'it': 'Qualificazioni Mondiali Sudamerica', 'pt': 'Eliminatórias Sul-Americanas'
     },
     'World Cup Qualification Europe': {
+      en: 'World Cup Qualification Europe',
       'zh': '世界盃歐洲預選賽', 'zh-hk': '世界盃歐洲預選賽', 'zh-tw': '世界盃歐洲預選賽',
       'es': 'Clasificación Europea Mundial', 'de': 'WM-Qualifikation Europa', 'it': 'Qualificazioni Mondiali Europa', 'pt': 'Qualificação Mundial Europa'
     },
     'World Cup Qualification Africa': {
+      en: 'World Cup Qualification Africa',
       'zh': '世界盃非洲預選賽', 'zh-hk': '世界盃非洲預選賽', 'zh-tw': '世界盃非洲預選賽',
       'es': 'Clasificación Africana Mundial', 'de': 'WM-Qualifikation Afrika', 'it': 'Qualificazioni Mondiali Africa', 'pt': 'Qualificação Mundial África'
     },
     'World Cup Qualification Asia': {
+      en: 'World Cup Qualification Asia',
       'zh': '世界盃亞洲預選賽', 'zh-hk': '世界盃亞洲預選賽', 'zh-tw': '世界盃亞洲預選賽',
       'es': 'Clasificación Asiática Mundial', 'de': 'WM-Qualifikation Asien', 'it': 'Qualificazioni Mondiali Asia', 'pt': 'Qualificação Mundial Ásia'
     },
 
     // Domestic Cups
     'FA Cup': {
+      en: 'FA Cup',
       'zh': 'FA盃', 'zh-hk': 'FA盃', 'zh-tw': 'FA盃',
       'es': 'Copa FA', 'de': 'FA Cup', 'it': 'FA Cup', 'pt': 'Taça FA'
     },
     'Copa del Rey': {
+      en: 'Copa del Rey',
       'zh': '國王盃', 'zh-hk': '國王盃', 'zh-tw': '國王盃',
       'es': 'Copa del Rey', 'de': 'Copa del Rey', 'it': 'Copa del Rey', 'pt': 'Taça do Rei'
     },
     'Coppa Italia': {
+      en: 'Coppa Italia',
       'zh': '意大利盃', 'zh-hk': '意大利盃', 'zh-tw': '意大利盃',
       'es': 'Copa de Italia', 'de': 'Coppa Italia', 'it': 'Coppa Italia', 'pt': 'Taça de Itália'
     },
     'DFB Pokal': {
+      en: 'DFB Pokal',
       'zh': '德國盃', 'zh-hk': '德國盃', 'zh-tw': '德國盃',
       'es': 'Copa de Alemania', 'de': 'DFB-Pokal', 'it': 'Coppa di Germania', 'pt': 'Taça da Alemanha'
     },
 
     // Regional/Other Leagues
     'Egyptian Premier League': {
+      en: 'Egyptian Premier League',
       'zh': '埃及超級聯賽', 'zh-hk': '埃及超級聯賽', 'zh-tw': '埃及超級聯賽',
       'es': 'Liga Premier Egipcia', 'de': 'Ägyptische Premier League', 'it': 'Premier League Egiziana', 'pt': 'Liga Premier Egípcia'
     },
     'Saudi Pro League': {
+      en: 'Saudi Pro League',
       'zh': '沙特職業聯賽', 'zh-hk': '沙特職業聯賽', 'zh-tw': '沙特職業聯賽',
       'es': 'Liga Profesional Saudí', 'de': 'Saudi Pro League', 'it': 'Lega Professionale Saudita', 'pt': 'Liga Profissional Saudita'
     },
 
     // UAE Super Cup
     'Super Cup': {
+      en: 'Super Cup',
       'zh': '超級盃', 'zh-hk': '超級盃', 'zh-tw': '超級盃',
       'es': 'Supercopa', 'de': 'Super Cup', 'it': 'Supercoppa', 'pt': 'Supertaça'
     },
 
     // English Conference League
     'English Conference League': {
+      en: 'English Conference League',
       'zh': '英格蘭協會聯賽', 'zh-hk': '英格蘭協會聯賽', 'zh-tw': '英格蘭協會聯賽',
       'es': 'Liga de la Conferencia Inglesa', 'de': 'Englische Conference League', 'it': 'Conference League Inglese', 'pt': 'Liga da Conferência Inglesa'
     },
 
     // French Cup
     'French Cup': {
+      en: 'French Cup',
       'zh': '法國盃', 'zh-hk': '法國盃', 'zh-tw': '法國盃',
       'es': 'Copa de Francia', 'de': 'Französischer Pokal', 'it': 'Coppa di Francia', 'pt': 'Taça de França'
     },
 
     // Spanish Cup
     'Spanish Cup': {
+      en: 'Spanish Cup',
       'zh': '西班牙盃', 'zh-hk': '西班牙盃', 'zh-tw': '西班牙盃',
       'es': 'Copa de España', 'de': 'Spanischer Pokal', 'it': 'Coppa di Spagna', 'pt': 'Taça de Espanha'
     },
 
     // Saudi Arabia Cup
     'Saudi Arabia Cup': {
+      en: 'Saudi Arabia Cup',
       'zh': '沙特阿拉伯盃', 'zh-hk': '沙特阿拉伯盃', 'zh-tw': '沙特阿拉伯盃',
       'es': 'Copa de Arabia Saudí', 'de': 'Saudi-Arabien Pokal', 'it': 'Coppa dell\'Arabia Saudita', 'pt': 'Taça da Arábia Saudita'
     },
 
     // Italian Cup
     'Italian Cup': {
+      en: 'Italian Cup',
       'zh': '意大利盃', 'zh-hk': '意大利盃', 'zh-tw': '意大利盃',
       'es': 'Copa de Italia', 'de': 'Italienischer Pokal', 'it': 'Coppa Italia', 'pt': 'Taça de Itália'
     },
