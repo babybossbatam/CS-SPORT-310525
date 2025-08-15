@@ -6,7 +6,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, userActions } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
-import { useTranslation } from "@/contexts/LanguageContext";
 import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
@@ -127,8 +126,6 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
   const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
   const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
-  
-  const { t } = useTranslation();
 
   // Popular leagues for prioritization
   const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
@@ -750,7 +747,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       <>
         {/* Header Section */}
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-          {t('popular_football_live_score')}
+          Popular Football Live Score
         </CardHeader>
         <div className="bg-gray-100 min-h-[400px] flex items-center justify-center">
           <div className="text-center">
@@ -777,7 +774,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       <>
         {/* Header Section */}
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold text-sm">
-          {t('popular_football_live_score')}
+          Popular Football Live Score
         </CardHeader>
         <div className="bg-gray-100 min-h-[400px]">
           <NoLiveMatchesEmpty 
@@ -800,12 +797,12 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
         <div className="flex justify-between items-center w-full">
           <span>
             {liveFilterActive && timeFilterActive
-              ? t('popular_football_live_score')
+              ? "Popular Football Live Score"
               : liveFilterActive && !timeFilterActive
-                ? t('popular_football_live_score')
+                ? "Popular Football Live Score"
                 : !liveFilterActive && timeFilterActive
                   ? "All Matches by Time"
-                  : t('popular_football_live_score')}
+                  : "Popular Football Live Score"}
           </span>
         </div>
       </CardHeader>
