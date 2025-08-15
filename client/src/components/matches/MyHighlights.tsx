@@ -47,63 +47,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   // Check match status to determine if we should render
   const status = matchStatus || match?.fixture?.status?.short;
 
-  // Only show highlights for ended matches or live matches with a status that indicates play is ongoing
+  // Only show highlights for ended matches
   const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"].includes(status);
-  const isLiveOrOngoing = ["1H", "2H", "HT", "ET", "P", "BT", "90M", "91M", "92M", "93M", "94M", "95M", "96M", "97M", "98M", "99M", "100M", "101M", "102M", "103M", "104M", "105M", "106M", "107M", "108M", "109M", "110M", "111M", "112M", "113M", "114M", "115M", "116M", "117M", "118M", "119M", "120M"].includes(status);
-  const shouldShowHighlights = isEnded || isLiveOrOngoing;
 
-
-  // Extract original English team names for search queries (not translated names)
-  // Use the original API data to ensure we get the English names for better search results
-  const rawHome = match?.teams?.home?.name || 
-                  match?.homeTeam?.name ||
-                  match?.homeTeam ||
-                  match?.home?.name ||
-                  match?.home ||
-                  homeTeam || 
-                  homeTeamName || 
-                  homeTeamData?.name ||
-                  'Home Team';
-
-  const rawAway = match?.teams?.away?.name || 
-                  match?.awayTeam?.name ||
-                  match?.awayTeam ||
-                  match?.away?.name ||
-                  match?.away ||
-                  awayTeam || 
-                  awayTeamName || 
-                  awayTeamData?.name ||
-                  'Away Team';
-
-  // More lenient validation - allow fallback team names for debugging
-  const hasValidTeamNames = rawHome && rawAway && 
-                           rawHome.trim() !== '' && rawAway.trim() !== '' &&
-                           rawHome !== 'undefined' && rawAway !== 'undefined';
-
-  console.log(`🎬 [Highlights] Team name extraction:`, {
-    rawHome,
-    rawAway,
-    hasValidTeamNames,
-    homeTeamData: homeTeamData?.name,
-    awayTeamData: awayTeamData?.name,
-    matchTeams: {
-      home: match?.teams?.home?.name,
-      away: match?.teams?.away?.name
-    },
-    fallbackUsed: rawHome === 'Home Team' || rawAway === 'Away Team',
-    status
-  });
-
-  // Don't return null - always show the component for debugging, even with invalid team names
-
-
-  // Show highlights for more match types - but don't return null, show debug info
-  if (!shouldShowHighlights) {
-    console.log(`🎬 [Highlights] Match status not suitable for highlights:`, {
-      status,
-      teams: `${rawHome} vs ${rawAway}`,
-      shouldShowHighlights
-    });
+  // Don't render if match is not ended
+  if (!isEnded) {
+    return null;
   }
   const uniqueId = useId();
   const [currentSource, setCurrentSource] = useState<VideoSource | null>(null);
@@ -144,7 +93,41 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   // Extract team names prioritizing data from MyMatchdetailsScoreboard
   // This ensures we use the same team names that are displayed in the scoreboard
+  const rawHome = homeTeamData?.name ||
+                  match?.teams?.home?.name || 
+                  match?.homeTeam?.name ||
+                  match?.homeTeam ||
+                  match?.home?.name ||
+                  match?.home ||
+                  homeTeam || 
+                  homeTeamName || 
+                  'Home Team';
 
+  const rawAway = awayTeamData?.name ||
+                  match?.teams?.away?.name || 
+                  match?.awayTeam?.name ||
+                  match?.awayTeam ||
+                  match?.away?.name ||
+                  match?.away ||
+                  awayTeam || 
+                  awayTeamName || 
+                  'Away Team';
+
+  // Validate that we have actual team names and not fallbacks
+  const hasValidTeamNames = rawHome !== 'Home Team' && rawAway !== 'Away Team' && 
+                           rawHome && rawAway && 
+                           rawHome.trim() !== '' && rawAway.trim() !== '';
+
+  if (!hasValidTeamNames) {
+    console.warn(`🎬 [Highlights] Invalid team names detected:`, {
+      rawHome,
+      rawAway,
+      homeTeamData,
+      awayTeamData,
+      match: match?.teams
+    });
+    return null; // Don't show highlights if we don't have proper team names
+  }
 
   // Clean team names for better search results
   const home = cleanTeamName(rawHome);
@@ -246,10 +229,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     primarySearchQuery;
 
   const fallbackSearchQuery = `${home} vs ${away} highlights -virtual -gaming -esoccer -app -botafogo -psg`.trim();
-
-  const exactTeamMatchQuery = `"${rawHome}" vs "${rawAway}"`;
-  const tertiarySearchQuery = `${rawHome} vs ${rawAway} ${league} ${matchYear} highlights ${teamExclusions}`;
-
 
   // Special case for Palmeiras vs Chelsea - use known video (only for exact match)
   const isPalmeirasChelsea = ((home.toLowerCase() === 'palmeiras' || home.toLowerCase().includes('palmeiras')) && 
@@ -814,62 +793,46 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       name: 'YouTube Official Highlights',
       type: 'youtube' as const,
       searchFn: async () => {
-        // More lenient exclusion terms - only exclude the most obvious non-highlight content
-        const basicExclusions = `-"React" -"reaction" -"fifa 24" -"fifa 25" -"pes" -"gaming" -"gameplay"`;
+        // Enhanced exclusion terms to filter out reaction videos and unofficial content
+        const strongExclusions = `-"React" -"reaction" -"reação" -"reagindo" -"análise" -"preview" -"predictions" -"betting" -"fifa" -"pes" -"efootball" -"gaming" -"gameplay" -"stream" -"live chat" -"compilation" -"fan reaction" -"watch party" -"primeira vez" -"first time watching" -"assistindo" -"comentando"`;
 
-        // Broader search queries with less strict filtering
+        // Prioritize official channels and highlights
+        const officialKeywords = `highlights OR "melhores momentos" OR "gols" OR "goals" OR "resumo"`;
+
         const queries = [
-          `"${rawHome}" vs "${rawAway}" highlights ${matchYear}`,
-          `"${rawHome}" "${rawAway}" highlights ${matchYear}`,
-          `${home} vs ${away} highlights ${matchYear}`,
-          `"${rawHome}" vs "${rawAway}" goals ${matchYear}`,
-          `${rawHome} ${rawAway} highlights ${basicExclusions}`,
-          `"${home}" "${away}" highlights`,
-          `${rawHome} ${rawAway} goals`,
-          // More flexible searches without year restriction
-          `"${rawHome}" vs "${rawAway}" highlights`,
-          `${home} vs ${away} highlights`
+          `(${officialKeywords}) "${rawHome}" vs "${rawAway}" ${matchYear} ${strongExclusions}`,
+          `"${rawHome}" "${rawAway}" highlights ${matchYear} official ${strongExclusions}`,
+          `${home} vs ${away} goals highlights ${matchYear} ${strongExclusions}`,
+          `"${home}" "${away}" match highlights ${matchYear} ${strongExclusions}`,
+          `${rawHome} x ${rawAway} melhores momentos ${matchYear} ${strongExclusions}`
         ];
 
-        // Add league-specific queries at the beginning if league is available
+        // Add league-specific optimizations
         if (league) {
           const leagueTerms = league.toLowerCase();
-          if (leagueTerms.includes('champions league') || leagueTerms.includes('libertadores')) {
-            queries.unshift(`"${rawHome}" vs "${rawAway}" "${league}" highlights ${matchYear}`);
+          if (leagueTerms.includes('champions league')) {
+            queries.unshift(`"${rawHome}" vs "${rawAway}" "UEFA Champions League" highlights ${matchYear} ${strongExclusions}`);
+          } else if (leagueTerms.includes('premier league')) {
+            queries.unshift(`"${rawHome}" vs "${rawAway}" "Premier League" highlights ${matchYear} ${strongExclusions}`);
+          } else if (leagueTerms.includes('la liga')) {
+            queries.unshift(`"${rawHome}" vs "${rawAway}" "La Liga" highlights ${matchYear} ${strongExclusions}`);
           } else if (leagueTerms.includes('brasileirão') || leagueTerms.includes('serie a')) {
-            queries.unshift(`"${rawHome}" vs "${rawAway}" brasileirão highlights ${matchYear}`);
-            queries.unshift(`"${rawHome}" x "${rawAway}" brasileirão ${matchYear}`);
+            queries.unshift(`"${rawHome}" vs "${rawAway}" "Brasileirão" highlights ${matchYear} ${strongExclusions}`);
           }
         }
 
-        for (let i = 0; i < Math.min(queries.length, 6); i++) { // Limit to 6 queries to avoid rate limits
+        for (let i = 0; i < queries.length; i++) {
           const query = queries[i];
           try {
-            console.log(`🔍 [Highlights] Trying query ${i + 1}/6 for ${rawHome} vs ${rawAway}: "${query}"`);
+            console.log(`🔍 [Highlights] Trying official query ${i + 1}/${queries.length} for ${rawHome} vs ${rawAway}: "${query}"`);
 
-            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=15&order=relevance`);
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=20&order=relevance`);
             const data = await response.json();
 
-            // Handle quota exceeded errors
+            // Handle quota exceeded errors specifically
             if (data.quotaExceeded || (data.error && data.error.includes('quota'))) {
-              console.warn(`🚫 [Highlights] YouTube quota exceeded, trying fallback approach`);
-              // Try a simpler search with just team names
-              const fallbackQuery = `${rawHome} ${rawAway}`;
-              const fallbackResponse = await fetch(`/api/youtube/search?q=${encodeURIComponent(fallbackQuery)}&maxResults=10&order=relevance`);
-              const fallbackData = await fallbackResponse.json();
-              
-              if (fallbackData.items && fallbackData.items.length > 0) {
-                console.log(`✅ [Highlights] Using fallback search results`);
-                const video = fallbackData.items[0];
-                return {
-                  name: 'YouTube Highlights (Fallback)',
-                  type: 'youtube' as const,
-                  url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
-                  embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
-                  title: video.snippet.title
-                };
-              }
-              throw new Error('YouTube quota exceeded - no fallback results');
+              console.warn(`🚫 [Highlights] YouTube quota exceeded, skipping to alternative sources`);
+              throw new Error('YouTube quota exceeded - switching to alternative sources');
             }
 
             if (data.error) {
@@ -878,56 +841,100 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             }
 
             if (data.items && data.items.length > 0) {
-              // More lenient filtering - only exclude obvious non-highlight content
+              // Enhanced filtering for better results - strict filtering against reaction content
               const filteredVideos = data.items.filter((video: any) => {
                 const title = video.snippet.title.toLowerCase();
                 const channelTitle = video.snippet.channelTitle.toLowerCase();
+                const description = video.snippet.description?.toLowerCase() || '';
 
-                // Only exclude obvious gaming/reaction content
-                const strictExclusions = [
-                  'fifa 24', 'fifa 25', 'pes 202', 'efootball', 'gaming', 'gameplay',
-                  'react to', 'reaction to', 'first time watching', 'assistindo pela primeira vez'
+                // Strict exclusion of reaction and unofficial content
+                const excludeTerms = [
+                  'react', 'reaction', 'reação', 'reagindo', 'análise', 'preview', 
+                  'predictions', 'betting', 'fifa', 'pes', 'efootball', 'gaming', 
+                  'gameplay', 'stream', 'live chat', 'compilation', 'fan reaction', 
+                  'watch party', 'primeira vez', 'first time watching', 'assistindo',
+                  'comentando', 'podcast', 'talk show', 'entrevista', 'interview',
+                  'channel react', 'youtuber', 'streamer', 'twitch', 'discord'
                 ];
 
-                if (strictExclusions.some(term => title.includes(term) || channelTitle.includes(term))) {
+                // Check title, channel, and description for excluded terms
+                if (excludeTerms.some(term => 
+                  title.includes(term) || 
+                  channelTitle.includes(term) || 
+                  description.includes(term)
+                )) {
+                  console.log(`🚫 [Highlights] Filtered out: "${video.snippet.title}" by ${video.snippet.channelTitle} (contains excluded terms)`);
                   return false;
                 }
 
-                // Check if at least one team name is present
+                // Must contain official highlight terms
+                const mustHaveTerms = ['highlights', 'goals', 'melhores momentos', 'resumo', 'gols', 'best moments'];
+                const hasOfficialTerms = mustHaveTerms.some(term => title.includes(term));
+
+                if (!hasOfficialTerms) {
+                  console.log(`🚫 [Highlights] Filtered out: "${video.snippet.title}" (no official highlight terms)`);
+                  return false;
+                }
+
+                // Both team names should be present
                 const homeInTitle = title.includes(home.toLowerCase()) || title.includes(rawHome.toLowerCase());
                 const awayInTitle = title.includes(away.toLowerCase()) || title.includes(rawAway.toLowerCase());
 
-                return homeInTitle || awayInTitle; // More lenient - allow if at least one team is mentioned
+                if (!homeInTitle || !awayInTitle) {
+                  console.log(`🚫 [Highlights] Filtered out: "${video.snippet.title}" (missing team names)`);
+                  return false;
+                }
+
+                console.log(`✅ [Highlights] Approved: "${video.snippet.title}" by ${video.snippet.channelTitle}`);
+                return true;
               });
 
-              if (filteredVideos.length > 0) {
-                // Simple sorting by view count and relevance
-                const sortedVideos = filteredVideos.sort((a: any, b: any) => {
-                  const aTitle = a.snippet.title.toLowerCase();
-                  const bTitle = b.snippet.title.toLowerCase();
+              // Sort filtered videos by relevance and official status
+              const sortedVideos = filteredVideos.sort((a: any, b: any) => {
+                const aTitle = a.snippet.title.toLowerCase();
+                const bTitle = b.snippet.title.toLowerCase();
+                const aChannel = a.snippet.channelTitle.toLowerCase();
+                const bChannel = b.snippet.channelTitle.toLowerCase();
 
-                  // Prioritize videos with both team names
-                  const aHasBothTeams = (aTitle.includes(home.toLowerCase()) || aTitle.includes(rawHome.toLowerCase())) &&
-                                       (aTitle.includes(away.toLowerCase()) || aTitle.includes(rawAway.toLowerCase()));
-                  const bHasBothTeams = (bTitle.includes(home.toLowerCase()) || bTitle.includes(rawHome.toLowerCase())) &&
-                                       (bTitle.includes(away.toLowerCase()) || bTitle.includes(rawAway.toLowerCase()));
+                // Calculate official channel score
+                const getOfficialScore = (channel: string): number => {
+                  const officialChannels = [
+                    'fifa', 'uefa', 'conmebol', 'concacaf', 'premier league', 
+                    'la liga', 'serie a', 'bundesliga', 'ligue 1', 'brasileirão',
+                    'cbf', 'sportv', 'globoesporte', 'espn', 'fox sports'
+                  ];
+                  return officialChannels.filter(official => channel.includes(official)).length * 10;
+                };
 
-                  if (aHasBothTeams && !bHasBothTeams) return -1;
-                  if (!aHasBothTeams && bHasBothTeams) return 1;
+                const aOfficialScore = getOfficialScore(aChannel);
+                const bOfficialScore = getOfficialScore(bChannel);
 
-                  // Prioritize videos with highlight keywords
-                  const highlightTerms = ['highlights', 'goals', 'melhores momentos', 'resumo', 'gols'];
-                  const aHasHighlights = highlightTerms.some(term => aTitle.includes(term));
-                  const bHasHighlights = highlightTerms.some(term => bTitle.includes(term));
+                if (aOfficialScore !== bOfficialScore) {
+                  return bOfficialScore - aOfficialScore;
+                }
 
-                  if (aHasHighlights && !bHasHighlights) return -1;
-                  if (!aHasHighlights && bHasHighlights) return 1;
+                // Prioritize exact team name matches
+                const aExactMatch = aTitle.includes(`${home.toLowerCase()} vs ${away.toLowerCase()}`) || 
+                                   aTitle.includes(`${rawHome.toLowerCase()} x ${rawAway.toLowerCase()}`);
+                const bExactMatch = bTitle.includes(`${home.toLowerCase()} vs ${away.toLowerCase()}`) || 
+                                   bTitle.includes(`${rawHome.toLowerCase()} x ${rawAway.toLowerCase()}`);
 
-                  return 0;
-                });
+                if (aExactMatch && !bExactMatch) return -1;
+                if (!aExactMatch && bExactMatch) return 1;
 
+                // Prioritize videos with year in title
+                const aHasYear = aTitle.includes(matchYear.toString());
+                const bHasYear = bTitle.includes(matchYear.toString());
+
+                if (aHasYear && !bHasYear) return -1;
+                if (!aHasYear && bHasYear) return 1;
+
+                return 0;
+              });
+
+              if (sortedVideos.length > 0) {
                 const video = sortedVideos[0];
-                console.log(`✅ [Highlights] Selected video from query ${i + 1}:`, {
+                console.log(`✅ [Highlights] Selected official video from query ${i + 1}:`, {
                   title: video.snippet.title,
                   channel: video.snippet.channelTitle,
                   filteredCount: filteredVideos.length,
@@ -941,7 +948,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   title: video.snippet.title
                 };
               } else {
-                console.log(`⚠️ [Highlights] Query ${i + 1} had ${data.items.length} results but none passed filtering`);
+                console.log(`⚠️ [Highlights] Query ${i + 1} had ${data.items.length} results but none passed strict filtering`);
               }
             } else {
               console.log(`📭 [Highlights] Query ${i + 1} returned no results`);
@@ -951,7 +958,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             continue;
           }
         }
-        throw new Error('No YouTube highlights found after trying all queries');
+        throw new Error('No official YouTube highlights found');
       }
     }
   ];
@@ -1018,23 +1025,11 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   }, [sourceIndex]);
 
   const handleRetry = () => {
-    console.log(`🔄 [Highlights] Manual retry initiated for ${rawHome} vs ${rawAway}`);
     setSourceIndex(0);
     setError(null);
     setLoading(true);
     setIframeError(false); // Reset iframe error on retry
     tryNextSource();
-  };
-
-  // Enhanced error messaging for better debugging
-  const getErrorMessage = () => {
-    if (error?.includes('quota')) {
-      return 'API quota exceeded - trying alternative sources';
-    }
-    if (error?.includes('Network')) {
-      return 'Network connection issue - please check your internet';
-    }
-    return error || 'No video sources available';
   };
 
   // Check if this is a football/soccer match
@@ -1091,17 +1086,10 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     return true;
   };
 
-  // Always show the component for debugging purposes
-  const isFootball = isFootballMatch();
-  console.log(`🎬 [Highlights] Render check:`, {
-    isFootball,
-    hasError: !!error,
-    isLoading: loading,
-    hasIframeError: iframeError,
-    teams: `${rawHome} vs ${rawAway}`,
-    status,
-    shouldShowHighlights
-  });
+  // Hide the card entirely when no video is available, not loading, iframe error, or video unavailable
+  if (!isFootballMatch() || (error && !loading) || iframeError) {
+    return null;
+  }
 
   // Additional check: if we have a current source but it's been loading for too long
   // or shows signs of being unavailable, hide the component
@@ -1116,12 +1104,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         <CardTitle className="text-base font-md flex items-center justify-between text-sm text-gray-800">
           <div className="flex items-center">
             Official Highlights
-            {!isFootball && <span className="ml-2 text-xs text-red-500">(Non-football detected)</span>}
-            {!shouldShowHighlights && <span className="ml-2 text-xs text-orange-500">(Status: {status})</span>}
           </div>
-          {currentSource && !loading && (
-            <span className="text-xs text-green-600">Source: {currentSource.name}</span>
-          )}
+          {currentSource && !loading  }
         </CardTitle>
       </CardHeader>
       <CardContent className="py-0 px-0">
@@ -1146,11 +1130,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                     Checking Canal do Futebol BR first
                   </span>
                 )}
-                 {sourceIndex === 0 && !isFifaClubWorldCup && !isConcacafCompetition && !isBrazilianLeague && (
-                  <span className="block text-xs text-gray-400">
-                    Checking YouTube Official Highlights
-                  </span>
-                )}
+                 {sourceIndex === 0 && !isFifaClubWorldCup && !isConcacafCompetition && !isBrazilianLeague }
                 {sourceIndex > 0 && (
                   <span className="block text-xs text-gray-400">
                     Trying {videoSources[sourceIndex]?.name || 'alternative source'}
@@ -1216,14 +1196,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           <div className="w-full h-64 flex items-center justify-center bg-gray-50">
             <div className="text-center">
               <Video className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-              <p className="text-sm text-gray-600">Unable to load highlights</p>
-              {error && <p className="text-sm text-red-500 mt-2">{getErrorMessage()}</p>}
-              <p className="text-xs text-gray-400 mt-1">Teams: {rawHome} vs {rawAway}</p>
-              <p className="text-xs text-gray-400">Status: {status} | Football: {isFootball ? 'Yes' : 'No'}</p>
-              <p className="text-xs text-gray-400">Sources tried: {sourceIndex}/{videoSources.length}</p>
-              <button onClick={handleRetry} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
-                Try Again
-              </button>
+              <p className="text-sm text-gray-600">No highlights available</p>
             </div>
           </div>
         )}
