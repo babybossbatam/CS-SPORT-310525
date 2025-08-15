@@ -1,6 +1,15 @@
-import { COUNTRY_TRANSLATIONS, translateCountryName as staticTranslateCountryName, hasCountryTranslation } from '../constants/countriesAndLeagues';
-import { CountryTranslation } from './countryNameMapping';
 
+export interface CountryTranslation {
+  [key: string]: {
+    'zh': string;
+    'zh-hk': string;
+    'zh-tw': string;
+    'es': string;
+    'de': string;
+    'it': string;
+    'pt': string;
+  };
+}
 
 class SmartCountryTranslation {
   private countryCache = new Map<string, string>();
@@ -123,12 +132,12 @@ class SmartCountryTranslation {
   // Learn country names from API responses
   learnCountriesFromFixtures(fixtures: any[]): void {
     let newMappingsCount = 0;
-
+    
     fixtures.forEach(fixture => {
       if (!fixture?.league?.country) return;
-
+      
       const countryName = fixture.league.country;
-
+      
       if (!this.popularCountries[countryName] && !this.learnedCountryMappings.has(countryName)) {
         const mapping = this.createCountryMapping(countryName);
         if (mapping) {
@@ -137,7 +146,7 @@ class SmartCountryTranslation {
         }
       }
     });
-
+    
     if (newMappingsCount > 0) {
       this.saveLearnedMappings();
       console.log(`📖 [CountryTranslation] Learned ${newMappingsCount} new country mappings`);
@@ -157,41 +166,41 @@ class SmartCountryTranslation {
     };
   }
 
-  translateCountryName(countryName: string, targetLanguage: string): string {
-    // Check cache first
-    const cacheKey = `${countryName}-${targetLanguage}`;
-    if (this.countryCache.has(cacheKey)) {
-      return this.countryCache.get(cacheKey)!;
+  translateCountry(countryName: string, language: string): string {
+    if (!countryName || !language) return countryName;
+
+    // Check static mappings first
+    const staticTranslation = this.popularCountries[countryName];
+    if (staticTranslation) {
+      const translation = staticTranslation[language as keyof CountryTranslation[string]];
+      if (translation && translation !== countryName) {
+        return translation;
+      }
     }
 
-    let translatedName = countryName;
-
-    // First, try the comprehensive static translations
-    const staticTranslation = staticTranslateCountryName(countryName, targetLanguage);
-    if (staticTranslation && staticTranslation !== countryName) {
-      translatedName = staticTranslation;
-    }
-    // Fallback to local mappings
-    else if (countryMappings[countryName] && countryMappings[countryName][targetLanguage as keyof CountryTranslation[string]]) {
-      translatedName = countryMappings[countryName][targetLanguage as keyof CountryTranslation[string]];
+    // Check learned mappings
+    const learned = this.learnedCountryMappings.get(countryName);
+    if (learned) {
+      const translation = learned[language as keyof CountryTranslation[string]];
+      if (translation && translation !== countryName) {
+        return translation;
+      }
     }
 
-    // Cache the result
-    this.countryCache.set(cacheKey, translatedName);
-    return translatedName;
+    return countryName;
   }
 
   // Auto-detect and translate all countries in fixture data
   processFixtureCountries(fixtures: any[], language: string): any[] {
     this.learnCountriesFromFixtures(fixtures);
-
+    
     return fixtures.map(fixture => {
       if (fixture?.league?.country) {
         return {
           ...fixture,
           league: {
             ...fixture.league,
-            country: this.translateCountryName(fixture.league.country, language)
+            country: this.translateCountry(fixture.league.country, language)
           }
         };
       }
@@ -205,19 +214,19 @@ export const smartCountryTranslation = new SmartCountryTranslation();
 
 // Main translation function for country names
 export function translateCountryName(countryName: string, language: string = 'en'): string {
-  return smartCountryTranslation.translateCountryName(countryName, language);
+  return smartCountryTranslation.translateCountry(countryName, language);
 }
 
 // Bulk translation for multiple countries
 export function translateMultipleCountries(
-  countries: string[],
+  countries: string[], 
   language: string = 'en'
 ): Record<string, string> {
   const result: Record<string, string> = {};
-
+  
   countries.forEach(country => {
     result[country] = translateCountryName(country, language);
   });
-
+  
   return result;
 }

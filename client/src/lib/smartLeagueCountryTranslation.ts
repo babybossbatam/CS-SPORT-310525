@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
 
-// Import comprehensive country translations from constants
-import { COUNTRY_TRANSLATIONS, translateCountryName } from './constants/countriesAndLeagues';
-
 interface LeagueTranslation {
   [key: string]: {
     zh: string;
@@ -2449,7 +2446,7 @@ class SmartLeagueCountryTranslation {
     const newMapping = this.generateCountryMapping(normalizedName);
     if (newMapping && newMapping[language]) {
       // Store mapping for both original and normalized names
-      this.learnedCountryMappings.set(countryName, newMapping); // This should be learnedCountryMappings
+      this.learnedLeagueMappings.set(countryName, newMapping); // This should be learnedCountryMappings
       if (normalizedName !== countryName) {
         this.learnedCountryMappings.set(normalizedName, newMapping); // This should be learnedCountryMappings
       }
@@ -2820,21 +2817,3 @@ class SmartLeagueCountryTranslation {
 
 // Create singleton instance
 export const smartLeagueCountryTranslation = new SmartLeagueCountryTranslation();
-
-// Helper function to get country translation
-export const getCountryTranslation = (countryName: string, language: string = 'en'): string | null => {
-  // First, try to get translation from the comprehensive static list
-  const staticTranslation = translateCountryName(countryName, language);
-  if (staticTranslation && staticTranslation !== countryName) {
-    return staticTranslation;
-  }
-
-  // Fallback to local translations for any missing entries
-  const normalizedCountry = countryName.trim();
-  const countryData = countryTranslations[normalizedCountry];
-  if (countryData && countryData[language as keyof typeof countryData]) {
-    return countryData[language as keyof typeof countryData];
-  }
-
-  return null;
-};
