@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useDeviceInfo } from "@/hooks/use-mobile";
 import MyWorldTeamLogo from "./MyWorldTeamLogo";
-import MyCircularFlag from "./MyCircularFlag";
 
 interface LazyImageProps {
   src: string;
@@ -392,25 +391,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
         size={style?.width || style?.height || "32px"}
         className={className}
         leagueContext={leagueContext}
-      />
-    );
-  }
-
-  // Check if this is specifically for England country and use MyCircularFlag
-  const isEnglandCountry = alt && (
-    alt.toLowerCase().includes('england') ||
-    alt.toLowerCase() === 'england' ||
-    (teamName && teamName.toLowerCase().includes('england'))
-  );
-
-  if (isEnglandCountry) {
-    return (
-      <MyCircularFlag
-        teamName={teamName || alt || "England"}
-        fallbackUrl={imageSrc}
-        alt={alt}
-        size={style?.width || style?.height || "32px"}
-        className={className}
       />
     );
   }
