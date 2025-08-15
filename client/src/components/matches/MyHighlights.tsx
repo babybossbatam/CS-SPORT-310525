@@ -97,14 +97,13 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   // Don't return null - always show the component for debugging, even with invalid team names
 
 
-  // Show highlights for more match types
+  // Show highlights for more match types - but don't return null, show debug info
   if (!shouldShowHighlights) {
     console.log(`🎬 [Highlights] Match status not suitable for highlights:`, {
       status,
       teams: `${rawHome} vs ${rawAway}`,
       shouldShowHighlights
     });
-    return null;
   }
   const uniqueId = useId();
   const [currentSource, setCurrentSource] = useState<VideoSource | null>(null);
@@ -1108,10 +1107,17 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     return true;
   };
 
-  // Hide the card entirely when no video is available, not loading, iframe error, or video unavailable
-  if (!isFootballMatch() || (error && !loading) || iframeError) {
-    return null;
-  }
+  // Always show the component for debugging purposes
+  const isFootball = isFootballMatch();
+  console.log(`🎬 [Highlights] Render check:`, {
+    isFootball,
+    hasError: !!error,
+    isLoading: loading,
+    hasIframeError: iframeError,
+    teams: `${rawHome} vs ${rawAway}`,
+    status,
+    shouldShowHighlights
+  });
 
   // Additional check: if we have a current source but it's been loading for too long
   // or shows signs of being unavailable, hide the component
@@ -1126,8 +1132,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         <CardTitle className="text-base font-md flex items-center justify-between text-sm text-gray-800">
           <div className="flex items-center">
             Official Highlights
+            {!isFootball && <span className="ml-2 text-xs text-red-500">(Non-football detected)</span>}
+            {!shouldShowHighlights && <span className="ml-2 text-xs text-orange-500">(Status: {status})</span>}
           </div>
-          {currentSource && !loading  }
+          {currentSource && !loading && (
+            <span className="text-xs text-green-600">Source: {currentSource.name}</span>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="py-0 px-0">
@@ -1222,11 +1232,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           <div className="w-full h-64 flex items-center justify-center bg-gray-50">
             <div className="text-center">
               <Video className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-              <p className="text-sm text-gray-600">No highlights available</p>
-              {error && <p className="text-sm text-red-500 mt-2">Error: {error}</p>}
-              {!error && <p className="text-sm text-gray-500 mt-2">Please try again later or check other matches.</p>}
+              <p className="text-sm text-gray-600">Unable to load highlights</p>
+              {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
+              <p className="text-xs text-gray-400 mt-1">Teams: {rawHome} vs {rawAway}</p>
+              <p className="text-xs text-gray-400">Status: {status} | Football: {isFootball ? 'Yes' : 'No'}</p>
               <button onClick={handleRetry} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
-                Retry
+                Try Again
               </button>
             </div>
           </div>
