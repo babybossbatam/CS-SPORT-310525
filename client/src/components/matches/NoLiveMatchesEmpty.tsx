@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTranslation } from 'react-i18next';
 
 interface NoLiveMatchesEmptyProps {
   onBackToHome?: () => void;
@@ -19,7 +18,12 @@ export const NoLiveMatchesEmpty = ({
   onDeactivateLiveFilter,
   setLiveFilterActive
 }: NoLiveMatchesEmptyProps) => {
-  const { t } = useTranslation();
+  const { translations, currentLanguage } = useLanguage();
+  
+  const t = (key: string): string => {
+    return translations[currentLanguage]?.[key] || translations['en']?.[key] || key;
+  };
+  
   return (
     <div className="flex flex-col items-center justify-center p-12 text-center bg-gray-100 min-h-[400px]">
       {/* No matches illustration */}
