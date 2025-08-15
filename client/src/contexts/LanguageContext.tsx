@@ -9,4 +9,4 @@
     'no_matches_available': 'No matches available',
     // Match statuses
     'halftime': 'Halftime',
-    'penalties': 'Penalties',
+    'penalties': 'Penalties'
