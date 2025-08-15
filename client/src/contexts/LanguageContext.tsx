@@ -12,6 +12,7 @@ import { smartPlayerTranslation } from "@/lib/smartPlayerTranslation";
 
 interface LanguageContextType {
   currentLanguage: string;
+  isRoutingComplete: boolean;
   setLanguage: (language: string) => void;
   setLanguageWithUrlUpdate: (language: string) => void;
   setLanguageByCountry: (countryName: string) => void;
@@ -1667,6 +1668,7 @@ export const LanguageProvider: React.FC<{
   children: React.ReactNode;
   initialLanguage?: string | null;
 }> = ({ children, initialLanguage }) => {
+  const [isRoutingComplete, setIsRoutingComplete] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState<string>(() => {
     // Priority: URL language > localStorage > default 'en'
     if (initialLanguage && translations[initialLanguage]) {
@@ -1689,6 +1691,13 @@ export const LanguageProvider: React.FC<{
       setCurrentLanguage(initialLanguage);
       localStorage.setItem("app-language", initialLanguage);
     }
+    
+    // Mark routing as complete after language is set
+    const timer = setTimeout(() => {
+      setIsRoutingComplete(true);
+    }, 50); // Small delay to ensure URL parsing is complete
+    
+    return () => clearTimeout(timer);
   }, [initialLanguage, currentLanguage]);
 
   const setLanguage = (language: string) => {
@@ -2834,6 +2843,7 @@ export const LanguageProvider: React.FC<{
 
   const contextValue = {
     currentLanguage,
+    isRoutingComplete,
     setLanguage,
     setLanguageWithUrlUpdate,
     setLanguageByCountry,
@@ -2862,6 +2872,7 @@ export const useLanguage = () => {
     // Return a fallback context to prevent app crashes
     return {
       currentLanguage: "en",
+      isRoutingComplete: false,
       setLanguage: () => {},
       setLanguageWithUrlUpdate: () => {},
       setLanguageByCountry: () => {},
@@ -2881,13 +2892,18 @@ export const useLanguage = () => {
 
 // Add useTranslation hook for convenience
 export const useTranslation = () => {
-  const { currentLanguage, translations } = useLanguage();
+  const { currentLanguage, translations, isRoutingComplete } = useLanguage();
 
   const t = (key: string): string => {
+    // Wait for routing to complete before translating
+    if (!isRoutingComplete) {
+      return key; // Return key temporarily until routing is complete
+    }
+    
     return (
       translations[currentLanguage]?.[key] || translations["en"]?.[key] || key
     );
   };
 
-  return { t, currentLanguage };
+  return { t, currentLanguage, isRoutingComplete };
 };
