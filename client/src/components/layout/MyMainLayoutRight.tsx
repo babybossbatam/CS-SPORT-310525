@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import MatchPredictionsCard from '@/components/matches/MatchPredictionsCard';
 import MyLiveAction from '@/components/matches/MyLiveAction';
 import MyHighlights from '@/components/matches/MyHighlights';
@@ -17,6 +17,8 @@ import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MyWorldTeamLogo from '@/components/matches/MyWorldTeamLogo';
+import { useLanguage, useTranslation } from '@/contexts/LanguageContext';
+import TranslatedMatchComponents from '@/components/common/TranslatedMatchComponents';
 
 interface MyMainLayoutRightProps {
   selectedFixture: any;
@@ -26,6 +28,14 @@ interface MyMainLayoutRightProps {
 const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, onClose }) => {
   const [activeTab, setActiveTab] = useState<string>("match");
   const { isMobile } = useDeviceInfo();
+  const { 
+    translateTeamName, 
+    translateLeagueName, 
+    translateCountryName,
+    currentLanguage,
+    isRoutingComplete 
+  } = useLanguage();
+  const { t } = useTranslation();
 
   // Debug logging to verify data reception from MyNewLeague2
   console.log(`🔍 [MyMainLayoutRight] Received selectedFixture:`, {
@@ -35,6 +45,30 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
     status: selectedFixture?.fixture?.status?.short,
     fullData: selectedFixture
   });
+
+  // Create translated fixture for ScoreDetailsCard
+  const translatedFixture = React.useMemo(() => {
+    if (!selectedFixture || !isRoutingComplete) return selectedFixture;
+
+    return {
+      ...selectedFixture,
+      teams: {
+        home: {
+          ...selectedFixture.teams?.home,
+          name: translateTeamName(selectedFixture.teams?.home?.name || '')
+        },
+        away: {
+          ...selectedFixture.teams?.away,
+          name: translateTeamName(selectedFixture.teams?.away?.name || '')
+        }
+      },
+      league: {
+        ...selectedFixture.league,
+        name: translateLeagueName(selectedFixture.league?.name || ''),
+        country: translateCountryName(selectedFixture.league?.country || '')
+      }
+    };
+  }, [selectedFixture, translateTeamName, translateLeagueName, translateCountryName, currentLanguage, isRoutingComplete]);
 
   return (
     <div className={cn(
@@ -47,7 +81,7 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
         isMobile ? "mb-4" : "mb-6"
       )}>
         <ScoreDetailsCard
-          currentFixture={selectedFixture}
+          currentFixture={translatedFixture}
           onClose={onClose}
           activeTab={activeTab}
           onTabChange={setActiveTab}
@@ -59,48 +93,12 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
         "space-y-4",
         isMobile ? "mobile-tab-content px-1" : ""
       )}>
-        {activeTab === "match" && (
-          <div className={cn(
-            isMobile ? "space-y-3" : "space-y-4"
-          )}>
-            <MyMatchTabCard match={selectedFixture} onTabChange={setActiveTab} />
-          </div>
-        )}
-
-        {activeTab === "stats" && (
-          <div className={cn(
-            isMobile ? "space-y-3" : "space-y-4"
-          )}>
-            <MyStatsTabCard 
-              match={selectedFixture} 
-              onTabChange={setActiveTab}
-            />
-          </div>
-        )}
-
-        {activeTab === "lineups" && (
-          <div className={cn(
-            isMobile ? "space-y-3" : "space-y-4"
-          )}>
-            <MyLineupsTabsCard match={selectedFixture} />
-          </div>
-        )}
-
-        {activeTab === "trends" && (
-          <div className={cn(
-            isMobile ? "space-y-3" : "space-y-4"
-          )}>
-            <MyTrendsTabsCard match={selectedFixture} />
-          </div>
-        )}
-
-        {activeTab === "h2h" && (
-          <div className={cn(
-            isMobile ? "space-y-3" : "space-y-4"
-          )}>
-            <MyHeadtoheadTabsCard match={selectedFixture} />
-          </div>
-        )}
+        <TranslatedMatchComponents
+          activeTab={activeTab}
+          selectedFixture={selectedFixture}
+          onTabChange={setActiveTab}
+          isMobile={isMobile}
+        />
       </div>
 
 
