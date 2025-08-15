@@ -100,16 +100,11 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
     const currentPath = getPathWithoutLanguage();
     const newPath = `/${languageCode}${currentPath === '/' ? '' : currentPath}`;
     
-    // Update the language context first
-    setLanguage(languageCode);
-    
-    // Navigate to new URL with updated language
+    // Navigate directly to new URL without updating context first
+    // The LanguageProvider will detect the new language from URL and update context
     window.location.href = newPath;
     
-    toast({
-      title: "Language Changed", 
-      description: `Language switched to ${getLanguageDisplayName(languageCode)}`,
-    });
+    // Note: Toast won't show due to immediate navigation, but that's better UX
   };
 
   const getPathWithoutLanguage = (): string => {
