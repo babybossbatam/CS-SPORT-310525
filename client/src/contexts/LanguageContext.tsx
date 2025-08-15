@@ -1010,7 +1010,7 @@ const translations = {
     popular_football_leagues: "熱門足球聯賽",
 
     popular_football_teams: "熱門足球隊",
-    popular_football_live_score: "熱門足球實時比分",
+
     leagues_cup: "聯賽盃",
     world: "世界",
     ended: "已結束",
