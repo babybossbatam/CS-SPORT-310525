@@ -108,10 +108,7 @@ class SmartLeagueCountryTranslation {
       'zh': '葡萄牙', 'zh-hk': '葡萄牙', 'zh-tw': '葡萄牙',
       'es': 'Portugal', 'de': 'Portugal', 'it': 'Portogallo', 'pt': 'Portugal'
     },
-    'Belgium': {
-      en: 'Belgium',
-      'zh': '比利时', 'zh-hk': '比利時', 'zh-tw': '比利時',
-      'es': 'Bélgica', 'de': 'Belgien', 'it': 'Belgio', 'pt': 'Bélgica'
+    
     },
     'Mexico': {
       en: 'Mexico',
@@ -128,11 +125,7 @@ class SmartLeagueCountryTranslation {
       'zh': '多米尼加共和国', 'zh-hk': '多明尼加共和國', 'zh-tw': '多明尼加共和國',
       'es': 'República Dominicana', 'de': 'Dominikanische Republik', 'it': 'Repubblica Dominicana', 'pt': 'República Dominicana'
     },
-    'Czech Republic': {
-      en: 'Czech Republic',
-      'zh': '捷克共和国', 'zh-hk': '捷克共和國', 'zh-tw': '捷克共和國',
-      'es': 'República Checa', 'de': 'Tschechische Republik', 'it': 'Repubblica Ceca', 'pt': 'República Tcheca'
-    },
+   
     'Czech-Republic': {
       en: 'Czech Republic',
       'zh': '捷克共和国', 'zh-hk': '捷克共和國', 'zh-tw': '捷克共和國',
@@ -283,7 +276,7 @@ class SmartLeagueCountryTranslation {
     'Bangladesh': { en: 'Bangladesh', 'zh': '孟加拉國', 'zh-hk': '孟加拉國', 'zh-tw': '孟加拉', 'es': 'Bangladesh', 'de': 'Bangladesch', 'it': 'Bangladesh', 'pt': 'Bangladesh' },
     'Bahrain': { en: 'Bahrain', 'zh': '巴林', 'zh-hk': '巴林', 'zh-tw': '巴林', 'es': 'Baréin', 'de': 'Bahrain', 'it': 'Bahrain', 'pt': 'Bahrein' },
     'Brunei': { en: 'Brunei', 'zh': '汶萊', 'zh-hk': '汶萊', 'zh-tw': '汶萊', 'es': 'Brunéi', 'de': 'Brunei', 'it': 'Brunei', 'pt': 'Brunei' },
-    'Bhutan': { en: 'Bhutan', 'zh': '不丹', 'zh-hk': '不丹', 'zh-tw': '不丹', 'es': 'Bután', 'de': 'Bhutan', 'it': 'Bhutan', 'pt': 'Butão' },
+   
     'China': { en: 'China', 'zh': '中國', 'zh-hk': '中國', 'zh-tw': '中國', 'es': 'China', 'de': 'China', 'it': 'Cina', 'pt': 'China' },
     'Hong Kong': { en: 'Hong Kong', 'zh': '香港', 'zh-hk': '香港', 'zh-tw': '香港', 'es': 'Hong Kong', 'de': 'Hongkong', 'it': 'Hong Kong', 'pt': 'Hong Kong' },
     'Indonesia': { en: 'Indonesia', 'zh': '印尼', 'zh-hk': '印尼', 'zh-tw': '印尼', 'es': 'Indonesia', 'de': 'Indonesien', 'it': 'Indonesia', 'pt': 'Indonésia' },
