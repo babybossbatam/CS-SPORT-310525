@@ -230,7 +230,7 @@ const manualRoundTranslations = {
     tr: 'Son {{value}}',
     nl: 'Laatste {{value}}',
     pl: '1/{{value}} finału',
-    sv: 'Åttondelsfinaler',
+    sv: 'Åtton 8delarsfinaler',
     da: 'Ottendedelsfinaler',
     no: 'Åttedelsfinaler',
     fi: 'Kahdeksannesvälit',
@@ -2481,7 +2481,7 @@ export const LanguageProvider: React.FC<{
       },
       'AET': {
         'en': 'After Extra Time',
-        'zh': '加时后结束',
+        'zh': '加時后结束',
         'zh-hk': '加時後結束',
         'zh-tw': '加時後結束',
         'es': 'Después del Tiempo Extra',
