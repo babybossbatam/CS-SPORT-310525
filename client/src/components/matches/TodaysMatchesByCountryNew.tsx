@@ -38,6 +38,7 @@ import {
   useTranslation,
 } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
+import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
 
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
@@ -183,6 +184,24 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // Fallback to context translation for untranslated countries
     return contextTranslateLeagueName(originalCountry);
+  };
+
+  // Add smart team translation function
+  const translateTeamNameSmart = (originalTeam: string, leagueInfo?: any): string => {
+    if (!originalTeam) return "";
+
+    // Use smart team translation
+    const translated = smartTeamTranslation.translateTeamName(
+      originalTeam,
+      currentLanguage,
+      leagueInfo,
+    );
+    if (translated !== originalTeam) {
+      return translated;
+    }
+
+    // Fallback to context translation
+    return translateTeamName ? translateTeamName(originalTeam) : originalTeam;
   };
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
@@ -1571,6 +1590,30 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursOld > 4) ||
               (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
 
+            // Function to translate match status
+            const translateMatchStatus = (statusText: string): string => {
+              if (currentLanguage === 'en') return statusText;
+              
+              const statusTranslations: Record<string, Record<string, string>> = {
+                'Halftime': { 'zh': '中场休息', 'zh-hk': '中場休息', 'zh-tw': '中場休息', 'es': 'Descanso', 'de': 'Halbzeit', 'it': 'Intervallo', 'pt': 'Intervalo' },
+                'Penalties': { 'zh': '点球', 'zh-hk': '點球', 'zh-tw': '點球', 'es': 'Penales', 'de': 'Elfmeterschießen', 'it': 'Rigori', 'pt': 'Pênaltis' },
+                'Break Time': { 'zh': '休息时间', 'zh-hk': '休息時間', 'zh-tw': '休息時間', 'es': 'Descanso', 'de': 'Pause', 'it': 'Pausa', 'pt': 'Intervalo' },
+                'Interrupted': { 'zh': '中断', 'zh-hk': '中斷', 'zh-tw': '中斷', 'es': 'Interrumpido', 'de': 'Unterbrochen', 'it': 'Interrotto', 'pt': 'Interrompido' },
+                'LIVE': { 'zh': '直播', 'zh-hk': '直播', 'zh-tw': '直播', 'es': 'En Vivo', 'de': 'Live', 'it': 'Live', 'pt': 'Ao Vivo' },
+                'Ended': { 'zh': '结束', 'zh-hk': '結束', 'zh-tw': '結束', 'es': 'Finalizado', 'de': 'Beendet', 'it': 'Finito', 'pt': 'Terminado' },
+                'After ET': { 'zh': '加时后', 'zh-hk': '加時後', 'zh-tw': '延長賽後', 'es': 'Después de ET', 'de': 'Nach Verl.', 'it': 'Dopo i TS', 'pt': 'Após Prorr.' },
+                'Awarded': { 'zh': '判定', 'zh-hk': '判定', 'zh-tw': '判定', 'es': 'Otorgado', 'de': 'Zuerkannt', 'it': 'Assegnato', 'pt': 'Atribuído' },
+                'Walkover': { 'zh': '不战而胜', 'zh-hk': '不戰而勝', 'zh-tw': '不戰而勝', 'es': 'WO', 'de': 'Kampflos', 'it': 'A tavolino', 'pt': 'WO' },
+                'Abandoned': { 'zh': '放弃', 'zh-hk': '放棄', 'zh-tw': '放棄', 'es': 'Abandonado', 'de': 'Abgebrochen', 'it': 'Abbandonato', 'pt': 'Abandonado' },
+                'Cancelled': { 'zh': '取消', 'zh-hk': '取消', 'zh-tw': '取消', 'es': 'Cancelado', 'de': 'Abgesagt', 'it': 'Annullato', 'pt': 'Cancelado' },
+                'Suspended': { 'zh': '暂停', 'zh-hk': '暫停', 'zh-tw': '暫停', 'es': 'Suspendido', 'de': 'Unterbrochen', 'it': 'Sospeso', 'pt': 'Suspenso' },
+                'Postponed': { 'zh': '推迟', 'zh-hk': '推遲', 'zh-tw': '延期', 'es': 'Pospuesto', 'de': 'Verschoben', 'it': 'Rinviato', 'pt': 'Adiado' },
+                'Time TBD': { 'zh': '时间待定', 'zh-hk': '時間待定', 'zh-tw': '時間待定', 'es': 'Hora por confirmar', 'de': 'Zeit offen', 'it': 'Orario da definire', 'pt': 'Horário a definir' }
+              };
+
+              return statusTranslations[statusText]?.[currentLanguage] || statusText;
+            };
+
             // Live status and elapsed time
             if (
               !["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) &&
@@ -1580,18 +1623,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             ) {
               let displayText = "";
               if (status === "HT") {
-                displayText = "Halftime";
+                displayText = translateMatchStatus("Halftime");
               } else if (status === "P") {
-                displayText = "Penalties";
+                displayText = translateMatchStatus("Penalties");
               } else if (status === "ET") {
                 const extraTime = elapsed ? elapsed - 90 : 0;
                 displayText = extraTime > 0 ? `90' + ${extraTime}'` : `${elapsed}'`;
               } else if (status === "BT") {
-                displayText = "Break Time";
+                displayText = translateMatchStatus("Break Time");
               } else if (status === "INT") {
-                displayText = "Interrupted";
+                displayText = translateMatchStatus("Interrupted");
               } else {
-                displayText = elapsed ? `${elapsed}'` : "LIVE";
+                displayText = elapsed ? `${elapsed}'` : translateMatchStatus("LIVE");
               }
               return (
                 <div className="match-status-label status-live-elapsed">
@@ -1605,37 +1648,34 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) ||
               isStaleFinishedMatch
             ) {
+              const statusText = status === "FT" ? "Ended" : 
+                               status === "AET" ? "After ET" :
+                               status === "PEN" ? "Penalties" :
+                               status === "AWD" ? "Awarded" :
+                               status === "WO" ? "Walkover" :
+                               status === "ABD" ? "Abandoned" :
+                               status === "CANC" ? "Cancelled" :
+                               status === "SUSP" ? "Suspended" : status;
+              
               return (
                 <div className="match-status-label status-finished">
-                  {status === "FT" ? "Ended" : 
-                   status === "AET" ? "After ET" :
-                   status === "PEN" ? "Penalties" :
-                   status === "AWD" ? "Awarded" :
-                   status === "WO" ? "Walkover" :
-                   status === "ABD" ? "Abandoned" :
-                   status === "CANC" ? "Cancelled" :
-                   status === "SUSP" ? "Suspended" : status}
+                  {translateMatchStatus(statusText)}
                 </div>
               );
             }
 
             // Postponed/Cancelled matches
             if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
+              const statusText = status === "PST" ? "Postponed" :
+                               status === "CANC" ? "Cancelled" :
+                               status === "ABD" ? "Abandoned" :
+                               status === "SUSP" ? "Suspended" :
+                               status === "AWD" ? "Awarded" :
+                               status === "WO" ? "Walkover" : status;
+              
               return (
                 <div className="match-status-label status-postponed">
-                  {status === "PST"
-                    ? "Postponed"
-                    : status === "CANC"
-                      ? "Cancelled"
-                      : status === "ABD"
-                        ? "Abandoned"
-                        : status === "SUSP"
-                          ? "Suspended"
-                          : status === "AWD"
-                            ? "Awarded"
-                            : status === "WO"
-                              ? "Walkover"
-                              : status}
+                  {translateMatchStatus(statusText)}
                 </div>
               );
             }
@@ -1649,14 +1689,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               if (hoursAgo > 2) {
                 return (
                   <div className="match-status-label status-postponed">
-                    Postponed
+                    {translateMatchStatus("Postponed")}
                   </div>
                 );
               }
               if (status === "TBD") {
                 return (
                   <div className="match-status-label status-upcoming">
-                    Time TBD
+                    {translateMatchStatus("Time TBD")}
                   </div>
                 );
               }
@@ -1680,7 +1720,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 : ""
             }`}
           >
-            {shortenTeamName(match.teams.home.name) || "Unknown Team"}
+            {(() => {
+              const originalName = match.teams.home.name || "Unknown Team";
+              const translatedName = translateTeamNameSmart(originalName, {
+                name: leagueData.league.name,
+                country: leagueData.league.country,
+              });
+              return shortenTeamName(translatedName);
+            })()}
           </div>
 
           {/* Home team logo */}
@@ -1846,7 +1893,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 : ""
             }`}
           >
-            {shortenTeamName(match.teams.away.name) || "Unknown Team"}
+            {(() => {
+              const originalName = match.teams.away.name || "Unknown Team";
+              const translatedName = translateTeamNameSmart(originalName, {
+                name: leagueData.league.name,
+                country: leagueData.league.country,
+              });
+              return shortenTeamName(translatedName);
+            })()}
           </div>
         </div>
 
@@ -1867,15 +1921,43 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               isPenaltyMatch &&
               hasPenaltyScores
             ) {
+              // Function to translate penalty text
+              const translatePenaltyText = (text: string): string => {
+                if (currentLanguage === 'en') return text;
+                
+                const penaltyTranslations: Record<string, Record<string, string>> = {
+                  'won': { 'zh': '获胜', 'zh-hk': '獲勝', 'zh-tw': '獲勝', 'es': 'ganó', 'de': 'gewann', 'it': 'ha vinto', 'pt': 'venceu' },
+                  'on penalties': { 'zh': '点球', 'zh-hk': '點球', 'zh-tw': '點球決勝', 'es': 'en penales', 'de': 'im Elfmeterschießen', 'it': 'ai rigori', 'pt': 'nos pênaltis' }
+                };
+                
+                let translatedText = text;
+                Object.entries(penaltyTranslations).forEach(([english, translations]) => {
+                  if (translations[currentLanguage]) {
+                    translatedText = translatedText.replace(english, translations[currentLanguage]);
+                  }
+                });
+                
+                return translatedText;
+              };
+
+              const homeTeamTranslated = translateTeamNameSmart(match.teams.home.name, {
+                name: leagueData.league.name,
+                country: leagueData.league.country,
+              });
+              const awayTeamTranslated = translateTeamNameSmart(match.teams.away.name, {
+                name: leagueData.league.name,
+                country: leagueData.league.country,
+              });
+
               const winnerText =
                 penaltyHome > penaltyAway
-                  ? `${shortenTeamName(match.teams.home.name)} won ${penaltyHome}-${penaltyAway} on penalties`
-                  : `${shortenTeamName(match.teams.away.name)} won ${penaltyAway}-${penaltyHome} on penalties`;
+                  ? `${shortenTeamName(homeTeamTranslated)} won ${penaltyHome}-${penaltyAway} on penalties`
+                  : `${shortenTeamName(awayTeamTranslated)} won ${penaltyAway}-${penaltyHome} on penalties`;
 
               return (
                 <div className="penalty-result-display">
                   <span className="penalty-winner" style={{ backgroundColor: 'transparent' }}>
-                    {winnerText}
+                    {translatePenaltyText(winnerText)}
                   </span>
                 </div>
               );
