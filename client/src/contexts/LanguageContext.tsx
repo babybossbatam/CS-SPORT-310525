@@ -1,4 +1,6 @@
-"won_on_penalties": "Won on penalties",
+const translations = {
+  en: {
+    "won_on_penalties": "Won on penalties",
     'on_penalties': "On penalties",
     'tomorrow': "Tomorrow",
     'no_live_matches': 'No Live Matches',
