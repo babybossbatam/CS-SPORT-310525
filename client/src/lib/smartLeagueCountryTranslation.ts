@@ -495,116 +495,142 @@ class SmartLeagueCountryTranslation {
   private coreLeagueTranslations: LeagueTranslation = {
     // Group texts for tournaments
     'Group A': {
+      en: 'Group A',
       'zh': 'A组', 'zh-hk': 'A組', 'zh-tw': 'A組',
       'es': 'Grupo A', 'de': 'Gruppe A', 'it': 'Gruppo A', 'pt': 'Grupo A'
     },
     'Group B': {
+      en: 'Group B',
       'zh': 'B组', 'zh-hk': 'B組', 'zh-tw': 'B組',
       'es': 'Grupo B', 'de': 'Gruppe B', 'it': 'Gruppo B', 'pt': 'Grupo B'
     },
     'Group C': {
+      en: 'Group C',
       'zh': 'C组', 'zh-hk': 'C組', 'zh-tw': 'C組',
       'es': 'Grupo C', 'de': 'Gruppe C', 'it': 'Gruppo C', 'pt': 'Grupo C'
     },
     'Group D': {
+      en: 'Group D',
       'zh': 'D组', 'zh-hk': 'D組', 'zh-tw': 'D組',
       'es': 'Grupo D', 'de': 'Gruppe D', 'it': 'Gruppo D', 'pt': 'Grupo D'
     },
     'Group E': {
+      en: 'Group E',
       'zh': 'E组', 'zh-hk': 'E組', 'zh-tw': 'E組',
       'es': 'Grupo E', 'de': 'Gruppe E', 'it': 'Gruppo E', 'pt': 'Grupo E'
     },
     'Group F': {
+      en: 'Group F',
       'zh': 'F组', 'zh-hk': 'F組', 'zh-tw': 'F組',
       'es': 'Grupo F', 'de': 'Gruppe F', 'it': 'Gruppo F', 'pt': 'Grupo F'
     },
     'Group G': {
+      en: 'Group G',
       'zh': 'G组', 'zh-hk': 'G組', 'zh-tw': 'G組',
       'es': 'Grupo G', 'de': 'Gruppe G', 'it': 'Gruppo G', 'pt': 'Grupo G'
     },
     'Group H': {
+      en: 'Group H',
       'zh': 'H组', 'zh-hk': 'H組', 'zh-tw': 'H組',
       'es': 'Grupo H', 'de': 'Gruppe H', 'it': 'Gruppo H', 'pt': 'Grupo H'
     },
 
     // UEFA Competitions
     'UEFA Champions League': {
+      en: 'UEFA Champions League',
       'zh': 'UEFA歐洲冠軍聯賽', 'zh-hk': 'UEFA歐洲冠軍聯賽', 'zh-tw': 'UEFA歐洲冠軍聯賽',
       'es': 'Liga de Campeones de la UEFA', 'de': 'UEFA Champions League', 'it': 'UEFA Champions League', 'pt': 'Liga dos Campeões da UEFA'
     },
     'UEFA Europa League': {
+      en: 'UEFA Europa League',
       'zh': 'UEFA歐洲聯賽', 'zh-hk': 'UEFA歐洲聯賽', 'zh-tw': 'UEFA歐洲聯賽',
       'es': 'Liga Europa de la UEFA', 'de': 'UEFA Europa League', 'it': 'UEFA Europa League', 'pt': 'Liga Europa da UEFA'
     },
     'UEFA Conference League': {
+      en: 'UEFA Conference League',
       'zh': 'UEFA歐洲協會聯賽', 'zh-hk': 'UEFA歐洲協會聯賽', 'zh-tw': 'UEFA歐洲協會聯賽',
       'es': 'Liga de la Conferencia UEFA', 'de': 'UEFA Conference League', 'it': 'UEFA Conference League', 'pt': 'Liga da Conferência UEFA'
     },
     'UEFA Nations League': {
+      en: 'UEFA Nations League',
       'zh': 'UEFA國家聯賽', 'zh-hk': 'UEFA國家聯賽', 'zh-tw': 'UEFA國家聯賽',
       'es': 'Liga de Naciones de la UEFA', 'de': 'UEFA Nations League', 'it': 'UEFA Nations League', 'pt': 'Liga das Nações da UEFA'
     },
     'UEFA Super Cup': {
+      en: 'UEFA Super Cup',
       'zh': 'UEFA超級盃', 'zh-hk': 'UEFA超級盃', 'zh-tw': 'UEFA超級盃',
       'es': 'Supercopa de la UEFA', 'de': 'UEFA Super Cup', 'it': 'Supercoppa UEFA', 'pt': 'Supertaça Europeia'
     },
 
     // Top European Leagues
     'Premier League': {
+      en: 'Premier League',
       'zh': '英格蘭超級聯賽', 'zh-hk': '英格蘭超級聯賽', 'zh-tw': '英格蘭超級聯賽',
       'es': 'Premier League', 'de': 'Premier League', 'it': 'Premier League', 'pt': 'Premier League'
     },
     'La Liga': {
+      en: 'La Liga',
       'zh': '西班牙甲級聯賽', 'zh-hk': '西班牙甲級聯賽', 'zh-tw': '西班牙甲級聯賽',
       'es': 'La Liga', 'de': 'La Liga', 'it': 'La Liga', 'pt': 'La Liga'
     },
     'Serie A': {
+      en: 'Serie A',
       'zh': '意大利甲級聯賽', 'zh-hk': '意大利甲級聯賽', 'zh-tw': '意大利甲級聯賽',
       'es': 'Serie A', 'de': 'Serie A', 'it': 'Serie A', 'pt': 'Serie A'
     },
     'Bundesliga': {
+    en: 'Bundesliga',
       'zh': '德國甲級聯賽', 'zh-hk': '德國甲級聯賽', 'zh-tw': '德國甲級聯賽',
       'es': 'Bundesliga', 'de': 'Bundesliga', 'it': 'Bundesliga', 'pt': 'Bundesliga'
     },
     'Ligue 1': {
+      en: 'Ligue 1',
       'zh': '法國甲級聯賽', 'zh-hk': '法國甲級聯賽', 'zh-tw': '法國甲級聯賽',
       'es': 'Ligue 1', 'de': 'Ligue 1', 'it': 'Ligue 1', 'pt': 'Ligue 1'
     },
 
     // Friendlies
     'Friendlies Clubs': {
+      en: 'Friendlies Clubs',
       'zh': '球會友誼賽', 'zh-hk': '球會友誼賽', 'zh-tw': '球會友誼賽',
       'es': 'Amistosos de Clubes', 'de': 'Vereinsfreundschaftsspiele', 'it': 'Amichevoli di Club', 'pt': 'Amigáveis de Clubes'
     },
     'Club Friendlies': {
+      en: 'Club Friendlies',
       'zh': '球會友誼賽', 'zh-hk': '球會友誼賽', 'zh-tw': '球會友誼賽',
       'es': 'Amistosos de Clubes', 'de': 'Vereinsfreundschaftsspiele', 'it': 'Amichevoli di Club', 'pt': 'Amigáveis de Clubes'
     },
     'Friendlies': {
+      en: 'Friendlies',
       'zh': '友誼賽', 'zh-hk': '友誼賽', 'zh-tw': '友誼賽',
       'es': 'Amistosos', 'de': 'Freundschaftsspiele', 'it': 'Amichevoli', 'pt': 'Amigáveis'
     },
 
     // World Competitions
     'FIFA Club World Cup': {
+      en: 'FIFA Club World Cup',
       'zh': 'FIFA世界冠軍球會盃', 'zh-hk': 'FIFA世界冠軍球會盃', 'zh-tw': 'FIFA世界冠軍球會盃',
       'es': 'Copa Mundial de Clubes FIFA', 'de': 'FIFA Klub-Weltmeisterschaft', 'it': 'Coppa del Mondo per club FIFA', 'pt': 'Copa do Mundo de Clubes da FIFA'
     },
     'Group Standings': {
+      en: 'Group Standings',
       'zh': '小組積分榜', 'zh-hk': '小組積分榜', 'zh-tw': '小組積分榜',
       'es': 'Clasificación de Grupos', 'de': 'Gruppentabelle', 'it': 'Classifica Gironi', 'pt': 'Classificação dos Grupos'
     },
     'World Cup': {
+      en: 'World Cup',
       'zh': '世界盃', 'zh-hk': '世界盃', 'zh-tw': '世界盃',
       'es': 'Copa del Mundo', 'de': 'Weltmeisterschaft', 'it': 'Coppa del Mondo', 'pt': 'Copa do Mundo'
     },
 
     // American Leagues
     'Major League Soccer': {
+      en: 'Major League Soccer',
       'zh': '美國職業足球大聯盟', 'zh-hk': '美國職業足球大聯盟', 'zh-tw': '美國職業足球大聯盟',
       'es': 'Liga Mayor de Fútbol', 'de': 'Major League Soccer', 'it': 'Major League Soccer', 'pt': 'Liga Principal de Futebol'
     },
     'Leagues Cup': {
+      en: 'Leagues Cup',
       'zh': '聯賽盃', 'zh-hk': '聯賽盃', 'zh-tw': '聯賽盃',
       'es': 'Copa de Ligas', 'de': 'Liga-Pokal', 'it': 'Coppa delle Leghe', 'pt': 'Copa das Ligas'
     },
@@ -918,16 +944,19 @@ class SmartLeagueCountryTranslation {
       },
 
     'CS SPORT!': {
+      en: 'CS SPORT!',
       'zh': 'CS SPORT!', 'zh-hk': 'CS SPORT!', 'zh-tw': 'CS SPORT!',
       'es': 'CS SPORT!', 'de': 'CS SPORT!', 'it': 'CS SPORT!', 'pt': 'CS SPORT!'
     },
 
     // MyInfo component translations
     'Football at CS SPORT': {
+      en: 'Football at CS SPORT',
       'zh': 'CS SPORT足球', 'zh-hk': 'CS SPORT足球', 'zh-tw': 'CS SPORT足球',
       'es': 'Fútbol en CS SPORT', 'de': 'Fußball bei CS SPORT', 'it': 'Calcio su CS SPORT', 'pt': 'Futebol no CS SPORT'
     },
     'Welcome to CS SPORT – your ultimate destination for everything Football! Stay on top of the action with live scores from over 1,000 competitions worldwide, including today\'s hottest matches from the UEFA Champions League Qualifiers, UEFA Champions League, and the Premier League.': {
+      en: 'Welcome to CS SPORT – your ultimate destination for everything Football! Stay on top of the action with live scores from over 1,000 competitions worldwide, including today\'s hottest matches from the UEFA Champions League Qualifiers, UEFA Champions League, and the Premier League.',
       'zh': '欢迎来到CS SPORT——您足球世界的终极目的地！通过来自全球1000多个赛事的实时比分掌握最新动态，包括今日最热门的UEFA欧洲冠军联赛预选赛、UEFA欧洲冠军联赛和英格兰超级联赛比赛。',
       'zh-hk': '歡迎來到CS SPORT——您足球世界的終極目的地！透過來自全球1000多個賽事的即時比分掌握最新動態，包括今日最熱門的UEFA歐洲冠軍聯賽預選賽、UEFA歐洲冠軍聯賽和英格蘭超級聯賽比賽。',
       'zh-tw': '歡迎來到CS SPORT——您足球世界的終極目的地！透過來自全球1000多個賽事的即時比分掌握最新動態，包括今日最熱門的UEFA歐洲冠軍聯賽預選賽、UEFA歐洲冠軍聯賽和英格蘭超級聯賽比賽。',
@@ -936,11 +965,14 @@ class SmartLeagueCountryTranslation {
       'it': 'Benvenuto su CS SPORT – la tua destinazione definitiva per tutto ciò che riguarda il calcio! Rimani aggiornato con i punteggi in diretta di oltre 1.000 competizioni in tutto il mondo, incluse le partite più calde di oggi dai Qualificatori della UEFA Champions League, UEFA Champions League e Premier League.',
       'pt': 'Bem-vindo ao CS SPORT – seu destino definitivo para tudo sobre futebol! Mantenha-se atualizado com placares ao vivo de mais de 1.000 competições em todo o mundo, incluindo os jogos mais quentes de hoje dos Qualificadores da Liga dos Campeões da UEFA, Liga dos Campeões da UEFA e Premier League.'
     },
+    
     'Explore Your Favorite Teams & Players': {
+      en: 'Explore Your Favorite Teams & Players',
       'zh': '探索您喜愛的球隊和球員', 'zh-hk': '探索您喜愛的球隊和球員', 'zh-tw': '探索您喜愛的球隊和球員',
       'es': 'Explora Tus Equipos y Jugadores Favoritos', 'de': 'Entdecken Sie Ihre Lieblingsteams & Spieler', 'it': 'Esplora le Tue Squadre e Giocatori Preferiti', 'pt': 'Explore Seus Times e Jogadores Favoritos'
     },
     'Want to know how FC Barcelona, Real Madrid, or Manchester United are doing? Dive into the latest results, upcoming fixtures, league standings, breaking news, match highlights, and in-depth stats for top stars like Lionel Messi, Cristiano Ronaldo, and Lamine Yamal.': {
+      en: 'Want to know how FC Barcelona, Real Madrid, or Manchester United are doing? Dive into the latest results, upcoming fixtures, league standings, breaking news, match highlights, and in-depth stats for top stars like Lionel Messi, Cristiano Ronaldo, and Lamine Yamal.',
       'zh': '想了解巴塞罗那、皇家马德里或曼联的表现如何？深入了解最新结果、即将到来的赛程、联赛排名、突发新闻、比赛精彩瞬间，以及梅西、C罗和拉明·亚马尔等顶级球星的深度统计数据。',
       'zh-hk': '想了解巴塞隆拿、皇家馬德里或曼聯的表現如何？深入了解最新結果、即將到來的賽程、聯賽排名、突發新聞、比賽精彩瞬間，以及美斯、C朗和拉明·亞馬爾等頂級球星的深度統計數據。',
       'zh-tw': '想了解巴塞隆納、皇家馬德里或曼聯的表現如何？深入了解最新結果、即將到來的賽程、聯賽排名、突發新聞、比賽精彩瞬間，以及梅西、C羅和拉明·亞馬爾等頂級球星的深度統計數據。',
@@ -950,10 +982,12 @@ class SmartLeagueCountryTranslation {
       'pt': 'Quer saber como estão se saindo o FC Barcelona, Real Madrid ou Manchester United? Mergulhe nos últimos resultados, próximos jogos, classificações da liga, notícias de última hora, destaques de partidas e estatísticas detalhadas de estrelas como Lionel Messi, Cristiano Ronaldo e Lionel Messi.'
     },
     'Why Choose CS SPORT?': {
+      en: 'Why Choose CS SPORT?',
       'zh': '為什麼選擇CS SPORT？', 'zh-hk': '為什麼選擇CS SPORT？', 'zh-tw': '為什麼選擇CS SPORT？',
       'es': '¿Por Qué Elegir CS SPORT?', 'de': 'Warum CS SPORT wählen?', 'it': 'Perché Scegliere CS SPORT?', 'pt': 'Por Que Escolher CS SPORT?'
     },
     'All-in-One Platform: Get the latest news, fixtures, standings, results, and live scores for leagues, cups, and tournaments around the globe.': {
+      en:'All-in-One Platform: Get the latest news, fixtures, standings, results, and live scores for leagues, cups, and tournaments around the globe.',
       'zh': '一體化平台：獲取全球聯賽、盃賽和錦標賽的最新新聞、賽程、排名、結果和即時比分。',
       'zh-hk': '一體化平台：獲取全球聯賽、盃賽和錦標賽的最新新聞、賽程、排名、結果和即時比分。',
       'zh-tw': '一體化平台：獲取全球聯賽、盃賽和錦標賽的最新新聞、賽程、排名、結果和即時比分。',
