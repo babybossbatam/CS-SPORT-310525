@@ -953,11 +953,10 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         }
         throw new Error('No YouTube highlights found after trying all queries');
       }
-    }
-  ],
-  // Add a generic fallback source that always provides something
-  {
-    name: 'ScoreBat Highlights',
+    },
+    // Add a generic fallback source that always provides something
+    {
+      name: 'ScoreBat Highlights',
     type: 'feed' as const,
     searchFn: async () => {
       console.log(`🔍 [Highlights] Using ScoreBat fallback for ${rawHome} vs ${rawAway}`);
