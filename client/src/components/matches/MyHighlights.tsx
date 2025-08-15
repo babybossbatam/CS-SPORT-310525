@@ -953,45 +953,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         }
         throw new Error('No YouTube highlights found after trying all queries');
       }
-    },
-    // Add a generic fallback source that always provides something
-    {
-      name: 'ScoreBat Highlights',
-    type: 'feed' as const,
-    searchFn: async () => {
-      console.log(`🔍 [Highlights] Using ScoreBat fallback for ${rawHome} vs ${rawAway}`);
-      
-      // Create a generic embed URL based on team names
-      const searchTerm = `${rawHome}-vs-${rawAway}`.toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-');
-      
-      return {
-        name: 'ScoreBat Highlights',
-        type: 'feed' as const,
-        url: `https://www.scorebat.com/embed/${searchTerm}/`,
-        embedUrl: `https://www.scorebat.com/embed/${searchTerm}/`,
-        title: `${rawHome} vs ${rawAway} - Highlights`
-      };
     }
-  },
-  // Final fallback - generic highlight search
-  {
-    name: 'General Sports Highlights',
-    type: 'feed' as const,
-    searchFn: async () => {
-      console.log(`🔍 [Highlights] Using general sports highlights fallback`);
-      
-      return {
-        name: 'General Sports Highlights',
-        type: 'feed' as const,
-        url: `https://www.scorebat.com/`,
-        embedUrl: `https://www.scorebat.com/embed/`,
-        title: `Football Highlights`
-      };
-    }
-  }
   ];
 
   const tryNextSource = async () => {
