@@ -306,7 +306,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-gray-800 text-sm">{t('popular_football_live_score')}</span>
+          <span className="font-semibold text-gray-800 text-sm">{t('popular_football_leagues')}</span>
         </div>
       </CardHeader>
 
