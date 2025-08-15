@@ -679,7 +679,7 @@ const translations = {
     october: "October",
     november: "November",
     december: "December",
-    popular_football_leagues: "Popular Football lLeagues",
+    popular_football_leagues: "Popular Football Leagues",
     popular_football_live_score: "Popular Football Live Score",
     leagues_cup: "Leagues Cup",
     world: "World",
