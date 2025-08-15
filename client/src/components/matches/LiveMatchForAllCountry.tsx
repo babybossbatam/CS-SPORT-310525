@@ -124,9 +124,15 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   );
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
-  const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
-  const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
-  const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
+  const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(
+    new Set(),
+  );
+  const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(
+    new Set(),
+  );
+  const [previousMatchStatuses, setPreviousMatchStatuses] = useState<
+    Map<number, string>
+  >(new Map());
   const { t } = useTranslation();
   const { currentLanguage } = useTranslation();
 
@@ -168,16 +174,21 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       console.log(`Received ${data.length} live fixtures`);
 
       // Log World competition fixtures for debugging
-      const worldFixtures = data.filter((fixture: any) => 
-        fixture.league?.country === 'World' || 
-        fixture.league?.country === 'Europe' ||
-        fixture.league?.name?.toLowerCase().includes('fifa') ||
-        fixture.league?.name?.toLowerCase().includes('uefa')
+      const worldFixtures = data.filter(
+        (fixture: any) =>
+          fixture.league?.country === "World" ||
+          fixture.league?.country === "Europe" ||
+          fixture.league?.name?.toLowerCase().includes("fifa") ||
+          fixture.league?.name?.toLowerCase().includes("uefa"),
       );
 
       if (worldFixtures.length > 0) {
-        console.log(`🌍 Found ${worldFixtures.length} World competition fixtures:`, 
-          worldFixtures.map((f: any) => `${f.league.name}: ${f.teams.home.name} vs ${f.teams.away.name}`)
+        console.log(
+          `🌍 Found ${worldFixtures.length} World competition fixtures:`,
+          worldFixtures.map(
+            (f: any) =>
+              `${f.league.name}: ${f.teams.home.name} vs ${f.teams.away.name}`,
+          ),
         );
       }
 
@@ -213,36 +224,45 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       // Only check for changes if we have a previous status (not on first load)
       if (previousStatus && previousStatus !== currentStatus) {
         // Check if status just changed to halftime
-        if (currentStatus === 'HT') {
-          console.log(`🟠 [HALFTIME FLASH] Match ${matchId} just went to halftime!`, {
-            home: fixture.teams?.home?.name,
-            away: fixture.teams?.away?.name,
-            previousStatus,
-            currentStatus
-          });
+        if (currentStatus === "HT") {
+          console.log(
+            `🟠 [HALFTIME FLASH] Match ${matchId} just went to halftime!`,
+            {
+              home: fixture.teams?.home?.name,
+              away: fixture.teams?.away?.name,
+              previousStatus,
+              currentStatus,
+            },
+          );
           newHalftimeMatches.add(matchId);
         }
 
         // Check if status just changed to fulltime
-        if (currentStatus === 'FT') {
+        if (currentStatus === "FT") {
           console.log(`🔵 [FULLTIME FLASH] Match ${matchId} just finished!`, {
             home: fixture.teams?.home?.name,
             away: fixture.teams?.away?.name,
             previousStatus,
-            currentStatus
+            currentStatus,
           });
           newFulltimeMatches.add(matchId);
         }
 
         // Check for goal changes (when score changes but status stays the same)
-        if (['1H', '2H', 'LIVE'].includes(currentStatus) && ['1H', '2H', 'LIVE'].includes(previousStatus)) {
+        if (
+          ["1H", "2H", "LIVE"].includes(currentStatus) &&
+          ["1H", "2H", "LIVE"].includes(previousStatus)
+        ) {
           // You could add goal flash detection here if needed
-          console.log(`⚽ [POTENTIAL GOAL] Match ${matchId} score might have changed`, {
-            home: fixture.teams?.home?.name,
-            away: fixture.teams?.away?.name,
-            score: `${fixture.goals?.home || 0}-${fixture.goals?.away || 0}`,
-            status: currentStatus
-          });
+          console.log(
+            `⚽ [POTENTIAL GOAL] Match ${matchId} score might have changed`,
+            {
+              home: fixture.teams?.home?.name,
+              away: fixture.teams?.away?.name,
+              score: `${fixture.goals?.home || 0}-${fixture.goals?.away || 0}`,
+              status: currentStatus,
+            },
+          );
         }
       }
     });
@@ -274,7 +294,9 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   // Add comprehensive debugging logs for fixture analysis
   useEffect(() => {
     if (fixtures && fixtures.length > 0) {
-      console.log(`🔍 [LiveMatchForAllCountry] Analyzing ${fixtures.length} fixtures:`);
+      console.log(
+        `🔍 [LiveMatchForAllCountry] Analyzing ${fixtures.length} fixtures:`,
+      );
 
       // Log first few fixtures with detailed info
       const sampleFixtures = fixtures.slice(0, 5);
@@ -289,30 +311,39 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
           league: fixture.league?.name,
           country: fixture.league?.country,
           goals: `${fixture.goals?.home || 0}-${fixture.goals?.away || 0}`,
-          venue: fixture.fixture?.venue?.name
+          venue: fixture.fixture?.venue?.name,
         });
       });
 
       // Status breakdown
       const statusBreakdown = fixtures.reduce((acc: any, fixture: any) => {
-        const status = fixture.fixture?.status?.short || 'UNKNOWN';
+        const status = fixture.fixture?.status?.short || "UNKNOWN";
         acc[status] = (acc[status] || 0) + 1;
         return acc;
       }, {});
 
-      console.log(`📈 [LiveMatchForAllCountry] Status breakdown:`, statusBreakdown);
+      console.log(
+        `📈 [LiveMatchForAllCountry] Status breakdown:`,
+        statusBreakdown,
+      );
 
       // Live matches analysis
-      const liveMatches = fixtures.filter((fixture: any) => 
-        ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture?.status?.short)
+      const liveMatches = fixtures.filter((fixture: any) =>
+        ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+          fixture.fixture?.status?.short,
+        ),
       );
 
       if (liveMatches.length > 0) {
-        console.log(`🔴 [LiveMatchForAllCountry] Found ${liveMatches.length} live matches:`);
+        console.log(
+          `🔴 [LiveMatchForAllCountry] Found ${liveMatches.length} live matches:`,
+        );
         liveMatches.forEach((fixture: any, index: number) => {
           const now = new Date();
           const matchDate = new Date(fixture.fixture.date);
-          const minutesSinceStart = Math.floor((now.getTime() - matchDate.getTime()) / (1000 * 60));
+          const minutesSinceStart = Math.floor(
+            (now.getTime() - matchDate.getTime()) / (1000 * 60),
+          );
 
           console.log(`🔴 [LiveMatchForAllCountry] Live Match ${index + 1}:`, {
             fixtureId: fixture.fixture.id,
@@ -323,34 +354,41 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
             minutesSinceScheduledStart: minutesSinceStart,
             score: `${fixture.goals.home || 0}-${fixture.goals.away || 0}`,
             league: fixture.league.name,
-            country: fixture.league.country
+            country: fixture.league.country,
           });
         });
       }
 
       // Country breakdown
       const countryBreakdown = fixtures.reduce((acc: any, fixture: any) => {
-        const country = fixture.league?.country || 'Unknown';
+        const country = fixture.league?.country || "Unknown";
         acc[country] = (acc[country] || 0) + 1;
         return acc;
       }, {});
 
-      console.log(`🌍 [LiveMatchForAllCountry] Country breakdown:`, countryBreakdown);
+      console.log(
+        `🌍 [LiveMatchForAllCountry] Country breakdown:`,
+        countryBreakdown,
+      );
 
       // Time analysis
       const now = new Date();
       const timeAnalysis = fixtures.map((fixture: any) => {
         const matchDate = new Date(fixture.fixture.date);
-        const hoursDiff = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+        const hoursDiff =
+          (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
         return {
           fixtureId: fixture.fixture.id,
           status: fixture.fixture.status.short,
           hoursDiff: Math.round(hoursDiff * 100) / 100,
-          isToday: matchDate.toDateString() === now.toDateString()
+          isToday: matchDate.toDateString() === now.toDateString(),
         };
       });
 
-      console.log(`⏰ [LiveMatchForAllCountry] Time analysis (first 10):`, timeAnalysis.slice(0, 10));
+      console.log(
+        `⏰ [LiveMatchForAllCountry] Time analysis (first 10):`,
+        timeAnalysis.slice(0, 10),
+      );
     }
   }, [fixtures]);
 
@@ -418,15 +456,18 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   useEffect(() => {
     if (fixtures && fixtures.length > 0) {
       console.log(`🔄 [LiveMatchForAllCountry] COMPARISON DATA:`, {
-        component: 'LiveMatchForAllCountry',
+        component: "LiveMatchForAllCountry",
         totalFixtures: fixtures.length,
-        liveMatchesCount: fixtures.filter(f => 
-          ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(f.fixture?.status?.short)
+        liveMatchesCount: fixtures.filter((f) =>
+          ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+            f.fixture?.status?.short,
+          ),
         ).length,
-        uniqueCountries: [...new Set(fixtures.map(f => f.league?.country))].length,
-        dataSource: 'live fixtures API endpoint',
+        uniqueCountries: [...new Set(fixtures.map((f) => f.league?.country))]
+          .length,
+        dataSource: "live fixtures API endpoint",
         timestamp: new Date().toISOString(),
-        refreshInterval: refreshInterval
+        refreshInterval: refreshInterval,
       });
     }
   }, [fixtures, refreshInterval]);
@@ -439,10 +480,10 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   // Filter live matches and update state
   useEffect(() => {
     if (!fixtures || fixtures.length === 0) {
-      console.log('🔍 [LiveMatchForAllCountry] No live fixtures available', {
+      console.log("🔍 [LiveMatchForAllCountry] No live fixtures available", {
         isLoading,
         hasFixtures: !!fixtures,
-        fixturesLength: fixtures?.length || 0
+        fixturesLength: fixtures?.length || 0,
       });
       setFilteredFixtures([]);
       setHasLiveMatches(false);
@@ -455,10 +496,19 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
 
     const actualLiveFixtures = fixtures.filter((fixture: any) => {
       const status = fixture.fixture?.status?.short;
-      const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(status);
+      const isLive = [
+        "1H",
+        "2H",
+        "LIVE",
+        "LIV",
+        "HT",
+        "ET",
+        "P",
+        "INT",
+      ].includes(status);
 
       // Check if the match is recently finished
-      const isFinished = ['FT', 'AET', 'PEN'].includes(status);
+      const isFinished = ["FT", "AET", "PEN"].includes(status);
       let isRecentlyFinished = false;
       if (isFinished) {
         const fixtureDate = new Date(fixture.fixture.date);
@@ -467,220 +517,237 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       }
 
       if (isLive) {
-        console.log(`✅ [LiveMatchForAllCountry] Including live match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${status})`);
+        console.log(
+          `✅ [LiveMatchForAllCountry] Including live match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${status})`,
+        );
       }
 
       if (isRecentlyFinished) {
-          console.log(`✅ [LiveMatchForAllCountry] Including recently finished match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${status})`);
+        console.log(
+          `✅ [LiveMatchForAllCountry] Including recently finished match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${status})`,
+        );
       }
 
       return isLive || isRecentlyFinished;
     });
 
-    console.log(`🔍 [LiveMatchForAllCountry] Live and recently finished matches check:`, {
-      totalFixtures: fixtures.length,
-      filteredFixtures: actualLiveFixtures.length,
-      hasLiveMatches: actualLiveFixtures.length > 0,
-      liveFilterActive,
-      allFixturesLength: allFixtures?.length || 0,
-      firstFewStatuses: fixtures.slice(0, 5).map((f: any) => f.fixture?.status?.short)
-    });
+    console.log(
+      `🔍 [LiveMatchForAllCountry] Live and recently finished matches check:`,
+      {
+        totalFixtures: fixtures.length,
+        filteredFixtures: actualLiveFixtures.length,
+        hasLiveMatches: actualLiveFixtures.length > 0,
+        liveFilterActive,
+        allFixturesLength: allFixtures?.length || 0,
+        firstFewStatuses: fixtures
+          .slice(0, 5)
+          .map((f: any) => f.fixture?.status?.short),
+      },
+    );
 
     setFilteredFixtures(actualLiveFixtures);
     setHasLiveMatches(actualLiveFixtures.length > 0);
   }, [fixtures, isLoading, liveFilterActive]);
 
   // Group fixtures by country
-  const fixturesByCountry = filteredFixtures.reduce((acc: any, fixture: any) => {
-    // Validate fixture structure
-    if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
-      return acc;
-    }
-
-    // Validate league data
-    const league = fixture.league;
-    if (!league.id || !league.name) {
-      return acc;
-    }
-
-    // Validate team data
-    if (
-      !fixture.teams.home ||
-      !fixture.teams.away ||
-      !fixture.teams.home.name ||
-      !fixture.teams.away.name
-    ) {
-      return acc;
-    }
-
-    // Apply exclusion filtering consistent with popular leagues
-    const leagueName = league.name?.toLowerCase() || "";
-    const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || "";
-    const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
-
-    // Apply exclusion check using the same logic as TodayPopularFootballLeaguesNew
-    if (
-      shouldExcludeFromPopularLeagues(
-        league.name,
-        fixture.teams.home.name,
-        fixture.teams.away.name,
-        league.country,
-      )
-    ) {
-      return acc;
-    }
-
-    const country = league.country;
-
-    // Skip fixtures without a valid country, but keep World and Europe competitions
-    if (
-      !country ||
-      country === null ||
-      country === undefined ||
-      typeof country !== "string" ||
-      country.trim() === "" ||
-      country.toLowerCase() === "unknown"
-    ) {
-      // Allow World competitions, UEFA, and FIFA competitions to pass through
-      if (league.name && (
-          league.name.toLowerCase().includes('world') || 
-          league.name.toLowerCase().includes('europe') ||
-          league.name.toLowerCase().includes('uefa') ||
-          league.name.toLowerCase().includes('fifa') ||
-          league.name.toLowerCase().includes('champions') ||
-          league.name.toLowerCase().includes('conference') ||
-          league.name.toLowerCase().includes('nations league') ||
-          (league.name.toLowerCase().includes('friendlies') &&
-            !league.name.toLowerCase().includes('women')) ||
-          league.name.toLowerCase().includes('conmebol') ||
-          league.name.toLowerCase().includes('copa america') ||
-          league.name.toLowerCase().includes('copa libertadores') ||
-          league.name.toLowerCase().includes('copa sudamericana'))) {
-
-        // Use the original country from API, or fallback to "World" only for truly missing data
-        let countryKey = country || "World";
-
-        console.log(`[COUNTRY DEBUG] Using original API country in LiveMatchForAllCountry:`, {
-          leagueName: league.name,
-          leagueId: league.id,
-          originalCountry: country,
-          countryKey: countryKey,
-        });
-
-        if (
-          league.name.toLowerCase().includes("conmebol") ||
-          league.name.toLowerCase().includes("copa america") ||
-          league.name.toLowerCase().includes("copa libertadores") ||
-          league.name.toLowerCase().includes("copa sudamericana")
-        ) {
-          countryKey = "South America";
-        } else if (
-          league.name.toLowerCase().includes("uefa") ||
-          league.name.toLowerCase().includes("europe") ||
-          league.name.toLowerCase().includes("champions") ||
-          league.name.toLowerCase().includes("conference") ||
-          league.name.toLowerCase().includes("nations league")
-        ) {
-          countryKey = "Europe";
-        }
-
-        if (!acc[countryKey]) {
-          acc[countryKey] = {
-            country: countryKey,
-            flag: getCountryFlag(countryKey, league.flag),
-            leagues: {},
-            hasPopularLeague: true,
-          };
-        }
-
-        const leagueId = league.id;
-        if (!acc[countryKey].leagues[leagueId]) {
-          acc[countryKey].leagues[leagueId] = {
-            league: { ...league, country: countryKey },
-            matches: [],
-            isPopular: POPULAR_LEAGUES.includes(leagueId) || true, // International competitions are considered popular
-          };
-        }
-
-        acc[countryKey].leagues[leagueId].matches.push({
-          ...fixture,
-          teams: {
-            home: {
-              ...fixture.teams.home,
-              logo: getTeamLogoUrl(fixture.teams.home, league),
-            },
-            away: {
-              ...fixture.teams.away,
-              logo: getTeamLogoUrl(fixture.teams.away, league),
-            },
-          },
-        });
+  const fixturesByCountry = filteredFixtures.reduce(
+    (acc: any, fixture: any) => {
+      // Validate fixture structure
+      if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
         return acc;
       }
 
-      console.warn(
-        "Skipping fixture with invalid/unknown country:",
-        country,
-        fixture,
-      );
+      // Validate league data
+      const league = fixture.league;
+      if (!league.id || !league.name) {
+        return acc;
+      }
+
+      // Validate team data
+      if (
+        !fixture.teams.home ||
+        !fixture.teams.away ||
+        !fixture.teams.home.name ||
+        !fixture.teams.away.name
+      ) {
+        return acc;
+      }
+
+      // Apply exclusion filtering consistent with popular leagues
+      const leagueName = league.name?.toLowerCase() || "";
+      const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || "";
+      const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
+
+      // Apply exclusion check using the same logic as TodayPopularFootballLeaguesNew
+      if (
+        shouldExcludeFromPopularLeagues(
+          league.name,
+          fixture.teams.home.name,
+          fixture.teams.away.name,
+          league.country,
+        )
+      ) {
+        return acc;
+      }
+
+      const country = league.country;
+
+      // Skip fixtures without a valid country, but keep World and Europe competitions
+      if (
+        !country ||
+        country === null ||
+        country === undefined ||
+        typeof country !== "string" ||
+        country.trim() === "" ||
+        country.toLowerCase() === "unknown"
+      ) {
+        // Allow World competitions, UEFA, and FIFA competitions to pass through
+        if (
+          league.name &&
+          (league.name.toLowerCase().includes("world") ||
+            league.name.toLowerCase().includes("europe") ||
+            league.name.toLowerCase().includes("uefa") ||
+            league.name.toLowerCase().includes("fifa") ||
+            league.name.toLowerCase().includes("champions") ||
+            league.name.toLowerCase().includes("conference") ||
+            league.name.toLowerCase().includes("nations league") ||
+            (league.name.toLowerCase().includes("friendlies") &&
+              !league.name.toLowerCase().includes("women")) ||
+            league.name.toLowerCase().includes("conmebol") ||
+            league.name.toLowerCase().includes("copa america") ||
+            league.name.toLowerCase().includes("copa libertadores") ||
+            league.name.toLowerCase().includes("copa sudamericana"))
+        ) {
+          // Use the original country from API, or fallback to "World" only for truly missing data
+          let countryKey = country || "World";
+
+          console.log(
+            `[COUNTRY DEBUG] Using original API country in LiveMatchForAllCountry:`,
+            {
+              leagueName: league.name,
+              leagueId: league.id,
+              originalCountry: country,
+              countryKey: countryKey,
+            },
+          );
+
+          if (
+            league.name.toLowerCase().includes("conmebol") ||
+            league.name.toLowerCase().includes("copa america") ||
+            league.name.toLowerCase().includes("copa libertadores") ||
+            league.name.toLowerCase().includes("copa sudamericana")
+          ) {
+            countryKey = "South America";
+          } else if (
+            league.name.toLowerCase().includes("uefa") ||
+            league.name.toLowerCase().includes("europe") ||
+            league.name.toLowerCase().includes("champions") ||
+            league.name.toLowerCase().includes("conference") ||
+            league.name.toLowerCase().includes("nations league")
+          ) {
+            countryKey = "Europe";
+          }
+
+          if (!acc[countryKey]) {
+            acc[countryKey] = {
+              country: countryKey,
+              flag: getCountryFlag(countryKey, league.flag),
+              leagues: {},
+              hasPopularLeague: true,
+            };
+          }
+
+          const leagueId = league.id;
+          if (!acc[countryKey].leagues[leagueId]) {
+            acc[countryKey].leagues[leagueId] = {
+              league: { ...league, country: countryKey },
+              matches: [],
+              isPopular: POPULAR_LEAGUES.includes(leagueId) || true, // International competitions are considered popular
+            };
+          }
+
+          acc[countryKey].leagues[leagueId].matches.push({
+            ...fixture,
+            teams: {
+              home: {
+                ...fixture.teams.home,
+                logo: getTeamLogoUrl(fixture.teams.home, league),
+              },
+              away: {
+                ...fixture.teams.away,
+                logo: getTeamLogoUrl(fixture.teams.away, league),
+              },
+            },
+          });
+          return acc;
+        }
+
+        console.warn(
+          "Skipping fixture with invalid/unknown country:",
+          country,
+          fixture,
+        );
+        return acc;
+      }
+
+      // Only allow valid country names, World, and Europe
+      const validCountry = country.trim();
+      if (
+        validCountry !== "World" &&
+        validCountry !== "Europe" &&
+        validCountry.length === 0
+      ) {
+        console.warn(
+          "Skipping fixture with empty country name:",
+          country,
+          fixture,
+        );
+        return acc;
+      }
+
+      const leagueId = league.id;
+
+      if (!acc[country]) {
+        acc[country] = {
+          country,
+          flag: getCountryFlag(country, league.flag),
+          leagues: {},
+          hasPopularLeague: POPULAR_LEAGUES.includes(leagueId),
+        };
+      }
+
+      if (!acc[country].leagues[leagueId]) {
+        acc[country].leagues[leagueId] = {
+          league: {
+            ...league,
+            logo:
+              league.logo ||
+              "https://media.api-sports.io/football/leagues/1.png",
+          },
+          matches: [],
+          isPopular: POPULAR_LEAGUES.includes(leagueId),
+        };
+      }
+
+      // Add fixture with enhanced team logo data
+      acc[country].leagues[leagueId].matches.push({
+        ...fixture,
+        teams: {
+          home: {
+            ...fixture.teams.home,
+            logo: getTeamLogoUrl(fixture.teams.home, league),
+          },
+          away: {
+            ...fixture.teams.away,
+            logo: getTeamLogoUrl(fixture.teams.away, league),
+          },
+        },
+      });
+
       return acc;
-    }
-
-    // Only allow valid country names, World, and Europe
-    const validCountry = country.trim();
-    if (
-      validCountry !== "World" &&
-      validCountry !== "Europe" &&
-      validCountry.length === 0
-    ) {
-      console.warn(
-        "Skipping fixture with empty country name:",
-        country,
-        fixture,
-      );
-      return acc;
-    }
-
-    const leagueId = league.id;
-
-    if (!acc[country]) {
-      acc[country] = {
-        country,
-        flag: getCountryFlag(country, league.flag),
-        leagues: {},
-        hasPopularLeague: POPULAR_LEAGUES.includes(leagueId),
-      };
-    }
-
-    if (!acc[country].leagues[leagueId]) {
-      acc[country].leagues[leagueId] = {
-        league: {
-          ...league,
-          logo:
-            league.logo || "https://media.api-sports.io/football/leagues/1.png",
-        },
-        matches: [],
-        isPopular: POPULAR_LEAGUES.includes(leagueId),
-      };
-    }
-
-    // Add fixture with enhanced team logo data
-    acc[country].leagues[leagueId].matches.push({
-      ...fixture,
-      teams: {
-        home: {
-          ...fixture.teams.home,
-          logo: getTeamLogoUrl(fixture.teams.home, league),
-        },
-        away: {
-          ...fixture.teams.away,
-          logo: getTeamLogoUrl(fixture.teams.away, league),
-        },
-      },
-    });
-
-    return acc;
-  }, {});
+    },
+    {},
+  );
 
   // Sort countries: those with popular leagues first, then alphabetically
   const sortedCountries = Object.values(fixturesByCountry).sort(
@@ -732,17 +799,22 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   }
 
   // Check if there are any live matches specifically
-  const actuallyHasLiveMatches = filteredFixtures.some((fixture: any) => 
-    ['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture?.status?.short)
+  const actuallyHasLiveMatches = filteredFixtures.some((fixture: any) =>
+    ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+      fixture.fixture?.status?.short,
+    ),
   );
 
-  console.log(`🔍 [LiveMatchForAllCountry] Live and recently finished matches check:`, {
-    totalFixtures: fixtures.length,
-    filteredFixtures: filteredFixtures.length,
-    hasLiveMatches: actuallyHasLiveMatches,
-    liveFilterActive,
-    allFixturesLength: allFixtures.length
-  });
+  console.log(
+    `🔍 [LiveMatchForAllCountry] Live and recently finished matches check:`,
+    {
+      totalFixtures: fixtures.length,
+      filteredFixtures: filteredFixtures.length,
+      hasLiveMatches: actuallyHasLiveMatches,
+      liveFilterActive,
+      allFixturesLength: allFixtures.length,
+    },
+  );
 
   // Show loading state while fetching data (only when actually loading and no previous data)
   if (isLoading && !fixtures?.length) {
@@ -750,13 +822,17 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       <>
         {/* Header Section */}
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-          {t('popular_football_live_score')}
+          {t("Popular Football Live Score")}
         </CardHeader>
         <div className="bg-gray-100 min-h-[400px] flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
-            <p className="text-lg font-medium text-gray-700">Loading live matches...</p>
-            <p className="text-sm text-gray-500 mt-2">Please wait while we fetch the latest scores</p>
+            <p className="text-lg font-medium text-gray-700">
+              Loading live matches...
+            </p>
+            <p className="text-sm text-gray-500 mt-2">
+              Please wait while we fetch the latest scores
+            </p>
           </div>
         </div>
       </>
@@ -764,27 +840,33 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   }
 
   // Show no live matches when data has been loaded but no live matches found
-  if (!isLoading && (!fixtures?.length || (liveFilterActive && !actuallyHasLiveMatches))) {
-    console.log(`📺 [LiveMatchForAllCountry] Showing NoLiveMatchesEmpty - no live matches found`, {
-      hasFixtures: !!fixtures?.length,
-      fixturesCount: fixtures?.length || 0,
-      liveFilterActive,
-      actuallyHasLiveMatches,
-      isLoading
-    });
+  if (
+    !isLoading &&
+    (!fixtures?.length || (liveFilterActive && !actuallyHasLiveMatches))
+  ) {
+    console.log(
+      `📺 [LiveMatchForAllCountry] Showing NoLiveMatchesEmpty - no live matches found`,
+      {
+        hasFixtures: !!fixtures?.length,
+        fixturesCount: fixtures?.length || 0,
+        liveFilterActive,
+        actuallyHasLiveMatches,
+        isLoading,
+      },
+    );
 
     return (
       <>
         {/* Header Section */}
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold text-sm">
-          {t('popular_football_live_score')}
+          {t("Popular Football Live Score")}
         </CardHeader>
         <div className="bg-gray-100 min-h-[400px]">
-          <NoLiveMatchesEmpty 
+          <NoLiveMatchesEmpty
             showBackButton={true}
             onBackToHome={() => {
               // Navigate to all matches or home page
-              window.location.href = '/';
+              window.location.href = "/";
             }}
             setLiveFilterActive={setLiveFilterActive}
           />
@@ -798,9 +880,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       {/* Header Section */}
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
         <div className="flex justify-between items-center w-full">
-          <span>
-            {t('popular_football_live_score')}
-          </span>
+          <span>{t("Popular Football Live Score")}</span>
         </div>
       </CardHeader>
       {/* Create individual league cards from all countries */}
@@ -861,17 +941,38 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                     }}
                   />
                   <div className="flex flex-col flex-1">
-                    <span className="font-semibold text-gray-800" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
+                    <span
+                      className="font-semibold text-gray-800"
+                      style={{
+                        fontFamily:
+                          "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                        fontSize: "13.3px",
+                      }}
+                    >
                       {safeSubstring(leagueData.league.name, 0) ||
                         "Unknown League"}
                     </span>
-                    <span className="text-gray-600" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>
+                    <span
+                      className="text-gray-600"
+                      style={{
+                        fontFamily:
+                          "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                        fontSize: "13.3px",
+                      }}
+                    >
                       {leagueData.league.country || "Unknown Country"}
                     </span>
                   </div>
                   <div className="flex gap-1">
                     {leagueData.isPopular && (
-                      <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '11.3px' }}>
+                      <span
+                        className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium"
+                        style={{
+                          fontFamily:
+                            "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                          fontSize: "11.3px",
+                        }}
+                      >
                         Popular
                       </span>
                     )}
@@ -928,25 +1029,34 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                           key={match.fixture.id}
                           className="country-matches-container"
                         >
-                          <div 
+                          <div
                             className={`match-card-container group ${
-                              halftimeFlashMatches.has(match.fixture.id) ? 'halftime-flash' : ''
+                              halftimeFlashMatches.has(match.fixture.id)
+                                ? "halftime-flash"
+                                : ""
                             } ${
-                              fulltimeFlashMatches.has(match.fixture.id) ? 'fulltime-flash' : ''
+                              fulltimeFlashMatches.has(match.fixture.id)
+                                ? "fulltime-flash"
+                                : ""
                             }`}
                             data-fixture-id={match.fixture.id}
                             onClick={() => {
-                              console.log('🔴 [LiveMatchForAllCountry] Match card clicked:', {
-                                fixtureId: match.fixture?.id,
-                                teams: `${match.teams?.home?.name} vs ${match.teams?.away?.name}`,
-                                league: match.league?.name,
-                                country: match.league?.country,
-                                status: match.fixture?.status?.short,
-                                hasCallback: !!onMatchCardClick
-                              });
+                              console.log(
+                                "🔴 [LiveMatchForAllCountry] Match card clicked:",
+                                {
+                                  fixtureId: match.fixture?.id,
+                                  teams: `${match.teams?.home?.name} vs ${match.teams?.away?.name}`,
+                                  league: match.league?.name,
+                                  country: match.league?.country,
+                                  status: match.fixture?.status?.short,
+                                  hasCallback: !!onMatchCardClick,
+                                },
+                              );
                               onMatchCardClick?.(match);
                             }}
-                            style={{ cursor: onMatchCardClick ? 'pointer' : 'default' }}
+                            style={{
+                              cursor: onMatchCardClick ? "pointer" : "default",
+                            }}
                           >
                             {/* Star Button with slide-in effect */}
                             <button
@@ -969,7 +1079,9 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                             >
                               <Star
                                 className={`match-star-icon ${
-                                  starredMatches.has(match.fixture.id) ? "starred" : ""
+                                  starredMatches.has(match.fixture.id)
+                                    ? "starred"
+                                    : ""
                                 }`}
                               />
                             </button>
@@ -994,7 +1106,9 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                     ].includes(status)
                                   ) {
                                     return (
-                                      <div className={`match-status-label ${status === "HT" ? "status-halftime" : "status-live-elapsed"}`}>
+                                      <div
+                                        className={`match-status-label ${status === "HT" ? "status-halftime" : "status-live-elapsed"}`}
+                                      >
                                         {status === "HT"
                                           ? "Halftime"
                                           : `${match.fixture.status.elapsed || 0}'`}
@@ -1106,20 +1220,35 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                     );
 
                                     // Check for youth teams
-                                    const isYouthTeam = match.teams.home.name?.includes("U20") || 
-                                                       match.teams.home.name?.includes("U21") ||
-                                                       match.teams.home.name?.includes("U19") ||
-                                                       match.teams.home.name?.includes("U23");
+                                    const isYouthTeam =
+                                      match.teams.home.name?.includes("U20") ||
+                                      match.teams.home.name?.includes("U21") ||
+                                      match.teams.home.name?.includes("U19") ||
+                                      match.teams.home.name?.includes("U23");
 
                                     // Check if this is FIFA Club World Cup (club competition, not national teams)
-                                    const isFifaClubWorldCup = leagueData.league.name?.toLowerCase().includes("fifa club world cup");
+                                    const isFifaClubWorldCup =
+                                      leagueData.league.name
+                                        ?.toLowerCase()
+                                        .includes("fifa club world cup");
 
                                     // Check if this is UEFA Europa Conference League (club competition, not national teams)
-                                    const isUefaConferenceLeague = leagueData.league.name?.toLowerCase().includes("uefa europa conference league") || 
-                                                                  leagueData.league.name?.toLowerCase().includes("europa conference league");
+                                    const isUefaConferenceLeague =
+                                      leagueData.league.name
+                                        ?.toLowerCase()
+                                        .includes(
+                                          "uefa europa conference league",
+                                        ) ||
+                                      leagueData.league.name
+                                        ?.toLowerCase()
+                                        .includes("europa conference league");
 
                                     // Use MyCircularFlag for national teams and youth teams, but NOT for club competitions like FIFA Club World Cup or UEFA Europa Conference League
-                                    if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup && !isUefaConferenceLeague) {
+                                    if (
+                                      (isActualNationalTeam || isYouthTeam) &&
+                                      !isFifaClubWorldCup &&
+                                      !isUefaConferenceLeague
+                                    ) {
                                       return (
                                         <MyCircularFlag
                                           teamName={match.teams.home.name || ""}
@@ -1146,7 +1275,9 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                         alt={match.teams.home.name}
                                         title={match.teams.home.name}
                                         className="team-logo"
-                                        style={{ backgroundColor: "transparent" }}
+                                        style={{
+                                          backgroundColor: "transparent",
+                                        }}
                                       />
                                     );
                                   })()}
@@ -1156,7 +1287,9 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                 <div className="match-score-container">
                                   {(() => {
                                     const status = match.fixture.status.short;
-                                    const fixtureDate = parseISO(match.fixture.date);
+                                    const fixtureDate = parseISO(
+                                      match.fixture.date,
+                                    );
 
                                     // Live matches - show score
                                     if (
@@ -1253,20 +1386,35 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                     );
 
                                     // Check for youth teams
-                                    const isYouthTeam = match.teams.away.name?.includes("U20") || 
-                                                       match.teams.away.name?.includes("U21") ||
-                                                       match.teams.away.name?.includes("U19") ||
-                                                       match.teams.away.name?.includes("U23");
+                                    const isYouthTeam =
+                                      match.teams.away.name?.includes("U20") ||
+                                      match.teams.away.name?.includes("U21") ||
+                                      match.teams.away.name?.includes("U19") ||
+                                      match.teams.away.name?.includes("U23");
 
                                     // Check if this is FIFA Club World Cup (club competition, not national teams)
-                                    const isFifaClubWorldCup = leagueData.league.name?.toLowerCase().includes("fifa club world cup");
+                                    const isFifaClubWorldCup =
+                                      leagueData.league.name
+                                        ?.toLowerCase()
+                                        .includes("fifa club world cup");
 
                                     // Check if this is UEFA Europa Conference League (club competition, not national teams)
-                                    const isUefaConferenceLeague = leagueData.league.name?.toLowerCase().includes("uefa europa conference league") || 
-                                                                  leagueData.league.name?.toLowerCase().includes("europa conference league");
+                                    const isUefaConferenceLeague =
+                                      leagueData.league.name
+                                        ?.toLowerCase()
+                                        .includes(
+                                          "uefa europa conference league",
+                                        ) ||
+                                      leagueData.league.name
+                                        ?.toLowerCase()
+                                        .includes("europa conference league");
 
                                     // Use MyCircularFlag for national teams and youth teams, but NOT for club competitions like FIFA Club World Cup or UEFA Europa Conference League
-                                    if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup && !isUefaConferenceLeague) {
+                                    if (
+                                      (isActualNationalTeam || isYouthTeam) &&
+                                      !isFifaClubWorldCup &&
+                                      !isUefaConferenceLeague
+                                    ) {
                                       return (
                                         <MyCircularFlag
                                           teamName={match.teams.away.name || ""}

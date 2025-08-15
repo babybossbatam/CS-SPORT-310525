@@ -1707,7 +1707,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
           <div className="flex justify-between items-center w-full">
             <span className="text-sm font-semibold">
-              {t("Popular Leagues")}
+              {t("Popular Football Leagues")}
             </span>
           </div>
         </CardHeader>
@@ -1830,7 +1830,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
           <div className="flex justify-between items-center w-full">
             <span className="text-sm font-semibold">
-              {t("Popular Leagues")}
+              {t("Popular Football Leagues")}
             </span>
           </div>
         </CardHeader>
@@ -1884,7 +1884,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
           <div className="flex justify-between items-center w-full">
             <span className="text-sm font-semibold">
-              {t("Popular Leagues")}
+              {t("Popular Football Leagues")}
             </span>
           </div>
         </CardHeader>
@@ -1894,7 +1894,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             <div className="text-center text-gray-500">
               <div className="mb-2">📅 No matches found for {selectedDate}</div>
               <div className="text-xs mt-2 text-gray-400">
-                Searched {leagueIds.length} popular leagues
+                Searched {leagueIds.length} Popular Football Leagues
               </div>
               <div className="text-xs mt-2 text-gray-400">
                 Total fixtures available: {allFixtures?.length || 0}
@@ -1917,14 +1917,21 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
         <div className="flex justify-between items-center w-full">
           <span className="text-sm font-semibold">
-            {currentLanguage === 'zh-hk' ? '熱門聯賽' :
-             currentLanguage === 'zh-tw' ? '熱門聯賽' :
-             currentLanguage === 'zh' ? '热门联赛' :
-             currentLanguage === 'es' ? 'Ligas Populares' :
-             currentLanguage === 'de' ? 'Beliebte Ligen' :
-             currentLanguage === 'it' ? 'Campionati Popolari' :
-             currentLanguage === 'pt' ? 'Ligas Populares' :
-             'Popular Leagues'}
+            {currentLanguage === "zh-hk"
+              ? "熱門聯賽"
+              : currentLanguage === "zh-tw"
+                ? "熱門聯賽"
+                : currentLanguage === "zh"
+                  ? "热门联赛"
+                  : currentLanguage === "es"
+                    ? "Ligas Populares"
+                    : currentLanguage === "de"
+                      ? "Beliebte Ligen"
+                      : currentLanguage === "it"
+                        ? "Campionati Popolari"
+                        : currentLanguage === "pt"
+                          ? "Ligas Populares"
+                          : "Popular Football Leagues"}
           </span>
         </div>
       </CardHeader>
@@ -3153,7 +3160,7 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white dark:bg-gray-800 border border-stone-200 dark:border-gray-700 font-semibold text-black dark:text-white">
           <div className="flex justify-between items-center w-full">
             <span className="text-sm font-semibold">
-              {t("Popular Leagues")}
+              {t("Popular Football Leagues")}
             </span>
           </div>
         </CardHeader>
