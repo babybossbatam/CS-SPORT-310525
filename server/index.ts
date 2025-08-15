@@ -3,7 +3,6 @@ import logoRoutes from './routes/logoRoutes';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
-import fs from 'fs'; // Import fs module
 
 const app = express();
 app.use(express.json());
@@ -25,11 +24,11 @@ let memoryWarningCount = 0;
 const monitorMemory = () => {
   const usage = process.memoryUsage();
   const heapUsedMB = usage.heapUsed / 1024 / 1024;
-
+  
   if (heapUsedMB > 1500) { // Warning at 1.5GB
     memoryWarningCount++;
     console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB (Warning #${memoryWarningCount})`);
-
+    
     if (memoryWarningCount > 5) {
       console.log('🧹 Forcing garbage collection...');
       if (global.gc) {
@@ -160,60 +159,25 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = process.env.PORT || 5000;
-
-  // Process lock to prevent multiple instances
-  const lockFile = '/tmp/server.lock';
-
-  try {
-    // Check if lock file exists
-    if (fs.existsSync(lockFile)) {
-      const pid = fs.readFileSync(lockFile, 'utf8').trim();
-      try {
-        // Check if process is still running
-        process.kill(Number(pid), 0);
-        console.error(`Server already running with PID ${pid}. Exiting.`);
-        process.exit(1);
-      } catch (e) {
-        // Process doesn't exist, remove stale lock file
-        fs.unlinkSync(lockFile);
-      }
-    }
-
-    // Create lock file with current PID
-    fs.writeFileSync(lockFile, process.pid.toString());
-
-    // Clean up lock file on exit
-    process.on('exit', () => {
-      try {
-        if (fs.existsSync(lockFile)) {
-          fs.unlinkSync(lockFile);
-        }
-      } catch (e) {
-        // Ignore cleanup errors
-      }
-    });
-
-    server.listen(Number(port), "0.0.0.0", () => {
-      log(`serving on port ${port}`);
+  const tryListen = (retryPort: number) => {
+    server.listen(retryPort, "0.0.0.0", () => {
+      log(`serving on port ${retryPort}`);
     }).on('error', (err: any) => {
-      // Clean up lock file on error
-      try {
-        if (fs.existsSync(lockFile)) {
-          fs.unlinkSync(lockFile);
+      if (err.code === 'EADDRINUSE' && retryPort < 5010) {
+        log(`Port ${retryPort} in use, trying ${retryPort + 1}`);
+        if (retryPort + 1 <= 5010) {
+            tryListen(retryPort + 1);
+        } else {
+            console.error("Failed to find an open port between 5000 and 5010");
+            // Don't exit immediately, let the process manager handle restarts
+            setTimeout(() => process.exit(1), 1000);
         }
-      } catch (e) {
-        // Ignore cleanup errors
-      }
-
-      if (err.code === 'EADDRINUSE') {
-        console.error(`Port ${port} is already in use. Another server instance may be running.`);
       } else {
         console.error("Failed to start server:", err);
+        // Don't exit immediately, let the process manager handle restarts
+        setTimeout(() => process.exit(1), 1000);
       }
-      process.exit(1);
     });
-  } catch (error) {
-    console.error("Failed to create process lock:", error);
-    process.exit(1);
-  }
+  };
+  tryListen(Number(port));
 })();
