@@ -26,6 +26,7 @@ import {
 } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 import { LEAGUES_BY_COUNTRY, getLeaguesForCountry, mergeStaticWithDynamicLeagues, LeagueInfo } from "@/lib/constants/leaguesByCountry";
+import { ALL_COUNTRIES } from "@/lib/constants/countriesAndLeagues";
 
 interface MyAllLeagueListProps {
   selectedDate: string;
@@ -345,9 +346,9 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     return Array.from(countriesSet);
   }, [fixtures]);
 
-  // Get all countries from LEAGUES_BY_COUNTRY (whether they have matches or not)
+  // Get all countries from ALL_COUNTRIES (whether they have matches or not)
   const allAvailableCountries = useMemo(() => {
-    return Object.keys(LEAGUES_BY_COUNTRY);
+    return ALL_COUNTRIES.map((country: any) => country.name);
   }, []);
 
   // Static countries list to show immediately (before fixtures load)
@@ -356,7 +357,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     const seenDisplayNames = new Set(); // Track seen display names to avoid duplicates
     const seenOriginalNames = new Set(); // Track original names that have been translated
     
-    // Add main countries from static data first
+    // Add all countries from ALL_COUNTRIES
     allAvailableCountries.forEach(country => {
       // Use the enhanced translation function that includes fallbacks
       const displayName = getCountryDisplayName(country);
@@ -386,9 +387,12 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         hasLanguageMapping: !!(countryToLanguageMap[country] || countryToLanguageMap[displayName])
       };
       
+      // Get leagues for this country (may be empty for countries without known leagues)
+      const countryLeagues = getLeaguesForCountry(country);
+      
       staticCountries.push({
         country,
-        leagues: getLeaguesForCountry(country).reduce((acc, league) => {
+        leagues: countryLeagues.reduce((acc, league) => {
           acc[league.id] = {
             league: {
               id: league.id,
