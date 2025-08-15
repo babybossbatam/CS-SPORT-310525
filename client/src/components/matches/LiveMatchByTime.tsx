@@ -11,6 +11,7 @@ import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
+import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
 import {
   shouldExcludeFromPopularLeagues,
   isPopularLeagueSuitable,
@@ -118,6 +119,86 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
   setLiveFilterActive,
 }) => {
   const { currentLanguage } = useLanguage();
+
+  // Translation functions similar to MyNewLeague2
+  const translateTeamName = (originalTeam: string, leagueInfo?: any): string => {
+    if (!originalTeam || typeof originalTeam !== 'string') {
+      return originalTeam || '';
+    }
+
+    // Use smart team translation
+    const translated = smartTeamTranslation.translateTeamName(
+      originalTeam,
+      currentLanguage,
+      leagueInfo,
+    );
+    if (translated !== originalTeam) {
+      return translated;
+    }
+
+    return originalTeam;
+  };
+
+  // Function to translate match status
+  const translateMatchStatus = (statusText: string): string => {
+    if (currentLanguage === 'en') return statusText;
+    
+    const statusTranslations: Record<string, Record<string, string>> = {
+      'Halftime': { 'zh': '中场休息', 'zh-hk': '中場休息', 'zh-tw': '中場休息', 'es': 'Descanso', 'de': 'Halbzeit', 'it': 'Intervallo', 'pt': 'Intervalo' },
+      'Penalties': { 'zh': '点球', 'zh-hk': '點球', 'zh-tw': '點球', 'es': 'Penales', 'de': 'Elfmeterschießen', 'it': 'Rigori', 'pt': 'Pênaltis' },
+      'Break Time': { 'zh': '休息时间', 'zh-hk': '休息時間', 'zh-tw': '休息時間', 'es': 'Descanso', 'de': 'Pause', 'it': 'Pausa', 'pt': 'Intervalo' },
+      'Interrupted': { 'zh': '中断', 'zh-hk': '中斷', 'zh-tw': '中斷', 'es': 'Interrumpido', 'de': 'Unterbrochen', 'it': 'Interrotto', 'pt': 'Interrompido' },
+      'LIVE': { 'zh': '直播', 'zh-hk': '直播', 'zh-tw': '直播', 'es': 'En Vivo', 'de': 'Live', 'it': 'Live', 'pt': 'Ao Vivo' },
+      'Ended': { 'zh': '结束', 'zh-hk': '結束', 'zh-tw': '結束', 'es': 'Finalizado', 'de': 'Beendet', 'it': 'Finito', 'pt': 'Terminado' },
+      'After ET': { 'zh': '加时后', 'zh-hk': '加時後', 'zh-tw': '延長賽後', 'es': 'Después de ET', 'de': 'Nach Verl.', 'it': 'Dopo i suppl.', 'pt': 'Após prorrog.' },
+      'Full Time': { 'zh': '全场结束', 'zh-hk': '全場結束', 'zh-tw': '全場結束', 'es': 'Tiempo completo', 'de': 'Abpfiff', 'it': 'Tempo pieno', 'pt': 'Tempo integral' },
+      'After Extra Time': { 'zh': '加时赛后', 'zh-hk': '加時賽後', 'zh-tw': '延長賽後', 'es': 'Después de tiempo extra', 'de': 'Nach Verlängerung', 'it': 'Dopo i supplementari', 'pt': 'Após prorrogação' },
+      'Awarded': { 'zh': '判决', 'zh-hk': '判決', 'zh-tw': '判決', 'es': 'Adjudicado', 'de': 'Zuerkannt', 'it': 'Assegnato', 'pt': 'Atribuído' },
+      'Walkover': { 'zh': '弃权', 'zh-hk': '棄權', 'zh-tw': '棄權', 'es': 'Victoria por incomparecencia', 'de': 'Walkover', 'it': 'Vittoria a tavolino', 'pt': 'Vitória por W.O.' },
+      'Abandoned': { 'zh': '中止', 'zh-hk': '中止', 'zh-tw': '中止', 'es': 'Abandonado', 'de': 'Abgebrochen', 'it': 'Abbandonato', 'pt': 'Abandonado' },
+      'Cancelled': { 'zh': '取消', 'zh-hk': '取消', 'zh-tw': '取消', 'es': 'Cancelado', 'de': 'Abgesagt', 'it': 'Cancellato', 'pt': 'Cancelado' },
+      'Suspended': { 'zh': '暂停', 'zh-hk': '暫停', 'zh-tw': '暫停', 'es': 'Suspendido', 'de': 'Unterbrochen', 'it': 'Sospeso', 'pt': 'Suspenso' },
+      'Postponed': { 'zh': '推迟', 'zh-hk': '推遲', 'zh-tw': '推遲', 'es': 'Pospuesto', 'de': 'Verschoben', 'it': 'Rinviato', 'pt': 'Adiado' }
+    };
+
+    return statusTranslations[statusText]?.[currentLanguage] || statusText;
+  };
+
+  // Function to translate penalty text
+  const translatePenaltyText = (text: string): string => {
+    if (currentLanguage === 'en') return text;
+    
+    let translatedText = text;
+    
+    const penaltyTranslations = [
+      ['Penalties:', { 
+        'zh': '点球：', 
+        'zh-hk': '點球：', 
+        'zh-tw': '點球：', 
+        'es': 'Penales:', 
+        'de': 'Elfmeterschießen:', 
+        'it': 'Rigori:', 
+        'pt': 'Pênaltis:' 
+      }],
+      ['won on penalties', { 
+        'zh': '点球获胜', 
+        'zh-hk': '點球獲勝', 
+        'zh-tw': '點球獲勝', 
+        'es': 'ganó en penales', 
+        'de': 'gewann im Elfmeterschießen', 
+        'it': 'ha vinto ai rigori', 
+        'pt': 'venceu nos pênaltis' 
+      }]
+    ];
+
+    penaltyTranslations.forEach(([english, translations]) => {
+      if (translations[currentLanguage]) {
+        translatedText = translatedText.replace(english, translations[currentLanguage]);
+      }
+    });
+
+    return translatedText;
+  };
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   
@@ -572,7 +653,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
                         return (
                           <div className="match-status-label status-live">
                             {status === "HT"
-                              ? "Halftime"
+                              ? translateMatchStatus("Halftime")
                               : `${elapsed || 0}'`}
                             
                           </div>
@@ -613,7 +694,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
 
                         return (
                           <div className="match-status-label status-ended">
-                            {statusText}
+                            {translateMatchStatus(statusText)}
                           </div>
                         );
                       }
@@ -622,7 +703,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
                       if (["PST"].includes(status)) {
                         return (
                           <div className="match-status-label status-postponed">
-                            Postponed
+                            {translateMatchStatus("Postponed")}
                           </div>
                         );
                       }
@@ -644,7 +725,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
                           : ""
                       }`}
                     >
-                      {match.teams.home.name || "Unknown Team"}
+                      {translateTeamName(match.teams.home.name || "Unknown Team", match.leagueInfo)}
                     </div>
 
                     {/* Home team logo - grid area */}
@@ -874,7 +955,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
                           : ""
                       }`}
                     >
-                      {match.teams.away.name || "Unknown Team"}
+                      {translateTeamName(match.teams.away.name || "Unknown Team", match.leagueInfo)}
                     </div>
                   </div>
 
@@ -889,15 +970,17 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
                         const penaltyAway = match.score.penalty.away;
                         
                         if (penaltyHome !== null && penaltyAway !== null) {
-                          const winner = penaltyHome > penaltyAway ? match.teams.home.name : match.teams.away.name;
+                          const homeTeamTranslated = translateTeamName(match.teams.home.name, match.leagueInfo);
+                          const awayTeamTranslated = translateTeamName(match.teams.away.name, match.leagueInfo);
+                          const winner = penaltyHome > penaltyAway ? homeTeamTranslated : awayTeamTranslated;
                           
                           return (
                             <div className="penalty-result-display">
                               <div className="penalty-text">
-                                Penalties: {penaltyHome} - {penaltyAway}
+                                {translatePenaltyText(`Penalties: ${penaltyHome} - ${penaltyAway}`)}
                               </div>
                               <div className="penalty-winner">
-                                {winner} won on penalties
+                                {translatePenaltyText(`${winner} won on penalties`)}
                               </div>
                             </div>
                           );
