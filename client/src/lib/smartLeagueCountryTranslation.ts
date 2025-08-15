@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 // Import comprehensive country translations from constants
-import { COUNTRY_TRANSLATIONS, translateCountryName } from '../constants/countriesAndLeagues';
+import { COUNTRY_TRANSLATIONS, translateCountryName } from './constants/countriesAndLeagues';
 
 interface LeagueTranslation {
   [key: string]: {
