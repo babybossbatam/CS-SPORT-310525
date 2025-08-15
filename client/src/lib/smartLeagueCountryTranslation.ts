@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 interface LeagueTranslation {
   [key: string]: {
+    en: string;
     zh: string;
     'zh-hk': string;
     'zh-tw': string;
@@ -14,6 +15,7 @@ interface LeagueTranslation {
 
 interface CountryTranslation {
   [key: string]: {
+    en: string;
     zh: string;
     'zh-hk': string;
     'zh-tw': string;
@@ -1425,14 +1427,16 @@ class SmartLeagueCountryTranslation {
   // Helper to create an empty country mapping structure
   private createEmptyCountryMapping(countryName: string): CountryTranslation {
     return {
-      en: countryName,
-      es: countryName,
-      de: countryName,
-      it: countryName,
-      pt: countryName,
-      zh: countryName,
-      'zh-hk': countryName,
-      'zh-tw': countryName
+      [countryName]: {
+        en: countryName,
+        es: countryName,
+        de: countryName,
+        it: countryName,
+        pt: countryName,
+        zh: countryName,
+        'zh-hk': countryName,
+        'zh-tw': countryName
+      }
     };
   }
 
