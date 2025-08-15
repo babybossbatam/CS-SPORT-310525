@@ -10,7 +10,8 @@ import MyCircularFlag from "../common/MyCircularFlag";
 import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
-import { useLanguage, useTranslation } from "@/contexts/LanguageContext"; // Import useLanguage and useTranslation
+import { useLanguage, useTranslation } from "@/contexts/LanguageContext";
+import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
 
 interface FixtureData {
   fixture: {
@@ -78,8 +79,26 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   liveFilterActive,
   onMatchCardClick,
 }) => {
-  const { language } = useLanguage(); // Use the useLanguage hook
-  const { t } = useTranslation(); // Initialize useTranslation
+  const { currentLanguage, translateTeamName, getMatchStatusTranslation } = useLanguage();
+  const { t } = useTranslation();
+
+  // Team translation function similar to MyNewLeague2
+  const translateTeamNameSmart = (originalTeam: string, leagueInfo?: { name?: string; country?: string }) => {
+    if (!originalTeam) return "";
+
+    // Use smart team translation
+    const translated = smartTeamTranslation.translateTeamName(
+      originalTeam,
+      currentLanguage,
+      leagueInfo,
+    );
+    if (translated !== originalTeam) {
+      return translated;
+    }
+
+    // Fallback to context translation
+    return translateTeamName ? translateTeamName(originalTeam) : originalTeam;
+  };
 
   const [isExpanded, setIsExpanded] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
@@ -510,10 +529,10 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                               let statusClass = "status-live-elapsed";
 
                               if (status === "HT") {
-                                displayText = "Halftime";
+                                displayText = t("halftime");
                                 statusClass = "status-halftime";
                               } else if (status === "P") {
-                                displayText = "Penalties";
+                                displayText = t("penalties");
                               } else if (status === "ET") {
                                 if (elapsed) {
                                   const extraTime = elapsed - 90;
@@ -522,14 +541,14 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                                       ? `90' + ${extraTime}'`
                                       : `${elapsed}'`;
                                 } else {
-                                  displayText = "Extra Time";
+                                  displayText = t("extra_time");
                                 }
                               } else if (status === "BT") {
-                                displayText = "Break Time";
+                                displayText = t("break_time");
                               } else if (status === "INT") {
-                                displayText = "Interrupted";
+                                displayText = t("interrupted");
                               } else {
-                                displayText = elapsed ? `${elapsed}'` : "LIVE";
+                                displayText = elapsed ? `${elapsed}'` : t("live");
                               }
 
                               return (
@@ -555,17 +574,17 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                               return (
                                 <div className="match-status-label status-postponed">
                                   {status === "PST"
-                                    ? "Postponed"
+                                    ? t("postponed")
                                     : status === "CANC"
-                                      ? "Cancelled"
+                                      ? t("cancelled")
                                       : status === "ABD"
-                                        ? "Abandoned"
+                                        ? t("abandoned")
                                         : status === "SUSP"
-                                          ? "Suspended"
+                                          ? t("suspended")
                                           : status === "AWD"
-                                            ? "Awarded"
+                                            ? t("awarded")
                                             : status === "WO"
-                                              ? "Walkover"
+                                              ? t("walkover")
                                               : status}
                                 </div>
                               );
@@ -583,7 +602,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                               if (hoursAgo > 2) {
                                 return (
                                   <div className="match-status-label status-postponed">
-                                    Postponed
+                                    {t("postponed")}
                                   </div>
                                 );
                               }
@@ -592,7 +611,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                               if (status === "TBD") {
                                 return (
                                   <div className="match-status-label status-upcoming">
-                                    Time TBD
+                                    {t("time_tbd")}
                                   </div>
                                 );
                               }
@@ -626,10 +645,10 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                                   }}
                                 >
                                   {status === "FT" || isStaleFinishedMatch
-                                    ? "Ended"
+                                    ? t("ended")
                                     : status === "AET"
-                                      ? "After Extra Time"
-                                      : status}
+                                      ? t("after_extra_time")
+                                      : getMatchStatusTranslation(status, currentLanguage)}
                                 </div>
                               );
                             }
@@ -659,8 +678,20 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                               whiteSpace: "nowrap",
                             }}
                           >
-                            {shortenTeamName(fixture.teams.home.name) ||
-                              "Unknown Team"}
+                            {(() => {
+                              const originalName = fixture.teams.home.name || "";
+                              const leagueInfo = {
+                                name: fixture.league.name,
+                                country: fixture.league.country,
+                              };
+
+                              try {
+                                const translatedName = translateTeamNameSmart(originalName, leagueInfo);
+                                return shortenTeamName(translatedName) || "Unknown Team";
+                              } catch (error) {
+                                return shortenTeamName(originalName) || "Unknown Team";
+                              }
+                            })()}
                           </div>
 
                           {/* Home team logo */}
@@ -933,8 +964,20 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                               whiteSpace: "nowrap",
                             }}
                           >
-                            {shortenTeamName(fixture.teams.away.name) ||
-                              "Unknown Team"}
+                            {(() => {
+                              const originalName = fixture.teams.away.name || "";
+                              const leagueInfo = {
+                                name: fixture.league.name,
+                                country: fixture.league.country,
+                              };
+
+                              try {
+                                const translatedName = translateTeamNameSmart(originalName, leagueInfo);
+                                return shortenTeamName(translatedName) || "Unknown Team";
+                              } catch (error) {
+                                return shortenTeamName(originalName) || "Unknown Team";
+                              }
+                            })()}
                           </div>
                         </div>
 
@@ -952,10 +995,53 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                               penaltyAway !== undefined;
 
                             if (isPenaltyMatch && hasPenaltyScores) {
+                              const leagueInfo = {
+                                name: fixture.league.name,
+                                country: fixture.league.country,
+                              };
+
+                              // Translate penalty text similar to MyNewLeague2
+                              const translatePenaltyText = (text: string) => {
+                                let translatedText = text;
+                                
+                                // Translation map for penalty-related phrases
+                                const penaltyTranslations: Array<[string, { [key: string]: string }]> = [
+                                  ['won on penalties', {
+                                    'zh': '点球获胜',
+                                    'zh-hk': 'PK大戰獲勝',
+                                    'zh-tw': 'PK大戰獲勝',
+                                    'es': 'ganó en penales',
+                                    'de': 'gewann im Elfmeterschießen',
+                                    'it': 'ha vinto ai rigori',
+                                    'pt': 'venceu nos pênaltis'
+                                  }],
+                                  ['on penalties', {
+                                    'zh': '点球',
+                                    'zh-hk': 'PK大戰',
+                                    'zh-tw': 'PK大戰',
+                                    'es': 'en penales',
+                                    'de': 'im Elfmeterschießen',
+                                    'it': 'ai rigori',
+                                    'pt': 'nos pênaltis'
+                                  }]
+                                ];
+
+                                penaltyTranslations.forEach(([english, translations]) => {
+                                  if (translations[currentLanguage]) {
+                                    translatedText = translatedText.replace(english, translations[currentLanguage]);
+                                  }
+                                });
+                                
+                                return translatedText;
+                              };
+
+                              const homeTeamTranslated = translateTeamNameSmart(fixture.teams.home.name, leagueInfo);
+                              const awayTeamTranslated = translateTeamNameSmart(fixture.teams.away.name, leagueInfo);
+
                               const winnerText =
                                 penaltyHome > penaltyAway
-                                  ? `${shortenTeamName(fixture.teams.home.name)} won ${penaltyHome}-${penaltyAway} on penalties`
-                                  : `${shortenTeamName(fixture.teams.away.name)} won ${penaltyAway}-${penaltyHome} on penalties`;
+                                  ? `${shortenTeamName(homeTeamTranslated)} won ${penaltyHome}-${penaltyAway} on penalties`
+                                  : `${shortenTeamName(awayTeamTranslated)} won ${penaltyAway}-${penaltyHome} on penalties`;
 
                               return (
                                 <div className="penalty-result-display">
@@ -963,7 +1049,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                                     className="penalty-winner"
                                     style={{ background: "transparent" }}
                                   >
-                                    {winnerText}
+                                    {translatePenaltyText(winnerText)}
                                   </span>
                                 </div>
                               );
