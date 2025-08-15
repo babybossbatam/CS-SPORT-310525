@@ -60,7 +60,7 @@ class SmartLeagueCountryTranslation {
     'Azerbaijan': { en: 'Azerbaijan', 'zh': '阿塞拜疆', 'zh-hk': '阿塞拜疆', 'zh-tw': '亞塞拜然', 'es': 'Azerbaiyán', 'de': 'Aserbaidschan', 'it': 'Azerbaigian', 'pt': 'Azerbaijão' },
     'Bosnia and Herzegovina': { en: 'Bosnia and Herzegovina', 'zh': '波斯尼亞和黑塞哥維那', 'zh-hk': '波斯尼亞和黑塞哥維那', 'zh-tw': '波斯尼亞和黑塞哥維那', 'es': 'Bosnia y Herzegovina', 'de': 'Bosnien und Herzegowina', 'it': 'Bosnia ed Erzegovina', 'pt': 'Bósnia e Herzegovina' },
     'Bosnia': { en: 'Bosnia', 'zh': '波斯尼亞', 'zh-hk': '波斯尼亞', 'zh-tw': '波斯尼亞', 'es': 'Bosnia', 'de': 'Bosnien', 'it': 'Bosnia', 'pt': 'Bósnia' },
-    'Belgium': { en: 'Belgium', 'zh': '比利時', 'zh-hk': '比利時', 'zh-tw': '比利時', 'es': 'Bélgica', 'de': 'Belgien', 'it': 'Belgio', 'pt': 'Bélgica' },
+    
     'Bulgaria': { en: 'Bulgaria', 'zh': '保加利亞', 'zh-hk': '保加利亞', 'zh-tw': '保加利亞', 'es': 'Bulgaria', 'de': 'Bulgarien', 'it': 'Bulgaria', 'pt': 'Bulgária' },
     'Belarus': { en: 'Belarus', 'zh': '白俄羅斯', 'zh-hk': '白俄羅斯', 'zh-tw': '白俄羅斯', 'es': 'Bielorrusia', 'de': 'Belarus', 'it': 'Bielorussia', 'pt': 'Bielorrússia' },
     'Switzerland': { en: 'Switzerland', 'zh': '瑞士', 'zh-hk': '瑞士', 'zh-tw': '瑞士', 'es': 'Suiza', 'de': 'Schweiz', 'it': 'Svizzera', 'pt': 'Suíça' },
@@ -101,14 +101,11 @@ class SmartLeagueCountryTranslation {
       en: 'Netherlands',
       'zh': '荷兰', 'zh-hk': '荷蘭', 'zh-tw': '荷蘭',
       'es': 'Países Bajos', 'de': 'Niederlande', 'it': 'Paesi Bassi', 'pt': 'Países Baixos'
-
     },
     'Portugal': {
       en: 'Portugal',
       'zh': '葡萄牙', 'zh-hk': '葡萄牙', 'zh-tw': '葡萄牙',
       'es': 'Portugal', 'de': 'Portugal', 'it': 'Portogallo', 'pt': 'Portugal'
-    },
-    
     },
     'Mexico': {
       en: 'Mexico',
@@ -401,66 +398,78 @@ class SmartLeagueCountryTranslation {
     
 
     // Australian States/Territories
-    'Australian Capital Territory': { 'zh': '澳大利亞首都領地', 'zh-hk': '澳大利亞首都領地', 'zh-tw': '澳洲首都特區', 'es': 'Territorio de la Capital Australiana', 'de': 'Australisches Hauptstadtterritorium', 'it': 'Territorio della Capitale Australiana', 'pt': 'Território da Capital Australiana' },
-    'New South Wales': { 'zh': '新南威爾士', 'zh-hk': '新南威爾士', 'zh-tw': '新南威爾斯', 'es': 'Nueva Gales del Sur', 'de': 'New South Wales', 'it': 'Nuovo Galles del Sud', 'pt': 'Nova Gales do Sul' },
-    'Northern Territory': { 'zh': '北領地', 'zh-hk': '北領地', 'zh-tw': '北領地', 'es': 'Territorio del Norte', 'de': 'Northern Territory', 'it': 'Territorio del Nord', 'pt': 'Território do Norte' },
-    'Queensland': { 'zh': '昆士蘭', 'zh-hk': '昆士蘭', 'zh-tw': '昆士蘭', 'es': 'Queensland', 'de': 'Queensland', 'it': 'Queensland', 'pt': 'Queensland' },
-    'South Australia': { 'zh': '南澳大利亞', 'zh-hk': '南澳大利亞', 'zh-tw': '南澳洲', 'es': 'Australia Meridional', 'de': 'Südaustralien', 'it': 'Australia Meridionale', 'pt': 'Austrália do Sul' },
-    'Tasmania': { 'zh': '塔斯馬尼亞', 'zh-hk': '塔斯馬尼亞', 'zh-tw': '塔斯馬尼亞', 'es': 'Tasmania', 'de': 'Tasmanien', 'it': 'Tasmania', 'pt': 'Tasmânia' },
-    'Victoria': { 'zh': '維多利亞', 'zh-hk': '維多利亞', 'zh-tw': '維多利亞', 'es': 'Victoria', 'de': 'Victoria', 'it': 'Victoria', 'pt': 'Victoria' },
-    'Western Australia': { 'zh': '西澳大利亞', 'zh-hk': '西澳大利亞', 'zh-tw': '西澳洲', 'es': 'Australia Occidental', 'de': 'Westaustralien', 'it': 'Australia Occidentale', 'pt': 'Austrália Ocidental' },
+    'Australian Capital Territory': { en: 'Australian Capital Territory', 'zh': '澳大利亞首都領地', 'zh-hk': '澳大利亞首都領地', 'zh-tw': '澳洲首都特區', 'es': 'Territorio de la Capital Australiana', 'de': 'Australisches Hauptstadtterritorium', 'it': 'Territorio della Capitale Australiana', 'pt': 'Território da Capital Australiana' },
+    'New South Wales': { en: 'New South Wales', 'zh': '新南威爾士', 'zh-hk': '新南威爾士', 'zh-tw': '新南威爾斯', 'es': 'Nueva Gales del Sur', 'de': 'New South Wales', 'it': 'Nuovo Galles del Sud', 'pt': 'Nova Gales do Sul' },
+    'Northern Territory': { en: 'Northern Territory', 'zh': '北領地', 'zh-hk': '北領地', 'zh-tw': '北領地', 'es': 'Territorio del Norte', 'de': 'Northern Territory', 'it': 'Territorio del Nord', 'pt': 'Território do Norte' },
+    'Queensland': { en: 'Queensland', 'zh': '昆士蘭', 'zh-hk': '昆士蘭', 'zh-tw': '昆士蘭', 'es': 'Queensland', 'de': 'Queensland', 'it': 'Queensland', 'pt': 'Queensland' },
+    'South Australia': { en: 'South Australia', 'zh': '南澳大利亞', 'zh-hk': '南澳大利亞', 'zh-tw': '南澳洲', 'es': 'Australia Meridional', 'de': 'Südaustralien', 'it': 'Australia Meridionale', 'pt': 'Austrália do Sul' },
+    'Tasmania': { en: 'Tasmania', 'zh': '塔斯馬尼亞', 'zh-hk': '塔斯馬尼亞', 'zh-tw': '塔斯馬尼亞', 'es': 'Tasmania', 'de': 'Tasmanien', 'it': 'Tasmania', 'pt': 'Tasmânia' },
+    'Victoria': { en: 'Victoria', 'zh': '維多利亞', 'zh-hk': '維多利亞', 'zh-tw': '維多利亞', 'es': 'Victoria', 'de': 'Victoria', 'it': 'Victoria', 'pt': 'Victoria' },
+    'Western Australia': { en: 'Western Australia', 'zh': '西澳大利亞', 'zh-hk': '西澳大利亞', 'zh-tw': '西澳洲', 'es': 'Australia Occidental', 'de': 'Westaustralien', 'it': 'Australia Occidentale', 'pt': 'Austrália Ocidental' },
    
 
     // Middle East & Africa
     
     'UAE': {
+      en: 'UAE',
       'zh': '阿聯酋', 'zh-hk': '阿聯酋', 'zh-tw': '阿聯酋',
       'es': 'EAU', 'de': 'VAE', 'it': 'EAU', 'pt': 'EAU'
     },
     
     'Northern-Ireland': {
+      en: 'Northern Ireland',
       'zh': '北愛爾蘭', 'zh-hk': '北愛爾蘭', 'zh-tw': '北愛爾蘭',
       'es': 'Irlanda del Norte', 'de': 'Nordirland', 'it': 'Irlanda del Nord', 'pt': 'Irlanda do Norte'
     },
     
     'USA': {
+      en: 'USA',
       'zh': '美國', 'zh-hk': '美國', 'zh-tw': '美國',
       'es': 'Estados Unidos', 'de': 'USA', 'it': 'Stati Uniti', 'pt': 'EUA'
     },
     'United States of America': {
+      en: 'United States of America',
       'zh': '美利堅合眾國', 'zh-hk': '美利堅合眾國', 'zh-tw': '美利堅合眾國',
       'es': 'Estados Unidos de América', 'de': 'Vereinigte Staaten von Amerika', 'it': 'Stati Uniti d\'America', 'pt': 'Estados Unidos da América'
     },
 
     'Guatemala': {
+      en: 'Guatemala',
       'zh': '危地馬拉', 'zh-hk': '危地馬拉', 'zh-tw': '瓜地馬拉',
       'es': 'Guatemala', 'de': 'Guatemala', 'it': 'Guatemala', 'pt': 'Guatemala'
     },
     'Honduras': {
+      en: 'Honduras',
       'zh': '洪都拉斯', 'zh-hk': '洪都拉斯', 'zh-tw': '宏都拉斯',
       'es': 'Honduras', 'de': 'Honduras', 'it': 'Honduras', 'pt': 'Honduras'
     },
     'El Salvador': {
+      en: 'El Salvador',
       'zh': '薩爾瓦多', 'zh-hk': '薩爾瓦多', 'zh-tw': '薩爾瓦多',
       'es': 'El Salvador', 'de': 'El Salvador', 'it': 'El Salvador', 'pt': 'El Salvador'
     },
     'Nicaragua': {
+      en: 'Nicaragua',
       'zh': '尼加拉瓜', 'zh-hk': '尼加拉瓜', 'zh-tw': '尼加拉瓜',
       'es': 'Nicaragua', 'de': 'Nicaragua', 'it': 'Nicaragua', 'pt': 'Nicarágua'
     },
     'Costa Rica': {
+      en: 'Costa Rica',
       'zh': '哥斯達黎加', 'zh-hk': '哥斯達黎加', 'zh-tw': '哥斯大黎加',
       'es': 'Costa Rica', 'de': 'Costa Rica', 'it': 'Costa Rica', 'pt': 'Costa Rica'
     },
     'Panama': {
+      en: 'Panama',
       'zh': '巴拿馬', 'zh-hk': '巴拿馬', 'zh-tw': '巴拿馬',
       'es': 'Panamá', 'de': 'Panama', 'it': 'Panama', 'pt': 'Panamá'
     },
     'Jamaica': {
+      en: 'Jamaica',
       'zh': '牙買加', 'zh-hk': '牙買加', 'zh-tw': '牙買加',
       'es': 'Jamaica', 'de': 'Jamaika', 'it': 'Giamaica', 'pt': 'Jamaica'
     },
     'Trinidad and Tobago': {
+      en: 'Trinidad and Tobago',
       'zh': '千里達及托巴哥', 'zh-hk': '千里達及托巴哥', 'zh-tw': '千里達及托巴哥',
       'es': 'Trinidad y Tobago', 'de': 'Trinidad und Tobago', 'it': 'Trinidad e Tobago', 'pt': 'Trinidad e Tobago'
     }
