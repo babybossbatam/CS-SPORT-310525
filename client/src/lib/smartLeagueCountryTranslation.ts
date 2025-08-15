@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 interface LeagueTranslation {
   [key: string]: {
-    en: string;
-    zh: string;
+    
     'zh-hk': string;
     'zh-tw': string;
     es: string;
@@ -15,10 +14,11 @@ interface LeagueTranslation {
 
 interface CountryTranslation {
   [key: string]: {
-    en: string;
-    zh: string;
+
     'zh-hk': string;
     'zh-tw': string;
+en: string;
+zh: string;
     es: string;
     de: string;
     it: string;
