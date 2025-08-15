@@ -733,10 +733,9 @@ class SmartLeagueCountryTranslation {
         'de': 'AFC Challenge League',
         'it': 'AFC Challenge League',
         'pt': 'Liga Challenge AFC',
-        'fr': 'Ligue Challenge AFC',
-        'ar': 'دوري تحدي الاتحاد الآسيوي',
-        'ja': 'AFCチャレンジリーグ',
-        'ko': 'AFC 챌린지 리그'
+       
+      
+      
       },
 
       // Other AFC competitions
@@ -749,10 +748,7 @@ class SmartLeagueCountryTranslation {
         'de': 'AFC-Pokal',
         'it': 'Coppa AFC',
         'pt': 'Copa AFC',
-        'fr': 'Coupe AFC',
-        'ar': 'كأس الاتحاد الآسيوي',
-        'ja': 'AFCカップ',
-        'ko': 'AFC컵'
+       
       },
 
       'AFC Champions League': {
@@ -764,10 +760,7 @@ class SmartLeagueCountryTranslation {
         'de': 'AFC Champions League',
         'it': 'AFC Champions League',
         'pt': 'Liga dos Campeões AFC',
-        'fr': 'Ligue des Champions AFC',
-        'ar': 'دوري أبطال آسيا',
-        'ja': 'AFCチャンピオンズリーグ',
-        'ko': 'AFC 챔피언스리그'
+       
       },
 
     // Continental Championships
