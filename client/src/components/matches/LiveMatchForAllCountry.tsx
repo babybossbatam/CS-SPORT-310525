@@ -44,6 +44,7 @@ import LazyMatchItem from "./LazyMatchItem";
 import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import NoLiveMatchesEmpty from "./NoLiveMatchesEmpty";
+import { useTranslation } from "@/contexts/LanguageContext";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -126,8 +127,8 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
   const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
   const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
-  const { i18n } = useTranslation(); // Assuming useTranslation is available and configured
-  const currentLanguage = i18n.language;
+  const { t } = useTranslation();
+  const { currentLanguage } = useTranslation();
 
   // Popular leagues for prioritization
   const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
@@ -749,7 +750,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       <>
         {/* Header Section */}
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-          Popular Football Live Score
+          {t('popular_football_live_score')}
         </CardHeader>
         <div className="bg-gray-100 min-h-[400px] flex items-center justify-center">
           <div className="text-center">
@@ -776,7 +777,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       <>
         {/* Header Section */}
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold text-sm">
-          Popular Football Live Score
+          {t('popular_football_live_score')}
         </CardHeader>
         <div className="bg-gray-100 min-h-[400px]">
           <NoLiveMatchesEmpty 
@@ -798,14 +799,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
         <div className="flex justify-between items-center w-full">
           <span>
-            {currentLanguage === 'zh-hk' ? '熱門足球實時比分' :
-             currentLanguage === 'zh-tw' ? '熱門足球即時比分' :
-             currentLanguage === 'zh' ? '热门足球实时比分' :
-             currentLanguage === 'es' ? 'Marcadores de Fútbol en Vivo Populares' :
-             currentLanguage === 'de' ? 'Beliebte Fußball Live-Ergebnisse' :
-             currentLanguage === 'it' ? 'Punteggi Calcio Live Popolari' :
-             currentLanguage === 'pt' ? 'Placares de Futebol Ao Vivo Populares' :
-             'Popular Football Live Score'}
+            {t('popular_football_live_score')}
           </span>
         </div>
       </CardHeader>
