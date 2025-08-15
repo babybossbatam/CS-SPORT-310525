@@ -26,7 +26,6 @@ import {
 } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 import { LEAGUES_BY_COUNTRY, getLeaguesForCountry, mergeStaticWithDynamicLeagues, LeagueInfo } from "@/lib/constants/leaguesByCountry";
-import { ALL_COUNTRIES } from "@/lib/constants/countriesAndLeagues";
 
 interface MyAllLeagueListProps {
   selectedDate: string;
@@ -351,16 +350,14 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     return Object.keys(LEAGUES_BY_COUNTRY);
   }, []);
 
-  // Static countries list from ALL_COUNTRIES to show immediately (before fixtures load)
+  // Static countries list to show immediately (before fixtures load)
   const staticCountriesList = useMemo(() => {
     const staticCountries = [];
     const seenDisplayNames = new Set(); // Track seen display names to avoid duplicates
     const seenOriginalNames = new Set(); // Track original names that have been translated
     
-    // Add countries from ALL_COUNTRIES for comprehensive static display
-    ALL_COUNTRIES.forEach(countryObj => {
-      const country = countryObj.name;
-      
+    // Add main countries from static data first
+    allAvailableCountries.forEach(country => {
       // Use the enhanced translation function that includes fallbacks
       const displayName = getCountryDisplayName(country);
       
@@ -389,26 +386,21 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         hasLanguageMapping: !!(countryToLanguageMap[country] || countryToLanguageMap[displayName])
       };
       
-      // Check if this country has leagues in our static data, otherwise use empty leagues
-      const countryLeagues = LEAGUES_BY_COUNTRY[country] 
-        ? getLeaguesForCountry(country).reduce((acc, league) => {
-            acc[league.id] = {
-              league: {
-                id: league.id,
-                name: league.name,
-                logo: league.logo,
-                country: league.country
-              },
-              matchCount: 0,
-              liveMatchCount: 0,
-            };
-            return acc;
-          }, {})
-        : {};
-      
       staticCountries.push({
         country,
-        leagues: countryLeagues,
+        leagues: getLeaguesForCountry(country).reduce((acc, league) => {
+          acc[league.id] = {
+            league: {
+              id: league.id,
+              name: league.name,
+              logo: league.logo,
+              country: league.country
+            },
+            matchCount: 0,
+            liveMatchCount: 0,
+          };
+          return acc;
+        }, {}),
         totalMatches: 0,
         liveMatches: 0,
         mappedData
@@ -423,7 +415,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     );
 
     return staticCountries;
-  }, [currentLanguage, countryToLanguageMap, getCountryDisplayName]);
+  }, [allAvailableCountries, currentLanguage, countryToLanguageMap, getCountryDisplayName]);
 
   // Dynamic countries with actual match data (when fixtures are loaded)
   const sortedCountries = useMemo(() => {

@@ -28,7 +28,7 @@ interface LeagueTranslations {
 // Generate comprehensive country translations from ALL_COUNTRIES list
 const generateCountryTranslations = (): CountryTranslations => {
   const translations: CountryTranslations = {};
-
+  
   // Base translations for known countries
   const knownTranslations: CountryTranslations = {
     // Europe
@@ -273,7 +273,7 @@ const generateCountryTranslations = (): CountryTranslations => {
   // Process each country from ALL_COUNTRIES
   ALL_COUNTRIES.forEach(country => {
     const countryName = country.name;
-
+    
     if (knownTranslations[countryName]) {
       // Use existing translation
       translations[countryName] = knownTranslations[countryName];
