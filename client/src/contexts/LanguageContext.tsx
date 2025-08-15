@@ -1030,7 +1030,7 @@ const translations = {
     check_later: "稍後再看",
     see_all_matches: "查看所有比賽",
     // Match statuses
-    halftime: "中場",
+    halftime: "中場休息",
     penalties: "點球",
     extra_time: "加時賽",
     break_time: "休息時間",
@@ -1135,7 +1135,7 @@ const translations = {
     check_later: "稍后再看",
     see_all_matches: "查看所有比赛",
     // Match statuses
-    halftime: "中场",
+    halftime: "中场休息",
     penalties: "点球",
     extra_time: "加时赛",
     break_time: "休息时间",
@@ -1606,7 +1606,7 @@ const translations = {
     on_penalties: "PK大戰",
     tomorrow: "明天",
     // Match statuses
-    halftime: "中場",
+    halftime: "中場休息",
     penalties: "點球",
     extra_time: "加時賽",
     break_time: "休息時間",
