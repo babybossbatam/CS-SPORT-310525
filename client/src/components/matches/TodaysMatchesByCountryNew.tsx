@@ -1319,8 +1319,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               })
               .map((leagueData: any, leagueIndex: number) => {
                 const leagueKey = `${countryData.country}-${leagueData.league.id}`;
-                const isFirstLeague = leagueIndex === 0;
-                const isLeagueExpanded = isFirstLeague || expandedLeagues.has(leagueKey);
+                const isLeagueExpanded = expandedLeagues.has(leagueKey);
 
                 return (
                   <LeagueSection
