@@ -1471,7 +1471,7 @@ const translations = {
     ended: "Terminado",
     no_matches_available: "Nenhum jogo disponível",
     no_live_matches_main:
-      "Não acontece muitas vezes, mas não há jogos ao vivo a decorrer neste momento.",
+      "Não acontece muitas vezes, but há jogos ao vivo a decorrer neste momento.",
     check_later: "Verifique mais tarde",
     see_all_matches: "Ver Todos os Jogos",
     friendlies_clubs: "Amigáveis de Clubes",
