@@ -800,12 +800,12 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
         <div className="flex justify-between items-center w-full">
           <span>
             {liveFilterActive && timeFilterActive
-              ? t('popular_football_live_score')
+              ? t('popular_football_leagues')
               : liveFilterActive && !timeFilterActive
-                ? t('popular_football_live_score')
+                ? t('popular_football_leagues')
                 : !liveFilterActive && timeFilterActive
                   ? "All Matches by Time"
-                  : t('popular_football_live_score')}
+                  : t('popular_football_leagues')}
           </span>
         </div>
       </CardHeader>
