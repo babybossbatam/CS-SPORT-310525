@@ -33,6 +33,11 @@ import {
   getCountryCode,
 } from "@/lib/flagUtils";
 import { getCachedCountryName, setCachedCountryName } from "@/lib/countryCache";
+import {
+  useLanguage,
+  useTranslation,
+} from "@/contexts/LanguageContext";
+import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
@@ -139,6 +144,46 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   timeFilterActive = false,
   onMatchCardClick,
 }) => {
+  const {
+    translateLeagueName: contextTranslateLeagueName,
+    translateTeamName,
+    currentLanguage,
+  } = useLanguage();
+  const { t } = useTranslation();
+
+  // Add league name translation
+  const translateLeagueName = (originalLeague: string): string => {
+    if (!originalLeague) return "";
+
+    // Use smart league translation
+    const translated = smartLeagueCountryTranslation.translateLeague(
+      originalLeague,
+      currentLanguage,
+    );
+    if (translated !== originalLeague) {
+      return translated;
+    }
+
+    // Fallback to context translation
+    return contextTranslateLeagueName(originalLeague);
+  };
+
+  // Use the enhanced country translation function
+  const translateCountryName = (originalCountry: string): string => {
+    if (!originalCountry) return "";
+
+    // Use smart country translation
+    const translated = smartLeagueCountryTranslation.translateCountry(
+      originalCountry,
+      currentLanguage,
+    );
+    if (translated !== originalCountry) {
+      return translated;
+    }
+
+    // Fallback to context translation for untranslated countries
+    return contextTranslateLeagueName(originalCountry);
+  };
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
   );
@@ -1206,9 +1251,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 fontSize: "13.3px",
               }}
             >
-              {typeof countryData.country === "string"
-                ? countryData.country
-                : countryData.country?.name || "Unknown"}
+              {translateCountryName(
+                typeof countryData.country === "string"
+                  ? countryData.country
+                  : countryData.country?.name || "Unknown"
+              )}
             </span>
             <span
               className="text-gray-500 dark:text-white"
@@ -1391,7 +1438,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   fontSize: "13.3px",
                 }}
               >
-                {safeSubstring(leagueData.league.name, 0) || "Unknown League"}
+                {translateLeagueName(safeSubstring(leagueData.league.name, 0) || "Unknown League")}
               </span>
               <span
                 className="text-gray-500 dark:text-white"
@@ -1410,7 +1457,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               )}
             </div>
             <span className="text-xs text-gray-600 dark:text-gray-400">
-              {leagueData.league.country || "Unknown Country"}
+              {translateCountryName(leagueData.league.country || "Unknown Country")}
             </span>
           </div>
         </button>
