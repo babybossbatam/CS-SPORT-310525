@@ -165,10 +165,80 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       'NS': {
         'zh': '未开始', 'zh-hk': '未開始', 'zh-tw': '未開始',
         'es': 'No iniciado', 'de': 'Nicht gestartet', 'it': 'Non iniziato', 'pt': 'Não iniciado'
+      },
+      'PST': {
+        'zh': '推迟', 'zh-hk': '推遲', 'zh-tw': '推遲',
+        'es': 'Pospuesto', 'de': 'Verschoben', 'it': 'Rinviato', 'pt': 'Adiado'
       }
     };
 
     return statusTranslations[status]?.[currentLanguage] || status;
+  };
+
+  // Penalty status translation function
+  const translatePenaltyStatus = (penaltyStatus: string): string => {
+    if (!penaltyStatus) return '';
+
+    const penaltyTranslations: Record<string, Record<string, string>> = {
+      'PEN': {
+        'zh': '点球', 'zh-hk': '十二碼', 'zh-tw': '十二碼',
+        'es': 'Penales', 'de': 'Elfmeter', 'it': 'Rigori', 'pt': 'Pênaltis'
+      },
+      'AET': {
+        'zh': '加时', 'zh-hk': '加時', 'zh-tw': '加時',
+        'es': 'Tiempo extra', 'de': 'Verlängerung', 'it': 'Tempi supplementari', 'pt': 'Prorrogação'
+      }
+    };
+
+    return penaltyTranslations[penaltyStatus]?.[currentLanguage] || penaltyStatus;
+  };
+
+  // Function to get translated match status text (similar to MyNewLeague2)
+  const getMatchStatusTranslation = (status: string, language: string): string => {
+    const translations: Record<string, Record<string, string>> = {
+      'FT': {
+        'zh': '全场结束', 'zh-hk': '全場結束', 'zh-tw': '全場結束',
+        'es': 'Tiempo completo', 'de': 'Abpfiff', 'it': 'Finito', 'pt': 'Final'
+      },
+      'HT': {
+        'zh': '半场结束', 'zh-hk': '半場結束', 'zh-tw': '半場結束',
+        'es': 'Medio tiempo', 'de': 'Halbzeit', 'it': 'Primo tempo', 'pt': 'Intervalo'
+      },
+      'AET': {
+        'zh': '加时后', 'zh-hk': '加時後', 'zh-tw': '延長賽後',
+        'es': 'Después de ET', 'de': 'Nach Verl.', 'it': 'Dopo i TSO', 'pt': 'Após prorr.'
+      },
+      'PEN': {
+        'zh': '点球决胜', 'zh-hk': '十二碼決勝', 'zh-tw': '十二碼決勝',
+        'es': 'En penales', 'de': 'Im Elfmeterschießen', 'it': 'Ai rigori', 'pt': 'Nos pênaltis'
+      },
+      'PST': {
+        'zh': '推迟', 'zh-hk': '推遲', 'zh-tw': '推遲',
+        'es': 'Pospuesto', 'de': 'Verschoben', 'it': 'Rinviato', 'pt': 'Adiado'
+      },
+      'CANC': {
+        'zh': '取消', 'zh-hk': '取消', 'zh-tw': '取消',
+        'es': 'Cancelado', 'de': 'Abgesagt', 'it': 'Annullato', 'pt': 'Cancelado'
+      },
+      'ABD': {
+        'zh': '中止', 'zh-hk': '中止', 'zh-tw': '中止',
+        'es': 'Abandonado', 'de': 'Abgebrochen', 'it': 'Abbandonato', 'pt': 'Abandonado'
+      },
+      'SUSP': {
+        'zh': '暂停', 'zh-hk': '暫停', 'zh-tw': '暫停',
+        'es': 'Suspendido', 'de': 'Unterbrochen', 'it': 'Sospeso', 'pt': 'Suspenso'
+      },
+      'AWD': {
+        'zh': '判定', 'zh-hk': '判定', 'zh-tw': '判定',
+        'es': 'Adjudicado', 'de': 'Zuerkannt', 'it': 'Assegnato', 'pt': 'Atribuído'
+      },
+      'WO': {
+        'zh': '弃权', 'zh-hk': '棄權', 'zh-tw': '棄權',
+        'es': 'WO', 'de': 'Kampflos', 'it': 'A tavolino', 'pt': 'WO'
+      }
+    };
+
+    return translations[status]?.[language] || status;
   };
 
   // Popular leagues for prioritization
@@ -1144,7 +1214,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                         className={`match-status-label ${status === "HT" ? "status-halftime" : "status-live-elapsed"}`}
                                       >
                                         {status === "HT"
-                                          ? "Halftime"
+                                          ? t("halftime")
                                           : `${match.fixture.status.elapsed || 0}'`}
                                       </div>
                                     );
@@ -1166,22 +1236,10 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                     return (
                                       <div className="match-status-label status-ended">
                                         {status === "FT"
-                                          ? "Ended"
+                                          ? t("ended")
                                           : status === "AET"
-                                            ? "AET"
-                                            : status === "PEN"
-                                              ? "PEN"
-                                              : status === "AWD"
-                                                ? "Awarded"
-                                                : status === "WO"
-                                                  ? "Walkover"
-                                                  : status === "ABD"
-                                                    ? "Abandoned"
-                                                    : status === "CANC"
-                                                      ? "Cancelled"
-                                                      : status === "SUSP"
-                                                        ? "Suspended"
-                                                        : status}
+                                            ? t("after_extra_time")
+                                            : getMatchStatusTranslation(status, currentLanguage)}
                                       </div>
                                     );
                                   }
@@ -1200,18 +1258,18 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                     return (
                                       <div className="match-status-label status-postponed">
                                         {status === "PST"
-                                          ? "Postponed"
+                                          ? t("postponed")
                                           : status === "CANC"
-                                            ? "Cancelled"
+                                            ? t("cancelled")
                                             : status === "ABD"
-                                              ? "Abandoned"
+                                              ? t("abandoned")
                                               : status === "SUSP"
-                                                ? "Suspended"
+                                                ? t("suspended")
                                                 : status === "AWD"
-                                                  ? "Awarded"
+                                                  ? t("awarded")
                                                   : status === "WO"
-                                                    ? "Walkover"
-                                                    : status}
+                                                    ? t("walkover")
+                                                    : getMatchStatusTranslation(status, currentLanguage)}
                                       </div>
                                     );
                                   }
@@ -1220,7 +1278,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                   if (status === "TBD") {
                                     return (
                                       <div className="match-status-label status-upcoming">
-                                        Time TBD
+                                        {t("time_tbd")}
                                       </div>
                                     );
                                   }
@@ -1500,7 +1558,74 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
 
                               {/* Bottom grid for penalty results (if needed) */}
                               <div className="match-penalty-bottom">
-                                {/* This can be used for penalty shootout results or other additional info */}
+                                {(() => {
+                                  const isPenaltyMatch =
+                                    match.fixture.status.short === "PEN";
+                                  const penaltyHome = match.score?.penalty?.home;
+                                  const penaltyAway = match.score?.penalty?.away;
+                                  const hasPenaltyScores =
+                                    penaltyHome !== null &&
+                                    penaltyHome !== undefined &&
+                                    penaltyAway !== null &&
+                                    penaltyAway !== undefined;
+
+                                  if (isPenaltyMatch && hasPenaltyScores) {
+                                    // Function to translate penalty text similar to MyNewLeague2
+                                    const translatePenaltyText = (text: string) => {
+                                      let translatedText = text;
+
+                                      // Translation map for penalty-related phrases
+                                      const penaltyTranslations: Array<[string, { [key: string]: string }]> = [
+                                        ['won on penalties', {
+                                          'zh': '点球获胜',
+                                          'zh-hk': 'PK大戰獲勝',
+                                          'zh-tw': 'PK大戰獲勝',
+                                          'es': 'ganó en penales',
+                                          'de': 'gewann im Elfmeterschießen',
+                                          'it': 'ha vinto ai rigori',
+                                          'pt': 'venceu nos pênaltis'
+                                        }],
+                                        ['on penalties', {
+                                          'zh': '点球',
+                                          'zh-hk': 'PK大戰',
+                                          'zh-tw': 'PK大戰',
+                                          'es': 'en penales',
+                                          'de': 'im Elfmeterschießen',
+                                          'it': 'ai rigori',
+                                          'pt': 'nos pênaltis'
+                                        }]
+                                      ];
+
+                                      penaltyTranslations.forEach(([english, translations]) => {
+                                        if (translations[currentLanguage]) {
+                                          translatedText = translatedText.replace(english, translations[currentLanguage]);
+                                        }
+                                      });
+
+                                      return translatedText;
+                                    };
+
+                                    const homeTeamTranslated = translateTeamName(match.teams.home.name);
+                                    const awayTeamTranslated = translateTeamName(match.teams.away.name);
+
+                                    const winnerText =
+                                      penaltyHome > penaltyAway
+                                        ? `${shortenTeamName(homeTeamTranslated)} won ${penaltyHome}-${penaltyAway} on penalties`
+                                        : `${shortenTeamName(awayTeamTranslated)} won ${penaltyAway}-${penaltyHome} on penalties`;
+
+                                    return (
+                                      <div className="penalty-result-display">
+                                        <span
+                                          className="penalty-winner"
+                                          style={{ background: "transparent" }}
+                                        >
+                                          {translatePenaltyText(winnerText)}
+                                        </span>
+                                      </div>
+                                    );
+                                  }
+                                  return null;
+                                })()}
                               </div>
                             </div>
                           </div>
