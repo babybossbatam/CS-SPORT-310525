@@ -129,7 +129,9 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       const results = await Promise.all(promises);
       const allFixtures = results.flatMap((fixtures) => fixtures);
 
-      console.log(`🔄 [TodayMatchByTime] Total fixtures fetched: ${allFixtures.length}`);
+      console.log(
+        `🔄 [TodayMatchByTime] Total fixtures fetched: ${allFixtures.length}`,
+      );
       return allFixtures;
     },
     staleTime: 5 * 60 * 1000,
@@ -163,14 +165,52 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       const bTime = new Date(b.fixture.date).getTime();
 
       // Check match status categories
-      const aLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(aStatus);
-      const bLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(bStatus);
+      const aLive = [
+        "LIVE",
+        "LIV",
+        "1H",
+        "HT",
+        "2H",
+        "ET",
+        "BT",
+        "P",
+        "INT",
+      ].includes(aStatus);
+      const bLive = [
+        "LIVE",
+        "LIV",
+        "1H",
+        "HT",
+        "2H",
+        "ET",
+        "BT",
+        "P",
+        "INT",
+      ].includes(bStatus);
 
       const aUpcoming = ["NS", "TBD"].includes(aStatus);
       const bUpcoming = ["NS", "TBD"].includes(bStatus);
 
-      const aEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(aStatus);
-      const bEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(aStatus);
+      const aEnded = [
+        "FT",
+        "AET",
+        "PEN",
+        "AWD",
+        "WO",
+        "ABD",
+        "CANC",
+        "SUSP",
+      ].includes(aStatus);
+      const bEnded = [
+        "FT",
+        "AET",
+        "PEN",
+        "AWD",
+        "WO",
+        "ABD",
+        "CANC",
+        "SUSP",
+      ].includes(aStatus);
 
       // Priority 1: Live matches first
       if (aLive && !bLive) return -1;
@@ -203,7 +243,9 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       return aTime - bTime;
     });
 
-    console.log(`✅ [TodayMatchByTime] Sorted ${sorted.length} fixtures by status and kick-off time for ${selectedDate}`);
+    console.log(
+      `✅ [TodayMatchByTime] Sorted ${sorted.length} fixtures by status and kick-off time for ${selectedDate}`,
+    );
     return sorted;
   }, [allFixtures, selectedDate]);
 
@@ -243,7 +285,9 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         <CardHeader className="cursor-pointer flex items-center justify-between p-3 bg-white border-b">
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-blue-500" />
-            <span className="font-semibold text-gray-800">{t('popular_football_live_score')}</span>
+            <span className="font-semibold text-gray-800">
+              {t("popular_football_leagues")}
+            </span>
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -251,23 +295,43 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
             <div key={i} className="country-matches-container">
               <div className="match-card-container">
                 <div className="match-three-grid-container">
-                  <div className="match-status-top" style={{ minHeight: "20px", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                  <div
+                    className="match-status-top"
+                    style={{
+                      minHeight: "20px",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
                     <Skeleton className="h-4 w-16 rounded" />
                   </div>
                   <div className="match-content-container">
-                    <div className="home-team-name" style={{ textAlign: "right" }}>
+                    <div
+                      className="home-team-name"
+                      style={{ textAlign: "right" }}
+                    >
                       <Skeleton className="h-4 w-24" />
                     </div>
-                    <div className="home-team-logo-container" style={{ padding: "0 0.6rem" }}>
+                    <div
+                      className="home-team-logo-container"
+                      style={{ padding: "0 0.6rem" }}
+                    >
                       <Skeleton className="h-8 w-8 rounded" />
                     </div>
                     <div className="match-score-container">
                       <Skeleton className="h-6 w-12" />
                     </div>
-                    <div className="away-team-logo-container" style={{ padding: "0 0.5rem" }}>
+                    <div
+                      className="away-team-logo-container"
+                      style={{ padding: "0 0.5rem" }}
+                    >
                       <Skeleton className="h-8 w-8 rounded" />
                     </div>
-                    <div className="away-team-name" style={{ textAlign: "left" }}>
+                    <div
+                      className="away-team-name"
+                      style={{ textAlign: "left" }}
+                    >
                       <Skeleton className="h-4 w-24" />
                     </div>
                   </div>
@@ -286,7 +350,9 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         <CardHeader className="cursor-pointer flex items-center justify-between p-3 bg-white border-b">
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-blue-500" />
-            <span className="font-semibold text-gray-800">{t('popular_football_live_score')}</span>
+            <span className="font-semibold text-gray-800">
+              {t("popular_football_leagues")}
+            </span>
           </div>
         </CardHeader>
         <CardContent className="p-4">
@@ -306,7 +372,9 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-gray-800 text-sm">{t('popular_football_leagues')}</span>
+          <span className="font-semibold text-gray-800 text-sm">
+            {t("popular_football_leagues")}
+          </span>
         </div>
       </CardHeader>
 
@@ -332,9 +400,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                     <div
                       className={`match-card-container group border-b border-gray-200 ${
                         selectedMatchId === matchId ? "selected-match" : ""
-                      } ${
-                        hoveredMatchId === matchId ? "hovered-match" : ""
-                      }`}
+                      } ${hoveredMatchId === matchId ? "hovered-match" : ""}`}
                       data-fixture-id={matchId}
                       onClick={() => handleMatchClick(fixture)}
                       onMouseEnter={() => setHoveredMatchId(matchId)}
@@ -382,19 +448,63 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                             const elapsed = fixture.fixture.status.elapsed;
 
                             // Check if match finished more than 4 hours ago
-                            const matchDateTime = new Date(fixture.fixture.date);
-                            const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
+                            const matchDateTime = new Date(
+                              fixture.fixture.date,
+                            );
+                            const hoursOld =
+                              (Date.now() - matchDateTime.getTime()) /
+                              (1000 * 60 * 60);
                             const isStaleFinishedMatch =
-                              (["FT", "AET", "PEN"].includes(status) && hoursOld > 4) ||
-                              (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursOld > 4) ||
-                              (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
+                              (["FT", "AET", "PEN"].includes(status) &&
+                                hoursOld > 4) ||
+                              ([
+                                "FT",
+                                "AET",
+                                "PEN",
+                                "AWD",
+                                "WO",
+                                "ABD",
+                                "CANC",
+                                "SUSP",
+                              ].includes(status) &&
+                                hoursOld > 4) ||
+                              (hoursOld > 4 &&
+                                [
+                                  "LIVE",
+                                  "1H",
+                                  "2H",
+                                  "HT",
+                                  "ET",
+                                  "BT",
+                                  "P",
+                                  "INT",
+                                ].includes(status));
 
                             // Show live status only for truly live matches (not finished and not stale)
                             if (
-                              !["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) &&
+                              ![
+                                "FT",
+                                "AET",
+                                "PEN",
+                                "AWD",
+                                "WO",
+                                "ABD",
+                                "CANC",
+                                "SUSP",
+                              ].includes(status) &&
                               !isStaleFinishedMatch &&
                               hoursOld <= 4 &&
-                              ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
+                              [
+                                "LIVE",
+                                "LIV",
+                                "1H",
+                                "HT",
+                                "2H",
+                                "ET",
+                                "BT",
+                                "P",
+                                "INT",
+                              ].includes(status)
                             ) {
                               let displayText = "";
                               let statusClass = "status-live-elapsed";
@@ -407,7 +517,10 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                               } else if (status === "ET") {
                                 if (elapsed) {
                                   const extraTime = elapsed - 90;
-                                  displayText = extraTime > 0 ? `90' + ${extraTime}'` : `${elapsed}'`;
+                                  displayText =
+                                    extraTime > 0
+                                      ? `90' + ${extraTime}'`
+                                      : `${elapsed}'`;
                                 } else {
                                   displayText = "Extra Time";
                                 }
@@ -420,22 +533,40 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                               }
 
                               return (
-                                <div className={`match-status-label ${statusClass}`}>
+                                <div
+                                  className={`match-status-label ${statusClass}`}
+                                >
                                   {displayText}
                                 </div>
                               );
                             }
 
                             // Postponed/Cancelled matches
-                            if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
+                            if (
+                              [
+                                "PST",
+                                "CANC",
+                                "ABD",
+                                "SUSP",
+                                "AWD",
+                                "WO",
+                              ].includes(status)
+                            ) {
                               return (
                                 <div className="match-status-label status-postponed">
-                                  {status === "PST" ? "Postponed" :
-                                   status === "CANC" ? "Cancelled" :
-                                   status === "ABD" ? "Abandoned" :
-                                   status === "SUSP" ? "Suspended" :
-                                   status === "AWD" ? "Awarded" :
-                                   status === "WO" ? "Walkover" : status}
+                                  {status === "PST"
+                                    ? "Postponed"
+                                    : status === "CANC"
+                                      ? "Cancelled"
+                                      : status === "ABD"
+                                        ? "Abandoned"
+                                        : status === "SUSP"
+                                          ? "Suspended"
+                                          : status === "AWD"
+                                            ? "Awarded"
+                                            : status === "WO"
+                                              ? "Walkover"
+                                              : status}
                                 </div>
                               );
                             }
@@ -444,7 +575,9 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                             if (status === "NS" || status === "TBD") {
                               const matchTime = new Date(fixture.fixture.date);
                               const now = new Date();
-                              const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+                              const hoursAgo =
+                                (now.getTime() - matchTime.getTime()) /
+                                (1000 * 60 * 60);
 
                               // If match is more than 2 hours overdue, show postponed status
                               if (hoursAgo > 2) {
@@ -470,7 +603,16 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
                             // Show "Ended" status for finished matches or stale matches
                             if (
-                              ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) ||
+                              [
+                                "FT",
+                                "AET",
+                                "PEN",
+                                "AWD",
+                                "WO",
+                                "ABD",
+                                "CANC",
+                                "SUSP",
+                              ].includes(status) ||
                               isStaleFinishedMatch
                             ) {
                               return (
@@ -483,8 +625,11 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                                     animation: "none",
                                   }}
                                 >
-                                  {status === "FT" || isStaleFinishedMatch ? "Ended" :
-                                   status === "AET" ? "After Extra Time" : status}
+                                  {status === "FT" || isStaleFinishedMatch
+                                    ? "Ended"
+                                    : status === "AET"
+                                      ? "After Extra Time"
+                                      : status}
                                 </div>
                               );
                             }
@@ -501,7 +646,9 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                               fixture.goals.home !== null &&
                               fixture.goals.away !== null &&
                               fixture.goals.home > fixture.goals.away &&
-                              ["FT", "AET", "PEN"].includes(fixture.fixture.status.short)
+                              ["FT", "AET", "PEN"].includes(
+                                fixture.fixture.status.short,
+                              )
                                 ? "winner"
                                 : ""
                             }`}
@@ -512,11 +659,15 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                               whiteSpace: "nowrap",
                             }}
                           >
-                            {shortenTeamName(fixture.teams.home.name) || "Unknown Team"}
+                            {shortenTeamName(fixture.teams.home.name) ||
+                              "Unknown Team"}
                           </div>
 
                           {/* Home team logo */}
-                          <div className="home-team-logo-container" style={{ padding: "0 0.6rem" }}>
+                          <div
+                            className="home-team-logo-container"
+                            style={{ padding: "0 0.6rem" }}
+                          >
                             {fixture.league.id === 10 ? (
                               <MyCircularFlag
                                 teamName={fixture.teams.home.name || ""}
@@ -552,23 +703,56 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                               const status = fixture.fixture.status.short;
 
                               // Live matches - show current score
-                              if (["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT", "45", "90"].includes(status)) {
+                              if (
+                                [
+                                  "LIVE",
+                                  "LIV",
+                                  "1H",
+                                  "HT",
+                                  "2H",
+                                  "ET",
+                                  "BT",
+                                  "P",
+                                  "INT",
+                                  "45",
+                                  "90",
+                                ].includes(status)
+                              ) {
                                 return (
                                   <div className="match-score-display">
-                                    <span className="score-number">{fixture.goals.home ?? 0}</span>
+                                    <span className="score-number">
+                                      {fixture.goals.home ?? 0}
+                                    </span>
                                     <span className="score-separator">-</span>
-                                    <span className="score-number">{fixture.goals.away ?? 0}</span>
+                                    <span className="score-number">
+                                      {fixture.goals.away ?? 0}
+                                    </span>
                                   </div>
                                 );
                               }
 
                               // Ended matches - show final score
-                              if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                              if (
+                                [
+                                  "FT",
+                                  "AET",
+                                  "PEN",
+                                  "AWD",
+                                  "WO",
+                                  "ABD",
+                                  "CANC",
+                                  "SUSP",
+                                ].includes(status)
+                              ) {
                                 return (
                                   <div className="match-score-display">
-                                    <span className="score-number">{fixture.goals.home ?? 0}</span>
+                                    <span className="score-number">
+                                      {fixture.goals.home ?? 0}
+                                    </span>
                                     <span className="score-separator">-</span>
-                                    <span className="score-number">{fixture.goals.away ?? 0}</span>
+                                    <span className="score-number">
+                                      {fixture.goals.away ?? 0}
+                                    </span>
                                   </div>
                                 );
                               }
@@ -577,20 +761,42 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                               if (
                                 status === "NS" ||
                                 status === "TBD" ||
-                                ["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)
+                                [
+                                  "PST",
+                                  "CANC",
+                                  "ABD",
+                                  "SUSP",
+                                  "AWD",
+                                  "WO",
+                                ].includes(status)
                               ) {
-                                const matchTime = new Date(fixture.fixture.date);
+                                const matchTime = new Date(
+                                  fixture.fixture.date,
+                                );
 
                                 // For postponed/cancelled matches, still show the kick-off time
-                                if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
-                                  const localTime = matchTime.toLocaleTimeString("en-US", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                    hour12: false,
-                                  });
+                                if (
+                                  [
+                                    "PST",
+                                    "CANC",
+                                    "ABD",
+                                    "SUSP",
+                                    "AWD",
+                                    "WO",
+                                  ].includes(status)
+                                ) {
+                                  const localTime =
+                                    matchTime.toLocaleTimeString("en-US", {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      hour12: false,
+                                    });
 
                                   return (
-                                    <div className="match-time-display" style={{ fontSize: "0.882em" }}>
+                                    <div
+                                      className="match-time-display"
+                                      style={{ fontSize: "0.882em" }}
+                                    >
                                       {localTime}
                                     </div>
                                   );
@@ -598,59 +804,86 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
                                 // Check if match should have started already (more than 2 hours ago) for NS/TBD
                                 const now = new Date();
-                                const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+                                const hoursAgo =
+                                  (now.getTime() - matchTime.getTime()) /
+                                  (1000 * 60 * 60);
 
                                 // If match is more than 2 hours overdue, show kick-off time but with postponed styling
                                 if (hoursAgo > 2) {
-                                  const localTime = matchTime.toLocaleTimeString("en-US", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                    hour12: false,
-                                  });
+                                  const localTime =
+                                    matchTime.toLocaleTimeString("en-US", {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      hour12: false,
+                                    });
 
                                   return (
-                                    <div className="match-time-display text-orange-600" style={{ fontSize: "0.8em" }}>
+                                    <div
+                                      className="match-time-display text-orange-600"
+                                      style={{ fontSize: "0.8em" }}
+                                    >
                                       {localTime}
                                     </div>
                                   );
                                 }
 
                                 // Use simplified local time formatting for regular upcoming matches
-                                const localTime = matchTime.toLocaleTimeString("en-US", {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                  hour12: false,
-                                });
+                                const localTime = matchTime.toLocaleTimeString(
+                                  "en-US",
+                                  {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: false,
+                                  },
+                                );
 
                                 return (
-                                  <div className="match-time-display" style={{ fontSize: "0.882em" }}>
+                                  <div
+                                    className="match-time-display"
+                                    style={{ fontSize: "0.882em" }}
+                                  >
                                     {status === "TBD" ? "TBD" : localTime}
                                   </div>
                                 );
                               }
 
                               // Fallback for any unhandled status - show time or score if available
-                              if (fixture.goals.home !== null || fixture.goals.away !== null) {
+                              if (
+                                fixture.goals.home !== null ||
+                                fixture.goals.away !== null
+                              ) {
                                 return (
                                   <div className="match-score-display">
-                                    <span className="score-number">{fixture.goals.home ?? 0}</span>
+                                    <span className="score-number">
+                                      {fixture.goals.home ?? 0}
+                                    </span>
                                     <span className="score-separator">-</span>
-                                    <span className="score-number">{fixture.goals.away ?? 0}</span>
+                                    <span className="score-number">
+                                      {fixture.goals.away ?? 0}
+                                    </span>
                                   </div>
                                 );
                               }
 
                               // Last resort - show match time
                               return (
-                                <div className="match-time-display" style={{ fontSize: "0.882em" }}>
-                                  {formatMatchTimeWithTimezone(fixture.fixture.date)}
+                                <div
+                                  className="match-time-display"
+                                  style={{ fontSize: "0.882em" }}
+                                >
+                                  {formatMatchTimeWithTimezone(
+                                    fixture.fixture.date,
+                                  )}
                                 </div>
                               );
                             })()}
                           </div>
 
                           {/* Away team logo */}
-                          <div className="away-team-logo-container" style={{ padding: "0 0.5rem" }}>
+                          <div
+                            className="away-team-logo-container"
+                            style={{ padding: "0 0.5rem" }}
+                          >
                             {fixture.league.id === 10 ? (
                               <MyCircularFlag
                                 teamName={fixture.teams.away.name || ""}
@@ -686,7 +919,9 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                               fixture.goals.home !== null &&
                               fixture.goals.away !== null &&
                               fixture.goals.away > fixture.goals.home &&
-                              ["FT", "AET", "PEN"].includes(fixture.fixture.status.short)
+                              ["FT", "AET", "PEN"].includes(
+                                fixture.fixture.status.short,
+                              )
                                 ? "winner"
                                 : ""
                             }`}
@@ -698,14 +933,16 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                               whiteSpace: "nowrap",
                             }}
                           >
-                            {shortenTeamName(fixture.teams.away.name) || "Unknown Team"}
+                            {shortenTeamName(fixture.teams.away.name) ||
+                              "Unknown Team"}
                           </div>
                         </div>
 
                         {/* Bottom Grid: Penalty Result Status */}
                         <div className="match-penalty-bottom">
                           {(() => {
-                            const isPenaltyMatch = fixture.fixture.status.short === "PEN";
+                            const isPenaltyMatch =
+                              fixture.fixture.status.short === "PEN";
                             const penaltyHome = fixture.score?.penalty?.home;
                             const penaltyAway = fixture.score?.penalty?.away;
                             const hasPenaltyScores =
@@ -722,7 +959,10 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
                               return (
                                 <div className="penalty-result-display">
-                                  <span className="penalty-winner" style={{ background: "transparent" }}>
+                                  <span
+                                    className="penalty-winner"
+                                    style={{ background: "transparent" }}
+                                  >
                                     {winnerText}
                                   </span>
                                 </div>

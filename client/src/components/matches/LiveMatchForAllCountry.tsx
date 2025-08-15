@@ -822,7 +822,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       <>
         {/* Header Section */}
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-          {t("Popular Football Live Score")}
+          {t("popular_football_live_score")}
         </CardHeader>
         <div className="bg-gray-100 min-h-[400px] flex items-center justify-center">
           <div className="text-center">
@@ -859,7 +859,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       <>
         {/* Header Section */}
         <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold text-sm">
-          {t("Popular Football Live Score")}
+          {t("popular_football_live_score")}
         </CardHeader>
         <div className="bg-gray-100 min-h-[400px]">
           <NoLiveMatchesEmpty
@@ -880,7 +880,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       {/* Header Section */}
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
         <div className="flex justify-between items-center w-full">
-          <span>{t("Popular Football Live Score")}</span>
+          <span>{t("popular_football_live_score")}</span>
         </div>
       </CardHeader>
       {/* Create individual league cards from all countries */}
