@@ -47,11 +47,20 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   // Check match status to determine if we should render
   const status = matchStatus || match?.fixture?.status?.short;
 
-  // Only show highlights for ended matches
-  const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"].includes(status);
+  console.log(`🔍 [Highlights] Match status check: "${status}"`);
 
-  // Don't render if match is not ended
-  if (!isEnded) {
+  // Show highlights for ended matches and some live/halftime matches
+  const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"].includes(status);
+  const isLiveOrHalftime = ["1H", "2H", "HT", "LIVE"].includes(status);
+  
+  // More permissive: show highlights for ended matches OR live/halftime matches
+  const shouldShowHighlights = isEnded || isLiveOrHalftime;
+
+  console.log(`🔍 [Highlights] Should show highlights: ${shouldShowHighlights} (isEnded: ${isEnded}, isLiveOrHalftime: ${isLiveOrHalftime})`);
+
+  // Don't render if match is not eligible for highlights
+  if (!shouldShowHighlights) {
+    console.log(`🚫 [Highlights] Not showing highlights for status: ${status}`);
     return null;
   }
   const uniqueId = useId();
@@ -118,6 +127,14 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                            rawHome && rawAway && 
                            rawHome.trim() !== '' && rawAway.trim() !== '';
 
+  console.log(`🔍 [Highlights] Team name validation:`, {
+    rawHome,
+    rawAway,
+    hasValidTeamNames,
+    homeTeamData: homeTeamData?.name,
+    awayTeamData: awayTeamData?.name
+  });
+
   if (!hasValidTeamNames) {
     console.warn(`🎬 [Highlights] Invalid team names detected:`, {
       rawHome,
@@ -126,7 +143,10 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       awayTeamData,
       match: match?.teams
     });
-    return null; // Don't show highlights if we don't have proper team names
+    
+    // More permissive: try to show highlights even with fallback names for debugging
+    console.warn(`⚠️ [Highlights] Proceeding with fallback team names for debugging`);
+    // return null; // Commented out to be more permissive
   }
 
   // Clean team names for better search results
@@ -1038,6 +1058,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     const league = leagueName || match?.league?.name || match?.leagueName || '';
     const leagueLower = league.toLowerCase();
 
+    console.log(`🔍 [Highlights] Checking sport for league: "${league}"`);
+
     // Enhanced list of non-football sports with more volleyball variations
     const nonFootballSports = [
       'volleyball', 'volley', 'beach volleyball', 'indoor volleyball', 'vóley', 'voleybol',
@@ -1069,25 +1091,28 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
     const hasFootballIndicators = footballIndicators.some(indicator => leagueLower.includes(indicator));
 
-    // Only return true if we have clear football indicators or no league name
-    // This prevents non-football content from showing highlights
+    // More lenient approach - if no clear non-football indicators, assume football
     if (hasFootballIndicators) {
       console.log(`✅ [Highlights] Football match confirmed: ${league}`);
       return true;
     }
 
-    // If no clear indicators and we have a league name, assume it's not football
-    if (leagueLower) {
-      console.log(`❓ [Highlights] Unclear sport, hiding highlights for: ${league}`);
-      return false;
+    // If no league name or unclear, default to showing highlights (more permissive)
+    if (!leagueLower || leagueLower.trim() === '') {
+      console.log(`✅ [Highlights] No league name, defaulting to football`);
+      return true;
     }
 
-    // Default to football only if no league name is available
+    // If we have a league name but no clear indicators, still show highlights (more permissive)
+    console.log(`⚠️ [Highlights] Unclear sport but showing highlights anyway for: ${league}`);
     return true;
   };
 
-  // Hide the card entirely when no video is available, not loading, iframe error, or video unavailable
-  if (!isFootballMatch() || (error && !loading) || iframeError) {
+  // More permissive: show error state instead of hiding completely
+  const shouldHideCompletely = !isFootballMatch();
+  
+  if (shouldHideCompletely) {
+    console.log(`🚫 [Highlights] Hiding highlights component completely`);
     return null;
   }
 
@@ -1192,11 +1217,31 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
               }}
             />
           </div>
+        ) : error ? (
+          <div className="w-full h-64 flex items-center justify-center bg-gray-50">
+            <div className="text-center">
+              <AlertCircle className="w-8 h-8 mx-auto mb-2 text-red-400" />
+              <p className="text-sm text-gray-600 mb-2">Unable to load highlights</p>
+              <p className="text-xs text-gray-500 mb-3">{error}</p>
+              <button 
+                onClick={handleRetry}
+                className="px-4 py-2 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors"
+              >
+                Try Again
+              </button>
+              <div className="mt-2 text-xs text-gray-400">
+                Teams: {rawHome} vs {rawAway}
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="w-full h-64 flex items-center justify-center bg-gray-50">
             <div className="text-center">
               <Video className="w-8 h-8 mx-auto mb-2 text-gray-400" />
               <p className="text-sm text-gray-600">No highlights available</p>
+              <p className="text-xs text-gray-500 mt-1">
+                {rawHome} vs {rawAway}
+              </p>
             </div>
           </div>
         )}
