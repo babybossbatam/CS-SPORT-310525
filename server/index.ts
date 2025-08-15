@@ -3,6 +3,7 @@ import logoRoutes from './routes/logoRoutes';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
+import fs from 'fs'; // Import fs module
 
 const app = express();
 app.use(express.json());
@@ -24,11 +25,11 @@ let memoryWarningCount = 0;
 const monitorMemory = () => {
   const usage = process.memoryUsage();
   const heapUsedMB = usage.heapUsed / 1024 / 1024;
-  
+
   if (heapUsedMB > 1500) { // Warning at 1.5GB
     memoryWarningCount++;
     console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB (Warning #${memoryWarningCount})`);
-    
+
     if (memoryWarningCount > 5) {
       console.log('🧹 Forcing garbage collection...');
       if (global.gc) {
@@ -159,11 +160,10 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = process.env.PORT || 5000;
-  
+
   // Process lock to prevent multiple instances
   const lockFile = '/tmp/server.lock';
-  const fs = require('fs');
-  
+
   try {
     // Check if lock file exists
     if (fs.existsSync(lockFile)) {
@@ -178,10 +178,10 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
         fs.unlinkSync(lockFile);
       }
     }
-    
+
     // Create lock file with current PID
     fs.writeFileSync(lockFile, process.pid.toString());
-    
+
     // Clean up lock file on exit
     process.on('exit', () => {
       try {
@@ -192,7 +192,7 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
         // Ignore cleanup errors
       }
     });
-    
+
     server.listen(Number(port), "0.0.0.0", () => {
       log(`serving on port ${port}`);
     }).on('error', (err: any) => {
@@ -204,7 +204,7 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
       } catch (e) {
         // Ignore cleanup errors
       }
-      
+
       if (err.code === 'EADDRINUSE') {
         console.error(`Port ${port} is already in use. Another server instance may be running.`);
       } else {
