@@ -664,8 +664,8 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
                         const mappedData = countryData.mappedData;
                         const displayCountryName = mappedData.displayName;
 
-                        // Check for World using original name
-                        const isWorldCountry = countryName.toLowerCase() === "world";
+                        // Check for World using original name (with null check)
+                        const isWorldCountry = countryName?.toLowerCase() === "world";
 
                         const flagElement = isWorldCountry ? (
                           <MyGroupNationalFlag
