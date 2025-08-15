@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, userActions } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/contexts/LanguageContext";
 import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
@@ -126,6 +127,8 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
   const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
   const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
+  
+  const { t } = useTranslation();
 
   // Popular leagues for prioritization
   const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
@@ -797,12 +800,12 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
         <div className="flex justify-between items-center w-full">
           <span>
             {liveFilterActive && timeFilterActive
-              ? "Popular Football Live Score"
+              ? t('popular_football_leagues')
               : liveFilterActive && !timeFilterActive
-                ? "Popular Football Live Score"
+                ? t('popular_football_leagues')
                 : !liveFilterActive && timeFilterActive
                   ? "All Matches by Time"
-                  : "Popular Football Live Score"}
+                  : t('popular_football_leagues')}
           </span>
         </div>
       </CardHeader>
