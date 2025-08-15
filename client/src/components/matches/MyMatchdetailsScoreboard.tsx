@@ -71,9 +71,13 @@ const MyMatchdetailsScoreboard = ({
   const [currentMatchData, setCurrentMatchData] = useState<any | null>(null);
   const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
   const activeTab = externalActiveTab || internalActiveTab;
-  
+
   // Dynamic background color state
   const [dynamicBackground, setDynamicBackground] = useState<string>("");
+
+  // Assume currentLanguage is available globally or imported
+  // Example: const currentLanguage = 'en';
+  const currentLanguage = 'en'; // Replace with actual language detection logic
 
   // Since this component only displays passed data, we don't need to fetch data
   // Sample match data for demonstration
@@ -137,59 +141,59 @@ const MyMatchdetailsScoreboard = ({
       try {
         const img = new Image();
         img.crossOrigin = "anonymous";
-        
+
         img.onload = () => {
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
-          
+
           if (!ctx) {
             resolve(getTeamColor(teamName, true));
             return;
           }
-          
+
           canvas.width = img.width;
           canvas.height = img.height;
           ctx.drawImage(img, 0, 0);
-          
+
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
           const data = imageData.data;
-          
+
           // Color frequency map
           const colorMap: Record<string, number> = {};
-          
+
           for (let i = 0; i < data.length; i += 4) {
             const r = data[i];
             const g = data[i + 1];
             const b = data[i + 2];
             const a = data[i + 3];
-            
+
             // Skip transparent or near-transparent pixels
             if (a < 128) continue;
-            
+
             // Skip very light or very dark colors
             const brightness = (r + g + b) / 3;
             if (brightness < 40 || brightness > 220) continue;
-            
+
             // Group similar colors
             const rGroup = Math.floor(r / 30) * 30;
             const gGroup = Math.floor(g / 30) * 30;
             const bGroup = Math.floor(b / 30) * 30;
-            
+
             const colorKey = `${rGroup},${gGroup},${bGroup}`;
             colorMap[colorKey] = (colorMap[colorKey] || 0) + 1;
           }
-          
+
           // Find most frequent color
           let dominantColor = "";
           let maxCount = 0;
-          
+
           for (const [color, count] of Object.entries(colorMap)) {
             if (count > maxCount) {
               maxCount = count;
               dominantColor = color;
             }
           }
-          
+
           if (dominantColor) {
             const [r, g, b] = dominantColor.split(",").map(Number);
             resolve(`rgb(${r}, ${g}, ${b})`);
@@ -197,11 +201,11 @@ const MyMatchdetailsScoreboard = ({
             resolve(getTeamColor(teamName, true));
           }
         };
-        
+
         img.onerror = () => {
           resolve(getTeamColor(teamName, true));
         };
-        
+
         img.src = logoUrl;
       } catch (error) {
         resolve(getTeamColor(teamName, true));
@@ -215,41 +219,41 @@ const MyMatchdetailsScoreboard = ({
       const extractColorsAndSetBackground = async () => {
         try {
           // Get logo URLs
-          const homeLogoUrl = displayMatch.teams.home.id 
+          const homeLogoUrl = displayMatch.teams.home.id
             ? `/api/team-logo/square/${displayMatch.teams.home.id}?size=64`
             : displayMatch.teams.home.logo;
-          
-          const awayLogoUrl = displayMatch.teams.away.id 
+
+          const awayLogoUrl = displayMatch.teams.away.id
             ? `/api/team-logo/square/${displayMatch.teams.away.id}?size=64`
             : displayMatch.teams.away.logo;
-          
+
           // Extract colors from logos
           const [homeColor, awayColor] = await Promise.all([
             extractColorFromLogo(homeLogoUrl, displayMatch.teams.home.name),
             extractColorFromLogo(awayLogoUrl, displayMatch.teams.away.name)
           ]);
-          
+
           // Create 365scores-style radial gradients with circular shapes from left and right
           const homeColorRgba = homeColor.replace('rgb(', '').replace(')', '').split(',');
           const awayColorRgba = awayColor.replace('rgb(', '').replace(')', '').split(',');
-          
+
           const gradient = `radial-gradient(121.26% 75.73% at 0% 50.24%, rgba(${homeColorRgba[0]}, ${homeColorRgba[1]}, ${homeColorRgba[2]}, 0.3) 0%, rgba(255, 255, 255, 0.3) 80%), radial-gradient(121.26% 75.73% at 100% 50.24%, rgba(${awayColorRgba[0]}, ${awayColorRgba[1]}, ${awayColorRgba[2]}, 0.3) 0%, rgba(255, 255, 255, 0.3) 80%)`;
-          
+
           setDynamicBackground(gradient);
         } catch (error) {
           console.warn("Error extracting team colors for background:", error);
           // Fallback to name-based colors with radial gradient approach
           const homeTeamColor = getTeamColor(displayMatch.teams.home.name, true);
           const awayTeamColor = getTeamColor(displayMatch.teams.away.name, false);
-          
+
           const homeColorRgba = homeTeamColor.replace('rgb(', '').replace(')', '').split(',');
           const awayColorRgba = awayTeamColor.replace('rgb(', '').replace(')', '').split(',');
-          
+
           const gradient = `radial-gradient(121.26% 75.73% at 0% 50.24%, rgba(${homeColorRgba[0]}, ${homeColorRgba[1]}, ${awayColorRgba[2]}, 0.3) 0%, rgba(255, 255, 255, 0.3) 80%), radial-gradient(121.26% 75.73% at 100% 50.24%, rgba(${awayColorRgba[0]}, ${awayColorRgba[1]}, ${awayColorRgba[2]}, 0.3) 0%, rgba(255, 255, 255, 0.3) 80%)`;
           setDynamicBackground(gradient);
         }
       };
-      
+
       extractColorsAndSetBackground();
     }
   }, [displayMatch?.teams?.home?.name, displayMatch?.teams?.away?.name, displayMatch?.teams?.home?.id, displayMatch?.teams?.away?.id]);
@@ -438,28 +442,60 @@ const MyMatchdetailsScoreboard = ({
     }
   };
 
+  // Status text translation helper
+  const translateStatusText = (statusText: string) => {
+    const statusTranslations: Record<string, Record<string, string>> = {
+      'Finished': { 'zh': '已结束', 'zh-hk': '已結束', 'zh-tw': '已結束', 'es': 'Finalizado', 'de': 'Beendet', 'it': 'Finito', 'pt': 'Terminado' },
+      'Just Finished': { 'zh': '刚结束', 'zh-hk': '剛結束', 'zh-tw': '剛結束', 'es': 'Recién terminado', 'de': 'Gerade beendet', 'it': 'Appena finito', 'pt': 'Recém terminado' },
+      'Ended': { 'zh': '结束', 'zh-hk': '結束', 'zh-tw': '結束', 'es': 'Terminado', 'de': 'Beendet', 'it': 'Finito', 'pt': 'Terminado' },
+      'Upcoming': { 'zh': '即将开始', 'zh-hk': '即將開始', 'zh-tw': '即將開始', 'es': 'Próximo', 'de': 'Bevorstehend', 'it': 'Prossimo', 'pt': 'Próximo' },
+      'Halftime': { 'zh': '中场休息', 'zh-hk': '中場休息', 'zh-tw': '中場休息', 'es': 'Descanso', 'de': 'Halbzeit', 'it': 'Intervallo', 'pt': 'Intervalo' },
+      'Penalties': { 'zh': '点球大战', 'zh-hk': '點球大戰', 'zh-tw': '點球大戰', 'es': 'Penales', 'de': 'Elfmeterschießen', 'it': 'Rigori', 'pt': 'Pênaltis' },
+      'Extra Time': { 'zh': '加时赛', 'zh-hk': '加時賽', 'zh-tw': '延長賽', 'es': 'Tiempo extra', 'de': 'Verlängerung', 'it': 'Supplementari', 'pt': 'Prorrogação' },
+      'LIVE': { 'zh': '直播', 'zh-hk': '直播', 'zh-tw': '直播', 'es': 'En vivo', 'de': 'Live', 'it': 'Live', 'pt': 'Ao vivo' }
+    };
+
+    const translation = statusTranslations[statusText];
+    if (translation && translation[currentLanguage]) {
+      return translation[currentLanguage];
+    }
+    return statusText;
+  };
+
+  // Tab text translation helper
+  const translateTabText = (tabText: string) => {
+    const tabTranslations: Record<string, Record<string, string>> = {
+      'Match': { 'zh': '比赛', 'zh-hk': '比賽', 'zh-tw': '比賽', 'es': 'Partido', 'de': 'Spiel', 'it': 'Partita', 'pt': 'Jogo' },
+      'Lineups': { 'zh': '阵容', 'zh-hk': '陣容', 'zh-tw': '陣容', 'es': 'Alineaciones', 'de': 'Aufstellungen', 'it': 'Formazioni', 'pt': 'Escalações' },
+      'Probable Lineups': { 'zh': '可能阵容', 'zh-hk': '可能陣容', 'zh-tw': '可能陣容', 'es': 'Alineaciones probables', 'de': 'Wahrscheinliche Aufstellungen', 'it': 'Probabili formazioni', 'pt': 'Escalações prováveis' },
+      'Stats': { 'zh': '统计', 'zh-hk': '統計', 'zh-tw': '統計', 'es': 'Estadísticas', 'de': 'Statistiken', 'it': 'Statistiche', 'pt': 'Estatísticas' },
+      'Trends': { 'zh': '趋势', 'zh-hk': '趨勢', 'zh-tw': '趨勢', 'es': 'Tendencias', 'de': 'Trends', 'it': 'Tendenze', 'pt': 'Tendências' },
+      'Head to Head': { 'zh': '交锋记录', 'zh-hk': '交鋒記錄', 'zh-tw': '交鋒記錄', 'es': 'Cara a cara', 'de': 'Direktvergleich', 'it': 'Testa a testa', 'pt': 'Confronto direto' },
+      'H2H': { 'zh': '交锋', 'zh-hk': '交鋒', 'zh-tw': '交鋒', 'es': 'H2H', 'de': 'H2H', 'it': 'H2H', 'pt': 'H2H' }
+    };
+
+    const translation = tabTranslations[tabText];
+    if (translation && translation[currentLanguage]) {
+      return translation[currentLanguage];
+    }
+    return tabText;
+  };
+
   const getStatusBadge = (status: string) => {
     // Always prioritize the actual match data status to avoid confusion
     const actualStatus = displayMatch.fixture.status.short;
 
-    // Only use live status if it matches the actual status or is a valid progression
+    // Use currentLiveStatus for live matches if available and consistent
     let currentStatus = actualStatus;
-    if (liveStatus || currentLiveStatus) {
-      const liveStatusToUse = liveStatus || currentLiveStatus;
-      // Validate that live status is a reasonable progression from actual status
-      if (actualStatus === liveStatusToUse || 
-          (actualStatus === "1H" && liveStatusToUse === "HT") ||
-          (actualStatus === "HT" && liveStatusToUse === "2H") ||
-          (actualStatus === "2H" && liveStatusToUse === "FT")) {
-        currentStatus = liveStatusToUse;
-      }
+    if (liveStatus) {
+      currentStatus = liveStatus;
     }
 
     const isEndedMatch = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(currentStatus);
 
     // Check if it's a finished match and determine the appropriate label
     const getFinishedLabel = () => {
-      if (!["FT", "AET", "PEN"].includes(currentStatus)) return "Finished";
+      if (!["FT", "AET", "PEN"].includes(currentStatus)) return translateStatusText("Finished");
 
       try {
         const matchDate = new Date(displayMatch.fixture.date);
@@ -468,26 +504,26 @@ const MyMatchdetailsScoreboard = ({
           (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
 
         // If finished less than 1 hour ago, show "Just Finished"
-        return hoursElapsed <= 1 ? "Just Finished" : "Ended";
+        return hoursElapsed <= 1 ? translateStatusText("Just Finished") : translateStatusText("Ended");
       } catch (error) {
-        return "Ended";
+        return translateStatusText("Ended");
       }
     };
 
     // For live matches, show elapsed time with pulse animation
     // But ensure match is not ended according to API
-    const isLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(currentStatus) && !isEndedMatch;
+    const isLiveMatch = ["1H", "2H", "LIVE", "HT", "ET", "P", "BT", "INT"].includes(currentStatus) && !isEndedMatch;
     if (isLiveMatch) {
       // Real-time calculation for live matches
       let displayText = "LIVE";
       const elapsed = liveElapsed !== null ? liveElapsed : displayMatch.fixture.status.elapsed;
 
       if (currentStatus === "HT") {
-        displayText = "Halftime";
+        displayText = translateStatusText("Halftime");
       } else if (currentStatus === "P") {
-        displayText = "Penalties";
+        displayText = translateStatusText("Penalties");
       } else if (currentStatus === "ET") {
-        displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
+        displayText = elapsed ? `${elapsed}' ET` : translateStatusText("Extra Time");
       } else {
                                 // For LIVE, LIV, 1H, 2H - use validated elapsed time from the actual match data
                                 // Priority: Use the passed match data elapsed time (most reliable source)
@@ -513,7 +549,7 @@ const MyMatchdetailsScoreboard = ({
                                 if (currentElapsed !== null && currentElapsed !== undefined && currentElapsed > 0) {
                                   displayText = `${currentElapsed}'`;
                                 } else {
-                                  displayText = "LIVE";
+                                  displayText = translateStatusText("LIVE");
                                 }
                               }
 
@@ -525,11 +561,11 @@ const MyMatchdetailsScoreboard = ({
     }
 
     const statusConfig = {
-      NS: { label: "Upcoming", variant: "default" as const },
+      NS: { label: translateStatusText("Upcoming"), variant: "default" as const },
       FT: { label: getFinishedLabel(), variant: "default" as const },
       AET: { label: getFinishedLabel(), variant: "default" as const },
       PEN: { label: getFinishedLabel(), variant: "default" as const },
-      HT: { label: "Half Time", variant: "outline" as const },
+      HT: { label: translateStatusText("Halftime"), variant: "outline" as const },
     };
 
     const config = statusConfig[currentStatus as keyof typeof statusConfig] || {
@@ -810,33 +846,33 @@ const MyMatchdetailsScoreboard = ({
           <button className={`flex-shrink-0 py-2 px-2 sm:px-4 text-xs sm:text-sm font-normal whitespace-nowrap ${activeTab === 'match' ? 'text-gray-900 dark:text-white border-b-2 border-blue-500' : 'text-gray-600 dark:text-white hover:text-gray-800 dark:hover:text-gray-200'} transition-colors duration-200`}
           onClick={() => handleTabChange("match")}
           >
-            Match
+            {translateTabText('Match')}
           </button>
           <button className={`flex-shrink-0 py-2 px-2 sm:px-4 text-xs sm:text-sm font-normal whitespace-nowrap ${activeTab === 'lineups' ? 'text-gray-900 dark:text-white border-b-2 border-blue-500' : 'text-gray-600 dark:text-white hover:text-gray-800 dark:hover:text-gray-200'} transition-colors duration-200`}
            onClick={() => handleTabChange("lineups")}
           >
             <span className="hidden sm:inline">
               {displayMatch.fixture.status.short === "NS"
-                ? "Probable Lineups"
-                : "Lineups"}
+                ? translateTabText("Probable Lineups")
+                : translateTabText("Lineups")}
             </span>
-            <span className="sm:hidden">Lineups</span>
+            <span className="sm:hidden">{translateTabText("Lineups")}</span>
           </button>
           <button className={`flex-shrink-0 py-2 px-2 sm:px-4 text-xs sm:text-sm font-normal whitespace-nowrap ${activeTab === 'stats' ? 'text-gray-900 dark:text-white border-b-2 border-blue-500' : 'text-gray-600 dark:text-white hover:text-gray-800 dark:hover:text-gray-200'} transition-colors duration-200`}
            onClick={() => handleTabChange("stats")}
           >
-            Stats
+            {translateTabText('Stats')}
           </button>
           <button className={`flex-shrink-0 py-2 px-2 sm:px-4 text-xs sm:text-sm font-normal whitespace-nowrap ${activeTab === 'trends' ? 'text-gray-900 dark:text-white border-b-2 border-blue-500' : 'text-gray-600 dark:text-white hover:text-gray-800 dark:hover:text-gray-200'} transition-colors duration-200`}
            onClick={() => handleTabChange("trends")}
           >
-            Trends
+            {translateTabText('Trends')}
           </button>
           <button className={`flex-shrink-0 py-2 px-2 sm:px-4 text-xs sm:text-sm font-normal whitespace-nowrap ${activeTab === 'h2h' ? 'text-gray-900 dark:text-white border-b-2 border-blue-500' : 'text-gray-600 dark:text-white hover:text-gray-800 dark:hover:text-gray-200'} transition-colors duration-200`}
            onClick={() => handleTabChange("h2h")}
           >
-            <span className="hidden sm:inline">Head to Head</span>
-            <span className="sm:hidden">H2H</span>
+            <span className="hidden sm:inline">{translateTabText("Head to Head")}</span>
+            <span className="sm:hidden">{translateTabText("H2H")}</span>
           </button>
           {activeTab === 'highlights' && (
               <MyHighlights
