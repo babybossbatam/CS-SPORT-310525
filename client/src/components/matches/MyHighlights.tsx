@@ -198,11 +198,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       match: match?.teams,
     });
 
-    // More permissive: try to show highlights even with fallback names for debugging
-    console.warn(
-      `⚠️ [Highlights] Proceeding with fallback team names for debugging`,
-    );
-    // return null; // Commented out to be more permissive
+    // Return null for invalid team names to prevent random video selection
+    return null;
   }
 
   // Clean team names for better search results
@@ -300,15 +297,15 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   // Create multiple search strategies with different approaches
   const primarySearchQuery =
-    `"${rawHome}" vs "${rawAway}" highlights ${matchYear} ${teamExclusions}`.trim();
+    `"${rawHome}" vs "${rawAway}" highlights ${matchYear}`.trim();
 
   // Alternative search with cleaned names
   const secondarySearchQuery =
-    `"${home}" vs "${away}" highlights ${matchYear} ${teamExclusions}`.trim();
+    `"${home}" vs "${away}" highlights ${matchYear}`.trim();
 
   // Search with league context for better accuracy
   const leagueSpecificQuery = league
-    ? `"${rawHome}" vs "${rawAway}" "${league}" ${matchYear} highlights ${teamExclusions}`.trim()
+    ? `"${rawHome}" vs "${rawAway}" "${league}" ${matchYear} highlights`.trim()
     : primarySearchQuery;
 
   // Broader search without quotes for difficult matches
@@ -509,9 +506,9 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       "ios",
     ];
 
-    // Heavy penalty for esports content
+    // Moderate penalty for esports content (reduced from -200 to -50)
     if (esportsTerms.some((term) => titleLower.includes(term))) {
-      score -= 200; // Very heavy penalty to ensure esports content is filtered out
+      score -= 50; // Moderate penalty for esports content
     }
 
     // Check for exact team name matches first (highest priority)
@@ -1319,7 +1316,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   return false;
                 }
 
-                // Both team names should be present
+                // Both team names should be present (more strict matching)
                 const homeInTitle =
                   title.includes(home.toLowerCase()) ||
                   title.includes(rawHome.toLowerCase());
@@ -1329,7 +1326,18 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
                 if (!homeInTitle || !awayInTitle) {
                   console.log(
-                    `🚫 [Highlights] Filtered out: "${video.snippet.title}" (missing team names)`,
+                    `🚫 [Highlights] Filtered out: "${video.snippet.title}" (missing team names - home: ${homeInTitle}, away: ${awayInTitle})`,
+                  );
+                  return false;
+                }
+
+                // Additional check: reject if it's clearly a different match
+                const vsPattern = new RegExp(`${home.toLowerCase()}.*vs.*${away.toLowerCase()}|${away.toLowerCase()}.*vs.*${home.toLowerCase()}`, 'i');
+                const xPattern = new RegExp(`${home.toLowerCase()}.*x.*${away.toLowerCase()}|${away.toLowerCase()}.*x.*${home.toLowerCase()}`, 'i');
+                
+                if (!vsPattern.test(title) && !xPattern.test(title)) {
+                  console.log(
+                    `🚫 [Highlights] Filtered out: "${video.snippet.title}" (no clear vs/x pattern between teams)`,
                   );
                   return false;
                 }
