@@ -31,8 +31,8 @@ interface AutomatedCountryMapping {
   leagueContext?: string;
   occurrenceCount: number;
   lastSeen: number;
-  preferredTranslation?: string;
-  language?: string;
+  preferredTranslation?: string; // Added preferred translation option
+  language?: string; // Added language for preferred translation
 }
 
 class SmartLeagueCountryTranslation {
@@ -759,9 +759,9 @@ class SmartLeagueCountryTranslation {
         'de': 'AFC Challenge League',
         'it': 'AFC Challenge League',
         'pt': 'Liga Challenge AFC',
-       
-      
-      
+
+
+
       },
 
       // Other AFC competitions
@@ -774,7 +774,7 @@ class SmartLeagueCountryTranslation {
         'de': 'AFC-Pokal',
         'it': 'Coppa AFC',
         'pt': 'Copa AFC',
-       
+
       },
 
       'AFC Champions League': {
@@ -786,7 +786,7 @@ class SmartLeagueCountryTranslation {
         'de': 'AFC Champions League',
         'it': 'AFC Champions League',
         'pt': 'Liga dos Campeões AFC',
-       
+
       },
 
     // Continental Championships
@@ -965,7 +965,7 @@ class SmartLeagueCountryTranslation {
       'it': 'Benvenuto su CS SPORT – la tua destinazione definitiva per tutto ciò che riguarda il calcio! Rimani aggiornato con i punteggi in diretta di oltre 1.000 competizioni in tutto il mondo, incluse le partite più calde di oggi dai Qualificatori della UEFA Champions League, UEFA Champions League e Premier League.',
       'pt': 'Bem-vindo ao CS SPORT – seu destino definitivo para tudo sobre futebol! Mantenha-se atualizado com placares ao vivo de mais de 1.000 competições em todo o mundo, incluindo os jogos mais quentes de hoje dos Qualificadores da Liga dos Campeões da UEFA, Liga dos Campeões da UEFA e Premier League.'
     },
-    
+
     'Explore Your Favorite Teams & Players': {
       en: 'Explore Your Favorite Teams & Players',
       'zh': '探索您喜愛的球隊和球員', 'zh-hk': '探索您喜愛的球隊和球員', 'zh-tw': '探索您喜愛的球隊和球員',
@@ -2462,9 +2462,9 @@ class SmartLeagueCountryTranslation {
     const newMapping = this.generateCountryMapping(normalizedName);
     if (newMapping && newMapping[language]) {
       // Store mapping for both original and normalized names
-      this.learnedLeagueMappings.set(countryName, newMapping); // This should be learnedCountryMappings
+      this.learnedCountryMappings.set(countryName, newMapping);
       if (normalizedName !== countryName) {
-        this.learnedLeagueMappings.set(normalizedName, newMapping); // This should be learnedCountryMappings
+        this.learnedCountryMappings.set(normalizedName, newMapping);
       }
       this.saveLearnedMappings();
 
@@ -2628,7 +2628,7 @@ class SmartLeagueCountryTranslation {
   private fixMixedLanguageLeagues(): void {
     const mixedLanguageLeagues = [
       'CONMEBOL南美盃', 'CONMEBOL自由盃', 'AFC盃', 'UEFA超級盃', 'UEFA超級盃',
-      '世界联赛', '世界聯賽', 'Netherlands聯賽', 'Australia聯賽', 'Australia超级联赛'
+      '世界聯賽', '世界联赛', 'Netherlands聯賽', 'Australia聯賽', 'Australia超级联赛'
     ];
 
     mixedLanguageLeagues.forEach(leagueName => {
