@@ -1661,11 +1661,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   </div>
                 );
               }
-              return (
-                <div className="match-status-label status-upcoming">
-                  Scheduled
-                </div>
-              );
+              // For NS status, don't show any status label - only show kick-off time in the center
+              return null;
             }
 
             return null;
