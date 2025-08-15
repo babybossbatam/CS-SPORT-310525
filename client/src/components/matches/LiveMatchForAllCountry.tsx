@@ -45,6 +45,8 @@ import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import NoLiveMatchesEmpty from "./NoLiveMatchesEmpty";
 import { useTranslation } from "@/contexts/LanguageContext";
+import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
+import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -135,6 +137,39 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   >(new Map());
   const { t } = useTranslation();
   const { currentLanguage } = useTranslation();
+
+  // Smart team name translation function
+  const translateTeamName = (teamName: string): string => {
+    if (!teamName) return '';
+    const translated = smartTeamTranslation.translateTeamName(teamName, currentLanguage);
+    return translated || teamName;
+  };
+
+  // Match status translation function
+  const translateMatchStatus = (status: string): string => {
+    if (!status) return '';
+
+    const statusTranslations: Record<string, Record<string, string>> = {
+      'FT': {
+        'zh': '全场结束', 'zh-hk': '全場結束', 'zh-tw': '全場結束',
+        'es': 'Tiempo completo', 'de': 'Abpfiff', 'it': 'Finito', 'pt': 'Final'
+      },
+      'HT': {
+        'zh': '半场结束', 'zh-hk': '半場結束', 'zh-tw': '半場結束',
+        'es': 'Medio tiempo', 'de': 'Halbzeit', 'it': 'Primo tempo', 'pt': 'Intervalo'
+      },
+      'LIVE': {
+        'zh': '直播中', 'zh-hk': '直播中', 'zh-tw': '直播中',
+        'es': 'En vivo', 'de': 'Live', 'it': 'Live', 'pt': 'Ao vivo'
+      },
+      'NS': {
+        'zh': '未开始', 'zh-hk': '未開始', 'zh-tw': '未開始',
+        'es': 'No iniciado', 'de': 'Nicht gestartet', 'it': 'Non iniziato', 'pt': 'Não iniciado'
+      }
+    };
+
+    return statusTranslations[status]?.[currentLanguage] || status;
+  };
 
   // Popular leagues for prioritization
   const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
@@ -949,8 +984,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                         fontSize: "13.3px",
                       }}
                     >
-                      {safeSubstring(leagueData.league.name, 0) ||
-                        "Unknown League"}
+                      {smartLeagueCountryTranslation.translateLeagueName(leagueData.league.name, currentLanguage) || "Unknown League"}
                     </span>
                     <span
                       className="text-gray-600"
@@ -960,7 +994,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                         fontSize: "13.3px",
                       }}
                     >
-                      {leagueData.league.country || "Unknown Country"}
+                      {smartLeagueCountryTranslation.translateCountryName(leagueData.league.country, currentLanguage) || "Unknown Country"}
                     </span>
                   </div>
                   <div className="flex gap-1">
@@ -1207,7 +1241,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                       : ""
                                   }`}
                                 >
-                                  {match.teams.home.name || "Unknown Team"}
+                                  {translateTeamName(match.teams.home.name)}
                                 </div>
 
                                 {/* Home team logo */}
@@ -1460,7 +1494,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                       : ""
                                   }`}
                                 >
-                                  {match.teams.away.name || "Unknown Team"}
+                                  {translateTeamName(match.teams.away.name)}
                                 </div>
                               </div>
 

@@ -10,8 +10,9 @@ import MyCircularFlag from "../common/MyCircularFlag";
 import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
-import { useLanguage, useTranslation } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
+import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
 interface FixtureData {
   fixture: {
@@ -79,25 +80,65 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   liveFilterActive,
   onMatchCardClick,
 }) => {
-  const { currentLanguage, translateTeamName, getMatchStatusTranslation } = useLanguage();
-  const { t } = useTranslation();
+  const { translations, currentLanguage } = useLanguage();
 
-  // Team translation function similar to MyNewLeague2
-  const translateTeamNameSmart = (originalTeam: string, leagueInfo?: { name?: string; country?: string }) => {
-    if (!originalTeam) return "";
+  const t = (key: string): string => {
+    return translations[currentLanguage]?.[key] || translations['en']?.[key] || key;
+  };
 
-    // Use smart team translation
-    const translated = smartTeamTranslation.translateTeamName(
-      originalTeam,
-      currentLanguage,
-      leagueInfo,
-    );
-    if (translated !== originalTeam) {
-      return translated;
-    }
+  // Smart team name translation function
+  const translateTeamName = (teamName: string): string => {
+    if (!teamName) return '';
+    const translated = smartTeamTranslation.translateTeamName(teamName, currentLanguage);
+    return translated || teamName;
+  };
 
-    // Fallback to context translation
-    return translateTeamName ? translateTeamName(originalTeam) : originalTeam;
+  // Match status translation function
+  const translateMatchStatus = (status: string): string => {
+    if (!status) return '';
+
+    const statusTranslations: Record<string, Record<string, string>> = {
+      'FT': {
+        'zh': '全场结束', 'zh-hk': '全場結束', 'zh-tw': '全場結束',
+        'es': 'Tiempo completo', 'de': 'Abpfiff', 'it': 'Finito', 'pt': 'Final'
+      },
+      'HT': {
+        'zh': '半场结束', 'zh-hk': '半場結束', 'zh-tw': '半場結束',
+        'es': 'Medio tiempo', 'de': 'Halbzeit', 'it': 'Primo tempo', 'pt': 'Intervalo'
+      },
+      'LIVE': {
+        'zh': '直播中', 'zh-hk': '直播中', 'zh-tw': '直播中',
+        'es': 'En vivo', 'de': 'Live', 'it': 'Live', 'pt': 'Ao vivo'
+      },
+      'NS': {
+        'zh': '未开始', 'zh-hk': '未開始', 'zh-tw': '未開始',
+        'es': 'No iniciado', 'de': 'Nicht gestartet', 'it': 'Non iniziato', 'pt': 'Não iniciado'
+      },
+      'PST': {
+        'zh': '推迟', 'zh-hk': '推遲', 'zh-tw': '推遲',
+        'es': 'Pospuesto', 'de': 'Verschoben', 'it': 'Rinviato', 'pt': 'Adiado'
+      }
+    };
+
+    return statusTranslations[status]?.[currentLanguage] || status;
+  };
+
+  // Penalty status translation function
+  const translatePenaltyStatus = (penaltyStatus: string): string => {
+    if (!penaltyStatus) return '';
+
+    const penaltyTranslations: Record<string, Record<string, string>> = {
+      'PEN': {
+        'zh': '点球', 'zh-hk': '十二碼', 'zh-tw': '十二碼',
+        'es': 'Penales', 'de': 'Elfmeter', 'it': 'Rigori', 'pt': 'Pênaltis'
+      },
+      'AET': {
+        'zh': '加时', 'zh-hk': '加時', 'zh-tw': '加時',
+        'es': 'Tiempo extra', 'de': 'Verlängerung', 'it': 'Tempi supplementari', 'pt': 'Prorrogação'
+      }
+    };
+
+    return penaltyTranslations[penaltyStatus]?.[currentLanguage] || penaltyStatus;
   };
 
   const [isExpanded, setIsExpanded] = useState(true);
@@ -686,7 +727,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                               };
 
                               try {
-                                const translatedName = translateTeamNameSmart(originalName, leagueInfo);
+                                const translatedName = translateTeamName(originalName);
                                 return shortenTeamName(translatedName) || "Unknown Team";
                               } catch (error) {
                                 return shortenTeamName(originalName) || "Unknown Team";
@@ -972,7 +1013,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                               };
 
                               try {
-                                const translatedName = translateTeamNameSmart(originalName, leagueInfo);
+                                const translatedName = translateTeamName(originalName);
                                 return shortenTeamName(translatedName) || "Unknown Team";
                               } catch (error) {
                                 return shortenTeamName(originalName) || "Unknown Team";
@@ -1003,7 +1044,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                               // Translate penalty text similar to MyNewLeague2
                               const translatePenaltyText = (text: string) => {
                                 let translatedText = text;
-                                
+
                                 // Translation map for penalty-related phrases
                                 const penaltyTranslations: Array<[string, { [key: string]: string }]> = [
                                   ['won on penalties', {
@@ -1031,12 +1072,12 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                                     translatedText = translatedText.replace(english, translations[currentLanguage]);
                                   }
                                 });
-                                
+
                                 return translatedText;
                               };
 
-                              const homeTeamTranslated = translateTeamNameSmart(fixture.teams.home.name, leagueInfo);
-                              const awayTeamTranslated = translateTeamNameSmart(fixture.teams.away.name, leagueInfo);
+                              const homeTeamTranslated = translateTeamName(fixture.teams.home.name);
+                              const awayTeamTranslated = translateTeamName(fixture.teams.away.name);
 
                               const winnerText =
                                 penaltyHome > penaltyAway
