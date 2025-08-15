@@ -733,6 +733,56 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         throw new Error('No Canal do Futebol BR videos found');
       }
     }] : []),
+    // UEFA Official Channel (priority for European competitions)
+    ...(league.toLowerCase().includes('uefa') || league.toLowerCase().includes('champions') || league.toLowerCase().includes('europa') ? [{
+      name: 'UEFA Official',
+      type: 'youtube' as const,
+      searchFn: async () => {
+        const uefaChannelId = 'UCoFbp5t9wYns3wqZdgYUfgQ';
+        const queries = [leagueSpecificQuery, primarySearchQuery, secondarySearchQuery];
+        let data;
+
+        for (const query of queries) {
+          try {
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&channelId=${uefaChannelId}&order=relevance`);
+            data = await response.json();
+
+            if (data.quotaExceeded || (data.error && data.error.includes('quota'))) {
+              throw new Error('YouTube quota exceeded - switching to alternative sources');
+            }
+
+            if (data.error) {
+              throw new Error(data.error);
+            }
+
+            if (data.items && data.items.length > 0) {
+              const sortedVideos = filterAndSortVideos(data.items, home, away);
+              data.items = sortedVideos;
+              break;
+            }
+          } catch (error) {
+            console.warn(`🎬 [Highlights] UEFA search failed for query: ${query}`, error);
+            continue;
+          }
+        }
+
+        if (data.error || data.quotaExceeded) {
+          throw new Error(data.error || 'UEFA channel search failed');
+        }
+
+        if (data.items && data.items.length > 0) {
+          const video = data.items[0];
+          return {
+            name: 'UEFA Official',
+            type: 'youtube' as const,
+            url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+            embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
+            title: video.snippet.title
+          };
+        }
+        throw new Error('No UEFA official videos found');
+      }
+    }] : []),
     // FIFA Club World Cup Official Channel (priority)
     ...(isFifaClubWorldCup && !isPalmeirasChelsea ? [{
       name: 'FIFA Official',
@@ -741,7 +791,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         const fifaChannelId = 'UCK-mxP4hLap1t3dp4bPbSBg';
         // For Palmeiras vs Chelsea, use Chelsea-focused search to avoid Benfica results
         const searchTerm = isPalmeirasChelsea ? 'Chelsea highlights FIFA Club World Cup' : primarySearchQuery;
-        const queries = isPalmeirasChelsea ? [searchTerm] : [primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
+        const queries = isPalmeirasChelsea ? [searchTerm] : [primarySearchQuery, secondarySearchQuery];
         let data;
 
         for (const query of queries) {
@@ -794,7 +844,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       type: 'youtube' as const,
       searchFn: async () => {
         // Enhanced exclusion terms to filter out reaction videos and unofficial content
-        const strongExclusions = `-"React" -"reaction" -"reação" -"reagindo" -"análise" -"preview" -"predictions" -"betting" -"fifa" -"pes" -"efootball" -"gaming" -"gameplay" -"stream" -"live chat" -"compilation" -"fan reaction" -"watch party" -"primeira vez" -"first time watching" -"assistindo" -"comentando"`;
+        const strongExclusions = `-"React" -"reaction" -"reação" -"reagindo" -"análise" -"preview" -"predictions" -"betting" -"fifa" -"pes" -"efootball" -"gaming" -"gameplay" -"stream" -"live chat" -"compilation" -"fan reaction" -"watch party" -"primeira vez" -"first time watching" -"assistindo" -"comentando" -"scorebat" -"highlights compilation" -"all goals"`;
 
         // Prioritize official channels and highlights
         const officialKeywords = `highlights OR "melhores momentos" OR "gols" OR "goals" OR "resumo"`;
