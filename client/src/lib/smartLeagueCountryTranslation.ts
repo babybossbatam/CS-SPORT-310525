@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 
 interface LeagueTranslation {
   [key: string]: {
-    
+    en: string;
+    zh: string;
     'zh-hk': string;
     'zh-tw': string;
     es: string;
@@ -14,11 +15,10 @@ interface LeagueTranslation {
 
 interface CountryTranslation {
   [key: string]: {
-
+    en: string;
+    zh: string;
     'zh-hk': string;
     'zh-tw': string;
-en: string;
-zh: string;
     es: string;
     de: string;
     it: string;
@@ -576,37 +576,37 @@ class SmartLeagueCountryTranslation {
 
     // Friendlies variations
       'friendlies clubs': {
-        'en': 'Club Friendlies',
-        'es': 'Amistosos de Clubes',
+        en: 'Club Friendlies',
+        zh: '球會友誼賽',
         'zh-hk': '球會友誼賽',
         'zh-tw': '球會友誼賽',
-        'zh': '球會友誼賽',
-        'de': 'Vereinsfreundschaftsspiele',
-        'it': 'Amichevoli di Club',
-        'pt': 'Amigáveis de Clubes'
+        es: 'Amistosos de Clubes',
+        de: 'Vereinsfreundschaftsspiele',
+        it: 'Amichevoli di Club',
+        pt: 'Amigáveis de Clubes'
       },
 
       // Argentina Leagues
       'Primera Nacional': {
-        'en': 'Primera Nacional',
-        'es': 'Primera Nacional',
+        en: 'Primera Nacional',
+        zh: '全国甲级联赛',
         'zh-hk': '全國甲級聯賽',
         'zh-tw': '全國甲級聯賽',
-        'zh': '全国甲级联赛',
-        'de': 'Primera Nacional',
-        'it': 'Primera Nacional',
-        'pt': 'Primera Nacional'
+        es: 'Primera Nacional',
+        de: 'Primera Nacional',
+        it: 'Primera Nacional',
+        pt: 'Primera Nacional'
       },
 
       'Primera C': {
-        'en': 'Primera C',
-        'es': 'Primera C',
+        en: 'Primera C',
+        zh: 'C级联赛',
         'zh-hk': 'C級聯賽',
         'zh-tw': 'C級聯賽',
-        'zh': 'C级联赛',
-        'de': 'Primera C',
-        'it': 'Primera C',
-        'pt': 'Primera C'
+        es: 'Primera C',
+        de: 'Primera C',
+        it: 'Primera C',
+        pt: 'Primera C'
       },
 
       // Australian Leagues
@@ -837,36 +837,36 @@ class SmartLeagueCountryTranslation {
 
       // Additional AFC variations
       'afc challenge league': {
-        'en': 'AFC Challenge League',
-        'es': 'Liga Challenge AFC',
+        en: 'AFC Challenge League',
+        zh: 'AFC挑战联赛',
         'zh-hk': 'AFC挑戰聯賽',
         'zh-tw': 'AFC挑戰聯賽',
-        'zh': 'AFC挑战联赛',
-        'de': 'AFC Challenge League',
-        'it': 'AFC Challenge League',
-        'pt': 'Liga Challenge AFC'
+        es: 'Liga Challenge AFC',
+        de: 'AFC Challenge League',
+        it: 'AFC Challenge League',
+        pt: 'Liga Challenge AFC'
       },
 
       'afc cup': {
-        'en': 'AFC Cup',
-        'es': 'Copa AFC',
+        en: 'AFC Cup',
+        zh: 'AFC杯',
         'zh-hk': 'AFC盃',
         'zh-tw': 'AFC盃',
-        'zh': 'AFC杯',
-        'de': 'AFC-Pokal',
-        'it': 'Coppa AFC',
-        'pt': 'Copa AFC'
+        es: 'Copa AFC',
+        de: 'AFC-Pokal',
+        it: 'Coppa AFC',
+        pt: 'Copa AFC'
       },
 
       'afc champions league': {
-        'en': 'AFC Champions League',
-        'es': 'Liga de Campeones AFC',
+        en: 'AFC Champions League',
+        zh: 'AFC冠军联赛',
         'zh-hk': 'AFC冠軍聯賽',
         'zh-tw': 'AFC冠軍聯賽',
-        'zh': 'AFC冠军联赛',
-        'de': 'AFC Champions League',
-        'it': 'AFC Champions League',
-        'pt': 'Liga dos Campeões AFC'
+        es: 'Liga de Campeones AFC',
+        de: 'AFC Champions League',
+        it: 'AFC Champions League',
+        pt: 'Liga dos Campeões AFC'
       },
 
     'CS SPORT!': {
