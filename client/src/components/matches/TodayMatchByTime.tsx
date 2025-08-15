@@ -588,7 +588,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                                 );
                               }
 
-                              // Show TBD status for matches with undefined time
+                              // For upcoming matches, don't show status in top grid
                               if (status === "TBD") {
                                 return (
                                   <div className="match-status-label status-upcoming">
