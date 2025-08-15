@@ -159,25 +159,30 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = process.env.PORT || 5000;
-  const tryListen = (retryPort: number) => {
-    server.listen(retryPort, "0.0.0.0", () => {
-      log(`serving on port ${retryPort}`);
+  
+  // Check if server is already running
+  let isServerRunning = false;
+  
+  const startServer = () => {
+    if (isServerRunning) {
+      log('Server already running, skipping startup');
+      return;
+    }
+    
+    isServerRunning = true;
+    server.listen(Number(port), "0.0.0.0", () => {
+      log(`serving on port ${port}`);
     }).on('error', (err: any) => {
-      if (err.code === 'EADDRINUSE' && retryPort < 5010) {
-        log(`Port ${retryPort} in use, trying ${retryPort + 1}`);
-        if (retryPort + 1 <= 5010) {
-            tryListen(retryPort + 1);
-        } else {
-            console.error("Failed to find an open port between 5000 and 5010");
-            // Don't exit immediately, let the process manager handle restarts
-            setTimeout(() => process.exit(1), 1000);
-        }
+      isServerRunning = false;
+      if (err.code === 'EADDRINUSE') {
+        console.error(`Port ${port} is already in use. Please stop other instances first.`);
+        process.exit(1);
       } else {
         console.error("Failed to start server:", err);
-        // Don't exit immediately, let the process manager handle restarts
-        setTimeout(() => process.exit(1), 1000);
+        process.exit(1);
       }
     });
   };
-  tryListen(Number(port));
+  
+  startServer();
 })();
