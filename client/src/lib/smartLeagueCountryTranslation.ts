@@ -60,7 +60,7 @@ class SmartLeagueCountryTranslation {
     'Azerbaijan': { en: 'Azerbaijan', 'zh': '阿塞拜疆', 'zh-hk': '阿塞拜疆', 'zh-tw': '亞塞拜然', 'es': 'Azerbaiyán', 'de': 'Aserbaidschan', 'it': 'Azerbaigian', 'pt': 'Azerbaijão' },
     'Bosnia and Herzegovina': { en: 'Bosnia and Herzegovina', 'zh': '波斯尼亞和黑塞哥維那', 'zh-hk': '波斯尼亞和黑塞哥維那', 'zh-tw': '波斯尼亞和黑塞哥維那', 'es': 'Bosnia y Herzegovina', 'de': 'Bosnien und Herzegowina', 'it': 'Bosnia ed Erzegovina', 'pt': 'Bósnia e Herzegovina' },
     'Bosnia': { en: 'Bosnia', 'zh': '波斯尼亞', 'zh-hk': '波斯尼亞', 'zh-tw': '波斯尼亞', 'es': 'Bosnia', 'de': 'Bosnien', 'it': 'Bosnia', 'pt': 'Bósnia' },
-    
+
     'Bulgaria': { en: 'Bulgaria', 'zh': '保加利亞', 'zh-hk': '保加利亞', 'zh-tw': '保加利亞', 'es': 'Bulgaria', 'de': 'Bulgarien', 'it': 'Bulgaria', 'pt': 'Bulgária' },
     'Belarus': { en: 'Belarus', 'zh': '白俄羅斯', 'zh-hk': '白俄羅斯', 'zh-tw': '白俄羅斯', 'es': 'Bielorrusia', 'de': 'Belarus', 'it': 'Bielorussia', 'pt': 'Bielorrússia' },
     'Switzerland': { en: 'Switzerland', 'zh': '瑞士', 'zh-hk': '瑞士', 'zh-tw': '瑞士', 'es': 'Suiza', 'de': 'Schweiz', 'it': 'Svizzera', 'pt': 'Suíça' },
@@ -86,7 +86,7 @@ class SmartLeagueCountryTranslation {
     'Hungary': { en: 'Hungary', 'zh': '匈牙利', 'zh-hk': '匈牙利', 'zh-tw': '匈牙利', 'es': 'Hungría', 'de': 'Ungarn', 'it': 'Ungheria', 'pt': 'Hungria' },
     'Ireland': { en: 'Ireland', 'zh': '愛爾蘭', 'zh-hk': '愛爾蘭', 'zh-tw': '愛爾蘭', 'es': 'Irlanda', 'de': 'Irland', 'it': 'Irlanda', 'pt': 'Irlanda' },
     'Iceland': { en: 'Iceland', 'zh': '冰島', 'zh-hk': '冰島', 'zh-tw': '冰島', 'es': 'Islandia', 'de': 'Island', 'it': 'Islanda', 'pt': 'Islândia' },
-    'Italy': { en: 'Italy', 'zh': '意大利', 'zh-hk': '意大利', 'zh-tw': '義大利', 'es': 'Italia', 'de': 'Italien', 'it': 'Italia', 'pt': 'Itália' },
+    'Italy': { en: 'Italy', 'zh': '意大利', 'zh-hk': '意大利', 'zh-tw': '意大利', 'es': 'Italia', 'de': 'Italien', 'it': 'Italia', 'pt': 'Itália' },
     'Liechtenstein': { en: 'Liechtenstein', 'zh': '列支敦士登', 'zh-hk': '列支敦士登', 'zh-tw': '列支敦斯登', 'es': 'Liechtenstein', 'de': 'Liechtenstein', 'it': 'Liechtenstein', 'pt': 'Liechtenstein' },
     'Lithuania': { en: 'Lithuania', 'zh': '立陶宛', 'zh-hk': '立陶宛', 'zh-tw': '立陶宛', 'es': 'Lituania', 'de': 'Litauen', 'it': 'Lituania', 'pt': 'Lituânia' },
     'Luxembourg': { en: 'Luxembourg', 'zh': '盧森堡', 'zh-hk': '盧森堡', 'zh-tw': '盧森堡', 'es': 'Luxemburgo', 'de': 'Luxemburg', 'it': 'Lussemburgo', 'pt': 'Luxemburgo' },
@@ -122,7 +122,7 @@ class SmartLeagueCountryTranslation {
       'zh': '多米尼加共和国', 'zh-hk': '多明尼加共和國', 'zh-tw': '多明尼加共和國',
       'es': 'República Dominicana', 'de': 'Dominikanische Republik', 'it': 'Repubblica Dominicana', 'pt': 'República Dominicana'
     },
-   
+
     'Czech-Republic': {
       en: 'Czech Republic',
       'zh': '捷克共和国', 'zh-hk': '捷克共和國', 'zh-tw': '捷克共和國',
@@ -134,7 +134,7 @@ class SmartLeagueCountryTranslation {
       'es': 'Europa', 'de': 'Europa', 'it': 'Europa', 'pt': 'Europa'
     },
     // Major European Countries
-    
+
 
     'Slovakia': {
       en: 'Slovakia',
@@ -146,7 +146,7 @@ class SmartLeagueCountryTranslation {
       'zh': '斯洛文尼亞', 'zh-hk': '斯洛文尼亞', 'zh-tw': '斯洛維尼亞',
       'es': 'Eslovenia', 'de': 'Slowenien', 'it': 'Slovenia', 'pt': 'Eslovênia'
     },
-    
+
     'Poland': {
       en: 'Poland',
       'zh': '波蘭', 'zh-hk': '波蘭', 'zh-tw': '波蘭',
@@ -157,13 +157,13 @@ class SmartLeagueCountryTranslation {
       'zh': '羅馬尼亞', 'zh-hk': '羅馬尼亞', 'zh-tw': '羅馬尼亞',
       'es': 'Rumania', 'de': 'Rumänien', 'it': 'Romania', 'pt': 'Romênia'
     },
-    
+
     'Serbia': {
       en: 'Serbia',
       'zh': '塞爾維亞', 'zh-hk': '塞爾維亞', 'zh-tw': '塞爾維亞',
       'es': 'Serbia', 'de': 'Serbien', 'it': 'Serbia', 'pt': 'Sérvia'
     },
-    
+
     'Sweden': {
       en: 'Sweden',
       'zh': '瑞典', 'zh-hk': '瑞典', 'zh-tw': '瑞典',
@@ -174,7 +174,7 @@ class SmartLeagueCountryTranslation {
       'zh': '挪威', 'zh-hk': '挪威', 'zh-tw': '挪威',
       'es': 'Noruega', 'de': 'Norwegen', 'it': 'Norvegia', 'pt': 'Noruega'
     },
-   
+
     'Russia': {
       en: 'Russia',
       'zh': '俄羅斯', 'zh-hk': '俄羅斯', 'zh-tw': '俄羅斯',
@@ -190,7 +190,7 @@ class SmartLeagueCountryTranslation {
       'zh': '土耳其', 'zh-hk': '土耳其', 'zh-tw': '土耳其',
       'es': 'Turquía', 'de': 'Türkei', 'it': 'Turchia', 'pt': 'Turquia'
     },
-   
+
     'Bhutan': {
       en: 'Bhutan',
       'zh': '不丹',
@@ -201,7 +201,7 @@ class SmartLeagueCountryTranslation {
       'it': 'Bhutan',
       'pt': 'Butão'
     },
-    
+
 
     // Americas
     'Brazil': {
@@ -273,7 +273,7 @@ class SmartLeagueCountryTranslation {
     'Bangladesh': { en: 'Bangladesh', 'zh': '孟加拉國', 'zh-hk': '孟加拉國', 'zh-tw': '孟加拉', 'es': 'Bangladesh', 'de': 'Bangladesch', 'it': 'Bangladesh', 'pt': 'Bangladesh' },
     'Bahrain': { en: 'Bahrain', 'zh': '巴林', 'zh-hk': '巴林', 'zh-tw': '巴林', 'es': 'Baréin', 'de': 'Bahrain', 'it': 'Bahrain', 'pt': 'Bahrein' },
     'Brunei': { en: 'Brunei', 'zh': '汶萊', 'zh-hk': '汶萊', 'zh-tw': '汶萊', 'es': 'Brunéi', 'de': 'Brunei', 'it': 'Brunei', 'pt': 'Brunei' },
-   
+
     'China': { en: 'China', 'zh': '中國', 'zh-hk': '中國', 'zh-tw': '中國', 'es': 'China', 'de': 'China', 'it': 'Cina', 'pt': 'China' },
     'Hong Kong': { en: 'Hong Kong', 'zh': '香港', 'zh-hk': '香港', 'zh-tw': '香港', 'es': 'Hong Kong', 'de': 'Hongkong', 'it': 'Hong Kong', 'pt': 'Hong Kong' },
     'Indonesia': { en: 'Indonesia', 'zh': '印尼', 'zh-hk': '印尼', 'zh-tw': '印尼', 'es': 'Indonesia', 'de': 'Indonesien', 'it': 'Indonesia', 'pt': 'Indonésia' },
@@ -395,7 +395,7 @@ class SmartLeagueCountryTranslation {
     'Samoa': { en: 'Samoa', 'zh': '薩摩亞', 'zh-hk': '薩摩亞', 'zh-tw': '薩摩亞', 'es': 'Samoa', 'de': 'Samoa', 'it': 'Samoa', 'pt': 'Samoa' },
 
     // Special regions and territories
-    
+
 
     // Australian States/Territories
     'Australian Capital Territory': { en: 'Australian Capital Territory', 'zh': '澳大利亞首都領地', 'zh-hk': '澳大利亞首都領地', 'zh-tw': '澳洲首都特區', 'es': 'Territorio de la Capital Australiana', 'de': 'Australisches Hauptstadtterritorium', 'it': 'Territorio della Capitale Australiana', 'pt': 'Território da Capital Australiana' },
@@ -406,22 +406,22 @@ class SmartLeagueCountryTranslation {
     'Tasmania': { en: 'Tasmania', 'zh': '塔斯馬尼亞', 'zh-hk': '塔斯馬尼亞', 'zh-tw': '塔斯馬尼亞', 'es': 'Tasmania', 'de': 'Tasmanien', 'it': 'Tasmania', 'pt': 'Tasmânia' },
     'Victoria': { en: 'Victoria', 'zh': '維多利亞', 'zh-hk': '維多利亞', 'zh-tw': '維多利亞', 'es': 'Victoria', 'de': 'Victoria', 'it': 'Victoria', 'pt': 'Victoria' },
     'Western Australia': { en: 'Western Australia', 'zh': '西澳大利亞', 'zh-hk': '西澳大利亞', 'zh-tw': '西澳洲', 'es': 'Australia Occidental', 'de': 'Westaustralien', 'it': 'Australia Occidentale', 'pt': 'Austrália Ocidental' },
-   
+
 
     // Middle East & Africa
-    
+
     'UAE': {
       en: 'UAE',
       'zh': '阿聯酋', 'zh-hk': '阿聯酋', 'zh-tw': '阿聯酋',
       'es': 'EAU', 'de': 'VAE', 'it': 'EAU', 'pt': 'EAU'
     },
-    
+
     'Northern-Ireland': {
       en: 'Northern Ireland',
       'zh': '北愛爾蘭', 'zh-hk': '北愛爾蘭', 'zh-tw': '北愛爾蘭',
       'es': 'Irlanda del Norte', 'de': 'Nordirland', 'it': 'Irlanda del Nord', 'pt': 'Irlanda do Norte'
     },
-    
+
     'USA': {
       en: 'USA',
       'zh': '美國', 'zh-hk': '美國', 'zh-tw': '美國',
@@ -2417,7 +2417,7 @@ class SmartLeagueCountryTranslation {
       // Store mapping for both original and normalized names
       this.learnedLeagueMappings.set(countryName, newMapping); // This should be learnedCountryMappings
       if (normalizedName !== countryName) {
-        this.learnedCountryMappings.set(normalizedName, newMapping); // This should be learnedCountryMappings
+        this.learnedLeagueMappings.set(normalizedName, newMapping); // This should be learnedCountryMappings
       }
       this.saveLearnedMappings();
 
@@ -2441,7 +2441,7 @@ class SmartLeagueCountryTranslation {
 
     // Check local cache first
     if (this.countryCache.has(cacheKey)) {
-      return this.countryCache.get(cacheKey);
+      return this.cache.get(cacheKey);
     }
 
     try {
