@@ -156,7 +156,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     if (!originalLeague) return "";
 
     // Use smart league translation
-    const translated = smartLeagueCountryTranslation.translateLeague(
+    const translated = smartLeagueCountryTranslation.translateLeagueName(
       originalLeague,
       currentLanguage,
     );
@@ -173,7 +173,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     if (!originalCountry) return "";
 
     // Use smart country translation
-    const translated = smartLeagueCountryTranslation.translateCountry(
+    const translated = smartLeagueCountryTranslation.translateCountryName(
       originalCountry,
       currentLanguage,
     );
