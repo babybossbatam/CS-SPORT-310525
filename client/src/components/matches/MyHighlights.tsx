@@ -47,11 +47,63 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   // Check match status to determine if we should render
   const status = matchStatus || match?.fixture?.status?.short;
 
-  // Only show highlights for ended matches
+  // Only show highlights for ended matches or live matches with a status that indicates play is ongoing
   const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"].includes(status);
+  const isLiveOrOngoing = ["1H", "2H", "HT", "ET", "P", "BT", "90M", "91M", "92M", "93M", "94M", "95M", "96M", "97M", "98M", "99M", "100M", "101M", "102M", "103M", "104M", "105M", "106M", "107M", "108M", "109M", "110M", "111M", "112M", "113M", "114M", "115M", "116M", "117M", "118M", "119M", "120M"].includes(status);
+  const shouldShowHighlights = isEnded || isLiveOrOngoing;
 
-  // Don't render if match is not ended
-  if (!isEnded) {
+
+  // Extract original English team names for search queries (not translated names)
+  // Use the original API data to ensure we get the English names for better search results
+  const rawHome = match?.teams?.home?.name || 
+                  match?.homeTeam?.name ||
+                  match?.homeTeam ||
+                  match?.home?.name ||
+                  match?.home ||
+                  homeTeam || 
+                  homeTeamName || 
+                  homeTeamData?.name ||
+                  'Home Team';
+
+  const rawAway = match?.teams?.away?.name || 
+                  match?.awayTeam?.name ||
+                  match?.awayTeam ||
+                  match?.away?.name ||
+                  match?.away ||
+                  awayTeam || 
+                  awayTeamName || 
+                  awayTeamData?.name ||
+                  'Away Team';
+
+  // More lenient validation - allow fallback team names for debugging
+  const hasValidTeamNames = rawHome && rawAway && 
+                           rawHome.trim() !== '' && rawAway.trim() !== '' &&
+                           rawHome !== 'undefined' && rawAway !== 'undefined';
+
+  console.log(`🎬 [Highlights] Team name extraction:`, {
+    rawHome,
+    rawAway,
+    hasValidTeamNames,
+    homeTeamData: homeTeamData?.name,
+    awayTeamData: awayTeamData?.name,
+    matchTeams: {
+      home: match?.teams?.home?.name,
+      away: match?.teams?.away?.name
+    },
+    fallbackUsed: rawHome === 'Home Team' || rawAway === 'Away Team',
+    status
+  });
+
+  // Don't return null - always show the component for debugging, even with invalid team names
+
+
+  // Show highlights for more match types
+  if (!shouldShowHighlights) {
+    console.log(`🎬 [Highlights] Match status not suitable for highlights:`, {
+      status,
+      teams: `${rawHome} vs ${rawAway}`,
+      shouldShowHighlights
+    });
     return null;
   }
   const uniqueId = useId();
@@ -93,41 +145,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   // Extract team names prioritizing data from MyMatchdetailsScoreboard
   // This ensures we use the same team names that are displayed in the scoreboard
-  const rawHome = homeTeamData?.name ||
-                  match?.teams?.home?.name || 
-                  match?.homeTeam?.name ||
-                  match?.homeTeam ||
-                  match?.home?.name ||
-                  match?.home ||
-                  homeTeam || 
-                  homeTeamName || 
-                  'Home Team';
 
-  const rawAway = awayTeamData?.name ||
-                  match?.teams?.away?.name || 
-                  match?.awayTeam?.name ||
-                  match?.awayTeam ||
-                  match?.away?.name ||
-                  match?.away ||
-                  awayTeam || 
-                  awayTeamName || 
-                  'Away Team';
-
-  // Validate that we have actual team names and not fallbacks
-  const hasValidTeamNames = rawHome !== 'Home Team' && rawAway !== 'Away Team' && 
-                           rawHome && rawAway && 
-                           rawHome.trim() !== '' && rawAway.trim() !== '';
-
-  if (!hasValidTeamNames) {
-    console.warn(`🎬 [Highlights] Invalid team names detected:`, {
-      rawHome,
-      rawAway,
-      homeTeamData,
-      awayTeamData,
-      match: match?.teams
-    });
-    return null; // Don't show highlights if we don't have proper team names
-  }
 
   // Clean team names for better search results
   const home = cleanTeamName(rawHome);
@@ -229,6 +247,10 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     primarySearchQuery;
 
   const fallbackSearchQuery = `${home} vs ${away} highlights -virtual -gaming -esoccer -app -botafogo -psg`.trim();
+
+  const exactTeamMatchQuery = `"${rawHome}" vs "${rawAway}"`;
+  const tertiarySearchQuery = `${rawHome} vs ${rawAway} ${league} ${matchYear} highlights ${teamExclusions}`;
+
 
   // Special case for Palmeiras vs Chelsea - use known video (only for exact match)
   const isPalmeirasChelsea = ((home.toLowerCase() === 'palmeiras' || home.toLowerCase().includes('palmeiras')) && 
@@ -1130,7 +1152,11 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                     Checking Canal do Futebol BR first
                   </span>
                 )}
-                 {sourceIndex === 0 && !isFifaClubWorldCup && !isConcacafCompetition && !isBrazilianLeague }
+                 {sourceIndex === 0 && !isFifaClubWorldCup && !isConcacafCompetition && !isBrazilianLeague && (
+                  <span className="block text-xs text-gray-400">
+                    Checking YouTube Official Highlights
+                  </span>
+                )}
                 {sourceIndex > 0 && (
                   <span className="block text-xs text-gray-400">
                     Trying {videoSources[sourceIndex]?.name || 'alternative source'}
@@ -1197,6 +1223,11 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             <div className="text-center">
               <Video className="w-8 h-8 mx-auto mb-2 text-gray-400" />
               <p className="text-sm text-gray-600">No highlights available</p>
+              {error && <p className="text-sm text-red-500 mt-2">Error: {error}</p>}
+              {!error && <p className="text-sm text-gray-500 mt-2">Please try again later or check other matches.</p>}
+              <button onClick={handleRetry} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                Retry
+              </button>
             </div>
           </div>
         )}
