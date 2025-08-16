@@ -166,14 +166,22 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         console.log(
           `🎨 [MyAvatarInfo-${componentId}] Using fallback for: ${playerName}`,
         );
-        imageCache.set(cacheKey, "/attached_assets/fallback_player_1752379496642.png");
-        return "/attached_assets/fallback_player_1752379496642.png";
+        const initials = playerName
+          ? playerName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+          : 'P';
+        const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=128&background=4F46E5&color=fff&bold=true&format=svg`;
+        imageCache.set(cacheKey, fallbackUrl);
+        return fallbackUrl;
       } catch (error) {
         console.log(
           `❌ [MyAvatarInfo-${componentId}] Error loading image: ${(error as Error)?.message || error}`,
         );
-        imageCache.set(cacheKey, "/attached_assets/fallback_player_1752379496642.png");
-        return "/attached_assets/fallback_player_1752379496642.png";
+        const initials = playerName
+          ? playerName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+          : 'P';
+        const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=128&background=4F46E5&color=fff&bold=true&format=svg`;
+        imageCache.set(cacheKey, fallbackUrl);
+        return fallbackUrl;
       } finally {
         // Clean up loading request
         loadingRequests.delete(cacheKey);
@@ -219,12 +227,13 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           setImageUrl(url);
         }
       } catch (error) {
-        if (!isCancelled) {
-          console.log(
+        console.log(
             `❌ [MyAvatarInfo-${componentId}] Failed to load: ${error}`,
           );
-          setImageUrl("/attached_assets/fallback_player_1752379496642.png");
-        }
+          const initials = playerName
+            ? playerName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+            : 'P';
+          setImageUrl(`https://ui-avatars.com/api/?name=${initials}&size=128&background=4F46E5&color=fff&bold=true&format=svg`);
       } finally {
         if (!isCancelled) {
           setIsLoading(false);
@@ -273,8 +282,12 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
             `🖼️ [MyAvatarInfo-${componentId}] Image error, using fallback`,
           );
           // Remove from cache and use fallback
-          imageCache.set(cacheKey, "/attached_assets/fallback_player_1752379496642.png");
-          setImageUrl("/attached_assets/fallback_player_1752379496642.png");
+          const initials = playerName
+            ? playerName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+            : 'P';
+          const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=128&background=4F46E5&color=fff&bold=true&format=svg`;
+          imageCache.set(cacheKey, fallbackUrl);
+          setImageUrl(fallbackUrl);
         }}
         onLoad={() => {
           console.log(
