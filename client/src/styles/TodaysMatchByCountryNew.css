@@ -237,17 +237,43 @@
   background-color: transparent !important;
 }
 
-/* Score/Time center container - Grid area - EXACTLY like MyLogoPositioning */
+/* Score/Time center container - Grid area - Enhanced desktop precision */
 .country-matches-container .match-score-container {
   grid-area: score;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 80px;
+  width: 90px;
+  min-width: 90px;
+  max-width: 90px;
   position: relative;
   height: 100%;
   text-align: center;
   place-self: center;
+}
+
+/* Desktop enhanced precision for country matches */
+@media (min-width: 641px) {
+  .country-matches-container .match-content-container {
+    grid-template-columns: 1fr 36px 90px 36px 1fr;
+    grid-template-rows: 48px;
+    padding: 0 12px;
+  }
+  
+  .country-matches-container .home-team-logo-container,
+  .country-matches-container .away-team-logo-container {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+  
+  .country-matches-container .team-logo {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
 }
 
 /* Score display styles - EXACTLY like MyLogoPositioning */
