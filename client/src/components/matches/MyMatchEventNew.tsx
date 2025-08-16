@@ -584,45 +584,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   }
 
-  // Wait for essential data before rendering - prevent premature rendering
-  if (!homeTeam || !awayTeam || isLoading) {
-    return (
-      <Card
-        className={`${className} ${isDarkTheme ? "bg-gray-800 text-white border-gray-700" : "bg-white border-gray-200"}`}
-      >
-        <CardContent className="p-4">
-          <div className="flex items-center justify-center p-8">
-            <div className="text-center">
-              <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
-              <p className="text-gray-600">
-                {!homeTeam || !awayTeam ? "Loading team data..." : "Loading match events..."}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Additional validation: Don't render if we have events but can't determine team sides
-  const canDetermineTeamSides = events.length === 0 || events.some(event => isHomeTeam(event) !== null);
-  if (events.length > 0 && !canDetermineTeamSides) {
-    console.warn(`🔍 [Rendering] Cannot determine team sides for any events. Waiting for better team data...`);
-    return (
-      <Card
-        className={`${className} ${isDarkTheme ? "bg-gray-800 text-white border-gray-700" : "bg-white border-gray-200"}`}
-      >
-        <CardContent className="p-4">
-          <div className="flex items-center justify-center p-8">
-            <div className="text-center">
-              <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
-              <p className="text-gray-600">Processing team data...</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Show content immediately - handle missing data gracefully within the component
 
   // Hide component for upcoming matches with no events
   if (events.length === 0 && !isLoading) {
@@ -1229,18 +1191,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       </div>
 
       <CardContent className="py-6 px-0">
-        {isLoading && events.length === 0 ? (
-          <div className="flex items-center justify-center p-8">
-            <div className="text-center">
-              <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
-              <p className="text-gray-600">Loading match events...</p>
-            </div>
-          </div>
-        ) : events.length === 0 ? (
+        {events.length === 0 ? (
           <div className="flex items-center justify-center p-8">
             <div className="text-center text-gray-500">
-              <p>No events recorded yet</p>
-              <p className="text-sm">Events will appear as they happen</p>
+              {isLoading ? (
+                <>
+                  <div className="w-6 h-6 border-2 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
+                  <p className="text-sm">Loading events...</p>
+                </>
+              ) : (
+                <>
+                  <p>No events recorded yet</p>
+                  <p className="text-sm">Events will appear as they happen</p>
+                </>
+              )}
             </div>
           </div>
         ) : (
