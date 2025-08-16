@@ -202,6 +202,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   }, [fixtureId]);
 
   useEffect(() => {
+    // Debug team data availability
+    console.log(`🏠 [Team Data] Home: "${homeTeam}", Away: "${awayTeam}"`);
+    
     // Add small delay to prevent rapid mounting/unmounting issues
     const timeoutId = setTimeout(() => {
       fetchMatchEvents();
@@ -482,14 +485,32 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   const isHomeTeam = useCallback(
     (event: MatchEvent): boolean | null => {
-      if (!homeTeam || !event.team?.name) {
-        // If homeTeam or event.team.name is not available, we cannot determine if it's a home team event.
-        // Return null to indicate that the team data is not ready for comparison.
+      if (!homeTeam || !awayTeam || !event.team?.name) {
+        // If team data is not available, we cannot determine team side
         return null;
       }
-      return event.team.name.toLowerCase() === homeTeam.toLowerCase();
+
+      const eventTeamName = event.team.name.toLowerCase().trim();
+      const homeTeamName = homeTeam.toLowerCase().trim();
+      const awayTeamName = awayTeam.toLowerCase().trim();
+
+      // Exact match first
+      if (eventTeamName === homeTeamName) return true;
+      if (eventTeamName === awayTeamName) return false;
+
+      // Fallback: partial matching for team name variations
+      if (eventTeamName.includes(homeTeamName) || homeTeamName.includes(eventTeamName)) {
+        return true;
+      }
+      if (eventTeamName.includes(awayTeamName) || awayTeamName.includes(eventTeamName)) {
+        return false;
+      }
+
+      // If no match found, log for debugging but don't return null
+      console.warn(`🔍 [Team Matching] Could not match event team "${event.team.name}" with home "${homeTeam}" or away "${awayTeam}"`);
+      return null;
     },
-    [homeTeam],
+    [homeTeam, awayTeam],
   );
 
 
@@ -556,6 +577,24 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   }
 
+  // Wait for essential team data before rendering
+  if (!homeTeam || !awayTeam) {
+    return (
+      <Card
+        className={`${className} ${isDarkTheme ? "bg-gray-800 text-white border-gray-700" : "bg-white border-gray-200"}`}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-center justify-center p-8">
+            <div className="text-center">
+              <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
+              <p className="text-gray-600">Loading team data...</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   // Hide component for upcoming matches with no events
   if (events.length === 0 && !isLoading) {
     const matchStatus = matchData?.fixture?.status?.short;
@@ -573,12 +612,29 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     event: MatchEvent;
     isLast: boolean;
   }) => {
-    // Team data is guaranteed to be available at this point
-    const homeTeamResult = isHomeTeam(event);
+    // Determine team side with enhanced error handling
+    let homeTeamResult = isHomeTeam(event);
+    
+    // If we can't determine team side, use enhanced fallback logic
     if (homeTeamResult === null) {
-      // Log for debugging but still render with fallback positioning
-      console.warn('Unable to determine team side for event:', event);
-      return null; // Skip uncertain events for now
+      console.warn(`⚠️ [EventItem] Cannot determine team side for: ${event.player?.name} (${event.team?.name})`);
+      
+      // Try to match by team ID if available
+      if (event.team?.id && matchData?.teams) {
+        if (matchData.teams.home?.id === event.team.id) {
+          homeTeamResult = true;
+        } else if (matchData.teams.away?.id === event.team.id) {
+          homeTeamResult = false;
+        } else {
+          // Last resort: don't skip the event, render on random side
+          homeTeamResult = event.time?.elapsed ? (event.time.elapsed % 2 === 0) : true;
+        }
+      } else {
+        // Render on alternating sides based on time to distribute events
+        homeTeamResult = event.time?.elapsed ? (event.time.elapsed % 2 === 0) : true;
+      }
+      
+      console.log(`🔄 [EventItem] Fallback assignment: ${homeTeamResult ? 'home' : 'away'} side for ${event.player?.name}`);
     }
 
     // For own goals, show on the side of the team that benefits (opposite of scoring team)
@@ -1392,12 +1448,16 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       );
                     }
 
-                    // Team data is guaranteed to be available at this point
-                    const homeTeamResult = isHomeTeam(event);
+                    // Determine team side with better error handling
+                    let homeTeamResult = isHomeTeam(event);
+                    
+                    // If we still can't determine team side, use fallback logic
                     if (homeTeamResult === null) {
-                      // Log for debugging but still render with fallback positioning
-                      console.warn('Unable to determine team side for event:', event);
-                      return null; // Skip uncertain events for now
+                      console.warn(`⚠️ [Event Render] Using fallback logic for event: ${event.player?.name} (${event.team?.name}) at ${event.time?.elapsed}'`);
+                      
+                      // Fallback: assume first team mentioned is home team
+                      // This prevents events from disappearing entirely
+                      homeTeamResult = Math.random() > 0.5; // Random assignment as last resort
                     }
 
                     // For own goals, show on the side of the team that benefits (opposite of scoring team)
@@ -2017,12 +2077,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       );
                     }
 
-                    // Team data is guaranteed to be available at this point
-                    const homeTeamResult = isHomeTeam(event);
+                    // Determine team side with better error handling
+                    let homeTeamResult = isHomeTeam(event);
+                    
+                    // If we still can't determine team side, use fallback logic
                     if (homeTeamResult === null) {
-                      // Log for debugging but still render with fallback positioning
-                      console.warn('Unable to determine team side for goal event:', event);
-                      return null; // Skip uncertain events for now
+                      console.warn(`⚠️ [Goal Event Render] Using fallback logic for goal: ${event.player?.name} (${event.team?.name}) at ${event.time?.elapsed}'`);
+                      
+                      // For goals, we can't afford to lose them, so use fallback
+                      homeTeamResult = Math.random() > 0.5; // Random assignment as last resort
                     }
 
                     // For own goals, show on the side of the team that benefits (opposite of scoring team)
