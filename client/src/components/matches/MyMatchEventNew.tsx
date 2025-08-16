@@ -481,11 +481,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   };
 
   const isHomeTeam = useCallback(
-    (event: MatchEvent) => {
-      return event.team?.name?.toLowerCase() === homeTeam?.toLowerCase();
+    (event: MatchEvent): boolean | null => {
+      if (!homeTeam || !event.team?.name) {
+        // If homeTeam or event.team.name is not available, we cannot determine if it's a home team event.
+        // Return null to indicate that the team data is not ready for comparison.
+        return null;
+      }
+      return event.team.name.toLowerCase() === homeTeam.toLowerCase();
     },
     [homeTeam],
   );
+
 
   const isDarkTheme = useMemo(() => theme === "dark", [theme]);
   const groupedEvents = useMemo(() => groupEventsByPeriod(events), [events]);
@@ -567,13 +573,19 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     event: MatchEvent;
     isLast: boolean;
   }) => {
+    // Check if team data is ready
+    const homeTeamResult = isHomeTeam(event);
+    if (homeTeamResult === null) {
+      return null; // Don't render until team data is ready
+    }
+
     // For own goals, show on the side of the team that benefits (opposite of scoring team)
     const isOwnGoal = event.detail
       ?.toLowerCase()
       .includes("own goal");
     const isHome = isOwnGoal
-      ? !isHomeTeam(event)
-      : isHomeTeam(event);
+      ? !homeTeamResult
+      : homeTeamResult;
 
     return (
       <div className="relative flex items-center">
@@ -1378,13 +1390,19 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       );
                     }
 
+                    // Check if team data is ready
+                    const homeTeamResult = isHomeTeam(event);
+                    if (homeTeamResult === null) {
+                      return null; // Don't render until team data is ready
+                    }
+
                     // For own goals, show on the side of the team that benefits (opposite of scoring team)
                     const isOwnGoal = event.detail
                       ?.toLowerCase()
                       .includes("own goal");
                     const isHome = isOwnGoal
-                      ? !isHomeTeam(event)
-                      : isHomeTeam(event);
+                      ? !homeTeamResult
+                      : homeTeamResult;
 
                     return (
                       <div
@@ -1995,13 +2013,19 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       );
                     }
 
+                    // Check if team data is ready
+                    const homeTeamResult = isHomeTeam(event);
+                    if (homeTeamResult === null) {
+                      return null; // Don't render until team data is ready
+                    }
+
                     // For own goals, show on the side of the team that benefits (opposite of scoring team)
                     const isOwnGoal = event.detail
                       ?.toLowerCase()
                       .includes("own goal");
                     const isHome = isOwnGoal
-                      ? !isHomeTeam(event)
-                      : isHomeTeam(event);
+                      ? !homeTeamResult
+                      : homeTeamResult;
 
                     return (
                       <div
