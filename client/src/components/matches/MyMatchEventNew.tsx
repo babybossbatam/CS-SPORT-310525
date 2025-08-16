@@ -208,7 +208,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     // Only fetch if we have team data or no events yet
     if (homeTeam && awayTeam) {
       console.log(`✅ [Team Data] Team data ready, fetching events for fixture ${fixtureId}`);
-      
+
       // Add small delay to prevent rapid mounting/unmounting issues
       const timeoutId = setTimeout(() => {
         fetchMatchEvents();
@@ -585,7 +585,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   }
 
   // Wait for essential data before rendering - prevent premature rendering
-  if (!homeTeam || !awayTeam || isLoading) {
+  if (!homeTeam || !awayTeam) {
     return (
       <Card
         className={`${className} ${isDarkTheme ? "bg-gray-800 text-white border-gray-700" : "bg-white border-gray-200"}`}
@@ -625,7 +625,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   }
 
   // Hide component for upcoming matches with no events
-  if (events.length === 0 && !isLoading) {
+  if (events.length === 0) {
     const matchStatus = matchData?.fixture?.status?.short;
     const isUpcoming = ["NS", "TBD"].includes(matchStatus);
 
@@ -1229,14 +1229,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       </div>
 
       <CardContent className="py-6 px-0">
-        {isLoading && events.length === 0 ? (
-          <div className="flex items-center justify-center p-8">
-            <div className="text-center">
-              <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
-              <p className="text-gray-600">Loading match events...</p>
-            </div>
-          </div>
-        ) : events.length === 0 ? (
+        {events.length === 0 ? (
           <div className="flex items-center justify-center p-8">
             <div className="text-center text-gray-500">
               <p>No events recorded yet</p>
