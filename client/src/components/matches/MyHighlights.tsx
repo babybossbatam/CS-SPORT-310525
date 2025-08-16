@@ -844,30 +844,35 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       type: 'youtube' as const,
       searchFn: async () => {
         // Enhanced exclusion terms to filter out reaction videos and unofficial content
-        const strongExclusions = `-"React" -"reaction" -"reação" -"reagindo" -"análise" -"preview" -"predictions" -"betting" -"fifa" -"pes" -"efootball" -"gaming" -"gameplay" -"stream" -"live chat" -"compilation" -"fan reaction" -"watch party" -"primeira vez" -"first time watching" -"assistindo" -"comentando" -"scorebat" -"highlights compilation" -"all goals"`;
+        const strongExclusions = `-"React" -"reaction" -"reação" -"reagindo" -"análise" -"preview" -"predictions" -"betting" -"fifa" -"pes" -"efootball" -"gaming" -"gameplay" -"stream" -"live chat" -"compilation" -"fan reaction" -"watch party" -"primeira vez" -"first time watching" -"assistindo" -"comentando" -"scorebat" -"highlights compilation" -"all goals" -"chambula" -"review" -"breakdown" -"tactical analysis" -"post match" -"pre match" -"discussion" -"talk" -"podcast" -"interview" -"press conference" -"fan channel" -"fan tv" -"vlog" -"blog" -"opinion" -"rated" -"ranking" -"top 10" -"best moments compilation"`;
 
-        // Prioritize official channels and highlights
-        const officialKeywords = `highlights OR "melhores momentos" OR "gols" OR "goals" OR "resumo"`;
+        // Prioritize official channels and highlights with stricter keywords
+        const officialKeywords = `"highlights" OR "melhores momentos" OR "gols" OR "goals" OR "resumo" OR "extended highlights" OR "match highlights"`;
 
+        // Enhanced queries with better official content prioritization
         const queries = [
+          `"official highlights" "${rawHome}" vs "${rawAway}" ${matchYear} ${strongExclusions}`,
+          `"match highlights" "${rawHome}" "${rawAway}" ${matchYear} ${strongExclusions}`,
           `(${officialKeywords}) "${rawHome}" vs "${rawAway}" ${matchYear} ${strongExclusions}`,
-          `"${rawHome}" "${rawAway}" highlights ${matchYear} official ${strongExclusions}`,
-          `${home} vs ${away} goals highlights ${matchYear} ${strongExclusions}`,
-          `"${home}" "${away}" match highlights ${matchYear} ${strongExclusions}`,
-          `${rawHome} x ${rawAway} melhores momentos ${matchYear} ${strongExclusions}`
+          `"${rawHome}" "${rawAway}" highlights ${matchYear} "official" ${strongExclusions}`,
+          `${home} vs ${away} "goals highlights" ${matchYear} ${strongExclusions}`,
+          `"${home}" "${away}" "extended highlights" ${matchYear} ${strongExclusions}`,
+          `${rawHome} x ${rawAway} "melhores momentos" ${matchYear} ${strongExclusions}`
         ];
 
-        // Add league-specific optimizations
+        // Add league-specific optimizations with official channel prioritization
         if (league) {
           const leagueTerms = league.toLowerCase();
           if (leagueTerms.includes('champions league')) {
-            queries.unshift(`"${rawHome}" vs "${rawAway}" "UEFA Champions League" highlights ${matchYear} ${strongExclusions}`);
+            queries.unshift(`"${rawHome}" vs "${rawAway}" "UEFA Champions League" "official highlights" ${matchYear} ${strongExclusions}`);
           } else if (leagueTerms.includes('premier league')) {
-            queries.unshift(`"${rawHome}" vs "${rawAway}" "Premier League" highlights ${matchYear} ${strongExclusions}`);
+            queries.unshift(`"${rawHome}" vs "${rawAway}" "Premier League" "official highlights" ${matchYear} ${strongExclusions}`);
           } else if (leagueTerms.includes('la liga')) {
-            queries.unshift(`"${rawHome}" vs "${rawAway}" "La Liga" highlights ${matchYear} ${strongExclusions}`);
+            queries.unshift(`"${rawHome}" vs "${rawAway}" "La Liga" "official highlights" ${matchYear} ${strongExclusions}`);
           } else if (leagueTerms.includes('brasileirão') || leagueTerms.includes('serie a')) {
-            queries.unshift(`"${rawHome}" vs "${rawAway}" "Brasileirão" highlights ${matchYear} ${strongExclusions}`);
+            queries.unshift(`"${rawHome}" vs "${rawAway}" "Brasileirão" "official highlights" ${matchYear} ${strongExclusions}`);
+          } else if (leagueTerms.includes('egyptian') || leagueTerms.includes('egypt')) {
+            queries.unshift(`"${rawHome}" vs "${rawAway}" "Egyptian Premier League" "highlights" ${matchYear} ${strongExclusions}`);
           }
         }
 
@@ -897,14 +902,24 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 const channelTitle = video.snippet.channelTitle.toLowerCase();
                 const description = video.snippet.description?.toLowerCase() || '';
 
-                // Strict exclusion of reaction and unofficial content
+                // Strict exclusion of reaction and unofficial content - enhanced list
                 const excludeTerms = [
                   'react', 'reaction', 'reação', 'reagindo', 'análise', 'preview', 
                   'predictions', 'betting', 'fifa', 'pes', 'efootball', 'gaming', 
                   'gameplay', 'stream', 'live chat', 'compilation', 'fan reaction', 
                   'watch party', 'primeira vez', 'first time watching', 'assistindo',
                   'comentando', 'podcast', 'talk show', 'entrevista', 'interview',
-                  'channel react', 'youtuber', 'streamer', 'twitch', 'discord'
+                  'channel react', 'youtuber', 'streamer', 'twitch', 'discord',
+                  'chambula', 'review', 'breakdown', 'tactical analysis', 'post match',
+                  'pre match', 'discussion', 'talk', 'opinion', 'rated', 'ranking',
+                  'top 10', 'best moments compilation', 'fan channel', 'fan tv',
+                  'vlog', 'blog', 'press conference', 'media', 'discussion show'
+                ];
+
+                // Exclude channels that are clearly fan/review channels
+                const excludeChannels = [
+                  'chambula', 'fan tv', 'fan channel', 'react', 'review', 'media',
+                  'talk', 'discussion', 'podcast', 'analysis'
                 ];
 
                 // Check title, channel, and description for excluded terms
@@ -917,8 +932,14 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   return false;
                 }
 
-                // Must contain official highlight terms
-                const mustHaveTerms = ['highlights', 'goals', 'melhores momentos', 'resumo', 'gols', 'best moments'];
+                // Check for excluded channel patterns
+                if (excludeChannels.some(pattern => channelTitle.includes(pattern))) {
+                  console.log(`🚫 [Highlights] Filtered out: "${video.snippet.title}" by ${video.snippet.channelTitle} (excluded channel pattern)`);
+                  return false;
+                }
+
+                // Must contain official highlight terms - more specific
+                const mustHaveTerms = ['highlights', 'goals', 'melhores momentos', 'resumo', 'gols', 'best moments', 'extended highlights', 'match highlights'];
                 const hasOfficialTerms = mustHaveTerms.some(term => title.includes(term));
 
                 if (!hasOfficialTerms) {
@@ -935,6 +956,16 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   return false;
                 }
 
+                // Additional check for match format (vs, x, against, etc.)
+                const hasMatchFormat = title.includes(' vs ') || title.includes(' x ') || 
+                                     title.includes(' against ') || title.includes(' v ') ||
+                                     title.includes(' - ');
+
+                if (!hasMatchFormat) {
+                  console.log(`🚫 [Highlights] Filtered out: "${video.snippet.title}" (no match format)`);
+                  return false;
+                }
+
                 console.log(`✅ [Highlights] Approved: "${video.snippet.title}" by ${video.snippet.channelTitle}`);
                 return true;
               });
@@ -946,14 +977,30 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 const aChannel = a.snippet.channelTitle.toLowerCase();
                 const bChannel = b.snippet.channelTitle.toLowerCase();
 
-                // Calculate official channel score
+                // Calculate official channel score - enhanced with more leagues
                 const getOfficialScore = (channel: string): number => {
                   const officialChannels = [
                     'fifa', 'uefa', 'conmebol', 'concacaf', 'premier league', 
                     'la liga', 'serie a', 'bundesliga', 'ligue 1', 'brasileirão',
-                    'cbf', 'sportv', 'globoesporte', 'espn', 'fox sports'
+                    'cbf', 'sportv', 'globoesporte', 'espn', 'fox sports',
+                    'egyptian premier league', 'egypt football', 'caf', 'official',
+                    'football highlights', 'soccer highlights', 'match highlights'
                   ];
-                  return officialChannels.filter(official => channel.includes(official)).length * 10;
+                  
+                  // Heavy bonus for truly official channels
+                  const superOfficialChannels = [
+                    'fifa', 'uefa', 'premier league', 'la liga', 'bundesliga',
+                    'serie a', 'ligue 1', 'conmebol', 'concacaf'
+                  ];
+                  
+                  let score = officialChannels.filter(official => channel.includes(official)).length * 10;
+                  score += superOfficialChannels.filter(official => channel.includes(official)).length * 20;
+                  
+                  // Penalty for channels with "media", "fan", "react" patterns
+                  const penaltyPatterns = ['media', 'fan', 'react', 'talk', 'discussion', 'podcast'];
+                  score -= penaltyPatterns.filter(pattern => channel.includes(pattern)).length * 15;
+                  
+                  return score;
                 };
 
                 const aOfficialScore = getOfficialScore(aChannel);
@@ -962,6 +1009,13 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 if (aOfficialScore !== bOfficialScore) {
                   return bOfficialScore - aOfficialScore;
                 }
+
+                // Heavy preference for "official highlights" in title
+                const aHasOfficialHighlights = aTitle.includes('official highlights') || aTitle.includes('match highlights');
+                const bHasOfficialHighlights = bTitle.includes('official highlights') || bTitle.includes('match highlights');
+
+                if (aHasOfficialHighlights && !bHasOfficialHighlights) return -1;
+                if (!aHasOfficialHighlights && bHasOfficialHighlights) return 1;
 
                 // Prioritize exact team name matches
                 const aExactMatch = aTitle.includes(`${home.toLowerCase()} vs ${away.toLowerCase()}`) || 
@@ -979,7 +1033,11 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 if (aHasYear && !bHasYear) return -1;
                 if (!aHasYear && bHasYear) return 1;
 
-                return 0;
+                // Prefer shorter titles (usually more official)
+                const aTitleLength = aTitle.length;
+                const bTitleLength = bTitle.length;
+
+                return aTitleLength - bTitleLength;
               });
 
               if (sortedVideos.length > 0) {
