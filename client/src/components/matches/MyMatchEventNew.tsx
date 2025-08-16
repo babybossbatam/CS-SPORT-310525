@@ -233,8 +233,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     }
   }, [homeTeam, awayTeam, fetchMatchEvents, refreshInterval]);
 
-    }, [homeTeam, awayTeam, fetchMatchEvents, refreshInterval]);
-
   const formatTime = (elapsed: number, extra?: number) => {
     if (extra) {
       return `${elapsed}+${extra}'`;
