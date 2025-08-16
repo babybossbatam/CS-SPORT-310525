@@ -481,12 +481,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   };
 
   const isHomeTeam = useCallback(
-    (event: MatchEvent | PeriodMarkerEvent): boolean | null => {
-      // Handle cases where team or homeTeam might be undefined/null
-      if (!event.team || !homeTeam) {
-        return null;
-      }
-      return event.team.name?.toLowerCase() === homeTeam?.toLowerCase();
+    (event: MatchEvent) => {
+      return event.team?.name?.toLowerCase() === homeTeam?.toLowerCase();
     },
     [homeTeam],
   );
@@ -564,48 +560,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     }
   }
 
-  // Skeleton Loader for initial load
-  if (isLoading && events.length === 0) {
-    return (
-      <Card
-        className={`${className} ${isDarkTheme ? "bg-gray-800 text-white border-gray-700" : "bg-white border-gray-200"}`}
-      >
-        <CardHeader
-          className={`pb-3 ${isDarkTheme ? "bg-gray-700" : "mb-2"} border-b`}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <h3 className="text-md font-semibold">Match Events</h3>
-            </div>
-          </div>
-        </CardHeader>
-
-        {/* Tab Navigation Skeleton */}
-        <div className="pl-28 pr-28 py-4 flex">
-          <div className="flex-1 py-3 bg-blue-500 text-white text-center text-xs font-small">
-            All
-          </div>
-          <div className={`flex-1 py-3 text-center text-xs font-small border ${isDarkTheme ? "bg-gray-800 text-white border-white" : "bg-white text-blue-400 border-blue-400"}`}>
-            Top
-          </div>
-          <div className={`flex-1 py-3 text-center text-xs font-small border ${isDarkTheme ? "bg-gray-800 text-white border-white" : "bg-white text-blue-400 border-blue-400"}`}>
-            Commentary
-          </div>
-        </div>
-
-        <CardContent className="py-6 px-0">
-          <div className="flex items-center justify-center p-8">
-            <div className="text-center">
-              <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
-              <p className="text-gray-600">Loading match events...</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-
   const EventItem = ({
     event,
     isLast,
@@ -614,13 +568,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     isLast: boolean;
   }) => {
     // For own goals, show on the side of the team that benefits (opposite of scoring team)
-    const isOwnGoal = event.detail
-      ?.toLowerCase()
-      .includes("own goal");
-    const teamCheck = isHomeTeam(event);
-    // Skip rendering if we can't determine team alignment
-    if (teamCheck === null) return null;
-    const isHome = isOwnGoal ? !teamCheck : teamCheck;
+    const isOwnGoal = event.detail?.toLowerCase().includes("own goal");
+    const isHome = isOwnGoal
+      ? event.team?.name !== homeTeam
+      : event.team?.name === homeTeam;
 
     return (
       <div className="relative flex items-center">
@@ -1184,8 +1135,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       </div>
 
       <CardContent className="py-6 px-0">
-        {/* Removed skeleton loader here, as it's handled above */}
-        {events.length === 0 ? (
+        {isLoading && events.length === 0 ? (
+          <div className="flex items-center justify-center p-8">
+            <div className="text-center">
+              <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
+              <p className="text-gray-600">Loading match events...</p>
+            </div>
+          </div>
+        ) : events.length === 0 ? (
           <div className="flex items-center justify-center p-8">
             <div className="text-center text-gray-500">
               <p>No events recorded yet</p>
@@ -1423,10 +1380,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     const isOwnGoal = event.detail
                       ?.toLowerCase()
                       .includes("own goal");
-                    const teamCheck = isHomeTeam(event);
-                    // Skip rendering if we can't determine team alignment
-                    if (teamCheck === null) return null;
-                    const isHome = isOwnGoal ? !teamCheck : teamCheck;
+                    const isHome = isOwnGoal
+                      ? event.team?.name !== homeTeam
+                      : event.team?.name === homeTeam;
 
                     return (
                       <div
@@ -2041,10 +1997,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     const isOwnGoal = event.detail
                       ?.toLowerCase()
                       .includes("own goal");
-                    const teamCheck = isHomeTeam(event);
-                    // Skip rendering if we can't determine team alignment
-                    if (teamCheck === null) return null;
-                    const isHome = isOwnGoal ? !teamCheck : teamCheck;
+                    const isHome = isOwnGoal
+                      ? event.team?.name !== homeTeam
+                      : event.team?.name === homeTeam;
 
                     return (
                       <div
