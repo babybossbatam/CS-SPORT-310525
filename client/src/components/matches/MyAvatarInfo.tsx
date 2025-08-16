@@ -148,7 +148,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           if (
             cachedImageUrl &&
             cachedImageUrl !== "" &&
-            cachedImageUrl !== "/assets/fallback-logo.png"
+            cachedImageUrl !== "/assets/matchdetaillogo/player_fallback.png"
           ) {
             console.log(
               `✅ [MyAvatarInfo-${componentId}] Got from player cache: ${cachedImageUrl}`,
@@ -166,14 +166,14 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         console.log(
           `🎨 [MyAvatarInfo-${componentId}] Using fallback for: ${playerName}`,
         );
-        imageCache.set(cacheKey, "/assets/fallback-logo.png");
-        return "/assets/fallback-logo.png";
+        imageCache.set(cacheKey, "/assets/matchdetaillogo/player_fallback.png");
+        return "/assets/matchdetaillogo/player_fallback.png";
       } catch (error) {
         console.log(
           `❌ [MyAvatarInfo-${componentId}] Error loading image: ${(error as Error)?.message || error}`,
         );
-        imageCache.set(cacheKey, "/assets/fallback-logo.png");
-        return "/assets/fallback-logo.png";
+        imageCache.set(cacheKey, "/assets/matchdetaillogo/player_fallback.png");
+        return "/assets/matchdetaillogo/player_fallback.png";
       } finally {
         // Clean up loading request
         loadingRequests.delete(cacheKey);
@@ -235,7 +235,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           console.log(
             `❌ [MyAvatarInfo-${componentId}] Failed to load: ${error}`,
           );
-          setImageUrl("/assets/fallback-logo.png");
+          setImageUrl("/assets/matchdetaillogo/player_fallback.png");
         }
       } finally {
         if (!isCancelled) {
@@ -254,7 +254,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   const handleClick = () => {
     if (onClick) {
       const actualImageUrl =
-        imageUrl !== "/assets/fallback-logo.png" ? imageUrl : undefined;
+        imageUrl !== "/assets/matchdetaillogo/player_fallback.png" ? imageUrl : undefined;
       onClick(playerId, teamId, playerName, actualImageUrl);
     }
   };
@@ -277,7 +277,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       onClick={handleClick}
     >
       <img
-        src={imageUrl || "/assets/fallback-logo.png"}
+        src={imageUrl || "/assets/matchdetaillogo/player_fallback.png"}
         alt={playerName || "Player"}
         className="w-full h-full object-cover"
         onError={() => {
@@ -285,8 +285,8 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
             `🖼️ [MyAvatarInfo-${componentId}] Image error, using fallback`,
           );
           // Remove from cache and use fallback
-          imageCache.set(cacheKey, "/assets/fallback-logo.png");
-          setImageUrl("/assets/fallback-logo.png");
+          imageCache.set(cacheKey, "/assets/matchdetaillogo/player_fallback.png");
+          setImageUrl("/assets/matchdetaillogo/player_fallback.png");
         }}
         onLoad={() => {
           console.log(
