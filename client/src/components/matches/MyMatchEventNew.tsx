@@ -481,8 +481,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   };
 
   const isHomeTeam = useCallback(
-    (event: MatchEvent) => {
-      return event.team?.name?.toLowerCase() === homeTeam?.toLowerCase();
+    (event: MatchEvent | PeriodMarkerEvent): boolean | null => {
+      // Handle cases where team or homeTeam might be undefined/null
+      if (!event.team || !homeTeam) {
+        return null;
+      }
+      return event.team.name?.toLowerCase() === homeTeam?.toLowerCase();
     },
     [homeTeam],
   );
@@ -610,10 +614,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     isLast: boolean;
   }) => {
     // For own goals, show on the side of the team that benefits (opposite of scoring team)
-    const isOwnGoal = event.detail?.toLowerCase().includes("own goal");
-    const isHome = isOwnGoal
-      ? event.team?.name !== homeTeam
-      : event.team?.name === homeTeam;
+    const isOwnGoal = event.detail
+      ?.toLowerCase()
+      .includes("own goal");
+    const teamCheck = isHomeTeam(event);
+    // Skip rendering if we can't determine team alignment
+    if (teamCheck === null) return null;
+    const isHome = isOwnGoal ? !teamCheck : teamCheck;
 
     return (
       <div className="relative flex items-center">
@@ -1416,9 +1423,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     const isOwnGoal = event.detail
                       ?.toLowerCase()
                       .includes("own goal");
-                    const isHome = isOwnGoal
-                      ? event.team?.name !== homeTeam
-                      : event.team?.name === homeTeam;
+                    const teamCheck = isHomeTeam(event);
+                    // Skip rendering if we can't determine team alignment
+                    if (teamCheck === null) return null;
+                    const isHome = isOwnGoal ? !teamCheck : teamCheck;
 
                     return (
                       <div
@@ -2033,9 +2041,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     const isOwnGoal = event.detail
                       ?.toLowerCase()
                       .includes("own goal");
-                    const isHome = isOwnGoal
-                      ? event.team?.name !== homeTeam
-                      : event.team?.name === homeTeam;
+                    const teamCheck = isHomeTeam(event);
+                    // Skip rendering if we can't determine team alignment
+                    if (teamCheck === null) return null;
+                    const isHome = isOwnGoal ? !teamCheck : teamCheck;
 
                     return (
                       <div
