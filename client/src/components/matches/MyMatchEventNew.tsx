@@ -568,10 +568,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     isLast: boolean;
   }) => {
     // For own goals, show on the side of the team that benefits (opposite of scoring team)
-    const isOwnGoal = event.detail?.toLowerCase().includes("own goal");
+    const isOwnGoal = event.detail
+      ?.toLowerCase()
+      .includes("own goal");
     const isHome = isOwnGoal
-      ? event.team?.name !== homeTeam
-      : event.team?.name === homeTeam;
+      ? !isHomeTeam(event)
+      : isHomeTeam(event);
 
     return (
       <div className="relative flex items-center">
@@ -1381,8 +1383,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       ?.toLowerCase()
                       .includes("own goal");
                     const isHome = isOwnGoal
-                      ? event.team?.name !== homeTeam
-                      : event.team?.name === homeTeam;
+                      ? !isHomeTeam(event)
+                      : isHomeTeam(event);
 
                     return (
                       <div
@@ -1998,8 +2000,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       ?.toLowerCase()
                       .includes("own goal");
                     const isHome = isOwnGoal
-                      ? event.team?.name !== homeTeam
-                      : event.team?.name === homeTeam;
+                      ? !isHomeTeam(event)
+                      : isHomeTeam(event);
 
                     return (
                       <div
