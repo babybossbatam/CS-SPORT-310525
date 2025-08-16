@@ -355,13 +355,6 @@ export function createFallbackHandler(options: TeamLogoOptions) {
 }
 
 /**
- * Generate player-specific fallback avatar
- */
-export function generatePlayerFallbackAvatar(playerName: string): string {
-  return '/attached_assets/fallback_player_1752379496642.png';
-}
-
-/**
  * Enhanced image component with built-in fallback logic
  */
 export interface EnhancedImageProps {
