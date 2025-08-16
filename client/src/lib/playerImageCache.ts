@@ -118,11 +118,10 @@ class PlayerImageCache {
       }
     }
 
-    // Final: Generate initials fallback
-    const initials = this.generateInitials(playerName);
-    const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=128&background=4F46E5&color=fff&bold=true&format=svg`;
+    // Final: Use consistent fallback image
+    const fallbackUrl = "/attached_assets/fallback_player_1752379496642.png";
 
-    this.setCachedImage(playerId, playerName, fallbackUrl, 'initials');
+    this.setCachedImage(playerId, playerName, fallbackUrl, 'fallback');
     console.log(`🎨 [PlayerImageCache] Using initials fallback for ${playerName}: ${fallbackUrl}`);
     return fallbackUrl;
   }

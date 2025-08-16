@@ -121,14 +121,17 @@ router.get('/player-photo-by-name', async (req, res) => {
     }
 
     // Source 4: Generate fallback avatar with player initials
-    const fallbackUrl = generatePlayerFallbackAvatar(name);
+    const fallbackUrl = "/attached_assets/fallback_player_1752379496642.png";
+
     console.log(`🎨 [PlayerPhotoByName] Generated fallback avatar for "${name}": ${fallbackUrl}`);
-    return res.redirect(fallbackUrl);
+
+    // Redirect to the fallback avatar
+    return res.redirect(302, fallbackUrl);
 
   } catch (error) {
     console.error(`❌ [PlayerPhotoByName] Error searching for "${name}":`, error);
-    const fallbackUrl = generatePlayerFallbackAvatar(name);
-    return res.redirect(fallbackUrl);
+    const fallbackUrl = "/attached_assets/fallback_player_1752379496642.png";
+    return res.redirect(302, fallbackUrl);
   }
 });
 
