@@ -560,6 +560,33 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     }
   }
 
+  // Prevent initial incorrect data flash - only show after first successful fetch
+  if (events.length > 0 && !lastUpdated) {
+    return (
+      <Card
+        className={`${className} ${isDarkTheme ? "bg-gray-800 text-white border-gray-700" : "bg-white border-gray-200"}`}
+      >
+        <CardHeader
+          className={`pb-3 ${isDarkTheme ? "bg-gray-700" : "mb-2"} border-b`}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h3 className="text-md font-semibold">Match Events</h3>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="py-6 px-0">
+          <div className="flex items-center justify-center p-8">
+            <div className="text-center">
+              <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
+              <p className="text-gray-600">Loading match events...</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   // Skeleton Loader for initial load
   if (isLoading && events.length === 0) {
     return (
