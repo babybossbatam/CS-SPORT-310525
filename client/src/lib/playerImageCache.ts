@@ -16,6 +16,7 @@ class PlayerImageCache {
   private cache = new Map<string, CachedPlayerImage>();
   private readonly MAX_AGE = 24 * 60 * 60 * 1000; // 24 hours (reduced)
   private readonly MAX_SIZE = 200; // Reduced cache size
+  private readonly fallbackUrl = "/attached_assets/fallback_player_1752379496642.png";
 
   private getCacheKey(playerId?: number, playerName?: string): string {
     return `player_${playerId || 'unknown'}_${playerName || 'unknown'}`;
@@ -200,6 +201,39 @@ class PlayerImageCache {
     this.cache.delete(key);
     console.log(`🔄 [PlayerImageCache] Force refreshed cache for player: ${playerName} (${playerId})`);
   }
+
+  // Method to clear a specific player's image if it's determined to be wrong
+  clearWrongPlayerImage(playerId?: number, playerName?: string): void {
+    const key = this.getCacheKey(playerId, playerName);
+    const cached = this.cache.get(key);
+    if (cached) {
+      // Mark as not verified or delete if we want to force a re-fetch on next attempt
+      // For now, we'll just delete it to force a re-fetch.
+      this.cache.delete(key);
+      console.log(`❌ [PlayerImageCache] Cleared potentially wrong image for player: ${playerName} (${playerId})`);
+    }
+  }
+
+  // Method to preload player images
+  async preloadPlayerImages(players: Array<{ id?: number; name?: string }>): Promise<void> {
+    const fetchPromises = players.map(player =>
+      this.getPlayerImageWithFallback(player.id, player.name).catch(e => {
+        console.error(`Error preloading image for ${player.name} (${player.id}):`, e);
+        return ''; // Return empty string on error to not break the map
+      })
+    );
+    await Promise.all(fetchPromises);
+    console.log(`🚀 [PlayerImageCache] Preloaded ${players.length} player images.`);
+  }
+
+  // Method to batch load player images, possibly with team/league priority
+  async batchLoadPlayerImages(teamId?: number, leagueId?: number): Promise<void> {
+    console.log(` batchLoadPlayerImages called with teamId: ${teamId}, leagueId: ${leagueId}`);
+    // This is a placeholder for future implementation.
+    // The actual logic would involve fetching a list of players for a team/league
+    // and then calling getPlayerImageWithFallback for each.
+    // For now, it logs that it was called.
+  }
 }
 
 // Export singleton instance
@@ -251,8 +285,9 @@ export const forceRefreshPlayerFunc = (playerId?: number, playerName?: string): 
     return playerImageCache.forceRefresh(playerId, playerName);
 };
 
+// Modified refreshPlayerImageFunc to not pass the boolean argument 'true'
 export const refreshPlayerImageFunc = async (playerId?: number, playerName?: string, teamId?: number): Promise<string> => {
-    return playerImageCache.getPlayerImageWithFallback(playerId, playerName, teamId, true);
+    return playerImageCache.getPlayerImageWithFallback(playerId, playerName, teamId);
 };
 
 export const batchLoadPlayerImagesFunc = async (teamId?: number, leagueId?: number): Promise<void> => {

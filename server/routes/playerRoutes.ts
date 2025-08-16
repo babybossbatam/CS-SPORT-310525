@@ -135,19 +135,19 @@ router.get('/player-photo-by-name', async (req, res) => {
 // Helper function to generate name variations
 function generateNameVariations(name: string): string[] {
   const variations = [name]; // Original name first
-  
+
   // Remove periods and abbreviations
   const withoutPeriods = name.replace(/\./g, '');
   if (withoutPeriods !== name) {
     variations.push(withoutPeriods);
   }
-  
+
   // Common abbreviation expansions
   const expansions: { [key: string]: string[] } = {
     'L.': ['Luis', 'Lucas', 'Leonardo', 'Lorenzo'],
     'M.': ['Mario', 'Miguel', 'Manuel', 'Mateo', 'Martin']
   };
-  
+
   // Try expanding abbreviations
   for (const [abbrev, fullNames] of Object.entries(expansions)) {
     if (name.includes(abbrev)) {
@@ -156,7 +156,7 @@ function generateNameVariations(name: string): string[] {
       }
     }
   }
-  
+
   // Try without accents/special characters
   const withoutAccents = name
     .normalize('NFD')
@@ -164,7 +164,7 @@ function generateNameVariations(name: string): string[] {
   if (withoutAccents !== name) {
     variations.push(withoutAccents);
   }
-  
+
   return [...new Set(variations)]; // Remove duplicates
 }
 
@@ -188,13 +188,11 @@ function getKnownPlayerMappings(): { [key: string]: number } {
 
 // Generate fallback avatar with player initials
 function generatePlayerFallbackAvatar(name: string): string {
-  const initials = name
-    .split(' ')
-    .map(n => n.charAt(0).toUpperCase())
-    .join('')
-    .slice(0, 2);
-  
-  return `https://ui-avatars.com/api/?name=${initials}&size=128&background=4F46E5&color=fff&bold=true&format=png`;
+  // Use the new player fallback image
+  const fallbackUrl = '/attached_assets/fallback_player_1752379496642.png';
+
+  console.log(`🎨 [PlayerPhotoByName] Generated fallback avatar for "${name}": ${fallbackUrl}`);
+  return fallbackUrl;
 }
 
 // Keep the simplified player photo by ID endpoint
@@ -254,7 +252,7 @@ router.get('/find-player-id', async (req, res) => {
           team: p.statistics[0]?.team?.name || 'Unknown',
           league: p.statistics[0]?.league?.name || 'Unknown'
         }));
-        
+
         return res.json({ players });
       }
     }
