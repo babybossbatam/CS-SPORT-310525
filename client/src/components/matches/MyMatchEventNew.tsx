@@ -204,7 +204,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   useEffect(() => {
     // Debug team data availability
     console.log(`🏠 [Team Data] Home: "${homeTeam}", Away: "${awayTeam}"`);
-    
+
     // Add small delay to prevent rapid mounting/unmounting issues
     const timeoutId = setTimeout(() => {
       fetchMatchEvents();
@@ -614,27 +614,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   }) => {
     // Determine team side with enhanced error handling
     let homeTeamResult = isHomeTeam(event);
-    
-    // If we can't determine team side, use enhanced fallback logic
+
+    // If we can't determine team side, use consistent fallback logic
     if (homeTeamResult === null) {
       console.warn(`⚠️ [EventItem] Cannot determine team side for: ${event.player?.name} (${event.team?.name})`);
-      
-      // Try to match by team ID if available
-      if (event.team?.id && matchData?.teams) {
-        if (matchData.teams.home?.id === event.team.id) {
-          homeTeamResult = true;
-        } else if (matchData.teams.away?.id === event.team.id) {
-          homeTeamResult = false;
-        } else {
-          // Last resort: don't skip the event, render on random side
-          homeTeamResult = event.time?.elapsed ? (event.time.elapsed % 2 === 0) : true;
-        }
+
+      // Use team ID hash for consistent assignment if available
+      if (event.team?.id) {
+        homeTeamResult = event.team.id % 2 === 0;
       } else {
-        // Render on alternating sides based on time to distribute events
-        homeTeamResult = event.time?.elapsed ? (event.time.elapsed % 2 === 0) : true;
+        // Use time-based consistent assignment
+        homeTeamResult = (event.time?.elapsed || 0) % 2 === 0;
       }
-      
-      console.log(`🔄 [EventItem] Fallback assignment: ${homeTeamResult ? 'home' : 'away'} side for ${event.player?.name}`);
+
+      console.log(`🔄 [EventItem] Consistent fallback assignment: ${homeTeamResult ? 'home' : 'away'} side for ${event.player?.name}`);
     }
 
     // For own goals, show on the side of the team that benefits (opposite of scoring team)
@@ -1450,14 +1443,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                     // Determine team side with better error handling
                     let homeTeamResult = isHomeTeam(event);
-                    
+
                     // If we still can't determine team side, use fallback logic
                     if (homeTeamResult === null) {
                       console.warn(`⚠️ [Event Render] Using fallback logic for event: ${event.player?.name} (${event.team?.name}) at ${event.time?.elapsed}'`);
-                      
-                      // Fallback: assume first team mentioned is home team
-                      // This prevents events from disappearing entirely
-                      homeTeamResult = Math.random() > 0.5; // Random assignment as last resort
+
+                      // Use team ID hash for consistent assignment if available
+                      if (event.team?.id) {
+                        homeTeamResult = event.team.id % 2 === 0;
+                      } else {
+                        // Use time-based consistent assignment
+                        homeTeamResult = (event.time?.elapsed || 0) % 2 === 0;
+                      }
+
+                      console.log(`🔄 [Event Render] Consistent fallback assignment: ${homeTeamResult ? 'home' : 'away'} side for ${event.player?.name}`);
                     }
 
                     // For own goals, show on the side of the team that benefits (opposite of scoring team)
@@ -2079,13 +2078,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                     // Determine team side with better error handling
                     let homeTeamResult = isHomeTeam(event);
-                    
+
                     // If we still can't determine team side, use fallback logic
                     if (homeTeamResult === null) {
                       console.warn(`⚠️ [Goal Event Render] Using fallback logic for goal: ${event.player?.name} (${event.team?.name}) at ${event.time?.elapsed}'`);
-                      
-                      // For goals, we can't afford to lose them, so use fallback
-                      homeTeamResult = Math.random() > 0.5; // Random assignment as last resort
+
+                      // Use team ID hash for consistent assignment if available
+                      if (event.team?.id) {
+                        homeTeamResult = event.team.id % 2 === 0;
+                      } else {
+                        // Use time-based consistent assignment
+                        homeTeamResult = (event.time?.elapsed || 0) % 2 === 0;
+                      }
+
+                      console.log(`🔄 [Goal Event Render] Consistent fallback assignment: ${homeTeamResult ? 'home' : 'away'} side for ${event.player?.name}`);
                     }
 
                     // For own goals, show on the side of the team that benefits (opposite of scoring team)
