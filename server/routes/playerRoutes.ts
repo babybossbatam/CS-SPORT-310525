@@ -17,7 +17,25 @@ router.get('/player-photo-by-name', async (req, res) => {
     const nameVariations = generateNameVariations(name);
     console.log(`🔄 [PlayerPhotoByName] Generated ${nameVariations.length} name variations for "${name}"`);
 
-    // Source 1: Try RapidAPI search with multiple name variations
+    // Source 1: Try direct API-Sports URL first (most reliable)
+    // Try using known player ID mappings first
+    const knownMappings = getKnownPlayerMappings();
+    const lowerName = name.toLowerCase();
+    if (knownMappings[lowerName]) {
+      const knownId = knownMappings[lowerName];
+      const apiSportsUrl = `https://media.api-sports.io/football/players/${knownId}.png`;
+      try {
+        const testResponse = await fetch(apiSportsUrl, { method: 'HEAD', timeout: 3000 });
+        if (testResponse.ok && testResponse.headers.get('content-type')?.startsWith('image/')) {
+          console.log(`✅ [PlayerPhotoByName] Found via known mapping for "${name}": ${apiSportsUrl}`);
+          return res.redirect(apiSportsUrl);
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerPhotoByName] Known mapping failed for "${name}"`);
+      }
+    }
+
+    // Source 2: Try RapidAPI search with multiple name variations
     for (const variation of nameVariations) {
       try {
         const searchUrl = `https://api-football-v1.p.rapidapi.com/v3/players?search=${encodeURIComponent(variation)}`;
@@ -73,7 +91,7 @@ router.get('/player-photo-by-name', async (req, res) => {
           }
         }
       } catch (error) {
-        console.log(`⚠️ [PlayerPhotoByName] RapidAPI error for "${name}" (variation: "${variation}"):`, error.message);
+        console.log(`⚠️ [PlayerPhotoByName] RapidAPI error for "${name}" (variation: "${variation}"):`, error?.message || error);
         continue; // Try next variation
       }
     }
@@ -177,6 +195,34 @@ function getKnownPlayerMappings(): { [key: string]: number } {
     'l. díaz': 2489,
     'luis díaz': 2489,
     'luis diaz': 2489,
+    's. rondón': 1113,
+    'salomon rondon': 1113,
+    'salomón rondón': 1113,
+    'g. cano': 13523,
+    'german cano': 13523,
+    'germán cano': 13523,
+    'a. canobbio': 51603,
+    'agustin canobbio': 51603,
+    'agustín canobbio': 51603,
+    'k. serna': 70849,
+    'kevin serna': 70849,
+    'breno lopes': 35551,
+    'a. bareiro': 35551,
+    'adam bareiro': 35551,
+    'matheus rossetto': 10138,
+    'lima': 50532,
+    'ph ganso': 10311,
+    'paulo henrique ganso': 10311,
+    'everaldo': 10222,
+    'allanzinho': 276445,
+    'yago pikachu': 10120,
+    'j. herrera': 51074,
+    'jose herrera': 51074,
+    'josé herrera': 51074,
+    'deyverson': 9669,
+    'j. lucero': 7899,
+    'juan martin lucero': 7899,
+    'juan martín lucero': 7899,
     'm. terceros': 345756,
     'miguel terceros': 345756,
     'k. mbappé': 646,
@@ -194,7 +240,8 @@ function generatePlayerFallbackAvatar(name: string): string {
     .join('')
     .slice(0, 2);
   
-  return `https://ui-avatars.com/api/?name=${initials}&size=128&background=4F46E5&color=fff&bold=true&format=png`;
+  // Use a more reliable fallback URL that matches what the frontend expects
+  return `/assets/fallback-logo.png`;
 }
 
 // Keep the simplified player photo by ID endpoint

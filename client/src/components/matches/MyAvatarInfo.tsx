@@ -235,7 +235,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           console.log(
             `❌ [MyAvatarInfo-${componentId}] Failed to load: ${error}`,
           );
-          setImageUrl("/attached_assets/fallback_player_1752379496642.png");
+          setImageUrl("/assets/fallback-logo.png");
         }
       } finally {
         if (!isCancelled) {
