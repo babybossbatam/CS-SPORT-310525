@@ -203,29 +203,37 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   useEffect(() => {
     // Debug team data availability
-    console.log(`🏠 [Team Data] Home: "${homeTeam}", Away: "${awayTeam}"`);
+    console.log(`🏠 [Team Data] Home: "${homeTeam}", Away: "${awayTeam}", Events: ${events.length}`);
 
-    // Add small delay to prevent rapid mounting/unmounting issues
-    const timeoutId = setTimeout(() => {
-      fetchMatchEvents();
-    }, 100);
+    // Only fetch if we have team data or no events yet
+    if (homeTeam && awayTeam) {
+      console.log(`✅ [Team Data] Team data ready, fetching events for fixture ${fixtureId}`);
+      
+      // Add small delay to prevent rapid mounting/unmounting issues
+      const timeoutId = setTimeout(() => {
+        fetchMatchEvents();
+      }, 100);
 
-    // Set up refresh interval
-    if (refreshInterval > 0) {
-      intervalRef.current = setInterval(
-        () => fetchMatchEvents(), // Reset retry count on interval calls
-        refreshInterval * 1000,
-      );
-    }
-
-    return () => {
-      clearTimeout(timeoutId);
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+      // Set up refresh interval
+      if (refreshInterval > 0) {
+        intervalRef.current = setInterval(
+          () => fetchMatchEvents(), // Reset retry count on interval calls
+          refreshInterval * 1000,
+        );
       }
-      // Clean abort handling is now handled in the timeout function
-    };
-  }, [fetchMatchEvents, refreshInterval]);
+
+      return () => {
+        clearTimeout(timeoutId);
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+      };
+    } else {
+      console.warn(`⚠️ [Team Data] Missing team data - Home: "${homeTeam}", Away: "${awayTeam}"`);
+    }
+  }, [homeTeam, awayTeam, fetchMatchEvents, refreshInterval]);
+
+    }, [homeTeam, awayTeam, fetchMatchEvents, refreshInterval]);
 
   const formatTime = (elapsed: number, extra?: number) => {
     if (extra) {
@@ -487,6 +495,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     (event: MatchEvent): boolean | null => {
       if (!homeTeam || !awayTeam || !event.team?.name) {
         // If team data is not available, we cannot determine team side
+        console.warn(`🔍 [Team Matching] Missing data - homeTeam: "${homeTeam}", awayTeam: "${awayTeam}", eventTeam: "${event.team?.name}"`);
         return null;
       }
 
@@ -577,8 +586,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   }
 
-  // Wait for essential team data before rendering
-  if (!homeTeam || !awayTeam) {
+  // Wait for essential data before rendering - prevent premature rendering
+  if (!homeTeam || !awayTeam || isLoading) {
     return (
       <Card
         className={`${className} ${isDarkTheme ? "bg-gray-800 text-white border-gray-700" : "bg-white border-gray-200"}`}
@@ -587,7 +596,29 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           <div className="flex items-center justify-center p-8">
             <div className="text-center">
               <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
-              <p className="text-gray-600">Loading team data...</p>
+              <p className="text-gray-600">
+                {!homeTeam || !awayTeam ? "Loading team data..." : "Loading match events..."}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Additional validation: Don't render if we have events but can't determine team sides
+  const canDetermineTeamSides = events.length === 0 || events.some(event => isHomeTeam(event) !== null);
+  if (events.length > 0 && !canDetermineTeamSides) {
+    console.warn(`🔍 [Rendering] Cannot determine team sides for any events. Waiting for better team data...`);
+    return (
+      <Card
+        className={`${className} ${isDarkTheme ? "bg-gray-800 text-white border-gray-700" : "bg-white border-gray-200"}`}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-center justify-center p-8">
+            <div className="text-center">
+              <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
+              <p className="text-gray-600">Processing team data...</p>
             </div>
           </div>
         </CardContent>
@@ -1444,19 +1475,21 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     // Determine team side with better error handling
                     let homeTeamResult = isHomeTeam(event);
 
-                    // If we still can't determine team side, use fallback logic
+                    // If we still can't determine team side, use consistent fallback logic
                     if (homeTeamResult === null) {
                       console.warn(`⚠️ [Event Render] Using fallback logic for event: ${event.player?.name} (${event.team?.name}) at ${event.time?.elapsed}'`);
 
-                      // Use team ID hash for consistent assignment if available
-                      if (event.team?.id) {
-                        homeTeamResult = event.team.id % 2 === 0;
-                      } else {
-                        // Use time-based consistent assignment
-                        homeTeamResult = (event.time?.elapsed || 0) % 2 === 0;
-                      }
+                      // Create a consistent hash based on team name and ID
+                      const teamIdentifier = `${event.team?.name || 'unknown'}_${event.team?.id || 0}`;
+                      const hash = teamIdentifier.split('').reduce((a, b) => {
+                        a = ((a << 5) - a) + b.charCodeAt(0);
+                        return a & a;
+                      }, 0);
 
-                      console.log(`🔄 [Event Render] Consistent fallback assignment: ${homeTeamResult ? 'home' : 'away'} side for ${event.player?.name}`);
+                      // Use absolute value and ensure consistent assignment
+                      homeTeamResult = Math.abs(hash) % 2 === 0;
+
+                      console.log(`🔄 [Event Render] Consistent fallback assignment: ${homeTeamResult ? 'home' : 'away'} side for ${event.player?.name} (hash: ${hash})`);
                     }
 
                     // For own goals, show on the side of the team that benefits (opposite of scoring team)
