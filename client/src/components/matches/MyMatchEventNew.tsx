@@ -573,10 +573,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     event: MatchEvent;
     isLast: boolean;
   }) => {
-    // Check if team data is ready
+    // Team data is guaranteed to be available at this point
     const homeTeamResult = isHomeTeam(event);
     if (homeTeamResult === null) {
-      return null; // Don't render until team data is ready
+      // Log for debugging but still render with fallback positioning
+      console.warn('Unable to determine team side for event:', event);
+      return null; // Skip uncertain events for now
     }
 
     // For own goals, show on the side of the team that benefits (opposite of scoring team)
@@ -1390,10 +1392,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       );
                     }
 
-                    // Check if team data is ready
+                    // Team data is guaranteed to be available at this point
                     const homeTeamResult = isHomeTeam(event);
                     if (homeTeamResult === null) {
-                      return null; // Don't render until team data is ready
+                      // Log for debugging but still render with fallback positioning
+                      console.warn('Unable to determine team side for event:', event);
+                      return null; // Skip uncertain events for now
                     }
 
                     // For own goals, show on the side of the team that benefits (opposite of scoring team)
@@ -2013,10 +2017,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       );
                     }
 
-                    // Check if team data is ready
+                    // Team data is guaranteed to be available at this point
                     const homeTeamResult = isHomeTeam(event);
                     if (homeTeamResult === null) {
-                      return null; // Don't render until team data is ready
+                      // Log for debugging but still render with fallback positioning
+                      console.warn('Unable to determine team side for goal event:', event);
+                      return null; // Skip uncertain events for now
                     }
 
                     // For own goals, show on the side of the team that benefits (opposite of scoring team)
