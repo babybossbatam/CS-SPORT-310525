@@ -276,13 +276,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         return "👐"; // Throw in
 
       default:
-        return (
-          <img
-            src="/assets/matchdetaillogo/var-logo.svg"
-            alt="Event"
-            className="w-4 h-4"
-          />
-        ); // Default event
+        return "📝"; // Default event
     }
   };
 
