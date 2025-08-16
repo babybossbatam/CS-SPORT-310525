@@ -41,8 +41,8 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     [playerId, playerName],
   );
 
-  const [imageUrl, setImageUrl] = useState<string>("/attached_assets/fallback_player_1752379496642.png");
-  const [isLoading, setIsLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -204,14 +204,26 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     return () => observer.disconnect();
   }, []);
 
+  // Check cache immediately on mount
+  useEffect(() => {
+    // Check if we have a cached image immediately
+    if (imageCache.has(cacheKey)) {
+      const cachedUrl = imageCache.get(cacheKey)!;
+      setImageUrl(cachedUrl);
+      setIsLoading(false);
+      console.log(`💾 [MyAvatarInfo-${componentId}] Immediate cache hit: ${cachedUrl}`);
+    }
+  }, [cacheKey]);
+
   // Load image when visible
   useEffect(() => {
     if (!isVisible || (!playerId && !playerName)) return;
+    if (imageUrl && !isLoading) return; // Skip if we already have an image
 
     let isCancelled = false;
 
     const loadImage = async () => {
-      setIsLoading(true);
+      if (!imageUrl) setIsLoading(true);
 
       try {
         const url = await loadPlayerImage();
@@ -237,7 +249,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     return () => {
       isCancelled = true;
     };
-  }, [isVisible, cacheKey]);
+  }, [isVisible, cacheKey, imageUrl, isLoading]);
 
   const handleClick = () => {
     if (onClick) {
@@ -247,8 +259,8 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     }
   };
 
-  // Early return for loading state
-  if (!isVisible || isLoading) {
+  // Early return for loading state (but only if we don't have a cached image)
+  if (!isVisible || (isLoading && !imageUrl)) {
     return (
       <div
         ref={containerRef}
@@ -265,7 +277,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       onClick={handleClick}
     >
       <img
-        src={imageUrl}
+        src={imageUrl || "/attached_assets/fallback_player_1752379496642.png"}
         alt={playerName || "Player"}
         className="w-full h-full object-cover"
         onError={() => {
