@@ -1036,6 +1036,64 @@ class SmartLeagueCountryTranslation {
       'it': 'Inizia a esplorare ora e unisciti alla comunità CS SPORT!',
       'pt': 'Comece a explorar agora e junte-se à comunidade CS SPORT!'
     },
+    
+    // Footer translations
+    'About': {
+      'zh': '關於我們', 'zh-hk': '關於我們', 'zh-tw': '關於我們',
+      'es': 'Acerca de', 'de': 'Über uns', 'it': 'Chi siamo', 'pt': 'Sobre'
+    },
+    'Contact Us': {
+      'zh': '聯繫我們', 'zh-hk': '聯絡我們', 'zh-tw': '聯絡我們',
+      'es': 'Contáctanos', 'de': 'Kontaktiere uns', 'it': 'Contattaci', 'pt': 'Contate-nos'
+    },
+    'Sports On TV Today': {
+      'zh': '今日體育電視', 'zh-hk': '今日體育電視', 'zh-tw': '今日體育電視',
+      'es': 'Deportes en TV Hoy', 'de': 'Sport im TV Heute', 'it': 'Sport in TV Oggi', 'pt': 'Esportes na TV Hoje'
+    },
+    'Privacy Policy': {
+      'zh': '隱私政策', 'zh-hk': '私隱政策', 'zh-tw': '隱私權政策',
+      'es': 'Política de Privacidad', 'de': 'Datenschutzrichtlinie', 'it': 'Informativa sulla Privacy', 'pt': 'Política de Privacidade'
+    },
+    'Terms of Use': {
+      'zh': '使用條款', 'zh-hk': '使用條款', 'zh-tw': '使用條款',
+      'es': 'Términos de Uso', 'de': 'Nutzungsbedingungen', 'it': 'Termini di Utilizzo', 'pt': 'Termos de Uso'
+    },
+    'FIFA Club World Cup': {
+      'zh': '國際足聯俱樂部世界盃', 'zh-hk': '國際足協球會世界盃', 'zh-tw': '國際足總俱樂部世界盃',
+      'es': 'Copa Mundial de Clubes FIFA', 'de': 'FIFA-Klub-Weltmeisterschaft', 'it': 'Coppa del Mondo per Club FIFA', 'pt': 'Copa do Mundo de Clubes da FIFA'
+    },
+    'Publishers': {
+      'zh': '發佈商', 'zh-hk': '發佈商', 'zh-tw': '發佈商',
+      'es': 'Editores', 'de': 'Herausgeber', 'it': 'Editori', 'pt': 'Editores'
+    },
+    'Jobs': {
+      'zh': '工作機會', 'zh-hk': '工作機會', 'zh-tw': '工作機會',
+      'es': 'Empleos', 'de': 'Jobs', 'it': 'Lavoro', 'pt': 'Empregos'
+    },
+    'Advertise': {
+      'zh': '廣告', 'zh-hk': '廣告', 'zh-tw': '廣告',
+      'es': 'Publicidad', 'de': 'Werbung', 'it': 'Pubblicità', 'pt': 'Anunciar'
+    },
+    'News': {
+      'zh': '新聞', 'zh-hk': '新聞', 'zh-tw': '新聞',
+      'es': 'Noticias', 'de': 'Nachrichten', 'it': 'Notizie', 'pt': 'Notícias'
+    },
+    'Get the complete mobile experience:': {
+      'zh': '獲得完整的移動體驗：', 'zh-hk': '獲得完整的流動體驗：', 'zh-tw': '獲得完整的行動體驗：',
+      'es': 'Obtén la experiencia móvil completa:', 'de': 'Holen Sie sich das komplette mobile Erlebnis:', 'it': 'Ottieni l\'esperienza mobile completa:', 'pt': 'Obtenha a experiência móvel completa:'
+    },
+    'Follow Us:': {
+      'zh': '關注我們：', 'zh-hk': '關注我們：', 'zh-tw': '關注我們：',
+      'es': 'Síguenos:', 'de': 'Folgen Sie uns:', 'it': 'Seguici:', 'pt': 'Siga-nos:'
+    },
+    'Winners know when to stop': {
+      'zh': '智者知道何時停止', 'zh-hk': '智者知道何時停止', 'zh-tw': '智者知道何時停止',
+      'es': 'Los ganadores saben cuándo parar', 'de': 'Gewinner wissen, wann sie aufhören müssen', 'it': 'I vincitori sanno quando fermarsi', 'pt': 'Os vencedores sabem quando parar'
+    },
+    'All rights reserved.': {
+      'zh': '版權所有。', 'zh-hk': '版權所有。', 'zh-tw': '版權所有。',
+      'es': 'Todos los derechos reservados.', 'de': 'Alle Rechte vorbehalten.', 'it': 'Tutti i diritti riservati.', 'pt': 'Todos os direitos reservados.'
+    },
     'Football Info': {
       'zh': '足球資訊', 'zh-hk': '足球資訊', 'zh-tw': '足球資訊',
       'es': 'Información de Fútbol', 'de': 'Fußball-Info', 'it': 'Info Calcio', 'pt': 'Info Futebol'
