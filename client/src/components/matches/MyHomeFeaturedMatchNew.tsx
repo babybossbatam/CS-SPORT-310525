@@ -750,11 +750,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const country =
                       fixture.league?.country?.toLowerCase() || "";
 
-                    // EXPLICIT EXCLUSION: UEFA Europa Conference League and Regionalliga - Bayern
+                    // EXPLICIT EXCLUSION: Check league ID against exclusion list
                     const isExplicitlyExcluded =
                       EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(
                         fixture.league?.id,
                       );
+
+                    if (isExplicitlyExcluded) {
+                      console.log(
+                        `🚫 [PRIORITY LEAGUE EXCLUSION] League ${fixture.league.id} (${fixture.league.name}) excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                      );
+                      return false;
+                    }
 
                     // Exclude women's competitions
                     const isWomensCompetition =
@@ -1259,6 +1266,19 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       return false;
                     };
 
+                    // Check explicit exclusion first
+                    const isExplicitlyExcluded =
+                      EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(
+                        fixture.league?.id,
+                      );
+
+                    if (isExplicitlyExcluded) {
+                      console.log(
+                        `🚫 [DATE-BASED EXCLUSION] League ${fixture.league.id} (${fixture.league.name}) excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                      );
+                      return false;
+                    }
+
                     return (
                       hasValidTeams &&
                       isNotLive &&
@@ -1470,6 +1490,19 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         return false;
                       }
 
+                      // Check explicit exclusion first
+                      const isExplicitlyExcluded =
+                        EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(
+                          fixture.league?.id,
+                        );
+
+                      if (isExplicitlyExcluded) {
+                        console.log(
+                          `🚫 [EXPANDED SEARCH EXCLUSION] League ${fixture.league.id} (${fixture.league.name}) excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                        );
+                        return false;
+                      }
+
                       return (
                         hasValidTeams &&
                         isNotLive &&
@@ -1617,112 +1650,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         for (const dateInfo of dates) {
           const fixturesForDay = uniqueFixtures
             .filter((fixture) => {
-              // EXPLICIT EXCLUSION: Never show UEFA Europa Conference League (ID 848), Regionalliga - Bayern (ID 169), League 940, or Ligue 2 (ID 62)
-              if (fixture.league.id === 848) {
+              // EXPLICIT EXCLUSION: Check against all explicitly excluded league IDs
+              if (EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league.id)) {
                 console.log(
-                  `🚫 [EXPLICIT EXCLUSION] UEFA Europa Conference League match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 169) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - Bayern match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 940) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] League 940 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 85) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - Nordost match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 80) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] 3. Liga match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 84) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - Nord match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 87) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - West match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-              if (fixture.league.id === 41) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - SudWest match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-              if (fixture.league.id === 183) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - SudWest match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-              if (fixture.league.id === 86) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - SudWest match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 772) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] League 772 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 62) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Ligue 2 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 58) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Non League Premier - Isthmian match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 931) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Non League Premier - Southern Central match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 59) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] League 59 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 60) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] League 60 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                  `🚫 [EXPLICIT EXCLUSION] League ${fixture.league.id} (${fixture.league.name}) match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
                 );
                 return false;
               }
