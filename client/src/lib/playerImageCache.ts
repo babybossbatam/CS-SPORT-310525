@@ -9,7 +9,7 @@ interface CachedPlayerImage {
   verified: boolean;
   playerId: number;
   playerName: string;
-  source: 'api' | 'fallback' | 'initials';
+  source: 'api' | 'fallback';
 }
 
 class PlayerImageCache {
@@ -117,24 +117,15 @@ class PlayerImageCache {
       }
     }
 
-    // Final: Generate initials fallback
-    const initials = this.generateInitials(playerName);
-    const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=128&background=4F46E5&color=fff&bold=true&format=svg`;
+    // Final: Use static fallback image
+    const fallbackUrl = "/assets/matchdetaillogo/player_fallback.png";
 
-    this.setCachedImage(playerId, playerName, fallbackUrl, 'initials');
-    console.log(`🎨 [PlayerImageCache] Using initials fallback for ${playerName}: ${fallbackUrl}`);
+    this.setCachedImage(playerId, playerName, fallbackUrl, 'fallback');
+    console.log(`🎨 [PlayerImageCache] Using static fallback for ${playerName}: ${fallbackUrl}`);
     return fallbackUrl;
   }
 
-  private generateInitials(playerName?: string): string {
-    if (!playerName) return 'P';
-    return playerName
-      .split(' ')
-      .map(name => name[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2) || 'P';
-  }
+  
 
   // Simplified validation - only test what we can control
   private async validateImageUrl(url: string): Promise<boolean> {

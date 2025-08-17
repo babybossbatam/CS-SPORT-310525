@@ -41,7 +41,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     [playerId, playerName],
   );
 
-  const [imageUrl, setImageUrl] = useState<string>("/attached_assets/fallback_player_1752379496642.png");
+  const [imageUrl, setImageUrl] = useState<string>("/assets/matchdetaillogo/player_fallback.png");
   const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -148,7 +148,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           if (
             cachedImageUrl &&
             cachedImageUrl !== "" &&
-            cachedImageUrl !== "/attached_assets/fallback_player_1752379496642.png"
+            cachedImageUrl !== "/assets/matchdetaillogo/player_fallback.png"
           ) {
             console.log(
               `✅ [MyAvatarInfo-${componentId}] Got from player cache: ${cachedImageUrl}`,
@@ -162,24 +162,18 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           );
         }
 
-        // All methods failed, cache the fallback to prevent future attempts
+        // All methods failed, use static fallback image
         console.log(
-          `🎨 [MyAvatarInfo-${componentId}] Using fallback for: ${playerName}`,
+          `🎨 [MyAvatarInfo-${componentId}] Using static fallback for: ${playerName}`,
         );
-        const initials = playerName
-          ? playerName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-          : 'P';
-        const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=128&background=4F46E5&color=fff&bold=true&format=svg`;
+        const fallbackUrl = "/assets/matchdetaillogo/player_fallback.png";
         imageCache.set(cacheKey, fallbackUrl);
         return fallbackUrl;
       } catch (error) {
         console.log(
           `❌ [MyAvatarInfo-${componentId}] Error loading image: ${(error as Error)?.message || error}`,
         );
-        const initials = playerName
-          ? playerName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-          : 'P';
-        const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=128&background=4F46E5&color=fff&bold=true&format=svg`;
+        const fallbackUrl = "/assets/matchdetaillogo/player_fallback.png";
         imageCache.set(cacheKey, fallbackUrl);
         return fallbackUrl;
       } finally {
@@ -230,10 +224,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         console.log(
             `❌ [MyAvatarInfo-${componentId}] Failed to load: ${error}`,
           );
-          const initials = playerName
-            ? playerName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-            : 'P';
-          setImageUrl(`https://ui-avatars.com/api/?name=${initials}&size=128&background=4F46E5&color=fff&bold=true&format=svg`);
+          setImageUrl("/assets/matchdetaillogo/player_fallback.png");
       } finally {
         if (!isCancelled) {
           setIsLoading(false);
@@ -251,7 +242,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   const handleClick = () => {
     if (onClick) {
       const actualImageUrl =
-        imageUrl !== "/attached_assets/fallback_player_1752379496642.png" ? imageUrl : undefined;
+        imageUrl !== "/assets/matchdetaillogo/player_fallback.png" ? imageUrl : undefined;
       onClick(playerId, teamId, playerName, actualImageUrl);
     }
   };
@@ -279,13 +270,10 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         className="w-full h-full object-cover"
         onError={() => {
           console.log(
-            `🖼️ [MyAvatarInfo-${componentId}] Image error, using fallback`,
+            `🖼️ [MyAvatarInfo-${componentId}] Image error, using static fallback`,
           );
-          // Remove from cache and use fallback
-          const initials = playerName
-            ? playerName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-            : 'P';
-          const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=128&background=4F46E5&color=fff&bold=true&format=svg`;
+          // Remove from cache and use static fallback
+          const fallbackUrl = "/assets/matchdetaillogo/player_fallback.png";
           imageCache.set(cacheKey, fallbackUrl);
           setImageUrl(fallbackUrl);
         }}
