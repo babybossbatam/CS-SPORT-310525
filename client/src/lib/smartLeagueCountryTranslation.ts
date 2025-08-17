@@ -1001,6 +1001,7 @@ class SmartLeagueCountryTranslation {
       'pt': 'Plataforma Tudo-em-Um: Obtenha as últimas notícias, jogos, classificações, resultados e placares ao vivo de ligas, copas e torneios ao redor do mundo.'
     },
     'Track Your Favorites: Follow your teams and players, and never miss a moment.': {
+      en: 'Track Your Favorites: Follow your teams and players, and never miss a moment.',
       'zh': '追蹤您的最愛：關注您的球隊和球員，不錯過任何時刻。',
       'zh-hk': '追蹤您的最愛：關注您的球隊和球員，不錯過任何時刻。',
       'zh-tw': '追蹤您的最愛：關注您的球隊和球員，不錯過任何時刻。',
@@ -1010,6 +1011,7 @@ class SmartLeagueCountryTranslation {
       'pt': 'Acompanhe Seus Favoritos: Siga seus times e jogadores, e nunca perca um momento.'
     },
     'Smart Predictions: Use our insights and tips to make better Football predictions and outsmart your friends.': {
+      en: 'Smart Predictions: Use our insights and tips to make better Football predictions and outsmart your friends.',
       'zh': '智能預測：使用我們的洞察和技巧做出更好的足球預測，智勝您的朋友。',
       'zh-hk': '智能預測：使用我們的洞察和技巧做出更好的足球預測，智勝您的朋友。',
       'zh-tw': '智能預測：使用我們的洞察和技巧做出更好的足球預測，智勝您的朋友。',
@@ -1019,6 +1021,7 @@ class SmartLeagueCountryTranslation {
       'pt': 'Previsões Inteligentes: Use nossas percepções e dicas para fazer melhores previsões de futebol e superar seus amigos.'
     },
     'Ready to experience Football like never before?': {
+      en: 'Ready to experience Football like never before?',
       'zh': '準備好以前所未有的方式體驗足球了嗎？',
       'zh-hk': '準備好以前所未有的方式體驗足球了嗎？',
       'zh-tw': '準備好以前所未有的方式體驗足球了嗎？',
@@ -1028,6 +1031,7 @@ class SmartLeagueCountryTranslation {
       'pt': 'Pronto para experimentar o futebol como nunca antes?'
     },
     'Start exploring now and join the CS SPORT community!': {
+      en: 'Start exploring now and join the CS SPORT community!',
       'zh': '立即開始探索，加入CS SPORT社區！',
       'zh-hk': '立即開始探索，加入CS SPORT社區！',
       'zh-tw': '立即開始探索，加入CS SPORT社區！',
@@ -1039,10 +1043,12 @@ class SmartLeagueCountryTranslation {
     
     // Footer translations
     'About': {
+      en: 'About',
       'zh': '關於我們', 'zh-hk': '關於我們', 'zh-tw': '關於我們',
       'es': 'Acerca de', 'de': 'Über uns', 'it': 'Chi siamo', 'pt': 'Sobre'
     },
     'Contact Us': {
+      en: 'Contact Us',
       'zh': '聯繫我們', 'zh-hk': '聯絡我們', 'zh-tw': '聯絡我們',
       'es': 'Contáctanos', 'de': 'Kontaktiere uns', 'it': 'Contattaci', 'pt': 'Contate-nos'
     },
