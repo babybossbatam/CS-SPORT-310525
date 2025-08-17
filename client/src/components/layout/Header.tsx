@@ -262,7 +262,14 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                   isMobile ? "px-4 py-2 text-sm" : "text-sm",
                 )}
               >
-                {t("NOTIFICATIONS")}
+                {currentLanguage === 'zh-hk' ? '通知' : 
+                 currentLanguage === 'zh-tw' ? '通知' : 
+                 currentLanguage === 'zh' ? '通知' : 
+                 currentLanguage === 'es' ? 'NOTIFICACIONES' : 
+                 currentLanguage === 'de' ? 'BENACHRICHTIGUNGEN' : 
+                 currentLanguage === 'it' ? 'NOTIFICHE' : 
+                 currentLanguage === 'pt' ? 'NOTIFICAÇÕES' : 
+                 'NOTIFICATIONS'}
               </DropdownMenuLabel>
 
               <DropdownMenuItem
@@ -272,7 +279,14 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                 )}
               >
                 <span className={cn(isMobile ? "text-base" : "text-sm")}>
-                  {t("Enable all Notifications")}
+                  {currentLanguage === 'zh-hk' ? '啟用所有通知' : 
+                   currentLanguage === 'zh-tw' ? '啟用所有通知' : 
+                   currentLanguage === 'zh' ? '启用所有通知' : 
+                   currentLanguage === 'es' ? 'Habilitar todas las notificaciones' : 
+                   currentLanguage === 'de' ? 'Alle Benachrichtigungen aktivieren' : 
+                   currentLanguage === 'it' ? 'Abilita tutte le notifiche' : 
+                   currentLanguage === 'pt' ? 'Habilitar todas as notificações' : 
+                   'Enable all Notifications'}
                 </span>
                 <Switch
                   checked={notificationsEnabled}
@@ -289,7 +303,14 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                   isMobile ? "px-4 py-2 text-sm" : "text-sm",
                 )}
               >
-                {t("THEMES")}
+                {currentLanguage === 'zh-hk' ? '主題' : 
+                 currentLanguage === 'zh-tw' ? '主題' : 
+                 currentLanguage === 'zh' ? '主题' : 
+                 currentLanguage === 'es' ? 'TEMAS' : 
+                 currentLanguage === 'de' ? 'THEMEN' : 
+                 currentLanguage === 'it' ? 'TEMI' : 
+                 currentLanguage === 'pt' ? 'TEMAS' : 
+                 'THEMES'}
               </DropdownMenuLabel>
 
               <DropdownMenuItem
@@ -299,7 +320,14 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                 )}
               >
                 <span className={cn(isMobile ? "text-base" : "text-sm")}>
-                  {t("Set Dark Theme")}
+                  {currentLanguage === 'zh-hk' ? '設置深色主題' : 
+                   currentLanguage === 'zh-tw' ? '設置深色主題' : 
+                   currentLanguage === 'zh' ? '设置暗黑主题' : 
+                   currentLanguage === 'es' ? 'Establecer tema oscuro' : 
+                   currentLanguage === 'de' ? 'Dunkles Theme festlegen' : 
+                   currentLanguage === 'it' ? 'Imposta tema scuro' : 
+                   currentLanguage === 'pt' ? 'Definir tema escuro' : 
+                   'Set Dark Theme'}
                 </span>
                 <Switch
                   checked={darkMode}
@@ -318,7 +346,14 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                   isMobile ? "px-4 py-2 text-sm" : "text-sm",
                 )}
               >
-                {t("LANGUAGE")}
+                {currentLanguage === 'zh-hk' ? '語言' : 
+                 currentLanguage === 'zh-tw' ? '語言' : 
+                 currentLanguage === 'zh' ? '语言' : 
+                 currentLanguage === 'es' ? 'IDIOMA' : 
+                 currentLanguage === 'de' ? 'SPRACHE' : 
+                 currentLanguage === 'it' ? 'LINGUA' : 
+                 currentLanguage === 'pt' ? 'IDIOMA' : 
+                 'LANGUAGE'}
               </DropdownMenuLabel>
 
               <DropdownMenu>
@@ -480,7 +515,14 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                 )}
                 onClick={() => setPrivacyModalOpen(true)}
               >
-                {t("Privacy Settings")}
+                {currentLanguage === 'zh-hk' ? '私隱設置' : 
+                 currentLanguage === 'zh-tw' ? '隱私設定' : 
+                 currentLanguage === 'zh' ? '隐私设置' : 
+                 currentLanguage === 'es' ? 'Configuración de privacidad' : 
+                 currentLanguage === 'de' ? 'Datenschutzeinstellungen' : 
+                 currentLanguage === 'it' ? 'Impostazioni privacy' : 
+                 currentLanguage === 'pt' ? 'Configurações de privacidade' : 
+                 'Privacy Settings'}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
