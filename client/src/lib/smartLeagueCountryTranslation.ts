@@ -1058,10 +1058,7 @@ class SmartLeagueCountryTranslation {
       'zh': '使用條款', 'zh-hk': '使用條款', 'zh-tw': '使用條款',
       'es': 'Términos de Uso', 'de': 'Nutzungsbedingungen', 'it': 'Termini di Utilizzo', 'pt': 'Termos de Uso'
     },
-    'FIFA Club World Cup': {
-      'zh': '國際足聯俱樂部世界盃', 'zh-hk': '國際足協球會世界盃', 'zh-tw': '國際足總俱樂部世界盃',
-      'es': 'Copa Mundial de Clubes FIFA', 'de': 'FIFA-Klub-Weltmeisterschaft', 'it': 'Coppa del Mondo per Club FIFA', 'pt': 'Copa do Mundo de Clubes da FIFA'
-    },
+    
     'Publishers': {
       'zh': '發佈商', 'zh-hk': '發佈商', 'zh-tw': '發佈商',
       'es': 'Editores', 'de': 'Herausgeber', 'it': 'Editori', 'pt': 'Editores'
