@@ -901,7 +901,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     const selectedDateObj = new Date(selectedDate);
 
     if (isDateStringToday(selectedDate)) {
-      return "Today's Football Matches by Country";
+      return t("today_matches_by_country");
     } else if (isDateStringYesterday(selectedDate)) {
       return "Yesterday's Football Matches by Country";
     } else if (isDateStringTomorrow(selectedDate)) {
