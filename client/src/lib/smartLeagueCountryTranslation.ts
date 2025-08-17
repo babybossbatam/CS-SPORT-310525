@@ -147,7 +147,7 @@ class SmartLeagueCountryTranslation {
     },
     'Slovenia': {
       en: 'Slovenia',
-      'zh': '斯洛文尼亞', 'zh-hk': '斯洛文尼亞', 'zh-tw': '斯洛維尼亞',
+      'zh': '斯洛文尼亚', 'zh-hk': '斯洛文尼亞', 'zh-tw': '斯洛維尼亞',
       'es': 'Eslovenia', 'de': 'Slowenien', 'it': 'Slovenia', 'pt': 'Eslovênia'
     },
 
@@ -1036,7 +1036,7 @@ class SmartLeagueCountryTranslation {
       'it': 'Inizia a esplorare ora e unisciti alla comunità CS SPORT!',
       'pt': 'Comece a explorar agora e junte-se à comunidade CS SPORT!'
     },
-    
+
     // Footer translations
     'About': {
       'zh': '關於我們', 'zh-hk': '關於我們', 'zh-tw': '關於我們',
@@ -1615,32 +1615,6 @@ class SmartLeagueCountryTranslation {
     return hasChinese && hasLatin && (mixedPatterns.some(pattern => pattern.test(leagueName)) || hasChineseLeagueTerm);
   }
 
-  // Generate best translation for a league name
-  private generateBestTranslation(leagueName: string, countryName: string, language: string): string {
-    // First try the core league mapping generation
-    const mapping = this.generateLeagueMapping(leagueName, countryName);
-    if (mapping && mapping[language]) {
-      return mapping[language];
-    }
-
-    // Try mixed language mapping if applicable
-    if (this.detectMixedLanguageLeague(leagueName)) {
-      const mixedMapping = this.generateMixedLanguageMapping(leagueName, countryName);
-      if (mixedMapping && mixedMapping[language]) {
-        return mixedMapping[language];
-      }
-    }
-
-    // Try intelligent mapping
-    const intelligentMapping = this.generateIntelligentMapping(leagueName, countryName);
-    if (intelligentMapping && intelligentMapping[language]) {
-      return intelligentMapping[language];
-    }
-
-    // Return original if no translation found
-    return leagueName;
-  }
-
   // Generate mappings for mixed language league names
   private generateMixedLanguageMapping(leagueName: string, countryName: string): LeagueTranslation | null {
     const translations: any = {};
@@ -2076,7 +2050,6 @@ class SmartLeagueCountryTranslation {
     return ''; // Return empty if no pattern matches
   }
 
-  // Reverse mapping for Chinese country names to English
   private chineseToEnglishMap: { [key: string]: string } = {
     // Common Chinese country names seen in fixtures
     '英格蘭': 'England', '英格兰': 'England',
@@ -2454,20 +2427,15 @@ class SmartLeagueCountryTranslation {
       return this.cache.get(cacheKey);
     }
 
-    try {
-      // Try to get translation from database API
-      const response = await fetch(`/api/translations/league/${encodeURIComponent(leagueName)}/${language}`);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.translation && data.translation !== leagueName) {
-          this.leagueCache.set(cacheKey, data.translation);
-          return data.translation;
-        }
+    // Try to get translation from database API
+    const response = await fetch(`/api/translations/league/${encodeURIComponent(leagueName)}/${language}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data.translation && data.translation !== leagueName) {
+        this.leagueCache.set(cacheKey, data.translation);
+        return data.translation;
       }
-    } catch (error) {
-      console.warn(`[SmartLeagueTranslation] Database lookup failed for ${leagueName}, falling back to local methods:`, error);
     }
-
     // Fallback to sync method
     return this.translateLeagueName(leagueName, language);
   }
@@ -2553,20 +2521,15 @@ class SmartLeagueCountryTranslation {
       return this.cache.get(cacheKey);
     }
 
-    try {
-      // Try to get translation from database API
-      const response = await fetch(`/api/translations/country/${encodeURIComponent(countryName)}/${language}`);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.translation && data.translation !== countryName) {
-          this.countryCache.set(cacheKey, data.translation);
-          return data.translation;
-        }
+    // Try to get translation from database API
+    const response = await fetch(`/api/translations/country/${encodeURIComponent(countryName)}/${language}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data.translation && data.translation !== countryName) {
+        this.countryCache.set(cacheKey, data.translation);
+        return data.translation;
       }
-    } catch (error) {
-      console.warn(`[SmartCountryTranslation] Database lookup failed for ${countryName}, falling back to local methods:`, error);
     }
-
     // Fallback to sync method
     return this.translateCountryName(countryName, language);
   }
@@ -2689,16 +2652,24 @@ class SmartLeagueCountryTranslation {
   // Fix mixed language leagues that appear in the UI
   private fixMixedLanguageLeagues(): void {
     const mixedLanguageLeagues = [
-      'CONMEBOL南美盃', 'CONMEBOL自由盃', 'AFC盃', 'UEFA超級盃', 'UEFA超級盃',
-      '世界聯賽', '世界联赛', 'Netherlands聯賽', 'Australia聯賽', 'Australia超级联赛'
+      { name: 'CONMEBOL南美盃', country: 'World' },
+      { name: 'CONMEBOL自由盃', country: 'World' },
+      { name: 'AFC盃', country: 'World' },
+      { name: 'UEFA超級盃', country: 'Europe' },
+      { name: 'UEFA超級盃', country: 'Europe' },
+      { name: '世界聯賽', country: 'World' },
+      { name: 'Concacaf Central American Cup', country: 'World' },
+      { name: '阿根廷', country: 'Argentina' },
+      { name: 'Copa Argentina', country: 'Argentina' },
+      { name: 'Netherlands聯賽', country: 'Netherlands' }
     ];
 
-    mixedLanguageLeagues.forEach(leagueName => {
-      if (!this.learnedLeagueMappings.has(leagueName)) {
-        const mapping = this.generateMixedLanguageFixMapping(leagueName);
+    mixedLanguageLeagues.forEach(league => {
+      if (!this.learnedLeagueMappings.has(league.name)) {
+        const mapping = this.generateMixedLanguageFixMapping(league.name);
         if (mapping) {
-          this.learnedLeagueMappings.set(leagueName, mapping);
-          console.log(`🔧 [Mixed Language Fix] Auto-learned: "${leagueName}"`);
+          this.learnedLeagueMappings.set(league.name, mapping);
+          console.log(`🔧 [Mixed Language Fix] Auto-learned: "${league.name}"`);
         }
       }
     });
