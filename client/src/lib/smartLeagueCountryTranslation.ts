@@ -2664,6 +2664,7 @@ class SmartLeagueCountryTranslation {
       { name: 'Netherlands聯賽', country: 'Netherlands' }
     ];
 
+    let fixed = 0;
     mixedLanguageLeagues.forEach(league => {
       if (!this.learnedLeagueMappings.has(league.name)) {
         const mapping = this.generateMixedLanguageFixMapping(league.name);
@@ -2861,6 +2862,43 @@ class SmartLeagueCountryTranslation {
       this.saveLearnedMappings();
       console.log(`🚀 [Problematic Learning] Fixed ${learned} problematic league names`);
     }
+  }
+
+  // This is the missing method that needs to be implemented.
+  // It should intelligently generate the best translation for a given league name.
+  private generateBestTranslation(leagueName: string, countryName: string, language: string): string {
+    // Prioritize core translations
+    if (this.coreLeagueTranslations[leagueName] && this.coreLeagueTranslations[leagueName][language]) {
+      return this.coreLeagueTranslations[leagueName][language];
+    }
+
+    // Prioritize learned mappings
+    if (this.learnedLeagueMappings.has(leagueName) && this.learnedLeagueMappings.get(leagueName)[language]) {
+      return this.learnedLeagueMappings.get(leagueName)[language];
+    }
+
+    // Handle mixed language league names
+    if (this.detectMixedLanguageLeague(leagueName)) {
+      const mapping = this.generateMixedLanguageMapping(leagueName, countryName);
+      if (mapping && mapping[language]) {
+        // Store the mapping for future use
+        this.learnedLeagueMappings.set(leagueName, mapping);
+        this.saveLearnedMappings();
+        return mapping[language];
+      }
+    }
+
+    // Try to generate a translation using intelligent pattern matching
+    const intelligentMapping = this.generateIntelligentMapping(leagueName, countryName);
+    if (intelligentMapping && intelligentMapping[language]) {
+      // Store the mapping for future use
+      this.learnedLeagueMappings.set(leagueName, intelligentMapping);
+      this.saveLearnedMappings();
+      return intelligentMapping[language];
+    }
+
+    // If no translation found, return the original league name
+    return leagueName;
   }
 }
 
