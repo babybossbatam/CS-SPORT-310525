@@ -263,19 +263,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     if (!isToday) {
       // Historical or future dates - show cached data immediately
       return {
-        staleTime: 0, // Always consider data fresh to show immediately
+        staleTime: 24 * 60 * 60 * 1000, // 24 hours - consider data fresh for longer
         refetchInterval: false,
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
+        networkMode: 'online',
+        retry: 1,
       };
     }
 
     // Today's matches - show cached data immediately, refresh in background
     return {
-      staleTime: 0, // Show cached data immediately
+      staleTime: 5 * 60 * 1000, // 5 minutes - show cached data immediately
       refetchInterval: 30 * 1000, // 30 seconds background refresh
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
+      networkMode: 'online',
+      retry: 2,
     };
   };
 
@@ -402,9 +406,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const processedCountryData = useMemo(() => {
     const cacheKey = `processed-country-data-${selectedDate}`;
     
-    // Return cached data immediately if available
-    const cached = CacheManager.getCachedData([cacheKey], 30 * 60 * 1000);
+    // Return cached data immediately if available - longer cache for better UX
+    const cached = CacheManager.getCachedData([cacheKey], isToday ? 10 * 60 * 1000 : 60 * 60 * 1000);
     if (cached) {
+      console.log(`📦 [Cache Hit] Returning cached processed data for ${selectedDate} with ${Object.keys(cached).length} countries`);
       return cached;
     }
 
@@ -1047,8 +1052,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Show loading only if we're actually loading and have no data
-  if (isLoading && !fixtures.length) {
+  // Only show loading if we're actually loading, have no data, and no cached processed data
+  if (isLoading && !fixtures.length && Object.keys(processedCountryData).length === 0) {
     return (
       <Card className="mt-4">
         <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
@@ -1086,7 +1091,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  if (!validFixtures.length) {
+  // Only return null if we have no fixtures AND no processed data AND not loading
+  if (!validFixtures.length && Object.keys(processedCountryData).length === 0 && !isLoading) {
     return null; // Let parent component handle empty state
   }
 
@@ -1983,6 +1989,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           >
             {getHeaderTitle()}
           </h3>
+          {/* Show subtle loading indicator when refreshing in background */}
+          {isLoading && validFixtures.length > 0 && (
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+          )}
         </div>
       </CardHeader>
       <CardContent className="p-0 dark:bg-gray-800">
