@@ -788,7 +788,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               `✅ [MyNewLeague2] League ${leagueId}: ${fixtures.length} fixtures`,
             );
             return { leagueId, fixtures, error: null };
-          } catch (error) {
+          } catch (error: any) {
             const errorMessage =
               error instanceof Error ? error.message : "Unknown error";
 
@@ -800,7 +800,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                 errorMessage.includes("timeout"))
             ) {
               console.log(
-                `⏰ [MyNewLeague2] Timeout error for league ${leagueId}: Request exceeded 10 seconds - falling back to cached data`, // Adjusted log message
+                `⏰ [MyNewLeague2] Timeout error for league ${leagueId}: Request exceeded 10 seconds - falling back to cached data`,
               );
               return {
                 leagueId,
@@ -1941,8 +1941,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         .sort(([aId], [bId]) => {
           // Define priority order - same as MyNewLeague
           const priorityOrder = [
-            38, 15, 2, 5, 22, 10, 11, 1022, 772, 71, 72, 667, 3, 848, 73, 75,
-            239, 233, 253,
+            38, 15, 2, 5, 22, 10, 11, 848, 886, 1022, 772, 71, 3, 5, 531, 22,
+            72, 73, 75, 76, 233, 667, 940, 908, 1169, 23, 253, 850, 893, 921,
+            130, 128, 493, 239, 265, 237, 235, 743,
           ];
 
           const aIndex = priorityOrder.indexOf(Number(aId));
@@ -2304,7 +2305,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         1022: "World", // FIFA Club World Cup
                         772: "World", // FIFA World Cup Qualification
                         71: "Brazil", // Serie A Brazil
-                        3: "Netherlands", // Eredivisie
+                        3: "Netherlands", // Eredivivisie
                         5: "France", // Ligue 1
                         531: "World", // CONMEBOL Copa America
                         22: "Argentina", // Primera Division
