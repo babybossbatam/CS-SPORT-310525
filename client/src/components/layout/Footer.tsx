@@ -1,9 +1,14 @@
 
 import React from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { smartLeagueCountryTranslation } from '../../lib/smartLeagueCountryTranslation';
 
 const Footer: React.FC = () => {
-  const { currentLanguage, translateText } = useLanguage();
+  const { currentLanguage } = useLanguage();
+
+  const translateText = (text: string): string => {
+    return smartLeagueCountryTranslation.translateLeagueName(text, currentLanguage);
+  };
 
   return (
     <footer className="bg-gray-900 text-white py-6 md:py-8">
