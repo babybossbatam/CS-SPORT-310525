@@ -41,7 +41,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     [playerId, playerName],
   );
 
-  const [imageUrl, setImageUrl] = useState<string>("/assets/matchdetaillogo/player_fallback.png");
+  const [imageUrl, setImageUrl] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -218,13 +218,16 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       try {
         const url = await loadPlayerImage();
         if (!isCancelled) {
-          setImageUrl(url);
+          // Only set the URL if we got a real image, not the fallback
+          setImageUrl(url || "/assets/matchdetaillogo/player_fallback.png");
         }
       } catch (error) {
         console.log(
             `❌ [MyAvatarInfo-${componentId}] Failed to load: ${error}`,
           );
+        if (!isCancelled) {
           setImageUrl("/assets/matchdetaillogo/player_fallback.png");
+        }
       } finally {
         if (!isCancelled) {
           setIsLoading(false);
@@ -247,8 +250,8 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     }
   };
 
-  // Early return for loading state
-  if (!isVisible || isLoading) {
+  // Early return for loading state - show skeleton, not fallback image
+  if (!isVisible || isLoading || !imageUrl) {
     return (
       <div
         ref={containerRef}
