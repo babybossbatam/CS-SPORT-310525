@@ -1170,6 +1170,32 @@ class SmartLeagueCountryTranslation {
     'Show Less': {
       'zh': '收起', 'zh-hk': '收起', 'zh-tw': '收起',
       'es': 'Mostrar Menos', 'de': 'Weniger anzeigen', 'it': 'Mostra Meno', 'pt': 'Mostrar Menos'
+    },
+
+    // Header dropdown translations
+    'NOTIFICATIONS': {
+      'zh': '通知', 'zh-hk': '通知', 'zh-tw': '通知',
+      'es': 'NOTIFICACIONES', 'de': 'BENACHRICHTIGUNGEN', 'it': 'NOTIFICHE', 'pt': 'NOTIFICAÇÕES'
+    },
+    'Enable all Notifications': {
+      'zh': '启用所有通知', 'zh-hk': '啟用所有通知', 'zh-tw': '啟用所有通知',
+      'es': 'Habilitar todas las notificaciones', 'de': 'Alle Benachrichtigungen aktivieren', 'it': 'Abilita tutte le notifiche', 'pt': 'Habilitar todas as notificações'
+    },
+    'THEMES': {
+      'zh': '主题', 'zh-hk': '主題', 'zh-tw': '主題',
+      'es': 'TEMAS', 'de': 'THEMEN', 'it': 'TEMI', 'pt': 'TEMAS'
+    },
+    'Set Dark Theme': {
+      'zh': '设置暗黑主题', 'zh-hk': '設置深色主題', 'zh-tw': '設置深色主題',
+      'es': 'Establecer tema oscuro', 'de': 'Dunkles Theme festlegen', 'it': 'Imposta tema scuro', 'pt': 'Definir tema escuro'
+    },
+    'LANGUAGE': {
+      'zh': '语言', 'zh-hk': '語言', 'zh-tw': '語言',
+      'es': 'IDIOMA', 'de': 'SPRACHE', 'it': 'LINGUA', 'pt': 'IDIOMA'
+    },
+    'Privacy Settings': {
+      'zh': '隐私设置', 'zh-hk': '私隱設置', 'zh-tw': '隱私設定',
+      'es': 'Configuración de privacidad', 'de': 'Datenschutzeinstellungen', 'it': 'Impostazioni privacy', 'pt': 'Configurações de privacidade'
     }
   };
 

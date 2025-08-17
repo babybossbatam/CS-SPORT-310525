@@ -262,7 +262,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                   isMobile ? "px-4 py-2 text-sm" : "text-sm",
                 )}
               >
-                NOTIFICATIONS
+                {t("NOTIFICATIONS")}
               </DropdownMenuLabel>
 
               <DropdownMenuItem
@@ -272,7 +272,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                 )}
               >
                 <span className={cn(isMobile ? "text-base" : "text-sm")}>
-                  Enable all Notifications
+                  {t("Enable all Notifications")}
                 </span>
                 <Switch
                   checked={notificationsEnabled}
@@ -289,7 +289,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                   isMobile ? "px-4 py-2 text-sm" : "text-sm",
                 )}
               >
-                THEMES
+                {t("THEMES")}
               </DropdownMenuLabel>
 
               <DropdownMenuItem
@@ -299,7 +299,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                 )}
               >
                 <span className={cn(isMobile ? "text-base" : "text-sm")}>
-                  Set Dark Theme
+                  {t("Set Dark Theme")}
                 </span>
                 <Switch
                   checked={darkMode}
@@ -318,7 +318,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                   isMobile ? "px-4 py-2 text-sm" : "text-sm",
                 )}
               >
-                LANGUAGE
+                {t("LANGUAGE")}
               </DropdownMenuLabel>
 
               <DropdownMenu>
@@ -480,7 +480,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                 )}
                 onClick={() => setPrivacyModalOpen(true)}
               >
-                Privacy Settings
+                {t("Privacy Settings")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
