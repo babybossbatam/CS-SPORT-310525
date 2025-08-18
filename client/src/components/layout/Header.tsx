@@ -56,6 +56,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
     (state: RootState) => state.user.isAuthenticated,
   );
   const username = useSelector((state: RootState) => state.user.username);
+  const currentUser = useSelector((state: RootState) => state.user.currentUser);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +66,69 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
     setSearchOpen(false);
     navigateWithLanguage(`/search?q=${encodeURIComponent(searchQuery)}`);
     setSearchQuery("");
+  };
+
+  // Fetch notification preferences on component mount
+  useEffect(() => {
+    const fetchNotificationPreferences = async () => {
+      if (!currentUser?.id) return;
+      
+      try {
+        const response = await fetch(`/api/notification-preferences/${currentUser.id}`);
+        if (response.ok) {
+          const prefs = await response.json();
+          setNotificationsEnabled(prefs.emailNotifications && prefs.smsNotifications);
+        }
+      } catch (error) {
+        console.error('Failed to fetch notification preferences:', error);
+      }
+    };
+
+    if (isAuthenticated && currentUser?.id) {
+      fetchNotificationPreferences();
+    }
+  }, [isAuthenticated, currentUser?.id]);
+
+  const handleNotificationToggle = async (enabled: boolean) => {
+    if (!currentUser?.id) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to manage notification preferences.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/notification-preferences/${currentUser.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          emailNotifications: enabled,
+          smsNotifications: enabled,
+          pushNotifications: enabled
+        }),
+      });
+
+      if (response.ok) {
+        setNotificationsEnabled(enabled);
+        toast({
+          title: "Preferences Updated",
+          description: `All notifications ${enabled ? 'enabled' : 'disabled'} successfully.`,
+        });
+      } else {
+        throw new Error('Failed to update preferences');
+      }
+    } catch (error) {
+      console.error('Error updating notification preferences:', error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update notification preferences. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleLogout = () => {
@@ -291,7 +355,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                 </span>
                 <Switch
                   checked={notificationsEnabled}
-                  onCheckedChange={setNotificationsEnabled}
+                  onCheckedChange={handleNotificationToggle}
                   className="data-[state=checked]:bg-blue-500"
                 />
               </DropdownMenuItem>
