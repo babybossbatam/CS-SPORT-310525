@@ -530,8 +530,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
 
           <NotificationCenter />
         </div>
-        )}
-
+        
         {isAuthenticated && (
           <div
             className={cn(
