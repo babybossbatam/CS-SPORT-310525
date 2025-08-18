@@ -323,8 +323,8 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
             >
               <DropdownMenuLabel
                 className={cn(
-                  "text-gray-600 dark:text-gray-400 font-medium",
-                  isMobile ? "px-4 py-2 text-sm" : "text-sm",
+                  "text-gray-600 dark:text-gray-400 font-medium uppercase tracking-wide",
+                  isMobile ? "px-4 py-3 text-xs" : "px-3 py-2 text-xs",
                 )}
               >
                 {currentLanguage === 'zh-hk' ? '通知' : 
@@ -339,24 +339,44 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
 
               <DropdownMenuItem
                 className={cn(
-                  "flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
-                  isMobile ? "min-h-[48px] px-4 py-3" : "px-3 py-2",
+                  "flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-200",
+                  isMobile ? "min-h-[56px] px-4 py-4 gap-4" : "min-h-[44px] px-3 py-3 gap-3",
                 )}
               >
-                <span className={cn(isMobile ? "text-base" : "text-sm")}>
-                  {currentLanguage === 'zh-hk' ? '啟用所有通知' : 
-                   currentLanguage === 'zh-tw' ? '啟用所有通知' : 
-                   currentLanguage === 'zh' ? '启用所有通知' : 
-                   currentLanguage === 'es' ? 'Habilitar todas las notificaciones' : 
-                   currentLanguage === 'de' ? 'Alle Benachrichtigungen aktivieren' : 
-                   currentLanguage === 'it' ? 'Abilita tutte le notifiche' : 
-                   currentLanguage === 'pt' ? 'Habilitar todas as notificações' : 
-                   'Enable all Notifications'}
-                </span>
+                <div className="flex-1">
+                  <span className={cn(
+                    "font-medium text-gray-900 dark:text-white",
+                    isMobile ? "text-base leading-tight" : "text-sm"
+                  )}>
+                    {currentLanguage === 'zh-hk' ? '啟用所有通知' : 
+                     currentLanguage === 'zh-tw' ? '啟用所有通知' : 
+                     currentLanguage === 'zh' ? '启用所有通知' : 
+                     currentLanguage === 'es' ? 'Habilitar todas las notificaciones' : 
+                     currentLanguage === 'de' ? 'Alle Benachrichtigungen aktivieren' : 
+                     currentLanguage === 'it' ? 'Abilita tutte le notifiche' : 
+                     currentLanguage === 'pt' ? 'Habilitar todas as notificações' : 
+                     'Enable all Notifications'}
+                  </span>
+                  {isMobile && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {currentLanguage === 'zh-hk' ? '包括電子郵件和短信' : 
+                       currentLanguage === 'zh-tw' ? '包括電子郵件和簡訊' : 
+                       currentLanguage === 'zh' ? '包括电子邮件和短信' : 
+                       currentLanguage === 'es' ? 'Incluye email y SMS' : 
+                       currentLanguage === 'de' ? 'Einschließlich E-Mail und SMS' : 
+                       currentLanguage === 'it' ? 'Include email e SMS' : 
+                       currentLanguage === 'pt' ? 'Inclui email e SMS' : 
+                       'Includes email and SMS'}
+                    </p>
+                  )}
+                </div>
                 <Switch
                   checked={notificationsEnabled}
                   onCheckedChange={handleNotificationToggle}
-                  className="data-[state=checked]:bg-blue-500"
+                  className={cn(
+                    "data-[state=checked]:bg-blue-500 transition-colors duration-200",
+                    isMobile ? "scale-110" : ""
+                  )}
                 />
               </DropdownMenuItem>
 
