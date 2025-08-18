@@ -6,6 +6,7 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").unique().notNull(),
   email: text("email").unique().notNull(),
+  phoneNumber: text("phone_number"),
   password: text("password").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -140,5 +141,47 @@ export const insertCachedFixtureSchema = createInsertSchema(cachedFixtures);
 export const selectCachedFixtureSchema = createSelectSchema(cachedFixtures);
 export const insertCachedLeagueSchema = createInsertSchema(cachedLeagues);
 export const selectCachedLeagueSchema = createSelectSchema(cachedLeagues);
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  type: text("type").notNull(), // 'email', 'sms', 'push'
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  data: jsonb("data").$type<{
+    matchId?: string;
+    leagueId?: string;
+    teamId?: string;
+    fixtureId?: string;
+  }>(),
+  status: text("status").default("pending"), // 'pending', 'sent', 'failed'
+  sentAt: timestamp("sent_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const notificationPreferences = pgTable("notification_preferences", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  emailNotifications: boolean("email_notifications").default(true),
+  smsNotifications: boolean("sms_notifications").default(false),
+  pushNotifications: boolean("push_notifications").default(true),
+  matchStart: boolean("match_start").default(true),
+  matchEnd: boolean("match_end").default(false),
+  goals: boolean("goals").default(true),
+  favoriteTeamMatches: boolean("favorite_team_matches").default(true),
+  favoriteLeagueMatches: boolean("favorite_league_matches").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type Notification = typeof notifications.$inferSelect;
+export type NewNotification = typeof notifications.$inferInsert;
+export type NotificationPreference = typeof notificationPreferences.$inferSelect;
+export type NewNotificationPreference = typeof notificationPreferences.$inferInsert;
+
+export const insertNotificationSchema = createInsertSchema(notifications);
+export const selectNotificationSchema = createSelectSchema(notifications);
+export const insertNotificationPreferenceSchema = createInsertSchema(notificationPreferences);
+export const selectNotificationPreferenceSchema = createSelectSchema(notificationPreferences);
+
 export const insertNewsArticleSchema = createInsertSchema(newsArticles);
 export const selectNewsArticleSchema = createSelectSchema(newsArticles);

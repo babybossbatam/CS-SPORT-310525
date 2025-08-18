@@ -29,6 +29,10 @@ const settingsSchema = z.object({
     matchStart: z.boolean(),
     goals: z.boolean(),
     finalResult: z.boolean(),
+    favoriteTeamMatches: z.boolean(),
+    favoriteLeagueMatches: z.boolean(),
+    smsNotifications: z.boolean(),
+    pushNotifications: z.boolean(),
   }),
   display: z.object({
     timeFormat: z.enum(['12h', '24h']),
@@ -43,10 +47,10 @@ const Settings = () => {
   const [, navigate] = useLocation();
   const dispatch = useDispatch();
   const { toast } = useToast();
-  
+
   const { isAuthenticated, id, preferences } = useSelector((state: RootState) => state.user);
   const [isSaving, setIsSaving] = useState(false);
-  
+
   // Default form values
   const defaultValues: SettingsFormValues = {
     region: preferences.region || 'global',
@@ -57,6 +61,10 @@ const Settings = () => {
       matchStart: true,
       goals: true,
       finalResult: true,
+      favoriteTeamMatches: false,
+      favoriteLeagueMatches: false,
+      smsNotifications: false,
+      pushNotifications: true,
     },
     display: {
       timeFormat: '24h',
@@ -64,13 +72,13 @@ const Settings = () => {
       showLiveMatchesFirst: true,
     },
   };
-  
+
   // Initialize form
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsSchema),
     defaultValues,
   });
-  
+
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
@@ -81,7 +89,7 @@ const Settings = () => {
       navigate('/login');
     }
   }, [isAuthenticated, navigate, toast]);
-  
+
   // Handle form submission
   const onSubmit = async (data: SettingsFormValues) => {
     if (!isAuthenticated || !id) {
@@ -92,21 +100,21 @@ const Settings = () => {
       });
       return;
     }
-    
+
     setIsSaving(true);
-    
+
     try {
       // Update region in Redux store and API
       if (data.region !== preferences.region) {
         dispatch(userActions.setRegion(data.region));
-        
+
         await apiRequest('PATCH', `/api/user/${id}/preferences`, {
           region: data.region
         });
       }
-      
+
       // In a real app, we'd save other settings too
-      
+
       toast({
         title: 'Settings Saved',
         description: 'Your preferences have been updated',
@@ -122,7 +130,7 @@ const Settings = () => {
       setIsSaving(false);
     }
   };
-  
+
   // Handle logout
   const handleLogout = () => {
     dispatch(userActions.logout());
@@ -132,17 +140,17 @@ const Settings = () => {
     });
     navigate('/');
   };
-  
+
   if (!isAuthenticated) {
     return null;
   }
-  
+
   return (
     <>
       <Header />
       <SportsCategoryTabs />
       <TournamentHeader title="Settings" icon={<SettingsIcon className="h-4 w-4 text-neutral-600" />} />
-      
+
       <div className="container mx-auto px-4 py-4 max-w-2xl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -183,7 +191,7 @@ const Settings = () => {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="theme"
@@ -219,7 +227,7 @@ const Settings = () => {
                   />
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle>Notifications</CardTitle>
@@ -248,7 +256,7 @@ const Settings = () => {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="notifications.emailEnabled"
@@ -269,12 +277,12 @@ const Settings = () => {
                       </FormItem>
                     )}
                   />
-                  
+
                   <Separator />
-                  
+
                   <div className="space-y-4">
                     <h3 className="text-sm font-medium">Notification Events</h3>
-                    
+
                     <FormField
                       control={form.control}
                       name="notifications.matchStart"
@@ -290,7 +298,7 @@ const Settings = () => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="notifications.goals"
@@ -306,13 +314,77 @@ const Settings = () => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
-                      name="notifications.finalResult"
+                      name="notifications.favoriteTeamMatches"
                       render={({ field }) => (
                         <FormItem className="flex justify-between items-center">
-                          <FormLabel>Final Result</FormLabel>
+                          <FormLabel>Favorite Team Matches</FormLabel>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="notifications.favoriteLeagueMatches"
+                      render={({ field }) => (
+                        <FormItem className="flex justify-between items-center">
+                          <FormLabel>Favorite League Matches</FormLabel>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-medium">Notification Methods</h3>
+
+                    <FormField
+                      control={form.control}
+                      name="notifications.smsNotifications"
+                      render={({ field }) => (
+                        <FormItem className="flex justify-between items-center">
+                          <div>
+                            <FormLabel>SMS Notifications</FormLabel>
+                            <FormDescription>
+                              Receive notifications via text message
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="notifications.pushNotifications"
+                      render={({ field }) => (
+                        <FormItem className="flex justify-between items-center">
+                          <div>
+                            <FormLabel>Push Notifications</FormLabel>
+                            <FormDescription>
+                              Receive browser push notifications
+                            </FormDescription>
+                          </div>
                           <FormControl>
                             <Switch
                               checked={field.value}
@@ -325,7 +397,7 @@ const Settings = () => {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle>Display Preferences</CardTitle>
@@ -357,7 +429,7 @@ const Settings = () => {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="display.dateFormat"
@@ -382,7 +454,7 @@ const Settings = () => {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="display.showLiveMatchesFirst"
@@ -413,7 +485,7 @@ const Settings = () => {
                   </Button>
                 </CardFooter>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle>Account</CardTitle>
@@ -422,8 +494,8 @@ const Settings = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button 
-                    variant="destructive" 
+                  <Button
+                    variant="destructive"
                     onClick={handleLogout}
                     className="w-full"
                   >

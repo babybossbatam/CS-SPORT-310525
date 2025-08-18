@@ -39,9 +39,9 @@ import basketballRoutes from './routes/basketballRoutes';
 import basketballStandingsRoutes from './routes/basketballStandingsRoutes';
 import basketballGamesRoutes from './routes/basketballGamesRoutes';
 import playerVerificationRoutes from './routes/playerVerificationRoutes';
-import { RapidAPI } from './utils/rapidApi'; // corrected rapidApi import
+import { RapidAPI } from './utils/rapidapi'; // corrected rapidApi import
 import translationRoutes from "./routes/translationRoutes";
-
+import notificationRoutes from './routes/notificationRoutes';
 
 // Cache duration constants
 const LIVE_DATA_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes for live data
@@ -64,6 +64,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.use('/api', playerRoutes);
   apiRouter.use('/api', playerDataRoutes);
   apiRouter.use('/api', playerVerificationRoutes);
+
+  // Register notification routes
+  app.use(notificationRoutes);
 
   // Health check endpoint
   apiRouter.get("/health", async (_req: Request, res: Response) => {
@@ -836,13 +839,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
               id: 39,
               name: "Premier League",
               type: "League",
-              logo: "https://media.api-sports.io/football/leagues/39.png",
+              logo: "https://media.api.sports.io/football/leagues/39.png",
               country: "England",
             },
             country: {
               name: "England",
               code: "GB",
-              flag: "https://media.api-sports.io/flags/gb.svg",
+              flag: "https://media.api.sports.io/flags/gb.svg",
             },
           },
           {
@@ -851,13 +854,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 name: "Bundesliga",
               type: "League",
-              logo: "https://media.api-sports.io/football/leagues/78.png",
+              logo: "https://media.api.sports.io/football/leagues/78.png",
               country: "Germany",
             },
             country: {
               name: "Germany",
               code: "DE",
-              flag: "https://media.api-sports.io/flags/de.svg",
+              flag: "https://media.api.sports.io/flags/de.svg",
             },
           },
           {
@@ -865,13 +868,13 @@ name: "Bundesliga",
               id: 2,
               name: "UEFA Champions League",
               type: "Cup",
-              logo: "https://media.api-sports.io/football/leagues/2.png",
+              logo: "https://media.api.sports.io/football/leagues/2.png",
               country: "World",
             },
             country: {
               name: "World",
               code: "WO",
-              flag: "https://media.api-sports.io/flags/wo.svg",
+              flag: "https://media.api.sports.io/flags/wo.svg",
             },
           },
         ]);
@@ -1036,67 +1039,67 @@ app.get('/api/teams/popular', async (req, res) => {
     // Return popular teams with correct structure
     const popularTeams = [
       {
-        team: { id: 33, name: "Manchester United", logo: "https://media.api-sports.io/football/teams/33.png" },
+        team: { id: 33, name: "Manchester United", logo: "https://media.api.sports.io/football/teams/33.png" },
         country: { name: "England" },
         popularity: 95,
       },
       {
-        team: { id: 40, name: "Liverpool", logo: "https://media.api-sports.io/football/teams/40.png" },
+        team: { id: 40, name: "Liverpool", logo: "https://media.api.sports.io/football/teams/40.png" },
         country: { name: "England" },
         popularity: 92,
       },
       {
-        team: { id: 50, name: "Manchester City", logo: "https://media.api-sports.io/football/teams/50.png" },
+        team: { id: 50, name: "Manchester City", logo: "https://media.api.sports.io/football/teams/50.png" },
         country: { name: "England" },
         popularity: 90,
       },
       {
-        team: { id: 541, name: "Real Madrid", logo: "https://media.api-sports.io/football/teams/541.png" },
+        team: { id: 541, name: "Real Madrid", logo: "https://media.api.sports.io/football/teams/541.png" },
         country: { name: "Spain" },
         popularity: 88,
       },
       {
-        team: { id: 529, name: "FC Barcelona", logo: "https://media.api-sports.io/football/teams/529.png" },
+        team: { id: 529, name: "FC Barcelona", logo: "https://media.api.sports.io/football/teams/529.png" },
         country: { name: "Spain" },
         popularity: 85,
       },
       {
-        team: { id: 42, name: "Arsenal", logo: "https://media.api-sports.io/football/teams/42.png" },
+        team: { id: 42, name: "Arsenal", logo: "https://media.api.sports.io/football/teams/42.png" },
         country: { name: "England" },
         popularity: 83,
       },
       {
-        team: { id: 49, name: "Chelsea", logo: "https://media.api-sports.io/football/teams/49.png" },
+        team: { id: 49, name: "Chelsea", logo: "https://media.api.sports.io/football/teams/49.png" },
         country: { name: "England" },
         popularity: 80,
       },
       {
-        team: { id: 157, name: "Bayern Munich", logo: "https://media.api-sports.io/football/teams/157.png" },
+        team: { id: 157, name: "Bayern Munich", logo: "https://media.api.sports.io/football/teams/157.png" },
         country: { name: "Germany" },
         popularity: 78,
       },
       {
-        team: { id: 47, name: "Tottenham", logo: "https://media.api-sports.io/football/teams/47.png" },
+        team: { id: 47, name: "Tottenham", logo: "https://media.api.sports.io/football/teams/47.png" },
         country: { name: "England" },
         popularity: 75,
       },
       {
-        team: { id: 489, name: "AC Milan", logo: "https://media.api-sports.io/football/teams/489.png" },
+        team: { id: 489, name: "AC Milan", logo: "https://media.api.sports.io/football/teams/489.png" },
         country: { name: "Italy" },
         popularity: 68,
       },
       {
-        team: { id: 496, name: "Juventus", logo: "https://media.api-sports.io/football/teams/496.png" },
+        team: { id: 496, name: "Juventus", logo: "https://media.api.sports.io/football/teams/496.png" },
         country: { name: "Italy" },
         popularity: 65,
       },
       {
-        team: { id: 165, name: "Borussia Dortmund", logo: "https://media.api-sports.io/football/teams/165.png" },
+        team: { id: 165, name: "Borussia Dortmund", logo: "https://media.api.sports.io/football/teams/165.png" },
         country: { name: "Germany" },
         popularity: 62,
       },
       {
-        team: { id: 85, name: "Paris Saint Germain", logo: "https://media.api-sports.io/football/teams/85.png" },
+        team: { id: 85, name: "Paris Saint Germain", logo: "https://media.api.sports.io/football/teams/85.png" },
         country: { name: "France" },
         popularity: 60,
       }
@@ -1945,7 +1948,7 @@ app.get('/api/teams/popular', async (req, res) => {
 
         // Try multiple logo sources
         const logoUrls = [
-          `https://media.api-sports.io/football/teams/${teamId}.png`,
+          `https://media.api.sports.io/football/teams/${teamId}.png`,
           `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${teamId}`,
           `https://api.sportradar.com/soccer-images/production/competitors/${teamId}/logo.png`,
         ];
@@ -2207,9 +2210,7 @@ app.get('/api/teams/popular', async (req, res) => {
         res.status(500).json({
           success: false,
           error:
-            error instanceof Error
-              ? error.message
-              : "Failed to fetch fixtures by country",
+            error instanceof Error ? error.message : "Failed to fetch fixtures by country",
         });
       }
     },
@@ -2485,7 +2486,7 @@ app.get('/api/teams/popular', async (req, res) => {
             {
               headers: {
                 "X-RapidAPI-Key": process.env.RAPID_API_KEY || "",
-                "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
+                "X-RapidAPI-Host": "v3.football.api-sports.io",
               },
             },
           );
