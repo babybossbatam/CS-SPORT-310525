@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import LeagueTabs from "./LeagueTabs";
 import { Search, Star, Settings, ChevronDown } from "lucide-react";
