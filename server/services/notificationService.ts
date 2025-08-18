@@ -11,11 +11,41 @@ interface NotificationData {
 }
 
 export class NotificationService {
-  // Send email notification (placeholder - integrate with your email service)
+  // Send email notification using Nodemailer (example with Gmail)
   private async sendEmail(to: string, subject: string, message: string): Promise<boolean> {
     try {
-      // TODO: Integrate with email service (SendGrid, AWS SES, etc.)
-      console.log(`📧 Email sent to ${to}: ${subject}`);
+      // Example using Nodemailer with Gmail
+      // You'll need to install: npm install nodemailer
+      // And set up environment variables: EMAIL_USER, EMAIL_PASS
+      
+      const nodemailer = require('nodemailer');
+      
+      const transporter = nodemailer.createTransporter({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS // Use App Password for Gmail
+        }
+      });
+
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: to,
+        subject: subject,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px;">
+            <h2 style="color: #3b82f6;">CS Sport Notification</h2>
+            <p>${message}</p>
+            <hr>
+            <p style="color: #666; font-size: 12px;">
+              You received this because you have notifications enabled in your CS Sport account.
+            </p>
+          </div>
+        `
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log(`📧 Email sent successfully to ${to}`);
       return true;
     } catch (error) {
       console.error('Failed to send email:', error);
@@ -23,11 +53,23 @@ export class NotificationService {
     }
   }
 
-  // Send SMS notification (placeholder - integrate with SMS service)
+  // Send SMS notification using Twilio
   private async sendSMS(to: string, message: string): Promise<boolean> {
     try {
-      // TODO: Integrate with SMS service (Twilio, AWS SNS, etc.)
-      console.log(`📱 SMS sent to ${to}: ${message}`);
+      // Example using Twilio
+      // You'll need to install: npm install twilio
+      // And set up environment variables: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER
+      
+      const twilio = require('twilio');
+      const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+      await client.messages.create({
+        body: `⚽ CS Sport: ${message}`,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: to
+      });
+
+      console.log(`📱 SMS sent successfully to ${to}`);
       return true;
     } catch (error) {
       console.error('Failed to send SMS:', error);
