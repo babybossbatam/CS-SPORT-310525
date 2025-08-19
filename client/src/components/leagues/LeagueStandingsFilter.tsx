@@ -1074,9 +1074,9 @@ const LeagueStandingsFilter = () => {
                 <div className="overflow-x-auto -webkit-overflow-scrolling-touch scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
                   <Table className="min-w-[750px] w-full">
                     <TableHeader>
-                      <TableRow className="py-1 border-b border-gray-100 dark:border-gray-700">
+                      <TableRow className="py-4 border-b border-gray-100 dark:border-gray-700">
                         <TableHead className="text-left text-xs font-regular text-gray-400 px-1 w-[40px] sticky left-0 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
-                        <TableHead className="text-left text-xs font-regular text-gray-400 py-1 px-3 min-w-[200px] sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
+                        <TableHead className="text-left text-xs font-regular text-gray-400 py-2 px-3 min-w-[200px] sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
                         <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[40px]">
                           P
                         </TableHead>
@@ -1089,7 +1089,7 @@ const LeagueStandingsFilter = () => {
                         <TableHead className="text-center text-xs font-semi-bold text-gray-900 px-2 min-w-[50px]">
                           PTS
                         </TableHead>
-                        <TableHead className="text-center text-xs font-semi-bold text-gray-400 py-3 px-2 min-w-[40px]">
+                        <TableHead className="text-center text-xs font-semi-bold text-gray-400 py-6 px-2 min-w-[40px]">
                           W
                         </TableHead>
                         <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[40px]">
