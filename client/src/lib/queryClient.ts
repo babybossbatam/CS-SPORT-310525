@@ -38,7 +38,10 @@ export async function apiRequest(
   data?: unknown | undefined,
 ): Promise<Response> {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+  // Increase timeout for fixture requests with all=true parameter
+  const isLargeFixtureRequest = url.includes('/fixtures/date/') && url.includes('all=true');
+  const timeoutDuration = isLargeFixtureRequest ? 30000 : 15000; // 30s for large requests, 15s for others
+  const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
 
   try {
     // Ensure URL is properly formatted with fallback
@@ -78,8 +81,8 @@ export async function apiRequest(
 
     // Handle abort/timeout errors
     if (error instanceof Error && error.name === 'AbortError') {
-      console.error(`⏰ [apiRequest] Request timeout for ${method} ${url}`);
-      throw new Error(`Request timeout: The server took too long to respond. Please try again.`);
+      console.error(`⏰ [apiRequest] Request timeout for ${method} ${url} after ${timeoutDuration}ms`);
+      throw new Error(`Request timeout: The server took too long to respond (${timeoutDuration/1000}s). Please try again.`);
     }
 
     console.error(`❌ [apiRequest] Error for ${method} ${url}:`, errorMessage);
@@ -141,28 +144,62 @@ export const getQueryFn: <T>(options: {
       return null as any;
     }
 
-    try {
-      const url = queryKey[0] as string;
-      const apiUrl = url.startsWith("/")
-        ? `${window.location.origin}${url}`
-        : url;
+    const maxRetries = 2;
+    let lastError: any;
 
-      const res = await fetch(apiUrl, {
-        credentials: "include",
-        signal: signal,
-        headers: {
-          Accept: "application/json",
-        },
-        mode: "cors",
-      });
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const url = queryKey[0] as string;
+        const apiUrl = url.startsWith("/")
+          ? `${window.location.origin}${url}`
+          : url;
 
-      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-        return null;
+        // Increase timeout for large fixture requests
+        const isLargeFixtureRequest = url.includes('/fixtures/date/') && url.includes('all=true');
+        const controller = new AbortController();
+        const timeoutDuration = isLargeFixtureRequest ? 30000 : 15000;
+        
+        // Don't set timeout if query is already being cancelled
+        let timeoutId: NodeJS.Timeout | null = null;
+        if (!signal?.aborted) {
+          timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
+        }
+
+        const res = await fetch(apiUrl, {
+          credentials: "include",
+          signal: signal?.aborted ? signal : controller.signal,
+          headers: {
+            Accept: "application/json",
+          },
+          mode: "cors",
+        });
+
+        if (timeoutId) clearTimeout(timeoutId);
+
+        if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+          return null;
+        }
+
+        await throwIfResNotOk(res);
+        return await res.json();
+      } catch (error) {
+        lastError = error;
+        
+        // If this is the last attempt or not a timeout error, break
+        if (attempt === maxRetries || 
+            !(error instanceof Error && error.name === 'AbortError') ||
+            signal?.aborted) {
+          break;
+        }
+
+        console.warn(`🔄 Query retry ${attempt}/${maxRetries} for ${queryKey[0]} after timeout`);
+        // Wait before retrying (1s, 2s)
+        await new Promise(resolve => setTimeout(resolve, attempt * 1000));
       }
+    }
 
-      await throwIfResNotOk(res);
-      return await res.json();
-    } catch (error) {
+    // Handle the final error
+    const error = lastError;
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
 
@@ -200,17 +237,26 @@ export const queryClient = new QueryClient({
       staleTime: CACHE_DURATIONS.ONE_HOUR, // Data stays fresh for 60 minutes
       gcTime: CACHE_DURATIONS.SIX_HOURS, // 6 hours
       retry: (failureCount, error) => {
-        // Don't retry timeout errors
+        // Don't retry timeout errors from our custom query function (already retried there)
         if (
           error?.message?.includes("timeout") ||
-          error?.message?.includes("timed out")
+          error?.message?.includes("timed out") ||
+          error?.name === 'AbortError'
         ) {
           return false;
         }
-        // Retry other errors up to 2 times
-        return failureCount < 2;
+        // Retry network errors up to 2 times
+        if (
+          error?.message?.includes("Failed to fetch") ||
+          error?.message?.includes("NetworkError") ||
+          error?.message?.includes("fetch")
+        ) {
+          return failureCount < 2;
+        }
+        // Don't retry other errors
+        return false;
       },
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      retryDelay: (attemptIndex) => Math.min(2000 * 2 ** attemptIndex, 10000),
       refetchOnMount: false,
       refetchOnReconnect: false,
       // Prevent memory leaks
