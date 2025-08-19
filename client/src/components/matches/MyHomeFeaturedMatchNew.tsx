@@ -3076,17 +3076,17 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               teamName={
                                 currentMatch?.teams?.away?.name || "Away Team"
                               }
+                              teamId={currentMatch.teams.away.id}
                               teamLogo={
                                 currentMatch.teams.away.id
-                                  ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=70`
+                                  ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=64`
                                   : currentMatch?.teams?.away?.logo ||
                                     `/assets/fallback-logo.svg`
                               }
-                              alt={
-                                currentMatch?.teams?.away?.name || "Away Team"
-                              }
-                              size="75px"
-                              className="w-full hull object-contain"
+                              alt={currentMatch?.teams?.away?.name || "Away Team"}
+                              size="70px"
+                              className="w-full h
+                              full object-contain"
                               leagueContext={{
                                 name: currentMatch.league.name,
                                 country: currentMatch.league.country,
