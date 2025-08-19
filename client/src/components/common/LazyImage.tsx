@@ -205,6 +205,42 @@ const LazyImage: React.FC<LazyImageProps> = ({
               return true;
             }
           }
+
+          // Al-Qadisiyah FC team
+          if (altLower.includes("al-qadisiyah") || altLower.includes("al qadisiyah")) {
+            setImageSrc("https://media.api-sports.io/football/teams/2942.png");
+            setHasError(false);
+            setIsLoading(true);
+            console.log(`⚽ [LazyImage] Using Al-Qadisiyah logo`);
+            return true;
+          }
+
+          // Al-Ahli Jeddah team
+          if ((altLower.includes("al-ahli") || altLower.includes("al ahli")) && altLower.includes("jeddah")) {
+            setImageSrc("https://media.api-sports.io/football/teams/2941.png");
+            setHasError(false);
+            setIsLoading(true);
+            console.log(`⚽ [LazyImage] Using Al-Ahli Jeddah logo`);
+            return true;
+          }
+
+          // Al-Hilal team
+          if (altLower.includes("al-hilal") || altLower.includes("al hilal")) {
+            setImageSrc("https://media.api-sports.io/football/teams/2938.png");
+            setHasError(false);
+            setIsLoading(true);
+            console.log(`⚽ [LazyImage] Using Al-Hilal logo`);
+            return true;
+          }
+
+          // Al-Shabab team
+          if (altLower.includes("al-shabab") || altLower.includes("al shabab")) {
+            setImageSrc("https://media.api-sports.io/football/teams/2943.png");
+            setHasError(false);
+            setIsLoading(true);
+            console.log(`⚽ [LazyImage] Using Al-Shabab logo`);
+            return true;
+          }
         }
         return false;
       };
