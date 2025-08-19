@@ -154,7 +154,7 @@ const MyGroupNationalFlag: React.FC<MyGroupNationalFlagProps> = ({
         { id: teamId, name: teamName },
         false,
       );
-      return logoSources[0]?.url || fallbackUrl || "/assets/fallback-logo.svg";
+      return logoSources[0]?.url || fallbackUrl || "/assets/fallback.png";
     }
     return getCircleFlagUrl(teamName, fallbackUrl);
   };
@@ -162,7 +162,7 @@ const MyGroupNationalFlag: React.FC<MyGroupNationalFlagProps> = ({
   const getCircleFlagUrl = (teamName: string, fallbackUrl?: string) => {
     // Check if teamName is valid
     if (!teamName || typeof teamName !== "string") {
-      return fallbackUrl || "/assets/fallback-logo.svg";
+      return fallbackUrl || "/assets/fallback.png";
     }
 
     // Extract country from team name or use direct country mapping
@@ -181,7 +181,7 @@ const MyGroupNationalFlag: React.FC<MyGroupNationalFlagProps> = ({
     }
 
     // Final fallback
-    return fallbackUrl || "/assets/fallback-logo.svg";
+    return fallbackUrl || "/assets/fallback.png";
   };
 
   // Fetch next match info if not provided
@@ -246,8 +246,8 @@ const MyGroupNationalFlag: React.FC<MyGroupNationalFlagProps> = ({
           teamName === "World"
             ? (e) => {
                 const target = e.target as HTMLImageElement;
-                if (!target.src.includes("/assets/fallback-logo.svg")) {
-                  target.src = "/assets/fallback-logo.svg";
+                if (!target.src.includes("/assets/fallback.png")) {
+                  target.src = "/assets/fallback.png";
                 }
               }
             : !isNational && teamId
@@ -258,8 +258,8 @@ const MyGroupNationalFlag: React.FC<MyGroupNationalFlagProps> = ({
                 )
               : (e) => {
                   const target = e.target as HTMLImageElement;
-                  if (!target.src.includes("/assets/fallback-logo.svg")) {
-                    target.src = fallbackUrl || "/assets/fallback-logo.svg";
+                  if (!target.src.includes("/assets/fallback.png")) {
+                    target.src = fallbackUrl || "/assets/fallback.png";
                   }
                 }
         }

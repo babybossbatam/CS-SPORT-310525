@@ -82,7 +82,7 @@ export function getTeamLogoSources(team: TeamData, isNationalTeam = false, sport
 
   // Final fallback
   sources.push({
-    url: '/assets/fallback-logo.png',
+    url: '/assets/fallback.png',
     source: 'fallback',
     priority: 999
   });

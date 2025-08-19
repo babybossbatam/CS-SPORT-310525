@@ -179,7 +179,7 @@ export function generateLeagueLogoSources(options: LeagueLogoOptions): LogoSourc
 
   // 5. Final fallback logo
   sources.push({
-    url: '/assets/fallback-logo.svg',
+    url: '/assets/fallback.png',
     source: 'fallback',
     priority: 9
   });

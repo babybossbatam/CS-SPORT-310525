@@ -383,11 +383,11 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({
                                           e.target as HTMLImageElement;
                                         if (
                                           !target.src.includes(
-                                            "/assets/fallback-logo.svg",
+                                            "/assets/fallback.png",
                                           )
                                         ) {
                                           target.src =
-                                            "/assets/fallback-logo.svg";
+                                            "/assets/fallback.png";
                                         }
                                       }}
                                     />

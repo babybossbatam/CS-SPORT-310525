@@ -138,7 +138,7 @@ export function getBestTeamLogoUrl(teamId: number | string, teamName: string, si
   }
   
   // Fallback: Use default logo
-  return "/assets/fallback-logo.svg";
+  return "/assets/fallback.png";
 }
 
 /**
@@ -155,9 +155,9 @@ export function createTeamLogoErrorHandler(teamId: number | string, teamName: st
     if (currentSrc.includes('api-sports.io') && teamId && teamId !== 'fallback') {
       console.log(`🔄 [TeamLogo] Trying API endpoint for ${teamName}`);
       target.src = `/api/team-logo/square/${teamId}?size=32`;
-    } else if (currentSrc.includes('/api/team-logo/') && !currentSrc.includes('fallback-logo')) {
+    } else if (currentSrc.includes('/api/team-logo/') && !currentSrc.includes('fallback')) {
       console.log(`🔄 [TeamLogo] Trying fallback logo for ${teamName}`);
-      target.src = "/assets/fallback-logo.svg";
+      target.src = "/assets/fallback.png";
     }
     // If already on fallback, don't change anymore to prevent infinite loop
   };
