@@ -2148,21 +2148,27 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Memoize expensive calculations
   const allMatches = useMemo(() => {
+    if (!featuredMatches || featuredMatches.length === 0) {
+      return [];
+    }
     return featuredMatches.reduce((acc, dayData) => {
       return [...acc, ...dayData.matches];
     }, [] as FeaturedMatch[]);
   }, [featuredMatches]);
 
   const currentMatch = useMemo(() => {
-    return allMatches[currentMatchIndex];
+    if (!allMatches || allMatches.length === 0) {
+      return null;
+    }
+    return allMatches[currentMatchIndex] || null;
   }, [allMatches, currentMatchIndex]);
 
   // Fetch rounds data for current match league
   useEffect(() => {
-    if (currentMatch && !roundsCache[`${currentMatch.league.id}-2025`]) {
+    if (currentMatch?.league?.id && !roundsCache[`${currentMatch.league.id}-2025`]) {
       fetchRoundsForLeague(currentMatch.league.id, 2025);
     }
-  }, [currentMatch, fetchRoundsForLeague, roundsCache]);
+  }, [currentMatch?.league?.id, fetchRoundsForLeague, roundsCache]);
 
   const handlePrevious = useCallback(() => {
     if (allMatches.length > 0) {
@@ -2283,64 +2289,67 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Extract colors from team logos when match changes
   useEffect(() => {
-    if (currentMatch?.teams) {
-      const extractColors = async () => {
-        const homeTeamName = currentMatch.teams.home.name;
-        const awayTeamName = currentMatch.teams.away.name;
-
-        // Only extract if we don't already have the colors cached
-        if (!teamLogoColors[homeTeamName] || !teamLogoColors[awayTeamName]) {
-          const homeLogoUrl = currentMatch.teams.home.id
-            ? `/api/team-logo/square/${currentMatch.teams.home.id}?size=64`
-            : currentMatch.teams.home.logo;
-
-          const awayLogoUrl = currentMatch.teams.away.id
-            ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=64`
-            : currentMatch.teams.away.logo;
-
-          try {
-            const [homeColor, awayColor] = await Promise.all([
-              extractDominantColorFromLogo(homeLogoUrl, homeTeamName),
-              extractDominantColorFromLogo(awayLogoUrl, awayTeamName),
-            ]);
-
-            setTeamLogoColors((prev) => ({
-              ...prev,
-              [homeTeamName]: homeColor,
-              [awayTeamName]: awayColor,
-            }));
-          } catch (error) {
-            console.warn("Error extracting team colors:", error);
-          }
-        }
-      };
-
-      extractColors();
+    if (!currentMatch?.teams?.home?.name || !currentMatch?.teams?.away?.name) {
+      return;
     }
-  }, [currentMatch, extractDominantColorFromLogo, teamLogoColors]);
+
+    const extractColors = async () => {
+      const homeTeamName = currentMatch.teams.home.name;
+      const awayTeamName = currentMatch.teams.away.name;
+
+      // Only extract if we don't already have the colors cached
+      if (teamLogoColors[homeTeamName] && teamLogoColors[awayTeamName]) {
+        return;
+      }
+
+      const homeLogoUrl = currentMatch.teams.home.id
+        ? `/api/team-logo/square/${currentMatch.teams.home.id}?size=64`
+        : currentMatch.teams.home.logo;
+
+      const awayLogoUrl = currentMatch.teams.away.id
+        ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=64`
+        : currentMatch.teams.away.logo;
+
+      try {
+        const [homeColor, awayColor] = await Promise.all([
+          extractDominantColorFromLogo(homeLogoUrl, homeTeamName),
+          extractDominantColorFromLogo(awayLogoUrl, awayTeamName),
+        ]);
+
+        setTeamLogoColors((prev) => ({
+          ...prev,
+          [homeTeamName]: homeColor,
+          [awayTeamName]: awayColor,
+        }));
+      } catch (error) {
+        console.warn("Error extracting team colors:", error);
+      }
+    };
+
+    extractColors();
+  }, [currentMatch?.teams?.home?.name, currentMatch?.teams?.away?.name, extractDominantColorFromLogo]);
 
   // Countdown timer effect for upcoming matches
   useEffect(() => {
-    if (!currentMatch) {
-      setCountdownTimer("--:--:--");
-      return;
-    }
+    let interval: NodeJS.Timeout | null = null;
 
-    const statusInfo = getStatusDisplay(currentMatch);
+    const updateTimer = () => {
+      if (!currentMatch) {
+        setCountdownTimer("--:--:--");
+        return;
+      }
 
-    // Only show countdown for upcoming matches
-    if (!statusInfo.isUpcoming) {
-      setCountdownTimer("");
-      return;
-    }
+      const statusInfo = getStatusDisplay(currentMatch);
 
-    function updateTimer() {
+      // Only show countdown for upcoming matches
+      if (!statusInfo.isUpcoming) {
+        setCountdownTimer("");
+        return;
+      }
+
       try {
         const targetDate = parseISO(currentMatch.fixture.date);
-
-        // Use current real time for accurate countdown
         const now = new Date();
-
         const diff = targetDate.getTime() - now.getTime();
 
         if (diff <= 0) {
@@ -2378,21 +2387,23 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         console.error("Error calculating countdown:", error);
         setCountdownTimer("--:--:--");
       }
-    }
+    };
 
     // Calculate initial time
     updateTimer();
 
-    // Set interval to update every second
-    const interval = setInterval(updateTimer, 1000);
+    // Set interval to update every second only if we have a current match
+    if (currentMatch) {
+      interval = setInterval(updateTimer, 1000);
+    }
 
-    // Cleanup interval on unmount
+    // Cleanup interval on unmount or when currentMatch changes
     return () => {
       if (interval) {
         clearInterval(interval);
       }
     };
-  }, [currentMatch]);
+  }, [currentMatch?.fixture?.id, currentMatch?.fixture?.date]);
 
   const getEnhancedTeamColor = useCallback(
     (teamName: string, isHome: boolean = false) => {
