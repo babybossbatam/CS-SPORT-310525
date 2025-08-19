@@ -126,8 +126,8 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
       <Header showTextOnMobile={true} />
       <div
         className={cn(
-          "  py-4 mobile-main-layout overflow-y-auto ",
-          isMobile ? "" : "",
+          "py-4 mobile-main-layout overflow-y-auto",
+          isMobile ? "px-0 mx-0" : "px-4",
         )}
         style={{
           marginLeft: isMobile ? "0px" : "150px",
@@ -137,16 +137,15 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
       >
         <div
           className={cn(
-            "grid gap-4",
-            isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12",
+            "grid",
+            isMobile ? "grid-cols-1 gap-0" : "grid-cols-1 lg:grid-cols-12 gap-4",
           )}
         >
           {/* Left column (5 columns on desktop, full width on mobile) - Hide on mobile when match is selected */}
           {(!isMobile || !selectedFixture) && (
             <div
               className={cn(
-                " space-y-4",
-                isMobile ? "w-full col-span-1" : "lg:col-span-5",
+                isMobile ? "w-full col-span-1 space-y-0" : "lg:col-span-5 space-y-4",
               )}
             >
               {/* Render children if provided, otherwise show TodayMatchPageCard */}
@@ -168,8 +167,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           {(!isMobile || selectedFixture) && (
             <div
               className={cn(
-                "space-y-4 ",
-                isMobile ? "col-span-1" : "lg:col-span-7",
+                isMobile ? "col-span-1 space-y-0" : "lg:col-span-7 space-y-4",
                 isMobile && selectedFixture
                   ? "fixed inset-0 z-50 bg-white"
                   : "",
