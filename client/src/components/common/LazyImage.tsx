@@ -39,6 +39,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
   leagueContext,
   priority = 'low',
 }) => {
+  // Note: For team logos, consider using MyWorldTeamLogo instead of LazyImage
+  // LazyImage is better suited for general images, league logos, and non-team assets
   const [imageSrc, setImageSrc] = useState<string>(src);
   const [hasError, setHasError] = useState<boolean>(false);
   const [retryCount, setRetryCount] = useState<number>(0);
