@@ -214,7 +214,7 @@ const PopularTeamsList = () => {
             learnCountriesFromFixtures(
               transformedTeams.map((team) => ({
                 league: { country: team.country },
-              })),
+              }))
             );
 
             setTeamData(transformedTeams);
