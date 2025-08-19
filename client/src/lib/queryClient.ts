@@ -37,6 +37,9 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
   try {
     // Ensure URL is properly formatted
     const apiUrl = url.startsWith("/")
@@ -54,21 +57,28 @@ export async function apiRequest(
       body: data ? JSON.stringify(data) : undefined,
       credentials: "include",
       mode: "cors",
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     console.log(`📡 [apiRequest] Response status: ${response.status} for ${method} ${url}`);
 
     await throwIfResNotOk(response);
     return response;
   } catch (error) {
+    clearTimeout(timeoutId);
+    
     const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+      error instanceof Error ? error.message : String(error);
 
-    console.error(`❌ [apiRequest] Error for ${method} ${url}:`, {
-      error: errorMessage,
-      url: url,
-      timestamp: new Date().toISOString()
-    });
+    // Handle abort/timeout errors
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error(`⏰ [apiRequest] Request timeout for ${method} ${url}`);
+      throw new Error(`Request timeout: The server took too long to respond. Please try again.`);
+    }
+
+    console.error(`❌ [apiRequest] Error for ${method} ${url}:`, errorMessage);
 
     // Handle specific error types with more detailed messages
     if (

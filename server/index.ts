@@ -24,11 +24,11 @@ let memoryWarningCount = 0;
 const monitorMemory = () => {
   const usage = process.memoryUsage();
   const heapUsedMB = usage.heapUsed / 1024 / 1024;
-  
+
   if (heapUsedMB > 1500) { // Warning at 1.5GB
     memoryWarningCount++;
     console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB (Warning #${memoryWarningCount})`);
-    
+
     if (memoryWarningCount > 5) {
       console.log('🧹 Forcing garbage collection...');
       if (global.gc) {
@@ -158,10 +158,11 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = process.env.PORT || 5000;
+  const PORT = process.env.PORT || 5000;
+  const HOST = "0.0.0.0"; // Bind to all interfaces for Replit
   const tryListen = (retryPort: number) => {
-    server.listen(retryPort, "0.0.0.0", () => {
-      log(`serving on port ${retryPort}`);
+    server.listen(retryPort, HOST, () => {
+      console.log(`Server running on ${HOST}:${retryPort}`);
     }).on('error', (err: any) => {
       if (err.code === 'EADDRINUSE' && retryPort < 5010) {
         log(`Port ${retryPort} in use, trying ${retryPort + 1}`);
@@ -179,5 +180,5 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
       }
     });
   };
-  tryListen(Number(port));
+  tryListen(Number(PORT));
 })();
