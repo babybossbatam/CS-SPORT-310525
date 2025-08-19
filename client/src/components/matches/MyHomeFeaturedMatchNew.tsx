@@ -27,6 +27,8 @@ import { useTranslation, useLanguage } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
 import { RoundBadge } from "@/components/ui/round-badge";
+import { isNationalTeam } from '../../lib/teamLogoSources';
+import { getBestTeamLogoUrl } from '../../lib/teamLogoUtils';
 
 // Import popular teams data from the same source as PopularTeamsList
 const POPULAR_TEAMS_DATA = [
@@ -160,7 +162,7 @@ const isPopularTeamMatch = (
 
   // Fallback to name matching
   const homeTeamLower = homeTeam.toLowerCase();
-  const awayTeamLower = awayTeam.toLowerCase();
+  const awayTeamLower = away.toLowerCase();
 
   const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(
     (popularTeam) =>
@@ -1494,7 +1496,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         return false;
                       }
 
-                      // Check explicit exclusion first
+                      // Check Check explicit exclusion first
                       const isExplicitlyExcluded =
                         EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(
                           fixture.league?.id,
@@ -2885,7 +2887,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                   }
                                   teamLogo={
                                     currentMatch.teams.home.id
-                                      ? `/api/team-logo/square/${currentMatch.teams.home.id}?size=64`
+                                      ? getBestTeamLogoUrl(
+                                          currentMatch.teams.home.id,
+                                          currentMatch.teams.home.name,
+                                          64,
+                                        )
                                       : currentMatch.teams.home.logo ||
                                         "/assets/fallback-logo.svg"
                                   }
@@ -3079,7 +3085,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               teamId={currentMatch.teams.away.id}
                               teamLogo={
                                 currentMatch.teams.away.id
-                                  ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=64`
+                                  ? getBestTeamLogoUrl(
+                                      currentMatch.teams.away.id,
+                                      currentMatch.teams.away.name,
+                                      64,
+                                    )
                                   : currentMatch?.teams?.away?.logo ||
                                     `/assets/fallback-logo.svg`
                               }

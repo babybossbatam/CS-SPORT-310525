@@ -127,14 +127,14 @@ export function clearMyWorldTeamLogoCache(): void {
  * Get the best team logo URL with proper fallbacks
  */
 export function getBestTeamLogoUrl(teamId: number | string, teamName: string, size: number = 32): string {
-  // Primary: Use API Sports logo if teamId is available
-  if (teamId && teamId !== 'fallback') {
-    return `https://media.api-sports.io/football/teams/${teamId}.png`;
-  }
-  
-  // Secondary: Use our API endpoint
+  // Primary: Use our API endpoint for better reliability
   if (teamId && teamId !== 'fallback') {
     return `/api/team-logo/square/${teamId}?size=${size}`;
+  }
+  
+  // Secondary: Use API Sports logo if teamId is available
+  if (teamId && teamId !== 'fallback') {
+    return `https://media.api-sports.io/football/teams/${teamId}.png`;
   }
   
   // Fallback: Use default logo

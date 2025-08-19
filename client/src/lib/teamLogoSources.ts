@@ -28,8 +28,9 @@ export function getTeamLogoSources(team: TeamData, isNationalTeam = false, sport
     });
   }
 
-  // Original team logo
-  if (team?.logo && typeof team.logo === 'string' && team.logo.trim() !== '') {
+  // Original team logo - only if it's not a placeholder
+  if (team?.logo && typeof team.logo === 'string' && team.logo.trim() !== '' && 
+      !team.logo.includes('placeholder') && !team.logo.includes('fallback')) {
     sources.push({
       url: team.logo,
       source: 'api-sports-original',
