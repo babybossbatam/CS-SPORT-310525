@@ -209,7 +209,7 @@ const POPULAR_LEAGUES = [
 
 // Define featured leagues (UEFA Europa Conference League ID 848 and Regionalliga - Bayern ID 169 explicitly excluded)
 const FEATURED_MATCH_LEAGUE_IDS = [
-  39, 140, 135, 78, 61, 826, 2, 3, 5, 1, 4, 15, 38, 9, 16, 45, 550, 531,
+  39, 140, 135, 137, 78, 61, 826, 2, 3, 5, 1, 4, 15, 38, 9, 16, 45, 550, 531,
 ];
 
 // Explicitly excluded leagues

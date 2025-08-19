@@ -246,9 +246,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
   // League IDs without any filtering - removed duplicates
   const leagueIds = [
-    38, 39, 61, 140, 15, 702, 2, 4, 10, 11, 848, 886, 1022, 772, 71, 3, 5, 531, 22, 72, 73, 75,
-    76, 233, 667, 940, 908, 1169, 23, 253, 850, 893, 921, 130, 128, 493, 239,
-    265, 237, 235, 743,
+    38, 39, 61, 140, 15, 137, 135, 702, 2, 4, 10, 11, 848, 886, 1022, 772, 71,
+    3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 940, 908, 1169, 23, 253, 850, 893,
+    921, 130, 128, 493, 239, 265, 237, 235, 743,
   ];
 
   // Helper function to add delay between requests
@@ -1342,7 +1342,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           };
 
           // Add team logo debugging tools
-          (window as any).debugTeamLogo = (teamId: number, teamName: string) => {
+          (window as any).debugTeamLogo = (
+            teamId: number,
+            teamName: string,
+          ) => {
             debugTeamLogoIssues(teamId, teamName);
           };
 
@@ -1350,13 +1353,23 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             const leagueFixtures = Object.values(fixturesByLeague).flatMap(
               (group) => group.fixtures,
             );
-            
-            console.log(`🧪 [Logo Test] Testing logos for ${leagueFixtures.length} fixtures`);
-            
+
+            console.log(
+              `🧪 [Logo Test] Testing logos for ${leagueFixtures.length} fixtures`,
+            );
+
             leagueFixtures.slice(0, 10).forEach((fixture) => {
-              console.log(`🔍 Testing: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
-              debugTeamLogoIssues(fixture.teams.home.id, fixture.teams.home.name);
-              debugTeamLogoIssues(fixture.teams.away.id, fixture.teams.away.name);
+              console.log(
+                `🔍 Testing: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+              );
+              debugTeamLogoIssues(
+                fixture.teams.home.id,
+                fixture.teams.home.name,
+              );
+              debugTeamLogoIssues(
+                fixture.teams.away.id,
+                fixture.teams.away.name,
+              );
             });
           };
 
@@ -1380,9 +1393,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           console.log(
             `   • debugTeamLogo(teamId, teamName) - Debug specific team logo issues`,
           );
-          console.log(
-            `   • testTeamLogos() - Test logos for current fixtures`,
-          );
+          console.log(`   • testTeamLogos() - Test logos for current fixtures`);
         }
       } catch (error) {
         console.warn("Team mapping analysis failed:", error);
@@ -1966,9 +1977,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         .sort(([aId], [bId]) => {
           // Define priority order - same as MyNewLeague
           const priorityOrder = [
-            38, 39, 61, 15, 2, 5, 140, 702, 22, 10, 11, 848, 886, 1022, 772, 71, 3, 5, 531, 22,
-            72, 73, 75, 76, 233, 667, 940, 908, 1169, 23, 253, 850, 893, 921,
-            130, 128, 493, 239, 265, 237, 235, 743,
+            38, 39, 61, 15, 2, 5, 140, 137, 135, 702, 22, 10, 11, 848, 886,
+            1022, 772, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 940, 908,
+            1169, 23, 253, 850, 893, 921, 130, 128, 493, 239, 265, 237, 235,
+            743,
           ];
 
           const aIndex = priorityOrder.indexOf(Number(aId));
@@ -2764,7 +2776,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   teamName={fixture.teams.home.name || ""}
                                   teamId={fixture.teams.home.id}
                                   teamLogo={
-                                    fixture.teams.home.logo || 
+                                    fixture.teams.home.logo ||
                                     `https://media.api-sports.io/football/teams/${fixture.teams.home.id}.png`
                                   }
                                   alt={fixture.teams.home.name}
@@ -2969,7 +2981,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   teamName={fixture.teams.away.name || ""}
                                   teamId={fixture.teams.away.id}
                                   teamLogo={
-                                    fixture.teams.away.logo || 
+                                    fixture.teams.away.logo ||
                                     `https://media.api-sports.io/football/teams/${fixture.teams.away.id}.png`
                                   }
                                   alt={fixture.teams.away.name}
