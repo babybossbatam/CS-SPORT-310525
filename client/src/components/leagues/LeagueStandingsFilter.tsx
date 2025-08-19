@@ -872,37 +872,38 @@ const LeagueStandingsFilter = () => {
                       <h3 className="text-xs font-regular mx-2 pt-2 mt-4 border-t border-b border-gray-300 dark:border-white mb-2 text-gray-700 dark:text-white flex items-center pb-1">
                         {getTranslatedGroupText(`Group ${String.fromCharCode(65 + groupIndex)}`)}
                       </h3>
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead className="w-[40px] text-center px-0.5"></TableHead>
-                            <TableHead className="pl-2 min-w-[200px]"></TableHead>
-                            <TableHead className="text-center px-0.5">
-                              P
-                            </TableHead>
-                            <TableHead className="text-center px-0.5">
-                              F:A
-                            </TableHead>
-                            <TableHead className="text-center px-0.5">
-                              +/-
-                            </TableHead>
-                            <TableHead className="text-center px-0.5">
-                              PTS
-                            </TableHead>
-                            <TableHead className="text-center px-0.5">
-                              W
-                            </TableHead>
-                            <TableHead className="text-center px-0.5">
-                              D
-                            </TableHead>
-                            <TableHead className="text-center px-0.5">
-                              L
-                            </TableHead>
-                            <TableHead className="text-center  px-1">
-                              Next
-                            </TableHead>
-                          </TableRow>
-                        </TableHeader>
+                      <div className="overflow-x-auto">
+                        <Table className="min-w-full">
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="w-[40px] text-center px-0.5 sticky left-0 bg-white dark:bg-gray-800 z-10"></TableHead>
+                              <TableHead className="pl-2 min-w-[200px] sticky left-[40px] bg-white dark:bg-gray-800 z-10"></TableHead>
+                              <TableHead className="text-center px-0.5">
+                                P
+                              </TableHead>
+                              <TableHead className="text-center px-0.5">
+                                F:A
+                              </TableHead>
+                              <TableHead className="text-center px-0.5">
+                                +/-
+                              </TableHead>
+                              <TableHead className="text-center px-0.5">
+                                PTS
+                              </TableHead>
+                              <TableHead className="text-center px-0.5">
+                                W
+                              </TableHead>
+                              <TableHead className="text-center px-0.5">
+                                D
+                              </TableHead>
+                              <TableHead className="text-center px-0.5">
+                                L
+                              </TableHead>
+                              <TableHead className="text-center px-1">
+                                Next
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
                         <TableBody>
                           {group.map((standing: Standing) => {
                             const stats = standing.all;
@@ -914,10 +915,10 @@ const LeagueStandingsFilter = () => {
                                 key={standing.team.id}
                                 className="border-b border-gray-300"
                               >
-                                <TableCell className="font-medium text-[0.8rem] text-center px-0.5 py-2 ">
+                                <TableCell className="font-medium text-[0.8rem] text-center px-0.5 py-2 sticky left-0 bg-white dark:bg-gray-800 z-10">
                                   {standing.rank}
                                 </TableCell>
-                                <TableCell className="flex flex-col font-normal px-0.5 py-3">
+                                <TableCell className="flex flex-col font-normal px-0.5 py-3 sticky left-[40px] bg-white dark:bg-gray-800 z-10">
                                   <div className="flex items-center">
                                     <div className="mr-3">
                                       <MyWorldTeamLogo
@@ -1045,7 +1046,8 @@ const LeagueStandingsFilter = () => {
                             );
                           })}
                         </TableBody>
-                      </Table>
+                        </Table>
+                      </div>
                     </div>
                   ),
                 )}
@@ -1069,37 +1071,38 @@ const LeagueStandingsFilter = () => {
             ) : (
               // Single league table
               <div className="overflow-hidden border-t">
-                <Table>
-                  <TableHeader>
-                    <TableRow className=" py-1 border-b border-gray-100">
-                      <TableHead className="text-left text-xs font-regular text-gray-400  px-1 w-[40px]"></TableHead>
-                      <TableHead className="text-left text-xs font-regular text-gray-400 py-1 px-3 min-w-[180px]"></TableHead>
-                      <TableHead className="text-center text-xs font-regular text-gray-400  px-2 w-[40px]">
-                        P
-                      </TableHead>
-                      <TableHead className="text-center text-xs font-regular text-gray-400  px-2 w-[60px]">
-                        F:A
-                      </TableHead>
-                      <TableHead className="text-center text-xs font-regular text-gray-400 px-2 w-[50px]">
-                        +/-
-                      </TableHead>
-                      <TableHead className="text-center text-xs font-regular text-gray-900  px-2 w-[50px]">
-                        PTS
-                      </TableHead>
-                      <TableHead className="text-center text-xs font-semi-bold text-gray-400 py-3 px-2 w-[40px]">
-                        W
-                      </TableHead>
-                      <TableHead className="text-center text-xs font-regular text-gray-400  px-2 w-[40px]">
-                        D
-                      </TableHead>
-                      <TableHead className="text-center text-xs font-regular text-gray-400  px-2 w-[40px]">
-                        L
-                      </TableHead>
-                      <TableHead className="text-center text-xs font-semi-bold text-gray-600 px-1 w-[100px]">
-                        Form
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
+                <div className="overflow-x-auto">
+                  <Table className="min-w-full">
+                    <TableHeader>
+                      <TableRow className="py-1 border-b border-gray-100">
+                        <TableHead className="text-left text-xs font-regular text-gray-400 px-1 w-[40px] sticky left-0 bg-white dark:bg-gray-800 z-10"></TableHead>
+                        <TableHead className="text-left text-xs font-regular text-gray-400 py-1 px-3 min-w-[180px] sticky left-[40px] bg-white dark:bg-gray-800 z-10"></TableHead>
+                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 w-[40px]">
+                          P
+                        </TableHead>
+                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 w-[60px]">
+                          F:A
+                        </TableHead>
+                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 w-[50px]">
+                          +/-
+                        </TableHead>
+                        <TableHead className="text-center text-xs font-regular text-gray-900 px-2 w-[50px]">
+                          PTS
+                        </TableHead>
+                        <TableHead className="text-center text-xs font-semi-bold text-gray-400 py-3 px-2 w-[40px]">
+                          W
+                        </TableHead>
+                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 w-[40px]">
+                          D
+                        </TableHead>
+                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 w-[40px]">
+                          L
+                        </TableHead>
+                        <TableHead className="text-center text-xs font-semi-bold text-gray-600 px-1 w-[100px]">
+                          Form
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
                   <TableBody>
                     {standings.league.standings[0]
                       ?.slice(0, 7)
@@ -1140,7 +1143,7 @@ const LeagueStandingsFilter = () => {
                             key={standing.team.id}
                             className="border-b border-gray-100 transition-colors"
                           >
-                            <TableCell className="py-0 mt-0 mb-0 px-0 relative">
+                            <TableCell className="py-0 mt-0 mb-0 px-0 relative sticky left-0 bg-white dark:bg-gray-800 z-10">
                               <div className="flex items-center">
                                 {standing.rank <= 3 && (
                                   <div
@@ -1176,7 +1179,7 @@ const LeagueStandingsFilter = () => {
                                 </span>
                               </div>
                             </TableCell>
-                            <TableCell className="py-0 px-2">
+                            <TableCell className="py-0 px-2 sticky left-[40px] bg-white dark:bg-gray-800 z-10">
                               <div className="flex items-center">
                                 <div className="mr-3 flex-shrink-0">
                                   <MyWorldTeamLogo
@@ -1313,7 +1316,8 @@ const LeagueStandingsFilter = () => {
                         );
                       })}
                   </TableBody>
-                </Table>
+                  </Table>
+                </div>
               </div>
             )
           ) : (
