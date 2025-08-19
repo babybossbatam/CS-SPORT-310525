@@ -57,101 +57,100 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     return info;
   }, [teamId, teamName, providedLogo, leagueContext]);
 
-  // Memoize the logo resolution logic
-  const resolveLogo = useCallback(async () => {
-    // Validate required data
-    if (!teamInfo.name || !teamInfo.id || teamInfo.id === 0) {
-      console.warn(`⚠️ [MyWorldTeamLogo] Invalid team data - ID: ${teamInfo.id}, Name: "${teamInfo.name}"`);
-      setIsLoading(false);
-      setHasError(true);
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      setHasError(false);
-
-      console.log(`🏟️ [MyWorldTeamLogo] Resolving logo for team ${teamInfo.id} (${teamInfo.name})`);
-
-      // Check if provided logo URL is valid first
-      if (providedLogo && !providedLogo.includes('fallback') && !providedLogo.includes('placeholder')) {
-        console.log(`🎯 [MyWorldTeamLogo] Using provided logo URL: ${providedLogo}`);
-        setLogoUrl(providedLogo);
-        setUseCircularFlag(false);
+  // Effect to resolve logo
+  useEffect(() => {
+    const resolveLogo = async () => {
+      // Validate required data
+      if (!teamInfo.name || !teamInfo.id || teamInfo.id === 0) {
+        console.warn(`⚠️ [MyWorldTeamLogo] Invalid team data - ID: ${teamInfo.id}, Name: "${teamInfo.name}"`);
         setIsLoading(false);
+        setHasError(true);
         return;
       }
 
-      // Use enhanced logo manager with correct parameters
-      const result = await enhancedLogoManager.getTeamLogo(
-        'MyWorldTeamLogo',
-        {
-          type: 'team',
-          shape: 'normal',
-          teamId: teamInfo.id,
-          teamName: teamInfo.name,
-          fallbackUrl: '/assets/fallback-logo.svg'
+      try {
+        setIsLoading(true);
+        setHasError(false);
+
+        console.log(`🏟️ [MyWorldTeamLogo] Resolving logo for team ${teamInfo.id} (${teamInfo.name})`);
+
+        // Check if provided logo URL is valid first
+        if (providedLogo && !providedLogo.includes('fallback') && !providedLogo.includes('placeholder')) {
+          console.log(`🎯 [MyWorldTeamLogo] Using provided logo URL: ${providedLogo}`);
+          setLogoUrl(providedLogo);
+          setUseCircularFlag(false);
+          setIsLoading(false);
+          return;
         }
-      );
 
-      console.log(`📊 [MyWorldTeamLogo] Logo manager result for ${teamInfo.name}:`, {
-        url: result.url,
-        fallbackUsed: result.fallbackUsed,
-        cached: result.cached
-      });
+        // Use enhanced logo manager with correct parameters
+        const result = await enhancedLogoManager.getTeamLogo(
+          'MyWorldTeamLogo',
+          {
+            type: 'team',
+            shape: 'normal',
+            teamId: teamInfo.id,
+            teamName: teamInfo.name,
+            fallbackUrl: '/assets/fallback-logo.svg'
+          }
+        );
 
-      if (result.url && !result.fallbackUsed) {
-        setLogoUrl(result.url);
-        setUseCircularFlag(false);
-        console.log(`✅ [MyWorldTeamLogo] Successfully resolved logo for ${teamInfo.name}: ${result.url}`);
-      } else {
-        // Check if it's a national team that should use circular flag
-        const isNational = teamInfo.name.toLowerCase().includes('national') || 
-                          teamInfo.name.includes('U21') || 
-                          teamInfo.name.includes('U20') ||
-                          teamInfo.name.includes('U19') ||
-                          teamInfo.name.includes('U23') ||
-                          teamInfo.leagueContext?.name?.toLowerCase().includes('international');
-        
-        if (isNational && teamInfo.leagueContext?.country) {
-          console.log(`🏳️ [MyWorldTeamLogo] Attempting country flag for ${teamInfo.name} (${teamInfo.leagueContext.country})`);
-          
-          // Try to get country flag
-          const flagResult = await enhancedLogoManager.getCountryFlag(
-            'MyWorldTeamLogo',
-            {
-              type: 'flag',
-              shape: 'circular',
-              country: teamInfo.leagueContext.country,
-              fallbackUrl: '/assets/world flag_new.png'
-            }
-          );
-          
-          setLogoUrl(flagResult.url);
-          setUseCircularFlag(true);
-          console.log(`🏳️ [MyWorldTeamLogo] Using country flag for ${teamInfo.name}: ${flagResult.url}`);
+        console.log(`📊 [MyWorldTeamLogo] Logo manager result for ${teamInfo.name}:`, {
+          url: result.url,
+          fallbackUsed: result.fallbackUsed,
+          cached: result.cached
+        });
+
+        if (result.url && !result.fallbackUsed) {
+          setLogoUrl(result.url);
+          setUseCircularFlag(false);
+          console.log(`✅ [MyWorldTeamLogo] Successfully resolved logo for ${teamInfo.name}: ${result.url}`);
         } else {
-          console.warn(`🚫 [MyWorldTeamLogo] No suitable logo found for ${teamInfo.name}, using fallback`);
-          setHasError(true);
-          setLogoUrl('/assets/fallback-logo.svg');
+          // Check if it's a national team that should use circular flag
+          const isNational = teamInfo.name.toLowerCase().includes('national') || 
+                            teamInfo.name.includes('U21') || 
+                            teamInfo.name.includes('U20') ||
+                            teamInfo.name.includes('U19') ||
+                            teamInfo.name.includes('U23') ||
+                            teamInfo.leagueContext?.name?.toLowerCase().includes('international');
+          
+          if (isNational && teamInfo.leagueContext?.country) {
+            console.log(`🏳️ [MyWorldTeamLogo] Attempting country flag for ${teamInfo.name} (${teamInfo.leagueContext.country})`);
+            
+            // Try to get country flag
+            const flagResult = await enhancedLogoManager.getCountryFlag(
+              'MyWorldTeamLogo',
+              {
+                type: 'flag',
+                shape: 'circular',
+                country: teamInfo.leagueContext.country,
+                fallbackUrl: '/assets/world flag_new.png'
+              }
+            );
+            
+            setLogoUrl(flagResult.url);
+            setUseCircularFlag(true);
+            console.log(`🏳️ [MyWorldTeamLogo] Using country flag for ${teamInfo.name}: ${flagResult.url}`);
+          } else {
+            console.warn(`🚫 [MyWorldTeamLogo] No suitable logo found for ${teamInfo.name}, using fallback`);
+            setHasError(true);
+            setLogoUrl('/assets/fallback-logo.svg');
+          }
         }
+      } catch (error) {
+        console.warn(`❌ [MyWorldTeamLogo] Logo resolution failed for ${teamInfo.name}:`, error);
+        setHasError(true);
+        setLogoUrl('/assets/fallback-logo.svg');
+        if (onError) {
+          onError();
+        }
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.warn(`❌ [MyWorldTeamLogo] Logo resolution failed for ${teamInfo.name}:`, error);
-      setHasError(true);
-      setLogoUrl('/assets/fallback-logo.svg');
-      if (onError) {
-        onError();
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, [teamInfo, onError, providedLogo]);
+    };
 
-  // Effect to resolve logo
-  useEffect(() => {
     resolveLogo();
-  }, [resolveLogo]);
+  }, [teamInfo.id, teamInfo.name, teamInfo.leagueContext, providedLogo, onError]);
 
   // Memoize style object
   const sizeStyle = useMemo(() => {
