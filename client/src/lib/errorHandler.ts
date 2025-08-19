@@ -280,6 +280,19 @@ const categorizeError = (error: any): ErrorCategory => {
     };
   }
 
+  // React hooks errors - specific handling
+  if (errorStr.includes('Rendered more hooks than during the previous render') ||
+      errorStr.includes('Rendered fewer hooks than expected') ||
+      errorStr.includes('Invalid hook call') ||
+      errorStr.includes('hooks can only be called inside the body of a function component')) {
+    return {
+      name: 'react-hooks',
+      shouldSuppress: false,
+      shouldReport: true,
+      action: 'fix'
+    };
+  }
+
   // Application logic errors - need investigation
   if (errorStr.includes('Cannot read properties') ||
       errorStr.includes('is not a function') ||
