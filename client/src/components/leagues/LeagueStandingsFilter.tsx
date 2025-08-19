@@ -872,34 +872,34 @@ const LeagueStandingsFilter = () => {
                       <h3 className="text-xs font-regular mx-2 pt-2 mt-4 border-t border-b border-gray-300 dark:border-white mb-2 text-gray-700 dark:text-white flex items-center pb-1">
                         {getTranslatedGroupText(`Group ${String.fromCharCode(65 + groupIndex)}`)}
                       </h3>
-                      <div className="overflow-x-auto">
-                        <Table className="min-w-full">
+                      <div className="overflow-x-auto -webkit-overflow-scrolling-touch scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                        <Table className="min-w-[600px] w-full">
                           <TableHeader>
                             <TableRow>
-                              <TableHead className="w-[40px] text-center px-0.5 sticky left-0 bg-white dark:bg-gray-800 z-10"></TableHead>
-                              <TableHead className="pl-2 min-w-[200px] sticky left-[40px] bg-white dark:bg-gray-800 z-10"></TableHead>
-                              <TableHead className="text-center px-0.5">
+                              <TableHead className="w-[40px] text-center px-0.5 sticky left-0 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
+                              <TableHead className="pl-2 min-w-[160px] sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
+                              <TableHead className="text-center px-2 min-w-[40px]">
                                 P
                               </TableHead>
-                              <TableHead className="text-center px-0.5">
+                              <TableHead className="text-center px-2 min-w-[50px]">
                                 F:A
                               </TableHead>
-                              <TableHead className="text-center px-0.5">
+                              <TableHead className="text-center px-2 min-w-[45px]">
                                 +/-
                               </TableHead>
-                              <TableHead className="text-center px-0.5">
+                              <TableHead className="text-center px-2 min-w-[45px]">
                                 PTS
                               </TableHead>
-                              <TableHead className="text-center px-0.5">
+                              <TableHead className="text-center px-2 min-w-[40px]">
                                 W
                               </TableHead>
-                              <TableHead className="text-center px-0.5">
+                              <TableHead className="text-center px-2 min-w-[40px]">
                                 D
                               </TableHead>
-                              <TableHead className="text-center px-0.5">
+                              <TableHead className="text-center px-2 min-w-[40px]">
                                 L
                               </TableHead>
-                              <TableHead className="text-center px-1">
+                              <TableHead className="text-center px-2 min-w-[60px]">
                                 Next
                               </TableHead>
                             </TableRow>
@@ -913,19 +913,19 @@ const LeagueStandingsFilter = () => {
                             return (
                               <TableRow
                                 key={standing.team.id}
-                                className="border-b border-gray-300"
+                                className="border-b border-gray-200 dark:border-gray-700"
                               >
-                                <TableCell className="font-medium text-[0.8rem] text-center px-0.5 py-2 sticky left-0 bg-white dark:bg-gray-800 z-10">
+                                <TableCell className="font-medium text-[0.8rem] text-center px-0.5 py-2 sticky left-0 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
                                   {standing.rank}
                                 </TableCell>
-                                <TableCell className="flex flex-col font-normal px-0.5 py-3 sticky left-[40px] bg-white dark:bg-gray-800 z-10">
-                                  <div className="flex items-center">
-                                    <div className="mr-3">
+                                <TableCell className="font-normal px-2 py-3 sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
+                                  <div className="flex items-center min-w-[140px]">
+                                    <div className="mr-2 flex-shrink-0">
                                       <MyWorldTeamLogo
                                         teamName={standing.team.name}
                                         teamLogo={standing.team.logo}
                                         alt={standing.team.name}
-                                        size="28px"
+                                        size="24px"
                                         className="popular-leagues-size"
                                         leagueContext={{
                                           name: selectedLeagueName,
@@ -936,7 +936,7 @@ const LeagueStandingsFilter = () => {
                                         showNextMatchOverlay={true}
                                       />
                                     </div>
-                                    <span className="text-[0.85rem] truncate">
+                                    <span className="text-[0.8rem] truncate max-w-[100px]">
                                       {getTranslatedTeamName(standing.team.name)}
                                     </span>
                                   </div>
@@ -1070,35 +1070,35 @@ const LeagueStandingsFilter = () => {
               </div>
             ) : (
               // Single league table
-              <div className="overflow-hidden border-t">
-                <div className="overflow-x-auto">
-                  <Table className="min-w-full">
+              <div className="border-t">
+                <div className="overflow-x-auto -webkit-overflow-scrolling-touch scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                  <Table className="min-w-[700px] w-full">
                     <TableHeader>
-                      <TableRow className="py-1 border-b border-gray-100">
-                        <TableHead className="text-left text-xs font-regular text-gray-400 px-1 w-[40px] sticky left-0 bg-white dark:bg-gray-800 z-10"></TableHead>
-                        <TableHead className="text-left text-xs font-regular text-gray-400 py-1 px-3 min-w-[180px] sticky left-[40px] bg-white dark:bg-gray-800 z-10"></TableHead>
-                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 w-[40px]">
+                      <TableRow className="py-1 border-b border-gray-100 dark:border-gray-700">
+                        <TableHead className="text-left text-xs font-regular text-gray-400 px-1 w-[40px] sticky left-0 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
+                        <TableHead className="text-left text-xs font-regular text-gray-400 py-1 px-3 min-w-[160px] sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
+                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[40px]">
                           P
                         </TableHead>
-                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 w-[60px]">
+                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[60px]">
                           F:A
                         </TableHead>
-                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 w-[50px]">
+                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[50px]">
                           +/-
                         </TableHead>
-                        <TableHead className="text-center text-xs font-regular text-gray-900 px-2 w-[50px]">
+                        <TableHead className="text-center text-xs font-regular text-gray-900 px-2 min-w-[50px]">
                           PTS
                         </TableHead>
-                        <TableHead className="text-center text-xs font-semi-bold text-gray-400 py-3 px-2 w-[40px]">
+                        <TableHead className="text-center text-xs font-semi-bold text-gray-400 py-3 px-2 min-w-[40px]">
                           W
                         </TableHead>
-                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 w-[40px]">
+                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[40px]">
                           D
                         </TableHead>
-                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 w-[40px]">
+                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[40px]">
                           L
                         </TableHead>
-                        <TableHead className="text-center text-xs font-semi-bold text-gray-600 px-1 w-[100px]">
+                        <TableHead className="text-center text-xs font-semi-bold text-gray-600 px-2 min-w-[120px]">
                           Form
                         </TableHead>
                       </TableRow>
@@ -1143,7 +1143,7 @@ const LeagueStandingsFilter = () => {
                             key={standing.team.id}
                             className="border-b border-gray-100 transition-colors"
                           >
-                            <TableCell className="py-0 mt-0 mb-0 px-0 relative sticky left-0 bg-white dark:bg-gray-800 z-10">
+                            <TableCell className="py-0 mt-0 mb-0 px-0 relative sticky left-0 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
                               <div className="flex items-center">
                                 {standing.rank <= 3 && (
                                   <div
@@ -1179,15 +1179,15 @@ const LeagueStandingsFilter = () => {
                                 </span>
                               </div>
                             </TableCell>
-                            <TableCell className="py-0 px-2 sticky left-[40px] bg-white dark:bg-gray-800 z-10">
-                              <div className="flex items-center">
-                                <div className="mr-3 flex-shrink-0">
+                            <TableCell className="py-0 px-2 sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
+                              <div className="flex items-center min-w-[140px]">
+                                <div className="mr-2 flex-shrink-0">
                                   <MyWorldTeamLogo
                                     teamName={standing.team.name}
                                     teamLogo={standing.team.logo}
                                     teamId={standing.team.id}
                                     alt={standing.team.name}
-                                    size="24px"
+                                    size="20px"
                                     className="object-contain"
                                     leagueContext={{
                                       name: selectedLeagueName,
@@ -1198,12 +1198,12 @@ const LeagueStandingsFilter = () => {
                                   />
                                 </div>
                                 <div className="flex flex-col min-w-0 flex-1">
-                                  <span className="text-xs font-medium text-gray-900 truncate hover:underline cursor-pointer">
+                                  <span className="text-xs font-medium text-gray-900 truncate hover:underline cursor-pointer max-w-[100px]">
                                     {getTranslatedTeamName(standing.team.name)}
                                   </span>
                                   {standing.rank <= 3 && (
                                     <span
-                                      className="text-[0.65rem] font-medium truncate"
+                                      className="text-[0.6rem] font-medium truncate max-w-[100px]"
                                       style={{
                                         color:
                                           standing.rank <= 3
@@ -1289,15 +1289,15 @@ const LeagueStandingsFilter = () => {
                             <TableCell className="text-center py-2 px-1 text-xs text-gray-600">
                               {stats.lose}
                             </TableCell>
-                            <TableCell className="text-center py-2 px-1 ">
-                              <div className="flex gap-1 justify-center mr-12">
+                            <TableCell className="text-center py-2 px-2">
+                              <div className="flex gap-1 justify-center min-w-[110px]">
                                 {standing.form
                                   ?.split("")
                                   .slice(-5)
                                   .map((result, i) => (
                                     <span
                                       key={i}
-                                      className={`w-6 h-6 rounded-sm flex items-center justify-center text-xs font-semi-bold ${
+                                      className={`w-5 h-5 rounded-sm flex items-center justify-center text-xs font-semi-bold ${
                                         result === "W"
                                           ? "border border-gray-500 text-green-800"
                                           : result === "D"
