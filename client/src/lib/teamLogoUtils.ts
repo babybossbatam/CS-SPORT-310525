@@ -124,6 +124,46 @@ export function clearMyWorldTeamLogoCache(): void {
 }
 
 /**
+ * Get the best team logo URL with proper fallbacks
+ */
+export function getBestTeamLogoUrl(teamId: number | string, teamName: string, size: number = 32): string {
+  // Primary: Use API Sports logo if teamId is available
+  if (teamId && teamId !== 'fallback') {
+    return `https://media.api-sports.io/football/teams/${teamId}.png`;
+  }
+  
+  // Secondary: Use our API endpoint
+  if (teamId && teamId !== 'fallback') {
+    return `/api/team-logo/square/${teamId}?size=${size}`;
+  }
+  
+  // Fallback: Use default logo
+  return "/assets/fallback-logo.svg";
+}
+
+/**
+ * Create team logo error handler with proper fallback chain
+ */
+export function createTeamLogoErrorHandler(teamId: number | string, teamName: string) {
+  return (e: any) => {
+    const target = e.target as HTMLImageElement;
+    const currentSrc = target.src;
+    
+    console.log(`🚫 [TeamLogo Error] Failed to load: ${currentSrc} for ${teamName}`);
+    
+    // Try fallback URLs in order
+    if (currentSrc.includes('api-sports.io') && teamId && teamId !== 'fallback') {
+      console.log(`🔄 [TeamLogo] Trying API endpoint for ${teamName}`);
+      target.src = `/api/team-logo/square/${teamId}?size=32`;
+    } else if (currentSrc.includes('/api/team-logo/') && !currentSrc.includes('fallback-logo')) {
+      console.log(`🔄 [TeamLogo] Trying fallback logo for ${teamName}`);
+      target.src = "/assets/fallback-logo.svg";
+    }
+    // If already on fallback, don't change anymore to prevent infinite loop
+  };
+}
+
+/**
  * Debug team logo loading issues
  */
 export function debugTeamLogoIssues(teamId: number | string, teamName: string): void {

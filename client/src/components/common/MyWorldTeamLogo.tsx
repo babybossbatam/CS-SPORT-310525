@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { isNationalTeam, getTeamLogoSources, createTeamLogoErrorHandler } from '../../lib/teamLogoSources';
 import { enhancedLogoManager } from '../../lib/enhancedLogoManager';
+import { getBestTeamLogoUrl, createTeamLogoErrorHandler as createBetterErrorHandler } from '../../lib/teamLogoUtils';
 import MyCircularFlag from './MyCircularFlag';
 import LazyImage from './LazyImage';
 
