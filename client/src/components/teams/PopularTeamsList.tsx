@@ -164,6 +164,8 @@ const PopularTeamsList = () => {
           console.warn(
             "⚠️ [PopularTeamsList] API returned non-JSON response, using fallback data",
           );
+          console.warn("⚠️ [PopularTeamsList] Content-Type:", contentType);
+          console.warn("⚠️ [PopularTeamsList] Response status:", response.status);
           throw new Error("API returned HTML instead of JSON");
         }
 
@@ -226,6 +228,7 @@ const PopularTeamsList = () => {
           "⚠️ [PopularTeamsList] Failed to fetch popular teams, using fallback data:",
           error instanceof Error ? error.message : 'Unknown error',
         );
+        console.warn("⚠️ [PopularTeamsList] Full error details:", error);
         console.log("🔄 [PopularTeamsList] Using fallback popular teams data");
 
         const sortedTeams = [...CURRENT_POPULAR_TEAMS]
