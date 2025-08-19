@@ -62,10 +62,22 @@ class EnhancedLogoManager {
       let logoUrl: string;
       let fallbackUsed = false;
 
-      // Use the correct server endpoint that actually exists
-      logoUrl = getCachedTeamLogo(request.teamId, sport) || `/api/team-logo/${request.teamId}`;
-      
-      console.log(`🏟️ [EnhancedLogoManager] Getting ${request.shape} logo for team ${request.teamId} (${request.teamName || 'Unknown'}): ${logoUrl}`);
+      if (request.shape === 'circular') {
+        // For circular logos, check if it's a national team first
+        const isNational = request.teamName ? isNationalTeam(
+          { id: request.teamId, name: request.teamName },
+          null
+        ) : false;
+
+        if (isNational) {
+          logoUrl = `/api/team-logo/circular/${request.teamId}?size=32&sport=${sport}`;
+        } else {
+          logoUrl = `/api/team-logo/square/${request.teamId}?size=32&sport=${sport}`;
+        }
+      } else {
+        // Normal team logo with sport parameter
+        logoUrl = getCachedTeamLogo(request.teamId, sport) || `/api/team-logo/square/${request.teamId}?size=64&sport=${sport}`;
+      }
 
       if (!logoUrl || logoUrl.includes('fallback') || logoUrl.includes('placeholder.com')) {
         logoUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
