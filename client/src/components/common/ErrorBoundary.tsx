@@ -76,8 +76,8 @@ export default class ErrorBoundary extends Component<Props, State> {
       'commitMutationEffectsOnFiber'
     ];
 
-    const shouldSuppress = suppressPatterns.some(pattern =>
-      error.message?.includes(pattern) ||
+    const shouldSuppress = suppressPatterns.some(pattern => 
+      error.message?.includes(pattern) || 
       error.toString().includes(pattern) ||
       error.stack?.includes(pattern) ||
       errorInfo.componentStack?.includes(pattern)
@@ -91,18 +91,7 @@ export default class ErrorBoundary extends Component<Props, State> {
 
     // Log other errors for debugging
     console.error('Error caught by boundary:', error, errorInfo);
-
-    // Log React error #310 specifically for debugging
-    if (error.message.includes('Minified React error #310')) {
-      console.error('React Error #310 detected - likely hydration mismatch:', {
-        error: error.message,
-        stack: error.stack,
-        componentStack: errorInfo.componentStack
-      });
-      // For hydration errors, we might want to offer a specific recovery or reset
-      // For now, we'll just set the state to display the error UI
-    }
-
+    
     this.setState({
       hasError: true,
       error,
@@ -151,8 +140,6 @@ export default class ErrorBoundary extends Component<Props, State> {
 
   public render() {
     if (this.state.hasError) {
-      const isHydrationError = this.state.error?.message.includes('Minified React error #310');
-
       return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
           <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6">
@@ -163,48 +150,33 @@ export default class ErrorBoundary extends Component<Props, State> {
             </div>
             <div className="mt-4 text-center">
               <h3 className="text-lg font-medium text-gray-900">
-                {this.state.isRecovering ? 'Recovering...' : (isHydrationError ? 'Loading Error' : 'Something went wrong')}
+                {this.state.isRecovering ? 'Recovering...' : 'Something went wrong'}
               </h3>
               <div className="mt-2 text-sm text-gray-500">
-                {this.state.isRecovering
+                {this.state.isRecovering 
                   ? 'Attempting to recover from network error...'
-                  : (isHydrationError
-                    ? 'We apologize for the inconvenience. Please try again.'
-                    : 'An unexpected error occurred. Please refresh the page to try again.'
-                  )
+                  : 'We apologize for the inconvenience. Please try again.'
                 }
               </div>
-              {this.state.error && !isHydrationError && ( // Only show detailed error for non-hydration errors
+              {this.state.error && (
                 <div className="mt-2 text-xs text-gray-400 font-mono">
                   {this.state.error.message}
                 </div>
               )}
               <div className="mt-4 space-x-2">
-                <button
+                <button 
                   onClick={this.handleRetry}
-                  disabled={this.state.isRecovering || isHydrationError} // Disable retry if recovering or it's a hydration error
+                  disabled={this.state.isRecovering}
                   className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                 >
                   {this.state.isRecovering ? 'Recovering...' : 'Try Again'}
                 </button>
-                <button
+                <button 
                   onClick={() => window.location.reload()}
                   className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                 >
                   Refresh Page
                 </button>
-                {isHydrationError && (
-                  <button
-                    onClick={() => {
-                      localStorage.clear();
-                      sessionStorage.clear();
-                      window.location.reload();
-                    }}
-                    className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-gray-600 border border-transparent rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                  >
-                    Clear Cache & Refresh
-                  </button>
-                )}
               </div>
             </div>
           </div>
