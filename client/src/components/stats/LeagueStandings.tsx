@@ -211,117 +211,119 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({
                     </h3>
                   )}
 
-                  <Table className="w-full -ml-6">
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[60px] text-center">
-                          Pos
-                        </TableHead>
-                        <TableHead className="pl-8">Team</TableHead>
-                        <TableHead className="text-center">P</TableHead>
-                        <TableHead className="text-center">F/A</TableHead>
-                        <TableHead className="text-center">+/-</TableHead>
-                        <TableHead className="text-center">PTS</TableHead>
-                        <TableHead className="text-center">W</TableHead>
-                        <TableHead className="text-center">D</TableHead>
-                        <TableHead className="text-center">L</TableHead>
-                        <TableHead className="text-center">Form</TableHead>
-                        <TableHead className="text-center">Next</TableHead>
-                      </TableRow>
-                    </TableHeader>
+                  <div className="relative overflow-hidden">
+                    <Table className="w-full -ml-6">
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[60px] text-center sticky left-0 bg-white dark:bg-gray-800 z-10">
+                            Pos
+                          </TableHead>
+                          <TableHead className="pl-8 sticky left-[60px] bg-white dark:bg-gray-800 z-10 min-w-[180px]">Team</TableHead>
+                          <TableHead className="text-center min-w-[50px]">P</TableHead>
+                          <TableHead className="text-center min-w-[70px]">F/A</TableHead>
+                          <TableHead className="text-center min-w-[50px]">+/-</TableHead>
+                          <TableHead className="text-center min-w-[60px]">PTS</TableHead>
+                          <TableHead className="text-center min-w-[50px]">W</TableHead>
+                          <TableHead className="text-center min-w-[50px]">D</TableHead>
+                          <TableHead className="text-center min-w-[50px]">L</TableHead>
+                          <TableHead className="text-center min-w-[100px]">Form</TableHead>
+                          <TableHead className="text-center min-w-[60px]">Next</TableHead>
+                        </TableRow>
+                      </TableHeader>
                     <TableBody>
-                      {standings.map((standing) => {
-                        const stats =
-                          view === "overall"
-                            ? standing.all
-                            : view === "home"
-                              ? standing.home
-                              : view === "away"
-                                ? standing.away
-                                : null;
+                        <div className="overflow-x-auto">
+                          {standings.map((standing) => {
+                            const stats =
+                              view === "overall"
+                                ? standing.all
+                                : view === "home"
+                                  ? standing.home
+                                  : view === "away"
+                                    ? standing.away
+                                    : null;
 
-                        return (
-                          <TableRow
-                            key={`${groupIndex}-${standing.team.id}`}
-                            className="hover:bg-gray-50/50 transition-colors relative cursor-pointer"
-                            onClick={() =>
-                              navigate(`/team/${standing.team.id}`)
-                            }
-                          >
-                            <TableCell className="relative pl-3 font-medium">
-                              <span
-                                className="absolute left-0 top-0 bottom-0 w-1.5"
-                                style={{
-                                  backgroundColor:
-                                    standing.rank <= 3
-                                      ? "#4CAF50"
-                                      : standing.rank <= 7
-                                        ? "#9C27B0"
-                                        : "#9E9E9E",
-                                }}
-                              />
-                              <span
-                                style={{
-                                  color:
-                                    standing.rank <= 3
-                                      ? "#4CAF50"
-                                      : standing.rank <= 7
-                                        ? "#9C27B0"
-                                        : "#9E9E9E",
-                                }}
+                            return (
+                              <TableRow
+                                key={`${groupIndex}-${standing.team.id}`}
+                                className="hover:bg-gray-50/50 transition-colors relative cursor-pointer"
+                                onClick={() =>
+                                  navigate(`/team/${standing.team.id}`)
+                                }
                               >
-                                {standing.rank}
-                              </span>
-                            </TableCell>
-                            <TableCell className="min-w-[180px] pl-2">
-                              <div className="flex items-center gap-2">
-                                {isNationalTeam(standing.team.name) ? (
-                                  <MyCircularFlag
-                                    teamName={standing.team.name}
-                                    fallbackUrl={standing.team.logo}
-                                    size="24px"
-                                    className="flex-shrink-0"
-                                  />
-                                ) : (
-                                  <img
-                                    src={standing.team.logo}
-                                    alt={standing.team.name}
-                                    className="w-6 h-6 object-contain rounded flex-shrink-0"
-                                    onError={(e) => {
-                                      const target =
-                                        e.target as HTMLImageElement;
-                                      if (
-                                        !target.src.includes(
-                                          "/assets/fallback-logo.svg",
-                                        )
-                                      ) {
-                                        target.src =
-                                          "/assets/fallback-logo.svg";
-                                      }
+                                <TableCell className="relative pl-3 font-medium sticky left-0 bg-white dark:bg-gray-800 z-10">
+                                  <span
+                                    className="absolute left-0 top-0 bottom-0 w-1.5"
+                                    style={{
+                                      backgroundColor:
+                                        standing.rank <= 3
+                                          ? "#4CAF50"
+                                          : standing.rank <= 7
+                                            ? "#9C27B0"
+                                            : "#9E9E9E",
                                     }}
                                   />
-                                )}
-                                <div className="flex flex-col">
-                                  <span className="font-medium text-sm">
-                                    {standing.team.name}
+                                  <span
+                                    style={{
+                                      color:
+                                        standing.rank <= 3
+                                          ? "#4CAF50"
+                                          : standing.rank <= 7
+                                            ? "#9C27B0"
+                                            : "#9E9E9E",
+                                    }}
+                                  >
+                                    {standing.rank}
                                   </span>
-                                  {standing.rank <= 7 &&
-                                    standing.description && (
-                                      <span
-                                        className="text-xs"
-                                        style={{
-                                          color:
-                                            standing.rank <= 3
-                                              ? "#4CAF50"
-                                              : "#9C27B0",
+                                </TableCell>
+                                <TableCell className="min-w-[180px] pl-2 sticky left-[60px] bg-white dark:bg-gray-800 z-10">
+                                  <div className="flex items-center gap-2">
+                                    {isNationalTeam(standing.team.name) ? (
+                                      <MyCircularFlag
+                                        teamName={standing.team.name}
+                                        fallbackUrl={standing.team.logo}
+                                        size="24px"
+                                        className="flex-shrink-0"
+                                      />
+                                    ) : (
+                                      <img
+                                        src={standing.team.logo}
+                                        alt={standing.team.name}
+                                        className="w-6 h-6 object-contain rounded flex-shrink-0"
+                                        onError={(e) => {
+                                          const target =
+                                            e.target as HTMLImageElement;
+                                          if (
+                                            !target.src.includes(
+                                              "/assets/fallback-logo.svg",
+                                            )
+                                          ) {
+                                            target.src =
+                                              "/assets/fallback-logo.svg";
+                                          }
                                         }}
-                                      >
-                                        {standing.description}
-                                      </span>
+                                      />
                                     )}
-                                </div>
-                              </div>
-                            </TableCell>
+                                    <div className="flex flex-col">
+                                      <span className="font-medium text-sm">
+                                        {standing.team.name}
+                                      </span>
+                                      {standing.rank <= 7 &&
+                                        standing.description && (
+                                          <span
+                                            className="text-xs"
+                                            style={{
+                                              color:
+                                                standing.rank <= 3
+                                                  ? "#4CAF50"
+                                                  : "#9C27B0",
+                                            }}
+                                          >
+                                            {standing.description}
+                                          </span>
+                                        )}
+                                    </div>
+                                  </div>
+                                </TableCell>
                             <TableCell className="text-center">
                               {stats.played}
                             </TableCell>
@@ -398,8 +400,10 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({
                           </TableRow>
                         );
                       })}
-                    </TableBody>
-                  </Table>
+                    </div>
+                      </TableBody>
+                    </Table>
+                  </div>
                 </div>
               );
             })}
