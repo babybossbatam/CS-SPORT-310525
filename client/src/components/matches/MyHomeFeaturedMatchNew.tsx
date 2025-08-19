@@ -2894,7 +2894,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                           64,
                                         )
                                       : currentMatch.teams.home.logo ||
-                                        "/assets/fallback-logo.svg"
+                                        "/assets/fallback.png"
                                   }
                                   alt={
                                     currentMatch.teams.home.name || "Home Team"
@@ -3093,7 +3093,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                       64,
                                     )
                                   : currentMatch?.teams?.away?.logo ||
-                                    `/assets/fallback-logo.svg`
+                                    "/assets/fallback.png"
                               }
                               alt={currentMatch?.teams?.away?.name || "Away Team"}
                               size="70px"

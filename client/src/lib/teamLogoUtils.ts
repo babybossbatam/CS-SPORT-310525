@@ -139,6 +139,26 @@ export function getBestTeamLogoUrl(teamId: number | string, teamName: string, si
     // Use direct API Sports URL for Al-Ittihad
     return `https://media.api-sports.io/football/teams/2940.png`;
   }
+
+  // Special handling for Real Madrid
+  if (teamNameLower.includes("real madrid") && (teamId === 541 || teamId === "541")) {
+    return `https://media.api-sports.io/football/teams/541.png`;
+  }
+
+  // Special handling for Osasuna
+  if (teamNameLower.includes("osasuna") && (teamId === 547 || teamId === "547")) {
+    return `https://media.api-sports.io/football/teams/547.png`;
+  }
+
+  // Special handling for Valencia
+  if (teamNameLower.includes("valencia") && (teamId === 532 || teamId === "532")) {
+    return `https://media.api-sports.io/football/teams/532.png`;
+  }
+
+  // Special handling for Barcelona
+  if (teamNameLower.includes("barcelona") && (teamId === 529 || teamId === "529")) {
+    return `https://media.api-sports.io/football/teams/529.png`;
+  }
   
   // Primary: Use our API endpoint for better reliability
   if (teamId && teamId !== 'fallback') {
