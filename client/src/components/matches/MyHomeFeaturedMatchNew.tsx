@@ -2886,31 +2886,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                     currentMatch.teams.home.name || "Home Team"
                                   }
                                   teamId={currentMatch.teams.home.id}
-                                  teamLogo={(() => {
-                                    const teamName = currentMatch.teams.home.name?.toLowerCase() || "";
-                                    const teamId = currentMatch.teams.home.id;
-                                    
-                                    // Special handling for Saudi Arabian teams
-                                    if (teamName.includes("al-qadisiyah") || teamName.includes("al qadisiyah")) {
-                                      return "https://media.api-sports.io/football/teams/2942.png";
-                                    }
-                                    if (teamName.includes("al-ahli") && teamName.includes("jeddah")) {
-                                      return "https://media.api-sports.io/football/teams/2941.png";
-                                    }
-                                    if (teamName.includes("al-nassr") || teamName.includes("al nassr")) {
-                                      return "https://media.api-sports.io/football/teams/2939.png";
-                                    }
-                                    if (teamName.includes("al-ittihad") || teamName.includes("al ittihad")) {
-                                      return "https://media.api-sports.io/football/teams/2940.png";
-                                    }
-                                    if (teamName.includes("al-hilal") || teamName.includes("al hilal")) {
-                                      return "https://media.api-sports.io/football/teams/2938.png";
-                                    }
-                                    
-                                    return teamId
-                                      ? getBestTeamLogoUrl(teamId, currentMatch.teams.home.name, 64)
-                                      : currentMatch.teams.home.logo || "/assets/fallback.png";
-                                  })()}
+                                  teamLogo={
+                                    currentMatch.teams.home.id
+                                      ? getBestTeamLogoUrl(
+                                          currentMatch.teams.home.id,
+                                          currentMatch.teams.home.name,
+                                          64,
+                                        )
+                                      : currentMatch.teams.home.logo ||
+                                        "/assets/fallback.png"
+                                  }
                                   alt={
                                     currentMatch.teams.home.name || "Home Team"
                                   }
@@ -3100,31 +3085,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                 currentMatch?.teams?.away?.name || "Away Team"
                               }
                               teamId={currentMatch.teams.away.id}
-                              teamLogo={(() => {
-                                const teamName = currentMatch.teams.away.name?.toLowerCase() || "";
-                                const teamId = currentMatch.teams.away.id;
-                                
-                                // Special handling for Saudi Arabian teams
-                                if (teamName.includes("al-qadisiyah") || teamName.includes("al qadisiyah")) {
-                                  return "https://media.api-sports.io/football/teams/2942.png";
-                                }
-                                if (teamName.includes("al-ahli") && teamName.includes("jeddah")) {
-                                  return "https://media.api-sports.io/football/teams/2941.png";
-                                }
-                                if (teamName.includes("al-nassr") || teamName.includes("al nassr")) {
-                                  return "https://media.api-sports.io/football/teams/2939.png";
-                                }
-                                if (teamName.includes("al-ittihad") || teamName.includes("al ittihad")) {
-                                  return "https://media.api-sports.io/football/teams/2940.png";
-                                }
-                                if (teamName.includes("al-hilal") || teamName.includes("al hilal")) {
-                                  return "https://media.api-sports.io/football/teams/2938.png";
-                                }
-                                
-                                return teamId
-                                  ? getBestTeamLogoUrl(teamId, currentMatch.teams.away.name, 64)
-                                  : currentMatch?.teams?.away?.logo || "/assets/fallback.png";
-                              })()}
+                              teamLogo={
+                                currentMatch.teams.away.id
+                                  ? getBestTeamLogoUrl(
+                                      currentMatch.teams.away.id,
+                                      currentMatch.teams.away.name,
+                                      64,
+                                    )
+                                  : currentMatch?.teams?.away?.logo ||
+                                    "/assets/fallback.png"
+                              }
                               alt={currentMatch?.teams?.away?.name || "Away Team"}
                               size="70px"
                               className="w-full h
