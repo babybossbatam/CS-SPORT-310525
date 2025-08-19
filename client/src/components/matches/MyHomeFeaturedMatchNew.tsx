@@ -729,7 +729,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       return false;
                     }
 
-                    // ENHANCED: Exclude matches with conflicting data (but preserve live matches)
+                    // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
                     const matchDate = new Date(fixture.fixture.date);
                     const minutesFromKickoff =
                       (now.getTime() - matchDate.getTime()) / (1000 * 60);
@@ -2890,35 +2890,26 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                   navigate(`/match/${currentMatch.fixture.id}`);
                                 }}
                               >
-                                {currentMatch.teams.home.id ? (
-                                  <MyWorldTeamLogo
-                                    teamName={
-                                      currentMatch.teams.home.name || "Home Team"
-                                    }
-                                    teamLogo={`/api/team-logo/square/${currentMatch.teams.home.id}?size=64`}
-                                    alt={
-                                      currentMatch.teams.home.name || "Home Team"
-                                    }
-                                    size="70px"
-                                    className="w-full h-full object-contain"
-                                    leagueContext={{
-                                      name: currentMatch.league.name,
-                                      country: currentMatch.league.country,
-                                    }}
-                                  />
-                                ) : (
-                                  <LazyImage
-                                    src={
-                                      currentMatch.teams.home.logo ||
-                                      "/assets/fallback-logo.svg"
-                                    }
-                                    alt={
-                                      currentMatch.teams.home.name || "Home Team"
-                                    }
-                                    className="w-full h-full object-contain"
-                                    fallbackSrc="/assets/fallback-logo.svg"
-                                  />
-                                )}
+                                <MyWorldTeamLogo
+                                  teamName={
+                                    currentMatch.teams.home.name || "Home Team"
+                                  }
+                                  teamLogo={
+                                    currentMatch.teams.home.id
+                                      ? `/api/team-logo/square/${currentMatch.teams.home.id}?size=64`
+                                      : currentMatch.teams.home.logo ||
+                                        "/assets/fallback-logo.svg"
+                                  }
+                                  alt={
+                                    currentMatch.teams.home.name || "Home Team"
+                                  }
+                                  size="70px"
+                                  className="w-full h-full object-contain"
+                                  leagueContext={{
+                                    name: currentMatch.league.name,
+                                    country: currentMatch.league.country,
+                                  }}
+                                />
                               </div>
                             )}
                           </div>
@@ -3092,35 +3083,26 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               navigate(`/match/${currentMatch.fixture.id}`);
                             }}
                           >
-                            {currentMatch.teams.away.id ? (
-                              <MyWorldTeamLogo
-                                teamName={
-                                  currentMatch.teams.away.name || "Away Team"
-                                }
-                                teamLogo={`/api/team-logo/square/${currentMatch.teams.away.id}?size=64`}
-                                alt={
-                                  currentMatch.teams.away.name || "Away Team"
-                                }
-                                size="70px"
-                                className="w-full h-full object-contain"
-                                leagueContext={{
-                                  name: currentMatch.league.name,
-                                  country: currentMatch.league.country,
-                                }}
-                              />
-                            ) : (
-                              <LazyImage
-                                src={
-                                  currentMatch.teams.away.logo ||
-                                  "/assets/fallback-logo.svg"
-                                }
-                                alt={
-                                  currentMatch.teams.away.name || "Away Team"
-                                }
-                                className="w-full h-full object-contain"
-                                fallbackSrc="/assets/fallback-logo.svg"
-                              />
-                            )}
+                            <MyWorldTeamLogo
+                              teamName={
+                                currentMatch.teams.away.name || "Away Team"
+                              }
+                              teamLogo={
+                                currentMatch.teams.away.id
+                                  ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=64`
+                                  : currentMatch.teams.away.logo ||
+                                    "/assets/fallback-logo.svg"
+                              }
+                              alt={
+                                currentMatch.teams.away.name || "Away Team"
+                              }
+                              size="70px"
+                              className="w-full h-full object-contain"
+                              leagueContext={{
+                                name: currentMatch.league.name,
+                                country: currentMatch.league.country,
+                              }}
+                            />
                           </div>
                         </div>
                       </div>
