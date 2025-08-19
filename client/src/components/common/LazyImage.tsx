@@ -148,16 +148,42 @@ const LazyImage: React.FC<LazyImageProps> = ({
             return true;
           }
 
-          // Al-Nassr team
+          // Al-Nassr team - try alternative logo sources
           if (altLower.includes("al-nassr") || altLower.includes("al nassr")) {
-            console.log(`⚽ [LazyImage] Using fallback for Al-Nassr team`);
-            return "/assets/matchdetaillogo/fallback.png";
+            if (retryCount === 0) {
+              const alNassrUrl = "https://media.api-sports.io/football/teams/2939.png";
+              console.log(`⚽ [LazyImage] Trying Al-Nassr logo: ${alNassrUrl}`);
+              setImageSrc(alNassrUrl);
+              setHasError(false);
+              setIsLoading(true);
+              setRetryCount(retryCount + 1);
+              return true;
+            } else {
+              console.log(`⚽ [LazyImage] Using fallback for Al-Nassr team after retry`);
+              setImageSrc("/assets/matchdetaillogo/fallback.png");
+              setHasError(false);
+              setIsLoading(true);
+              return true;
+            }
           }
 
-          // Al-Ittihad team
+          // Al-Ittihad team - try alternative logo sources
           if (altLower.includes("al-ittihad") || altLower.includes("al ittihad")) {
-            console.log(`⚽ [LazyImage] Using fallback for Al-Ittihad team`);
-            return "/assets/matchdetaillogo/fallback.png";
+            if (retryCount === 0) {
+              const alIttihadUrl = "https://media.api-sports.io/football/teams/2940.png";
+              console.log(`⚽ [LazyImage] Trying Al-Ittihad logo: ${alIttihadUrl}`);
+              setImageSrc(alIttihadUrl);
+              setHasError(false);
+              setIsLoading(true);
+              setRetryCount(retryCount + 1);
+              return true;
+            } else {
+              console.log(`⚽ [LazyImage] Using fallback for Al-Ittihad team after retry`);
+              setImageSrc("/assets/matchdetaillogo/fallback.png");
+              setHasError(false);
+              setIsLoading(true);
+              return true;
+            }
           }
         }
         return false;
