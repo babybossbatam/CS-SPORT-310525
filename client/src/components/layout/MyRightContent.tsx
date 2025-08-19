@@ -22,50 +22,30 @@ const MyRightContent: React.FC = () => {
   const { isMobile } = useDeviceInfo();
 
   return (
-    <div className={cn(
-      "h-full min-h-0 overflow-y-auto pb-4",
-      isMobile ? "space-y-2 px-2" : "space-y-4"
-    )}>
+    <div className="h-full min-h-0 overflow-y-auto space-y-4 pb-4">
       {/* Featured Match Section - Hidden on mobile */}
       {!isMobile && (
         <MyHomeFeaturedMatchNew selectedDate={selectedDate} maxMatches={8} />
       )}
 
-      {/* Mobile-optimized Featured Matches with reduced count */}
-      {isMobile && (
-        <div className="mb-3">
-          <MyHomeFeaturedMatchNew selectedDate={selectedDate} maxMatches={3} />
-        </div>
-      )}
+      <HomeTopScorersList />
 
-      {/* Top Scorers - Mobile optimized */}
-      <div className={cn(isMobile ? "mb-3" : "mb-4")}>
-        <HomeTopScorersList />
-      </div>
+      <LeagueStandingsFilter />
 
-      {/* League Standings - Mobile optimized */}
-      <div className={cn(isMobile ? "mb-3" : "mb-4")}>
-        <LeagueStandingsFilter />
-      </div>
+      {/* CS SPORT Information Card */}
+      <MyInfo />
 
-      {/* CS SPORT Information Card - Mobile optimized */}
-      <div className={cn(isMobile ? "mb-3" : "mb-4")}>
-        <MyInfo />
-      </div>
-
-      {/* Popular Leagues and Teams sections - Mobile optimized */}
+      {/* Popular Leagues and All League List sections - Mobile optimized */}
       <div className={cn(
-        isMobile ? "flex flex-col space-y-3" : "grid grid-cols-2 gap-4"
+        "gap-4",
+        isMobile ? "flex flex-col space-y-4" : "grid grid-cols-2"
       )}>
-        <div className={cn(isMobile ? "space-y-3" : "space-y-4")}>
+        <div className="space-y-4">
           <PopularLeaguesList />
           <PopularTeamsList />
         </div>
         <MyAllLeague />
       </div>
-
-      {/* Mobile bottom padding for safe scrolling */}
-      {isMobile && <div className="pb-safe-bottom h-4" />}
     </div>
   );
 };
