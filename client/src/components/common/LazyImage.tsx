@@ -150,18 +150,27 @@ const LazyImage: React.FC<LazyImageProps> = ({
             return true;
           }
 
-          // Al-Nassr team - try alternative logo sources
+          // Al-Nassr team - try multiple logo sources
           if (altLower.includes("al-nassr") || altLower.includes("al nassr")) {
             if (retryCount === 0) {
               const alNassrUrl = "https://media.api-sports.io/football/teams/2939.png";
-              console.log(`⚽ [LazyImage] Trying Al-Nassr logo: ${alNassrUrl}`);
+              console.log(`⚽ [LazyImage] Trying Al-Nassr logo (attempt 1): ${alNassrUrl}`);
               setImageSrc(alNassrUrl);
               setHasError(false);
               setIsLoading(true);
               setRetryCount(retryCount + 1);
               return true;
+            } else if (retryCount === 1) {
+              // Try 365scores as alternative
+              const alNassr365Url = "https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/2939";
+              console.log(`⚽ [LazyImage] Trying Al-Nassr logo (attempt 2): ${alNassr365Url}`);
+              setImageSrc(alNassr365Url);
+              setHasError(false);
+              setIsLoading(true);
+              setRetryCount(retryCount + 1);
+              return true;
             } else {
-              console.log(`⚽ [LazyImage] Using fallback for Al-Nassr team after retry`);
+              console.log(`⚽ [LazyImage] Using fallback for Al-Nassr team after all retries`);
               setImageSrc("/assets/fallback.png");
               setHasError(false);
               setIsLoading(true);
@@ -169,18 +178,27 @@ const LazyImage: React.FC<LazyImageProps> = ({
             }
           }
 
-          // Al-Ittihad team - try alternative logo sources
+          // Al-Ittihad team - try multiple logo sources
           if (altLower.includes("al-ittihad") || altLower.includes("al ittihad")) {
             if (retryCount === 0) {
               const alIttihadUrl = "https://media.api-sports.io/football/teams/2940.png";
-              console.log(`⚽ [LazyImage] Trying Al-Ittihad logo: ${alIttihadUrl}`);
+              console.log(`⚽ [LazyImage] Trying Al-Ittihad logo (attempt 1): ${alIttihadUrl}`);
               setImageSrc(alIttihadUrl);
               setHasError(false);
               setIsLoading(true);
               setRetryCount(retryCount + 1);
               return true;
+            } else if (retryCount === 1) {
+              // Try 365scores as alternative
+              const alIttihad365Url = "https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/2940";
+              console.log(`⚽ [LazyImage] Trying Al-Ittihad logo (attempt 2): ${alIttihad365Url}`);
+              setImageSrc(alIttihad365Url);
+              setHasError(false);
+              setIsLoading(true);
+              setRetryCount(retryCount + 1);
+              return true;
             } else {
-              console.log(`⚽ [LazyImage] Using fallback for Al-Ittihad team after retry`);
+              console.log(`⚽ [LazyImage] Using fallback for Al-Ittihad team after all retries`);
               setImageSrc("/assets/fallback.png");
               setHasError(false);
               setIsLoading(true);

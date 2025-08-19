@@ -127,6 +127,19 @@ export function clearMyWorldTeamLogoCache(): void {
  * Get the best team logo URL with proper fallbacks
  */
 export function getBestTeamLogoUrl(teamId: number | string, teamName: string, size: number = 32): string {
+  const teamNameLower = teamName.toLowerCase();
+  
+  // Special handling for problematic teams
+  if (teamNameLower.includes("al-nassr") || teamNameLower.includes("al nassr")) {
+    // Use direct API Sports URL for Al-Nassr
+    return `https://media.api-sports.io/football/teams/2939.png`;
+  }
+  
+  if (teamNameLower.includes("al-ittihad") || teamNameLower.includes("al ittihad")) {
+    // Use direct API Sports URL for Al-Ittihad
+    return `https://media.api-sports.io/football/teams/2940.png`;
+  }
+  
   // Primary: Use our API endpoint for better reliability
   if (teamId && teamId !== 'fallback') {
     return `/api/team-logo/square/${teamId}?size=${size}`;
