@@ -1086,7 +1086,7 @@ const LeagueStandingsFilter = () => {
                         <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[50px]">
                           +/-
                         </TableHead>
-                        <TableHead className="text-center text-xs font-regular text-gray-900 px-2 min-w-[50px]">
+                        <TableHead className="text-center text-xs font-semi-bold text-gray-900 px-2 min-w-[50px]">
                           PTS
                         </TableHead>
                         <TableHead className="text-center text-xs font-semi-bold text-gray-400 py-3 px-2 min-w-[40px]">
@@ -1198,7 +1198,7 @@ const LeagueStandingsFilter = () => {
                                   />
                                 </div>
                                 <div className="flex flex-col min-w-0 flex-1">
-                                  <span className="text-xs font-medium text-gray-900 truncate hover:underline cursor-pointer max-w-[100px]">
+                                  <span className="text-xs font-medium text-gray-900 truncate hover:underline cursor-pointer max-w-[100px] mx-4">
                                     {getTranslatedTeamName(standing.team.name)}
                                   </span>
                                   {standing.rank <= 3 && (
