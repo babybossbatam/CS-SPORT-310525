@@ -23,7 +23,7 @@ export interface LogoResponse {
 
 class EnhancedLogoManager {
   private logoCache: Map<string, { url: string; timestamp: number; fallbackUsed: boolean }> = new Map();
-  private readonly cacheDuration = 5 * 60 * 1000; // 5 minutes cache
+  private readonly cacheDuration = 0; // Force immediate expiry to refetch data
 
   async getTeamLogo(
     componentName: string,
@@ -62,31 +62,14 @@ class EnhancedLogoManager {
       let logoUrl: string;
       let fallbackUsed = false;
 
-      // Priority 1: Check if we have a cached logo
-      const cachedLogo = getCachedTeamLogo(request.teamId, sport);
-      if (cachedLogo && !cachedLogo.includes('fallback') && !cachedLogo.includes('placeholder')) {
-        logoUrl = cachedLogo;
-        console.log(`📦 [EnhancedLogoManager] Using cached logo for team ${request.teamId}: ${logoUrl}`);
-      } else {
-        // Priority 2: Use server proxy endpoint
-        logoUrl = `/api/team-logo/${request.teamId}`;
-        console.log(`🏟️ [EnhancedLogoManager] Using server proxy for team ${request.teamId} (${request.teamName || 'Unknown'}): ${logoUrl}`);
-        
-        // Test server endpoint availability
-        try {
-          const testResponse = await fetch(logoUrl, { 
-            method: 'HEAD',
-            timeout: 3000 // 3 second timeout
-          });
-          
-          if (!testResponse.ok) {
-            console.warn(`⚠️ [EnhancedLogoManager] Server proxy returned ${testResponse.status} for team ${request.teamId}`);
-            // Don't mark as fallback yet, let the image component handle the error
-          }
-        } catch (error) {
-          console.warn(`⚠️ [EnhancedLogoManager] Server proxy test failed for team ${request.teamId}:`, error.message);
-          // Still use the URL, let the image component handle the failure
-        }
+      // Use the correct server endpoint that actually exists
+      logoUrl = getCachedTeamLogo(request.teamId, sport) || `/api/team-logo/${request.teamId}`;
+      
+      console.log(`🏟️ [EnhancedLogoManager] Getting ${request.shape} logo for team ${request.teamId} (${request.teamName || 'Unknown'}): ${logoUrl}`);
+
+      if (!logoUrl || logoUrl.includes('fallback') || logoUrl.includes('placeholder.com')) {
+        logoUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
+        fallbackUsed = true;
       }
 
       // Cache the result
