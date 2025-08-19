@@ -40,7 +40,7 @@ export async function apiRequest(
   const controller = new AbortController();
   // Increase timeout for fixture requests with all=true parameter
   const isLargeFixtureRequest = url.includes('/fixtures/date/') && url.includes('all=true');
-  const timeoutDuration = isLargeFixtureRequest ? 30000 : 15000; // 30s for large requests, 15s for others
+  const timeoutDuration = isLargeFixtureRequest ? 60000 : 15000; // 60s for large requests, 15s for others
   const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
 
   try {
@@ -157,7 +157,7 @@ export const getQueryFn: <T>(options: {
         // Increase timeout for large fixture requests
         const isLargeFixtureRequest = url.includes('/fixtures/date/') && url.includes('all=true');
         const controller = new AbortController();
-        const timeoutDuration = isLargeFixtureRequest ? 30000 : 15000;
+        const timeoutDuration = isLargeFixtureRequest ? 60000 : 15000;
         
         // Don't set timeout if query is already being cancelled
         let timeoutId: NodeJS.Timeout | null = null;
@@ -200,29 +200,28 @@ export const getQueryFn: <T>(options: {
 
     // Handle the final error
     const error = lastError;
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
 
-      // Handle AbortError specifically
-      if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes('signal is aborted'))) {
-        console.log(`🛑 Query aborted for ${queryKey[0]}: ${errorMessage}`);
-        return null as any; // Return null for aborted queries
-      }
-
-      if (
-        errorMessage.includes("Failed to fetch") ||
-        errorMessage.includes("NetworkError") ||
-        errorMessage.includes("fetch")
-      ) {
-        console.warn(
-          `🌐 Network issue for query ${queryKey[0]}: ${errorMessage}`,
-        );
-        return null as any; // Return null for network issues in queries
-      }
-
-      console.error(`Query error for ${queryKey[0]}:`, error);
-      throw error;
+    // Handle AbortError specifically
+    if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes('signal is aborted'))) {
+      console.log(`🛑 Query aborted for ${queryKey[0]}: ${errorMessage}`);
+      return null as any; // Return null for aborted queries
     }
+
+    if (
+      errorMessage.includes("Failed to fetch") ||
+      errorMessage.includes("NetworkError") ||
+      errorMessage.includes("fetch")
+    ) {
+      console.warn(
+        `🌐 Network issue for query ${queryKey[0]}: ${errorMessage}`,
+      );
+      return null as any; // Return null for network issues in queries
+    }
+
+    console.error(`Query error for ${queryKey[0]}:`, error);
+    throw error;
   };
 
 // Query client with configurations
