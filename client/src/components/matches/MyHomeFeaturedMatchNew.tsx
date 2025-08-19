@@ -1494,7 +1494,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         return false;
                       }
 
-                      // Check explicit exclusion first
+                      // Check Check explicit exclusion first
                       const isExplicitlyExcluded =
                         EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(
                           fixture.league?.id,
@@ -3073,20 +3073,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             }}
                           >
                             <MyWorldTeamLogo
+                              teamId={currentMatch.teams.away.id || ""}
                               teamName={
-                                currentMatch?.teams?.away?.name || "Away Team"
+                                currentMatch.teams.away.name || "Away Team"
                               }
-                              teamLogo={
-                                currentMatch.teams.away.id
-                                  ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=70`
-                                  : currentMatch?.teams?.away?.logo ||
-                                    `/assets/fallback-logo.svg`
-                              }
-                              alt={
-                                currentMatch?.teams?.away?.name || "Away Team"
-                              }
-                              size="75px"
-                              className="w-full hull object-contain"
+                              size={70}
+                              className="w-full h-full object-contain"
                               leagueContext={{
                                 name: currentMatch.league.name,
                                 country: currentMatch.league.country,
