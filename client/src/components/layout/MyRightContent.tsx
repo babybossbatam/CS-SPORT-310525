@@ -25,7 +25,7 @@ const MyRightContent: React.FC = () => {
     <div className={cn(
       "h-full min-h-0 overflow-y-auto",
       isMobile
-        ? "space-y-3 px-3 py-2"
+        ? "space-y-3 py-2"
         : "space-y-4 pb-4"
     )}>
       {/* Featured Match Section - Hidden on mobile */}
