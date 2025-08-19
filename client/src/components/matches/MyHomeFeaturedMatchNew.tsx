@@ -2887,14 +2887,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                   }
                                   teamId={currentMatch.teams.home.id}
                                   teamLogo={
-                                    currentMatch.teams.home.id
-                                      ? getBestTeamLogoUrl(
-                                          currentMatch.teams.home.id,
-                                          currentMatch.teams.home.name,
-                                          64,
-                                        )
-                                      : currentMatch.teams.home.logo ||
-                                        "/assets/fallback.png"
+                                    currentMatch.teams.home.logo ||
+                                    "/assets/fallback.png"
                                   }
                                   alt={
                                     currentMatch.teams.home.name || "Home Team"
@@ -3086,19 +3080,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               }
                               teamId={currentMatch.teams.away.id}
                               teamLogo={
-                                currentMatch.teams.away.id
-                                  ? getBestTeamLogoUrl(
-                                      currentMatch.teams.away.id,
-                                      currentMatch.teams.away.name,
-                                      64,
-                                    )
-                                  : currentMatch?.teams?.away?.logo ||
-                                    "/assets/fallback.png"
+                                currentMatch?.teams?.away?.logo ||
+                                "/assets/fallback.png"
                               }
                               alt={currentMatch?.teams?.away?.name || "Away Team"}
                               size="70px"
-                              className="w-full h
-                              full object-contain"
+                              className="w-full h-full object-contain"
                               leagueContext={{
                                 name: currentMatch.league.name,
                                 country: currentMatch.league.country,
