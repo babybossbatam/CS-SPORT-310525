@@ -124,6 +124,31 @@ export function clearMyWorldTeamLogoCache(): void {
 }
 
 /**
+ * Debug team logo loading issues
+ */
+export function debugTeamLogoIssues(teamId: number | string, teamName: string): void {
+  console.log(`🔍 [TeamLogo Debug] Analyzing logo issues for ${teamName} (ID: ${teamId})`);
+  
+  const possibleUrls = [
+    `https://media.api-sports.io/football/teams/${teamId}.png`,
+    `/api/team-logo/square/${teamId}?size=32`,
+    `/api/team-logo/circular/${teamId}?size=32`,
+    `/assets/fallback-logo.svg`
+  ];
+  
+  possibleUrls.forEach((url, index) => {
+    const img = new Image();
+    img.onload = () => {
+      console.log(`✅ [TeamLogo Debug] URL ${index + 1} works: ${url}`);
+    };
+    img.onerror = () => {
+      console.log(`❌ [TeamLogo Debug] URL ${index + 1} failed: ${url}`);
+    };
+    img.src = url;
+  });
+}
+
+/**
  * Debug MyWorldTeamLogo cache status
  */
 export function debugMyWorldTeamLogoCache(teamName: string, leagueContext?: any): void {

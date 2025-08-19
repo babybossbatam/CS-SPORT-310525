@@ -1341,6 +1341,25 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             console.log("🗑️ [SmartTranslation] Cleared all learned mappings");
           };
 
+          // Add team logo debugging tools
+          (window as any).debugTeamLogo = (teamId: number, teamName: string) => {
+            debugTeamLogoIssues(teamId, teamName);
+          };
+
+          (window as any).testTeamLogos = () => {
+            const leagueFixtures = Object.values(fixturesByLeague).flatMap(
+              (group) => group.fixtures,
+            );
+            
+            console.log(`🧪 [Logo Test] Testing logos for ${leagueFixtures.length} fixtures`);
+            
+            leagueFixtures.slice(0, 10).forEach((fixture) => {
+              console.log(`🔍 Testing: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+              debugTeamLogoIssues(fixture.teams.home.id, fixture.teams.home.name);
+              debugTeamLogoIssues(fixture.teams.away.id, fixture.teams.away.name);
+            });
+          };
+
           console.log(`🛠️ [Developer Tools Available]:`);
           console.log(
             `   • generateCompleteTeamMappingForMyNewLeague2() - Current date mapping`,
@@ -1357,6 +1376,12 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           );
           console.log(
             `   • clearLearnedMappings() - Clear all learned mappings`,
+          );
+          console.log(
+            `   • debugTeamLogo(teamId, teamName) - Debug specific team logo issues`,
+          );
+          console.log(
+            `   • testTeamLogos() - Test logos for current fixtures`,
           );
         }
       } catch (error) {
@@ -2739,9 +2764,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   teamName={fixture.teams.home.name || ""}
                                   teamId={fixture.teams.home.id}
                                   teamLogo={
-                                    fixture.teams.home.id
+                                    fixture.teams.home.logo || 
+                                    (fixture.teams.home.id
                                       ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
-                                      : "/assets/fallback-logo.svg"
+                                      : "/assets/fallback-logo.svg")
                                   }
                                   alt={fixture.teams.home.name}
                                   size="34px"
@@ -2945,9 +2971,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   teamName={fixture.teams.away.name || ""}
                                   teamId={fixture.teams.away.id}
                                   teamLogo={
-                                    fixture.teams.away.id
+                                    fixture.teams.away.logo || 
+                                    (fixture.teams.away.id
                                       ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
-                                      : "/assets/fallback-logo.svg"
+                                      : "/assets/fallback-logo.svg")
                                   }
                                   alt={fixture.teams.away.name}
                                   size="34px"
