@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
-import { smartCountryTranslation } from "@/lib/countryNameMapping";
+import { getCountryTranslation, learnCountriesFromFixtures } from "@/lib/countryNameMapping";
 import { useTranslation } from "@/contexts/LanguageContext";
 
 // Popular teams with their data - fallback data
@@ -138,7 +138,7 @@ const PopularTeamsList = () => {
   };
 
   const translateCountryName = (countryName: string): string => {
-    return smartCountryTranslation.translateCountry(countryName, currentLanguage);
+    return getCountryTranslation(countryName, currentLanguage);
   };
 
   useEffect(() => {
@@ -211,7 +211,7 @@ const PopularTeamsList = () => {
             );
 
             // Learn country names
-            smartCountryTranslation.learnCountriesFromFixtures(
+            learnCountriesFromFixtures(
               transformedTeams.map((team) => ({
                 league: { country: team.country },
               })),
