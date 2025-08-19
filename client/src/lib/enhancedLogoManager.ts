@@ -62,14 +62,27 @@ class EnhancedLogoManager {
       let logoUrl: string;
       let fallbackUsed = false;
 
-      // Use the correct server endpoint that actually exists
-      logoUrl = getCachedTeamLogo(request.teamId, sport) || `/api/team-logo/${request.teamId}`;
-      
-      console.log(`🏟️ [EnhancedLogoManager] Getting ${request.shape} logo for team ${request.teamId} (${request.teamName || 'Unknown'}): ${logoUrl}`);
-
-      if (!logoUrl || logoUrl.includes('fallback') || logoUrl.includes('placeholder.com')) {
-        logoUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
-        fallbackUsed = true;
+      // Priority 1: Check if we have a cached logo
+      const cachedLogo = getCachedTeamLogo(request.teamId, sport);
+      if (cachedLogo && !cachedLogo.includes('fallback') && !cachedLogo.includes('placeholder')) {
+        logoUrl = cachedLogo;
+        console.log(`📦 [EnhancedLogoManager] Using cached logo for team ${request.teamId}: ${logoUrl}`);
+      } else {
+        // Priority 2: Use server proxy endpoint
+        logoUrl = `/api/team-logo/${request.teamId}`;
+        console.log(`🏟️ [EnhancedLogoManager] Using server proxy for team ${request.teamId} (${request.teamName || 'Unknown'}): ${logoUrl}`);
+        
+        // Validate the endpoint works by checking if it returns a valid image
+        try {
+          const response = await fetch(logoUrl, { method: 'HEAD' });
+          if (!response.ok) {
+            throw new Error(`Server returned ${response.status}`);
+          }
+        } catch (error) {
+          console.warn(`⚠️ [EnhancedLogoManager] Server proxy failed for team ${request.teamId}, using fallback`);
+          logoUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
+          fallbackUsed = true;
+        }
       }
 
       // Cache the result

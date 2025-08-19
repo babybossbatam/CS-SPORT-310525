@@ -29,7 +29,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   onError,
   priority = false,
 }) => {
-  // Always call hooks in the same order
   const [logoUrl, setLogoUrl] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -37,7 +36,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
   // Memoize team info to prevent unnecessary re-renders
   const teamInfo = useMemo(() => ({
-    id: teamId ? String(teamId) : "",
+    id: teamId ? Number(teamId) : 0,
     name: teamName || "",
     logo: providedLogo || "",
     leagueContext: leagueContext || null,
@@ -45,7 +44,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
   // Memoize the logo resolution logic
   const resolveLogo = useCallback(async () => {
-    if (!teamInfo.name) {
+    if (!teamInfo.name || !teamInfo.id) {
       setIsLoading(false);
       setHasError(true);
       return;
@@ -55,23 +54,54 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       setIsLoading(true);
       setHasError(false);
 
-      // Use enhanced logo manager to get the best logo
-      const result = await enhancedLogoManager.getTeamLogo({
-        teamId: teamInfo.id,
-        teamName: teamInfo.name,
-        providedLogo: teamInfo.logo,
-        leagueContext: teamInfo.leagueContext,
-      });
+      console.log(`🏟️ [MyWorldTeamLogo] Resolving logo for team ${teamInfo.id} (${teamInfo.name})`);
 
-      if (result.logoUrl) {
-        setLogoUrl(result.logoUrl);
-        setUseCircularFlag(result.shouldUseCircularFlag || false);
+      // Use enhanced logo manager with correct parameters
+      const result = await enhancedLogoManager.getTeamLogo(
+        'MyWorldTeamLogo',
+        {
+          type: 'team',
+          shape: 'normal',
+          teamId: teamInfo.id,
+          teamName: teamInfo.name,
+          fallbackUrl: '/assets/fallback-logo.svg'
+        }
+      );
+
+      if (result.url && !result.fallbackUsed) {
+        setLogoUrl(result.url);
+        setUseCircularFlag(false);
+        console.log(`✅ [MyWorldTeamLogo] Successfully resolved logo for ${teamInfo.name}: ${result.url}`);
       } else {
-        throw new Error("No logo URL found");
+        // Check if it's a national team that should use circular flag
+        const isNational = teamInfo.name.toLowerCase().includes('national') || 
+                          teamInfo.name.includes('U21') || 
+                          teamInfo.name.includes('U20') ||
+                          teamInfo.leagueContext?.name?.toLowerCase().includes('international');
+        
+        if (isNational && teamInfo.leagueContext?.country) {
+          // Try to get country flag
+          const flagResult = await enhancedLogoManager.getCountryFlag(
+            'MyWorldTeamLogo',
+            {
+              type: 'flag',
+              shape: 'circular',
+              country: teamInfo.leagueContext.country,
+              fallbackUrl: '/assets/world flag_new.png'
+            }
+          );
+          
+          setLogoUrl(flagResult.url);
+          setUseCircularFlag(true);
+          console.log(`🏳️ [MyWorldTeamLogo] Using country flag for ${teamInfo.name}: ${flagResult.url}`);
+        } else {
+          throw new Error("No suitable logo found");
+        }
       }
     } catch (error) {
-      console.warn(`Logo resolution failed for ${teamInfo.name}:`, error);
+      console.warn(`❌ [MyWorldTeamLogo] Logo resolution failed for ${teamInfo.name}:`, error);
       setHasError(true);
+      setLogoUrl('/assets/fallback-logo.svg');
       if (onError) {
         onError();
       }
@@ -117,33 +147,22 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     );
   }
 
-  // Show error state
-  if (hasError || !logoUrl) {
-    return (
-      <LazyImage
-        src={fallbackUrl}
-        alt={alt || `${teamInfo.name} logo (fallback)`}
-        className={`object-contain ${className}`}
-        style={sizeStyle}
-        fallbackSrc="/assets/fallback-logo.svg"
-        priority={priority}
-      />
-    );
-  }
-
-  // Show resolved logo
+  // Show error state or resolved logo
   return (
     <LazyImage
-      src={logoUrl}
-      alt={alt || `${teamInfo.name} logo`}
+      src={hasError ? fallbackUrl : logoUrl}
+      alt={alt || `${teamInfo.name} logo${hasError ? ' (fallback)' : ''}`}
       className={`object-contain ${className}`}
       style={sizeStyle}
       fallbackSrc={fallbackUrl}
       priority={priority}
       onError={() => {
-        setHasError(true);
-        if (onError) {
-          onError();
+        if (!hasError) {
+          console.warn(`🚫 [MyWorldTeamLogo] Image load error for ${teamInfo.name}, switching to fallback`);
+          setHasError(true);
+          if (onError) {
+            onError();
+          }
         }
       }}
     />
