@@ -199,6 +199,8 @@ const categorizeError = (error: any): ErrorCategory => {
       errorStr.includes('CSP') ||
       errorStr.includes('unsafe-dynamic') ||
       errorStr.includes('report-uri') ||
+      errorStr.includes('Invalid or unexpected token') ||
+      errorStr.includes('SyntaxError') && errorStr.includes('background.js') ||
       errorStr.includes('allowfullscreen') ||
       errorStr.includes('allowpaymentrequest') ||
       errorStr.includes('ambient-light-sensor') ||
