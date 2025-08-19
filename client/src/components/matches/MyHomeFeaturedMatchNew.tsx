@@ -17,7 +17,6 @@ import { apiRequest } from "@/lib/queryClient";
 import { fixtureCache } from "@/lib/fixtureCache";
 import TeamLogo from "./TeamLogo";
 import LazyImage from "../common/LazyImage";
-import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import {
   getTeamColor,
   getEnhancedHomeTeamGradient,
@@ -2881,12 +2880,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                   navigate(`/match/${currentMatch.fixture.id}`);
                                 }}
                               >
-                                <MyWorldTeamLogo
-                                  teamName={
-                                    currentMatch.teams.home.name || "Home Team"
-                                  }
-                                  teamId={currentMatch.teams.home.id}
-                                  teamLogo={
+                                <LazyImage
+                                  src={
                                     currentMatch.teams.home.id
                                       ? getBestTeamLogoUrl(
                                           currentMatch.teams.home.id,
@@ -2899,7 +2894,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                   alt={
                                     currentMatch.teams.home.name || "Home Team"
                                   }
-                                  size="70px"
                                   className="w-full h-full object-contain"
                                   leagueContext={{
                                     name: currentMatch.league.name,
@@ -3080,12 +3074,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               navigate(`/match/${currentMatch.fixture.id}`);
                             }}
                           >
-                            <MyWorldTeamLogo
-                              teamName={
-                                currentMatch?.teams?.away?.name || "Away Team"
-                              }
-                              teamId={currentMatch.teams.away.id}
-                              teamLogo={
+                            <LazyImage
+                              src={
                                 currentMatch.teams.away.id
                                   ? getBestTeamLogoUrl(
                                       currentMatch.teams.away.id,
@@ -3096,7 +3086,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                     "/assets/fallback.png"
                               }
                               alt={currentMatch?.teams?.away?.name || "Away Team"}
-                              size="70px"
                               className="w-full h
                               full object-contain"
                               leagueContext={{
