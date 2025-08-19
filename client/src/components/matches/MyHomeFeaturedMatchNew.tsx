@@ -3073,11 +3073,19 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             }}
                           >
                             <MyWorldTeamLogo
-                              teamId={currentMatch.teams.away.id || ""}
                               teamName={
                                 currentMatch.teams.away.name || "Away Team"
                               }
-                              size={70}
+                              teamLogo={
+                                currentMatch.teams.away.id
+                                  ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=64`
+                                  : currentMatch.teams.away.logo ||
+                                    "/assets/fallback-logo.svg"
+                              }
+                              alt={
+                                currentMatch.teams.away.name || "Away Team"
+                              }
+                              size="70px"
                               className="w-full h-full object-contain"
                               leagueContext={{
                                 name: currentMatch.league.name,
