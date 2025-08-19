@@ -33,8 +33,7 @@ class LogoCache {
   constructor(config: Partial<LogoCacheConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.startCleanupTimer();
-    // Clear all cached data on initialization to force refetch
-    this.cache.clear();
+    console.log(`💾 [logoCache] Initialized with config:`, this.config);
   }
 
   private startCleanupTimer() {

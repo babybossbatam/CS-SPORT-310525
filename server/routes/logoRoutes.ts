@@ -120,6 +120,27 @@ router.get('/league-logo/square/:leagueId', async (req, res) => {
   }
 });
 
+// Team logo proxy endpoint with shape support
+router.get('/team-logo/square/:teamId', async (req, res) => {
+  const { teamId } = req.params;
+  const { size = '64', sport = 'football' } = req.query;
+
+  console.log(`🔲 [Logo Proxy] Square team logo requested for ID: ${teamId}, sport: ${sport}, size: ${size}`);
+  
+  // Redirect to main team logo endpoint for now
+  res.redirect(`/api/team-logo/${teamId}`);
+});
+
+router.get('/team-logo/circular/:teamId', async (req, res) => {
+  const { teamId } = req.params;
+  const { size = '32', sport = 'football' } = req.query;
+
+  console.log(`🔵 [Logo Proxy] Circular team logo requested for ID: ${teamId}, sport: ${sport}, size: ${size}`);
+  
+  // Redirect to main team logo endpoint for now
+  res.redirect(`/api/team-logo/${teamId}`);
+});
+
 // Team logo proxy endpoint
 router.get('/team-logo/:teamId', async (req, res) => {
   const { teamId } = req.params;
@@ -176,6 +197,58 @@ router.get('/team-logo/:teamId', async (req, res) => {
 router.get('/debug/league-logo/:leagueId', async (req, res) => {
   const { leagueId } = req.params;
   
+
+
+// Debug endpoint to test team logo sources
+router.get('/debug/team-logo/:teamId', async (req, res) => {
+  const { teamId } = req.params;
+  
+  const sources = [
+    `https://media.api-sports.io/football/teams/${teamId}.png`,
+    `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${teamId}`,
+    `/assets/fallback-logo.svg`
+  ];
+
+  const results = [];
+
+  for (const source of sources) {
+    try {
+      if (source.startsWith('/assets/')) {
+        results.push({
+          source,
+          status: 'local-asset',
+          available: true
+        });
+        continue;
+      }
+
+      const testResponse = await fetch(source, { method: 'HEAD', timeout: 5000 });
+      results.push({
+        source,
+        status: testResponse.status,
+        available: testResponse.ok,
+        headers: {
+          'content-type': testResponse.headers.get('content-type'),
+          'content-length': testResponse.headers.get('content-length')
+        }
+      });
+    } catch (error) {
+      results.push({
+        source,
+        status: 'error',
+        available: false,
+        error: error.message
+      });
+    }
+  }
+
+  res.json({
+    teamId,
+    sources: results,
+    recommendation: results.find(r => r.available)?.source || 'Use fallback'
+  });
+});
+
   const sources = [
     `https://media.api-sports.io/football/leagues/${leagueId}.png`,
     `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`,
