@@ -235,6 +235,12 @@ router.get('/team-logo/square/:teamId', async (req, res) => {
 
     console.log(`🔲 [logoRoutes] Square team logo requested for ID: ${teamId}, sport: ${sport}`);
 
+    // Validate teamId
+    if (!teamId || !/^\d+$/.test(teamId)) {
+      console.error(`❌ [logoRoutes] Invalid teamId for square logo: ${teamId}`);
+      return res.redirect('/assets/fallback-logo.svg');
+    }
+
     // Set proper headers for image response
     res.set({
       'Content-Type': 'image/png',
@@ -280,6 +286,12 @@ router.get('/team-logo/circular/:teamId', async (req, res) => {
     const { sport = 'football', size = '32' } = req.query;
 
     console.log(`⭕ [logoRoutes] Circular team logo requested for ID: ${teamId}, sport: ${sport}`);
+
+    // Validate teamId
+    if (!teamId || !/^\d+$/.test(teamId)) {
+      console.error(`❌ [logoRoutes] Invalid teamId for circular logo: ${teamId}`);
+      return res.redirect('/assets/fallback-logo.svg');
+    }
 
     // For circular logos, we use the same source but could apply transformations
     res.redirect(`/api/team-logo/square/${teamId}?sport=${sport}&size=${size}`);

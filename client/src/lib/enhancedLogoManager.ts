@@ -69,9 +69,9 @@ class EnhancedLogoManager {
 
       // Always use the API endpoint for team logos to ensure proper proxy handling
       if (request.shape === 'circular') {
-        logoUrl = `/api/team-logo/${request.teamId}?size=32&sport=${sport}&shape=circular`;
+        logoUrl = `/api/team-logo/circular/${request.teamId}?size=32&sport=${sport}`;
       } else {
-        logoUrl = `/api/team-logo/${request.teamId}?size=64&sport=${sport}`;
+        logoUrl = `/api/team-logo/square/${request.teamId}?size=64&sport=${sport}`;
       }
 
       console.log(`🎯 [EnhancedLogoManager] Generated team logo URL for ${request.teamId}: ${logoUrl}`);
