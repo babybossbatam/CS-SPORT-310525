@@ -35,8 +35,11 @@ const MyRightContent: React.FC = () => {
       {/* CS SPORT Information Card */}
       <MyInfo />
 
-      {/* Popular Leagues and All League List sections */}
-      <div className="grid grid-cols-2 gap-4 ">
+      {/* Popular Leagues and All League List sections - Mobile optimized */}
+      <div className={cn(
+        "gap-4",
+        isMobile ? "flex flex-col space-y-4" : "grid grid-cols-2"
+      )}>
         <div className="space-y-4">
           <PopularLeaguesList />
           <PopularTeamsList />
