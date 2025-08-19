@@ -1180,7 +1180,7 @@ const LeagueStandingsFilter = () => {
                               </div>
                             </TableCell>
                             <TableCell className="py-0 px-2 sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
-                              <div className="flex items-center min-w-[140px]">
+                              <div className="flex items-center min-w-[150px]">
                                 <div className="mr-2 flex-shrink-0">
                                   <MyWorldTeamLogo
                                     teamName={standing.team.name}
