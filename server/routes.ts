@@ -56,6 +56,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const apiRouter = express.Router();
   app.use("/api", apiRouter);
 
+  // Health check endpoint
+  apiRouter.get("/health", async (_req: Request, res: Response) => {
+    try {
+      // Test database connection
+      await storage.getCachedFixturesByDate(
+        new Date().toISOString().split("T")[0],
+      );
+      res.json({
+        status: "healthy",
+        database: "connected",
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("Health check failed:", error);
+      res.status(500).json({
+        status: "unhealthy",
+        database: "disconnected",
+        error: error instanceof Error ? error.message : "Unknown error",
+        timestamp: new Date().toISOString(),
+      });
+    }
+  });
+
+  // Health check endpoint
+  server.get('/api/health', (req, res) => {
+    res.status(200).json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
+    });
+  });
+
+  // Apply the health check with memory monitoring
+  server.use((req, res, next) => {
+    const memoryUsage = process.memoryUsage();
+    const heapUsedMB = memoryUsage.heapUsed / 1024 / 1024;
+  });
+
   // Featured match routes for MyHomeFeaturedMatch component
   apiRouter.use("/api/featured-match", featuredMatchRoutes);
   app.use("/api/featured-match", featuredMatchRoutes);
@@ -1111,7 +1149,7 @@ name: "Bundesliga",
       res.status(200).json(popularTeams);
     } catch (error) {
       console.error('Error fetching popular teams:', error);
-      res.status(500).json({ 
+      res.status(500).json({
         error: 'Failed to fetch popular teams',
         message: error instanceof Error ? error.message : 'Unknown error'
       });
@@ -3341,7 +3379,7 @@ error) {
   app.get('/api/players/:playerId/heatmap', async (req, res) => {
     try {
       const { playerId } = req.params;
-      const { eventId, playerName, teamName, homeTeam, awayTeam, matchDate } = req.query;
+      const { eventId, playerName, teamName, matchDate } = req.query;
 
       let sofaScorePlayerId = parseInt(playerId);
       let sofaScoreEventId = eventId ? parseInt(eventId as string) : null;

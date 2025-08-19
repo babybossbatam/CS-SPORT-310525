@@ -57,7 +57,11 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           }
         }, 10000);
 
-        const response = await fetch(`/api/fixtures/date/${validDate}?all=true`, {
+        // Build the URL with proper host detection
+        const baseUrl = window.location.origin || 'http://localhost:5000';
+        const apiUrl = `${baseUrl}/api/fixtures/date/${validDate}?all=true`;
+        
+        const response = await fetch(apiUrl, {
           signal: controller.signal,
           headers: {
             'Accept': 'application/json',
@@ -228,7 +232,11 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           }
         }, 10000);
 
-        const response = await fetch('/api/fixtures/live', {
+        // Build the URL with proper host detection  
+        const baseUrl = window.location.origin || 'http://localhost:5000';
+        const apiUrl = `${baseUrl}/api/fixtures/live`;
+        
+        const response = await fetch(apiUrl, {
           signal: controller.signal,
           headers: {
             'Accept': 'application/json',

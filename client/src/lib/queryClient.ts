@@ -41,10 +41,14 @@ export async function apiRequest(
   const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
   try {
-    // Ensure URL is properly formatted
-    const apiUrl = url.startsWith("/")
-      ? `${window.location.origin}${url}`
-      : url;
+    // Ensure URL is properly formatted with fallback
+    let apiUrl: string;
+    if (url.startsWith("/")) {
+      const origin = window.location.origin || 'http://localhost:5000';
+      apiUrl = `${origin}${url}`;
+    } else {
+      apiUrl = url;
+    }
 
     console.log(`📡 [apiRequest] Making ${method} request to: ${apiUrl}`);
 
