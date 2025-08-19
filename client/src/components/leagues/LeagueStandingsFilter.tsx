@@ -81,8 +81,8 @@ const isNationalTeamCompetition = (leagueName: string): boolean => {
 const LeagueStandingsFilter = () => {
   const { currentLanguage } = useLanguage(); // Initialize custom language hook
   const [popularLeagues, setPopularLeagues] = useState<LeagueData[]>([]);
-  const [selectedLeague, setSelectedLeague] = useState("");
-  const [selectedLeagueName, setSelectedLeagueName] = useState("");
+  const [selectedLeague, setSelectedLeague] = useState<string>("39"); // Default to Premier League
+  const [selectedLeagueName, setSelectedLeagueName] = useState<string>("Premier League");
   const [leaguesLoading, setLeaguesLoading] = useState(true);
 
   // Function to get translated team name using smart translation system
