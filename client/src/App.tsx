@@ -8,7 +8,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import BrandedLoading from "@/components/common/BrandedLoading";
 
-import React from "react";
+import React, { useState } from 'react';
 import { Provider } from "react-redux";
 import { store } from "@/lib/store";
 import { setupGlobalErrorHandlers } from "./lib/errorHandler";
@@ -138,6 +138,8 @@ const preloadData = () => {
 
 
 function App() {
+  const [isHydrated, setIsHydrated] = useState(false);
+
   useEffect(() => {
     // Force mobile-first layout immediately
     const isMobileCheck = window.innerWidth < 768;
@@ -158,6 +160,12 @@ function App() {
     return () => {
       cleanupCacheRefresh(refreshInterval);
     };
+  }, []);
+
+
+  useEffect(() => {
+    // Ensure hydration is complete before rendering complex components
+    setIsHydrated(true);
   }, []);
 
   // Add additional error handling for dynamic imports and runtime errors
@@ -224,7 +232,7 @@ function App() {
         '[data-vite-error]',
         '.vite-error-overlay'
       ];
-      
+
       selectors.forEach(selector => {
         const elements = document.querySelectorAll(selector);
         elements.forEach(element => {
@@ -250,6 +258,15 @@ function App() {
       window.removeEventListener("error", handleError);
     };
   }, []);
+
+  // Show loading during hydration to prevent hydration mismatches
+  if (!isHydrated) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>

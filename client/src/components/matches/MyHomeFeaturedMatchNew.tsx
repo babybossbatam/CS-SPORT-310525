@@ -326,6 +326,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [countdownTimer, setCountdownTimer] = useState<string>("Loading...");
   const [roundsCache, setRoundsCache] = useState<Record<string, string[]>>({});
+  const [isClient, setIsClient] = useState(false);
   const {
     translateTeamName,
     translateLeagueName,
@@ -1964,6 +1965,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   }, []);
 
   useEffect(() => {
+    // Ensure we're on the client side to prevent hydration mismatches
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+
     // Clear caches first to ensure we don't show stale data
     clearExcludedLeaguesCaches();
 
@@ -1971,7 +1979,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     setTimeout(() => {
       fetchFeaturedMatches(true);
     }, 100);
-  }, []); // Only run once on mount
+  }, [isClient]); // Only run once client is ready
 
   // Smart cache interval management based on match states
   useEffect(() => {
@@ -2410,7 +2418,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     [teamLogoColors, getTeamColor],
   );
 
-  if (isLoading) {
+  // Prevent hydration mismatches by not rendering until client-side
+  if (!isClient || isLoading) {
     return (
       <Card className="px-0 pt-0 pb-2 relative shadow-md mb-4">
         <Badge
