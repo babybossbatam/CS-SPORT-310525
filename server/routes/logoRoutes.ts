@@ -141,38 +141,36 @@ router.get('/team-logo/circular/:teamId', async (req, res) => {
   res.redirect(`/api/team-logo/${teamId}`);
 });
 
-// Team logo endpoint
+// Team logo endpoint with enhanced caching and fallback
 router.get('/team-logo/:teamId', async (req, res) => {
+  const { teamId } = req.params;
+  const { size = '64', format = 'png' } = req.query;
+
+  console.log(`🏟️ [Logo Routes] Request for team logo - ID: ${teamId}, Size: ${size}`);
+
+  if (!teamId || isNaN(Number(teamId))) {
+    console.warn(`❌ [Logo Routes] Invalid team ID: ${teamId}`);
+    return res.status(400).json({ error: 'Invalid team ID' });
+  }
+
+  // Use API-Sports for team logos
+  const logoUrl = `https://media.api-sports.io/football/teams/${teamId}.png`;
+
+  console.log(`🏟️ [LogoRoutes] Serving team ${teamId} logo: ${logoUrl}`);
+
+  // Test if the logo exists before redirecting
   try {
-    const { teamId } = req.params;
-    const sport = req.query.sport || 'football';
-
-    if (!teamId) {
-      return res.status(400).json({ error: 'Team ID is required' });
+    const response = await fetch(logoUrl, { method: 'HEAD' });
+    if (response.ok) {
+      return res.redirect(logoUrl);
+    } else {
+      console.warn(`⚠️ [LogoRoutes] Logo not found for team ${teamId}, status: ${response.status}`);
+      throw new Error(`Logo not available: ${response.status}`);
     }
-
-    // Use API-Sports for team logos
-    const logoUrl = `https://media.api-sports.io/${sport}/teams/${teamId}.png`;
-
-    console.log(`🏟️ [LogoRoutes] Serving team ${teamId} logo: ${logoUrl}`);
-
-    // Test if the logo exists before redirecting
-    try {
-      const response = await fetch(logoUrl, { method: 'HEAD' });
-      if (response.ok) {
-        return res.redirect(logoUrl);
-      } else {
-        console.warn(`⚠️ [LogoRoutes] Logo not found for team ${teamId}, status: ${response.status}`);
-        throw new Error(`Logo not available: ${response.status}`);
-      }
-    } catch (fetchError) {
-      console.warn(`❌ [LogoRoutes] Failed to fetch team ${teamId} logo:`, fetchError.message);
-      // Return fallback logo
-      return res.redirect('/assets/fallback-logo.svg');
-    }
-  } catch (error) {
-    console.error('Error serving team logo:', error);
-    res.redirect('/assets/fallback-logo.svg');
+  } catch (fetchError) {
+    console.warn(`❌ [LogoRoutes] Failed to fetch team ${teamId} logo:`, fetchError.message);
+    // Return fallback logo
+    return res.redirect('/assets/fallback-logo.svg');
   }
 });
 

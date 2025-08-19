@@ -23,7 +23,7 @@ export interface LogoResponse {
 
 class EnhancedLogoManager {
   private logoCache: Map<string, { url: string; timestamp: number; fallbackUsed: boolean }> = new Map();
-  private readonly cacheDuration = 0; // Force immediate expiry to refetch data
+  private readonly cacheDuration = 5 * 60 * 1000; // 5 minutes cache
 
   async getTeamLogo(
     componentName: string,
@@ -72,16 +72,20 @@ class EnhancedLogoManager {
         logoUrl = `/api/team-logo/${request.teamId}`;
         console.log(`🏟️ [EnhancedLogoManager] Using server proxy for team ${request.teamId} (${request.teamName || 'Unknown'}): ${logoUrl}`);
         
-        // Validate the endpoint works by checking if it returns a valid image
+        // Test server endpoint availability
         try {
-          const response = await fetch(logoUrl, { method: 'HEAD' });
-          if (!response.ok) {
-            throw new Error(`Server returned ${response.status}`);
+          const testResponse = await fetch(logoUrl, { 
+            method: 'HEAD',
+            timeout: 3000 // 3 second timeout
+          });
+          
+          if (!testResponse.ok) {
+            console.warn(`⚠️ [EnhancedLogoManager] Server proxy returned ${testResponse.status} for team ${request.teamId}`);
+            // Don't mark as fallback yet, let the image component handle the error
           }
         } catch (error) {
-          console.warn(`⚠️ [EnhancedLogoManager] Server proxy failed for team ${request.teamId}, using fallback`);
-          logoUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
-          fallbackUsed = true;
+          console.warn(`⚠️ [EnhancedLogoManager] Server proxy test failed for team ${request.teamId}:`, error.message);
+          // Still use the URL, let the image component handle the failure
         }
       }
 

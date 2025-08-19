@@ -35,16 +35,33 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   const [useCircularFlag, setUseCircularFlag] = useState(false);
 
   // Memoize team info to prevent unnecessary re-renders
-  const teamInfo = useMemo(() => ({
-    id: teamId ? Number(teamId) : 0,
-    name: teamName || "",
-    logo: providedLogo || "",
-    leagueContext: leagueContext || null,
-  }), [teamId, teamName, providedLogo, leagueContext]);
+  const teamInfo = useMemo(() => {
+    const info = {
+      id: teamId ? Number(teamId) : 0,
+      name: teamName || "",
+      logo: providedLogo || "",
+      leagueContext: leagueContext || null,
+    };
+    
+    // Debug logging for team info
+    if (info.id === 0 || !info.name) {
+      console.warn(`⚠️ [MyWorldTeamLogo] Problematic team data:`, {
+        originalTeamId: teamId,
+        convertedId: info.id,
+        teamName: info.name,
+        providedLogo: providedLogo,
+        leagueContext: leagueContext
+      });
+    }
+    
+    return info;
+  }, [teamId, teamName, providedLogo, leagueContext]);
 
   // Memoize the logo resolution logic
   const resolveLogo = useCallback(async () => {
-    if (!teamInfo.name || !teamInfo.id) {
+    // Validate required data
+    if (!teamInfo.name || !teamInfo.id || teamInfo.id === 0) {
+      console.warn(`⚠️ [MyWorldTeamLogo] Invalid team data - ID: ${teamInfo.id}, Name: "${teamInfo.name}"`);
       setIsLoading(false);
       setHasError(true);
       return;
@@ -55,6 +72,15 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       setHasError(false);
 
       console.log(`🏟️ [MyWorldTeamLogo] Resolving logo for team ${teamInfo.id} (${teamInfo.name})`);
+
+      // Check if provided logo URL is valid first
+      if (providedLogo && !providedLogo.includes('fallback') && !providedLogo.includes('placeholder')) {
+        console.log(`🎯 [MyWorldTeamLogo] Using provided logo URL: ${providedLogo}`);
+        setLogoUrl(providedLogo);
+        setUseCircularFlag(false);
+        setIsLoading(false);
+        return;
+      }
 
       // Use enhanced logo manager with correct parameters
       const result = await enhancedLogoManager.getTeamLogo(
@@ -68,6 +94,12 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         }
       );
 
+      console.log(`📊 [MyWorldTeamLogo] Logo manager result for ${teamInfo.name}:`, {
+        url: result.url,
+        fallbackUsed: result.fallbackUsed,
+        cached: result.cached
+      });
+
       if (result.url && !result.fallbackUsed) {
         setLogoUrl(result.url);
         setUseCircularFlag(false);
@@ -77,9 +109,13 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         const isNational = teamInfo.name.toLowerCase().includes('national') || 
                           teamInfo.name.includes('U21') || 
                           teamInfo.name.includes('U20') ||
+                          teamInfo.name.includes('U19') ||
+                          teamInfo.name.includes('U23') ||
                           teamInfo.leagueContext?.name?.toLowerCase().includes('international');
         
         if (isNational && teamInfo.leagueContext?.country) {
+          console.log(`🏳️ [MyWorldTeamLogo] Attempting country flag for ${teamInfo.name} (${teamInfo.leagueContext.country})`);
+          
           // Try to get country flag
           const flagResult = await enhancedLogoManager.getCountryFlag(
             'MyWorldTeamLogo',
@@ -95,7 +131,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
           setUseCircularFlag(true);
           console.log(`🏳️ [MyWorldTeamLogo] Using country flag for ${teamInfo.name}: ${flagResult.url}`);
         } else {
-          throw new Error("No suitable logo found");
+          console.warn(`🚫 [MyWorldTeamLogo] No suitable logo found for ${teamInfo.name}, using fallback`);
+          setHasError(true);
+          setLogoUrl('/assets/fallback-logo.svg');
         }
       }
     } catch (error) {
@@ -108,7 +146,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [teamInfo, onError]);
+  }, [teamInfo, onError, providedLogo]);
 
   // Effect to resolve logo
   useEffect(() => {
