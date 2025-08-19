@@ -23,44 +23,76 @@ const MyRightContent: React.FC = () => {
 
   return (
     <div className={cn(
-      "h-full min-h-0 overflow-y-auto pb-4",
-      isMobile ? "space-y-2 px-2" : "space-y-4"
+      "h-full min-h-0 overflow-y-auto",
+      isMobile 
+        ? "space-y-3 px-3 py-2" 
+        : "space-y-4 pb-4"
     )}>
       {/* Featured Match Section - Hidden on mobile */}
       {!isMobile && (
         <MyHomeFeaturedMatchNew selectedDate={selectedDate} maxMatches={8} />
       )}
 
-     
-
-      {/* Top Scorers - Mobile optimized */}
-      <div className={cn(isMobile ? "mb-3" : "mb-4")}>
+      {/* Top Scorers - Consistent spacing */}
+      <div className={cn(
+        isMobile 
+          ? "rounded-lg bg-white dark:bg-gray-800 shadow-sm" 
+          : ""
+      )}>
         <HomeTopScorersList />
       </div>
 
-      {/* League Standings - Mobile optimized */}
-      <div className={cn(isMobile ? "mb-3" : "mb-4")}>
+      {/* League Standings - Consistent spacing */}
+      <div className={cn(
+        isMobile 
+          ? "rounded-lg bg-white dark:bg-gray-800 shadow-sm" 
+          : ""
+      )}>
         <LeagueStandingsFilter />
       </div>
 
-      {/* CS SPORT Information Card - Mobile optimized */}
-      <div className={cn(isMobile ? "mb-3" : "mb-4")}>
+      {/* CS SPORT Information Card - Consistent spacing */}
+      <div className={cn(
+        isMobile 
+          ? "rounded-lg bg-white dark:bg-gray-800 shadow-sm" 
+          : ""
+      )}>
         <MyInfo />
       </div>
 
-      {/* Popular Leagues and Teams sections - Mobile optimized */}
+      {/* Popular Leagues and Teams sections - Balanced mobile layout */}
       <div className={cn(
-        isMobile ? "flex flex-col space-y-3" : "grid grid-cols-2 gap-4"
+        isMobile 
+          ? "flex flex-col space-y-3" 
+          : "grid grid-cols-2 gap-4"
       )}>
-        <div className={cn(isMobile ? "space-y-3" : "space-y-4")}>
-          <PopularLeaguesList />
-          <PopularTeamsList />
+        <div className="space-y-3">
+          <div className={cn(
+            isMobile 
+              ? "rounded-lg bg-white dark:bg-gray-800 shadow-sm" 
+              : ""
+          )}>
+            <PopularLeaguesList />
+          </div>
+          <div className={cn(
+            isMobile 
+              ? "rounded-lg bg-white dark:bg-gray-800 shadow-sm" 
+              : ""
+          )}>
+            <PopularTeamsList />
+          </div>
         </div>
-        <MyAllLeague />
+        <div className={cn(
+          isMobile 
+            ? "rounded-lg bg-white dark:bg-gray-800 shadow-sm" 
+            : ""
+        )}>
+          <MyAllLeague />
+        </div>
       </div>
 
-      {/* Mobile bottom padding for safe scrolling */}
-      {isMobile && <div className="pb-safe-bottom h-4" />}
+      {/* Mobile bottom safe area */}
+      {isMobile && <div className="h-6" />}
     </div>
   );
 };
