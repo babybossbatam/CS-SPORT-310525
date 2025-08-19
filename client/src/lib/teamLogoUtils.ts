@@ -87,7 +87,7 @@ export function getTeamLogoCacheStats(): void {
 
 // Cache for computed shouldUseCircularFlag results
 const circularFlagCache = new Map<string, { result: boolean; timestamp: number }>();
-const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours - reduced for better data freshness
 
 // UTC date utilities (no timezone conversion)
 export function formatUTCDate(date: Date | string, formatType = 'date'): string {

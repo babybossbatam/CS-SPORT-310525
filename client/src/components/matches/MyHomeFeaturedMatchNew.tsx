@@ -162,7 +162,7 @@ const isPopularTeamMatch = (
 
   // Fallback to name matching
   const homeTeamLower = homeTeam.toLowerCase();
-  const awayTeamLower = away.toLowerCase();
+  const awayTeamLower = awayTeam.toLowerCase(); // Corrected from 'away.toLowerCase()'
 
   const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(
     (popularTeam) =>
@@ -2867,7 +2867,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               right: "-15px",
                             }}
                           >
-                            {currentMatch?.teams?.home && (
+                            <div className="home-team-logo-container">
                               <div
                                 className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out"
                                 style={{
@@ -2885,6 +2885,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                   teamName={
                                     currentMatch.teams.home.name || "Home Team"
                                   }
+                                  teamId={currentMatch.teams.home.id}
                                   teamLogo={
                                     currentMatch.teams.home.id
                                       ? getBestTeamLogoUrl(
@@ -2904,9 +2905,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                     name: currentMatch.league.name,
                                     country: currentMatch.league.country,
                                   }}
+                                  sport="football"
                                 />
                               </div>
-                            )}
+                            </div>
                           </div>
 
                           <div
@@ -3101,6 +3103,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                 name: currentMatch.league.name,
                                 country: currentMatch.league.country,
                               }}
+                              sport="football"
                             />
                           </div>
                         </div>
