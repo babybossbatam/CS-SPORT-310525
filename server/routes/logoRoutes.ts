@@ -11,79 +11,116 @@ router.get('/league-logo/:leagueId', async (req, res) => {
   try {
     console.log(`🔍 [Logo Proxy] Fetching league logo for ID: ${leagueId}`);
 
-    // Try multiple API-Sports URLs for better success rate
-    const logoSources = [
-      `https://media.api-sports.io/football/leagues/${leagueId}.png`,
-      `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`
-    ];
+    // Try API-Sports media URL
+    const apiSportsUrl = `https://media.api-sports.io/football/leagues/${leagueId}.png`;
+    console.log(`📡 [Logo Proxy] Attempting to fetch from: ${apiSportsUrl}`);
 
-    for (const sourceUrl of logoSources) {
-      try {
-        console.log(`📡 [Logo Proxy] Attempting to fetch from: ${sourceUrl}`);
+    // Create a promise-based HTTP request
+    const logoData = await new Promise<Buffer>((resolve, reject) => {
+      const request = https.get(apiSportsUrl, {
+        timeout: 10000, // 10 second timeout
+        headers: {
+          'User-Agent': 'CS-Sport-App/1.0',
+          'Accept': 'image/png,image/jpeg,image/*,*/*'
+        }
+      }, (response) => {
+        console.log(`📊 [Logo Proxy] Response status: ${response.statusCode} for league ${leagueId}`);
 
-        const logoData = await new Promise<Buffer>((resolve, reject) => {
-          const request = https.get(sourceUrl, {
-            timeout: 8000, // 8 second timeout
-            headers: {
-              'User-Agent': 'CS-Sport-App/1.0',
-              'Accept': 'image/png,image/jpeg,image/*,*/*',
-              'Accept-Encoding': 'gzip, deflate, br'
-            }
-          }, (response) => {
-            console.log(`📊 [Logo Proxy] Response status: ${response.statusCode} for league ${leagueId} from ${sourceUrl}`);
+        if (response.statusCode !== 200) {
+          reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
+          return;
+        }
 
-            if (response.statusCode !== 200) {
-              reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
-              return;
-            }
-
-            const chunks: Buffer[] = [];
-            response.on('data', (chunk) => chunks.push(chunk));
-            response.on('end', () => {
-              const buffer = Buffer.concat(chunks);
-              console.log(`📦 [Logo Proxy] Received ${buffer.length} bytes for league ${leagueId} from ${sourceUrl}`);
-              resolve(buffer);
-            });
-          });
-
-          request.on('error', (error) => {
-            console.error(`🌐 [Logo Proxy] Network error for league ${leagueId} from ${sourceUrl}:`, error.message);
-            reject(error);
-          });
-
-          request.on('timeout', () => {
-            console.warn(`⏰ [Logo Proxy] Timeout for league ${leagueId} from ${sourceUrl}`);
-            request.destroy();
-            reject(new Error('Request timeout'));
-          });
+        const chunks: Buffer[] = [];
+        response.on('data', (chunk) => chunks.push(chunk));
+        response.on('end', () => {
+          const buffer = Buffer.concat(chunks);
+          console.log(`📦 [Logo Proxy] Received ${buffer.length} bytes for league ${leagueId}`);
+          resolve(buffer);
         });
+      });
 
-        // Set appropriate headers and send the image
-        res.set({
-          'Content-Type': 'image/png',
-          'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
-          'Content-Length': logoData.length,
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS'
-        });
+      request.on('error', (error) => {
+        console.error(`🌐 [Logo Proxy] Network error for league ${leagueId}:`, error.message);
+        reject(error);
+      });
 
-        res.send(logoData);
-        console.log(`✅ [Logo Proxy] Successfully proxied league logo for ID: ${leagueId} (${logoData.length} bytes) from ${sourceUrl}`);
-        return; // Exit the function on success
+      request.on('timeout', () => {
+        console.warn(`⏰ [Logo Proxy] Timeout for league ${leagueId}`);
+        request.destroy();
+        reject(new Error('Request timeout'));
+      });
+    });
 
-      } catch (sourceError) {
-        console.error(`❌ [Logo Proxy] Failed to fetch from ${sourceUrl} for league ${leagueId}:`, sourceError?.message);
-        continue; // Try next source
-      }
-    }
+    // Set appropriate headers and send the image
+    res.set({
+      'Content-Type': 'image/png',
+      'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
+      'Content-Length': logoData.length,
+      'Access-Control-Allow-Origin': '*'
+    });
 
-    // If all sources fail, redirect to fallback
-    console.log(`🔄 [Logo Proxy] All sources failed for league ${leagueId}, using fallback`);
-    res.redirect(302, '/assets/fallback-logo.svg');
+    res.send(logoData);
+    console.log(`✅ [Logo Proxy] Successfully proxied league logo for ID: ${leagueId} (${logoData.length} bytes)`);
 
   } catch (error) {
-    console.error(`❌ [Logo Proxy] Unexpected error for league ${leagueId}:`, error?.message || 'Unknown error');
-    res.status(404).json({ error: 'League logo not found' });
+    console.error(`❌ [Logo Proxy] Failed to fetch league logo for ID: ${leagueId}:`, error?.message || 'Unknown error');
+
+    // Try alternative API-Sports URL format
+    try {
+      console.log(`🔄 [Logo Proxy] Trying alternative format for league ${leagueId}`);
+      const altApiUrl = `https://media.api-sports.io/football/leagues/${leagueId}.png`;
+
+      const altLogoData = await new Promise<Buffer>((resolve, reject) => {
+        const request = https.get(altApiUrl, {
+          timeout: 5000,
+          headers: {
+            'User-Agent': 'CS-Sport-App/1.0',
+            'Accept': 'image/png,image/jpeg,image/*,*/*'
+          }
+        }, (response) => {
+          if (response.statusCode !== 200) {
+            reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
+            return;
+          }
+
+          const chunks: Buffer[] = [];
+          response.on('data', (chunk) => chunks.push(chunk));
+          response.on('end', () => {
+            const buffer = Buffer.concat(chunks);
+            resolve(buffer);
+          });
+        });
+
+        request.on('error', reject);
+        request.on('timeout', () => {
+          request.destroy();
+          reject(new Error('Request timeout'));
+        });
+      });
+
+      res.set({
+        'Content-Type': 'image/png',
+        'Cache-Control': 'public, max-age=86400',
+        'Content-Length': altLogoData.length
+      });
+
+      res.send(altLogoData);
+      console.log(`✅ [Logo Proxy] Successfully used alternative URL for league ${leagueId}`);
+
+    } catch (altError) {
+      console.error(`❌ [Logo Proxy] Alternative URL also failed for league ${leagueId}:`, altError?.message);
+
+      // Final fallback
+      try {
+        const fallbackPath = '/assets/fallback-logo.svg';
+        console.log(`🔄 [Logo Proxy] Sending fallback for league ${leagueId}: ${fallbackPath}`);
+        res.redirect(302, fallbackPath);
+      } catch (fallbackError) {
+        console.error(`💥 [Logo Proxy] Even fallback failed for league ${leagueId}:`, fallbackError);
+        res.status(404).send('Logo not found');
+      }
+    }
   }
 });
 
@@ -123,257 +160,53 @@ router.get('/league-logo/square/:leagueId', async (req, res) => {
 // Team logo proxy endpoint
 router.get('/team-logo/:teamId', async (req, res) => {
   const { teamId } = req.params;
-  const { sport = 'football' } = req.query;
 
   try {
-    console.log(`🔍 [Logo Proxy] Fetching team logo for ID: ${teamId}, sport: ${sport}`);
+    console.log(`🔍 [Logo Proxy] Fetching team logo for ID: ${teamId}`);
 
-    // Enhanced team logo sources with API-Sports priority
-    const logoSources = [
-      `https://media.api-sports.io/football/teams/${teamId}.png`,
-      `https://media-1.api-sports.io/football/teams/${teamId}.png`,
-      `https://media-2.api-sports.io/football/teams/${teamId}.png`,
-      `https://media-3.api-sports.io/football/teams/${teamId}.png`,
-      `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${teamId}`
-    ];
+    const apiSportsUrl = `https://media.api-sports.io/football/teams/${teamId}.png`;
 
-    for (const sourceUrl of logoSources) {
-      try {
-        console.log(`📡 [Logo Proxy] Attempting team logo from: ${sourceUrl}`);
-
-        const logoData = await new Promise<Buffer>((resolve, reject) => {
-          const request = https.get(sourceUrl, {
-            timeout: 10000, // 10 second timeout
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-              'Accept': 'image/png,image/jpeg,image/webp,image/*,*/*;q=0.8',
-              'Accept-Encoding': 'gzip, deflate, br',
-              'Accept-Language': 'en-US,en;q=0.9',
-              'Cache-Control': 'no-cache',
-              'Pragma': 'no-cache'
-            }
-          }, (response) => {
-            console.log(`📊 [Logo Proxy] Team response status: ${response.statusCode} for team ${teamId} from ${sourceUrl}`);
-
-            if (response.statusCode !== 200) {
-              reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
-              return;
-            }
-
-            const chunks: Buffer[] = [];
-            response.on('data', (chunk) => chunks.push(chunk));
-            response.on('end', () => {
-              const buffer = Buffer.concat(chunks);
-              
-              // Validate the image buffer
-              if (buffer.length < 100) {
-                reject(new Error('Invalid image data - too small'));
-                return;
-              }
-
-              // Check if it's a valid image by checking magic bytes
-              const isValidImage = buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47 || // PNG
-                                   buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF; // JPEG
-
-              if (!isValidImage) {
-                reject(new Error('Invalid image format'));
-                return;
-              }
-
-              console.log(`📦 [Logo Proxy] Received valid ${buffer.length} bytes for team ${teamId} from ${sourceUrl}`);
-              resolve(buffer);
-            });
-          });
-
-          request.on('error', (error) => {
-            console.error(`🌐 [Logo Proxy] Network error for team ${teamId} from ${sourceUrl}:`, error.message);
-            reject(error);
-          });
-
-          request.on('timeout', () => {
-            console.warn(`⏰ [Logo Proxy] Timeout for team ${teamId} from ${sourceUrl}`);
-            request.destroy();
-            reject(new Error('Request timeout'));
-          });
-        });
-
-        // Set appropriate headers and send the image
-        res.set({
-          'Content-Type': 'image/png',
-          'Cache-Control': 'public, max-age=3600', // Cache for 1 hour (shorter for faster updates)
-          'Content-Length': logoData.length,
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
-          'X-Logo-Source': sourceUrl
-        });
-
-        res.send(logoData);
-        console.log(`✅ [Logo Proxy] Successfully proxied team logo for ID: ${teamId} (${logoData.length} bytes) from ${sourceUrl}`);
-        return; // Exit the function on success
-
-      } catch (sourceError) {
-        console.error(`❌ [Logo Proxy] Failed to fetch team logo from ${sourceUrl} for team ${teamId}:`, sourceError?.message);
-        continue; // Try next source
-      }
-    }
-
-    // If all sources fail, redirect to fallback
-    console.log(`🔄 [Logo Proxy] All team logo sources failed for team ${teamId}, using fallback`);
-    res.redirect(302, '/assets/fallback-logo.svg');
-
-  } catch (error) {
-    console.error(`❌ [Logo Proxy] Unexpected error for team ${teamId}:`, error?.message || 'Unknown error');
-    res.status(404).json({ error: 'Team logo not found' });
-  }
-});
-
-// Team logo with square format
-router.get('/team-logo/square/:teamId', async (req, res) => {
-  try {
-    const { teamId } = req.params;
-    const { sport = 'football', size = '64' } = req.query;
-
-    console.log(`🔲 [logoRoutes] Square team logo requested for ID: ${teamId}, sport: ${sport}`);
-
-    // Validate teamId
-    if (!teamId || !/^\d+$/.test(teamId)) {
-      console.error(`❌ [logoRoutes] Invalid teamId for square logo: ${teamId}`);
-      return res.redirect('/assets/fallback-logo.svg');
-    }
-
-    // Set proper headers for image response
-    res.set({
-      'Content-Type': 'image/png',
-      'Cache-Control': 'public, max-age=86400', // 24 hours
-      'Access-Control-Allow-Origin': '*'
-    });
-
-    // Try API-Sports first, then fallback to regular team logo endpoint
-    const logoUrl = `https://media.api-sports.io/football/teams/${teamId}.png`;
-
-    try {
-      const response = await fetch(logoUrl, { 
-        method: 'GET',
+    const logoData = await new Promise<Buffer>((resolve, reject) => {
+      const request = https.get(apiSportsUrl, {
+        timeout: 10000,
         headers: {
           'User-Agent': 'CS-Sport-App/1.0',
           'Accept': 'image/png,image/jpeg,image/*,*/*'
-        },
-        signal: AbortSignal.timeout(8000)
+        }
+      }, (response) => {
+        if (response.statusCode !== 200) {
+          reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
+          return;
+        }
+
+        const chunks: Buffer[] = [];
+        response.on('data', (chunk) => chunks.push(chunk));
+        response.on('end', () => {
+          const buffer = Buffer.concat(chunks);
+          resolve(buffer);
+        });
       });
 
-      if (response.ok) {
-        const buffer = await response.arrayBuffer();
-        res.send(Buffer.from(buffer));
-        console.log(`✅ [logoRoutes] Square team logo served for team ${teamId}`);
-        return;
-      }
-    } catch (fetchError) {
-      console.warn(`⚠️ [logoRoutes] Direct fetch failed for team ${teamId}, trying proxy`);
-    }
+      request.on('error', reject);
+      request.on('timeout', () => {
+        request.destroy();
+        reject(new Error('Request timeout'));
+      });
+    });
 
-    // Fallback to regular team logo endpoint
-    res.redirect(`/api/team-logo/${teamId}?sport=${sport}`);
+    res.set({
+      'Content-Type': 'image/png',
+      'Cache-Control': 'public, max-age=86400',
+      'Content-Length': logoData.length
+    });
+
+    res.send(logoData);
+    console.log(`✅ [Logo Proxy] Successfully proxied team logo for ID: ${teamId}`);
+
   } catch (error) {
-    console.error('Error fetching square team logo:', error);
+    console.error(`❌ [Logo Proxy] Failed to fetch team logo for ID: ${teamId}:`, error);
     res.redirect('/assets/fallback-logo.svg');
   }
-});
-
-// Team logo with circular format
-router.get('/team-logo/circular/:teamId', async (req, res) => {
-  try {
-    const { teamId } = req.params;
-    const { sport = 'football', size = '32' } = req.query;
-
-    console.log(`⭕ [logoRoutes] Circular team logo requested for ID: ${teamId}, sport: ${sport}`);
-
-    // Validate teamId
-    if (!teamId || !/^\d+$/.test(teamId)) {
-      console.error(`❌ [logoRoutes] Invalid teamId for circular logo: ${teamId}`);
-      return res.redirect('/assets/fallback-logo.svg');
-    }
-
-    // For circular logos, we use the same source but could apply transformations
-    res.redirect(`/api/team-logo/square/${teamId}?sport=${sport}&size=${size}`);
-  } catch (error) {
-    console.error('Error fetching circular team logo:', error);
-    res.redirect('/assets/fallback-logo.svg');
-  }
-});
-
-// Debug endpoint to test team logo availability
-router.get('/debug/team-logo/:teamId', async (req, res) => {
-  const { teamId } = req.params;
-  
-  const sources = [
-    `https://media.api-sports.io/football/teams/${teamId}.png`,
-    `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${teamId}`,
-    `https://www.365scores.com/images/teams/${teamId}.png`,
-    `/assets/team-logos/${teamId}.png`
-  ];
-
-  const results = [];
-
-  for (const source of sources) {
-    try {
-      const testResponse = await fetch(source, { method: 'HEAD', signal: AbortSignal.timeout(5000) });
-      results.push({
-        source,
-        status: testResponse.status,
-        available: testResponse.ok
-      });
-    } catch (error) {
-      results.push({
-        source,
-        status: 'error',
-        available: false,
-        error: error.message
-      });
-    }
-  }
-
-  res.json({
-    teamId,
-    sources: results,
-    recommendation: results.find(r => r.available)?.source || 'Use fallback'
-  });
-});
-
-// Debug endpoint to test league logo availability
-router.get('/debug/league-logo/:leagueId', async (req, res) => {
-  const { leagueId } = req.params;
-  
-  const sources = [
-    `https://media.api-sports.io/football/leagues/${leagueId}.png`,
-    `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`,
-    `/assets/league-logos/${leagueId}.png`
-  ];
-
-  const results = [];
-
-  for (const source of sources) {
-    try {
-      const testResponse = await fetch(source, { method: 'HEAD' });
-      results.push({
-        source,
-        status: testResponse.status,
-        available: testResponse.ok
-      });
-    } catch (error) {
-      results.push({
-        source,
-        status: 'error',
-        available: false,
-        error: error.message
-      });
-    }
-  }
-
-  res.json({
-    leagueId,
-    sources: results,
-    recommendation: results.find(r => r.available)?.source || 'Use fallback'
-  });
 });
 
 export default router;

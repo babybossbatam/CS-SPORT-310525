@@ -86,40 +86,22 @@ export function generateLogoSources(options: TeamLogoOptions): LogoSource[] {
     });
   }
 
-  // 2. Server proxy for team logos (more reliable)
-  if (cleanTeamId) {
-    sources.push({
-      url: `/api/team-logo/square/${cleanTeamId}?sport=${sport || 'football'}`,
-      source: 'server-proxy',
-      priority: 2
-    });
-  }
-
-  // 3. API-Sports direct URLs if we have a team ID
+  // 2. API-Sports direct URLs if we have a team ID
   if (cleanTeamId) {
     sources.push(
       {
         url: `https://media.api-sports.io/football/teams/${cleanTeamId}.png`,
         source: 'api-sports-direct',
-        priority: 3
+        priority: 2
       }
     );
   }
 
-  // 4. 365scores alternative
-  if (cleanTeamId) {
-    sources.push({
-      url: `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${cleanTeamId}`,
-      source: '365scores-alternative',
-      priority: 4
-    });
-  }
-
-  // 5. Fallback logo
+  // 3. Fallback logo
   sources.push({
     url: '/assets/fallback-logo.svg',
     source: 'fallback',
-    priority: 5
+    priority: 3
   });
 
   return sources.sort((a, b) => a.priority - b.priority);
