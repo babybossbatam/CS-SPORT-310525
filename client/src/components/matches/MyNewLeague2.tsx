@@ -2762,19 +2762,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     size="34px"
                                     className="popular-leagues-size"
                                   />
-                                ) : (
-                                  <MyWorldTeamLogo
-                                    teamName={fixture.teams.home.name || ""}
-                                    teamLogo={
-                                      fixture.teams.home.id
-                                        ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
-                                        : "/assets/fallback-logo.svg"
-                                    }
-                                    alt={fixture.teams.home.name}
-                                    size="34px"
-                                    className="popular-leagues-size"
-                                    leagueContext={leagueContext}
-                                  />
                                 )}
                               </div>
 
