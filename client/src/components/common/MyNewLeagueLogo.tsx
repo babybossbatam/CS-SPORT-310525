@@ -86,12 +86,40 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
       setError(null);
 
       try {
-        // Use the working server proxy endpoint directly (same as LazyImage)
-        const proxyUrl = `/api/league-logo/${leagueId}`;
-        console.log(
-          `✅ [MyNewLeagueLogo] Using server proxy for league ${leagueId}: ${proxyUrl}`,
-        );
-        setLogoUrl(proxyUrl);
+        // Test multiple sources for league logos
+        const logoSources = [
+          `/api/league-logo/${leagueId}`,
+          `https://media.api-sports.io/football/leagues/${leagueId}.png`,
+          `/assets/league-logos/${leagueId}.png`
+        ];
+
+        let logoLoaded = false;
+
+        for (const sourceUrl of logoSources) {
+          try {
+            // Test if the image loads successfully
+            const testImage = new Image();
+            const imagePromise = new Promise((resolve, reject) => {
+              testImage.onload = () => resolve(sourceUrl);
+              testImage.onerror = () => reject(new Error('Image failed to load'));
+              testImage.src = sourceUrl;
+            });
+
+            await imagePromise;
+            console.log(`✅ [MyNewLeagueLogo] Successfully loaded league ${leagueId} from: ${sourceUrl}`);
+            setLogoUrl(sourceUrl);
+            logoLoaded = true;
+            break;
+          } catch (imageError) {
+            console.log(`❌ [MyNewLeagueLogo] Failed to load league ${leagueId} from: ${sourceUrl}`);
+            continue;
+          }
+        }
+
+        if (!logoLoaded) {
+          throw new Error('All logo sources failed');
+        }
+
         setIsLoading(false);
         return;
       } catch (error) {

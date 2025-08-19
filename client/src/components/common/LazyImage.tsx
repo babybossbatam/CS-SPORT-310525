@@ -213,6 +213,34 @@ const LazyImage: React.FC<LazyImageProps> = ({
           }
 
           if (leagueId) {
+            // Try direct API-Sports URL first
+            const directApiUrl = `https://media.api-sports.io/football/leagues/${leagueId}.png`;
+            console.log(
+              `🏆 [LazyImage] League logo fallback: trying direct API-Sports for ${leagueId}`,
+            );
+            setImageSrc(directApiUrl);
+            setRetryCount(retryCount + 1);
+            setIsLoading(true);
+            return;
+          }
+        }
+
+        // Second retry: try 365scores
+        if (isLeagueLogo && retryCount === 1) {
+          const leagueIdMatch = imageSrc.match(/(?:\/api\/league-logo\/(?:square\/)?|leagues\/|Competitions\/)(\d+)/);
+          if (leagueIdMatch) {
+            const leagueId = leagueIdMatch[1];
+            const scoresUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`;
+            console.log(
+              `🏆 [LazyImage] League logo second attempt: trying 365scores for ${leagueId}`,
+            );
+            setImageSrc(scoresUrl);
+            setRetryCount(retryCount + 1);
+            setIsLoading(true);
+            return;esMatch[1];
+          }
+
+          if (leagueId) {
             // Try regular API without square parameter
             const fallbackUrl = `/api/league-logo/${leagueId}`;
             console.log(
