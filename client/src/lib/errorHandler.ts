@@ -97,7 +97,7 @@ interface ErrorCategory {
   action: 'suppress' | 'fix' | 'monitor';
 }
 
-const categorizeError = (error: any): ErrorCategory => {
+export const categorizeError = (error: any): ErrorCategory => {
   const errorStr = error?.message || error?.toString?.() || String(error);
 
   // AbortError and signal aborted errors - suppress
@@ -343,7 +343,7 @@ const categorizeError = (error: any): ErrorCategory => {
 };
 
 // Enhanced error reporting system
-const reportError = (error: any, category: any, source: string) => {
+export const reportError = (error: any, category: any, source: string) => {
   if (!import.meta.env.DEV) return;
 
   const errorData = {
