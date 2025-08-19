@@ -34,11 +34,11 @@ class EnhancedLogoManager {
     const cacheKey = `team-${sport}-${request.teamId}-${request.shape}`;
 
     try {
-      // Check cache first
+      // Check cache first - but with shorter expiry to force refresh
       const cached = this.logoCache.get(cacheKey);
       const now = Date.now();
 
-      if (cached && (now - cached.timestamp) < this.cacheDuration) {
+      if (cached && (now - cached.timestamp) < 300000) { // 5 minutes cache
         const loadTime = Date.now() - startTime;
 
         logLogo(componentName, {
@@ -58,43 +58,23 @@ class EnhancedLogoManager {
         };
       }
 
+      // Clear old cache entry
+      if (cached) {
+        this.logoCache.delete(cacheKey);
+      }
+
       // Get logo URL with enhanced fallback logic
       let logoUrl: string;
       let fallbackUsed = false;
 
+      // Always use the API endpoint for team logos to ensure proper proxy handling
       if (request.shape === 'circular') {
-        // For circular logos, check if it's a national team first
-        const isNational = request.teamName ? isNationalTeam(
-          { id: request.teamId, name: request.teamName },
-          null
-        ) : false;
-
-        if (isNational) {
-          logoUrl = `/api/team-logo/circular/${request.teamId}?size=32&sport=${sport}`;
-        } else {
-          logoUrl = `/api/team-logo/square/${request.teamId}?size=32&sport=${sport}`;
-        }
+        logoUrl = `/api/team-logo/${request.teamId}?size=32&sport=${sport}&shape=circular`;
       } else {
-        // Try cached logo first, then API endpoints
-        const cached = getCachedTeamLogo(request.teamId, sport);
-        if (cached && !cached.includes('fallback') && !cached.includes('placeholder')) {
-          logoUrl = cached;
-        } else {
-          // Use square endpoint for better reliability
-          logoUrl = `/api/team-logo/square/${request.teamId}?size=64&sport=${sport}`;
-        }
+        logoUrl = `/api/team-logo/${request.teamId}?size=64&sport=${sport}`;
       }
 
-      // Enhanced fallback detection
-      if (!logoUrl || 
-          logoUrl.includes('fallback') || 
-          logoUrl.includes('placeholder.com') ||
-          logoUrl.includes('default') ||
-          logoUrl === '/assets/fallback-logo.svg') {
-        logoUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
-        fallbackUsed = true;
-        console.warn(`🚫 [EnhancedLogoManager] Using fallback for team ${request.teamId}: ${request.teamName || 'Unknown'}`);
-      }
+      console.log(`🎯 [EnhancedLogoManager] Generated team logo URL for ${request.teamId}: ${logoUrl}`);
 
       // Cache the result
       this.logoCache.set(cacheKey, {
@@ -124,13 +104,16 @@ class EnhancedLogoManager {
       const loadTime = Date.now() - startTime;
       const fallbackUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
 
+      console.error(`❌ [EnhancedLogoManager] Error getting team logo for ${request.teamId}:`, error);
+
       logLogo(componentName, {
         type: 'team',
         shape: request.shape,
         teamId: request.teamId,
         url: fallbackUrl,
         fallbackUsed: true,
-        loadTime
+        loadTime,
+        error: error?.message || 'Unknown error'
       });
 
       return {

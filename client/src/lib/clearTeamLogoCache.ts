@@ -47,11 +47,30 @@ export function clearTeamLogoCache(teamId?: number | string): void {
 export function clearAllTeamLogoCaches(): void {
   clearTeamLogoCache();
   
+  // Clear enhanced logo manager cache
+  if (typeof window !== 'undefined' && (window as any).logoManager) {
+    (window as any).logoManager.clear?.();
+  }
+  
+  // Force reload all team logo images
+  const allTeamImages = document.querySelectorAll('img[src*="/api/team-logo"], img[src*="api-sports.io"], img[alt*="team"]');
+  allTeamImages.forEach((img: HTMLImageElement) => {
+    if (img.src && !img.src.includes('fallback')) {
+      const originalSrc = img.src;
+      img.src = '';
+      setTimeout(() => {
+        img.src = originalSrc + (originalSrc.includes('?') ? '&' : '?') + 'refresh=' + Date.now();
+      }, 100);
+    }
+  });
+  
   // Additional cleanup for MyNewLeague2 component
   const event = new CustomEvent('clearTeamLogos', { 
     detail: { timestamp: Date.now() } 
   });
   window.dispatchEvent(event);
+  
+  console.log('🔄 [clearAllTeamLogoCaches] All team logo caches cleared and images refreshed');
 }
 
 // Global access for debugging

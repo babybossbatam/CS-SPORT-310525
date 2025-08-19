@@ -128,11 +128,13 @@ router.get('/team-logo/:teamId', async (req, res) => {
   try {
     console.log(`🔍 [Logo Proxy] Fetching team logo for ID: ${teamId}, sport: ${sport}`);
 
-    // Try multiple sources for better reliability
+    // Enhanced team logo sources with API-Sports priority
     const logoSources = [
       `https://media.api-sports.io/football/teams/${teamId}.png`,
-      `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${teamId}`,
-      `https://www.365scores.com/images/teams/${teamId}.png`
+      `https://media-1.api-sports.io/football/teams/${teamId}.png`,
+      `https://media-2.api-sports.io/football/teams/${teamId}.png`,
+      `https://media-3.api-sports.io/football/teams/${teamId}.png`,
+      `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${teamId}`
     ];
 
     for (const sourceUrl of logoSources) {
@@ -141,11 +143,14 @@ router.get('/team-logo/:teamId', async (req, res) => {
 
         const logoData = await new Promise<Buffer>((resolve, reject) => {
           const request = https.get(sourceUrl, {
-            timeout: 8000, // 8 second timeout
+            timeout: 10000, // 10 second timeout
             headers: {
-              'User-Agent': 'CS-Sport-App/1.0',
-              'Accept': 'image/png,image/jpeg,image/*,*/*',
-              'Accept-Encoding': 'gzip, deflate, br'
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+              'Accept': 'image/png,image/jpeg,image/webp,image/*,*/*;q=0.8',
+              'Accept-Encoding': 'gzip, deflate, br',
+              'Accept-Language': 'en-US,en;q=0.9',
+              'Cache-Control': 'no-cache',
+              'Pragma': 'no-cache'
             }
           }, (response) => {
             console.log(`📊 [Logo Proxy] Team response status: ${response.statusCode} for team ${teamId} from ${sourceUrl}`);
@@ -159,7 +164,23 @@ router.get('/team-logo/:teamId', async (req, res) => {
             response.on('data', (chunk) => chunks.push(chunk));
             response.on('end', () => {
               const buffer = Buffer.concat(chunks);
-              console.log(`📦 [Logo Proxy] Received ${buffer.length} bytes for team ${teamId} from ${sourceUrl}`);
+              
+              // Validate the image buffer
+              if (buffer.length < 100) {
+                reject(new Error('Invalid image data - too small'));
+                return;
+              }
+
+              // Check if it's a valid image by checking magic bytes
+              const isValidImage = buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47 || // PNG
+                                   buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF; // JPEG
+
+              if (!isValidImage) {
+                reject(new Error('Invalid image format'));
+                return;
+              }
+
+              console.log(`📦 [Logo Proxy] Received valid ${buffer.length} bytes for team ${teamId} from ${sourceUrl}`);
               resolve(buffer);
             });
           });
@@ -179,10 +200,11 @@ router.get('/team-logo/:teamId', async (req, res) => {
         // Set appropriate headers and send the image
         res.set({
           'Content-Type': 'image/png',
-          'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
+          'Cache-Control': 'public, max-age=3600', // Cache for 1 hour (shorter for faster updates)
           'Content-Length': logoData.length,
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS'
+          'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+          'X-Logo-Source': sourceUrl
         });
 
         res.send(logoData);
