@@ -31,12 +31,7 @@ const MyRightContent: React.FC = () => {
         <MyHomeFeaturedMatchNew selectedDate={selectedDate} maxMatches={8} />
       )}
 
-      {/* Mobile-optimized Featured Matches with reduced count */}
-      {isMobile && (
-        <div className="mb-3">
-          <MyHomeFeaturedMatchNew selectedDate={selectedDate} maxMatches={3} />
-        </div>
-      )}
+     
 
       {/* Top Scorers - Mobile optimized */}
       <div className={cn(isMobile ? "mb-3" : "mb-4")}>
