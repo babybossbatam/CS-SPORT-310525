@@ -58,7 +58,7 @@ class EnhancedLogoManager {
         };
       }
 
-      // Get logo URL
+      // Get logo URL with enhanced fallback logic
       let logoUrl: string;
       let fallbackUsed = false;
 
@@ -75,13 +75,25 @@ class EnhancedLogoManager {
           logoUrl = `/api/team-logo/square/${request.teamId}?size=32&sport=${sport}`;
         }
       } else {
-        // Normal team logo with sport parameter
-        logoUrl = getCachedTeamLogo(request.teamId, sport) || `/api/team-logo/square/${request.teamId}?size=64&sport=${sport}`;
+        // Try cached logo first, then API endpoints
+        const cached = getCachedTeamLogo(request.teamId, sport);
+        if (cached && !cached.includes('fallback') && !cached.includes('placeholder')) {
+          logoUrl = cached;
+        } else {
+          // Use square endpoint for better reliability
+          logoUrl = `/api/team-logo/square/${request.teamId}?size=64&sport=${sport}`;
+        }
       }
 
-      if (!logoUrl || logoUrl.includes('fallback') || logoUrl.includes('placeholder.com')) {
+      // Enhanced fallback detection
+      if (!logoUrl || 
+          logoUrl.includes('fallback') || 
+          logoUrl.includes('placeholder.com') ||
+          logoUrl.includes('default') ||
+          logoUrl === '/assets/fallback-logo.svg') {
         logoUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
         fallbackUsed = true;
+        console.warn(`🚫 [EnhancedLogoManager] Using fallback for team ${request.teamId}: ${request.teamName || 'Unknown'}`);
       }
 
       // Cache the result

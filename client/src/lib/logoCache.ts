@@ -71,21 +71,21 @@ class LogoCache {
     console.log(`Logo cache cleanup: ${expired.length} expired, ${this.cache.size} remaining`);
   }
 
-  setCached(key: string, url: string, source: string, verified: boolean = false) {
-    const isColombiaFlag = key.includes('colombia');
-    const caller = new Error().stack?.split('\n')[2]?.trim() || 'unknown';
-
-    if (isColombiaFlag) {
-      console.log(`🇨🇴 [logoCache.ts:setCached] COLOMBIA FLAG CACHE SET - Key: ${key} | URL: ${url} | Source: ${source} | Called from: ${caller}`);
+  setCached(key: string, url: string, source: string = 'unknown', verified: boolean = false): void {
+    // Don't cache fallback URLs or invalid URLs
+    if (url && 
+        !url.includes('/assets/fallback-logo') && 
+        !url.includes('placeholder') &&
+        !url.includes('default') &&
+        url !== '/assets/fallback-logo.svg') {
+      this.cache.set(key, {
+        url,
+        source,
+        timestamp: Date.now(),
+        verified,
+        retryCount: 0
+      });
     }
-
-    this.cache.set(key, {
-      url,
-      source,
-      timestamp: Date.now(),
-      verified,
-      retryCount: 0
-    });
 
     console.log(`💾 [logoCache.ts:setCached] Setting cache for key: ${key}`, {
       url,
@@ -93,6 +93,12 @@ class LogoCache {
       verified,
       timestamp: Date.now()
     });
+
+    // This block seems to be for specific debugging of Colombia flags, keeping it as is.
+    const isColombiaFlag = key.includes('colombia');
+    if (isColombiaFlag) {
+      console.log(`🇨🇴 [logoCache.ts:setCached] COLOMBIA FLAG CACHE SET - Key: ${key} | URL: ${url} | Source: ${source} | Called from: ${new Error().stack?.split('\n')[2]?.trim() || 'unknown'}`);
+    }
 
     if (isColombiaFlag) {
       console.log(`🇨🇴 [logoCache.ts:setCached] COLOMBIA FLAG - Successfully cached:`, {
@@ -310,7 +316,7 @@ export async function getOptimalLogoUrl(
 // Function to clear specific team logo from cache
 export function clearTeamLogoCache(teamId?: number | string, teamName?: string): void {
   const isValencia = teamName?.toLowerCase().includes('valencia') || teamId === 532; // Valencia CF team ID
-  
+
   if (isValencia) {
     console.log(`🧹 [logoCache.ts] Clearing Valencia team logo cache - ID: ${teamId}, Name: ${teamName}`);
   }
