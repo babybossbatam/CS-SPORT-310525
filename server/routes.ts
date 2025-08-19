@@ -79,19 +79,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Health check endpoint
-  server.get('/api/health', (req, res) => {
-    res.status(200).json({
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime()
-    });
-  });
-
-  // Apply the health check with memory monitoring
-  server.use((req, res, next) => {
+  // Memory monitoring middleware
+  apiRouter.use((req, res, next) => {
     const memoryUsage = process.memoryUsage();
     const heapUsedMB = memoryUsage.heapUsed / 1024 / 1024;
+    next();
   });
 
   // Featured match routes for MyHomeFeaturedMatch component
