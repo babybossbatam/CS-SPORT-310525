@@ -1077,7 +1077,7 @@ const LeagueStandingsFilter = () => {
                       <TableRow className="py-4 border-b border-gray-100 dark:border-gray-700">
                         <TableHead className="text-left text-xs font-regular text-gray-400 px-1 w-[40px] sticky left-0 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
                         <TableHead className="text-left text-xs font-regular text-gray-400 py-2 px-3 min-w-[200px] sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
-                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[40px]">
+                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[30px]">
                           P
                         </TableHead>
                         <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[60px]">
