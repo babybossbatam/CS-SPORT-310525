@@ -147,6 +147,18 @@ const LazyImage: React.FC<LazyImageProps> = ({
             console.log(`⚽ [LazyImage] Using local Alboraya logo`);
             return true;
           }
+
+          // Al-Nassr team
+          if (altLower.includes("al-nassr") || altLower.includes("al nassr")) {
+            console.log(`⚽ [LazyImage] Using fallback for Al-Nassr team`);
+            return "/assets/matchdetaillogo/fallback.png";
+          }
+
+          // Al-Ittihad team
+          if (altLower.includes("al-ittihad") || altLower.includes("al ittihad")) {
+            console.log(`⚽ [LazyImage] Using fallback for Al-Ittihad team`);
+            return "/assets/matchdetaillogo/fallback.png";
+          }
         }
         return false;
       };
@@ -235,18 +247,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
               `🏆 [LazyImage] League logo second attempt: trying 365scores for ${leagueId}`,
             );
             setImageSrc(scoresUrl);
-            setRetryCount(retryCount + 1);
-            setIsLoading(true);
-            return;esMatch[1];
-          }
-
-          if (leagueId) {
-            // Try regular API without square parameter
-            const fallbackUrl = `/api/league-logo/${leagueId}`;
-            console.log(
-              `🏆 [LazyImage] League logo fallback: trying regular API for ${leagueId}`,
-            );
-            setImageSrc(fallbackUrl);
             setRetryCount(retryCount + 1);
             setIsLoading(true);
             return;
