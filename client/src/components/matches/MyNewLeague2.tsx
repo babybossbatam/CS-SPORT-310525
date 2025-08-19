@@ -2740,10 +2740,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     teamName={fixture.teams.home.name || ""}
                                     teamId={fixture.teams.home.id}
                                     fallbackUrl={
-                                      fixture.teams.home.logo ||
-                                      (fixture.teams.home.id
+                                      fixture.teams.home.id
                                         ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
-                                        : "/assets/fallback-logo.svg")
+                                        : fixture.teams.home.logo || "/assets/fallback-logo.svg"
                                     }
                                     alt={fixture.teams.home.name}
                                     size="34px"
@@ -2754,10 +2753,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     teamName={fixture.teams.home.name || ""}
                                     teamId={fixture.teams.home.id}
                                     teamLogo={
-                                      fixture.teams.home.logo ||
-                                      (fixture.teams.home.id
+                                      fixture.teams.home.id
                                         ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
-                                        : "/assets/fallback-logo.svg")
+                                        : fixture.teams.home.logo || "/assets/fallback-logo.svg"
                                     }
                                     alt={fixture.teams.home.name}
                                     size="34px"
@@ -2963,10 +2961,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     teamName={fixture.teams.away.name || ""}
                                     teamId={fixture.teams.away.id}
                                     fallbackUrl={
-                                      fixture.teams.away.logo ||
-                                      (fixture.teams.away.id
+                                      fixture.teams.away.id
                                         ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
-                                        : "/assets/fallback-logo.svg")
+                                        : fixture.teams.away.logo || "/assets/fallback-logo.svg"
                                     }
                                     alt={fixture.teams.away.name}
                                     size="34px"
@@ -2977,10 +2974,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     teamName={fixture.teams.away.name || ""}
                                     teamId={fixture.teams.away.id}
                                     teamLogo={
-                                      fixture.teams.away.logo ||
-                                      (fixture.teams.away.id
+                                      fixture.teams.away.id
                                         ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
-                                        : "/assets/fallback-logo.svg")
+                                        : fixture.teams.away.logo || "/assets/fallback-logo.svg"
                                     }
                                     alt={fixture.teams.away.name}
                                     size="34px"
