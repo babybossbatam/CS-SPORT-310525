@@ -645,7 +645,7 @@ const LeagueStandingsFilter = () => {
   if (isLoading) {
     return (
       <Card>
-        
+
         <CardContent>
           <div className="space-y-2">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -944,6 +944,7 @@ const LeagueStandingsFilter = () => {
                                         <MyWorldTeamLogo
                                           teamName={standing.team.name}
                                           teamLogo={standing.team.logo}
+                                          teamId={standing.team.id}
                                           alt={standing.team.name}
                                           size="18px"
                                           className="popular-leagues-size"
@@ -1088,6 +1089,7 @@ const LeagueStandingsFilter = () => {
                                           <MyWorldTeamLogo
                                             teamName={displayTeam.name}
                                             teamLogo={teamLogoUrl}
+                                            teamId={displayTeam.id}
                                             alt={`${nextMatchInfo.isUpcoming ? "Next opponent" : "Last opponent"}: ${displayTeam.name}`}
                                             size="20px"
                                             className="popular-leagues-size"
@@ -1313,20 +1315,20 @@ const LeagueStandingsFilter = () => {
                                                           .includes(
                                                             "conference",
                                                           )
-                                                      ? "#6F42C1"
-                                                      : standing.description
-                                                            ?.toLowerCase()
-                                                            .includes(
-                                                              "promotion",
-                                                            )
-                                                        ? "#28A745"
+                                                        ? "#6F42C1"
                                                         : standing.description
                                                               ?.toLowerCase()
                                                               .includes(
-                                                                "relegation",
+                                                                "promotion",
                                                               )
-                                                          ? "#DC3545"
-                                                          : "#6B7280",
+                                                          ? "#28A745"
+                                                          : standing.description
+                                                                ?.toLowerCase()
+                                                                .includes(
+                                                                  "relegation",
+                                                                )
+                                                            ? "#DC3545"
+                                                            : "#6B7280",
                                         }}
                                       >
                                         {getChampionshipTitle(
