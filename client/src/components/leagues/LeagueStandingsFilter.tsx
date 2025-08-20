@@ -946,7 +946,7 @@ const LeagueStandingsFilter = () => {
                                           teamLogo={standing.team.logo}
                                           teamId={standing.team.id}
                                           alt={standing.team.name}
-                                          size="18px"
+                                          size="14px"
                                           className="popular-leagues-size"
                                           leagueContext={{
                                             name: selectedLeagueName,
@@ -1091,7 +1091,7 @@ const LeagueStandingsFilter = () => {
                                             teamLogo={teamLogoUrl}
                                             teamId={displayTeam.id}
                                             alt={`${nextMatchInfo.isUpcoming ? "Next opponent" : "Last opponent"}: ${displayTeam.name}`}
-                                            size="20px"
+                                            size="16px"
                                             className="popular-leagues-size"
                                             leagueContext={{
                                               name: selectedLeagueName,
@@ -1263,7 +1263,7 @@ const LeagueStandingsFilter = () => {
                                       teamLogo={standing.team.logo}
                                       teamId={standing.team.id}
                                       alt={standing.team.name}
-                                      size="18px"
+                                      size="14px"
                                       className="object-contain"
                                       leagueContext={{
                                         name: selectedLeagueName,
