@@ -1404,7 +1404,7 @@ export async function fetchSportsRadarFlag(
 export async function getFlagWithErrorHandling(
   primaryUrl: string,
   fallbackUrl?: string,
-  finalFallback: string = "/assets/fallback-logo.png",
+  finalFallback: string = "/assets/fallback-logo.svg",
 ): Promise<string> {
   return new Promise((resolve) => {
     const img = new Image();
