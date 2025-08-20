@@ -156,6 +156,12 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     const isUefaNationsLeague = leagueName.includes("uefa nations league") || 
                                leagueName.includes("nations league");
 
+    // World Cup qualifications and tournaments with national teams
+    const isWorldCupQualification = leagueName.includes("world cup") && 
+                                   (leagueName.includes("qualification") || 
+                                    leagueName.includes("qualifier") ||
+                                    leagueName.includes("women"));
+
     // AFC competitions with national teams
     const isAfcU20AsianCup = leagueName.includes("afc u20 asian cup") ||
                             leagueName.includes("afc u-20 asian cup") ||
@@ -243,7 +249,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                    !isKnownClubTeam &&
                    isActualNationalTeam && 
                    (isNationalYouthTeam || isWomensNationalTeam || (!isYouthTeam && !teamName?.endsWith(" W"))) && // Allow national youth and women's teams
-                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup) && 
+                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || isWorldCupQualification) && 
                    !isFifaClubWorldCup && 
                    !isFriendliesClub && 
                    !isUefaEuropaLeague && 
