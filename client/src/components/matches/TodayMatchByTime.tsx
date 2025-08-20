@@ -756,10 +756,12 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                             ) : (
                               <MyWorldTeamLogo
                                 teamName={fixture.teams.home.name}
+                                teamId={fixture.teams.home.id}
                                 teamLogo={
-                                  fixture.teams.home.id
+                                  fixture.teams.home.logo ||
+                                  (fixture.teams.home.id
                                     ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
-                                    : "/assets/fallback.png"
+                                    : "/assets/fallback.png")
                                 }
                                 alt={fixture.teams.home.name}
                                 size="34px"
@@ -972,10 +974,12 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                             ) : (
                               <MyWorldTeamLogo
                                 teamName={fixture.teams.away.name}
+                                teamId={fixture.teams.away.id}
                                 teamLogo={
-                                  fixture.teams.away.id
+                                  fixture.teams.away.logo ||
+                                  (fixture.teams.away.id
                                     ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
-                                    : "/assets/fallback-logo.svg"
+                                    : "/assets/fallback-logo.svg")
                                 }
                                 alt={fixture.teams.away.name}
                                 size="34px"

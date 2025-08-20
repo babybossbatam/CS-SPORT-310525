@@ -5,6 +5,12 @@ import { getBestTeamLogoUrl, createTeamLogoErrorHandler as createBetterErrorHand
 import MyCircularFlag from './MyCircularFlag';
 import LazyImage from './LazyImage';
 
+// Global in-memory cache for immediate logo sharing between components
+const globalLogoCache = new Map<string, { url: string; timestamp: number; verified: boolean }>();
+
+// Cache duration: 30 minutes for active session sharing
+const GLOBAL_CACHE_DURATION = 30 * 60 * 1000;
+
 interface MyWorldTeamLogoProps {
   teamName: string;
   teamLogo?: string;
@@ -22,6 +28,7 @@ interface MyWorldTeamLogoProps {
     venue?: string;
   };
   showNextMatchOverlay?: boolean;
+  onLoad?: () => void; // Added for potential use in handleLoad
 }
 
 // Cache for computed shouldUseCircularFlag results
@@ -46,7 +53,12 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   leagueContext,
   nextMatchInfo,
   showNextMatchOverlay = false,
+  onLoad, // Added for potential use
 }) => {
+  const [imageSrc, setImageSrc] = useState<string>(teamLogo || "/assets/fallback.png");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [hasError, setHasError] = useState<boolean>(false);
+
   // Memoized computation with caching for shouldUseCircularFlag
   const shouldUseCircularFlag = useMemo(() => {
     const cacheKey = generateCacheKey(teamName, leagueContext);
@@ -263,9 +275,34 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   }, [teamName, leagueContext]);
 
   // Memoized logo URL resolution using enhancedLogoManager
-  const logoUrl = useMemo(async () => {
-    if (teamId && teamName) {
+  const logoUrl = useMemo(() => {
+    // Immediately return the locally managed imageSrc if it's already set and valid
+    if (!isLoading && !hasError && imageSrc && !imageSrc.includes("/assets/fallback.png")) {
+      return Promise.resolve(imageSrc);
+    }
+
+    // If not loading or has error, and no teamId/teamName, use fallback
+    if (!teamId || !teamName) {
+      return Promise.resolve(teamLogo || "/assets/fallback.png");
+    }
+
+    const fetchLogo = async () => {
       console.log(`🎯 [MyWorldTeamLogo] Fetching logo for team: ${teamName} (ID: ${teamId})`);
+
+      // Check global in-memory cache first for immediate sharing
+      const globalCacheKey = `${teamId}_${teamName}`;
+      const globalCached = globalLogoCache.get(globalCacheKey);
+
+      if (globalCached) {
+        const age = Date.now() - globalCached.timestamp;
+        if (age < GLOBAL_CACHE_DURATION && globalCached.verified) {
+          console.log(`🚀 [MyWorldTeamLogo] Using global cache for ${teamName}: ${globalCached.url}`);
+          return globalCached.url;
+        } else if (age >= GLOBAL_CACHE_DURATION) {
+          // Remove expired entries
+          globalLogoCache.delete(globalCacheKey);
+        }
+      }
 
       try {
         const logoResponse = await enhancedLogoManager.getTeamLogo('MyWorldTeamLogo', {
@@ -283,52 +320,134 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
           loadTime: logoResponse.loadTime + 'ms'
         });
 
+        // Cache in global memory for immediate sharing between components
+        if (teamId && teamName) {
+          globalLogoCache.set(globalCacheKey, {
+            url: logoResponse.url,
+            timestamp: Date.now(),
+            verified: true // Assuming enhancedLogoManager returns a valid URL
+          });
+          console.log(`💾 [MyWorldTeamLogo] Cached ${teamName} logo in global cache: ${logoResponse.url}`);
+        }
+
         return logoResponse.url;
       } catch (error) {
         console.warn(`⚠️ [MyWorldTeamLogo] Enhanced logo manager failed for ${teamName}:`, error);
-        // Fallback to getBestTeamLogoUrl
-        return getBestTeamLogoUrl(teamId, teamName, 64);
-      }
-    } else if (teamId) {
-       const logoSources = getTeamLogoSources({ id: teamId, name: teamName, logo: teamLogo }, shouldUseCircularFlag);
-        if (logoSources.length > 0) {
-          return logoSources[0].url;
+        // Fallback to getBestTeamLogoUrl if enhancedLogoManager fails
+        const fallbackUrl = getBestTeamLogoUrl(teamId, teamName, 64);
+        // Cache the fallback URL as well if it's valid
+        if (fallbackUrl) {
+            globalLogoCache.set(globalCacheKey, {
+              url: fallbackUrl,
+              timestamp: Date.now(),
+              verified: false // Mark as not fully verified if it's a fallback
+            });
+            console.log(`💾 [MyWorldTeamLogo] Cached fallback for ${teamName} in global cache: ${fallbackUrl}`);
         }
-    }
+        return fallbackUrl;
+      }
+    };
 
-    // Fallback to original teamLogo if no teamId
-    console.log(`⚠️ [MyWorldTeamLogo] No teamId provided for ${teamName}, using original logo`);
-    const safeLogo = teamLogo && !teamLogo.includes('placeholder.com') ? teamLogo : "/assets/fallback.png";
-    return safeLogo;
-  }, [teamId, teamName, teamLogo, shouldUseCircularFlag]);
-
-  // Use React.Suspense pattern for async logo loading
-  const [resolvedLogoUrl, setResolvedLogoUrl] = React.useState<string>(teamLogo || "/assets/fallback.png");
-
-  React.useEffect(() => {
-    if (logoUrl instanceof Promise) {
-      logoUrl.then(setResolvedLogoUrl);
+    // If not already loaded or errored, initiate the fetch
+    if (isLoading && !hasError) {
+      return fetchLogo();
+    } else if (!isLoading && !hasError) {
+      // If already loaded successfully, return the current imageSrc
+      return Promise.resolve(imageSrc);
     } else {
-      setResolvedLogoUrl(logoUrl);
+      // If there was an error, return fallback
+      return Promise.resolve(teamLogo || "/assets/fallback.png");
     }
-  }, [logoUrl]);
+  }, [teamId, teamName, teamLogo, shouldUseCircularFlag, isLoading, hasError, imageSrc]);
 
-  // Memoized inline styles
-  const containerStyle = useMemo(() => ({
-    width: size,
-    height: size,
-    position: "relative" as const,
-    left: moveLeft ? "-16px" : "4px",
-  }), [size, moveLeft]);
+  // Effect to handle the asynchronous logo loading and update state
+  React.useEffect(() => {
+    if (!teamId || !teamName) {
+      console.warn(`⚠️ [MyWorldTeamLogo] Missing required props:`, {
+        teamId,
+        teamName,
+        component: "MyWorldTeamLogo",
+      });
+      setImageSrc("/assets/fallback.png");
+      setHasError(true);
+      setIsLoading(false);
+      return;
+    }
 
-  const imageStyle = useMemo(() => ({ 
-    backgroundColor: "transparent",
-    width: "100%",
-    height: "100%",
-    objectFit: "contain" as const,
-    borderRadius: "0%",
-    transform: "scale(0.9)"
-  }), []);
+    // Check global in-memory cache first for immediate sharing
+    const globalCacheKey = `${teamId}_${teamName}`;
+    const globalCached = globalLogoCache.get(globalCacheKey);
+
+    if (globalCached) {
+      const age = Date.now() - globalCached.timestamp;
+      if (age < GLOBAL_CACHE_DURATION && globalCached.verified) {
+        console.log(`🚀 [MyWorldTeamLogo] Using global cache for ${teamName}: ${globalCached.url}`);
+        setImageSrc(globalCached.url);
+        setHasError(false);
+        setIsLoading(false);
+        return;
+      } else if (age >= GLOBAL_CACHE_DURATION) {
+        // Remove expired entries
+        globalLogoCache.delete(globalCacheKey);
+      }
+    }
+
+    // If not in cache or expired, proceed with loading
+    setIsLoading(true); // Ensure loading state is true before fetch
+    setHasError(false); // Reset error state
+
+    let isMounted = true; // Flag to prevent state update on unmounted component
+
+    logoUrl.then((url) => {
+      if (isMounted) {
+        setImageSrc(url || "/assets/fallback.png");
+        setHasError(url ? url.includes("/assets/fallback.png") : true); // Consider fallback as error if it's the only option
+        setIsLoading(false);
+      }
+    }).catch((error) => {
+      console.error(`❌ [MyWorldTeamLogo] Error setting image src for ${teamName}:`, error);
+      if (isMounted) {
+        setImageSrc("/assets/fallback.png");
+        setHasError(true);
+        setIsLoading(false);
+      }
+    });
+
+    return () => {
+      isMounted = false; // Cleanup flag
+    };
+  }, [teamId, teamName, teamLogo, shouldUseCircularFlag, imageSrc]); // Added imageSrc to dependency array to re-run if it changes unexpectedly
+
+
+  const handleLoad = () => {
+    setIsLoading(false);
+    setHasError(false);
+
+    // Don't cache fallback images
+    if (
+      imageSrc.includes("/assets/fallback") ||
+      imageSrc.includes("fallback") ||
+      imageSrc.includes("placeholder")
+    ) {
+      console.log(
+        `⚠️ [MyWorldTeamLogo] Fallback image loaded, not caching: ${imageSrc}`,
+      );
+      onLoad?.(); // Call the onLoad prop if provided
+      return;
+    }
+
+    // Cache in global memory for immediate sharing between components
+    if (teamId && teamName) {
+      const globalCacheKey = `${teamId}_${teamName}`;
+      globalLogoCache.set(globalCacheKey, {
+        url: imageSrc,
+        timestamp: Date.now(),
+        verified: true
+      });
+      console.log(`💾 [MyWorldTeamLogo] Cached ${teamName} logo in global cache: ${imageSrc}`);
+    }
+    onLoad?.(); // Call the onLoad prop if provided
+  };
 
     const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     // Safety check to prevent undefined target errors
@@ -348,25 +467,45 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     const currentSrc = target.src;
 
     // Don't retry if already showing fallback
-    if (currentSrc.includes('/assets/fallback-logo')) {
+    if (currentSrc.includes('/assets/fallback')) {
+      console.log(`🚫 [MyWorldTeamLogo] Error on fallback image for ${teamName}, stopping retry.`);
+      setHasError(true); // Mark as error if fallback fails
+      setIsLoading(false);
       return;
     }
 
     // Try different logo sources if teamId is available
-    if (teamId && !currentSrc.includes('/api/team-logo/')) {
-      target.src = `/api/team-logo/square/${teamId}?size=32`;
-      return;
+    if (teamId) {
+      // Prioritize the enhanced logo manager's fallback if available
+      if (currentSrc.includes('/api/team-logo/') && !currentSrc.endsWith('?size=32')) {
+          target.src = `${currentSrc.split('?')[0]}?size=32`; // Try with a smaller size
+          console.log(`🔄 [MyWorldTeamLogo] Retrying logo with smaller size for ${teamName}`);
+      } else if (!currentSrc.includes('/api/team-logo/')) {
+         // Fallback to a generic API endpoint if not already using one
+         target.src = `/api/team-logo/square/${teamId}?size=64`; // Use a default size
+         console.log(`🔄 [MyWorldTeamLogo] Retrying logo with generic API for ${teamName}`);
+      } else {
+        // If all retries fail, set to fallback
+        target.src = '/assets/fallback.png';
+        console.log(`💥 [MyWorldTeamLogo] Final fallback for ${teamName}`);
+      }
+    } else {
+      // If no teamId, directly set to fallback
+      target.src = '/assets/fallback.png';
+      console.log(`💥 [MyWorldTeamLogo] Final fallback for ${teamName} (no teamId)`);
     }
 
-    // Set fallback image as last resort
-    target.src = '/assets/fallback.png';
-  }, [teamId]);
+    // Update state to reflect the error and stop loading if it's the final fallback
+    setHasError(true);
+    setIsLoading(false);
+
+  }, [teamId, teamName]);
 
   if (shouldUseCircularFlag) {
     return (
       <MyCircularFlag
         teamName={teamName}
-        fallbackUrl={resolvedLogoUrl}
+        fallbackUrl={imageSrc} // Use imageSrc which might be from cache or fetched
         alt={alt || teamName}
         size={size}
         className={className}
@@ -389,13 +528,15 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       }}
     >
       <LazyImage
-        src={resolvedLogoUrl}
+        src={imageSrc}
         alt={alt || teamName}
         title={teamName}
         className="team-logo"
         style={imageStyle}
         fallbackSrc="/assets/fallback.png"
         onError={handleImageError}
+        onLoad={handleLoad} // Attach the handleLoad to LazyImage's onLoad
+        loading={isLoading ? "lazy" : "eager"} // Control loading state
       />
     </div>
   );
