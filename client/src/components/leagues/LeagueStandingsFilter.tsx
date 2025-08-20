@@ -930,6 +930,14 @@ const LeagueStandingsFilter = () => {
                               const isNationalTeam =
                                 isNationalTeamCompetition(selectedLeagueName);
 
+                              // Determine the correct league data for context
+                              const leagueData = popularLeagues.find(
+                                (l) =>
+                                  l &&
+                                  l.id &&
+                                  l.id.toString() === selectedLeague,
+                              );
+
                               return (
                                 <TableRow
                                   key={standing.team.id}
@@ -949,15 +957,8 @@ const LeagueStandingsFilter = () => {
                                           size="14px"
                                           className="popular-leagues-size"
                                           leagueContext={{
-                                            name: selectedLeagueName,
-                                            country:
-                                              popularLeagues.find(
-                                                (l) =>
-                                                  l &&
-                                                  l.id &&
-                                                  l.id.toString() ===
-                                                    selectedLeague,
-                                              )?.country || "World",
+                                            name: leagueData?.name,
+                                            country: leagueData?.country,
                                           }}
                                           showNextMatchOverlay={true}
                                         />
@@ -1073,7 +1074,7 @@ const LeagueStandingsFilter = () => {
                                         const teamLogoUrl = displayTeam.id
                                           ? `/api/team-logo/square/${displayTeam.id}?size=24`
                                           : displayTeam.logo ||
-                                            "assets/matchdetaillogo/fallback.pngg";
+                                            "assets/matchdetaillogo/fallback.png";
 
                                         return isNationalTeam ? (
                                           <MyCircularFlag
@@ -1187,6 +1188,14 @@ const LeagueStandingsFilter = () => {
                           const isNationalTeam =
                             isNationalTeamCompetition(selectedLeagueName);
 
+                          // Determine the correct league data for context
+                          const leagueData = popularLeagues.find(
+                            (l) =>
+                              l &&
+                              l.id &&
+                              l.id.toString() === selectedLeague,
+                          );
+
                           // Determine qualification status color
                           const getQualificationColor = (
                             rank: number,
@@ -1266,15 +1275,8 @@ const LeagueStandingsFilter = () => {
                                       size="14px"
                                       className="object-contain"
                                       leagueContext={{
-                                        name: selectedLeagueName,
-                                        country:
-                                          popularLeagues.find(
-                                            (l) =>
-                                              l &&
-                                              l.id &&
-                                              l.id.toString() ===
-                                                selectedLeague,
-                                          )?.country || "World",
+                                        name: leagueData?.name,
+                                        country: leagueData?.country,
                                       }}
                                     />
                                   </div>
