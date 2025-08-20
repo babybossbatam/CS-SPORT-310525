@@ -349,7 +349,7 @@ export function createFallbackHandler(options: TeamLogoOptions) {
       img.src = nextSource.url;
     } else {
       console.log('All sources failed, using final fallback');
-      img.src = '/assets/fallback-logo.svg';
+      img.src = '/assets/matchdetaillogo/fallback.png';
     }
   };
 }
