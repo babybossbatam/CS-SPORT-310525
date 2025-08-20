@@ -667,18 +667,18 @@ const LeagueStandingsFilter = () => {
         .replace(/UEFA Champions League/g, "UCL")
         .replace(/UEFA Europa League/g, "UEL")
         .replace(/UEFA Conference League/g, "UECL")
-        .replace(/Premier League/g, "PL")
-        .replace(/La Liga/g, "LL")
-        .replace(/Serie A/g, "SA")
-        .replace(/Bundesliga/g, "BL")
-        .replace(/Ligue 1/g, "L1")
+        .replace(/Premier League/g, "Premier League")
+        .replace(/La Liga/g, "La Liga")
+        .replace(/Serie A/g, "Serie A")
+        .replace(/Bundesliga/g, "BundesLiga")
+        .replace(/Ligue 1/g, "Ligue 1")
         .replace(/South America/g, "CONMEBOL")
-        .replace(/Champions League/g, "CL")
-        .replace(/Europa League/g, "EL")
+        .replace(/Champions League/g, "Champions Lg")
+        .replace(/Europa League/g, "Europa Lg")
         .replace(/Conference League/g, "ECL")
         .replace(/Qualification/g, "Qual")
-        .replace(/Runner-up/g, "2nd")
-        .replace(/3rd Place/g, "3rd")
+        .replace(/Runner-up/g, "2nd Runner up")
+        .replace(/3rd Place/g, "3rd Place")
         .replace(/Winners/g, "Win")
         .replace(/Championship/g, "Champ");
     };
@@ -693,15 +693,15 @@ const LeagueStandingsFilter = () => {
         if (selectedLeagueName.toLowerCase().includes("world cup")) {
           return "WC Winners";
         } else if (selectedLeagueName.toLowerCase().includes("premier league")) {
-          return "PL Winners";
+          return "Premier Lg Winners";
         } else if (selectedLeagueName.toLowerCase().includes("la liga")) {
-          return "LL Winners";
+          return "La Liga Winners";
         } else if (selectedLeagueName.toLowerCase().includes("serie a")) {
-          return "SA Winners";
+          return "Serie A Winners";
         } else if (selectedLeagueName.toLowerCase().includes("bundesliga")) {
-          return "BL Winners";
+          return "BundesLiga Winners";
         } else if (selectedLeagueName.toLowerCase().includes("ligue 1")) {
-          return "L1 Winners";
+          return "Ligue 1 Winners";
         } else if (selectedLeagueName.toLowerCase().includes("champions league")) {
           return "UCL Winners";
         } else if (selectedLeagueName.toLowerCase().includes("europa league")) {
@@ -1124,7 +1124,7 @@ const LeagueStandingsFilter = () => {
                     <TableHeader>
                       <TableRow className="py-4 border-b border-gray-100 dark:border-gray-700">
                         <TableHead className="text-left text-xs font-regular text-gray-400 px-1 w-[40px] sticky left-0 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
-                        <TableHead className="text-left text-xs font-regular text-gray-400 py-2 px-3 min-w-[180px] sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
+                        <TableHead className="text-left text-xs font-regular text-gray-400 py-2 px-3 min-w-[120px] sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
                         <TableHead className="text-center text-xs font-regular border-r text-gray-400 px-2 min-w-[30px]">
                           P
                         </TableHead>
@@ -1146,7 +1146,7 @@ const LeagueStandingsFilter = () => {
                         <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[30px] border-r border-gray-200">
                           L
                         </TableHead>
-                        <TableHead className="text-center text-xs font-semi-bold text-gray-600 px-1 w-[70px]">
+                        <TableHead className="text-center text-xs font-semi-bold text-gray-600 px-1 w-[85x]">
                           Form
                         </TableHead>
                       </TableRow>
@@ -1228,7 +1228,7 @@ const LeagueStandingsFilter = () => {
                                 </div>
                               </TableCell>
                               <TableCell className="py-0 px-2 sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
-                                <div className="flex items-center min-w-[100px] max-w-[150px]">
+                                <div className="flex items-center min-w-[80px] max-w-[120px]">
                                   <div className="mr-2 flex-shrink-0">
                                     <MyWorldTeamLogo
                                       teamName={standing.team.name}
@@ -1251,14 +1251,14 @@ const LeagueStandingsFilter = () => {
                                     />
                                   </div>
                                   <div className="flex flex-col min-w-0 flex-1">
-                                    <span className="text-xs font-semibold text-gray-900 truncate hover:underline cursor-pointer max-w-[90px] mx-1">
+                                    <span className="text-xs font-semibold text-gray-900 truncate hover:underline cursor-pointer max-w-[70px] mx-1">
                                       {getTranslatedTeamName(
                                         standing.team.name,
                                       )}
                                     </span>
                                     {standing.rank <= 3 && (
                                       <span
-                                        className="text-[0.6rem] font-medium truncate max-w-[250px] mx-1 -mr-8"
+                                        className="text-[0.6rem] font-medium truncate max-w-[70px] mx-1 -mr-8"
                                         style={{
                                           color:
                                             standing.rank <= 3
@@ -1350,7 +1350,7 @@ const LeagueStandingsFilter = () => {
                               <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
                                 {stats.lose}
                               </TableCell>
-                              <TableCell className="text-center py-2 px-0.5 w-[70px] max-w-[70px]">
+                              <TableCell className="text-center py-2 px-0.5 w-[85px] max-w-[85px]">
                                 <div className="flex justify-center gap-0.5 overflow-hidden">
                                   {standing.form
                                     ?.split("")
@@ -1358,7 +1358,7 @@ const LeagueStandingsFilter = () => {
                                     .map((result, i) => (
                                       <span
                                         key={i}
-                                        className={`w-3.5 h-3.5 rounded-sm flex items-center justify-center text-xs font-semibold flex-shrink-0 ${
+                                        className={`w-4 h-4 rounded-sm flex items-center justify-center text-xs font-semibold flex-shrink-0 ${
                                           result === "W"
                                             ? "bg-green-100 text-green-800 border border-green-800"
                                             : result === "D"
