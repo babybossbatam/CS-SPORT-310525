@@ -1072,7 +1072,7 @@ const LeagueStandingsFilter = () => {
               // Single league table
               <div className="border-t">
                 <div className="overflow-x-auto -webkit-overflow-scrolling-touch scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-                  <Table className="min-w-[650px] w-full">
+                  <Table className="min-w-[600px] w-full">
                     <TableHeader>
                       <TableRow className="py-4 border-b border-gray-100 dark:border-gray-700">
                         <TableHead className="text-left text-xs font-regular text-gray-400 px-1 w-[40px] sticky left-0 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
@@ -1098,9 +1098,9 @@ const LeagueStandingsFilter = () => {
                         <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[30px] border-r border-gray-200">
                           L
                         </TableHead>
-                        <TableHead className="text-center text-xs font-semi-bold text-gray-600 px-1 w-[550px]">
-                          Form
-                        </TableHead>
+                        <TableHead className="text-center text-xs font-semi-bold text-gray-600 px-1 w-[80px]">
+                            Form
+                          </TableHead>
                       </TableRow>
                     </TableHeader>
                   <TableBody>
@@ -1289,21 +1289,21 @@ const LeagueStandingsFilter = () => {
                             <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
                               {stats.lose}
                             </TableCell>
-                            <TableCell className="text-center py-2 px-1 w-[50px] max-w-[50px]">
-                              <div className=" justify-center ">
+                            <TableCell className="text-center py-2 px-1 w-[80px] max-w-[80px]">
+                              <div className="flex justify-center gap-0.5">
                                 {standing.form
                                   ?.split("")
                                   .slice(-5)
                                   .map((result, i) => (
                                     <span
                                       key={i}
-                                      className={`w-5 h-5 rounded-sm items-center justify-center text-xs font-semi-bold flex-shrink-0 ${
+                                      className={`w-4 h-4 rounded-sm flex items-center justify-center text-xs font-semibold flex-shrink-0 ${
                                         result === "W"
-                                          ? " text-green-800"
+                                          ? "bg-green-100 text-green-800"
                                           : result === "D"
-                                            ? "border border-gray-500 text-yellow-600"
+                                            ? "bg-yellow-100 text-yellow-700"
                                             : result === "L"
-                                              ? "border border-gray-500 text-red-600"
+                                              ? "bg-red-100 text-red-700"
                                               : "bg-gray-400"
                                       }`}
                                     >
