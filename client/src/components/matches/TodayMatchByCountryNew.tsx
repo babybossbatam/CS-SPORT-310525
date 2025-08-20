@@ -15,6 +15,9 @@ export const TodayMatchByCountryNew = ({ fixture, matches, setMatches }) => {
     }
   };
 
+  const homeTeam = fixture.teams.home;
+  const awayTeam = fixture.teams.away;
+
   return (
     <div
       key={fixture.fixture.id}
@@ -33,15 +36,15 @@ export const TodayMatchByCountryNew = ({ fixture, matches, setMatches }) => {
             style={{ padding: "0 0.5rem" }}
           >
             <MyWorldTeamLogo
-              teamName={fixture.teams.home.name}
-              teamId={fixture.teams.home.id}
+              teamName={homeTeam.name}
+              teamId={homeTeam.id}
               teamLogo={
-                fixture.teams.home.logo ||
-                (fixture.teams.home.id
-                  ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
+                homeTeam.logo ||
+                (homeTeam.id
+                  ? `/api/team-logo/square/${homeTeam.id}?size=32`
                   : "/assets/matchdetaillogo/fallback.png")
               }
-              alt={fixture.teams.home.name}
+              alt={homeTeam.name}
               size="34px"
               className="popular-leagues-size"
               leagueContext={{
@@ -57,15 +60,15 @@ export const TodayMatchByCountryNew = ({ fixture, matches, setMatches }) => {
             style={{ padding: "0 0.5rem" }}
           >
             <MyWorldTeamLogo
-              teamName={fixture.teams.away.name}
-              teamId={fixture.teams.away.id}
+              teamName={awayTeam.name}
+              teamId={awayTeam.id}
               teamLogo={
-                fixture.teams.away.logo ||
-                (fixture.teams.away.id
-                  ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
+                awayTeam.logo ||
+                (awayTeam.id
+                  ? `/api/team-logo/square/${awayTeam.id}?size=32`
                   : "/assets/matchdetaillogo/fallback.png")
               }
-              alt={fixture.teams.away.name}
+              alt={awayTeam.name}
               size="34px"
               className="popular-leagues-size"
               leagueContext={{
@@ -77,8 +80,8 @@ export const TodayMatchByCountryNew = ({ fixture, matches, setMatches }) => {
         </div>
 
         <div className="team-names">
-          <span className="home-team-name">{fixture.teams.home.name}</span>
-          <span className="away-team-name">{fixture.teams.away.name}</span>
+          <span className="home-team-name">{homeTeam.name}</span>
+          <span className="away-team-name">{awayTeam.name}</span>
         </div>
 
         <div className="match-score">
