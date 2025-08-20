@@ -1191,11 +1191,11 @@ const LeagueStandingsFilter = () => {
                               key={standing.team.id}
                               className="border-b border-gray-100 transition-colors"
                             >
-                              <TableCell className="py-0 mt-0 mb-0 px-0 relative sticky left-0 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
-                                <div className="flex items-center">
+                              <TableCell className="p-0 relative sticky left-0 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
+                                <div className="flex items-center h-full">
                                   {standing.rank <= 3 && (
                                     <div
-                                      className="w-0.5 h-8 rounded-r-sm mr-2"
+                                      className="w-1 h-full mr-2"
                                       style={{
                                         backgroundColor:
                                           standing.rank <= 3
@@ -1221,7 +1221,7 @@ const LeagueStandingsFilter = () => {
                                     />
                                   )}
                                   <span
-                                    className={`text-sm font-medium text-gray-900 ${standing.rank <= 3 ? "" : "ml-3"}`}
+                                    className={`text-sm font-medium text-gray-900 py-2 ${standing.rank <= 3 ? "ml-1" : "ml-3"}`}
                                   >
                                     {standing.rank}
                                   </span>
@@ -1367,9 +1367,9 @@ const LeagueStandingsFilter = () => {
                                                 ? "bg-red-100 text-red-700 border border-red-800"
                                                 : "bg-gray-400"
                                         } ${i >= 4 ? "mt-1" : ""}`}
-                                        style={{ 
-                                          fontSize: '8px',
-                                          flexBasis: i >= 4 ? 'calc(25% - 2px)' : 'auto'
+                                        style={{
+                                          fontSize: "8px",
+                                          flexBasis: i >= 4 ? "calc(25% - 2px)" : "auto",
                                         }}
                                       >
                                         {result}
