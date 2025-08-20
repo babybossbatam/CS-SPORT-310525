@@ -957,19 +957,19 @@
 .league-standings-table .flag-circle,
 table .team-logo,
 table .flag-circle {
-  width: 20px !important;
-  height: 20px !important;
-  min-width: 20px !important;
-  min-height: 20px !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
 }
 
 /* Ensure popular-leagues-size class in tables is smaller */
 table .popular-leagues-size,
 .league-standings-table .popular-leagues-size {
-  width: 20px !important;
-  height: 20px !important;
-  min-width: 20px !important;
-  min-height: 20px !important;
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
 }
 
 /* Responsive adjustments for mobile in tables */
@@ -980,9 +980,9 @@ table .popular-leagues-size,
   table .flag-circle,
   table .popular-leagues-size,
   .league-standings-table .popular-leagues-size {
-    width: 16px !important;
-    height: 16px !important;
-    min-width: 16px !important;
-    min-height: 16px !important;
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
   }
 }
