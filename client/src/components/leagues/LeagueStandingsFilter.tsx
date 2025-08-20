@@ -1223,7 +1223,7 @@ const LeagueStandingsFilter = () => {
                                 <div className="flex items-center">
                                   {standing.rank <= 3 && (
                                     <div
-                                      className="w-1 h-8 rounded-r-sm mr-2"
+                                      className="w-0.5 h-8 rounded-r-sm mr-2"
                                       style={{
                                         backgroundColor:
                                           standing.rank <= 3
@@ -1256,8 +1256,8 @@ const LeagueStandingsFilter = () => {
                                 </div>
                               </TableCell>
                               <TableCell className="py-0 px-2 sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
-                                <div className="flex items-center min-w-[120px] max-w-[120px]">
-                                  <div className="mr-1 flex-shrink-0">
+                                <div className="flex items-center min-w-[100px] max-w-[150px]">
+                                  <div className="mr-2 flex-shrink-0">
                                     <MyWorldTeamLogo
                                       teamName={standing.team.name}
                                       teamLogo={standing.team.logo}
@@ -1286,7 +1286,7 @@ const LeagueStandingsFilter = () => {
                                     </span>
                                     {standing.rank <= 3 && (
                                       <span
-                                        className="text-[0.6rem] font-medium truncate max-w-[90px] mx-1"
+                                        className="text-[0.6rem] font-medium truncate max-w-[250px] mx-1 -mr-8"
                                         style={{
                                           color:
                                             standing.rank <= 3
@@ -1340,7 +1340,7 @@ const LeagueStandingsFilter = () => {
                                   </div>
                                 </div>
                               </TableCell>
-                              <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
+                              <TableCell className="text- center py-2  text-xs text-gray-600 border-r border-gray-200">
                                 {stats.played}
                               </TableCell>
                               <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
