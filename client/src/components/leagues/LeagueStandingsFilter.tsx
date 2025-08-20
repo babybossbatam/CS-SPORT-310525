@@ -1124,7 +1124,7 @@ const LeagueStandingsFilter = () => {
                     <TableHeader>
                       <TableRow className="py-4 border-b border-gray-100 dark:border-gray-700">
                         <TableHead className="text-left text-xs font-regular text-gray-400 px-1 w-[40px] sticky left-0 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
-                        <TableHead className="text-left text-xs font-regular text-gray-400 py-2 px-3 min-w-[120px] sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
+                        <TableHead className="text-left text-xs font-regular text-gray-400 py-2 px-3 min-w-[160px] sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
                         <TableHead className="text-center text-xs font-regular border-r text-gray-400 px-2 min-w-[30px]">
                           P
                         </TableHead>
@@ -1228,7 +1228,7 @@ const LeagueStandingsFilter = () => {
                                 </div>
                               </TableCell>
                               <TableCell className="py-0 px-2 sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
-                                <div className="flex items-center min-w-[80px] max-w-[120px]">
+                                <div className="flex items-center min-w-[120px] max-w-[160px]">
                                   <div className="mr-2 flex-shrink-0">
                                     <MyWorldTeamLogo
                                       teamName={standing.team.name}
@@ -1251,14 +1251,14 @@ const LeagueStandingsFilter = () => {
                                     />
                                   </div>
                                   <div className="flex flex-col min-w-0 flex-1">
-                                    <span className="text-xs font-semibold text-gray-900 truncate hover:underline cursor-pointer max-w-[70px] mx-1">
+                                    <span className="text-xs font-semibold text-gray-900 truncate hover:underline cursor-pointer max-w-[120px] mx-1">
                                       {getTranslatedTeamName(
                                         standing.team.name,
                                       )}
                                     </span>
                                     {standing.rank <= 3 && (
                                       <span
-                                        className="text-[0.6rem] font-medium truncate max-w-[70px] mx-1 -mr-8"
+                                        className="text-[0.6rem] font-medium truncate max-w-[120px] mx-1 -mr-8"
                                         style={{
                                           color:
                                             standing.rank <= 3
