@@ -529,7 +529,13 @@ const LazyImage: React.FC<LazyImageProps> = ({
       loading={shouldPreload ? 'eager' : 'lazy'}
       decoding="async"
       onLoad={handleLoad}
-      onError={handleError}
+      onError={(e) => {
+        const target = e.target as HTMLImageElement;
+        if (!target.src.includes(fallbackUrl)) {
+          target.src = fallbackUrl;
+        }
+        handleError(e);
+      }}
     />
   );
 };
