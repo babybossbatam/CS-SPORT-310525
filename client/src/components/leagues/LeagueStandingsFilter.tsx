@@ -1351,7 +1351,7 @@ const LeagueStandingsFilter = () => {
                                 {stats.lose}
                               </TableCell>
                               <TableCell className="text-center py-2 px-0.5 w-[85px] max-w-[85px]">
-                                <div className="flex justify-center gap-0.5 overflow-hidden">
+                                <div className="flex flex-wrap justify-center gap-0.5 overflow-hidden">
                                   {standing.form
                                     ?.split("")
                                     .slice(-5)
@@ -1366,8 +1366,11 @@ const LeagueStandingsFilter = () => {
                                               : result === "L"
                                                 ? "bg-red-100 text-red-700 border border-red-200"
                                                 : "bg-gray-400"
-                                        }`}
-                                        style={{ fontSize: '8px' }}
+                                        } ${i >= 4 ? "mt-1" : ""}`}
+                                        style={{ 
+                                          fontSize: '8px',
+                                          flexBasis: i >= 4 ? 'calc(25% - 2px)' : 'auto'
+                                        }}
                                       >
                                         {result}
                                       </span>
