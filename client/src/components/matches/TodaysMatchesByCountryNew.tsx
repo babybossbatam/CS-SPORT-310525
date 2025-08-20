@@ -946,12 +946,44 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       const newExpanded = new Set(prev);
       if (newExpanded.has(country)) {
         newExpanded.delete(country);
+        // When collapsing country, also collapse all its leagues
+        setExpandedLeagues((prevLeagues) => {
+          const newExpandedLeagues = new Set(prevLeagues);
+          const countryData = getCountryData(country);
+          if (countryData) {
+            Object.keys(countryData.leagues).forEach((leagueId) => {
+              const leagueKey = `${country}-${leagueId}`;
+              newExpandedLeagues.delete(leagueKey);
+            });
+          }
+          return newExpandedLeagues;
+        });
       } else {
         newExpanded.add(country);
+        // When expanding country, auto-expand the first league
+        setExpandedLeagues((prevLeagues) => {
+          const newExpandedLeagues = new Set(prevLeagues);
+          const countryData = getCountryData(country);
+          if (countryData) {
+            // Get the first league (sorted by popularity, then name)
+            const sortedLeagues = Object.values(countryData.leagues).sort((a: any, b: any) => {
+              if (a.isPopular && !b.isPopular) return -1;
+              if (!a.isPopular && b.isPopular) return 1;
+              return a.league.name.localeCompare(b.league.name);
+            });
+            
+            if (sortedLeagues.length > 0) {
+              const firstLeague = sortedLeagues[0] as any;
+              const leagueKey = `${country}-${firstLeague.league.id}`;
+              newExpandedLeagues.add(leagueKey);
+            }
+          }
+          return newExpandedLeagues;
+        });
       }
       return newExpanded;
     });
-  }, []);
+  }, [getCountryData]);
 
   const toggleStarMatch = (matchId: number) => {
     setStarredMatches((prev) => {
