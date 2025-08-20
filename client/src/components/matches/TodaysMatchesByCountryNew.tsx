@@ -1698,6 +1698,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             </div>
           </button>
 
+          {/* Matches - Show only when league is explicitly expanded */}
           {isLeagueExpanded && (
             <div
               className="space-y-0 league-matches-container"
