@@ -660,83 +660,77 @@ const LeagueStandingsFilter = () => {
   const getChampionshipTitle = (rank: number, description?: string): string => {
     if (!description) return "";
 
-    // For rank 1, generate an actual championship title instead of promotion description
+    // Shorten common long descriptions
+    const shortenDescription = (desc: string): string => {
+      return desc
+        .replace(/World Cup - Qualification/g, "WC Qual")
+        .replace(/UEFA Champions League/g, "UCL")
+        .replace(/UEFA Europa League/g, "UEL")
+        .replace(/UEFA Conference League/g, "UECL")
+        .replace(/Premier League/g, "PL")
+        .replace(/La Liga/g, "LL")
+        .replace(/Serie A/g, "SA")
+        .replace(/Bundesliga/g, "BL")
+        .replace(/Ligue 1/g, "L1")
+        .replace(/South America/g, "CONMEBOL")
+        .replace(/Champions League/g, "CL")
+        .replace(/Europa League/g, "EL")
+        .replace(/Conference League/g, "ECL")
+        .replace(/Qualification/g, "Qual")
+        .replace(/Runner-up/g, "2nd")
+        .replace(/3rd Place/g, "3rd")
+        .replace(/Winners/g, "Win")
+        .replace(/Championship/g, "Champ");
+    };
+
+    // For rank 1, generate shortened championship titles
     if (rank === 1) {
-      // Don't show promotion/qualification descriptions for champions
       if (
         description.toLowerCase().includes("promotion") ||
         description.toLowerCase().includes("play offs") ||
         description.toLowerCase().includes("qualification")
       ) {
-        // Generate a proper championship title based on league name
-        if (selectedLeagueName.toLowerCase().includes("premier league")) {
-          return "Won the Premier League";
+        if (selectedLeagueName.toLowerCase().includes("world cup")) {
+          return "WC Winners";
+        } else if (selectedLeagueName.toLowerCase().includes("premier league")) {
+          return "PL Winners";
         } else if (selectedLeagueName.toLowerCase().includes("la liga")) {
-          return "Won La Liga";
+          return "LL Winners";
         } else if (selectedLeagueName.toLowerCase().includes("serie a")) {
-          return "Won Serie A";
+          return "SA Winners";
         } else if (selectedLeagueName.toLowerCase().includes("bundesliga")) {
-          return "Won the Bundesliga";
+          return "BL Winners";
         } else if (selectedLeagueName.toLowerCase().includes("ligue 1")) {
-          return "Won Ligue 1";
-        } else if (
-          selectedLeagueName.toLowerCase().includes("champions league")
-        ) {
-          return "UEFA Champions League Winners";
+          return "L1 Winners";
+        } else if (selectedLeagueName.toLowerCase().includes("champions league")) {
+          return "UCL Winners";
         } else if (selectedLeagueName.toLowerCase().includes("europa league")) {
-          return "UEFA Europa League Winners";
-        } else if (
-          selectedLeagueName.toLowerCase().includes("conference league")
-        ) {
-          return "UEFA Conference League Winners";
-        } else if (selectedLeagueName.toLowerCase().includes("world cup")) {
-          return "World Cup Winners";
-        } else if (
-          selectedLeagueName.toLowerCase().includes("nations league")
-        ) {
-          return "Nations League Winners";
+          return "UEL Winners";
+        } else if (selectedLeagueName.toLowerCase().includes("conference league")) {
+          return "UECL Winners";
         } else {
-          // Generic championship title
-          return `${selectedLeagueName} Champions`;
+          return "Champions";
         }
       }
-
-      // If it's already a proper title (not promotion), show it
-      return description;
+      return shortenDescription(description);
     }
 
-    // For ranks 2 and 3, generate runner-up titles
+    // For ranks 2 and 3, generate shortened runner-up titles
     if (rank === 2) {
       if (
         description?.toLowerCase().includes("promotion") ||
         description?.toLowerCase().includes("play offs") ||
         description?.toLowerCase().includes("qualification")
       ) {
-        if (selectedLeagueName.toLowerCase().includes("premier league")) {
-          return "Premier League Runner-up";
-        } else if (selectedLeagueName.toLowerCase().includes("la liga")) {
-          return "La Liga Runner-up";
-        } else if (selectedLeagueName.toLowerCase().includes("serie a")) {
-          return "Serie A Runner-up";
-        } else if (selectedLeagueName.toLowerCase().includes("bundesliga")) {
-          return "Bundesliga Runner-up";
-        } else if (selectedLeagueName.toLowerCase().includes("ligue 1")) {
-          return "Ligue 1 Runner-up";
-        } else if (
-          selectedLeagueName.toLowerCase().includes("champions league")
-        ) {
-          return "UEFA Champions League Runner-up";
-        } else if (selectedLeagueName.toLowerCase().includes("europa league")) {
-          return "UEFA Europa League Runner-up";
-        } else if (
-          selectedLeagueName.toLowerCase().includes("conference league")
-        ) {
-          return "UEFA Conference League Runner-up";
+        if (selectedLeagueName.toLowerCase().includes("world cup")) {
+          return "WC 2nd";
+        } else if (selectedLeagueName.toLowerCase().includes("qualification")) {
+          return "WC Qual 2nd";
         } else {
-          return `${selectedLeagueName} Runner-up`;
+          return "Runner-up";
         }
       }
-      return description;
+      return shortenDescription(description);
     }
 
     if (rank === 3) {
@@ -745,35 +739,13 @@ const LeagueStandingsFilter = () => {
         description?.toLowerCase().includes("play offs") ||
         description?.toLowerCase().includes("qualification")
       ) {
-        if (selectedLeagueName.toLowerCase().includes("premier league")) {
-          return "Premier League 3rd Place";
-        } else if (selectedLeagueName.toLowerCase().includes("la liga")) {
-          return "La Liga 3rd Place";
-        } else if (selectedLeagueName.toLowerCase().includes("serie a")) {
-          return "Serie A 3rd Place";
-        } else if (selectedLeagueName.toLowerCase().includes("bundesliga")) {
-          return "Bundesliga 3rd Place";
-        } else if (selectedLeagueName.toLowerCase().includes("ligue 1")) {
-          return "Ligue 1 3rd Place";
-        } else if (
-          selectedLeagueName.toLowerCase().includes("champions league")
-        ) {
-          return "UEFA Champions League 3rd Place";
-        } else if (selectedLeagueName.toLowerCase().includes("europa league")) {
-          return "UEFA Europa League 3rd Place";
-        } else if (
-          selectedLeagueName.toLowerCase().includes("conference league")
-        ) {
-          return "UEFA Conference League 3rd Place";
-        } else {
-          return `${selectedLeagueName} 3rd Place`;
-        }
+        return "3rd Place";
       }
-      return description;
+      return shortenDescription(description);
     }
 
-    // For other ranks, return the description as is (qualification/relegation info)
-    return description;
+    // For other ranks, return shortened description
+    return shortenDescription(description);
   };
 
   const getNextMatchInfo = (teamId: number, teamName: string) => {
