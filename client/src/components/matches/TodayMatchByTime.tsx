@@ -747,7 +747,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                                 fallbackUrl={
                                   fixture.teams.home.id
                                     ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
-                                    : "/assets/fallback-logo.svg"
+                                    : "/assets/fallback.png"
                                 }
                                 alt={fixture.teams.home.name}
                                 size="34px"
@@ -759,7 +759,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
                                 teamLogo={
                                   fixture.teams.home.id
                                     ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
-                                    : "/assets/fallback-logo.svg"
+                                    : "/assets/fallback.png"
                                 }
                                 alt={fixture.teams.home.name}
                                 size="34px"
