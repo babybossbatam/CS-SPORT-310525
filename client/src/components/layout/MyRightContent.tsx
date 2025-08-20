@@ -34,13 +34,13 @@ const MyRightContent: React.FC = () => {
       )}
 
       {/* Top Scorers - Consistent spacing */}
-      <div className={cn(
-        isMobile
-          ? "rounded-lg bg-white dark:bg-gray-800 shadow-sm mx-0"
-          : ""
-      )}>
+      {isMobile ? (
         <HomeTopScorersList />
-      </div>
+      ) : (
+        <div>
+          <HomeTopScorersList />
+        </div>
+      )}
 
       {/* League Standings - Consistent spacing */}
       <div className={cn(
