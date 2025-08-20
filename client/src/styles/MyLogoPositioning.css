@@ -480,37 +480,63 @@
 /* Responsive grid adjustments */
 @media (max-width: 640px) {
   .match-content-container {
-    grid-template-columns: 1fr 28px 70px 28px 1fr;
-    grid-template-rows: 36px;
-    padding: 0.25rem;
+    grid-template-columns: 1fr 30px 76px 30px 1fr;
+    grid-template-rows: 40px;
+    padding: 0 8px;
+    gap: 4px;
   }
 
   .home-team-name,
   .away-team-name {
-    padding: 0.25rem;
-    font-size: 10px;
-    padding-left: 0.25rem;
-    padding-right: 0.25rem;
+    padding: 0;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+  }
+
+  .home-team-name {
+    justify-content: flex-end;
+    padding-right: 6px;
+  }
+
+  .away-team-name {
+    justify-content: flex-start;
+    padding-left: 6px;
+  }
+
+  .home-team-logo-container,
+  .away-team-logo-container {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .team-logo {
-    width: 20px;
-    height: 20px;
-    min-width: 20px;
-    min-height: 20px;
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    min-height: 22px;
   }
 
   .match-score-container {
-    width: 70px;
-    padding: 0 0.125rem;
+    width: 76px;
+    min-width: 76px;
+    max-width: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .match-score-display {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 
   .match-time-display {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
   }
 }
 
