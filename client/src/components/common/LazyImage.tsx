@@ -173,7 +173,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
               console.log(`⚽ [LazyImage] Using fallback for Al-Nassr team after all retries`);
               setImageSrc("/assets/fallback.png");
               setHasError(false);
-              setIsLoading(true);false, retryCount);
+              setIsLoading(true);
               return true;
             }
           }
