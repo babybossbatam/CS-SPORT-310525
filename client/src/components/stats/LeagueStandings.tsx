@@ -285,22 +285,14 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({
                                         className="flex-shrink-0"
                                       />
                                     ) : (
-                                      <img
+                                      <LazyImage
                                         src={standing.team.logo}
                                         alt={standing.team.name}
                                         className="w-6 h-6 object-contain rounded flex-shrink-0"
-                                        onError={(e) => {
-                                          const target =
-                                            e.target as HTMLImageElement;
-                                          if (
-                                            !target.src.includes(
-                                              "/assets/fallback-logo.svg",
-                                            )
-                                          ) {
-                                            target.src =
-                                              "/assets/fallback-logo.svg";
-                                          }
-                                        }}
+                                        useTeamLogo={true}
+                                        teamId={standing.team.id}
+                                        teamName={standing.team.name}
+                                        style={{ width: '24px', height: '24px' }}
                                       />
                                     )}
                                     <div className="flex flex-col">
@@ -376,22 +368,14 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({
                                       className="flex-shrink-0"
                                     />
                                   ) : (
-                                    <img
+                                    <LazyImage
                                       src={standing.team.nextMatch.logo}
                                       alt={standing.team.nextMatch.name}
                                       className="w-5 h-5 object-contain rounded flex-shrink-0"
-                                      onError={(e) => {
-                                        const target =
-                                          e.target as HTMLImageElement;
-                                        if (
-                                          !target.src.includes(
-                                            "/assets/fallback.png",
-                                          )
-                                        ) {
-                                          target.src =
-                                            "/assets/fallback.png";
-                                        }
-                                      }}
+                                      useTeamLogo={true}
+                                      teamId={standing.team.nextMatch.id || standing.team.nextMatch.name}
+                                      teamName={standing.team.nextMatch.name}
+                                      style={{ width: '20px', height: '20px' }}
                                     />
                                   )}
                                 </div>
