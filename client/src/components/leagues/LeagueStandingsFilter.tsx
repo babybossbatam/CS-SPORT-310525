@@ -905,7 +905,7 @@ const LeagueStandingsFilter = () => {
                               return (
                                 <TableRow
                                   key={standing.team.id}
-                                  className="border-b border-gray-200 dark:border-gray-700"
+                                  className="border-b border-gray-200 dark:border-gray-700 h-12"
                                 >
                                   <TableCell className="font-medium text-[0.8rem] text-center px-0.5 py-2 sticky left-0 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
                                     {standing.rank}
@@ -1189,7 +1189,7 @@ const LeagueStandingsFilter = () => {
                           return (
                             <TableRow
                               key={standing.team.id}
-                              className="border-b border-gray-100 transition-colors"
+                              className="border-b border-gray-100 transition-colors h-12"
                             >
                               <TableCell className="py-0 mt-0 mb-0 px-0 relative sticky left-0 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
                                 <div className="flex items-center">
@@ -1367,9 +1367,9 @@ const LeagueStandingsFilter = () => {
                                                 ? "bg-red-100 text-red-700 border border-red-200"
                                                 : "bg-gray-400"
                                         } ${i >= 4 ? "mt-1" : ""}`}
-                                        style={{ 
-                                          fontSize: '8px',
-                                          flexBasis: i >= 4 ? 'calc(25% - 2px)' : 'auto'
+                                        style={{
+                                          fontSize: "8px",
+                                          flexBasis: i >= 4 ? "calc(25% - 2px)" : "auto",
                                         }}
                                       >
                                         {result}
