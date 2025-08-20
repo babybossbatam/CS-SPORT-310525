@@ -520,8 +520,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
         filter: darkMode ? 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))' : 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.8))',
         // Apply size from props if no explicit width/height in style
         ...(style?.width || style?.height ? {} : {
-          width: style?.width || style?.height || (isMobile ? '24px' : '24px'),
-          height: style?.height || style?.width || (isMobile ? '24px' : '24px')
+         width: style?.width || style?.height || (isMobile ? '32px' : '32px'),
+          height: style?.height || style?.width || (isMobile ? '32px' : '32px')
         })
       }}
       loading={shouldPreload ? 'eager' : 'lazy'}
