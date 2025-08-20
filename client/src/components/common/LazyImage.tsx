@@ -363,12 +363,24 @@ const LazyImage: React.FC<LazyImageProps> = ({
           setImageSrc(fallbackUrl);
           onError?.();
         } else {
-          console.warn(
-            `🖼️ [LazyImage] Retrying image load: ${imageSrc} (attempt ${retryCount + 1})`,
-          );
-          setImageSrc(`${src}?retry=${retryCount + 1}&t=${Date.now()}`);
-          setRetryCount(retryCount + 1);
-          setIsLoading(true);
+          // For team logos, don't retry with cache busters as it may cause 365scores placeholders
+          const isTeamLogo = imageSrc.includes('/api/team-logo/') || 
+                            imageSrc.includes('media.api-sports.io/football/teams/') ||
+                            imageSrc.includes('Competitors/');
+          
+          if (isTeamLogo) {
+            console.warn(`⚽ [LazyImage] Team logo failed, using fallback instead of retry: ${imageSrc}`);
+            setHasError(true);
+            setImageSrc(fallbackUrl);
+            onError?.();
+          } else {
+            console.warn(
+              `🖼️ [LazyImage] Retrying image load: ${imageSrc} (attempt ${retryCount + 1})`,
+            );
+            setImageSrc(`${src}?retry=${retryCount + 1}&t=${Date.now()}`);
+            setRetryCount(retryCount + 1);
+            setIsLoading(true);
+          }
         }
       } else if (!hasError && retryCount >= 3 && isLeagueLogo) { // Specific handling for league logos that failed all 3 specific retries
           console.warn(
@@ -390,6 +402,17 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const handleLoad = () => {
     // Reset loading state when image loads successfully
     setIsLoading(false);
+
+    // Check if this is a 365scores placeholder (generic "365" image)
+    const is365Placeholder = imageSrc.includes("365scores.com") && 
+                             (imageSrc.includes("default") || imageSrc.includes("placeholder"));
+
+    if (is365Placeholder) {
+      console.warn(`🚫 [LazyImage] 365scores placeholder detected, using fallback: ${imageSrc}`);
+      setImageSrc(fallbackUrl);
+      setHasError(true);
+      return;
+    }
 
     // Don't cache or log success for fallback images
     const isFallbackImage =
