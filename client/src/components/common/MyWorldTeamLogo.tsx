@@ -382,9 +382,12 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       const age = Date.now() - globalCached.timestamp;
       if (age < GLOBAL_CACHE_DURATION && globalCached.verified) {
         console.log(`🚀 [MyWorldTeamLogo] Using global cache for ${teamName}: ${globalCached.url}`);
-        setImageSrc(globalCached.url);
-        setHasError(false);
-        setIsLoading(false);
+        // Only update if the cached URL is different from current
+        if (imageSrc !== globalCached.url) {
+          setImageSrc(globalCached.url);
+          setHasError(false);
+          setIsLoading(false);
+        }
         return;
       } else if (age >= GLOBAL_CACHE_DURATION) {
         // Remove expired entries
@@ -392,36 +395,45 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       }
     }
 
-    // If not in cache or expired, proceed with loading
-    setIsLoading(true); // Ensure loading state is true before fetch
-    setHasError(false); // Reset error state
+    // Only proceed with loading if we don't already have a valid image
+    if (!imageSrc || imageSrc === "/assets/fallback.png" || hasError) {
+      setIsLoading(true);
+      setHasError(false);
 
-    let isMounted = true; // Flag to prevent state update on unmounted component
+      let isMounted = true; // Flag to prevent state update on unmounted component
 
-    logoUrl.then((url) => {
-      if (isMounted) {
-        setImageSrc(url || "/assets/fallback.png");
-        setHasError(url ? url.includes("/assets/fallback.png") : true); // Consider fallback as error if it's the only option
-        setIsLoading(false);
-      }
-    }).catch((error) => {
-      console.error(`❌ [MyWorldTeamLogo] Error setting image src for ${teamName}:`, error);
-      if (isMounted) {
-        setImageSrc("/assets/fallback.png");
-        setHasError(true);
-        setIsLoading(false);
-      }
-    });
+      logoUrl.then((url) => {
+        if (isMounted && url && url !== imageSrc) {
+          setImageSrc(url);
+          setHasError(url.includes("/assets/fallback.png"));
+          setIsLoading(false);
+        }
+      }).catch((error) => {
+        console.error(`❌ [MyWorldTeamLogo] Error setting image src for ${teamName}:`, error);
+        if (isMounted) {
+          setImageSrc("/assets/fallback.png");
+          setHasError(true);
+          setIsLoading(false);
+        }
+      });
 
-    return () => {
-      isMounted = false; // Cleanup flag
-    };
-  }, [teamId, teamName, teamLogo, shouldUseCircularFlag, imageSrc]); // Added imageSrc to dependency array to re-run if it changes unexpectedly
+      return () => {
+        isMounted = false; // Cleanup flag
+      };
+    }
+  }, [teamId, teamName, teamLogo, shouldUseCircularFlag]); // Removed imageSrc from dependencies to prevent loops
 
 
   const handleLoad = () => {
-    setIsLoading(false);
-    setHasError(false);
+    // Only update state if currently loading
+    if (isLoading) {
+      setIsLoading(false);
+    }
+    
+    // Only update error state if there was an error
+    if (hasError) {
+      setHasError(false);
+    }
 
     // Don't cache fallback images
     if (
@@ -439,12 +451,17 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     // Cache in global memory for immediate sharing between components
     if (teamId && teamName) {
       const globalCacheKey = `${teamId}_${teamName}`;
-      globalLogoCache.set(globalCacheKey, {
-        url: imageSrc,
-        timestamp: Date.now(),
-        verified: true
-      });
-      console.log(`💾 [MyWorldTeamLogo] Cached ${teamName} logo in global cache: ${imageSrc}`);
+      const existingCache = globalLogoCache.get(globalCacheKey);
+      
+      // Only update cache if URL is different or not verified
+      if (!existingCache || existingCache.url !== imageSrc || !existingCache.verified) {
+        globalLogoCache.set(globalCacheKey, {
+          url: imageSrc,
+          timestamp: Date.now(),
+          verified: true
+        });
+        console.log(`💾 [MyWorldTeamLogo] Cached ${teamName} logo in global cache: ${imageSrc}`);
+      }
     }
     onLoad?.(); // Call the onLoad prop if provided
   };
@@ -548,10 +565,10 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         title={teamName}
         className="team-logo"
         style={imageStyle}
-        fallbackSrc="/assets/fallback.png"
         onError={handleImageError}
-        onLoad={handleLoad} // Attach the handleLoad to LazyImage's onLoad
-        loading={isLoading ? "lazy" : "eager"} // Control loading state
+        onLoad={handleLoad}
+        loading="lazy"
+        priority="medium"
       />
     </div>
   );
