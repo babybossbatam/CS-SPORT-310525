@@ -99,7 +99,7 @@ export function generateLogoSources(options: TeamLogoOptions): LogoSource[] {
 
   // 3. Fallback logo
   sources.push({
-    url: '/assets/fallback-logo.svg',
+    url: '/assets/matchdetaillogo/fallback.png',
     source: 'fallback',
     priority: 3
   });
@@ -179,7 +179,7 @@ export function generateLeagueLogoSources(options: LeagueLogoOptions): LogoSourc
 
   // 5. Final fallback logo
   sources.push({
-    url: '/assets/fallback.png',
+    url: '/assets/matchdetaillogo/fallback.png',
     source: 'fallback',
     priority: 9
   });
@@ -220,7 +220,7 @@ export async function getCachedTeamLogo(teamId: number | string, sport: string =
   }
 
   // If all sources fail, return fallback and cache it
-  const fallbackUrl = '/assets/fallback-logo.svg';
+  const fallbackUrl = '/assets/matchdetaillogo/fallback.png';
   teamLogoCache.setCached(cacheKey, fallbackUrl, 'final-fallback', true);
   return fallbackUrl;
 }
@@ -261,7 +261,7 @@ export async function getCachedLeagueLogo(leagueId: number | string, leagueName?
   }
 
   // If all sources fail, return fallback and cache it
-  const fallbackUrl = '/assets/fallback-logo.svg';
+  const fallbackUrl = '/assets/matchdetaillogo/fallback.png';
   leagueLogoCache.setCached(cacheKey, fallbackUrl, 'final-fallback', true);
   console.warn(`🚫 [getCachedLeagueLogo] All sources failed for league ${leagueId}, using fallback`);
   return fallbackUrl;
@@ -306,7 +306,7 @@ export async function findWorkingLogoUrl(options: TeamLogoOptions): Promise<stri
   }
 
   // If all fail, return the final fallback
-  return '/assets/fallback-logo.svg';
+  return '/assets/matchdetaillogo/fallback.png';
 }
 
 /**

@@ -15,7 +15,7 @@ export function getCountryCode(countryName: string | null | undefined): string |
   if (!countryName || typeof countryName !== 'string') {
     return null;
   }
-  
+
   const normalizedCountry = countryName.trim();
   let countryCode = countryCodeMap[normalizedCountry];
 
@@ -346,7 +346,7 @@ const countryCodeMap: { [key: string]: string } = {
   "Macau SAR": "MO",
   // Additional variations
   RSA: "ZA",
-  "South-Africa": "ZA",
+  "South-africa": "ZA",
   "República de Sudáfrica": "ZA",
   "Suid-Afrika": "ZA",
 
@@ -355,7 +355,7 @@ const countryCodeMap: { [key: string]: string } = {
   World: "WO",
 
   // SportsRadar specific countries
-  Congo: "CD", // Democratic Republic of Congo (not Colombia CO)
+  Congo: "CD", // Democratic Republic of the Congo (not Colombia CO)
   Mozambique: "MZ", // Mozambique (not Macau MO)
   "Sao Tome and Principe": "ST",
   Tahiti: "PF",
@@ -377,22 +377,22 @@ function safeStorageWrite(key: string, value: string): boolean {
   try {
     const { available } = getStorageSize();
     const requiredSpace = value.length + key.length + 100; // 100 bytes buffer
-    
+
     if (available < requiredSpace) {
       console.warn('⚠️ Insufficient storage space, attempting cleanup');
-      
+
       // Try progressive cleanup levels
       if (!progressiveStorageCleanup(requiredSpace)) {
         console.error('❌ All cleanup attempts failed, storage critically full');
         return false;
       }
     }
-    
+
     localStorage.setItem(key, value);
     return true;
   } catch (e) {
     console.error('Storage write failed:', e);
-    
+
     // Emergency: Clear everything and try once more
     nuclearStorageCleanup();
     try {
@@ -410,7 +410,7 @@ function safeStorageWrite(key: string, value: string): boolean {
  */
 function getStorageSize(): { used: number; available: number } {
   let used = 0;
-  
+
   try {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
@@ -426,11 +426,11 @@ function getStorageSize(): { used: number; available: number } {
     // If we can't calculate, assume it's nearly full
     used = 4.5 * 1024 * 1024; // 4.5MB
   }
-  
+
   // Conservative 4MB limit to ensure we don't hit quota
   const maxSize = 4 * 1024 * 1024; // 4MB
   const available = Math.max(0, maxSize - used);
-  
+
   return { used, available };
 }
 
@@ -439,35 +439,35 @@ function getStorageSize(): { used: number; available: number } {
  */
 function progressiveStorageCleanup(requiredSpace: number): boolean {
   console.warn('🚨 Progressive storage cleanup initiated');
-  
+
   // Level 1: Remove expired entries (older than 1 hour)
   cleanupExpiredEntries(60 * 60 * 1000); // 1 hour
   if (getStorageSize().available >= requiredSpace) {
     console.log('✅ Level 1 cleanup sufficient');
     return true;
   }
-  
+
   // Level 2: Remove older entries (older than 30 minutes)
   cleanupExpiredEntries(30 * 60 * 1000); // 30 minutes
   if (getStorageSize().available >= requiredSpace) {
     console.log('✅ Level 2 cleanup sufficient');
     return true;
   }
-  
+
   // Level 3: Remove all cache entries
   removeAllCacheEntries();
   if (getStorageSize().available >= requiredSpace) {
     console.log('✅ Level 3 cleanup sufficient');
     return true;
   }
-  
+
   // Level 4: Remove everything except essential app data
   emergencyCleanup();
   if (getStorageSize().available >= requiredSpace) {
     console.log('✅ Level 4 cleanup sufficient');
     return true;
   }
-  
+
   return false;
 }
 
@@ -476,7 +476,7 @@ function progressiveStorageCleanup(requiredSpace: number): boolean {
  */
 function removeAllCacheEntries(): void {
   const keysToRemove: string[] = [];
-  
+
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     if (key && (
@@ -490,7 +490,7 @@ function removeAllCacheEntries(): void {
       keysToRemove.push(key);
     }
   }
-  
+
   keysToRemove.forEach(key => localStorage.removeItem(key));
   console.warn(`🗑️ Removed ${keysToRemove.length} cache entries`);
 }
@@ -501,7 +501,7 @@ function removeAllCacheEntries(): void {
 function cleanupExpiredEntries(maxAge: number): void {
   const now = Date.now();
   const keysToRemove: string[] = [];
-  
+
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     if (key && (key.includes('_cache') || key.includes('cssport_'))) {
@@ -519,7 +519,7 @@ function cleanupExpiredEntries(maxAge: number): void {
       }
     }
   }
-  
+
   keysToRemove.forEach(key => localStorage.removeItem(key));
   if (keysToRemove.length > 0) {
     console.log(`🧹 Removed ${keysToRemove.length} expired entries (older than ${Math.round(maxAge / 1000 / 60)} minutes)`);
@@ -531,11 +531,11 @@ function cleanupExpiredEntries(maxAge: number): void {
  */
 function nuclearStorageCleanup(): void {
   console.error('☢️ Nuclear storage cleanup - clearing almost everything');
-  
+
   // Keep only essential settings
   const essentialKeys = ['darkMode', 'language', 'timezone'];
   const essentialData: { [key: string]: string } = {};
-  
+
   // Save essential data
   essentialKeys.forEach(key => {
     const value = localStorage.getItem(key);
@@ -543,10 +543,10 @@ function nuclearStorageCleanup(): void {
       essentialData[key] = value;
     }
   });
-  
+
   // Clear everything
   localStorage.clear();
-  
+
   // Restore essential data
   Object.entries(essentialData).forEach(([key, value]) => {
     try {
@@ -555,7 +555,7 @@ function nuclearStorageCleanup(): void {
       console.warn(`Failed to restore essential key: ${key}`);
     }
   });
-  
+
   console.warn('☢️ Nuclear cleanup completed - all cache cleared');
 }
 
@@ -572,7 +572,7 @@ function emergencyCleanup(): void {
 function cleanupOldCacheEntries(): void {
   try {
     const keysToRemove: string[] = [];
-    
+
     // Remove old fixture caches (over 2 hours old)
     for (let key in localStorage) {
       if (key.startsWith('all-fixtures-by-date-') || 
@@ -588,18 +588,18 @@ function cleanupOldCacheEntries(): void {
         }
       }
     }
-    
+
     // Remove old query cache entries
     for (let key in localStorage) {
       if (key.includes('query-cache') || key.includes('react-query')) {
         keysToRemove.push(key);
       }
     }
-    
+
     keysToRemove.forEach(key => {
       localStorage.removeItem(key);
     });
-    
+
     if (keysToRemove.length > 0) {
       console.log(`🧹 Cleaned up ${keysToRemove.length} old cache entries`);
     }
@@ -619,23 +619,23 @@ export function saveFlagCacheToStorage(): void {
         timestamp: Date.now(),
         flags: Array.from(cache.entries()),
       };
-      
+
       const dataString = JSON.stringify(cacheData);
       const dataSize = dataString.length;
-      
+
       // Check storage space
       const storage = getStorageSize();
-      
+
       // If data is too large or not enough space, cleanup and try again
       if (dataSize > storage.available) {
         console.log(`⚠️ Flag cache too large (${Math.round(dataSize/1024)}KB), cleaning up...`);
         cleanupOldCacheEntries();
-        
+
         // Check again after cleanup
         const storageAfterCleanup = getStorageSize();
         if (dataSize > storageAfterCleanup.available) {
           console.warn(`❌ Still not enough space after cleanup. Need ${Math.round(dataSize/1024)}KB, have ${Math.round(storageAfterCleanup.available/1024)}KB`);
-          
+
           // Emergency: keep only the most recent flags
           const recentFlags = Array.from(cache.entries()).slice(-10);
           const emergencyData = {
@@ -647,7 +647,7 @@ export function saveFlagCacheToStorage(): void {
           return;
         }
       }
-      
+
       localStorage.setItem(FLAG_STORAGE_KEY, dataString);
       console.log(`💾 Saved ${cache.size} flags to localStorage (${Math.round(dataSize/1024)}KB)`);
     }
@@ -657,7 +657,7 @@ export function saveFlagCacheToStorage(): void {
       try {
         // Emergency cleanup - remove all non-essential data
         cleanupOldCacheEntries();
-        
+
         // Try to save minimal flag data
         const cache = (flagCache as any).cache;
         if (cache instanceof Map) {
@@ -950,58 +950,6 @@ export async function getCachedFlag(country: string): Promise<string> {
     return europeFlag;
   }
 
-  // For regular countries, check if they have simple country code mappings first
-  const normalizedCountry = country.trim();
-  let countryCode = countryCodeMap[normalizedCountry];
-
-  console.log(
-    `🔍 [flagUtils.ts:getCachedFlag] Country mapping lookup for "${normalizedCountry}":`,
-    {
-      directMapping: countryCode,
-      hasDirectMapping: !!countryCode,
-    },
-  );
-
-  if (!countryCode && normalizedCountry.includes("-")) {
-    const spaceVersion = normalizedCountry.replace(/-/g, " ");
-    countryCode = countryCodeMap[spaceVersion];
-    console.log(
-      `🔍 [flagUtils.ts:getCachedFlag] Trying space variation "${spaceVersion}": ${countryCode || "not found"}`,
-    );
-  }
-
-  if (!countryCode && normalizedCountry.includes(" ")) {
-    const hyphenVersion = normalizedCountry.replace(/\s+/g, "-");
-    countryCode = countryCodeMap[hyphenVersion];
-    console.log(
-      `🔍 [flagUtils.ts:getCachedFlag] Trying hyphen variation "${hyphenVersion}": ${countryCode || "not found"}`,
-    );
-  }
-
-  // If we have a simple 2-letter country code, process immediately
-  if (countryCode && countryCode.length === 2) {
-    // Use Circle Flags as primary source for better circular design
-    const flagUrl = `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
-    console.log(
-      `🎯 [flagUtils.ts:getCachedFlag] Found 2-letter code for ${country}: ${countryCode} -> ${flagUrl} (Circle Flags)`,
-    );
-    flagCache.setCached(cacheKey, flagUrl, "circle-flags", true);
-    console.log(
-      `💾 [flagUtils.ts:getCachedFlag] Cached Circle Flag for ${country} with source: circle-flags`,
-    );
-    return flagUrl;
-  }
-
-  if (countryCode && countryCode.startsWith("GB-")) {
-    const subdivision = countryCode.toLowerCase().replace("gb-", "");
-    const flagUrl = `https://hatscripts.github.io/circle-flags/flags/gb-${subdivision}.svg`;
-    console.log(
-      `🇬🇧 [flagUtils.ts:getCachedFlag] Using Circle Flags for ${country}: ${flagUrl}`,
-    );
-    flagCache.setCached(cacheKey, flagUrl, "circle-flags-gb", true);
-    return flagUrl;
-  }
-
   // For countries that need API calls, use individual fetch instead of batching
   console.log(
     `🌐 [flagUtils.ts:getCachedFlag] No direct mapping for ${country}, starting individual fetch...`,
@@ -1020,7 +968,7 @@ export async function getCachedFlag(country: string): Promise<string> {
 }
 
 /**
- * Get country flag URL with enhanced fallback support using MyAPIFallback system
+ * Get country flag URL with enhanced fallback support using MyFallbackAPI system
  * @param country - Country name
  * @param leagueFlag - Optional league flag URL
  * @returns Promise<string> - Flag image URL
@@ -1043,14 +991,14 @@ export async function getCountryFlagWithFallback(
 
   // Add comprehensive null/undefined check for country
   if (!country || typeof country !== "string" || country.trim() === "") {
-    return "/assets/fallback-logo.svg";
+    return "/assets/matchdetaillogo/fallback.png";
   }
 
   const cleanCountry = country.trim();
 
   // Special handling for Unknown country
   if (cleanCountry === "Unknown") {
-    return "/assets/fallback-logo.svg";
+    return "/assets/matchdetaillogo/fallback.png";
   }
 
   // Generate flag sources and find working one
@@ -1065,7 +1013,7 @@ export async function getCountryFlagWithFallback(
   }
 
   // If all fail, return the final fallback
-  return "/assets/fallback-logo.svg";
+  return "/assets/matchdetaillogo/fallback.png";
 }
 
 // Memory cache for flag URLs
@@ -1098,7 +1046,9 @@ export const getCountryFlagWithFallbackSync = (
       "flag_venezuela_(bolivarian_republic_of)",
       "flag_venezuela_(bolivarian_republic)",
       "flag_bolivarian_republic_of_venezuela",
-      `${country}-${leagueFlag || ""}`,
+      "flag_bolivarian_republic_of",
+      "flag_ve",
+      "flag_ven",
     ];
 
     venezuelaCacheKeys.forEach((key) => {
@@ -1177,7 +1127,7 @@ export const getCountryFlagWithFallbackSync = (
   } else {
     // Add comprehensive null/undefined check for country
     if (!country || typeof country !== "string" || country.trim() === "") {
-      result = "/assets/fallback-logo.svg";
+      result = "/assets/matchdetaillogo/fallback.png";
       console.log(
         `⚠️ [flagUtils.ts:getCountryFlagWithFallbackSync] Empty country, using fallback`,
       );
@@ -1186,7 +1136,7 @@ export const getCountryFlagWithFallbackSync = (
 
       // Special handling for Unknown country
       if (cleanCountry === "Unknown") {
-        result = "/assets/fallback-logo.svg";
+        result = "/assets/matchdetaillogo/fallback.png";
         console.log(
           `❓ [flagUtils.ts:getCountryFlagWithFallbackSync] Unknown country, using fallback`,
         );
@@ -1467,8 +1417,6 @@ export const createImageFallbackHandler = (
   };
 };
 
-// Debug functions for country mapping analysis - removed to reduce console noise
-
 /**
  * Print a comprehensive missing countries report
  */
@@ -1707,10 +1655,9 @@ export const clearVenezuelaFlagCache = () => {
             !key.includes("venezuela") &&
             !key.includes("bolivarian"),
         );
-        const clearedCount = originalCount - cacheData.flags.length;
         localStorage.setItem("cssport_flag_cache", JSON.stringify(cacheData));
         console.log(
-          `🗑️ Cleared ${clearedCount} Venezuela flags from localStorage`,
+          `🗑️ Cleared ${originalCount - cacheData.flags.length} Venezuela flags from localStorage`,
         );
       }
     }
@@ -2750,7 +2697,7 @@ export const getFlagUrl = async (country: string): Promise<string> => {
 
   if (!normalizedCountry) {
     console.warn("Empty country name provided to getFlagUrl");
-    return "/assets/fallback-logo.svg";
+    return "/assets/matchdetaillogo/fallback.png";
   }
 
   // Check cache first
@@ -2789,11 +2736,11 @@ export const getFlagUrl = async (country: string): Promise<string> => {
         );
         flagCache.setCached(
           cacheKey,
-          "/assets/fallback-logo.svg",
+          "/assets/matchdetaillogo/fallback.png",
           "api-exclude",
           true,
         );
-        return "/assets/fallback-logo.svg";
+        return "/assets/matchdetaillogo/fallback.png";
       }
     }
 
@@ -2872,12 +2819,12 @@ export const getFlagUrl = async (country: string): Promise<string> => {
     );
 
     // All fallbacks failed, use default
-    const fallbackUrl = "/assets/fallback-logo.svg";
+    const fallbackUrl = "/assets/matchdetaillogo/fallback.png";
     flagCache.setCached(cacheKey, fallbackUrl, "final-fallback", true);
     return fallbackUrl;
   } catch (error) {
     console.error(`Error fetching flag for ${normalizedCountry}:`, error);
-    const fallbackUrl = "/assets/fallback-logo.svg";
+    const fallbackUrl = "/assets/matchdetaillogo/fallback.png";
     flagCache.setCached(cacheKey, fallbackUrl, "error-fallback", true);
     return fallbackUrl;
   }
@@ -3043,7 +2990,7 @@ function trackFlagRequest(country: string, cacheKey: string): void {
   }
 }
 
-// Track flag usage for intelligent eviction
+// Track flag usage for cache optimization
 const flagUsageTracker = new Map<string, { count: number; lastUsed: number }>();
 
 // Batch processing for flag requests
@@ -3121,7 +3068,7 @@ async function processFlagBatch(): Promise<void> {
         return { country, flagUrl, success: true };
       } catch (error) {
         console.warn(`Failed to fetch flag for ${country} in batch:`, error);
-        const fallbackUrl = "/assets/fallback-logo.svg";
+        const fallbackUrl = "/assets/matchdetaillogo/fallback.png";
         const countryCallbacks = callbacks.get(country) || [];
         countryCallbacks.forEach((callback) => callback(fallbackUrl));
         return { country, flagUrl: fallbackUrl, success: false };
@@ -3246,7 +3193,7 @@ async function fetchIndividualFlag(country: string): Promise<string> {
         console.log(
           `🚫 [flagUtils.ts:fetchIndividualFlag] API says exclude ${country}`,
         );
-        const fallbackUrl = "/assets/fallback-logo.svg";
+        const fallbackUrl = "/assets/matchdetaillogo/fallback.png";
         flagCache.setCached(cacheKey, fallbackUrl, "api-exclude", true);
         return fallbackUrl;
       }
@@ -3266,7 +3213,7 @@ async function fetchIndividualFlag(country: string): Promise<string> {
   console.log(
     `🔄 [flagUtils.ts:fetchIndividualFlag] Using final fallback for ${country}`,
   );
-  const fallbackUrl = "/assets/fallback-logo.svg";
+  const fallbackUrl = "/assets/matchdetaillogo/fallback.png";
   flagCache.setCached(cacheKey, fallbackUrl, "final-fallback", true);
   console.log(
     `💾 [flagUtils.ts:fetchIndividualFlag] Cached fallback for ${country}`,
