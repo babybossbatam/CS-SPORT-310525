@@ -27,7 +27,7 @@
 .dark .match-card-container:hover {
   background-color: rgb(55 65 81) !important;
   /* bg-gray-700 for dark mode hover - matches league header */
- 
+
 }
 
 /* Ensure all match cards have borders */
@@ -938,6 +938,7 @@
 /* Dark mode hover for country matches container */
 .dark .country-matches-container .match-card-container:hover:not(.disable-hover) {
   background-color: rgb(55 65 81) !important; /* gray-700 */
+
 }
 
 /* Additional dark mode hover overrides to ensure proper styling */
@@ -949,4 +950,39 @@
 .dark .country-matches-container .match-card-container:hover {
   background-color: rgb(55 65 81) !important; /* gray-700 */
 
+}
+
+/* Specific styles for league standings tables */
+.league-standings-table .team-logo,
+.league-standings-table .flag-circle,
+table .team-logo,
+table .flag-circle {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+}
+
+/* Ensure popular-leagues-size class in tables is smaller */
+table .popular-leagues-size,
+.league-standings-table .popular-leagues-size {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+}
+
+/* Responsive adjustments for mobile in tables */
+@media (max-width: 640px) {
+  .league-standings-table .team-logo,
+  .league-standings-table .flag-circle,
+  table .team-logo,
+  table .flag-circle,
+  table .popular-leagues-size,
+  .league-standings-table .popular-leagues-size {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+  }
 }
