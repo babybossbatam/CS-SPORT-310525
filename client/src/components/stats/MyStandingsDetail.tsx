@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import MyCircularFlag from '@/components/common/MyCircularFlag';
+import MyWorldTeamLogo from '@/components/common/MyWorldTeamLogo';
 import { isNationalTeam } from '@/lib/teamLogoSources';
 
 interface Team {
@@ -277,14 +278,13 @@ const MyStandingsDetail: React.FC<MyStandingsDetailProps> = ({ leagueId, season 
                                   className="flex-shrink-0"
                                 />
                               ) : (
-                                <LazyImage
-                                  src={standing.team.logo}
-                                  alt={standing.team.name}
-                                  className="w-5 h-5 object-contain rounded flex-shrink-0"
-                                  useTeamLogo={true}
-                                  teamId={standing.team.id}
+                                <MyWorldTeamLogo
                                   teamName={standing.team.name}
-                                  style={{ width: '20px', height: '20px' }}
+                                  teamId={standing.team.id}
+                                  teamLogo={standing.team.logo}
+                                  alt={standing.team.name}
+                                  size="20px"
+                                  className="flex-shrink-0"
                                 />
                               )}
                               <div className="min-w-0">
@@ -336,14 +336,13 @@ const MyStandingsDetail: React.FC<MyStandingsDetailProps> = ({ leagueId, season 
                                     className="flex-shrink-0"
                                   />
                                 ) : (
-                                  <LazyImage
-                                    src={standing.team.nextMatch.logo}
-                                    alt={standing.team.nextMatch.name}
-                                    className="w-5 h-5 object-contain rounded flex-shrink-0"
-                                    useTeamLogo={true}
-                                    teamId={standing.team.nextMatch.id || standing.team.nextMatch.name}
+                                  <MyWorldTeamLogo
                                     teamName={standing.team.nextMatch.name}
-                                    style={{ width: '20px', height: '20px' }}
+                                    teamId={standing.team.nextMatch.id || standing.team.nextMatch.name}
+                                    teamLogo={standing.team.nextMatch.logo}
+                                    alt={standing.team.nextMatch.name}
+                                    size="20px"
+                                    className="flex-shrink-0"
                                   />
                                 )}
                               </div>
