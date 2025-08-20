@@ -101,15 +101,15 @@
 /* Main match content container - Grid-based like 365scores */
 .match-content-container {
   display: grid;
-  grid-template-columns: 1fr 32px 80px 32px 1fr;
+  grid-template-columns: 1fr 36px 90px 36px 1fr;
+  grid-template-rows: 48px;
   grid-template-areas: "home-team-name home-team-logo score away-team-logo away-team-name";
-  grid-template-rows: 42px;
   align-items: center;
   justify-items: center;
   align-content: center;
   width: 100%;
-  padding: 0 8px;
-
+  padding: 0 12px;
+  gap: 0;
 }
 
 /* Bottom grid for penalty results */
