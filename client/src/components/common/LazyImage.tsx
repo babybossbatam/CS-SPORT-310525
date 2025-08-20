@@ -516,7 +516,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         ...style,
         border: 'none',
         outline: 'none',
-        display: hasError && imageSrc !== fallbackUrl ? 'none' : 'block',
+        display: hasError && imageSrc !== '/assets/matchdetaillogo/fallback.png' ? 'none' : 'block',
         opacity: isLoading ? 0.7 : 1,
         transition: 'opacity 0.2s ease-in-out',
         filter: darkMode ? 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))' : 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.8))',
@@ -531,10 +531,10 @@ const LazyImage: React.FC<LazyImageProps> = ({
       onLoad={handleLoad}
       onError={(e) => {
         const target = e.target as HTMLImageElement;
-        if (!target.src.includes(fallbackUrl)) {
-          target.src = fallbackUrl;
+        if (!target.src.includes('/assets/matchdetaillogo/fallback.png')) {
+          target.src = '/assets/matchdetaillogo/fallback.png';
         }
-        handleError(e);
+        handleError();
       }}
     />
   );
