@@ -31,6 +31,7 @@ import {
   forceRefreshVenezuelaFlag,
   clearAllFlagCache,
   getCountryCode,
+  countryCodeMap,
 } from "../../lib/flagUtils";
 import { createFallbackHandler } from "../../lib/MyAPIFallback";
 import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
@@ -43,6 +44,7 @@ import "../../styles/flasheffect.css";
 import LazyMatchItem from "./LazyMatchItem";
 import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
+import MyWorldTeamLogo from "../common/MyWorldTeamLogo"; // Assuming MyWorldTeamLogo is in this path
 import NoLiveMatchesEmpty from "./NoLiveMatchesEmpty";
 import { useTranslation } from "@/contexts/LanguageContext";
 import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
@@ -1358,18 +1360,14 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
 
                                     // Default to regular team logo for club teams
                                     return (
-                                      <LazyImage
-                                        src={
-                                          match.teams.home.id
-                                            ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                                            : "/assets/fallback-logo.svg"
-                                        }
+                                      <MyWorldTeamLogo
+                                        teamName={match.teams.home.name}
+                                        teamId={match.teams.home.id}
+                                        teamLogo={`/api/team-logo/square/${match.teams.home.id}?size=32`}
                                         alt={match.teams.home.name}
-                                        title={match.teams.home.name}
+                                        size="34px"
                                         className="team-logo"
-                                        style={{
-                                          backgroundColor: "transparent",
-                                        }}
+                                        leagueContext={{ name: leagueData.league.name, country: leagueData.league.country }}
                                       />
                                     );
                                   })()}
@@ -1524,19 +1522,14 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
 
                                     // Default to regular team logo for club teams
                                     return (
-                                      <LazyImage
-                                        src={
-                                          match.teams.away.id
-                                            ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                                            : "/assets/fallback-logo.svg"
-                                        }
+                                      <MyWorldTeamLogo
+                                        teamName={match.teams.away.name}
+                                        teamId={match.teams.away.id}
+                                        teamLogo={`/api/team-logo/square/${match.teams.away.id}?size=32`}
                                         alt={match.teams.away.name}
-                                        title={match.teams.away.name}
+                                        size="34px"
                                         className="team-logo"
-                                        style={{
-                                          filter:
-                                            "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
-                                        }}
+                                        leagueContext={{ name: leagueData.league.name, country: leagueData.league.country }}
                                       />
                                     );
                                   })()}
