@@ -219,19 +219,39 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({
                           <TableHead className="w-[60px] text-center sticky left-0 bg-white dark:bg-gray-800 z-10">
                             Pos
                           </TableHead>
-                          <TableHead className="pl-8 sticky left-[60px] bg-white dark:bg-gray-800 z-10 min-w-[180px]">Team</TableHead>
-                          <TableHead className="text-center min-w-[50px]">P</TableHead>
-                          <TableHead className="text-center min-w-[70px]">F/A</TableHead>
-                          <TableHead className="text-center min-w-[50px]">+/-</TableHead>
-                          <TableHead className="text-center min-w-[60px]">PTS</TableHead>
-                          <TableHead className="text-center min-w-[50px]">W</TableHead>
-                          <TableHead className="text-center min-w-[50px]">D</TableHead>
-                          <TableHead className="text-center min-w-[50px]">L</TableHead>
-                          <TableHead className="text-center min-w-[100px]">Form</TableHead>
-                          <TableHead className="text-center min-w-[60px]">Next</TableHead>
+                          <TableHead className="pl-8 sticky left-[60px] bg-white dark:bg-gray-800 z-10 min-w-[180px]">
+                            Team
+                          </TableHead>
+                          <TableHead className="text-center min-w-[50px]">
+                            P
+                          </TableHead>
+                          <TableHead className="text-center min-w-[70px]">
+                            F/A
+                          </TableHead>
+                          <TableHead className="text-center min-w-[50px]">
+                            +/-
+                          </TableHead>
+                          <TableHead className="text-center min-w-[60px]">
+                            PTS
+                          </TableHead>
+                          <TableHead className="text-center min-w-[50px]">
+                            W
+                          </TableHead>
+                          <TableHead className="text-center min-w-[50px]">
+                            D
+                          </TableHead>
+                          <TableHead className="text-center min-w-[50px]">
+                            L
+                          </TableHead>
+                          <TableHead className="text-center min-w-[100px]">
+                            Form
+                          </TableHead>
+                          <TableHead className="text-center min-w-[60px]">
+                            Next
+                          </TableHead>
                         </TableRow>
                       </TableHeader>
-                    <TableBody>
+                      <TableBody>
                         <div className="overflow-x-auto">
                           {standings.map((standing) => {
                             const stats =
@@ -286,13 +306,21 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({
                                         className="flex-shrink-0"
                                       />
                                     ) : (
-                                      <MyWorldTeamLogo
-                                        teamName={standing.team.name}
-                                        teamId={standing.team.id}
-                                        teamLogo={standing.team.logo}
+                                      <img
+                                        src={standing.team.logo}
                                         alt={standing.team.name}
-                                        size="24px"
-                                        className="flex-shrink-0"
+                                        className="w-6 h-6 object-contain rounded flex-shrink-0"
+                                        onError={(e) => {
+                                          const target =
+                                            e.target as HTMLImageElement;
+                                          if (
+                                            !target.src.includes(
+                                              "/assets/fallback.png",
+                                            )
+                                          ) {
+                                            target.src = "/assets/fallback.png";
+                                          }
+                                        }}
                                       />
                                     )}
                                     <div className="flex flex-col">
@@ -316,74 +344,89 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({
                                     </div>
                                   </div>
                                 </TableCell>
-                            <TableCell className="text-center">
-                              {stats.played}
-                            </TableCell>
-                            <TableCell className="text-center">
-                              {stats.goals.for}/{stats.goals.against}
-                            </TableCell>
-                            <TableCell className="text-center">
-                              {standing.goalsDiff}
-                            </TableCell>
-                            <TableCell className="text-center font-bold">
-                              {standing.points}
-                            </TableCell>
-                            <TableCell className="text-center">
-                              {stats.win}
-                            </TableCell>
-                            <TableCell className="text-center">
-                              {stats.draw}
-                            </TableCell>
-                            <TableCell className="text-center">
-                              {stats.lose}
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <div className="flex gap-1 justify-center">
-                                {standing.form?.split("").map((result, i) => (
-                                  <span
-                                    key={i}
-                                    className={`w-5 h-5 rounded-full flex items-center justify-center text-xs text-white ${
-                                      result === "W"
-                                        ? "bg-green-500"
-                                        : result === "D"
-                                          ? "bg-gray-500"
-                                          : "bg-red-500"
-                                    }`}
-                                  >
-                                    {result}
-                                  </span>
-                                ))}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              {standing.team.nextMatch && (
-                                <div className="flex justify-center">
-                                  {isNationalTeam(
-                                    standing.team.nextMatch.name,
-                                  ) ? (
-                                    <MyCircularFlag
-                                      teamName={standing.team.nextMatch.name}
-                                      fallbackUrl={standing.team.nextMatch.logo}
-                                      size="20px"
-                                      className="flex-shrink-0"
-                                    />
-                                  ) : (
-                                    <MyWorldTeamLogo
-                                      teamName={standing.team.nextMatch.name}
-                                      teamId={standing.team.nextMatch.id || standing.team.nextMatch.name}
-                                      teamLogo={standing.team.nextMatch.logo}
-                                      alt={standing.team.nextMatch.name}
-                                      size="20px"
-                                      className="flex-shrink-0"
-                                    />
+                                <TableCell className="text-center">
+                                  {stats.played}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  {stats.goals.for}/{stats.goals.against}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  {standing.goalsDiff}
+                                </TableCell>
+                                <TableCell className="text-center font-bold">
+                                  {standing.points}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  {stats.win}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  {stats.draw}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  {stats.lose}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  <div className="flex gap-1 justify-center">
+                                    {standing.form
+                                      ?.split("")
+                                      .map((result, i) => (
+                                        <span
+                                          key={i}
+                                          className={`w-5 h-5 rounded-full flex items-center justify-center text-xs text-white ${
+                                            result === "W"
+                                              ? "bg-green-500"
+                                              : result === "D"
+                                                ? "bg-gray-500"
+                                                : "bg-red-500"
+                                          }`}
+                                        >
+                                          {result}
+                                        </span>
+                                      ))}
+                                  </div>
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  {standing.team.nextMatch && (
+                                    <div className="flex justify-center">
+                                      {isNationalTeam(
+                                        standing.team.nextMatch.name,
+                                      ) ? (
+                                        <MyCircularFlag
+                                          teamName={
+                                            standing.team.nextMatch.name
+                                          }
+                                          fallbackUrl={
+                                            standing.team.nextMatch.logo
+                                          }
+                                          size="20px"
+                                          className="flex-shrink-0"
+                                        />
+                                      ) : (
+                                        <img
+                                          src={standing.team.nextMatch.logo}
+                                          alt={standing.team.nextMatch.name}
+                                          className="w-5 h-5 object-contain rounded flex-shrink-0"
+                                          onError={(e) => {
+                                            const target =
+                                              e.target as HTMLImageElement;
+                                            if (
+                                              !target.src.includes(
+                                                "/assets/fallback.png",
+                                              )
+                                            ) {
+                                              target.src =
+                                                "/assets/fallback.png";
+                                            }
+                                          }}
+                                        />
+                                      )}
+                                    </div>
                                   )}
-                                </div>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </div>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </div>
                       </TableBody>
                     </Table>
                   </div>
