@@ -259,7 +259,7 @@ const MyGroupNationalFlag: React.FC<MyGroupNationalFlagProps> = ({
               : (e) => {
                   const target = e.target as HTMLImageElement;
                   if (!target.src.includes("/assets/fallback.png")) {
-                    target.src = fallbackUrl || "/assets/fallback-logo.png";
+                    target.src = fallbackUrl || "/assets/fallback.png";
                   }
                 }
         }

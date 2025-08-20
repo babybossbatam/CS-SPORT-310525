@@ -1303,7 +1303,7 @@ export function generateCountryFlagSources(country: string): string[] {
   }
 
   // 4. Final fallback
-  sources.push("/assets/matchdetaillogo/fallback.png");
+  sources.push("/assets/fallback-logo.svg");
 
   return sources;
 }
@@ -1404,7 +1404,7 @@ export async function fetchSportsRadarFlag(
 export async function getFlagWithErrorHandling(
   primaryUrl: string,
   fallbackUrl?: string,
-  finalFallback: string = "/assets/fallback-logo.png",
+  finalFallback: string = "/assets/fallback-logo.svg",
 ): Promise<string> {
   return new Promise((resolve) => {
     const img = new Image();

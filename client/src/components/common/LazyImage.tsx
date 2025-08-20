@@ -394,6 +394,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
     // Don't cache or log success for fallback images
     const isFallbackImage =
       imageSrc.includes("/assets/matchdetaillogo/fallback.png") ||
+      imageSrc.includes("/assets/fallback-logo.svg") ||
       imageSrc.includes("fallback") ||
       imageSrc.includes("placeholder");
 
@@ -529,13 +530,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       loading={shouldPreload ? 'eager' : 'lazy'}
       decoding="async"
       onLoad={handleLoad}
-      onError={(e) => {
-        const target = e.target as HTMLImageElement;
-        if (!target.src.includes("/assets/matchdetaillogo/fallback.png")) {
-          target.src = "/assets/matchdetaillogo/fallback.png";
-        }
-        handleError();
-      }}
+      onError={handleError}
     />
   );
 };

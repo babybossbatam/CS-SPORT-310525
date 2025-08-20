@@ -971,7 +971,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               if (!a.isPopular && b.isPopular) return 1;
               return a.league.name.localeCompare(b.league.name);
             });
-
+            
             if (sortedLeagues.length > 0) {
               const firstLeague = sortedLeagues[0] as any;
               const leagueKey = `${country}-${firstLeague.league.id}`;
@@ -2175,7 +2175,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 teamLogo={
                   match.teams.home.id
                     ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                    : "/assets/matchdetaillogo/fallback.png"
+                    : "/assets/fallback-logo.svg"
                 }
                 alt={match.teams.home.name}
                 size="34px"
@@ -2343,7 +2343,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 teamLogo={
                   match.teams.away.id
                     ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                    : "/assets/matchdetaillogo/fallback.png"
+                    : "/assets/fallback-logo.svg"
                 }
                 alt={match.teams.away.name}
                 size="34px"
