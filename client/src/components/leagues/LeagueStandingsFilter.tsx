@@ -1098,7 +1098,7 @@ const LeagueStandingsFilter = () => {
                         <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[30px] border-r border-gray-200">
                           L
                         </TableHead>
-                        <TableHead className="text-center text-xs font-semi-bold text-gray-600 px-1 w-[100px] max-w-[100px]">
+                        <TableHead className="text-center text-xs font-semi-bold text-gray-600 px-1 w-[550px]">
                           Form
                         </TableHead>
                       </TableRow>
@@ -1289,17 +1289,17 @@ const LeagueStandingsFilter = () => {
                             <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
                               {stats.lose}
                             </TableCell>
-                            <TableCell className="text-center py-2 px-1 w-[100px] max-w-[100px]">
-                              <div className="flex gap-0.5 justify-center overflow-hidden">
+                            <TableCell className="text-center py-2 px-1 w-[50px] max-w-[50px]">
+                              <div className=" justify-center ">
                                 {standing.form
                                   ?.split("")
                                   .slice(-5)
                                   .map((result, i) => (
                                     <span
                                       key={i}
-                                      className={`w-4 h-4 rounded-sm flex items-center justify-center text-xs font-semi-bold flex-shrink-0 ${
+                                      className={`w-5 h-5 rounded-sm items-center justify-center text-xs font-semi-bold flex-shrink-0 ${
                                         result === "W"
-                                          ? "border border-gray-500 text-green-800"
+                                          ? " text-green-800"
                                           : result === "D"
                                             ? "border border-gray-500 text-yellow-600"
                                             : result === "L"
