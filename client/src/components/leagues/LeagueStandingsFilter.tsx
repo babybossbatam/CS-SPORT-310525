@@ -1362,9 +1362,9 @@ const LeagueStandingsFilter = () => {
                                           result === "W"
                                             ? "bg-green-100 text-green-800 border border-green-800"
                                             : result === "D"
-                                              ? "bg-yellow-100 text-yellow-700 border border-yellow-200"
+                                              ? "bg-yellow-100 text-yellow-700 border border-yellow-800"
                                               : result === "L"
-                                                ? "bg-red-100 text-red-700 border border-red-200"
+                                                ? "bg-red-100 text-red-700 border border-red-800"
                                                 : "bg-gray-400"
                                         } ${i >= 4 ? "mt-1" : ""}`}
                                         style={{ 
