@@ -1256,8 +1256,8 @@ const LeagueStandingsFilter = () => {
                                 </div>
                               </TableCell>
                               <TableCell className="py-0 px-2 sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
-                                <div className="flex items-center min-w-[160px]">
-                                  <div className="mr-2 flex-shrink-0">
+                                <div className="flex items-center min-w-[120px] max-w-[120px]">
+                                  <div className="mr-1 flex-shrink-0">
                                     <MyWorldTeamLogo
                                       teamName={standing.team.name}
                                       teamLogo={standing.team.logo}
@@ -1279,14 +1279,14 @@ const LeagueStandingsFilter = () => {
                                     />
                                   </div>
                                   <div className="flex flex-col min-w-0 flex-1">
-                                    <span className="text-xs font-semibold text-gray-900 truncate hover:underline cursor-pointer max-w-[160px] mx-3">
+                                    <span className="text-xs font-semibold text-gray-900 truncate hover:underline cursor-pointer max-w-[90px] mx-1">
                                       {getTranslatedTeamName(
                                         standing.team.name,
                                       )}
                                     </span>
                                     {standing.rank <= 3 && (
                                       <span
-                                        className="text-[0.6rem] font-medium truncate max-w-[160px] mx-3 "
+                                        className="text-[0.6rem] font-medium truncate max-w-[90px] mx-1"
                                         style={{
                                           color:
                                             standing.rank <= 3
@@ -1305,16 +1305,16 @@ const LeagueStandingsFilter = () => {
                                                       .includes(
                                                         "champions league",
                                                       )
-                                                  ? "#4A90E2"
-                                                  : standing.description
-                                                        ?.toLowerCase()
-                                                        .includes("europa")
-                                                    ? "#17A2B8"
+                                                    ? "#4A90E2"
                                                     : standing.description
                                                           ?.toLowerCase()
-                                                          .includes(
-                                                            "conference",
-                                                          )
+                                                          .includes("europa")
+                                                      ? "#17A2B8"
+                                                      : standing.description
+                                                            ?.toLowerCase()
+                                                            .includes(
+                                                              "conference",
+                                                            )
                                                         ? "#6F42C1"
                                                         : standing.description
                                                               ?.toLowerCase()
