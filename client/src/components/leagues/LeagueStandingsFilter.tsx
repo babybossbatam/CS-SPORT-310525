@@ -1073,7 +1073,7 @@ const LeagueStandingsFilter = () => {
                                         const teamLogoUrl = displayTeam.id
                                           ? `/api/team-logo/square/${displayTeam.id}?size=24`
                                           : displayTeam.logo ||
-                                            "/assets/fallback-logo.svg";
+                                            "assets/matchdetaillogo/fallback.pngg";
 
                                         return isNationalTeam ? (
                                           <MyCircularFlag
