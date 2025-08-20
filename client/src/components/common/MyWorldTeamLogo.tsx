@@ -478,7 +478,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     onLoad?.(); // Call the onLoad prop if provided
   };
 
-    const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageEvent, Event>) => {
+    const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     // Safety check to prevent undefined target errors
     if (!e || !e.target) {
       console.warn('⚠️ [MyWorldTeamLogo] Image error event has no target');
@@ -495,11 +495,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
     const currentSrc = target.src;
 
-    // Use consistent fallback URL - same as defined in component
-    const fallbackUrl = "/assets/matchdetaillogo/fallback.png";
-
     // Don't retry if already showing fallback
-    if (currentSrc.includes(fallbackUrl) || currentSrc.includes('/assets/fallback')) {
+    if (currentSrc.includes('/assets/fallback')) {
       console.log(`🚫 [MyWorldTeamLogo] Error on fallback image for ${teamName}, stopping retry.`);
       setHasError(true); // Mark as error if fallback fails
       setIsLoading(false);
@@ -517,15 +514,13 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
          target.src = `/api/team-logo/square/${teamId}?size=64`; // Use a default size
          console.log(`🔄 [MyWorldTeamLogo] Retrying logo with generic API for ${teamName}`);
       } else {
-        // If all retries fail, set to consistent fallback
-        target.src = fallbackUrl;
-        setImageSrc(fallbackUrl); // Update component state too
+        // If all retries fail, set to fallback
+        target.src = '/assets/fallback.png';
         console.log(`💥 [MyWorldTeamLogo] Final fallback for ${teamName}`);
       }
     } else {
-      // If no teamId, directly set to consistent fallback
-      target.src = fallbackUrl;
-      setImageSrc(fallbackUrl); // Update component state too
+      // If no teamId, directly set to fallback
+      target.src = '/assets/fallback.png';
       console.log(`💥 [MyWorldTeamLogo] Final fallback for ${teamName} (no teamId)`);
     }
 
