@@ -82,7 +82,8 @@ const LeagueStandingsFilter = () => {
   const { currentLanguage } = useLanguage(); // Initialize custom language hook
   const [popularLeagues, setPopularLeagues] = useState<LeagueData[]>([]);
   const [selectedLeague, setSelectedLeague] = useState<string>("39"); // Default to Premier League
-  const [selectedLeagueName, setSelectedLeagueName] = useState<string>("Premier League");
+  const [selectedLeagueName, setSelectedLeagueName] =
+    useState<string>("Premier League");
   const [leaguesLoading, setLeaguesLoading] = useState(true);
 
   // Function to get translated team name using smart translation system
@@ -93,7 +94,10 @@ const LeagueStandingsFilter = () => {
 
   // Function to get translated group text
   const getTranslatedGroupText = (groupText: string): string => {
-    return smartLeagueCountryTranslation.translateLeagueName(groupText, currentLanguage);
+    return smartLeagueCountryTranslation.translateLeagueName(
+      groupText,
+      currentLanguage,
+    );
   };
 
   useEffect(() => {
@@ -180,7 +184,8 @@ const LeagueStandingsFilter = () => {
             // Olympics qualifications (often youth teams)
             leagueName.includes("olympics") ||
             // Super Cup competitions (one-off matches, not league standings)
-            (leagueName.includes("super cup") && !leagueName.includes("saudi")) ||
+            (leagueName.includes("super cup") &&
+              !leagueName.includes("saudi")) ||
             leagueName.includes("supercup") ||
             leagueName.includes("community shield") ||
             // Campeones Cup and similar one-off competitions
@@ -207,7 +212,8 @@ const LeagueStandingsFilter = () => {
             leagueName === "world cup qualification - africa" ||
             leagueName === "world cup qualification - asia" ||
             leagueName === "world cup qualification - oceania" ||
-            leagueName === "world cup qualification - intercontinental play-offs" ||
+            leagueName ===
+              "world cup qualification - intercontinental play-offs" ||
             // Major tournaments
             leagueName === "fifa world cup" ||
             leagueName === "euro championship" ||
@@ -260,12 +266,15 @@ const LeagueStandingsFilter = () => {
         setPopularLeagues(processedLeagues);
 
         // Auto-learn all league names for better translations
-        processedLeagues.forEach(league => {
+        processedLeagues.forEach((league) => {
           if (league && league.name) {
-            smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(league.name, {
-              countryName: league.country,
-              leagueId: league.id
-            });
+            smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(
+              league.name,
+              {
+                countryName: league.country,
+                leagueId: league.id,
+              },
+            );
           }
         });
 
@@ -534,12 +543,15 @@ const LeagueStandingsFilter = () => {
         setPopularLeagues(fallbackLeagues);
 
         // Auto-learn fallback league names for better translations
-        fallbackLeagues.forEach(league => {
+        fallbackLeagues.forEach((league) => {
           if (league && league.name) {
-            smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(league.name, {
-              countryName: league.country,
-              leagueId: league.id
-            });
+            smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(
+              league.name,
+              {
+                countryName: league.country,
+                leagueId: league.id,
+              },
+            );
           }
         });
 
@@ -590,10 +602,11 @@ const LeagueStandingsFilter = () => {
       if (cachedTodayFixtures && fixturesData?.response) {
         const mergedFixtures = {
           ...fixturesData,
-          response: [...fixturesData.response, ...cachedTodayFixtures]
-            .filter((fixture, index, arr) =>
-              index === arr.findIndex(f => f.fixture.id === fixture.fixture.id)
-            ) // Remove duplicates
+          response: [...fixturesData.response, ...cachedTodayFixtures].filter(
+            (fixture, index, arr) =>
+              index ===
+              arr.findIndex((f) => f.fixture.id === fixture.fixture.id),
+          ), // Remove duplicates
         };
         return mergedFixtures;
       }
@@ -632,9 +645,7 @@ const LeagueStandingsFilter = () => {
   if (isLoading) {
     return (
       <Card>
-        <CardHeader>
-          <CardTitle>League Standings</CardTitle>
-        </CardHeader>
+        
         <CardContent>
           <div className="space-y-2">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -825,7 +836,10 @@ const LeagueStandingsFilter = () => {
                       "/assets/fallback-logo.svg";
                   }}
                 />
-                {smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, currentLanguage)}
+                {smartLeagueCountryTranslation.translateLeagueName(
+                  selectedLeagueName,
+                  currentLanguage,
+                )}
               </div>
             </SelectValue>
           </SelectTrigger>
@@ -852,7 +866,10 @@ const LeagueStandingsFilter = () => {
                           "/assets/fallback-logo.svg";
                       }}
                     />
-                    {smartLeagueCountryTranslation.translateLeagueName(league.name, currentLanguage)}
+                    {smartLeagueCountryTranslation.translateLeagueName(
+                      league.name,
+                      currentLanguage,
+                    )}
                   </div>
                 </SelectItem>
               ))}
@@ -866,11 +883,14 @@ const LeagueStandingsFilter = () => {
             standings.league.standings.length > 1 ? (
               // Group-based standings (like World Cup Qualifications)
               <div className="space-y-6">
-                {standings.league.standings.slice(0, 2).map(
-                  (group: Standing[], groupIndex: number) => (
+                {standings.league.standings
+                  .slice(0, 2)
+                  .map((group: Standing[], groupIndex: number) => (
                     <div key={groupIndex}>
                       <h3 className="text-xs font-regular mx-2 pt-2 mt-4 border-t border-b border-gray-300 dark:border-white mb-2 text-gray-700 dark:text-white flex items-center pb-1">
-                        {getTranslatedGroupText(`Group ${String.fromCharCode(65 + groupIndex)}`)}
+                        {getTranslatedGroupText(
+                          `Group ${String.fromCharCode(65 + groupIndex)}`,
+                        )}
                       </h3>
                       <div className="overflow-x-auto -webkit-overflow-scrolling-touch scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
                         <Table className="min-w-[600px] w-full">
@@ -904,164 +924,218 @@ const LeagueStandingsFilter = () => {
                               </TableHead>
                             </TableRow>
                           </TableHeader>
-                        <TableBody>
-                          {group.map((standing: Standing) => {
-                            const stats = standing.all;
-                            const isNationalTeam =
-                              isNationalTeamCompetition(selectedLeagueName);
+                          <TableBody>
+                            {group.map((standing: Standing) => {
+                              const stats = standing.all;
+                              const isNationalTeam =
+                                isNationalTeamCompetition(selectedLeagueName);
 
-                            return (
-                              <TableRow
-                                key={standing.team.id}
-                                className="border-b border-gray-200 dark:border-gray-700"
-                              >
-                                <TableCell className="font-medium text-[0.8rem] text-center px-0.5 py-2 sticky left-0 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
-                                  {standing.rank}
-                                </TableCell>
-                                <TableCell className="font-normal px-2 py-3 sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
-                                  <div className="flex items-center min-w-[140px]">
-                                    <div className="mr-2 flex-shrink-0">
-                                      <MyWorldTeamLogo
-                                        teamName={standing.team.name}
-                                        teamLogo={standing.team.logo}
-                                        alt={standing.team.name}
-                                        size="18px"
-                                        className="popular-leagues-size"
-                                        leagueContext={{
-                                          name: selectedLeagueName,
-                                          country: popularLeagues.find(
-                                            (l) => l && l.id && l.id.toString() === selectedLeague,
-                                          )?.country || "World",
-                                        }}
-                                        showNextMatchOverlay={true}
-                                      />
-                                    </div>
-                                    <span className="text-[0.8rem] truncate max-w-[120px] mx-2">
-                                      {getTranslatedTeamName(standing.team.name)}
-                                    </span>
-                                  </div>
-                                </TableCell>
-                                <TableCell className="text-center text-[0.8rem] px-1 py-1 mx-0">
-                                  {stats.played}
-                                </TableCell>
-                                <TableCell className="text-center text-[0.8rem] px-1 py-1 mx-0 font-regular">
-                                  {stats.goals.for}:{stats.goals.against}
-                                </TableCell>
-                                <TableCell className="text-center text-[0.8rem] px-1 py-1 mx-0 font-regular">
-                                  {standing.goalsDiff}
-                                </TableCell>
-                                <TableCell className="text-center font-regular text-[0.8rem] px-1 py-1 mx-0">
-                                  {standing.points}
-                                </TableCell>
-                                <TableCell className="text-center text-[0.8rem] px-1 py-1 mx-0">
-                                  {stats.win}
-                                </TableCell>
-                                <TableCell className="text-center text-[0.8rem] font-regular px-1 py-1 mx-0">
-                                  {stats.draw}
-                                </TableCell>
-                                <TableCell className="text-center text-[0.8rem] font-regular px-1 py-1 mx-0">
-                                  {stats.lose}
-                                </TableCell>
-                                <TableCell className="px-1 py-1 mx-0 font-regular">
-                                  <div className="flex items-center justify-center">
-                                    {(() => {
-                                      // Find next match for this team from fixtures
-                                      if (!fixtures?.response) return null;
-
-                                      // Get both upcoming and recent fixtures for better context
-                                      const teamFixtures = fixtures.response.filter((fixture: any) => {
-                                        return fixture.teams.home.id === standing.team.id ||
-                                               fixture.teams.away.id === standing.team.id;
-                                      });
-
-                                      // Sort by date to get the most relevant match
-                                      const sortedFixtures = teamFixtures.sort((a: any, b: any) => {
-                                        return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
-                                      });
-
-                                      // Find next upcoming match
-                                      const nextMatch = sortedFixtures.find((fixture: any) => {
-                                        const isUpcoming = new Date(fixture.fixture.date) > new Date();
-                                        return isUpcoming;
-                                      });
-
-                                      // If no upcoming match, show the most recent finished match
-                                      const relevantMatch = nextMatch || sortedFixtures[sortedFixtures.length - 1];
-
-                                      if (!relevantMatch) return null;
-
-                                      // Determine if this team is home or away to get the correct opponent
-                                      const isTeamHome = relevantMatch.teams.home.id === standing.team.id;
-                                      const opponentTeam = isTeamHome
-                                        ? relevantMatch.teams.away
-                                        : relevantMatch.teams.home;
-
-                                      // For display purposes, always show the away team logo when possible
-                                      const displayTeam = relevantMatch.teams.away.id !== standing.team.id
-                                        ? relevantMatch.teams.away
-                                        : relevantMatch.teams.home;
-
-                                      const nextMatchInfo = {
-                                        opponent: opponentTeam.name,
-                                        date: relevantMatch.fixture.date,
-                                        venue: relevantMatch.fixture.venue?.name || "TBD",
-                                        isUpcoming: nextMatch ? true : false,
-                                        status: relevantMatch.fixture.status.short
-                                      };
-
-                                      // Use cached fixture data if available
-                                      const teamLogoUrl = displayTeam.id
-                                        ? `/api/team-logo/square/${displayTeam.id}?size=24`
-                                        : displayTeam.logo || "/assets/fallback-logo.svg";
-
-                                      return isNationalTeam ? (
-                                        <MyCircularFlag
-                                          showNextMatchOverlay={true}
-                                          teamName={displayTeam.name}
-                                          fallbackUrl={teamLogoUrl}
-                                          alt={`${nextMatchInfo.isUpcoming ? 'Next opponent' : 'Last opponent'}: ${displayTeam.name}`}
-                                          size="24px"
-                                          className="popular-leagues-size"
-                                          nextMatchInfo={nextMatchInfo}
-                                        />
-                                      ) : (
+                              return (
+                                <TableRow
+                                  key={standing.team.id}
+                                  className="border-b border-gray-200 dark:border-gray-700"
+                                >
+                                  <TableCell className="font-medium text-[0.8rem] text-center px-0.5 py-2 sticky left-0 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
+                                    {standing.rank}
+                                  </TableCell>
+                                  <TableCell className="font-normal px-2 py-3 sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
+                                    <div className="flex items-center min-w-[140px]">
+                                      <div className="mr-2 flex-shrink-0">
                                         <MyWorldTeamLogo
-                                          teamName={displayTeam.name}
-                                          teamLogo={teamLogoUrl}
-                                          alt={`${nextMatchInfo.isUpcoming ? 'Next opponent' : 'Last opponent'}: ${displayTeam.name}`}
-                                          size="20px"
+                                          teamName={standing.team.name}
+                                          teamLogo={standing.team.logo}
+                                          alt={standing.team.name}
+                                          size="18px"
                                           className="popular-leagues-size"
                                           leagueContext={{
                                             name: selectedLeagueName,
-                                            country: popularLeagues.find(
-                                              (l) => l && l.id && l.id.toString() === selectedLeague,
-                                            )?.country || "World",
+                                            country:
+                                              popularLeagues.find(
+                                                (l) =>
+                                                  l &&
+                                                  l.id &&
+                                                  l.id.toString() ===
+                                                    selectedLeague,
+                                              )?.country || "World",
                                           }}
+                                          showNextMatchOverlay={true}
                                         />
-                                      );
-                                    })()}
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-                            );
-                          })}
-                        </TableBody>
+                                      </div>
+                                      <span className="text-[0.8rem] truncate max-w-[120px] mx-2">
+                                        {getTranslatedTeamName(
+                                          standing.team.name,
+                                        )}
+                                      </span>
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="text-center text-[0.8rem] px-1 py-1 mx-0">
+                                    {stats.played}
+                                  </TableCell>
+                                  <TableCell className="text-center text-[0.8rem] px-1 py-1 mx-0 font-regular">
+                                    {stats.goals.for}:{stats.goals.against}
+                                  </TableCell>
+                                  <TableCell className="text-center text-[0.8rem] px-1 py-1 mx-0 font-regular">
+                                    {standing.goalsDiff}
+                                  </TableCell>
+                                  <TableCell className="text-center font-regular text-[0.8rem] px-1 py-1 mx-0">
+                                    {standing.points}
+                                  </TableCell>
+                                  <TableCell className="text-center text-[0.8rem] px-1 py-1 mx-0">
+                                    {stats.win}
+                                  </TableCell>
+                                  <TableCell className="text-center text-[0.8rem] font-regular px-1 py-1 mx-0">
+                                    {stats.draw}
+                                  </TableCell>
+                                  <TableCell className="text-center text-[0.8rem] font-regular px-1 py-1 mx-0">
+                                    {stats.lose}
+                                  </TableCell>
+                                  <TableCell className="px-1 py-1 mx-0 font-regular">
+                                    <div className="flex items-center justify-center">
+                                      {(() => {
+                                        // Find next match for this team from fixtures
+                                        if (!fixtures?.response) return null;
+
+                                        // Get both upcoming and recent fixtures for better context
+                                        const teamFixtures =
+                                          fixtures.response.filter(
+                                            (fixture: any) => {
+                                              return (
+                                                fixture.teams.home.id ===
+                                                  standing.team.id ||
+                                                fixture.teams.away.id ===
+                                                  standing.team.id
+                                              );
+                                            },
+                                          );
+
+                                        // Sort by date to get the most relevant match
+                                        const sortedFixtures =
+                                          teamFixtures.sort(
+                                            (a: any, b: any) => {
+                                              return (
+                                                new Date(
+                                                  a.fixture.date,
+                                                ).getTime() -
+                                                new Date(
+                                                  b.fixture.date,
+                                                ).getTime()
+                                              );
+                                            },
+                                          );
+
+                                        // Find next upcoming match
+                                        const nextMatch = sortedFixtures.find(
+                                          (fixture: any) => {
+                                            const isUpcoming =
+                                              new Date(fixture.fixture.date) >
+                                              new Date();
+                                            return isUpcoming;
+                                          },
+                                        );
+
+                                        // If no upcoming match, show the most recent finished match
+                                        const relevantMatch =
+                                          nextMatch ||
+                                          sortedFixtures[
+                                            sortedFixtures.length - 1
+                                          ];
+
+                                        if (!relevantMatch) return null;
+
+                                        // Determine if this team is home or away to get the correct opponent
+                                        const isTeamHome =
+                                          relevantMatch.teams.home.id ===
+                                          standing.team.id;
+                                        const opponentTeam = isTeamHome
+                                          ? relevantMatch.teams.away
+                                          : relevantMatch.teams.home;
+
+                                        // For display purposes, always show the away team logo when possible
+                                        const displayTeam =
+                                          relevantMatch.teams.away.id !==
+                                          standing.team.id
+                                            ? relevantMatch.teams.away
+                                            : relevantMatch.teams.home;
+
+                                        const nextMatchInfo = {
+                                          opponent: opponentTeam.name,
+                                          date: relevantMatch.fixture.date,
+                                          venue:
+                                            relevantMatch.fixture.venue?.name ||
+                                            "TBD",
+                                          isUpcoming: nextMatch ? true : false,
+                                          status:
+                                            relevantMatch.fixture.status.short,
+                                        };
+
+                                        // Use cached fixture data if available
+                                        const teamLogoUrl = displayTeam.id
+                                          ? `/api/team-logo/square/${displayTeam.id}?size=24`
+                                          : displayTeam.logo ||
+                                            "/assets/fallback-logo.svg";
+
+                                        return isNationalTeam ? (
+                                          <MyCircularFlag
+                                            showNextMatchOverlay={true}
+                                            teamName={displayTeam.name}
+                                            fallbackUrl={teamLogoUrl}
+                                            alt={`${nextMatchInfo.isUpcoming ? "Next opponent" : "Last opponent"}: ${displayTeam.name}`}
+                                            size="24px"
+                                            className="popular-leagues-size"
+                                            nextMatchInfo={nextMatchInfo}
+                                          />
+                                        ) : (
+                                          <MyWorldTeamLogo
+                                            teamName={displayTeam.name}
+                                            teamLogo={teamLogoUrl}
+                                            alt={`${nextMatchInfo.isUpcoming ? "Next opponent" : "Last opponent"}: ${displayTeam.name}`}
+                                            size="20px"
+                                            className="popular-leagues-size"
+                                            leagueContext={{
+                                              name: selectedLeagueName,
+                                              country:
+                                                popularLeagues.find(
+                                                  (l) =>
+                                                    l &&
+                                                    l.id &&
+                                                    l.id.toString() ===
+                                                      selectedLeague,
+                                                )?.country || "World",
+                                            }}
+                                          />
+                                        );
+                                      })()}
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
                         </Table>
                       </div>
                     </div>
-                  ),
-                )}
+                  ))}
 
                 {/* Link to view full group standings if more than 2 groups exist */}
                 {standings.league.standings.length > 2 && (
                   <div className="text-center mt-6 pt-4 border-t border-gray-100">
                     <button
-                      onClick={() => window.location.href = `/league/${selectedLeague}/standings`}
+                      onClick={() =>
+                        (window.location.href = `/league/${selectedLeague}/standings`)
+                      }
                       className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium transition-colors duration-200"
                     >
                       {(() => {
-                        const translatedLeague = smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, currentLanguage);
-                        const translatedStandings = smartLeagueCountryTranslation.translateLeagueName('Group Standings', currentLanguage);
+                        const translatedLeague =
+                          smartLeagueCountryTranslation.translateLeagueName(
+                            selectedLeagueName,
+                            currentLanguage,
+                          );
+                        const translatedStandings =
+                          smartLeagueCountryTranslation.translateLeagueName(
+                            "Group Standings",
+                            currentLanguage,
+                          );
                         return `${translatedLeague} ${translatedStandings} →`;
                       })()}
                     </button>
@@ -1099,223 +1173,236 @@ const LeagueStandingsFilter = () => {
                           L
                         </TableHead>
                         <TableHead className="text-center text-xs font-semi-bold text-gray-600 px-1 w-[80px]">
-                            Form
-                          </TableHead>
+                          Form
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
-                  <TableBody>
-                    {standings.league.standings[0]
-                      ?.slice(0, 7)
-                      .map((standing: Standing, index: number) => {
-                        const stats = standing.all;
-                        const isNationalTeam =
-                          isNationalTeamCompetition(selectedLeagueName);
+                    <TableBody>
+                      {standings.league.standings[0]
+                        ?.slice(0, 7)
+                        .map((standing: Standing, index: number) => {
+                          const stats = standing.all;
+                          const isNationalTeam =
+                            isNationalTeamCompetition(selectedLeagueName);
 
-                        // Determine qualification status color
-                        const getQualificationColor = (
-                          rank: number,
-                          description?: string,
-                        ) => {
-                          if (!description) return "bg-transparent";
+                          // Determine qualification status color
+                          const getQualificationColor = (
+                            rank: number,
+                            description?: string,
+                          ) => {
+                            if (!description) return "bg-transparent";
 
-                          const desc = description.toLowerCase();
-                          if (
-                            desc.includes("champions league") ||
-                            desc.includes("promotion")
-                          ) {
-                            return "bg-green-500";
-                          } else if (
-                            desc.includes("europa") ||
-                            desc.includes("conference")
-                          ) {
-                            return "bg-blue-500";
-                          } else if (
-                            desc.includes("relegation") ||
-                            desc.includes("play-off")
-                          ) {
-                            return "bg-red-500";
-                          }
-                          return "bg-gray-400";
-                        };
+                            const desc = description.toLowerCase();
+                            if (
+                              desc.includes("champions league") ||
+                              desc.includes("promotion")
+                            ) {
+                              return "bg-green-500";
+                            } else if (
+                              desc.includes("europa") ||
+                              desc.includes("conference")
+                            ) {
+                              return "bg-blue-500";
+                            } else if (
+                              desc.includes("relegation") ||
+                              desc.includes("play-off")
+                            ) {
+                              return "bg-red-500";
+                            }
+                            return "bg-gray-400";
+                          };
 
-                        return (
-                          <TableRow
-                            key={standing.team.id}
-                            className="border-b border-gray-100 transition-colors"
-                          >
-                            <TableCell className="py-0 mt-0 mb-0 px-0 relative sticky left-0 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
-                              <div className="flex items-center">
-                                {standing.rank <= 3 && (
-                                  <div
-                                    className="w-1 h-8 rounded-r-sm mr-2"
-                                    style={{
-                                      backgroundColor:
-                                        standing.rank <= 3
-                                          ? getTeamColor(
-                                              standing.team.name,
-                                              standing.rank,
-                                            )
-                                          : standing.rank <= 4 &&
-                                              standing.description
-                                                ?.toLowerCase()
-                                                .includes("champions")
-                                            ? "#4A90E2"
-                                            : standing.description
-                                                  ?.toLowerCase()
-                                                  .includes("europa")
-                                                ? "#4A90E2"
-                                                : standing.description
-                                                      ?.toLowerCase()
-                                                      .includes("conference")
-                                                    ? "#4A90E2"
-                                                    : "#6B7280",
-                                    }}
-                                  />
-                                )}
-                                <span
-                                  className={`text-sm font-medium text-gray-900 ${standing.rank <= 3 ? "" : "ml-3"}`}
-                                >
-                                  {standing.rank}
-                                </span>
-                              </div>
-                            </TableCell>
-                            <TableCell className="py-0 px-2 sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
-                              <div className="flex items-center min-w-[160px]">
-                                <div className="mr-2 flex-shrink-0">
-                                  <MyWorldTeamLogo
-                                    teamName={standing.team.name}
-                                    teamLogo={standing.team.logo}
-                                    teamId={standing.team.id}
-                                    alt={standing.team.name}
-                                    size="18px"
-                                    className="object-contain"
-                                    leagueContext={{
-                                      name: selectedLeagueName,
-                                      country: popularLeagues.find(
-                                        (l) => l && l.id && l.id.toString() === selectedLeague,
-                                      )?.country || "World",
-                                    }}
-                                  />
-                                </div>
-                                <div className="flex flex-col min-w-0 flex-1">
-                                  <span className="text-xs font-semibold text-gray-900 truncate hover:underline cursor-pointer max-w-[160px] mx-3">
-                                    {getTranslatedTeamName(standing.team.name)}
-                                  </span>
+                          return (
+                            <TableRow
+                              key={standing.team.id}
+                              className="border-b border-gray-100 transition-colors"
+                            >
+                              <TableCell className="py-0 mt-0 mb-0 px-0 relative sticky left-0 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
+                                <div className="flex items-center">
                                   {standing.rank <= 3 && (
-                                    <span
-                                      className="text-[0.6rem] font-medium truncate max-w-[160px] mx-3 "
+                                    <div
+                                      className="w-1 h-8 rounded-r-sm mr-2"
                                       style={{
-                                        color:
+                                        backgroundColor:
                                           standing.rank <= 3
                                             ? getTeamColor(
                                                 standing.team.name,
                                                 standing.rank,
                                               )
-                                            : standing.description
+                                            : standing.rank <= 4 &&
+                                                standing.description
                                                   ?.toLowerCase()
-                                                  .includes(
-                                                    "champions league elite",
-                                                  )
+                                                  .includes("champions")
                                               ? "#4A90E2"
                                               : standing.description
                                                     ?.toLowerCase()
+                                                    .includes("europa")
+                                                ? "#4A90E2"
+                                                : standing.description
+                                                      ?.toLowerCase()
+                                                      .includes("conference")
+                                                  ? "#4A90E2"
+                                                  : "#6B7280",
+                                      }}
+                                    />
+                                  )}
+                                  <span
+                                    className={`text-sm font-medium text-gray-900 ${standing.rank <= 3 ? "" : "ml-3"}`}
+                                  >
+                                    {standing.rank}
+                                  </span>
+                                </div>
+                              </TableCell>
+                              <TableCell className="py-0 px-2 sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600">
+                                <div className="flex items-center min-w-[160px]">
+                                  <div className="mr-2 flex-shrink-0">
+                                    <MyWorldTeamLogo
+                                      teamName={standing.team.name}
+                                      teamLogo={standing.team.logo}
+                                      teamId={standing.team.id}
+                                      alt={standing.team.name}
+                                      size="18px"
+                                      className="object-contain"
+                                      leagueContext={{
+                                        name: selectedLeagueName,
+                                        country:
+                                          popularLeagues.find(
+                                            (l) =>
+                                              l &&
+                                              l.id &&
+                                              l.id.toString() ===
+                                                selectedLeague,
+                                          )?.country || "World",
+                                      }}
+                                    />
+                                  </div>
+                                  <div className="flex flex-col min-w-0 flex-1">
+                                    <span className="text-xs font-semibold text-gray-900 truncate hover:underline cursor-pointer max-w-[160px] mx-3">
+                                      {getTranslatedTeamName(
+                                        standing.team.name,
+                                      )}
+                                    </span>
+                                    {standing.rank <= 3 && (
+                                      <span
+                                        className="text-[0.6rem] font-medium truncate max-w-[160px] mx-3 "
+                                        style={{
+                                          color:
+                                            standing.rank <= 3
+                                              ? getTeamColor(
+                                                  standing.team.name,
+                                                  standing.rank,
+                                                )
+                                              : standing.description
+                                                    ?.toLowerCase()
                                                     .includes(
-                                                      "champions league",
+                                                      "champions league elite",
                                                     )
                                                 ? "#4A90E2"
                                                 : standing.description
                                                       ?.toLowerCase()
-                                                      .includes("europa")
+                                                      .includes(
+                                                        "champions league",
+                                                      )
+                                                  ? "#4A90E2"
+                                                  : standing.description
+                                                        ?.toLowerCase()
+                                                        .includes("europa")
                                                     ? "#17A2B8"
                                                     : standing.description
                                                           ?.toLowerCase()
-                                                          .includes("conference")
-                                                        ? "#6F42C1"
+                                                          .includes(
+                                                            "conference",
+                                                          )
+                                                      ? "#6F42C1"
+                                                      : standing.description
+                                                            ?.toLowerCase()
+                                                            .includes(
+                                                              "promotion",
+                                                            )
+                                                        ? "#28A745"
                                                         : standing.description
                                                               ?.toLowerCase()
-                                                              .includes("promotion")
-                                                          ? "#28A745"
-                                                          : standing.description
-                                                                ?.toLowerCase()
-                                                                .includes(
-                                                                  "relegation",
-                                                                )
-                                                            ? "#DC3545"
-                                                            : "#6B7280",
-                                      }}
-                                    >
-                                      {getChampionshipTitle(
-                                        standing.rank,
-                                        standing.description,
-                                      )}
-                                    </span>
-                                  )}
+                                                              .includes(
+                                                                "relegation",
+                                                              )
+                                                          ? "#DC3545"
+                                                          : "#6B7280",
+                                        }}
+                                      >
+                                        {getChampionshipTitle(
+                                          standing.rank,
+                                          standing.description,
+                                        )}
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
-                              {stats.played}
-                            </TableCell>
-                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
-                              <span className="font-medium">
-                                {stats.goals.for}
-                              </span>
-                              <span className="text-gray-400 mx-0.5 border-r border-gray-200">:</span>
-                              <span>{stats.goals.against}</span>
-                            </TableCell>
-                            <TableCell className="text-center py-2 px-1 text-xs border-r border-gray-200">
-                              <span
-                                className={`font-regular ${
-                                  standing.goalsDiff > 0
-                                    ? "text-gray-500"
-                                    : standing.goalsDiff < 0
-                                      ? "text-red-600"
-                                      : "text-gray-700"
-                                }`}
-                              >
-                                {standing.goalsDiff > 0 ? "" : ""}
-                                {standing.goalsDiff}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-center py-2 px-1 text-xs font-semi-bold text-gray-900 border-r border-gray-200">
-                              {standing.points}
-                            </TableCell>
-                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
-                              {stats.win}
-                            </TableCell>
-                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
-                              {stats.draw}
-                            </TableCell>
-                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
-                              {stats.lose}
-                            </TableCell>
-                            <TableCell className="text-center py-2 px-1 w-[80px] max-w-[80px]">
-                              <div className="flex justify-center gap-0.5">
-                                {standing.form
-                                  ?.split("")
-                                  .slice(-5)
-                                  .map((result, i) => (
-                                    <span
-                                      key={i}
-                                      className={`w-4 h-4 rounded-sm flex items-center justify-center text-xs font-semibold flex-shrink-0 ${
-                                        result === "W"
-                                          ? "bg-green-100 text-green-800"
-                                          : result === "D"
-                                            ? "bg-yellow-100 text-yellow-700"
-                                            : result === "L"
-                                              ? "bg-red-100 text-red-700"
-                                              : "bg-gray-400"
-                                      }`}
-                                    >
-                                      {result}
-                                    </span>
-                                  ))}
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                  </TableBody>
+                              </TableCell>
+                              <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
+                                {stats.played}
+                              </TableCell>
+                              <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
+                                <span className="font-medium">
+                                  {stats.goals.for}
+                                </span>
+                                <span className="text-gray-400 mx-0.5 border-r border-gray-200">
+                                  :
+                                </span>
+                                <span>{stats.goals.against}</span>
+                              </TableCell>
+                              <TableCell className="text-center py-2 px-1 text-xs border-r border-gray-200">
+                                <span
+                                  className={`font-regular ${
+                                    standing.goalsDiff > 0
+                                      ? "text-gray-500"
+                                      : standing.goalsDiff < 0
+                                        ? "text-red-600"
+                                        : "text-gray-700"
+                                  }`}
+                                >
+                                  {standing.goalsDiff > 0 ? "" : ""}
+                                  {standing.goalsDiff}
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-center py-2 px-1 text-xs font-semi-bold text-gray-900 border-r border-gray-200">
+                                {standing.points}
+                              </TableCell>
+                              <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
+                                {stats.win}
+                              </TableCell>
+                              <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
+                                {stats.draw}
+                              </TableCell>
+                              <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
+                                {stats.lose}
+                              </TableCell>
+                              <TableCell className="text-center py-2 px-1 w-[80px] max-w-[80px]">
+                                <div className="flex justify-center gap-0.5">
+                                  {standing.form
+                                    ?.split("")
+                                    .slice(-5)
+                                    .map((result, i) => (
+                                      <span
+                                        key={i}
+                                        className={`w-5 h-5 rounded-sm flex items-center justify-center text-xs font-semibold flex-shrink-0 ${
+                                          result === "W"
+                                            ? "bg-green-100 text-green-800 border border-green-800"
+                                            : result === "D"
+                                              ? "bg-yellow-100 text-yellow-700 border border-yellow-200"
+                                              : result === "L"
+                                                ? "bg-red-100 text-red-700 border border-red-200"
+                                                : "bg-gray-400"
+                                        }`}
+                                      >
+                                        {result}
+                                      </span>
+                                    ))}
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                    </TableBody>
                   </Table>
                 </div>
               </div>
