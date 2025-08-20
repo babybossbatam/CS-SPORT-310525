@@ -877,29 +877,29 @@ const LeagueStandingsFilter = () => {
                           <TableHeader>
                             <TableRow>
                               <TableHead className="w-[40px] text-center px-0.5 sticky left-0 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
-                              <TableHead className="pl-2 min-w-[160px] sticky left-[40px] bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
-                              <TableHead className="text-center px-2 min-w-[40px]">
+                              <TableHead className="pl-2 min-w-[140px] sticky left-[40px] mr-4 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
+                              <TableHead className="text-center px-1 min-w-[40px]">
                                 P
                               </TableHead>
-                              <TableHead className="text-center px-2 min-w-[50px]">
+                              <TableHead className="text-center px-1 min-w-[50px]">
                                 F:A
                               </TableHead>
-                              <TableHead className="text-center px-2 min-w-[45px]">
+                              <TableHead className="text-center px-1 min-w-[45px]">
                                 +/-
                               </TableHead>
-                              <TableHead className="text-center px-2 min-w-[45px]">
+                              <TableHead className="text-center px-1 min-w-[45px]">
                                 PTS
                               </TableHead>
-                              <TableHead className="text-center px-2 min-w-[40px]">
+                              <TableHead className="text-center px-1 min-w-[40px]">
                                 W
                               </TableHead>
-                              <TableHead className="text-center px-2 min-w-[40px]">
+                              <TableHead className="text-center px-1 min-w-[40px]">
                                 D
                               </TableHead>
-                              <TableHead className="text-center px-2 min-w-[40px]">
+                              <TableHead className="text-center px-1 min-w-[40px]">
                                 L
                               </TableHead>
-                              <TableHead className="text-center px-2 min-w-[60px]">
+                              <TableHead className="text-center px-1 min-w-[60px]">
                                 Next
                               </TableHead>
                             </TableRow>
@@ -925,7 +925,7 @@ const LeagueStandingsFilter = () => {
                                         teamName={standing.team.name}
                                         teamLogo={standing.team.logo}
                                         alt={standing.team.name}
-                                        size="24px"
+                                        size="18px"
                                         className="popular-leagues-size"
                                         leagueContext={{
                                           name: selectedLeagueName,
@@ -936,7 +936,7 @@ const LeagueStandingsFilter = () => {
                                         showNextMatchOverlay={true}
                                       />
                                     </div>
-                                    <span className="text-[0.8rem] truncate max-w-[100px]">
+                                    <span className="text-[0.8rem] truncate max-w-[120px] mx-2">
                                       {getTranslatedTeamName(standing.team.name)}
                                     </span>
                                   </div>
@@ -1080,25 +1080,25 @@ const LeagueStandingsFilter = () => {
                         <TableHead className="text-center text-xs font-regular border-r text-gray-400 px-2 min-w-[30px]">
                           P
                         </TableHead>
-                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[50px]">
+                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[50px] border-r border-gray-200">
                           F:A
                         </TableHead>
-                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[30px]">
+                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[30px] border-r border-gray-200">
                           +/-
                         </TableHead>
-                        <TableHead className="text-center text-xs font-semi-bold text-gray-900 px-2 min-w-[30px]">
+                        <TableHead className="text-center text-xs font-semi-bold text-gray-900 px-2 min-w-[30px] border-r border-gray-200">
                           PTS
                         </TableHead>
-                        <TableHead className="text-center text-xs font-semi-bold text-gray-400 py-6 px-2 min-w-[30px]">
+                        <TableHead className="text-center text-xs font-semi-bold text-gray-400 py-6 px-2 min-w-[30px] border-r border-gray-200">
                           W
                         </TableHead>
-                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[30px]">
+                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[30px] border-r border-gray-200">
                           D
                         </TableHead>
-                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[30px]">
+                        <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[30px] border-r border-gray-200">
                           L
                         </TableHead>
-                        <TableHead className="text-center text-xs font-semi-bold text-gray-600 px-2 min-w-[80px]">
+                        <TableHead className="text-center text-xs font-semi-bold text-gray-600 px-2 min-w-[10px]">
                           Form
                         </TableHead>
                       </TableRow>
@@ -1187,7 +1187,7 @@ const LeagueStandingsFilter = () => {
                                     teamLogo={standing.team.logo}
                                     teamId={standing.team.id}
                                     alt={standing.team.name}
-                                    size="25px"
+                                    size="18px"
                                     className="object-contain"
                                     leagueContext={{
                                       name: selectedLeagueName,
@@ -1198,12 +1198,12 @@ const LeagueStandingsFilter = () => {
                                   />
                                 </div>
                                 <div className="flex flex-col min-w-0 flex-1">
-                                  <span className="text-xs font-medium text-gray-900 truncate hover:underline cursor-pointer max-w-[160px] mx-2">
+                                  <span className="text-xs font-semibold text-gray-900 truncate hover:underline cursor-pointer max-w-[160px] mx-3">
                                     {getTranslatedTeamName(standing.team.name)}
                                   </span>
                                   {standing.rank <= 3 && (
                                     <span
-                                      className="text-[0.6rem] font-medium truncate max-w-[160px] mx-2 "
+                                      className="text-[0.6rem] font-medium truncate max-w-[160px] mx-3 "
                                       style={{
                                         color:
                                           standing.rank <= 3
@@ -1253,17 +1253,17 @@ const LeagueStandingsFilter = () => {
                                 </div>
                               </div>
                             </TableCell>
-                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600">
+                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
                               {stats.played}
                             </TableCell>
-                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600">
+                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
                               <span className="font-medium">
                                 {stats.goals.for}
                               </span>
-                              <span className="text-gray-400 mx-0.5">:</span>
+                              <span className="text-gray-400 mx-0.5 border-r border-gray-200">:</span>
                               <span>{stats.goals.against}</span>
                             </TableCell>
-                            <TableCell className="text-center py-2 px-1 text-xs">
+                            <TableCell className="text-center py-2 px-1 text-xs border-r border-gray-200">
                               <span
                                 className={`font-regular ${
                                   standing.goalsDiff > 0
@@ -1277,20 +1277,20 @@ const LeagueStandingsFilter = () => {
                                 {standing.goalsDiff}
                               </span>
                             </TableCell>
-                            <TableCell className="text-center py-2 px-1 text-xs font-semi-bold text-gray-900">
+                            <TableCell className="text-center py-2 px-1 text-xs font-semi-bold text-gray-900 border-r border-gray-200">
                               {standing.points}
                             </TableCell>
-                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600">
+                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
                               {stats.win}
                             </TableCell>
-                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600">
+                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
                               {stats.draw}
                             </TableCell>
-                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600">
+                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
                               {stats.lose}
                             </TableCell>
                             <TableCell className="text-center py-2">
-                              <div className="flex gap-1 justify-center min-w-[110px]">
+                              <div className=" gap-1 justify-center min-w-[110px]">
                                 {standing.form
                                   ?.split("")
                                   .slice(-5)
