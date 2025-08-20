@@ -76,9 +76,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     console.log(`🔄 [MyWorldTeamLogo] Computing shouldUseCircularFlag for: ${teamName}`);
 
     const isActualNationalTeam = isNationalTeam({ name: teamName }, leagueContext);
-    const isYouthTeam = teamName?.includes("U17") || 
+    const isYouthTeam = teamName?.includes("U17") ||
                        teamName?.includes("U19") ||
-                       teamName?.includes("U20") || 
+                       teamName?.includes("U20") ||
                        teamName?.includes("U21") ||
                        teamName?.includes("U23");
 
@@ -91,7 +91,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       console.log(`🏆 [MyWorldTeamLogo] COTIF Tournament detected for team: ${teamName}`);
 
       // Known club teams in COTIF (Valencia, Alboraya, etc.)
-      const isKnownClubTeam = 
+      const isKnownClubTeam =
         (teamId === 532 && teamName.toLowerCase().includes("valencia")) ||
         (teamId === 19922 && teamName.toLowerCase().includes("alboraya")) ||
         teamName.toLowerCase().includes("valencia") ||
@@ -133,32 +133,32 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                               leagueName.includes("fifa club wc");
 
     // More specific friendlies detection
-    const isFriendliesClub = leagueName.includes("friendlies clubs") || 
+    const isFriendliesClub = leagueName.includes("friendlies clubs") ||
                             leagueName.includes("friendlies club") ||
                             leagueName.includes("club friendlies");
 
     // Friendlies International (league ID 10) should be treated as national team competition
     const isFriendliesInternational = leagueName === "friendlies international" ||
                                      leagueName === "international friendlies" ||
-                                     (leagueName.includes("friendlies") && 
+                                     (leagueName.includes("friendlies") &&
                                       leagueName.includes("international")) ||
                                      (leagueName === "friendlies" && !isFriendliesClub);
 
-    const isUefaEuropaLeague = leagueName.includes("uefa europa league") || 
+    const isUefaEuropaLeague = leagueName.includes("uefa europa league") ||
                               leagueName.includes("europa league");
-    const isUefaConferenceLeague = leagueName.includes("uefa europa conference league") || 
+    const isUefaConferenceLeague = leagueName.includes("uefa europa conference league") ||
                                   leagueName.includes("europa conference league");
-    const isUefaChampionsLeague = leagueName.includes("uefa champions league") || 
+    const isUefaChampionsLeague = leagueName.includes("uefa champions league") ||
                                  leagueName.includes("champions league");
     const isConmebolSudamericana = leagueName.includes("conmebol sudamericana") ||
                                   leagueName.includes("copa sudamericana");
 
-    const isUefaNationsLeague = leagueName.includes("uefa nations league") || 
+    const isUefaNationsLeague = leagueName.includes("uefa nations league") ||
                                leagueName.includes("nations league");
 
     // World Cup qualifications and tournaments with national teams
-    const isWorldCupQualification = leagueName.includes("world cup") && 
-                                   (leagueName.includes("qualification") || 
+    const isWorldCupQualification = leagueName.includes("world cup") &&
+                                   (leagueName.includes("qualification") ||
                                     leagueName.includes("qualifier") ||
                                     leagueName.includes("women"));
 
@@ -181,7 +181,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     }
 
     // Check if this is being used in a standings context (club competition)
-    const isStandingsContext = leagueName.includes("standing") || 
+    const isStandingsContext = leagueName.includes("standing") ||
                                leagueName.includes("table") ||
                                // Popular domestic leagues that should always use club logos
                                leagueName.includes("premier league") ||
@@ -247,14 +247,14 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     const result = !isStandingsContext &&
                    !isClubYouthTeam &&
                    !isKnownClubTeam &&
-                   isActualNationalTeam && 
+                   isActualNationalTeam &&
                    (isNationalYouthTeam || isWomensNationalTeam || (!isYouthTeam && !teamName?.endsWith(" W"))) && // Allow national youth and women's teams
-                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || isWorldCupQualification) && 
-                   !isFifaClubWorldCup && 
-                   !isFriendliesClub && 
-                   !isUefaEuropaLeague && 
-                   !isUefaConferenceLeague && 
-                   !isUefaChampionsLeague && 
+                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || isWorldCupQualification) &&
+                   !isFifaClubWorldCup &&
+                   !isFriendliesClub &&
+                   !isUefaEuropaLeague &&
+                   !isUefaConferenceLeague &&
+                   !isUefaChampionsLeague &&
                    !isConmebolSudamericana;
 
     // Cache the result
@@ -435,18 +435,23 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     if (isLoading) {
       setIsLoading(false);
     }
-    
+
     // Only update error state if there was an error
     if (hasError) {
       setHasError(false);
     }
 
-    // Don't cache fallback images
-    if (
+    // Enhanced fallback image detection - don't cache fallback images
+    const isFallbackImage =
       imageSrc.includes("/assets/fallback") ||
+      imageSrc.includes("/assets/matchdetaillogo/fallback.png") ||
       imageSrc.includes("fallback") ||
-      imageSrc.includes("placeholder")
-    ) {
+      imageSrc.includes("placeholder") ||
+      imageSrc.endsWith("fallback.png") ||
+      imageSrc.includes("no-logo-available") ||
+      imageSrc === "/assets/fallback.png";
+
+    if (isFallbackImage) {
       console.log(
         `⚠️ [MyWorldTeamLogo] Fallback image loaded, not caching: ${imageSrc}`,
       );
@@ -454,21 +459,22 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       return;
     }
 
-    // Cache in global memory for immediate sharing between components
-    if (teamId && teamName) {
+    // Only cache real, verified team logos (not fallbacks)
+    if (teamId && teamName && imageSrc && !isFallbackImage) {
       const globalCacheKey = `${teamId}_${teamName}`;
       const existingCache = globalLogoCache.get(globalCacheKey);
-      
-      // Only update cache if URL is different or not verified
+
+      // Only update cache if URL is different or not verified, and it's not a fallback
       if (!existingCache || existingCache.url !== imageSrc || !existingCache.verified) {
         globalLogoCache.set(globalCacheKey, {
           url: imageSrc,
           timestamp: Date.now(),
           verified: true
         });
-        console.log(`💾 [MyWorldTeamLogo] Cached ${teamName} logo in global cache: ${imageSrc}`);
+        console.log(`💾 [MyWorldTeamLogo] Cached real logo for ${teamName}: ${imageSrc}`);
       }
     }
+
     onLoad?.(); // Call the onLoad prop if provided
   };
 
