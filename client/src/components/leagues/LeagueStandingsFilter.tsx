@@ -1174,7 +1174,7 @@ const LeagueStandingsFilter = () => {
                         <TableHead className="text-center text-xs font-regular text-gray-400 px-2 min-w-[30px] border-r border-gray-200">
                           L
                         </TableHead>
-                        <TableHead className="text-center text-xs font-semi-bold text-gray-600 px-1 w-[80px]">
+                        <TableHead className="text-center text-xs font-semi-bold text-gray-600 px-1 w-[70px]">
                           Form
                         </TableHead>
                       </TableRow>
@@ -1378,15 +1378,15 @@ const LeagueStandingsFilter = () => {
                               <TableCell className="text-center py-2 px-1 text-xs text-gray-600 border-r border-gray-200">
                                 {stats.lose}
                               </TableCell>
-                              <TableCell className="text-center py-2 px-1 w-[80px] max-w-[80px]">
-                                <div className="flex justify-center gap-0.5">
+                              <TableCell className="text-center py-2 px-0.5 w-[70px] max-w-[70px]">
+                                <div className="flex justify-center gap-0.5 overflow-hidden">
                                   {standing.form
                                     ?.split("")
                                     .slice(-5)
                                     .map((result, i) => (
                                       <span
                                         key={i}
-                                        className={`w-5 h-5 rounded-sm flex items-center justify-center text-xs font-semibold flex-shrink-0 ${
+                                        className={`w-3.5 h-3.5 rounded-sm flex items-center justify-center text-xs font-semibold flex-shrink-0 ${
                                           result === "W"
                                             ? "bg-green-100 text-green-800 border border-green-800"
                                             : result === "D"
@@ -1395,6 +1395,7 @@ const LeagueStandingsFilter = () => {
                                                 ? "bg-red-100 text-red-700 border border-red-200"
                                                 : "bg-gray-400"
                                         }`}
+                                        style={{ fontSize: '8px' }}
                                       >
                                         {result}
                                       </span>
