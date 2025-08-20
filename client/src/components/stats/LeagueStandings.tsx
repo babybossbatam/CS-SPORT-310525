@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
+import LazyImage from "@/components/common/LazyImage";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 
 interface Team {
@@ -306,21 +307,12 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({
                                         className="flex-shrink-0"
                                       />
                                     ) : (
-                                      <img
+                                      <LazyImage
                                         src={standing.team.logo}
                                         alt={standing.team.name}
                                         className="w-6 h-6 object-contain rounded flex-shrink-0"
-                                        onError={(e) => {
-                                          const target =
-                                            e.target as HTMLImageElement;
-                                          if (
-                                            !target.src.includes(
-                                              "/assets/fallback.png",
-                                            )
-                                          ) {
-                                            target.src = "/assets/fallback.png";
-                                          }
-                                        }}
+                                        style={{ width: '24px', height: '24px' }}
+                                        priority="medium"
                                       />
                                     )}
                                     <div className="flex flex-col">
@@ -402,22 +394,12 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({
                                           className="flex-shrink-0"
                                         />
                                       ) : (
-                                        <img
+                                        <LazyImage
                                           src={standing.team.nextMatch.logo}
                                           alt={standing.team.nextMatch.name}
                                           className="w-5 h-5 object-contain rounded flex-shrink-0"
-                                          onError={(e) => {
-                                            const target =
-                                              e.target as HTMLImageElement;
-                                            if (
-                                              !target.src.includes(
-                                                "/assets/fallback.png",
-                                              )
-                                            ) {
-                                              target.src =
-                                                "/assets/fallback.png";
-                                            }
-                                          }}
+                                          style={{ width: '20px', height: '20px' }}
+                                          priority="low"
                                         />
                                       )}
                                     </div>

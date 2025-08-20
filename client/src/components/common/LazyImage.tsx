@@ -55,6 +55,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
   // Preload critical images
   const shouldPreload = priority === 'high' || priority === 'medium';
 
+  const fallbackUrl = "/assets/matchdetaillogo/fallback.png";
+
   useEffect(() => {
     // Check for specific teams/leagues that should use local assets immediately
       const shouldUseLocalAsset = () => {
@@ -171,7 +173,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
               return true;
             } else {
               console.log(`⚽ [LazyImage] Using fallback for Al-Nassr team after all retries`);
-              setImageSrc("/assets/fallback.png");
+              setImageSrc(fallbackUrl);
               setHasError(false);
               setIsLoading(true);
               return true;
@@ -199,7 +201,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
               return true;
             } else {
               console.log(`⚽ [LazyImage] Using fallback for Al-Ittihad team after all retries`);
-              setImageSrc("/assets/fallback.png");
+              setImageSrc(fallbackUrl);
               setHasError(false);
               setIsLoading(true);
               return true;
@@ -358,7 +360,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
             `🚫 [LazyImage] All retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
           );
           setHasError(true);
-          setImageSrc("/assets/fallback.png");
+          setImageSrc(fallbackUrl);
           onError?.();
         } else {
           console.warn(
@@ -373,13 +375,13 @@ const LazyImage: React.FC<LazyImageProps> = ({
             `🚫 [LazyImage] All league logo retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
           );
         setHasError(true);
-        setImageSrc("/assets/fallback.png");
+        setImageSrc(fallbackUrl);
           onError?.();
       }
     } catch (error) {
       console.warn("⚠️ [LazyImage] Error in handleError function:", error);
         setHasError(true);
-        setImageSrc("/assets/fallback.png");
+        setImageSrc(fallbackUrl);
       setIsLoading(false);
       onError?.();
     }
@@ -391,7 +393,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
     // Don't cache or log success for fallback images
     const isFallbackImage =
-      imageSrc.includes("/assets/fallback.png") ||
+      imageSrc.includes("/assets/matchdetaillogo/fallback.png") ||
       imageSrc.includes("/assets/fallback-logo.svg") ||
       imageSrc.includes("fallback") ||
       imageSrc.includes("placeholder");
@@ -515,7 +517,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         ...style,
         border: 'none',
         outline: 'none',
-        display: hasError && imageSrc !== "/assets/fallback.png" ? 'none' : 'block',
+        display: hasError && imageSrc !== fallbackUrl ? 'none' : 'block',
         opacity: isLoading ? 0.7 : 1,
         transition: 'opacity 0.2s ease-in-out',
         filter: darkMode ? 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))' : 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.8))',
