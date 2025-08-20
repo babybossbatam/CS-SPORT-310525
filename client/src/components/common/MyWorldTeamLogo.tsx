@@ -516,6 +516,21 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     );
   }
 
+  // Define styles for the container and image
+  const containerStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: size,
+    height: size,
+  };
+
+  const imageStyle = {
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain' as const,
+  };
+
   // For non-national teams (club teams), use regular LazyImage with cached URL
   return (
     <div
