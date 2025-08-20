@@ -1195,7 +1195,7 @@ const LeagueStandingsFilter = () => {
                                 <div className="flex items-center">
                                   {standing.rank <= 3 && (
                                     <div
-                                      className="w-0.5 h-8 rounded-r-sm mr-2"
+                                      className="w-0.5 h-14 rounded-r-sm mr-3"
                                       style={{
                                         backgroundColor:
                                           standing.rank <= 3
