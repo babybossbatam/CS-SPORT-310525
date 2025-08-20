@@ -307,12 +307,17 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({
                                         className="flex-shrink-0"
                                       />
                                     ) : (
-                                      <LazyImage
-                                        src={standing.team.logo}
+                                      <MyWorldTeamLogo
+                                        teamName={standing.team.name}
+                                        teamLogo={standing.team.logo}
+                                        teamId={standing.team.id}
                                         alt={standing.team.name}
-                                        className="w-6 h-6 object-contain rounded flex-shrink-0"
-                                        style={{ width: '24px', height: '24px' }}
-                                        priority="medium"
+                                        size="24px"
+                                        className="object-contain rounded flex-shrink-0"
+                                        leagueContext={{
+                                          name: data?.league?.name || "League",
+                                          country: data?.league?.country || "World",
+                                        }}
                                       />
                                     )}
                                     <div className="flex flex-col">
@@ -394,12 +399,17 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({
                                           className="flex-shrink-0"
                                         />
                                       ) : (
-                                        <LazyImage
-                                          src={standing.team.nextMatch.logo}
+                                        <MyWorldTeamLogo
+                                          teamName={standing.team.nextMatch.name}
+                                          teamLogo={standing.team.nextMatch.logo}
+                                          teamId={standing.team.nextMatch.id || 0}
                                           alt={standing.team.nextMatch.name}
-                                          className="w-5 h-5 object-contain rounded flex-shrink-0"
-                                          style={{ width: '20px', height: '20px' }}
-                                          priority="low"
+                                          size="20px"
+                                          className="object-contain rounded flex-shrink-0"
+                                          leagueContext={{
+                                            name: data?.league?.name || "League",
+                                            country: data?.league?.country || "World",
+                                          }}
                                         />
                                       )}
                                     </div>
