@@ -394,7 +394,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
     // Don't cache or log success for fallback images
     const isFallbackImage =
       imageSrc.includes("/assets/matchdetaillogo/fallback.png") ||
-      imageSrc.includes("/assets/fallback-logo.svg") ||
       imageSrc.includes("fallback") ||
       imageSrc.includes("placeholder");
 
