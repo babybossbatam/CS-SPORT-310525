@@ -515,12 +515,12 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
          console.log(`🔄 [MyWorldTeamLogo] Retrying logo with generic API for ${teamName}`);
       } else {
         // If all retries fail, set to fallback
-        target.src = '/assets/fallback.png';
+        target.src = '/assets/fallback-logo.png';
         console.log(`💥 [MyWorldTeamLogo] Final fallback for ${teamName}`);
       }
     } else {
       // If no teamId, directly set to fallback
-      target.src = '/assets/fallback.png';
+      target.src = '/assets/fallback-logo.png';
       console.log(`💥 [MyWorldTeamLogo] Final fallback for ${teamName} (no teamId)`);
     }
 

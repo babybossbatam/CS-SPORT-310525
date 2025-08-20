@@ -55,7 +55,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   // Preload critical images
   const shouldPreload = priority === 'high' || priority === 'medium';
 
-  const fallbackUrl = "/assets/matchdetaillogo/fallback.png";
+  const fallbackUrl = "/assets/fallback-logo.png";
 
   useEffect(() => {
     // Check for specific teams/leagues that should use local assets immediately
