@@ -55,7 +55,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   // Preload critical images
   const shouldPreload = priority === 'high' || priority === 'medium';
 
-  const fallbackUrl = "/assets/fallback-logo.svg";
+  const fallbackUrl = "/assets/matchdetaillogo/fallback.png";
 
   useEffect(() => {
     // Check for specific teams/leagues that should use local assets immediately
@@ -529,13 +529,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       loading={shouldPreload ? 'eager' : 'lazy'}
       decoding="async"
       onLoad={handleLoad}
-      onError={(e) => {
-        const target = e.target as HTMLImageElement;
-        if (!target.src.includes(fallbackUrl)) {
-          target.src = fallbackUrl;
-        }
-        handleError(e);
-      }}
+      onError={handleError}
     />
   );
 };
