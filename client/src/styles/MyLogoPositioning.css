@@ -157,7 +157,7 @@
   font-size: 13.3px;
   font-weight: 400;
   color: #1a1a1a;
-  padding-right: 0.5rem;
+  padding-right: 0.75rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -173,7 +173,7 @@
   font-size: 13.3px;
   font-weight: 400;
   color: #1a1a1a;
-  padding-left: 0.5rem;
+  padding-left: 0.75rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -496,12 +496,12 @@
 
   .home-team-name {
     justify-content: flex-end;
-    padding-right: 6px;
+    padding-right: 8px;
   }
 
   .away-team-name {
     justify-content: flex-start;
-    padding-left: 6px;
+    padding-left: 8px;
   }
 
   .home-team-logo-container,
