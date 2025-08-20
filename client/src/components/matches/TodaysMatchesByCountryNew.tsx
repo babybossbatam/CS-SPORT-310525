@@ -941,49 +941,54 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     [],
   );
 
-  const toggleCountry = useCallback((country: string) => {
-    setExpandedCountries((prev) => {
-      const newExpanded = new Set(prev);
-      if (newExpanded.has(country)) {
-        newExpanded.delete(country);
-        // When collapsing country, also collapse all its leagues
-        setExpandedLeagues((prevLeagues) => {
-          const newExpandedLeagues = new Set(prevLeagues);
-          const countryData = getCountryData(country);
-          if (countryData) {
-            Object.keys(countryData.leagues).forEach((leagueId) => {
-              const leagueKey = `${country}-${leagueId}`;
-              newExpandedLeagues.delete(leagueKey);
-            });
-          }
-          return newExpandedLeagues;
-        });
-      } else {
-        newExpanded.add(country);
-        // When expanding country, auto-expand the first league
-        setExpandedLeagues((prevLeagues) => {
-          const newExpandedLeagues = new Set(prevLeagues);
-          const countryData = getCountryData(country);
-          if (countryData) {
-            // Get the first league (sorted by popularity, then name)
-            const sortedLeagues = Object.values(countryData.leagues).sort((a: any, b: any) => {
-              if (a.isPopular && !b.isPopular) return -1;
-              if (!a.isPopular && b.isPopular) return 1;
-              return a.league.name.localeCompare(b.league.name);
-            });
-            
-            if (sortedLeagues.length > 0) {
-              const firstLeague = sortedLeagues[0] as any;
-              const leagueKey = `${country}-${firstLeague.league.id}`;
-              newExpandedLeagues.add(leagueKey);
+  const toggleCountry = useCallback(
+    (country: string) => {
+      setExpandedCountries((prev) => {
+        const newExpanded = new Set(prev);
+        if (newExpanded.has(country)) {
+          newExpanded.delete(country);
+          // When collapsing country, also collapse all its leagues
+          setExpandedLeagues((prevLeagues) => {
+            const newExpandedLeagues = new Set(prevLeagues);
+            const countryData = getCountryData(country);
+            if (countryData) {
+              Object.keys(countryData.leagues).forEach((leagueId) => {
+                const leagueKey = `${country}-${leagueId}`;
+                newExpandedLeagues.delete(leagueKey);
+              });
             }
-          }
-          return newExpandedLeagues;
-        });
-      }
-      return newExpanded;
-    });
-  }, [getCountryData]);
+            return newExpandedLeagues;
+          });
+        } else {
+          newExpanded.add(country);
+          // When expanding country, auto-expand the first league
+          setExpandedLeagues((prevLeagues) => {
+            const newExpandedLeagues = new Set(prevLeagues);
+            const countryData = getCountryData(country);
+            if (countryData) {
+              // Get the first league (sorted by popularity, then name)
+              const sortedLeagues = Object.values(countryData.leagues).sort(
+                (a: any, b: any) => {
+                  if (a.isPopular && !b.isPopular) return -1;
+                  if (!a.isPopular && b.isPopular) return 1;
+                  return a.league.name.localeCompare(b.league.name);
+                },
+              );
+
+              if (sortedLeagues.length > 0) {
+                const firstLeague = sortedLeagues[0] as any;
+                const leagueKey = `${country}-${firstLeague.league.id}`;
+                newExpandedLeagues.add(leagueKey);
+              }
+            }
+            return newExpandedLeagues;
+          });
+        }
+        return newExpanded;
+      });
+    },
+    [getCountryData],
+  );
 
   const toggleStarMatch = (matchId: number) => {
     setStarredMatches((prev) => {
@@ -1484,7 +1489,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 return (
                   <MyCountryGroupFlag
                     teamName={countryName}
-                    fallbackUrl="/assets/fallback-logo.svg"
+                    fallbackUrl="/assets/matchdetaillogo/fallback.png"
                     alt={countryName}
                     className="country-group-flag-header"
                   />
@@ -1673,7 +1678,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 if (leagueName.includes("cotif")) {
                   return "/assets/matchdetaillogo/cotif tournament.png";
                 }
-                return leagueData.league.logo || "/assets/fallback-logo.svg";
+                return (
+                  leagueData.league.logo ||
+                  "/assets/matchdetaillogo/fallback.png"
+                );
               })()}
               alt={leagueData.league.name || "Unknown League"}
               className="w-6 h-6 object-contain rounded-full"
@@ -1683,11 +1691,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 const leagueName = leagueData.league.name?.toLowerCase() || "";
                 if (
                   leagueName.includes("cotif") &&
-                  !target.src.includes("fallback-logo.svg")
+                  !target.src.includes("fallback.png")
                 ) {
-                  target.src = "/assets/fallback-logo.svg";
-                } else if (!target.src.includes("fallback-logo.svg")) {
-                  target.src = "/assets/fallback-logo.svg";
+                  target.src = "/assets/matchdetaillogo/fallback.png";
+                } else if (!target.src.includes("fallback.png")) {
+                  target.src = "/assets/matchdetaillogo/fallback.png";
                 }
               }}
             />
@@ -2175,7 +2183,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 teamLogo={
                   match.teams.home.id
                     ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                    : "/assets/fallback-logo.svg"
+                    : "/assets/matchdetaillogo/fallback.png"
                 }
                 alt={match.teams.home.name}
                 size="34px"
@@ -2343,7 +2351,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 teamLogo={
                   match.teams.away.id
                     ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                    : "/assets/fallback-logo.svg"
+                    : "/assets/matchdetaillogo/fallback.png"
                 }
                 alt={match.teams.away.name}
                 size="34px"
