@@ -519,6 +519,22 @@ const LazyImage: React.FC<LazyImageProps> = ({
     );
   }
 
+  // Debug logging for unexpected player photos in team contexts
+  if (process.env.NODE_ENV === 'development' && alt && imageSrc) {
+    const isPlayerPhoto = imageSrc.includes('/players/') || imageSrc.includes('Athletes/');
+    const isTeamContext = alt.toLowerCase().includes('vs') || alt.toLowerCase().includes('team') || 
+                         alt.toLowerCase().includes('akademiya') || alt.toLowerCase().includes('irtysh');
+    
+    if (isPlayerPhoto && isTeamContext) {
+      console.warn(`🚨 [LazyImage] Player photo detected in team context:`, {
+        alt,
+        imageSrc,
+        originalSrc: src,
+        component: 'LazyImage'
+      });
+    }
+  }
+
   return (
     <img
       src={imageSrc}
