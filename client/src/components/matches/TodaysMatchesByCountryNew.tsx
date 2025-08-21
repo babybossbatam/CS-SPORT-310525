@@ -2184,7 +2184,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   match.teams.home.id
                     ? `/api/team-logo/square/${match.teams.home.id}?size=32`
                     : match.teams.home.logo ||
-                      `/assets/matchdetaillogo/fallback.png`
+                      "/assets/matchdetaillogo/fallback.png"
                 }
                 alt={match.teams.home.name || "Home Team"}
                 size="34px"
