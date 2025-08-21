@@ -60,6 +60,34 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const fallbackUrl = "/assets/matchdetaillogo/fallback.png";
 
   useEffect(() => {
+    // Check browser cache first for previously successful loads
+    const checkBrowserCache = () => {
+      try {
+        const cacheKey = `logo_${src.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        const cached = sessionStorage.getItem(cacheKey);
+        if (cached) {
+          const { url, timestamp } = JSON.parse(cached);
+          const age = Date.now() - timestamp;
+          // Use cached version if less than 1 hour old
+          if (age < 60 * 60 * 1000 && url) {
+            console.log(`🔄 [LazyImage] Using browser cached logo: ${url}`);
+            return url;
+          }
+        }
+      } catch (error) {
+        // Ignore cache errors
+      }
+      return null;
+    };
+
+    const cachedUrl = checkBrowserCache();
+    if (cachedUrl) {
+      setImageSrc(cachedUrl);
+      setHasError(false);
+      setRetryCount(0);
+      return;
+    }
+
     // Check for specific teams/leagues that should use local assets immediately
       const shouldUseLocalAsset = () => {
         if (alt) {
@@ -505,10 +533,22 @@ const LazyImage: React.FC<LazyImageProps> = ({
       console.log(`✅ [LazyImage] Recovered and loaded real logo: ${imageSrc}`);
     }
 
-    // Only cache real, non-fallback images
-    console.log(
-      `💾 [LazyImage] Real logo loaded and ready for caching: ${imageSrc}`,
-    );
+    // Cache successful logo loads
+    if (!isFallbackImage && !hasError) {
+      // Store in browser cache for immediate future use
+      try {
+        const cacheKey = `logo_${imageSrc.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        sessionStorage.setItem(cacheKey, JSON.stringify({
+          url: imageSrc,
+          timestamp: Date.now(),
+          alt: alt
+        }));
+        console.log(`💾 [LazyImage] Cached successful logo: ${imageSrc}`);
+      } catch (error) {
+        // Ignore storage errors
+      }
+    }
+
     setHasError(false);
     onLoad?.();
   };
