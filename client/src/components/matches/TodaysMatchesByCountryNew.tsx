@@ -2353,7 +2353,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   match.teams.away.id
                     ? `/api/team-logo/square/${match.teams.away.id}?size=32`
                     : match.teams.away.logo ||
-                      'client/public/assets/matchdetaillogo/fallback.png'
+                      "/assets/matchdetaillogo/fallback.png"
                 }
                 alt={match.teams.away.name || "Away Team"}
                 size="34px"
