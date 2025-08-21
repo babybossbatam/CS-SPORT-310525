@@ -2177,21 +2177,31 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
             {/* Home team logo */}
             <div className="home-team-logo-container">
-              <MyWorldTeamLogo
-                teamName={match.teams.home.name || "Home Team"}
-                teamId={match.teams.home.id}
-                teamLogo={
-                  match.teams.home.id
-                    ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                    : match.teams.home.logo ||
-                      `/assets/matchdetaillogo/fallback.png`
+              <img
+                src={match.teams.home.id
+                  ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                  : match.teams.home.logo ||
+                    "/assets/matchdetaillogo/fallback.png"
                 }
                 alt={match.teams.home.name || "Home Team"}
-                size="34px"
-                className="popular-leagues-size"
-                leagueContext={{
-                  name: leagueData.league.name,
-                  country: leagueData.league.country,
+                className="w-[34px] h-[34px] object-contain rounded-full popular-leagues-size"
+                style={{
+                  border: 'none',
+                  outline: 'none',
+                  display: 'block',
+                  opacity: 1,
+                  transition: 'opacity 0.2s ease-in-out',
+                  filter: 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.8))',
+                  width: '34px',
+                  height: '34px'
+                }}
+                loading="lazy"
+                decoding="async"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (target.src !== '/assets/matchdetaillogo/fallback.png') {
+                    target.src = '/assets/matchdetaillogo/fallback.png';
+                  }
                 }}
               />
             </div>
@@ -2346,21 +2356,31 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
             {/* Away team logo */}
             <div className="away-team-logo-container">
-              <MyWorldTeamLogo
-                teamName={match.teams.away.name || "Away Team"}
-                teamId={match.teams.away.id}
-                teamLogo={
-                  match.teams.away.id
-                    ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                    : match.teams.away.logo ||
-                      "/assets/matchdetaillogo/fallback.png"
+              <img
+                src={match.teams.away.id
+                  ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                  : match.teams.away.logo ||
+                    "/assets/matchdetaillogo/fallback.png"
                 }
                 alt={match.teams.away.name || "Away Team"}
-                size="34px"
-                className="popular-leagues-size"
-                leagueContext={{
-                  name: leagueData.league.name,
-                  country: leagueData.league.country,
+                className="w-[34px] h-[34px] object-contain rounded-full popular-leagues-size"
+                style={{
+                  border: 'none',
+                  outline: 'none',
+                  display: 'block',
+                  opacity: 1,
+                  transition: 'opacity 0.2s ease-in-out',
+                  filter: 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.8))',
+                  width: '34px',
+                  height: '34px'
+                }}
+                loading="lazy"
+                decoding="async"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (target.src !== '/assets/matchdetaillogo/fallback.png') {
+                    target.src = '/assets/matchdetaillogo/fallback.png';
+                  }
                 }}
               />
             </div>
