@@ -2182,13 +2182,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 teamId={match.teams.home.id}
                 teamLogo={
                   match.teams.home.id
-                    ? `/api/team-logo/square/${match.teams.home.id}?size=64`
+                    ? `/api/team-logo/square/${match.teams.home.id}?size=32`
                     : match.teams.home.logo ||
-                      `/assets/fallback-logo.svg`
+                      `/assets/matchdetaillogo/fallback.png`
                 }
                 alt={match.teams.home.name || "Home Team"}
-                size="70px"
-                className="w-full h-full object-contain"
+                size="34px"
+                className="popular-leagues-size"
                 leagueContext={{
                   name: leagueData.league.name,
                   country: leagueData.league.country,
@@ -2351,13 +2351,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 teamId={match.teams.away.id}
                 teamLogo={
                   match.teams.away.id
-                    ? `/api/team-logo/square/${match.teams.away.id}?size=64`
+                    ? `/api/team-logo/square/${match.teams.away.id}?size=32`
                     : match.teams.away.logo ||
-                      `/assets/fallback-logo.svg`
+                      'client/public/assets/matchdetaillogo/fallback.png'
                 }
                 alt={match.teams.away.name || "Away Team"}
-                size="70px"
-                className="w-full h-full object-contain"
+                size="34px"
+                className="popular-leagues-size"
                 leagueContext={{
                   name: leagueData.league.name,
                   country: leagueData.league.country,
