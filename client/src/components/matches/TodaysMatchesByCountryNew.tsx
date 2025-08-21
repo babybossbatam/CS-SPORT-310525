@@ -878,7 +878,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     analysisStats,
   );
 
-  // No need for heavy sorting - countries are already sorted in countryList
+  // No sorting needed - countries are already sorted in countryList
   const visibleCountriesList = useMemo(
     () => countryList.filter((country) => visibleCountries.has(country)),
     [countryList, Array.from(visibleCountries).join(",")],
