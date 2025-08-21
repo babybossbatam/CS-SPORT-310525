@@ -2180,7 +2180,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               <MyWorldTeamLogo
                 teamName={match.teams.home.name || "Home Team"}
                 teamId={match.teams.home.id}
-                teamLogo={`/api/team-logo/square/${match.teams.home.id}?size=32`}
+                teamLogo={match.teams.home.logo || `/api/team-logo/square/${match.teams.home.id}?size=32`}
                 alt={match.teams.home.name || "Home Team"}
                 size="34px"
                 className="popular-leagues-size"
@@ -2344,7 +2344,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               <MyWorldTeamLogo
                 teamName={match.teams.away.name || "Away Team"}
                 teamId={match.teams.away.id}
-                teamLogo={`/api/team-logo/square/${match.teams.away.id}?size=32`}
+                teamLogo={match.teams.away.logo || `/api/team-logo/square/${match.teams.away.id}?size=32`}
                 alt={match.teams.away.name || "Away Team"}
                 size="34px"
                 className="popular-leagues-size"
