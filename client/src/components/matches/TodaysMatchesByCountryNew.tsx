@@ -2178,16 +2178,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             {/* Home team logo */}
             <div className="home-team-logo-container">
               <MyWorldTeamLogo
-                teamName={match.teams.home.name || ""}
+                teamName={match.teams.home.name || "Home Team"}
                 teamId={match.teams.home.id}
                 teamLogo={
                   match.teams.home.id
-                    ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                    : "/assets/matchdetaillogo/fallback.png"
+                    ? `/api/team-logo/square/${match.teams.home.id}?size=64`
+                    : match.teams.home.logo ||
+                      `/assets/fallback-logo.svg`
                 }
-                alt={match.teams.home.name}
-                size="34px"
-                className="popular-leagues-size"
+                alt={match.teams.home.name || "Home Team"}
+                size="70px"
+                className="w-full h-full object-contain"
                 leagueContext={{
                   name: leagueData.league.name,
                   country: leagueData.league.country,
@@ -2346,16 +2347,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             {/* Away team logo */}
             <div className="away-team-logo-container">
               <MyWorldTeamLogo
-                teamName={match.teams.away.name || ""}
+                teamName={match.teams.away.name || "Away Team"}
                 teamId={match.teams.away.id}
                 teamLogo={
                   match.teams.away.id
-                    ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                    : "/assets/matchdetaillogo/fallback.png"
+                    ? `/api/team-logo/square/${match.teams.away.id}?size=64`
+                    : match.teams.away.logo ||
+                      `/assets/fallback-logo.svg`
                 }
-                alt={match.teams.away.name}
-                size="34px"
-                className="popular-leagues-size"
+                alt={match.teams.away.name || "Away Team"}
+                size="70px"
+                className="w-full h-full object-contain"
                 leagueContext={{
                   name: leagueData.league.name,
                   country: leagueData.league.country,
