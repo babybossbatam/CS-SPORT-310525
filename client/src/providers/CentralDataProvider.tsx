@@ -57,8 +57,8 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           }
         }, 10000);
 
-        // Build the URL with proper host detection
-        const baseUrl = window.location.origin || 'http://localhost:5000';
+        // Build the URL with proper host detection - force port 5000 for API calls
+        const baseUrl = window.location.protocol + '//' + window.location.hostname + ':5000';
         const apiUrl = `${baseUrl}/api/fixtures/date/${validDate}?all=true`;
         
         const response = await fetch(apiUrl, {
@@ -232,8 +232,8 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           }
         }, 10000);
 
-        // Build the URL with proper host detection  
-        const baseUrl = window.location.origin || 'http://localhost:5000';
+        // Build the URL with proper host detection - force port 5000 for API calls
+        const baseUrl = window.location.protocol + '//' + window.location.hostname + ':5000';
         const apiUrl = `${baseUrl}/api/fixtures/live`;
         
         const response = await fetch(apiUrl, {

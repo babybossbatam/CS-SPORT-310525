@@ -34,8 +34,11 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
-    port: 8080,
+    port: 5000,
     host: '0.0.0.0',
+    hmr: {
+      port: 5000,
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
