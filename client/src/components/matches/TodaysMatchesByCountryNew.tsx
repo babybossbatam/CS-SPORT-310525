@@ -2189,7 +2189,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   country: leagueData.league.country,
                 }}
               />
-            </div></old_str>
+            </div>
 
             {/* Score/Time Center */}
             <div className="match-score-container">
@@ -2353,7 +2353,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   country: leagueData.league.country,
                 }}
               />
-            </div></old_str>
+            </div>
 
             {/* Away Team Name */}
             <div

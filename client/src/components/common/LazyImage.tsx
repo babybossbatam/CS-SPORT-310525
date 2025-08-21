@@ -537,7 +537,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       setImageSrc(fallbackUrl);
       return;
     }
-  }</old_str>
+  }
 
   return (
     <img
