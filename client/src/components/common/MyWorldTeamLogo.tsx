@@ -107,15 +107,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         circularFlagCache.set(cacheKey, { result, timestamp: now });
         return result;
       }
-    }
-
-    // Force club teams to always use club logos regardless of league
-    if (isClubTeam) {
-      console.log(`🏟️ [MyWorldTeamLogo] ${teamName} identified as club team - forcing club logo`);
-      const result = false; // Use club logo format
-      circularFlagCache.set(cacheKey, { result, timestamp: now });
-      return result;esult;
-      }
 
       // For youth teams in COTIF that are national teams
       if (isYouthTeam && isActualNationalTeam) {
@@ -199,32 +190,11 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                                leagueName.includes("bundesliga") ||
                                leagueName.includes("ligue 1") ||
                                leagueName.includes("primeira liga") ||
-                               leagueName.includes("eredivisie") ||
-                               // MLS and related competitions
-                               leagueName.includes("mls") ||
-                               leagueName.includes("major league soccer") ||
-                               leagueName.includes("mls next pro");
+                               leagueName.includes("eredivisie");
 
-    // Force specific club teams to ALWAYS use club logos
-    const isClubTeam = (teamName?.includes("Valencia U20") && teamId === 532) ||
-                      (teamName?.includes("Alboraya U20") && teamId === 19922) ||
-                      // MLS Next Pro teams (reserve/development teams)
-                      teamName?.includes("Rapids II") ||
-                      teamName?.includes("Timbers II") ||
-                      teamName?.includes("Sounders 2") ||
-                      teamName?.includes("Galaxy II") ||
-                      teamName?.includes("Republic FC") ||
-                      teamName?.includes("Orange County SC") ||
-                      teamName?.includes("Phoenix Rising") ||
-                      teamName?.includes("Real Monarchs") ||
-                      teamName?.includes("Tacoma Defiance") ||
-                      teamName?.includes("LA Galaxy II") ||
-                      teamName?.includes("Seattle Sounders FC 2") ||
-                      teamName?.includes("Portland Timbers 2") ||
-                      teamName?.includes("Colorado Rapids 2") ||
-                      // General MLS Next Pro patterns
-                      (teamName?.includes(" II") && (leagueName.includes("mls") || leagueName.includes("next pro"))) ||
-                      (teamName?.includes(" 2") && (leagueName.includes("mls") || leagueName.includes("next pro"))) ||20") && teamId === 19922);
+    // Force specific club youth teams to ALWAYS use club logos
+    const isClubYouthTeam = (teamName?.includes("Valencia U20") && teamId === 532) ||
+                           (teamName?.includes("Alboraya U20") && teamId === 19922);
 
     // Additional check for known club teams that should NEVER use circular flags
     const isKnownClubTeam = teamName && (
@@ -295,12 +265,12 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
 
 
-    // Debug logging for specific club teams
-    if (teamName?.includes("Valencia U20") || teamName?.includes("Alboraya U20") || 
-        teamName?.includes("Rapids II") || teamName?.includes("Timbers II")) {
-      console.log(`🏟️ [MyWorldTeamLogo] Club Team Detection for ${teamName}:`, {
+    // Debug logging for specific club youth teams
+    if (teamName?.includes("Valencia U20") || teamName?.includes("Alboraya U20")) {
+      console.log(`🏟️ [MyWorldTeamLogo] Club Youth Team Detection for ${teamName}:`, {
         teamId: teamId,
-        isClubTeam: isClubTeam,
+        isClubYouthTeam: (teamName?.includes("Valencia U20") && teamId === 532) ||
+                        (teamName?.includes("Alboraya U20") && teamId === 19922),
         shouldUseCircularFlag: result,
         leagueName: leagueName
       });
