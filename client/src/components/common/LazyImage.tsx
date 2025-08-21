@@ -519,23 +519,61 @@ const LazyImage: React.FC<LazyImageProps> = ({
     );
   }
 
-  // Debug logging for unexpected player photos in team contexts
-  if (process.env.NODE_ENV === 'development' && alt && imageSrc) {
-    const isPlayerPhoto = imageSrc.includes('/players/') || imageSrc.includes('Athletes/') || imageSrc.includes('player-');
-    const isTeamContext = alt.toLowerCase().includes('vs') || alt.toLowerCase().includes('team') || 
-                         alt.toLowerCase().includes('akademiya') || alt.toLowerCase().includes('irtysh') ||
-                         alt.toLowerCase().includes('home') || alt.toLowerCase().includes('away');
+  // Enhanced player image detection and prevention
+  if (alt && imageSrc) {
+    const isPlayerPhoto = imageSrc.includes('/players/') || 
+                         imageSrc.includes('Athletes/') || 
+                         imageSrc.includes('player-') ||
+                         imageSrc.includes('/headshots/') ||
+                         imageSrc.includes('_headshot') ||
+                         imageSrc.includes('player_') ||
+                         imageSrc.includes('/athlete/');
+    
+    const isTeamContext = alt.toLowerCase().includes('vs') || 
+                         alt.toLowerCase().includes('team') || 
+                         alt.toLowerCase().includes('logo') ||
+                         alt.toLowerCase().includes('home') || 
+                         alt.toLowerCase().includes('away') ||
+                         // Add specific team names from the image
+                         alt.toLowerCase().includes('colorado rapids') ||
+                         alt.toLowerCase().includes('portland timbers') ||
+                         alt.toLowerCase().includes('texoma') ||
+                         alt.toLowerCase().includes('alta') ||
+                         alt.toLowerCase().includes('union omaha') ||
+                         alt.toLowerCase().includes('charlotte');
     
     if (isPlayerPhoto && isTeamContext) {
-      console.warn(`🚨 [LazyImage] Player photo detected in team context, using fallback:`, {
+      console.warn(`🚨 [LazyImage] Player photo detected in team context, forcing fallback:`, {
         alt,
         imageSrc,
         originalSrc: src,
         component: 'LazyImage'
       });
-      // Force fallback for player images in team contexts
+      // Immediately set fallback and return early
       setImageSrc(fallbackUrl);
-      return;
+      setHasError(false);
+      setIsLoading(false);
+      return (
+        <img
+          src={fallbackUrl}
+          alt={alt}
+          className={className}
+          style={{
+            ...style,
+            border: 'none',
+            outline: 'none',
+            display: 'block',
+            opacity: 1,
+            filter: darkMode ? 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))' : 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.8))',
+            ...(style?.width || style?.height ? {} : {
+             width: style?.width || style?.height || (isMobile ? '32px' : '32px'),
+              height: style?.height || style?.width || (isMobile ? '32px' : '32px')
+            })
+          }}
+          loading={shouldPreload ? 'eager' : 'lazy'}
+          decoding="async"
+        />
+      );
     }
   }
 
