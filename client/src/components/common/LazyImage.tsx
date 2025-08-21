@@ -521,38 +521,80 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   // Enhanced player image detection and prevention
   if (alt && imageSrc) {
+    // Comprehensive player photo URL patterns
     const isPlayerPhoto = imageSrc.includes('/players/') || 
                          imageSrc.includes('Athletes/') || 
                          imageSrc.includes('player-') ||
                          imageSrc.includes('/headshots/') ||
                          imageSrc.includes('_headshot') ||
                          imageSrc.includes('player_') ||
-                         imageSrc.includes('/athlete/');
+                         imageSrc.includes('/athlete/') ||
+                         imageSrc.includes('/persons/') ||
+                         imageSrc.includes('/portraits/') ||
+                         imageSrc.includes('playerheadshots') ||
+                         imageSrc.includes('playerimages') ||
+                         imageSrc.includes('mugshots') ||
+                         // 365scores specific player patterns
+                         imageSrc.includes('365scores.com') && (
+                           imageSrc.includes('Athletes') ||
+                           imageSrc.includes('player') ||
+                           imageSrc.includes('headshot')
+                         ) ||
+                         // RapidAPI player patterns
+                         imageSrc.includes('media.api-sports.io') && imageSrc.includes('/players/') ||
+                         // Generic person/face detection patterns
+                         imageSrc.match(/\/(player|athlete|person|headshot|mugshot|portrait)/i);
     
+    // Team context detection - any team name or logo context
     const isTeamContext = alt.toLowerCase().includes('vs') || 
                          alt.toLowerCase().includes('team') || 
                          alt.toLowerCase().includes('logo') ||
                          alt.toLowerCase().includes('home') || 
                          alt.toLowerCase().includes('away') ||
-                         // Add specific team names from the image
-                         alt.toLowerCase().includes('colorado rapids') ||
-                         alt.toLowerCase().includes('portland timbers') ||
+                         alt.toLowerCase().includes('club') ||
+                         alt.toLowerCase().includes('fc') ||
+                         alt.toLowerCase().includes('united') ||
+                         alt.toLowerCase().includes('city') ||
+                         alt.toLowerCase().includes('rapids') ||
+                         alt.toLowerCase().includes('timbers') ||
                          alt.toLowerCase().includes('texoma') ||
                          alt.toLowerCase().includes('alta') ||
-                         alt.toLowerCase().includes('union omaha') ||
-                         alt.toLowerCase().includes('charlotte');
+                         alt.toLowerCase().includes('union') ||
+                         alt.toLowerCase().includes('omaha') ||
+                         alt.toLowerCase().includes('charlotte') ||
+                         // League contexts
+                         alt.toLowerCase().includes('usl') ||
+                         alt.toLowerCase().includes('mls') ||
+                         alt.toLowerCase().includes('league') ||
+                         // Generic team indicators
+                         className?.includes('team') ||
+                         className?.includes('logo') ||
+                         // Check if this is being used in match/fixture context
+                         alt.match(/\b(vs?\.?|versus|against|\-)\b/i);
     
-    if (isPlayerPhoto && isTeamContext) {
-      console.warn(`🚨 [LazyImage] Player photo detected in team context, forcing fallback:`, {
+    // Additional check: if the image dimensions suggest it's a small logo/icon
+    const isLogoSize = (style?.width && parseInt(style.width as string) <= 64) || 
+                      (style?.height && parseInt(style.height as string) <= 64) ||
+                      className?.includes('w-6') || className?.includes('h-6') ||
+                      className?.includes('w-8') || className?.includes('h-8');
+    
+    if (isPlayerPhoto && (isTeamContext || isLogoSize)) {
+      console.warn(`🚨 [LazyImage] Player photo blocked in team/logo context:`, {
         alt,
         imageSrc,
         originalSrc: src,
+        isTeamContext,
+        isLogoSize,
+        playerPhotoPatterns: {
+          playersPath: imageSrc.includes('/players/'),
+          athletes: imageSrc.includes('Athletes/'),
+          headshots: imageSrc.includes('headshot'),
+          portraits: imageSrc.includes('portrait')
+        },
         component: 'LazyImage'
       });
-      // Immediately set fallback and return early
-      setImageSrc(fallbackUrl);
-      setHasError(false);
-      setIsLoading(false);
+      
+      // Force fallback immediately
       return (
         <img
           src={fallbackUrl}
