@@ -17,6 +17,7 @@ interface LazyImageProps {
   useTeamLogo?: boolean;
   teamId?: number | string;
   teamName?: string;
+  teamLogo?: string; // For fallback from currentMatch.teams.home.logo
   leagueContext?: {
     name?: string;
     country?: string;
@@ -36,6 +37,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   useTeamLogo = false,
   teamId,
   teamName,
+  teamLogo,
   leagueContext,
   priority = 'low',
 }) => {
@@ -367,6 +369,15 @@ const LazyImage: React.FC<LazyImageProps> = ({
         // Standard retry logic for non-league images or final attempts
         const maxRetries = isLeagueLogo ? 2 : 1; // Reduced retries to prevent spam
         if (retryCount >= maxRetries) {
+          // Try teamLogo as additional fallback before using default fallback
+          if (teamLogo && !imageSrc.includes(teamLogo) && retryCount === maxRetries) {
+            console.log(`🔄 [LazyImage] Trying teamLogo fallback: ${teamLogo}`);
+            setImageSrc(teamLogo);
+            setRetryCount(retryCount + 1);
+            setIsLoading(true);
+            return;
+          }
+          
           console.warn(
             `🚫 [LazyImage] All retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
           );
