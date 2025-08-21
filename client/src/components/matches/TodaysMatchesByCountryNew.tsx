@@ -2180,12 +2180,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               <MyWorldTeamLogo
                 teamName={match.teams.home.name || "Home Team"}
                 teamId={match.teams.home.id}
-                teamLogo={
-                  match.teams.home.id
-                    ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                    : match.teams.home.logo ||
-                      "/assets/matchdetaillogo/fallback.png"
-                }
+                teamLogo={`/api/team-logo/square/${match.teams.home.id}?size=32`}
                 alt={match.teams.home.name || "Home Team"}
                 size="34px"
                 className="popular-leagues-size"
@@ -2194,7 +2189,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   country: leagueData.league.country,
                 }}
               />
-            </div>
+            </div></old_str>
 
             {/* Score/Time Center */}
             <div className="match-score-container">
@@ -2349,12 +2344,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               <MyWorldTeamLogo
                 teamName={match.teams.away.name || "Away Team"}
                 teamId={match.teams.away.id}
-                teamLogo={
-                  match.teams.away.id
-                    ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                    : match.teams.away.logo ||
-                      "/assets/matchdetaillogo/fallback.png"
-                }
+                teamLogo={`/api/team-logo/square/${match.teams.away.id}?size=32`}
                 alt={match.teams.away.name || "Away Team"}
                 size="34px"
                 className="popular-leagues-size"
@@ -2363,7 +2353,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   country: leagueData.league.country,
                 }}
               />
-            </div>
+            </div></old_str>
 
             {/* Away Team Name */}
             <div

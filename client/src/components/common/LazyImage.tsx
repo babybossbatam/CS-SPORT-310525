@@ -521,19 +521,23 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   // Debug logging for unexpected player photos in team contexts
   if (process.env.NODE_ENV === 'development' && alt && imageSrc) {
-    const isPlayerPhoto = imageSrc.includes('/players/') || imageSrc.includes('Athletes/');
+    const isPlayerPhoto = imageSrc.includes('/players/') || imageSrc.includes('Athletes/') || imageSrc.includes('player-');
     const isTeamContext = alt.toLowerCase().includes('vs') || alt.toLowerCase().includes('team') || 
-                         alt.toLowerCase().includes('akademiya') || alt.toLowerCase().includes('irtysh');
+                         alt.toLowerCase().includes('akademiya') || alt.toLowerCase().includes('irtysh') ||
+                         alt.toLowerCase().includes('home') || alt.toLowerCase().includes('away');
     
     if (isPlayerPhoto && isTeamContext) {
-      console.warn(`🚨 [LazyImage] Player photo detected in team context:`, {
+      console.warn(`🚨 [LazyImage] Player photo detected in team context, using fallback:`, {
         alt,
         imageSrc,
         originalSrc: src,
         component: 'LazyImage'
       });
+      // Force fallback for player images in team contexts
+      setImageSrc(fallbackUrl);
+      return;
     }
-  }
+  }</old_str>
 
   return (
     <img
