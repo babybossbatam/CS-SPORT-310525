@@ -326,6 +326,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [countdownTimer, setCountdownTimer] = useState<string>("Loading...");
   const [roundsCache, setRoundsCache] = useState<Record<string, string[]>>({});
+  const [preloadedRounds, setPreloadedRounds] = useState<Record<string, string[]>>({});
   const {
     translateTeamName,
     translateLeagueName,
@@ -1856,6 +1857,34 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           });
         }
 
+        // Preload round data for all unique leagues to prevent loading delays
+        const uniqueLeagueIds = new Set<number>();
+        allMatches.forEach(dayData => {
+          dayData.matches.forEach(match => {
+            uniqueLeagueIds.add(match.league.id);
+          });
+        });
+
+        // Preload rounds for all leagues in parallel
+        const preloadPromises = Array.from(uniqueLeagueIds).map(async (leagueId) => {
+          try {
+            const rounds = await fetchRoundsForLeague(leagueId, 2025);
+            return { leagueId, rounds };
+          } catch (error) {
+            console.warn(`Failed to preload rounds for league ${leagueId}:`, error);
+            return { leagueId, rounds: [] };
+          }
+        });
+
+        // Execute preloading in background
+        Promise.all(preloadPromises).then(results => {
+          const preloadedData: Record<string, string[]> = {};
+          results.forEach(({ leagueId, rounds }) => {
+            preloadedData[`${leagueId}-2025`] = rounds;
+          });
+          setPreloadedRounds(preloadedData);
+        });
+
         // Only update state if data has actually changed
         setFeaturedMatches((prevMatches) => {
           const newMatchesString = JSON.stringify(allMatches);
@@ -2159,12 +2188,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     return allMatches[currentMatchIndex];
   }, [allMatches, currentMatchIndex]);
 
-  // Fetch rounds data for current match league
-  useEffect(() => {
-    if (currentMatch && !roundsCache[`${currentMatch.league.id}-2025`]) {
-      fetchRoundsForLeague(currentMatch.league.id, 2025);
-    }
-  }, [currentMatch, fetchRoundsForLeague, roundsCache]);
+  // Note: Round data is now preloaded for all matches to prevent loading delays
 
   const handlePrevious = useCallback(() => {
     if (allMatches.length > 0) {
@@ -2632,6 +2656,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         currentRound={currentMatch.league?.round}
                         matchStatus={currentMatch.fixture.status.short}
                         className="ml-2"
+                        preloadedRounds={preloadedRounds[`${currentMatch.league.id}-2025`]}
                       />
                     </div>
 
