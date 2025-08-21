@@ -105,10 +105,21 @@ const LazyImage: React.FC<LazyImageProps> = ({
     }, [src, alt, darkMode]); // Add darkMode to trigger re-evaluation when theme changes
 
     const handleError = () => {
-      // Safety check to prevent cascading errors
-      try {
-        // Immediately set loading to false to prevent broken image display
-        setIsLoading(false);
+    // Safety check to prevent cascading errors
+    try {
+      // Enhanced debugging for team logos
+      console.log(`🚫 [LazyImage] Image failed to load:`, {
+        src: imageSrc,
+        alt: alt,
+        originalSrc: src,
+        retryCount,
+        hasTeamInfo: !!(teamId && teamName),
+        useTeamLogo,
+        timestamp: new Date().toISOString()
+      });
+
+      // Immediately set loading to false to prevent broken image display
+      setIsLoading(false);
 
       // Check for specific teams/leagues that should use local assets
       const shouldUseLocalAsset = () => {
@@ -143,7 +154,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
             return true;
           }
 
-          // Alboraya team (including U20)  
+          // Alboraya team (including U20)
           if (altLower.includes("alboraya") || altLower.includes("albaroya")) {
             setImageSrc("/assets/matchdetaillogo/alboraya.png");
             setHasError(false);
@@ -326,7 +337,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
           const leagueIdMatch = imageSrc.match(/(?:\/api\/league-logo\/(?:square\/)?|leagues\/|Competitions\/)(\d+)/);
           if (leagueIdMatch) {
             const leagueId = leagueIdMatch[1];
-            const scoresUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`;
+            const scoresUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitions/${leagueId}`;
             console.log(
               `🏆 [LazyImage] League logo second attempt: trying 365scores for ${leagueId}`,
             );
