@@ -201,8 +201,21 @@ export function RoundBadge({
         if (rule.format && match) {
           const formatValue = rule.format(match);
           // Handle nested translation objects
-          const translation = t(rule.translationKey);
-          if (typeof translation === 'object' && translation[currentLanguage]) {
+          let translation = t(rule.translationKey);
+          
+          // If translation returns the key itself (meaning no translation found), create a fallback
+          if (translation === rule.translationKey) {
+            // Try to create a readable fallback based on the key
+            if (rule.translationKey === 'round_of_x') {
+              translatedText = `Round of ${formatValue}`;
+            } else if (rule.translationKey === 'numbered_round') {
+              translatedText = `${formatValue} Round`;
+            } else if (rule.translationKey === 'qualifying_round') {
+              translatedText = `${formatValue} Qualifying`;
+            } else {
+              translatedText = `${formatValue} Round`;
+            }
+          } else if (typeof translation === 'object' && translation[currentLanguage]) {
             translatedText = translation[currentLanguage].replace('{{value}}', formatValue);
           } else if (typeof translation === 'string') {
             translatedText = translation.replace('{{value}}', formatValue);
@@ -211,8 +224,16 @@ export function RoundBadge({
           }
         } else {
           // Handle nested translation objects for simple translations
-          const translation = t(rule.translationKey);
-          if (typeof translation === 'object' && translation[currentLanguage]) {
+          let translation = t(rule.translationKey);
+          
+          // If translation returns the key itself, create a readable fallback
+          if (translation === rule.translationKey) {
+            // Convert snake_case to readable text
+            translatedText = rule.translationKey
+              .split('_')
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ');
+          } else if (typeof translation === 'object' && translation[currentLanguage]) {
             translatedText = translation[currentLanguage];
           } else if (typeof translation === 'string') {
             translatedText = translation;
@@ -266,14 +287,20 @@ export function RoundBadge({
   if (roundData && roundData.length > 0) {
     // Get the most recent round from API data
     displayRound = roundData[roundData.length - 1];
+    console.log(`🎯 [RoundBadge] Original round name from API: "${displayRound}" for league ${leagueId}`);
   }
 
   // If no round data from API, don't show the badge at all
   if (!displayRound) {
+    console.log(`❌ [RoundBadge] No round data available for league ${leagueId}`);
     return null;
   }
 
   const roundText = formatRoundText(displayRound);
+  console.log(`🔄 [RoundBadge] Formatted round text: "${roundText}" (original: "${displayRound}")`);
+  
+  // Debug: Show what roundData contains
+  console.log(`📋 [RoundBadge] All rounds for league ${leagueId}:`, roundData);
 
   // If formatting returns null, don't show the badge
   if (!roundText) {
