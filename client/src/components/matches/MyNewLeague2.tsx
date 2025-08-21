@@ -1115,8 +1115,25 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       const fixtureDate = new Date(fixture.fixture.date);
       const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
 
-      // Only include fixtures that match the selected date
-      if (fixtureDateString !== selectedDate) {
+      // More lenient date filtering - include fixtures from the selected date
+      // Also include fixtures from adjacent dates to handle timezone issues
+      const selectedDateObj = new Date(selectedDate);
+      const dayBefore = new Date(selectedDateObj);
+      dayBefore.setDate(selectedDateObj.getDate() - 1);
+      const dayAfter = new Date(selectedDateObj);
+      dayAfter.setDate(selectedDateObj.getDate() + 1);
+
+      const dayBeforeString = format(dayBefore, "yyyy-MM-dd");
+      const dayAfterString = format(dayAfter, "yyyy-MM-dd");
+
+      // Include fixtures from selected date and adjacent dates for timezone flexibility
+      if (![dayBeforeString, selectedDate, dayAfterString].includes(fixtureDateString)) {
+        console.log(`📅 [MyNewLeague2] Fixture filtered out - wrong date:`, {
+          fixtureId: fixture.fixture.id,
+          fixtureDate: fixtureDateString,
+          selectedDate,
+          teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+        });
         return;
       }
 
@@ -1138,6 +1155,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         fixtureId: fixture.fixture.id,
         teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
         league: fixture.league.name,
+        fixtureDate: fixtureDateString,
+        selectedDate,
         matchupKey,
       });
     });
@@ -1731,12 +1750,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   const hasCachedData =
     cachedData && Array.isArray(cachedData) && cachedData.length > 0;
 
-  // Show loading with better error handling
-  if (
-    (isLoading || isFetching) &&
-    Object.keys(fixturesByLeague).length === 0 &&
-    !hasCachedData
-  ) {
+  // Show loading with better error handling - simplified condition
+  if (isLoading && Object.keys(fixturesByLeague).length === 0) {
     return (
       <>
         {/* Header Section */}
@@ -1912,6 +1927,18 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   }
 
   const leagueEntries = Object.entries(fixturesByLeague);
+
+  // Debug logging to help identify the issue
+  console.log(`🔧 [MyNewLeague2] Render state debug:`, {
+    isLoading,
+    isFetching,
+    allFixturesLength: allFixtures?.length || 0,
+    leagueEntriesLength: leagueEntries.length,
+    fixturesByLeagueKeys: Object.keys(fixturesByLeague),
+    selectedDate,
+    hasCachedData,
+    errorState: error ? error.message : null,
+  });
 
   if (leagueEntries.length === 0 && !isLoading && !isFetching) {
     return (
@@ -3155,10 +3182,9 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
   const hasCachedData =
     cachedData && Array.isArray(cachedData) && cachedData.length > 0;
 
-  // If we have cached data OR component has intersected, show the actual component
-  if (hasCachedData || hasIntersected) {
-    return <MyNewLeague2Component {...props} />;
-  }
+  // Always render the actual component - remove lazy loading logic that might be causing issues
+  // The intersection observer was potentially preventing the component from loading
+  return <MyNewLeague2Component {...props} />;
 
   // If no cached data and not intersected yet, show proper loading skeleton
   if (!hasIntersected) {
