@@ -793,61 +793,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               );
               const fixturesData = await fixturesResponse.json();
 
-              // Progressive loading: Collect matches for initial batch
-              if (progressiveLoad && initialBatchMatches.length < INITIAL_LOAD_COUNT && fixturesData?.length > 0) {
-                const availableMatches = fixturesData.slice(0, Math.min(INITIAL_LOAD_COUNT - initialBatchMatches.length, fixturesData.length));
-                if (availableMatches.length > 0) {
-                  const quickFixtures = availableMatches.map((fixture: any) => ({
-                    fixture: {
-                      id: fixture.fixture.id,
-                      date: fixture.fixture.date,
-                      status: fixture.fixture.status,
-                      venue: fixture.fixture.venue,
-                    },
-                    league: {
-                      id: fixture.league.id,
-                      name: fixture.league.name,
-                      country: fixture.league.country,
-                      logo: fixture.league.logo,
-                      round: fixture.league.round,
-                    },
-                    teams: {
-                      home: {
-                        id: fixture.teams.home.id,
-                        name: fixture.teams.home.name,
-                        logo: fixture.teams.home.logo,
-                      },
-                      away: {
-                        id: fixture.teams.away.id,
-                        name: fixture.teams.away.name,
-                        logo: fixture.teams.away.logo,
-                      },
-                    },
-                    goals: {
-                      home: fixture.goals?.home ?? null,
-                      away: fixture.goals?.away ?? null,
-                    },
-                    venue: fixture.venue,
-                  }));
-
-                  initialBatchMatches.push(...quickFixtures);
-                  setLoadedMatchCount(initialBatchMatches.length);
-
-                  // Show first 3 slides immediately
-                  if (initialBatchMatches.length >= INITIAL_LOAD_COUNT && !initialSlidesLoaded) {
-                    const today = new Date();
-                    const initialUpdate: DayMatches[] = [{
-                      date: format(today, "yyyy-MM-dd"),
-                      label: "Today",
-                      matches: initialBatchMatches,
-                    }];
-                    setFeaturedMatches(initialUpdate);
-                    setIsLoading(false);
-                    setInitialSlidesLoaded(true);
-                    console.log(`🚀 [MyHomeFeaturedMatchNew] Initial 3 slides loaded and displayed`);
-                  }
-                }
-              }
+              // Process all fixtures without progressive loading limitations
 
               if (Array.isArray(fixturesData)) {
                 const cachedFixtures = fixturesData
@@ -2285,17 +2231,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Load remaining slides in background after initial render
   useEffect(() => {
-    if (allMatches.length > 3) {
-      const timer = setTimeout(() => {
-        setBackgroundLoaded(true);
-        setVisibleSlides(allMatches.length);
-      }, 100); // Reduced delay for faster loading
-
-      return () => clearTimeout(timer);
-    } else {
-      // If we have 3 or fewer matches, show all immediately
+    if (allMatches.length > 0) {
+      // Always show all matches immediately after they're loaded
       setVisibleSlides(allMatches.length);
       setBackgroundLoaded(true);
+      
+      // If we have more than the initial 3, log the loading completion
+      if (allMatches.length > 3) {
+        console.log(`✅ [MyHomeFeaturedMatchNew] All ${allMatches.length} matches loaded and visible`);
+      }
     }
   }, [allMatches.length]);
 
@@ -2308,19 +2252,19 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   const handlePrevious = useCallback(() => {
     if (allMatches.length > 0) {
-      const totalSlides = Math.min(visibleSlides, allMatches.length, maxMatches);
+      const totalSlides = Math.min(allMatches.length, maxMatches);
       setCurrentIndex((prev) =>
         prev === 0 ? totalSlides - 1 : prev - 1
       );
     }
-  }, [visibleSlides, allMatches.length, maxMatches]);
+  }, [allMatches.length, maxMatches]);
 
   const handleNext = useCallback(() => {
     if (allMatches.length > 0) {
-      const totalSlides = Math.min(visibleSlides, allMatches.length, maxMatches);
+      const totalSlides = Math.min(allMatches.length, maxMatches);
       setCurrentIndex((prev) => (prev + 1) % totalSlides);
     }
-  }, [visibleSlides, allMatches.length, maxMatches]);
+  }, [allMatches.length, maxMatches]);
 
 
   // State for storing extracted logo colors
@@ -2651,7 +2595,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           ) : (
             <div className="relative">
               {/* Navigation arrows */}
-              {Math.min(visibleSlides, allMatches.length) > 1 && (
+              {allMatches.length > 1 && (
                 <>
                   <button
                     onClick={handlePrevious}
@@ -2671,8 +2615,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
               {/* Single match display */}
               <AnimatePresence mode="wait">
-                {/* Display current match from visible slides */}
-                {currentMatch && currentIndex < Math.min(visibleSlides, allMatches.length) && (
+                {/* Display current match from all available matches */}
+                {currentMatch && currentIndex < allMatches.length && (
                   <motion.div
                     key={currentIndex}
                     initial={{ opacity: 0, x: 20 }}
@@ -3346,10 +3290,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     </div>
 
                     {/* Slide indicators */}
-                    {/* Navigation dots - show dots for all visible slides */}
-                    {Math.min(visibleSlides, allMatches.length) > 1 && (
+                    {/* Navigation dots - show dots for all matches */}
+                    {allMatches.length > 1 && (
                       <div className="flex justify-center gap-2 mt-4">
-                        {Array.from({ length: Math.min(visibleSlides, allMatches.length, maxMatches) }).map((_, index) => (
+                        {Array.from({ length: Math.min(allMatches.length, maxMatches) }).map((_, index) => (
                           <button
                             key={index}
                             onClick={() => setCurrentIndex(index)}
