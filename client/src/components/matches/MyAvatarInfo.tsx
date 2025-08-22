@@ -61,7 +61,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     return "unknown";
   }, [playerId, playerName]);
 
-  // Optimized image loading with caching and deduplication
+  // Optimized image loading with parallel requests and better caching
   const loadPlayerImage = async (): Promise<string> => {
     // Check cache first
     if (imageCache.has(cacheKey)) {
@@ -78,132 +78,76 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       return await loadingRequests.get(cacheKey)!;
     }
 
-    // Create new request
+    // Create new request with parallel loading
     const loadPromise = (async (): Promise<string> => {
       try {
         console.log(
           `🔍 [MyAvatarInfo-${componentId}] Loading image for: ${playerName} (ID: ${playerId})`,
         );
 
-        // Try name-based search first (fastest if available)
+        // Create all requests in parallel with shorter timeouts
+        const requests: Promise<string | null>[] = [];
+
+        // Name-based search (fastest)
         if (playerName) {
-          try {
-            const nameSearchUrl = `/api/player-photo-by-name?name=${encodeURIComponent(playerName)}`;
-            const response = await fetch(nameSearchUrl, {
+          requests.push(
+            fetch(`/api/player-photo-by-name?name=${encodeURIComponent(playerName)}`, {
               method: "HEAD",
-              timeout: 3000, // 3 second timeout
-            } as any);
-
-            if (response.ok && response.url) {
-              // Validate that this is not a fallback URL
-              const isFallbackUrl = response.url.includes("ui-avatars.com") || 
-                                  response.url.includes("default.png") || 
-                                  response.url.includes("placeholder") ||
-                                  response.url.includes("fallback_player");
-              
-              if (!isFallbackUrl) {
-                console.log(
-                  `✅ [MyAvatarInfo-${componentId}] Found valid image via name search: ${response.url}`,
-                );
-                imageCache.set(cacheKey, response.url);
-                return response.url;
-              } else {
-                console.log(
-                  `⚠️ [MyAvatarInfo-${componentId}] Name search returned fallback, trying other sources`,
-                );
-              }
-            }
-          } catch (error) {
-            console.log(
-              `⚠️ [MyAvatarInfo-${componentId}] Name search failed: ${error}`,
-            );
-          }
-        }
-
-        // Try ID-based search as backup
-        if (playerId) {
-          try {
-            const idSearchUrl = `/api/player-photo/${playerId}`;
-            const response = await fetch(idSearchUrl, {
-              method: "HEAD",
-              timeout: 3000,
-            } as any);
-
-            if (response.ok && response.url) {
-              // Validate this is a real image URL, not a fallback
-              const isFallbackUrl = response.url.includes("ui-avatars.com") || 
-                                  response.url.includes("default.png") || 
-                                  response.url.includes("placeholder") ||
-                                  response.url.includes("fallback_player");
-              
-              if (!isFallbackUrl) {
-                console.log(
-                  `✅ [MyAvatarInfo-${componentId}] Found valid image via ID search: ${response.url}`,
-                );
-                imageCache.set(cacheKey, response.url);
-                return response.url;
-              } else {
-                console.log(
-                  `⚠️ [MyAvatarInfo-${componentId}] ID search returned fallback, trying cache system`,
-                );
-              }
-            }
-          } catch (error) {
-            console.log(
-              `⚠️ [MyAvatarInfo-${componentId}] ID search failed: ${error}`,
-            );
-          }
-        }
-
-        // Try cached system as final backup with validation
-        try {
-          const cachedImageUrl = await getPlayerImage(
-            playerId,
-            playerName,
-            teamId,
-          );
-
-          if (cachedImageUrl && cachedImageUrl !== "") {
-            // Check if this is a real player image URL
-            const isFallbackUrl = cachedImageUrl.includes("ui-avatars.com") || 
-                                 cachedImageUrl.includes("default.png") || 
-                                 cachedImageUrl.includes("placeholder") ||
-                                 cachedImageUrl.includes("fallback_player") ||
-                                 cachedImageUrl === "/assets/matchdetaillogo/player_fallback.png";
-            
-            if (!isFallbackUrl) {
-              // Validate the image actually loads
-              try {
-                const imageTest = new Image();
-                const imageValid = await new Promise((resolve) => {
-                  imageTest.onload = () => resolve(true);
-                  imageTest.onerror = () => resolve(false);
-                  setTimeout(() => resolve(false), 2000); // 2 second timeout
-                  imageTest.src = cachedImageUrl;
-                });
-
-                if (imageValid) {
-                  console.log(
-                    `✅ [MyAvatarInfo-${componentId}] Validated image from cache: ${cachedImageUrl}`,
-                  );
-                  imageCache.set(cacheKey, cachedImageUrl);
-                  return cachedImageUrl;
-                } else {
-                  console.log(
-                    `⚠️ [MyAvatarInfo-${componentId}] Cache image failed validation: ${cachedImageUrl}`,
-                  );
+              signal: AbortSignal.timeout(1500), // Reduced timeout
+            })
+              .then(response => {
+                if (response.ok && response.url && !response.url.includes("ui-avatars.com") && 
+                    !response.url.includes("fallback_player")) {
+                  return response.url;
                 }
-              } catch (validationError) {
-                console.log(
-                  `⚠️ [MyAvatarInfo-${componentId}] Image validation error: ${validationError}`,
-                );
-              }
-            }
-          }
-        } catch (error) {
-          console.log(
-            `❌ [MyAvatarInfo-${componentId}] Cache system error: ${(error as Error)?.message || error}`,
+                return null;
+              })
+              .catch(() => null)
           );
+        }
+
+        // ID-based search
+        if (playerId) {
+          requests.push(
+            fetch(`/api/player-photo/${playerId}`, {
+              method: "HEAD",
+              signal: AbortSignal.timeout(1500), // Reduced timeout
+            })
+              .then(response => {
+                if (response.ok && response.url && !response.url.includes("ui-avatars.com") && 
+                    !response.url.includes("fallback_player")) {
+                  return response.url;
+                }
+                return null;
+              })
+              .catch(() => null)
+          );
+        }
+
+        // Cache system search
+        requests.push(
+          getPlayerImage(playerId, playerName, teamId)
+            .then(url => {
+              if (url && url !== "/assets/matchdetaillogo/player_fallback.png" &&
+                  !url.includes("ui-avatars.com") && !url.includes("fallback_player")) {
+                return url;
+              }
+              return null;
+            })
+            .catch(() => null)
+        );
+
+        // Wait for the first successful response
+        const results = await Promise.allSettled(requests);
+        
+        for (const result of results) {
+          if (result.status === 'fulfilled' && result.value) {
+            console.log(
+              `✅ [MyAvatarInfo-${componentId}] Found valid image: ${result.value}`,
+            );
+            imageCache.set(cacheKey, result.value);
+            return result.value;
+          }
         }
 
         // All methods failed, use static fallback image
@@ -243,7 +187,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           observer.disconnect();
         }
       },
-      { rootMargin: "100px", threshold: 0.1 }, // Increased rootMargin for earlier loading
+      { rootMargin: "200px", threshold: 0.05 }, // Increased rootMargin and reduced threshold for even earlier loading
     );
 
     observer.observe(container);
@@ -315,6 +259,8 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         src={imageUrl}
         alt={playerName || "Player"}
         className="w-full h-full object-cover"
+        loading="lazy"
+        decoding="async"
         onError={() => {
           console.log(
             `🖼️ [MyAvatarInfo-${componentId}] Image error, using static fallback`,
