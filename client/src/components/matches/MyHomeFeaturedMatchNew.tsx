@@ -555,10 +555,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         fetchingRef.current = true;
         setLastFetchTime(Date.now());
 
-        // Progressive loading: show loading only for initial load
-        if (!progressiveLoad && (forceRefresh || featuredMatches.length === 0)) {
+        // Show loading only for complete refresh, not for progressive loads
+        if (!progressiveLoad && forceRefresh && featuredMatches.length === 0) {
           setIsLoading(true);
-        } else if (progressiveLoad) {
+        } else if (progressiveLoad && !initialSlidesLoaded) {
           setIsProgressiveLoading(true);
         }
 
@@ -644,8 +644,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           FEATURED_MATCH_LEAGUE_IDS,
         );
 
-        // Progressive loading: Load first 3 matches quickly for immediate display
-        const INITIAL_LOAD_COUNT = 3;
+        // Progressive loading: Load first match immediately for instant display
+        const INITIAL_LOAD_COUNT = 1; // Show just 1 match immediately
         let processedCount = 0;
         let initialBatchMatches: FeaturedMatch[] = [];
         let backgroundMatches: FeaturedMatch[] = [];
@@ -848,18 +848,20 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   initialBatchMatches.push(...quickFixtures);
                   setLoadedMatchCount(initialBatchMatches.length);
                   
-                  // Show matches starting from 4th (skip first 3)
-                  if (initialBatchMatches.length >= INITIAL_LOAD_COUNT + 3 && !initialSlidesLoaded) {
+                  // Show first match immediately
+                  if (initialBatchMatches.length >= INITIAL_LOAD_COUNT && !initialSlidesLoaded) {
                     const today = new Date();
                     const initialUpdate: DayMatches[] = [{
                       date: format(today, "yyyy-MM-dd"),
                       label: "Today",
-                      matches: initialBatchMatches.slice(3, INITIAL_LOAD_COUNT + 3),
+                      matches: initialBatchMatches.slice(0, INITIAL_LOAD_COUNT),
                     }];
                     setFeaturedMatches(initialUpdate);
                     setIsLoading(false);
+                    setIsProgressiveLoading(false);
                     setInitialSlidesLoaded(true);
-                    console.log(`🚀 [MyHomeFeaturedMatchNew] Initial ${INITIAL_LOAD_COUNT} slides loaded (starting from 4th match)`);
+                    console.log(`🚀 [MyHomeFeaturedMatchNew] First slide loaded immediately`);
+                    return; // Exit early to show first slide immediately
                   }
                 }
                 
@@ -2269,20 +2271,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     setInitialSlidesLoaded(false);
     setLoadedMatchCount(0);
 
-    // Initial fetch with progressive loading
-    setTimeout(() => {
-      fetchFeaturedMatches(true, true); // Enable progressive loading on initial load
-    }, 100);
+    // Initial fetch with progressive loading - remove delay for immediate display
+    fetchFeaturedMatches(true, true); // Enable progressive loading on initial load
   }, []); // Only run once on mount
 
   // Add more slides after initial load is complete
   useEffect(() => {
     if (initialSlidesLoaded && !isProgressiveLoading && !backgroundLoadingComplete) {
-      // Wait 1 second after initial slides are loaded, then fetch more
+      // Reduce delay for faster background loading
       const timer = setTimeout(() => {
         console.log("🔄 [MyHomeFeaturedMatchNew] Loading more slides in background...");
         fetchFeaturedMatches(false, true); // Background progressive load
-      }, 1000);
+      }, 300); // Reduced from 1000ms to 300ms
 
       return () => clearTimeout(timer);
     }
