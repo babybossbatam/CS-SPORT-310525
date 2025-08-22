@@ -82,37 +82,29 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     }
   };
 
-  // Optimized image validation with reduced overhead
+  // Simplified image validation that actually loads the image
   const validateImageUrl = async (url: string): Promise<boolean> => {
     if (!url || url.includes("fallback") || url.includes("ui-avatars.com")) {
       return false;
     }
 
-    // For local API endpoints, use lightweight HEAD request
-    if (url.startsWith('/api/')) {
-      try {
-        const response = await fetch(url, { 
-          method: 'HEAD',
-          cache: 'force-cache' // Leverage browser cache
-        });
-        return response.ok;
-      } catch {
-        return false;
-      }
-    }
-
-    // For external URLs, use faster validation with timeout
     return new Promise((resolve) => {
       const img = new Image();
       const timeout = setTimeout(() => {
         img.onload = img.onerror = null;
         resolve(false);
-      }, 1500); // Reduced timeout
+      }, 3000); // Give more time for API responses
 
       img.onload = () => {
         clearTimeout(timeout);
-        resolve(true);
+        // Additional check to ensure it's not a fallback image by size or content
+        if (img.naturalWidth > 32 && img.naturalHeight > 32) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
       };
+      
       img.onerror = () => {
         clearTimeout(timeout);
         resolve(false);
@@ -124,18 +116,29 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
 
   // Optimized image loading with parallel requests and smart caching
   const loadPlayerImage = async (): Promise<string> => {
-    // Check cache first with validation tracking
+    // Check cache first but be more strict about fallback URLs
     const cached = optimizedImageCache.get(cacheKey);
     if (cached) {
       const age = Date.now() - cached.timestamp;
+      const isFallback = cached.url.includes("fallback") || cached.url.includes("ui-avatars.com");
+      
       if (age < CACHE_TTL) {
-        // If recently validated or under attempt limit, use cached
-        if (cached.validated || cached.attempts < MAX_VALIDATION_ATTEMPTS) {
-          console.log(`💾 [MyAvatarInfo-${componentId}] Using cached: ${cached.url}`);
+        // For validated non-fallback URLs, use cache
+        if (cached.validated && !isFallback) {
+          console.log(`💾 [MyAvatarInfo-${componentId}] Using cached validated: ${cached.url}`);
+          return cached.url;
+        }
+        // For fallback URLs, retry after shorter time if attempts are low
+        if (isFallback && cached.attempts < MAX_VALIDATION_ATTEMPTS && age > 5 * 60 * 1000) {
+          console.log(`🔄 [MyAvatarInfo-${componentId}] Retrying after fallback cache`);
+          optimizedImageCache.delete(cacheKey);
+        } else if (isFallback) {
+          console.log(`💾 [MyAvatarInfo-${componentId}] Using cached fallback: ${cached.url}`);
           return cached.url;
         }
       } else {
         // Remove expired cache
+        console.log(`🗑️ [MyAvatarInfo-${componentId}] Removing expired cache`);
         optimizedImageCache.delete(cacheKey);
       }
     }
@@ -151,44 +154,48 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       try {
         console.log(`🔍 [MyAvatarInfo-${componentId}] Loading image for: ${playerName} (ID: ${playerId})`);
 
-        // Prepare all potential URLs for parallel testing
+        // Try URLs sequentially for better control and debugging
         const urlsToTest: string[] = [];
+        
+        // Priority order: specific player ID first, then name-based search
+        if (playerId) {
+          urlsToTest.push(`https://media.api-sports.io/football/players/${playerId}.png`);
+          urlsToTest.push(`https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`);
+          urlsToTest.push(`/api/player-photo/${playerId}`);
+        }
         
         if (playerName) {
           urlsToTest.push(`/api/player-photo-by-name?name=${encodeURIComponent(playerName)}`);
         }
-        
-        if (playerId) {
-          urlsToTest.push(`/api/player-photo/${playerId}`);
-          urlsToTest.push(`https://media.api-sports.io/football/players/${playerId}.png`);
-          urlsToTest.push(`https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v21/Athletes/${playerId}`);
-        }
 
-        // Test URLs in parallel with Promise.allSettled for better performance
-        const validationPromises = urlsToTest.map(async (url) => {
-          const isValid = await validateImageUrl(url);
-          return { url, isValid };
-        });
-
-        const results = await Promise.allSettled(validationPromises);
-        
-        // Find first valid URL
-        for (const result of results) {
-          if (result.status === 'fulfilled' && result.value.isValid) {
-            const validUrl = result.value.url;
-            console.log(`✅ [MyAvatarInfo-${componentId}] Found valid image: ${validUrl}`);
-            
-            // Cache with validation flag
-            optimizedImageCache.set(cacheKey, {
-              url: validUrl,
-              timestamp: Date.now(),
-              validated: true,
-              attempts: 1
-            });
-            
-            cleanupCache();
-            return validUrl;
+        // Test URLs sequentially to avoid overwhelming the API
+        for (const url of urlsToTest) {
+          console.log(`🔍 [MyAvatarInfo-${componentId}] Testing URL: ${url}`);
+          
+          try {
+            const isValid = await validateImageUrl(url);
+            if (isValid) {
+              console.log(`✅ [MyAvatarInfo-${componentId}] Found valid image: ${url}`);
+              
+              // Cache with validation flag
+              optimizedImageCache.set(cacheKey, {
+                url: url,
+                timestamp: Date.now(),
+                validated: true,
+                attempts: 1
+              });
+              
+              cleanupCache();
+              return url;
+            } else {
+              console.log(`❌ [MyAvatarInfo-${componentId}] Invalid image: ${url}`);
+            }
+          } catch (error) {
+            console.log(`💥 [MyAvatarInfo-${componentId}] Error testing ${url}: ${error}`);
           }
+          
+          // Small delay between attempts to be API-friendly
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
 
         // All methods failed, use static fallback
