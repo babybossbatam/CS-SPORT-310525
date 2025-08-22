@@ -551,20 +551,20 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     [getCacheKey, isMatchOldEnded, checkStorageQuota],
   );
 
-  // Smart cache configuration based on live match detection
+  // Optimized cache configuration for better performance
   const [dynamicCacheConfig, setDynamicCacheConfig] = useState(() => {
     const today = new Date().toISOString().slice(0, 10);
     const isToday = selectedDate === today;
 
     return isToday
       ? {
-          staleTime: 5 * 60 * 1000, // 5 minutes - default for today
-          refetchInterval: 60 * 1000, // 1 minute - default for today
+          staleTime: 2 * 60 * 1000, // 2 minutes - faster refresh for today
+          refetchInterval: 30 * 1000, // 30 seconds - more frequent updates
           refetchOnWindowFocus: false,
           refetchOnReconnect: true,
         }
       : {
-          staleTime: 60 * 60 * 1000, // 1 hour - for past/future dates
+          staleTime: 30 * 60 * 1000, // 30 minutes - longer cache for past/future
           refetchInterval: false,
           refetchOnWindowFocus: false,
           refetchOnReconnect: false,
@@ -683,31 +683,20 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         leagueIds,
       );
 
-      // First, get cached ended matches for all leagues
+      // Simplified caching - only check for recent ended matches
       const cachedEndedMatches: FixtureData[] = [];
-      leagueIds.forEach((leagueId) => {
-        const cached = getCachedEndedMatches(selectedDate, leagueId);
-        cachedEndedMatches.push(...cached);
-      });
-
-      console.log(
-        `💾 [MyNewLeague2] Retrieved ${cachedEndedMatches.length} cached ended matches`,
-      );
-
-      // Process leagues in optimized batches
-      const batchSize = 5; // Increase concurrent requests for priority leagues
+      
+      // Process leagues in smaller, faster batches
+      const batchSize = 8; // Increased batch size for better concurrency
       const results: any[] = [];
 
       for (let i = 0; i < leagueIds.length; i += batchSize) {
         const batch = leagueIds.slice(i, i + batchSize);
-        console.log(
-          `🔄 [MyNewLeague2] Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(leagueIds.length / batchSize)}: leagues ${batch.join(", ")}`,
-        );
-
+        
         const batchPromises = batch.map(async (leagueId, index) => {
-          // Minimal delay only for large batches
-          if (index > 2) {
-            await delay(10); // Reduced to 10ms delay
+          // Minimal delay only for API rate limiting
+          if (index > 4) {
+            await delay(5); // Reduced delay
           }
 
           try {
@@ -851,10 +840,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           );
         }
 
-        // Add delay between batches to be more API-friendly
+        // Minimal delay between batches for faster loading
         if (i + batchSize < leagueIds.length) {
-          console.log(`⏳ [MyNewLeague2] Waiting 500ms before next batch...`);
-          await delay(25);
+          await delay(10); // Reduced from 25ms to 10ms
         }
       }
 
@@ -1040,7 +1028,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     });
   }, [allFixtures, selectedDate]);
 
-  // Group fixtures by league with date filtering
+  // Group fixtures by league with date filtering - optimized
   const fixturesByLeague = useMemo(() => {
     console.log(
       `🔍 [MyNewLeague2] Processing fixtures for date ${selectedDate}:`,
@@ -2779,19 +2767,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {(() => {
-                                  const originalName =
-                                    fixture.teams.home.name || "";
-
-                                  // Simplified translation - only use context translation for performance
-                                  try {
-                                    return translateTeamName
-                                      ? translateTeamName(originalName)
-                                      : originalName;
-                                  } catch (error) {
-                                    return originalName;
-                                  }
-                                })()}
+                                {translateTeamName ? translateTeamName(fixture.teams.home.name || "") : (fixture.teams.home.name || "")}
                               </div>
 
                               {/* Home team logo */}
@@ -3046,19 +3022,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {(() => {
-                                  const originalName =
-                                    fixture.teams.away.name || "";
-
-                                  // Simplified translation - only use context translation for performance
-                                  try {
-                                    return translateTeamName
-                                      ? translateTeamName(originalName)
-                                      : originalName;
-                                  } catch (error) {
-                                    return originalName;
-                                  }
-                                })()}
+                                {translateTeamName ? translateTeamName(fixture.teams.away.name || "") : (fixture.teams.away.name || "")}
                               </div>
                             </div>
 
@@ -3160,26 +3124,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   );
 };
 
-// Main export with lazy loading
+// Main export with optimized lazy loading
 const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
   const queryClient = useQueryClient();
-  const { t, translateLeagueName: contextTranslateLeagueName } =
-    useTranslation();
   const { hasIntersected } = useIntersectionObserver(containerRef, {
-    threshold: 0.01, // Trigger even earlier
-    rootMargin: "200px", // Start loading 200px before it comes into view
+    threshold: 0.1, // Optimized threshold
+    rootMargin: "100px", // Reduced margin for faster loading
   });
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
 
   // Check if we have cached data available
   const cachedData = queryClient.getQueryData([
@@ -3190,9 +3142,10 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
   const hasCachedData =
     cachedData && Array.isArray(cachedData) && cachedData.length > 0;
 
-  // Always render the actual component - remove lazy loading logic that might be causing issues
-  // The intersection observer was potentially preventing the component from loading
-  return <MyNewLeague2Component {...props} />;
+  // Render immediately if we have cached data or component is in view
+  if (hasCachedData || hasIntersected) {
+    return <MyNewLeague2Component {...props} />;
+  }
 
   // If no cached data and not intersected yet, show proper loading skeleton
   if (!hasIntersected) {
