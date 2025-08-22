@@ -2804,12 +2804,16 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   teamId={fixture.teams.home.id}
                                   teamLogo={
                                     fixture.teams.home.logo ||
-                                    `https://media.api-sports.io/football/teams/${fixture.teams.home.id}.png`
+                                    `https://media.api.sports.io/football/teams/${fixture.teams.home.id}.png`
                                   }
-                                  alt={fixture.teams.home.name}
-                                  size="34px"
-                                  className="popular-leagues-size"
-                                  leagueContext={leagueContext}
+                                  alt={`${fixture.teams.home.name} logo`}
+                                  size="32px"
+                                  className="w-8 h-8 object-contain"
+                                  leagueContext={{
+                                    name: league.name,
+                                    country: league.country
+                                  }}
+                                  skipInitialProcessing={true}
                                 />
                               </div>
 
@@ -3009,12 +3013,16 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   teamId={fixture.teams.away.id}
                                   teamLogo={
                                     fixture.teams.away.logo ||
-                                    `https://media.api-sports.io/football/teams/${fixture.teams.away.id}.png`
+                                    `https://media.api.sports.io/football/teams/${fixture.teams.away.id}.png`
                                   }
-                                  alt={fixture.teams.away.name}
-                                  size="34px"
-                                  className="popular-leagues-size"
-                                  leagueContext={leagueContext}
+                                  alt={`${fixture.teams.away.name} logo`}
+                                  size="32px"
+                                  className="w-8 h-8 object-contain"
+                                  leagueContext={{
+                                    name: league.name,
+                                    country: league.country
+                                  }}
+                                  skipInitialProcessing={true}
                                 />
                               </div>
 
