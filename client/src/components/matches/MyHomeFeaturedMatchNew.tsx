@@ -326,6 +326,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [isProgressiveLoading, setIsProgressiveLoading] = useState(false);
   const [loadedMatchCount, setLoadedMatchCount] = useState(0);
   const [initialSlidesLoaded, setInitialSlidesLoaded] = useState(false);
+  const [backgroundLoadingComplete, setBackgroundLoadingComplete] = useState(false);
   const [selectedDay, setSelectedDay] = useState(0);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [countdownTimer, setCountdownTimer] = useState<string>("Loading...");
@@ -647,6 +648,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         const INITIAL_LOAD_COUNT = 3;
         let processedCount = 0;
         let initialBatchMatches: FeaturedMatch[] = [];
+        let backgroundMatches: FeaturedMatch[] = [];
 
         // Helper function to determine if match is live
         const isLiveMatch = (status: string) => {
@@ -783,6 +785,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         if (initialBatchMatches.length > 0) {
           allFixtures.push(...initialBatchMatches);
         }
+        
+        // Add background matches for progressive loading
+        if (backgroundMatches.length > 0) {
+          allFixtures.push(...backgroundMatches);
+        }
 
         // Fetch non-live matches from cached data with smart refresh logic
         if (shouldForceRefresh || allFixtures.length === 0) {
@@ -799,11 +806,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               );
               const fixturesData = await fixturesResponse.json();
 
-              // Progressive loading: Collect matches for initial batch
-              if (progressiveLoad && initialBatchMatches.length < INITIAL_LOAD_COUNT && fixturesData?.length > 0) {
-                const availableMatches = fixturesData.slice(0, Math.min(INITIAL_LOAD_COUNT - initialBatchMatches.length, fixturesData.length));
-                if (availableMatches.length > 0) {
-                  const quickFixtures = availableMatches.map((fixture: any) => ({
+              // Progressive loading: Collect matches for initial batch and background
+              if (progressiveLoad && fixturesData?.length > 0) {
+                if (initialBatchMatches.length < INITIAL_LOAD_COUNT) {
+                  const neededForInitial = INITIAL_LOAD_COUNT - initialBatchMatches.length;
+                  const initialMatches = fixturesData.slice(0, neededForInitial);
+                  
+                  const quickFixtures = initialMatches.map((fixture: any) => ({
                     fixture: {
                       id: fixture.fixture.id,
                       date: fixture.fixture.date,
@@ -845,13 +854,50 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const initialUpdate: DayMatches[] = [{
                       date: format(today, "yyyy-MM-dd"),
                       label: "Today",
-                      matches: initialBatchMatches,
+                      matches: initialBatchMatches.slice(0, INITIAL_LOAD_COUNT),
                     }];
                     setFeaturedMatches(initialUpdate);
                     setIsLoading(false);
                     setInitialSlidesLoaded(true);
-                    console.log(`🚀 [MyHomeFeaturedMatchNew] Initial 3 slides loaded and displayed`);
+                    console.log(`🚀 [MyHomeFeaturedMatchNew] Initial ${INITIAL_LOAD_COUNT} slides loaded and displayed`);
                   }
+                }
+                
+                // Collect remaining matches for background loading
+                const remainingMatches = fixturesData.slice(Math.max(0, initialBatchMatches.length));
+                if (remainingMatches.length > 0) {
+                  backgroundMatches.push(...remainingMatches.map((fixture: any) => ({
+                    fixture: {
+                      id: fixture.fixture.id,
+                      date: fixture.fixture.date,
+                      status: fixture.fixture.status,
+                      venue: fixture.fixture.venue,
+                    },
+                    league: {
+                      id: fixture.league.id,
+                      name: fixture.league.name,
+                      country: fixture.league.country,
+                      logo: fixture.league.logo,
+                      round: fixture.league.round,
+                    },
+                    teams: {
+                      home: {
+                        id: fixture.teams.home.id,
+                        name: fixture.teams.home.name,
+                        logo: fixture.teams.home.logo,
+                      },
+                      away: {
+                        id: fixture.teams.away.id,
+                        name: fixture.teams.away.name,
+                        logo: fixture.teams.away.logo,
+                      },
+                    },
+                    goals: {
+                      home: fixture.goals?.home ?? null,
+                      away: fixture.goals?.away ?? null,
+                    },
+                    venue: fixture.venue,
+                  })));
                 }
               }
 
@@ -2032,61 +2078,84 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           setPreloadedRounds(preloadedData);
         });
 
+        // Set background loading complete flag
+        if (progressiveLoad && initialSlidesLoaded) {
+          setBackgroundLoadingComplete(true);
+        }
+
         // Always update state for background loads, and handle progressive loading separately
         setFeaturedMatches((prevMatches) => {
-          // For progressive loading, merge new matches with existing ones
+          // For progressive loading after initial slides are loaded
           if (progressiveLoad && initialSlidesLoaded && prevMatches.length > 0) {
-            // Add new matches to existing slides while avoiding duplicates
-            const updatedMatches = prevMatches.map((dayData, dayIndex) => {
-              const newDayData = allMatches[dayIndex];
-              if (newDayData && newDayData.matches.length > dayData.matches.length) {
-                // Add new matches that aren't already present
-                const existingIds = new Set(dayData.matches.map(m => m.fixture.id));
+            // Merge all new matches with existing ones, grouped by date
+            const mergedMatches = allMatches.map((newDayData) => {
+              const existingDay = prevMatches.find(day => day.date === newDayData.date);
+              if (existingDay) {
+                // Combine matches, avoiding duplicates
+                const existingIds = new Set(existingDay.matches.map(m => m.fixture.id));
                 const newMatches = newDayData.matches.filter(m => !existingIds.has(m.fixture.id));
                 
-                console.log(`📈 [MyHomeFeaturedMatchNew] Adding ${newMatches.length} more slides to ${dayData.label}`);
-                return {
-                  ...dayData,
-                  matches: [...dayData.matches, ...newMatches]
-                };
+                if (newMatches.length > 0) {
+                  console.log(`📈 [MyHomeFeaturedMatchNew] Adding ${newMatches.length} more slides to ${existingDay.label}`);
+                  return {
+                    ...existingDay,
+                    matches: [...existingDay.matches, ...newMatches]
+                  };
+                }
+                return existingDay;
               }
-              return dayData;
+              return newDayData;
             });
             
-            // Add any completely new days
-            const newDays = allMatches.slice(prevMatches.length);
+            // Add any completely new days that weren't in previous matches
+            const newDays = allMatches.filter(newDay => 
+              !prevMatches.some(prevDay => prevDay.date === newDay.date)
+            );
+            
+            const finalMatches = [...mergedMatches, ...newDays];
+            
             if (newDays.length > 0) {
               console.log(`📅 [MyHomeFeaturedMatchNew] Adding ${newDays.length} new day groups`);
-              return [...updatedMatches, ...newDays];
             }
             
-            return updatedMatches;
+            return finalMatches;
           }
           
-          // For non-progressive loads or initial loads
-          if (prevMatches.length === allMatches.length && allMatches.length > 0) {
-            const hasChanges = allMatches.some((dayData, index) => {
-              const prevDay = prevMatches[index];
-              return !prevDay || 
-                     dayData.matches.length !== prevDay.matches.length ||
-                     dayData.matches.some((match, matchIndex) => {
-                       const prevMatch = prevDay.matches[matchIndex];
-                       return !prevMatch || 
-                              match.fixture.id !== prevMatch.fixture.id ||
-                              match.fixture.status.short !== prevMatch.fixture.status.short ||
-                              match.goals.home !== prevMatch.goals.home ||
-                              match.goals.away !== prevMatch.goals.away;
-                     });
-            });
-            
-            if (!hasChanges) {
-              console.log("⏸️ [MyHomeFeaturedMatchNew] No changes detected, skipping state update");
-              return prevMatches;
+          // For initial load (first 3 slides) - don't replace if already loaded
+          if (progressiveLoad && !initialSlidesLoaded && allMatches.length > 0) {
+            console.log(`🚀 [MyHomeFeaturedMatchNew] Initial load with ${allMatches[0]?.matches?.length || 0} matches`);
+            return allMatches;
+          }
+          
+          // For non-progressive loads or refresh operations
+          if (!progressiveLoad) {
+            // Check for meaningful changes before updating
+            if (prevMatches.length === allMatches.length && allMatches.length > 0) {
+              const hasChanges = allMatches.some((dayData, index) => {
+                const prevDay = prevMatches[index];
+                return !prevDay || 
+                       dayData.matches.length !== prevDay.matches.length ||
+                       dayData.matches.some((match, matchIndex) => {
+                         const prevMatch = prevDay.matches[matchIndex];
+                         return !prevMatch || 
+                                match.fixture.id !== prevMatch.fixture.id ||
+                                match.fixture.status.short !== prevMatch.fixture.status.short ||
+                                match.goals.home !== prevMatch.goals.home ||
+                                match.goals.away !== prevMatch.goals.away;
+                       });
+              });
+              
+              if (!hasChanges) {
+                console.log("⏸️ [MyHomeFeaturedMatchNew] No changes detected, skipping state update");
+                return prevMatches;
+              }
             }
+            
+            console.log(`✅ [MyHomeFeaturedMatchNew] Standard update with ${allMatches.length} day groups`);
+            return allMatches;
           }
           
-          console.log(`✅ [MyHomeFeaturedMatchNew] ${progressiveLoad ? 'Progressive' : 'Standard'} update with ${allMatches.length} day groups`);
-          return allMatches;
+          return prevMatches;
         });
       } catch (error) {
         console.error("❌ [MyHomeFeaturedMatchNew] Error:", error);
@@ -2094,6 +2163,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         setIsLoading(false);
         setIsProgressiveLoading(false);
         fetchingRef.current = false;
+        
+        // Mark background loading as complete for progressive loads
+        if (progressiveLoad && initialSlidesLoaded) {
+          setBackgroundLoadingComplete(true);
+        }
       }
     },
     [maxMatches, shouldFetch],
@@ -2203,16 +2277,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Add more slides after initial load is complete
   useEffect(() => {
-    if (initialSlidesLoaded && !isProgressiveLoading) {
-      // Wait 2 seconds after initial slides are loaded, then fetch more
+    if (initialSlidesLoaded && !isProgressiveLoading && !backgroundLoadingComplete) {
+      // Wait 1 second after initial slides are loaded, then fetch more
       const timer = setTimeout(() => {
         console.log("🔄 [MyHomeFeaturedMatchNew] Loading more slides in background...");
         fetchFeaturedMatches(false, true); // Background progressive load
-      }, 2000);
+      }, 1000);
 
       return () => clearTimeout(timer);
     }
-  }, [initialSlidesLoaded, isProgressiveLoading]);
+  }, [initialSlidesLoaded, isProgressiveLoading, backgroundLoadingComplete]);
 
   // Optimized refresh intervals using memoized analysis
   useEffect(() => {
