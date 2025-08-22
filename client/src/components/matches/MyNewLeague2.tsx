@@ -3128,6 +3128,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const { hasIntersected } = useIntersectionObserver(containerRef, {
     threshold: 0.1, // Optimized threshold
     rootMargin: "100px", // Reduced margin for faster loading
