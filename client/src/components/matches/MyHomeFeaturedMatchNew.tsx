@@ -216,7 +216,7 @@ const FEATURED_MATCH_LEAGUE_IDS = [
 const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [
   848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62, 931, 703, 59, 60, 74, 81, 488, 137, 58, 57, 742, 56, 55, 54, 705, 42,
   // Italian Campionato leagues (youth competitions)
-  505, 506, 507, 508, 509, 510, 511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 138,
+  505, 506, 507, 508, 509, 510, 511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 525, 138,
   // Additional League Two variations and lower divisions
   46, 47, 48, 49, 50, 51, 52, 53, // Additional English lower league IDs
 ]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2, Non League Premier - Southern Central, League 703, League 59, League 60, Campionato Primavera - 1, DFB Cup, League 488, Italian Cup, Spring Championship leagues, additional Italian youth leagues, Italian Campionato leagues, League Two and additional lower divisions, League 705, League 42
@@ -327,13 +327,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [loadedMatchCount, setLoadedMatchCount] = useState(0);
   const [initialSlidesLoaded, setInitialSlidesLoaded] = useState(false);
   const [selectedDay, setSelectedDay] = useState(0);
-  const [currentIndex, setCurrentIndex] = useState(0); // Renamed from currentMatchIndex for clarity
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [countdownTimer, setCountdownTimer] = useState<string>("Loading...");
   const [roundsCache, setRoundsCache] = useState<Record<string, string[]>>({});
   const [preloadedRounds, setPreloadedRounds] = useState<Record<string, string[]>>({});
   const [lastFetchTime, setLastFetchTime] = useState<number>(0);
   const [fetchingRef] = useState({ current: false }); // Prevent duplicate fetches
-
+  
   const {
     translateTeamName,
     translateLeagueName,
@@ -482,7 +482,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   // Memoized expensive calculations
   const memoizedMatchAnalysis = useMemo(() => {
     if (featuredMatches.length === 0) return { needsRefresh: false, refreshInterval: 300000 };
-
+    
     const now = new Date();
     let hasLiveMatches = false;
     let hasImminentMatches = false;
@@ -526,19 +526,19 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const shouldFetch = useCallback((forceRefresh: boolean) => {
     const now = Date.now();
     const timeSinceLastFetch = now - lastFetchTime;
-
+    
     // Prevent duplicate fetches within 10 seconds unless forced
     if (!forceRefresh && timeSinceLastFetch < 10000) {
       console.log(`⏸️ [MyHomeFeaturedMatchNew] Skipping fetch - too recent (${Math.round(timeSinceLastFetch / 1000)}s ago)`);
       return false;
     }
-
+    
     // Prevent concurrent fetches
     if (fetchingRef.current && !forceRefresh) {
       console.log(`⏸️ [MyHomeFeaturedMatchNew] Skipping fetch - already in progress`);
       return false;
     }
-
+    
     return true;
   }, [lastFetchTime]);
 
@@ -645,6 +645,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // Progressive loading: Load first 3 matches quickly for immediate display
         const INITIAL_LOAD_COUNT = 3;
+        let processedCount = 0;
         let initialBatchMatches: FeaturedMatch[] = [];
 
         // Helper function to determine if match is live
@@ -777,6 +778,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         allFixtures.push(...liveFixtures);
+        
+        // Add initial batch matches if we have them
+        if (initialBatchMatches.length > 0) {
+          allFixtures.push(...initialBatchMatches);
+        }
 
         // Fetch non-live matches from cached data with smart refresh logic
         if (shouldForceRefresh || allFixtures.length === 0) {
@@ -793,7 +799,61 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               );
               const fixturesData = await fixturesResponse.json();
 
-              // Process all fixtures without progressive loading limitations
+              // Progressive loading: Collect matches for initial batch
+              if (progressiveLoad && initialBatchMatches.length < INITIAL_LOAD_COUNT && fixturesData?.length > 0) {
+                const availableMatches = fixturesData.slice(0, Math.min(INITIAL_LOAD_COUNT - initialBatchMatches.length, fixturesData.length));
+                if (availableMatches.length > 0) {
+                  const quickFixtures = availableMatches.map((fixture: any) => ({
+                    fixture: {
+                      id: fixture.fixture.id,
+                      date: fixture.fixture.date,
+                      status: fixture.fixture.status,
+                      venue: fixture.fixture.venue,
+                    },
+                    league: {
+                      id: fixture.league.id,
+                      name: fixture.league.name,
+                      country: fixture.league.country,
+                      logo: fixture.league.logo,
+                      round: fixture.league.round,
+                    },
+                    teams: {
+                      home: {
+                        id: fixture.teams.home.id,
+                        name: fixture.teams.home.name,
+                        logo: fixture.teams.home.logo,
+                      },
+                      away: {
+                        id: fixture.teams.away.id,
+                        name: fixture.teams.away.name,
+                        logo: fixture.teams.away.logo,
+                      },
+                    },
+                    goals: {
+                      home: fixture.goals?.home ?? null,
+                      away: fixture.goals?.away ?? null,
+                    },
+                    venue: fixture.venue,
+                  }));
+                  
+                  initialBatchMatches.push(...quickFixtures);
+                  setLoadedMatchCount(initialBatchMatches.length);
+                  
+                  // Show first 3 slides immediately
+                  if (initialBatchMatches.length >= INITIAL_LOAD_COUNT && !initialSlidesLoaded) {
+                    const today = new Date();
+                    const initialUpdate: DayMatches[] = [{
+                      date: format(today, "yyyy-MM-dd"),
+                      label: "Today",
+                      matches: initialBatchMatches,
+                    }];
+                    setFeaturedMatches(initialUpdate);
+                    setIsLoading(false);
+                    setInitialSlidesLoaded(true);
+                    console.log(`🚀 [MyHomeFeaturedMatchNew] Initial 3 slides loaded and displayed`);
+                  }
+                }
+              }
 
               if (Array.isArray(fixturesData)) {
                 const cachedFixtures = fixturesData
@@ -1979,24 +2039,24 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             if (prevMatches.length === allMatches.length && allMatches.length > 0) {
               const hasChanges = allMatches.some((dayData, index) => {
                 const prevDay = prevMatches[index];
-                return !prevDay ||
+                return !prevDay || 
                        dayData.matches.length !== prevDay.matches.length ||
                        dayData.matches.some((match, matchIndex) => {
                          const prevMatch = prevDay.matches[matchIndex];
-                         return !prevMatch ||
+                         return !prevMatch || 
                                 match.fixture.id !== prevMatch.fixture.id ||
                                 match.fixture.status.short !== prevMatch.fixture.status.short ||
                                 match.goals.home !== prevMatch.goals.home ||
                                 match.goals.away !== prevMatch.goals.away;
                        });
               });
-
+              
               if (!hasChanges) {
                 console.log("⏸️ [MyHomeFeaturedMatchNew] No changes detected, skipping state update");
                 return prevMatches;
               }
             }
-
+            
             console.log(`✅ [MyHomeFeaturedMatchNew] Background update with ${allMatches.length} day groups`);
             return allMatches;
           });
@@ -2224,48 +2284,27 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }, [] as FeaturedMatch[]);
   }, [featuredMatches]);
 
-  // --- Progressive Loading State ---
-  // Progressive loading: show first 3 immediately, load rest in background
-  const [visibleSlides, setVisibleSlides] = useState(3);
-  const [backgroundLoaded, setBackgroundLoaded] = useState(false);
-
-  // Load remaining slides in background after initial render
-  useEffect(() => {
-    if (allMatches.length > 0) {
-      // Always show all matches immediately after they're loaded
-      setVisibleSlides(allMatches.length);
-      setBackgroundLoaded(true);
-      
-      // If we have more than the initial 3, log the loading completion
-      if (allMatches.length > 3) {
-        console.log(`✅ [MyHomeFeaturedMatchNew] All ${allMatches.length} matches loaded and visible`);
-      }
-    }
-  }, [allMatches.length]);
-
-
   const currentMatch = useMemo(() => {
-    return allMatches[currentIndex];
-  }, [allMatches, currentIndex]);
+    return allMatches[currentMatchIndex];
+  }, [allMatches, currentMatchIndex]);
 
   // Note: Round data is now preloaded for all matches to prevent loading delays
 
   const handlePrevious = useCallback(() => {
     if (allMatches.length > 0) {
-      const totalSlides = Math.min(allMatches.length, maxMatches);
-      setCurrentIndex((prev) =>
-        prev === 0 ? totalSlides - 1 : prev - 1
+      setCurrentMatchIndex((prev) =>
+        prev === 0 ? allMatches.length - 1 : prev - 1,
       );
     }
-  }, [allMatches.length, maxMatches]);
+  }, [allMatches.length]);
 
   const handleNext = useCallback(() => {
     if (allMatches.length > 0) {
-      const totalSlides = Math.min(allMatches.length, maxMatches);
-      setCurrentIndex((prev) => (prev + 1) % totalSlides);
+      setCurrentMatchIndex((prev) =>
+        prev === allMatches.length - 1 ? 0 : prev + 1,
+      );
     }
-  }, [allMatches.length, maxMatches]);
-
+  }, [allMatches.length]);
 
   // State for storing extracted logo colors
   const [teamLogoColors, setTeamLogoColors] = useState<Record<string, string>>(
@@ -2577,8 +2616,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           variant="secondary"
           className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-10 pointer-events-none"
         >
-          {isProgressiveLoading && !initialSlidesLoaded ? `Loading... (${loadedMatchCount}/${Math.min(visibleSlides, 3)})` :
-           isProgressiveLoading && initialSlidesLoaded ? `Loading more...` :
+          {isProgressiveLoading && !initialSlidesLoaded ? `Loading... (${loadedMatchCount}/3)` : 
+           isProgressiveLoading && initialSlidesLoaded ? `Loading more...` : 
            "Featured Match"}
         </Badge>
 
@@ -2615,19 +2654,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
               {/* Single match display */}
               <AnimatePresence mode="wait">
-                {/* Display current match from all available matches */}
-                {currentMatch && currentIndex < allMatches.length && (
+                {currentMatch && (
                   <motion.div
-                    key={currentIndex}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
+                    key={`match-${currentMatch.fixture.id}-${currentMatchIndex}`}
+                    initial={{ x: 100, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: -100, opacity: 0 }}
                     transition={{
                       type: "tween",
                       duration: 0.15,
                       ease: "easeInOut",
                     }}
-                    className="w-full"
+                    className="cursor-pointer"
                     onClick={() => {
                       // Debug logging for league identification
                       console.log(
@@ -3290,17 +3328,20 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     </div>
 
                     {/* Slide indicators */}
-                    {/* Navigation dots - show dots for all matches */}
                     {allMatches.length > 1 && (
-                      <div className="flex justify-center gap-2 mt-4">
-                        {Array.from({ length: Math.min(allMatches.length, maxMatches) }).map((_, index) => (
+                      <div className="flex justify-center mt-4 gap-1">
+                        {allMatches.map((_, index) => (
                           <button
                             key={index}
-                            onClick={() => setCurrentIndex(index)}
-                            className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                              index === currentIndex ? "bg-indigo-600" : "bg-gray-300"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCurrentMatchIndex(index);
+                            }}
+                            className={`w-1 h-1 rounded-sm transition-colors ${
+                              index === currentMatchIndex
+                                ? "bg-gray-500"
+                                : "bg-gray-300"
                             }`}
-                            aria-label={`Go to slide ${index + 1}`}
                           />
                         ))}
                       </div>
