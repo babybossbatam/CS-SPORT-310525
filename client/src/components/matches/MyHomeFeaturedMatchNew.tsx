@@ -848,18 +848,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   initialBatchMatches.push(...quickFixtures);
                   setLoadedMatchCount(initialBatchMatches.length);
                   
-                  // Show first 3 slides immediately
-                  if (initialBatchMatches.length >= INITIAL_LOAD_COUNT && !initialSlidesLoaded) {
+                  // Show matches starting from 4th (skip first 3)
+                  if (initialBatchMatches.length >= INITIAL_LOAD_COUNT + 3 && !initialSlidesLoaded) {
                     const today = new Date();
                     const initialUpdate: DayMatches[] = [{
                       date: format(today, "yyyy-MM-dd"),
                       label: "Today",
-                      matches: initialBatchMatches.slice(0, INITIAL_LOAD_COUNT),
+                      matches: initialBatchMatches.slice(3, INITIAL_LOAD_COUNT + 3),
                     }];
                     setFeaturedMatches(initialUpdate);
                     setIsLoading(false);
                     setInitialSlidesLoaded(true);
-                    console.log(`🚀 [MyHomeFeaturedMatchNew] Initial ${INITIAL_LOAD_COUNT} slides loaded and displayed`);
+                    console.log(`🚀 [MyHomeFeaturedMatchNew] Initial ${INITIAL_LOAD_COUNT} slides loaded (starting from 4th match)`);
                   }
                 }
                 
