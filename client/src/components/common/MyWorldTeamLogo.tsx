@@ -57,8 +57,31 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   onLoad, // Added for potential use
   skipInitialProcessing = false,
 }) => {
-  const [imageSrc, setImageSrc] = useState<string>(teamLogo || "/assets/fallback.png");
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  // Initialize with better default state
+  const [imageSrc, setImageSrc] = useState<string>(() => {
+    // Check cache immediately on initialization
+    if (teamId && teamName) {
+      const globalCacheKey = `${teamId}_${teamName}`;
+      const cached = globalLogoCache.get(globalCacheKey);
+      if (cached && (Date.now() - cached.timestamp) < GLOBAL_CACHE_DURATION && cached.verified) {
+        return cached.url;
+      }
+    }
+    return teamLogo || "/assets/fallback.png";
+  });
+  
+  const [isLoading, setIsLoading] = useState<boolean>(() => {
+    // Don't show loading if we have cached data
+    if (teamId && teamName) {
+      const globalCacheKey = `${teamId}_${teamName}`;
+      const cached = globalLogoCache.get(globalCacheKey);
+      if (cached && (Date.now() - cached.timestamp) < GLOBAL_CACHE_DURATION && cached.verified) {
+        return false;
+      }
+    }
+    return !skipInitialProcessing;
+  });
+  
   const [hasError, setHasError] = useState<boolean>(false);
 
   // Memoized computation with caching for shouldUseCircularFlag
@@ -375,8 +398,11 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       console.log(`⚡ [MyWorldTeamLogo] Skipping initial processing for ${teamName}, using provided logo: ${teamLogo}`);
       setImageSrc(teamLogo);
       setIsLoading(false);
+      setHasError(false);
       return;
     }
+
+    let isMounted = true; // Flag to prevent state update on unmounted component
 
     const resolveInitialLogo = async () => {
       if (!teamId || !teamName) {
@@ -385,9 +411,11 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
           teamName,
           component: "MyWorldTeamLogo",
         });
-        setImageSrc("/assets/fallback.png");
-        setHasError(true);
-        setIsLoading(false);
+        if (isMounted) {
+          setImageSrc("/assets/fallback.png");
+          setHasError(true);
+          setIsLoading(false);
+        }
         return;
       }
 
@@ -399,8 +427,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         const age = Date.now() - globalCached.timestamp;
         if (age < GLOBAL_CACHE_DURATION && globalCached.verified) {
           console.log(`🚀 [MyWorldTeamLogo] Using global cache for ${teamName}: ${globalCached.url}`);
-          // Only update if the cached URL is different from current
-          if (imageSrc !== globalCached.url) {
+          if (isMounted) {
             setImageSrc(globalCached.url);
             setHasError(false);
             setIsLoading(false);
@@ -412,35 +439,46 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         }
       }
 
-      // Only proceed with loading if we don't already have a valid image
-      if (!imageSrc || imageSrc === "/assets/fallback.png" || hasError) {
+      // Set loading state immediately
+      if (isMounted) {
         setIsLoading(true);
         setHasError(false);
+      }
 
-        let isMounted = true; // Flag to prevent state update on unmounted component
-
-        logoUrl.then((url) => {
-          if (isMounted && url && url !== imageSrc) {
-            setImageSrc(url);
-            setHasError(url.includes("/assets/fallback.png"));
-            setIsLoading(false);
+      try {
+        // Resolve logo URL with proper async handling
+        const resolvedUrl = await logoUrl;
+        
+        if (isMounted && resolvedUrl) {
+          console.log(`✅ [MyWorldTeamLogo] Logo resolved for ${teamName}: ${resolvedUrl}`);
+          setImageSrc(resolvedUrl);
+          setHasError(resolvedUrl.includes("/assets/fallback.png"));
+          setIsLoading(false);
+          
+          // Cache the successful result
+          if (teamId && teamName && !resolvedUrl.includes("/assets/fallback.png")) {
+            globalLogoCache.set(globalCacheKey, {
+              url: resolvedUrl,
+              timestamp: Date.now(),
+              verified: true
+            });
           }
-        }).catch((error) => {
-          console.error(`❌ [MyWorldTeamLogo] Error setting image src for ${teamName}:`, error);
-          if (isMounted) {
-            setImageSrc("/assets/fallback.png");
-            setHasError(true);
-            setIsLoading(false);
-          }
-        });
-
-        return () => {
-          isMounted = false; // Cleanup flag
-        };
+        }
+      } catch (error) {
+        console.error(`❌ [MyWorldTeamLogo] Error resolving logo for ${teamName}:`, error);
+        if (isMounted) {
+          setImageSrc(teamLogo || "/assets/fallback.png");
+          setHasError(true);
+          setIsLoading(false);
+        }
       }
     };
 
     resolveInitialLogo();
+
+    return () => {
+      isMounted = false; // Cleanup flag
+    };
   }, [teamId, teamName, teamLogo, shouldUseCircularFlag, skipInitialProcessing]); // Removed imageSrc from dependencies to prevent loops
 
 

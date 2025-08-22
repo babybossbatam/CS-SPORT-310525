@@ -2813,7 +2813,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     name: league.name,
                                     country: league.country
                                   }}
-                                  skipInitialProcessing={true}
+                                  skipInitialProcessing={false}
                                 />
                               </div>
 
@@ -3022,7 +3022,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     name: league.name,
                                     country: league.country
                                   }}
-                                  skipInitialProcessing={true}
+                                  skipInitialProcessing={false}
                                 />
                               </div>
 
