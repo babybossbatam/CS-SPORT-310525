@@ -327,7 +327,7 @@ export function RoundBadge({
     <Badge 
       variant="outline" 
       className={`${badgeClass} ${className}`}
-      title={`Round: ${displayRound}`}
+      title={`Full Round: ${displayRound}`}
     >
       {roundText}
     </Badge>
