@@ -2032,35 +2032,62 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           setPreloadedRounds(preloadedData);
         });
 
-        // Only update state if data has actually changed and we're not in initial loading phase
-        if (!progressiveLoad || initialSlidesLoaded) {
-          setFeaturedMatches((prevMatches) => {
-            // Quick comparison for performance
-            if (prevMatches.length === allMatches.length && allMatches.length > 0) {
-              const hasChanges = allMatches.some((dayData, index) => {
-                const prevDay = prevMatches[index];
-                return !prevDay || 
-                       dayData.matches.length !== prevDay.matches.length ||
-                       dayData.matches.some((match, matchIndex) => {
-                         const prevMatch = prevDay.matches[matchIndex];
-                         return !prevMatch || 
-                                match.fixture.id !== prevMatch.fixture.id ||
-                                match.fixture.status.short !== prevMatch.fixture.status.short ||
-                                match.goals.home !== prevMatch.goals.home ||
-                                match.goals.away !== prevMatch.goals.away;
-                       });
-              });
-              
-              if (!hasChanges) {
-                console.log("⏸️ [MyHomeFeaturedMatchNew] No changes detected, skipping state update");
-                return prevMatches;
+        // Always update state for background loads, and handle progressive loading separately
+        setFeaturedMatches((prevMatches) => {
+          // For progressive loading, merge new matches with existing ones
+          if (progressiveLoad && initialSlidesLoaded && prevMatches.length > 0) {
+            // Add new matches to existing slides while avoiding duplicates
+            const updatedMatches = prevMatches.map((dayData, dayIndex) => {
+              const newDayData = allMatches[dayIndex];
+              if (newDayData && newDayData.matches.length > dayData.matches.length) {
+                // Add new matches that aren't already present
+                const existingIds = new Set(dayData.matches.map(m => m.fixture.id));
+                const newMatches = newDayData.matches.filter(m => !existingIds.has(m.fixture.id));
+                
+                console.log(`📈 [MyHomeFeaturedMatchNew] Adding ${newMatches.length} more slides to ${dayData.label}`);
+                return {
+                  ...dayData,
+                  matches: [...dayData.matches, ...newMatches]
+                };
               }
+              return dayData;
+            });
+            
+            // Add any completely new days
+            const newDays = allMatches.slice(prevMatches.length);
+            if (newDays.length > 0) {
+              console.log(`📅 [MyHomeFeaturedMatchNew] Adding ${newDays.length} new day groups`);
+              return [...updatedMatches, ...newDays];
             }
             
-            console.log(`✅ [MyHomeFeaturedMatchNew] Background update with ${allMatches.length} day groups`);
-            return allMatches;
-          });
-        }
+            return updatedMatches;
+          }
+          
+          // For non-progressive loads or initial loads
+          if (prevMatches.length === allMatches.length && allMatches.length > 0) {
+            const hasChanges = allMatches.some((dayData, index) => {
+              const prevDay = prevMatches[index];
+              return !prevDay || 
+                     dayData.matches.length !== prevDay.matches.length ||
+                     dayData.matches.some((match, matchIndex) => {
+                       const prevMatch = prevDay.matches[matchIndex];
+                       return !prevMatch || 
+                              match.fixture.id !== prevMatch.fixture.id ||
+                              match.fixture.status.short !== prevMatch.fixture.status.short ||
+                              match.goals.home !== prevMatch.goals.home ||
+                              match.goals.away !== prevMatch.goals.away;
+                     });
+            });
+            
+            if (!hasChanges) {
+              console.log("⏸️ [MyHomeFeaturedMatchNew] No changes detected, skipping state update");
+              return prevMatches;
+            }
+          }
+          
+          console.log(`✅ [MyHomeFeaturedMatchNew] ${progressiveLoad ? 'Progressive' : 'Standard'} update with ${allMatches.length} day groups`);
+          return allMatches;
+        });
       } catch (error) {
         console.error("❌ [MyHomeFeaturedMatchNew] Error:", error);
       } finally {
@@ -2173,6 +2200,19 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       fetchFeaturedMatches(true, true); // Enable progressive loading on initial load
     }, 100);
   }, []); // Only run once on mount
+
+  // Add more slides after initial load is complete
+  useEffect(() => {
+    if (initialSlidesLoaded && !isProgressiveLoading) {
+      // Wait 2 seconds after initial slides are loaded, then fetch more
+      const timer = setTimeout(() => {
+        console.log("🔄 [MyHomeFeaturedMatchNew] Loading more slides in background...");
+        fetchFeaturedMatches(false, true); // Background progressive load
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [initialSlidesLoaded, isProgressiveLoading]);
 
   // Optimized refresh intervals using memoized analysis
   useEffect(() => {
@@ -2616,9 +2656,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           variant="secondary"
           className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-10 pointer-events-none"
         >
-          {isProgressiveLoading && !initialSlidesLoaded ? `Loading... (${loadedMatchCount}/3)` : 
-           isProgressiveLoading && initialSlidesLoaded ? `Loading more...` : 
-           "Featured Match"}
+          Featured Match
         </Badge>
 
         <CardHeader className="pb-2">
