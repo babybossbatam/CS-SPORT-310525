@@ -29,6 +29,81 @@ import { generateCompleteTeamMapping } from "@/lib/generateCompleteTeamMapping";
 import { smartLeagueTranslation } from "@/lib/leagueNameMapping";
 import { smartCountryTranslation } from "@/lib/countryNameMapping";
 
+// Progressive loading queue for team logos
+class ProgressiveImageLoader {
+  private static instance: ProgressiveImageLoader;
+  private loadQueue: Map<string, {
+    src: string;
+    onLoad: (src: string) => void;
+    priority: number;
+  }> = new Map();
+  private isProcessing = false;
+  private loadedImages = new Set<string>();
+
+  static getInstance(): ProgressiveImageLoader {
+    if (!ProgressiveImageLoader.instance) {
+      ProgressiveImageLoader.instance = new ProgressiveImageLoader();
+    }
+    return ProgressiveImageLoader.instance;
+  }
+
+  addToQueue(key: string, src: string, onLoad: (src: string) => void, priority: number = 0) {
+    if (this.loadedImages.has(src)) {
+      onLoad(src);
+      return;
+    }
+
+    this.loadQueue.set(key, { src, onLoad, priority });
+    this.processQueue();
+  }
+
+  private async processQueue() {
+    if (this.isProcessing || this.loadQueue.size === 0) return;
+
+    this.isProcessing = true;
+
+    // Sort by priority (higher first)
+    const sortedEntries = Array.from(this.loadQueue.entries())
+      .sort(([,a], [,b]) => b.priority - a.priority);
+
+    // Process in small batches to avoid overwhelming
+    const batchSize = 3;
+    for (let i = 0; i < sortedEntries.length; i += batchSize) {
+      const batch = sortedEntries.slice(i, i + batchSize);
+
+      await Promise.allSettled(
+        batch.map(async ([key, { src, onLoad }]) => {
+          try {
+            await this.preloadImage(src);
+            this.loadedImages.add(src);
+            onLoad(src);
+            this.loadQueue.delete(key);
+          } catch (error) {
+            console.log(`Failed to preload ${src}, will try fallback`);
+            this.loadQueue.delete(key);
+          }
+        })
+      );
+
+      // Small delay between batches
+      if (i + batchSize < sortedEntries.length) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+
+    this.isProcessing = false;
+  }
+
+  private preloadImage(src: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve();
+      img.onerror = () => reject();
+      img.src = src;
+    });
+  }
+}
+
 // Intersection Observer Hook for lazy loading
 const useIntersectionObserver = (
   ref: React.RefObject<Element>,
@@ -243,6 +318,103 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   );
   const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
   const [hoveredMatchId, setHoveredMatchId] = useState<number | null>(null);
+  const [progressivelyLoadedImages, setProgressivelyLoadedImages] = useState<Set<string>>(new Set());
+
+  // Memoize expensive calculations
+  const memoizedFixtures = useMemo(() => {
+    const result: { [leagueId: number]: any[] } = {};
+    Object.entries(fixtures).forEach(([leagueId, leagueFixtures]) => {
+      result[parseInt(leagueId)] = leagueFixtures;
+    });
+    return result;
+  }, [fixtures]);
+
+  // Progressive Team Logo Component
+  const ProgressiveTeamLogo = React.memo(({
+    teamId,
+    teamName,
+    teamLogo,
+    isLive = false,
+    className = ""
+  }: {
+    teamId: number;
+    teamName: string;
+    teamLogo?: string;
+    isLive?: boolean;
+    className?: string;
+  }) => {
+    const [imageSrc, setImageSrc] = useState<string>("/assets/fallback-logo.svg");
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+      const loader = ProgressiveImageLoader.getInstance();
+      const key = `team-${teamId}`;
+
+      // Determine priority: live matches get higher priority
+      const priority = isLive ? 10 : 1;
+
+      // Try multiple sources
+      const sources = [
+        teamLogo,
+        `/api/team-logo/square/${teamId}`,
+        `https://media.api.sports.io/football/teams/${teamId}.png`,
+        `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${teamId}`
+      ].filter(Boolean);
+
+      let sourceIndex = 0;
+
+      const tryNextSource = () => {
+        if (sourceIndex >= sources.length) {
+          setImageSrc("/assets/fallback-logo.svg");
+          setIsLoaded(true);
+          return;
+        }
+
+        const currentSource = sources[sourceIndex];
+        loader.addToQueue(
+          `${key}-${sourceIndex}`,
+          currentSource,
+          (loadedSrc) => {
+            setImageSrc(loadedSrc);
+            setIsLoaded(true);
+            setProgressivelyLoadedImages(prev => new Set([...prev, loadedSrc]));
+          },
+          priority
+        );
+
+        // Fallback mechanism: try next source after delay if current fails
+        setTimeout(() => {
+          if (!isLoaded) {
+            sourceIndex++;
+            tryNextSource();
+          }
+        }, isLive ? 500 : 1000);
+      };
+
+      tryNextSource();
+    }, [teamId, teamLogo, isLive]);
+
+    return (
+      <div className={cn("relative overflow-hidden", className)}>
+        <img
+          src={imageSrc}
+          alt={`${teamName} logo`}
+          className={cn(
+            "transition-opacity duration-300",
+            isLoaded ? "opacity-100" : "opacity-50",
+            "w-full h-full object-contain"
+          )}
+          style={{
+            filter: darkMode ? 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))' : 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.8))'
+          }}
+        />
+        {!isLoaded && (
+          <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
+        )}
+      </div>
+    );
+  });
+
 
   // League IDs without any filtering - removed duplicates
   const leagueIds = [
@@ -1729,6 +1901,37 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     setPreviousMatchStatuses(currentStatuses);
   }, [fixturesByLeague, triggerKickoffFlash, triggerFinishFlash]);
 
+  // Preload critical team logos for live matches
+  useEffect(() => {
+    const preloadCriticalLogos = () => {
+      Object.values(fixturesByLeague).flat().forEach(fixture => {
+        const isLive = ["LIVE", "1H", "2H", "HT"].includes(fixture.fixture.status.short);
+        if (isLive) {
+          const loader = ProgressiveImageLoader.getInstance();
+
+          // Preload home team logo
+          loader.addToQueue(
+            `critical-home-${fixture.teams.home.id}`,
+            fixture.teams.home.logo || `/api/team-logo/square/${fixture.teams.home.id}`,
+            () => {},
+            20 // High priority for live matches
+          );
+
+          // Preload away team logo
+          loader.addToQueue(
+            `critical-away-${fixture.teams.away.id}`,
+            fixture.teams.away.logo || `/api/team-logo/square/${fixture.teams.away.id}`,
+            () => {},
+            20 // High priority for live matches
+          );
+        }
+      });
+    };
+
+    preloadCriticalLogos();
+  }, [fixturesByLeague]);
+
+
   // Check if we have cached data available
   const cachedData = queryClient.getQueryData([
     "myNewLeague2",
@@ -2775,21 +2978,19 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 className="home-team-logo-container"
                                 style={{ padding: "0 0.6rem" }}
                               >
-                                <MyWorldTeamLogo
-                                  teamName={fixture.teams.home.name || ""}
+                                <ProgressiveTeamLogo
                                   teamId={fixture.teams.home.id}
-                                  teamLogo={
-                                    fixture.teams.home.logo ||
-                                    `https://media.api.sports.io/football/teams/${fixture.teams.home.id}.png`
-                                  }
-                                  alt={`${fixture.teams.home.name} logo`}
-                                  size="32px"
-                                  className="w-8 h-8 object-contain"
-                                  leagueContext={{
-                                    name: league.name,
-                                    country: league.country
-                                  }}
-                                  skipInitialProcessing={false}
+                                  teamName={smartTeamTranslation.translateTeamName(
+                                    fixture.teams.home.name,
+                                    currentLanguage,
+                                    fixture.league,
+                                  )}
+                                  teamLogo={fixture.teams.home.logo}
+                                  isLive={fixture.fixture.status.short === "LIVE" ||
+                                          fixture.fixture.status.short === "1H" ||
+                                          fixture.fixture.status.short === "2H" ||
+                                          fixture.fixture.status.short === "HT"}
+                                  className="w-6 h-6"
                                 />
                               </div>
 
@@ -2984,21 +3185,19 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 className="away-team-logo-container"
                                 style={{ padding: "0 0.5rem" }}
                               >
-                                <MyWorldTeamLogo
-                                  teamName={fixture.teams.away.name || ""}
+                                <ProgressiveTeamLogo
                                   teamId={fixture.teams.away.id}
-                                  teamLogo={
-                                    fixture.teams.away.logo ||
-                                    `https://media.api.sports.io/football/teams/${fixture.teams.away.id}.png`
-                                  }
-                                  alt={`${fixture.teams.away.name} logo`}
-                                  size="32px"
-                                  className="w-8 h-8 object-contain"
-                                  leagueContext={{
-                                    name: league.name,
-                                    country: league.country
-                                  }}
-                                  skipInitialProcessing={false}
+                                  teamName={smartTeamTranslation.translateTeamName(
+                                    fixture.teams.away.name,
+                                    currentLanguage,
+                                    fixture.league,
+                                  )}
+                                  teamLogo={fixture.teams.away.logo}
+                                  isLive={fixture.fixture.status.short === "LIVE" ||
+                                          fixture.fixture.status.short === "1H" ||
+                                          fixture.fixture.status.short === "2H" ||
+                                          fixture.fixture.status.short === "HT"}
+                                  className="w-6 h-6"
                                 />
                               </div>
 
