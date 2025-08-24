@@ -218,9 +218,9 @@ const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [
   // Italian Campionato leagues (youth competitions)
   505, 506, 507, 508, 509, 510, 511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 138,
   // Additional League Two variations and lower divisions
-  46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, // Additional English lower league IDs
+  46, 47, 48, 49, 50, 51, 52, 53, // Additional English lower league IDs
 ]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2, Non League Premier - Southern Central, League 703, League 59, League 60, Campionato Primavera - 1, DFB Cup, League 488, Italian Cup, Spring Championship leagues, additional Italian youth leagues, Italian Campionato leagues, League Two and additional lower divisions, League 705, League 42
-const PRIORITY_LEAGUE_IDS = [39, 140, 61, 147, 2, 15, 137, 135, 826, 38, 22, 45, 550, 531]; // UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531
+const PRIORITY_LEAGUE_IDS = [39, 140, 61, 147, 2, 15, 826, 38, 22, 45, 550, 531]; // UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531
 
 interface FeaturedMatch {
   fixture: {
@@ -825,11 +825,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return false;
               }
 
-              // Declare all variables first to avoid hoisting issues
-              const leagueName =
-                fixture.league?.name?.toLowerCase() || "";
-              const country =
-                fixture.league?.country?.toLowerCase() || "";
+              // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
               const matchDate = new Date(fixture.fixture.date);
               const minutesFromKickoff =
                 (now.getTime() - matchDate.getTime()) / (1000 * 60);
@@ -847,6 +843,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 "P",
                 "INT",
               ].includes(status);
+
+              // Exclude women's competitions and Oberliga leagues
+              const leagueName =
+                fixture.league?.name?.toLowerCase() || "";
+              const country =
+                fixture.league?.country?.toLowerCase() || "";
 
               // EXPLICIT EXCLUSION: Check league ID against exclusion list
               const isExplicitlyExcluded =
