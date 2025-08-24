@@ -1,0 +1,46 @@
+Console.js:61 ⚠️ [PopularTeamsList] API returned non-JSON response, using fallback data
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ eventEmitterUtils.ts:295
+console.warn @ main.tsx:38
+console.warn @ main.tsx:130
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+fetchPopularTeams @ PopularTeamsList.tsx:164Understand this warning
+Console.js:61 ⚠️ [PopularTeamsList] Content-Type: text/html; charset=utf-8
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ eventEmitterUtils.ts:295
+console.warn @ main.tsx:38
+console.warn @ main.tsx:130
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+fetchPopularTeams @ PopularTeamsList.tsx:167Understand this warning
+Console.js:61 ⚠️ [PopularTeamsList] Response status: 200
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ eventEmitterUtils.ts:295
+console.warn @ main.tsx:38
+console.warn @ main.tsx:130
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+fetchPopularTeams @ PopularTeamsList.tsx:168Understand this warning
+Console.js:61 ⚠️ [PopularTeamsList] Failed to fetch popular teams, using fallback data: API returned HTML instead of JSON
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ eventEmitterUtils.ts:295
+console.warn @ main.tsx:38
+console.warn @ main.tsx:130
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+fetchPopularTeams @ PopularTeamsList.tsx:227Understand this warning
+Console.js:61 ⚠️ [PopularTeamsList] Full error details: Error: API returned HTML instead of JSON
+    at fetchPopularTeams (PopularTeamsList.tsx:169:17)
