@@ -28,6 +28,7 @@ import { teamMappingExtractor } from "@/lib/teamMappingExtractor";
 import { generateCompleteTeamMapping } from "@/lib/generateCompleteTeamMapping";
 import { smartLeagueTranslation } from "@/lib/leagueNameMapping";
 import { smartCountryTranslation } from "@/lib/countryNameMapping";
+import { cn } from "@/lib/utils"; // Assuming cn is available for class merging
 
 // Progressive loading queue for team logos
 class ProgressiveImageLoader {
@@ -339,7 +340,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     return result;
   }, [allFixtures]);
 
-  // Progressive Team Logo Component
+  // Progressive Team Logo Component with rate limiting
   const ProgressiveTeamLogo = React.memo(({
     teamId,
     teamName,
@@ -355,54 +356,65 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   }) => {
     const [imageSrc, setImageSrc] = useState<string>("/assets/fallback-logo.svg");
     const [isLoaded, setIsLoaded] = useState(false);
+    const [hasAttempted, setHasAttempted] = useState(false);
 
     useEffect(() => {
+      if (hasAttempted) return;
+      setHasAttempted(true);
+
       const loader = ProgressiveImageLoader.getInstance();
       const key = `team-${teamId}`;
 
       // Determine priority: live matches get higher priority
       const priority = isLive ? 10 : 1;
 
-      // Try multiple sources
+      // Try sources in order of preference, avoiding rate-limited sources
       const sources = [
-        teamLogo,
-        `/api/team-logo/square/${teamId}`,
-        `https://media.api.sports.io/football/teams/${teamId}.png`,
-        `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${teamId}`
+        `/api/team-logo/square/${teamId}`, // Local API first
+        teamLogo, // Team logo from API
+        `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${teamId}`,
+        // Only try api-sports as last resort
+        `https://media.api-sports.io/football/teams/${teamId}.png`,
       ].filter(Boolean);
 
       let sourceIndex = 0;
+      let loadAttempted = false;
 
       const tryNextSource = () => {
-        if (sourceIndex >= sources.length) {
-          setImageSrc("/assets/fallback-logo.svg");
-          setIsLoaded(true);
+        if (loadAttempted || sourceIndex >= sources.length) {
+          if (!loadAttempted) {
+            setImageSrc("/assets/fallback-logo.svg");
+            setIsLoaded(true);
+          }
           return;
         }
 
+        loadAttempted = true;
         const currentSource = sources[sourceIndex];
+
         loader.addToQueue(
           `${key}-${sourceIndex}`,
           currentSource,
           (loadedSrc) => {
-            setImageSrc(loadedSrc);
-            setIsLoaded(true);
-            setProgressivelyLoadedImages(prev => new Set([...prev, loadedSrc]));
+            if (loadedSrc !== "/assets/fallback-logo.svg") {
+              setImageSrc(loadedSrc);
+              setIsLoaded(true);
+              setProgressivelyLoadedImages(prev => new Set([...prev, loadedSrc]));
+            } else {
+              // If fallback was returned, try next source
+              sourceIndex++;
+              loadAttempted = false;
+              setTimeout(tryNextSource, 100);
+            }
           },
           priority
         );
-
-        // Fallback mechanism: try next source after delay if current fails
-        setTimeout(() => {
-          if (!isLoaded) {
-            sourceIndex++;
-            tryNextSource();
-          }
-        }, isLive ? 500 : 1000);
       };
 
-      tryNextSource();
-    }, [teamId, teamLogo, isLive]);
+      // Add small delay to avoid overwhelming on initial load
+      const delay = Math.random() * 200; // Random delay 0-200ms
+      setTimeout(tryNextSource, delay);
+    }, [teamId, teamLogo, isLive, hasAttempted]);
 
     return (
       <div className={cn("relative overflow-hidden", className)}>
@@ -414,8 +426,11 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             isLoaded ? "opacity-100" : "opacity-50",
             "w-full h-full object-contain"
           )}
-          style={{
-            filter: darkMode ? 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))' : 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.8))'
+          onError={() => {
+            // Fallback on error
+            if (imageSrc !== "/assets/fallback-logo.svg") {
+              setImageSrc("/assets/fallback-logo.svg");
+            }
           }}
         />
         {!isLoaded && (
@@ -2904,15 +2919,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     return (
                                       <div className="match-status-label status-postponed">
                                         {t("postponed")}
-                                      </div>
-                                    );
-                                  }
-
-                                  // Show TBD status for matches with undefined time
-                                  if (status === "TBD") {
-                                    return (
-                                      <div className="match-status-label status-upcoming">
-                                        {t("time_tbd")}
                                       </div>
                                     );
                                   }
