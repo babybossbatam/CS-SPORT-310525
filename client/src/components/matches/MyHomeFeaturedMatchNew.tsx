@@ -825,7 +825,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return false;
               }
 
-              // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
+              // Declare all variables first to avoid hoisting issues
+              const leagueName =
+                fixture.league?.name?.toLowerCase() || "";
+              const country =
+                fixture.league?.country?.toLowerCase() || "";
               const matchDate = new Date(fixture.fixture.date);
               const minutesFromKickoff =
                 (now.getTime() - matchDate.getTime()) / (1000 * 60);
@@ -843,12 +847,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 "P",
                 "INT",
               ].includes(status);
-
-              // Exclude women's competitions and Oberliga leagues
-              const leagueName =
-                fixture.league?.name?.toLowerCase() || "";
-              const country =
-                fixture.league?.country?.toLowerCase() || "";
 
               // EXPLICIT EXCLUSION: Check league ID against exclusion list
               const isExplicitlyExcluded =
