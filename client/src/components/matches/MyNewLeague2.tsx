@@ -685,18 +685,18 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
       // Simplified caching - only check for recent ended matches
       const cachedEndedMatches: FixtureData[] = [];
-      
-      // Process leagues in smaller, faster batches
-      const batchSize = 8; // Increased batch size for better concurrency
+
+      // Process leagues in larger, optimized batches
+      const batchSize = 12; // Larger batch size for better concurrency
       const results: any[] = [];
 
       for (let i = 0; i < leagueIds.length; i += batchSize) {
         const batch = leagueIds.slice(i, i + batchSize);
-        
+
         const batchPromises = batch.map(async (leagueId, index) => {
-          // Minimal delay only for API rate limiting
-          if (index > 4) {
-            await delay(5); // Reduced delay
+          // No delay for first 8 requests in batch
+          if (index > 8) {
+            await delay(2); // Minimal delay
           }
 
           try {
@@ -3040,17 +3040,13 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
                                 if (isPenaltyMatch && hasPenaltyScores) {
                                   const winnerTeam =
-                                    penaltyHome > penaltyAway
-                                      ? smartTeamTranslation.translateTeamName(
-                                          fixture.teams.home.name,
-                                          currentLanguage,
-                                          fixture.league,
-                                        )
-                                      : smartTeamTranslation.translateTeamName(
-                                          fixture.teams.away.name,
-                                          currentLanguage,
-                                          fixture.league,
-                                        );
+                                    smartTeamTranslation.translateTeamName(
+                                      penaltyHome > penaltyAway
+                                        ? fixture.teams.home.name
+                                        : fixture.teams.away.name,
+                                      currentLanguage,
+                                      fixture.league,
+                                    );
                                   const penaltyScore =
                                     penaltyHome > penaltyAway
                                       ? `${penaltyHome}-${penaltyAway}`
