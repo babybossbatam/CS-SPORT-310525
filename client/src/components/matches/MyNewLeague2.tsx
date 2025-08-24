@@ -322,12 +322,22 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
   // Memoize expensive calculations
   const memoizedFixtures = useMemo(() => {
+    if (!allFixtures || !Array.isArray(allFixtures)) {
+      return {};
+    }
     const result: { [leagueId: number]: any[] } = {};
-    Object.entries(fixtures).forEach(([leagueId, leagueFixtures]) => {
-      result[parseInt(leagueId)] = leagueFixtures;
+    // Group fixtures by league ID
+    allFixtures.forEach((fixture) => {
+      if (fixture?.league?.id) {
+        const leagueId = fixture.league.id;
+        if (!result[leagueId]) {
+          result[leagueId] = [];
+        }
+        result[leagueId].push(fixture);
+      }
     });
     return result;
-  }, [fixtures]);
+  }, [allFixtures]);
 
   // Progressive Team Logo Component
   const ProgressiveTeamLogo = React.memo(({
