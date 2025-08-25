@@ -1101,17 +1101,21 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
       // Apply date filtering - extract date from fixture and compare with selected date
       const fixtureTime = new Date(fixture.fixture.date);
+      
+      // Convert selected date to proper Date object for comparison
+      const selectedDateObj = new Date(selectedDate + 'T00:00:00Z'); // Force UTC
+      
+      // Get local dates for comparison (this handles user's timezone properly)
+      const fixtureLocalDate = fixtureTime.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
+      const selectedLocalDate = selectedDateObj.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
 
-      // Get dates in UTC for consistent comparison
-      const fixtureUTCDate = fixtureTime.toISOString().slice(0, 10); // YYYY-MM-DD format
-      const selectedUTCDate = selectedDate; // selectedDate is already in YYYY-MM-DD format
-
-      // Include matches that fall on the selected date
-      if (fixtureUTCDate !== selectedUTCDate) {
+      // Include matches that fall on the selected date in user's local timezone
+      if (fixtureLocalDate !== selectedLocalDate) {
         console.log(`📅 [MyNewLeague2] Fixture filtered out - date mismatch:`, {
           fixtureId: fixture.fixture.id,
-          fixtureUTCDate: fixtureUTCDate,
-          selectedUTCDate: selectedUTCDate,
+          fixtureLocalDate: fixtureLocalDate,
+          selectedLocalDate: selectedLocalDate,
+          fixtureUTC: fixtureTime.toISOString(),
           teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
         });
         return;
@@ -1135,8 +1139,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         fixtureId: fixture.fixture.id,
         teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
         league: fixture.league.name,
-        fixtureUTCDate: fixtureUTCDate,
-        selectedUTCDate,
+        fixtureLocalDate: new Date(fixture.fixture.date).toLocaleDateString('en-CA'),
+        selectedLocalDate: new Date(selectedDate + 'T00:00:00Z').toLocaleDateString('en-CA'),
         matchupKey,
       });
     });
