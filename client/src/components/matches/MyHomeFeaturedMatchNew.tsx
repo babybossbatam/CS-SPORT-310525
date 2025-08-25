@@ -1767,16 +1767,20 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 );
                 return false;
               }
-              // CRITICAL: Filter out stale "Starting now" matches
+              // CRITICAL: Filter out stale "Starting now" matches, but be more permissive for today
               const status = fixture.fixture.status.short;
               const matchDate = new Date(fixture.fixture.date);
               const minutesFromKickoff =
                 (now.getTime() - matchDate.getTime()) / (1000 * 60);
+              const isToday = format(matchDate, 'yyyy-MM-dd') === format(now, 'yyyy-MM-dd');
 
               // Remove matches that show "NS" (Not Started) but are significantly past kickoff time
-              if (status === "NS" && minutesFromKickoff > 120) {
+              // Be more lenient for today's matches (6 hours vs 2 hours)
+              const staleThreshold = isToday ? 360 : 120; // 6 hours for today, 2 hours for other days
+              
+              if (status === "NS" && minutesFromKickoff > staleThreshold) {
                 console.log(
-                  `🚫 [STALE MATCH EXCLUSION] Removing stale "Starting now" match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(minutesFromKickoff)} min past kickoff)`,
+                  `🚫 [STALE MATCH EXCLUSION] Removing stale "Starting now" match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(minutesFromKickoff)} min past kickoff, threshold: ${staleThreshold}min, isToday: ${isToday})`,
                 );
                 return false;
               }
@@ -1944,12 +1948,44 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // Create a flattened array prioritizing today's matches for the first 3 slides
         const todayDateString = format(today, 'yyyy-MM-dd');
+        console.log(`🎯 [MyHomeFeaturedMatchNew] Looking for today's matches: ${todayDateString}`);
+        
+        // Log all available dates for debugging
+        allMatches.forEach(dayData => {
+          console.log(`📅 [MyHomeFeaturedMatchNew] Available date: ${dayData.date} (${dayData.label}) - ${dayData.matches.length} matches`);
+        });
+        
         const todayMatches = allMatches.find(dayData => dayData.date === todayDateString)?.matches || [];
+        console.log(`🎯 [MyHomeFeaturedMatchNew] Found ${todayMatches.length} matches for today (${todayDateString})`);
+        
         const otherMatches = allMatches.filter(dayData => dayData.date !== todayDateString)
           .reduce((acc, dayData) => [...acc, ...dayData.matches], [] as FeaturedMatch[]);
 
+        // If we have no today's matches, let's be more permissive and look for any NS/TBD matches from today
+        let enhancedTodayMatches = [...todayMatches];
+        if (enhancedTodayMatches.length === 0) {
+          console.log(`🔍 [MyHomeFeaturedMatchNew] No today matches found, searching across all fixtures for today's NS matches`);
+          
+          // Search through all collected fixtures for today's matches that might have been filtered out
+          const allTodayFixtures = allFixtures.filter(fixture => {
+            const matchDate = new Date(fixture.fixture.date);
+            const matchDateString = format(matchDate, 'yyyy-MM-dd');
+            const isToday = matchDateString === todayDateString;
+            const isUpcoming = ['NS', 'TBD', 'PST'].includes(fixture.fixture.status.short);
+            
+            if (isToday && isUpcoming) {
+              console.log(`✅ [MyHomeFeaturedMatchNew] Found today's upcoming match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${fixture.fixture.status.short})`);
+            }
+            
+            return isToday && isUpcoming;
+          });
+          
+          enhancedTodayMatches = allTodayFixtures.slice(0, 3); // Take up to 3 today's matches
+          console.log(`🎯 [MyHomeFeaturedMatchNew] Enhanced today matches: ${enhancedTodayMatches.length}`);
+        }
+
         // Combine matches with today's matches prioritized
-        const prioritizedMatches = [...todayMatches, ...otherMatches];
+        const prioritizedMatches = [...enhancedTodayMatches, ...otherMatches];
 
         // Rebuild allMatches array with prioritized order but maintain day structure
         const finalAllMatches: DayMatches[] = [];
