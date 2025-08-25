@@ -1099,23 +1099,19 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         return;
       }
 
-      // Apply date filtering - extract date from fixture and compare with selected date
-      const fixtureTime = new Date(fixture.fixture.date);
+      // Apply date filtering using original server timezone - no conversion
+      const fixtureDate = fixture.fixture.date;
       
-      // Convert selected date to proper Date object for comparison
-      const selectedDateObj = new Date(selectedDate + 'T00:00:00Z'); // Force UTC
+      // Extract just the date part from the ISO string (YYYY-MM-DD)
+      const fixtureDateOnly = fixtureDate.split('T')[0];
       
-      // Get local dates for comparison (this handles user's timezone properly)
-      const fixtureLocalDate = fixtureTime.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
-      const selectedLocalDate = selectedDateObj.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
-
-      // Include matches that fall on the selected date in user's local timezone
-      if (fixtureLocalDate !== selectedLocalDate) {
+      // Compare directly with selected date (both in YYYY-MM-DD format)
+      if (fixtureDateOnly !== selectedDate) {
         console.log(`📅 [MyNewLeague2] Fixture filtered out - date mismatch:`, {
           fixtureId: fixture.fixture.id,
-          fixtureLocalDate: fixtureLocalDate,
-          selectedLocalDate: selectedLocalDate,
-          fixtureUTC: fixtureTime.toISOString(),
+          fixtureDateOnly: fixtureDateOnly,
+          selectedDate: selectedDate,
+          fixtureOriginal: fixtureDate,
           teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
         });
         return;
