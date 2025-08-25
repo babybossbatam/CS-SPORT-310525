@@ -20,6 +20,8 @@ import MyCircularFlag from "../common/MyCircularFlag";
 import BrandedLoading from "../common/BrandedLoading";
 import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";
 import { useLanguage, useTranslation } from "@/contexts/LanguageContext";
+import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
+import { getFixtureLocalDate } from "@/lib/dateUtilsUpdated";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
 import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
@@ -1099,19 +1101,36 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         return;
       }
 
-      // Apply date filtering using original server timezone - no conversion
-      const fixtureDate = fixture.fixture.date;
-      
-      // Extract just the date part from the ISO string (YYYY-MM-DD)
-      const fixtureDateOnly = fixtureDate.split('T')[0];
-      
-      // Compare directly with selected date (both in YYYY-MM-DD format)
-      if (fixtureDateOnly !== selectedDate) {
-        console.log(`📅 [MyNewLeague2] Fixture filtered out - date mismatch:`, {
+      // Apply smart date filtering using MySmartTimeFilter
+      const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+        fixture.fixture.date,
+        fixture.fixture.status.short,
+        selectedDate + "T12:00:00Z" // Pass selected date as context
+      );
+
+      // Determine if this match should be included based on smart classification
+      const shouldInclude = (() => {
+        // Get today's date for comparison
+        const today = new Date();
+        const todayString = format(today, "yyyy-MM-dd");
+
+        if (selectedDate === todayString) {
+          // For today's view, include matches classified as "today"
+          return smartResult.label === "today";
+        } else {
+          // For other dates, check if the fixture's local date matches selected date
+          const fixtureLocalDate = getFixtureLocalDate(fixture.fixture.date);
+          return fixtureLocalDate === selectedDate;
+        }
+      })();
+
+      if (!shouldInclude) {
+        console.log(`📅 [MyNewLeague2] Fixture filtered out by smart filter:`, {
           fixtureId: fixture.fixture.id,
-          fixtureDateOnly: fixtureDateOnly,
+          smartLabel: smartResult.label,
+          smartReason: smartResult.reason,
           selectedDate: selectedDate,
-          fixtureOriginal: fixtureDate,
+          fixtureOriginal: fixture.fixture.date,
           teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
         });
         return;
