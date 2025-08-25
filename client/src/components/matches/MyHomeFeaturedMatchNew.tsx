@@ -1942,6 +1942,61 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           });
         }
 
+        // Create a flattened array prioritizing today's matches for the first 3 slides
+        const todayDateString = format(today, 'yyyy-MM-dd');
+        const todayMatches = allMatches.find(dayData => dayData.date === todayDateString)?.matches || [];
+        const otherMatches = allMatches.filter(dayData => dayData.date !== todayDateString)
+          .reduce((acc, dayData) => [...acc, ...dayData.matches], [] as FeaturedMatch[]);
+
+        // Combine matches with today's matches prioritized
+        const prioritizedMatches = [...todayMatches, ...otherMatches];
+
+        // Rebuild allMatches array with prioritized order but maintain day structure
+        const finalAllMatches: DayMatches[] = [];
+        
+        // Take first 3 matches (prioritizing today's matches) and distribute back to day structure
+        const first3Matches = prioritizedMatches.slice(0, 3);
+        const remainingMatches = prioritizedMatches.slice(3);
+
+        // Ensure today's matches appear in the first 3 slides
+        first3Matches.forEach((match, index) => {
+          const matchDate = new Date(match.fixture.date);
+          const matchDateString = format(matchDate, 'yyyy-MM-dd');
+          const dayLabel = dates.find(d => d.date === matchDateString)?.label || 'Match Day';
+          
+          finalAllMatches.push({
+            date: matchDateString,
+            label: dayLabel,
+            matches: [match]
+          });
+        });
+
+        // Group remaining matches by their original dates
+        const remainingByDate: { [key: string]: FeaturedMatch[] } = {};
+        remainingMatches.forEach(match => {
+          const matchDate = new Date(match.fixture.date);
+          const matchDateString = format(matchDate, 'yyyy-MM-dd');
+          if (!remainingByDate[matchDateString]) {
+            remainingByDate[matchDateString] = [];
+          }
+          remainingByDate[matchDateString].push(match);
+        });
+
+        // Add remaining matches grouped by date
+        Object.entries(remainingByDate).forEach(([dateString, matches]) => {
+          const dayLabel = dates.find(d => d.date === dateString)?.label || 'Match Day';
+          
+          finalAllMatches.push({
+            date: dateString,
+            label: dayLabel,
+            matches: matches
+          });
+        });
+
+        // Update allMatches to use the prioritized structure
+        allMatches.length = 0;
+        allMatches.push(...finalAllMatches);
+
         // Preload round data for all unique leagues to prevent loading delays
         const uniqueLeagueIds = new Set<number>();
         allMatches.forEach(dayData => {
