@@ -152,8 +152,24 @@ const LazyImage: React.FC<LazyImageProps> = ({
         timestamp: new Date().toISOString()
       });
 
-      // Immediately set loading to false to prevent broken image display
-      setIsLoading(false);
+      // Prevent infinite retry loops
+      if (retryCount >= 3) {
+        console.warn(`🚨 [LazyImage] Max retries reached for ${alt}, using fallback immediately`);
+        setImageSrc(fallbackUrl);
+        setHasError(true);
+        setIsLoading(false); // Ensure loading stops
+        onError?.();
+        return;
+      }
+
+      // If already on fallback URL, stop trying and set loading to false
+      if (imageSrc === fallbackUrl || imageSrc.includes('fallback')) {
+        console.log(`✅ [LazyImage] Fallback image loaded for ${alt}`);
+        setHasError(false);
+        setIsLoading(false);
+        onError?.();
+        return;
+      }
 
       // Attempt to use fallback sources based on image type and retry count
       const altLower = alt?.toLowerCase() || '';
@@ -179,7 +195,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
           console.log(`⚽ [LazyImage] Using fallback for Al-Nassr team after all retries`);
           setImageSrc(fallbackUrl);
           setHasError(true); // Mark as error to prevent further retries on fallback
-          setIsLoading(true); // Keep loading true until fallback is rendered
+          setIsLoading(false); // Set loading to false for fallback
           return;
         }
       }
@@ -337,7 +353,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
       );
       setHasError(true);
       setImageSrc(fallbackUrl);
-      setIsLoading(false); // Set loading to false for fallback
+      setIsLoading(false); // Ensure loading stops for fallback
+      setRetryCount(999); // Prevent further retries
 
       // Call onError callback only after setting fallback
       onError?.();
@@ -352,7 +369,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   };
 
   const handleLoad = () => {
-    // Reset loading state when image loads successfully
+    // Always reset loading state when any image loads successfully
     setIsLoading(false);
 
     // Don't cache or log success for fallback images
@@ -364,9 +381,10 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
     if (isFallbackImage) {
       console.log(
-        `⚠️ [LazyImage] Fallback image loaded, not caching: ${imageSrc}`,
+        `✅ [LazyImage] Fallback image loaded successfully: ${imageSrc}`,
       );
       setHasError(false); // Ensure hasError is false if a fallback loads
+      setRetryCount(999); // Prevent further attempts
       onLoad?.();
       return;
     }

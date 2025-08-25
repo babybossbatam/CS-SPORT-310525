@@ -2775,21 +2775,27 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 className="home-team-logo-container"
                                 style={{ padding: "0 0.6rem" }}
                               >
-                                <MyWorldTeamLogo
-                                  teamName={fixture.teams.home.name || ""}
-                                  teamId={fixture.teams.home.id}
-                                  teamLogo={
+                                <LazyImage
+                                  src={
                                     fixture.teams.home.logo ||
-                                    `https://media.api.sports.io/football/teams/${fixture.teams.home.id}.png`
+                                    `https://media.api.sports.io/football/teams/${fixture.teams.home.id}.png` ||
+                                    "/assets/matchdetaillogo/fallback.png"
                                   }
                                   alt={`${fixture.teams.home.name} logo`}
-                                  size="32px"
                                   className="w-8 h-8 object-contain"
+                                  style={{
+                                    width: "32px",
+                                    height: "32px"
+                                  }}
+                                  useTeamLogo={true}
+                                  teamId={fixture.teams.home.id}
+                                  teamName={fixture.teams.home.name || ""}
+                                  teamLogo={fixture.teams.home.logo}
                                   leagueContext={{
                                     name: league.name,
                                     country: league.country
                                   }}
-                                  skipInitialProcessing={false}
+                                  loading="lazy"
                                 />
                               </div>
 
@@ -2984,21 +2990,27 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 className="away-team-logo-container"
                                 style={{ padding: "0 0.5rem" }}
                               >
-                                <MyWorldTeamLogo
-                                  teamName={fixture.teams.away.name || ""}
-                                  teamId={fixture.teams.away.id}
-                                  teamLogo={
+                                <LazyImage
+                                  src={
                                     fixture.teams.away.logo ||
-                                    `https://media.api.sports.io/football/teams/${fixture.teams.away.id}.png`
+                                    `https://media.api.sports.io/football/teams/${fixture.teams.away.id}.png` ||
+                                    "/assets/matchdetaillogo/fallback.png"
                                   }
                                   alt={`${fixture.teams.away.name} logo`}
-                                  size="32px"
                                   className="w-8 h-8 object-contain"
+                                  style={{
+                                    width: "32px",
+                                    height: "32px"
+                                  }}
+                                  useTeamLogo={true}
+                                  teamId={fixture.teams.away.id}
+                                  teamName={fixture.teams.away.name || ""}
+                                  teamLogo={fixture.teams.away.logo}
                                   leagueContext={{
                                     name: league.name,
                                     country: league.country
                                   }}
-                                  skipInitialProcessing={false}
+                                  loading="lazy"
                                 />
                               </div>
 
