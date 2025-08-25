@@ -232,7 +232,6 @@
     0 8px 16px rgba(0, 0, 0, 0.3),
     0 4px 8px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(0, 0, 0, 0.1) 100%);
   transform: translateZ(0);
   transition: all 0.3s ease;
 }
@@ -1023,4 +1022,29 @@ table .popular-leagues-size,
     min-width: 20px !important;
     min-height: 20px !important;
   }
+}
+
+/* Team logo positioning and styling optimizations */
+
+/* Logo loading performance optimizations */
+.popular-leagues-size {
+  will-change: auto;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: optimizeQuality;
+}
+
+/* Preload team logos in viewport */
+.match-card-container img {
+  loading: eager;
+  decoding: async;
+}
+
+/* Ensure logo containers maintain size during loading */
+.home-team-logo-container,
+.away-team-logo-container {
+  min-width: 32px;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

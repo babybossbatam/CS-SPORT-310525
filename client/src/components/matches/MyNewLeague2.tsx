@@ -1962,6 +1962,54 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     );
   }
 
+  // Helper function to get enhanced team logo URL
+  const getEnhancedTeamLogo = (
+    team: { id: number; logo: string },
+    sport: string,
+  ): string => {
+    if (team.logo) {
+      return team.logo;
+    }
+    // Fallback to a dynamic API URL for square logos
+    return `/api/team-logo/square/${team.id}?size=32&sport=${sport}`;
+  };
+
+  // Logo preloading hook
+  const useLogoPreloading = (fixtures: FixtureData[]) => {
+    useEffect(() => {
+      if (!fixtures || fixtures.length === 0) return;
+
+      // Preload team logos for better performance
+      const preloadPromises = fixtures.slice(0, 10).map(async (fixture) => {
+        try {
+          // Preload home team logo
+          if (fixture.teams.home.logo) {
+            const img = new Image();
+            img.src = fixture.teams.home.logo;
+          }
+          // Preload away team logo
+          if (fixture.teams.away.logo) {
+            const img = new Image();
+            img.src = fixture.teams.away.logo;
+          }
+        } catch (error) {
+          // Silently handle preload errors
+        }
+      });
+
+      Promise.allSettled(preloadPromises);
+    }, [fixtures]);
+  };
+
+  // Use logo preloading for visible fixtures
+  const visibleFixtures = useMemo(() => {
+    return Object.values(fixturesByLeague)
+      .flatMap((group) => group.fixtures)
+      .slice(0, 20); // Only preload first 20 matches
+  }, [fixturesByLeague]);
+
+  useLogoPreloading(visibleFixtures);
+
   return (
     <>
       {/* Header Section */}
@@ -2777,19 +2825,16 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                               >
                                 <MyWorldTeamLogo
                                   teamName={fixture.teams.home.name || ""}
-                                  teamId={fixture.teams.home.id}
-                                  teamLogo={
-                                    fixture.teams.home.logo ||
-                                    `https://media.api.sports.io/football/teams/${fixture.teams.home.id}.png`
-                                  }
+                                  teamLogo={getEnhancedTeamLogo(
+                                    fixture.teams.home,
+                                    "football",
+                                  )}
                                   alt={`${fixture.teams.home.name} logo`}
                                   size="32px"
-                                  className="w-8 h-8 object-contain"
-                                  leagueContext={{
-                                    name: league.name,
-                                    country: league.country
-                                  }}
-                                  skipInitialProcessing={false}
+                                  className="popular-leagues-size"
+                                  leagueContext={leagueContext}
+                                  teamId={fixture.teams.home.id}
+                                  skipInitialProcessing={true}
                                 />
                               </div>
 
@@ -2986,19 +3031,16 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                               >
                                 <MyWorldTeamLogo
                                   teamName={fixture.teams.away.name || ""}
-                                  teamId={fixture.teams.away.id}
-                                  teamLogo={
-                                    fixture.teams.away.logo ||
-                                    `https://media.api.sports.io/football/teams/${fixture.teams.away.id}.png`
-                                  }
+                                  teamLogo={getEnhancedTeamLogo(
+                                    fixture.teams.away,
+                                    "football",
+                                  )}
                                   alt={`${fixture.teams.away.name} logo`}
                                   size="32px"
-                                  className="w-8 h-8 object-contain"
-                                  leagueContext={{
-                                    name: league.name,
-                                    country: league.country
-                                  }}
-                                  skipInitialProcessing={false}
+                                  className="popular-leagues-size"
+                                  leagueContext={leagueContext}
+                                  teamId={fixture.teams.away.id}
+                                  skipInitialProcessing={true}
                                 />
                               </div>
 
