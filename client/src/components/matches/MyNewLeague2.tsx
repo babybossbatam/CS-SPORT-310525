@@ -1135,8 +1135,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         fixtureId: fixture.fixture.id,
         teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
         league: fixture.league.name,
-        fixtureLocalDate: matchLocalDate,
-        selectedLocalDate,
+        fixtureUTCDate: fixtureUTCDate,
+        selectedUTCDate,
         matchupKey,
       });
     });
