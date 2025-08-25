@@ -1767,20 +1767,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 );
                 return false;
               }
-              // CRITICAL: Filter out stale "Starting now" matches, but be more permissive for today
+              // CRITICAL: Filter out stale "Starting now" matches
               const status = fixture.fixture.status.short;
               const matchDate = new Date(fixture.fixture.date);
               const minutesFromKickoff =
                 (now.getTime() - matchDate.getTime()) / (1000 * 60);
-              const isToday = format(matchDate, 'yyyy-MM-dd') === format(now, 'yyyy-MM-dd');
 
               // Remove matches that show "NS" (Not Started) but are significantly past kickoff time
-              // Be more lenient for today's matches (6 hours vs 2 hours)
-              const staleThreshold = isToday ? 360 : 120; // 6 hours for today, 2 hours for other days
-              
-              if (status === "NS" && minutesFromKickoff > staleThreshold) {
+              if (status === "NS" && minutesFromKickoff > 120) {
                 console.log(
-                  `🚫 [STALE MATCH EXCLUSION] Removing stale "Starting now" match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(minutesFromKickoff)} min past kickoff, threshold: ${staleThreshold}min, isToday: ${isToday})`,
+                  `🚫 [STALE MATCH EXCLUSION] Removing stale "Starting now" match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(minutesFromKickoff)} min past kickoff)`,
                 );
                 return false;
               }
@@ -1945,93 +1941,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             matches: fixturesForDay,
           });
         }
-
-        // Create a flattened array prioritizing today's matches for the first 3 slides
-        const todayDateString = format(today, 'yyyy-MM-dd');
-        console.log(`🎯 [MyHomeFeaturedMatchNew] Looking for today's matches: ${todayDateString}`);
-        
-        // Log all available dates for debugging
-        allMatches.forEach(dayData => {
-          console.log(`📅 [MyHomeFeaturedMatchNew] Available date: ${dayData.date} (${dayData.label}) - ${dayData.matches.length} matches`);
-        });
-        
-        const todayMatches = allMatches.find(dayData => dayData.date === todayDateString)?.matches || [];
-        console.log(`🎯 [MyHomeFeaturedMatchNew] Found ${todayMatches.length} matches for today (${todayDateString})`);
-        
-        const otherMatches = allMatches.filter(dayData => dayData.date !== todayDateString)
-          .reduce((acc, dayData) => [...acc, ...dayData.matches], [] as FeaturedMatch[]);
-
-        // If we have no today's matches, let's be more permissive and look for any NS/TBD matches from today
-        let enhancedTodayMatches = [...todayMatches];
-        if (enhancedTodayMatches.length === 0) {
-          console.log(`🔍 [MyHomeFeaturedMatchNew] No today matches found, searching across all fixtures for today's NS matches`);
-          
-          // Search through all collected fixtures for today's matches that might have been filtered out
-          const allTodayFixtures = allFixtures.filter(fixture => {
-            const matchDate = new Date(fixture.fixture.date);
-            const matchDateString = format(matchDate, 'yyyy-MM-dd');
-            const isToday = matchDateString === todayDateString;
-            const isUpcoming = ['NS', 'TBD', 'PST'].includes(fixture.fixture.status.short);
-            
-            if (isToday && isUpcoming) {
-              console.log(`✅ [MyHomeFeaturedMatchNew] Found today's upcoming match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${fixture.fixture.status.short})`);
-            }
-            
-            return isToday && isUpcoming;
-          });
-          
-          enhancedTodayMatches = allTodayFixtures.slice(0, 3); // Take up to 3 today's matches
-          console.log(`🎯 [MyHomeFeaturedMatchNew] Enhanced today matches: ${enhancedTodayMatches.length}`);
-        }
-
-        // Combine matches with today's matches prioritized
-        const prioritizedMatches = [...enhancedTodayMatches, ...otherMatches];
-
-        // Rebuild allMatches array with prioritized order but maintain day structure
-        const finalAllMatches: DayMatches[] = [];
-        
-        // Take first 3 matches (prioritizing today's matches) and distribute back to day structure
-        const first3Matches = prioritizedMatches.slice(0, 3);
-        const remainingMatches = prioritizedMatches.slice(3);
-
-        // Ensure today's matches appear in the first 3 slides
-        first3Matches.forEach((match, index) => {
-          const matchDate = new Date(match.fixture.date);
-          const matchDateString = format(matchDate, 'yyyy-MM-dd');
-          const dayLabel = dates.find(d => d.date === matchDateString)?.label || 'Match Day';
-          
-          finalAllMatches.push({
-            date: matchDateString,
-            label: dayLabel,
-            matches: [match]
-          });
-        });
-
-        // Group remaining matches by their original dates
-        const remainingByDate: { [key: string]: FeaturedMatch[] } = {};
-        remainingMatches.forEach(match => {
-          const matchDate = new Date(match.fixture.date);
-          const matchDateString = format(matchDate, 'yyyy-MM-dd');
-          if (!remainingByDate[matchDateString]) {
-            remainingByDate[matchDateString] = [];
-          }
-          remainingByDate[matchDateString].push(match);
-        });
-
-        // Add remaining matches grouped by date
-        Object.entries(remainingByDate).forEach(([dateString, matches]) => {
-          const dayLabel = dates.find(d => d.date === dateString)?.label || 'Match Day';
-          
-          finalAllMatches.push({
-            date: dateString,
-            label: dayLabel,
-            matches: matches
-          });
-        });
-
-        // Update allMatches to use the prioritized structure
-        allMatches.length = 0;
-        allMatches.push(...finalAllMatches);
 
         // Preload round data for all unique leagues to prevent loading delays
         const uniqueLeagueIds = new Set<number>();
