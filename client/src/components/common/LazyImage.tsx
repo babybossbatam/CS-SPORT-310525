@@ -314,13 +314,30 @@ const LazyImage: React.FC<LazyImageProps> = ({
         return;
       }
 
+      // Try alternative API endpoint for team logos if teamId is available
+      if (teamId && retryCount < 2 && !imageSrc.includes('/api/team-logo/')) {
+        console.log(`🔄 [LazyImage] Trying API team logo endpoint for ${teamName} (ID: ${teamId})`);
+        setImageSrc(`/api/team-logo/square/${teamId}?size=32`);
+        setRetryCount(retryCount + 1);
+        setIsLoading(true);
+        return;
+      }
+
       // Final fallback if all attempts fail
       console.warn(
         `🚫 [LazyImage] All retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
+        {
+          originalSrc: src,
+          currentSrc: imageSrc,
+          teamInfo: { teamId, teamName },
+          retryCount,
+          alt,
+          timestamp: new Date().toISOString()
+        }
       );
       setHasError(true);
       setImageSrc(fallbackUrl);
-      setIsLoading(true); // Keep loading true until fallback is rendered
+      setIsLoading(false); // Set loading to false for fallback
 
       // Call onError callback only after setting fallback
       onError?.();
