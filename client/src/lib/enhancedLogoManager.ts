@@ -33,84 +33,121 @@ class EnhancedLogoManager {
     const sport = request.sport || 'football';
     const cacheKey = `team-${sport}-${request.teamId}-${request.shape}`;
 
-    try {
-      // Check cache first
-      const cached = this.logoCache.get(cacheKey);
-      const now = Date.now();
+    // Timeout configuration
+    const timeoutDuration = 5000; // 5 seconds timeout
 
-      if (cached && (now - cached.timestamp) < this.cacheDuration) {
+    const logoPromise = (async () => {
+      try {
+        // Check cache first
+        const cached = this.logoCache.get(cacheKey);
+        const now = Date.now();
+
+        if (cached && (now - cached.timestamp) < this.cacheDuration) {
+          const loadTime = Date.now() - startTime;
+
+          logLogo(componentName, {
+            type: 'team',
+            shape: request.shape,
+            teamId: request.teamId,
+            url: cached.url,
+            fallbackUsed: cached.fallbackUsed,
+            loadTime
+          });
+
+          return {
+            url: cached.url,
+            fallbackUsed: cached.fallbackUsed,
+            loadTime,
+            cached: true
+          };
+        }
+
+        // Get logo URL
+        let logoUrl: string;
+        let fallbackUsed = false;
+
+        if (request.shape === 'circular') {
+          // For circular logos, check if it's a national team first
+          const isNational = request.teamName ? isNationalTeam(
+            { id: request.teamId, name: request.teamName },
+            null
+          ) : false;
+
+          if (isNational) {
+            logoUrl = `/api/team-logo/circular/${request.teamId}?size=32&sport=${sport}`;
+          } else {
+            logoUrl = `/api/team-logo/square/${request.teamId}?size=32&sport=${sport}`;
+          }
+        } else {
+          // Normal team logo with sport parameter
+          logoUrl = getCachedTeamLogo(request.teamId, sport) || `/api/team-logo/square/${request.teamId}?size=64&sport=${sport}`;
+        }
+
+        if (!logoUrl || logoUrl.includes('fallback') || logoUrl.includes('placeholder.com') || logoUrl.includes('placeholder')) {
+          logoUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
+          fallbackUsed = true;
+        }
+
+        // Cache the result
+        this.logoCache.set(cacheKey, {
+          url: logoUrl,
+          timestamp: now,
+          fallbackUsed
+        });
+
         const loadTime = Date.now() - startTime;
 
         logLogo(componentName, {
           type: 'team',
           shape: request.shape,
           teamId: request.teamId,
-          url: cached.url,
-          fallbackUsed: cached.fallbackUsed,
+          url: logoUrl,
+          fallbackUsed,
           loadTime
         });
 
         return {
-          url: cached.url,
-          fallbackUsed: cached.fallbackUsed,
+          url: logoUrl,
+          fallbackUsed,
           loadTime,
-          cached: true
+          cached: false
+        };
+      } catch (error) {
+        const loadTime = Date.now() - startTime;
+        const fallbackUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
+
+        logLogo(componentName, {
+          type: 'team',
+          shape: request.shape,
+          teamId: request.teamId,
+          url: fallbackUrl,
+          fallbackUsed: true,
+          loadTime
+        });
+
+        return {
+          url: fallbackUrl,
+          fallbackUsed: true,
+          loadTime,
+          cached: false
         };
       }
+    })();
 
-      // Get logo URL
-      let logoUrl: string;
-      let fallbackUsed = false;
+    const timeoutPromise = new Promise<LogoResponse>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error(`Timeout after ${timeoutDuration / 1000} seconds`));
+      }, timeoutDuration);
+    });
 
-      if (request.shape === 'circular') {
-        // For circular logos, check if it's a national team first
-        const isNational = request.teamName ? isNationalTeam(
-          { id: request.teamId, name: request.teamName },
-          null
-        ) : false;
-
-        if (isNational) {
-          logoUrl = `/api/team-logo/circular/${request.teamId}?size=32&sport=${sport}`;
-        } else {
-          logoUrl = `/api/team-logo/square/${request.teamId}?size=32&sport=${sport}`;
-        }
-      } else {
-        // Normal team logo with sport parameter
-        logoUrl = getCachedTeamLogo(request.teamId, sport) || `/api/team-logo/square/${request.teamId}?size=64&sport=${sport}`;
-      }
-
-      if (!logoUrl || logoUrl.includes('fallback') || logoUrl.includes('placeholder.com') || logoUrl.includes('placeholder')) {
-        logoUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
-        fallbackUsed = true;
-      }
-
-      // Cache the result
-      this.logoCache.set(cacheKey, {
-        url: logoUrl,
-        timestamp: now,
-        fallbackUsed
-      });
-
-      const loadTime = Date.now() - startTime;
-
-      logLogo(componentName, {
-        type: 'team',
-        shape: request.shape,
-        teamId: request.teamId,
-        url: logoUrl,
-        fallbackUsed,
-        loadTime
-      });
-
-      return {
-        url: logoUrl,
-        fallbackUsed,
-        loadTime,
-        cached: false
-      };
+    try {
+      return await Promise.race([logoPromise, timeoutPromise]);
     } catch (error) {
+      // Handle timeout or other errors
       const loadTime = Date.now() - startTime;
       const fallbackUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
+
+      console.warn(`⏰ [EnhancedLogoManager] Team ${request.teamId} logo timeout or error, using fallback`);
 
       logLogo(componentName, {
         type: 'team',
@@ -118,7 +155,8 @@ class EnhancedLogoManager {
         teamId: request.teamId,
         url: fallbackUrl,
         fallbackUsed: true,
-        loadTime
+        loadTime,
+        error: error?.message || 'Timeout or Unknown error'
       });
 
       return {
@@ -443,7 +481,7 @@ class EnhancedLogoManager {
   }
 
   // Force refresh league logo
-  async forceRefreshLeagueLogo(leagueId: number, componentName: string = 'ForceRefresh'): Promise<LogoResponse> {
+  async forceRefreshLeagueLogo(leagueId: number, componentName = 'ForceRefresh'): Promise<LogoResponse> {
     this.clearLeagueCache(leagueId);
     return await this.getLeagueLogo(componentName, {
       type: 'league',
@@ -480,7 +518,7 @@ if (typeof window !== 'undefined') {
   const originalHandler = window.onunhandledrejection;
   window.onunhandledrejection = (event) => {
     // Handle timeout errors specifically from logo fetching
-    if (event.reason?.message?.includes('Timeout after') && 
+    if (event.reason?.message?.includes('Timeout after') &&
         event.reason?.message?.includes('seconds')) {
       console.warn('🔇 [EnhancedLogoManager] Suppressed unhandled timeout rejection:', event.reason.message);
       event.preventDefault(); // Prevent the error from propagating
@@ -526,7 +564,7 @@ if (typeof window !== 'undefined') {
             controller.abort('Timeout after 5 seconds');
           }, 5000); // 5 second timeout
 
-          const response = await fetch(source, { 
+          const response = await fetch(source, {
             method: 'HEAD',
             signal: controller.signal
           });

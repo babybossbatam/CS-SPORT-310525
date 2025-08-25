@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useDeviceInfo } from "@/hooks/use-mobile";
 import MyWorldTeamLogo from "./MyWorldTeamLogo";
+import { logoPreloader } from "@/lib/logoPreloader";
 
 interface LazyImageProps {
   src: string;
@@ -134,9 +135,19 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   useEffect(() => {
     const immediateSource = getImmediateSource(src, alt);
-    setImageSrc(immediateSource);
-    setHasError(false);
-    setRetryCount(0);
+    
+    // Check if logo is preloaded for instant display
+    if (logoPreloader.isLogoPreloaded(immediateSource)) {
+      console.log(`⚡ [LazyImage] Using preloaded logo for ${alt}`);
+      setImageSrc(immediateSource);
+      setHasError(false);
+      setRetryCount(0);
+      setIsLoading(false); // Preloaded logos load instantly
+    } else {
+      setImageSrc(immediateSource);
+      setHasError(false);
+      setRetryCount(0);
+    }
   }, [src, alt, darkMode]); // Add darkMode to trigger re-evaluation when theme changes
 
   const handleError = () => {
@@ -152,8 +163,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
         timestamp: new Date().toISOString()
       });
 
-      // Prevent infinite retry loops but give more attempts for team logos
-      const maxRetries = useTeamLogo && teamId ? 4 : 3; // More retries for team logos
+      // Reduced retries for faster fallback - prioritize speed over exhaustive attempts
+      const maxRetries = useTeamLogo && teamId ? 2 : 1; // Fewer retries for faster loading
       if (retryCount >= maxRetries) {
         console.warn(`🚨 [LazyImage] Max retries (${maxRetries}) reached for ${alt}, using fallback immediately`);
         setImageSrc(fallbackUrl);
@@ -340,27 +351,25 @@ const LazyImage: React.FC<LazyImageProps> = ({
         return;
       }
 
-      // Final fallback if all attempts fail - add a small delay to prevent premature fallbacks
-      setTimeout(() => {
-        console.warn(
-          `🚫 [LazyImage] All retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
-          {
-            originalSrc: src,
-            currentSrc: imageSrc,
-            teamInfo: { teamId, teamName },
-            retryCount,
-            alt,
-            timestamp: new Date().toISOString()
-          }
-        );
-        setHasError(true);
-        setImageSrc(fallbackUrl);
-        setIsLoading(false); // Ensure loading stops for fallback
-        setRetryCount(999); // Prevent further retries
+      // Final fallback if all attempts fail - immediate fallback for faster loading
+      console.warn(
+        `🚫 [LazyImage] All retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
+        {
+          originalSrc: src,
+          currentSrc: imageSrc,
+          teamInfo: { teamId, teamName },
+          retryCount,
+          alt,
+          timestamp: new Date().toISOString()
+        }
+      );
+      setHasError(true);
+      setImageSrc(fallbackUrl);
+      setIsLoading(false); // Ensure loading stops for fallback
+      setRetryCount(999); // Prevent further retries
 
-        // Call onError callback only after setting fallback
-        onError?.();
-      }, 100); // 100ms delay to allow any pending load to complete
+      // Call onError callback only after setting fallback
+      onError?.();
 
     } catch (error) {
       console.warn("⚠️ [LazyImage] Error in handleError function:", error);

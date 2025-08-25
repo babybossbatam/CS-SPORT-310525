@@ -8,8 +8,8 @@ import LazyImage from './LazyImage';
 // Global in-memory cache for immediate logo sharing between components
 const globalLogoCache = new Map<string, { url: string; timestamp: number; verified: boolean }>();
 
-// Cache duration: 30 minutes for active session sharing
-const GLOBAL_CACHE_DURATION = 30 * 60 * 1000;
+// Cache duration: 15 minutes for faster updates
+const GLOBAL_CACHE_DURATION = 15 * 60 * 1000;
 
 interface MyWorldTeamLogoProps {
   teamName: string;
