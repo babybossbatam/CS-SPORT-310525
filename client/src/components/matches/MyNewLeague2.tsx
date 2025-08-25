@@ -1043,8 +1043,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       },
     );
 
-    if (!allFixtures?.length) {
-      console.log(`❌ [MyNewLeague2] No fixtures available`);
+    if (!allFixtures || !Array.isArray(allFixtures) || allFixtures.length === 0) {
+      console.log(`❌ [MyNewLeague2] No fixtures available or allFixtures is not ready`);
       return {};
     }
 
@@ -1733,7 +1733,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     cachedData && Array.isArray(cachedData) && cachedData.length > 0;
 
   // Show loading with better error handling - simplified condition
-  if (isLoading && Object.keys(fixturesByLeague).length === 0) {
+  if (isLoading && (!allFixtures || allFixtures.length === 0) && Object.keys(fixturesByLeague).length === 0) {
     return (
       <>
         {/* Header Section */}
