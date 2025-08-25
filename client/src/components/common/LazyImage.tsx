@@ -152,9 +152,10 @@ const LazyImage: React.FC<LazyImageProps> = ({
         timestamp: new Date().toISOString()
       });
 
-      // Prevent infinite retry loops
-      if (retryCount >= 3) {
-        console.warn(`🚨 [LazyImage] Max retries reached for ${alt}, using fallback immediately`);
+      // Prevent infinite retry loops but give more attempts for team logos
+      const maxRetries = useTeamLogo && teamId ? 4 : 3; // More retries for team logos
+      if (retryCount >= maxRetries) {
+        console.warn(`🚨 [LazyImage] Max retries (${maxRetries}) reached for ${alt}, using fallback immediately`);
         setImageSrc(fallbackUrl);
         setHasError(true);
         setIsLoading(false); // Ensure loading stops
@@ -339,25 +340,27 @@ const LazyImage: React.FC<LazyImageProps> = ({
         return;
       }
 
-      // Final fallback if all attempts fail
-      console.warn(
-        `🚫 [LazyImage] All retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
-        {
-          originalSrc: src,
-          currentSrc: imageSrc,
-          teamInfo: { teamId, teamName },
-          retryCount,
-          alt,
-          timestamp: new Date().toISOString()
-        }
-      );
-      setHasError(true);
-      setImageSrc(fallbackUrl);
-      setIsLoading(false); // Ensure loading stops for fallback
-      setRetryCount(999); // Prevent further retries
+      // Final fallback if all attempts fail - add a small delay to prevent premature fallbacks
+      setTimeout(() => {
+        console.warn(
+          `🚫 [LazyImage] All retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
+          {
+            originalSrc: src,
+            currentSrc: imageSrc,
+            teamInfo: { teamId, teamName },
+            retryCount,
+            alt,
+            timestamp: new Date().toISOString()
+          }
+        );
+        setHasError(true);
+        setImageSrc(fallbackUrl);
+        setIsLoading(false); // Ensure loading stops for fallback
+        setRetryCount(999); // Prevent further retries
 
-      // Call onError callback only after setting fallback
-      onError?.();
+        // Call onError callback only after setting fallback
+        onError?.();
+      }, 100); // 100ms delay to allow any pending load to complete
 
     } catch (error) {
       console.warn("⚠️ [LazyImage] Error in handleError function:", error);
@@ -388,6 +391,10 @@ const LazyImage: React.FC<LazyImageProps> = ({
       onLoad?.();
       return;
     }
+
+    // Log successful real logo loads
+    console.log(`✅ [LazyImage] Real logo loaded successfully: ${imageSrc} for ${alt}`);
+    setHasError(false); // Ensure hasError is false on successful load
 
     // Check for local asset success and don't cache them again
     const isLocalAsset =
@@ -584,10 +591,10 @@ const LazyImage: React.FC<LazyImageProps> = ({
         ...style,
         border: 'none',
         outline: 'none',
-        // Hide image if there's an error AND it's not the fallback URL already
-        display: hasError && imageSrc !== fallbackUrl ? 'none' : 'block',
-        opacity: isLoading ? 0.7 : 1,
-        transition: 'opacity 0.2s ease-in-out',
+        // Only hide if there's an error AND we're not showing fallback AND not currently loading
+        display: hasError && imageSrc !== fallbackUrl && !isLoading ? 'none' : 'block',
+        opacity: isLoading && !imageSrc.includes('fallback') ? 0.8 : 1, // Show fallback immediately
+        transition: 'opacity 0.3s ease-in-out',
         filter: darkMode ? 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))' : 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.8))',
         // Apply size from props if no explicit width/height in style
         ...(style?.width || style?.height ? {} : {
