@@ -27,11 +27,8 @@ import { useTranslation, useLanguage } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
 import { RoundBadge } from "@/components/ui/round-badge";
-import { isNationalTeam } from "../../lib/teamLogoSources";
-import {
-  getBestTeamLogoUrl,
-  createTeamLogoErrorHandler,
-} from "../../lib/teamLogoUtils";
+import { isNationalTeam } from '../../lib/teamLogoSources';
+import { getBestTeamLogoUrl, createTeamLogoErrorHandler } from '../../lib/teamLogoUtils';
 
 // Import popular teams data from the same source as PopularTeamsList
 const POPULAR_TEAMS_DATA = [
@@ -217,72 +214,13 @@ const FEATURED_MATCH_LEAGUE_IDS = [
 
 // Explicitly excluded leagues
 const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [
-  848,
-  169,
-  940,
-  85,
-  80,
-  84,
-  87,
-  86,
-  41,
-  772,
-  62,
-  931,
-  703,
-  59,
-  60,
-  74,
-  81,
-  488,
-  137,
-  58,
-  57,
-  742,
-  56,
-  55,
-  54,
-  705,
-  42,
+  848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62, 931, 703, 59, 60, 74, 81, 488, 137, 58, 57, 742, 56, 55, 54, 705, 42,
   // Italian Campionato leagues (youth competitions)
-  505,
-  506,
-  507,
-  508,
-  509,
-  510,
-  511,
-  512,
-  513,
-  514,
-  515,
-  516,
-  517,
-  518,
-  519,
-  520,
-  521,
-  522,
-  523,
-  524,
-  138,
+  505, 506, 507, 508, 509, 510, 511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 138,
   // Additional League Two variations and lower divisions
-  46,
-  47,
-  48,
-  49,
-  50,
-  51,
-  52,
-  53,
-  54,
-  55,
-  56,
-  57, // Additional English lower league IDs
+  46, 47, 48, 49, 50, 51, 52, 53, // Additional English lower league IDs
 ]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2, Non League Premier - Southern Central, League 703, League 59, League 60, Campionato Primavera - 1, DFB Cup, League 488, Italian Cup, Spring Championship leagues, additional Italian youth leagues, Italian Campionato leagues, League Two and additional lower divisions, League 705, League 42
-const PRIORITY_LEAGUE_IDS = [
-  39, 140, 61, 147, 2, 15, 137, 135, 826, 38, 22, 45, 550, 531,
-]; // UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531
+const PRIORITY_LEAGUE_IDS = [39, 140, 61, 147, 2, 15, 826, 38, 22, 45, 550, 531]; // UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531
 
 interface FeaturedMatch {
   fixture: {
@@ -388,15 +326,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [isProgressiveLoading, setIsProgressiveLoading] = useState(false);
   const [loadedMatchCount, setLoadedMatchCount] = useState(0);
   const [initialSlidesLoaded, setInitialSlidesLoaded] = useState(false);
-  const [backgroundLoadingComplete, setBackgroundLoadingComplete] =
-    useState(false);
+  const [backgroundLoadingComplete, setBackgroundLoadingComplete] = useState(false);
   const [selectedDay, setSelectedDay] = useState(0);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [countdownTimer, setCountdownTimer] = useState<string>("Loading...");
   const [roundsCache, setRoundsCache] = useState<Record<string, string[]>>({});
-  const [preloadedRounds, setPreloadedRounds] = useState<
-    Record<string, string[]>
-  >({});
+  const [preloadedRounds, setPreloadedRounds] = useState<Record<string, string[]>>({});
   const [lastFetchTime, setLastFetchTime] = useState<number>(0);
   const [fetchingRef] = useState({ current: false }); // Prevent duplicate fetches
 
@@ -547,8 +482,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Memoized expensive calculations
   const memoizedMatchAnalysis = useMemo(() => {
-    if (featuredMatches.length === 0)
-      return { needsRefresh: false, refreshInterval: 300000 };
+    if (featuredMatches.length === 0) return { needsRefresh: false, refreshInterval: 300000 };
 
     const now = new Date();
     let hasLiveMatches = false;
@@ -559,20 +493,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       dayData.matches.forEach((match) => {
         const status = match.fixture.status.short;
         const matchDate = new Date(match.fixture.date);
-        const minutesFromKickoff =
-          (now.getTime() - matchDate.getTime()) / (1000 * 60);
+        const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
 
-        if (
-          ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
-        ) {
+        if (["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
           hasLiveMatches = true;
         } else if (status === "NS" && Math.abs(minutesFromKickoff) <= 30) {
           hasImminentMatches = true;
-        } else if (
-          status === "NS" &&
-          minutesFromKickoff > 30 &&
-          minutesFromKickoff < 180
-        ) {
+        } else if (status === "NS" && minutesFromKickoff > 30 && minutesFromKickoff < 180) {
           hasStaleMatches = true;
         }
       });
@@ -593,41 +520,28 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       needsRefresh = true;
     }
 
-    return {
-      needsRefresh,
-      refreshInterval,
-      hasLiveMatches,
-      hasImminentMatches,
-      hasStaleMatches,
-    };
+    return { needsRefresh, refreshInterval, hasLiveMatches, hasImminentMatches, hasStaleMatches };
   }, [featuredMatches]);
 
   // Early return check to prevent duplicate operations
-  const shouldFetch = useCallback(
-    (forceRefresh: boolean) => {
-      const now = Date.now();
-      const timeSinceLastFetch = now - lastFetchTime;
+  const shouldFetch = useCallback((forceRefresh: boolean) => {
+    const now = Date.now();
+    const timeSinceLastFetch = now - lastFetchTime;
 
-      // Prevent duplicate fetches within 10 seconds unless forced
-      if (!forceRefresh && timeSinceLastFetch < 10000) {
-        console.log(
-          `⏸️ [MyHomeFeaturedMatchNew] Skipping fetch - too recent (${Math.round(timeSinceLastFetch / 1000)}s ago)`,
-        );
-        return false;
-      }
+    // Prevent duplicate fetches within 10 seconds unless forced
+    if (!forceRefresh && timeSinceLastFetch < 10000) {
+      console.log(`⏸️ [MyHomeFeaturedMatchNew] Skipping fetch - too recent (${Math.round(timeSinceLastFetch / 1000)}s ago)`);
+      return false;
+    }
 
-      // Prevent concurrent fetches
-      if (fetchingRef.current && !forceRefresh) {
-        console.log(
-          `⏸️ [MyHomeFeaturedMatchNew] Skipping fetch - already in progress`,
-        );
-        return false;
-      }
+    // Prevent concurrent fetches
+    if (fetchingRef.current && !forceRefresh) {
+      console.log(`⏸️ [MyHomeFeaturedMatchNew] Skipping fetch - already in progress`);
+      return false;
+    }
 
-      return true;
-    },
-    [lastFetchTime],
-  );
+    return true;
+  }, [lastFetchTime]);
 
   const fetchFeaturedMatches = useCallback(
     async (forceRefresh = false, progressiveLoad = false) => {
@@ -642,10 +556,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         setLastFetchTime(Date.now());
 
         // Progressive loading: show loading only for initial load
-        if (
-          !progressiveLoad &&
-          (forceRefresh || featuredMatches.length === 0)
-        ) {
+        if (!progressiveLoad && (forceRefresh || featuredMatches.length === 0)) {
           setIsLoading(true);
         } else if (progressiveLoad) {
           setIsProgressiveLoading(true);
@@ -895,7 +806,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             .filter((fixture: any) => {
               // Must have valid teams and NOT be live (since we already fetched live matches)
               const hasValidTeams = isValidMatch(fixture);
-              const isNotLive = !isLiveMatch(fixture.fixture.status.short);
+              const isNotLive = !isLiveMatch(
+                fixture.fixture.status.short,
+              );
 
               // CRITICAL: Exclude matches that ended more than 2 hours ago
               const isOldEnded = isMatchOldEnded(fixture);
@@ -932,12 +845,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               ].includes(status);
 
               // Exclude women's competitions and Oberliga leagues
-              const leagueName = fixture.league?.name?.toLowerCase() || "";
-              const country = fixture.league?.country?.toLowerCase() || "";
+              const leagueName =
+                fixture.league?.name?.toLowerCase() || "";
+              const country =
+                fixture.league?.country?.toLowerCase() || "";
 
               // EXPLICIT EXCLUSION: Check league ID against exclusion list
               const isExplicitlyExcluded =
-                EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league?.id);
+                EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(
+                  fixture.league?.id,
+                );
 
               if (isExplicitlyExcluded) {
                 console.log(
@@ -959,7 +876,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 leagueName.includes("regionalliga") ||
                 leagueName.includes("regional liga");
               const is3Liga =
-                leagueName.includes("3. liga") || leagueName.includes("3 liga");
+                leagueName.includes("3. liga") ||
+                leagueName.includes("3 liga");
 
               // Check for various types of conflicting data (excluding live matches)
               let hasConflictingData = false;
@@ -1240,7 +1158,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   // Must have valid teams, be from popular leagues, not priority leagues, and NOT be live
                   const hasValidTeams =
                     fixture.teams?.home?.name && fixture.teams?.away?.name;
-                  const isNotLive = !isLiveMatch(fixture.fixture.status.short);
+                  const isNotLive = !isLiveMatch(
+                    fixture.fixture.status.short,
+                  );
                   const isNotPriorityLeague = !priorityLeagueIds.includes(
                     fixture.league?.id,
                   );
@@ -1285,8 +1205,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   }
 
                   // Exclude women's competitions and Oberliga leagues
-                  const leagueName = fixture.league?.name?.toLowerCase() || "";
-                  const country = fixture.league?.country?.toLowerCase() || "";
+                  const leagueName =
+                    fixture.league?.name?.toLowerCase() || "";
+                  const country =
+                    fixture.league?.country?.toLowerCase() || "";
 
                   // Exclude women's competitions
                   const isWomensCompetition =
@@ -1439,7 +1361,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                   // Check explicit exclusion first
                   const isExplicitlyExcluded =
-                    EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league?.id);
+                    EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(
+                      fixture.league?.id,
+                    );
 
                   if (isExplicitlyExcluded) {
                     console.log(
@@ -1528,7 +1452,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       fixture.fixture.status.short,
                     );
                     const isNotDuplicate = !allFixtures.some(
-                      (existing) => existing.fixture.id === fixture.fixture.id,
+                      (existing) =>
+                        existing.fixture.id === fixture.fixture.id,
                     );
 
                     // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
@@ -2019,30 +1944,25 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // Preload round data for all unique leagues to prevent loading delays
         const uniqueLeagueIds = new Set<number>();
-        allMatches.forEach((dayData) => {
-          dayData.matches.forEach((match) => {
+        allMatches.forEach(dayData => {
+          dayData.matches.forEach(match => {
             uniqueLeagueIds.add(match.league.id);
           });
         });
 
         // Preload rounds for all leagues in parallel
-        const preloadPromises = Array.from(uniqueLeagueIds).map(
-          async (leagueId) => {
-            try {
-              const rounds = await fetchRoundsForLeague(leagueId, 2025);
-              return { leagueId, rounds };
-            } catch (error) {
-              console.warn(
-                `Failed to preload rounds for league ${leagueId}:`,
-                error,
-              );
-              return { leagueId, rounds: [] };
-            }
-          },
-        );
+        const preloadPromises = Array.from(uniqueLeagueIds).map(async (leagueId) => {
+          try {
+            const rounds = await fetchRoundsForLeague(leagueId, 2025);
+            return { leagueId, rounds };
+          } catch (error) {
+            console.warn(`Failed to preload rounds for league ${leagueId}:`, error);
+            return { leagueId, rounds: [] };
+          }
+        });
 
         // Execute preloading in background
-        Promise.all(preloadPromises).then((results) => {
+        Promise.all(preloadPromises).then(results => {
           const preloadedData: Record<string, string[]> = {};
           results.forEach(({ leagueId, rounds }) => {
             preloadedData[`${leagueId}-2025`] = rounds;
@@ -2057,9 +1977,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // Simple state update - show matches immediately
         setFeaturedMatches(allMatches);
-        console.log(
-          `✅ [MyHomeFeaturedMatchNew] Updated with ${allMatches.length} day groups`,
-        );
+        console.log(`✅ [MyHomeFeaturedMatchNew] Updated with ${allMatches.length} day groups`);
       } catch (error) {
         console.error("❌ [MyHomeFeaturedMatchNew] Error:", error);
       } finally {
@@ -2201,17 +2119,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
     // Log refresh strategy
     if (memoizedMatchAnalysis.hasLiveMatches) {
-      console.log(
-        `🔴 [MyHomeFeaturedMatchNew] Live matches - aggressive refresh (${memoizedMatchAnalysis.refreshInterval / 1000}s)`,
-      );
+      console.log(`🔴 [MyHomeFeaturedMatchNew] Live matches - aggressive refresh (${memoizedMatchAnalysis.refreshInterval / 1000}s)`);
     } else if (memoizedMatchAnalysis.hasStaleMatches) {
-      console.log(
-        `🟡 [MyHomeFeaturedMatchNew] Stale matches - moderate refresh (${memoizedMatchAnalysis.refreshInterval / 1000}s)`,
-      );
+      console.log(`🟡 [MyHomeFeaturedMatchNew] Stale matches - moderate refresh (${memoizedMatchAnalysis.refreshInterval / 1000}s)`);
     } else if (memoizedMatchAnalysis.hasImminentMatches) {
-      console.log(
-        `🟠 [MyHomeFeaturedMatchNew] Imminent matches - frequent refresh (${memoizedMatchAnalysis.refreshInterval / 1000}s)`,
-      );
+      console.log(`🟠 [MyHomeFeaturedMatchNew] Imminent matches - frequent refresh (${memoizedMatchAnalysis.refreshInterval / 1000}s)`);
     }
 
     return () => clearInterval(interval);
@@ -2773,9 +2685,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         currentRound={currentMatch.league?.round}
                         matchStatus={currentMatch.fixture.status.short}
                         className="ml-2"
-                        preloadedRounds={
-                          preloadedRounds[`${currentMatch.league.id}-2025`]
-                        }
+                        preloadedRounds={preloadedRounds[`${currentMatch.league.id}-2025`]}
                       />
                     </div>
 
@@ -3227,9 +3137,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                 currentMatch?.teams?.away?.logo ||
                                 "/assets/fallback.png"
                               }
-                              alt={
-                                currentMatch?.teams?.away?.name || "Away Team"
-                              }
+                              alt={currentMatch?.teams?.away?.name || "Away Team"}
                               size="70px"
                               className="w-full h-full object-contain"
                               leagueContext={{

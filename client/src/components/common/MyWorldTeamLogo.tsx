@@ -69,7 +69,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     }
     return teamLogo || "/assets/fallback.png";
   });
-
+  
   const [isLoading, setIsLoading] = useState<boolean>(() => {
     // Don't show loading if we have cached data
     if (teamId && teamName) {
@@ -81,7 +81,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     }
     return !skipInitialProcessing;
   });
-
+  
   const [hasError, setHasError] = useState<boolean>(false);
 
   // Memoized computation with caching for shouldUseCircularFlag
@@ -448,13 +448,13 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       try {
         // Resolve logo URL with proper async handling
         const resolvedUrl = await logoUrl;
-
+        
         if (isMounted && resolvedUrl) {
           console.log(`✅ [MyWorldTeamLogo] Logo resolved for ${teamName}: ${resolvedUrl}`);
           setImageSrc(resolvedUrl);
           setHasError(resolvedUrl.includes("/assets/fallback.png"));
           setIsLoading(false);
-
+          
           // Cache the successful result
           if (teamId && teamName && !resolvedUrl.includes("/assets/fallback.png")) {
             globalLogoCache.set(globalCacheKey, {
@@ -631,27 +631,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         title={teamName}
         className="team-logo"
         style={imageStyle}
-        onError={(e) => {
-        setIsLoading(false);
-        setHasError(true);
-
-        // Enhanced error handling with multiple fallbacks
-        const currentSrc = e.currentTarget.src;
-
-        if (currentSrc.includes('/api/team-logo/')) {
-          // Try original logo from fixture data
-          if (teamLogo && teamLogo !== currentSrc) {
-            setImageSrc(teamLogo);
-            return;
-          }
-        }
-
-        if (!currentSrc.includes('fallback-logo.svg')) {
-          setImageSrc('/assets/fallback-logo.svg');
-        }
-
-        handleImageError(e); // Call the original handleImageError for further processing
-      }}
+        onError={handleImageError}
         onLoad={handleLoad}
         loading="lazy"
         priority="medium"
