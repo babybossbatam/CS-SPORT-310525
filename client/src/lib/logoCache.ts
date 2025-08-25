@@ -19,10 +19,10 @@ interface LogoCacheConfig {
 }
 
 const DEFAULT_CONFIG: LogoCacheConfig = {
-  maxAge: 6 * 60 * 60 * 1000, // 6 hours (shorter cache for faster updates)
+  maxAge: 24 * 60 * 60 * 1000, // 24 hours
   maxSize: 1000, // Cache up to 1000 items
-  cleanupInterval: 30 * 60 * 1000, // Cleanup every 30 minutes
-  maxRetries: 2 // Reduced retries for faster fallback
+  cleanupInterval: 60 * 60 * 1000, // Cleanup every hour
+  maxRetries: 3
 };
 
 class LogoCache {
@@ -129,11 +129,11 @@ class LogoCache {
       return null;
     }
 
-    // Check expiration - shorter cache for fallbacks, moderate for valid logos
+    // Check expiration - shorter cache for fallbacks, longer for valid flags
     const age = Date.now() - item.timestamp;
     const maxAge = item.url.includes('/assets/fallback-logo.svg') 
-      ? 30 * 60 * 1000  // 30 minutes for fallbacks (retry sooner)
-      : 3 * 60 * 60 * 1000; // 3 hours for valid logos (faster refresh)
+      ? 60 * 60 * 1000  // 1 hour for fallbacks (shorter to retry sooner)
+      : 7 * 24 * 60 * 60 * 1000; // 7 days for valid flags
 
     const ageMinutes = Math.round(age / 1000 / 60);
     const maxAgeMinutes = Math.round(maxAge / 1000 / 60);

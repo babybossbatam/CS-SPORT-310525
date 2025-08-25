@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useDeviceInfo } from "@/hooks/use-mobile";
 import MyWorldTeamLogo from "./MyWorldTeamLogo";
-import { logoPreloader } from "@/lib/logoPreloader";
 
 interface LazyImageProps {
   src: string;
@@ -135,19 +134,9 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   useEffect(() => {
     const immediateSource = getImmediateSource(src, alt);
-    
-    // Check if logo is preloaded for instant display
-    if (logoPreloader.isLogoPreloaded(immediateSource)) {
-      console.log(`⚡ [LazyImage] Using preloaded logo for ${alt}`);
-      setImageSrc(immediateSource);
-      setHasError(false);
-      setRetryCount(0);
-      setIsLoading(false); // Preloaded logos load instantly
-    } else {
-      setImageSrc(immediateSource);
-      setHasError(false);
-      setRetryCount(0);
-    }
+    setImageSrc(immediateSource);
+    setHasError(false);
+    setRetryCount(0);
   }, [src, alt, darkMode]); // Add darkMode to trigger re-evaluation when theme changes
 
   const handleError = () => {
@@ -163,10 +152,9 @@ const LazyImage: React.FC<LazyImageProps> = ({
         timestamp: new Date().toISOString()
       });
 
-      // Reduced retries for faster fallback - prioritize speed over exhaustive attempts
-      const maxRetries = useTeamLogo && teamId ? 2 : 1; // Fewer retries for faster loading
-      if (retryCount >= maxRetries) {
-        console.warn(`🚨 [LazyImage] Max retries (${maxRetries}) reached for ${alt}, using fallback immediately`);
+      // Prevent infinite retry loops
+      if (retryCount >= 3) {
+        console.warn(`🚨 [LazyImage] Max retries reached for ${alt}, using fallback immediately`);
         setImageSrc(fallbackUrl);
         setHasError(true);
         setIsLoading(false); // Ensure loading stops
@@ -351,7 +339,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         return;
       }
 
-      // Final fallback if all attempts fail - immediate fallback for faster loading
+      // Final fallback if all attempts fail
       console.warn(
         `🚫 [LazyImage] All retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
         {
@@ -400,10 +388,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
       onLoad?.();
       return;
     }
-
-    // Log successful real logo loads
-    console.log(`✅ [LazyImage] Real logo loaded successfully: ${imageSrc} for ${alt}`);
-    setHasError(false); // Ensure hasError is false on successful load
 
     // Check for local asset success and don't cache them again
     const isLocalAsset =
@@ -600,10 +584,10 @@ const LazyImage: React.FC<LazyImageProps> = ({
         ...style,
         border: 'none',
         outline: 'none',
-        // Only hide if there's an error AND we're not showing fallback AND not currently loading
-        display: hasError && imageSrc !== fallbackUrl && !isLoading ? 'none' : 'block',
-        opacity: isLoading && !imageSrc.includes('fallback') ? 0.8 : 1, // Show fallback immediately
-        transition: 'opacity 0.3s ease-in-out',
+        // Hide image if there's an error AND it's not the fallback URL already
+        display: hasError && imageSrc !== fallbackUrl ? 'none' : 'block',
+        opacity: isLoading ? 0.7 : 1,
+        transition: 'opacity 0.2s ease-in-out',
         filter: darkMode ? 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))' : 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.8))',
         // Apply size from props if no explicit width/height in style
         ...(style?.width || style?.height ? {} : {
