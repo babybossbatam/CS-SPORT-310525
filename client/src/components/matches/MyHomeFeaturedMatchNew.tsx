@@ -2801,10 +2801,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               return countdownTimer;
                             }
 
-                            // Fallback to date labeling with translations
-                            if (matchDateString === todayString) {
-                              return t("today");
-                            } else if (matchDateString === tomorrowString) {
+                            // Fallback to date labeling with translations - fix the date comparison
+                            const matchDateForComparison = format(matchDate, "yyyy-MM-dd");
+                            const todayForComparison = format(today, "yyyy-MM-dd");
+                            const tomorrowForComparison = format(addDays(today, 1), "yyyy-MM-dd");
+
+                            if (matchDateForComparison === todayForComparison) {
+                              return t("today") || "Today";
+                            } else if (matchDateForComparison === tomorrowForComparison) {
                               return t("tomorrow") || "Tomorrow";
                             } else {
                               // Calculate days difference for upcoming matches using date-only comparison
@@ -2824,16 +2828,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                   (1000 * 60 * 60 * 24),
                               );
 
-                              if (daysDiff > 0 && daysDiff <= 7) {
+                              if (daysDiff === 0) {
+                                // Same day but different time calculation - should show "Today"
+                                return t("today") || "Today";
+                              } else if (daysDiff === 1) {
+                                // Next day - should show "Tomorrow"
+                                return t("tomorrow") || "Tomorrow";
+                              } else if (daysDiff > 1 && daysDiff <= 7) {
                                 // For matches within a week, show just the number of days with translation
-                                const dayText =
-                                  daysDiff === 1
-                                    ? t("day") !== "day"
-                                      ? t("day")
-                                      : "Day"
-                                    : t("days") !== "days"
-                                      ? t("days")
-                                      : "Days";
+                                const dayText = t("days") !== "days" ? t("days") : "Days";
                                 return `${daysDiff} ${dayText}`;
                               } else if (daysDiff > 7) {
                                 // For matches more than a week away, show translated date
@@ -2857,26 +2860,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                                 return `${translatedDayName}, ${dayNumber} ${translatedMonthName}`;
                               } else {
-                                // For past matches that aren't ended (edge case)
-                                const dayName = format(matchDate, "EEEE");
-                                const monthName = format(matchDate, "MMM");
-                                const dayNumber = format(matchDate, "d");
-
-                                const translatedDayName = (() => {
-                                  const dayKey = dayName.toLowerCase();
-                                  return t(dayKey) !== dayKey
-                                    ? t(dayKey)
-                                    : dayName;
-                                })();
-
-                                const translatedMonthName = (() => {
-                                  const monthKey = monthName.toLowerCase();
-                                  return t(monthKey) !== monthKey
-                                    ? t(monthKey)
-                                    : monthName;
-                                })();
-
-                                return `${translatedDayName}, ${translatedMonthName} ${dayNumber}`;
+                                // For past matches that aren't ended (edge case) or negative days
+                                return t("today") || "Today";
                               }
                             }
                           })();
