@@ -1742,19 +1742,31 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         for (const dateInfo of dates) {
           const fixturesForDay = uniqueFixtures
             .filter((fixture) => {
-              // First, check if the match belongs to this date
+              // First, check if the match belongs to this date - use UTC date comparison
               const matchDate = new Date(fixture.fixture.date);
-              const year = matchDate.getFullYear();
-              const month = String(matchDate.getMonth() + 1).padStart(2, "0");
-              const day = String(matchDate.getDate()).padStart(2, "0");
+              
+              // Use UTC methods to avoid timezone issues
+              const year = matchDate.getUTCFullYear();
+              const month = String(matchDate.getUTCMonth() + 1).padStart(2, "0");
+              const day = String(matchDate.getUTCDate()).padStart(2, "0");
               const matchDateString = `${year}-${month}-${day}`;
               
+              // Also check local date as fallback
+              const localYear = matchDate.getFullYear();
+              const localMonth = String(matchDate.getMonth() + 1).padStart(2, "0");
+              const localDay = String(matchDate.getDate()).padStart(2, "0");
+              const localMatchDateString = `${localYear}-${localMonth}-${localDay}`;
+              
+              // Match if either UTC or local date matches the target date
+              const dateMatches = matchDateString === dateInfo.date || localMatchDateString === dateInfo.date;
+              
               // Skip if not for this date
-              if (matchDateString !== dateInfo.date) {
+              if (!dateMatches) {
+                console.log(`📅 [DATE FILTER] Skipping match (date mismatch): ${fixture.teams.home.name} vs ${fixture.teams.away.name} - UTC: ${matchDateString}, Local: ${localMatchDateString}, Target: ${dateInfo.date}`);
                 return false;
               }
 
-              console.log(`📅 [DATE FILTER] Processing match for ${dateInfo.label} (${dateInfo.date}): ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name}, Status: ${fixture.fixture.status.short})`);
+              console.log(`📅 [DATE FILTER] Processing match for ${dateInfo.label} (${dateInfo.date}): ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name}, Status: ${fixture.fixture.status.short}) - UTC: ${matchDateString}, Local: ${localMatchDateString}`);
 
               // EXPLICIT EXCLUSION: Check against all explicitly excluded league IDs
               if (EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league.id)) {
