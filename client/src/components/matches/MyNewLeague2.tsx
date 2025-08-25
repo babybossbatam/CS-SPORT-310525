@@ -1100,26 +1100,20 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       }
 
       // Apply date filtering - extract date from fixture and compare with selected date
-      const fixtureDate = new Date(fixture.fixture.date);
-      const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
+      const fixtureTime = new Date(fixture.fixture.date);
 
-      // More lenient date filtering - include fixtures from the selected date
-      // Also include fixtures from adjacent dates to handle timezone issues
-      const selectedDateObj = new Date(selectedDate);
-      const dayBefore = new Date(selectedDateObj);
-      dayBefore.setDate(selectedDateObj.getDate() - 1);
-      const dayAfter = new Date(selectedDateObj);
-      dayAfter.setDate(selectedDateObj.getDate() + 1);
+      // Get dates in local timezone for proper comparison
+      const matchLocalDate = fixtureTime.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+      const selectedLocalDate = new Date(selectedDate).toLocaleDateString('en-CA');
 
-      const dayBeforeString = format(dayBefore, "yyyy-MM-dd");
-      const dayAfterString = format(dayAfter, "yyyy-MM-dd");
-
-      // Include fixtures from selected date and adjacent dates for timezone flexibility
-      if (![dayBeforeString, selectedDate, dayAfterString].includes(fixtureDateString)) {
-        console.log(`📅 [MyNewLeague2] Fixture filtered out - wrong date:`, {
+      // Include matches that fall on the selected date, considering local timezone
+      // We check if the match's local date is the same as the selected local date.
+      // This is crucial for preventing "tomorrow's" matches from appearing today.
+      if (matchLocalDate !== selectedLocalDate) {
+        console.log(`📅 [MyNewLeague2] Fixture filtered out - date mismatch:`, {
           fixtureId: fixture.fixture.id,
-          fixtureDate: fixtureDateString,
-          selectedDate,
+          fixtureLocalDate: matchLocalDate,
+          selectedLocalDate: selectedLocalDate,
           teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
         });
         return;
@@ -1143,8 +1137,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         fixtureId: fixture.fixture.id,
         teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
         league: fixture.league.name,
-        fixtureDate: fixtureDateString,
-        selectedDate,
+        fixtureLocalDate: matchLocalDate,
+        selectedLocalDate,
         matchupKey,
       });
     });
@@ -2899,6 +2893,32 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     const matchTime = new Date(
                                       fixture.fixture.date,
                                     );
+                                    const now = new Date();
+
+                                    // Get dates in local timezone for proper comparison
+                                    const matchLocalDate = matchTime.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+                                    const todayLocalDate = now.toLocaleDateString('en-CA');
+
+                                    // Don't show NS matches if they belong to future dates (tomorrow or later)
+                                    if (status === "NS" && matchLocalDate > todayLocalDate) {
+                                      console.log(`🚫 [MyNewLeague2] Filtering out NS match for future date: ${matchLocalDate} > ${todayLocalDate}`, {
+                                        matchTime: matchTime.toISOString(),
+                                        teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`
+                                      });
+
+                                      return (
+                                        <div
+                                          className="match-time-display text-gray-400"
+                                          style={{ fontSize: "0.75em" }}
+                                        >
+                                          {matchTime.toLocaleTimeString("en-US", {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                            hour12: false,
+                                          })}
+                                        </div>
+                                      );
+                                    }
 
                                     // For postponed/cancelled matches, still show the kick-off time
                                     if (
@@ -2929,7 +2949,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     }
 
                                     // Check if match should have started already (more than 2 hours ago) for NS/TBD
-                                    const now = new Date();
                                     const hoursAgo =
                                       (now.getTime() - matchTime.getTime()) /
                                       (1000 * 60 * 60);
