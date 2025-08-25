@@ -1742,6 +1742,20 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         for (const dateInfo of dates) {
           const fixturesForDay = uniqueFixtures
             .filter((fixture) => {
+              // First, check if the match belongs to this date
+              const matchDate = new Date(fixture.fixture.date);
+              const year = matchDate.getFullYear();
+              const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+              const day = String(matchDate.getDate()).padStart(2, "0");
+              const matchDateString = `${year}-${month}-${day}`;
+              
+              // Skip if not for this date
+              if (matchDateString !== dateInfo.date) {
+                return false;
+              }
+
+              console.log(`📅 [DATE FILTER] Processing match for ${dateInfo.label} (${dateInfo.date}): ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name}, Status: ${fixture.fixture.status.short})`);
+
               // EXPLICIT EXCLUSION: Check against all explicitly excluded league IDs
               if (EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league.id)) {
                 console.log(
@@ -1767,23 +1781,34 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 );
                 return false;
               }
-              // CRITICAL: Filter out stale "Starting now" matches
+
               const status = fixture.fixture.status.short;
-              const matchDate = new Date(fixture.fixture.date);
               const minutesFromKickoff =
                 (now.getTime() - matchDate.getTime()) / (1000 * 60);
               const hoursFromKickoff = minutesFromKickoff / 60;
 
-              // Remove matches that show "NS" (Not Started) but are significantly past kickoff time
-              // Allow more flexibility for today's matches - extend to 4 hours for potential delays
-              if (
-                status === "NS" &&
-                hoursFromKickoff > (dateInfo.label === "Today" ? 4 : 2)
-              ) {
+              // For TODAY's matches, be more lenient with time filtering
+              if (dateInfo.label === "Today") {
+                // Only exclude matches that are clearly stale (more than 6 hours past kickoff for NS status)
+                if (status === "NS" && hoursFromKickoff > 6) {
+                  console.log(
+                    `🚫 [TODAY STALE MATCH] Removing very stale today match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(hoursFromKickoff)} hours past kickoff)`,
+                  );
+                  return false;
+                }
+                
+                // For today, include all live, ended, and upcoming matches
                 console.log(
-                  `🚫 [STALE MATCH EXCLUSION] Removing stale "Starting now" match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(minutesFromKickoff)} min past kickoff)`,
+                  `✅ [TODAY INCLUDED] Including today's match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (Status: ${status}, Hours from kickoff: ${hoursFromKickoff.toFixed(1)})`,
                 );
-                return false;
+              } else {
+                // For non-today matches, apply normal stale filtering
+                if (status === "NS" && hoursFromKickoff > 2) {
+                  console.log(
+                    `🚫 [STALE MATCH EXCLUSION] Removing stale "Starting now" match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(minutesFromKickoff)} min past kickoff)`,
+                  );
+                  return false;
+                }
               }
 
               // Remove matches that are postponed, cancelled, or suspended
@@ -1796,11 +1821,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return false;
               }
 
-              const year = matchDate.getFullYear();
-              const month = String(matchDate.getMonth() + 1).padStart(2, "0");
-              const day = String(matchDate.getDate()).padStart(2, "0");
-              const matchDateString = `${year}-${month}-${day}`;
-              return matchDateString === dateInfo.date;
+              return true;
             })
             .sort((a: FeaturedMatch, b: FeaturedMatch) => {
               // Special priority for specific FIFA Club World Cup match (Inter vs River Plate)
