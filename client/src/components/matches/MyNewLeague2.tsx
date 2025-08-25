@@ -1102,18 +1102,16 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       // Apply date filtering - extract date from fixture and compare with selected date
       const fixtureTime = new Date(fixture.fixture.date);
 
-      // Get dates in local timezone for proper comparison
-      const matchLocalDate = fixtureTime.toLocaleDateString('en-CA'); // YYYY-MM-DD format
-      const selectedLocalDate = new Date(selectedDate).toLocaleDateString('en-CA');
+      // Get dates in UTC for consistent comparison
+      const fixtureUTCDate = fixtureTime.toISOString().slice(0, 10); // YYYY-MM-DD format
+      const selectedUTCDate = selectedDate; // selectedDate is already in YYYY-MM-DD format
 
-      // Include matches that fall on the selected date, considering local timezone
-      // We check if the match's local date is the same as the selected local date.
-      // This is crucial for preventing "tomorrow's" matches from appearing today.
-      if (matchLocalDate !== selectedLocalDate) {
+      // Include matches that fall on the selected date
+      if (fixtureUTCDate !== selectedUTCDate) {
         console.log(`📅 [MyNewLeague2] Fixture filtered out - date mismatch:`, {
           fixtureId: fixture.fixture.id,
-          fixtureLocalDate: matchLocalDate,
-          selectedLocalDate: selectedLocalDate,
+          fixtureUTCDate: fixtureUTCDate,
+          selectedUTCDate: selectedUTCDate,
           teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
         });
         return;
@@ -2895,27 +2893,21 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     );
                                     const now = new Date();
 
-                                    // Get dates in local timezone for proper comparison
-                                    const matchLocalDate = matchTime.toLocaleDateString('en-CA'); // YYYY-MM-DD format
-                                    const todayLocalDate = now.toLocaleDateString('en-CA');
-
-                                    // Don't show NS matches if they belong to future dates (tomorrow or later)
-                                    if (status === "NS" && matchLocalDate > todayLocalDate) {
-                                      console.log(`🚫 [MyNewLeague2] Filtering out NS match for future date: ${matchLocalDate} > ${todayLocalDate}`, {
-                                        matchTime: matchTime.toISOString(),
-                                        teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`
+                                    // Show the match time for NS matches regardless of date
+                                    // The date filtering is already handled at the component level
+                                    if (status === "NS") {
+                                      const localTime = matchTime.toLocaleTimeString("en-US", {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        hour12: false,
                                       });
 
                                       return (
                                         <div
-                                          className="match-time-display text-gray-400"
-                                          style={{ fontSize: "0.75em" }}
+                                          className="match-time-display"
+                                          style={{ fontSize: "0.882em" }}
                                         >
-                                          {matchTime.toLocaleTimeString("en-US", {
-                                            hour: "2-digit",
-                                            minute: "2-digit",
-                                            hour12: false,
-                                          })}
+                                          {localTime}
                                         </div>
                                       );
                                     }
