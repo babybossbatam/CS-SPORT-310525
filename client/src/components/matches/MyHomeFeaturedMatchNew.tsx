@@ -372,7 +372,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     [roundsCache],
   );
 
-  // Check if a match ended more than 2 hours ago (performance optimization)
+  // Check if a match ended more than 6 hours ago (performance optimization)
   const isMatchOldEnded = useCallback((fixture: any): boolean => {
     const status = fixture.fixture?.status?.short;
     const isEnded = [
@@ -391,8 +391,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const matchDate = new Date(fixture.fixture.date);
     const hoursAgo = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
 
-    // Use 2-hour rule for better performance
-    return hoursAgo > 2;
+    // Use 6-hour rule for better performance
+    return hoursAgo > 6;
   }, []);
 
   // Cache key for ended matches
@@ -810,7 +810,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 fixture.fixture.status.short,
               );
 
-              // CRITICAL: Exclude matches that ended more than 2 hours ago
+              // CRITICAL: Exclude matches that ended more than 6 hours ago
               const isOldEnded = isMatchOldEnded(fixture);
               if (isOldEnded) {
                 console.log(
@@ -910,9 +910,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 conflictReason = `not started status (${status}) for overdue match`;
               }
 
-              // 3. Ended match that's more than 8 hours old (stale ended matches)
+              // 3. Ended match that's more than 6 hours old (stale ended matches)
               if (
-                hoursFromKickoff > 8 &&
+                hoursFromKickoff > 6 &&
                 [
                   "FT",
                   "AET",
@@ -925,7 +925,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 ].includes(status)
               ) {
                 hasConflictingData = true;
-                conflictReason = `stale ended match (${status}) more than 8 hours old`;
+                conflictReason = `stale ended match (${status}) more than 6 hours old`;
               }
 
               if (hasConflictingData) {
@@ -1549,9 +1549,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       conflictReason = `not started status (${status}) for overdue match`;
                     }
 
-                    // 3. Ended match that's more than 12 hours old (stale ended matches)
+                    // 3. Ended match that's more than 6 hours old (stale ended matches)
                     if (
-                      hoursFromKickoff > 12 &&
+                      hoursFromKickoff > 6 &&
                       [
                         "FT",
                         "AET",
@@ -1564,7 +1564,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       ].includes(status)
                     ) {
                       hasConflictingData = true;
-                      conflictReason = `stale ended match (${status}) more than 12 hours old`;
+                      conflictReason = `stale ended match (${status}) more than 6 hours old`;
                     }
 
                     if (hasConflictingData) {
@@ -1774,11 +1774,20 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 (now.getTime() - matchDate.getTime()) / (1000 * 60);
 
               // Remove matches that show "NS" (Not Started) but are significantly past kickoff time
-              if (status === "NS" && minutesFromKickoff > 120) {
+              // Allow more flexibility for today's matches - extend to 4 hours for potential delays
+              if (status === "NS" && minutesFromKickoff > 240) {
                 console.log(
                   `🚫 [STALE MATCH EXCLUSION] Removing stale "Starting now" match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(minutesFromKickoff)} min past kickoff)`,
                 );
                 return false;
+              }
+
+              // Always include today's NS matches that are within reasonable time range
+              if (status === "NS" && Math.abs(minutesFromKickoff) <= 1440) { // Within 24 hours
+                console.log(
+                  `✅ [NS MATCH INCLUSION] Including today's NS match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(minutesFromKickoff)} min from kickoff)`,
+                );
+                return true;
               }
 
               // Remove matches that are postponed, cancelled, or suspended
