@@ -72,7 +72,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       console.log(`🏆 [LazyImage] Using local COTIF Tournament logo from start`);
       return "/assets/matchdetaillogo/cotif tournament.png";
     }
-    
+
     // Egyptian Premier League - common league IDs: 42, 233, 294
     if (altLower.includes("premier league") && (altLower.includes("egypt") || url.includes("/42") || url.includes("/233") || url.includes("/294"))) {
       console.log(`🇪🇬 [LazyImage] Egyptian Premier League detected, using server proxy`);
@@ -174,13 +174,13 @@ const LazyImage: React.FC<LazyImageProps> = ({
     console.log(`💾 [LazyImage] Cached ${alt}: ${finalUrl}`);
   };
 
-  
+
 
   useEffect(() => {
     // Re-evaluate immediate source when dependencies change
     const newImmediateSource = getImmediateSource(src, alt, darkMode);
     const newIsLocalAsset = newImmediateSource.startsWith('/assets/') || newImmediateSource !== src;
-    
+
     // Only update if the source has actually changed
     if (imageSrc !== newImmediateSource) {
       setImageSrc(newImmediateSource);
@@ -315,100 +315,117 @@ const LazyImage: React.FC<LazyImageProps> = ({
       }
 
       // Enhanced league logo fallback strategy
-      const isLeagueLogo = imageSrc.includes("/api/league-logo/") ||
-                          imageSrc.includes("media.api-sports.io/football/leagues/") ||
-                          imageSrc.includes("imagecache.365scores.com") ||
-                          imageSrc.includes("/Competitions/");
+    const isLeagueLogo = imageSrc.includes("/api/league-logo/") ||
+                        imageSrc.includes("media.api-sports.io/football/leagues/") ||
+                        imageSrc.includes("imagecache.365scores.com") ||
+                        imageSrc.includes("/Competitions/");
 
-      if (isLeagueLogo) {
-        // Extract league ID for better debugging
-        let leagueId = "unknown";
-        const apiMatch = imageSrc.match(
-          /\/api\/league-logo\/(?:square\/)?(\d+)/,
-        );
-        const mediaMatch = imageSrc.match(
-          /media\.api-sports\.io\/football\/leagues\/(\d+)/,
-        );
-        const scoresMatch = imageSrc.match(/Competitions\/(\d+)/);
+    if (isLeagueLogo) {
+      // Extract league ID for better debugging
+      let leagueId = "unknown";
+      const apiMatch = imageSrc.match(
+        /\/api\/league-logo\/(?:square\/)?(\d+)/,
+      );
+      const mediaMatch = imageSrc.match(
+        /media\.api-sports\.io\/football\/leagues\/(\d+)/,
+      );
+      const scoresMatch = imageSrc.match(/Competitions\/(\d+)/);
 
-        if (apiMatch) leagueId = apiMatch[1];
-        else if (mediaMatch) leagueId = mediaMatch[1];
-        else if (scoresMatch) leagueId = scoresMatch[1];
+      if (apiMatch) leagueId = apiMatch[1];
+      else if (mediaMatch) leagueId = mediaMatch[1];
+      else if (scoresMatch) leagueId = scoresMatch[1];
 
-        // Special handling for well-known leagues with local assets
-        const altLower = alt?.toLowerCase() || '';
-        if (altLower.includes("premier league") || leagueId === "39") {
-          if (retryCount === 0) {
-            console.log(`🏆 [LazyImage] Using Premier League local asset`);
-            setImageSrc("/assets/league-logos/39.png");
-            setRetryCount(retryCount + 1);
-            setIsLoading(true);
-            return;
-          }
-        }
+      console.log(
+        `🏆 [LazyImage] League logo error detected for: ${alt} (ID: ${leagueId})`,
+        {
+          imageSrc,
+          retryCount,
+          hasError,
+          leagueId,
+        },
+      );
 
-        if (altLower.includes("champions league") || altLower.includes("uefa champions") || leagueId === "2") {
-          if (retryCount === 0) {
-            console.log(`🏆 [LazyImage] Using Champions League local asset`);
-            setImageSrc(darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png");
-            setRetryCount(retryCount + 1);
-            setIsLoading(true);
-            return;
-          }
-        }
+      // Special handling for well-known leagues with local assets - try these first
+      const altLower = alt?.toLowerCase() || '';
+      if ((altLower.includes("premier league") || leagueId === "39") && retryCount === 0) {
+        console.log(`🏆 [LazyImage] Using Premier League local asset`);
+        setImageSrc("/assets/league-logos/39.png");
+        setRetryCount(retryCount + 1);
+        setIsLoading(false); // Local asset should load immediately
+        return;
+      }
 
-        console.log(
-          `🏆 [LazyImage] League logo error detected for: ${alt} (ID: ${leagueId})`,
-          {
-            imageSrc,
-            retryCount,
-            hasError,
-            leagueId,
-          },
-        );
+      if ((altLower.includes("champions league") || altLower.includes("uefa champions") || leagueId === "2") && retryCount === 0) {
+        console.log(`🏆 [LazyImage] Using Champions League local asset`);
+        setImageSrc(darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png");
+        setRetryCount(retryCount + 1);
+        setIsLoading(false); // Local asset should load immediately
+        return;
+      }
 
-          // First retry: try our square API endpoint
-          if (retryCount === 0) {
-            if (leagueId !== "unknown") {
-              const squareApiUrl = `/api/league-logo/square/${leagueId}`;
-              console.log(
-                `🏆 [LazyImage] League logo fallback: trying square API for ${leagueId}`,
-              );
-              setImageSrc(squareApiUrl);
-              setRetryCount(retryCount + 1);
-              setIsLoading(true);
-              return;
-            }
-          }
+      // Add more local assets for common UEFA competitions
+      if ((altLower.includes("europa league") || leagueId === "3") && retryCount === 0) {
+        // Try direct API-Sports first for Europa League since we don't have local asset
+        const directApiUrl = `https://media.api-sports.io/football/leagues/3.png`;
+        console.log(`🏆 [LazyImage] Trying direct API-Sports for Europa League`);
+        setImageSrc(directApiUrl);
+        setRetryCount(retryCount + 1);
+        setIsLoading(true);
+        return;
+      }
 
-          // Second retry: try direct API-Sports URL
-          if (retryCount === 1) {
-            if (leagueId !== "unknown") {
-              const directApiUrl = `https://media.api-sports.io/football/leagues/${leagueId}.png`;
-              console.log(
-                `🏆 [LazyImage] League logo second attempt: trying direct API-Sports for ${leagueId}`,
-              );
-              setImageSrc(directApiUrl);
-              setRetryCount(retryCount + 1);
-              setIsLoading(true);
-              return;
-            }
-          }
+      if ((altLower.includes("conference league") || leagueId === "848") && retryCount === 0) {
+        const directApiUrl = `https://media.api-sports.io/football/leagues/848.png`;
+        console.log(`🏆 [LazyImage] Trying direct API-Sports for Conference League`);
+        setImageSrc(directApiUrl);
+        setRetryCount(retryCount + 1);
+        setIsLoading(true);
+        return;
+      }
 
-          // Third retry: try 365scores
-          if (retryCount === 2) {
-            if (leagueId !== "unknown") {
-              const scoresUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitions/${leagueId}`;
-              console.log(
-                `🏆 [LazyImage] League logo third attempt: trying 365scores for ${leagueId}`,
-              );
-              setImageSrc(scoresUrl);
-              setRetryCount(retryCount + 1);
-              setIsLoading(true);
-              return;
-            }
+      // Progressive fallback for other leagues
+      if (retryCount === 0) {
+        if (leagueId !== "unknown") {
+          // Skip our API endpoints and go directly to external sources
+          const directApiUrl = `https://media.api-sports.io/football/leagues/${leagueId}.png`;
+          console.log(
+            `🏆 [LazyImage] League logo fallback: trying direct API-Sports for ${leagueId}`,
+          );
+          setImageSrc(directApiUrl);
+          setRetryCount(retryCount + 1);
+          setIsLoading(true);
+          return;
         }
       }
+
+      // Second retry: try 365scores
+      if (retryCount === 1) {
+        if (leagueId !== "unknown") {
+          const scoresUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitions/${leagueId}`;
+          console.log(
+            `🏆 [LazyImage] League logo second attempt: trying 365scores for ${leagueId}`,
+          );
+          setImageSrc(scoresUrl);
+          setRetryCount(retryCount + 1);
+          setIsLoading(true);
+          return;
+        }
+      }
+
+      // Third retry: try our square API endpoint as last resort
+      if (retryCount === 2) {
+        if (leagueId !== "unknown") {
+          const squareApiUrl = `/api/league-logo/square/${leagueId}`;
+          console.log(
+            `🏆 [LazyImage] League logo third attempt: trying our square API for ${leagueId}`,
+          );
+          setImageSrc(squareApiUrl);
+          setRetryCount(retryCount + 1);
+          setIsLoading(true);
+          return;
+        }
+      }
+    }
 
       // Try teamLogo prop as a general fallback if it's different from current src
       if (teamLogo && !imageSrc.includes(teamLogo) && retryCount < 3) { // Limit retries on teamLogo too
