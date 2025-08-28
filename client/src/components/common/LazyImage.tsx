@@ -72,18 +72,11 @@ const LazyImage: React.FC<LazyImageProps> = ({
       return `/api/league-logo/${egyptianLeagueId}`;
     }
 
-    // English Premier League - prioritize ID 39 and explicit English context
-    if (altLower.includes("premier league")) {
-      // If URL contains ID 39 or explicitly mentions England/English, it's English Premier League
-      if (url.includes("/39") || altLower.includes("england") || altLower.includes("english")) {
-        console.log(`🏴󠁧󠁢󠁥󠁮󠁧󠁿 [LazyImage] English Premier League detected (ID 39), using local asset`);
-        return "/assets/league-logos/39.png";
-      }
-      // If it's generic "Premier League" without Egyptian context, assume English
-      if (!altLower.includes("egypt") && !url.includes("/42") && !url.includes("/233") && !url.includes("/294")) {
-        console.log(`🏴󠁧󠁢󠁥󠁮󠁧󠁿 [LazyImage] Generic Premier League detected, assuming English (ID 39)`);
-        return "/assets/league-logos/39.png";
-      }
+    // English Premier League - only for league ID 39 or when specifically mentioned as English
+    if ((altLower.includes("premier league") && (altLower.includes("england") || altLower.includes("english") || url.includes("/39"))) || 
+        (altLower.includes("premier league") && !altLower.includes("egypt") && !url.includes("/42") && !url.includes("/233") && !url.includes("/294"))) {
+      console.log(`🏴󠁧󠁢󠁥󠁮󠁧󠁿 [LazyImage] Using local English Premier League logo from start`);
+      return "/assets/league-logos/39.png";
     }
 
     if (altLower.includes("cotif") || altLower.includes("cotif tournament")) {
