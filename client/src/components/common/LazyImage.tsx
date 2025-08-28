@@ -69,6 +69,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const [imageSrc, setImageSrc] = useState<string>(initialSrc === src ? src : initialSrc);
   const [isLoading, setIsLoading] = useState<boolean>(initialSrc === src);
   const [hasError, setHasError] = useState<boolean>(false);
+  const [retryCount, setRetryCount] = useState<number>(0);
 
   // Get dark mode state from Redux store
   const darkMode = useSelector((state: RootState) => state.ui.darkMode);
