@@ -52,14 +52,17 @@ const LazyImage: React.FC<LazyImageProps> = ({
   leagueContext,
   priority = 'low',
 }) => {
+  // Get dark mode state from Redux store first
+  const darkMode = useSelector((state: RootState) => state.ui.darkMode);
+
   // Enhanced immediate source resolution - no delays for local assets and cached items
-  const getImmediateSource = (url: string, altText: string) => {
+  const getImmediateSource = (url: string, altText: string, isDarkMode: boolean) => {
     const altLower = altText?.toLowerCase() || '';
 
     // League logo local assets - return immediately
     if (altLower.includes("champions league") || altLower.includes("uefa champions")) {
-      console.log(`🏆 [LazyImage] Using local Champions League logo (${darkMode ? 'dark' : 'light'}) mode) from start`);
-      return darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
+      console.log(`🏆 [LazyImage] Using local Champions League logo (${isDarkMode ? 'dark' : 'light'}) mode) from start`);
+      return isDarkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
     }
     if (altLower.includes("premier league")) {
       console.log(`🏆 [LazyImage] Using local Premier League logo from start`);
@@ -115,16 +118,13 @@ const LazyImage: React.FC<LazyImageProps> = ({
   };
 
   // Get immediate source without any async operations
-  const immediateSource = getImmediateSource(src, alt);
+  const immediateSource = getImmediateSource(src, alt, darkMode);
   const isLocalAsset = immediateSource.startsWith('/assets/') || immediateSource !== src;
 
   const [imageSrc, setImageSrc] = useState<string>(immediateSource);
   const [isLoading, setIsLoading] = useState<boolean>(!isLocalAsset);
   const [hasError, setHasError] = useState<boolean>(false);
   const [retryCount, setRetryCount] = useState<number>(0);
-
-  // Get dark mode state from Redux store
-  const darkMode = useSelector((state: RootState) => state.ui.darkMode);
 
   // Get device info for responsive sizing
   const { isMobile } = useDeviceInfo();
@@ -171,7 +171,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   useEffect(() => {
     // Re-evaluate immediate source when dependencies change
-    const newImmediateSource = getImmediateSource(src, alt);
+    const newImmediateSource = getImmediateSource(src, alt, darkMode);
     const newIsLocalAsset = newImmediateSource.startsWith('/assets/') || newImmediateSource !== src;
     
     // Only update if the source has actually changed
