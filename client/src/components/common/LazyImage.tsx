@@ -641,6 +641,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         outline: 'none',
         background: 'transparent',
         backgroundColor: 'transparent',
+        boxShadow: 'none',
         // Hide image if there's an error AND it's not the fallback URL already
         display: hasError && imageSrc !== fallbackUrl ? 'none' : 'inline-block',
         opacity: isLoading ? 0.7 : 1,
