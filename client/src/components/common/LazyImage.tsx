@@ -64,20 +64,24 @@ const LazyImage: React.FC<LazyImageProps> = ({
       console.log(`🏆 [LazyImage] Using local Champions League logo (${isDarkMode ? 'dark' : 'light'}) mode) from start`);
       return isDarkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
     }
-    if (altLower.includes("premier league")) {
-      console.log(`🏆 [LazyImage] Using local Premier League logo from start`);
-      return "/assets/league-logos/39.png";
-    }
-    if (altLower.includes("cotif") || altLower.includes("cotif tournament")) {
-      console.log(`🏆 [LazyImage] Using local COTIF Tournament logo from start`);
-      return "/assets/matchdetaillogo/cotif tournament.png";
-    }
 
-    // Egyptian Premier League - common league IDs: 42, 233, 294
+    // Egyptian Premier League - check first before generic Premier League
     if (altLower.includes("premier league") && (altLower.includes("egypt") || url.includes("/42") || url.includes("/233") || url.includes("/294"))) {
       console.log(`🇪🇬 [LazyImage] Egyptian Premier League detected, using server proxy`);
       const egyptianLeagueId = url.match(/\/(\d+)/)?.[1] || "233"; // Default to 233 if can't extract
       return `/api/league-logo/${egyptianLeagueId}`;
+    }
+
+    // English Premier League - only for league ID 39 or when specifically mentioned as English
+    if ((altLower.includes("premier league") && (altLower.includes("england") || altLower.includes("english") || url.includes("/39"))) || 
+        (altLower.includes("premier league") && !altLower.includes("egypt") && !url.includes("/42") && !url.includes("/233") && !url.includes("/294"))) {
+      console.log(`🏴󠁧󠁢󠁥󠁮󠁧󠁿 [LazyImage] Using local English Premier League logo from start`);
+      return "/assets/league-logos/39.png";
+    }
+
+    if (altLower.includes("cotif") || altLower.includes("cotif tournament")) {
+      console.log(`🏆 [LazyImage] Using local COTIF Tournament logo from start`);
+      return "/assets/matchdetaillogo/cotif tournament.png";
     }
 
     // Team logo local assets
@@ -347,11 +351,22 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
       // Special handling for well-known leagues with local assets - try these first
       const altLower = alt?.toLowerCase() || '';
-      if ((altLower.includes("premier league") || leagueId === "39") && retryCount === 0) {
-        console.log(`🏆 [LazyImage] Using Premier League local asset`);
+      
+      // English Premier League (ID 39) - use local asset
+      if ((altLower.includes("premier league") && (altLower.includes("england") || altLower.includes("english") || leagueId === "39")) && retryCount === 0) {
+        console.log(`🏴󠁧󠁢󠁥󠁮󠁧󠁿 [LazyImage] Using English Premier League local asset`);
         setImageSrc("/assets/league-logos/39.png");
         setRetryCount(retryCount + 1);
         setIsLoading(false); // Local asset should load immediately
+        return;
+      }
+
+      // Egyptian Premier League (ID 233, 42, 294) - use server proxy
+      if ((altLower.includes("premier league") && (altLower.includes("egypt") || leagueId === "233" || leagueId === "42" || leagueId === "294")) && retryCount === 0) {
+        console.log(`🇪🇬 [LazyImage] Using Egyptian Premier League server proxy`);
+        setImageSrc(`/api/league-logo/${leagueId}`);
+        setRetryCount(retryCount + 1);
+        setIsLoading(true);
         return;
       }
 
