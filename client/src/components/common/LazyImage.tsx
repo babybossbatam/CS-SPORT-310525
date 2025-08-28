@@ -52,22 +52,74 @@ const LazyImage: React.FC<LazyImageProps> = ({
   leagueContext,
   priority = 'low',
 }) => {
-  // Check cache immediately to avoid loading state for cached images
-  const getCachedUrl = () => {
-    // Quick cache check for immediate response
-    if (src.startsWith('/api/league-logo/')) {
-      const leagueId = src.match(/\/api\/league-logo\/(\d+)/)?.[1];
+  // Enhanced immediate source resolution - no delays for local assets and cached items
+  const getImmediateSource = (url: string, altText: string) => {
+    const altLower = altText?.toLowerCase() || '';
+
+    // League logo local assets - return immediately
+    if (altLower.includes("champions league") || altLower.includes("uefa champions")) {
+      console.log(`🏆 [LazyImage] Using local Champions League logo (${darkMode ? 'dark' : 'light'}) mode) from start`);
+      return darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
+    }
+    if (altLower.includes("premier league")) {
+      console.log(`🏆 [LazyImage] Using local Premier League logo from start`);
+      return "/assets/league-logos/39.png";
+    }
+    if (altLower.includes("cotif") || altLower.includes("cotif tournament")) {
+      console.log(`🏆 [LazyImage] Using local COTIF Tournament logo from start`);
+      return "/assets/matchdetaillogo/cotif tournament.png";
+    }
+
+    // Team logo local assets
+    if (altLower.includes("valencia") && !altLower.includes("rayo vallecano")) {
+      console.log(`⚽ [LazyImage] Using local Valencia logo from start`);
+      return "/assets/matchdetaillogo/valencia.png";
+    }
+    if (altLower.includes("alboraya") || altLower.includes("albaroya")) {
+      console.log(`⚽ [LazyImage] Using local Alboraya logo from start`);
+      return "/assets/matchdetaillogo/alboraya.png";
+    }
+
+    // Check cache for immediate response
+    if (url.startsWith('/api/league-logo/')) {
+      const leagueId = url.match(/\/api\/league-logo\/(\d+)/)?.[1];
       if (leagueId) {
         const cached = leagueLogoCache.getCached(`league_${leagueId}`);
-        if (cached?.url) return cached.url;
+        if (cached?.url) {
+          console.log(`💾 [LazyImage] Cache hit for league ${leagueId}: ${cached.url}`);
+          return cached.url;
+        }
       }
     }
-    return src;
+
+    // Check unified cache
+    const cacheKey = `img_${url.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    const cached = unifiedImageCache.get(cacheKey);
+    if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+      console.log(`💾 [LazyImage] Unified cache hit for ${altText}: ${cached.url}`);
+      return cached.url;
+    }
+
+    // For league logos, prioritize our server proxy endpoint
+    if (url.includes("/api/league-logo/") || url.includes("media.api-sports.io/football/leagues/") || url.includes("imagecache.365scores.com")) {
+      const leagueIdMatch = url.match(/(?:leagues?\/|logo\/(?:square\/)?|Competitions\/)(\d+)/);
+      if (leagueIdMatch) {
+        const leagueId = leagueIdMatch[1];
+        console.log(`🏆 [LazyImage] League logo detected, using our server proxy for league ${leagueId}`);
+        return `/api/league-logo/${leagueId}`;
+      }
+    }
+
+    // Return original URL as fallback
+    return url;
   };
 
-  const initialSrc = getCachedUrl();
-  const [imageSrc, setImageSrc] = useState<string>(initialSrc === src ? src : initialSrc);
-  const [isLoading, setIsLoading] = useState<boolean>(initialSrc === src);
+  // Get immediate source without any async operations
+  const immediateSource = getImmediateSource(src, alt);
+  const isLocalAsset = immediateSource.startsWith('/assets/') || immediateSource !== src;
+
+  const [imageSrc, setImageSrc] = useState<string>(immediateSource);
+  const [isLoading, setIsLoading] = useState<boolean>(!isLocalAsset);
   const [hasError, setHasError] = useState<boolean>(false);
   const [retryCount, setRetryCount] = useState<number>(0);
 
@@ -115,66 +167,21 @@ const LazyImage: React.FC<LazyImageProps> = ({
     console.log(`💾 [LazyImage] Cached ${alt}: ${finalUrl}`);
   };
 
-  // Get immediate fallback for special cases like local assets
-  const getImmediateSource = (url: string, altText: string) => {
-    const altLower = altText?.toLowerCase() || '';
-
-    // League logo local assets - return immediately
-    if (altLower.includes("champions league") || altLower.includes("uefa champions")) {
-      console.log(`🏆 [LazyImage] Using local Champions League logo (${darkMode ? 'dark' : 'light'}) mode) from start`);
-      return darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
-    }
-    if (altLower.includes("premier league")) {
-      console.log(`🏆 [LazyImage] Using local Premier League logo from start`);
-      return "/assets/league-logos/39.png";
-    }
-    if (altLower.includes("cotif") || altLower.includes("cotif tournament")) {
-      console.log(`🏆 [LazyImage] Using local COTIF Tournament logo from start`);
-      return "/assets/matchdetaillogo/cotif tournament.png";
-    }
-
-    // Team logo local assets
-    if (altLower.includes("valencia") && !altLower.includes("rayo vallecano")) {
-      console.log(`⚽ [LazyImage] Using local Valencia logo from start`);
-      return "/assets/matchdetaillogo/valencia.png";
-    }
-    if (altLower.includes("alboraya") || altLower.includes("albaroya")) {
-      console.log(`⚽ [LazyImage] Using local Alboraya logo from start`);
-      return "/assets/matchdetaillogo/alboraya.png";
-    }
-
-    // Check cache first for general images
-    const cached = getCachedImage(url);
-    if (cached) {
-      return cached;
-    }
-
-    // For league logos, prioritize our server proxy endpoint
-    if (url.includes("/api/league-logo/") || url.includes("media.api-sports.io/football/leagues/") || url.includes("imagecache.365scores.com")) {
-      const leagueIdMatch = url.match(/(?:leagues?\/|logo\/(?:square\/)?|Competitions\/)(\d+)/);
-      if (leagueIdMatch) {
-        const leagueId = leagueIdMatch[1];
-        console.log(`🏆 [LazyImage] League logo detected, using our server proxy for league ${leagueId}`);
-        // Always use our server proxy first - it handles fallbacks internally
-        return `/api/league-logo/${leagueId}`;
-      }
-    }
-
-    // Return original URL for immediate rendering if no special case or cache hit
-    return url;
-  };
+  
 
   useEffect(() => {
-    const immediateSource = getImmediateSource(src, alt);
-    // Only update if the source has actually changed to avoid unnecessary re-renders
-    if (imageSrc !== immediateSource) {
-      setImageSrc(immediateSource);
-      // Reset loading state only if the source is different and not already cached
-      setIsLoading(immediateSource === src); // Set loading if it's the original src, false if it's a cached/local one
+    // Re-evaluate immediate source when dependencies change
+    const newImmediateSource = getImmediateSource(src, alt);
+    const newIsLocalAsset = newImmediateSource.startsWith('/assets/') || newImmediateSource !== src;
+    
+    // Only update if the source has actually changed
+    if (imageSrc !== newImmediateSource) {
+      setImageSrc(newImmediateSource);
+      setIsLoading(!newIsLocalAsset); // No loading for local assets
+      setHasError(false);
+      setRetryCount(0);
     }
-    setHasError(false);
-    setRetryCount(0);
-  }, [src, alt, darkMode]); // Add darkMode to trigger re-evaluation when theme changes
+  }, [src, alt, darkMode]);
 
   const handleError = () => {
     // Safety check to prevent cascading errors
