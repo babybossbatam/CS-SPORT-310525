@@ -15,7 +15,7 @@ interface CachedPlayerImage {
 class PlayerImageCache {
   private cache = new Map<string, CachedPlayerImage>();
   private readonly MAX_AGE = 24 * 60 * 60 * 1000; // 24 hours (reduced)
-  private readonly MAX_SIZE = 200; // Reduced cache size
+  private readonly MAX_SIZE = 500; // Increased cache size for better performance
 
   private getCacheKey(playerId?: number, playerName?: string): string {
     return `player_${playerId || 'unknown'}_${playerName || 'unknown'}`;

@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useDeviceInfo } from "@/hooks/use-mobile";
 import MyWorldTeamLogo from "./MyWorldTeamLogo";
+import { leagueLogoCache } from "@/lib/logoCache"; // Assuming leagueLogoCache is imported and available
 
 interface LazyImageProps {
   src: string;
@@ -51,10 +52,23 @@ const LazyImage: React.FC<LazyImageProps> = ({
   leagueContext,
   priority = 'low',
 }) => {
-  const [imageSrc, setImageSrc] = useState<string>(src);
+  // Check cache immediately to avoid loading state for cached images
+  const getCachedUrl = () => {
+    // Quick cache check for immediate response
+    if (src.startsWith('/api/league-logo/')) {
+      const leagueId = src.match(/\/api\/league-logo\/(\d+)/)?.[1];
+      if (leagueId) {
+        const cached = leagueLogoCache.getCached(`league_${leagueId}`);
+        if (cached?.url) return cached.url;
+      }
+    }
+    return src;
+  };
+
+  const initialSrc = getCachedUrl();
+  const [imageSrc, setImageSrc] = useState<string>(initialSrc === src ? src : initialSrc);
+  const [isLoading, setIsLoading] = useState<boolean>(initialSrc === src);
   const [hasError, setHasError] = useState<boolean>(false);
-  const [retryCount, setRetryCount] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Get dark mode state from Redux store
   const darkMode = useSelector((state: RootState) => state.ui.darkMode);
@@ -106,7 +120,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
     // League logo local assets - return immediately
     if (altLower.includes("champions league") || altLower.includes("uefa champions")) {
-      console.log(`🏆 [LazyImage] Using local Champions League logo (${darkMode ? 'dark' : 'light'} mode) from start`);
+      console.log(`🏆 [LazyImage] Using local Champions League logo (${darkMode ? 'dark' : 'light'}) mode) from start`);
       return darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
     }
     if (altLower.includes("premier league")) {
@@ -117,7 +131,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       console.log(`🏆 [LazyImage] Using local COTIF Tournament logo from start`);
       return "/assets/matchdetaillogo/cotif tournament.png";
     }
-    
+
     // Team logo local assets
     if (altLower.includes("valencia") && !altLower.includes("rayo vallecano")) {
       console.log(`⚽ [LazyImage] Using local Valencia logo from start`);
@@ -151,7 +165,12 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   useEffect(() => {
     const immediateSource = getImmediateSource(src, alt);
-    setImageSrc(immediateSource);
+    // Only update if the source has actually changed to avoid unnecessary re-renders
+    if (imageSrc !== immediateSource) {
+      setImageSrc(immediateSource);
+      // Reset loading state only if the source is different and not already cached
+      setIsLoading(immediateSource === src); // Set loading if it's the original src, false if it's a cached/local one
+    }
     setHasError(false);
     setRetryCount(0);
   }, [src, alt, darkMode]); // Add darkMode to trigger re-evaluation when theme changes
@@ -281,7 +300,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       }
 
       // Enhanced league logo fallback strategy
-      const isLeagueLogo = imageSrc.includes("/api/league-logo/") || 
+      const isLeagueLogo = imageSrc.includes("/api/league-logo/") ||
                           imageSrc.includes("media.api-sports.io/football/leagues/") ||
                           imageSrc.includes("imagecache.365scores.com") ||
                           imageSrc.includes("/Competitions/");
@@ -533,8 +552,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
   // Enhanced player image detection and prevention
   if (alt && imageSrc) {
     // Comprehensive player photo URL patterns
-    const isPlayerPhoto = imageSrc.includes('/players/') || 
-                         imageSrc.includes('Athletes/') || 
+    const isPlayerPhoto = imageSrc.includes('/players/') ||
+                         imageSrc.includes('Athletes/') ||
                          imageSrc.includes('player-') ||
                          imageSrc.includes('/headshots/') ||
                          imageSrc.includes('_headshot') ||
@@ -555,12 +574,12 @@ const LazyImage: React.FC<LazyImageProps> = ({
                          imageSrc.includes('media.api-sports.io') && imageSrc.includes('/players/') ||
                          // Generic person/face detection patterns
                          imageSrc.match(/\/(player|athlete|person|headshot|mugshot|portrait)/i);
-    
+
     // Team context detection - any team name or logo context
-    const isTeamContext = alt.toLowerCase().includes('vs') || 
-                         alt.toLowerCase().includes('team') || 
+    const isTeamContext = alt.toLowerCase().includes('vs') ||
+                         alt.toLowerCase().includes('team') ||
                          alt.toLowerCase().includes('logo') ||
-                         alt.toLowerCase().includes('home') || 
+                         alt.toLowerCase().includes('home') ||
                          alt.toLowerCase().includes('away') ||
                          alt.toLowerCase().includes('club') ||
                          alt.toLowerCase().includes('fc') ||
@@ -582,13 +601,13 @@ const LazyImage: React.FC<LazyImageProps> = ({
                          className?.includes('logo') ||
                          // Check if this is being used in match/fixture context
                          alt.match(/\b(vs?\.?|versus|against|\-)\b/i);
-    
+
     // Additional check: if the image dimensions suggest it's a small logo/icon
-    const isLogoSize = (style?.width && parseInt(style.width as string) <= 64) || 
+    const isLogoSize = (style?.width && parseInt(style.width as string) <= 64) ||
                       (style?.height && parseInt(style.height as string) <= 64) ||
                       className?.includes('w-6') || className?.includes('h-6') ||
                       className?.includes('w-8') || className?.includes('h-8');
-    
+
     if (isPlayerPhoto && (isTeamContext || isLogoSize)) {
       console.warn(`🚨 [LazyImage] Player photo blocked in team/logo context:`, {
         alt,
@@ -604,7 +623,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         },
         component: 'LazyImage'
       });
-      
+
       // Force fallback immediately
       return (
         <img

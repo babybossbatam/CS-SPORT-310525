@@ -403,6 +403,14 @@ const PopularLeaguesList = () => {
             });
 
           setLeagueData(transformedLeagues);
+          
+          // Preload league logos to avoid fetching during render
+          console.log(`🔄 [PopularLeaguesList] Preloading logos for ${transformedLeagues.length} leagues`);
+          transformedLeagues.slice(0, 10).forEach(league => {
+            // Trigger logo loading in background
+            const img = new Image();
+            img.src = `/api/league-logo/${league.id}`;
+          });
         } else {
           throw new Error("No leagues data received from API");
         }
