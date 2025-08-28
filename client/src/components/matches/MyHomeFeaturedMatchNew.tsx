@@ -810,19 +810,37 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 fixture.fixture.status.short,
               );
 
-              // CRITICAL: Exclude matches that ended more than 6 hours ago
+              // CRITICAL: Only exclude old ended matches from PREVIOUS days, keep today's ended matches
+              const matchDate = new Date(fixture.fixture.date);
+              const today = new Date();
+              const isToday = matchDate.toDateString() === today.toDateString();
+              
               const isOldEnded = isMatchOldEnded(fixture);
-              if (isOldEnded) {
+              if (isOldEnded && !isToday) {
                 console.log(
-                  `⏰ [MyHomeFeaturedMatchNew] Excluding old ended match (${fixture.fixture.status.short}):`,
+                  `⏰ [MyHomeFeaturedMatchNew] Excluding old ended match from previous day (${fixture.fixture.status.short}):`,
                   {
                     home: fixture.teams?.home?.name,
                     away: fixture.teams?.away?.name,
                     league: fixture.league?.name,
                     date: fixture.fixture.date,
+                    isToday: isToday,
                   },
                 );
                 return false;
+              }
+              
+              if (isOldEnded && isToday) {
+                console.log(
+                  `✅ [MyHomeFeaturedMatchNew] Keeping today's ended match (${fixture.fixture.status.short}):`,
+                  {
+                    home: fixture.teams?.home?.name,
+                    away: fixture.teams?.away?.name,
+                    league: fixture.league?.name,
+                    date: fixture.fixture.date,
+                    isToday: isToday,
+                  },
+                );
               }
 
               // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
@@ -1257,9 +1275,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     conflictReason = `not started status (${status}) for overdue match`;
                   }
 
-                  // 3. Ended match that's more than 6 hours old (stale ended matches)
+                  // 3. Ended match that's more than 6 hours old (stale ended matches) - but only from previous days
+                  const matchDateOnly = new Date(fixture.fixture.date);
+                  const todayOnly = new Date();
+                  const isMatchToday = matchDateOnly.toDateString() === todayOnly.toDateString();
+                  
                   if (
                     hoursFromKickoff > 6 &&
+                    !isMatchToday &&
                     [
                       "FT",
                       "AET",
@@ -1272,7 +1295,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     ].includes(status)
                   ) {
                     hasConflictingData = true;
-                    conflictReason = `stale ended match (${status}) more than 6 hours old`;
+                    conflictReason = `stale ended match (${status}) more than 6 hours old from previous day`;
                   }
 
                   if (hasConflictingData) {
@@ -1549,9 +1572,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       conflictReason = `not started status (${status}) for overdue match`;
                     }
 
-                    // 3. Ended match that's more than 6 hours old (stale ended matches)
+                    // 3. Ended match that's more than 6 hours old (stale ended matches) - but only from previous days
+                    const matchDateOnly = new Date(fixture.fixture.date);
+                    const todayOnly = new Date();
+                    const isMatchToday = matchDateOnly.toDateString() === todayOnly.toDateString();
+                    
                     if (
                       hoursFromKickoff > 6 &&
+                      !isMatchToday &&
                       [
                         "FT",
                         "AET",
@@ -1564,7 +1592,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       ].includes(status)
                     ) {
                       hasConflictingData = true;
-                      conflictReason = `stale ended match (${status}) more than 6 hours old`;
+                      conflictReason = `stale ended match (${status}) more than 6 hours old from previous day`;
                     }
 
                     if (hasConflictingData) {
@@ -1809,15 +1837,23 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   return false;
                 }
                 
-                // For today, include all live, ended, and upcoming matches
+                // For today, include ALL matches regardless of status or time - especially ended matches
                 console.log(
                   `✅ [TODAY INCLUDED] Including today's match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (Status: ${status}, Hours from kickoff: ${hoursFromKickoff.toFixed(1)})`,
                 );
               } else {
-                // For non-today matches, apply normal stale filtering
+                // For non-today matches, apply normal stale filtering for NS matches and old ended matches
                 if (status === "NS" && hoursFromKickoff > 2) {
                   console.log(
                     `🚫 [STALE MATCH EXCLUSION] Removing stale "Starting now" match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(minutesFromKickoff)} min past kickoff)`,
+                  );
+                  return false;
+                }
+                
+                // Remove old ended matches from previous days only
+                if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursFromKickoff > 6) {
+                  console.log(
+                    `🚫 [OLD ENDED MATCH] Removing old ended match from previous day: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(hoursFromKickoff)} hours past kickoff)`,
                   );
                   return false;
                 }
