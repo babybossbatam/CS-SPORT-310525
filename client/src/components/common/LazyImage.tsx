@@ -133,7 +133,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const isLocalAsset = immediateSource.startsWith('/assets/') || immediateSource !== src;
 
   const [imageSrc, setImageSrc] = useState<string>(immediateSource);
-  const [isLoading, setIsLoading] = useState<boolean>(!isLocalAsset);
+  const [isLoading, setIsLoading] = useState<boolean>(false); // Start with false to show images immediately
   const [hasError, setHasError] = useState<boolean>(false);
   const [retryCount, setRetryCount] = useState<number>(0);
 
@@ -188,7 +188,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
     // Only update if the source has actually changed
     if (imageSrc !== newImmediateSource) {
       setImageSrc(newImmediateSource);
-      setIsLoading(!newIsLocalAsset); // No loading for local assets
+      setIsLoading(false); // Don't show loading state
       setHasError(false);
       setRetryCount(0);
     }
@@ -708,9 +708,9 @@ const LazyImage: React.FC<LazyImageProps> = ({
         background: 'transparent',
         backgroundColor: 'transparent',
         boxShadow: 'none',
-        // Hide image if there's an error AND it's not the fallback URL already
-        display: hasError && imageSrc !== fallbackUrl ? 'none' : 'inline-block',
-        opacity: isLoading ? 0.7 : 1,
+        // Always show the image, don't hide it during loading or error states
+        display: 'inline-block',
+        opacity: isLoading ? 0.8 : 1,
         transition: 'opacity 0.2s ease-in-out',
         filter: darkMode ? 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))' : 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.8))',
         // Apply size from props if no explicit width/height in style
