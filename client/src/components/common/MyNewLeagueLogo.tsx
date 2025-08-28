@@ -186,13 +186,12 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
       }}
       onClick={onClick}
     >
-      <img
+      <LazyImage
         src={logoUrl}
         alt={leagueName || `League ${leagueId}`}
         title={leagueName}
         className="league-logo"
         style={imageStyle}
-        loading="lazy"
       />
       {isLoading && <div>Loading...</div>}
       {error && <div>Error: {error}</div>}
