@@ -31,6 +31,8 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
     width: className.includes('w-') ? undefined : size,
     height: className.includes('h-') ? undefined : size,
     position: "relative" as const,
+    backgroundColor: "transparent",
+    background: "none",
   };
 
   const imageStyle = {
@@ -39,6 +41,8 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
     height: "100%",
     objectFit: "contain" as const,
     borderRadius: "0%",
+    background: "none",
+    border: "none",
     ...style,
   };
 
