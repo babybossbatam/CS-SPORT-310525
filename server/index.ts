@@ -120,45 +120,89 @@ app.use((req, res, next) => {
   next();
 });
 
-(async () => {
-  const server = await registerRoutes(app);
+// Enhanced CORS configuration
+const corsOptions = {
+  origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+    // Allow requests with no origin (like mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
 
-  app.use(cors({
-    origin: process.env.NODE_ENV === 'production' 
-      ? ['https://scores.cssport.world'] 
-      : true, // Allow all origins in development for Replit
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Cache-Control', 'Pragma'],
-    optionsSuccessStatus: 200
-  }));
+    // Allow all replit.dev origins and localhost
+    if (origin.includes('replit.dev') || origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return callback(null, true);
+    }
 
-  // Add a middleware to handle pre-flight requests
-  app.options('*', (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Cache-Control, Pragma');
-    res.sendStatus(200);
-  });
+    // Allow your specific domain patterns
+    const allowedOrigins = [
+      /https:\/\/.*\.replit\.dev(:\d+)?$/,
+      /http:\/\/localhost(:\d+)?$/,
+      /http:\/\/127\.0\.0\.1(:\d+)?$/
+    ];
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+    const isAllowed = allowedOrigins.some(pattern => pattern.test(origin));
+    callback(null, isAllowed);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: [
+    'Origin',
+    'X-Requested-With',
+    'Content-Type',
+    'Accept',
+    'Authorization',
+    'Cache-Control',
+    'X-API-Key'
+  ],
+  optionsSuccessStatus: 200 // For legacy browser support
+};
 
-    res.status(status).json({ message });
-    throw err;
-  });
+// Middleware
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.static('client/dist'));
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
+// Security headers middleware
+app.use((req, res, next) => {
+  // Content Security Policy
+  res.setHeader('Content-Security-Policy', 
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; " +
+    "style-src 'self' 'unsafe-inline' https:; " +
+    "img-src 'self' data: https: http:; " +
+    "font-src 'self' https: data:; " +
+    "connect-src 'self' https: wss: ws:; " +
+    "frame-ancestors 'self';"
+  );
 
-  // Serve static files from client/public
+  // Other security headers
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+
+  next();
+});
+
+// Manual preflight handler for all routes
+app.options('*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, X-API-Key');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.sendStatus(200);
+});
+
+// Routes
+app.use('/api', logoRoutes);
+
+// importantly only setup vite in development and after
+// setting up all the other routes so the catch-all route
+// doesn't interfere with the other routes
+if (app.get("env") === "development") {
+  await setupVite(app, server);
+} else {
+  serveStatic(app);
+}
+
+// Serve static files from client/public
 app.use(express.static(path.join(import.meta.dirname, "../client/public")));
 
 // Serve attached assets with proper URL decoding
@@ -178,26 +222,25 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const PORT = process.env.PORT || 5000;
-  const HOST = "0.0.0.0"; // Bind to all interfaces for Replit
-  const tryListen = (retryPort: number) => {
-    server.listen(retryPort, HOST, () => {
-      console.log(`Server running on ${HOST}:${retryPort}`);
-    }).on('error', (err: any) => {
-      if (err.code === 'EADDRINUSE' && retryPort < 5010) {
-        log(`Port ${retryPort} in use, trying ${retryPort + 1}`);
-        if (retryPort + 1 <= 5010) {
-            tryListen(retryPort + 1);
-        } else {
-            console.error("Failed to find an open port between 5000 and 5010");
-            // Don't exit immediately, let the process manager handle restarts
-            setTimeout(() => process.exit(1), 1000);
-        }
+  const HOST = '0.0.0.0'; // Important for Replit
+
+  server.listen(PORT, HOST, () => {
+    console.log(`🚀 Server running on ${HOST}:${PORT}`);
+    console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+  }).on('error', (err: any) => {
+    if (err.code === 'EADDRINUSE' && retryPort < 5010) {
+      log(`Port ${retryPort} in use, trying ${retryPort + 1}`);
+      if (retryPort + 1 <= 5010) {
+          tryListen(retryPort + 1);
       } else {
-        console.error("Failed to start server:", err);
-        // Don't exit immediately, let the process manager handle restarts
-        setTimeout(() => process.exit(1), 1000);
+          console.error("Failed to find an open port between 5000 and 5010");
+          // Don't exit immediately, let the process manager handle restarts
+          setTimeout(() => process.exit(1), 1000);
       }
-    });
-  };
-  tryListen(Number(PORT));
+    } else {
+      console.error("Failed to start server:", err);
+      // Don't exit immediately, let the process manager handle restarts
+      setTimeout(() => process.exit(1), 1000);
+    }
+  });
 })();
