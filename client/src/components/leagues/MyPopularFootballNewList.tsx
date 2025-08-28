@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RootState, userActions } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import LazyImage from '@/components/common/LazyImage';
+import { leagueLogoCache } from "@/lib/logoCache";
 
 interface League {
   id: number;
@@ -151,11 +151,19 @@ const MyPopularFootballNewList = () => {
                   className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors"
                   onClick={() => navigate(`/league/${league.id}`)}
                 >
-                  <LazyImage
-                    src={league.logo || `/api/league-logo/${league.id}`}
+                  <img
+                    src={(() => {
+                      // Check cache first
+                      const cached = leagueLogoCache.getCached(`league_${league.id}`);
+                      if (cached?.url) {
+                        return cached.url;
+                      }
+                      // Fallback to server proxy
+                      return `/api/league-logo/${league.id}`;
+                    })()}
                     alt={league.name}
-                    title={league.name}
-                    className="w-5 h-5 object-contain"
+                    className="w-5 h-5 object-contain rounded-full"
+                    style={{ backgroundColor: "transparent" }}
                     loading="lazy"
                     onError={() => handleLogoError(league.id)}
                     onLoad={() => handleLogoSuccess(league.id)}
