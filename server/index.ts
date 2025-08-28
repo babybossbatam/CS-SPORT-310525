@@ -120,54 +120,39 @@ app.use((req, res, next) => {
   next();
 });
 
-// Enhanced CORS configuration
+// Simplified CORS configuration for Replit
 const corsOptions = {
-  origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
-    // Allow requests with no origin (like mobile apps, Postman, etc.)
-    if (!origin) return callback(null, true);
-
-    // Allow all replit.dev origins and localhost
-    if (origin.includes('replit.dev') || origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      return callback(null, true);
-    }
-
-    // Allow your specific domain patterns
-    const allowedOrigins = [
-      /https:\/\/.*\.replit\.dev(:\d+)?$/,
-      /http:\/\/localhost(:\d+)?$/,
-      /http:\/\/127\.0\.0\.1(:\d+)?$/
-    ];
-
-    const isAllowed = allowedOrigins.some(pattern => pattern.test(origin));
-    callback(null, isAllowed);
-  },
+  origin: true, // Allow all origins for now to debug
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: [
     'Origin',
     'X-Requested-With',
-    'Content-Type',
+    'Content-Type', 
     'Accept',
     'Authorization',
     'Cache-Control',
     'X-API-Key'
   ],
-  optionsSuccessStatus: 200, // For legacy browser support
-  preflightContinue: false // Handle preflight responses automatically
+  optionsSuccessStatus: 200
 };
 
 // Apply CORS middleware first
 app.use(cors(corsOptions));
 
-// Additional CORS headers middleware for extra compatibility
+// Add explicit CORS headers for all requests
 app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (origin && origin.includes('replit.dev')) {
-    res.header('Access-Control-Allow-Origin', origin);
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, X-API-Key');
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, X-API-Key');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+    return;
   }
+  
   next();
 });
 
