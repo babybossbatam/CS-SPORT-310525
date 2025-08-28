@@ -28,8 +28,8 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   const containerStyle = {
-    width: size,
-    height: size,
+    width: className.includes('w-') ? undefined : size,
+    height: className.includes('h-') ? undefined : size,
     position: "relative" as const,
   };
 
