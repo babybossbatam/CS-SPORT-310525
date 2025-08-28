@@ -162,13 +162,7 @@ export const TodayMatchPageCard = ({
         // Format as "週五, 8月8日" style
         return `${translatedDay}, ${format(date, 'M月d日')}`;
       } else {
-        // Format as "Mon, 18th Aug"
-        const dayOfWeek = format(date, 'EEE');
-        const day = date.getDate();
-        const month = format(date, 'MMM');
-        const ordinalSuffix = getOrdinalSuffix(day);
-        
-        return `${dayOfWeek}, ${day}${ordinalSuffix} ${month}`;
+        return format(date, 'MMM d');
       }
     }
   };

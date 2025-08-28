@@ -28,13 +28,9 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   const containerStyle = {
-    width: className.includes('w-') ? undefined : size,
-    height: className.includes('h-') ? undefined : size,
+    width: size,
+    height: size,
     position: "relative" as const,
-    backgroundColor: "transparent",
-    background: "transparent",
-    border: "none",
-    outline: "none",
   };
 
   const imageStyle = {
@@ -43,10 +39,6 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
     height: "100%",
     objectFit: "contain" as const,
     borderRadius: "0%",
-    background: "transparent",
-    border: "none",
-    outline: "none",
-    boxShadow: "none",
     ...style,
   };
 
@@ -181,17 +173,16 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
   return (
     <div
       className={`league-logo-container ${className}`}
-      style={{
-        ...containerStyle
-      }}
+      style={containerStyle}
       onClick={onClick}
     >
-      <LazyImage
+      <img
         src={logoUrl}
         alt={leagueName || `League ${leagueId}`}
         title={leagueName}
         className="league-logo"
         style={imageStyle}
+        loading="lazy"
       />
       {isLoading && <div>Loading...</div>}
       {error && <div>Error: {error}</div>}

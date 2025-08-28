@@ -7,7 +7,6 @@ import { RootState, userActions } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import LazyImage from "@/components/common/LazyImage";
-import MyNewLeagueLogo from '@/components/common/MyNewLeagueLogo';
 import { useLanguage, useTranslation } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
@@ -403,14 +402,6 @@ const PopularLeaguesList = () => {
             });
 
           setLeagueData(transformedLeagues);
-          
-          // Preload league logos to avoid fetching during render
-          console.log(`🔄 [PopularLeaguesList] Preloading logos for ${transformedLeagues.length} leagues`);
-          transformedLeagues.slice(0, 10).forEach(league => {
-            // Trigger logo loading in background
-            const img = new Image();
-            img.src = `/api/league-logo/${league.id}`;
-          });
         } else {
           throw new Error("No leagues data received from API");
         }
@@ -486,29 +477,17 @@ const PopularLeaguesList = () => {
 
   if (isLoading) {
     return (
-      <Card className="w-full bg-white shadow-sm border border-stone-200">
-        <CardContent className="p-0">
-          <h3 className="text-sm font-semibold p-3 border-b border-stone-200">
-            {currentLanguage === 'zh-hk' ? '熱門聯賽' :
-             currentLanguage === 'zh-tw' ? '熱門聯賽' :
-             currentLanguage === 'zh' ? '热门联赛' :
-             currentLanguage === 'es' ? 'Ligas Populares' :
-             currentLanguage === 'de' ? 'Beliebte Ligen' :
-             currentLanguage === 'it' ? 'Campionati Popolari' :
-             currentLanguage === 'pt' ? 'Ligas Populares' :
-             'Popular Leagues'}
-          </h3>
-          <div className="divide-y divide-stone-200">
+      <Card className="w-full bg-white shadow-sm ">
+        <CardContent className="-mx-2 ">
+          <h3 className="text-sm font-semibold py-1 ">Popular Leagues</h3>
+          <div className="space-y- ">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="flex items-center py-2 px-3 animate-pulse">
-                <div className="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-                  <div className="w-4 h-4 bg-gray-300 rounded-full"></div>
-                </div>
+              <div key={i} className="flex items-center py-1.5  ">
+                <div className="w-5 h-5 bg-gray-200 rounded"></div>
                 <div className="ml-3 flex-1">
-                  <div className="h-3.5 bg-gradient-to-r from-gray-200 to-gray-100 rounded w-3/4 mb-1.5"></div>
-                  <div className="h-2.5 bg-gradient-to-r from-gray-100 to-gray-200 rounded w-1/2"></div>
+                  <div className="h-4   w-3/4 mb-1"></div>
+                  <div className="h-3  w-1/2"></div>
                 </div>
-                <div className="w-4 h-4 bg-gray-100 rounded"></div>
               </div>
             ))}
           </div>
@@ -542,13 +521,21 @@ const PopularLeaguesList = () => {
                   key={league.id}
                   className="flex items-center py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
-                  <MyNewLeagueLogo
-                    leagueId={league.id}
-                    leagueName={league.name}
-                    className="w-8 h-8 object-contain shadow-lg dark:shadow-gray-400/20"
-                    style={{ 
-                      backgroundColor: "transparent",
-                      filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                  <LazyImage
+                    src={league.logo || `/api/league-logo/${league.id}`}
+                    alt={league.name}
+                    title={league.name}
+                    className="w-5 h-5 object-contain"
+                    loading="lazy"
+                    onError={() => {
+                      console.log(
+                        `🚨 League logo failed for: ${league.name} (ID: ${league.id})`,
+                      );
+                    }}
+                    onLoad={() => {
+                      console.log(
+                        `✅ League logo loaded for: ${league.name} (ID: ${league.id})`,
+                      );
                     }}
                   />
                   <div className="ml-3 flex-1">

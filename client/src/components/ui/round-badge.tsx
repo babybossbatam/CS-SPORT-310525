@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { useQuery } from "@tanstack/react-query"
 import { apiRequest } from "@/lib/queryClient"
@@ -34,26 +35,26 @@ const ROUND_MAPPING_RULES: RoundMappingRule[] = [
     translationKey: 'numbered_round',
     format: (match) => `${match[1]}${match[2]}`
   },
-
+  
   // Qualifying rounds
   {
     pattern: /(\d+)(st|nd|rd|th)\s+qualifying/i,
     translationKey: 'qualifying_round',
     format: (match) => `${match[1]}${match[2]}`
   },
-
+  
   // Preliminary stages
   {
     pattern: /preliminary\s+round/i,
     translationKey: 'preliminary_round'
   },
-
+  
   // Play-off rounds
   {
     pattern: /play[\-\s]?off/i,
     translationKey: 'playoff_round'
   },
-
+  
   // Final stages
   {
     pattern: /^final$/i,
@@ -67,14 +68,14 @@ const ROUND_MAPPING_RULES: RoundMappingRule[] = [
     pattern: /quarter[\-\s]?final/i,
     translationKey: 'quarter_final'
   },
-
+  
   // Round of X
   {
     pattern: /round\s+of\s+(\d+)/i,
     translationKey: 'round_of_x',
     format: (match) => match[1]
   },
-
+  
   // Group stages
   {
     pattern: /group\s+stage/i,
@@ -85,33 +86,33 @@ const ROUND_MAPPING_RULES: RoundMappingRule[] = [
     translationKey: 'group_x',
     format: (match) => match[1].toUpperCase()
   },
-
+  
   // League phases
   {
     pattern: /league\s+phase/i,
     translationKey: 'league_phase'
   },
-
+  
   // Knockout phases
   {
     pattern: /knockout\s+phase/i,
     translationKey: 'knockout_phase'
   },
-
+  
   // Regular rounds
   {
     pattern: /round\s+(\d+)/i,
     translationKey: 'round_number',
     format: (match) => match[1]
   },
-
+  
   // Matchdays
   {
     pattern: /matchday\s+(\d+)/i,
     translationKey: 'matchday',
     format: (match) => match[1]
   },
-
+  
   // Friendlies
   {
     pattern: /club\s+friendlies/i,
@@ -129,19 +130,19 @@ const ROUND_MAPPING_RULES: RoundMappingRule[] = [
     pattern: /pre[\-\s]?season/i,
     translationKey: 'pre_season'
   },
-
+  
   // Third place
   {
     pattern: /third\s+place/i,
     translationKey: 'third_place'
   },
-
+  
   // Bronze final
   {
     pattern: /bronze\s+final/i,
     translationKey: 'bronze_final'
   },
-
+  
   // Small final
   {
     pattern: /small\s+final/i,
@@ -160,7 +161,7 @@ export function RoundBadge({
   matchStatus 
 }: RoundBadgeProps) {
   const { t, currentLanguage } = useTranslation();
-
+  
   const { data: roundData, isLoading } = useQuery({
     queryKey: ["league-rounds", leagueId, season],
     queryFn: async () => {
@@ -178,16 +179,13 @@ export function RoundBadge({
     retry: 1,
   });
 
-  // Determine effective loading state: if the query is loading OR there's no data yet
-  const effectiveIsLoading = isLoading || (roundData === undefined);
-
   // Smart round text formatting with automatic learning
   const formatRoundText = React.useCallback((round: string, leagueName?: string): string | null => {
     if (!round || round === "TBD" || round === "N/A") return null;
 
     const lowerRound = round.toLowerCase().trim();
     const cacheKey = `${lowerRound}_${leagueName?.toLowerCase() || ''}`;
-
+    
     // Check if we've already learned this round
     if (LEARNED_ROUNDS_CACHE.has(cacheKey)) {
       const cachedTranslation = LEARNED_ROUNDS_CACHE.get(cacheKey);
@@ -199,25 +197,12 @@ export function RoundBadge({
       const match = lowerRound.match(rule.pattern);
       if (match) {
         let translatedText: string;
-
+        
         if (rule.format && match) {
           const formatValue = rule.format(match);
           // Handle nested translation objects
-          let translation = t(rule.translationKey);
-
-          // If translation returns the key itself (meaning no translation found), create a fallback
-          if (translation === rule.translationKey) {
-            // Try to create a readable fallback based on the key
-            if (rule.translationKey === 'round_of_x') {
-              translatedText = `Round of ${formatValue}`;
-            } else if (rule.translationKey === 'numbered_round') {
-              translatedText = `${formatValue} Round`;
-            } else if (rule.translationKey === 'qualifying_round') {
-              translatedText = `${formatValue} Qualifying`;
-            } else {
-              translatedText = `${formatValue} Round`;
-            }
-          } else if (typeof translation === 'object' && translation[currentLanguage]) {
+          const translation = t(rule.translationKey);
+          if (typeof translation === 'object' && translation[currentLanguage]) {
             translatedText = translation[currentLanguage].replace('{{value}}', formatValue);
           } else if (typeof translation === 'string') {
             translatedText = translation.replace('{{value}}', formatValue);
@@ -226,16 +211,8 @@ export function RoundBadge({
           }
         } else {
           // Handle nested translation objects for simple translations
-          let translation = t(rule.translationKey);
-
-          // If translation returns the key itself, create a readable fallback
-          if (translation === rule.translationKey) {
-            // Convert snake_case to readable text
-            translatedText = rule.translationKey
-              .split('_')
-              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-              .join(' ');
-          } else if (typeof translation === 'object' && translation[currentLanguage]) {
+          const translation = t(rule.translationKey);
+          if (typeof translation === 'object' && translation[currentLanguage]) {
             translatedText = translation[currentLanguage];
           } else if (typeof translation === 'string') {
             translatedText = translation;
@@ -243,19 +220,19 @@ export function RoundBadge({
             translatedText = rule.translationKey; // fallback to key name
           }
         }
-
+        
         // Cache the learned translation
         LEARNED_ROUNDS_CACHE.set(cacheKey, translatedText);
-
+        
         console.log(`🎯 [RoundBadge] Learned new round mapping: "${round}" → "${translatedText}" (key: ${rule.translationKey})`);
-
+        
         return translatedText;
       }
     }
 
     // Handle special league-specific logic
     const lowerLeague = leagueName?.toLowerCase() || "";
-
+    
     // For actual friendly leagues, handle numbered friendlies differently
     if (lowerLeague.includes("friendlies") || lowerLeague.includes("friendly")) {
       const friendlyMatch = lowerRound.match(/(\d+)/);
@@ -269,18 +246,18 @@ export function RoundBadge({
 
     // Fallback for unknown rounds - try to make them more readable
     const fallbackText = round.length > 20 ? round.substring(0, 17) + "..." : round;
-
+    
     // Cache even the fallback to avoid repeated processing
     LEARNED_ROUNDS_CACHE.set(cacheKey, fallbackText);
-
+    
     console.log(`ℹ️ [RoundBadge] Using fallback for unknown round: "${round}" → "${fallbackText}"`);
-
+    
     return fallbackText;
   }, [t]);
 
   // Don't show loading skeleton, just return null if loading
-  if (effectiveIsLoading) {
-    return <Skeleton className="h-5 w-16 rounded-full" />
+  if (isLoading) {
+    return null;
   }
 
   // Only use actual API round data - no fallbacks to currentRound prop or hardcoded values
@@ -289,20 +266,14 @@ export function RoundBadge({
   if (roundData && roundData.length > 0) {
     // Get the most recent round from API data
     displayRound = roundData[roundData.length - 1];
-    console.log(`🎯 [RoundBadge] Original round name from API: "${displayRound}" for league ${leagueId}`);
   }
 
   // If no round data from API, don't show the badge at all
   if (!displayRound) {
-    console.log(`❌ [RoundBadge] No round data available for league ${leagueId}`);
     return null;
   }
 
   const roundText = formatRoundText(displayRound);
-  console.log(`🔄 [RoundBadge] Formatted round text: "${roundText}" (original: "${displayRound}")`);
-
-  // Debug: Show what roundData contains
-  console.log(`📋 [RoundBadge] All rounds for league ${leagueId}:`, roundData);
 
   // If formatting returns null, don't show the badge
   if (!roundText) {
@@ -327,7 +298,7 @@ export function RoundBadge({
     <Badge 
       variant="outline" 
       className={`${badgeClass} ${className}`}
-      title={`Full Round: ${displayRound}`}
+      title={`Round: ${displayRound}`}
     >
       {roundText}
     </Badge>

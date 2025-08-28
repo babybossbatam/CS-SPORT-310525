@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RootState, userActions } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { leagueLogoCache } from "@/lib/logoCache";
+import LazyImage from '@/components/common/LazyImage';
 
 interface League {
   id: number;
@@ -52,27 +52,13 @@ const MyPopularFootballNewList = () => {
         console.log('✅ [MyPopularFootballNewList] Fetched leagues:', leagues.length);
 
         // Transform API response to match our League interface
-        const transformedLeagues = leagues.map((league: any) => {
-          const transformed = {
-            id: league.league?.id || league.id,
-            name: league.league?.name || league.name,
-            logo: league.league?.logo || league.logo,
-            country: league.country?.name || league.league?.country || league.country,
-            popularity: 100 - (leagues.indexOf(league) * 2) // Generate popularity scores
-          };
-          
-          // Debug Egyptian Premier League specifically
-          if (transformed.name?.toLowerCase().includes("premier league") && transformed.country?.toLowerCase().includes("egypt")) {
-            console.log(`🇪🇬 [MyPopularFootballNewList] Egyptian Premier League found:`, {
-              id: transformed.id,
-              name: transformed.name,
-              country: transformed.country,
-              originalLogo: transformed.logo
-            });
-          }
-          
-          return transformed;
-        });
+        const transformedLeagues = leagues.map((league: any) => ({
+          id: league.league?.id || league.id,
+          name: league.league?.name || league.name,
+          logo: league.league?.logo || league.logo,
+          country: league.country?.name || league.league?.country || league.country,
+          popularity: 100 - (leagues.indexOf(league) * 2) // Generate popularity scores
+        }));
 
         setLeagueData(transformedLeagues);
       } catch (error) {
@@ -165,28 +151,11 @@ const MyPopularFootballNewList = () => {
                   className="flex items-center py-1.5 px-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors"
                   onClick={() => navigate(`/league/${league.id}`)}
                 >
-                  <img
-                    src={(() => {
-                      // Special handling for known leagues with local assets
-                      if (league.name.toLowerCase().includes("premier league") && league.country?.toLowerCase() === "england") {
-                        console.log(`🏆 [MyPopularFootballNewList] Using local Premier League logo for England`);
-                        return "/assets/league-logos/39.png";
-                      }
-                      
-                      // Check cache first
-                      const cached = leagueLogoCache.getCached(`league_${league.id}`);
-                      if (cached?.url) {
-                        console.log(`💾 [MyPopularFootballNewList] Cache hit for league ${league.id}: ${cached.url}`);
-                        return cached.url;
-                      }
-                      
-                      // Fallback to server proxy
-                      console.log(`🔄 [MyPopularFootballNewList] Using server proxy for league ${league.id} (${league.name})`);
-                      return `/api/league-logo/${league.id}`;
-                    })()}
+                  <LazyImage
+                    src={league.logo || `/api/league-logo/${league.id}`}
                     alt={league.name}
-                    className="w-5 h-5 object-contain rounded-full"
-                    style={{ backgroundColor: "transparent" }}
+                    title={league.name}
+                    className="w-5 h-5 object-contain"
                     loading="lazy"
                     onError={() => handleLogoError(league.id)}
                     onLoad={() => handleLogoSuccess(league.id)}

@@ -11,12 +11,6 @@ router.get('/league-logo/:leagueId', async (req, res) => {
   try {
     console.log(`🔍 [Logo Proxy] Fetching league logo for ID: ${leagueId}`);
 
-    // Special handling for known Egyptian leagues
-    const isEgyptianLeague = ['42', '233', '294'].includes(leagueId); // Common Egyptian league IDs
-    if (isEgyptianLeague) {
-      console.log(`🇪🇬 [Logo Proxy] Egyptian league detected for ID: ${leagueId}`);
-    }
-
     // Try multiple API-Sports URLs for better success rate
     const logoSources = [
       `https://media.api-sports.io/football/leagues/${leagueId}.png`,
