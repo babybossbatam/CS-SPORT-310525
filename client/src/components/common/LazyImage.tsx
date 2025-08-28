@@ -134,13 +134,14 @@ const LazyImage: React.FC<LazyImageProps> = ({
       return cached;
     }
 
-    // For league logos, try to use our API endpoint if we can extract league ID
+    // For league logos, prioritize our server proxy endpoint
     if (url.includes("/api/league-logo/") || url.includes("media.api-sports.io/football/leagues/") || url.includes("imagecache.365scores.com")) {
       const leagueIdMatch = url.match(/(?:leagues?\/|logo\/(?:square\/)?|Competitions\/)(\d+)/);
       if (leagueIdMatch) {
         const leagueId = leagueIdMatch[1];
-        console.log(`🏆 [LazyImage] League logo detected, using our API endpoint for league ${leagueId}`);
-        return `/api/league-logo/square/${leagueId}`;
+        console.log(`🏆 [LazyImage] League logo detected, using our server proxy for league ${leagueId}`);
+        // Always use our server proxy first - it handles fallbacks internally
+        return `/api/league-logo/${leagueId}`;
       }
     }
 
@@ -168,9 +169,10 @@ const LazyImage: React.FC<LazyImageProps> = ({
         timestamp: new Date().toISOString()
       });
 
-      // Prevent infinite retry loops
-      if (retryCount >= 3) {
-        console.warn(`🚨 [LazyImage] Max retries reached for ${alt}, using fallback immediately`);
+      // Prevent infinite retry loops - allow more retries for league logos
+      const maxRetries = imageSrc.includes('league') || alt.toLowerCase().includes('league') ? 4 : 3;
+      if (retryCount >= maxRetries) {
+        console.warn(`🚨 [LazyImage] Max retries (${maxRetries}) reached for ${alt}, using fallback immediately`);
         setImageSrc(fallbackUrl);
         setHasError(true);
         setIsLoading(false); // Ensure loading stops
@@ -331,12 +333,26 @@ const LazyImage: React.FC<LazyImageProps> = ({
           },
         );
 
-          // First retry: try direct API-Sports URL
+          // First retry: try our square API endpoint
           if (retryCount === 0) {
+            if (leagueId !== "unknown") {
+              const squareApiUrl = `/api/league-logo/square/${leagueId}`;
+              console.log(
+                `🏆 [LazyImage] League logo fallback: trying square API for ${leagueId}`,
+              );
+              setImageSrc(squareApiUrl);
+              setRetryCount(retryCount + 1);
+              setIsLoading(true);
+              return;
+            }
+          }
+
+          // Second retry: try direct API-Sports URL
+          if (retryCount === 1) {
             if (leagueId !== "unknown") {
               const directApiUrl = `https://media.api-sports.io/football/leagues/${leagueId}.png`;
               console.log(
-                `🏆 [LazyImage] League logo fallback: trying direct API-Sports for ${leagueId}`,
+                `🏆 [LazyImage] League logo second attempt: trying direct API-Sports for ${leagueId}`,
               );
               setImageSrc(directApiUrl);
               setRetryCount(retryCount + 1);
@@ -345,12 +361,12 @@ const LazyImage: React.FC<LazyImageProps> = ({
             }
           }
 
-          // Second retry: try 365scores
-          if (retryCount === 1) {
+          // Third retry: try 365scores
+          if (retryCount === 2) {
             if (leagueId !== "unknown") {
               const scoresUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitions/${leagueId}`;
               console.log(
-                `🏆 [LazyImage] League logo second attempt: trying 365scores for ${leagueId}`,
+                `🏆 [LazyImage] League logo third attempt: trying 365scores for ${leagueId}`,
               );
               setImageSrc(scoresUrl);
               setRetryCount(retryCount + 1);
