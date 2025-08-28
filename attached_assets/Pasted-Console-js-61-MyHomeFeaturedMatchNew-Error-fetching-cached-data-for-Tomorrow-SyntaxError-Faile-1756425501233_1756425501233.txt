@@ -1,0 +1,307 @@
+Console.js:61 ❌ [MyHomeFeaturedMatchNew] Error fetching cached data for Tomorrow: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:1066:47
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ main.tsx:49
+console.error @ errorHandler.ts:456
+console.error @ errorHandler.ts:456
+console.error @ errorHandler.ts:456
+(anonymous) @ MyHomeFeaturedMatchNew.tsx:1338
+await in (anonymous)
+(anonymous) @ MyHomeFeaturedMatchNew.tsx:1972Understand this error
+Console.js:61 🔍 [MyHomeFeaturedMatchNew] Fetching cached data for Day After Tomorrow: 2025-08-31
+Console.js:61 📡 [apiRequest] Making GET request to: https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/featured-match/date/2025-08-31?all=true&skipFilter=true
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/date/2025-08-31?all=true&skipFilter=true
+Console.js:61 ❌ [MyHomeFeaturedMatchNew] Error fetching cached data for Day After Tomorrow: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:1066:47
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ main.tsx:49
+console.error @ errorHandler.ts:456
+console.error @ errorHandler.ts:456
+console.error @ errorHandler.ts:456
+(anonymous) @ MyHomeFeaturedMatchNew.tsx:1338
+await in (anonymous)
+(anonymous) @ MyHomeFeaturedMatchNew.tsx:1972Understand this error
+Console.js:61 🔍 [MyHomeFeaturedMatchNew] Fetching cached data for Monday: 2025-09-01
+Console.js:61 📡 [apiRequest] Making GET request to: https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/featured-match/date/2025-09-01?all=true&skipFilter=true
+Console.js:61 Failed to check data for league 38
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ eventEmitterUtils.ts:295
+console.warn @ main.tsx:38
+console.warn @ main.tsx:130
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+checkLeaguesWithData @ HomeTopScorersList.tsx:308
+await in checkLeaguesWithData
+(anonymous) @ HomeTopScorersList.tsx:346
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=09d05c0d:16915
+invokePassiveEffectMountInDEV @ chunk-RPCDYKBN.js?v=09d05c0d:18324
+invokeEffectsInDev @ chunk-RPCDYKBN.js?v=09d05c0d:19701
+commitDoubleInvokeEffectsInDEV @ chunk-RPCDYKBN.js?v=09d05c0d:19686
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=09d05c0d:19503
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=09d05c0d:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=09d05c0d:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=09d05c0d:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=09d05c0d:19432
+commitRoot @ chunk-RPCDYKBN.js?v=09d05c0d:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=09d05c0d:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=09d05c0d:18718
+workLoop @ chunk-RPCDYKBN.js?v=09d05c0d:197
+flushWork @ chunk-RPCDYKBN.js?v=09d05c0d:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=09d05c0d:384Understand this warning
+Console.js:61 Failed to check data for league 9
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ eventEmitterUtils.ts:295
+console.warn @ main.tsx:38
+console.warn @ main.tsx:130
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+checkLeaguesWithData @ HomeTopScorersList.tsx:308
+await in checkLeaguesWithData
+(anonymous) @ HomeTopScorersList.tsx:346
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=09d05c0d:16915
+invokePassiveEffectMountInDEV @ chunk-RPCDYKBN.js?v=09d05c0d:18324
+invokeEffectsInDev @ chunk-RPCDYKBN.js?v=09d05c0d:19701
+commitDoubleInvokeEffectsInDEV @ chunk-RPCDYKBN.js?v=09d05c0d:19686
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=09d05c0d:19503
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=09d05c0d:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=09d05c0d:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=09d05c0d:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=09d05c0d:19432
+commitRoot @ chunk-RPCDYKBN.js?v=09d05c0d:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=09d05c0d:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=09d05c0d:18718
+workLoop @ chunk-RPCDYKBN.js?v=09d05c0d:197
+flushWork @ chunk-RPCDYKBN.js?v=09d05c0d:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=09d05c0d:384Understand this warning
+Console.js:61 Failed to check data for league 22
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ eventEmitterUtils.ts:295
+console.warn @ main.tsx:38
+console.warn @ main.tsx:130
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+checkLeaguesWithData @ HomeTopScorersList.tsx:308
+await in checkLeaguesWithData
+(anonymous) @ HomeTopScorersList.tsx:346
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=09d05c0d:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=09d05c0d:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=09d05c0d:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=09d05c0d:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=09d05c0d:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=09d05c0d:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=09d05c0d:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=09d05c0d:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=09d05c0d:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=09d05c0d:19432
+commitRoot @ chunk-RPCDYKBN.js?v=09d05c0d:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=09d05c0d:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=09d05c0d:18718
+workLoop @ chunk-RPCDYKBN.js?v=09d05c0d:197
+flushWork @ chunk-RPCDYKBN.js?v=09d05c0d:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=09d05c0d:384Understand this warning
+Console.js:61 Failed to check data for league 6
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ eventEmitterUtils.ts:295
+console.warn @ main.tsx:38
+console.warn @ main.tsx:130
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+checkLeaguesWithData @ HomeTopScorersList.tsx:308
+await in checkLeaguesWithData
+(anonymous) @ HomeTopScorersList.tsx:346
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=09d05c0d:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=09d05c0d:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=09d05c0d:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=09d05c0d:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=09d05c0d:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=09d05c0d:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=09d05c0d:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=09d05c0d:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=09d05c0d:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=09d05c0d:19432
+commitRoot @ chunk-RPCDYKBN.js?v=09d05c0d:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=09d05c0d:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=09d05c0d:18718
+workLoop @ chunk-RPCDYKBN.js?v=09d05c0d:197
+flushWork @ chunk-RPCDYKBN.js?v=09d05c0d:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=09d05c0d:384Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/date/2025-08-29?all=true&skipFilter=true
+Console.js:61 ❌ [MyHomeFeaturedMatchNew] Error fetching cached data for Today: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:1066:47
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ main.tsx:49
+console.error @ errorHandler.ts:456
+console.error @ errorHandler.ts:456
+console.error @ errorHandler.ts:456
+(anonymous) @ MyHomeFeaturedMatchNew.tsx:1338
+await in (anonymous)
+(anonymous) @ MyHomeFeaturedMatchNew.tsx:1972Understand this error
+Console.js:61 🔍 [MyHomeFeaturedMatchNew] Fetching cached data for Tomorrow: 2025-08-30
+Console.js:61 📡 [apiRequest] Making GET request to: https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/featured-match/date/2025-08-30?all=true&skipFilter=true
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/date/2025-08-30?all=true&skipFilter=true
+Console.js:61 ❌ [MyHomeFeaturedMatchNew] Error fetching cached data for Tomorrow: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:1066:47
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ main.tsx:49
+console.error @ errorHandler.ts:456
+console.error @ errorHandler.ts:456
+console.error @ errorHandler.ts:456
+(anonymous) @ MyHomeFeaturedMatchNew.tsx:1338
+await in (anonymous)
+(anonymous) @ MyHomeFeaturedMatchNew.tsx:1972Understand this error
+Console.js:61 🔍 [MyHomeFeaturedMatchNew] Fetching cached data for Day After Tomorrow: 2025-08-31
+Console.js:61 📡 [apiRequest] Making GET request to: https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/featured-match/date/2025-08-31?all=true&skipFilter=true
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/date/2025-08-31?all=true&skipFilter=true
+Console.js:61 ❌ [MyHomeFeaturedMatchNew] Error fetching cached data for Day After Tomorrow: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:1066:47
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ main.tsx:49
+console.error @ errorHandler.ts:456
+console.error @ errorHandler.ts:456
+console.error @ errorHandler.ts:456
+(anonymous) @ MyHomeFeaturedMatchNew.tsx:1338
+await in (anonymous)
+(anonymous) @ MyHomeFeaturedMatchNew.tsx:1972Understand this error
+Console.js:61 🔍 [MyHomeFeaturedMatchNew] Fetching cached data for Monday: 2025-09-01
+Console.js:61 📡 [apiRequest] Making GET request to: https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/featured-match/date/2025-09-01?all=true&skipFilter=true
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/date/2025-09-01?all=true&skipFilter=true
+Console.js:61 ❌ [MyHomeFeaturedMatchNew] Error fetching cached data for Monday: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:1066:47
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ main.tsx:49
+console.error @ errorHandler.ts:456
+console.error @ errorHandler.ts:456
+console.error @ errorHandler.ts:456
+(anonymous) @ MyHomeFeaturedMatchNew.tsx:1338
+await in (anonymous)
+(anonymous) @ MyHomeFeaturedMatchNew.tsx:1972Understand this error
+Console.js:61 🔍 [MyHomeFeaturedMatchNew] Fetching cached data for Tuesday: 2025-09-02
+Console.js:61 📡 [apiRequest] Making GET request to: https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/featured-match/date/2025-09-02?all=true&skipFilter=true
+Console.js:61 Failed to check data for league 6
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ eventEmitterUtils.ts:295
+console.warn @ main.tsx:38
+console.warn @ main.tsx:130
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+checkLeaguesWithData @ HomeTopScorersList.tsx:308
+await in checkLeaguesWithData
+(anonymous) @ HomeTopScorersList.tsx:346
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=09d05c0d:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=09d05c0d:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=09d05c0d:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=09d05c0d:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=09d05c0d:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=09d05c0d:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=09d05c0d:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=09d05c0d:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=09d05c0d:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=09d05c0d:19432
+commitRoot @ chunk-RPCDYKBN.js?v=09d05c0d:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=09d05c0d:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=09d05c0d:18718
+workLoop @ chunk-RPCDYKBN.js?v=09d05c0d:197
+flushWork @ chunk-RPCDYKBN.js?v=09d05c0d:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=09d05c0d:384Understand this warning
+Console.js:61 Failed to check data for league 9
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ eventEmitterUtils.ts:295
+console.warn @ main.tsx:38
+console.warn @ main.tsx:130
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+checkLeaguesWithData @ HomeTopScorersList.tsx:308
+await in checkLeaguesWithData
+(anonymous) @ HomeTopScorersList.tsx:346
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=09d05c0d:16915
+invokePassiveEffectMountInDEV @ chunk-RPCDYKBN.js?v=09d05c0d:18324
+invokeEffectsInDev @ chunk-RPCDYKBN.js?v=09d05c0d:19701
+commitDoubleInvokeEffectsInDEV @ chunk-RPCDYKBN.js?v=09d05c0d:19686
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=09d05c0d:19503
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=09d05c0d:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=09d05c0d:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=09d05c0d:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=09d05c0d:19432
+commitRoot @ chunk-RPCDYKBN.js?v=09d05c0d:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=09d05c0d:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=09d05c0d:18718
+workLoop @ chunk-RPCDYKBN.js?v=09d05c0d:197
+flushWork @ chunk-RPCDYKBN.js?v=09d05c0d:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=09d05c0d:384Understand this warning
+Console.js:61 Failed to check data for league 22
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ eventEmitterUtils.ts:295
+console.warn @ main.tsx:38
+console.warn @ main.tsx:130
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+checkLeaguesWithData @ HomeTopScorersList.tsx:308
+await in checkLeaguesWithData
+(anonymous) @ HomeTopScorersList.tsx:346
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=09d05c0d:16915
+invokePassiveEffectMountInDEV @ chunk-RPCDYKBN.js?v=09d05c0d:18324
+invokeEffectsInDev @ chunk-RPCDYKBN.js?v=09d05c0d:19701
+commitDoubleInvokeEffectsInDEV @ chunk-RPCDYKBN.js?v=09d05c0d:19686
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=09d05c0d:19503
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=09d05c0d:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=09d05c0d:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=09d05c0d:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=09d05c0d:19432
+commitRoot @ chunk-RPCDYKBN.js?v=09d05c0d:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=09d05c0d:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=09d05c0d:18718
+workLoop @ chunk-RPCDYKBN.js?v=09d05c0d:197
+flushWork @ chunk-RPCDYKBN.js?v=09d05c0d:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=09d05c0d:384Understand this warning
+Console.js:61 🔧 EventEmitter cleanup completed
+Console.js:61 🔧 EventEmitter setup for Replit environment completed with minor issues
+Console.js:61 Failed to check data for league 16
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ eventEmitterUtils.ts:295
+console.warn @ main.tsx:38
+console.warn @ main.tsx:130
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+console.warn @ errorHandler.ts:476
+checkLeaguesWithData @ HomeTopScorersList.tsx:308
+await in checkLeaguesWithData
+(anonymous) @ HomeTopScorersList.tsx:346
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=09d05c0d:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=09d05c0d:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=09d05c0d:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=09d05c0d:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=09d05c0d:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=09d05c0d:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=09d05c0d:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=09d05c0d:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=09d05c0d:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=09d05c0d:19432
+commitRoot @ chunk-RPCDYKBN.js?v=09d05c0d:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=09d05c0d:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=09d05c0d:18718
+workLoop @ chunk-RPCDYKBN.js?v=09d05c0d:197
+flushWork @ chunk-RPCDYKBN.js?v=09d05c0d:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=09d05c0d:384Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/date/2025-08-30?all=true&skipFilter=true
+Console.js:61 ❌ [MyHomeFeaturedMatchNew] Error fetching cached data for Tomorrow: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:1066:47
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ main.tsx:49
+console.error @ errorHandler.ts:456
+console.error @ errorHandler.ts:456
+console.error @ errorHandler.ts:456
+(anonymous) @ MyHomeFeaturedMatchNew.tsx:1338
+await in (anonymous)
+(anonymous) @ MyHomeFeaturedMatchNew.tsx:1972Understand this error
+Console.js:61 🔍 [MyHomeFeaturedMatchNew] Fetching cached data for Day After Tomorrow: 2025-08-31
+Console.js:61 📡 [apiRequest] Making GET request to: https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/featured-match/date/2025-08-31?all=true&skipFilter=true
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/date/2025-08-31?all=true&skipFilter=true
+Console.js:61 ❌ [MyHomeFeaturedMatchNew] Error fetching cached data for Day After Tomorrow: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:1066:47
