@@ -331,52 +331,32 @@ const LazyImage: React.FC<LazyImageProps> = ({
           },
         );
 
-        // First retry: try our API endpoint
-        if (retryCount === 0 && leagueId !== "unknown") {
-          const apiUrl = `/api/league-logo/square/${leagueId}`;
-          console.log(
-            `🏆 [LazyImage] League logo fallback: trying our API endpoint for ${leagueId}`,
-          );
-          setImageSrc(apiUrl);
-          setRetryCount(retryCount + 1);
-          setIsLoading(true);
-          return;
-        }
+          // First retry: try direct API-Sports URL
+          if (retryCount === 0) {
+            if (leagueId !== "unknown") {
+              const directApiUrl = `https://media.api-sports.io/football/leagues/${leagueId}.png`;
+              console.log(
+                `🏆 [LazyImage] League logo fallback: trying direct API-Sports for ${leagueId}`,
+              );
+              setImageSrc(directApiUrl);
+              setRetryCount(retryCount + 1);
+              setIsLoading(true);
+              return;
+            }
+          }
 
-        // Second retry: try direct API-Sports URL
-        if (retryCount === 1 && leagueId !== "unknown") {
-          const directApiUrl = `https://media.api-sports.io/football/leagues/${leagueId}.png`;
-          console.log(
-            `🏆 [LazyImage] League logo second attempt: trying direct API-Sports for ${leagueId}`,
-          );
-          setImageSrc(directApiUrl);
-          setRetryCount(retryCount + 1);
-          setIsLoading(true);
-          return;
-        }
-
-        // Third retry: try 365scores
-        if (retryCount === 2 && leagueId !== "unknown") {
-          const scoresUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitions/${leagueId}`;
-          console.log(
-            `🏆 [LazyImage] League logo third attempt: trying 365scores for ${leagueId}`,
-          );
-          setImageSrc(scoresUrl);
-          setRetryCount(retryCount + 1);
-          setIsLoading(true);
-          return;
-        }
-
-        // Fourth retry: try alternative 365scores format
-        if (retryCount === 3 && leagueId !== "unknown") {
-          const altScoresUrl = `https://imagecache.365scores.com/image/upload/f_png,w_40,h_40,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`;
-          console.log(
-            `🏆 [LazyImage] League logo fourth attempt: trying alternative 365scores format for ${leagueId}`,
-          );
-          setImageSrc(altScoresUrl);
-          setRetryCount(retryCount + 1);
-          setIsLoading(true);
-          return;
+          // Second retry: try 365scores
+          if (retryCount === 1) {
+            if (leagueId !== "unknown") {
+              const scoresUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitions/${leagueId}`;
+              console.log(
+                `🏆 [LazyImage] League logo second attempt: trying 365scores for ${leagueId}`,
+              );
+              setImageSrc(scoresUrl);
+              setRetryCount(retryCount + 1);
+              setIsLoading(true);
+              return;
+            }
         }
       }
 
