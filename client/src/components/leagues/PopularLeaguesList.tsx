@@ -7,6 +7,7 @@ import { RootState, userActions } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import LazyImage from "@/components/common/LazyImage";
+import MyNewLeagueLogo from '@/components/common/MyNewLeagueLogo';
 import { useLanguage, useTranslation } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
@@ -521,22 +522,11 @@ const PopularLeaguesList = () => {
                   key={league.id}
                   className="flex items-center py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
-                  <LazyImage
-                    src={league.logo || `/api/league-logo/${league.id}`}
-                    alt={league.name}
-                    title={league.name}
+                  <MyNewLeagueLogo
+                    leagueId={league.id}
+                    leagueName={league.name}
                     className="w-5 h-5 object-contain"
-                    loading="lazy"
-                    onError={() => {
-                      console.log(
-                        `🚨 League logo failed for: ${league.name} (ID: ${league.id})`,
-                      );
-                    }}
-                    onLoad={() => {
-                      console.log(
-                        `✅ League logo loaded for: ${league.name} (ID: ${league.id})`,
-                      );
-                    }}
+                    style={{ backgroundColor: "transparent" }}
                   />
                   <div className="ml-3 flex-1">
                     <div className="text-sm">
