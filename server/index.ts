@@ -122,7 +122,20 @@ app.use((req, res, next) => {
 
 // Simplified CORS configuration for Replit
 const corsOptions = {
-  origin: true, // Allow all origins for now to debug
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    // Allow all replit.dev origins
+    if (origin.includes('replit.dev')) {
+      return callback(null, true);
+    }
+    // Allow localhost for development
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return callback(null, true);
+    }
+    // Default to allow for debugging
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: [
@@ -134,22 +147,24 @@ const corsOptions = {
     'Cache-Control',
     'X-API-Key'
   ],
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  preflightContinue: false
 };
 
 // Apply CORS middleware first
 app.use(cors(corsOptions));
 
-// Add explicit CORS headers for all requests
+// Add explicit CORS headers for all requests as backup
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  const origin = req.headers.origin || req.headers.host || '*';
+  res.header('Access-Control-Allow-Origin', origin);
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, X-API-Key');
   
-  // Handle preflight requests
+  // Handle preflight requests explicitly
   if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
+    res.status(200).end();
     return;
   }
   
