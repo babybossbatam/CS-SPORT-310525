@@ -1,0 +1,162 @@
+Console.js:61 Failed to fetch cached data for league 39: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 0)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/702/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 702: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 6)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/15/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 15: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 5)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/61/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 61: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 2)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/147/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 147: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 3)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/2/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 2: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 4)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/140/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 140: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 1)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/826/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 826: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 7)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/38/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 38: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 8)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/45/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 45: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 10)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/22/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 22: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 9)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/550/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 550: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 11)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/531/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 531: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 12)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🔍 [MyHomeFeaturedMatchNew] Fetching Friendlies Clubs fixtures for popular teams
+Console.js:61 📡 [apiRequest] Making GET request to: https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/featured-match/leagues/667/fixtures?skipFilter=true
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/39/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 39: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 0)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/147/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 147: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 3)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/61/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 61: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 2)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/140/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 140: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 1)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/2/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 2: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 4)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/702/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 702: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 6)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/15/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 15: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 5)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/826/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 826: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 7)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/38/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 38: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 8)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/22/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 22: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 9)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/45/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 45: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 10)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/531/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 531: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 12)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/550/fixtures?skipFilter=true
+Console.js:61 Failed to fetch cached data for league 550: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:789:57
+    at async Promise.all (482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/__replco/index 11)
+    at async MyHomeFeaturedMatchNew.tsx:801:31
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🔍 [MyHomeFeaturedMatchNew] Fetching Friendlies Clubs fixtures for popular teams
+Console.js:61 📡 [apiRequest] Making GET request to: https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:6800/api/featured-match/leagues/667/fixtures?skipFilter=true
+Console.js:61 📡 [apiRequest] Response status: 200 for GET /api/featured-match/leagues/667/fixtures?skipFilter=true
+Console.js:61 Failed to fetch Friendlies Clubs data: SyntaxError: Failed to execute 'json' on 'Response': Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at MyHomeFeaturedMatchNew.tsx:1080:59
