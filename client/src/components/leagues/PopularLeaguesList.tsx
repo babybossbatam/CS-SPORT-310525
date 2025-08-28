@@ -6,8 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { RootState, userActions } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import LazyImage from "@/components/common/LazyImage";
-import MyNewLeagueLogo from '@/components/common/MyNewLeagueLogo';
+import { leagueLogoCache } from "@/lib/logoCache";
 import { useLanguage, useTranslation } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
@@ -404,12 +403,27 @@ const PopularLeaguesList = () => {
 
           setLeagueData(transformedLeagues);
           
-          // Preload league logos to avoid fetching during render
+          // Preload critical league logos
           console.log(`🔄 [PopularLeaguesList] Preloading logos for ${transformedLeagues.length} leagues`);
           transformedLeagues.slice(0, 10).forEach(league => {
-            // Trigger logo loading in background
             const img = new Image();
-            img.src = `/api/league-logo/${league.id}`;
+            
+            // Use same logic as render for consistency
+            const leagueName = league.name?.toLowerCase() || '';
+            if (leagueName.includes("premier league") || league.id === 39) {
+              img.src = "/assets/league-logos/39.png";
+            } else if (leagueName.includes("champions league") || league.id === 2) {
+              img.src = "/assets/matchdetaillogo/uefa.png";
+            } else if (leagueName.includes("europa league") || league.id === 3) {
+              img.src = "/assets/matchdetaillogo/uefa.png";
+            } else if (leagueName.includes("conference league") || league.id === 848) {
+              img.src = "/assets/matchdetaillogo/uefa.png";
+            } else if (leagueName.includes("euro championship") || league.id === 4) {
+              img.src = "/assets/matchdetaillogo/uefa.png";
+            } else {
+              const cached = leagueLogoCache.getCached(`league_${league.id}`);
+              img.src = cached?.url || `/api/league-logo/${league.id}`;
+            }
           });
         } else {
           throw new Error("No leagues data received from API");
@@ -530,13 +544,49 @@ const PopularLeaguesList = () => {
                   key={league.id}
                   className="flex items-center py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
-                  <MyNewLeagueLogo
-                    leagueId={league.id}
-                    leagueName={league.name}
+                  <img
+                    src={(() => {
+                      // Special handling for well-known leagues with local assets
+                      const leagueName = league.name?.toLowerCase() || '';
+                      
+                      if (leagueName.includes("premier league") || league.id === 39) {
+                        return "/assets/league-logos/39.png";
+                      }
+                      if (leagueName.includes("champions league") || leagueName.includes("uefa champions") || league.id === 2) {
+                        return "/assets/matchdetaillogo/uefa.png";
+                      }
+                      if (leagueName.includes("europa league") || league.id === 3) {
+                        return "/assets/matchdetaillogo/uefa.png"; // Use UEFA logo as fallback
+                      }
+                      if (leagueName.includes("conference league") || league.id === 848) {
+                        return "/assets/matchdetaillogo/uefa.png"; // Use UEFA logo as fallback
+                      }
+                      if (leagueName.includes("euro championship") || league.id === 4) {
+                        return "/assets/matchdetaillogo/uefa.png"; // Use UEFA logo as fallback
+                      }
+                      
+                      // Check cache first
+                      const cached = leagueLogoCache.getCached(`league_${league.id}`);
+                      if (cached?.url) {
+                        return cached.url;
+                      }
+                      
+                      // Fallback to server proxy
+                      return `/api/league-logo/${league.id}`;
+                    })()}
+                    alt={league.name}
                     className="w-8 h-8 object-contain shadow-lg dark:shadow-gray-400/20"
                     style={{ 
                       backgroundColor: "transparent",
                       filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                    }}
+                    loading="lazy"
+                    onError={(e) => {
+                      // Single fallback attempt to prevent loading delays
+                      const target = e.target as HTMLImageElement;
+                      if (!target.src.includes('fallback')) {
+                        target.src = "/assets/matchdetaillogo/fallback.png";
+                      }
                     }}
                   />
                   <div className="ml-3 flex-1">
