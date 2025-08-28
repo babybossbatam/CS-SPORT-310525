@@ -152,11 +152,25 @@ const corsOptions = {
     'Cache-Control',
     'X-API-Key'
   ],
-  optionsSuccessStatus: 200 // For legacy browser support
+  optionsSuccessStatus: 200, // For legacy browser support
+  preflightContinue: false // Handle preflight responses automatically
 };
 
-// Middleware
+// Apply CORS middleware first
 app.use(cors(corsOptions));
+
+// Additional CORS headers middleware for extra compatibility
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && origin.includes('replit.dev')) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, X-API-Key');
+  }
+  next();
+});
+
 app.use(express.json());
 app.use(express.static('client/dist'));
 
@@ -179,15 +193,6 @@ app.use((req, res, next) => {
   res.setHeader('X-XSS-Protection', '1; mode=block');
 
   next();
-});
-
-// Manual preflight handler for all routes
-app.options('*', (req, res) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, X-API-Key');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.sendStatus(200);
 });
 
 // Routes
