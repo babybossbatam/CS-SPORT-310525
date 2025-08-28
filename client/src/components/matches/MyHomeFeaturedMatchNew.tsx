@@ -1168,6 +1168,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               "GET",
               `/api/featured-match/date/${dateInfo.date}?all=true&skipFilter=true`,
             );
+            
+            // Check if response is actually JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+              console.error(`❌ [MyHomeFeaturedMatchNew] Non-JSON response for ${dateInfo.label}:`, {
+                status: response.status,
+                contentType: contentType,
+                url: response.url
+              });
+              continue; // Skip this date and continue with next
+            }
+            
             const fixtures = await response.json();
 
             if (fixtures?.length) {
@@ -1449,6 +1461,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               `❌ [MyHomeFeaturedMatchNew] Error fetching cached data for ${dateInfo.label}:`,
               error,
             );
+            // Continue with next date instead of failing completely
+            continue;
           }
         }
 
@@ -1464,6 +1478,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 "GET",
                 `/api/featured-match/date/${dateInfo.date}?all=true&skipFilter=true`,
               );
+              
+              // Check if response is actually JSON
+              const contentType = response.headers.get('content-type');
+              if (!contentType || !contentType.includes('application/json')) {
+                console.error(`❌ [MyHomeFeaturedMatchNew] Non-JSON response in expanded search for ${dateInfo.label}:`, {
+                  status: response.status,
+                  contentType: contentType,
+                  url: response.url
+                });
+                continue; // Skip this date and continue with next
+              }
+              
               const fixtures = await response.json();
 
               if (fixtures?.length) {
@@ -1675,6 +1701,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 `❌ [MyHomeFeaturedMatchNew] Error in expanded search for ${dateInfo.label}:`,
                 error,
               );
+              // Continue with next date instead of failing completely
+              continue;
             }
           }
         }

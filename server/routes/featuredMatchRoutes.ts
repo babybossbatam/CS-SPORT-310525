@@ -31,6 +31,7 @@ featuredMatchRouter.get("/date/:date", async (req: Request, res: Response) => {
 
     // Validate date format
     if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      console.error(`❌ [FeaturedMatch] Invalid date format: ${date}`);
       return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
     }
 
@@ -70,10 +71,19 @@ featuredMatchRouter.get("/date/:date", async (req: Request, res: Response) => {
     );
 
     console.log(`✅ [FeaturedMatch] Returning ${uniqueFixtures.length} unfiltered fixtures for ${date}`);
-    return res.json(uniqueFixtures);
+    
+    // Ensure we always return JSON, even if empty array
+    res.setHeader('Content-Type', 'application/json');
+    return res.json(uniqueFixtures || []);
   } catch (error) {
     console.error('❌ [FeaturedMatch] Error fetching fixtures by date:', error);
-    res.status(500).json({ error: 'Failed to fetch fixtures' });
+    
+    // Ensure error response is also JSON
+    res.setHeader('Content-Type', 'application/json');
+    return res.status(500).json({ 
+      error: 'Failed to fetch fixtures',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
