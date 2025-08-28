@@ -120,22 +120,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Simplified CORS configuration for Replit
+// Enhanced CORS configuration for Replit
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    // Allow all replit.dev origins
-    if (origin.includes('replit.dev')) {
-      return callback(null, true);
-    }
-    // Allow localhost for development
-    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      return callback(null, true);
-    }
-    // Default to allow for debugging
-    return callback(null, true);
-  },
+  origin: true, // Allow all origins for now to resolve the issue
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: [
@@ -145,8 +132,11 @@ const corsOptions = {
     'Accept',
     'Authorization',
     'Cache-Control',
-    'X-API-Key'
+    'X-API-Key',
+    'Access-Control-Allow-Origin',
+    'Access-Control-Allow-Headers'
   ],
+  exposedHeaders: ['*'],
   optionsSuccessStatus: 200,
   preflightContinue: false
 };
@@ -154,17 +144,18 @@ const corsOptions = {
 // Apply CORS middleware first
 app.use(cors(corsOptions));
 
-// Add explicit CORS headers for all requests as backup
+// Enhanced CORS headers middleware
 app.use((req, res, next) => {
-  const origin = req.headers.origin || req.headers.host || '*';
-  res.header('Access-Control-Allow-Origin', origin);
+  // Always set permissive CORS headers for Replit
+  res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, X-API-Key');
+  res.header('Access-Control-Allow-Headers', '*');
+  res.header('Access-Control-Expose-Headers', '*');
   
-  // Handle preflight requests explicitly
+  // Handle preflight requests
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
+    res.status(200).json({ status: 'OK', message: 'CORS preflight successful' });
     return;
   }
   
@@ -176,20 +167,21 @@ app.use(express.static('client/dist'));
 
 // Security headers middleware
 app.use((req, res, next) => {
-  // Content Security Policy
+  // Content Security Policy - properly configured for Replit
   res.setHeader('Content-Security-Policy', 
-    "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; " +
-    "style-src 'self' 'unsafe-inline' https:; " +
-    "img-src 'self' data: https: http:; " +
-    "font-src 'self' https: data:; " +
-    "connect-src 'self' https: wss: ws:; " +
-    "frame-ancestors 'self';"
+    "default-src 'self' *.replit.dev; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: *.replit.dev; " +
+    "style-src 'self' 'unsafe-inline' https: *.replit.dev; " +
+    "img-src 'self' data: https: http: *.replit.dev; " +
+    "font-src 'self' https: data: *.replit.dev; " +
+    "connect-src 'self' https: wss: ws: *.replit.dev; " +
+    "frame-ancestors 'self' *.replit.dev replit.com; " +
+    "frame-src 'self' *.replit.dev;"
   );
 
   // Other security headers
   res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-Frame-Options', 'ALLOWALL'); // Changed for Replit compatibility
   res.setHeader('X-XSS-Protection', '1; mode=block');
 
   next();
@@ -224,28 +216,21 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
   app.use('/api', logoRoutes);
 
   // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const PORT = process.env.PORT || 5000;
-  const HOST = '0.0.0.0'; // Important for Replit
+// this serves both the API and the client.
+// It is the only port that is not firewalled.
+const PORT = process.env.PORT || 5000;
+const HOST = '0.0.0.0'; // Important for Replit
 
-  server.listen(PORT, HOST, () => {
-    console.log(`🚀 Server running on ${HOST}:${PORT}`);
-    console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
-  }).on('error', (err: any) => {
-    if (err.code === 'EADDRINUSE' && retryPort < 5010) {
-      log(`Port ${retryPort} in use, trying ${retryPort + 1}`);
-      if (retryPort + 1 <= 5010) {
-          tryListen(retryPort + 1);
-      } else {
-          console.error("Failed to find an open port between 5000 and 5010");
-          // Don't exit immediately, let the process manager handle restarts
-          setTimeout(() => process.exit(1), 1000);
-      }
-    } else {
-      console.error("Failed to start server:", err);
-      // Don't exit immediately, let the process manager handle restarts
-      setTimeout(() => process.exit(1), 1000);
-    }
-  });
-})();
+// Create HTTP server
+import { createServer } from 'http';
+const server = createServer(app);
+
+server.listen(PORT, HOST, () => {
+  console.log(`🚀 Server running on ${HOST}:${PORT}`);
+  console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔧 CORS configured for all origins`);
+}).on('error', (err: any) => {
+  console.error("Failed to start server:", err);
+  // Don't exit immediately, let the process manager handle restarts
+  setTimeout(() => process.exit(1), 1000);
+});
