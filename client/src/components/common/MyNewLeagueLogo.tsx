@@ -176,10 +176,9 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
 
   return (
     <div
-      className={`league-logo-container shadow-lg shadow-gray-900/25 dark:shadow-white/20 ${className}`}
+      className={`league-logo-container ${className}`}
       style={{
-        ...containerStyle,
-        filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.25)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+        ...containerStyle
       }}
       onClick={onClick}
     >
