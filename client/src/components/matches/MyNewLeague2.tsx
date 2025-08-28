@@ -248,7 +248,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
   // League IDs without any filtering - removed duplicates
   const leagueIds = [
-    38, 39, 61, 140, 15, 137, 135, 702, 871, 2, 4, 10, 11, 848, 886, 1022, 772, 71,
+    38, 39, 61, 140, 15, 137, 135, 702, 2, 4, 10, 11, 848, 886, 1022, 772, 71,
     3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 940, 908, 1169, 23, 253, 850, 893,
     921, 130, 128, 493, 239, 265, 237, 235, 743,
   ];
@@ -2003,7 +2003,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         .sort(([aId], [bId]) => {
           // Define priority order - same as MyNewLeague
           const priorityOrder = [
-            38, 39, 61, 15, 2, 5, 140, 137, 135, 702, 871, 22, 10, 11, 848, 886,
+            38, 39, 61, 15, 2, 5, 140, 137, 135, 702, 22, 10, 11, 848, 886,
             1022, 772, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 940, 908,
             1169, 23, 253, 850, 893, 921, 130, 128, 493, 239, 265, 237, 235,
             743,
