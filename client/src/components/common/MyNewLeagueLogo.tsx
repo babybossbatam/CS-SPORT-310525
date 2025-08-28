@@ -39,7 +39,6 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
     height: "100%",
     objectFit: "contain" as const,
     borderRadius: "0%",
-    filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))",
     ...style,
   };
 
@@ -173,8 +172,11 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
 
   return (
     <div
-      className={`league-logo-container shadow-lg dark:shadow-white/10 ${className}`}
-      style={containerStyle}
+      className={`league-logo-container shadow-lg shadow-gray-900/25 dark:shadow-white/20 ${className}`}
+      style={{
+        ...containerStyle,
+        filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.25)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+      }}
       onClick={onClick}
     >
       <img
