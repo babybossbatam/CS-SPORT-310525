@@ -525,8 +525,11 @@ const PopularLeaguesList = () => {
                   <MyNewLeagueLogo
                     leagueId={league.id}
                     leagueName={league.name}
-                    className="w-5 h-5 object-contain"
-                    style={{ backgroundColor: "transparent" }}
+                    className="w-8 h-8 object-contain shadow-md dark:shadow-gray-400/20"
+                    style={{ 
+                      backgroundColor: "transparent",
+                      filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                    }}
                   />
                   <div className="ml-3 flex-1">
                     <div className="text-sm">
