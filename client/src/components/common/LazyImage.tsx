@@ -72,13 +72,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
       console.log(`🏆 [LazyImage] Using local COTIF Tournament logo from start`);
       return "/assets/matchdetaillogo/cotif tournament.png";
     }
-    
-    // Egyptian Premier League - common league IDs: 42, 233, 294
-    if (altLower.includes("premier league") && (altLower.includes("egypt") || url.includes("/42") || url.includes("/233") || url.includes("/294"))) {
-      console.log(`🇪🇬 [LazyImage] Egyptian Premier League detected, using server proxy`);
-      const egyptianLeagueId = url.match(/\/(\d+)/)?.[1] || "233"; // Default to 233 if can't extract
-      return `/api/league-logo/${egyptianLeagueId}`;
-    }
 
     // Team logo local assets
     if (altLower.includes("valencia") && !altLower.includes("rayo vallecano")) {
