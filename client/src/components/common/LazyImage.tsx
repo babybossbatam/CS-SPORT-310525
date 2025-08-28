@@ -104,15 +104,21 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const getImmediateSource = (url: string, altText: string) => {
     const altLower = altText?.toLowerCase() || '';
 
-    // Local assets - return immediately
-    if (altLower.includes("champions league")) {
-      console.log(`🏆 [LazyImage] Using local Champions League logo (${darkMode ? 'dark' : 'light'}) mode) from start`);
+    // League logo local assets - return immediately
+    if (altLower.includes("champions league") || altLower.includes("uefa champions")) {
+      console.log(`🏆 [LazyImage] Using local Champions League logo (${darkMode ? 'dark' : 'light'} mode) from start`);
       return darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
+    }
+    if (altLower.includes("premier league")) {
+      console.log(`🏆 [LazyImage] Using local Premier League logo from start`);
+      return "/assets/league-logos/39.png";
     }
     if (altLower.includes("cotif") || altLower.includes("cotif tournament")) {
       console.log(`🏆 [LazyImage] Using local COTIF Tournament logo from start`);
       return "/assets/matchdetaillogo/cotif tournament.png";
     }
+    
+    // Team logo local assets
     if (altLower.includes("valencia") && !altLower.includes("rayo vallecano")) {
       console.log(`⚽ [LazyImage] Using local Valencia logo from start`);
       return "/assets/matchdetaillogo/valencia.png";
@@ -126,6 +132,16 @@ const LazyImage: React.FC<LazyImageProps> = ({
     const cached = getCachedImage(url);
     if (cached) {
       return cached;
+    }
+
+    // For league logos, try to use our API endpoint if we can extract league ID
+    if (url.includes("/api/league-logo/") || url.includes("media.api-sports.io/football/leagues/") || url.includes("imagecache.365scores.com")) {
+      const leagueIdMatch = url.match(/(?:leagues?\/|logo\/(?:square\/)?|Competitions\/)(\d+)/);
+      if (leagueIdMatch) {
+        const leagueId = leagueIdMatch[1];
+        console.log(`🏆 [LazyImage] League logo detected, using our API endpoint for league ${leagueId}`);
+        return `/api/league-logo/square/${leagueId}`;
+      }
     }
 
     // Return original URL for immediate rendering if no special case or cache hit
@@ -265,7 +281,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
       // Enhanced league logo fallback strategy
       const isLeagueLogo = imageSrc.includes("/api/league-logo/") || 
                           imageSrc.includes("media.api-sports.io/football/leagues/") ||
-                          imageSrc.includes("imagecache.365scores.com");
+                          imageSrc.includes("imagecache.365scores.com") ||
+                          imageSrc.includes("/Competitions/");
 
       if (isLeagueLogo) {
         // Extract league ID for better debugging
@@ -282,6 +299,28 @@ const LazyImage: React.FC<LazyImageProps> = ({
         else if (mediaMatch) leagueId = mediaMatch[1];
         else if (scoresMatch) leagueId = scoresMatch[1];
 
+        // Special handling for well-known leagues with local assets
+        const altLower = alt?.toLowerCase() || '';
+        if (altLower.includes("premier league") || leagueId === "39") {
+          if (retryCount === 0) {
+            console.log(`🏆 [LazyImage] Using Premier League local asset`);
+            setImageSrc("/assets/league-logos/39.png");
+            setRetryCount(retryCount + 1);
+            setIsLoading(true);
+            return;
+          }
+        }
+
+        if (altLower.includes("champions league") || altLower.includes("uefa champions") || leagueId === "2") {
+          if (retryCount === 0) {
+            console.log(`🏆 [LazyImage] Using Champions League local asset`);
+            setImageSrc(darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png");
+            setRetryCount(retryCount + 1);
+            setIsLoading(true);
+            return;
+          }
+        }
+
         console.log(
           `🏆 [LazyImage] League logo error detected for: ${alt} (ID: ${leagueId})`,
           {
@@ -292,32 +331,52 @@ const LazyImage: React.FC<LazyImageProps> = ({
           },
         );
 
-        // First retry: try direct API-Sports URL
-        if (retryCount === 0) {
-          if (leagueId !== "unknown") {
-            const directApiUrl = `https://media.api-sports.io/football/leagues/${leagueId}.png`;
-            console.log(
-              `🏆 [LazyImage] League logo fallback: trying direct API-Sports for ${leagueId}`,
-            );
-            setImageSrc(directApiUrl);
-            setRetryCount(retryCount + 1);
-            setIsLoading(true);
-            return;
-          }
+        // First retry: try our API endpoint
+        if (retryCount === 0 && leagueId !== "unknown") {
+          const apiUrl = `/api/league-logo/square/${leagueId}`;
+          console.log(
+            `🏆 [LazyImage] League logo fallback: trying our API endpoint for ${leagueId}`,
+          );
+          setImageSrc(apiUrl);
+          setRetryCount(retryCount + 1);
+          setIsLoading(true);
+          return;
         }
 
-        // Second retry: try 365scores
-        if (retryCount === 1) {
-          if (leagueId !== "unknown") {
-            const scoresUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitions/${leagueId}`;
-            console.log(
-              `🏆 [LazyImage] League logo second attempt: trying 365scores for ${leagueId}`,
-            );
-            setImageSrc(scoresUrl);
-            setRetryCount(retryCount + 1);
-            setIsLoading(true);
-            return;
-          }
+        // Second retry: try direct API-Sports URL
+        if (retryCount === 1 && leagueId !== "unknown") {
+          const directApiUrl = `https://media.api-sports.io/football/leagues/${leagueId}.png`;
+          console.log(
+            `🏆 [LazyImage] League logo second attempt: trying direct API-Sports for ${leagueId}`,
+          );
+          setImageSrc(directApiUrl);
+          setRetryCount(retryCount + 1);
+          setIsLoading(true);
+          return;
+        }
+
+        // Third retry: try 365scores
+        if (retryCount === 2 && leagueId !== "unknown") {
+          const scoresUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitions/${leagueId}`;
+          console.log(
+            `🏆 [LazyImage] League logo third attempt: trying 365scores for ${leagueId}`,
+          );
+          setImageSrc(scoresUrl);
+          setRetryCount(retryCount + 1);
+          setIsLoading(true);
+          return;
+        }
+
+        // Fourth retry: try alternative 365scores format
+        if (retryCount === 3 && leagueId !== "unknown") {
+          const altScoresUrl = `https://imagecache.365scores.com/image/upload/f_png,w_40,h_40,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`;
+          console.log(
+            `🏆 [LazyImage] League logo fourth attempt: trying alternative 365scores format for ${leagueId}`,
+          );
+          setImageSrc(altScoresUrl);
+          setRetryCount(retryCount + 1);
+          setIsLoading(true);
+          return;
         }
       }
 
