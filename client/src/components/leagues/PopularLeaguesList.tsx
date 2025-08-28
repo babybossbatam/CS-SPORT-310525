@@ -525,7 +525,7 @@ const PopularLeaguesList = () => {
                   <MyNewLeagueLogo
                     leagueId={league.id}
                     leagueName={league.name}
-                    className="w-8 h-8 object-contain shadow-md dark:shadow-gray-400/20"
+                    className="w-18 h-18 object-contain shadow-lg dark:shadow-gray-400/20"
                     style={{ 
                       backgroundColor: "transparent",
                       filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
