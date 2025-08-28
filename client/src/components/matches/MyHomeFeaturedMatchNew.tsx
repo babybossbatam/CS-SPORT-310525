@@ -844,9 +844,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               }
 
               // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
-              const matchDate = new Date(fixture.fixture.date);
+              const fixtureDate = new Date(fixture.fixture.date);
               const minutesFromKickoff =
-                (now.getTime() - matchDate.getTime()) / (1000 * 60);
+                (now.getTime() - fixtureDate.getTime()) / (1000 * 60);
               const hoursFromKickoff = minutesFromKickoff / 60;
               const status = fixture.fixture.status.short;
 
