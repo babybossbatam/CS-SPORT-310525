@@ -1820,14 +1820,17 @@ name: "Bundesliga",
       try {
         const { fixtureId } = req.params;
 
-        const response = await rapidApiService.get('/fixtures/players', {
-          params: { fixture: fixtureId }
-        });
+        // Get player statistics for the fixture
+        const playerStats = await rapidApiService.getFixturePlayerStatistics(parseInt(fixtureId));
+
+        if (!playerStats) {
+          return res.json([]);
+        }
 
         // Extract shot data from player statistics
         const shots: any[] = [];
 
-        response.data.response.forEach((team: any) => {
+        playerStats.forEach((team: any) => {
           team.players?.forEach((playerData: any) => {
             const player = playerData.player;
             const statistics = playerData.statistics[0]; // First statistics object
