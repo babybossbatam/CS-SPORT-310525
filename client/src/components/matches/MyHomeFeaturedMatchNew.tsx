@@ -386,6 +386,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     return hoursAgo > 2;
   }, []);
 
+  // Cache key for ended matches
+  const getCacheKey = useCallback((date: string, leagueId: number) => {
+    return `ended_matches_${date}_${leagueId}`;
+  }, []);
+
   // Get cached ended matches with strict date validation
   const getCachedEndedMatches = useCallback(
     (date: string, leagueId: number): any[] => {
@@ -598,15 +603,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               "GET",
               "/api/featured-match/live?skipFilter=true",
             );
-            let liveData;
-            const contentType = liveResponse.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-              liveData = await liveResponse.json();
-            } else {
-              const text = await liveResponse.text();
-              console.warn(`⚠️ [MyHomeFeaturedMatchNew] Non-JSON response for live matches:`, text.substring(0, 200));
-              throw new Error(`Server returned non-JSON response: ${liveResponse.status}`);
-            }
+            const liveData = await liveResponse.json();
 
             if (Array.isArray(liveData)) {
               console.log(
@@ -708,16 +705,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 "GET",
                 `/api/featured-match/leagues/${leagueId}/fixtures?skipFilter=true`,
               );
-              let fixturesData;
-              const fixturesContentType = fixturesResponse.headers.get('content-type');
-              if (fixturesContentType && fixturesContentType.includes('application/json')) {
-                fixturesData = await fixturesResponse.json();
-              } else {
-                const fixturesText = await fixturesResponse.text();
-                console.warn(`⚠️ [MyHomeFeaturedMatchNew] Non-JSON response for league ${leagueId} fixtures:`, fixturesText.substring(0, 200));
-                throw new Error(`Server returned non-JSON response for league ${leagueId} fixtures: ${fixturesResponse.status}`);
-              }
-
+              const fixturesData = await fixturesResponse.json();
 
               if (Array.isArray(fixturesData)) {
                 const cachedFixtures = fixturesData
@@ -984,15 +972,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               "GET",
               `/api/featured-match/leagues/667/fixtures?skipFilter=true`,
             );
-            let friendliesData;
-            const friendliesContentType = friendliesResponse.headers.get('content-type');
-            if (friendliesContentType && friendliesContentType.includes('application/json')) {
-              friendliesData = await friendliesResponse.json();
-            } else {
-              const friendliesText = await friendliesResponse.text();
-              console.warn(`⚠️ [MyHomeFeaturedMatchNew] Non-JSON response for Friendlies Clubs:`, friendliesText.substring(0, 200));
-              throw new Error(`Server returned non-JSON response for Friendlies Clubs: ${friendliesResponse.status}`);
-            }
+            const friendliesData = await friendliesResponse.json();
 
             if (Array.isArray(friendliesData)) {
               const popularFriendlies = friendliesData
@@ -1083,16 +1063,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 "GET",
                 `/api/featured-match/date/${dateInfo.date}?all=true&skipFilter=true`,
               );
-              let fixtures;
-              const contentType = response.headers.get('content-type');
-              if (contentType && contentType.includes('application/json')) {
-                fixtures = await response.json();
-              } else {
-                const text = await response.text();
-                console.warn(`⚠️ [MyHomeFeaturedMatchNew] Non-JSON response for ${dateInfo.label} (${dateInfo.date}):`, text.substring(0, 200));
-                throw new Error(`Server returned non-JSON response for ${dateInfo.label} (${dateInfo.date}): ${response.status}`);
-              }
-
+              const fixtures = await response.json();
 
               if (fixtures?.length) {
                 const cachedFixtures = fixtures
@@ -1383,15 +1354,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   "GET",
                   `/api/featured-match/date/${dateInfo.date}?all=true&skipFilter=true`,
                 );
-                let fixtures;
-                const contentType = response.headers.get('content-type');
-                if (contentType && contentType.includes('application/json')) {
-                  fixtures = await response.json();
-                } else {
-                  const text = await response.text();
-                  console.warn(`⚠️ [MyHomeFeaturedMatchNew] Non-JSON expanded response for ${dateInfo.label} (${dateInfo.date}):`, text.substring(0, 200));
-                  throw new Error(`Server returned non-JSON expanded response for ${dateInfo.label} (${dateInfo.date}): ${response.status}`);
-                }
+                const fixtures = await response.json();
 
                 if (fixtures?.length) {
                   const expandedFixtures = fixtures
