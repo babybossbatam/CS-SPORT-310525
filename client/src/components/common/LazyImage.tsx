@@ -56,7 +56,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   // Preload critical images
   const shouldPreload = priority === 'high' || priority === 'medium';
-  
+
   // Preload image if it's high priority
   useEffect(() => {
     if (shouldPreload && src && !src.includes('fallback')) {
@@ -377,15 +377,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
         // Standard retry logic for non-league images or final attempts
         const maxRetries = isLeagueLogo ? 2 : 1; // Reduced retries to prevent spam
         if (retryCount >= maxRetries) {
-          // Try teamLogo as additional fallback before using default fallback
-          if (teamLogo && !imageSrc.includes(teamLogo) && retryCount === maxRetries) {
-            console.log(`🔄 [LazyImage] Trying teamLogo fallback: ${teamLogo}`);
-            setImageSrc(teamLogo);
-            setRetryCount(retryCount + 1);
-            setIsLoading(true);
-            return;
-          }
-          
           console.warn(
             `🚫 [LazyImage] All retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
           );
@@ -555,7 +546,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
                          (imageSrc.includes('365scores.com') && imageSrc.includes('Athletes') && !imageSrc.includes('Competitors')) ||
                          // Only block RapidAPI player patterns, not team logos
                          (imageSrc.includes('media.api-sports.io') && imageSrc.includes('/players/') && !imageSrc.includes('/teams/'));
-    
+
     // Team context detection - stronger indicators that this should be a team logo
     const isDefinitelyTeamContext = teamId || // Has teamId prop
                          alt.toLowerCase().includes('vs') || 
@@ -578,7 +569,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
                          // Component context
                          className?.includes('team-logo') ||
                          className?.includes('club-logo');
-    
+
     // Only block if it's definitely a player photo AND not in a definite team context
     if (isPlayerPhoto && !isDefinitelyTeamContext) {
       console.warn(`🚨 [LazyImage] Player photo detected and blocked:`, {
@@ -589,7 +580,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         isDefinitelyTeamContext,
         component: 'LazyImage'
       });
-      
+
       // Force fallback immediately
       return (
         <img
