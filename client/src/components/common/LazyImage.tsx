@@ -117,13 +117,17 @@ const LazyImage: React.FC<LazyImageProps> = ({
     const handleError = () => {
     // Safety check to prevent cascading errors
     try {
+      // Extract teamId from src if not provided
+      const extractedTeamId = teamId || (imageSrc.match(/\/team-logo\/(?:square|circular)\/(\d+)/) || [])[1];
+      
       // Enhanced debugging for team logos
       console.log(`🚫 [LazyImage] Image failed to load:`, {
         src: imageSrc,
         alt: alt,
         originalSrc: src,
         retryCount,
-        hasTeamInfo: !!(teamId && teamName),
+        teamId: extractedTeamId,
+        hasTeamInfo: !!(extractedTeamId && teamName),
         useTeamLogo,
         timestamp: new Date().toISOString()
       });
@@ -374,11 +378,33 @@ const LazyImage: React.FC<LazyImageProps> = ({
           }
         }
 
-        // Standard retry logic for non-league images or final attempts
-        const maxRetries = isLeagueLogo ? 2 : 1; // Reduced retries to prevent spam
+        // Enhanced retry logic for team logos
+        const maxRetries = isLeagueLogo ? 2 : 2; // Allow 2 retries for team logos too
+        
+        // For team logos, try different URL patterns
+        if (!isLeagueLogo && teamId && retryCount === 0) {
+          // First retry: try with different size parameter
+          const newUrl = `/api/team-logo/square/${teamId}?size=64`;
+          console.log(`🔄 [LazyImage] Team logo retry 1 - trying different size: ${newUrl}`);
+          setImageSrc(newUrl);
+          setRetryCount(1);
+          setIsLoading(true);
+          return;
+        }
+        
+        if (!isLeagueLogo && teamId && retryCount === 1) {
+          // Second retry: try with circular endpoint
+          const newUrl = `/api/team-logo/circular/${teamId}?size=32`;
+          console.log(`🔄 [LazyImage] Team logo retry 2 - trying circular: ${newUrl}`);
+          setImageSrc(newUrl);
+          setRetryCount(2);
+          setIsLoading(true);
+          return;
+        }
+        
         if (retryCount >= maxRetries) {
           // Try teamLogo as additional fallback before using default fallback
-          if (teamLogo && !imageSrc.includes(teamLogo) && retryCount === maxRetries) {
+          if (teamLogo && !imageSrc.includes(teamLogo) && !imageSrc.includes(fallbackUrl)) {
             console.log(`🔄 [LazyImage] Trying teamLogo fallback: ${teamLogo}`);
             setImageSrc(teamLogo);
             setRetryCount(retryCount + 1);
@@ -391,6 +417,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
           );
           setHasError(true);
           setImageSrc(fallbackUrl);
+          setIsLoading(false);
           onError?.();
         } else {
           console.warn(
@@ -420,6 +447,11 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const handleLoad = () => {
     // Reset loading state when image loads successfully
     setIsLoading(false);
+    
+    // Also reset error state on successful load
+    if (hasError) {
+      setHasError(false);
+    }
 
     // Don't cache or log success for fallback images
     const isFallbackImage =
@@ -549,9 +581,9 @@ const LazyImage: React.FC<LazyImageProps> = ({
         ...style,
         border: 'none',
         outline: 'none',
-        display: hasError && imageSrc !== fallbackUrl ? 'none' : 'block',
-        opacity: isLoading ? 0.5 : 1,
-        transition: 'opacity 0.15s ease-in-out',
+        display: hasError && imageSrc === fallbackUrl ? 'block' : (hasError ? 'none' : 'block'),
+        opacity: isLoading ? 0.7 : 1,
+        transition: 'opacity 0.2s ease-in-out',
         filter: darkMode ? 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))' : 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.8))',
         // Apply size from props if no explicit width/height in style
         ...(style?.width || style?.height ? {} : {
