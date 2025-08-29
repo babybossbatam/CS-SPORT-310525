@@ -8,7 +8,6 @@ import { format } from "date-fns";
 import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import LazyImage from "../common/LazyImage";
-import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
 import MyMatchStats from "./MyMatchStats";
