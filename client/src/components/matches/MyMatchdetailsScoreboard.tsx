@@ -7,7 +7,6 @@ import { User, Trophy } from "lucide-react";
 import { format } from "date-fns";
 import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
-import LazyImage from "../common/LazyImage";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
 import MyMatchStats from "./MyMatchStats";
