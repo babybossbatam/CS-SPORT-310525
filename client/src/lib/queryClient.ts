@@ -108,9 +108,24 @@ export async function apiRequest(
         throw new Error(`Invalid request parameters`);
       }
 
+      if (errorMessage.includes('429') || errorMessage.includes('Too Many Requests')) {
+        console.warn(`🚫 [apiRequest] Rate limit exceeded for ${url}: ${errorMessage}`);
+        throw new Error(`Rate limit exceeded. Please wait and try again.`);
+      }
+
       if (errorMessage.includes('500') || errorMessage.includes('Internal Server Error')) {
         console.warn(`🔧 [apiRequest] Server error for ${url}: ${errorMessage}`);
         throw new Error(`Server temporarily unavailable`);
+      }
+
+      if (errorMessage.includes('502') || errorMessage.includes('Bad Gateway')) {
+        console.warn(`🔧 [apiRequest] External API error for ${url}: ${errorMessage}`);
+        throw new Error(`External service temporarily unavailable`);
+      }
+
+      if (errorMessage.includes('504') || errorMessage.includes('Gateway Timeout')) {
+        console.warn(`⏰ [apiRequest] Timeout error for ${url}: ${errorMessage}`);
+        throw new Error(`Request timed out. Please try again.`);
       }
     }
 
