@@ -570,8 +570,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
     );
   }
 
-  
-
   return (
     <img
       src={imageSrc}
