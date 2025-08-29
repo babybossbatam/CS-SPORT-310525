@@ -131,13 +131,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
       // Immediately set loading to false to prevent broken image display
       setIsLoading(false);
 
-      // Check if this is already a fallback URL to prevent infinite loops
-      if (imageSrc.includes('fallback.png') || imageSrc.includes('fallback-logo')) {
-        console.log(`🚫 [LazyImage] Already using fallback URL, stopping retries`);
-        setHasError(true);
-        return;
-      }
-
       // Check for specific teams/leagues that should use local assets
       const shouldUseLocalAsset = () => {
         if (alt) {
@@ -179,6 +172,98 @@ const LazyImage: React.FC<LazyImageProps> = ({
             console.log(`⚽ [LazyImage] Using local Alboraya logo`);
             return true;
           }
+
+          // Al-Nassr team - try multiple logo sources
+          if (altLower.includes("al-nassr") || altLower.includes("al nassr")) {
+            if (retryCount === 0) {
+              const alNassrUrl = "https://media.api-sports.io/football/teams/2939.png";
+              console.log(`⚽ [LazyImage] Trying Al-Nassr logo (attempt 1): ${alNassrUrl}`);
+              setImageSrc(alNassrUrl);
+              setHasError(false);
+              setIsLoading(true);
+              setRetryCount(retryCount + 1);
+              return true;
+            } else if (retryCount === 1) {
+              // Try 365scores as alternative
+              const alNassr365Url = "https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/2939";
+              console.log(`⚽ [LazyImage] Trying Al-Nassr logo (attempt 2): ${alNassr365Url}`);
+              setImageSrc(alNassr365Url);
+              setHasError(false);
+              setIsLoading(true);
+              setRetryCount(retryCount + 1);
+              return true;
+            } else {
+              console.log(`⚽ [LazyImage] Using fallback for Al-Nassr team after all retries`);
+              setImageSrc(fallbackUrl);
+              setHasError(false);
+              setIsLoading(true);
+              return true;
+            }
+          }
+
+          // Al-Ittihad team - try multiple logo sources
+          if (altLower.includes("al-ittihad") || altLower.includes("al ittihad")) {
+            if (retryCount === 0) {
+              const alIttihadUrl = "https://media.api-sports.io/football/teams/2940.png";
+              console.log(`⚽ [LazyImage] Trying Al-Ittihad logo (attempt 1): ${alIttihadUrl}`);
+              setImageSrc(alIttihadUrl);
+              setHasError(false);
+              setIsLoading(true);
+              setRetryCount(retryCount + 1);
+              return true;
+            } else if (retryCount === 1) {
+              // Try 365scores as alternative
+              const alIttihad365Url = "https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/2940";
+              console.log(`⚽ [LazyImage] Trying Al-Ittihad logo (attempt 2): ${alIttihad365Url}`);
+              setImageSrc(alIttihad365Url);
+              setHasError(false);
+              setIsLoading(true);
+              setRetryCount(retryCount + 1);
+              return true;
+            } else {
+              console.log(`⚽ [LazyImage] Using fallback for Al-Ittihad team after all retries`);
+              setImageSrc(fallbackUrl);
+              setHasError(false);
+              setIsLoading(true);
+              return true;
+            }
+          }
+
+          // Al-Qadisiyah FC team
+          if (altLower.includes("al-qadisiyah") || altLower.includes("al qadisiyah")) {
+            setImageSrc("https://media.api-sports.io/football/teams/2942.png");
+            setHasError(false);
+            setIsLoading(true);
+            console.log(`⚽ [LazyImage] Using Al-Qadisiyah logo`);
+            return true;
+          }
+
+          // Al-Ahli Jeddah team
+          if ((altLower.includes("al-ahli") || altLower.includes("al ahli")) && altLower.includes("jeddah")) {
+            setImageSrc("https://media.api-sports.io/football/teams/2941.png");
+            setHasError(false);
+            setIsLoading(true);
+            console.log(`⚽ [LazyImage] Using Al-Ahli Jeddah logo`);
+            return true;
+          }
+
+          // Al-Hilal team
+          if (altLower.includes("al-hilal") || altLower.includes("al hilal")) {
+            setImageSrc("https://media.api-sports.io/football/teams/2938.png");
+            setHasError(false);
+            setIsLoading(true);
+            console.log(`⚽ [LazyImage] Using Al-Hilal logo`);
+            return true;
+          }
+
+          // Al-Shabab team
+          if (altLower.includes("al-shabab") || altLower.includes("al shabab")) {
+            setImageSrc("https://media.api-sports.io/football/teams/2943.png");
+            setHasError(false);
+            setIsLoading(true);
+            console.log(`⚽ [LazyImage] Using Al-Shabab logo`);
+            return true;
+          }
         }
         return false;
       };
@@ -186,78 +271,147 @@ const LazyImage: React.FC<LazyImageProps> = ({
       const localAssetUsed = shouldUseLocalAsset();
       if (localAssetUsed) return;
 
-      // For team logos, limit retries and use direct fallback
-      const isTeamLogo = imageSrc.includes('/api/team-logo/') || 
-                        imageSrc.includes('media.api-sports.io/football/teams/') ||
-                        (alt && (alt.toLowerCase().includes('logo') || alt.toLowerCase().includes('team')));
-
-      if (isTeamLogo && retryCount === 0) {
-        // Try teamLogo prop as first fallback for team logos
-        if (teamLogo && !imageSrc.includes(teamLogo)) {
-          console.log(`🔄 [LazyImage] Trying teamLogo fallback: ${teamLogo}`);
-          setImageSrc(teamLogo);
-          setRetryCount(retryCount + 1);
-          setIsLoading(true);
-          return;
-        }
-      }
-
-      // Enhanced league logo handling
+      // Enhanced league logo handling like MyNewLeague2
       const isLeagueLogo =
         imageSrc.includes("/api/league-logo/") ||
         imageSrc.includes("media.api-sports.io/football/leagues/") ||
         imageSrc.includes("imagecache.365scores.com");
 
-      if (isLeagueLogo && retryCount < 2) {
+      if (isLeagueLogo) {
         // Extract league ID for better debugging
         let leagueId = "unknown";
-        const apiMatch = imageSrc.match(/\/api\/league-logo\/(?:square\/)?(\d+)/);
-        const mediaMatch = imageSrc.match(/media\.api-sports\.io\/football\/leagues\/(\d+)/);
+        const apiMatch = imageSrc.match(
+          /\/api\/league-logo\/(?:square\/)?(\d+)/,
+        );
+        const mediaMatch = imageSrc.match(
+          /media\.api-sports\.io\/football\/leagues\/(\d+)/,
+        );
         const scoresMatch = imageSrc.match(/Competitions\/(\d+)/);
 
         if (apiMatch) leagueId = apiMatch[1];
         else if (mediaMatch) leagueId = mediaMatch[1];
         else if (scoresMatch) leagueId = scoresMatch[1];
 
-        console.log(`🏆 [LazyImage] League logo error for: ${alt} (ID: ${leagueId}), attempt ${retryCount + 1}`);
+        console.log(
+          `🏆 [LazyImage] League logo error detected for: ${alt} (ID: ${leagueId})`,
+          {
+            imageSrc,
+            retryCount,
+            hasError,
+            leagueId,
+          },
+        );
+      }
 
-        if (retryCount === 0 && leagueId !== "unknown") {
-          // Try direct API-Sports URL first
-          const directApiUrl = `https://media.api-sports.io/football/leagues/${leagueId}.png`;
-          console.log(`🏆 [LazyImage] League logo fallback: trying direct API-Sports for ${leagueId}`);
-          setImageSrc(directApiUrl);
+      if (!hasError && retryCount < 3) {
+        // Enhanced league logo fallback strategy
+        if (isLeagueLogo && retryCount === 0) {
+          // Extract league ID from various sources
+          let leagueId = null;
+
+          // From /api/league-logo/ID or /api/league-logo/square/ID
+          const apiMatch = imageSrc.match(/\/api\/league-logo\/(?:square\/)?(\d+)/);
+          if (apiMatch) {
+            leagueId = apiMatch[1];
+          }
+
+          // From media.api-sports.io/football/leagues/ID.png
+          const mediaMatch = imageSrc.match(
+            /media\.api-sports\.io\/football\/leagues\/(\d+)/,
+          );
+          if (mediaMatch) {
+            leagueId = mediaMatch[1];
+          }
+
+          // From 365scores imagecache
+          const scoresMatch = imageSrc.match(/Competitions\/(\d+)/);
+          if (scoresMatch) {
+            leagueId = scoresMatch[1];
+          }
+
+          if (leagueId) {
+            // Try direct API-Sports URL first
+            const directApiUrl = `https://media.api-sports.io/football/leagues/${leagueId}.png`;
+            console.log(
+              `🏆 [LazyImage] League logo fallback: trying direct API-Sports for ${leagueId}`,
+            );
+            setImageSrc(directApiUrl);
+            setRetryCount(retryCount + 1);
+            setIsLoading(true);
+            return;
+          }
+        }
+
+        // Second retry: try 365scores
+        if (isLeagueLogo && retryCount === 1) {
+          const leagueIdMatch = imageSrc.match(/(?:\/api\/league-logo\/(?:square\/)?|leagues\/|Competitions\/)(\d+)/);
+          if (leagueIdMatch) {
+            const leagueId = leagueIdMatch[1];
+            const scoresUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitions/${leagueId}`;
+            console.log(
+              `🏆 [LazyImage] League logo second attempt: trying 365scores for ${leagueId}`,
+            );
+            setImageSrc(scoresUrl);
+            setRetryCount(retryCount + 1);
+            setIsLoading(true);
+            return;
+          }
+        }
+
+        // Try direct media URL as final attempt
+        if (isLeagueLogo && retryCount === 1) {
+          const leagueIdMatch = imageSrc.match(/\/api\/league-logo\/(?:square\/)?(\d+)/);
+          if (leagueIdMatch) {
+            const leagueId = leagueIdMatch[1];
+            const directMediaUrl = `https://media.api-sports.io/football/leagues/${leagueId}.png`;
+            console.log(
+              `🏆 [LazyImage] League logo direct media attempt for ${leagueId}`,
+            );
+            setImageSrc(directMediaUrl);
+            setRetryCount(retryCount + 1);
+            setIsLoading(true);
+            return;
+          }
+        }
+
+        // Standard retry logic for non-league images or final attempts
+        const maxRetries = isLeagueLogo ? 2 : 1; // Reduced retries to prevent spam
+        if (retryCount >= maxRetries) {
+          // Try teamLogo as additional fallback before using default fallback
+          if (teamLogo && !imageSrc.includes(teamLogo) && retryCount === maxRetries) {
+            console.log(`🔄 [LazyImage] Trying teamLogo fallback: ${teamLogo}`);
+            setImageSrc(teamLogo);
+            setRetryCount(retryCount + 1);
+            setIsLoading(true);
+            return;
+          }
+          
+          console.warn(
+            `🚫 [LazyImage] All retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
+          );
+          setHasError(true);
+          setImageSrc(fallbackUrl);
+          onError?.();
+        } else {
+          console.warn(
+            `🖼️ [LazyImage] Retrying image load: ${imageSrc} (attempt ${retryCount + 1})`,
+          );
+          setImageSrc(`${src}?retry=${retryCount + 1}&t=${Date.now()}`);
           setRetryCount(retryCount + 1);
           setIsLoading(true);
-          return;
         }
-      }
-
-      // Final fallback after all retries
-      if (retryCount >= 2 || (!isTeamLogo && !isLeagueLogo)) {
-        console.warn(`🚫 [LazyImage] Using fallback for: ${alt} after ${retryCount + 1} attempts`);
+      } else if (!hasError && retryCount >= 3 && isLeagueLogo) { // Specific handling for league logos that failed all 3 specific retries
+          console.warn(
+            `🚫 [LazyImage] All league logo retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
+          );
         setHasError(true);
         setImageSrc(fallbackUrl);
-        onError?.();
-        return;
+          onError?.();
       }
-
-      // Standard retry for other cases
-      if (retryCount < 1) {
-        console.warn(`🖼️ [LazyImage] Retrying image load: ${imageSrc} (attempt ${retryCount + 1})`);
-        setRetryCount(retryCount + 1);
-        setIsLoading(true);
-        return;
-      }
-
-      // Final fallback
-      setHasError(true);
-      setImageSrc(fallbackUrl);
-      onError?.();
-
     } catch (error) {
       console.warn("⚠️ [LazyImage] Error in handleError function:", error);
-      setHasError(true);
-      setImageSrc(fallbackUrl);
+        setHasError(true);
+        setImageSrc(fallbackUrl);
       setIsLoading(false);
       onError?.();
     }
@@ -384,87 +538,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
     );
   }
 
-  // Enhanced player image detection and prevention - ONLY for actual player photos
-  if (alt && imageSrc) {
-    // More precise player photo URL patterns - exclude team logo URLs
-    const isPlayerPhoto = (
-      // Only block if it's clearly a player photo AND not a team/logo context
-      (imageSrc.includes('/players/') && !imageSrc.includes('/teams/') && !imageSrc.includes('/team-logo/')) ||
-      (imageSrc.includes('Athletes/') && !imageSrc.includes('Competitors/') && !alt.toLowerCase().includes('logo') && !alt.toLowerCase().includes('team')) ||
-      (imageSrc.includes('player-') && !imageSrc.includes('team-') && !imageSrc.includes('logo')) ||
-      (imageSrc.includes('/headshots/') && !alt.toLowerCase().includes('logo') && !alt.toLowerCase().includes('team')) ||
-      (imageSrc.includes('_headshot') && !alt.toLowerCase().includes('logo') && !alt.toLowerCase().includes('team')) ||
-      (imageSrc.includes('player_') && !imageSrc.includes('team_') && !imageSrc.includes('logo')) ||
-      (imageSrc.includes('/athlete/') && !alt.toLowerCase().includes('logo') && !alt.toLowerCase().includes('team')) ||
-      (imageSrc.includes('/persons/') && !alt.toLowerCase().includes('logo') && !alt.toLowerCase().includes('team')) ||
-      (imageSrc.includes('/portraits/') && !alt.toLowerCase().includes('logo') && !alt.toLowerCase().includes('team')) ||
-      (imageSrc.includes('playerheadshots') && !alt.toLowerCase().includes('logo') && !alt.toLowerCase().includes('team')) ||
-      (imageSrc.includes('playerimages') && !alt.toLowerCase().includes('logo') && !alt.toLowerCase().includes('team')) ||
-      (imageSrc.includes('mugshots') && !alt.toLowerCase().includes('logo') && !alt.toLowerCase().includes('team'))
-    ) && 
-    // ONLY block if alt text clearly indicates it's a player, not a team
-    (alt.toLowerCase().includes('player') || alt.toLowerCase().includes('headshot') || alt.toLowerCase().includes('portrait')) &&
-    // NEVER block if it's clearly team/logo context
-    !alt.toLowerCase().includes('logo') && 
-    !alt.toLowerCase().includes('team') && 
-    !alt.toLowerCase().includes('vs') && 
-    !alt.toLowerCase().includes('club') &&
-    !imageSrc.includes('/team-logo/') &&
-    !imageSrc.includes('/teams/') &&
-    !imageSrc.includes('Competitors/');
-    
-    // Only check team context if we detected a potential player photo
-    if (isPlayerPhoto) {
-      const isTeamContext = alt.toLowerCase().includes('vs') || 
-                           alt.toLowerCase().includes('team') || 
-                           alt.toLowerCase().includes('logo') ||
-                           alt.toLowerCase().includes('home') || 
-                           alt.toLowerCase().includes('away') ||
-                           alt.toLowerCase().includes('club') ||
-                           className?.includes('team') ||
-                           className?.includes('logo');
-      
-      // Additional check: if the image dimensions suggest it's a small logo/icon
-      const isLogoSize = (style?.width && parseInt(style.width as string) <= 64) || 
-                        (style?.height && parseInt(style.height as string) <= 64) ||
-                        className?.includes('w-6') || className?.includes('h-6') ||
-                        className?.includes('w-8') || className?.includes('h-8');
-      
-      if (isTeamContext || isLogoSize) {
-        console.warn(`🚨 [LazyImage] Player photo blocked in team/logo context:`, {
-          alt,
-          imageSrc,
-          originalSrc: src,
-          isTeamContext,
-          isLogoSize,
-          component: 'LazyImage'
-        });
-        
-        // Force fallback immediately
-        return (
-          <img
-            src={fallbackUrl}
-            alt={alt}
-            className={className}
-            style={{
-              ...style,
-              border: 'none',
-              outline: 'none',
-              display: 'block',
-              opacity: 1,
-              filter: darkMode ? 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))' : 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.8))',
-              ...(style?.width || style?.height ? {} : {
-               width: style?.width || style?.height || (isMobile ? '32px' : '32px'),
-                height: style?.height || style?.width || (isMobile ? '32px' : '32px')
-              })
-            }}
-            loading={shouldPreload ? 'eager' : 'lazy'}
-            decoding="async"
-          />
-        );
-      }
-    }
-  }
+  
 
   return (
     <img
