@@ -1071,7 +1071,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const tryNextSource = async () => {
     if (sourceIndex >= videoSources.length) {
       // All sources failed, show error with retry option
-      console.error(`🎬 [Highlights] All sources failed for: ${primarySearchQuery}`);
+      console.error(`🎬 [Highlights] All sources failed for: ${rawHome} vs ${rawAway}`);
       setError('No video sources available');
       setLoading(false);
       return;
@@ -1079,62 +1079,75 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
     const source = videoSources[sourceIndex];
     try {
-      console.log(`🎬 [Highlights] Trying ${source.name} for: ${primarySearchQuery}`);
-      const result = await source.searchFn();
+      console.log(`🎬 [Highlights] Trying ${source.name} (${sourceIndex + 1}/${videoSources.length}) for: ${rawHome} vs ${rawAway}`);
+      
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Source timeout')), 15000)
+      );
+      
+      const result = await Promise.race([source.searchFn(), timeoutPromise]);
+      
       setCurrentSource(result);
       setError(null);
       setLoading(false);
-      setIframeError(false); // Reset iframe error when new source is found
+      setIframeError(false);
       console.log(`✅ [Highlights] Success with ${source.name}:`, result.title);
     } catch (sourceError) {
-      console.warn(`❌ [Highlights] ${source.name} failed for "${primarySearchQuery}":`, sourceError);
-      setSourceIndex(prev => prev + 1);
-      // Continue to next source
+      console.warn(`❌ [Highlights] ${source.name} failed for "${rawHome} vs ${rawAway}":`, sourceError);
+      
+      // Move to next source immediately
+      const nextIndex = sourceIndex + 1;
+      if (nextIndex >= videoSources.length) {
+        // No more sources available
+        setError('No video sources available');
+        setLoading(false);
+      } else {
+        setSourceIndex(nextIndex);
+      }
     }
   };
 
   useEffect(() => {
-    if (home && away) {
+    if (home && away && hasValidTeamNames) {
+      console.log(`🎬 [Highlights] Starting search for: ${rawHome} vs ${rawAway}`);
       setLoading(true);
       setError(null);
       setSourceIndex(0);
-      setIframeError(false); // Reset iframe error on new search
-      tryNextSource();
+      setIframeError(false);
+      setCurrentSource(null);
     }
-  }, [home, away, league]);
-
-  // Add timeout to detect videos that fail to load properly
-  useEffect(() => {
-    if (currentSource && !loading && !error) {
-      // Set a timer to check if video is actually playable
-      const timeoutId = setTimeout(() => {
-        // If we still have a current source but it might be showing "Video unavailable"
-        // automatically try the next source
-        if (currentSource.type === 'youtube') {
-          console.warn(`🎬 [Highlights] YouTube video timeout - may be unavailable: ${currentSource.title}`);
-          console.log(`🔄 [Highlights] Automatically trying next source...`);
-          setSourceIndex(prev => prev + 1);
-        }
-      }, 15000); // 15 second timeout for video availability check
-
-      return () => clearTimeout(timeoutId);
-    }
-  }, [currentSource, loading, error]);
+  }, [home, away, league, rawHome, rawAway]);
 
   useEffect(() => {
-    if (sourceIndex > 0 && sourceIndex < videoSources.length) {
-      tryNextSource();
-    } else if (sourceIndex >= videoSources.length && loading) {
+    if (hasValidTeamNames && loading && sourceIndex >= 0 && sourceIndex < videoSources.length) {
       tryNextSource();
     }
-  }, [sourceIndex]);
+  }, [sourceIndex, hasValidTeamNames]);
+
+  // Add overall timeout for the entire search process
+  useEffect(() => {
+    if (loading) {
+      const overallTimeout = setTimeout(() => {
+        console.warn(`🎬 [Highlights] Overall search timeout for: ${rawHome} vs ${rawAway}`);
+        setError('Search timeout - please try again');
+        setLoading(false);
+      }, 45000); // 45 second overall timeout
+
+      return () => clearTimeout(overallTimeout);
+    }
+  }, [loading, rawHome, rawAway]);
+
+  // Define primarySearchQuery for logging
+  const primarySearchQuery = exactTeamMatchQuery;
 
   const handleRetry = () => {
+    console.log(`🔄 [Highlights] Retrying search for: ${rawHome} vs ${rawAway}`);
     setSourceIndex(0);
     setError(null);
     setLoading(true);
-    setIframeError(false); // Reset iframe error on retry
-    tryNextSource();
+    setIframeError(false);
+    setCurrentSource(null);
   };
 
   // Check if this is a football/soccer match
@@ -1296,6 +1309,19 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 }
               }}
             />
+          </div>
+        ) : error ? (
+          <div className="w-full h-64 flex items-center justify-center bg-gray-50">
+            <div className="text-center">
+              <AlertCircle className="w-8 h-8 mx-auto mb-2 text-red-400" />
+              <p className="text-sm text-gray-600 mb-2">{error}</p>
+              <button 
+                onClick={handleRetry}
+                className="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+              >
+                Try Again
+              </button>
+            </div>
           </div>
         ) : (
           <div className="w-full h-64 flex items-center justify-center bg-gray-50">
