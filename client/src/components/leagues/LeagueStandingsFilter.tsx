@@ -862,9 +862,6 @@ const LeagueStandingsFilter = () => {
                         {getTranslatedGroupText(
                           `Group ${String.fromCharCode(65 + groupIndex)}`,
                         )}
-                        <span className="text-xs text-gray-400 md:hidden">
-                          ← Swipe →
-                        </span>
                       </h3>
                       <div className="overflow-x-auto -webkit-overflow-scrolling-touch scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent mobile-scroll">
                         <Table className="min-w-[600px] w-full league-standings-table">
