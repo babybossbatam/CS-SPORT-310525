@@ -7,7 +7,6 @@ import { User, Trophy } from "lucide-react";
 import { format } from "date-fns";
 import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
-import LazyImage from "../common/LazyImage";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
 import MyMatchStats from "./MyMatchStats";
@@ -72,7 +71,7 @@ const MyMatchdetailsScoreboard = ({
   const [currentMatchData, setCurrentMatchData] = useState<any | null>(null);
   const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
   const activeTab = externalActiveTab || internalActiveTab;
-
+  
   // Dynamic background color state
   const [dynamicBackground, setDynamicBackground] = useState<string>("");
 
@@ -138,59 +137,59 @@ const MyMatchdetailsScoreboard = ({
       try {
         const img = new Image();
         img.crossOrigin = "anonymous";
-
+        
         img.onload = () => {
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
-
+          
           if (!ctx) {
             resolve(getTeamColor(teamName, true));
             return;
           }
-
+          
           canvas.width = img.width;
           canvas.height = img.height;
           ctx.drawImage(img, 0, 0);
-
+          
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
           const data = imageData.data;
-
+          
           // Color frequency map
           const colorMap: Record<string, number> = {};
-
+          
           for (let i = 0; i < data.length; i += 4) {
             const r = data[i];
             const g = data[i + 1];
             const b = data[i + 2];
             const a = data[i + 3];
-
+            
             // Skip transparent or near-transparent pixels
             if (a < 128) continue;
-
+            
             // Skip very light or very dark colors
             const brightness = (r + g + b) / 3;
             if (brightness < 40 || brightness > 220) continue;
-
+            
             // Group similar colors
             const rGroup = Math.floor(r / 30) * 30;
             const gGroup = Math.floor(g / 30) * 30;
             const bGroup = Math.floor(b / 30) * 30;
-
+            
             const colorKey = `${rGroup},${gGroup},${bGroup}`;
             colorMap[colorKey] = (colorMap[colorKey] || 0) + 1;
           }
-
+          
           // Find most frequent color
           let dominantColor = "";
           let maxCount = 0;
-
+          
           for (const [color, count] of Object.entries(colorMap)) {
             if (count > maxCount) {
               maxCount = count;
               dominantColor = color;
             }
           }
-
+          
           if (dominantColor) {
             const [r, g, b] = dominantColor.split(",").map(Number);
             resolve(`rgb(${r}, ${g}, ${b})`);
@@ -198,11 +197,11 @@ const MyMatchdetailsScoreboard = ({
             resolve(getTeamColor(teamName, true));
           }
         };
-
+        
         img.onerror = () => {
           resolve(getTeamColor(teamName, true));
         };
-
+        
         img.src = logoUrl;
       } catch (error) {
         resolve(getTeamColor(teamName, true));
@@ -219,38 +218,38 @@ const MyMatchdetailsScoreboard = ({
           const homeLogoUrl = displayMatch.teams.home.id 
             ? `/api/team-logo/square/${displayMatch.teams.home.id}?size=64`
             : displayMatch.teams.home.logo;
-
+          
           const awayLogoUrl = displayMatch.teams.away.id 
             ? `/api/team-logo/square/${displayMatch.teams.away.id}?size=64`
             : displayMatch.teams.away.logo;
-
+          
           // Extract colors from logos
           const [homeColor, awayColor] = await Promise.all([
             extractColorFromLogo(homeLogoUrl, displayMatch.teams.home.name),
             extractColorFromLogo(awayLogoUrl, displayMatch.teams.away.name)
           ]);
-
+          
           // Create 365scores-style radial gradients with circular shapes from left and right
           const homeColorRgba = homeColor.replace('rgb(', '').replace(')', '').split(',');
           const awayColorRgba = awayColor.replace('rgb(', '').replace(')', '').split(',');
-
+          
           const gradient = `radial-gradient(121.26% 75.73% at 0% 50.24%, rgba(${homeColorRgba[0]}, ${homeColorRgba[1]}, ${homeColorRgba[2]}, 0.3) 0%, rgba(255, 255, 255, 0.3) 80%), radial-gradient(121.26% 75.73% at 100% 50.24%, rgba(${awayColorRgba[0]}, ${awayColorRgba[1]}, ${awayColorRgba[2]}, 0.3) 0%, rgba(255, 255, 255, 0.3) 80%)`;
-
+          
           setDynamicBackground(gradient);
         } catch (error) {
           console.warn("Error extracting team colors for background:", error);
           // Fallback to name-based colors with radial gradient approach
           const homeTeamColor = getTeamColor(displayMatch.teams.home.name, true);
           const awayTeamColor = getTeamColor(displayMatch.teams.away.name, false);
-
+          
           const homeColorRgba = homeTeamColor.replace('rgb(', '').replace(')', '').split(',');
           const awayColorRgba = awayTeamColor.replace('rgb(', '').replace(')', '').split(',');
-
+          
           const gradient = `radial-gradient(121.26% 75.73% at 0% 50.24%, rgba(${homeColorRgba[0]}, ${homeColorRgba[1]}, ${awayColorRgba[2]}, 0.3) 0%, rgba(255, 255, 255, 0.3) 80%), radial-gradient(121.26% 75.73% at 100% 50.24%, rgba(${awayColorRgba[0]}, ${awayColorRgba[1]}, ${awayColorRgba[2]}, 0.3) 0%, rgba(255, 255, 255, 0.3) 80%)`;
           setDynamicBackground(gradient);
         }
       };
-
+      
       extractColorsAndSetBackground();
     }
   }, [displayMatch?.teams?.home?.name, displayMatch?.teams?.away?.name, displayMatch?.teams?.home?.id, displayMatch?.teams?.away?.id]);
@@ -610,31 +609,38 @@ const MyMatchdetailsScoreboard = ({
         <div className="flex items-center justify-between mb-4 -mt-6">
           {/* Home Team */}
           <div className="flex flex-col items-center space-y-2 flex-1">
-            {/* Home Team Logo */}
-            <div className="flex items-center justify-end mr-4">
-              <LazyImage
-                src={displayMatch.teams.home.id 
-                  ? `/api/team-logo/square/${displayMatch.teams.home.id}?size=48`
-                  : displayMatch.teams.home.logo || "/assets/matchdetaillogo/fallback.png"
-                }
-                alt={displayMatch.teams.home.name}
-                className="team-logo w-12 h-12 object-contain"
-                style={{
-                  width: '48px',
-                  height: '48px',
-                  backgroundColor: 'transparent'
-                }}
-                priority="high"
-                useTeamLogo={true}
-                teamId={displayMatch.teams.home.id}
+            {displayMatch.league.country === "World" ||
+            displayMatch.league.country === "International" ? (
+              <MyWorldTeamLogo
                 teamName={displayMatch.teams.home.name}
                 teamLogo={displayMatch.teams.home.logo}
+                alt={displayMatch.teams.home.name}
+                size="56px"
                 leagueContext={{
                   name: displayMatch.league.name,
                   country: displayMatch.league.country,
                 }}
               />
-            </div>
+            ) : isNationalTeam(displayMatch.teams.home, displayMatch.league) ? (
+              <MyCircularFlag
+                teamName={displayMatch.teams.home.name}
+                fallbackUrl={displayMatch.teams.home.logo}
+                alt={displayMatch.teams.home.name}
+                size="56px"
+              />
+            ) : (
+              <MyWorldTeamLogo
+                teamName={displayMatch.teams.home.name}
+                teamId={displayMatch.teams.home.id}
+                teamLogo={displayMatch.teams.home.logo}
+                alt={displayMatch.teams.home.name}
+                size="64px"
+                leagueContext={{
+                  name: displayMatch.league.name,
+                  country: displayMatch.league.country,
+                }}
+              />
+            )}
             <span className="text-md font-medium text-center ">
               {displayMatch.teams.home.name}
             </span>
@@ -755,31 +761,38 @@ const MyMatchdetailsScoreboard = ({
 
           {/* Away Team */}
           <div className="flex flex-col items-center space-y-2 flex-1">
-            {/* Away Team Logo */}
-            <div className="flex items-center justify-start ml-4">
-              <LazyImage
-                src={displayMatch.teams.away.id 
-                  ? `/api/team-logo/square/${displayMatch.teams.away.id}?size=48`
-                  : displayMatch.teams.away.logo || "/assets/matchdetaillogo/fallback.png"
-                }
-                alt={displayMatch.teams.away.name}
-                className="team-logo w-12 h-12 object-contain"
-                style={{
-                  width: '48px',
-                  height: '48px',
-                  backgroundColor: 'transparent'
-                }}
-                priority="high"
-                useTeamLogo={true}
-                teamId={displayMatch.teams.away.id}
+            {displayMatch.league.country === "World" ||
+            displayMatch.league.country === "International" ? (
+              <MyWorldTeamLogo
                 teamName={displayMatch.teams.away.name}
                 teamLogo={displayMatch.teams.away.logo}
+                alt={displayMatch.teams.away.name}
+                size="56px"
                 leagueContext={{
                   name: displayMatch.league.name,
                   country: displayMatch.league.country,
                 }}
               />
-            </div>
+            ) : isNationalTeam(displayMatch.teams.away, displayMatch.league) ? (
+              <MyCircularFlag
+                teamName={displayMatch.teams.away.name}
+                fallbackUrl={displayMatch.teams.away.logo}
+                alt={displayMatch.teams.away.name}
+                size="56px"
+              />
+            ) : (
+              <MyWorldTeamLogo
+                teamName={displayMatch.teams.away.name}
+                teamId={displayMatch.teams.away.id}
+                teamLogo={displayMatch.teams.away.logo}
+                alt={displayMatch.teams.away.name}
+                size="64px"
+                leagueContext={{
+                  name: displayMatch.league.name,
+                  country: displayMatch.league.country,
+                }}
+              />
+            )}
             <span className="text-md font-medium text-center mb-4">
               {displayMatch.teams.away.name}
             </span>
