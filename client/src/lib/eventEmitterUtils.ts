@@ -42,9 +42,20 @@ export const setGlobalEventEmitterLimits = (limit: number = 10000) => {
     console.log('🔧 EventEmitter setup encountered minor issues.');
   }
 
-  // Set process max listeners if available
+  // Set reasonable EventEmitter limits
   if (typeof process !== 'undefined' && process.setMaxListeners) {
-    process.setMaxListeners(limit);
+    process.setMaxListeners = process.setMaxListeners || (() => {});
+    process.setMaxListeners(20);
+  }
+
+  // Set EventEmitter default max listeners globally
+  if (typeof require !== 'undefined') {
+    try {
+      const EventEmitter = require('events');
+      EventEmitter.defaultMaxListeners = 20;
+    } catch (e) {
+      // EventEmitter not available in browser context
+    }
   }
 
   // Set EventEmitter default max listeners for browser

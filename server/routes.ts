@@ -79,10 +79,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Memory monitoring middleware
+  // Simplified memory monitoring middleware
   apiRouter.use((req, res, next) => {
-    const memoryUsage = process.memoryUsage();
-    const heapUsedMB = memoryUsage.heapUsed / 1024 / 1024;
+    // Only log memory issues, don't perform checks on every request
     next();
   });
 

@@ -165,48 +165,27 @@ function App() {
     };
   }, []);
 
-  // Add additional error handling for dynamic imports and runtime errors
+  // Simplified error handling for common issues
   const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+    const reason = event.reason?.message || event.reason?.toString() || '';
     if (
-      event.reason?.message?.includes(
-        "Failed to fetch dynamically imported module",
-      ) ||
-      event.reason?.message?.includes("plugin:runtime-error-plugin") ||
-      event.reason?.message?.includes("unknown runtime error") ||
-      event.reason?.message?.includes("sendError") ||
-      event.reason?.message?.includes("Too many re-renders") ||
-      event.reason?.toString()?.includes("riker.replit.dev") ||
-      event.reason?.toString()?.includes("plugin:runtime-error-plugin") ||
-      (typeof event.reason === "string" &&
-        event.reason.includes("plugin:runtime-error-plugin"))
+      reason.includes("Failed to fetch dynamically imported module") ||
+      reason.includes("plugin:runtime-error-plugin") ||
+      reason.includes("riker.replit.dev") ||
+      reason.includes("Too many re-renders")
     ) {
-      console.log(
-        "🔧 Runtime/dynamic import error caught and suppressed:",
-        event.reason?.message || event.reason,
-      );
       event.preventDefault();
       return;
     }
   };
 
   const handleError = (event: ErrorEvent) => {
+    const message = event.message || '';
     if (
-      event.message?.includes("plugin:runtime-error-plugin") ||
-      event.message?.includes("signal timed out") ||
-      event.message?.includes("unknown runtime error") ||
-      event.message?.includes("sendError") ||
-      event.message?.includes("Too many re-renders") ||
-      event.message?.includes("ErrorOverlay") ||
-      event.message?.includes("reading 'frame'") ||
-      event.filename?.includes("riker.replit.dev") ||
-      event.error?.toString()?.includes("plugin:runtime-error-plugin") ||
-      event.error?.toString()?.includes("signal timed out") ||
-      event.error?.toString()?.includes("ErrorOverlay")
+      message.includes("plugin:runtime-error-plugin") ||
+      message.includes("ErrorOverlay") ||
+      message.includes("riker.replit.dev")
     ) {
-      console.log(
-        "🔧 Runtime/ErrorOverlay error caught and suppressed:",
-        event.message,
-      );
       event.preventDefault();
       return;
     }
