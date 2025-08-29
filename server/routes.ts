@@ -3415,36 +3415,29 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
       });
     }
 
-    // Try to fetch from RapidAPI
-    const response = await fetch(
-      `https://api-football-v1.p.rapidapi.com/v3/fixtures/statistics?fixture=${fixtureId}`,
-      {
-        method: 'GET',
-        headers: {
-          'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
-          'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
-        }
-      }
-    );
+    console.log(`📊 [Shots API] Fetching shot data for fixture ${fixtureId}`);
 
-    if (!response.ok) {
-      console.error(`RapidAPI shots error for fixture ${fixtureId}:`, response.status);
-      return res.status(500).json({
-        error: 'Failed to fetch shot data',
-        details: `API responded with status ${response.status}`
+    // Use RapidAPI service to get fixture statistics
+    const statistics = await rapidApiService.getFixtureStatistics(parseInt(fixtureId));
+
+    if (!statistics) {
+      console.log(`📊 [Shots API] No statistics found for fixture ${fixtureId}`);
+      return res.json({
+        fixture: fixtureId,
+        shots: []
       });
     }
 
-    const data = await response.json();
-
     // Transform the statistics data to extract shot information
-    const shotsData = data.response?.map((team: any) => ({
+    const shotsData = statistics.map((team: any) => ({
       team: team.team,
       statistics: team.statistics?.filter((stat: any) =>
         stat.type?.toLowerCase().includes('shot') ||
         stat.type?.toLowerCase().includes('goal')
       ) || []
-    })) || [];
+    }));
+
+    console.log(`📊 [Shots API] Returning shot data for ${shotsData.length} teams`);
 
     res.json({
       fixture: fixtureId,
@@ -3454,7 +3447,7 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
   } catch (error) {
     console.error(`Error fetching shots for fixture ${fixtureId}:`, error);
     res.status(500).json({
-      error: 'Internal server error',
+      error: 'Failed to fetch shot data',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
