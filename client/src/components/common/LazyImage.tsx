@@ -557,55 +557,26 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   // Use MyWorldTeamLogo if team information is provided and useTeamLogo is true
   // But only if this isn't already a recursive call from MyWorldTeamLogo
-  // Also skip delegation for club teams that should use regular team logos
   if (useTeamLogo && teamId && teamName && !className?.includes('team-logo')) {
-    // Check if this is a club team that should NOT use circular flags
-    const isClubTeam = teamName && (
-      teamName.toLowerCase().includes('fc') ||
-      teamName.toLowerCase().includes('united') ||
-      teamName.toLowerCase().includes('rovers') ||
-      teamName.toLowerCase().includes('city') ||
-      teamName.toLowerCase().includes('ac ') ||
-      teamName.toLowerCase().includes('cf ') ||
-      teamName.toLowerCase().includes('club') ||
-      teamName.toLowerCase().includes('athletic') ||
-      teamName.toLowerCase().includes('real ') ||
-      teamName.toLowerCase().includes('barcelona') ||
-      teamName.toLowerCase().includes('milan') ||
-      teamName.toLowerCase().includes('juventus') ||
-      teamName.toLowerCase().includes('bayern') ||
-      teamName.toLowerCase().includes('arsenal') ||
-      teamName.toLowerCase().includes('chelsea') ||
-      teamName.toLowerCase().includes('liverpool') ||
-      teamName.toLowerCase().includes('manchester') ||
-      teamName.toLowerCase().includes('tottenham')
+    console.log(`🔄 [LazyImage] Delegating to MyWorldTeamLogo:`, {
+      teamName,
+      teamId,
+      imageSrc,
+      useTeamLogo,
+      className
+    });
+
+    return (
+      <MyWorldTeamLogo
+        teamName={teamName}
+        teamId={teamId}
+        teamLogo={imageSrc}
+        alt={alt}
+        size={style?.width || style?.height || "32px"}
+        className={className}
+        leagueContext={leagueContext}
+      />
     );
-
-    // If it's clearly a club team, don't delegate to MyWorldTeamLogo to avoid circular flag logic
-    if (isClubTeam) {
-      console.log(`🏈 [LazyImage] Keeping club team logo in LazyImage: ${teamName}`);
-      // Continue with regular LazyImage logic below
-    } else {
-      console.log(`🔄 [LazyImage] Delegating to MyWorldTeamLogo:`, {
-        teamName,
-        teamId,
-        imageSrc,
-        useTeamLogo,
-        className
-      });
-
-      return (
-        <MyWorldTeamLogo
-          teamName={teamName}
-          teamId={teamId}
-          teamLogo={imageSrc}
-          alt={alt}
-          size={style?.width || style?.height || "32px"}
-          className={className}
-          leagueContext={leagueContext}
-        />
-      );
-    }
   }
 
   return (
