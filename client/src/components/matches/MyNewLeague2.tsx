@@ -1734,8 +1734,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
   // Show loading with better error handling
   if (
-    (isLoading || isFetching) &&
-    Object.keys(fixturesByLeague).length === 0 &&
+    isLoading && 
+    !allFixtures &&
     !hasCachedData
   ) {
     return (
