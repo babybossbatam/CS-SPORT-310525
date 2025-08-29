@@ -29,6 +29,7 @@ interface MyWorldTeamLogoProps {
   };
   showNextMatchOverlay?: boolean;
   onLoad?: () => void; // Added for potential use in handleLoad
+  priority?: string;
 }
 
 // Cache for computed shouldUseCircularFlag results
