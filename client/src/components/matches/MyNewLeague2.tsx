@@ -3134,8 +3134,8 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
   const { t, translateLeagueName: contextTranslateLeagueName } =
     useTranslation();
   const { hasIntersected } = useIntersectionObserver(containerRef, {
-    threshold: 0.01, // Trigger even earlier
-    rootMargin: "200px", // Start loading 200px before it comes into view
+    threshold: 0, // Trigger immediately when any part is visible
+    rootMargin: "300px", // Start loading 300px before it comes into view
   });
 
   // Cleanup on unmount
@@ -3157,7 +3157,8 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
     cachedData && Array.isArray(cachedData) && cachedData.length > 0;
 
   // If we have cached data OR component has intersected, show the actual component
-  if (hasCachedData || hasIntersected) {
+  // Force render for debugging - remove this condition later
+  if (hasCachedData || hasIntersected || true) {
     return <MyNewLeague2Component {...props} />;
   }
 
