@@ -16,9 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -29,6 +27,8 @@ import { teamColorMap } from "@/lib/colorExtractor";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
+import LazyImage from "@/components/common/LazyImage";
+import { ChevronDown } from "lucide-react";
 
 interface Standing {
   rank: number;
@@ -645,7 +645,6 @@ const LeagueStandingsFilter = () => {
   if (isLoading) {
     return (
       <Card>
-
         <CardContent>
           <div className="space-y-2">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -1258,7 +1257,7 @@ const LeagueStandingsFilter = () => {
                                     </span>
                                     {standing.rank <= 3 && (
                                       <span
-                                        className="text-[0.6rem] font-medium truncate max-w-[120px] mx-1 -mr-8"
+                                        className="text-[0.6rem] font-medium truncate max-w-[120px] mx-1"
                                         style={{
                                           color:
                                             standing.rank <= 3
