@@ -15,7 +15,7 @@ interface LazyImageProps {
   priority?: 'low' | 'high';
   placeholder?: string;
   fallbackSrc?: string;
-  retryCount?: number;
+  maxRetries?: number;
   retryDelay?: number;
   useTeamLogo?: boolean;
   teamId?: number | string;
@@ -37,7 +37,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   priority = "low",
   placeholder,
   fallbackSrc = "/assets/fallback.png",
-  retryCount = 2,
+  maxRetries = 2,
   retryDelay = 1000,
   useTeamLogo = false,
   teamId,
@@ -255,7 +255,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       }
 
       // Final fallback after all retries
-      if (retryCount >= 2 || (!isTeamLogo && !isLeagueLogo)) {
+      if (retryCount >= maxRetries || (!isTeamLogo && !isLeagueLogo)) {
         console.warn(`🚫 [LazyImage] Using fallback for: ${alt} after ${retryCount + 1} attempts`);
         setHasError(true);
         setImageSrc(fallbackUrl);
@@ -264,7 +264,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       }
 
       // Standard retry for other cases
-      if (retryCount < 1) {
+      if (retryCount < maxRetries - 1) {
         console.warn(`🖼️ [LazyImage] Retrying image load: ${imageSrc} (attempt ${retryCount + 1})`);
         setRetryCount(retryCount + 1);
         setIsLoading(true);
