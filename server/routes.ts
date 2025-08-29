@@ -2112,7 +2112,7 @@ name: "Bundesliga",
   requestedDate: '${today.toISOString().split("T")[0]}',
   apiReturnedDate: '${apiDateString}',
   extractedDate: '${extractedDate}',
-  fixtureId: ${fixture.fixture.id}'
+  fixtureId: ${fixture.fixture.id}
 }`);
               return false;
             }
@@ -2576,7 +2576,7 @@ name: "Bundesliga",
                   returnedDate: f.fixture?.date,
                   extractedDate: fixtureDate.toISOString().split("T")[0],
                   matchesRequested:
-                    fixture fixtureDate.toISOString().split("T")[0] === date,
+                    fixtureDate.toISOString().split("T")[0] === date,
                 };
               });
 
