@@ -556,7 +556,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
 
   // Use MyWorldTeamLogo if team information is provided and useTeamLogo is true
-  if (useTeamLogo && teamId && teamName) {
+  // But only if this isn't already a recursive call from MyWorldTeamLogo
+  if (useTeamLogo && teamId && teamName && !className?.includes('team-logo')) {
     return (
       <MyWorldTeamLogo
         teamName={teamName}
@@ -564,7 +565,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         teamLogo={imageSrc}
         alt={alt}
         size={style?.width || style?.height || "32px"}
-        className={className}
+        className={`${className} delegated-to-team-logo`}
         leagueContext={leagueContext}
       />
     );
