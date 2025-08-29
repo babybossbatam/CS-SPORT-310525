@@ -216,11 +216,11 @@ const MyMatchdetailsScoreboard = ({
       const extractColorsAndSetBackground = async () => {
         try {
           // Get logo URLs
-          const homeLogoUrl = displayMatch.teams.home.id 
+          const homeLogoUrl = displayMatch.teams.home.id
             ? `/api/team-logo/square/${displayMatch.teams.home.id}?size=64`
             : displayMatch.teams.home.logo;
 
-          const awayLogoUrl = displayMatch.teams.away.id 
+          const awayLogoUrl = displayMatch.teams.away.id
             ? `/api/team-logo/square/${displayMatch.teams.away.id}?size=64`
             : displayMatch.teams.away.logo;
 
@@ -448,7 +448,7 @@ const MyMatchdetailsScoreboard = ({
     if (liveStatus || currentLiveStatus) {
       const liveStatusToUse = liveStatus || currentLiveStatus;
       // Validate that live status is a reasonable progression from actual status
-      if (actualStatus === liveStatusToUse || 
+      if (actualStatus === liveStatusToUse ||
           (actualStatus === "1H" && liveStatusToUse === "HT") ||
           (actualStatus === "HT" && liveStatusToUse === "2H") ||
           (actualStatus === "2H" && liveStatusToUse === "FT")) {
@@ -619,8 +619,10 @@ const MyMatchdetailsScoreboard = ({
                 alt={displayMatch.teams.home.name}
                 size="48px"
                 className="team-logo"
-                leagueName={displayMatch.league?.name || ''}
-                leagueCountry={displayMatch.league?.country || ''}
+                leagueContext={{
+                  name: displayMatch.league?.name || '',
+                  country: displayMatch.league?.country || ''
+                }}
                 priority="high"
               />
             </div>
@@ -751,10 +753,12 @@ const MyMatchdetailsScoreboard = ({
                 teamName={displayMatch.teams.away.name}
                 teamLogo={displayMatch.teams.away.logo}
                 alt={displayMatch.teams.away.name}
-                size="24px"
+                size="48px"
                 className="team-logo"
-                leagueName={displayMatch.league?.name || ''}
-                leagueCountry={displayMatch.league?.country || ''}
+                leagueContext={{
+                  name: displayMatch.league?.name || '',
+                  country: displayMatch.league?.country || ''
+                }}
                 priority="high"
               />
             </div>
