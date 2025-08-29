@@ -629,17 +629,15 @@ const MyMatchdetailsScoreboard = ({
                 size="56px"
               />
             ) : (
-              <img
-                src={
-                  displayMatch.teams.home.logo || "/assets/fallback-logo.png"
-                }
+              <MyWorldTeamLogo
+                teamName={displayMatch.teams.home.name}
+                teamId={displayMatch.teams.home.id}
+                teamLogo={displayMatch.teams.home.logo}
                 alt={displayMatch.teams.home.name}
-                className="w-16 h-16 object-contain"
-                style={{
-                  filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8))",
-                }}
-                onError={(e) => {
-                  e.currentTarget.src = "/assets/fallback-logo.png";
+                size="64px"
+                leagueContext={{
+                  name: displayMatch.league.name,
+                  country: displayMatch.league.country,
                 }}
               />
             )}
@@ -783,17 +781,15 @@ const MyMatchdetailsScoreboard = ({
                 size="56px"
               />
             ) : (
-              <img
-                src={
-                  displayMatch.teams.away.logo || "/assets/fallback-logo.png"
-                }
+              <MyWorldTeamLogo
+                teamName={displayMatch.teams.away.name}
+                teamId={displayMatch.teams.away.id}
+                teamLogo={displayMatch.teams.away.logo}
                 alt={displayMatch.teams.away.name}
-                className="w-16 h-16 object-contain"
-                style={{
-                  filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8))",
-                }}
-                onError={(e) => {
-                  e.currentTarget.src = "/assets/fallback-logo.png";
+                size="64px"
+                leagueContext={{
+                  name: displayMatch.league.name,
+                  country: displayMatch.league.country,
                 }}
               />
             )}
