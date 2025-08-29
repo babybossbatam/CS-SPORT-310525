@@ -91,11 +91,11 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       .trim();
   };
 
-  // Extract team names prioritizing data from MyMatchdetailsScoreboard
-  // This ensures we use the same team names that are displayed in the scoreboard
-  const rawHome = homeTeamData?.name ||
-                  match?.teams?.home?.name || 
+  // Extract team names with better priority and validation
+  // Prioritize match data structure for consistency
+  const rawHome = match?.teams?.home?.name || 
                   match?.homeTeam?.name ||
+                  homeTeamData?.name ||
                   match?.homeTeam ||
                   match?.home?.name ||
                   match?.home ||
@@ -103,9 +103,9 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   homeTeamName || 
                   'Home Team';
 
-  const rawAway = awayTeamData?.name ||
-                  match?.teams?.away?.name || 
+  const rawAway = match?.teams?.away?.name || 
                   match?.awayTeam?.name ||
+                  awayTeamData?.name ||
                   match?.awayTeam ||
                   match?.away?.name ||
                   match?.away ||
@@ -206,29 +206,30 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   const teamExclusions = createTeamExclusions(rawHome, rawAway);
 
-  // Create multiple search strategies with different approaches
-  const primarySearchQuery = `"${rawHome}" vs "${rawAway}" highlights ${matchYear} ${teamExclusions}`.trim();
-
-  // Alternative search with cleaned names
-  const secondarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear} ${teamExclusions}`.trim();
-
-  // Search with league context for better accuracy
+  // Enhanced search queries with better team name handling
+  const exactTeamMatchQuery = `"${rawHome}" vs "${rawAway}" highlights ${matchYear} ${teamExclusions}`.trim();
+  
+  // Alternative with home vs away order emphasis
+  const homeAwayOrderQuery = `"${rawHome}" "${rawAway}" highlights ${matchYear} ${teamExclusions}`.trim();
+  
+  // League-specific search with exact team names
   const leagueSpecificQuery = league ? 
     `"${rawHome}" vs "${rawAway}" "${league}" ${matchYear} highlights ${teamExclusions}`.trim() :
-    primarySearchQuery;
+    exactTeamMatchQuery;
 
-  // Broader search without quotes for difficult matches
-  const broadSearchQuery = `${rawHome} ${away} highlights ${matchYear} ${teamExclusions}`.trim();
+  // Brazilian-specific search with proper team names
+  const brazilianSafeQuery = isBrazilianLeague ? 
+    `"${rawHome}" vs "${rawAway}" brasileiro ${matchYear} melhores momentos ${teamExclusions}`.trim() :
+    exactTeamMatchQuery;
+
+  // Cleaned names as fallback
+  const cleanedNamesQuery = `"${home}" vs "${away}" highlights ${matchYear} ${teamExclusions}`.trim();
 
   // Year-flexible search for older matches
   const flexibleYearQuery = `"${rawHome}" vs "${rawAway}" highlights ${teamExclusions}`.trim();
 
-  // Additional exclusions for Brazilian league confusion
-  const brazilianSafeQuery = isBrazilianLeague ? 
-    `"${rawHome}" vs "${rawAway}" brasileiro ${matchYear} melhores momentos ${teamExclusions}`.trim() :
-    primarySearchQuery;
-
-  const fallbackSearchQuery = `${home} vs ${away} highlights -virtual -gaming -esoccer -app -botafogo -psg`.trim();
+  // Final fallback with basic names
+  const fallbackSearchQuery = `${rawHome} ${rawAway} highlights -virtual -gaming -esoccer -app`.trim();
 
   // Special case for Palmeiras vs Chelsea - use known video (only for exact match)
   const isPalmeirasChelsea = ((home.toLowerCase() === 'palmeiras' || home.toLowerCase().includes('palmeiras')) && 
@@ -248,39 +249,35 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const isCRBCoritiba = (home.toLowerCase().includes('crb') && away.toLowerCase().includes('coritiba')) ||
                        (home.toLowerCase().includes('coritiba') && away.toLowerCase().includes('crb'));
 
-  // Debug logging to verify correct team names and order
-  console.log(`🎬 [Highlights] Match data extraction with validation:`, {
-    validation: {
-      hasValidTeamNames,
-      rawHomeValid: rawHome !== 'Home Team' && rawHome?.trim(),
-      rawAwayValid: rawAway !== 'Away Team' && rawAway?.trim(),
+  // Debug logging to verify correct team names and search queries
+  console.log(`🎬 [Highlights] Team name extraction and search query construction:`, {
+    teamExtractionOrder: {
+      priority1_matchTeams: { home: match?.teams?.home?.name, away: match?.teams?.away?.name },
+      priority2_homeTeamData: { home: homeTeamData?.name, away: awayTeamData?.name },
+      priority3_props: { home: homeTeam, away: awayTeam },
     },
-    prioritizedFromScoreboard: {
-      homeTeamData: homeTeamData?.name,
-      awayTeamData: awayTeamData?.name,
-    },
-    extractedFromMatch: {
-      homeFromTeams: match?.teams?.home?.name,
-      awayFromTeams: match?.teams?.away?.name,
-    },
-    finalResult: {
+    finalTeamNames: {
       rawHomeTeam: rawHome,
       rawAwayTeam: rawAway,
       cleanedHomeTeam: home,
       cleanedAwayTeam: away,
+      isValid: hasValidTeamNames,
     },
     searchQueries: {
-      primarySearchQuery,
+      exactTeamMatchQuery,
+      homeAwayOrderQuery,
       leagueSpecificQuery,
       brazilianSafeQuery,
+      cleanedNamesQuery,
     },
-    specialCases: {
-      // These will be declared after this debug section
+    matchContext: {
+      league: league,
+      matchYear: matchYear,
+      isBrazilianLeague,
+      isConcacafCompetition,
+      isFifaClubWorldCup,
     },
-    expectedOrder: `${home} vs ${away}`,
-    league: league,
-    matchYear: matchYear,
-    isBrazilianLeague
+    expectedSearchFormat: `"${rawHome}" vs "${rawAway}" highlights ${matchYear}`
   });
 
   // Helper function to validate video title order matches home vs away
@@ -603,7 +600,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       searchFn: async () => {
         const concacafChannelId = 'UCqn7r-so0mBLaJTtTms9dAQ';
         // Try multiple search queries for better match accuracy, prioritizing specificity
-        const queries = [exactTeamMatchQuery, leagueSpecificQuery, brazilianSafeQuery, primarySearchQuery, secondarySearchQuery];
+        const queries = [exactTeamMatchQuery, homeAwayOrderQuery, leagueSpecificQuery, brazilianSafeQuery, cleanedNamesQuery];
 
         let data;
 
@@ -739,7 +736,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       type: 'youtube' as const,
       searchFn: async () => {
         const uefaChannelId = 'UCoFbp5t9wYns3wqZdgYUfgQ';
-        const queries = [leagueSpecificQuery, primarySearchQuery, secondarySearchQuery];
+        const queries = [leagueSpecificQuery, exactTeamMatchQuery, homeAwayOrderQuery, cleanedNamesQuery];
         let data;
 
         for (const query of queries) {
@@ -791,7 +788,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         const fifaChannelId = 'UCK-mxP4hLap1t3dp4bPbSBg';
         // For Palmeiras vs Chelsea, use Chelsea-focused search to avoid Benfica results
         const searchTerm = isPalmeirasChelsea ? 'Chelsea highlights FIFA Club World Cup' : primarySearchQuery;
-        const queries = isPalmeirasChelsea ? [searchTerm] : [primarySearchQuery, secondarySearchQuery];
+        const queries = isPalmeirasChelsea ? [searchTerm] : [exactTeamMatchQuery, homeAwayOrderQuery, cleanedNamesQuery];
         let data;
 
         for (const query of queries) {
@@ -849,14 +846,14 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         // Prioritize official channels and highlights with stricter keywords
         const officialKeywords = `"highlights" OR "melhores momentos" OR "gols" OR "goals" OR "resumo" OR "extended highlights" OR "match highlights"`;
 
-        // Enhanced queries with better official content prioritization
+        // Enhanced queries with proper team name order and better official content prioritization
         const queries = [
           `"official highlights" "${rawHome}" vs "${rawAway}" ${matchYear} ${strongExclusions}`,
           `"match highlights" "${rawHome}" "${rawAway}" ${matchYear} ${strongExclusions}`,
           `(${officialKeywords}) "${rawHome}" vs "${rawAway}" ${matchYear} ${strongExclusions}`,
-          `"${rawHome}" "${rawAway}" highlights ${matchYear} "official" ${strongExclusions}`,
-          `${home} vs ${away} "goals highlights" ${matchYear} ${strongExclusions}`,
-          `"${home}" "${away}" "extended highlights" ${matchYear} ${strongExclusions}`,
+          `"${rawHome}" vs "${rawAway}" highlights ${matchYear} "official" ${strongExclusions}`,
+          `"${rawHome}" "${rawAway}" "goals highlights" ${matchYear} ${strongExclusions}`,
+          `"${home}" vs "${away}" "extended highlights" ${matchYear} ${strongExclusions}`,
           `${rawHome} x ${rawAway} "melhores momentos" ${matchYear} ${strongExclusions}`
         ];
 
