@@ -952,8 +952,9 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                                 <MyWorldTeamLogo
                                   teamName={event.team?.name || ""}
+                                  teamId={event.team?.id}
                                   teamLogo={`/api/team-logo/square/${event.team?.id || "fallback"}?size=24`}
-                                  alt={event.team?.name}
+                                  alt={event.team?.name || "Team Logo"}
                                   size="24px"
                                   className="w-6 h-6 rounded-sm border border-gray-200"
                                 />
@@ -1087,8 +1088,9 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                                   <MyWorldTeamLogo
                                     teamName={event.team?.name || ""}
+                                    teamId={event.team?.id}
                                     teamLogo={`/api/team-logo/square/${event.team?.id || "fallback"}?size=24`}
-                                    alt={event.team?.name}
+                                    alt={event.team?.name || "Team Logo"}
                                     size="24px"
                                     className="w-6 h-6"
                                   />
@@ -1131,8 +1133,9 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                                 <MyWorldTeamLogo
                                   teamName={event.team?.name || ""}
+                                  teamId={event.team?.id}
                                   teamLogo={`/api/team-logo/square/${event.team?.id || "fallback"}?size=24`}
-                                  alt={event.team?.name}
+                                  alt={event.team?.name || "Team Logo"}
                                   size="24px"
                                   className="w-6 h-6"
                                 />
