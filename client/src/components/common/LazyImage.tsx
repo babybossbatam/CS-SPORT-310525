@@ -538,63 +538,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
     );
   }
 
-  // Enhanced player image detection and prevention - more specific to avoid blocking team logos
-  if (alt && imageSrc) {
-    // Only block if it's clearly a player photo URL AND in a non-team context
-    const isPlayerPhotoUrl = (imageSrc.includes('/players/') && !imageSrc.includes('/teams/')) || 
-                             (imageSrc.includes('Athletes/') && imageSrc.includes('365scores.com')) ||
-                             imageSrc.includes('/headshots/') ||
-                             imageSrc.includes('_headshot') ||
-                             imageSrc.includes('playerheadshots') ||
-                             imageSrc.includes('playerimages') ||
-                             imageSrc.includes('mugshots') ||
-                             // Very specific player photo patterns only
-                             (imageSrc.includes('media.api-sports.io') && imageSrc.includes('/players/'));
-    
-    // Only apply blocking if it's definitely a player photo and NOT in team logo context
-    const isDefinitelyTeamLogo = imageSrc.includes('/teams/') ||
-                                imageSrc.includes('/team-logo/') ||
-                                imageSrc.includes('/leagues/') ||
-                                imageSrc.includes('/competitions/') ||
-                                alt.toLowerCase().includes('logo') ||
-                                alt.toLowerCase().includes('team') ||
-                                className?.includes('logo') ||
-                                className?.includes('team');
-    
-    // Only block if it's clearly a player photo AND not a team logo
-    if (isPlayerPhotoUrl && !isDefinitelyTeamLogo) {
-      console.warn(`🚨 [LazyImage] Player photo blocked:`, {
-        alt,
-        imageSrc,
-        originalSrc: src,
-        reason: 'Player photo detected in non-team context',
-        component: 'LazyImage'
-      });
-      
-      // Force fallback immediately
-      return (
-        <img
-          src={fallbackUrl}
-          alt={alt}
-          className={className}
-          style={{
-            ...style,
-            border: 'none',
-            outline: 'none',
-            display: 'block',
-            opacity: 1,
-            filter: darkMode ? 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))' : 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.8))',
-            ...(style?.width || style?.height ? {} : {
-             width: style?.width || style?.height || (isMobile ? '32px' : '32px'),
-              height: style?.height || style?.width || (isMobile ? '32px' : '32px')
-            })
-          }}
-          loading={shouldPreload ? 'eager' : 'lazy'}
-          decoding="async"
-        />
-      );
-    }
-  }
+  
 
   return (
     <img
