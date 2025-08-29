@@ -236,7 +236,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
             // Define lastRegularEvent for use throughout the component
             const fullTimeEvents = events.filter((e) => e.time.elapsed <= 120);
-            const lastRegularEvent = fullTimeEvents.length > 0 
+            const lastRegularEvent = fullTimeEvents.length > 0
               ? fullTimeEvents.reduce((latest, current) => {
                   const currentTotal = current.time.elapsed + (current.time.extra || 0);
                   const latestTotal = latest.time.elapsed + (latest.time.extra || 0);
@@ -365,7 +365,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 }
 
                 // For events at the same exact time, prioritize card order: Yellow before Red
-                if (a.type === "Card" && b.type === "Card" && 
+                if (a.type === "Card" && b.type === "Card" &&
                     a.player?.name === b.player?.name) {
                   const aIsYellow = a.detail?.toLowerCase().includes("yellow");
                   const bIsYellow = b.detail?.toLowerCase().includes("yellow");
@@ -1027,7 +1027,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                       className="w-4 h-4 opacity-80 flex-shrink-0"
                                     />
                                     <span className="text-gray-600 font-bold  text-xs tracking-wider">
-                                      Assist 
+                                      Assist
                                     </span>
                                   </div>
 
