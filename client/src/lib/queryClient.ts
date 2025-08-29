@@ -75,7 +75,7 @@ export async function apiRequest(
     return response;
   } catch (error) {
     clearTimeout(timeoutId);
-    
+
     const errorMessage =
       error instanceof Error ? error.message : String(error);
 
@@ -158,7 +158,7 @@ export const getQueryFn: <T>(options: {
         const isLargeFixtureRequest = url.includes('/fixtures/date/') && url.includes('all=true');
         const controller = new AbortController();
         const timeoutDuration = isLargeFixtureRequest ? 60000 : 15000;
-        
+
         // Don't set timeout if query is already being cancelled
         let timeoutId: NodeJS.Timeout | null = null;
         if (!signal?.aborted) {
@@ -184,7 +184,7 @@ export const getQueryFn: <T>(options: {
         return await res.json();
       } catch (error) {
         lastError = error;
-        
+
         // If this is the last attempt or not a timeout error, break
         if (attempt === maxRetries || 
             !(error instanceof Error && error.name === 'AbortError') ||
