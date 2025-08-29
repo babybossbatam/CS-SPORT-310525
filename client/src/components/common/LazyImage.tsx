@@ -557,7 +557,15 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   // Use MyWorldTeamLogo if team information is provided and useTeamLogo is true
   // But only if this isn't already a recursive call from MyWorldTeamLogo
-  if (useTeamLogo && teamId && teamName && !className?.includes('team-logo')) {
+  if (useTeamLogo && teamId && teamName && !className?.includes('team-logo') && !className?.includes('delegated-to-team-logo')) {
+    console.log(`🔄 [LazyImage] Delegating to MyWorldTeamLogo:`, {
+      teamName,
+      teamId,
+      imageSrc,
+      useTeamLogo,
+      className
+    });
+    
     return (
       <MyWorldTeamLogo
         teamName={teamName}
