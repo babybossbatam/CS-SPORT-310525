@@ -583,6 +583,10 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         onLoad={handleLoad}
         loading="lazy"
         priority="high"
+        useTeamLogo={true}
+        teamId={teamId}
+        teamName={teamName}
+        leagueContext={leagueContext}
       />
     </div>
   );
