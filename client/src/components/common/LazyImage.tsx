@@ -543,7 +543,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         // Apply size from props if no explicit width/height in style
         ...(style?.width || style?.height ? {} : {
           width: style?.width || style?.height || (isMobile ? '24px' : '24px'),
-          height: style?.height || style?.width || (isMobile ? '24px' : '24px')
+            height: style?.height || style?.width || (isMobile ? '36px' : '36px')
         })
       }}
       loading={shouldPreload ? 'eager' : 'lazy'}
