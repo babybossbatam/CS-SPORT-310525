@@ -47,6 +47,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const [hasError, setHasError] = useState<boolean>(false);
   const [retryCount, setRetryCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [loadedSuccessfully, setLoadedSuccessfully] = useState<boolean>(false);
+  const imgRef = useRef<HTMLImageElement>(null);
 
   // Get dark mode state from Redux store
   const darkMode = useSelector((state: RootState) => state.ui.darkMode);
@@ -68,6 +70,9 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const fallbackUrl = "/assets/matchdetaillogo/fallback.png";
 
   useEffect(() => {
+    // Reset success flag when source changes
+    setLoadedSuccessfully(false);
+    
     // Check for specific teams/leagues that should use local assets immediately
       const shouldUseLocalAsset = () => {
         if (alt) {
@@ -127,6 +132,12 @@ const LazyImage: React.FC<LazyImageProps> = ({
         useTeamLogo,
         timestamp: new Date().toISOString()
       });
+
+      // Prevent error handling if image was already successfully loaded
+      if (loadedSuccessfully || (!hasError && !isLoading)) {
+        console.log(`🔒 [LazyImage] Preventing error handling - image already loaded successfully for ${alt}`);
+        return;
+      }
 
       // Immediately set loading to false to prevent broken image display
       setIsLoading(false);
@@ -420,6 +431,11 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const handleLoad = () => {
     // Reset loading state when image loads successfully
     setIsLoading(false);
+    
+    // Mark as successfully loaded to prevent subsequent error handling
+    setHasError(false);
+    setRetryCount(0); // Reset retry count on successful load
+    setLoadedSuccessfully(true); // Flag to prevent future error handling
 
     // Don't cache or log success for fallback images
     const isFallbackImage =
@@ -432,7 +448,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
       console.log(
         `⚠️ [LazyImage] Fallback image loaded, not caching: ${imageSrc}`,
       );
-      setHasError(false);
       onLoad?.();
       return;
     }
@@ -640,6 +655,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   return (
     <img
+      ref={imgRef}
       src={imageSrc}
       alt={alt}
       className={className}
