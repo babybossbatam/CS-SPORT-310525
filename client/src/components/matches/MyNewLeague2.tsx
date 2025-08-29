@@ -28,6 +28,7 @@ import { teamMappingExtractor } from "@/lib/teamMappingExtractor";
 import { generateCompleteTeamMapping } from "@/lib/generateCompleteTeamMapping";
 import { smartLeagueTranslation } from "@/lib/leagueNameMapping";
 import { smartCountryTranslation } from "@/lib/countryNameMapping";
+import { teamLogoBatchPreloader, extractTeamLogosFromFixtures } from '@/lib/teamLogoBatchPreloader';
 
 // Intersection Observer Hook for lazy loading
 const useIntersectionObserver = (
@@ -1818,7 +1819,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         {/* Away team logo */}
                         <div
                           className="away-team-logo-container"
-                          style={{ padding: "0 0.5rem" }}
+                          style={{ padding: "0.5rem" }}
                         >
                           <Skeleton className="h-8 w-8 rounded-full" />
                         </div>
@@ -2777,7 +2778,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   teamId={fixture.teams.home.id}
                                   teamLogo={
                                     fixture.teams.home.logo ||
-                                    `https://media.api-sports.io/football/teams/${fixture.teams.home.id}.png`
+                                    `https://media.api.sports.io/football/teams/${fixture.teams.home.id}.png`
                                   }
                                   alt={fixture.teams.home.name}
                                   size="34px"
@@ -2982,7 +2983,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   teamId={fixture.teams.away.id}
                                   teamLogo={
                                     fixture.teams.away.logo ||
-                                    `https://media.api-sports.io/football/teams/${fixture.teams.away.id}.png`
+                                    `https://media.api.sports.io/football/teams/${fixture.teams.away.id}.png`
                                   }
                                   alt={fixture.teams.away.name}
                                   size="34px"

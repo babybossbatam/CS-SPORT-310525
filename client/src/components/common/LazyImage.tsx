@@ -56,6 +56,14 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   // Preload critical images
   const shouldPreload = priority === 'high' || priority === 'medium';
+  
+  // Preload image if it's high priority
+  useEffect(() => {
+    if (shouldPreload && src && !src.includes('fallback')) {
+      const img = new Image();
+      img.src = src;
+    }
+  }, [src, shouldPreload]);
 
   const fallbackUrl = "/assets/matchdetaillogo/fallback.png";
 
@@ -640,8 +648,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
         border: 'none',
         outline: 'none',
         display: hasError && imageSrc !== fallbackUrl ? 'none' : 'block',
-        opacity: isLoading ? 0.7 : 1,
-        transition: 'opacity 0.2s ease-in-out',
+        opacity: isLoading ? 0.5 : 1,
+        transition: 'opacity 0.15s ease-in-out',
         filter: darkMode ? 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))' : 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.8))',
         // Apply size from props if no explicit width/height in style
         ...(style?.width || style?.height ? {} : {
@@ -650,7 +658,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
         })
       }}
       loading={shouldPreload ? 'eager' : 'lazy'}
-      decoding="async"
+      decoding={shouldPreload ? 'sync' : 'async'}
+      fetchPriority={shouldPreload ? 'high' : 'auto'}
       onLoad={handleLoad}
       onError={handleError}
     />

@@ -582,7 +582,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         onError={handleImageError}
         onLoad={handleLoad}
         loading="lazy"
-        priority="medium"
+        priority="high"
       />
     </div>
   );
