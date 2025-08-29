@@ -858,13 +858,16 @@ const LeagueStandingsFilter = () => {
                   .slice(0, 2)
                   .map((group: Standing[], groupIndex: number) => (
                     <div key={groupIndex}>
-                      <h3 className="text-xs font-regular mx-2 pt-2 mt-4 border-t border-b border-gray-300 dark:border-white mb-2 text-gray-700 dark:text-white flex items-center pb-1">
+                      <h3 className="text-xs font-regular mx-2 pt-2 mt-4 border-t border-b border-gray-300 dark:border-white mb-2 text-gray-700 dark:text-white flex items-center justify-between pb-1">
                         {getTranslatedGroupText(
                           `Group ${String.fromCharCode(65 + groupIndex)}`,
                         )}
+                        <span className="text-xs text-gray-400 md:hidden">
+                          ← Swipe →
+                        </span>
                       </h3>
-                      <div className="overflow-x-auto -webkit-overflow-scrolling-touch scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-                        <Table className="min-w-[600px] w-full">
+                      <div className="overflow-x-auto -webkit-overflow-scrolling-touch scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent mobile-scroll">
+                        <Table className="min-w-[600px] w-full league-standings-table">
                           <TableHeader>
                             <TableRow>
                               <TableHead className="w-[40px] text-center px-0.5 sticky left-0 bg-white dark:bg-gray-800 z-20 border-r border-gray-200 dark:border-gray-600"></TableHead>
