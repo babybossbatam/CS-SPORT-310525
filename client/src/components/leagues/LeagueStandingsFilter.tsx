@@ -863,7 +863,7 @@ const LeagueStandingsFilter = () => {
                           `Group ${String.fromCharCode(65 + groupIndex)}`,
                         )}
                       </h3>
-                      <div className="overflow-x-auto -webkit-overflow-scrolling-touch scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent mobile-table-scroll">
+                      <div className="overflow-x-auto -webkit-overflow-scrolling-touch scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
                         <Table className="min-w-[600px] w-full">
                           <TableHeader>
                             <TableRow>
@@ -1118,7 +1118,7 @@ const LeagueStandingsFilter = () => {
             ) : (
               // Single league table
               <div className="border-t">
-                <div className="overflow-x-auto -webkit-overflow-scrolling-touch scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent mobile-table-scroll">
+                <div className="overflow-x-auto -webkit-overflow-scrolling-touch scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
                   <Table className="min-w-[600px] w-full">
                     <TableHeader>
                       <TableRow className="py-4 border-b border-gray-100 dark:border-gray-700">
@@ -1280,26 +1280,26 @@ const LeagueStandingsFilter = () => {
                                                     : standing.description
                                                           ?.toLowerCase()
                                                           .includes("europa")
-                                                        ? "#17A2B8"
+                                                      ? "#17A2B8"
+                                                      : standing.description
+                                                            ?.toLowerCase()
+                                                            .includes(
+                                                              "conference",
+                                                            )
+                                                        ? "#6F42C1"
                                                         : standing.description
                                                               ?.toLowerCase()
                                                               .includes(
-                                                                "conference",
+                                                                "promotion",
                                                               )
-                                                          ? "#6F42C1"
+                                                          ? "#28A745"
                                                           : standing.description
                                                                 ?.toLowerCase()
                                                                 .includes(
-                                                                  "promotion",
+                                                                  "relegation",
                                                                 )
-                                                            ? "#28A745"
-                                                            : standing.description
-                                                                  ?.toLowerCase()
-                                                                  .includes(
-                                                                    "relegation",
-                                                                  )
-                                                              ? "#DC3545"
-                                                              : "#6B7280",
+                                                            ? "#DC3545"
+                                                            : "#6B7280",
                                         }}
                                       >
                                         {getChampionshipTitle(

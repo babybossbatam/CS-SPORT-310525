@@ -280,105 +280,32 @@
     left: -9999px;
   }
 
-  /* Enhanced mobile table scrolling */
-  .mobile-table-scroll {
-    position: relative;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-x: contain;
-    scroll-behavior: smooth;
+  /* Standings table horizontal scroll */
+  .overflow-x-auto {
     scrollbar-width: thin;
-    scrollbar-color: rgba(59, 130, 246, 0.7) rgba(243, 244, 246, 0.8);
-    border-radius: 8px;
+    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
   }
 
-  .mobile-table-scroll::-webkit-scrollbar {
-    height: 8px;
+  .overflow-x-auto::-webkit-scrollbar {
+    height: 6px;
   }
 
-  .mobile-table-scroll::-webkit-scrollbar-track {
-    background: rgba(243, 244, 246, 0.8);
-    border-radius: 4px;
+  .overflow-x-auto::-webkit-scrollbar-track {
+    background: transparent;
   }
 
-  .mobile-table-scroll::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  .overflow-x-auto::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.5);
+    border-radius: 3px;
   }
 
-  .mobile-table-scroll::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #2563eb, #1e40af);
-  }
-
-  .mobile-table-scroll::-webkit-scrollbar-thumb:active {
-    background: linear-gradient(135deg, #1d4ed8, #1e3a8a);
-  }
-
-  /* Visual scroll indicators */
-  .mobile-table-scroll::before,
-  .mobile-table-scroll::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 20px;
-    pointer-events: none;
-    z-index: 10;
-    transition: opacity 0.3s ease;
-  }
-
-  .mobile-table-scroll::before {
-    left: 0;
-    background: linear-gradient(to right, rgba(255,255,255,0.8), transparent);
-    opacity: 0;
-  }
-
-  .mobile-table-scroll::after {
-    right: 0;
-    background: linear-gradient(to left, rgba(255,255,255,0.8), transparent);
-    opacity: 1;
-  }
-
-  /* Show left indicator when scrolled */
-  .mobile-table-scroll:not([scrollLeft="0"])::before {
-    opacity: 1;
-  }
-
-  /* Hide right indicator when fully scrolled */
-  .mobile-table-scroll[data-scroll-end="true"]::after {
-    opacity: 0;
-  }
-
-  /* Dark mode support for scroll indicators */
-  @media (prefers-color-scheme: dark) {
-    .mobile-table-scroll::before {
-      background: linear-gradient(to right, rgba(31, 41, 55, 0.8), transparent);
-    }
-    
-    .mobile-table-scroll::after {
-      background: linear-gradient(to left, rgba(31, 41, 55, 0.8), transparent);
-    }
+  .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(156, 163, 175, 0.8);
   }
 
   /* Smooth scrolling for touch devices */
   .-webkit-overflow-scrolling-touch {
     -webkit-overflow-scrolling: touch;
-  }
-
-  /* Enhanced touch scrolling momentum */
-  .mobile-table-scroll {
-    scroll-snap-type: x proximity;
-  }
-
-  /* Scroll hint animation */
-  @keyframes mobile-scroll-hint {
-    0%, 100% { transform: translateX(0); }
-    50% { transform: translateX(10px); }
-  }
-
-  .mobile-table-scroll[data-show-hint="true"]::after {
-    animation: mobile-scroll-hint 2s ease-in-out 3;
   }
 }
 
