@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useDeviceInfo } from "@/hooks/use-mobile";
-import MyWorldTeamLogo from "./MyWorldTeamLogo";
 
 interface LazyImageProps {
   src: string;
@@ -13,15 +12,6 @@ interface LazyImageProps {
   loading?: "lazy" | "eager";
   onLoad?: () => void;
   onError?: () => void;
-  // Team logo specific props
-  useTeamLogo?: boolean;
-  teamId?: number | string;
-  teamName?: string;
-  teamLogo?: string; // For fallback from currentMatch.teams.home.logo
-  leagueContext?: {
-    name?: string;
-    country?: string;
-  };
   priority?: 'high' | 'medium' | 'low';
 }
 
@@ -34,15 +24,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
   loading = "lazy",
   onLoad,
   onError,
-  useTeamLogo = false,
-  teamId,
-  teamName,
-  teamLogo,
-  leagueContext,
   priority = 'low',
 }) => {
-  // Note: For team logos, consider using MyWorldTeamLogo instead of LazyImage
-  // LazyImage is better suited for general images, league logos, and non-team assets
   const [imageSrc, setImageSrc] = useState<string>(src);
   const [hasError, setHasError] = useState<boolean>(false);
   const [retryCount, setRetryCount] = useState<number>(0);
@@ -117,8 +100,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
     const handleError = () => {
     // Safety check to prevent cascading errors
     try {
-      // Extract teamId from src if not provided
-      const extractedTeamId = teamId || (imageSrc.match(/\/team-logo\/(?:square|circular)\/(\d+)/) || [])[1];
+      // Extract teamId from src for debugging
+      const extractedTeamId = (imageSrc.match(/\/team-logo\/(?:square|circular)\/(\d+)/) || [])[1];
 
       // Enhanced debugging for team logos
       console.log(`🚫 [LazyImage] Image failed to load:`, {
@@ -127,8 +110,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
         originalSrc: src,
         retryCount,
         teamId: extractedTeamId,
-        hasTeamInfo: !!(extractedTeamId && teamName),
-        useTeamLogo,
         timestamp: new Date().toISOString()
       });
 
@@ -382,9 +363,9 @@ const LazyImage: React.FC<LazyImageProps> = ({
         const maxRetries = isLeagueLogo ? 2 : 2; // Allow 2 retries for team logos too
 
         // For team logos, try different URL patterns
-        if (!isLeagueLogo && teamId && retryCount === 0) {
+        if (!isLeagueLogo && extractedTeamId && retryCount === 0) {
           // First retry: try with different size parameter
-          const newUrl = `/api/team-logo/square/${teamId}?size=64`;
+          const newUrl = `/api/team-logo/square/${extractedTeamId}?size=64`;
           console.log(`🔄 [LazyImage] Team logo retry 1 - trying different size: ${newUrl}`);
           setImageSrc(newUrl);
           setRetryCount(1);
@@ -392,9 +373,9 @@ const LazyImage: React.FC<LazyImageProps> = ({
           return;
         }
 
-        if (!isLeagueLogo && teamId && retryCount === 1) {
+        if (!isLeagueLogo && extractedTeamId && retryCount === 1) {
           // Second retry: try with circular endpoint
-          const newUrl = `/api/team-logo/circular/${teamId}?size=32`;
+          const newUrl = `/api/team-logo/circular/${extractedTeamId}?size=32`;
           console.log(`🔄 [LazyImage] Team logo retry 2 - trying circular: ${newUrl}`);
           setImageSrc(newUrl);
           setRetryCount(2);
@@ -403,15 +384,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
         }
 
         if (retryCount >= maxRetries) {
-          // Try teamLogo as additional fallback before using default fallback
-          if (teamLogo && !imageSrc.includes(teamLogo) && !imageSrc.includes(fallbackUrl)) {
-            console.log(`🔄 [LazyImage] Trying teamLogo fallback: ${teamLogo}`);
-            setImageSrc(teamLogo);
-            setRetryCount(retryCount + 1);
-            setIsLoading(true);
-            return;
-          }
-
           console.warn(
             `🚫 [LazyImage] All retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
           );
@@ -554,30 +526,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
   };
 
 
-
-  // Use MyWorldTeamLogo if team information is provided and useTeamLogo is true
-  // But only if this isn't already a recursive call from MyWorldTeamLogo
-  if (useTeamLogo && teamId && teamName && !className?.includes('team-logo')) {
-    console.log(`🔄 [LazyImage] Delegating to MyWorldTeamLogo:`, {
-      teamName,
-      teamId,
-      imageSrc,
-      useTeamLogo,
-      className
-    });
-
-    return (
-      <MyWorldTeamLogo
-        teamName={teamName}
-        teamId={teamId}
-        teamLogo={imageSrc}
-        alt={alt}
-        size={style?.width || style?.height || "32px"}
-        className={className}
-        leagueContext={leagueContext}
-      />
-    );
-  }
 
   return (
     <img
