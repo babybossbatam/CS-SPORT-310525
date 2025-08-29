@@ -616,7 +616,7 @@ const MyMatchdetailsScoreboard = ({
                 teamName={displayMatch.teams.home.name}
                 teamLogo={displayMatch.teams.home.logo}
                 alt={displayMatch.teams.home.name}
-                size="32px"
+                size="24px"
                 className="team-logo"
                 leagueContext={{
                   name: displayMatch.league?.name || '',
@@ -752,7 +752,7 @@ const MyMatchdetailsScoreboard = ({
                 teamId={displayMatch.teams.away.id}
                 teamLogo={displayMatch.teams.away.logo}
                 alt={displayMatch.teams.away.name}
-                size="32px"
+                size="24px"
                 className="team-logo"
                 leagueContext={{
                   name: displayMatch.league?.name || '',
