@@ -1116,11 +1116,20 @@ const HomeTopScorersList = () => {
               })}
             </div>
           ) : (
-            <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-              <p className="text-sm">No top scorer data available</p>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                for {getCurrentLeague()?.name || "Selected League"}
-              </p>
+            <div className="space-y-3">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+                  <div className="flex-1 space-y-1">
+                    <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
+                    <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
+                  </div>
+                  <div className="text-right">
+                    <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-full" />
+                    <div className="h-3 w-8 bg-gray-200 dark:bg-gray-700 animate-pulse rounded mt-1" />
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
