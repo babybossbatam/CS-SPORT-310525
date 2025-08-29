@@ -56,7 +56,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   // Preload critical images
   const shouldPreload = priority === 'high' || priority === 'medium';
-  
+
   // Preload image if it's high priority
   useEffect(() => {
     if (shouldPreload && src && !src.includes('fallback')) {
@@ -119,7 +119,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
     try {
       // Extract teamId from src if not provided
       const extractedTeamId = teamId || (imageSrc.match(/\/team-logo\/(?:square|circular)\/(\d+)/) || [])[1];
-      
+
       // Enhanced debugging for team logos
       console.log(`🚫 [LazyImage] Image failed to load:`, {
         src: imageSrc,
@@ -380,7 +380,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
         // Enhanced retry logic for team logos
         const maxRetries = isLeagueLogo ? 2 : 2; // Allow 2 retries for team logos too
-        
+
         // For team logos, try different URL patterns
         if (!isLeagueLogo && teamId && retryCount === 0) {
           // First retry: try with different size parameter
@@ -391,7 +391,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
           setIsLoading(true);
           return;
         }
-        
+
         if (!isLeagueLogo && teamId && retryCount === 1) {
           // Second retry: try with circular endpoint
           const newUrl = `/api/team-logo/circular/${teamId}?size=32`;
@@ -401,7 +401,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
           setIsLoading(true);
           return;
         }
-        
+
         if (retryCount >= maxRetries) {
           // Try teamLogo as additional fallback before using default fallback
           if (teamLogo && !imageSrc.includes(teamLogo) && !imageSrc.includes(fallbackUrl)) {
@@ -411,7 +411,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
             setIsLoading(true);
             return;
           }
-          
+
           console.warn(
             `🚫 [LazyImage] All retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
           );
@@ -447,7 +447,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const handleLoad = () => {
     // Reset loading state when image loads successfully
     setIsLoading(false);
-    
+
     // Also reset error state on successful load
     if (hasError) {
       setHasError(false);
@@ -556,7 +556,16 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
 
   // Use MyWorldTeamLogo if team information is provided and useTeamLogo is true
-  if (useTeamLogo && teamId && teamName) {
+  // But only if this isn't already a recursive call from MyWorldTeamLogo
+  if (useTeamLogo && teamId && teamName && !className?.includes('team-logo')) {
+    console.log(`🔄 [LazyImage] Delegating to MyWorldTeamLogo:`, {
+      teamName,
+      teamId,
+      imageSrc,
+      useTeamLogo,
+      className
+    });
+
     return (
       <MyWorldTeamLogo
         teamName={teamName}
