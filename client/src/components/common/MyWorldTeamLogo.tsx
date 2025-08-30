@@ -18,6 +18,7 @@ interface MyWorldTeamLogoProps {
   size?: string;
   className?: string;
   teamId?: number | string;
+  moveLeft?: boolean; // Added missing moveLeft prop
   leagueContext?: {
     name?: string;
     country?: string;
@@ -28,7 +29,7 @@ interface MyWorldTeamLogoProps {
     venue?: string;
   };
   showNextMatchOverlay?: boolean;
-  onLoad?: () => void; // Added for potential use in handleLoad
+  onLoad?: () => void;
   priority?: string;
 }
 
@@ -54,7 +55,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   leagueContext,
   nextMatchInfo,
   showNextMatchOverlay = false,
-  onLoad, // Added for potential use
+  onLoad,
 }) => {
   const [imageSrc, setImageSrc] = useState<string>(teamLogo || "/assets/fallback.png");
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -281,22 +282,23 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     return result;
   }, [teamName, leagueContext]);
 
-  // Memoized logo URL resolution using enhancedLogoManager
-  const logoUrl = useMemo(() => {
-    // Immediately return the locally managed imageSrc if it's already set and valid
-    if (!isLoading && !hasError && imageSrc && !imageSrc.includes("/assets/fallback.png")) {
-      return Promise.resolve(imageSrc);
-    }
+  // Memoized logo URL resolution - simplified to avoid Promise issues
+  const resolveLogoUrl = useMemo(() => {
+    // Return a function that can be called asynchronously
+    return async () => {
+      // Check if we already have a valid imageSrc
+      if (!isLoading && !hasError && imageSrc && !imageSrc.includes("/assets/fallback.png")) {
+        return imageSrc;
+      }
 
-    // If not loading or has error, and no teamId/teamName, use fallback
-    if (!teamId || !teamName) {
-      return Promise.resolve(teamLogo || "/assets/fallback.png");
-    }
+      // If no teamId/teamName, use fallback
+      if (!teamId || !teamName) {
+        return teamLogo || "/assets/fallback.png";
+      }
 
-    const fetchLogo = async () => {
       console.log(`🎯 [MyWorldTeamLogo] Fetching logo for team: ${teamName} (ID: ${teamId})`);
 
-      // Check global in-memory cache first for immediate sharing
+      // Check global in-memory cache first
       const globalCacheKey = `${teamId}_${teamName}`;
       const globalCached = globalLogoCache.get(globalCacheKey);
 
@@ -306,7 +308,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
           console.log(`🚀 [MyWorldTeamLogo] Using global cache for ${teamName}: ${globalCached.url}`);
           return globalCached.url;
         } else if (age >= GLOBAL_CACHE_DURATION) {
-          // Remove expired entries
           globalLogoCache.delete(globalCacheKey);
         }
       }
@@ -327,12 +328,12 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
           loadTime: logoResponse.loadTime + 'ms'
         });
 
-        // Cache in global memory for immediate sharing between components
+        // Cache in global memory
         if (teamId && teamName) {
           globalLogoCache.set(globalCacheKey, {
             url: logoResponse.url,
             timestamp: Date.now(),
-            verified: true // Assuming enhancedLogoManager returns a valid URL
+            verified: true
           });
           console.log(`💾 [MyWorldTeamLogo] Cached ${teamName} logo in global cache: ${logoResponse.url}`);
         }
@@ -340,31 +341,19 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         return logoResponse.url;
       } catch (error) {
         console.warn(`⚠️ [MyWorldTeamLogo] Enhanced logo manager failed for ${teamName}:`, error);
-        // Fallback to getBestTeamLogoUrl if enhancedLogoManager fails
         const fallbackUrl = getBestTeamLogoUrl(teamId, teamName, 64);
-        // Cache the fallback URL as well if it's valid
+        
         if (fallbackUrl) {
-            globalLogoCache.set(globalCacheKey, {
-              url: fallbackUrl,
-              timestamp: Date.now(),
-              verified: false // Mark as not fully verified if it's a fallback
-            });
-            console.log(`💾 [MyWorldTeamLogo] Cached fallback for ${teamName} in global cache: ${fallbackUrl}`);
+          globalLogoCache.set(globalCacheKey, {
+            url: fallbackUrl,
+            timestamp: Date.now(),
+            verified: false
+          });
+          console.log(`💾 [MyWorldTeamLogo] Cached fallback for ${teamName} in global cache: ${fallbackUrl}`);
         }
-        return fallbackUrl;
+        return fallbackUrl || "/assets/fallback.png";
       }
     };
-
-    // If not already loaded or errored, initiate the fetch
-    if (isLoading && !hasError) {
-      return fetchLogo();
-    } else if (!isLoading && !hasError) {
-      // If already loaded successfully, return the current imageSrc
-      return Promise.resolve(imageSrc);
-    } else {
-      // If there was an error, return fallback
-      return Promise.resolve(teamLogo || "/assets/fallback.png");
-    }
   }, [teamId, teamName, teamLogo, shouldUseCircularFlag, isLoading, hasError, imageSrc]);
 
   // Effect to handle the asynchronous logo loading and update state
@@ -409,7 +398,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
       let isMounted = true; // Flag to prevent state update on unmounted component
 
-      logoUrl.then((url) => {
+      resolveLogoUrl().then((url) => {
         if (isMounted && url && url !== imageSrc) {
           setImageSrc(url);
           setHasError(url.includes("/assets/fallback.png"));
@@ -475,7 +464,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
     const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     // Safety check to prevent undefined target errors
-    if (!e || !e.target) {
+    if (!e?.target) {
       console.warn('⚠️ [MyWorldTeamLogo] Image error event has no target');
       return;
     }
@@ -483,8 +472,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     const target = e.target as HTMLImageElement;
 
     // Additional safety check for target properties
-    if (!target || typeof target.src !== 'string') {
-      console.warn('⚠️ [MyWorldTeamLogo] Invalid image target');
+    if (!target?.src || typeof target.src !== 'string') {
+      console.warn('⚠️ [MyWorldTeamLogo] Invalid image target or src');
       return;
     }
 
