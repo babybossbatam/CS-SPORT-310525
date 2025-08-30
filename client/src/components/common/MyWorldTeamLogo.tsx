@@ -616,14 +616,11 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         style={imageStyle}
         onError={handleImageError}
         onLoad={handleLoad}
-      />}
         loading="lazy"
         priority={priority as 'high' | 'medium' | 'low'}
       />
     </div>
   );
 };
-
-export default MyWorldTeamLogo;
 
 export default MyWorldTeamLogo;
