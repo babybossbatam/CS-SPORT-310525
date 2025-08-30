@@ -533,12 +533,16 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
   }, [teamId, teamName, teamLogo, isLoading, hasError]); // Added missing dependencies
 
+  // Safely prepare teamName and alt for rendering
+  const safeTeamName = typeof teamName === 'string' ? teamName : '';
+  const safeAlt = alt || safeTeamName || 'Team Logo';
+
   if (shouldUseCircularFlag) {
     return (
       <MyCircularFlag
-        teamName={teamName}
+        teamName={safeTeamName}
         fallbackUrl={imageSrc} // Use imageSrc which might be from cache or fetched
-        alt={alt || teamName}
+        alt={safeAlt}
         size={size}
         className={className}
         moveLeft={moveLeft}
@@ -576,8 +580,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     >
       <LazyImage
         src={imageSrc}
-        alt={alt || teamName}
-        title={teamName}
+        alt={safeAlt}
+        title={safeTeamName}
         className="team-logo"
         style={imageStyle}
         onError={handleImageError}
