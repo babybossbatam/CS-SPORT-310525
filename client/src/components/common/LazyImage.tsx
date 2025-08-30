@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useDeviceInfo } from "@/hooks/use-mobile";
 
-interface LazyImageProps {
+interface LazyImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'src' | 'alt' | 'onLoad' | 'onError'> {
   src: string;
   alt: string;
   title?: string;
@@ -25,6 +25,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   onLoad,
   onError,
   priority = 'low',
+  ...restProps
 }) => {
   const [imageSrc, setImageSrc] = useState<string>(src);
   const [hasError, setHasError] = useState<boolean>(false);
@@ -97,11 +98,12 @@ const LazyImage: React.FC<LazyImageProps> = ({
       }
     }, [src, alt, darkMode]); // Add darkMode to trigger re-evaluation when theme changes
 
-    const handleError = () => {
+    // Extract teamId from src for use throughout component
+  const extractedTeamId = (imageSrc.match(/\/team-logo\/(?:square|circular)\/(\d+)/) || [])[1];
+
+  const handleError = () => {
     // Safety check to prevent cascading errors
     try {
-      // Extract teamId from src for debugging
-      const extractedTeamId = (imageSrc.match(/\/team-logo\/(?:square|circular)\/(\d+)/) || [])[1];
 
       // Enhanced debugging for team logos
       console.log(`🚫 [LazyImage] Image failed to load:`, {
@@ -529,11 +531,12 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   return (
     <img
+      {...restProps}
       src={imageSrc}
       alt={alt}
+      title={title}
       className={className}
       style={{
-        ...style,
         border: 'none',
         outline: 'none',
         display: hasError && imageSrc === fallbackUrl ? 'block' : (hasError ? 'none' : 'block'),
@@ -542,11 +545,12 @@ const LazyImage: React.FC<LazyImageProps> = ({
         filter: darkMode ? 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))' : 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.8))',
         // Apply size from props if no explicit width/height in style
         ...(style?.width || style?.height ? {} : {
-          width: style?.width || style?.height || (isMobile ? '24px' : '24px'),
-            height: style?.height || style?.width || (isMobile ? '36px' : '36px')
-        })
+          width: isMobile ? '24px' : '24px',
+          height: isMobile ? '36px' : '36px'
+        }),
+        ...style, // User styles override defaults
       }}
-      loading={shouldPreload ? 'eager' : 'lazy'}
+      loading={shouldPreload ? 'eager' : loading}
       decoding={shouldPreload ? 'sync' : 'async'}
       fetchPriority={shouldPreload ? 'high' : 'auto'}
       onLoad={handleLoad}
