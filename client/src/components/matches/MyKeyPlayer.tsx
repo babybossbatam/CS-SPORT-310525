@@ -517,10 +517,10 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                 <div className="text-xs font-medium truncate text-gray-800">
-                  {topPlayers[0]?.player?.name || 'Unknown Player'}
+                  {String(topPlayers[0]?.player?.name || 'Unknown Player')}
                 </div>
                 <div className="text-xs text-gray-500">
-                  {topPlayers[0]?.statistics[0]?.games?.position || 'Unknown'}
+                  {String(topPlayers[0]?.statistics[0]?.games?.position || 'Unknown')}
                 </div>
               </div>
             </div>
@@ -586,10 +586,10 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                  <div className="text-xs font-medium truncate text-gray-800">
-                  {topPlayers[1]?.player?.name || 'Unknown Player'}
+                  {String(topPlayers[1]?.player?.name || 'Unknown Player')}
                 </div>
                 <div className="text-xs text-gray-500">
-                  {topPlayers[1]?.statistics[0]?.games?.position || 'Unknown'}
+                  {String(topPlayers[1]?.statistics[0]?.games?.position || 'Unknown')}
                 </div>
               </div>
             </div>
@@ -605,10 +605,10 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                 <div className="text-xs font-medium truncate text-gray-800">
-                  {topPlayers[0]?.player?.name || 'Unknown Player'}
+                  {String(topPlayers[0]?.player?.name || 'Unknown Player')}
                 </div>
                 <div className="text-xs text-gray-500">
-                  {topPlayers[0]?.statistics[0]?.games?.position || 'Unknown'}
+                  {String(topPlayers[0]?.statistics[0]?.games?.position || 'Unknown')}
                 </div>
               </div>
             </div>
@@ -620,7 +620,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
             <div className="mt-2 text-xs">
               {playerStats.slice(0, 3).map((player, idx) => (
                 <div key={idx}>
-                  {player.player.name} ({player.statistics[0]?.games?.position || 'Unknown'})
+                  {String(player.player?.name || 'Unknown Player')} ({String(player.statistics[0]?.games?.position || 'Unknown')})
                 </div>
               ))}
             </div>
