@@ -973,8 +973,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     });
 
     // Enhanced live match detection including time-based detection
-    const now = new Date();
-    const timeBased LiveMatches = Object.values(fixturesByLeague)
+    const timeBasedLiveMatches = Object.values(fixturesByLeague)
       .flatMap((group) => group.fixtures)
       .filter((fixture) => {
         const matchTime = new Date(fixture.fixture.date);
