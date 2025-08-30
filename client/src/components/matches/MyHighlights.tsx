@@ -727,6 +727,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             title: video.snippet.title
           };
         }
+        console.warn(`🎬 [Highlights] No Canal do Futebol BR videos found for: ${rawHome} vs ${rawAway}`);
         throw new Error('No Canal do Futebol BR videos found');
       }
     }] : []),
@@ -1223,7 +1224,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           <div className="flex items-center">
             Official Highlights
           </div>
-          {currentSource && !loading  }
         </CardTitle>
       </CardHeader>
       <CardContent className="py-0 px-0">
