@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { isNationalTeam, getTeamLogoSources, createTeamLogoErrorHandler } from '../../lib/teamLogoSources';
 import { enhancedLogoManager } from '../../lib/enhancedLogoManager';
 import { getBestTeamLogoUrl, createTeamLogoErrorHandler as createBetterErrorHandler } from '../../lib/teamLogoUtils';
@@ -370,7 +370,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   }, [teamId, teamName, teamLogo, shouldUseCircularFlag, isLoading, hasError, imageSrc]);
 
   // Effect to handle the asynchronous logo loading and update state
-  React.useEffect(() => {
+  useEffect(() => {
     if (!teamId && !teamName) {
       console.warn(`⚠️ [MyWorldTeamLogo] Missing required props:`, {
         teamId,
