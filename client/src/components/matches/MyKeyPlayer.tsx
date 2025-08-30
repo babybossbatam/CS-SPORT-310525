@@ -188,7 +188,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
           rapidStatsData.forEach((teamStat: any) => {
             console.log(`🔍 [MyKeyPlayer] Processing team stats: ${teamStat.team?.name}`, {
               playersCount: teamStat.players?.length,
-              hasPlayers: !!teamStat.players
+              hasPlayers: !!teamData.players
             });
 
             if (teamStat.players && Array.isArray(teamStat.players)) {
@@ -525,7 +525,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {topPlayers[0]?.player?.name || 'Unknown Player'}
+                  {typeof topPlayers[0]?.player === 'string' ? topPlayers[0]?.player : topPlayers[0]?.player?.name || 'Unknown Player'}
                 </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[0]?.statistics[0]?.games?.position || 'Unknown'}
@@ -594,7 +594,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {topPlayers[1]?.player?.name || 'Unknown Player'}
+                  {typeof topPlayers[1]?.player === 'string' ? topPlayers[1]?.player : topPlayers[1]?.player?.name || 'Unknown Player'}
                 </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[1]?.statistics[0]?.games?.position || 'Unknown'}
@@ -613,7 +613,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {topPlayers[0]?.player?.name || 'Unknown Player'}
+                  {typeof topPlayers[0]?.player === 'string' ? topPlayers[0]?.player : topPlayers[0]?.player?.name || 'Unknown Player'}
                 </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[0]?.statistics[0]?.games?.position || 'Unknown'}
