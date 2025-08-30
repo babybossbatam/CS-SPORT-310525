@@ -91,11 +91,11 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       .trim();
   };
 
-  // Extract team names with better priority and validation
-  // Prioritize match data structure for consistency
-  const rawHome = match?.teams?.home?.name || 
+  // Extract team names prioritizing data from MyMatchdetailsScoreboard
+  // This ensures we use the same team names that are displayed in the scoreboard
+  const rawHome = homeTeamData?.name ||
+                  match?.teams?.home?.name || 
                   match?.homeTeam?.name ||
-                  homeTeamData?.name ||
                   match?.homeTeam ||
                   match?.home?.name ||
                   match?.home ||
@@ -103,9 +103,9 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   homeTeamName || 
                   'Home Team';
 
-  const rawAway = match?.teams?.away?.name || 
+  const rawAway = awayTeamData?.name ||
+                  match?.teams?.away?.name || 
                   match?.awayTeam?.name ||
-                  awayTeamData?.name ||
                   match?.awayTeam ||
                   match?.away?.name ||
                   match?.away ||
@@ -206,30 +206,29 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   const teamExclusions = createTeamExclusions(rawHome, rawAway);
 
-  // Enhanced search queries with better team name handling
-  const exactTeamMatchQuery = `"${rawHome}" vs "${rawAway}" highlights ${matchYear} ${teamExclusions}`.trim();
-  
-  // Alternative with home vs away order emphasis
-  const homeAwayOrderQuery = `"${rawHome}" "${rawAway}" highlights ${matchYear} ${teamExclusions}`.trim();
-  
-  // League-specific search with exact team names
+  // Create multiple search strategies with different approaches
+  const primarySearchQuery = `"${rawHome}" vs "${rawAway}" highlights ${matchYear} ${teamExclusions}`.trim();
+
+  // Alternative search with cleaned names
+  const secondarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear} ${teamExclusions}`.trim();
+
+  // Search with league context for better accuracy
   const leagueSpecificQuery = league ? 
     `"${rawHome}" vs "${rawAway}" "${league}" ${matchYear} highlights ${teamExclusions}`.trim() :
-    exactTeamMatchQuery;
+    primarySearchQuery;
 
-  // Brazilian-specific search with proper team names
-  const brazilianSafeQuery = isBrazilianLeague ? 
-    `"${rawHome}" vs "${rawAway}" brasileiro ${matchYear} melhores momentos ${teamExclusions}`.trim() :
-    exactTeamMatchQuery;
-
-  // Cleaned names as fallback
-  const cleanedNamesQuery = `"${home}" vs "${away}" highlights ${matchYear} ${teamExclusions}`.trim();
+  // Broader search without quotes for difficult matches
+  const broadSearchQuery = `${rawHome} ${away} highlights ${matchYear} ${teamExclusions}`.trim();
 
   // Year-flexible search for older matches
   const flexibleYearQuery = `"${rawHome}" vs "${rawAway}" highlights ${teamExclusions}`.trim();
 
-  // Final fallback with basic names
-  const fallbackSearchQuery = `${rawHome} ${rawAway} highlights -virtual -gaming -esoccer -app`.trim();
+  // Additional exclusions for Brazilian league confusion
+  const brazilianSafeQuery = isBrazilianLeague ? 
+    `"${rawHome}" vs "${rawAway}" brasileiro ${matchYear} melhores momentos ${teamExclusions}`.trim() :
+    primarySearchQuery;
+
+  const fallbackSearchQuery = `${home} vs ${away} highlights -virtual -gaming -esoccer -app -botafogo -psg`.trim();
 
   // Special case for Palmeiras vs Chelsea - use known video (only for exact match)
   const isPalmeirasChelsea = ((home.toLowerCase() === 'palmeiras' || home.toLowerCase().includes('palmeiras')) && 
@@ -249,35 +248,39 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const isCRBCoritiba = (home.toLowerCase().includes('crb') && away.toLowerCase().includes('coritiba')) ||
                        (home.toLowerCase().includes('coritiba') && away.toLowerCase().includes('crb'));
 
-  // Debug logging to verify correct team names and search queries
-  console.log(`🎬 [Highlights] Team name extraction and search query construction:`, {
-    teamExtractionOrder: {
-      priority1_matchTeams: { home: match?.teams?.home?.name, away: match?.teams?.away?.name },
-      priority2_homeTeamData: { home: homeTeamData?.name, away: awayTeamData?.name },
-      priority3_props: { home: homeTeam, away: awayTeam },
+  // Debug logging to verify correct team names and order
+  console.log(`🎬 [Highlights] Match data extraction with validation:`, {
+    validation: {
+      hasValidTeamNames,
+      rawHomeValid: rawHome !== 'Home Team' && rawHome?.trim(),
+      rawAwayValid: rawAway !== 'Away Team' && rawAway?.trim(),
     },
-    finalTeamNames: {
+    prioritizedFromScoreboard: {
+      homeTeamData: homeTeamData?.name,
+      awayTeamData: awayTeamData?.name,
+    },
+    extractedFromMatch: {
+      homeFromTeams: match?.teams?.home?.name,
+      awayFromTeams: match?.teams?.away?.name,
+    },
+    finalResult: {
       rawHomeTeam: rawHome,
       rawAwayTeam: rawAway,
       cleanedHomeTeam: home,
       cleanedAwayTeam: away,
-      isValid: hasValidTeamNames,
     },
     searchQueries: {
-      exactTeamMatchQuery,
-      homeAwayOrderQuery,
+      primarySearchQuery,
       leagueSpecificQuery,
       brazilianSafeQuery,
-      cleanedNamesQuery,
     },
-    matchContext: {
-      league: league,
-      matchYear: matchYear,
-      isBrazilianLeague,
-      isConcacafCompetition,
-      isFifaClubWorldCup,
+    specialCases: {
+      // These will be declared after this debug section
     },
-    expectedSearchFormat: `"${rawHome}" vs "${rawAway}" highlights ${matchYear}`
+    expectedOrder: `${home} vs ${away}`,
+    league: league,
+    matchYear: matchYear,
+    isBrazilianLeague
   });
 
   // Helper function to validate video title order matches home vs away
@@ -600,7 +603,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       searchFn: async () => {
         const concacafChannelId = 'UCqn7r-so0mBLaJTtTms9dAQ';
         // Try multiple search queries for better match accuracy, prioritizing specificity
-        const queries = [exactTeamMatchQuery, homeAwayOrderQuery, leagueSpecificQuery, brazilianSafeQuery, cleanedNamesQuery];
+        const queries = [exactTeamMatchQuery, leagueSpecificQuery, brazilianSafeQuery, primarySearchQuery, secondarySearchQuery];
 
         let data;
 
@@ -736,7 +739,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       type: 'youtube' as const,
       searchFn: async () => {
         const uefaChannelId = 'UCoFbp5t9wYns3wqZdgYUfgQ';
-        const queries = [leagueSpecificQuery, exactTeamMatchQuery, homeAwayOrderQuery, cleanedNamesQuery];
+        const queries = [leagueSpecificQuery, primarySearchQuery, secondarySearchQuery];
         let data;
 
         for (const query of queries) {
@@ -788,7 +791,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         const fifaChannelId = 'UCK-mxP4hLap1t3dp4bPbSBg';
         // For Palmeiras vs Chelsea, use Chelsea-focused search to avoid Benfica results
         const searchTerm = isPalmeirasChelsea ? 'Chelsea highlights FIFA Club World Cup' : primarySearchQuery;
-        const queries = isPalmeirasChelsea ? [searchTerm] : [exactTeamMatchQuery, homeAwayOrderQuery, cleanedNamesQuery];
+        const queries = isPalmeirasChelsea ? [searchTerm] : [primarySearchQuery, secondarySearchQuery];
         let data;
 
         for (const query of queries) {
@@ -846,14 +849,14 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         // Prioritize official channels and highlights with stricter keywords
         const officialKeywords = `"highlights" OR "melhores momentos" OR "gols" OR "goals" OR "resumo" OR "extended highlights" OR "match highlights"`;
 
-        // Enhanced queries with proper team name order and better official content prioritization
+        // Enhanced queries with better official content prioritization
         const queries = [
           `"official highlights" "${rawHome}" vs "${rawAway}" ${matchYear} ${strongExclusions}`,
           `"match highlights" "${rawHome}" "${rawAway}" ${matchYear} ${strongExclusions}`,
           `(${officialKeywords}) "${rawHome}" vs "${rawAway}" ${matchYear} ${strongExclusions}`,
-          `"${rawHome}" vs "${rawAway}" highlights ${matchYear} "official" ${strongExclusions}`,
-          `"${rawHome}" "${rawAway}" "goals highlights" ${matchYear} ${strongExclusions}`,
-          `"${home}" vs "${away}" "extended highlights" ${matchYear} ${strongExclusions}`,
+          `"${rawHome}" "${rawAway}" highlights ${matchYear} "official" ${strongExclusions}`,
+          `${home} vs ${away} "goals highlights" ${matchYear} ${strongExclusions}`,
+          `"${home}" "${away}" "extended highlights" ${matchYear} ${strongExclusions}`,
           `${rawHome} x ${rawAway} "melhores momentos" ${matchYear} ${strongExclusions}`
         ];
 
@@ -1071,7 +1074,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const tryNextSource = async () => {
     if (sourceIndex >= videoSources.length) {
       // All sources failed, show error with retry option
-      console.error(`🎬 [Highlights] All sources failed for: ${rawHome} vs ${rawAway}`);
+      console.error(`🎬 [Highlights] All sources failed for: ${primarySearchQuery}`);
       setError('No video sources available');
       setLoading(false);
       return;
@@ -1079,75 +1082,62 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
     const source = videoSources[sourceIndex];
     try {
-      console.log(`🎬 [Highlights] Trying ${source.name} (${sourceIndex + 1}/${videoSources.length}) for: ${rawHome} vs ${rawAway}`);
-      
-      // Add timeout to prevent hanging
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Source timeout')), 15000)
-      );
-      
-      const result = await Promise.race([source.searchFn(), timeoutPromise]);
-      
+      console.log(`🎬 [Highlights] Trying ${source.name} for: ${primarySearchQuery}`);
+      const result = await source.searchFn();
       setCurrentSource(result);
       setError(null);
       setLoading(false);
-      setIframeError(false);
+      setIframeError(false); // Reset iframe error when new source is found
       console.log(`✅ [Highlights] Success with ${source.name}:`, result.title);
     } catch (sourceError) {
-      console.warn(`❌ [Highlights] ${source.name} failed for "${rawHome} vs ${rawAway}":`, sourceError);
-      
-      // Move to next source immediately
-      const nextIndex = sourceIndex + 1;
-      if (nextIndex >= videoSources.length) {
-        // No more sources available
-        setError('No video sources available');
-        setLoading(false);
-      } else {
-        setSourceIndex(nextIndex);
-      }
+      console.warn(`❌ [Highlights] ${source.name} failed for "${primarySearchQuery}":`, sourceError);
+      setSourceIndex(prev => prev + 1);
+      // Continue to next source
     }
   };
 
   useEffect(() => {
-    if (home && away && hasValidTeamNames) {
-      console.log(`🎬 [Highlights] Starting search for: ${rawHome} vs ${rawAway}`);
+    if (home && away) {
       setLoading(true);
       setError(null);
       setSourceIndex(0);
-      setIframeError(false);
-      setCurrentSource(null);
-    }
-  }, [home, away, league, rawHome, rawAway]);
-
-  useEffect(() => {
-    if (hasValidTeamNames && loading && sourceIndex >= 0 && sourceIndex < videoSources.length) {
+      setIframeError(false); // Reset iframe error on new search
       tryNextSource();
     }
-  }, [sourceIndex, hasValidTeamNames]);
+  }, [home, away, league]);
 
-  // Add overall timeout for the entire search process
+  // Add timeout to detect videos that fail to load properly
   useEffect(() => {
-    if (loading) {
-      const overallTimeout = setTimeout(() => {
-        console.warn(`🎬 [Highlights] Overall search timeout for: ${rawHome} vs ${rawAway}`);
-        setError('Search timeout - please try again');
-        setLoading(false);
-      }, 45000); // 45 second overall timeout
+    if (currentSource && !loading && !error) {
+      // Set a timer to check if video is actually playable
+      const timeoutId = setTimeout(() => {
+        // If we still have a current source but it might be showing "Video unavailable"
+        // automatically try the next source
+        if (currentSource.type === 'youtube') {
+          console.warn(`🎬 [Highlights] YouTube video timeout - may be unavailable: ${currentSource.title}`);
+          console.log(`🔄 [Highlights] Automatically trying next source...`);
+          setSourceIndex(prev => prev + 1);
+        }
+      }, 15000); // 15 second timeout for video availability check
 
-      return () => clearTimeout(overallTimeout);
+      return () => clearTimeout(timeoutId);
     }
-  }, [loading, rawHome, rawAway]);
+  }, [currentSource, loading, error]);
 
-  // Define primarySearchQuery for logging
-  const primarySearchQuery = exactTeamMatchQuery;
+  useEffect(() => {
+    if (sourceIndex > 0 && sourceIndex < videoSources.length) {
+      tryNextSource();
+    } else if (sourceIndex >= videoSources.length && loading) {
+      tryNextSource();
+    }
+  }, [sourceIndex]);
 
   const handleRetry = () => {
-    console.log(`🔄 [Highlights] Retrying search for: ${rawHome} vs ${rawAway}`);
     setSourceIndex(0);
     setError(null);
     setLoading(true);
-    setIframeError(false);
-    setCurrentSource(null);
+    setIframeError(false); // Reset iframe error on retry
+    tryNextSource();
   };
 
   // Check if this is a football/soccer match
@@ -1309,19 +1299,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 }
               }}
             />
-          </div>
-        ) : error ? (
-          <div className="w-full h-64 flex items-center justify-center bg-gray-50">
-            <div className="text-center">
-              <AlertCircle className="w-8 h-8 mx-auto mb-2 text-red-400" />
-              <p className="text-sm text-gray-600 mb-2">{error}</p>
-              <button 
-                onClick={handleRetry}
-                className="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-              >
-                Try Again
-              </button>
-            </div>
           </div>
         ) : (
           <div className="w-full h-64 flex items-center justify-center bg-gray-50">

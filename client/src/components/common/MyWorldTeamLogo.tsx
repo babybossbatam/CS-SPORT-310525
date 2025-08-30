@@ -29,8 +29,6 @@ interface MyWorldTeamLogoProps {
   };
   showNextMatchOverlay?: boolean;
   onLoad?: () => void; // Added for potential use in handleLoad
-  priority?: string;
-  moveLeft?: boolean; // Add missing moveLeft prop
 }
 
 // Cache for computed shouldUseCircularFlag results
@@ -56,7 +54,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   nextMatchInfo,
   showNextMatchOverlay = false,
   onLoad, // Added for potential use
-  priority = 'low',
 }) => {
   const [imageSrc, setImageSrc] = useState<string>(teamLogo || "/assets/fallback.png");
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -371,7 +368,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
   // Effect to handle the asynchronous logo loading and update state
   React.useEffect(() => {
-    if (!teamId && !teamName) {
+    if (!teamId || !teamName) {
       console.warn(`⚠️ [MyWorldTeamLogo] Missing required props:`, {
         teamId,
         teamName,
@@ -379,15 +376,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       });
       setImageSrc("/assets/fallback.png");
       setHasError(true);
-      setIsLoading(false);
-      return;
-    }
-
-    // Handle cases where we have teamName but no teamId
-    if (!teamId && teamName) {
-      console.log(`📝 [MyWorldTeamLogo] Using teamName only for ${teamName}`);
-      setImageSrc(teamLogo || "/assets/fallback.png");
-      setHasError(false);
       setIsLoading(false);
       return;
     }
@@ -488,8 +476,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     // Safety check to prevent undefined target errors
     if (!e || !e.target) {
       console.warn('⚠️ [MyWorldTeamLogo] Image error event has no target');
-      setHasError(true);
-      setIsLoading(false);
       return;
     }
 
@@ -498,19 +484,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     // Additional safety check for target properties
     if (!target || typeof target.src !== 'string') {
       console.warn('⚠️ [MyWorldTeamLogo] Invalid image target');
-      setHasError(true);
-      setIsLoading(false);
       return;
     }
-
-    // Enhanced team context logging for debugging
-    console.log(`🚫 [MyWorldTeamLogo] Image error for team:`, {
-      teamName,
-      teamId,
-      currentSrc: target.src,
-      leagueContext,
-      component: "MyWorldTeamLogo"
-    });
 
     const currentSrc = target.src;
 
@@ -545,20 +520,10 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         target.src = '/assets/fallback.png';
         console.log(`💥 [MyWorldTeamLogo] Final fallback for ${teamName}`);
       }
-    } else if (teamName) {
-      // If no teamId but we have teamName, try to use provided teamLogo or fallback
-      const fallbackSrc = teamLogo || '/assets/fallback.png';
-      if (currentSrc !== fallbackSrc) {
-        target.src = fallbackSrc;
-        console.log(`🔄 [MyWorldTeamLogo] Using teamLogo fallback for ${teamName}`);
-      } else {
-        target.src = '/assets/fallback.png';
-        console.log(`💥 [MyWorldTeamLogo] Final fallback for ${teamName} (no teamId)`);
-      }
     } else {
-      // If no teamId and no teamName, directly set to fallback
+      // If no teamId, directly set to fallback
       target.src = '/assets/fallback.png';
-      console.log(`💥 [MyWorldTeamLogo] Final fallback (no team context)`);
+      console.log(`💥 [MyWorldTeamLogo] Final fallback for ${teamName} (no teamId)`);
     }
 
     // Update state to reflect the error and stop loading if it's the final fallback
@@ -617,7 +582,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         onError={handleImageError}
         onLoad={handleLoad}
         loading="lazy"
-        priority={priority as 'high' | 'medium' | 'low'}
+        priority="high"
       />
     </div>
   );
