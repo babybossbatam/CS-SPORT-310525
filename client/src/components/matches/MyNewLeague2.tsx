@@ -972,18 +972,33 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       return minutesUntilKickoff > 0 && minutesUntilKickoff <= 30; // Within 30 minutes
     });
 
+    // Enhanced live match detection including time-based detection
+    const now = new Date();
+    const timeBased LiveMatches = Object.values(fixturesByLeague)
+      .flatMap((group) => group.fixtures)
+      .filter((fixture) => {
+        const matchTime = new Date(fixture.fixture.date);
+        const minutesSinceKickoff = (now.getTime() - matchTime.getTime()) / (1000 * 60);
+        const shouldBeLiveByTime = minutesSinceKickoff >= -5 && minutesSinceKickoff <= 120;
+        const isNotFinished = !["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(fixture.fixture.status.short);
+        
+        return shouldBeLiveByTime && isNotFinished;
+      });
+
+    const totalLiveMatches = Math.max(liveMatches.length, timeBasedLiveMatches.length);
+
     let newCacheConfig;
 
-    if (liveMatches.length > 0 && isToday) {
+    if (totalLiveMatches > 0 && isToday) {
       // LIVE matches detected - most aggressive cache
       newCacheConfig = {
-        staleTime: 1 * 60 * 1000, // 1 minute
-        refetchInterval: 30 * 1000, // 30 seconds
-        refetchOnWindowFocus: false,
+        staleTime: 30 * 1000, // 30 seconds (more aggressive)
+        refetchInterval: 15 * 1000, // 15 seconds (more frequent)
+        refetchOnWindowFocus: true, // Enable focus refetch for live matches
         refetchOnReconnect: true,
       };
       console.log(
-        `🔴 [MyNewLeague2] ${liveMatches.length} live matches detected - using most aggressive cache (1min/30s)`,
+        `🔴 [MyNewLeague2] ${totalLiveMatches} live matches detected (${liveMatches.length} API + ${timeBasedLiveMatches.length} time-based) - using most aggressive cache (30s/15s)`,
       );
     } else if (imminentMatches.length > 0 && isToday) {
       // Matches starting within 30 minutes - very aggressive cache
@@ -2569,32 +2584,43 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       "INT",
                                     ].includes(status));
 
-                                // Show live status only for truly live matches (not finished and not stale)
-                                if (
-                                  ![
-                                    "FT",
-                                    "AET",
-                                    "PEN",
-                                    "AWD",
-                                    "WO",
-                                    "ABD",
-                                    "CANC",
-                                    "SUSP",
-                                  ].includes(status) &&
-                                  !isStaleFinishedMatch &&
-                                  hoursOld <= 4 &&
-                                  [
-                                    "LIVE",
-                                    "LIV",
-                                    "1H",
-                                    "HT",
-                                    "2H",
-                                    "ET",
-                                    "BT",
-                                    "P",
-                                    "INT",
-                                  ].includes(status)
-                                ) {
+                                // Enhanced live match detection with time-based fallback
+                                const matchTime = new Date(fixture.fixture.date);
+                                const now = new Date();
+                                const minutesSinceKickoff = (now.getTime() - matchTime.getTime()) / (1000 * 60);
+                                
+                                // Time-based live detection: match should be live if it's between -5 to +120 minutes from kickoff
+                                const shouldBeLiveByTime = minutesSinceKickoff >= -5 && minutesSinceKickoff <= 120;
+                                
+                                // API-based live detection
+                                const isApiLiveStatus = [
+                                  "LIVE",
+                                  "LIV", 
+                                  "1H",
+                                  "HT",
+                                  "2H",
+                                  "ET",
+                                  "BT",
+                                  "P",
+                                  "INT",
+                                ].includes(status);
+                                
+                                // Finished status detection
+                                const isFinishedStatus = [
+                                  "FT",
+                                  "AET", 
+                                  "PEN",
+                                  "AWD",
+                                  "WO",
+                                  "ABD",
+                                  "CANC",
+                                  "SUSP",
+                                ].includes(status);
+                                
+                                // Show live status if: API says it's live OR (time suggests it should be live AND it's not marked as finished)
+                                const shouldShowLive = (isApiLiveStatus || (shouldBeLiveByTime && status === "NS" && !isFinishedStatus)) && !isStaleFinishedMatch && hoursOld <= 4;
+                                
+                                if (shouldShowLive) {
                                   let displayText = "";
                                   let statusClass = "status-live-elapsed";
 
@@ -2617,6 +2643,11 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     displayText = t("break_time");
                                   } else if (status === "INT") {
                                     displayText = t("interrupted");
+                                  } else if (shouldBeLiveByTime && status === "NS") {
+                                    // Time-based live detection for overdue "NS" matches
+                                    const estimatedElapsed = Math.max(0, Math.floor(minutesSinceKickoff));
+                                    displayText = estimatedElapsed > 0 ? `${estimatedElapsed}'` : "LIVE";
+                                    statusClass = "status-live-elapsed";
                                   } else {
                                     displayText = elapsed
                                       ? `${elapsed}'`
@@ -2792,22 +2823,29 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 {(() => {
                                   const status = fixture.fixture.status.short;
 
-                                  // Live matches - show current score
-                                  if (
-                                    [
-                                      "LIVE",
-                                      "LIV",
-                                      "1H",
-                                      "HT",
-                                      "2H",
-                                      "ET",
-                                      "BT",
-                                      "P",
-                                      "INT",
-                                      "45",
-                                      "90",
-                                    ].includes(status)
-                                  ) {
+                                  // Enhanced live matches detection - API status OR time-based
+                                  const matchTime = new Date(fixture.fixture.date);
+                                  const now = new Date();
+                                  const minutesSinceKickoff = (now.getTime() - matchTime.getTime()) / (1000 * 60);
+                                  const shouldBeLiveByTime = minutesSinceKickoff >= -5 && minutesSinceKickoff <= 120;
+                                  const isNotFinished = !["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status);
+                                  
+                                  const isApiLive = [
+                                    "LIVE",
+                                    "LIV", 
+                                    "1H",
+                                    "HT",
+                                    "2H",
+                                    "ET",
+                                    "BT",
+                                    "P",
+                                    "INT",
+                                    "45",
+                                    "90",
+                                  ].includes(status);
+                                  
+                                  // Show live score if API says it's live OR time suggests it should be live
+                                  if (isApiLive || (shouldBeLiveByTime && status === "NS" && isNotFinished)) {
                                     // For live matches, prioritize goals over score object
                                     const homeScore =
                                       fixture.goals?.home !== null && fixture.goals?.home !== undefined
