@@ -101,7 +101,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
     // Extract teamId from src for use throughout component
   const extractedTeamId = (imageSrc.match(/\/team-logo\/(?:square|circular)\/(\d+)/) || [])[1];
 
-  const handleError = () => {
+  const handleError = useCallback(() => {
     // Safety check to prevent cascading errors
     try {
 
@@ -411,14 +411,14 @@ const LazyImage: React.FC<LazyImageProps> = ({
       }
     } catch (error) {
       console.warn("⚠️ [LazyImage] Error in handleError function:", error);
-        setHasError(true);
-        setImageSrc(fallbackUrl);
+      setHasError(true);
+      setImageSrc(fallbackUrl);
       setIsLoading(false);
       onError?.();
     }
-  };
+  }, [imageSrc, alt, src, retryCount, hasError, darkMode, onError]);
 
-  const handleLoad = () => {
+  const handleLoad = useCallback(() => {
     // Reset loading state when image loads successfully
     setIsLoading(false);
 
@@ -525,7 +525,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
     );
     setHasError(false);
     onLoad?.();
-  };
+  }, [imageSrc, alt, hasError, onLoad]);
 
 
 
