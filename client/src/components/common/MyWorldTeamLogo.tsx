@@ -609,9 +609,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       }}
     >
       <LazyImage
-        src={imageSrc}
-        alt={alt || teamName}
-        title={teamName}
+        src={imageSrc || "/assets/fallback.png"}
+        alt={alt || teamName || "Team Logo"}
+        title={teamName || "Team"}
         className="team-logo"
         style={imageStyle}
         onError={handleImageError}
