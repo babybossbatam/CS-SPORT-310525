@@ -517,7 +517,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {typeof topPlayers[0].player === 'object' ? topPlayers[0].player.name : topPlayers[0].player}
+                  {topPlayers[0]?.player?.name}
                 </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[0]?.statistics[0]?.games?.position || 'Unknown'}
@@ -586,7 +586,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {typeof topPlayers[1].player === 'object' ? topPlayers[1].player.name : topPlayers[1].player}
+                  {topPlayers[1]?.player?.name}
                 </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[1]?.statistics[0]?.games?.position || 'Unknown'}
@@ -605,7 +605,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {typeof topPlayers[0].player === 'object' ? topPlayers[0].player.name : topPlayers[0].player}
+                  {topPlayers[0]?.player?.name}
                 </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[0]?.statistics[0]?.games?.position || 'Unknown'}
@@ -620,7 +620,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
             <div className="mt-2 text-xs">
               {playerStats.slice(0, 3).map((player, idx) => (
                 <div key={idx}>
-                  {typeof player.player === 'object' ? player.player.name : player.player} ({player.statistics[0]?.games?.position || 'Unknown'})
+                  {player.player.name} ({player.statistics[0]?.games?.position || 'Unknown'})
                 </div>
               ))}
             </div>
