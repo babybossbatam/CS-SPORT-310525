@@ -517,11 +517,8 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                 <div className="text-xs font-medium truncate text-gray-800">
-                    {typeof topPlayers[0]?.player === 'object'
-                      ? (topPlayers[0]?.player?.name || 'Unknown Player')
-                      : (topPlayers[0]?.player || 'Unknown Player')
-                    }
-                  </div>
+                  {topPlayers[0]?.player?.name || 'Unknown Player'}
+                </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[0]?.statistics[0]?.games?.position || 'Unknown'}
                 </div>
@@ -589,11 +586,8 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                  <div className="text-xs font-medium truncate text-gray-800">
-                    {typeof topPlayers[1]?.player === 'object'
-                      ? (topPlayers[1]?.player?.name || 'Unknown Player')
-                      : (topPlayers[1]?.player || 'Unknown Player')
-                    }
-                  </div>
+                  {topPlayers[1]?.player?.name || 'Unknown Player'}
+                </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[1]?.statistics[0]?.games?.position || 'Unknown'}
                 </div>
@@ -611,11 +605,8 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                 <div className="text-xs font-medium truncate text-gray-800">
-                    {typeof topPlayers[0]?.player === 'object'
-                      ? (topPlayers[0]?.player?.name || 'Unknown Player')
-                      : (topPlayers[0]?.player || 'Unknown Player')
-                    }
-                  </div>
+                  {topPlayers[0]?.player?.name || 'Unknown Player'}
+                </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[0]?.statistics[0]?.games?.position || 'Unknown'}
                 </div>
