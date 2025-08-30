@@ -7,7 +7,6 @@ import { User, Trophy } from "lucide-react";
 import { format } from "date-fns";
 import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
-import LazyImage from "../common/LazyImage";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
 import MyMatchStats from "./MyMatchStats";
@@ -216,11 +215,11 @@ const MyMatchdetailsScoreboard = ({
       const extractColorsAndSetBackground = async () => {
         try {
           // Get logo URLs
-          const homeLogoUrl = displayMatch.teams.home.id 
+          const homeLogoUrl = displayMatch.teams.home.id
             ? `/api/team-logo/square/${displayMatch.teams.home.id}?size=64`
             : displayMatch.teams.home.logo;
 
-          const awayLogoUrl = displayMatch.teams.away.id 
+          const awayLogoUrl = displayMatch.teams.away.id
             ? `/api/team-logo/square/${displayMatch.teams.away.id}?size=64`
             : displayMatch.teams.away.logo;
 
@@ -448,7 +447,7 @@ const MyMatchdetailsScoreboard = ({
     if (liveStatus || currentLiveStatus) {
       const liveStatusToUse = liveStatus || currentLiveStatus;
       // Validate that live status is a reasonable progression from actual status
-      if (actualStatus === liveStatusToUse || 
+      if (actualStatus === liveStatusToUse ||
           (actualStatus === "1H" && liveStatusToUse === "HT") ||
           (actualStatus === "HT" && liveStatusToUse === "2H") ||
           (actualStatus === "2H" && liveStatusToUse === "FT")) {
@@ -612,27 +611,18 @@ const MyMatchdetailsScoreboard = ({
           <div className="flex flex-col items-center space-y-2 flex-1">
             {/* Home Team Logo */}
             <div className="flex items-center justify-end mr-4">
-              <LazyImage
-                src={displayMatch.teams.home.id 
-                  ? `/api/team-logo/square/${displayMatch.teams.home.id}?size=48`
-                  : displayMatch.teams.home.logo || "/assets/matchdetaillogo/fallback.png"
-                }
-                alt={displayMatch.teams.home.name}
-                className="team-logo w-12 h-12 object-contain"
-                style={{
-                  width: '48px',
-                  height: '48px',
-                  backgroundColor: 'transparent'
-                }}
-                priority="high"
-                useTeamLogo={true}
+              <MyWorldTeamLogo
                 teamId={displayMatch.teams.home.id}
                 teamName={displayMatch.teams.home.name}
                 teamLogo={displayMatch.teams.home.logo}
+                alt={displayMatch.teams.home.name}
+                size="16px"
+                className="team-logo"
                 leagueContext={{
-                  name: displayMatch.league.name,
-                  country: displayMatch.league.country,
+                  name: displayMatch.league?.name || '',
+                  country: displayMatch.league?.country || ''
                 }}
+                priority="high"
               />
             </div>
             <span className="text-md font-medium text-center ">
@@ -757,27 +747,18 @@ const MyMatchdetailsScoreboard = ({
           <div className="flex flex-col items-center space-y-2 flex-1">
             {/* Away Team Logo */}
             <div className="flex items-center justify-start ml-4">
-              <LazyImage
-                src={displayMatch.teams.away.id 
-                  ? `/api/team-logo/square/${displayMatch.teams.away.id}?size=48`
-                  : displayMatch.teams.away.logo || "/assets/matchdetaillogo/fallback.png"
-                }
-                alt={displayMatch.teams.away.name}
-                className="team-logo w-12 h-12 object-contain"
-                style={{
-                  width: '48px',
-                  height: '48px',
-                  backgroundColor: 'transparent'
-                }}
-                priority="high"
-                useTeamLogo={true}
+              <MyWorldTeamLogo
                 teamId={displayMatch.teams.away.id}
                 teamName={displayMatch.teams.away.name}
                 teamLogo={displayMatch.teams.away.logo}
+                alt={displayMatch.teams.away.name}
+                size="16px"
+                className="team-logo"
                 leagueContext={{
-                  name: displayMatch.league.name,
-                  country: displayMatch.league.country,
+                  name: displayMatch.league?.name || '',
+                  country: displayMatch.league?.country || ''
                 }}
+                priority="high"
               />
             </div>
             <span className="text-md font-medium text-center mb-4">
