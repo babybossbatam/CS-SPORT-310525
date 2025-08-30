@@ -510,14 +510,14 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
             {/* Player 1 (left) */}
             <div className="flex flex-col items-center flex-1">
               <MyAvatarInfo
-                playerId={topPlayers[0]?.player?.id}
-                playerName={topPlayers[0]?.player?.name}
+                playerId={topPlayers[0]?.player?.id || undefined}
+                playerName={topPlayers[0]?.player?.name || undefined}
                 size="lg"
                 className="mb-3"
               />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {topPlayers[0]?.player?.name}
+                  {topPlayers[0]?.player?.name || 'Unknown Player'}
                 </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[0]?.statistics[0]?.games?.position || 'Unknown'}
@@ -579,14 +579,14 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
             {/* Player 2 (right) */}
             <div className="flex flex-col items-center flex-1">
               <MyAvatarInfo
-                playerId={topPlayers[1]?.player?.id}
-                playerName={topPlayers[1]?.player?.name}
+                playerId={topPlayers[1]?.player?.id || undefined}
+                playerName={topPlayers[1]?.player?.name || undefined}
                 size="lg"
                 className="mb-3"
               />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {topPlayers[1]?.player?.name}
+                  {topPlayers[1]?.player?.name || 'Unknown Player'}
                 </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[1]?.statistics[0]?.games?.position || 'Unknown'}
@@ -598,14 +598,14 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
           <div className="flex items-center justify-center">
             <div className="flex flex-col items-center">
               <MyAvatarInfo
-                playerId={topPlayers[0]?.player?.id}
-                playerName={topPlayers[0]?.player?.name}
+                playerId={topPlayers[0]?.player?.id || undefined}
+                playerName={topPlayers[0]?.player?.name || undefined}
                 size="lg"
                 className="mb-3"
               />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {topPlayers[0]?.player?.name}
+                  {topPlayers[0]?.player?.name || 'Unknown Player'}
                 </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[0]?.statistics[0]?.games?.position || 'Unknown'}
