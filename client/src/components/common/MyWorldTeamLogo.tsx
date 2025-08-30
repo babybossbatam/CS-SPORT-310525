@@ -342,7 +342,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       } catch (error) {
         console.warn(`⚠️ [MyWorldTeamLogo] Enhanced logo manager failed for ${teamName}:`, error);
         const fallbackUrl = getBestTeamLogoUrl(teamId, teamName, 64);
-        
+
         if (fallbackUrl) {
           globalLogoCache.set(globalCacheKey, {
             url: fallbackUrl,
