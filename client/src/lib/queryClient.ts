@@ -75,7 +75,7 @@ export async function apiRequest(
     return response;
   } catch (error) {
     clearTimeout(timeoutId);
-    
+
     const errorMessage =
       error instanceof Error ? error.message : String(error);
 
@@ -108,9 +108,24 @@ export async function apiRequest(
         throw new Error(`Invalid request parameters`);
       }
 
+      if (errorMessage.includes('429') || errorMessage.includes('Too Many Requests')) {
+        console.warn(`🚫 [apiRequest] Rate limit exceeded for ${url}: ${errorMessage}`);
+        throw new Error(`Rate limit exceeded. Please wait and try again.`);
+      }
+
       if (errorMessage.includes('500') || errorMessage.includes('Internal Server Error')) {
         console.warn(`🔧 [apiRequest] Server error for ${url}: ${errorMessage}`);
         throw new Error(`Server temporarily unavailable`);
+      }
+
+      if (errorMessage.includes('502') || errorMessage.includes('Bad Gateway')) {
+        console.warn(`🔧 [apiRequest] External API error for ${url}: ${errorMessage}`);
+        throw new Error(`External service temporarily unavailable`);
+      }
+
+      if (errorMessage.includes('504') || errorMessage.includes('Gateway Timeout')) {
+        console.warn(`⏰ [apiRequest] Timeout error for ${url}: ${errorMessage}`);
+        throw new Error(`Request timed out. Please try again.`);
       }
     }
 
@@ -158,7 +173,7 @@ export const getQueryFn: <T>(options: {
         const isLargeFixtureRequest = url.includes('/fixtures/date/') && url.includes('all=true');
         const controller = new AbortController();
         const timeoutDuration = isLargeFixtureRequest ? 60000 : 15000;
-        
+
         // Don't set timeout if query is already being cancelled
         let timeoutId: NodeJS.Timeout | null = null;
         if (!signal?.aborted) {
@@ -184,7 +199,7 @@ export const getQueryFn: <T>(options: {
         return await res.json();
       } catch (error) {
         lastError = error;
-        
+
         // If this is the last attempt or not a timeout error, break
         if (attempt === maxRetries || 
             !(error instanceof Error && error.name === 'AbortError') ||

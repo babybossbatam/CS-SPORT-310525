@@ -2808,15 +2808,15 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       "90",
                                     ].includes(status)
                                   ) {
-                                    // Use fulltime score if available, otherwise use goals
+                                    // For live matches, prioritize goals over score object
                                     const homeScore =
-                                      fixture.score?.fulltime?.home ??
-                                      fixture.goals?.home ??
-                                      0;
+                                      fixture.goals?.home !== null && fixture.goals?.home !== undefined
+                                        ? fixture.goals.home
+                                        : fixture.score?.fulltime?.home ?? 0;
                                     const awayScore =
-                                      fixture.score?.fulltime?.away ??
-                                      fixture.goals?.away ??
-                                      0;
+                                      fixture.goals?.away !== null && fixture.goals?.away !== undefined
+                                        ? fixture.goals.away
+                                        : fixture.score?.fulltime?.away ?? 0;
 
                                     return (
                                       <div className="match-score-display">
@@ -2846,15 +2846,15 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       "SUSP",
                                     ].includes(status)
                                   ) {
-                                    // Use fulltime score if available, otherwise use goals
+                                    // For ended matches, prioritize goals over score object for accuracy
                                     const homeScore =
-                                      fixture.score?.fulltime?.home ??
-                                      fixture.goals?.home ??
-                                      0;
+                                      fixture.goals?.home !== null && fixture.goals?.home !== undefined
+                                        ? fixture.goals.home
+                                        : fixture.score?.fulltime?.home ?? 0;
                                     const awayScore =
-                                      fixture.score?.fulltime?.away ??
-                                      fixture.goals?.away ??
-                                      0;
+                                      fixture.goals?.away !== null && fixture.goals?.away !== undefined
+                                        ? fixture.goals.away
+                                        : fixture.score?.fulltime?.away ?? 0;
 
                                     return (
                                       <div className="match-score-display">

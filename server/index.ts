@@ -26,11 +26,11 @@ const monitorMemory = () => {
   const usage = process.memoryUsage();
   const heapUsedMB = usage.heapUsed / 1024 / 1024;
 
-  if (heapUsedMB > 1500) { // Warning at 1.5GB
+  if (heapUsedMB > 800) { // Warning at 800MB
     memoryWarningCount++;
     console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB (Warning #${memoryWarningCount})`);
 
-    if (memoryWarningCount > 5) {
+    if (memoryWarningCount > 3) {
       console.log('🧹 Forcing garbage collection...');
       if (global.gc) {
         global.gc();
@@ -43,20 +43,20 @@ const monitorMemory = () => {
 // Check memory every 30 seconds
 setInterval(monitorMemory, 30000);
 
-// Set higher limits to prevent EventEmitter warnings
-process.setMaxListeners(8000);
+// Set reasonable limits to prevent EventEmitter warnings
+process.setMaxListeners(50);
 import { EventEmitter } from 'events';
-EventEmitter.defaultMaxListeners = 8000;
+EventEmitter.defaultMaxListeners = 50;
 
 // Set max listeners for common event emitters
 if (typeof process !== 'undefined' && process.stdout) {
-  process.stdout.setMaxListeners(8000);
+  process.stdout.setMaxListeners(50);
 }
 if (typeof process !== 'undefined' && process.stderr) {
-  process.stderr.setMaxListeners(8000);
+  process.stderr.setMaxListeners(50);
 }
 if (typeof process !== 'undefined' && process.stdin) {
-  process.stdin.setMaxListeners(500);
+  process.stdin.setMaxListeners(20);
 }
 
 // Graceful shutdown handling
@@ -123,21 +123,46 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
+  // CORS configuration for Replit environment
   app.use(cors({
-    origin: process.env.NODE_ENV === 'production' 
-      ? ['https://scores.cssport.world'] 
-      : true, // Allow all origins in development for Replit
+    origin: function (origin, callback) {
+      // Allow requests with no origin (mobile apps, curl, etc.)
+      if (!origin) return callback(null, true);
+
+      // Allow all Replit domains and localhost
+      if (origin.includes('replit.dev') ||
+          origin.includes('replit.com') ||
+          origin.includes('localhost') ||
+          origin.includes('127.0.0.1')) {
+        return callback(null, true);
+      }
+
+      // For production, add your specific domains
+      if (process.env.NODE_ENV === 'production') {
+        const allowedOrigins = [
+          'https://your-production-domain.com'
+        ];
+        if (allowedOrigins.includes(origin)) {
+          return callback(null, true);
+        }
+      }
+
+      callback(null, true); // Allow all for development
+    },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Cache-Control', 'Pragma'],
-    optionsSuccessStatus: 200
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+    exposedHeaders: ['Content-Length', 'X-Requested-With'],
+    maxAge: 86400 // 24 hours
   }));
 
-  // Add a middleware to handle pre-flight requests
+  // Handle preflight requests explicitly
   app.options('*', (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Cache-Control, Pragma');
+    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Max-Age', '86400');
     res.sendStatus(200);
   });
 
