@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import MyAvatarInfo from './MyAvatarInfo';
@@ -110,7 +110,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
                     goals: playerData.statistics[0]?.goals?.total,
                     assists: playerData.statistics[0]?.goals?.assists
                   });
-                  
+
                   // Transform the data to match our PlayerStats interface
                   const transformedPlayer: PlayerStats = {
                     player: {
@@ -155,7 +155,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
                       }
                     }))
                   };
-                  
+
                   allPlayerStats.push(transformedPlayer);
                 }
               });
@@ -308,14 +308,14 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
         setError("No player data available");
       } catch (error) {
         console.error(`❌ [MyKeyPlayer] Error fetching player statistics (attempt ${retryCount + 1}):`, error);
-        
+
         // Retry logic
         if (retryCount < maxRetries) {
           console.log(`🔄 [MyKeyPlayer] Retrying in ${(retryCount + 1) * 1000}ms...`);
           setTimeout(() => fetchPlayerStats(retryCount + 1), (retryCount + 1) * 1000);
           return;
         }
-        
+
         setError(error instanceof Error ? error.message : "Failed to fetch player statistics after multiple attempts");
         setPlayerStats([]);
       } finally {
@@ -405,12 +405,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
       return false;
     });
 
-    console.log(`🔍 [MyKeyPlayer] Filtered ${filtered.length} players for position ${position}:`, filtered.map(p => ({ 
-      name: p.player.name, 
-      position: p.statistics[0]?.games?.position,
-      goals: p.statistics[0]?.goals?.total,
-      assists: p.statistics[0]?.goals?.assists
-    })));
+    console.log('🔍 [MyKeyPlayer] Filtered', filtered.length, 'players for position', position + ':', filtered.map(p => ({name: p.player.name, position: p.statistics[0]?.games?.position, goals: p.statistics[0]?.goals?.total, assists: p.statistics[0]?.goals?.assists})));
 
     // Sort by key stats based on position
     return filtered.sort((a, b) => {
@@ -433,7 +428,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
     }).slice(0, 2); // Top 2 players per position
   };
 
-  const getKeyStatsForPosition = (position: string, playerStats: any) => {
+  const getKeyStatsForPosition = (position: string, playerStats: PlayerStats) => {
     const stats = playerStats.statistics[0];
 
     if (position === 'Attacker') {
@@ -453,6 +448,19 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
       };
     }
   };
+
+  const getPlayerImage = useCallback(
+    (
+      playerId: number | undefined,
+      playerName: string | undefined,
+      teamId: number | undefined,
+    ): string => {
+      // Always return the same fallback image as a string
+      return "/assets/fallback-logo.png";
+    },
+    [],
+  );
+
 
   if (isLoading) {
     return (
@@ -477,7 +485,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
     return null;
   }
 
-  
+
 
   const topPlayers = getTopPlayersByPosition(selectedPosition);
 
