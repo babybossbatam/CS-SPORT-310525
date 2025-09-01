@@ -213,7 +213,14 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
               throw new Error('Non-JSON response from predictions API');
             }
             
-            const predictionsData = await predictionsResponse.json();
+            // Get response text first to check if it's valid JSON
+            const responseText = await predictionsResponse.text();
+            if (!responseText || responseText.trim().startsWith('<!DOCTYPE')) {
+              console.warn('❌ [MatchPrediction] Predictions API returned HTML instead of JSON, skipping');
+              throw new Error('HTML response received instead of JSON');
+            }
+            
+            const predictionsData = JSON.parse(responseText);
             console.log('📊 [MatchPrediction] RapidAPI Predictions response:', predictionsData);
             
             // Handle new API response format with response array
