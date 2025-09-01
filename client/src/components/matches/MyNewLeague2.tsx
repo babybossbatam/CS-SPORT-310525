@@ -980,7 +980,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         const minutesSinceKickoff = (now.getTime() - matchTime.getTime()) / (1000 * 60);
         const shouldBeLiveByTime = minutesSinceKickoff >= -5 && minutesSinceKickoff <= 120;
         const isNotFinished = !["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(fixture.fixture.status.short);
-        
+
         return shouldBeLiveByTime && isNotFinished;
       });
 
@@ -1748,7 +1748,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
   // Show loading with better error handling
   if (
-    isLoading && 
+    isLoading &&
     !allFixtures &&
     !hasCachedData
   ) {
@@ -1833,7 +1833,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         {/* Away team logo */}
                         <div
                           className="away-team-logo-container"
-                          style={{ padding: "0.5rem" }}
+                          style={{ padding: "0 0.6rem" }}
                         >
                           <Skeleton className="h-8 w-8 rounded-full" />
                         </div>
@@ -2587,14 +2587,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 const matchTime = new Date(fixture.fixture.date);
                                 const now = new Date();
                                 const minutesSinceKickoff = (now.getTime() - matchTime.getTime()) / (1000 * 60);
-                                
+
                                 // Time-based live detection: match should be live if it's between -5 to +120 minutes from kickoff
                                 const shouldBeLiveByTime = minutesSinceKickoff >= -5 && minutesSinceKickoff <= 120;
-                                
+
                                 // API-based live detection
                                 const isApiLiveStatus = [
                                   "LIVE",
-                                  "LIV", 
+                                  "LIV",
                                   "1H",
                                   "HT",
                                   "2H",
@@ -2602,12 +2602,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   "BT",
                                   "P",
                                   "INT",
+                                  "45",
+                                  "90",
                                 ].includes(status);
-                                
+
                                 // Finished status detection
                                 const isFinishedStatus = [
                                   "FT",
-                                  "AET", 
+                                  "AET",
                                   "PEN",
                                   "AWD",
                                   "WO",
@@ -2615,10 +2617,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   "CANC",
                                   "SUSP",
                                 ].includes(status);
-                                
+
                                 // Show live status if: API says it's live OR (time suggests it should be live AND it's not marked as finished)
                                 const shouldShowLive = (isApiLiveStatus || (shouldBeLiveByTime && status === "NS" && !isFinishedStatus)) && !isStaleFinishedMatch && hoursOld <= 4;
-                                
+
                                 if (shouldShowLive) {
                                   let displayText = "";
                                   let statusClass = "status-live-elapsed";
@@ -2804,16 +2806,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 style={{ padding: "0 0.6rem" }}
                               >
                                 <MyWorldTeamLogo
-                                  teamName={fixture.teams.home.name || ""}
                                   teamId={fixture.teams.home.id}
-                                  teamLogo={
-                                    fixture.teams.home.logo ||
-                                    `https://media.api.sports.io/football/teams/${fixture.teams.home.id}.png`
-                                  }
-                                  alt={fixture.teams.home.name}
-                                  size="34px"
-                                  className="popular-leagues-size"
-                                  leagueContext={leagueContext}
+                                  teamName={fixture.teams.home.name}
+                                  size={34}
+                                  leagueContext={{
+                                    leagueId: fixture.league.id,
+                                    leagueName: fixture.league.name,
+                                    country: fixture.league.country,
+                                  }}
                                 />
                               </div>
 
@@ -2828,10 +2828,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   const minutesSinceKickoff = (now.getTime() - matchTime.getTime()) / (1000 * 60);
                                   const shouldBeLiveByTime = minutesSinceKickoff >= -5 && minutesSinceKickoff <= 120;
                                   const isNotFinished = !["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status);
-                                  
+
                                   const isApiLive = [
                                     "LIVE",
-                                    "LIV", 
+                                    "LIV",
                                     "1H",
                                     "HT",
                                     "2H",
@@ -2842,7 +2842,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     "45",
                                     "90",
                                   ].includes(status);
-                                  
+
                                   // Show live score if API says it's live OR time suggests it should be live
                                   if (isApiLive || (shouldBeLiveByTime && status === "NS" && isNotFinished)) {
                                     // For live matches, prioritize goals over score object
@@ -3016,16 +3016,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 style={{ padding: "0 0.5rem" }}
                               >
                                 <MyWorldTeamLogo
-                                  teamName={fixture.teams.away.name || ""}
                                   teamId={fixture.teams.away.id}
-                                  teamLogo={
-                                    fixture.teams.away.logo ||
-                                    `https://media.api.sports.io/football/teams/${fixture.teams.away.id}.png`
-                                  }
-                                  alt={fixture.teams.away.name}
-                                  size="34px"
-                                  className="popular-leagues-size"
-                                  leagueContext={leagueContext}
+                                  teamName={fixture.teams.away.name}
+                                  size={34}
+                                  leagueContext={{
+                                    leagueId: fixture.league.id,
+                                    leagueName: fixture.league.name,
+                                    country: fixture.league.country,
+                                  }}
                                 />
                               </div>
 
@@ -3282,7 +3280,7 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
                         {/* Away team logo */}
                         <div
                           className="away-team-logo-container"
-                          style={{ padding: "0 0.5rem" }}
+                          style={{ padding: "0 0.6rem" }}
                         >
                           <Skeleton className="h-8 w-8 rounded-full" />
                         </div>
