@@ -11,7 +11,43 @@ import MyStatsTabCard from './MyStatsTabCard';
 import MyH2HNew from './MyH2HNew';
 import '@/styles/MyStats.css';
 
+// Define a simple ErrorBoundary component for robust error handling
+class MatchTabErrorBoundary extends React.Component<any, { hasError: boolean, error: Error | null }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
 
+  static getDerivedStateFromError(error: Error) {
+    // Update state so the next render will show the fallback UI.
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: any) {
+    // You can also log the error to an error reporting service
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // You can render any custom fallback UI
+      return (
+        <div className="text-center p-4">
+          <h2 className="text-red-600 text-xl font-bold mb-2">Something went wrong!</h2>
+          <p className="text-gray-700 mb-4">Could not load match details. Please try again later.</p>
+          <details className="cursor-pointer text-left text-xs text-gray-500">
+            <summary>Error Details</summary>
+            <pre className="mt-2 p-2 bg-gray-100 rounded">
+              {this.state.error?.toString()}
+            </pre>
+          </details>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 
 interface MyMatchTabCardProps {
@@ -20,39 +56,17 @@ interface MyMatchTabCardProps {
 }
 
 const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
-  // Enhanced validation to prevent object rendering issues
-  if (!match || typeof match !== 'object') {
-    console.warn('⚠️ [MyMatchTabCard] Invalid match data:', match);
-    return (
-      <div className="text-center text-gray-500 p-4">
-        <p>No valid match data available</p>
-      </div>
-    );
-  }
-
-  // Ensure required match properties exist
-  if (!match.fixture?.id || !match.teams?.home || !match.teams?.away) {
-    console.warn('⚠️ [MyMatchTabCard] Missing required match properties:', {
-      fixtureId: match.fixture?.id,
-      homeTeam: match.teams?.home,
-      awayTeam: match.teams?.away
-    });
-    return (
-      <div className="text-center text-gray-500 p-4">
-        <p>Incomplete match data</p>
-      </div>
-    );
-  }
+  if (!match) return null;
 
   return (
-    <div className="space-y-4">
+    <MatchTabErrorBoundary>
       {/* Match Prediction */}
       <div className="space-y-2">
 
         <MatchPrediction 
-          homeTeam={String(match.teams?.home?.name || "Unknown Team")}
-          awayTeam={String(match.teams?.away?.name || "Unknown Team")}
-          fixtureId={String(match.fixture?.id || "")}
+          homeTeam={match.teams?.home}
+          awayTeam={match.teams?.away}
+          fixtureId={match.fixture?.id}
         />
       </div>
 
@@ -101,10 +115,10 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
             {finalIsEnded && (
               <div className="space-y-2">
                 <MyHighlights 
-                  homeTeam={String(match.teams?.home?.name || "Unknown Team")}
-                  awayTeam={String(match.teams?.away?.name || "Unknown Team")}
-                  leagueName={String(match.league?.name || "Unknown League")}
-                  matchStatus={String(match.fixture?.status?.short || "")}
+                  homeTeam={match.teams?.home?.name || "Unknown Team"}
+                  awayTeam={match.teams?.away?.name || "Unknown Team"}
+                  leagueName={match.league?.name || "Unknown League"}
+                  matchStatus={match.fixture?.status?.short}
                   match={match}
                 />
               </div>
@@ -114,10 +128,10 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
             {finalIsLive && (
               <div className="space-y-2">
                 <MyLiveAction 
-                  matchId={String(match.fixture?.id || "")}
-                  homeTeam={String(match.teams?.home?.name || "Unknown Team")}
-                  awayTeam={String(match.teams?.away?.name || "Unknown Team")}
-                  status={String(match.fixture?.status?.short || "")}
+                  matchId={match.fixture?.id}
+                  homeTeam={match.teams?.home}
+                  awayTeam={match.teams?.away}
+                  status={match.fixture?.status?.short}
                 />
               </div>
             )}
@@ -131,9 +145,9 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
       <div className="space-y-2">
 
         <MyMatchEventNew 
-          fixtureId={String(match.fixture?.id || "")}
-          homeTeam={String(match.teams?.home?.name || "Unknown Team")}
-          awayTeam={String(match.teams?.away?.name || "Unknown Team")}
+          fixtureId={match.fixture?.id}
+          homeTeam={match.teams?.home?.name}
+          awayTeam={match.teams?.away?.name}
           matchData={match}
           theme="light"
         />
@@ -146,9 +160,9 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
 
         <MyShotmap 
           match={match}
-          fixtureId={String(match.fixture?.id || "")}
-          homeTeam={String(match.teams?.home?.name || "Unknown Team")}
-          awayTeam={String(match.teams?.away?.name || "Unknown Team")}
+          fixtureId={match.fixture?.id}
+          homeTeam={match.teams?.home?.name}
+          awayTeam={match.teams?.away?.name}
         />
       </div>
 
@@ -182,12 +196,12 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
       <div className="space-y-2">
         <MyKeyPlayer 
           match={match}
-          fixtureId={String(match.fixture?.id || "")}
-          homeTeam={String(match.teams?.home?.name || "Unknown Team")}
-          awayTeam={String(match.teams?.away?.name || "Unknown Team")}
+          fixtureId={match.fixture?.id}
+          homeTeam={match.teams?.home?.name}
+          awayTeam={match.teams?.away?.name}
         />
       </div>
-    </div>
+    </MatchTabErrorBoundary>
   );
 };
 
@@ -199,14 +213,7 @@ const MyStatsCard = ({ match }: { match: any }) => {
   const [error, setError] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  if (!match || typeof match !== 'object') {
-    console.warn('⚠️ [MyStatsCard] Invalid match data:', match);
-    return (
-      <div className="text-center text-gray-500">
-        <p>No valid match data available</p>
-      </div>
-    );
-  }
+  if (!match) return null;
 
   const isUpcoming = match.fixture?.status?.short === "NS";
   const homeTeam = match.teams?.home;
@@ -223,8 +230,8 @@ const MyStatsCard = ({ match }: { match: any }) => {
         setError(null);
 
         const [homeResponse, awayResponse] = await Promise.all([
-          fetch(`/api/fixtures/${fixtureId}/statistics?team=${String(homeTeam?.id || '')}`),
-          fetch(`/api/fixtures/${fixtureId}/statistics?team=${String(awayTeam?.id || '')}`)
+          fetch(`/api/fixtures/${fixtureId}/statistics?team=${homeTeam.id}`),
+          fetch(`/api/fixtures/${fixtureId}/statistics?team=${awayTeam.id}`)
         ]);
 
         if (!homeResponse.ok || !awayResponse.ok) {
