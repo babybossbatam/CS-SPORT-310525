@@ -171,6 +171,11 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                             leagueName.includes("asian cup u20") ||
                             leagueName.includes("asian cup u-20");
 
+    // CAFA Nations Cup (Central Asian Football Association Nations Cup)
+    const isCafaNationsCup = leagueName.includes("cafa nations cup") ||
+                            leagueName.includes("cafa nations") ||
+                            leagueName.includes("central asian nations cup");
+
     // Debug logging for Friendlies International
     if (leagueName.includes("friendlies")) {
       console.log("🔍 [MyWorldTeamLogo] Friendlies Detection:", {
@@ -245,6 +250,18 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       });
     }
 
+    // Debug logging for CAFA Nations Cup
+    if (leagueName.includes("cafa")) {
+      console.log("🏆 [MyWorldTeamLogo] CAFA Nations Cup Detection:", {
+        teamName,
+        leagueName,
+        isCafaNationsCup,
+        isActualNationalTeam,
+        isYouthTeam,
+        shouldUseCircularFlag: result
+      });
+    }
+
     // Use circular flag for national teams in international competitions
     // BUT: Force club teams to ALWAYS use club logos regardless of league context
     const result = !isStandingsContext &&
@@ -252,7 +269,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                    !isKnownClubTeam &&
                    isActualNationalTeam &&
                    (isNationalYouthTeam || isWomensNationalTeam || (!isYouthTeam && !teamName?.endsWith(" W"))) && // Allow national youth and women's teams
-                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || isWorldCupQualification) &&
+                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || isWorldCupQualification || isCafaNationsCup) &&
                    !isFifaClubWorldCup &&
                    !isFriendliesClub &&
                    !isUefaEuropaLeague &&
