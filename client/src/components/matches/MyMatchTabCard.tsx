@@ -30,7 +30,7 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
         <MatchPrediction 
           homeTeam={match.teams?.home?.name || "Unknown Team"}
           awayTeam={match.teams?.away?.name || "Unknown Team"}
-          fixtureId={match.fixture?.id}
+          fixtureId={match.fixture?.id?.toString()}
         />
       </div>
 
@@ -79,10 +79,10 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
             {finalIsEnded && (
               <div className="space-y-2">
                 <MyHighlights 
-                  homeTeam={match.teams?.home?.name || "Unknown Team"}
-                  awayTeam={match.teams?.away?.name || "Unknown Team"}
-                  leagueName={match.league?.name || "Unknown League"}
-                  matchStatus={match.fixture?.status?.short}
+                  homeTeam={String(match.teams?.home?.name || "Unknown Team")}
+                  awayTeam={String(match.teams?.away?.name || "Unknown Team")}
+                  leagueName={String(match.league?.name || "Unknown League")}
+                  matchStatus={String(match.fixture?.status?.short || "")}
                   match={match}
                 />
               </div>
@@ -92,10 +92,10 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
             {finalIsLive && (
               <div className="space-y-2">
                 <MyLiveAction 
-                  matchId={match.fixture?.id}
-                  homeTeam={match.teams?.home?.name || "Unknown Team"}
-                  awayTeam={match.teams?.away?.name || "Unknown Team"}
-                  status={match.fixture?.status?.short}
+                  matchId={match.fixture?.id?.toString()}
+                  homeTeam={String(match.teams?.home?.name || "Unknown Team")}
+                  awayTeam={String(match.teams?.away?.name || "Unknown Team")}
+                  status={String(match.fixture?.status?.short || "")}
                 />
               </div>
             )}
@@ -109,9 +109,9 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
       <div className="space-y-2">
 
         <MyMatchEventNew 
-          fixtureId={match.fixture?.id}
-          homeTeam={match.teams?.home?.name}
-          awayTeam={match.teams?.away?.name}
+          fixtureId={match.fixture?.id?.toString()}
+          homeTeam={String(match.teams?.home?.name || "Unknown Team")}
+          awayTeam={String(match.teams?.away?.name || "Unknown Team")}
           matchData={match}
           theme="light"
         />
@@ -124,9 +124,9 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
 
         <MyShotmap 
           match={match}
-          fixtureId={match.fixture?.id}
-          homeTeam={match.teams?.home?.name || "Unknown Team"}
-          awayTeam={match.teams?.away?.name || "Unknown Team"}
+          fixtureId={match.fixture?.id?.toString()}
+          homeTeam={String(match.teams?.home?.name || "Unknown Team")}
+          awayTeam={String(match.teams?.away?.name || "Unknown Team")}
         />
       </div>
 
@@ -160,9 +160,9 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
       <div className="space-y-2">
         <MyKeyPlayer 
           match={match}
-          fixtureId={match.fixture?.id}
-          homeTeam={match.teams?.home?.name || "Unknown Team"}
-          awayTeam={match.teams?.away?.name || "Unknown Team"}
+          fixtureId={match.fixture?.id?.toString()}
+          homeTeam={String(match.teams?.home?.name || "Unknown Team")}
+          awayTeam={String(match.teams?.away?.name || "Unknown Team")}
         />
       </div>
     </div>
@@ -194,8 +194,8 @@ const MyStatsCard = ({ match }: { match: any }) => {
         setError(null);
 
         const [homeResponse, awayResponse] = await Promise.all([
-          fetch(`/api/fixtures/${fixtureId}/statistics?team=${homeTeam?.id}`),
-          fetch(`/api/fixtures/${fixtureId}/statistics?team=${awayTeam?.id}`)
+          fetch(`/api/fixtures/${fixtureId}/statistics?team=${homeTeam?.id?.toString()}`),
+          fetch(`/api/fixtures/${fixtureId}/statistics?team=${awayTeam?.id?.toString()}`)
         ]);
 
         if (!homeResponse.ok || !awayResponse.ok) {
