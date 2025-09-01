@@ -618,6 +618,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     width: '100%',
     height: '100%',
     objectFit: 'contain' as const,
+    imageRendering: 'crisp-edges' as const,
+    filter: 'none', // Remove any inherited filters
   };
 
   // For non-national teams (club teams), use regular LazyImage with cached URL

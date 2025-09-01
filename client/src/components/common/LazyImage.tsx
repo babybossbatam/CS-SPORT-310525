@@ -540,13 +540,13 @@ const LazyImage: React.FC<LazyImageProps> = ({
         border: 'none',
         outline: 'none',
         display: hasError && imageSrc === fallbackUrl ? 'block' : (hasError ? 'none' : 'block'),
-        opacity: isLoading ? 0.7 : 1,
-        transition: 'opacity 0.2s ease-in-out',
-        filter: darkMode ? 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))' : 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.8))',
+        opacity: 1, // Remove loading opacity that causes blur
+        // Remove drop-shadow filter that can cause blur
+        imageRendering: 'crisp-edges', // Ensure crisp image rendering
         // Apply size from props if no explicit width/height in style
         ...(style?.width || style?.height ? {} : {
-          width: isMobile ? '24px' : '24px',
-          height: isMobile ? '36px' : '36px'
+          width: isMobile ? '32px' : '40px', // Increased default sizes for better clarity
+          height: isMobile ? '32px' : '40px'
         }),
         ...style, // User styles override defaults
       }}
