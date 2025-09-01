@@ -2810,8 +2810,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   teamName={fixture.teams.home.name}
                                   size={34}
                                   leagueContext={{
-                                    leagueId: fixture.league.id,
-                                    leagueName: fixture.league.name,
+                                    name: fixture.league.name,
                                     country: fixture.league.country,
                                   }}
                                 />
@@ -3020,8 +3019,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   teamName={fixture.teams.away.name}
                                   size={34}
                                   leagueContext={{
-                                    leagueId: fixture.league.id,
-                                    leagueName: fixture.league.name,
+                                    name: fixture.league.name,
                                     country: fixture.league.country,
                                   }}
                                 />
