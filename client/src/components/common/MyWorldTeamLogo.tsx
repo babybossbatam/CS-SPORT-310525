@@ -141,11 +141,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                             leagueName.includes("club friendlies");
 
     // Friendlies International (league ID 10) should be treated as national team competition
-    const isFriendliesInternational = leagueName === "friendlies international" ||
-                                     leagueName === "international friendlies" ||
-                                     (leagueName.includes("friendlies") &&
-                                      leagueName.includes("international")) ||
-                                     (leagueName === "friendlies" && !isFriendliesClub);
+    const isFriendliesInternational = leagueName.includes("friendlies") &&
+                                     (leagueCountry === "world" || leagueCountry === "international");
 
     const isUefaEuropaLeague = leagueName.includes("uefa europa league") ||
                               leagueName.includes("europa league");
@@ -170,6 +167,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                             leagueName.includes("afc u-20 asian cup") ||
                             leagueName.includes("asian cup u20") ||
                             leagueName.includes("asian cup u-20");
+    const isCafaNationsCup = leagueName.includes("cafa nations cup") || leagueName.includes("cafa nations");
 
     // Debug logging for Friendlies International
     if (leagueName.includes("friendlies")) {
@@ -252,7 +250,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                    !isKnownClubTeam &&
                    isActualNationalTeam &&
                    (isNationalYouthTeam || isWomensNationalTeam || (!isYouthTeam && !teamName?.endsWith(" W"))) && // Allow national youth and women's teams
-                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || isWorldCupQualification) &&
+                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || isWorldCupQualification || isCafaNationsCup) &&
                    !isFifaClubWorldCup &&
                    !isFriendliesClub &&
                    !isUefaEuropaLeague &&
@@ -437,7 +435,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
     // Always load the logo URL, but don't set loading state if we have a valid URL
     const shouldLoad = !imageSrc || imageSrc.includes("/assets/fallback.png") || hasError;
-    
+
     if (shouldLoad) {
       setIsLoading(true);
       setHasError(false);
