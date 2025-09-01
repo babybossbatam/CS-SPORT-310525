@@ -2808,7 +2808,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 <MyWorldTeamLogo
                                   teamId={fixture.teams.home.id}
                                   teamName={fixture.teams.home.name}
-                                  size={34}
+                                  size="34px"
                                   leagueContext={{
                                     name: fixture.league.name,
                                     country: fixture.league.country,
@@ -3017,7 +3017,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 <MyWorldTeamLogo
                                   teamId={fixture.teams.away.id}
                                   teamName={fixture.teams.away.name}
-                                  size={34}
+                                  size="34px"
                                   leagueContext={{
                                     name: fixture.league.name,
                                     country: fixture.league.country,
