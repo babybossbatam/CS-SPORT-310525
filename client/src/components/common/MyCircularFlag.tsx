@@ -36,12 +36,21 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [nextMatch, setNextMatch] = useState(nextMatchInfo);
 
-  // Check if this is a national team or club team
+  // Check if this is a national team or club team with enhanced context awareness
   const isNational = isNationalTeam({ name: teamName });
+
+  // Enhanced detection for CAFA Nations Cup and other international competitions
+  const isInternationalCompetition = 
+    nextMatchInfo?.opponent && (
+      // CAFA Nations Cup teams
+      ['Oman', 'Kyrgyzstan', 'Tajikistan', 'Afghanistan', 'Bangladesh', 'India', 'Maldives', 'Nepal', 'Pakistan', 'Sri Lanka'].includes(teamName) ||
+      // Other known national team patterns
+      isNational
+    );
 
   // Additional check for known club teams that should never use circular flags
   const isKnownClubTeam =
-    !isNational &&
+    !isInternationalCompetition &&
     (teamName?.toLowerCase().includes("fc") ||
       teamName?.toLowerCase().includes("cf") ||
       teamName?.toLowerCase().includes("united") ||
@@ -54,9 +63,19 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       teamName?.toLowerCase().includes("club") ||
       teamName?.toLowerCase().includes("ud "));
 
-  // For club teams, use team logo sources
+  // Enhanced logo URL resolution
   const getLogoUrl = () => {
-    if ((!isNational || isKnownClubTeam) && teamId) {
+    // Always use circular flags for international competitions
+    if (isInternationalCompetition) {
+      // Force England to use correct circular flag
+      if (teamName?.toLowerCase() === "england") {
+        return "https://hatscripts.github.io/circle-flags/flags/gb-eng.svg";
+      }
+      return getCircleFlagUrl(teamName, fallbackUrl);
+    }
+
+    // For club teams, use team logo sources
+    if (isKnownClubTeam && teamId) {
       const logoSources = getTeamLogoSources(
         { id: teamId, name: teamName },
         false,
@@ -64,11 +83,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       return logoSources[0]?.url || fallbackUrl || "/assets/fallback-logo.svg";
     }
 
-    // Force England to use correct circular flag
-    if (teamName?.toLowerCase() === "england") {
-      return "https://hatscripts.github.io/circle-flags/flags/gb-eng.svg";
-    }
-
+    // Default to circular flag for national teams
     return getCircleFlagUrl(teamName, fallbackUrl);
   };
 
@@ -101,18 +116,19 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     // South American teams
     Brazil: "br",
     Argentina: "ar",
-
     Colombia: "co",
     Peru: "pe",
     Chile: "cl",
-    "Kyrgyz Repu": "kg",
     Uruguay: "uy",
     Paraguay: "py",
-    "S. Africa": "za",
-    Tajikistan: "tj",
     Bolivia: "bo",
     Ecuador: "ec",
     Venezuela: "ve",
+    // CAFA Nations Cup teams
+    "Kyrgyz Repu": "kg",
+    Kyrgyzstan: "kg",
+    Tajikistan: "tj",
+    "S. Africa": "za",
     // Others
     Algeria: "dz",
     Angola: "ao",
@@ -291,15 +307,15 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
           width: size,
           height: size,
           objectFit: "cover",
-          borderRadius: isNational ? "50%" : "50%", // Keep circular for both, but club logos will show as regular logos
+          borderRadius: "50%", // Always circular for this component
           position: "relative",
           zIndex: 1,
-          filter: isNational
+          filter: isInternationalCompetition
             ? "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)"
             : "none", // No filter for club logos
         }}
         onError={
-          !isNational && teamId
+          isKnownClubTeam && teamId
             ? createTeamLogoErrorHandler(
                 { id: teamId, name: teamName },
                 false,
@@ -307,6 +323,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
               )
             : (e) => {
                 const target = e.target as HTMLImageElement;
+                console.log(`🚫 [MyCircularFlag] Image error for ${teamName}, trying fallback`);
                 if (!target.src.includes("/assets/fallback-logo.svg")) {
                   target.src = fallbackUrl || "/assets/fallback-logo.svg";
                 }
