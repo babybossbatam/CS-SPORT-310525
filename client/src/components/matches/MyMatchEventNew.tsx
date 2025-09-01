@@ -128,7 +128,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         }
       }, 10000); // 10 second timeout
 
-      const response = await fetch(`/api/fixtures/${fixtureId}/events`, {
+      // FIX: Changed URL to fetch head-to-head data for the specified fixture
+      const response = await fetch(`/api/fixtures/headtohead?h2h=${fixtureId}&last=10`, {
         signal: controller.signal,
         headers: {
           'Cache-Control': 'no-cache',
@@ -138,7 +139,21 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        // Log raw error response for debugging
+        let errorDetails = `HTTP ${response.status}: ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          console.log(`❌ [H2H] Raw error response:`, errorData);
+          if (errorData && errorData.error) {
+            errorDetails = `API Error: ${errorData.error}`;
+          } else {
+            errorDetails = `HTTP ${response.status} - ${errorData?.message || response.statusText}`;
+          }
+        } catch (parseError) {
+          // If response is not JSON, use status text
+          errorDetails = `HTTP ${response.status}: ${response.statusText}`;
+        }
+        throw new Error(errorDetails);
       }
 
       const eventData = await response.json();
@@ -1034,7 +1049,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           />
                         </div>
                         <span className="penalty-player-name">
-                          {round.homePenalty.event.player?.name}
+                          {round.homePenalty.event.player?.name || 'Unknown Player'}
                         </span>
                       </div>
                       <div className="penalty-home-icon">
@@ -1070,7 +1085,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           />
                         </div>
                         <span className="penalty-player-name">
-                          {round.awayPenalty.event.player?.name}
+                          {round.awayPenalty.event.player?.name || 'Unknown Player'}
                         </span>
                       </div>
                       <div className="penalty-home-icon">
@@ -1124,7 +1139,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       </div>
                       <div className="penalty-away-player-info">
                         <span className="penalty-player-name">
-                          {round.awayPenalty.event.player?.name}
+                          {round.awayPenalty.event.player?.name || 'Unknown Player'}
                         </span>
                         <div className="penalty-player-avatar">
                           <MyAvatarInfo
@@ -1160,7 +1175,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       </div>
                       <div className="penalty-away-player-info">
                         <span className="penalty-player-name">
-                          {round.homePenalty.event.player?.name}
+                          {round.homePenalty.event.player?.name || 'Unknown Player'}
                         </span>
                         <div className="penalty-player-avatar">
                           <MyAvatarInfo

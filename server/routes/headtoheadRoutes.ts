@@ -7,13 +7,20 @@ const router = express.Router();
 // Route to get head-to-head fixtures between two teams
 router.get('/headtohead', async (req, res) => {
   try {
-    const { h2h, last = '10', season } = req.query;
+    const { h2h, last = '10', season, team1, team2 } = req.query;
     
-    console.log(`🔍 [H2H API] Request params:`, { h2h, last, season });
+    console.log(`🔍 [H2H API] Request params:`, { h2h, last, season, team1, team2 });
     
-    if (!h2h) {
+    // Support both h2h format and separate team1/team2 parameters
+    let cleanH2h = '';
+    if (h2h) {
+      cleanH2h = h2h.toString().trim();
+    } else if (team1 && team2) {
+      cleanH2h = `${team1}-${team2}`;
+      console.log(`🔍 [H2H API] Created h2h from team parameters: "${cleanH2h}"`);
+    } else {
       console.log(`❌ [H2H API] Missing h2h parameter`);
-      return res.status(400).json({ error: 'h2h parameter is required (format: team1-team2)' });
+      return res.status(400).json({ error: 'h2h parameter is required (format: team1-team2) or provide team1 and team2 parameters' });
     }
 
     // Clean and validate h2h format (should be team1-team2)
