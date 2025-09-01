@@ -371,16 +371,38 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
   // Effect to handle the asynchronous logo loading and update state
   React.useEffect(() => {
+    // Enhanced validation of team props
     if (!teamId && !teamName) {
       console.warn(`⚠️ [MyWorldTeamLogo] Missing required props:`, {
         teamId,
         teamName,
+        teamLogo,
         component: "MyWorldTeamLogo",
       });
       setImageSrc("/assets/fallback.png");
       setHasError(true);
       setIsLoading(false);
       return;
+    }
+
+    // Validate teamId type if provided
+    if (teamId && (typeof teamId !== 'number' && typeof teamId !== 'string')) {
+      console.warn(`⚠️ [MyWorldTeamLogo] Invalid teamId type:`, {
+        teamId,
+        type: typeof teamId,
+        teamName,
+        component: "MyWorldTeamLogo",
+      });
+    }
+
+    // Validate teamName type if provided
+    if (teamName && typeof teamName !== 'string') {
+      console.warn(`⚠️ [MyWorldTeamLogo] Invalid teamName type:`, {
+        teamName,
+        type: typeof teamName,
+        teamId,
+        component: "MyWorldTeamLogo",
+      });
     }
 
     // Handle cases where we have teamName but no teamId
@@ -571,6 +593,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     return (
       <MyCircularFlag
         teamName={teamName}
+        teamId={teamId}
         fallbackUrl={imageSrc} // Use imageSrc which might be from cache or fetched
         alt={alt || teamName}
         size={size}
@@ -618,6 +641,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         onLoad={handleLoad}
         loading="lazy"
         priority={priority as 'high' | 'medium' | 'low'}
+        teamId={teamId}
+        teamName={teamName}
+        fallbackUrl={teamLogo || "/assets/fallback.png"}
       />
     </div>
   );
