@@ -123,48 +123,32 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
-  // CORS configuration for Replit environment
+  // Enhanced CORS middleware for Replit environment
   app.use(cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (mobile apps, curl, etc.)
-      if (!origin) return callback(null, true);
-
-      // Allow all Replit domains and localhost
-      if (origin.includes('replit.dev') ||
-          origin.includes('replit.com') ||
-          origin.includes('localhost') ||
-          origin.includes('127.0.0.1')) {
-        return callback(null, true);
-      }
-
-      // For production, add your specific domains
-      if (process.env.NODE_ENV === 'production') {
-        const allowedOrigins = [
-          'https://your-production-domain.com'
-        ];
-        if (allowedOrigins.includes(origin)) {
-          return callback(null, true);
-        }
-      }
-
-      callback(null, true); // Allow all for development
-    },
+    origin: [
+      'http://localhost:6800',
+      'https://localhost:6800',
+      /^https:\/\/.*\.replit\.dev$/,
+      /^https:\/\/.*\.replit\.app$/,
+      /^https:\/\/.*\.riker\.replit\.dev$/,
+      process.env.FRONTEND_URL || 'http://localhost:6800'
+    ],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-    exposedHeaders: ['Content-Length', 'X-Requested-With'],
-    maxAge: 86400 // 24 hours
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'Authorization',
+      'Cache-Control',
+      'X-API-Key'
+    ],
+    optionsSuccessStatus: 200
   }));
 
-  // Handle preflight requests explicitly
-  app.options('*', (req, res) => {
-    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Max-Age', '86400');
-    res.sendStatus(200);
-  });
+  // Handle preflight requests
+  app.options('*', cors());
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
