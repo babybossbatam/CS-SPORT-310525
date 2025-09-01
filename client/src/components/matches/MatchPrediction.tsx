@@ -70,34 +70,32 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
   });
 
   // More robust team data validation
-  if (!homeTeam || !awayTeam || !homeTeam.name || !awayTeam.name) {
+  const homeTeamName = typeof homeTeam === 'object' && homeTeam?.name ? String(homeTeam.name) : null;
+  const awayTeamName = typeof awayTeam === 'object' && awayTeam?.name ? String(awayTeam.name) : null;
+  
+  if (!homeTeamName || !awayTeamName) {
     console.warn('❌ [MatchPrediction] Missing team data:', {
-      homeTeam: homeTeam ? { name: homeTeam.name, logo: homeTeam.logo } : null,
-      awayTeam: awayTeam ? { name: awayTeam.name, logo: awayTeam.logo } : null
+      homeTeam: homeTeam ? { name: homeTeamName, type: typeof homeTeam } : null,
+      awayTeam: awayTeam ? { name: awayTeamName, type: typeof awayTeam } : null
     });
 
-    // Try to show basic prediction even with incomplete data
-    if (homeTeam?.name && awayTeam?.name) {
-      console.log('✅ [MatchPrediction] Found team names, proceeding with basic prediction');
-    } else {
-      return (
-        <Card className="w-full shadow-md">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-bold">Match Prediction</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-center h-32">
-              <div className="text-center">
-                <p className="text-sm text-gray-500">Team data not available</p>
-                <p className="text-xs text-gray-400 mt-1">
-                  Home: {homeTeam?.name || 'Unknown'} | Away: {awayTeam?.name || 'Unknown'}
-                </p>
-              </div>
+    return (
+      <Card className="w-full shadow-md">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg font-bold">Match Prediction</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center h-32">
+            <div className="text-center">
+              <p className="text-sm text-gray-500">Team data not available</p>
+              <p className="text-xs text-gray-400 mt-1">
+                Home: {homeTeamName || 'Unknown'} | Away: {awayTeamName || 'Unknown'}
+              </p>
             </div>
-          </CardContent>
-        </Card>
-      );
-    }
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   // Only show predictions if we have real data
@@ -378,10 +376,13 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
     const confidence = predictionData?.confidence || 50;
     const confidenceText = confidence >= 70 ? 'High confidence' : confidence >= 50 ? 'Moderate confidence' : 'Low confidence';
 
+    const homeTeamName = typeof homeTeam === 'object' && homeTeam?.name ? String(homeTeam.name) : 'Home Team';
+    const awayTeamName = typeof awayTeam === 'object' && awayTeam?.name ? String(awayTeam.name) : 'Away Team';
+
     if (highest === homeWinProbability && highest > 50) {
-      return `${homeTeam?.name || 'Home Team'} is favored to win this match with a ${homeWinProbability}% probability. (${confidenceText})`;
+      return `${homeTeamName} is favored to win this match with a ${homeWinProbability}% probability. (${confidenceText})`;
     } else if (highest === awayWinProbability && highest > 50) {
-      return `${awayTeam?.name || 'Away Team'} is favored to win this match with a ${awayWinProbability}% probability. (${confidenceText})`;
+      return `${awayTeamName} is favored to win this match with a ${awayWinProbability}% probability. (${confidenceText})`;
     } else if (highest === drawProbability && highest > 40) {
       return `This match is likely to end in a draw with a ${drawProbability}% probability. (${confidenceText})`;
     } else {
@@ -497,7 +498,9 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
                 <div className="text-lg font-semibold text-blue-600">{homeWinProbability}%</div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-blue-600 truncate max-w-[100px]">
-                    {homeTeam?.name && homeTeam.name.length > 12 ? `${homeTeam.name.substring(0, 12)}...` : homeTeam?.name || 'Home Team'}
+                    {typeof homeTeam === 'object' && homeTeam?.name ? 
+                      (homeTeam.name.length > 12 ? `${homeTeam.name.substring(0, 12)}...` : homeTeam.name) : 
+                      'Home Team'}
                   </span>
                 </div>
               </div>
@@ -513,7 +516,9 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
                 <div className="text-lg font-semibold text-gray-800">{awayWinProbability}%</div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-600 truncate max-w-[100px]">
-                    {awayTeam?.name && awayTeam.name.length > 12 ? `${awayTeam.name.substring(0, 12)}...` : awayTeam?.name || 'Away Team'}
+                    {typeof awayTeam === 'object' && awayTeam?.name ? 
+                      (awayTeam.name.length > 12 ? `${awayTeam.name.substring(0, 12)}...` : awayTeam.name) : 
+                      'Away Team'}
                   </span>
                 </div>
               </div>
