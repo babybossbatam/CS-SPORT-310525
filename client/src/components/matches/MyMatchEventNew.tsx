@@ -703,7 +703,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 <div className="text-sm font-medium text-gray-900">
                   {getEventDescription(event)}
                 </div>
-                <div className="text-xs text-gray-500">{event.team?.name}</div>
+                <div className="text-xs text-gray-500">{event.team?.name || "Unknown Team"}</div>
               </div>
               <div className="flex items-center gap-2">
                 <div className="event-icon-container event-icon-home">
@@ -875,7 +875,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 <div className="text-sm font-medium text-gray-900">
                   {getEventDescription(event)}
                 </div>
-                <div className="text-xs text-gray-500">{event.team?.name}</div>
+                <div className="text-xs text-gray-500">{event.team?.name || "Unknown Team"}</div>
               </div>
             </div>
           )}
@@ -1049,7 +1049,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           />
                         </div>
                         <span className="penalty-player-name">
-                          {round.homePenalty.event.player?.name || 'Unknown Player'}
+                          {typeof round.homePenalty.event.player?.name === 'string' ? round.homePenalty.event.player.name : "Unknown Player"}
                         </span>
                       </div>
                       <div className="penalty-home-icon">
@@ -1085,7 +1085,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           />
                         </div>
                         <span className="penalty-player-name">
-                          {round.awayPenalty.event.player?.name || 'Unknown Player'}
+                          {typeof round.awayPenalty.event.player?.name === 'string' ? round.awayPenalty.event.player.name : "Unknown Player"}
                         </span>
                       </div>
                       <div className="penalty-home-icon">
@@ -1139,7 +1139,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       </div>
                       <div className="penalty-away-player-info">
                         <span className="penalty-player-name">
-                          {round.awayPenalty.event.player?.name || 'Unknown Player'}
+                          {typeof round.awayPenalty.event.player?.name === 'string' ? round.awayPenalty.event.player.name : "Unknown Player"}
                         </span>
                         <div className="penalty-player-avatar">
                           <MyAvatarInfo
@@ -1175,7 +1175,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       </div>
                       <div className="penalty-away-player-info">
                         <span className="penalty-player-name">
-                          {round.homePenalty.event.player?.name || 'Unknown Player'}
+                          {typeof round.homePenalty.event.player?.name === 'string' ? round.homePenalty.event.player.name : "Unknown Player"}
                         </span>
                         <div className="penalty-player-avatar">
                           <MyAvatarInfo
@@ -1578,19 +1578,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           {event.assist.name}
                                         </div>
                                         <div className="text-xs font-medium text-red-600">
-                                          {event.player?.name ||
-                                            "Unknown Player"}
+                                          {typeof event.player?.name === 'string' ? event.player.name : "Unknown Player"}
                                         </div>
                                       </>
                                     ) : (
                                       <div className="text-xs font-medium text-gray-700">
-                                        {event.player?.name || "Unknown Player"}
+                                        {typeof event.player?.name === 'string' ? event.player.name : "Unknown Player"}
                                       </div>
                                     )}
                                     {event.type === "goal" &&
                                       event.assist?.name && (
                                         <div className="text-xs text-gray-600">
-                                          (Assist: {event.assist.name})
+                                          (Assist: {typeof event.assist.name === 'string' ? event.assist.name : "Unknown Player"})
                                         </div>
                                       )}
                                     {event.type !== "subst" &&
@@ -1601,7 +1600,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           event.detail
                                             ?.toLowerCase()
                                             .includes("foul")
-                                            ? `Foul by ${event.player?.name || "Unknown Player"}`
+                                            ? `Foul by ${typeof event.player?.name === 'string' ? event.player.name : "Unknown Player"}`
                                             : event.detail || event.type}
                                         </div>
                                       )}
@@ -1837,19 +1836,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           {event.assist.name}
                                         </div>
                                         <div className="text-xs font-medium text-red-600 text-right">
-                                          {event.player?.name ||
-                                            "Unknown Player"}
+                                          {typeof event.player?.name === 'string' ? event.player.name : "Unknown Player"}
                                         </div>
                                       </>
                                     ) : (
                                       <div className="text-xs font-medium text-gray-700 text-right">
-                                        {event.player?.name || "Unknown Player"}
+                                        {typeof event.player?.name === 'string' ? event.player.name : "Unknown Player"}
                                       </div>
                                     )}
                                     {event.type === "goal" &&
                                       event.assist?.name && (
                                         <div className="text-xs text-gray-600 text-right">
-                                          (Assist: {event.assist.name})
+                                          (Assist: {typeof event.assist.name === 'string' ? event.assist.name : "Unknown Player"})
                                         </div>
                                       )}
                                     {event.type !== "subst" &&
@@ -1860,7 +1858,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           event.detail
                                             ?.toLowerCase()
                                             .includes("foul")
-                                            ? `Foul by ${event.player?.name || "Unknown Player"}`
+                                            ? `Foul by ${typeof event.player?.name === 'string' ? event.player.name : "Unknown Player"}`
                                             : event.detail || event.type}
                                         </div>
                                       )}
@@ -2213,19 +2211,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           {event.assist.name}
                                         </div>
                                         <div className="text-xs font-medium text-red-600">
-                                          {event.player?.name ||
-                                            "Unknown Player"}
+                                          {typeof event.player?.name === 'string' ? event.player.name : "Unknown Player"}
                                         </div>
                                       </>
                                     ) : (
                                       <div className="text-xs font-medium text-gray-700">
-                                        {event.player?.name || "Unknown Player"}
+                                        {typeof event.player?.name === 'string' ? event.player.name : "Unknown Player"}
                                       </div>
                                     )}
                                     {event.type === "goal" &&
                                       event.assist?.name && (
                                         <div className="text-xs text-gray-600">
-                                          (Assist: {event.assist.name})
+                                          (Assist: {typeof event.assist.name === 'string' ? event.assist.name : "Unknown Player"})
                                         </div>
                                       )}
                                     {event.type !== "subst" &&
@@ -2236,7 +2233,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           event.detail
                                             ?.toLowerCase()
                                             .includes("foul")
-                                            ? `Foul by ${event.player?.name || "Unknown Player"}`
+                                            ? `Foul by ${typeof event.player?.name === 'string' ? event.player.name : "Unknown Player"}`
                                             : event.detail || event.type}
                                         </div>
                                       )}
@@ -2473,19 +2470,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           {event.assist.name}
                                         </div>
                                         <div className="text-xs font-medium text-red-600 text-right">
-                                          {event.player?.name ||
-                                            "Unknown Player"}
+                                          {typeof event.player?.name === 'string' ? event.player.name : "Unknown Player"}
                                         </div>
                                       </>
                                     ) : (
                                       <div className="text-xs font-medium text-gray-700 text-right">
-                                        {event.player?.name || "Unknown Player"}
+                                        {typeof event.player?.name === 'string' ? event.player.name : "Unknown Player"}
                                       </div>
                                     )}
                                     {event.type === "goal" &&
                                       event.assist?.name && (
                                         <div className="text-xs text-gray-600 text-right">
-                                          (Assist: {event.assist.name})
+                                          (Assist: {typeof event.assist.name === 'string' ? event.assist.name : "Unknown Player"})
                                         </div>
                                       )}
                                     {event.type !== "subst" &&
@@ -2496,7 +2492,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           event.detail
                                             ?.toLowerCase()
                                             .includes("foul")
-                                            ? `Foul by ${event.player?.name || "Unknown Player"}`
+                                            ? `Foul by ${typeof event.player?.name === 'string' ? event.player.name : "Unknown Player"}`
                                             : event.detail || event.type}
                                         </div>
                                       )}
