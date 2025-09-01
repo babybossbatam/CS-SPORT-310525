@@ -379,7 +379,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         teamLogo,
         component: "MyWorldTeamLogo",
       });
-      setImageSrc("/assets/fallback.png");
+      setImageSrc(teamLogo || "/assets/fallback.png");
       setHasError(true);
       setIsLoading(false);
       return;
@@ -435,32 +435,39 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       }
     }
 
-    // Only proceed with loading if we don't already have a valid image
-    if (!imageSrc || imageSrc === "/assets/fallback.png" || hasError) {
+    // Always load the logo URL, but don't set loading state if we have a valid URL
+    const shouldLoad = !imageSrc || imageSrc.includes("/assets/fallback.png") || hasError;
+    
+    if (shouldLoad) {
       setIsLoading(true);
       setHasError(false);
+    }
 
-      let isMounted = true; // Flag to prevent state update on unmounted component
+    let isMounted = true; // Flag to prevent state update on unmounted component
 
-      logoUrl.then((url) => {
-        if (isMounted && url && url !== imageSrc) {
+    logoUrl.then((url) => {
+      if (isMounted && url) {
+        // Only update if the URL is different and valid
+        if (url !== imageSrc && !url.includes("undefined")) {
           setImageSrc(url);
           setHasError(url.includes("/assets/fallback.png"));
           setIsLoading(false);
-        }
-      }).catch((error) => {
-        console.error(`❌ [MyWorldTeamLogo] Error setting image src for ${teamName}:`, error);
-        if (isMounted) {
-          setImageSrc("/assets/fallback.png");
-          setHasError(true);
+        } else if (shouldLoad) {
           setIsLoading(false);
         }
-      });
+      }
+    }).catch((error) => {
+      console.error(`❌ [MyWorldTeamLogo] Error setting image src for ${teamName}:`, error);
+      if (isMounted) {
+        setImageSrc(teamLogo || "/assets/fallback.png");
+        setHasError(true);
+        setIsLoading(false);
+      }
+    });
 
-      return () => {
-        isMounted = false; // Cleanup flag
-      };
-    }
+    return () => {
+      isMounted = false; // Cleanup flag
+    };
   }, [teamId, teamName, teamLogo, shouldUseCircularFlag]); // Removed imageSrc from dependencies to prevent loops
 
 

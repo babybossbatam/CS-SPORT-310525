@@ -13,6 +13,7 @@ interface LazyImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>,
   onLoad?: () => void;
   onError?: () => void;
   priority?: 'high' | 'medium' | 'low';
+  fallbackUrl?: string; // Added fallbackUrl prop
 }
 
 const LazyImage: React.FC<LazyImageProps> = ({
@@ -25,6 +26,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   onLoad,
   onError,
   priority = 'low',
+  fallbackUrl = "/assets/matchdetaillogo/fallback.png", // Default fallback URL
   ...restProps
 }) => {
   const [imageSrc, setImageSrc] = useState<string>(src);
@@ -49,10 +51,11 @@ const LazyImage: React.FC<LazyImageProps> = ({
     }
   }, [src, shouldPreload]);
 
-  const fallbackUrl = "/assets/matchdetaillogo/fallback.png";
+  // Use the fallbackUrl prop
+  const finalFallbackUrl = fallbackUrl;
 
   useEffect(() => {
-    // Check for specific teams/leagues that should use local assets immediately
+      // Check for specific teams/leagues that should use local assets immediately
       const shouldUseLocalAsset = () => {
         if (alt) {
           const altLower = alt.toLowerCase();
@@ -180,10 +183,10 @@ const LazyImage: React.FC<LazyImageProps> = ({
               setRetryCount(retryCount + 1);
               return true;
             } else {
-              console.log(`⚽ [LazyImage] Using fallback for Al-Nassr team after all retries`);
-              setImageSrc(fallbackUrl);
+              setImageSrc(finalFallbackUrl);
               setHasError(false);
               setIsLoading(true);
+              console.log(`⚽ [LazyImage] Using fallback for Al-Nassr team after all retries`);
               return true;
             }
           }
@@ -208,10 +211,10 @@ const LazyImage: React.FC<LazyImageProps> = ({
               setRetryCount(retryCount + 1);
               return true;
             } else {
-              console.log(`⚽ [LazyImage] Using fallback for Al-Ittihad team after all retries`);
-              setImageSrc(fallbackUrl);
+              setImageSrc(finalFallbackUrl);
               setHasError(false);
               setIsLoading(true);
+              console.log(`⚽ [LazyImage] Using fallback for Al-Ittihad team after all retries`);
               return true;
             }
           }
@@ -390,7 +393,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
             `🚫 [LazyImage] All retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
           );
           setHasError(true);
-          setImageSrc(fallbackUrl);
+          setImageSrc(finalFallbackUrl);
           setIsLoading(false);
           onError?.();
         } else {
@@ -406,13 +409,13 @@ const LazyImage: React.FC<LazyImageProps> = ({
             `🚫 [LazyImage] All league logo retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
           );
         setHasError(true);
-        setImageSrc(fallbackUrl);
+        setImageSrc(finalFallbackUrl);
           onError?.();
       }
     } catch (error) {
       console.warn("⚠️ [LazyImage] Error in handleError function:", error);
         setHasError(true);
-        setImageSrc(fallbackUrl);
+        setImageSrc(finalFallbackUrl);
       setIsLoading(false);
       onError?.();
     }
@@ -539,7 +542,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       style={{
         border: 'none',
         outline: 'none',
-        display: hasError && imageSrc === fallbackUrl ? 'block' : (hasError ? 'none' : 'block'),
+        display: hasError && imageSrc === finalFallbackUrl ? 'block' : (hasError ? 'none' : 'block'),
         opacity: 1, // Remove loading opacity that causes blur
         // Remove drop-shadow filter that can cause blur
         imageRendering: 'crisp-edges', // Ensure crisp image rendering
