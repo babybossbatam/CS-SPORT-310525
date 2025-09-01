@@ -176,13 +176,20 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       leagueName.includes("friendlies club") ||
       leagueName.includes("club friendlies");
 
+    // Special case: "Friendlies Clubs" with "World" context and national teams should use circular flags
+    const isFriendliesClubsWithNationalTeams =
+      leagueName.includes("friendlies clubs") &&
+      (leagueCountry === "world" || leagueContext?.country?.toLowerCase() === "world") &&
+      isActualNationalTeam;
+
     // Friendlies International (league ID 10) should be treated as national team competition
     const isFriendliesInternational =
       leagueName === "friendlies international" ||
       leagueName === "international friendlies" ||
       (leagueName.includes("friendlies") &&
         leagueName.includes("international")) ||
-      (leagueName === "friendlies" && !isFriendliesClub);
+      (leagueName === "friendlies" && !isFriendliesClub) ||
+      isFriendliesClubsWithNationalTeams;
 
     const isUefaEuropaLeague =
       leagueName.includes("uefa europa league") ||
@@ -223,8 +230,10 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       console.log("🔍 [MyWorldTeamLogo] Friendlies Detection:", {
         teamName,
         leagueName,
+        leagueCountry,
         isFriendliesInternational,
         isFriendliesClub,
+        isFriendliesClubsWithNationalTeams,
         isActualNationalTeam,
         isYouthTeam,
       });
@@ -312,7 +321,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         isWorldCupQualification ||
         isCafaNationsCup) &&
       !isFifaClubWorldCup &&
-      !isFriendliesClub &&
+      !(isFriendliesClub && !isFriendliesClubsWithNationalTeams) && // Allow Friendlies Clubs with national teams
       !isUefaEuropaLeague &&
       !isUefaConferenceLeague &&
       !isUefaChampionsLeague &&
