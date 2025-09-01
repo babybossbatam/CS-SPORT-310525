@@ -280,7 +280,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                 title={match?.teams?.home?.name}
               >
                 <span className="text-center">
-                  {String(match?.teams?.home?.name || "Home Team")}
+                  {match?.teams?.home?.name || "Home Team"}
                 </span>
               </div>
             </div>
@@ -320,7 +320,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                 title={match?.teams?.away?.name}
               >
                 <span className="text-center">
-                  {String(match?.teams?.away?.name || "Away Team")}
+                  {match?.teams?.away?.name || "Away Team"}
                 </span>
               </div>
             </div>
@@ -425,7 +425,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                   </div>
                   <div className="mobile-text-xs text-gray-600 text-center max-w-20 md:max-w-24 truncate w-full flex justify-center">
                     <span className="text-center">
-                      {typeof match?.teams?.home?.name === 'string' ? match.teams.home.name : "Home Team"}
+                      {match?.teams?.home?.name || "Home Team"}
                     </span>
                   </div>
                 </div>
@@ -449,7 +449,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                   </div>
                   <div className="mobile-text-xs text-gray-600 text-center max-w-20 md:max-w-24 truncate w-full flex justify-center">
                     <span className="text-center">
-                      {typeof match?.teams?.away?.name === 'string' ? match.teams.away.name : "Away Team"}
+                      {match?.teams?.away?.name || "Away Team"}
                     </span>
                   </div>
                 </div>
@@ -544,7 +544,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                       {/* Home Team */}
                       <div className="flex items-center flex-1 min-w-0">
                         <span className="mobile-text-xs md:text-sm text-gray-800 font-medium truncate">
-                          {String(homeTeamInMatch?.name || "Home Team")}
+                          {homeTeamInMatch?.name || "Home Team"}
                         </span>
                       </div>
 
@@ -571,7 +571,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                       {/* Away Team */}
                       <div className="flex items-center justify-end flex-1 min-w-0">
                         <span className="mobile-text-xs md:text-sm text-gray-800 font-medium truncate">
-                          {String(awayTeamInMatch?.name || "Away Team")}
+                          {awayTeamInMatch?.name || "Away Team"}
                         </span>
                       </div>
                     </div>

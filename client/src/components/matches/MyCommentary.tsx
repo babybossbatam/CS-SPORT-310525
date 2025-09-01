@@ -249,7 +249,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               const penaltyStartTime = Math.max(lastRegularEvent.time.elapsed, 120);
 
               // Calculate score ONLY from regular goals (before penalty shootout)
-              const scoreAtPenaltyStart = calculateScoreAtTime(120); // Use 120 minutes as cutoff for regular goals only
+              const scoreAtPenaltyStart = calculateScoreAtTime(120); // Use 120 minutes as cutoff for regular time
 
               console.log("🔍 [Penalty Start Score Debug]:", {
                 penaltyStartTime,

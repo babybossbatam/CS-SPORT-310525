@@ -330,10 +330,10 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
 
   const getTopPlayersByPosition = (position: string) => {
     console.log(`🔍 [MyKeyPlayer] Filtering ${playerStats.length} players for position: ${position}`);
-    console.log(`🔍 [MyKeyPlayer] All available players:`, playerStats.map(p => ({
-      name: p.player.name,
+    console.log(`🔍 [MyKeyPlayer] All available players:`, playerStats.map(p => ({ 
+      name: p.player.name, 
       position: p.statistics[0]?.games?.position,
-      team: p.statistics[0]?.team?.name
+      team: p.statistics[0]?.team?.name 
     })));
 
     const filtered = playerStats.filter(playerStat => {
@@ -343,11 +343,11 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
       console.log(`🔍 [MyKeyPlayer] Player: ${playerStat.player.name}, Position: "${playerPosition}", Target: "${targetPosition}"`);
 
       if (targetPosition === 'attacker') {
-        const isAttacker = playerPosition.includes('forward') ||
-                          playerPosition.includes('striker') ||
-                          playerPosition.includes('winger') ||
-                          playerPosition.includes('cf') ||
-                          playerPosition.includes('lw') ||
+        const isAttacker = playerPosition.includes('forward') || 
+                          playerPosition.includes('striker') || 
+                          playerPosition.includes('winger') || 
+                          playerPosition.includes('cf') || 
+                          playerPosition.includes('lw') || 
                           playerPosition.includes('rw') ||
                           playerPosition.includes('attacker') ||
                           playerPosition.includes('attack') ||
@@ -362,11 +362,11 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
         console.log(`🔍 [MyKeyPlayer] Is attacker: ${isAttacker}`);
         return isAttacker;
       } else if (targetPosition === 'midfielder') {
-        const isMidfielder = playerPosition.includes('midfield') ||
-                           playerPosition.includes('cm') ||
-                           playerPosition.includes('am') ||
-                           playerPosition.includes('dm') ||
-                           playerPosition.includes('cam') ||
+        const isMidfielder = playerPosition.includes('midfield') || 
+                           playerPosition.includes('cm') || 
+                           playerPosition.includes('am') || 
+                           playerPosition.includes('dm') || 
+                           playerPosition.includes('cam') || 
                            playerPosition.includes('cdm') ||
                            playerPosition.includes('midfielder') ||
                            playerPosition.includes('mid') ||
@@ -382,11 +382,11 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
         console.log(`🔍 [MyKeyPlayer] Is midfielder: ${isMidfielder}`);
         return isMidfielder;
       } else if (targetPosition === 'defender') {
-        const isDefender = playerPosition.includes('defender') ||
-                         playerPosition.includes('back') ||
-                         playerPosition.includes('cb') ||
-                         playerPosition.includes('lb') ||
-                         playerPosition.includes('rb') ||
+        const isDefender = playerPosition.includes('defender') || 
+                         playerPosition.includes('back') || 
+                         playerPosition.includes('cb') || 
+                         playerPosition.includes('lb') || 
+                         playerPosition.includes('rb') || 
                          playerPosition.includes('wb') ||
                          playerPosition.includes('defence') ||
                          playerPosition.includes('def') ||
@@ -405,8 +405,8 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
       return false;
     });
 
-    console.log(`🔍 [MyKeyPlayer] Filtered ${filtered.length} players for position ${position}:`, filtered.map(p => ({
-      name: p.player.name,
+    console.log(`🔍 [MyKeyPlayer] Filtered ${filtered.length} players for position ${position}:`, filtered.map(p => ({ 
+      name: p.player.name, 
       position: p.statistics[0]?.games?.position,
       goals: p.statistics[0]?.goals?.total,
       assists: p.statistics[0]?.goals?.assists
@@ -517,7 +517,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {String(topPlayers[0]?.player?.name || "Unknown Player")}
+                  {topPlayers[0]?.player?.name || "Unknown Player"}
                 </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[0]?.statistics[0]?.games?.position || 'Unknown'}
@@ -586,7 +586,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {String(topPlayers[1]?.player?.name || "Unknown Player")}
+                  {topPlayers[1]?.player?.name || "Unknown Player"}
                 </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[1]?.statistics[0]?.games?.position || 'Unknown'}
@@ -605,7 +605,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {String(topPlayers[0]?.player?.name || "Unknown Player")}
+                  {topPlayers[0]?.player?.name || "Unknown Player"}
                 </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[0]?.statistics[0]?.games?.position || 'Unknown'}
