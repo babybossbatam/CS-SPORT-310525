@@ -15,10 +15,12 @@ export default defineConfig({
       : []),
   ],
   optimizeDeps: {
+    include: ['react', 'react-dom'],
     exclude: [
-      'lucide-react',
-      '@replit/vite-plugin-runtime-error-modal',
-      '@replit/vite-plugin-cartographer'
+      'chunk-S2ZUYA2N',
+      'chunk-B5ZPYGAZ',
+      'chunk-WIIJQEXM',
+      'chunk-5AJU3CG7'
     ],
   },
   resolve: {
