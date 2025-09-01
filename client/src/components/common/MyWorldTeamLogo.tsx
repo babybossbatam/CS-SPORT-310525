@@ -250,18 +250,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       });
     }
 
-    // Debug logging for CAFA Nations Cup
-    if (leagueName.includes("cafa")) {
-      console.log("🏆 [MyWorldTeamLogo] CAFA Nations Cup Detection:", {
-        teamName,
-        leagueName,
-        isCafaNationsCup,
-        isActualNationalTeam,
-        isYouthTeam,
-        shouldUseCircularFlag: result
-      });
-    }
-
     // Use circular flag for national teams in international competitions
     // BUT: Force club teams to ALWAYS use club logos regardless of league context
     const result = !isStandingsContext &&
@@ -283,7 +271,17 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       timestamp: now
     });
 
-
+    // Debug logging for CAFA Nations Cup
+    if (leagueName.includes("cafa")) {
+      console.log("🏆 [MyWorldTeamLogo] CAFA Nations Cup Detection:", {
+        teamName,
+        leagueName,
+        isCafaNationsCup,
+        isActualNationalTeam,
+        isYouthTeam,
+        shouldUseCircularFlag: result
+      });
+    }
 
     // Debug logging for specific club youth teams
     if (teamName?.includes("Valencia U20") || teamName?.includes("Alboraya U20")) {
