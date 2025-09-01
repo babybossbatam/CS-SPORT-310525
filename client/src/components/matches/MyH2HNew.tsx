@@ -280,7 +280,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                 title={match?.teams?.home?.name}
               >
                 <span className="text-center">
-                  {typeof match?.teams?.home?.name === 'string' ? match.teams.home.name : "Home Team"}
+                  {String(match?.teams?.home?.name || "Home Team")}
                 </span>
               </div>
             </div>
@@ -320,7 +320,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                 title={match?.teams?.away?.name}
               >
                 <span className="text-center">
-                  {typeof match?.teams?.away?.name === 'string' ? match.teams.away.name : "Away Team"}
+                  {String(match?.teams?.away?.name || "Away Team")}
                 </span>
               </div>
             </div>
@@ -544,7 +544,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                       {/* Home Team */}
                       <div className="flex items-center flex-1 min-w-0">
                         <span className="mobile-text-xs md:text-sm text-gray-800 font-medium truncate">
-                          {typeof homeTeamInMatch?.name === 'string' ? homeTeamInMatch.name : "Home Team"}
+                          {String(homeTeamInMatch?.name || "Home Team")}
                         </span>
                       </div>
 
@@ -571,7 +571,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                       {/* Away Team */}
                       <div className="flex items-center justify-end flex-1 min-w-0">
                         <span className="mobile-text-xs md:text-sm text-gray-800 font-medium truncate">
-                          {typeof awayTeamInMatch?.name === 'string' ? awayTeamInMatch.name : "Away Team"}
+                          {String(awayTeamInMatch?.name || "Away Team")}
                         </span>
                       </div>
                     </div>

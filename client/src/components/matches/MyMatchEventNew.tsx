@@ -1049,7 +1049,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           />
                         </div>
                         <span className="penalty-player-name">
-                          {typeof round.homePenalty.event.player?.name === 'string' ? round.homePenalty.event.player.name : "Unknown Player"}
+                          {String(round.homePenalty.event.player?.name || "Unknown Player")}
                         </span>
                       </div>
                       <div className="penalty-home-icon">
@@ -1085,7 +1085,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           />
                         </div>
                         <span className="penalty-player-name">
-                          {typeof round.awayPenalty.event.player?.name === 'string' ? round.awayPenalty.event.player.name : "Unknown Player"}
+                          {String(round.awayPenalty.event.player?.name || "Unknown Player")}
                         </span>
                       </div>
                       <div className="penalty-home-icon">
@@ -1139,7 +1139,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       </div>
                       <div className="penalty-away-player-info">
                         <span className="penalty-player-name">
-                          {typeof round.awayPenalty.event.player?.name === 'string' ? round.awayPenalty.event.player.name : "Unknown Player"}
+                          {String(round.awayPenalty.event.player?.name || "Unknown Player")}
                         </span>
                         <div className="penalty-player-avatar">
                           <MyAvatarInfo
@@ -1175,7 +1175,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       </div>
                       <div className="penalty-away-player-info">
                         <span className="penalty-player-name">
-                          {typeof round.homePenalty.event.player?.name === 'string' ? round.homePenalty.event.player.name : "Unknown Player"}
+                          {String(round.homePenalty.event.player?.name || "Unknown Player")}
                         </span>
                         <div className="penalty-player-avatar">
                           <MyAvatarInfo

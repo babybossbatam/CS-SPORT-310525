@@ -517,7 +517,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {typeof topPlayers[0]?.player?.name === 'string' ? topPlayers[0].player.name : "Unknown Player"}
+                  {String(topPlayers[0]?.player?.name || "Unknown Player")}
                 </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[0]?.statistics[0]?.games?.position || 'Unknown'}
@@ -586,7 +586,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {typeof topPlayers[1]?.player?.name === 'string' ? topPlayers[1].player.name : "Unknown Player"}
+                  {String(topPlayers[1]?.player?.name || "Unknown Player")}
                 </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[1]?.statistics[0]?.games?.position || 'Unknown'}
@@ -605,7 +605,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {typeof topPlayers[0]?.player?.name === 'string' ? topPlayers[0].player.name : "Unknown Player"}
+                  {String(topPlayers[0]?.player?.name || "Unknown Player")}
                 </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[0]?.statistics[0]?.games?.position || 'Unknown'}
