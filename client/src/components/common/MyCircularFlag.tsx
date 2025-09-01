@@ -149,7 +149,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     India: "in",
     Iran: "ir",
     Jordan: "jo",
-    Kyrgyzstan: "kg",
     Lebanon: "lb",
     Latvia: "lv",
     Lithuania: "lt",
