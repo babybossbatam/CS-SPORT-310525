@@ -20,7 +20,29 @@ interface MyMatchTabCardProps {
 }
 
 const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
-  if (!match) return null;
+  // Enhanced validation to prevent object rendering issues
+  if (!match || typeof match !== 'object') {
+    console.warn('⚠️ [MyMatchTabCard] Invalid match data:', match);
+    return (
+      <div className="text-center text-gray-500 p-4">
+        <p>No valid match data available</p>
+      </div>
+    );
+  }
+
+  // Ensure required match properties exist
+  if (!match.fixture?.id || !match.teams?.home || !match.teams?.away) {
+    console.warn('⚠️ [MyMatchTabCard] Missing required match properties:', {
+      fixtureId: match.fixture?.id,
+      homeTeam: match.teams?.home,
+      awayTeam: match.teams?.away
+    });
+    return (
+      <div className="text-center text-gray-500 p-4">
+        <p>Incomplete match data</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -28,9 +50,9 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
       <div className="space-y-2">
 
         <MatchPrediction 
-          homeTeam={match.teams?.home?.name || "Unknown Team"}
-          awayTeam={match.teams?.away?.name || "Unknown Team"}
-          fixtureId={match.fixture?.id?.toString()}
+          homeTeam={String(match.teams?.home?.name || "Unknown Team")}
+          awayTeam={String(match.teams?.away?.name || "Unknown Team")}
+          fixtureId={String(match.fixture?.id || "")}
         />
       </div>
 
@@ -92,7 +114,7 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
             {finalIsLive && (
               <div className="space-y-2">
                 <MyLiveAction 
-                  matchId={match.fixture?.id?.toString()}
+                  matchId={String(match.fixture?.id || "")}
                   homeTeam={String(match.teams?.home?.name || "Unknown Team")}
                   awayTeam={String(match.teams?.away?.name || "Unknown Team")}
                   status={String(match.fixture?.status?.short || "")}
@@ -109,7 +131,7 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
       <div className="space-y-2">
 
         <MyMatchEventNew 
-          fixtureId={match.fixture?.id?.toString()}
+          fixtureId={String(match.fixture?.id || "")}
           homeTeam={String(match.teams?.home?.name || "Unknown Team")}
           awayTeam={String(match.teams?.away?.name || "Unknown Team")}
           matchData={match}
@@ -124,7 +146,7 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
 
         <MyShotmap 
           match={match}
-          fixtureId={match.fixture?.id?.toString()}
+          fixtureId={String(match.fixture?.id || "")}
           homeTeam={String(match.teams?.home?.name || "Unknown Team")}
           awayTeam={String(match.teams?.away?.name || "Unknown Team")}
         />
@@ -160,7 +182,7 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
       <div className="space-y-2">
         <MyKeyPlayer 
           match={match}
-          fixtureId={match.fixture?.id?.toString()}
+          fixtureId={String(match.fixture?.id || "")}
           homeTeam={String(match.teams?.home?.name || "Unknown Team")}
           awayTeam={String(match.teams?.away?.name || "Unknown Team")}
         />
@@ -177,7 +199,14 @@ const MyStatsCard = ({ match }: { match: any }) => {
   const [error, setError] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  if (!match) return null;
+  if (!match || typeof match !== 'object') {
+    console.warn('⚠️ [MyStatsCard] Invalid match data:', match);
+    return (
+      <div className="text-center text-gray-500">
+        <p>No valid match data available</p>
+      </div>
+    );
+  }
 
   const isUpcoming = match.fixture?.status?.short === "NS";
   const homeTeam = match.teams?.home;
@@ -194,8 +223,8 @@ const MyStatsCard = ({ match }: { match: any }) => {
         setError(null);
 
         const [homeResponse, awayResponse] = await Promise.all([
-          fetch(`/api/fixtures/${fixtureId}/statistics?team=${homeTeam?.id?.toString()}`),
-          fetch(`/api/fixtures/${fixtureId}/statistics?team=${awayTeam?.id?.toString()}`)
+          fetch(`/api/fixtures/${fixtureId}/statistics?team=${String(homeTeam?.id || '')}`),
+          fetch(`/api/fixtures/${fixtureId}/statistics?team=${String(awayTeam?.id || '')}`)
         ]);
 
         if (!homeResponse.ok || !awayResponse.ok) {
