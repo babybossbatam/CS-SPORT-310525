@@ -1,12 +1,22 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
-import { isNationalTeam, getTeamLogoSources, createTeamLogoErrorHandler } from '../../lib/teamLogoSources';
-import { enhancedLogoManager } from '../../lib/enhancedLogoManager';
-import { getBestTeamLogoUrl, createTeamLogoErrorHandler as createBetterErrorHandler } from '../../lib/teamLogoUtils';
-import MyCircularFlag from './MyCircularFlag';
-import LazyImage from './LazyImage';
+import React, { useState, useRef, useCallback, useMemo } from "react";
+import {
+  isNationalTeam,
+  getTeamLogoSources,
+  createTeamLogoErrorHandler,
+} from "../../lib/teamLogoSources";
+import { enhancedLogoManager } from "../../lib/enhancedLogoManager";
+import {
+  getBestTeamLogoUrl,
+  createTeamLogoErrorHandler as createBetterErrorHandler,
+} from "../../lib/teamLogoUtils";
+import MyCircularFlag from "./MyCircularFlag";
+import LazyImage from "./LazyImage";
 
 // Global in-memory cache for immediate logo sharing between components
-const globalLogoCache = new Map<string, { url: string; timestamp: number; verified: boolean }>();
+const globalLogoCache = new Map<
+  string,
+  { url: string; timestamp: number; verified: boolean }
+>();
 
 // Cache duration: 30 minutes for active session sharing
 const GLOBAL_CACHE_DURATION = 30 * 60 * 1000;
@@ -34,11 +44,17 @@ interface MyWorldTeamLogoProps {
 }
 
 // Cache for computed shouldUseCircularFlag results
-const circularFlagCache = new Map<string, { result: boolean; timestamp: number }>();
+const circularFlagCache = new Map<
+  string,
+  { result: boolean; timestamp: number }
+>();
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 // Generate cache key for shouldUseCircularFlag computation
-function generateCacheKey(teamName: string, leagueContext?: { name: string; country: string }): string {
+function generateCacheKey(
+  teamName: string,
+  leagueContext?: { name: string; country: string },
+): string {
   const leagueName = leagueContext?.name?.toLowerCase() || "";
   const leagueCountry = leagueContext?.country || "";
   return `${teamName}_${leagueName}_${leagueCountry}`;
@@ -56,9 +72,11 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   nextMatchInfo,
   showNextMatchOverlay = false,
   onLoad, // Added for potential use
-  priority = 'low',
+  priority = "low",
 }) => {
-  const [imageSrc, setImageSrc] = useState<string>(teamLogo || "/assets/fallback.png");
+  const [imageSrc, setImageSrc] = useState<string>(
+    teamLogo || "/assets/fallback.png",
+  );
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasError, setHasError] = useState<boolean>(false);
 
@@ -70,20 +88,28 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     const cached = circularFlagCache.get(cacheKey);
     const now = Date.now();
 
-    if (cached && (now - cached.timestamp) < CACHE_DURATION) {
-      console.log(`💾 [MyWorldTeamLogo] Cache hit for shouldUseCircularFlag: ${teamName}`);
+    if (cached && now - cached.timestamp < CACHE_DURATION) {
+      console.log(
+        `💾 [MyWorldTeamLogo] Cache hit for shouldUseCircularFlag: ${teamName}`,
+      );
       return cached.result;
     }
 
     // Compute the result if not cached or expired
-    console.log(`🔄 [MyWorldTeamLogo] Computing shouldUseCircularFlag for: ${teamName}`);
+    console.log(
+      `🔄 [MyWorldTeamLogo] Computing shouldUseCircularFlag for: ${teamName}`,
+    );
 
-    const isActualNationalTeam = isNationalTeam({ name: teamName }, leagueContext);
-    const isYouthTeam = teamName?.includes("U17") ||
-                       teamName?.includes("U19") ||
-                       teamName?.includes("U20") ||
-                       teamName?.includes("U21") ||
-                       teamName?.includes("U23");
+    const isActualNationalTeam = isNationalTeam(
+      { name: teamName },
+      leagueContext,
+    );
+    const isYouthTeam =
+      teamName?.includes("U17") ||
+      teamName?.includes("U19") ||
+      teamName?.includes("U20") ||
+      teamName?.includes("U21") ||
+      teamName?.includes("U23");
 
     // Special handling for COTIF Tournament - detect club vs national teams
     const leagueName = leagueContext?.name?.toLowerCase() || "";
@@ -91,7 +117,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
     // For COTIF Tournament, we need to distinguish between club and national teams
     if (isCOTIFTournament) {
-      console.log(`🏆 [MyWorldTeamLogo] COTIF Tournament detected for team: ${teamName}`);
+      console.log(
+        `🏆 [MyWorldTeamLogo] COTIF Tournament detected for team: ${teamName}`,
+      );
 
       // Known club teams in COTIF (Valencia, Alboraya, etc.)
       const isKnownClubTeam =
@@ -105,7 +133,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         teamName.toLowerCase().includes("club ");
 
       if (isKnownClubTeam) {
-        console.log(`🏟️ [MyWorldTeamLogo] COTIF: ${teamName} identified as club team - using club logo`);
+        console.log(
+          `🏟️ [MyWorldTeamLogo] COTIF: ${teamName} identified as club team - using club logo`,
+        );
         const result = false; // Use club logo format
         circularFlagCache.set(cacheKey, { result, timestamp: now });
         return result;
@@ -113,7 +143,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
       // For youth teams in COTIF that are national teams
       if (isYouthTeam && isActualNationalTeam) {
-        console.log(`🇺🇳 [MyWorldTeamLogo] COTIF: ${teamName} identified as national youth team - using circular flag`);
+        console.log(
+          `🇺🇳 [MyWorldTeamLogo] COTIF: ${teamName} identified as national youth team - using circular flag`,
+        );
         const result = true; // Use circular flag format
         circularFlagCache.set(cacheKey, { result, timestamp: now });
         return result;
@@ -121,7 +153,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
       // Default for COTIF: if it's a recognizable country name, use circular flag
       if (isActualNationalTeam) {
-        console.log(`🌍 [MyWorldTeamLogo] COTIF: ${teamName} identified as national team - using circular flag`);
+        console.log(
+          `🌍 [MyWorldTeamLogo] COTIF: ${teamName} identified as national team - using circular flag`,
+        );
         const result = true;
         circularFlagCache.set(cacheKey, { result, timestamp: now });
         return result;
@@ -131,43 +165,58 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     const leagueCountry = leagueContext?.country?.toLowerCase() || "";
 
     // Check if this is FIFA Club World Cup (club competition, not national teams)
-    const isFifaClubWorldCup = leagueName.includes("fifa club world cup") ||
-                              leagueName.includes("club world cup") ||
-                              leagueName.includes("fifa club wc");
+    const isFifaClubWorldCup =
+      leagueName.includes("fifa club world cup") ||
+      leagueName.includes("club world cup") ||
+      leagueName.includes("fifa club wc");
 
     // More specific friendlies detection
-    const isFriendliesClub = leagueName.includes("friendlies clubs") ||
-                            leagueName.includes("friendlies club") ||
-                            leagueName.includes("club friendlies");
+    const isFriendliesClub =
+      leagueName.includes("friendlies clubs") ||
+      leagueName.includes("friendlies club") ||
+      leagueName.includes("club friendlies");
 
     // Friendlies International (league ID 10) should be treated as national team competition
-    const isFriendliesInternational = leagueName.includes("friendlies") &&
-                                     (leagueCountry === "world" || leagueCountry === "international");
+    const isFriendliesInternational =
+      leagueName === "friendlies international" ||
+      leagueName === "international friendlies" ||
+      (leagueName.includes("friendlies") &&
+        leagueName.includes("international")) ||
+      (leagueName === "friendlies" && !isFriendliesClub);
 
-    const isUefaEuropaLeague = leagueName.includes("uefa europa league") ||
-                              leagueName.includes("europa league");
-    const isUefaConferenceLeague = leagueName.includes("uefa europa conference league") ||
-                                  leagueName.includes("europa conference league");
-    const isUefaChampionsLeague = leagueName.includes("uefa champions league") ||
-                                 leagueName.includes("champions league");
-    const isConmebolSudamericana = leagueName.includes("conmebol sudamericana") ||
-                                  leagueName.includes("copa sudamericana");
+    const isUefaEuropaLeague =
+      leagueName.includes("uefa europa league") ||
+      leagueName.includes("europa league");
+    const isUefaConferenceLeague =
+      leagueName.includes("uefa europa conference league") ||
+      leagueName.includes("europa conference league");
+    const isUefaChampionsLeague =
+      leagueName.includes("uefa champions league") ||
+      leagueName.includes("champions league");
+    const isConmebolSudamericana =
+      leagueName.includes("conmebol sudamericana") ||
+      leagueName.includes("copa sudamericana");
 
-    const isUefaNationsLeague = leagueName.includes("uefa nations league") ||
-                               leagueName.includes("nations league");
+    const isUefaNationsLeague =
+      leagueName.includes("uefa nations league") ||
+      leagueName.includes("nations league");
 
     // World Cup qualifications and tournaments with national teams
-    const isWorldCupQualification = leagueName.includes("world cup") &&
-                                   (leagueName.includes("qualification") ||
-                                    leagueName.includes("qualifier") ||
-                                    leagueName.includes("women"));
+    const isWorldCupQualification =
+      leagueName.includes("world cup") &&
+      (leagueName.includes("qualification") ||
+        leagueName.includes("qualifier") ||
+        leagueName.includes("women"));
 
     // AFC competitions with national teams
-    const isAfcU20AsianCup = leagueName.includes("afc u20 asian cup") ||
-                            leagueName.includes("afc u-20 asian cup") ||
-                            leagueName.includes("asian cup u20") ||
-                            leagueName.includes("asian cup u-20");
-    const isCafaNationsCup = leagueName.includes("cafa nations cup") || leagueName.includes("cafa nations");
+    const isAfcU20AsianCup =
+      leagueName.includes("afc u20 asian cup") ||
+      leagueName.includes("afc u-20 asian cup") ||
+      leagueName.includes("asian cup u20") ||
+      leagueName.includes("asian cup u-20");
+    const isCafaNationsCup =
+      leagueName.includes("cafa nations cup") ||
+      leagueName.includes("cafa nations");
 
     // Debug logging for Friendlies International
     if (leagueName.includes("friendlies")) {
@@ -177,59 +226,63 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         isFriendliesInternational,
         isFriendliesClub,
         isActualNationalTeam,
-        isYouthTeam
+        isYouthTeam,
       });
     }
 
     // Check if this is being used in a standings context (club competition)
-    const isStandingsContext = leagueName.includes("standing") ||
-                               leagueName.includes("table") ||
-                               // Popular domestic leagues that should always use club logos
-                               leagueName.includes("premier league") ||
-                               leagueName.includes("la liga") ||
-                               leagueName.includes("serie a") ||
-                               leagueName.includes("bundesliga") ||
-                               leagueName.includes("ligue 1") ||
-                               leagueName.includes("primeira liga") ||
-                               leagueName.includes("eredivisie");
+    const isStandingsContext =
+      leagueName.includes("standing") ||
+      leagueName.includes("table") ||
+      // Popular domestic leagues that should always use club logos
+      leagueName.includes("premier league") ||
+      leagueName.includes("la liga") ||
+      leagueName.includes("serie a") ||
+      leagueName.includes("bundesliga") ||
+      leagueName.includes("ligue 1") ||
+      leagueName.includes("primeira liga") ||
+      leagueName.includes("eredivisie");
 
     // Force specific club youth teams to ALWAYS use club logos
-    const isClubYouthTeam = (teamName?.includes("Valencia U20") && teamId === 532) ||
-                           (teamName?.includes("Alboraya U20") && teamId === 19922);
+    const isClubYouthTeam =
+      (teamName?.includes("Valencia U20") && teamId === 532) ||
+      (teamName?.includes("Alboraya U20") && teamId === 19922);
 
     // Additional check for known club teams that should NEVER use circular flags
-    const isKnownClubTeam = teamName && (
-      teamName.toLowerCase().includes("fc") ||
-      teamName.toLowerCase().includes("cf") ||
-      teamName.toLowerCase().includes("united") ||
-      teamName.toLowerCase().includes("city") ||
-      teamName.toLowerCase().includes("athletic") ||
-      teamName.toLowerCase().includes("real madrid") ||
-      teamName.toLowerCase().includes("barcelona") ||
-      teamName.toLowerCase().includes("valencia") ||
-      teamName.toLowerCase().includes("alboraya") ||
-      teamName.toLowerCase().includes("club") ||
-      teamName.toLowerCase().includes("ud ") ||
-      teamName.toLowerCase().includes("arsenal") ||
-      teamName.toLowerCase().includes("liverpool") ||
-      teamName.toLowerCase().includes("chelsea") ||
-      teamName.toLowerCase().includes("manchester") ||
-      teamName.toLowerCase().includes("tottenham") ||
-      teamName.toLowerCase().includes("bayern") ||
-      teamName.toLowerCase().includes("dortmund") ||
-      teamName.toLowerCase().includes("juventus") ||
-      teamName.toLowerCase().includes("milan") ||
-      teamName.toLowerCase().includes("inter") ||
-      teamName.toLowerCase().includes("napoli") ||
-      teamName.toLowerCase().includes("roma") ||
-      teamName.toLowerCase().includes("psg") ||
-      teamName.toLowerCase().includes("olympique") ||
-      teamName.toLowerCase().includes("atletico")
-    );
+    const isKnownClubTeam =
+      teamName &&
+      (teamName.toLowerCase().includes("fc") ||
+        teamName.toLowerCase().includes("cf") ||
+        teamName.toLowerCase().includes("united") ||
+        teamName.toLowerCase().includes("city") ||
+        teamName.toLowerCase().includes("athletic") ||
+        teamName.toLowerCase().includes("real madrid") ||
+        teamName.toLowerCase().includes("barcelona") ||
+        teamName.toLowerCase().includes("valencia") ||
+        teamName.toLowerCase().includes("alboraya") ||
+        teamName.toLowerCase().includes("club") ||
+        teamName.toLowerCase().includes("ud ") ||
+        teamName.toLowerCase().includes("arsenal") ||
+        teamName.toLowerCase().includes("liverpool") ||
+        teamName.toLowerCase().includes("chelsea") ||
+        teamName.toLowerCase().includes("manchester") ||
+        teamName.toLowerCase().includes("tottenham") ||
+        teamName.toLowerCase().includes("bayern") ||
+        teamName.toLowerCase().includes("dortmund") ||
+        teamName.toLowerCase().includes("juventus") ||
+        teamName.toLowerCase().includes("milan") ||
+        teamName.toLowerCase().includes("inter") ||
+        teamName.toLowerCase().includes("napoli") ||
+        teamName.toLowerCase().includes("roma") ||
+        teamName.toLowerCase().includes("psg") ||
+        teamName.toLowerCase().includes("olympique") ||
+        teamName.toLowerCase().includes("atletico"));
 
     // Enhanced national team detection for youth and women's teams
-    const isWomensNationalTeam = teamName?.endsWith(" W") && isActualNationalTeam && !isKnownClubTeam;
-    const isNationalYouthTeam = isYouthTeam && isActualNationalTeam && !isKnownClubTeam;
+    const isWomensNationalTeam =
+      teamName?.endsWith(" W") && isActualNationalTeam && !isKnownClubTeam;
+    const isNationalYouthTeam =
+      isYouthTeam && isActualNationalTeam && !isKnownClubTeam;
 
     // Debug logging for AFC competitions
     if (leagueName.includes("afc") || leagueName.includes("asian cup")) {
@@ -239,52 +292,71 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         isAfcU20AsianCup,
         isActualNationalTeam,
         isYouthTeam,
-        isWomensNationalTeam
+        isWomensNationalTeam,
       });
     }
 
     // Use circular flag for national teams in international competitions
     // BUT: Force club teams to ALWAYS use club logos regardless of league context
-    const result = !isStandingsContext &&
-                   !isClubYouthTeam &&
-                   !isKnownClubTeam &&
-                   isActualNationalTeam &&
-                   (isNationalYouthTeam || isWomensNationalTeam || (!isYouthTeam && !teamName?.endsWith(" W"))) && // Allow national youth and women's teams
-                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || isWorldCupQualification || isCafaNationsCup) &&
-                   !isFifaClubWorldCup &&
-                   !isFriendliesClub &&
-                   !isUefaEuropaLeague &&
-                   !isUefaConferenceLeague &&
-                   !isUefaChampionsLeague &&
-                   !isConmebolSudamericana;
+    const result =
+      !isStandingsContext &&
+      !isClubYouthTeam &&
+      !isKnownClubTeam &&
+      isActualNationalTeam &&
+      (isNationalYouthTeam ||
+        isWomensNationalTeam ||
+        (!isYouthTeam && !teamName?.endsWith(" W"))) && // Allow national youth and women's teams
+      (isFriendliesInternational ||
+        isUefaNationsLeague ||
+        isAfcU20AsianCup ||
+        isWorldCupQualification ||
+        isCafaNationsCup) &&
+      !isFifaClubWorldCup &&
+      !isFriendliesClub &&
+      !isUefaEuropaLeague &&
+      !isUefaConferenceLeague &&
+      !isUefaChampionsLeague &&
+      !isConmebolSudamericana;
 
     // Cache the result
     circularFlagCache.set(cacheKey, {
       result,
-      timestamp: now
+      timestamp: now,
     });
 
-
-
     // Debug logging for specific club youth teams
-    if (teamName?.includes("Valencia U20") || teamName?.includes("Alboraya U20")) {
-      console.log(`🏟️ [MyWorldTeamLogo] Club Youth Team Detection for ${teamName}:`, {
-        teamId: teamId,
-        isClubYouthTeam: (teamName?.includes("Valencia U20") && teamId === 532) ||
-                        (teamName?.includes("Alboraya U20") && teamId === 19922),
-        shouldUseCircularFlag: result,
-        leagueName: leagueName
-      });
+    if (
+      teamName?.includes("Valencia U20") ||
+      teamName?.includes("Alboraya U20")
+    ) {
+      console.log(
+        `🏟️ [MyWorldTeamLogo] Club Youth Team Detection for ${teamName}:`,
+        {
+          teamId: teamId,
+          isClubYouthTeam:
+            (teamName?.includes("Valencia U20") && teamId === 532) ||
+            (teamName?.includes("Alboraya U20") && teamId === 19922),
+          shouldUseCircularFlag: result,
+          leagueName: leagueName,
+        },
+      );
     }
 
-    console.log(`💾 [MyWorldTeamLogo] Cached shouldUseCircularFlag result for ${teamName}: ${result}`);
+    console.log(
+      `💾 [MyWorldTeamLogo] Cached shouldUseCircularFlag result for ${teamName}: ${result}`,
+    );
     return result;
   }, [teamName, leagueContext]);
 
   // Memoized logo URL resolution using enhancedLogoManager
   const logoUrl = useMemo(() => {
     // Immediately return the locally managed imageSrc if it's already set and valid
-    if (!isLoading && !hasError && imageSrc && !imageSrc.includes("/assets/fallback.png")) {
+    if (
+      !isLoading &&
+      !hasError &&
+      imageSrc &&
+      !imageSrc.includes("/assets/fallback.png")
+    ) {
       return Promise.resolve(imageSrc);
     }
 
@@ -294,7 +366,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     }
 
     const fetchLogo = async () => {
-      console.log(`🎯 [MyWorldTeamLogo] Fetching logo for team: ${teamName} (ID: ${teamId})`);
+      console.log(
+        `🎯 [MyWorldTeamLogo] Fetching logo for team: ${teamName} (ID: ${teamId})`,
+      );
 
       // Check global in-memory cache first for immediate sharing
       const globalCacheKey = `${teamId}_${teamName}`;
@@ -303,7 +377,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       if (globalCached) {
         const age = Date.now() - globalCached.timestamp;
         if (age < GLOBAL_CACHE_DURATION && globalCached.verified) {
-          console.log(`🚀 [MyWorldTeamLogo] Using global cache for ${teamName}: ${globalCached.url}`);
+          console.log(
+            `🚀 [MyWorldTeamLogo] Using global cache for ${teamName}: ${globalCached.url}`,
+          );
           return globalCached.url;
         } else if (age >= GLOBAL_CACHE_DURATION) {
           // Remove expired entries
@@ -312,19 +388,22 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       }
 
       try {
-        const logoResponse = await enhancedLogoManager.getTeamLogo('MyWorldTeamLogo', {
-          type: 'team',
-          shape: shouldUseCircularFlag ? 'circular' : 'normal',
-          teamId: teamId,
-          teamName: teamName,
-          fallbackUrl: teamLogo || "/assets/fallback.png"
-        });
+        const logoResponse = await enhancedLogoManager.getTeamLogo(
+          "MyWorldTeamLogo",
+          {
+            type: "team",
+            shape: shouldUseCircularFlag ? "circular" : "normal",
+            teamId: teamId,
+            teamName: teamName,
+            fallbackUrl: teamLogo || "/assets/fallback.png",
+          },
+        );
 
         console.log(`✅ [MyWorldTeamLogo] Logo resolved for ${teamName}:`, {
           url: logoResponse.url,
           cached: logoResponse.cached,
           fallbackUsed: logoResponse.fallbackUsed,
-          loadTime: logoResponse.loadTime + 'ms'
+          loadTime: logoResponse.loadTime + "ms",
         });
 
         // Cache in global memory for immediate sharing between components
@@ -332,24 +411,31 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
           globalLogoCache.set(globalCacheKey, {
             url: logoResponse.url,
             timestamp: Date.now(),
-            verified: true // Assuming enhancedLogoManager returns a valid URL
+            verified: true, // Assuming enhancedLogoManager returns a valid URL
           });
-          console.log(`💾 [MyWorldTeamLogo] Cached ${teamName} logo in global cache: ${logoResponse.url}`);
+          console.log(
+            `💾 [MyWorldTeamLogo] Cached ${teamName} logo in global cache: ${logoResponse.url}`,
+          );
         }
 
         return logoResponse.url;
       } catch (error) {
-        console.warn(`⚠️ [MyWorldTeamLogo] Enhanced logo manager failed for ${teamName}:`, error);
+        console.warn(
+          `⚠️ [MyWorldTeamLogo] Enhanced logo manager failed for ${teamName}:`,
+          error,
+        );
         // Fallback to getBestTeamLogoUrl if enhancedLogoManager fails
         const fallbackUrl = getBestTeamLogoUrl(teamId, teamName, 64);
         // Cache the fallback URL as well if it's valid
         if (fallbackUrl) {
-            globalLogoCache.set(globalCacheKey, {
-              url: fallbackUrl,
-              timestamp: Date.now(),
-              verified: false // Mark as not fully verified if it's a fallback
-            });
-            console.log(`💾 [MyWorldTeamLogo] Cached fallback for ${teamName} in global cache: ${fallbackUrl}`);
+          globalLogoCache.set(globalCacheKey, {
+            url: fallbackUrl,
+            timestamp: Date.now(),
+            verified: false, // Mark as not fully verified if it's a fallback
+          });
+          console.log(
+            `💾 [MyWorldTeamLogo] Cached fallback for ${teamName} in global cache: ${fallbackUrl}`,
+          );
         }
         return fallbackUrl;
       }
@@ -365,7 +451,15 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       // If there was an error, return fallback
       return Promise.resolve(teamLogo || "/assets/fallback.png");
     }
-  }, [teamId, teamName, teamLogo, shouldUseCircularFlag, isLoading, hasError, imageSrc]);
+  }, [
+    teamId,
+    teamName,
+    teamLogo,
+    shouldUseCircularFlag,
+    isLoading,
+    hasError,
+    imageSrc,
+  ]);
 
   // Effect to handle the asynchronous logo loading and update state
   React.useEffect(() => {
@@ -384,7 +478,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     }
 
     // Validate teamId type if provided
-    if (teamId && (typeof teamId !== 'number' && typeof teamId !== 'string')) {
+    if (teamId && typeof teamId !== "number" && typeof teamId !== "string") {
       console.warn(`⚠️ [MyWorldTeamLogo] Invalid teamId type:`, {
         teamId,
         type: typeof teamId,
@@ -394,7 +488,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     }
 
     // Validate teamName type if provided
-    if (teamName && typeof teamName !== 'string') {
+    if (teamName && typeof teamName !== "string") {
       console.warn(`⚠️ [MyWorldTeamLogo] Invalid teamName type:`, {
         teamName,
         type: typeof teamName,
@@ -419,7 +513,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     if (globalCached) {
       const age = Date.now() - globalCached.timestamp;
       if (age < GLOBAL_CACHE_DURATION && globalCached.verified) {
-        console.log(`🚀 [MyWorldTeamLogo] Using global cache for ${teamName}: ${globalCached.url}`);
+        console.log(
+          `🚀 [MyWorldTeamLogo] Using global cache for ${teamName}: ${globalCached.url}`,
+        );
         // Only update if the cached URL is different from current
         if (imageSrc !== globalCached.url) {
           setImageSrc(globalCached.url);
@@ -434,7 +530,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     }
 
     // Always load the logo URL, but don't set loading state if we have a valid URL
-    const shouldLoad = !imageSrc || imageSrc.includes("/assets/fallback.png") || hasError;
+    const shouldLoad =
+      !imageSrc || imageSrc.includes("/assets/fallback.png") || hasError;
 
     if (shouldLoad) {
       setIsLoading(true);
@@ -443,31 +540,35 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
     let isMounted = true; // Flag to prevent state update on unmounted component
 
-    logoUrl.then((url) => {
-      if (isMounted && url) {
-        // Only update if the URL is different and valid
-        if (url !== imageSrc && !url.includes("undefined")) {
-          setImageSrc(url);
-          setHasError(url.includes("/assets/fallback.png"));
-          setIsLoading(false);
-        } else if (shouldLoad) {
+    logoUrl
+      .then((url) => {
+        if (isMounted && url) {
+          // Only update if the URL is different and valid
+          if (url !== imageSrc && !url.includes("undefined")) {
+            setImageSrc(url);
+            setHasError(url.includes("/assets/fallback.png"));
+            setIsLoading(false);
+          } else if (shouldLoad) {
+            setIsLoading(false);
+          }
+        }
+      })
+      .catch((error) => {
+        console.error(
+          `❌ [MyWorldTeamLogo] Error setting image src for ${teamName}:`,
+          error,
+        );
+        if (isMounted) {
+          setImageSrc(teamLogo || "/assets/fallback.png");
+          setHasError(true);
           setIsLoading(false);
         }
-      }
-    }).catch((error) => {
-      console.error(`❌ [MyWorldTeamLogo] Error setting image src for ${teamName}:`, error);
-      if (isMounted) {
-        setImageSrc(teamLogo || "/assets/fallback.png");
-        setHasError(true);
-        setIsLoading(false);
-      }
-    });
+      });
 
     return () => {
       isMounted = false; // Cleanup flag
     };
   }, [teamId, teamName, teamLogo, shouldUseCircularFlag]); // Removed imageSrc from dependencies to prevent loops
-
 
   const handleLoad = () => {
     // Only update state if currently loading
@@ -499,100 +600,127 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       const existingCache = globalLogoCache.get(globalCacheKey);
 
       // Only update cache if URL is different or not verified
-      if (!existingCache || existingCache.url !== imageSrc || !existingCache.verified) {
+      if (
+        !existingCache ||
+        existingCache.url !== imageSrc ||
+        !existingCache.verified
+      ) {
         globalLogoCache.set(globalCacheKey, {
           url: imageSrc,
           timestamp: Date.now(),
-          verified: true
+          verified: true,
         });
-        console.log(`💾 [MyWorldTeamLogo] Cached ${teamName} logo in global cache: ${imageSrc}`);
+        console.log(
+          `💾 [MyWorldTeamLogo] Cached ${teamName} logo in global cache: ${imageSrc}`,
+        );
       }
     }
     onLoad?.(); // Call the onLoad prop if provided
   };
 
-    const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    // Safety check to prevent undefined target errors
-    if (!e || !e.target) {
-      console.warn('⚠️ [MyWorldTeamLogo] Image error event has no target');
+  const handleImageError = useCallback(
+    (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+      // Safety check to prevent undefined target errors
+      if (!e || !e.target) {
+        console.warn("⚠️ [MyWorldTeamLogo] Image error event has no target");
+        setHasError(true);
+        setIsLoading(false);
+        return;
+      }
+
+      const target = e.target as HTMLImageElement;
+
+      // Additional safety check for target properties
+      if (!target || typeof target.src !== "string") {
+        console.warn("⚠️ [MyWorldTeamLogo] Invalid image target");
+        setHasError(true);
+        setIsLoading(false);
+        return;
+      }
+
+      // Enhanced team context logging for debugging
+      console.log(`🚫 [MyWorldTeamLogo] Image error for team:`, {
+        teamName,
+        teamId,
+        currentSrc: target.src,
+        leagueContext,
+        component: "MyWorldTeamLogo",
+      });
+
+      const currentSrc = target.src;
+
+      // Check if current source is a player image and force fallback
+      if (
+        currentSrc.includes("/players/") ||
+        currentSrc.includes("Athletes/") ||
+        currentSrc.includes("player-")
+      ) {
+        console.warn(
+          `🚨 [MyWorldTeamLogo] Player image detected for team ${teamName}, using fallback`,
+        );
+        target.src = "/assets/matchdetaillogo/fallback.png";
+        setIsLoading(false);
+        return;
+      }
+
+      // Don't retry if already showing fallback
+      if (currentSrc.includes("/assets/fallback")) {
+        console.log(
+          `🚫 [MyWorldTeamLogo] Error on fallback image for ${teamName}, stopping retry.`,
+        );
+        setHasError(true); // Mark as error if fallback fails
+        setIsLoading(false);
+        return;
+      }
+
+      // Try different logo sources if teamId is available
+      if (teamId) {
+        // Prioritize the enhanced logo manager's fallback if available
+        if (
+          currentSrc.includes("/api/team-logo/") &&
+          !currentSrc.endsWith("?size=32")
+        ) {
+          target.src = `${currentSrc.split("?")[0]}?size=32`; // Try with a smaller size
+          console.log(
+            `🔄 [MyWorldTeamLogo] Retrying logo with smaller size for ${teamName}`,
+          );
+        } else if (!currentSrc.includes("/api/team-logo/")) {
+          // Fallback to a generic API endpoint if not already using one
+          target.src = `/api/team-logo/square/${teamId}?size=64`; // Use a default size
+          console.log(
+            `🔄 [MyWorldTeamLogo] Retrying logo with generic API for ${teamName}`,
+          );
+        } else {
+          // If all retries fail, set to fallback
+          target.src = "/assets/fallback.png";
+          console.log(`💥 [MyWorldTeamLogo] Final fallback for ${teamName}`);
+        }
+      } else if (teamName) {
+        // If no teamId but we have teamName, try to use provided teamLogo or fallback
+        const fallbackSrc = teamLogo || "/assets/fallback.png";
+        if (currentSrc !== fallbackSrc) {
+          target.src = fallbackSrc;
+          console.log(
+            `🔄 [MyWorldTeamLogo] Using teamLogo fallback for ${teamName}`,
+          );
+        } else {
+          target.src = "/assets/fallback.png";
+          console.log(
+            `💥 [MyWorldTeamLogo] Final fallback for ${teamName} (no teamId)`,
+          );
+        }
+      } else {
+        // If no teamId and no teamName, directly set to fallback
+        target.src = "/assets/fallback.png";
+        console.log(`💥 [MyWorldTeamLogo] Final fallback (no team context)`);
+      }
+
+      // Update state to reflect the error and stop loading if it's the final fallback
       setHasError(true);
       setIsLoading(false);
-      return;
-    }
-
-    const target = e.target as HTMLImageElement;
-
-    // Additional safety check for target properties
-    if (!target || typeof target.src !== 'string') {
-      console.warn('⚠️ [MyWorldTeamLogo] Invalid image target');
-      setHasError(true);
-      setIsLoading(false);
-      return;
-    }
-
-    // Enhanced team context logging for debugging
-    console.log(`🚫 [MyWorldTeamLogo] Image error for team:`, {
-      teamName,
-      teamId,
-      currentSrc: target.src,
-      leagueContext,
-      component: "MyWorldTeamLogo"
-    });
-
-    const currentSrc = target.src;
-
-    // Check if current source is a player image and force fallback
-    if (currentSrc.includes('/players/') || currentSrc.includes('Athletes/') || currentSrc.includes('player-')) {
-      console.warn(`🚨 [MyWorldTeamLogo] Player image detected for team ${teamName}, using fallback`);
-      target.src = '/assets/matchdetaillogo/fallback.png';
-      setIsLoading(false);
-      return;
-    }
-
-    // Don't retry if already showing fallback
-    if (currentSrc.includes('/assets/fallback')) {
-      console.log(`🚫 [MyWorldTeamLogo] Error on fallback image for ${teamName}, stopping retry.`);
-      setHasError(true); // Mark as error if fallback fails
-      setIsLoading(false);
-      return;
-    }
-
-    // Try different logo sources if teamId is available
-    if (teamId) {
-      // Prioritize the enhanced logo manager's fallback if available
-      if (currentSrc.includes('/api/team-logo/') && !currentSrc.endsWith('?size=32')) {
-          target.src = `${currentSrc.split('?')[0]}?size=32`; // Try with a smaller size
-          console.log(`🔄 [MyWorldTeamLogo] Retrying logo with smaller size for ${teamName}`);
-      } else if (!currentSrc.includes('/api/team-logo/')) {
-         // Fallback to a generic API endpoint if not already using one
-         target.src = `/api/team-logo/square/${teamId}?size=64`; // Use a default size
-         console.log(`🔄 [MyWorldTeamLogo] Retrying logo with generic API for ${teamName}`);
-      } else {
-        // If all retries fail, set to fallback
-        target.src = '/assets/fallback.png';
-        console.log(`💥 [MyWorldTeamLogo] Final fallback for ${teamName}`);
-      }
-    } else if (teamName) {
-      // If no teamId but we have teamName, try to use provided teamLogo or fallback
-      const fallbackSrc = teamLogo || '/assets/fallback.png';
-      if (currentSrc !== fallbackSrc) {
-        target.src = fallbackSrc;
-        console.log(`🔄 [MyWorldTeamLogo] Using teamLogo fallback for ${teamName}`);
-      } else {
-        target.src = '/assets/fallback.png';
-        console.log(`💥 [MyWorldTeamLogo] Final fallback for ${teamName} (no teamId)`);
-      }
-    } else {
-      // If no teamId and no teamName, directly set to fallback
-      target.src = '/assets/fallback.png';
-      console.log(`💥 [MyWorldTeamLogo] Final fallback (no team context)`);
-    }
-
-    // Update state to reflect the error and stop loading if it's the final fallback
-    setHasError(true);
-    setIsLoading(false);
-
-  }, [teamId, teamName, teamLogo, isLoading, hasError]); // Added missing dependencies
+    },
+    [teamId, teamName, teamLogo, isLoading, hasError],
+  ); // Added missing dependencies
 
   if (shouldUseCircularFlag) {
     return (
@@ -612,19 +740,19 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
   // Define styles for the container and image
   const containerStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     width: size,
     height: size,
   };
 
   const imageStyle = {
-    width: '100%',
-    height: '100%',
-    objectFit: 'contain' as const,
-    imageRendering: 'crisp-edges' as const,
-    filter: 'none', // Remove any inherited filters
+    width: "100%",
+    height: "100%",
+    objectFit: "contain" as const,
+    imageRendering: "crisp-edges" as const,
+    filter: "none", // Remove any inherited filters
   };
 
   // For non-national teams (club teams), use regular LazyImage with cached URL
@@ -633,9 +761,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       className={`team-logo-container ${className}`}
       style={{
         ...containerStyle,
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none'
+        border: "none",
+        outline: "none",
+        boxShadow: "none",
       }}
     >
       <LazyImage
@@ -647,7 +775,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         onError={handleImageError}
         onLoad={handleLoad}
         loading="lazy"
-        priority={priority as 'high' | 'medium' | 'low'}
+        priority={priority as "high" | "medium" | "low"}
         teamId={teamId}
         teamName={teamName}
         fallbackUrl={teamLogo || "/assets/fallback.png"}
