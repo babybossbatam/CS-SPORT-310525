@@ -549,35 +549,48 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
     let isMounted = true; // Flag to prevent state update on unmounted component
 
-    logoUrl
-      .then((url) => {
-        if (isMounted && url) {
-          // Only update if the URL is different and valid
-          if (url !== imageSrc && !url.includes("undefined")) {
-            setImageSrc(url);
-            setHasError(url.includes("/assets/fallback.png"));
-            setIsLoading(false);
-          } else if (shouldLoad) {
+    // Handle the Promise properly - logoUrl is a Promise, not a string
+    if (logoUrl instanceof Promise) {
+      logoUrl
+        .then((url) => {
+          if (isMounted && url) {
+            // Only update if the URL is different and valid
+            if (url !== imageSrc && !url.includes("undefined")) {
+              console.log(`🎯 [MyWorldTeamLogo] Setting image src for ${teamName}: ${url}`);
+              setImageSrc(url);
+              setHasError(url.includes("/assets/fallback.png"));
+              setIsLoading(false);
+            } else if (shouldLoad) {
+              setIsLoading(false);
+            }
+          }
+        })
+        .catch((error) => {
+          console.error(
+            `❌ [MyWorldTeamLogo] Error setting image src for ${teamName}:`,
+            error,
+          );
+          if (isMounted) {
+            setImageSrc(teamLogo || "/assets/fallback.png");
+            setHasError(true);
             setIsLoading(false);
           }
-        }
-      })
-      .catch((error) => {
-        console.error(
-          `❌ [MyWorldTeamLogo] Error setting image src for ${teamName}:`,
-          error,
-        );
-        if (isMounted) {
-          setImageSrc(teamLogo || "/assets/fallback.png");
-          setHasError(true);
-          setIsLoading(false);
-        }
-      });
+        });
+    } else {
+      // If logoUrl is already a string, use it directly
+      const url = logoUrl as string;
+      if (url && url !== imageSrc && !url.includes("undefined")) {
+        console.log(`🎯 [MyWorldTeamLogo] Using direct URL for ${teamName}: ${url}`);
+        setImageSrc(url);
+        setHasError(url.includes("/assets/fallback.png"));
+        setIsLoading(false);
+      }
+    }
 
     return () => {
       isMounted = false; // Cleanup flag
     };
-  }, [teamId, teamName, teamLogo, shouldUseCircularFlag]); // Removed imageSrc from dependencies to prevent loops
+  }, [teamId, teamName, teamLogo, shouldUseCircularFlag, logoUrl]); // Added logoUrl to dependencies
 
   const handleLoad = () => {
     // Only update state if currently loading
