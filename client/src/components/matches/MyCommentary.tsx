@@ -975,7 +975,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                     {event.player?.name || "Unknown Player"}
                                   </span>
                                   <span className="text-gray-500 text-xs">
-                                    {event.team?.name}
+                                    {event.team?.name || "Unknown Team"}
                                   </span>
                                 </div>
 
@@ -1041,11 +1041,10 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                     />
                                     <div className="flex flex-col">
                                       <span className="text-gray-700 font-bold text-sm">
-                                        {event.assist.name}
+                                        {event.assist?.name || "Unknown Player"}
                                       </span>
                                       <span className="text-gray-500 text-xs">
-                                        {event.team?.name}
-
+                                        {event.team?.name || "Unknown Team"}
                                       </span>
                                     </div>
 

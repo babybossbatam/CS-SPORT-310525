@@ -626,7 +626,7 @@ const MyMatchdetailsScoreboard = ({
               />
             </div>
             <span className="text-md font-medium text-center ">
-              {displayMatch.teams.home.name}
+              {displayMatch?.teams?.home?.name || "Home Team"}
             </span>
           </div>
 
@@ -762,7 +762,7 @@ const MyMatchdetailsScoreboard = ({
               />
             </div>
             <span className="text-md font-medium text-center mb-4">
-              {displayMatch.teams.away.name}
+              {displayMatch?.teams?.away?.name || "Away Team"}
             </span>
           </div>
         </div>
