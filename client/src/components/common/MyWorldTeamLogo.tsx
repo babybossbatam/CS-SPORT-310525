@@ -798,6 +798,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         onLoad={handleLoad}
         loading="lazy"
         priority={priority as "high" | "medium" | "low"}
+        teamId={teamId}
+        teamName={teamName}
+        fallbackUrl={teamLogo || "assets/fallback.png"}
       />
     </div>
   );
