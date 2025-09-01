@@ -171,11 +171,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                             leagueName.includes("asian cup u20") ||
                             leagueName.includes("asian cup u-20");
 
-    // CAFA Nations Cup (Central Asian Football Association Nations Cup)
-    const isCafaNationsCup = leagueName.includes("cafa nations cup") ||
-                            leagueName.includes("cafa nations") ||
-                            leagueName.includes("central asian nations cup");
-
     // Debug logging for Friendlies International
     if (leagueName.includes("friendlies")) {
       console.log("🔍 [MyWorldTeamLogo] Friendlies Detection:", {
@@ -257,7 +252,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                    !isKnownClubTeam &&
                    isActualNationalTeam &&
                    (isNationalYouthTeam || isWomensNationalTeam || (!isYouthTeam && !teamName?.endsWith(" W"))) && // Allow national youth and women's teams
-                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || isWorldCupQualification || isCafaNationsCup) &&
+                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || isWorldCupQualification) &&
                    !isFifaClubWorldCup &&
                    !isFriendliesClub &&
                    !isUefaEuropaLeague &&
@@ -271,17 +266,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       timestamp: now
     });
 
-    // Debug logging for CAFA Nations Cup
-    if (leagueName.includes("cafa")) {
-      console.log("🏆 [MyWorldTeamLogo] CAFA Nations Cup Detection:", {
-        teamName,
-        leagueName,
-        isCafaNationsCup,
-        isActualNationalTeam,
-        isYouthTeam,
-        shouldUseCircularFlag: result
-      });
-    }
+
 
     // Debug logging for specific club youth teams
     if (teamName?.includes("Valencia U20") || teamName?.includes("Alboraya U20")) {

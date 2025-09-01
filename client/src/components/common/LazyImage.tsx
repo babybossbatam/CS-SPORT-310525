@@ -3,11 +3,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useDeviceInfo } from "@/hooks/use-mobile";
 
-interface LazyImageProps
-  extends Omit<
-    React.ImgHTMLAttributes<HTMLImageElement>,
-    "src" | "alt" | "onLoad" | "onError"
-  > {
+interface LazyImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'src' | 'alt' | 'onLoad' | 'onError'> {
   src: string;
   alt: string;
   title?: string;
@@ -16,7 +12,7 @@ interface LazyImageProps
   loading?: "lazy" | "eager";
   onLoad?: () => void;
   onError?: () => void;
-  priority?: "high" | "medium" | "low";
+  priority?: 'high' | 'medium' | 'low';
   fallbackUrl?: string; // Added fallbackUrl prop
 }
 
@@ -29,7 +25,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   loading = "lazy",
   onLoad,
   onError,
-  priority = "low",
+  priority = 'low',
   fallbackUrl = "/assets/matchdetaillogo/fallback.png", // Default fallback URL
   ...restProps
 }) => {
@@ -45,11 +41,11 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const { isMobile } = useDeviceInfo();
 
   // Preload critical images
-  const shouldPreload = priority === "high" || priority === "medium";
+  const shouldPreload = priority === 'high' || priority === 'medium';
 
   // Preload image if it's high priority
   useEffect(() => {
-    if (shouldPreload && src && !src.includes("fallback")) {
+    if (shouldPreload && src && !src.includes('fallback')) {
       const img = new Image();
       img.src = src;
     }
@@ -59,72 +55,59 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const finalFallbackUrl = fallbackUrl;
 
   useEffect(() => {
-    // Check for specific teams/leagues that should use local assets immediately
-    const shouldUseLocalAsset = () => {
-      if (alt) {
-        const altLower = alt.toLowerCase();
+      // Check for specific teams/leagues that should use local assets immediately
+      const shouldUseLocalAsset = () => {
+        if (alt) {
+          const altLower = alt.toLowerCase();
 
-        // Champions League only - use theme-appropriate logo
-        if (altLower.includes("champions league")) {
-          const championsLogo = darkMode
-            ? "/assets/matchdetaillogo/uefa-white.png"
-            : "/assets/matchdetaillogo/uefa.png";
-          console.log(
-            `🏆 [LazyImage] Using local Champions League logo (${darkMode ? "dark" : "light"}) mode) from start: ${championsLogo}`,
-          );
-          return championsLogo;
-        }
+          // Champions League only - use theme-appropriate logo
+          if (altLower.includes("champions league")) {
+            const championsLogo = darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
+            console.log(`🏆 [LazyImage] Using local Champions League logo (${darkMode ? 'dark' : 'light'}) mode) from start: ${championsLogo}`);
+            return championsLogo;
+          }
 
-        // COTIF Tournament league
-        if (
-          altLower.includes("cotif") ||
-          altLower.includes("cotif tournament")
-        ) {
-          console.log(
-            `🏆 [LazyImage] Using local COTIF Tournament logo from start`,
-          );
-          return "/assets/matchdetaillogo/cotif tournament.png";
-        }
+          // COTIF Tournament league
+          if (altLower.includes("cotif") || altLower.includes("cotif tournament")) {
+            console.log(`🏆 [LazyImage] Using local COTIF Tournament logo from start`);
+            return "/assets/matchdetaillogo/cotif tournament.png";
+          }
 
-        // Valencia team (including U20)
-        if (
-          altLower.includes("valencia") &&
-          !altLower.includes("rayo vallecano")
-        ) {
-          console.log(`⚽ [LazyImage] Using local Valencia logo from start`);
-          return "/assets/matchdetaillogo/valencia.png";
-        }
+          // Valencia team (including U20)
+          if (altLower.includes("valencia") && !altLower.includes("rayo vallecano")) {
+            console.log(`⚽ [LazyImage] Using local Valencia logo from start`);
+            return "/assets/matchdetaillogo/valencia.png";
+          }
 
-        // Alboraya team (including U20)
-        if (altLower.includes("alboraya") || altLower.includes("albaroya")) {
-          console.log(`⚽ [LazyImage] Using local Alboraya logo from start`);
-          return "/assets/matchdetaillogo/alboraya.png";
+          // Alboraya team (including U20)
+          if (altLower.includes("alboraya") || altLower.includes("albaroya")) {
+            console.log(`⚽ [LazyImage] Using local Alboraya logo from start`);
+            return "/assets/matchdetaillogo/alboraya.png";
+          }
         }
+        return null;
+      };
+
+      const localAssetUrl = shouldUseLocalAsset();
+
+      if (localAssetUrl) {
+        setImageSrc(localAssetUrl);
+        setHasError(false);
+        setRetryCount(0);
+      } else {
+        setImageSrc(src);
+        setHasError(false);
+        setRetryCount(0);
       }
-      return null;
-    };
+    }, [src, alt, darkMode]); // Add darkMode to trigger re-evaluation when theme changes
 
-    const localAssetUrl = shouldUseLocalAsset();
-
-    if (localAssetUrl) {
-      setImageSrc(localAssetUrl);
-      setHasError(false);
-      setRetryCount(0);
-    } else {
-      setImageSrc(src);
-      setHasError(false);
-      setRetryCount(0);
-    }
-  }, [src, alt, darkMode]); // Add darkMode to trigger re-evaluation when theme changes
-
-  // Extract teamId from src for use throughout component
-  const extractedTeamId = (imageSrc.match(
-    /\/team-logo\/(?:square|circular)\/(\d+)/,
-  ) || [])[1];
+    // Extract teamId from src for use throughout component
+  const extractedTeamId = (imageSrc.match(/\/team-logo\/(?:square|circular)\/(\d+)/) || [])[1];
 
   const handleError = () => {
     // Safety check to prevent cascading errors
     try {
+
       // Enhanced debugging for team logos
       console.log(`🚫 [LazyImage] Image failed to load:`, {
         src: imageSrc,
@@ -132,7 +115,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         originalSrc: src,
         retryCount,
         teamId: extractedTeamId,
-        timestamp: new Date().toISOString(),
+        timestamp: new Date().toISOString()
       });
 
       // Immediately set loading to false to prevent broken image display
@@ -145,23 +128,16 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
           // Champions League only - use theme-appropriate logo
           if (altLower.includes("champions league")) {
-            const championsLogo = darkMode
-              ? "/assets/matchdetaillogo/uefa-white.png"
-              : "/assets/matchdetaillogo/uefa.png";
+            const championsLogo = darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
             setImageSrc(championsLogo);
             setHasError(false);
             setIsLoading(true);
-            console.log(
-              `🏆 [LazyImage] Using local Champions League logo (${darkMode ? "dark" : "light"} mode): ${championsLogo}`,
-            );
+            console.log(`🏆 [LazyImage] Using local Champions League logo (${darkMode ? 'dark' : 'light'} mode): ${championsLogo}`);
             return true;
           }
 
           // COTIF Tournament league
-          if (
-            altLower.includes("cotif") ||
-            altLower.includes("cotif tournament")
-          ) {
+          if (altLower.includes("cotif") || altLower.includes("cotif tournament")) {
             setImageSrc("/assets/matchdetaillogo/cotif tournament.png");
             setHasError(false);
             setIsLoading(true);
@@ -170,10 +146,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
           }
 
           // Valencia team (including U20)
-          if (
-            altLower.includes("valencia") &&
-            !altLower.includes("rayo vallecano")
-          ) {
+          if (altLower.includes("valencia") && !altLower.includes("rayo vallecano")) {
             setImageSrc("/assets/matchdetaillogo/valencia.png");
             setHasError(false);
             setIsLoading(true);
@@ -193,11 +166,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
           // Al-Nassr team - try multiple logo sources
           if (altLower.includes("al-nassr") || altLower.includes("al nassr")) {
             if (retryCount === 0) {
-              const alNassrUrl =
-                "https://media.api-sports.io/football/teams/2939.png";
-              console.log(
-                `⚽ [LazyImage] Trying Al-Nassr logo (attempt 1): ${alNassrUrl}`,
-              );
+              const alNassrUrl = "https://media.api-sports.io/football/teams/2939.png";
+              console.log(`⚽ [LazyImage] Trying Al-Nassr logo (attempt 1): ${alNassrUrl}`);
               setImageSrc(alNassrUrl);
               setHasError(false);
               setIsLoading(true);
@@ -205,11 +175,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
               return true;
             } else if (retryCount === 1) {
               // Try 365scores as alternative
-              const alNassr365Url =
-                "https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/2939";
-              console.log(
-                `⚽ [LazyImage] Trying Al-Nassr logo (attempt 2): ${alNassr365Url}`,
-              );
+              const alNassr365Url = "https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/2939";
+              console.log(`⚽ [LazyImage] Trying Al-Nassr logo (attempt 2): ${alNassr365Url}`);
               setImageSrc(alNassr365Url);
               setHasError(false);
               setIsLoading(true);
@@ -219,24 +186,16 @@ const LazyImage: React.FC<LazyImageProps> = ({
               setImageSrc(finalFallbackUrl);
               setHasError(false);
               setIsLoading(true);
-              console.log(
-                `⚽ [LazyImage] Using fallback for Al-Nassr team after all retries`,
-              );
+              console.log(`⚽ [LazyImage] Using fallback for Al-Nassr team after all retries`);
               return true;
             }
           }
 
           // Al-Ittihad team - try multiple logo sources
-          if (
-            altLower.includes("al-ittihad") ||
-            altLower.includes("al ittihad")
-          ) {
+          if (altLower.includes("al-ittihad") || altLower.includes("al ittihad")) {
             if (retryCount === 0) {
-              const alIttihadUrl =
-                "https://media.api-sports.io/football/teams/2940.png";
-              console.log(
-                `⚽ [LazyImage] Trying Al-Ittihad logo (attempt 1): ${alIttihadUrl}`,
-              );
+              const alIttihadUrl = "https://media.api-sports.io/football/teams/2940.png";
+              console.log(`⚽ [LazyImage] Trying Al-Ittihad logo (attempt 1): ${alIttihadUrl}`);
               setImageSrc(alIttihadUrl);
               setHasError(false);
               setIsLoading(true);
@@ -244,11 +203,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
               return true;
             } else if (retryCount === 1) {
               // Try 365scores as alternative
-              const alIttihad365Url =
-                "https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/2940";
-              console.log(
-                `⚽ [LazyImage] Trying Al-Ittihad logo (attempt 2): ${alIttihad365Url}`,
-              );
+              const alIttihad365Url = "https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/2940";
+              console.log(`⚽ [LazyImage] Trying Al-Ittihad logo (attempt 2): ${alIttihad365Url}`);
               setImageSrc(alIttihad365Url);
               setHasError(false);
               setIsLoading(true);
@@ -258,18 +214,13 @@ const LazyImage: React.FC<LazyImageProps> = ({
               setImageSrc(finalFallbackUrl);
               setHasError(false);
               setIsLoading(true);
-              console.log(
-                `⚽ [LazyImage] Using fallback for Al-Ittihad team after all retries`,
-              );
+              console.log(`⚽ [LazyImage] Using fallback for Al-Ittihad team after all retries`);
               return true;
             }
           }
 
           // Al-Qadisiyah FC team
-          if (
-            altLower.includes("al-qadisiyah") ||
-            altLower.includes("al qadisiyah")
-          ) {
+          if (altLower.includes("al-qadisiyah") || altLower.includes("al qadisiyah")) {
             setImageSrc("https://media.api-sports.io/football/teams/2942.png");
             setHasError(false);
             setIsLoading(true);
@@ -278,10 +229,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
           }
 
           // Al-Ahli Jeddah team
-          if (
-            (altLower.includes("al-ahli") || altLower.includes("al ahli")) &&
-            altLower.includes("jeddah")
-          ) {
+          if ((altLower.includes("al-ahli") || altLower.includes("al ahli")) && altLower.includes("jeddah")) {
             setImageSrc("https://media.api-sports.io/football/teams/2941.png");
             setHasError(false);
             setIsLoading(true);
@@ -299,10 +247,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
           }
 
           // Al-Shabab team
-          if (
-            altLower.includes("al-shabab") ||
-            altLower.includes("al shabab")
-          ) {
+          if (altLower.includes("al-shabab") || altLower.includes("al shabab")) {
             setImageSrc("https://media.api-sports.io/football/teams/2943.png");
             setHasError(false);
             setIsLoading(true);
@@ -355,9 +300,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
           let leagueId = null;
 
           // From /api/league-logo/ID or /api/league-logo/square/ID
-          const apiMatch = imageSrc.match(
-            /\/api\/league-logo\/(?:square\/)?(\d+)/,
-          );
+          const apiMatch = imageSrc.match(/\/api\/league-logo\/(?:square\/)?(\d+)/);
           if (apiMatch) {
             leagueId = apiMatch[1];
           }
@@ -391,9 +334,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
         // Second retry: try 365scores
         if (isLeagueLogo && retryCount === 1) {
-          const leagueIdMatch = imageSrc.match(
-            /(?:\/api\/league-logo\/(?:square\/)?|leagues\/|Competitions\/)(\d+)/,
-          );
+          const leagueIdMatch = imageSrc.match(/(?:\/api\/league-logo\/(?:square\/)?|leagues\/|Competitions\/)(\d+)/);
           if (leagueIdMatch) {
             const leagueId = leagueIdMatch[1];
             const scoresUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitions/${leagueId}`;
@@ -409,9 +350,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
         // Try direct media URL as final attempt
         if (isLeagueLogo && retryCount === 1) {
-          const leagueIdMatch = imageSrc.match(
-            /\/api\/league-logo\/(?:square\/)?(\d+)/,
-          );
+          const leagueIdMatch = imageSrc.match(/\/api\/league-logo\/(?:square\/)?(\d+)/);
           if (leagueIdMatch) {
             const leagueId = leagueIdMatch[1];
             const directMediaUrl = `https://media.api-sports.io/football/leagues/${leagueId}.png`;
@@ -432,9 +371,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         if (!isLeagueLogo && extractedTeamId && retryCount === 0) {
           // First retry: try with different size parameter
           const newUrl = `/api/team-logo/square/${extractedTeamId}?size=64`;
-          console.log(
-            `🔄 [LazyImage] Team logo retry 1 - trying different size: ${newUrl}`,
-          );
+          console.log(`🔄 [LazyImage] Team logo retry 1 - trying different size: ${newUrl}`);
           setImageSrc(newUrl);
           setRetryCount(1);
           setIsLoading(true);
@@ -444,9 +381,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         if (!isLeagueLogo && extractedTeamId && retryCount === 1) {
           // Second retry: try with circular endpoint
           const newUrl = `/api/team-logo/circular/${extractedTeamId}?size=32`;
-          console.log(
-            `🔄 [LazyImage] Team logo retry 2 - trying circular: ${newUrl}`,
-          );
+          console.log(`🔄 [LazyImage] Team logo retry 2 - trying circular: ${newUrl}`);
           setImageSrc(newUrl);
           setRetryCount(2);
           setIsLoading(true);
@@ -469,19 +404,18 @@ const LazyImage: React.FC<LazyImageProps> = ({
           setRetryCount(retryCount + 1);
           setIsLoading(true);
         }
-      } else if (!hasError && retryCount >= 3 && isLeagueLogo) {
-        // Specific handling for league logos that failed all 3 specific retries
-        console.warn(
-          `🚫 [LazyImage] All league logo retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
-        );
+      } else if (!hasError && retryCount >= 3 && isLeagueLogo) { // Specific handling for league logos that failed all 3 specific retries
+          console.warn(
+            `🚫 [LazyImage] All league logo retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
+          );
         setHasError(true);
         setImageSrc(finalFallbackUrl);
-        onError?.();
+          onError?.();
       }
     } catch (error) {
       console.warn("⚠️ [LazyImage] Error in handleError function:", error);
-      setHasError(true);
-      setImageSrc(finalFallbackUrl);
+        setHasError(true);
+        setImageSrc(finalFallbackUrl);
       setIsLoading(false);
       onError?.();
     }
@@ -519,9 +453,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       imageSrc.includes("/assets/matchdetaillogo/alboraya.png");
 
     if (isLocalAsset) {
-      console.log(
-        `✅ [LazyImage] Local asset loaded successfully: ${imageSrc}`,
-      );
+      console.log(`✅ [LazyImage] Local asset loaded successfully: ${imageSrc}`);
       setHasError(false);
       onLoad?.();
       return;
@@ -598,6 +530,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
     onLoad?.();
   };
 
+
+
   return (
     <img
       {...restProps}
@@ -606,29 +540,22 @@ const LazyImage: React.FC<LazyImageProps> = ({
       title={title}
       className={className}
       style={{
-        border: "none",
-        outline: "none",
-        display:
-          hasError && imageSrc === finalFallbackUrl
-            ? "block"
-            : hasError
-              ? "none"
-              : "block",
+        border: 'none',
+        outline: 'none',
+        display: hasError && imageSrc === finalFallbackUrl ? 'block' : (hasError ? 'none' : 'block'),
         opacity: 1, // Remove loading opacity that causes blur
         // Remove drop-shadow filter that can cause blur
-        imageRendering: "crisp-edges", // Ensure crisp image rendering
+        imageRendering: 'crisp-edges', // Ensure crisp image rendering
         // Apply size from props if no explicit width/height in style
-        ...(style?.width || style?.height
-          ? {}
-          : {
-              width: isMobile ? "16px" : "28px", // Increased default sizes for better clarity
-              height: isMobile ? "16px" : "28px",
-            }),
+        ...(style?.width || style?.height ? {} : {
+          width: isMobile ? '32px' : '40px', // Increased default sizes for better clarity
+          height: isMobile ? '32px' : '40px'
+        }),
         ...style, // User styles override defaults
       }}
-      loading={shouldPreload ? "eager" : loading}
-      decoding={shouldPreload ? "sync" : "async"}
-      fetchPriority={shouldPreload ? "high" : "auto"}
+      loading={shouldPreload ? 'eager' : loading}
+      decoding={shouldPreload ? 'sync' : 'async'}
+      fetchPriority={shouldPreload ? 'high' : 'auto'}
       onLoad={handleLoad}
       onError={handleError}
     />
