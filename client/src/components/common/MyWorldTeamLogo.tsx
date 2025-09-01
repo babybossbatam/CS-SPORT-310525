@@ -800,7 +800,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         priority={priority as "high" | "medium" | "low"}
         teamId={teamId}
         teamName={teamName}
-        fallbackUrl={teamLogo || "assets/fallback.png"}
+        fallbackUrl={teamLogo || "/assets/fallback.png"}
       />
     </div>
   );

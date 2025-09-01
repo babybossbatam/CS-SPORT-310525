@@ -14,6 +14,8 @@ interface LazyImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>,
   onError?: () => void;
   priority?: 'high' | 'medium' | 'low';
   fallbackUrl?: string; // Added fallbackUrl prop
+  teamId?: number | string; // Added teamId prop
+  teamName?: string; // Added teamName prop
 }
 
 const LazyImage: React.FC<LazyImageProps> = ({
@@ -27,6 +29,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
   onError,
   priority = 'low',
   fallbackUrl = "/assets/matchdetaillogo/fallback.png", // Default fallback URL
+  teamId,
+  teamName,
   ...restProps
 }) => {
   const [imageSrc, setImageSrc] = useState<string>(src);
@@ -101,8 +105,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
       }
     }, [src, alt, darkMode]); // Add darkMode to trigger re-evaluation when theme changes
 
-    // Extract teamId from src for use throughout component
-  const extractedTeamId = (imageSrc.match(/\/team-logo\/(?:square|circular)\/(\d+)/) || [])[1];
+    // Extract teamId from src for use throughout component, prefer passed teamId
+  const extractedTeamId = teamId || (imageSrc.match(/\/team-logo\/(?:square|circular)\/(\d+)/) || [])[1];
 
   const handleError = () => {
     // Safety check to prevent cascading errors
@@ -115,6 +119,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
         originalSrc: src,
         retryCount,
         teamId: extractedTeamId,
+        passedTeamId: teamId,
+        passedTeamName: teamName,
         timestamp: new Date().toISOString()
       });
 
@@ -371,7 +377,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         if (!isLeagueLogo && extractedTeamId && retryCount === 0) {
           // First retry: try with different size parameter
           const newUrl = `/api/team-logo/square/${extractedTeamId}?size=64`;
-          console.log(`🔄 [LazyImage] Team logo retry 1 - trying different size: ${newUrl}`);
+          console.log(`🔄 [LazyImage] Team logo retry 1 - trying different size: ${newUrl} for team: ${teamName || alt}`);
           setImageSrc(newUrl);
           setRetryCount(1);
           setIsLoading(true);
@@ -379,10 +385,10 @@ const LazyImage: React.FC<LazyImageProps> = ({
         }
 
         if (!isLeagueLogo && extractedTeamId && retryCount === 1) {
-          // Second retry: try with circular endpoint
-          const newUrl = `/api/team-logo/circular/${extractedTeamId}?size=32`;
-          console.log(`🔄 [LazyImage] Team logo retry 2 - trying circular: ${newUrl}`);
-          setImageSrc(newUrl);
+          // Second retry: try direct API Sports URL
+          const directApiUrl = `https://media.api-sports.io/football/teams/${extractedTeamId}.png`;
+          console.log(`🔄 [LazyImage] Team logo retry 2 - trying direct API Sports: ${directApiUrl} for team: ${teamName || alt}`);
+          setImageSrc(directApiUrl);
           setRetryCount(2);
           setIsLoading(true);
           return;
