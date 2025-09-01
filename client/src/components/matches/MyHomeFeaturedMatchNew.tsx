@@ -214,12 +214,12 @@ const FEATURED_MATCH_LEAGUE_IDS = [
 
 // Explicitly excluded leagues
 const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [
-  848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62, 931, 703, 59, 60, 74, 81, 488, 137, 58, 57, 742, 56, 55, 54, 705, 42,
+  848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62, 931, 703, 59, 60, 74, 81, 488, 137, 58, 57, 742, 56, 55, 54, 705, 42, 43,
   // Italian Campionato leagues (youth competitions)
   505, 506, 507, 508, 509, 510, 511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 525,
   // Additional League Two variations and lower divisions
   46, 47, 48, 49, 50, 51, 52, 53, // Additional English lower league IDs
-]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2, Non League Premier - Southern Central, League 703, League 59, League 60, Campionato Primavera - 1, DFB Cup, League 488, Italian Cup, Spring Championship leagues, additional Italian youth leagues, Italian Campionato leagues, League Two and additional lower divisions, League 705, League 42
+]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2, Non League Premier - Southern Central, League 703, League 59, League 60, Campionato Primavera - 1, DFB Cup, League 488, Italian Cup, Spring Championship leagues, additional Italian youth leagues, Italian Campionato leagues, League Two and additional lower divisions, League 705, League 42, National League
 const PRIORITY_LEAGUE_IDS = [39, 140, 61, 147, 2, 15, 826, 38, 22, 45, 550, 531, 702, 871]; // UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531, Premier League 2 Division One, Premier League Cup
 
 interface FeaturedMatch {
