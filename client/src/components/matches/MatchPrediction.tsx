@@ -29,6 +29,7 @@ interface PredictionData {
   confidence: number;
   homeTeamStats: TeamStats;
   awayTeamStats: TeamStats;
+  source?: string;
 }
 
 interface MatchPredictionProps {
@@ -70,11 +71,11 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
 
   // More robust team data validation
   if (!homeTeam || !awayTeam || !homeTeam.name || !awayTeam.name) {
-    console.warn('❌ [MatchPrediction] Missing team data:', { 
-      homeTeam: homeTeam ? { name: homeTeam.name, logo: homeTeam.logo } : null, 
-      awayTeam: awayTeam ? { name: awayTeam.name, logo: awayTeam.logo } : null 
+    console.warn('❌ [MatchPrediction] Missing team data:', {
+      homeTeam: homeTeam ? { name: homeTeam.name, logo: homeTeam.logo } : null,
+      awayTeam: awayTeam ? { name: awayTeam.name, logo: awayTeam.logo } : null
     });
-    
+
     // Try to show basic prediction even with incomplete data
     if (homeTeam?.name && awayTeam?.name) {
       console.log('✅ [MatchPrediction] Found team names, proceeding with basic prediction');
@@ -145,7 +146,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
 
       try {
         setError(null);
-        
+
         // Fetch team statistics and odds in parallel
         const fetchPromises = [
           fetch(`/api/teams/${homeTeam.id}/statistics?league=${leagueId}&season=${season || new Date().getFullYear()}`),
@@ -155,7 +156,8 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
         // Add predictions fetch if fixtureId is available - prioritize this over manual calculations
         if (fixtureId) {
           console.log(`📊 [MatchPrediction] Fetching predictions for fixture: ${fixtureId}`);
-          fetchPromises.push(fetch(`/api/fixtures/${fixtureId}/predictions`));
+          // The H2H API endpoint is used for fetching predictions
+          fetchPromises.push(fetch(`/api/fixtures/headtohead?h2h=${homeTeam.id}-${awayTeam.id}&last=10`));
         }
 
         const responses = await Promise.all(fetchPromises);
@@ -181,6 +183,8 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
               losses: stats.fixtures?.loses?.total || 0,
             };
           }
+        } else {
+          console.warn(`⚠️ [MatchPrediction] Home team stats API returned ${homeStatsResponse.status}`);
         }
 
         // Process away team stats
@@ -200,38 +204,32 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
               losses: stats.fixtures?.loses?.total || 0,
             };
           }
+        } else {
+          console.warn(`⚠️ [MatchPrediction] Away team stats API returned ${awayStatsResponse.status}`);
         }
+
 
         // Process RapidAPI predictions data - this is our only source
         let apiPredictions = null;
         if (predictionsResponse && predictionsResponse.ok) {
           try {
-            // Check if response is actually JSON before parsing
-            const contentType = predictionsResponse.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-              console.warn('❌ [MatchPrediction] Predictions API returned non-JSON response, skipping');
-              throw new Error('Non-JSON response from predictions API');
-            }
-            
-            // Get response text first to check if it's valid JSON
             const responseText = await predictionsResponse.text();
-            if (!responseText || responseText.trim().startsWith('<!DOCTYPE')) {
-              console.warn('❌ [MatchPrediction] Predictions API returned HTML instead of JSON, skipping');
-              throw new Error('HTML response received instead of JSON');
+            if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
+              console.error(`❌ [MatchPrediction] API returned HTML instead of JSON`);
+              throw new Error('API returned HTML response instead of JSON');
             }
-            
             const predictionsData = JSON.parse(responseText);
             console.log('📊 [MatchPrediction] RapidAPI Predictions response:', predictionsData);
-            
+
             // Handle new API response format with response array
             if (predictionsData.response && Array.isArray(predictionsData.response) && predictionsData.response.length > 0) {
               const prediction = predictionsData.response[0];
-              
+
               if (prediction.predictions && prediction.predictions.percent) {
                 const homePercent = parseInt(prediction.predictions.percent.home?.replace('%', '') || '0');
                 const drawPercent = parseInt(prediction.predictions.percent.draw?.replace('%', '') || '0');
                 const awayPercent = parseInt(prediction.predictions.percent.away?.replace('%', '') || '0');
-                
+
                 // Only use predictions if we have valid data (not all zeros)
                 if (homePercent > 0 || drawPercent > 0 || awayPercent > 0) {
                   apiPredictions = {
@@ -241,7 +239,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
                     confidence: 95, // High confidence for RapidAPI predictions
                     source: 'rapidapi-predictions'
                   };
-                  
+
                   console.log('✅ [MatchPrediction] Using RapidAPI predictions:', apiPredictions);
                 }
               }
@@ -249,12 +247,12 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
             // Fallback to old format for backward compatibility
             else if (predictionsData.success && predictionsData.data && predictionsData.data.length > 0) {
               const prediction = predictionsData.data[0];
-              
+
               if (prediction.predictions && prediction.predictions.percent) {
                 const homePercent = parseInt(prediction.predictions.percent.home?.replace('%', '') || '0');
                 const drawPercent = parseInt(prediction.predictions.percent.draw?.replace('%', '') || '0');
                 const awayPercent = parseInt(prediction.predictions.percent.away?.replace('%', '') || '0');
-                
+
                 // Only use predictions if we have valid data (not all zeros)
                 if (homePercent > 0 || drawPercent > 0 || awayPercent > 0) {
                   apiPredictions = {
@@ -264,7 +262,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
                     confidence: 95, // High confidence for RapidAPI predictions
                     source: 'rapidapi-predictions'
                   };
-                  
+
                   console.log('✅ [MatchPrediction] Using RapidAPI predictions:', apiPredictions);
                 }
               }
@@ -274,7 +272,14 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
             // Don't throw, just continue without predictions
           }
         } else if (predictionsResponse && !predictionsResponse.ok) {
-          console.warn(`⚠️ [MatchPrediction] Predictions API returned ${predictionsResponse.status}, skipping predictions`);
+          console.warn(`⚠️ [MatchPrediction] Predictions API returned ${predictionsResponse.status} - ${predictionsResponse.statusText}`);
+          const errorText = await predictionsResponse.text();
+          console.error(`❌ [H2H] Raw error response: ${errorText}`);
+          if (errorText.includes("Invalid fixture ID")) {
+            setError("Invalid fixture ID for head-to-head data.");
+          } else {
+            setError("Failed to fetch prediction data.");
+          }
         }
 
         // Only use props as fallback if no RapidAPI data available
@@ -324,7 +329,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           // No prediction data available - set to null instead of fallback values
           setPredictionData(null);
         }
-        
+
       } catch (error) {
         console.error('❌ [MatchPrediction] Error fetching prediction data:', error);
         setError('Failed to load prediction data');
@@ -365,6 +370,10 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
 
   // Generate recommendation text based on probabilities
   const getRecommendation = () => {
+    const homeWinProbability = predictionData?.homeWinProbability || 0;
+    const drawProbability = predictionData?.drawProbability || 0;
+    const awayWinProbability = predictionData?.awayWinProbability || 0;
+
     const highest = Math.max(homeWinProbability, drawProbability, awayWinProbability);
     const confidence = predictionData?.confidence || 50;
     const confidenceText = confidence >= 70 ? 'High confidence' : confidence >= 50 ? 'Moderate confidence' : 'Low confidence';
@@ -438,7 +447,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
                 Prediction data not available for this match
               </p>
               <p className="text-gray-400 text-xs mt-1">
-                {!fixtureId ? 'No fixture ID provided' : 'No prediction data found from RapidAPI'}
+                {!fixtureId ? 'No fixture ID provided' : 'No prediction data found from API'}
               </p>
             </div>
           </div>
@@ -455,7 +464,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
       <CardContent className="pt-0">
         <div className="text-center mb-6">
           <h3 className="text-2xl font-semibold text-gray-800 mb-4">Who will win?</h3>
-          
+
           {/* Total Votes */}
           <div className="text-sm text-gray-500 mb-4">
             Total Votes: {predictionData?.confidence ? Math.round(predictionData.confidence * 50) : '3,495'}
@@ -465,22 +474,22 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           <div className="relative mb-6">
             <div className="flex h-2 rounded-full overflow-hidden bg-gray-200">
               {/* Home Team Bar */}
-              <div 
+              <div
                 className="bg-blue-600 h-full"
                 style={{ width: `${homeWinProbability}%` }}
               />
               {/* Draw Bar */}
-              <div 
+              <div
                 className="bg-gray-400 h-full"
                 style={{ width: `${drawProbability}%` }}
               />
               {/* Away Team Bar */}
-              <div 
+              <div
                 className="bg-gray-600 h-full"
                 style={{ width: `${awayWinProbability}%` }}
               />
             </div>
-            
+
             {/* Percentages and Team Names */}
             <div className="flex justify-between items-center mt-3">
               {/* Home Team */}
@@ -514,12 +523,12 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           {/* Data source indicator */}
           <div className="flex justify-center">
             <div className="text-xs text-gray-400">
-              {predictionData ? 
+              {predictionData ?
                 `Data from ${
                   (predictionData as any).source === 'rapidapi-predictions' ? 'RapidAPI Predictions' :
-                  'Team Statistics'
+                  (predictionData as any).source === 'props' ? 'Provided Props' : 'Team Statistics'
                 }` :
-                'Data from RapidAPI Predictions'
+                'Data from API'
               }
             </div>
           </div>

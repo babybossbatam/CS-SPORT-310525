@@ -103,7 +103,18 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
         console.log(`🔍 [H2H] Full URL with parameters: ${url}`);
         console.log(`🔍 [H2H] Team ID validation: home=${Number(actualHomeTeamId)}, away=${Number(actualAwayTeamId)}, both valid: ${!isNaN(Number(actualHomeTeamId)) && !isNaN(Number(actualAwayTeamId))}`);
 
-        const response = await fetch(url);
+        // Validate team IDs before making request
+        if (!actualHomeTeamId || !actualAwayTeamId || actualHomeTeamId === actualAwayTeamId) {
+          console.log(`⚠️ [H2H] Invalid team IDs: ${actualHomeTeamId} vs ${actualAwayTeamId}`);
+          setH2hData([]);
+          setError(null);
+          return;
+        }
+
+        const response = await fetch(url, {
+          method: "GET",
+          credentials: "include",
+        });
 
         console.log(`📡 [H2H] Response status: ${response.status}`);
 
@@ -112,7 +123,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
           try {
             const responseText = await response.text();
             console.log(`📄 [H2H] Raw error response:`, responseText);
-            
+
             // Try to parse as JSON, fallback to text
             try {
               errorData = JSON.parse(responseText);
@@ -122,7 +133,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
           } catch {
             errorData = { error: "Failed to read error response" };
           }
-          
+
           console.error(`❌ [H2H] API Error:`, errorData);
           console.error(`❌ [H2H] Full error details:`, {
             status: response.status,
