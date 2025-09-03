@@ -280,6 +280,28 @@ const MyMatchdetailsScoreboard = ({
   const [isMatchEnded, setIsMatchEnded] = useState<boolean>(false);
   const [dataSource, setDataSource] = useState<'STATIC' | 'LIVE'>('STATIC');
 
+  const updateLiveScores = (scores: {home: number, away: number}) => {
+    setCurrentScores(scores);
+  };
+
+  const updateCurrentLiveStatus = (status: string) => {
+    setCurrentLiveStatus(status);
+  };
+
+  // Use live data if available, otherwise fall back to passed data
+  const getDisplayScores = () => {
+    if (currentScores !== null) {
+      return currentScores;
+    }
+    if (liveScores !== null) {
+      return liveScores;
+    }
+    return {
+      home: displayMatch.goals?.home ?? 0,
+      away: displayMatch.goals?.away ?? 0
+    };
+  };
+
   // Real-time update effect for live matches with continuous timer
   useEffect(() => {
     if (!displayMatch) return;
@@ -734,7 +756,7 @@ const MyMatchdetailsScoreboard = ({
                   {getStatusBadge(displayMatch.fixture.status.short)}
                 </div>
                 <div className="text-3xl font-semi-bold">
-                  {`${displayMatch.goals?.home ?? 0} - ${displayMatch.goals?.away ?? 0}`}
+                  {`${getDisplayScores().home ?? 0} - ${getDisplayScores().away ?? 0}`}
                 </div>
                 <div className="text-sm text-gray-900 font-semi-bold">
                   {format(new Date(displayMatch.fixture.date), "dd/MM")}
