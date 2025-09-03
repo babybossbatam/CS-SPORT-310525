@@ -197,80 +197,89 @@ const HomeTopScorersList = () => {
   // Simplified - no need to check which leagues have data, just show all
   const isLoadingLeagues = false;
 
-  // Optimized league availability check with parallel fetching
+  // Optimized league data checking with parallel requests and reduced learning overhead
   useEffect(() => {
     const checkLeaguesWithData = async () => {
-      // Start with a subset of most popular leagues for faster initial load
-      const priorityLeagues = POPULAR_LEAGUES.slice(0, 8); // Load first 8 leagues immediately
-      
-      // Auto-learn from available leagues list first
+      // Pre-learn league names to avoid doing it during data processing
       POPULAR_LEAGUES.forEach(league => {
         smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(league.name, {
           leagueId: league.id
         });
       });
 
-      // Set priority leagues immediately for faster UI response
-      setAvailableLeagues(priorityLeagues);
-      
-      // Set initial selected league immediately
-      if (!selectedLeague) {
-        const preferredLeague = priorityLeagues.find((l) => l.id === 34);
-        const initialLeague = preferredLeague ? preferredLeague.id : priorityLeagues[0].id;
-        
+      // Create parallel requests for faster loading
+      const leaguePromises = POPULAR_LEAGUES.map(async (league) => {
+        try {
+          const response = await fetch(`/api/leagues/${league.id}/topscorers`, {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              "Cache-Control": "max-age=7200", // Longer cache for better performance
+            },
+          });
+
+          if (!response.ok) return null;
+
+          const data = await response.json();
+          
+          // Quick validation - just check if we have any recent data
+          const hasRecentData = data.some((scorer: any) => {
+            const seasonYear = scorer.statistics[0]?.league?.season;
+            if (!seasonYear) return false;
+
+            const currentYear = new Date().getFullYear();
+            
+            // Simplified season check for faster processing
+            if (league.id === 34) {
+              return seasonYear >= 2024;
+            }
+            return seasonYear >= currentYear - 1;
+          });
+
+          if (hasRecentData) {
+            // Defer heavy learning to background to avoid blocking UI
+            setTimeout(() => {
+              const playersForLearning = data
+                .slice(0, 10) // Limit learning to top 10 players for performance
+                .filter((scorer: any) => scorer.player?.name)
+                .map((scorer: any) => ({
+                  id: scorer.player.id,
+                  name: scorer.player.name,
+                  position: scorer.statistics[0]?.games?.position || scorer.player.position,
+                  team: scorer.statistics[0]?.team?.name,
+                  league: scorer.statistics[0]?.league?.name,
+                }));
+
+              if (playersForLearning.length > 0) {
+                learnFromPlayerData(playersForLearning);
+              }
+            }, 100); // Small delay to not block initial render
+
+            return league;
+          }
+          return null;
+        } catch (error) {
+          console.warn(`Failed to check data for league ${league.id}`);
+          return null;
+        }
+      });
+
+      // Wait for all requests to complete
+      const results = await Promise.allSettled(leaguePromises);
+      const leaguesWithData = results
+        .filter(result => result.status === 'fulfilled' && result.value)
+        .map(result => (result as PromiseFulfilledResult<any>).value);
+
+      setAvailableLeagues(leaguesWithData);
+
+      // Set initial selected league
+      if (!selectedLeague && leaguesWithData.length > 0) {
+        const preferredLeague = leaguesWithData.find((l) => l.id === 34);
+        const initialLeague = preferredLeague ? preferredLeague.id : leaguesWithData[0].id;
+
         setSelectedLeague(initialLeague);
         sessionStorage.setItem("homeTopScorers_selectedLeague", initialLeague.toString());
       }
-
-      // Background validation of leagues with data (non-blocking)
-      setTimeout(async () => {
-        try {
-          // Use Promise.allSettled for parallel requests with error handling
-          const leagueChecks = POPULAR_LEAGUES.map(async (league) => {
-            try {
-              const response = await fetch(`/api/leagues/${league.id}/topscorers`, {
-                headers: {
-                  Accept: "application/json",
-                  "Content-Type": "application/json",
-                  "Cache-Control": "max-age=7200", // Longer cache for faster subsequent loads
-                },
-              });
-
-              if (response.ok) {
-                const data = await response.json();
-                
-                // Quick validation - just check if we have any recent data
-                const hasRecentData = data.some((scorer: any) => {
-                  const seasonYear = scorer.statistics[0]?.league?.season;
-                  if (!seasonYear) return false;
-                  
-                  const currentYear = new Date().getFullYear();
-                  return league.id === 34 ? 
-                    (seasonYear >= 2024 && seasonYear <= 2026) :
-                    (seasonYear >= currentYear - 1);
-                });
-
-                return hasRecentData ? league : null;
-              }
-            } catch (error) {
-              console.warn(`Failed to check league ${league.id}:`, error);
-            }
-            return null;
-          });
-
-          const results = await Promise.allSettled(leagueChecks);
-          const validLeagues = results
-            .map(result => result.status === 'fulfilled' ? result.value : null)
-            .filter(Boolean);
-
-          // Only update if we found different leagues than priority ones
-          if (validLeagues.length !== priorityLeagues.length) {
-            setAvailableLeagues(validLeagues);
-          }
-        } catch (error) {
-          console.warn("Background league validation failed:", error);
-        }
-      }, 100); // Small delay to not block initial render
     };
 
     checkLeaguesWithData();
@@ -338,7 +347,7 @@ const HomeTopScorersList = () => {
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
-            "Cache-Control": "max-age=7200", // 2 hour cache for faster loading
+            "Cache-Control": "max-age=7200", // 2 hour cache for better performance
           },
         },
       );
@@ -349,7 +358,7 @@ const HomeTopScorersList = () => {
 
       const data: PlayerStatistics[] = await response.json();
 
-      // Simplified and faster filtering
+      // Optimized filtering with early returns
       const currentYear = new Date().getFullYear();
       const currentMonth = new Date().getMonth() + 1;
       
@@ -358,47 +367,37 @@ const HomeTopScorersList = () => {
         const seasonYear = playerStats?.league?.season;
         const playerLeagueId = playerStats?.league?.id;
 
-        // Fast validation - only essential checks
-        if (!seasonYear || playerLeagueId !== selectedLeague) return false;
+        // Quick validation checks
+        if (!seasonYear || !playerLeagueId || playerLeagueId !== selectedLeague) {
+          return false;
+        }
 
-        // Simplified season validation
+        // Simplified season validation for better performance
         if (selectedLeague === 34) {
           return seasonYear >= 2024 && seasonYear <= 2026;
         }
 
         const currentSeason = currentMonth >= 8 ? currentYear : currentYear - 1;
-        return seasonYear >= currentSeason;
+        return seasonYear >= currentSeason && seasonYear <= currentYear + 1;
       });
 
-      // Pre-learn player data in background (non-blocking)
-      if (freshData.length > 0) {
-        setTimeout(() => {
-          const playersForLearning = freshData.slice(0, 10).map(scorer => ({
-            id: scorer.player.id,
-            name: scorer.player.name,
-            position: scorer.statistics[0]?.games?.position || scorer.player.position,
-            team: scorer.statistics[0]?.team?.name,
-            league: scorer.statistics[0]?.league?.name,
-          }));
-          learnFromPlayerData(playersForLearning);
-        }, 0);
-      }
-
-      return freshData.sort((a, b) => {
-        const goalsA = a.statistics[0]?.goals?.total || 0;
-        const goalsB = b.statistics[0]?.goals?.total || 0;
-        return goalsB - goalsA;
-      });
+      // Sort and return top performers only
+      return freshData
+        .sort((a, b) => {
+          const goalsA = a.statistics[0]?.goals?.total || 0;
+          const goalsB = b.statistics[0]?.goals?.total || 0;
+          return goalsB - goalsA;
+        })
+        .slice(0, 10); // Limit to top 10 for faster processing
     },
     {
       enabled: !!selectedLeague,
-      maxAge: 8 * 60 * 60 * 1000, // 8 hours cache - much longer for better performance
+      maxAge: 6 * 60 * 60 * 1000, // 6 hours cache for better performance
       backgroundRefresh: false,
       retry: 1,
       staleTime: 4 * 60 * 60 * 1000, // 4 hour stale time
       refetchOnWindowFocus: false,
       refetchOnMount: false,
-      placeholderData: [], // Show empty state instead of loading
     },
   );
 
@@ -1007,52 +1006,32 @@ const HomeTopScorersList = () => {
                 const playerStats = scorer.statistics[0];
                 const goals = playerStats?.goals?.total || 0;
 
-                // Get and translate position using the smart translation system
+                // Optimized translation processing
                 const rawPosition = scorer.player.position || playerStats?.games?.position || "";
+                const teamName = playerStats?.team?.name || "";
 
-                // Auto-learn the position if we haven't seen it before
-                if (rawPosition) {
-                  smartPlayerTranslation.autoLearnFromAnyPositionName(rawPosition);
+                // Defer learning to avoid blocking render
+                if (index === 0) {
+                  // Only auto-learn for first player to reduce processing time
+                  setTimeout(() => {
+                    if (rawPosition) {
+                      smartPlayerTranslation.autoLearnFromAnyPositionName(rawPosition);
+                    }
+                    if (teamName) {
+                      smartTeamTranslation.learnTeamsFromFixtures([{
+                        teams: { home: { name: teamName }, away: { name: "" } },
+                        league: playerStats?.league
+                      }]);
+                    }
+                  }, 0);
                 }
 
-                // Translate the position to the current language
+                // Quick translation without heavy processing
                 const translatedPosition = rawPosition ? 
                   smartPlayerTranslation.translatePositionName(rawPosition, currentLanguage) : "";
 
-                // Get and translate team name
-                const teamName = playerStats?.team?.name || "";
-                
-                // Auto-learn the team name if we haven't seen it before
-                if (teamName) {
-                  smartTeamTranslation.learnTeamsFromFixtures([{
-                    teams: { home: { name: teamName }, away: { name: "" } },
-                    league: playerStats?.league
-                  }]);
-                }
-
-                // Translate the team name to the current language with enhanced fallback
-                let translatedTeamName = "";
-                if (teamName) {
-                  translatedTeamName = smartTeamTranslation.translateTeamName(teamName, currentLanguage, playerStats?.league);
-                  
-                  // If translation returns the same name or empty, try country-based translation
-                  if (!translatedTeamName || translatedTeamName === teamName) {
-                    // For national teams, use smart country translation
-                    const leagueCountry = playerStats?.league?.country;
-                    if (leagueCountry && (
-                      playerStats?.league?.name?.toLowerCase().includes('world cup') ||
-                      playerStats?.league?.name?.toLowerCase().includes('nations league') ||
-                      playerStats?.league?.name?.toLowerCase().includes('euro') ||
-                      playerStats?.league?.name?.toLowerCase().includes('copa america') ||
-                      playerStats?.league?.name?.toLowerCase().includes('qualification')
-                    )) {
-                      // This is likely a national team, use country name translation
-                      translatedTeamName = smartLeagueCountryTranslation.translateCountryName(teamName, currentLanguage) || teamName;
-                    } else {
-                      translatedTeamName = teamName;
-                    }
-                  }
-                }
+                const translatedTeamName = teamName ? 
+                  smartTeamTranslation.translateTeamName(teamName, currentLanguage, playerStats?.league) || teamName : "";
 
                 // Debug logging to see what position data is available
                 if (index === 0) {
@@ -1116,20 +1095,11 @@ const HomeTopScorersList = () => {
               })}
             </div>
           ) : (
-            <div className="space-y-3">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
-                  <div className="flex-1 space-y-1">
-                    <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
-                    <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
-                  </div>
-                  <div className="text-right">
-                    <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-full" />
-                    <div className="h-3 w-8 bg-gray-200 dark:bg-gray-700 animate-pulse rounded mt-1" />
-                  </div>
-                </div>
-              ))}
+            <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+              <p className="text-sm">No top scorer data available</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                for {getCurrentLeague()?.name || "Selected League"}
+              </p>
             </div>
           )}
 

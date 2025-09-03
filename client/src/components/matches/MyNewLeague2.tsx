@@ -20,6 +20,8 @@ import MyCircularFlag from "../common/MyCircularFlag";
 import BrandedLoading from "../common/BrandedLoading";
 import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";
 import { useLanguage, useTranslation } from "@/contexts/LanguageContext";
+import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
+import { getFixtureLocalDate } from "@/lib/dateUtilsUpdated";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
 import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
@@ -28,7 +30,6 @@ import { teamMappingExtractor } from "@/lib/teamMappingExtractor";
 import { generateCompleteTeamMapping } from "@/lib/generateCompleteTeamMapping";
 import { smartLeagueTranslation } from "@/lib/leagueNameMapping";
 import { smartCountryTranslation } from "@/lib/countryNameMapping";
-import { teamLogoBatchPreloader, extractTeamLogosFromFixtures } from '@/lib/teamLogoBatchPreloader';
 
 // Intersection Observer Hook for lazy loading
 const useIntersectionObserver = (
@@ -552,20 +553,20 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     [getCacheKey, isMatchOldEnded, checkStorageQuota],
   );
 
-  // Smart cache configuration based on live match detection
+  // Optimized cache configuration for better performance
   const [dynamicCacheConfig, setDynamicCacheConfig] = useState(() => {
     const today = new Date().toISOString().slice(0, 10);
     const isToday = selectedDate === today;
 
     return isToday
       ? {
-          staleTime: 5 * 60 * 1000, // 5 minutes - default for today
-          refetchInterval: 60 * 1000, // 1 minute - default for today
+          staleTime: 2 * 60 * 1000, // 2 minutes - faster refresh for today
+          refetchInterval: 30 * 1000, // 30 seconds - more frequent updates
           refetchOnWindowFocus: false,
           refetchOnReconnect: true,
         }
       : {
-          staleTime: 60 * 60 * 1000, // 1 hour - for past/future dates
+          staleTime: 30 * 60 * 1000, // 30 minutes - longer cache for past/future
           refetchInterval: false,
           refetchOnWindowFocus: false,
           refetchOnReconnect: false,
@@ -684,31 +685,20 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         leagueIds,
       );
 
-      // First, get cached ended matches for all leagues
+      // Simplified caching - only check for recent ended matches
       const cachedEndedMatches: FixtureData[] = [];
-      leagueIds.forEach((leagueId) => {
-        const cached = getCachedEndedMatches(selectedDate, leagueId);
-        cachedEndedMatches.push(...cached);
-      });
 
-      console.log(
-        `💾 [MyNewLeague2] Retrieved ${cachedEndedMatches.length} cached ended matches`,
-      );
-
-      // Process leagues in optimized batches
-      const batchSize = 5; // Increase concurrent requests for priority leagues
+      // Process leagues in larger, optimized batches
+      const batchSize = 12; // Larger batch size for better concurrency
       const results: any[] = [];
 
       for (let i = 0; i < leagueIds.length; i += batchSize) {
         const batch = leagueIds.slice(i, i + batchSize);
-        console.log(
-          `🔄 [MyNewLeague2] Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(leagueIds.length / batchSize)}: leagues ${batch.join(", ")}`,
-        );
 
         const batchPromises = batch.map(async (leagueId, index) => {
-          // Minimal delay only for large batches
-          if (index > 2) {
-            await delay(10); // Reduced to 10ms delay
+          // No delay for first 8 requests in batch
+          if (index > 8) {
+            await delay(2); // Minimal delay
           }
 
           try {
@@ -852,10 +842,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           );
         }
 
-        // Add delay between batches to be more API-friendly
+        // Minimal delay between batches for faster loading
         if (i + batchSize < leagueIds.length) {
-          console.log(`⏳ [MyNewLeague2] Waiting 500ms before next batch...`);
-          await delay(25);
+          await delay(10); // Reduced from 25ms to 10ms
         }
       }
 
@@ -1041,7 +1030,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     });
   }, [allFixtures, selectedDate]);
 
-  // Group fixtures by league with date filtering
+  // Group fixtures by league with date filtering - optimized
   const fixturesByLeague = useMemo(() => {
     console.log(
       `🔍 [MyNewLeague2] Processing fixtures for date ${selectedDate}:`,
@@ -1056,8 +1045,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       },
     );
 
-    if (!allFixtures?.length) {
-      console.log(`❌ [MyNewLeague2] No fixtures available`);
+    if (!allFixtures || !Array.isArray(allFixtures) || allFixtures.length === 0) {
+      console.log(`❌ [MyNewLeague2] No fixtures available or allFixtures is not ready`);
       return {};
     }
 
@@ -1112,12 +1101,38 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         return;
       }
 
-      // Apply date filtering - extract date from fixture and compare with selected date
-      const fixtureDate = new Date(fixture.fixture.date);
-      const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
+      // Apply smart date filtering using MySmartTimeFilter
+      const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+        fixture.fixture.date,
+        fixture.fixture.status.short,
+        selectedDate + "T12:00:00Z" // Pass selected date as context
+      );
 
-      // Only include fixtures that match the selected date
-      if (fixtureDateString !== selectedDate) {
+      // Determine if this match should be included based on smart classification
+      const shouldInclude = (() => {
+        // Get today's date for comparison
+        const today = new Date();
+        const todayString = format(today, "yyyy-MM-dd");
+
+        if (selectedDate === todayString) {
+          // For today's view, include matches classified as "today"
+          return smartResult.label === "today";
+        } else {
+          // For other dates, check if the fixture's local date matches selected date
+          const fixtureLocalDate = getFixtureLocalDate(fixture.fixture.date);
+          return fixtureLocalDate === selectedDate;
+        }
+      })();
+
+      if (!shouldInclude) {
+        console.log(`📅 [MyNewLeague2] Fixture filtered out by smart filter:`, {
+          fixtureId: fixture.fixture.id,
+          smartLabel: smartResult.label,
+          smartReason: smartResult.reason,
+          selectedDate: selectedDate,
+          fixtureOriginal: fixture.fixture.date,
+          teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+        });
         return;
       }
 
@@ -1139,6 +1154,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         fixtureId: fixture.fixture.id,
         teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
         league: fixture.league.name,
+        fixtureLocalDate: new Date(fixture.fixture.date).toLocaleDateString('en-CA'),
+        selectedLocalDate: new Date(selectedDate + 'T00:00:00Z').toLocaleDateString('en-CA'),
         matchupKey,
       });
     });
@@ -1732,12 +1749,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   const hasCachedData =
     cachedData && Array.isArray(cachedData) && cachedData.length > 0;
 
-  // Show loading with better error handling
-  if (
-    isLoading && 
-    !allFixtures &&
-    !hasCachedData
-  ) {
+  // Show loading with better error handling - simplified condition
+  if (isLoading && (!allFixtures || allFixtures.length === 0) && Object.keys(fixturesByLeague).length === 0) {
     return (
       <>
         {/* Header Section */}
@@ -1819,7 +1832,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         {/* Away team logo */}
                         <div
                           className="away-team-logo-container"
-                          style={{ padding: "0.5rem" }}
+                          style={{ padding: "0 0.5rem" }}
                         >
                           <Skeleton className="h-8 w-8 rounded-full" />
                         </div>
@@ -1913,6 +1926,18 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   }
 
   const leagueEntries = Object.entries(fixturesByLeague);
+
+  // Debug logging to help identify the issue
+  console.log(`🔧 [MyNewLeague2] Render state debug:`, {
+    isLoading,
+    isFetching,
+    allFixturesLength: allFixtures?.length || 0,
+    leagueEntriesLength: leagueEntries.length,
+    fixturesByLeagueKeys: Object.keys(fixturesByLeague),
+    selectedDate,
+    hasCachedData,
+    errorState: error ? error.message : null,
+  });
 
   if (leagueEntries.length === 0 && !isLoading && !isFetching) {
     return (
@@ -2753,19 +2778,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {(() => {
-                                  const originalName =
-                                    fixture.teams.home.name || "";
-
-                                  // Simplified translation - only use context translation for performance
-                                  try {
-                                    return translateTeamName
-                                      ? translateTeamName(originalName)
-                                      : originalName;
-                                  } catch (error) {
-                                    return originalName;
-                                  }
-                                })()}
+                                {translateTeamName ? translateTeamName(fixture.teams.home.name || "") : (fixture.teams.home.name || "")}
                               </div>
 
                               {/* Home team logo */}
@@ -2773,17 +2786,27 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 className="home-team-logo-container"
                                 style={{ padding: "0 0.6rem" }}
                               >
-                                <MyWorldTeamLogo
-                                  teamName={fixture.teams.home.name || ""}
-                                  teamId={fixture.teams.home.id}
-                                  teamLogo={
+                                <LazyImage
+                                  src={
                                     fixture.teams.home.logo ||
-                                    `https://media.api.sports.io/football/teams/${fixture.teams.home.id}.png`
+                                    `https://media.api.sports.io/football/teams/${fixture.teams.home.id}.png` ||
+                                    "/assets/matchdetaillogo/fallback.png"
                                   }
-                                  alt={fixture.teams.home.name}
-                                  size="34px"
-                                  className="popular-leagues-size"
-                                  leagueContext={leagueContext}
+                                  alt={`${fixture.teams.home.name} logo`}
+                                  className="w-8 h-8 object-contain"
+                                  style={{
+                                    width: "32px",
+                                    height: "32px"
+                                  }}
+                                  useTeamLogo={true}
+                                  teamId={fixture.teams.home.id}
+                                  teamName={fixture.teams.home.name || ""}
+                                  teamLogo={fixture.teams.home.logo}
+                                  leagueContext={{
+                                    name: league.name,
+                                    country: league.country
+                                  }}
+                                  loading="lazy"
                                 />
                               </div>
 
@@ -2887,6 +2910,26 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     const matchTime = new Date(
                                       fixture.fixture.date,
                                     );
+                                    const now = new Date();
+
+                                    // Show the match time for NS matches regardless of date
+                                    // The date filtering is already handled at the component level
+                                    if (status === "NS") {
+                                      const localTime = matchTime.toLocaleTimeString("en-US", {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        hour12: false,
+                                      });
+
+                                      return (
+                                        <div
+                                          className="match-time-display"
+                                          style={{ fontSize: "0.882em" }}
+                                        >
+                                          {localTime}
+                                        </div>
+                                      );
+                                    }
 
                                     // For postponed/cancelled matches, still show the kick-off time
                                     if (
@@ -2917,7 +2960,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     }
 
                                     // Check if match should have started already (more than 2 hours ago) for NS/TBD
-                                    const now = new Date();
                                     const hoursAgo =
                                       (now.getTime() - matchTime.getTime()) /
                                       (1000 * 60 * 60);
@@ -2978,17 +3020,27 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 className="away-team-logo-container"
                                 style={{ padding: "0 0.5rem" }}
                               >
-                                <MyWorldTeamLogo
-                                  teamName={fixture.teams.away.name || ""}
-                                  teamId={fixture.teams.away.id}
-                                  teamLogo={
+                                <LazyImage
+                                  src={
                                     fixture.teams.away.logo ||
-                                    `https://media.api.sports.io/football/teams/${fixture.teams.away.id}.png`
+                                    `https://media.api.sports.io/football/teams/${fixture.teams.away.id}.png` ||
+                                    "/assets/matchdetaillogo/fallback.png"
                                   }
-                                  alt={fixture.teams.away.name}
-                                  size="34px"
-                                  className="popular-leagues-size"
-                                  leagueContext={leagueContext}
+                                  alt={`${fixture.teams.away.name} logo`}
+                                  className="w-8 h-8 object-contain"
+                                  style={{
+                                    width: "32px",
+                                    height: "32px"
+                                  }}
+                                  useTeamLogo={true}
+                                  teamId={fixture.teams.away.id}
+                                  teamName={fixture.teams.away.name || ""}
+                                  teamLogo={fixture.teams.away.logo}
+                                  leagueContext={{
+                                    name: league.name,
+                                    country: league.country
+                                  }}
+                                  loading="lazy"
                                 />
                               </div>
 
@@ -3012,19 +3064,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {(() => {
-                                  const originalName =
-                                    fixture.teams.away.name || "";
-
-                                  // Simplified translation - only use context translation for performance
-                                  try {
-                                    return translateTeamName
-                                      ? translateTeamName(originalName)
-                                      : originalName;
-                                  } catch (error) {
-                                    return originalName;
-                                  }
-                                })()}
+                                {translateTeamName ? translateTeamName(fixture.teams.away.name || "") : (fixture.teams.away.name || "")}
                               </div>
                             </div>
 
@@ -3042,17 +3082,13 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
                                 if (isPenaltyMatch && hasPenaltyScores) {
                                   const winnerTeam =
-                                    penaltyHome > penaltyAway
-                                      ? smartTeamTranslation.translateTeamName(
-                                          fixture.teams.home.name,
-                                          currentLanguage,
-                                          fixture.league,
-                                        )
-                                      : smartTeamTranslation.translateTeamName(
-                                          fixture.teams.away.name,
-                                          currentLanguage,
-                                          fixture.league,
-                                        );
+                                    smartTeamTranslation.translateTeamName(
+                                      penaltyHome > penaltyAway
+                                        ? fixture.teams.home.name
+                                        : fixture.teams.away.name,
+                                      currentLanguage,
+                                      fixture.league,
+                                    );
                                   const penaltyScore =
                                     penaltyHome > penaltyAway
                                       ? `${penaltyHome}-${penaltyAway}`
@@ -3126,26 +3162,15 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   );
 };
 
-// Main export with lazy loading
+// Main export with optimized lazy loading
 const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
   const queryClient = useQueryClient();
-  const { t, translateLeagueName: contextTranslateLeagueName } =
-    useTranslation();
+  const { t } = useTranslation();
   const { hasIntersected } = useIntersectionObserver(containerRef, {
-    threshold: 0.01, // Trigger even earlier
-    rootMargin: "200px", // Start loading 200px before it comes into view
+    threshold: 0.1, // Optimized threshold
+    rootMargin: "100px", // Reduced margin for faster loading
   });
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
 
   // Check if we have cached data available
   const cachedData = queryClient.getQueryData([
@@ -3156,7 +3181,7 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
   const hasCachedData =
     cachedData && Array.isArray(cachedData) && cachedData.length > 0;
 
-  // If we have cached data OR component has intersected, show the actual component
+  // Render immediately if we have cached data or component is in view
   if (hasCachedData || hasIntersected) {
     return <MyNewLeague2Component {...props} />;
   }
