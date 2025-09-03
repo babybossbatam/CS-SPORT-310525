@@ -429,7 +429,7 @@ const MyMatchdetailsScoreboard = ({
               if (specificMatchResponse.ok) {
                 const specificMatchData = await specificMatchResponse.json();
                 // If match has ended, stop all timers
-                if (["FT", "AET", "PEN"].includes(specificMatchData.fixture?.status?.short || "")) {
+                if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(specificMatchData.fixture?.status?.short || "")) {
                   if (realtimeTimer) clearInterval(realtimeTimer);
                   clearInterval(apiSyncTimer);
                   setRealTimeElapsed(null);
@@ -644,17 +644,17 @@ const MyMatchdetailsScoreboard = ({
           <div className="flex flex-col items-center space-y-2 flex-1">
             {/* Home Team Logo */}
             <div className="flex items-center justify-end mr-4" style={{ width: '48px', height: '48px', maxWidth: '48px', maxHeight: '48px' }}>
-              <MyWorldTeamLogo
-                teamId={displayMatch.teams.home.id}
-                teamName={displayMatch.teams.home.name}
-                teamLogo={displayMatch.teams.home.logo}
+              <MyCircularFlag
+                teamName={displayMatch.teams.home?.name || ""}
+                teamId={displayMatch.teams.home?.id}
+                fallbackUrl={`/api/team-logo/square/${displayMatch.teams.home?.id}?size=64`}
+                alt={displayMatch.teams.home?.name || "Home Team"}
                 size="64px"
                 leagueContext={{
                   leagueId: displayMatch.league.id,
                   name: displayMatch.league.name,
                   country: displayMatch.league.country,
                 }}
-                alt={displayMatch.teams.home?.name || "Home Team"}
                 className="team-logo match-details-size"
               />
             </div>
@@ -780,17 +780,17 @@ const MyMatchdetailsScoreboard = ({
           <div className="flex flex-col items-center space-y-2 flex-1">
             {/* Away Team Logo */}
             <div className="flex items-center justify-start ml-4" style={{ width: '48px', height: '48px', maxWidth: '48px', maxHeight: '48px' }}>
-              <MyWorldTeamLogo
-                teamId={displayMatch.teams.away.id}
-                teamName={displayMatch.teams.away.name}
-                teamLogo={displayMatch.teams.away.logo}
+              <MyCircularFlag
+                teamName={displayMatch.teams.away?.name || ""}
+                teamId={displayMatch.teams.away?.id}
+                fallbackUrl={`/api/team-logo/square/${displayMatch.teams.away?.id}?size=64`}
+                alt={displayMatch.teams.away?.name || "Away Team"}
                 size="64px"
                 leagueContext={{
                   leagueId: displayMatch.league.id,
                   name: displayMatch.league.name,
                   country: displayMatch.league.country,
                 }}
-                alt={displayMatch.teams.away?.name || "Away Team"}
                 className="team-logo match-details-size"
               />
             </div>

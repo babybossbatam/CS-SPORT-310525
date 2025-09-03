@@ -1007,7 +1007,18 @@ table .flag-circle {
 }
 
 /* Specific styles for match details scoreboard */
-.match-details-scoreboard .flag-circle {
+.match-details-scoreboard .flag-circle,
+.match-details-scoreboard .flag-circle.match-details-size,
+.flag-circle.match-details-size {
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  min-height: 64px !important;
+}
+
+.match-details-scoreboard .flag-circle .team-logo,
+.match-details-scoreboard .flag-circle.match-details-size .team-logo,
+.flag-circle.match-details-size .team-logo {
   width: 64px !important;
   height: 64px !important;
   min-width: 64px !important;
