@@ -313,21 +313,13 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
             ? "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)"
             : "none", // No filter for club logos
         }}
-        onError={
-          isKnownClubTeam && teamId
-            ? createTeamLogoErrorHandler(
-                { id: teamId, name: teamName },
-                false,
-                "football",
-              )
-            : (e) => {
-                const target = e.target as HTMLImageElement;
-                console.log(`🚫 [MyCircularFlag] Image error for ${teamName}, trying fallback`);
-                if (!target.src.includes("/assets/fallback-logo.svg")) {
-                  target.src = fallbackUrl || "/assets/fallback-logo.svg";
-                }
-              }
-        }
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          console.log(`🚫 [MyCircularFlag] Image error for ${teamName}, trying fallback`);
+          if (!target.src.includes("/assets/fallback-logo.svg")) {
+            target.src = fallbackUrl || "/assets/fallback-logo.svg";
+          }
+        }}
       />
       <div className="gloss"></div>
 
