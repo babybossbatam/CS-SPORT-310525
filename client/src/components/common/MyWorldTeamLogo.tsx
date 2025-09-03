@@ -29,6 +29,7 @@ interface MyWorldTeamLogoProps {
   className?: string;
   teamId?: number | string;
   leagueContext?: {
+    leagueId?: number;
     name?: string;
     country?: string;
   };
@@ -747,6 +748,73 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     },
     [teamId, teamName, teamLogo, isLoading, hasError],
   ); // Added missing dependencies
+
+  // Special handling for league ID 10 (International Friendlies) - always use circular flags
+  if (leagueContext?.leagueId === 10 || 
+      (leagueContext?.name?.toLowerCase().includes("friendlies") && 
+       leagueContext?.name?.toLowerCase() === "friendlies")) {
+    return (
+      <MyCircularFlag
+        teamName={teamName}
+        teamId={teamId}
+        fallbackUrl={imageSrc || teamLogo || "/assets/fallback.png"}
+        alt={alt || teamName}
+        size={size}
+        className={className}
+        moveLeft={moveLeft}
+        nextMatchInfo={nextMatchInfo}
+        showNextMatchOverlay={showNextMatchOverlay}
+      />
+    );
+  }
+
+  // Special handling for league ID 667 (Friendlies Clubs) - always use regular team logos
+  if (leagueContext?.leagueId === 667 || 
+      (leagueContext?.name?.toLowerCase().includes("friendlies clubs"))) {
+    // Force club logo rendering for Friendlies Clubs
+    const containerStyle = {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      width: size,
+      height: size,
+    };
+
+    const imageStyle = {
+      width: "100%",
+      height: "100%",
+      objectFit: "contain" as const,
+      imageRendering: "crisp-edges" as const,
+      filter: "none",
+    };
+
+    return (
+      <div
+        className={`team-logo-container ${className}`}
+        style={{
+          ...containerStyle,
+          border: "none",
+          outline: "none",
+          boxShadow: "none",
+        }}
+      >
+        <LazyImage
+          src={imageSrc || "/assets/fallback.png"}
+          alt={alt || teamName || "Team Logo"}
+          title={teamName || "Team"}
+          className="team-logo"
+          style={imageStyle}
+          onError={handleImageError}
+          onLoad={handleLoad}
+          loading="lazy"
+          priority={priority as "high" | "medium" | "low"}
+          teamId={teamId}
+          teamName={teamName}
+          fallbackUrl={teamLogo || "/assets/fallback.png"}
+        />
+      </div>
+    );
+  }
 
   if (shouldUseCircularFlag) {
     return (
