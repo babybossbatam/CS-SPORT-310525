@@ -224,6 +224,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     const isCafaNationsCup =
       leagueName.includes("cafa nations cup") ||
       leagueName.includes("cafa nations");
+    const isKingsCup =
+      leagueName.includes("king's cup") ||
+      leagueName.includes("kings cup");
 
     // Debug logging for Friendlies International
     if (leagueName.includes("friendlies")) {
@@ -319,7 +322,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         isUefaNationsLeague ||
         isAfcU20AsianCup ||
         isWorldCupQualification ||
-        isCafaNationsCup) &&
+        isCafaNationsCup ||
+        isKingsCup) &&
       !isFifaClubWorldCup &&
       !(isFriendliesClub && !isFriendliesClubsWithNationalTeams) && // Allow Friendlies Clubs with national teams
       !isUefaEuropaLeague &&
