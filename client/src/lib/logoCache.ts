@@ -33,7 +33,8 @@ class LogoCache {
   constructor(config: Partial<LogoCacheConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.startCleanupTimer();
-    // Cache is now persistent across sessions
+    // Clear all cached data on initialization to force refetch
+    this.cache.clear();
   }
 
   private startCleanupTimer() {
@@ -130,10 +131,14 @@ class LogoCache {
     }
 
     // Check expiration - shorter cache for fallbacks, longer for valid flags
-    const age = Date.now() - item.timestamp;
     const maxAge = item.url.includes('/assets/fallback-logo.svg') 
-      ? 60 * 60 * 1000  // 1 hour for fallbacks (shorter to retry sooner)
-      : 7 * 24 * 60 * 60 * 1000; // 7 days for valid flags
+    ? 60 * 60 * 1000  // 1 hour for fallbacks (shorter to retry sooner)
+    : item.verified 
+      ? 14 * 24 * 60 * 60 * 1000 // 14 days for verified logos
+      : 7 * 24 * 60 * 60 * 1000; // 7 days for unverified logos
+
+    const age = Date.now() - item.timestamp;
+    
 
     const ageMinutes = Math.round(age / 1000 / 60);
     const maxAgeMinutes = Math.round(maxAge / 1000 / 60);
@@ -309,7 +314,7 @@ export async function getOptimalLogoUrl(
 // Function to clear specific team logo from cache
 export function clearTeamLogoCache(teamId?: number | string, teamName?: string): void {
   const isValencia = teamName?.toLowerCase().includes('valencia') || teamId === 532; // Valencia CF team ID
-  
+
   if (isValencia) {
     console.log(`🧹 [logoCache.ts] Clearing Valencia team logo cache - ID: ${teamId}, Name: ${teamName}`);
   }

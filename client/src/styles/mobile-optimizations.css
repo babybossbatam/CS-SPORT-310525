@@ -1,5 +1,73 @@
 /* Mobile Optimizations */
 
+/* Group standings mobile optimizations */
+@media (max-width: 768px) {
+  .league-standings-table {
+    min-width: 600px !important;
+  }
+
+  .league-standings-table .overflow-x-auto {
+    padding-bottom: 8px !important;
+    margin-bottom: 8px !important;
+  }
+
+  /* Enhance scroll indicators for mobile */
+  .league-standings-table .overflow-x-auto::-webkit-scrollbar {
+    height: 8px !important;
+  }
+
+  .league-standings-table .overflow-x-auto::-webkit-scrollbar-track {
+    background: rgba(156, 163, 175, 0.2) !important;
+    border-radius: 4px !important;
+  }
+
+  .league-standings-table .overflow-x-auto::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.6) !important;
+    border-radius: 4px !important;
+  }
+
+  .league-standings-table .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(156, 163, 175, 0.8) !important;
+  }
+
+  /* Mobile-friendly sticky columns */
+  .league-standings-table .sticky {
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Better touch targets for table cells */
+  .league-standings-table td,
+  .league-standings-table th {
+    min-height: 44px !important;
+    padding: 8px 4px !important;
+  }
+
+  /* Smooth momentum scrolling for iOS */
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+    overscroll-behavior-x: contain !important;
+  }
+
+  /* Add subtle shadow to indicate more content */
+  .overflow-x-auto::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 20px;
+    background: linear-gradient(to left, rgba(255, 255, 255, 0.8), transparent);
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* Dark mode shadow */
+  .dark .overflow-x-auto::after {
+    background: linear-gradient(to left, rgba(31, 41, 55, 0.8), transparent);
+  }
+}
+
 /* Touch-friendly interactions */
 .touch-target {
   min-height: 44px;
@@ -524,6 +592,244 @@
 
   .mobile-btn-secondary:hover {
     background: #4b5563;
+  }
+}
+
+/* Mobile dropdown optimizations for standings cards */
+@media (max-width: 767px) {
+  /* Mobile-friendly select dropdowns */
+  .mobile-standings-dropdown {
+    min-height: 48px !important;
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    padding: 12px 16px !important;
+    border-radius: 8px !important;
+    background-color: white !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    width: 100% !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+  }
+
+  .mobile-standings-dropdown:focus {
+    outline: none !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+  }
+
+  /* Mobile dropdown trigger styling */
+  .mobile-dropdown-trigger {
+    min-height: 48px !important;
+    padding: 12px 16px !important;
+    font-size: 16px !important;
+    border-radius: 8px !important;
+    background-color: white !important;
+    border: 1px solid #e5e7eb !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .mobile-dropdown-trigger:focus {
+    outline: none !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+  }
+
+  /* Mobile dropdown content */
+  .mobile-dropdown-content {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 50 !important;
+    background-color: white !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    max-height: 60vh !important;
+    overflow-y: auto !important;
+    margin-top: 4px !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Mobile dropdown items */
+  .mobile-dropdown-item {
+    padding: 16px 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    border-bottom: 1px solid #f3f4f6 !important;
+    cursor: pointer !important;
+    transition: background-color 0.2s ease !important;
+    min-height: 56px !important;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .mobile-dropdown-item:last-child {
+    border-bottom: none !important;
+  }
+
+  .mobile-dropdown-item:hover,
+  .mobile-dropdown-item:focus {
+    background-color: #f8fafc !important;
+  }
+
+  .mobile-dropdown-item:active {
+    background-color: #e2e8f0 !important;
+  }
+
+  .mobile-dropdown-item.selected {
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+    font-weight: 500 !important;
+  }
+
+  /* League logos in dropdown */
+  .mobile-dropdown-item img {
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 4px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* League text in dropdown */
+  .mobile-dropdown-item-text {
+    font-size: 15px !important;
+    line-height: 1.4 !important;
+    color: #374151 !important;
+    flex: 1 !important;
+  }
+
+  .mobile-dropdown-item.selected .mobile-dropdown-item-text {
+    color: #1d4ed8 !important;
+  }
+
+  /* Checkmark for selected item */
+  .mobile-dropdown-item.selected::after {
+    content: "✓" !important;
+    color: #1d4ed8 !important;
+    font-weight: bold !important;
+    margin-left: auto !important;
+  }
+}
+
+/* Dark mode support for mobile dropdowns */
+@media (max-width: 767px) and (prefers-color-scheme: dark) {
+  .mobile-standings-dropdown,
+  .mobile-dropdown-trigger {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+    color: #f9fafb !important;
+  }
+
+  .mobile-dropdown-content {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .mobile-dropdown-item {
+    border-bottom-color: #374151 !important;
+  }
+
+  .mobile-dropdown-item:hover,
+  .mobile-dropdown-item:focus {
+    background-color: #374151 !important;
+  }
+
+  .mobile-dropdown-item:active {
+    background-color: #4b5563 !important;
+  }
+
+  .mobile-dropdown-item-text {
+    color: #f9fafb !important;
+  }
+
+  .mobile-dropdown-item.selected {
+    background-color: #1e3a8a !important;
+    color: #93c5fd !important;
+  }
+
+  .mobile-dropdown-item.selected .mobile-dropdown-item-text {
+    color: #93c5fd !important;
+  }
+
+  .mobile-dropdown-item.selected::after {
+    color: #93c5fd !important;
+  }
+}
+
+/* Additional mobile dropdown enhancements */
+@media (max-width: 767px) {
+  /* Ensure dropdown doesn't exceed viewport */
+  .mobile-dropdown-content {
+    max-width: calc(100vw - 32px) !important;
+    left: 16px !important;
+    right: 16px !important;
+    width: auto !important;
+  }
+
+  /* Better scroll behavior for dropdown */
+  .mobile-dropdown-content {
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Safe area adjustments for iPhone notch */
+  .mobile-dropdown-content {
+    margin-bottom: env(safe-area-inset-bottom) !important;
+  }
+
+  /* Prevent body scroll when dropdown is open */
+  body:has(.mobile-dropdown-content[data-state="open"]) {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+  }
+
+  /* League standings specific dropdown styling */
+  .league-standings-dropdown .mobile-dropdown-trigger {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+    border: 2px solid #e2e8f0 !important;
+    transition: all 0.2s ease !important;
+  }
+
+  .league-standings-dropdown .mobile-dropdown-trigger:focus,
+  .league-standings-dropdown .mobile-dropdown-trigger[data-state="open"] {
+    border-color: #3b82f6 !important;
+    background: #ffffff !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15) !important;
+  }
+
+  /* Improved league name truncation */
+  .mobile-dropdown-item-text {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    max-width: calc(100% - 60px) !important;
+  }
+
+  /* Better visual hierarchy for league items */
+  .mobile-dropdown-item {
+    position: relative !important;
+  }
+
+  .mobile-dropdown-item::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 4px !important;
+    background-color: transparent !important;
+    transition: background-color 0.2s ease !important;
+  }
+
+  .mobile-dropdown-item.selected::before {
+    background-color: #3b82f6 !important;
   }
 }
 

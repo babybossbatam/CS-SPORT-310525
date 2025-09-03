@@ -23,7 +23,7 @@ export interface LogoResponse {
 
 class EnhancedLogoManager {
   private logoCache: Map<string, { url: string; timestamp: number; fallbackUsed: boolean }> = new Map();
-  private readonly cacheDuration = 60 * 60 * 1000; // 1 hour cache duration
+  private readonly cacheDuration = 0; // Force immediate expiry to refetch data
 
   async getTeamLogo(
     componentName: string,
