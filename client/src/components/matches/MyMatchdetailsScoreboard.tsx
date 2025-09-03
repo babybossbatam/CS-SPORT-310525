@@ -113,7 +113,7 @@ const MyMatchdetailsScoreboard = ({
     },
   };
 
-  const displayMatch = match || sampleMatch;
+  const displayMatch = match;
 
   // Extract team data for passing to child components like MyHighlights
   const getTeamData = () => {
@@ -270,6 +270,17 @@ const MyMatchdetailsScoreboard = ({
     status: displayMatch?.fixture?.status?.short,
     league: displayMatch?.league?.name,
   });
+
+  // Early return if no match data is provided
+  if (!displayMatch) {
+    return (
+      <Card className={`w-full ${className} p-4`}>
+        <div className="text-center text-gray-500">
+          No match data available
+        </div>
+      </Card>
+    );
+  }
 
   // State for real-time timer
   const [realTimeElapsed, setRealTimeElapsed] = useState<number | null>(null);
@@ -638,7 +649,7 @@ const MyMatchdetailsScoreboard = ({
                 teamName={displayMatch.teams.home.name}
                 teamLogo={displayMatch.teams.home.logo}
                 alt={displayMatch.teams.home.name}
-                size="24px"
+                size="64px"
                 className="team-logo"
                 leagueContext={{
                   name: displayMatch.league?.name || '',
@@ -774,7 +785,7 @@ const MyMatchdetailsScoreboard = ({
                 teamId={displayMatch.teams.away.id}
                 teamLogo={displayMatch.teams.away.logo}
                 alt={displayMatch.teams.away.name}
-                size="24px"
+                size="64px"
                 className="team-logo"
                 leagueContext={{
                   name: displayMatch.league?.name || '',
