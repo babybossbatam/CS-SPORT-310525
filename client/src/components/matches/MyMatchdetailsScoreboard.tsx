@@ -655,7 +655,7 @@ const MyMatchdetailsScoreboard = ({
                   country: displayMatch.league.country,
                 }}
                 alt={displayMatch.teams.home?.name || "Home Team"}
-                className="team-logo"
+                className="team-logo match-details-size"
               />
             </div>
             <span className="text-md font-medium text-center ">
@@ -791,7 +791,7 @@ const MyMatchdetailsScoreboard = ({
                   country: displayMatch.league.country,
                 }}
                 alt={displayMatch.teams.away?.name || "Away Team"}
-                className="team-logo"
+                className="team-logo match-details-size"
               />
             </div>
             <span className="text-md font-medium text-center mb-4">

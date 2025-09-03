@@ -291,6 +291,12 @@
   height: 64px;
 }
 
+/* Size variant for MyMatchdetailsScoreboard - larger flags */
+.flag-circle.match-details-size {
+  width: 64px;
+  height: 64px;
+}
+
 /* Responsive flag circle sizes */
 @media (max-width: 640px) {
   .flag-circle.popular-leagues-size {
@@ -998,6 +1004,14 @@ table .flag-circle {
   height: 28px !important;
   min-width: 28px !important;
   min-height: 28px !important;
+}
+
+/* Specific styles for match details scoreboard */
+.match-details-scoreboard .flag-circle {
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  min-height: 64px !important;
 }
 
 /* Ensure popular-leagues-size class in tables is smaller */
