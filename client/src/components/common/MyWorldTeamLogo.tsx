@@ -122,7 +122,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       );
 
       // Known club teams in COTIF (Valencia, Alboraya, etc.)
-      const isKnownClubTeam =
+      let isKnownClubTeam =
         (teamId === 532 && teamName.toLowerCase().includes("valencia")) ||
         (teamId === 19922 && teamName.toLowerCase().includes("alboraya")) ||
         teamName.toLowerCase().includes("valencia") ||
@@ -193,10 +193,10 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       isFriendliesClubsWithNationalTeams;
 
     const isUefaEuropaLeague =
-      leagueName.includes("uefa europa league") ||
+      leagueName.includes("uefaeuropa league") ||
       leagueName.includes("europa league");
     const isUefaConferenceLeague =
-      leagueName.includes("uefa europa conference league") ||
+      leagueName.includes("uefaeuropa conference league") ||
       leagueName.includes("europa conference league");
     const isUefaChampionsLeague =
       leagueName.includes("uefa champions league") ||
