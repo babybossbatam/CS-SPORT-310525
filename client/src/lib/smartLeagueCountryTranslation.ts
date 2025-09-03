@@ -99,7 +99,9 @@ class SmartLeagueCountryTranslation {
     'Moldova': { en: 'Moldova', 'zh': '摩爾多瓦', 'zh-hk': '摩爾多瓦', 'zh-tw': '摩爾多瓦', 'es': 'Moldavia', 'de': 'Moldau', 'it': 'Moldavia', 'pt': 'Moldávia' },
     'Montenegro': { en: 'Montenegro', 'zh': '黑山', 'zh-hk': '黑山', 'zh-tw': '蒙特內哥羅', 'es': 'Montenegro', 'de': 'Montenegro', 'it': 'Montenegro', 'pt': 'Montenegro' },
     'North Macedonia': { en: 'North Macedonia', 'zh': '北馬其頓', 'zh-hk': '北馬其頓', 'zh-tw': '北馬其頓', 'es': 'Macedonia del Norte', 'de': 'Nordmazedonien', 'it': 'Macedonia del Nord', 'pt': 'Macedônia do Norte' },
+    'Northern Macedonia': { en: 'North Macedonia', 'zh': '北馬其頓', 'zh-hk': '北馬其頓', 'zh-tw': '北馬其頓', 'es': 'Macedonia del Norte', 'de': 'Nordmazedonien', 'it': 'Macedonia del Nord', 'pt': 'Macedônia do Norte' },
     'Macedonia': { en: 'Macedonia', 'zh': '馬其頓', 'zh-hk': '馬其頓', 'zh-tw': '馬其頓', 'es': 'Macedonia', 'de': 'Mazedonien', 'it': 'Macedonia', 'pt': 'Macedônia' },
+    'Northern Mariana Islands': { en: 'Northern Mariana Islands', 'zh': '北馬里亞納群島', 'zh-hk': '北馬里亞納群島', 'zh-tw': '北馬里亞納群島', 'es': 'Islas Marianas del Norte', 'de': 'Nördliche Marianen', 'it': 'Isole Marianne Settentrionali', 'pt': 'Ilhas Marianas do Norte' },
     'Malta': { en: 'Malta', 'zh': '馬耳他', 'zh-hk': '馬耳他', 'zh-tw': '馬爾他', 'es': 'Malta', 'de': 'Malta', 'it': 'Malta', 'pt': 'Malta' },
     'Netherlands': {
       en: 'Netherlands',
