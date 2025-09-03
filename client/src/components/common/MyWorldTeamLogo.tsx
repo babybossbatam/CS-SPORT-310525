@@ -222,6 +222,10 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       leagueName.includes("afc u-20 asian cup") ||
       leagueName.includes("asian cup u20") ||
       leagueName.includes("asian cup u-20");
+    const isAfcAsianCup =
+      leagueName.includes("afc asian cup") ||
+      leagueName.includes("asian cup") ||
+      leagueName.includes("asia cup");
     const isCafaNationsCup =
       leagueName.includes("cafa nations cup") ||
       leagueName.includes("cafa nations");
@@ -303,6 +307,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         teamName,
         leagueName,
         isAfcU20AsianCup,
+        isAfcAsianCup,
         isActualNationalTeam,
         isYouthTeam,
         isWomensNationalTeam,
@@ -322,6 +327,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       (isFriendliesInternational ||
         isUefaNationsLeague ||
         isAfcU20AsianCup ||
+        isAfcAsianCup ||
         isWorldCupQualification ||
         isCafaNationsCup ||
         isKingsCup) &&
