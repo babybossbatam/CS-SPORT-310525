@@ -242,6 +242,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       });
     }
 
+    // Friendlies Clubs National Team detection
+    const isFriendliesClubsNationalTeam = leagueName.includes("friendlies clubs") && isActualNationalTeam;
+
     // Use circular flag for national teams in international competitions
     // BUT: Force club teams to ALWAYS use club logos regardless of league context
     const result = !isStandingsContext &&
@@ -249,7 +252,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                    !isKnownClubTeam &&
                    isActualNationalTeam &&
                    (isNationalYouthTeam || isWomensNationalTeam || (!isYouthTeam && !teamName?.endsWith(" W"))) && // Allow national youth and women's teams
-                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || isWorldCupQualification) &&
+                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || isWorldCupQualification || isFriendliesClubsNationalTeam) && // Added isFriendliesClubsNationalTeam
                    !isFifaClubWorldCup &&
                    !isFriendliesClub &&
                    !isUefaEuropaLeague &&
