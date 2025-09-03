@@ -645,18 +645,29 @@ const MyMatchdetailsScoreboard = ({
             {/* Home Team Logo */}
             <div className="flex items-center justify-end mr-4" style={{ width: '48px', height: '48px', maxWidth: '48px', maxHeight: '48px' }}>
               <img
-                src={displayMatch.teams.home.logo || `/api/team-logo/square/${displayMatch.teams.home.id}?size=48`}
-                alt={displayMatch.teams.home.name}
+                src={
+                  displayMatch.teams.home?.logo ||
+                  (displayMatch.teams.home?.id
+                    ? `https://media.api-sports.io/football/teams/${displayMatch.teams.home.id}.png`
+                    : "/assets/fallback-logo.svg")
+                }
+                alt={displayMatch.teams.home?.name || "Home Team"}
                 className="team-logo"
                 style={{
-                  width: '48px',
-                  height: '48px',
-                  objectFit: 'contain',
-                  borderRadius: '4px'
+                  width: "51px",
+                  height: "51px",
+                  objectFit: "cover",
+                  borderRadius: "50%",
+                  position: "relative",
+                  zIndex: 1,
+                  filter: "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)",
                 }}
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = '/assets/fallback-logo.svg';
+                  console.log(`🚫 [MyMatchDetailsScoreboard] Image error for ${displayMatch.teams.home?.name || "Home Team"}, trying fallback`);
+                  if (!target.src.includes("/assets/fallback-logo.svg")) {
+                    target.src = "/assets/fallback-logo.svg";
+                  }
                 }}
               />
             </div>
@@ -783,18 +794,29 @@ const MyMatchdetailsScoreboard = ({
             {/* Away Team Logo */}
             <div className="flex items-center justify-start ml-4" style={{ width: '48px', height: '48px', maxWidth: '48px', maxHeight: '48px' }}>
               <img
-                src={displayMatch.teams.away.logo || `/api/team-logo/square/${displayMatch.teams.away.id}?size=48`}
-                alt={displayMatch.teams.away.name}
+                src={
+                  displayMatch.teams.away?.logo ||
+                  (displayMatch.teams.away?.id
+                    ? `https://media.api-sports.io/football/teams/${displayMatch.teams.away.id}.png`
+                    : "/assets/fallback-logo.svg")
+                }
+                alt={displayMatch.teams.away?.name || "Away Team"}
                 className="team-logo"
                 style={{
-                  width: '48px',
-                  height: '48px',
-                  objectFit: 'contain',
-                  borderRadius: '4px'
+                  width: "51px",
+                  height: "51px",
+                  objectFit: "cover",
+                  borderRadius: "50%",
+                  position: "relative",
+                  zIndex: 1,
+                  filter: "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)",
                 }}
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = '/assets/fallback-logo.svg';
+                  console.log(`🚫 [MyMatchDetailsScoreboard] Image error for ${displayMatch.teams.away?.name || "Away Team"}, trying fallback`);
+                  if (!target.src.includes("/assets/fallback-logo.svg")) {
+                    target.src = "/assets/fallback-logo.svg";
+                  }
                 }}
               />
             </div>
