@@ -62,12 +62,20 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
     <MatchTabErrorBoundary>
       {/* Match Prediction */}
       <div className="space-y-2">
-
-        <MatchPrediction 
-          homeTeam={match.teams?.home}
-          awayTeam={match.teams?.away}
-          fixtureId={match.fixture?.id}
-        />
+        {(() => {
+          try {
+            return (
+              <MatchPrediction 
+                homeTeam={match.teams?.home}
+                awayTeam={match.teams?.away}
+                fixtureId={match.fixture?.id}
+              />
+            );
+          } catch (error) {
+            console.error('Error in MatchPrediction:', error);
+            return <div>Error loading match prediction</div>;
+          }
+        })()}
       </div>
 
       {/* Conditional rendering based on match status */}
@@ -283,14 +291,23 @@ const MyStatsCard = ({ match }: { match: any }) => {
   }
 
   return (
-    <MyStats
-      homeStats={homeStats}
-      awayStats={awayStats}
-      homeTeam={homeTeam}
-      awayTeam={awayTeam}
-      isExpanded={isExpanded}
-      onToggleExpanded={() => setIsExpanded(!isExpanded)}
-    />
+    {(() => {
+      try {
+        return (
+          <MyStats
+            homeStats={homeStats}
+            awayStats={awayStats}
+            homeTeam={homeTeam}
+            awayTeam={awayTeam}
+            isExpanded={isExpanded}
+            onToggleExpanded={() => setIsExpanded(!isExpanded)}
+          />
+        );
+      } catch (error) {
+        console.error('Error in MyStats:', error, { homeTeam, awayTeam });
+        return <div>Error loading match statistics</div>;
+      }
+    })()}
   );
 };
 
