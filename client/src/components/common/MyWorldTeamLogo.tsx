@@ -264,7 +264,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       (teamName?.includes("Alboraya U20") && teamId === 19922);
 
     // Enhanced club team detection - must run BEFORE national team logic
-    const isKnownClubTeam =
+    let isKnownClubTeam =
       teamName &&
       (teamName.toLowerCase().includes("fc") ||
         teamName.toLowerCase().includes("cf") ||
