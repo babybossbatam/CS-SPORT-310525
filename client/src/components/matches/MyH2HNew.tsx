@@ -100,40 +100,15 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
           `🔍 [H2H] Raw team IDs: home=${actualHomeTeamId} (${typeof actualHomeTeamId}), away=${actualAwayTeamId} (${typeof actualAwayTeamId})`,
         );
         console.log(`🔍 [H2H] H2H parameter: "${h2hParam}"`);
-        console.log(`🔍 [H2H] Full URL with parameters: ${url}`);
-        console.log(`🔍 [H2H] Team ID validation: home=${Number(actualHomeTeamId)}, away=${Number(actualAwayTeamId)}, both valid: ${!isNaN(Number(actualHomeTeamId)) && !isNaN(Number(actualAwayTeamId))}`);
 
-        // Validate team IDs before making request
-        if (!actualHomeTeamId || !actualAwayTeamId || actualHomeTeamId === actualAwayTeamId) {
-          console.log(`⚠️ [H2H] Invalid team IDs: ${actualHomeTeamId} vs ${actualAwayTeamId}`);
-          setH2hData([]);
-          setError(null);
-          return;
-        }
-
-        const response = await fetch(url, {
-          method: "GET",
-          credentials: "include",
-        });
+        const response = await fetch(url);
 
         console.log(`📡 [H2H] Response status: ${response.status}`);
 
         if (!response.ok) {
-          let errorData;
-          try {
-            const responseText = await response.text();
-            console.log(`📄 [H2H] Raw error response:`, responseText);
-
-            // Try to parse as JSON, fallback to text
-            try {
-              errorData = JSON.parse(responseText);
-            } catch {
-              errorData = { error: responseText || "Unknown error", rawResponse: responseText };
-            }
-          } catch {
-            errorData = { error: "Failed to read error response" };
-          }
-
+          const errorData = await response
+            .json()
+            .catch(() => ({ error: "Unknown error" }));
           console.error(`❌ [H2H] API Error:`, errorData);
           console.error(`❌ [H2H] Full error details:`, {
             status: response.status,
@@ -544,7 +519,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                       {/* Home Team */}
                       <div className="flex items-center flex-1 min-w-0">
                         <span className="mobile-text-xs md:text-sm text-gray-800 font-medium truncate">
-                          {homeTeamInMatch?.name || "Home Team"}
+                          {homeTeamInMatch.name}
                         </span>
                       </div>
 
@@ -571,7 +546,7 @@ const MyH2HNew: React.FC<MyH2HNewProps> = ({
                       {/* Away Team */}
                       <div className="flex items-center justify-end flex-1 min-w-0">
                         <span className="mobile-text-xs md:text-sm text-gray-800 font-medium truncate">
-                          {awayTeamInMatch?.name || "Away Team"}
+                          {awayTeamInMatch.name}
                         </span>
                       </div>
                     </div>

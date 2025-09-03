@@ -79,9 +79,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Simplified memory monitoring middleware
+  // Memory monitoring middleware
   apiRouter.use((req, res, next) => {
-    // Only log memory issues, don't perform checks on every request
+    const memoryUsage = process.memoryUsage();
+    const heapUsedMB = memoryUsage.heapUsed / 1024 / 1024;
     next();
   });
 
@@ -420,20 +421,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check cache first with more aggressive caching
       const cacheKey = all === "true" ? `multi-tz-all:${date}` : `multi-tz:${date}`;
-
+      
       // Check in-memory cache first
       const cached = fixturesCache.get(cacheKey);
       const currentTime = Date.now();
-
+      
       // Determine cache duration based on date
       const today = new Date().toISOString().split("T")[0];
       const isPastDate = date < today;
       const isToday = date === today;
-
+      
       // More aggressive caching to prevent timeouts
-      const maxAge = isPastDate
+      const maxAge = isPastDate 
         ? 24 * 60 * 60 * 1000  // 24 hours for past dates
-        : isToday
+        : isToday 
           ? 5 * 60 * 1000      // 5 minutes for today
           : 6 * 60 * 60 * 1000; // 6 hours for future dates
 
@@ -448,29 +449,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (cachedFixtures && cachedFixtures.length > 0) {
         const cacheTime = new Date(cachedFixtures[0].timestamp);
         const cacheAge = currentTime - cacheTime.getTime();
-
+        
         // Use database cache if it's relatively fresh
         if (cacheAge < maxAge * 2) {
           console.log(`📦 [Routes] Using database cached fixtures for ${date} (age: ${Math.floor(cacheAge / 60000)}min)`);
           const fixtures = cachedFixtures.map(f => f.data);
-
+          
           // Update in-memory cache
           fixturesCache.set(cacheKey, {
             data: fixtures,
             timestamp: currentTime
           });
-
+          
           return res.json(fixtures);
         }
       }
 
       // If we reach here, we need fresh data - but use timeout protection
       const fetchPromise = fetchFixturesWithTimeout(date, all === "true");
-
+      
       try {
         const uniqueFixtures = await Promise.race([
           fetchPromise,
-          new Promise((_, reject) =>
+          new Promise((_, reject) => 
             setTimeout(() => reject(new Error('Timeout')), 45000) // 45 second timeout
           )
         ]);
@@ -483,16 +484,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         console.log(`✅ [Routes] Returning ${uniqueFixtures.length} fresh fixtures for ${date}`);
         return res.json(uniqueFixtures);
-
+        
       } catch (timeoutError) {
         console.log(`⏰ [Routes] Request timed out, returning stale cache for ${date}`);
-
+        
         // Return any available cached data, even if stale
         if (cachedFixtures && cachedFixtures.length > 0) {
           const fixtures = cachedFixtures.map(f => f.data);
           return res.json(fixtures);
         }
-
+        
         // Last resort: return empty array
         return res.json([]);
       }
@@ -545,47 +546,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   apiRouter.get("/fixtures/:id", async (req: Request, res: Response) => {
     try {
-      const fixtureId = parseInt(req.params.id);
+      const id = parseInt(req.params.id);
 
-      if (!fixtureId) {
-        return res.status(400).json({ error: "Invalid fixture ID" });
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid fixture ID" });
       }
 
-      console.log(`🔍 [Routes] Fetching fresh data for fixture ${fixtureId}`);
+      // Check cache first
+      const cachedFixture = await storage.getCachedFixture(id.toString());
 
-      // Always fetch fresh data for single fixture requests
-      const response = await axios.get(`${RAPIDAPI_BASE_URL}/fixtures`, {
-        params: {
-          id: fixtureId
-        },
-        headers: {
-          'X-RapidAPI-Key': RAPID_API_KEY,
-          'X-RapidAPI-Host': 'v3.football.api-sports.io'
-        },
-        timeout: 10000 // 10 second timeout
-      });
+      if (cachedFixture) {
+        // Check if cache is fresh (less than 1 hour old)
+        const now = new Date();
+        const cacheTime = new Date(cachedFixture.timestamp);
+        const cacheAge = now.getTime() - cacheTime.getTime();
 
-      if (response.data?.response && response.data.response.length > 0) {
-        const fixture = response.data.response[0];
-        console.log(`✅ [Routes] Fresh fixture ${fixtureId} status: ${fixture.fixture.status.short}, score: ${fixture.goals.home}-${fixture.goals.away}`);
-        return res.json(fixture);
-      } else {
-        console.warn(`⚠️ [Routes] No data found for fixture ${fixtureId}`);
-        return res.status(404).json({ error: "Fixture not found" });
-      }
-    } catch (error: any) {
-      console.error(`❌ [Routes] Error fetching fixture ${req.params.id}:`, error);
-
-      // Handle specific API errors
-      if (error.response?.status === 429) {
-        return res.status(429).json({ error: "API rate limit exceeded. Please try again later." });
-      } else if (error.response?.status === 500) {
-        return res.status(502).json({ error: "External API temporarily unavailable" });
-      } else if (error.code === 'ECONNABORTED') {
-        return res.status(504).json({ error: "Request timeout" });
+        if (cacheAge < 60 * 60 * 1000) {
+          // 1 hour (increased from 5 minutes)
+          return res.json(cachedFixture.data);
+        }
       }
 
-      return res.status(500).json({ error: "Failed to fetch fixture" });
+      // Fetch fixture from API-Football only
+      let fixture;
+      try {
+        fixture = await rapidApiService.getFixtureById(id);
+      } catch (error) {
+        console.error(`API-Football error for fixture ${id}:`, error);
+      }
+
+      if (!fixture) {
+        return res.status(404).json({ message: "Fixture not found" });
+      }
+
+      // Cache the fixture
+      try {
+        if (cachedFixture) {
+          await storage.updateCachedFixture(id.toString(), fixture);
+        } else {
+          await storage.createCachedFixture({
+            fixtureId: id.toString(),
+            data: fixture,
+            league: fixture.league.id.toString(),
+            date: new Date(fixture.fixture.date).toISOString().split("T")[0],
+          });
+        }
+      } catch (cacheError) {
+        console.error(`Error caching fixture ${id}:`, cacheError);
+        // Continue even if caching fails to avoid breaking the API response
+      }
+
+      res.json(fixture);
+    } catch (error) {
+      console.error("Error fetching fixture:", error);
+      res.status(500).json({ message: "Failed to fetch fixture" });
     }
   });
 
@@ -1807,17 +1821,14 @@ name: "Bundesliga",
       try {
         const { fixtureId } = req.params;
 
-        // Get player statistics for the fixture
-        const playerStats = await rapidApiService.getFixturePlayerStatistics(parseInt(fixtureId));
-
-        if (!playerStats) {
-          return res.json([]);
-        }
+        const response = await rapidApiService.get('/fixtures/players', {
+          params: { fixture: fixtureId }
+        });
 
         // Extract shot data from player statistics
         const shots: any[] = [];
 
-        playerStats.forEach((team: any) => {
+        response.data.response.forEach((team: any) => {
           team.players?.forEach((playerData: any) => {
             const player = playerData.player;
             const statistics = playerData.statistics[0]; // First statistics object
@@ -2112,7 +2123,7 @@ name: "Bundesliga",
   requestedDate: '${today.toISOString().split("T")[0]}',
   apiReturnedDate: '${apiDateString}',
   extractedDate: '${extractedDate}',
-  fixtureId: ${fixture.fixture.id}
+  fixtureId: ${fixture.fixture.id}'
 }`);
               return false;
             }
@@ -3146,8 +3157,7 @@ error) {
         headers: {
           'X-RapidAPI-Key': RAPID_API_KEY,
           'X-RapidAPI-Host': 'v3.football.api-sports.io'
-        },
-        timeout: 10000 // 10 second timeout
+        }
       });
 
       if (response.data?.response && response.data.response.length > 0) {
@@ -3158,18 +3168,8 @@ error) {
         console.warn(`⚠️ [Routes] No data found for fixture ${fixtureId}`);
         return res.status(404).json({ error: "Fixture not found" });
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error(`❌ [Routes] Error fetching fixture ${req.params.id}:`, error);
-
-      // Handle specific API errors
-      if (error.response?.status === 429) {
-        return res.status(429).json({ error: "API rate limit exceeded. Please try again later." });
-      } else if (error.response?.status === 500) {
-        return res.status(502).json({ error: "External API temporarily unavailable" });
-      } else if (error.code === 'ECONNABORTED') {
-        return res.status(504).json({ error: "Request timeout" });
-      }
-
       return res.status(500).json({ error: "Failed to fetch fixture" });
     }
   });
@@ -3415,29 +3415,36 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
       });
     }
 
-    console.log(`📊 [Shots API] Fetching shot data for fixture ${fixtureId}`);
+    // Try to fetch from RapidAPI
+    const response = await fetch(
+      `https://api-football-v1.p.rapidapi.com/v3/fixtures/statistics?fixture=${fixtureId}`,
+      {
+        method: 'GET',
+        headers: {
+          'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
+          'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
+        }
+      }
+    );
 
-    // Use RapidAPI service to get fixture statistics
-    const statistics = await rapidApiService.getFixtureStatistics(parseInt(fixtureId));
-
-    if (!statistics) {
-      console.log(`📊 [Shots API] No statistics found for fixture ${fixtureId}`);
-      return res.json({
-        fixture: fixtureId,
-        shots: []
+    if (!response.ok) {
+      console.error(`RapidAPI shots error for fixture ${fixtureId}:`, response.status);
+      return res.status(500).json({
+        error: 'Failed to fetch shot data',
+        details: `API responded with status ${response.status}`
       });
     }
 
+    const data = await response.json();
+
     // Transform the statistics data to extract shot information
-    const shotsData = statistics.map((team: any) => ({
+    const shotsData = data.response?.map((team: any) => ({
       team: team.team,
       statistics: team.statistics?.filter((stat: any) =>
         stat.type?.toLowerCase().includes('shot') ||
         stat.type?.toLowerCase().includes('goal')
       ) || []
-    }));
-
-    console.log(`📊 [Shots API] Returning shot data for ${shotsData.length} teams`);
+    })) || [];
 
     res.json({
       fixture: fixtureId,
@@ -3447,7 +3454,7 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
   } catch (error) {
     console.error(`Error fetching shots for fixture ${fixtureId}:`, error);
     res.status(500).json({
-      error: 'Failed to fetch shot data',
+      error: 'Internal server error',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }

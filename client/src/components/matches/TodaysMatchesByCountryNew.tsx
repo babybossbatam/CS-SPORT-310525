@@ -99,9 +99,6 @@ export const shortenTeamName = (teamName: string): string => {
     "New Zealand": "New Zealand",
     "Costa Rica": "Costa Rica",
     "Puerto Rico": "Puerto Rico",
-    "Northern Mariana Islands": "N. Mariana",
-    "Northern Macedonia": "N. Macedonia",
-    "North Macedonia": "N. Macedonia",
   };
 
   // Check if the team name matches any country mappings

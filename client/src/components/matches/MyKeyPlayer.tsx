@@ -110,7 +110,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
                     goals: playerData.statistics[0]?.goals?.total,
                     assists: playerData.statistics[0]?.goals?.assists
                   });
-
+                  
                   // Transform the data to match our PlayerStats interface
                   const transformedPlayer: PlayerStats = {
                     player: {
@@ -155,7 +155,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
                       }
                     }))
                   };
-
+                  
                   allPlayerStats.push(transformedPlayer);
                 }
               });
@@ -188,7 +188,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
           rapidStatsData.forEach((teamStat: any) => {
             console.log(`🔍 [MyKeyPlayer] Processing team stats: ${teamStat.team?.name}`, {
               playersCount: teamStat.players?.length,
-              hasPlayers: !!teamData.players
+              hasPlayers: !!teamStat.players
             });
 
             if (teamStat.players && Array.isArray(teamStat.players)) {
@@ -308,14 +308,14 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
         setError("No player data available");
       } catch (error) {
         console.error(`❌ [MyKeyPlayer] Error fetching player statistics (attempt ${retryCount + 1}):`, error);
-
+        
         // Retry logic
         if (retryCount < maxRetries) {
           console.log(`🔄 [MyKeyPlayer] Retrying in ${(retryCount + 1) * 1000}ms...`);
           setTimeout(() => fetchPlayerStats(retryCount + 1), (retryCount + 1) * 1000);
           return;
         }
-
+        
         setError(error instanceof Error ? error.message : "Failed to fetch player statistics after multiple attempts");
         setPlayerStats([]);
       } finally {
@@ -477,7 +477,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
     return null;
   }
 
-
+  
 
   const topPlayers = getTopPlayersByPosition(selectedPosition);
 
@@ -517,7 +517,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {topPlayers[0]?.player?.name || "Unknown Player"}
+                  {topPlayers[0]?.player?.name}
                 </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[0]?.statistics[0]?.games?.position || 'Unknown'}
@@ -586,7 +586,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {topPlayers[1]?.player?.name || "Unknown Player"}
+                  {topPlayers[1]?.player?.name}
                 </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[1]?.statistics[0]?.games?.position || 'Unknown'}
@@ -605,7 +605,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {topPlayers[0]?.player?.name || "Unknown Player"}
+                  {topPlayers[0]?.player?.name}
                 </div>
                 <div className="text-xs text-gray-500">
                   {topPlayers[0]?.statistics[0]?.games?.position || 'Unknown'}
@@ -620,7 +620,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
             <div className="mt-2 text-xs">
               {playerStats.slice(0, 3).map((player, idx) => (
                 <div key={idx}>
-                  {player.player.name || "Unknown Player"} ({player.statistics[0]?.games?.position || 'Unknown'})
+                  {player.player.name} ({player.statistics[0]?.games?.position || 'Unknown'})
                 </div>
               ))}
             </div>

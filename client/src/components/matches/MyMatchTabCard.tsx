@@ -11,45 +11,6 @@ import MyStatsTabCard from './MyStatsTabCard';
 import MyH2HNew from './MyH2HNew';
 import '@/styles/MyStats.css';
 
-// Define a simple ErrorBoundary component for robust error handling
-class MatchTabErrorBoundary extends React.Component<any, { hasError: boolean, error: Error | null }> {
-  constructor(props: any) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    // Update state so the next render will show the fallback UI.
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: any) {
-    // You can also log the error to an error reporting service
-    console.error("ErrorBoundary caught an error:", error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      // You can render any custom fallback UI
-      return (
-        <div className="text-center p-4">
-          <h2 className="text-red-600 text-xl font-bold mb-2">Something went wrong!</h2>
-          <p className="text-gray-700 mb-4">Could not load match details. Please try again later.</p>
-          <details className="cursor-pointer text-left text-xs text-gray-500">
-            <summary>Error Details</summary>
-            <pre className="mt-2 p-2 bg-gray-100 rounded">
-              {this.state.error?.message || this.state.error?.toString() || 'Unknown error'}
-            </pre>
-          </details>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
-
-
 interface MyMatchTabCardProps {
   match: any;
   onTabChange?: (tab: string) => void;
@@ -59,23 +20,15 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
   if (!match) return null;
 
   return (
-    <MatchTabErrorBoundary>
+    <>
       {/* Match Prediction */}
       <div className="space-y-2">
-        {(() => {
-          try {
-            return (
-              <MatchPrediction 
-                homeTeam={match.teams?.home}
-                awayTeam={match.teams?.away}
-                fixtureId={match.fixture?.id}
-              />
-            );
-          } catch (error) {
-            console.error('Error in MatchPrediction:', error);
-            return <div>Error loading match prediction</div>;
-          }
-        })()}
+
+        <MatchPrediction 
+          homeTeam={match.teams?.home}
+          awayTeam={match.teams?.away}
+          fixtureId={match.fixture?.id}
+        />
       </div>
 
       {/* Conditional rendering based on match status */}
@@ -174,7 +127,7 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
         />
       </div>
 
-
+      
       {/* Match Statistics */}
       <Card className="mystats-container">
         <CardHeader>
@@ -209,7 +162,7 @@ const MyMatchTabCard = ({ match, onTabChange }: MyMatchTabCardProps) => {
           awayTeam={match.teams?.away?.name}
         />
       </div>
-    </MatchTabErrorBoundary>
+    </>
   );
 };
 
@@ -290,23 +243,16 @@ const MyStatsCard = ({ match }: { match: any }) => {
     );
   }
 
-  return (() => {
-    try {
-      return (
-        <MyStats
-          homeStats={homeStats}
-          awayStats={awayStats}
-          homeTeam={homeTeam}
-          awayTeam={awayTeam}
-          isExpanded={isExpanded}
-          onToggleExpanded={() => setIsExpanded(!isExpanded)}
-        />
-      );
-    } catch (error) {
-      console.error('Error in MyStats:', error, { homeTeam, awayTeam });
-      return <div>Error loading match statistics</div>;
-    }
-  })();
+  return (
+    <MyStats
+      homeStats={homeStats}
+      awayStats={awayStats}
+      homeTeam={homeTeam}
+      awayTeam={awayTeam}
+      isExpanded={isExpanded}
+      onToggleExpanded={() => setIsExpanded(!isExpanded)}
+    />
+  );
 };
 
 export default MyMatchTabCard;

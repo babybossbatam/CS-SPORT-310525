@@ -26,11 +26,11 @@ const monitorMemory = () => {
   const usage = process.memoryUsage();
   const heapUsedMB = usage.heapUsed / 1024 / 1024;
 
-  if (heapUsedMB > 800) { // Warning at 800MB
+  if (heapUsedMB > 1500) { // Warning at 1.5GB
     memoryWarningCount++;
     console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB (Warning #${memoryWarningCount})`);
 
-    if (memoryWarningCount > 3) {
+    if (memoryWarningCount > 5) {
       console.log('🧹 Forcing garbage collection...');
       if (global.gc) {
         global.gc();
@@ -43,20 +43,20 @@ const monitorMemory = () => {
 // Check memory every 30 seconds
 setInterval(monitorMemory, 30000);
 
-// Set reasonable limits to prevent EventEmitter warnings
-process.setMaxListeners(50);
+// Set higher limits to prevent EventEmitter warnings
+process.setMaxListeners(8000);
 import { EventEmitter } from 'events';
-EventEmitter.defaultMaxListeners = 50;
+EventEmitter.defaultMaxListeners = 8000;
 
 // Set max listeners for common event emitters
 if (typeof process !== 'undefined' && process.stdout) {
-  process.stdout.setMaxListeners(50);
+  process.stdout.setMaxListeners(8000);
 }
 if (typeof process !== 'undefined' && process.stderr) {
-  process.stderr.setMaxListeners(50);
+  process.stderr.setMaxListeners(8000);
 }
 if (typeof process !== 'undefined' && process.stdin) {
-  process.stdin.setMaxListeners(20);
+  process.stdin.setMaxListeners(500);
 }
 
 // Graceful shutdown handling
@@ -123,32 +123,23 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
-  // Enhanced CORS middleware for Replit environment
   app.use(cors({
-    origin: [
-      'http://localhost:6800',
-      'https://localhost:6800',
-      /^https:\/\/.*\.replit\.dev$/,
-      /^https:\/\/.*\.replit\.app$/,
-      /^https:\/\/.*\.riker\.replit\.dev$/,
-      process.env.FRONTEND_URL || 'http://localhost:6800'
-    ],
+    origin: process.env.NODE_ENV === 'production' 
+      ? ['https://scores.cssport.world'] 
+      : true, // Allow all origins in development for Replit
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
-      'Origin',
-      'X-Requested-With',
-      'Content-Type',
-      'Accept',
-      'Authorization',
-      'Cache-Control',
-      'X-API-Key'
-    ],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Cache-Control', 'Pragma'],
     optionsSuccessStatus: 200
   }));
 
-  // Handle preflight requests
-  app.options('*', cors());
+  // Add a middleware to handle pre-flight requests
+  app.options('*', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Cache-Control, Pragma');
+    res.sendStatus(200);
+  });
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

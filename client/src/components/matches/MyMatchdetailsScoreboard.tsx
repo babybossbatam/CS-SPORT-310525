@@ -71,7 +71,7 @@ const MyMatchdetailsScoreboard = ({
   const [currentMatchData, setCurrentMatchData] = useState<any | null>(null);
   const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
   const activeTab = externalActiveTab || internalActiveTab;
-
+  
   // Dynamic background color state
   const [dynamicBackground, setDynamicBackground] = useState<string>("");
 
@@ -113,7 +113,7 @@ const MyMatchdetailsScoreboard = ({
     },
   };
 
-  const displayMatch = match;
+  const displayMatch = match || sampleMatch;
 
   // Extract team data for passing to child components like MyHighlights
   const getTeamData = () => {
@@ -137,59 +137,59 @@ const MyMatchdetailsScoreboard = ({
       try {
         const img = new Image();
         img.crossOrigin = "anonymous";
-
+        
         img.onload = () => {
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
-
+          
           if (!ctx) {
             resolve(getTeamColor(teamName, true));
             return;
           }
-
+          
           canvas.width = img.width;
           canvas.height = img.height;
           ctx.drawImage(img, 0, 0);
-
+          
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
           const data = imageData.data;
-
+          
           // Color frequency map
           const colorMap: Record<string, number> = {};
-
+          
           for (let i = 0; i < data.length; i += 4) {
             const r = data[i];
             const g = data[i + 1];
             const b = data[i + 2];
             const a = data[i + 3];
-
+            
             // Skip transparent or near-transparent pixels
             if (a < 128) continue;
-
+            
             // Skip very light or very dark colors
             const brightness = (r + g + b) / 3;
             if (brightness < 40 || brightness > 220) continue;
-
+            
             // Group similar colors
             const rGroup = Math.floor(r / 30) * 30;
             const gGroup = Math.floor(g / 30) * 30;
             const bGroup = Math.floor(b / 30) * 30;
-
+            
             const colorKey = `${rGroup},${gGroup},${bGroup}`;
             colorMap[colorKey] = (colorMap[colorKey] || 0) + 1;
           }
-
+          
           // Find most frequent color
           let dominantColor = "";
           let maxCount = 0;
-
+          
           for (const [color, count] of Object.entries(colorMap)) {
             if (count > maxCount) {
               maxCount = count;
               dominantColor = color;
             }
           }
-
+          
           if (dominantColor) {
             const [r, g, b] = dominantColor.split(",").map(Number);
             resolve(`rgb(${r}, ${g}, ${b})`);
@@ -197,11 +197,11 @@ const MyMatchdetailsScoreboard = ({
             resolve(getTeamColor(teamName, true));
           }
         };
-
+        
         img.onerror = () => {
           resolve(getTeamColor(teamName, true));
         };
-
+        
         img.src = logoUrl;
       } catch (error) {
         resolve(getTeamColor(teamName, true));
@@ -215,41 +215,41 @@ const MyMatchdetailsScoreboard = ({
       const extractColorsAndSetBackground = async () => {
         try {
           // Get logo URLs
-          const homeLogoUrl = displayMatch.teams.home.id
+          const homeLogoUrl = displayMatch.teams.home.id 
             ? `/api/team-logo/square/${displayMatch.teams.home.id}?size=64`
             : displayMatch.teams.home.logo;
-
-          const awayLogoUrl = displayMatch.teams.away.id
+          
+          const awayLogoUrl = displayMatch.teams.away.id 
             ? `/api/team-logo/square/${displayMatch.teams.away.id}?size=64`
             : displayMatch.teams.away.logo;
-
+          
           // Extract colors from logos
           const [homeColor, awayColor] = await Promise.all([
             extractColorFromLogo(homeLogoUrl, displayMatch.teams.home.name),
             extractColorFromLogo(awayLogoUrl, displayMatch.teams.away.name)
           ]);
-
+          
           // Create 365scores-style radial gradients with circular shapes from left and right
           const homeColorRgba = homeColor.replace('rgb(', '').replace(')', '').split(',');
           const awayColorRgba = awayColor.replace('rgb(', '').replace(')', '').split(',');
-
+          
           const gradient = `radial-gradient(121.26% 75.73% at 0% 50.24%, rgba(${homeColorRgba[0]}, ${homeColorRgba[1]}, ${homeColorRgba[2]}, 0.3) 0%, rgba(255, 255, 255, 0.3) 80%), radial-gradient(121.26% 75.73% at 100% 50.24%, rgba(${awayColorRgba[0]}, ${awayColorRgba[1]}, ${awayColorRgba[2]}, 0.3) 0%, rgba(255, 255, 255, 0.3) 80%)`;
-
+          
           setDynamicBackground(gradient);
         } catch (error) {
           console.warn("Error extracting team colors for background:", error);
           // Fallback to name-based colors with radial gradient approach
           const homeTeamColor = getTeamColor(displayMatch.teams.home.name, true);
           const awayTeamColor = getTeamColor(displayMatch.teams.away.name, false);
-
+          
           const homeColorRgba = homeTeamColor.replace('rgb(', '').replace(')', '').split(',');
           const awayColorRgba = awayTeamColor.replace('rgb(', '').replace(')', '').split(',');
-
+          
           const gradient = `radial-gradient(121.26% 75.73% at 0% 50.24%, rgba(${homeColorRgba[0]}, ${homeColorRgba[1]}, ${awayColorRgba[2]}, 0.3) 0%, rgba(255, 255, 255, 0.3) 80%), radial-gradient(121.26% 75.73% at 100% 50.24%, rgba(${awayColorRgba[0]}, ${awayColorRgba[1]}, ${awayColorRgba[2]}, 0.3) 0%, rgba(255, 255, 255, 0.3) 80%)`;
           setDynamicBackground(gradient);
         }
       };
-
+      
       extractColorsAndSetBackground();
     }
   }, [displayMatch?.teams?.home?.name, displayMatch?.teams?.away?.name, displayMatch?.teams?.home?.id, displayMatch?.teams?.away?.id]);
@@ -271,17 +271,6 @@ const MyMatchdetailsScoreboard = ({
     league: displayMatch?.league?.name,
   });
 
-  // Early return if no match data is provided
-  if (!displayMatch) {
-    return (
-      <Card className={`w-full ${className} p-4`}>
-        <div className="text-center text-gray-500">
-          No match data available
-        </div>
-      </Card>
-    );
-  }
-
   // State for real-time timer
   const [realTimeElapsed, setRealTimeElapsed] = useState<number | null>(null);
 
@@ -290,28 +279,6 @@ const MyMatchdetailsScoreboard = ({
   const [currentLiveStatus, setCurrentLiveStatus] = useState<string | null>(null);
   const [isMatchEnded, setIsMatchEnded] = useState<boolean>(false);
   const [dataSource, setDataSource] = useState<'STATIC' | 'LIVE'>('STATIC');
-
-  const updateLiveScores = (scores: {home: number, away: number}) => {
-    setCurrentScores(scores);
-  };
-
-  const updateCurrentLiveStatus = (status: string) => {
-    setCurrentLiveStatus(status);
-  };
-
-  // Use live data if available, otherwise fall back to passed data
-  const getDisplayScores = () => {
-    if (currentScores !== null) {
-      return currentScores;
-    }
-    if (liveScores !== null) {
-      return liveScores;
-    }
-    return {
-      home: displayMatch.goals?.home ?? 0,
-      away: displayMatch.goals?.away ?? 0
-    };
-  };
 
   // Real-time update effect for live matches with continuous timer
   useEffect(() => {
@@ -480,7 +447,7 @@ const MyMatchdetailsScoreboard = ({
     if (liveStatus || currentLiveStatus) {
       const liveStatusToUse = liveStatus || currentLiveStatus;
       // Validate that live status is a reasonable progression from actual status
-      if (actualStatus === liveStatusToUse ||
+      if (actualStatus === liveStatusToUse || 
           (actualStatus === "1H" && liveStatusToUse === "HT") ||
           (actualStatus === "HT" && liveStatusToUse === "2H") ||
           (actualStatus === "2H" && liveStatusToUse === "FT")) {
@@ -642,24 +609,42 @@ const MyMatchdetailsScoreboard = ({
         <div className="flex items-center justify-between mb-4 -mt-6">
           {/* Home Team */}
           <div className="flex flex-col items-center space-y-2 flex-1">
-            {/* Home Team Logo */}
-            <div className="flex items-center justify-end mr-4" style={{ width: '48px', height: '48px', maxWidth: '48px', maxHeight: '48px' }}>
+            {displayMatch.league.country === "World" ||
+            displayMatch.league.country === "International" ? (
               <MyWorldTeamLogo
-                teamId={displayMatch.teams.home.id}
                 teamName={displayMatch.teams.home.name}
                 teamLogo={displayMatch.teams.home.logo}
-                size="51px"
+                alt={displayMatch.teams.home.name}
+                size="56px"
                 leagueContext={{
-                  leagueId: displayMatch.league.id,
                   name: displayMatch.league.name,
                   country: displayMatch.league.country,
                 }}
-                alt={displayMatch.teams.home?.name || "Home Team"}
-                className="team-logo"
               />
-            </div>
+            ) : isNationalTeam(displayMatch.teams.home, displayMatch.league) ? (
+              <MyCircularFlag
+                teamName={displayMatch.teams.home.name}
+                fallbackUrl={displayMatch.teams.home.logo}
+                alt={displayMatch.teams.home.name}
+                size="56px"
+              />
+            ) : (
+              <img
+                src={
+                  displayMatch.teams.home.logo || "/assets/fallback-logo.png"
+                }
+                alt={displayMatch.teams.home.name}
+                className="w-16 h-16 object-contain"
+                style={{
+                  filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8))",
+                }}
+                onError={(e) => {
+                  e.currentTarget.src = "/assets/fallback-logo.png";
+                }}
+              />
+            )}
             <span className="text-md font-medium text-center ">
-              {displayMatch?.teams?.home?.name || "Home Team"}
+              {displayMatch.teams.home.name}
             </span>
           </div>
 
@@ -767,7 +752,7 @@ const MyMatchdetailsScoreboard = ({
                   {getStatusBadge(displayMatch.fixture.status.short)}
                 </div>
                 <div className="text-3xl font-semi-bold">
-                  {`${getDisplayScores().home ?? 0} - ${getDisplayScores().away ?? 0}`}
+                  {`${displayMatch.goals?.home ?? 0} - ${displayMatch.goals?.away ?? 0}`}
                 </div>
                 <div className="text-sm text-gray-900 font-semi-bold">
                   {format(new Date(displayMatch.fixture.date), "dd/MM")}
@@ -778,24 +763,42 @@ const MyMatchdetailsScoreboard = ({
 
           {/* Away Team */}
           <div className="flex flex-col items-center space-y-2 flex-1">
-            {/* Away Team Logo */}
-            <div className="flex items-center justify-start ml-4" style={{ width: '48px', height: '48px', maxWidth: '48px', maxHeight: '48px' }}>
+            {displayMatch.league.country === "World" ||
+            displayMatch.league.country === "International" ? (
               <MyWorldTeamLogo
-                teamId={displayMatch.teams.away.id}
                 teamName={displayMatch.teams.away.name}
                 teamLogo={displayMatch.teams.away.logo}
-                size="51px"
+                alt={displayMatch.teams.away.name}
+                size="56px"
                 leagueContext={{
-                  leagueId: displayMatch.league.id,
                   name: displayMatch.league.name,
                   country: displayMatch.league.country,
                 }}
-                alt={displayMatch.teams.away?.name || "Away Team"}
-                className="team-logo"
               />
-            </div>
+            ) : isNationalTeam(displayMatch.teams.away, displayMatch.league) ? (
+              <MyCircularFlag
+                teamName={displayMatch.teams.away.name}
+                fallbackUrl={displayMatch.teams.away.logo}
+                alt={displayMatch.teams.away.name}
+                size="56px"
+              />
+            ) : (
+              <img
+                src={
+                  displayMatch.teams.away.logo || "/assets/fallback-logo.png"
+                }
+                alt={displayMatch.teams.away.name}
+                className="w-16 h-16 object-contain"
+                style={{
+                  filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8))",
+                }}
+                onError={(e) => {
+                  e.currentTarget.src = "/assets/fallback-logo.png";
+                }}
+              />
+            )}
             <span className="text-md font-medium text-center mb-4">
-              {displayMatch?.teams?.away?.name || "Away Team"}
+              {displayMatch.teams.away.name}
             </span>
           </div>
         </div>

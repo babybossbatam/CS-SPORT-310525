@@ -314,35 +314,6 @@ const PopularLeaguesList = () => {
         console.log(
           "🔄 [PopularLeaguesList] Fetching popular leagues from API...",
         );
-        
-        // Set initial data from hardcoded list to prevent empty state
-        const fallbackLeagues = [...CURRENT_POPULAR_LEAGUES]
-          .filter((league) => {
-            const leagueName = league.name?.toLowerCase() || "";
-            const country = league.country?.toLowerCase() || "";
-            return (
-              !leagueName.includes("second league") &&
-              !leagueName.includes("segunda división") &&
-              !leagueName.includes("segunda division") &&
-              !leagueName.includes("women") &&
-              !leagueName.includes("qualification") &&
-              !leagueName.includes("reserve league") &&
-              !(
-                leagueName.includes("super cup") &&
-                country.includes("san marino")
-              ) &&
-              !country.includes("finland") &&
-              !country.includes("iran") &&
-              !country.includes("thailand") &&
-              !country.includes("san marino")
-            );
-          })
-          .sort((a, b) => b.popularity - a.popularity);
-
-        // Set fallback data immediately to show leagues
-        setLeagueData(fallbackLeagues);
-        setIsLoading(false);
-
         const response = await apiRequest("GET", "/api/leagues/popular");
         const leagues = await response.json();
 
@@ -386,6 +357,13 @@ const PopularLeaguesList = () => {
               const leagueName = league.name?.toLowerCase() || "";
               const country = league.country?.toLowerCase() || "";
               const leagueId = league.id;
+              // Exclude Second League and Segunda División leagues
+              // Exclude leagues from Finland, Iran, and Thailand
+              // Exclude women's competitions
+              // Exclude qualification tournaments
+              // Exclude Reserve League and San Marino
+              // Exclude Super Cup from San Marino specifically
+              // Exclude specific league IDs
               return (
                 leagueId !== 40 && // Exclude Championship (England)
                 !leagueName.includes("second league") &&
@@ -423,17 +401,47 @@ const PopularLeaguesList = () => {
               );
             });
 
-          // Only update if we got different data
-          if (transformedLeagues.length > 0) {
-            setLeagueData(transformedLeagues);
-          }
+          setLeagueData(transformedLeagues);
+        } else {
+          throw new Error("No leagues data received from API");
         }
       } catch (error) {
         console.error(
           "❌ [PopularLeaguesList] Error fetching popular leagues:",
           error,
         );
-        // Fallback data is already set above, no need to set again
+        // Fallback to hardcoded popular leagues if API fails
+        const sortedLeagues = [...CURRENT_POPULAR_LEAGUES]
+          .filter((league) => {
+            const leagueName = league.name?.toLowerCase() || "";
+            const country = league.country?.toLowerCase() || "";
+            // Exclude Second League and Segunda División leagues
+            // Exclude leagues from Finland, Iran, and Thailand
+            // Exclude women's competitions
+            // Exclude qualification tournaments
+            // Exclude Reserve League and San Marino
+            // Exclude Super Cup from San Marino specifically
+            return (
+              !leagueName.includes("second league") &&
+              !leagueName.includes("segunda división") &&
+              !leagueName.includes("segunda division") &&
+              !leagueName.includes("women") &&
+              !leagueName.includes("qualification") &&
+              !leagueName.includes("reserve league") &&
+              !(
+                leagueName.includes("super cup") &&
+                country.includes("san marino")
+              ) &&
+              !country.includes("finland") &&
+              !country.includes("iran") &&
+              !country.includes("thailand") &&
+              !country.includes("san marino")
+            );
+          })
+          .sort((a, b) => b.popularity - a.popularity);
+        setLeagueData(sortedLeagues);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -519,15 +527,14 @@ const PopularLeaguesList = () => {
                     title={league.name}
                     className="w-5 h-5 object-contain"
                     loading="lazy"
-                    priority="medium"
                     onError={() => {
                       console.log(
-                        `🚨 [PopularLeaguesList] League logo failed for: ${league.name} (ID: ${league.id})`,
+                        `🚨 League logo failed for: ${league.name} (ID: ${league.id})`,
                       );
                     }}
                     onLoad={() => {
                       console.log(
-                        `✅ [PopularLeaguesList] League logo loaded for: ${league.name} (ID: ${league.id})`,
+                        `✅ League logo loaded for: ${league.name} (ID: ${league.id})`,
                       );
                     }}
                   />

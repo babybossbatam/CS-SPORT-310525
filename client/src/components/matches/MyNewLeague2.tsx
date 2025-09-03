@@ -972,32 +972,18 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       return minutesUntilKickoff > 0 && minutesUntilKickoff <= 30; // Within 30 minutes
     });
 
-    // Enhanced live match detection including time-based detection
-    const timeBasedLiveMatches = Object.values(fixturesByLeague)
-      .flatMap((group) => group.fixtures)
-      .filter((fixture) => {
-        const matchTime = new Date(fixture.fixture.date);
-        const minutesSinceKickoff = (now.getTime() - matchTime.getTime()) / (1000 * 60);
-        const shouldBeLiveByTime = minutesSinceKickoff >= -5 && minutesSinceKickoff <= 120;
-        const isNotFinished = !["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(fixture.fixture.status.short);
-
-        return shouldBeLiveByTime && isNotFinished;
-      });
-
-    const totalLiveMatches = Math.max(liveMatches.length, timeBasedLiveMatches.length);
-
     let newCacheConfig;
 
-    if (totalLiveMatches > 0 && isToday) {
+    if (liveMatches.length > 0 && isToday) {
       // LIVE matches detected - most aggressive cache
       newCacheConfig = {
-        staleTime: 30 * 1000, // 30 seconds (more aggressive)
-        refetchInterval: 15 * 1000, // 15 seconds (more frequent)
-        refetchOnWindowFocus: true, // Enable focus refetch for live matches
+        staleTime: 1 * 60 * 1000, // 1 minute
+        refetchInterval: 30 * 1000, // 30 seconds
+        refetchOnWindowFocus: false,
         refetchOnReconnect: true,
       };
       console.log(
-        `🔴 [MyNewLeague2] ${totalLiveMatches} live matches detected (${liveMatches.length} API + ${timeBasedLiveMatches.length} time-based) - using most aggressive cache (30s/15s)`,
+        `🔴 [MyNewLeague2] ${liveMatches.length} live matches detected - using most aggressive cache (1min/30s)`,
       );
     } else if (imminentMatches.length > 0 && isToday) {
       // Matches starting within 30 minutes - very aggressive cache
@@ -1748,7 +1734,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
   // Show loading with better error handling
   if (
-    isLoading &&
+    isLoading && 
     !allFixtures &&
     !hasCachedData
   ) {
@@ -1833,7 +1819,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         {/* Away team logo */}
                         <div
                           className="away-team-logo-container"
-                          style={{ padding: "0 0.6rem" }}
+                          style={{ padding: "0.5rem" }}
                         >
                           <Skeleton className="h-8 w-8 rounded-full" />
                         </div>
@@ -2583,45 +2569,32 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       "INT",
                                     ].includes(status));
 
-                                // Enhanced live match detection with time-based fallback
-                                const matchTime = new Date(fixture.fixture.date);
-                                const now = new Date();
-                                const minutesSinceKickoff = (now.getTime() - matchTime.getTime()) / (1000 * 60);
-
-                                // Time-based live detection: match should be live if it's between -5 to +120 minutes from kickoff
-                                const shouldBeLiveByTime = minutesSinceKickoff >= -5 && minutesSinceKickoff <= 120;
-
-                                // API-based live detection
-                                const isApiLiveStatus = [
-                                  "LIVE",
-                                  "LIV",
-                                  "1H",
-                                  "HT",
-                                  "2H",
-                                  "ET",
-                                  "BT",
-                                  "P",
-                                  "INT",
-                                  "45",
-                                  "90",
-                                ].includes(status);
-
-                                // Finished status detection
-                                const isFinishedStatus = [
-                                  "FT",
-                                  "AET",
-                                  "PEN",
-                                  "AWD",
-                                  "WO",
-                                  "ABD",
-                                  "CANC",
-                                  "SUSP",
-                                ].includes(status);
-
-                                // Show live status if: API says it's live OR (time suggests it should be live AND it's not marked as finished)
-                                const shouldShowLive = (isApiLiveStatus || (shouldBeLiveByTime && status === "NS" && !isFinishedStatus)) && !isStaleFinishedMatch && hoursOld <= 4;
-
-                                if (shouldShowLive) {
+                                // Show live status only for truly live matches (not finished and not stale)
+                                if (
+                                  ![
+                                    "FT",
+                                    "AET",
+                                    "PEN",
+                                    "AWD",
+                                    "WO",
+                                    "ABD",
+                                    "CANC",
+                                    "SUSP",
+                                  ].includes(status) &&
+                                  !isStaleFinishedMatch &&
+                                  hoursOld <= 4 &&
+                                  [
+                                    "LIVE",
+                                    "LIV",
+                                    "1H",
+                                    "HT",
+                                    "2H",
+                                    "ET",
+                                    "BT",
+                                    "P",
+                                    "INT",
+                                  ].includes(status)
+                                ) {
                                   let displayText = "";
                                   let statusClass = "status-live-elapsed";
 
@@ -2644,11 +2617,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     displayText = t("break_time");
                                   } else if (status === "INT") {
                                     displayText = t("interrupted");
-                                  } else if (shouldBeLiveByTime && status === "NS") {
-                                    // Time-based live detection for overdue "NS" matches
-                                    const estimatedElapsed = Math.max(0, Math.floor(minutesSinceKickoff));
-                                    displayText = estimatedElapsed > 0 ? `${estimatedElapsed}'` : "LIVE";
-                                    statusClass = "status-live-elapsed";
                                   } else {
                                     displayText = elapsed
                                       ? `${elapsed}'`
@@ -2806,14 +2774,16 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 style={{ padding: "0 0.6rem" }}
                               >
                                 <MyWorldTeamLogo
+                                  teamName={fixture.teams.home.name || ""}
                                   teamId={fixture.teams.home.id}
-                                  teamName={fixture.teams.home.name}
+                                  teamLogo={
+                                    fixture.teams.home.logo ||
+                                    `https://media.api.sports.io/football/teams/${fixture.teams.home.id}.png`
+                                  }
+                                  alt={fixture.teams.home.name}
                                   size="34px"
-                                  leagueContext={{
-                                    leagueId: fixture.league.id,
-                                    name: fixture.league.name,
-                                    country: fixture.league.country,
-                                  }}
+                                  className="popular-leagues-size"
+                                  leagueContext={leagueContext}
                                 />
                               </div>
 
@@ -2822,38 +2792,31 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 {(() => {
                                   const status = fixture.fixture.status.short;
 
-                                  // Enhanced live matches detection - API status OR time-based
-                                  const matchTime = new Date(fixture.fixture.date);
-                                  const now = new Date();
-                                  const minutesSinceKickoff = (now.getTime() - matchTime.getTime()) / (1000 * 60);
-                                  const shouldBeLiveByTime = minutesSinceKickoff >= -5 && minutesSinceKickoff <= 120;
-                                  const isNotFinished = !["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status);
-
-                                  const isApiLive = [
-                                    "LIVE",
-                                    "LIV",
-                                    "1H",
-                                    "HT",
-                                    "2H",
-                                    "ET",
-                                    "BT",
-                                    "P",
-                                    "INT",
-                                    "45",
-                                    "90",
-                                  ].includes(status);
-
-                                  // Show live score if API says it's live OR time suggests it should be live
-                                  if (isApiLive || (shouldBeLiveByTime && status === "NS" && isNotFinished)) {
-                                    // For live matches, prioritize goals over score object
+                                  // Live matches - show current score
+                                  if (
+                                    [
+                                      "LIVE",
+                                      "LIV",
+                                      "1H",
+                                      "HT",
+                                      "2H",
+                                      "ET",
+                                      "BT",
+                                      "P",
+                                      "INT",
+                                      "45",
+                                      "90",
+                                    ].includes(status)
+                                  ) {
+                                    // Use fulltime score if available, otherwise use goals
                                     const homeScore =
-                                      fixture.goals?.home !== null && fixture.goals?.home !== undefined
-                                        ? fixture.goals.home
-                                        : fixture.score?.fulltime?.home ?? 0;
+                                      fixture.score?.fulltime?.home ??
+                                      fixture.goals?.home ??
+                                      0;
                                     const awayScore =
-                                      fixture.goals?.away !== null && fixture.goals?.away !== undefined
-                                        ? fixture.goals.away
-                                        : fixture.score?.fulltime?.away ?? 0;
+                                      fixture.score?.fulltime?.away ??
+                                      fixture.goals?.away ??
+                                      0;
 
                                     return (
                                       <div className="match-score-display">
@@ -2883,15 +2846,15 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       "SUSP",
                                     ].includes(status)
                                   ) {
-                                    // For ended matches, prioritize goals over score object for accuracy
+                                    // Use fulltime score if available, otherwise use goals
                                     const homeScore =
-                                      fixture.goals?.home !== null && fixture.goals?.home !== undefined
-                                        ? fixture.goals.home
-                                        : fixture.score?.fulltime?.home ?? 0;
+                                      fixture.score?.fulltime?.home ??
+                                      fixture.goals?.home ??
+                                      0;
                                     const awayScore =
-                                      fixture.goals?.away !== null && fixture.goals?.away !== undefined
-                                        ? fixture.goals.away
-                                        : fixture.score?.fulltime?.away ?? 0;
+                                      fixture.score?.fulltime?.away ??
+                                      fixture.goals?.away ??
+                                      0;
 
                                     return (
                                       <div className="match-score-display">
@@ -3016,14 +2979,16 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 style={{ padding: "0 0.5rem" }}
                               >
                                 <MyWorldTeamLogo
+                                  teamName={fixture.teams.away.name || ""}
                                   teamId={fixture.teams.away.id}
-                                  teamName={fixture.teams.away.name}
+                                  teamLogo={
+                                    fixture.teams.away.logo ||
+                                    `https://media.api.sports.io/football/teams/${fixture.teams.away.id}.png`
+                                  }
+                                  alt={fixture.teams.away.name}
                                   size="34px"
-                                  leagueContext={{
-                                    leagueId: fixture.league.id,
-                                    name: fixture.league.name,
-                                    country: fixture.league.country,
-                                  }}
+                                  className="popular-leagues-size"
+                                  leagueContext={leagueContext}
                                 />
                               </div>
 
@@ -3169,8 +3134,8 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
   const { t, translateLeagueName: contextTranslateLeagueName } =
     useTranslation();
   const { hasIntersected } = useIntersectionObserver(containerRef, {
-    threshold: 0, // Trigger immediately when any part is visible
-    rootMargin: "300px", // Start loading 300px before it comes into view
+    threshold: 0.01, // Trigger even earlier
+    rootMargin: "200px", // Start loading 200px before it comes into view
   });
 
   // Cleanup on unmount
@@ -3192,8 +3157,7 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
     cachedData && Array.isArray(cachedData) && cachedData.length > 0;
 
   // If we have cached data OR component has intersected, show the actual component
-  // Force render for debugging - remove this condition later
-  if (hasCachedData || hasIntersected || true) {
+  if (hasCachedData || hasIntersected) {
     return <MyNewLeague2Component {...props} />;
   }
 
@@ -3280,7 +3244,7 @@ const LazyMyNewLeague2Wrapper: React.FC<MyNewLeague2Props> = (props) => {
                         {/* Away team logo */}
                         <div
                           className="away-team-logo-container"
-                          style={{ padding: "0 0.6rem" }}
+                          style={{ padding: "0 0.5rem" }}
                         >
                           <Skeleton className="h-8 w-8 rounded-full" />
                         </div>
