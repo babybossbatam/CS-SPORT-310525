@@ -63,10 +63,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.getCachedFixturesByDate(
         new Date().toISOString().split("T")[0],
       );
+
+      // Check API key availability
+      const hasRapidApiKey = !!process.env.RAPID_API_KEY;
+
       res.json({
         status: "healthy",
         database: "connected",
+        apiKey: hasRapidApiKey ? "configured" : "missing",
+        server: "operational",
         timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        memory: process.memoryUsage(),
       });
     } catch (error) {
       console.error("Health check failed:", error);
@@ -105,10 +113,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.getCachedFixturesByDate(
         new Date().toISOString().split("T")[0],
       );
+
+      // Check API key availability
+      const hasRapidApiKey = !!process.env.RAPID_API_KEY;
+
       res.json({
         status: "healthy",
         database: "connected",
+        apiKey: hasRapidApiKey ? "configured" : "missing",
+        server: "operational",
         timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        memory: process.memoryUsage(),
       });
     } catch (error) {
       console.error("Health check failed:", error);
@@ -421,20 +437,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check cache first with more aggressive caching
       const cacheKey = all === "true" ? `multi-tz-all:${date}` : `multi-tz:${date}`;
-      
+
       // Check in-memory cache first
       const cached = fixturesCache.get(cacheKey);
       const currentTime = Date.now();
-      
+
       // Determine cache duration based on date
       const today = new Date().toISOString().split("T")[0];
       const isPastDate = date < today;
       const isToday = date === today;
-      
+
       // More aggressive caching to prevent timeouts
-      const maxAge = isPastDate 
+      const maxAge = isPastDate
         ? 24 * 60 * 60 * 1000  // 24 hours for past dates
-        : isToday 
+        : isToday
           ? 5 * 60 * 1000      // 5 minutes for today
           : 6 * 60 * 60 * 1000; // 6 hours for future dates
 
@@ -449,29 +465,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (cachedFixtures && cachedFixtures.length > 0) {
         const cacheTime = new Date(cachedFixtures[0].timestamp);
         const cacheAge = currentTime - cacheTime.getTime();
-        
+
         // Use database cache if it's relatively fresh
         if (cacheAge < maxAge * 2) {
           console.log(`📦 [Routes] Using database cached fixtures for ${date} (age: ${Math.floor(cacheAge / 60000)}min)`);
           const fixtures = cachedFixtures.map(f => f.data);
-          
+
           // Update in-memory cache
           fixturesCache.set(cacheKey, {
             data: fixtures,
             timestamp: currentTime
           });
-          
+
           return res.json(fixtures);
         }
       }
 
       // If we reach here, we need fresh data - but use timeout protection
       const fetchPromise = fetchFixturesWithTimeout(date, all === "true");
-      
+
       try {
         const uniqueFixtures = await Promise.race([
           fetchPromise,
-          new Promise((_, reject) => 
+          new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Timeout')), 45000) // 45 second timeout
           )
         ]);
@@ -484,16 +500,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         console.log(`✅ [Routes] Returning ${uniqueFixtures.length} fresh fixtures for ${date}`);
         return res.json(uniqueFixtures);
-        
+
       } catch (timeoutError) {
         console.log(`⏰ [Routes] Request timed out, returning stale cache for ${date}`);
-        
+
         // Return any available cached data, even if stale
         if (cachedFixtures && cachedFixtures.length > 0) {
           const fixtures = cachedFixtures.map(f => f.data);
           return res.json(fixtures);
         }
-        
+
         // Last resort: return empty array
         return res.json([]);
       }
