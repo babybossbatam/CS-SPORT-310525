@@ -643,19 +643,21 @@ const MyMatchdetailsScoreboard = ({
           {/* Home Team */}
           <div className="flex flex-col items-center space-y-2 flex-1">
             {/* Home Team Logo */}
-            <div className="flex items-center justify-end mr-4">
-              <MyWorldTeamLogo
-                teamId={displayMatch.teams.home.id}
-                teamName={displayMatch.teams.home.name}
-                teamLogo={displayMatch.teams.home.logo}
+            <div className="flex items-center justify-end mr-4" style={{ width: '48px', height: '48px', maxWidth: '48px', maxHeight: '48px' }}>
+              <img
+                src={displayMatch.teams.home.logo || `/api/team-logo/square/${displayMatch.teams.home.id}?size=48`}
                 alt={displayMatch.teams.home.name}
-                size="48px"
                 className="team-logo"
-                leagueContext={{
-                  name: displayMatch.league?.name || '',
-                  country: displayMatch.league?.country || ''
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  objectFit: 'contain',
+                  borderRadius: '4px'
                 }}
-                priority="high"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/assets/fallback-logo.svg';
+                }}
               />
             </div>
             <span className="text-md font-medium text-center ">
@@ -779,19 +781,21 @@ const MyMatchdetailsScoreboard = ({
           {/* Away Team */}
           <div className="flex flex-col items-center space-y-2 flex-1">
             {/* Away Team Logo */}
-            <div className="flex items-center justify-start ml-4">
-              <MyWorldTeamLogo
-                teamName={displayMatch.teams.away.name}
-                teamId={displayMatch.teams.away.id}
-                teamLogo={displayMatch.teams.away.logo}
+            <div className="flex items-center justify-start ml-4" style={{ width: '48px', height: '48px', maxWidth: '48px', maxHeight: '48px' }}>
+              <img
+                src={displayMatch.teams.away.logo || `/api/team-logo/square/${displayMatch.teams.away.id}?size=48`}
                 alt={displayMatch.teams.away.name}
-                size="48px"
                 className="team-logo"
-                leagueContext={{
-                  name: displayMatch.league?.name || '',
-                  country: displayMatch.league?.country || ''
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  objectFit: 'contain',
+                  borderRadius: '4px'
                 }}
-                priority="high"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/assets/fallback-logo.svg';
+                }}
               />
             </div>
             <span className="text-md font-medium text-center mb-4">
