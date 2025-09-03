@@ -220,9 +220,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     // Debug team data availability
     console.log(`🏠 [Team Data] Home: "${homeTeam}", Away: "${awayTeam}", Events: ${events.length}`);
 
-    // Only fetch if we have team data or no events yet
-    if (homeTeam && awayTeam) {
-      console.log(`✅ [Team Data] Team data ready, fetching events for fixture ${fixtureId}`);
+    // Fetch events if we have a fixture ID
+    if (fixtureId) {
+      console.log(`✅ [Fixture Data] Fixture ID ready, fetching events for fixture ${fixtureId}`);
 
       // Add small delay to prevent rapid mounting/unmounting issues
       const timeoutId = setTimeout(() => {
@@ -244,9 +244,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         }
       };
     } else {
-      console.warn(`⚠️ [Team Data] Missing team data - Home: "${homeTeam}", Away: "${awayTeam}"`);
+      console.warn(`⚠️ [Fixture Data] Missing fixture ID: ${fixtureId}`);
     }
-  }, [homeTeam, awayTeam, fetchMatchEvents, refreshInterval]);
+  }, [fixtureId, fetchMatchEvents, refreshInterval]);
 
   const formatTime = (elapsed: number, extra?: number) => {
     if (extra) {
@@ -512,31 +512,39 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   const isHomeTeam = useCallback(
     (event: MatchEvent): boolean | null => {
-      if (!homeTeam || !awayTeam || !event.team?.name) {
-        // If team data is not available, we cannot determine team side
-        console.warn(`🔍 [Team Matching] Missing data - homeTeam: "${homeTeam}", awayTeam: "${awayTeam}", eventTeam: "${event.team?.name}"`);
+      if (!event.team?.name) {
+        console.warn(`🔍 [Team Matching] Missing event team data`);
         return null;
       }
 
-      const eventTeamName = event.team.name.toLowerCase().trim();
-      const homeTeamName = homeTeam.toLowerCase().trim();
-      const awayTeamName = awayTeam.toLowerCase().trim();
+      // If we have team names, use them for matching
+      if (homeTeam && awayTeam) {
+        const eventTeamName = event.team.name.toLowerCase().trim();
+        const homeTeamName = homeTeam.toLowerCase().trim();
+        const awayTeamName = awayTeam.toLowerCase().trim();
 
-      // Exact match first
-      if (eventTeamName === homeTeamName) return true;
-      if (eventTeamName === awayTeamName) return false;
+        // Exact match first
+        if (eventTeamName === homeTeamName) return true;
+        if (eventTeamName === awayTeamName) return false;
 
-      // Fallback: partial matching for team name variations
-      if (eventTeamName.includes(homeTeamName) || homeTeamName.includes(eventTeamName)) {
-        return true;
+        // Fallback: partial matching for team name variations
+        if (eventTeamName.includes(homeTeamName) || homeTeamName.includes(eventTeamName)) {
+          return true;
+        }
+        if (eventTeamName.includes(awayTeamName) || awayTeamName.includes(eventTeamName)) {
+          return false;
+        }
+
+        console.warn(`🔍 [Team Matching] Could not match event team "${event.team.name}" with home "${homeTeam}" or away "${awayTeam}"`);
       }
-      if (eventTeamName.includes(awayTeamName) || awayTeamName.includes(eventTeamName)) {
-        return false;
+
+      // If no team names available, use team ID for consistent assignment
+      if (event.team?.id) {
+        return event.team.id % 2 === 0;
       }
 
-      // If no match found, log for debugging but don't return null
-      console.warn(`🔍 [Team Matching] Could not match event team "${event.team.name}" with home "${homeTeam}" or away "${awayTeam}"`);
-      return null;
+      // Final fallback: use event time for consistent assignment
+      return (event.time?.elapsed || 0) % 2 === 0;
     },
     [homeTeam, awayTeam],
   );
@@ -605,8 +613,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   }
 
-  // Wait for essential data before rendering - prevent premature rendering
-  if (!homeTeam || !awayTeam) {
+  // Only show loading if we don't have fixture ID
+  if (!fixtureId) {
     return (
       <Card
         className={`${className} ${isDarkTheme ? "bg-gray-800 text-white border-gray-700" : "bg-white border-gray-200"}`}
@@ -615,44 +623,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           <div className="flex items-center justify-center p-8">
             <div className="text-center">
               <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
-              <p className="text-gray-600">
-                {!homeTeam || !awayTeam ? "Loading team data..." : "Loading match events..."}
-              </p>
+              <p className="text-gray-600">Loading match data...</p>
             </div>
           </div>
         </CardContent>
       </Card>
     );
-  }
-
-  // Additional validation: Don't render if we have events but can't determine team sides
-  const canDetermineTeamSides = events.length === 0 || events.some(event => isHomeTeam(event) !== null);
-  if (events.length > 0 && !canDetermineTeamSides) {
-    console.warn(`🔍 [Rendering] Cannot determine team sides for any events. Waiting for better team data...`);
-    return (
-      <Card
-        className={`${className} ${isDarkTheme ? "bg-gray-800 text-white border-gray-700" : "bg-white border-gray-200"}`}
-      >
-        <CardContent className="p-4">
-          <div className="flex items-center justify-center p-8">
-            <div className="text-center">
-              <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
-              <p className="text-gray-600">Processing team data...</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Hide component for upcoming matches with no events
-  if (events.length === 0) {
-    const matchStatus = matchData?.fixture?.status?.short;
-    const isUpcoming = ["NS", "TBD"].includes(matchStatus);
-
-    if (isUpcoming) {
-      return null; // Hide the component completely
-    }
   }
 
   const EventItem = ({
