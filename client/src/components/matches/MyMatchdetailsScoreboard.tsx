@@ -644,31 +644,18 @@ const MyMatchdetailsScoreboard = ({
           <div className="flex flex-col items-center space-y-2 flex-1">
             {/* Home Team Logo */}
             <div className="flex items-center justify-end mr-4" style={{ width: '48px', height: '48px', maxWidth: '48px', maxHeight: '48px' }}>
-              <img
-                src={
-                  displayMatch.teams.home?.logo ||
-                  (displayMatch.teams.home?.id
-                    ? `https://media.api-sports.io/football/teams/${displayMatch.teams.home.id}.png`
-                    : "/assets/fallback-logo.svg")
-                }
+              <MyWorldTeamLogo
+                teamId={displayMatch.teams.home.id}
+                teamName={displayMatch.teams.home.name}
+                teamLogo={displayMatch.teams.home.logo}
+                size="51px"
+                leagueContext={{
+                  leagueId: displayMatch.league.id,
+                  name: displayMatch.league.name,
+                  country: displayMatch.league.country,
+                }}
                 alt={displayMatch.teams.home?.name || "Home Team"}
                 className="team-logo"
-                style={{
-                  width: "51px",
-                  height: "51px",
-                  objectFit: "cover",
-                  borderRadius: "50%",
-                  position: "relative",
-                  zIndex: 1,
-                  filter: "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)",
-                }}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  console.log(`🚫 [MyMatchDetailsScoreboard] Image error for ${displayMatch.teams.home?.name || "Home Team"}, trying fallback`);
-                  if (!target.src.includes("/assets/fallback-logo.svg")) {
-                    target.src = "/assets/fallback-logo.svg";
-                  }
-                }}
               />
             </div>
             <span className="text-md font-medium text-center ">
@@ -793,31 +780,18 @@ const MyMatchdetailsScoreboard = ({
           <div className="flex flex-col items-center space-y-2 flex-1">
             {/* Away Team Logo */}
             <div className="flex items-center justify-start ml-4" style={{ width: '48px', height: '48px', maxWidth: '48px', maxHeight: '48px' }}>
-              <img
-                src={
-                  displayMatch.teams.away?.logo ||
-                  (displayMatch.teams.away?.id
-                    ? `https://media.api-sports.io/football/teams/${displayMatch.teams.away.id}.png`
-                    : "/assets/fallback-logo.svg")
-                }
+              <MyWorldTeamLogo
+                teamId={displayMatch.teams.away.id}
+                teamName={displayMatch.teams.away.name}
+                teamLogo={displayMatch.teams.away.logo}
+                size="51px"
+                leagueContext={{
+                  leagueId: displayMatch.league.id,
+                  name: displayMatch.league.name,
+                  country: displayMatch.league.country,
+                }}
                 alt={displayMatch.teams.away?.name || "Away Team"}
                 className="team-logo"
-                style={{
-                  width: "51px",
-                  height: "51px",
-                  objectFit: "cover",
-                  borderRadius: "50%",
-                  position: "relative",
-                  zIndex: 1,
-                  filter: "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)",
-                }}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  console.log(`🚫 [MyMatchDetailsScoreboard] Image error for ${displayMatch.teams.away?.name || "Away Team"}, trying fallback`);
-                  if (!target.src.includes("/assets/fallback-logo.svg")) {
-                    target.src = "/assets/fallback-logo.svg";
-                  }
-                }}
               />
             </div>
             <span className="text-md font-medium text-center mb-4">
