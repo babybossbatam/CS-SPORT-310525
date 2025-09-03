@@ -290,25 +290,23 @@ const MyStatsCard = ({ match }: { match: any }) => {
     );
   }
 
-  return (
-    {(() => {
-      try {
-        return (
-          <MyStats
-            homeStats={homeStats}
-            awayStats={awayStats}
-            homeTeam={homeTeam}
-            awayTeam={awayTeam}
-            isExpanded={isExpanded}
-            onToggleExpanded={() => setIsExpanded(!isExpanded)}
-          />
-        );
-      } catch (error) {
-        console.error('Error in MyStats:', error, { homeTeam, awayTeam });
-        return <div>Error loading match statistics</div>;
-      }
-    })()}
-  );
+  return (() => {
+    try {
+      return (
+        <MyStats
+          homeStats={homeStats}
+          awayStats={awayStats}
+          homeTeam={homeTeam}
+          awayTeam={awayTeam}
+          isExpanded={isExpanded}
+          onToggleExpanded={() => setIsExpanded(!isExpanded)}
+        />
+      );
+    } catch (error) {
+      console.error('Error in MyStats:', error, { homeTeam, awayTeam });
+      return <div>Error loading match statistics</div>;
+    }
+  })();
 };
 
 export default MyMatchTabCard;
