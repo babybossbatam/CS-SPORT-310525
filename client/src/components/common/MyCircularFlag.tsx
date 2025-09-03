@@ -40,23 +40,13 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   const isNational = isNationalTeam({ name: teamName });
 
   // Enhanced detection for CAFA Nations Cup and other international competitions
-  const isInternationalCompetition =
-    nextMatchInfo?.opponent &&
-    // CAFA Nations Cup teams
-    ([
-      "Oman",
-      "Kyrgyzstan",
-      "Tajikistan",
-      "Afghanistan",
-      "Bangladesh",
-      "India",
-      "Maldives",
-      "Nepal",
-      "Pakistan",
-      "Sri Lanka",
-    ].includes(teamName) ||
+  const isInternationalCompetition = 
+    nextMatchInfo?.opponent && (
+      // CAFA Nations Cup teams
+      ['Oman', 'Kyrgyzstan', 'Tajikistan', 'Afghanistan', 'Bangladesh', 'India', 'Maldives', 'Nepal', 'Pakistan', 'Sri Lanka'].includes(teamName) ||
       // Other known national team patterns
-      isNational);
+      isNational
+    );
 
   // Additional check for known club teams that should never use circular flags
   const isKnownClubTeam =
@@ -215,16 +205,11 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 
     // Clean team name by removing common suffixes for better country matching
     const cleanTeamName = teamName
-      .replace(
-        /\s+(W|Women|U21|U20|U19|U18|U17|U16|Youth|Reserve|B)(\s|$)/gi,
-        " ",
-      )
-      .replace(/\s+(Under|U)-?\d+/gi, " ")
+      .replace(/\s+(W|Women|U21|U20|U19|U18|U17|U16|Youth|Reserve|B)(\s|$)/gi, ' ')
+      .replace(/\s+(Under|U)-?\d+/gi, ' ')
       .trim();
 
-    console.log(
-      `🔍 [MyCircularFlag] Original: "${teamName}" -> Cleaned: "${cleanTeamName}"`,
-    );
+    console.log(`🔍 [MyCircularFlag] Original: "${teamName}" -> Cleaned: "${cleanTeamName}"`);
 
     // Special case for England first
     if (cleanTeamName.toLowerCase() === "england") {
@@ -328,23 +313,13 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
             ? "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)"
             : "none", // No filter for club logos
         }}
-        onError={
-          isKnownClubTeam && teamId
-            ? createTeamLogoErrorHandler(
-                { id: teamId, name: teamName },
-                false,
-                "football",
-              )
-            : (e) => {
-                const target = e.target as HTMLImageElement;
-                console.log(
-                  `🚫 [MyCircularFlag] Image error for ${teamName}, trying fallback`,
-                );
-                if (!target.src.includes("/assets/fallback.png")) {
-                  target.src = fallbackUrl || "/assets/fallback.png";
-                }
-              }
-        }
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          console.log(`🚫 [MyCircularFlag] Image error for ${teamName}, trying fallback`);
+          if (!target.src.includes("/assets/fallback-logo.svg")) {
+            target.src = fallbackUrl || "/assets/fallback-logo.svg";
+          }
+        }}
       />
       <div className="gloss"></div>
 
