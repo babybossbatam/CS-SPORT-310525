@@ -38,7 +38,7 @@ class MatchTabErrorBoundary extends React.Component<any, { hasError: boolean, er
           <details className="cursor-pointer text-left text-xs text-gray-500">
             <summary>Error Details</summary>
             <pre className="mt-2 p-2 bg-gray-100 rounded">
-              {typeof this.state.error === 'object' ? JSON.stringify(this.state.error, null, 2) : (this.state.error?.message || this.state.error?.toString() || 'Unknown error')}
+              {this.state.error?.message || this.state.error?.toString() || 'Unknown error'}
             </pre>
           </details>
         </div>
