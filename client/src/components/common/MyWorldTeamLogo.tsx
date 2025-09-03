@@ -122,7 +122,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       );
 
       // Known club teams in COTIF (Valencia, Alboraya, etc.)
-      let isKnownClubTeam =
+      const isKnownClubTeam =
         (teamId === 532 && teamName.toLowerCase().includes("valencia")) ||
         (teamId === 19922 && teamName.toLowerCase().includes("alboraya")) ||
         teamName.toLowerCase().includes("valencia") ||
@@ -176,12 +176,11 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       leagueName.includes("friendlies club") ||
       leagueName.includes("club friendlies");
 
-    // Special case: "Friendlies Clubs" with "World" context and ONLY actual national teams (not clubs)
+    // Special case: "Friendlies Clubs" with "World" context and national teams should use circular flags
     const isFriendliesClubsWithNationalTeams =
       leagueName.includes("friendlies clubs") &&
       (leagueCountry === "world" || leagueContext?.country?.toLowerCase() === "world") &&
-      isActualNationalTeam &&
-      !isKnownClubTeam; // EXCLUDE club teams even if mistakenly identified as national
+      isActualNationalTeam;
 
     // Friendlies International (league ID 10) should be treated as national team competition
     const isFriendliesInternational =
@@ -193,10 +192,10 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       isFriendliesClubsWithNationalTeams;
 
     const isUefaEuropaLeague =
-      leagueName.includes("uefaeuropa league") ||
+      leagueName.includes("uefa europa league") ||
       leagueName.includes("europa league");
     const isUefaConferenceLeague =
-      leagueName.includes("uefaeuropa conference league") ||
+      leagueName.includes("uefa europa conference league") ||
       leagueName.includes("europa conference league");
     const isUefaChampionsLeague =
       leagueName.includes("uefa champions league") ||
@@ -229,7 +228,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       leagueName.includes("king's cup") ||
       leagueName.includes("kings cup");
 
-    // Debug logging for Friendlies International and Clubs
+    // Debug logging for Friendlies International
     if (leagueName.includes("friendlies")) {
       console.log("🔍 [MyWorldTeamLogo] Friendlies Detection:", {
         teamName,
@@ -239,9 +238,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         isFriendliesClub,
         isFriendliesClubsWithNationalTeams,
         isActualNationalTeam,
-        isKnownClubTeam,
         isYouthTeam,
-        finalDecision: "Will be calculated below"
       });
     }
 
@@ -263,8 +260,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       (teamName?.includes("Valencia U20") && teamId === 532) ||
       (teamName?.includes("Alboraya U20") && teamId === 19922);
 
-    // Enhanced club team detection - must run BEFORE national team logic
-    let isKnownClubTeam =
+    // Additional check for known club teams that should NEVER use circular flags
+    const isKnownClubTeam =
       teamName &&
       (teamName.toLowerCase().includes("fc") ||
         teamName.toLowerCase().includes("cf") ||
@@ -291,23 +288,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         teamName.toLowerCase().includes("roma") ||
         teamName.toLowerCase().includes("psg") ||
         teamName.toLowerCase().includes("olympique") ||
-        teamName.toLowerCase().includes("atletico") ||
-        // Additional club patterns for Friendlies Clubs
-        teamName.toLowerCase().includes("monastirienne") ||
-        teamName.toLowerCase().includes("kerkennah") ||
-        teamName.toLowerCase().includes("agadir") ||
-        teamName.toLowerCase().includes("dcheira") ||
-        teamName.toLowerCase().includes("sporting") ||
-        teamName.toLowerCase().includes("academy") ||
-        teamName.toLowerCase().includes("sc ") ||
-        teamName.toLowerCase().includes("ac ") ||
-        teamName.toLowerCase().includes("rc ") ||
-        teamName.toLowerCase().includes("as ") ||
-        // Check for common club suffixes
-        teamName.toLowerCase().endsWith(" fc") ||
-        teamName.toLowerCase().endsWith(" sc") ||
-        teamName.toLowerCase().endsWith(" ac") ||
-        teamName.toLowerCase().endsWith(" rc"));
+        teamName.toLowerCase().includes("atletico"));
 
     // Enhanced national team detection for youth and women's teams
     const isWomensNationalTeam =
