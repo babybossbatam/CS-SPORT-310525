@@ -128,8 +128,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         }
       }, 10000); // 10 second timeout
 
-      // FIX: Changed URL to fetch head-to-head data for the specified fixture
-      const response = await fetch(`/api/fixtures/headtohead?h2h=${fixtureId}&last=10`, {
+      // Use the correct API endpoint for fixture events
+      const response = await fetch(`/api/fixtures/events/${fixtureId}`, {
         signal: controller.signal,
         headers: {
           'Cache-Control': 'no-cache',
