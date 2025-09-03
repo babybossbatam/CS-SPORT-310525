@@ -96,9 +96,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const rawHome = match?.teams?.home?.name || 
                   match?.homeTeam?.name ||
                   homeTeamData?.name ||
-                  match?.homeTeam ||
-                  match?.home?.name ||
-                  match?.home ||
+                  (typeof match?.homeTeam === 'string' ? match?.homeTeam : match?.homeTeam?.name) ||
+                  (typeof match?.home === 'string' ? match?.home : match?.home?.name) ||
                   homeTeam || 
                   homeTeamName || 
                   'Home Team';
@@ -106,9 +105,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const rawAway = match?.teams?.away?.name || 
                   match?.awayTeam?.name ||
                   awayTeamData?.name ||
-                  match?.awayTeam ||
-                  match?.away?.name ||
-                  match?.away ||
+                  (typeof match?.awayTeam === 'string' ? match?.awayTeam : match?.awayTeam?.name) ||
+                  (typeof match?.away === 'string' ? match?.away : match?.away?.name) ||
                   awayTeam || 
                   awayTeamName || 
                   'Away Team';
