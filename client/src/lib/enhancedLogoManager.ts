@@ -480,7 +480,7 @@ if (typeof window !== 'undefined') {
   const originalHandler = window.onunhandledrejection;
   window.onunhandledrejection = (event) => {
     // Handle timeout errors specifically from logo fetching
-    if (event.reason?.message?.includes('Timeout after') && 
+    if (event.reason?.message?.includes('Timeout after') &&
         event.reason?.message?.includes('seconds')) {
       console.warn('🔇 [EnhancedLogoManager] Suppressed unhandled timeout rejection:', event.reason.message);
       event.preventDefault(); // Prevent the error from propagating
@@ -526,7 +526,7 @@ if (typeof window !== 'undefined') {
             controller.abort('Timeout after 5 seconds');
           }, 5000); // 5 second timeout
 
-          const response = await fetch(source, { 
+          const response = await fetch(source, {
             method: 'HEAD',
             signal: controller.signal
           });
