@@ -2744,7 +2744,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   teamLogo={
                                     fixture.teams.home.id
                                       ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
-                                      : "/assets/fallback-logo.svg"
+                                      : "/assets/matchdetaillogo/fallback.png"
                                   }
                                   alt={fixture.teams.home.name}
                                   size="34px"
@@ -2950,7 +2950,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   teamLogo={
                                     fixture.teams.away.id
                                       ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
-                                      : "/assets/fallback-logo.svg"
+                                      : "/assets/matchdetaillogo/fallback.png"
                                   }
                                   alt={fixture.teams.away.name}
                                   size="34px"
