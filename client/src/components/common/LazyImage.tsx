@@ -432,7 +432,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   // Enhanced team logo handling when useTeamLogo is false but we have team info
   // This handles cases where MyWorldTeamLogo calls LazyImage with useTeamLogo=false
-  if (!useTeamLogo && teamId && teamName && !currentSrc.includes('fallback.png') && !imageLoaded) {
+  if (!useTeamLogo && teamId && teamName && !currentSrc.includes('fallback.png') && !imageLoaded && !imageError) {
     // Check if we need better logo sources for this team
     const logoSources = getTeamLogoSources({ id: teamId, name: teamName });
     
@@ -445,6 +445,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         setImageLoaded(false);
         setImageError(false);
         setImageState('loading');
+        return; // Return early to prevent rendering with old src
       }
     } else if (logoSources.length === 0 && !currentSrc.includes('/api/team-logo/')) {
       // If no logo sources found, try server proxy as fallback
@@ -454,6 +455,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       setImageLoaded(false);
       setImageError(false);
       setImageState('loading');
+      return; // Return early to prevent rendering with old src
     }
   }
 
