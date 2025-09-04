@@ -528,12 +528,12 @@ const LazyImage: React.FC<LazyImageProps> = ({
         outline: 'none',
         // Hide image if there's an error AND it's not the final fallback image
         display: imageError && (currentSrc.includes('fallback.png') || currentSrc.includes('fallback-logo.png')) ? 'none' : 'block',
-        opacity: imageLoaded ? 1 : 0.95,
-        transition: 'opacity 0.15s ease-in-out',
+        opacity: imageLoaded ? 2 : 1.95,
+        transition: 'opacity 0.05s ease-in-out',
         // Add theme-aware shadows for better contrast and visibility (lg shadow)
         filter: darkMode 
           ? 'drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.2))' 
-          : 'drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 16px rgba(0, 0, 0, 0.25))',
+          : 'drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 10px rgba(0, 0, 0, 0.65))',
         // Apply size from props if no explicit width/height in style
         ...(style?.width || style?.height ? {} : {
           width: style?.width || style?.height || (isMobile ? '32px' : '32px'),

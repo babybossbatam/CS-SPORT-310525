@@ -141,46 +141,231 @@ const isNationalTeam = (
   const leagueName = league?.name?.toLowerCase() || "";
 
   // Special handling for Friendlies Clubs league (ID 667)
-  if (leagueName.includes("friendlies clubs") || leagueName.includes("friendlies club")) {
+  if (
+    leagueName.includes("friendlies clubs") ||
+    leagueName.includes("friendlies club")
+  ) {
     // Known club indicators that should NEVER use circular flags
     const clubIndicators = [
-      " fc", " cf", " ac", " sc", " rc", " ud", " cd", " club", " united", " city",
-      " athletic", " real ", " barcelona", " valencia", " sevilla", " arsenal",
-      " liverpool", " chelsea", " juventus", " milan", " napoli", " roma",
-      " ajax", " psv", " feyenoord", " bayern", " dortmund", " leipzig",
-      " manchester", " tottenham", " atletico", " borussia", " eintracht",
-      " inter", " lazio", " fiorentina", " atalanta", " olympique", " monaco",
-      " lyon", " marseille", " lille", " nice", " rennes", " strasbourg",
-      " psg", " paris saint", " saint-germain", " sporting", " porto", " benfica",
-      " braga", " vitoria", " gil vicente", " famalicao", " pacos", " tondela"
+      " fc",
+      " cf",
+      " ac",
+      " sc",
+      " rc",
+      " ud",
+      " cd",
+      " club",
+      " united",
+      " city",
+      " athletic",
+      " real ",
+      " barcelona",
+      " valencia",
+      " sevilla",
+      " arsenal",
+      " liverpool",
+      " chelsea",
+      " juventus",
+      " milan",
+      " napoli",
+      " roma",
+      " ajax",
+      " psv",
+      " feyenoord",
+      " bayern",
+      " dortmund",
+      " leipzig",
+      " manchester",
+      " tottenham",
+      " atletico",
+      " borussia",
+      " eintracht",
+      " inter",
+      " lazio",
+      " fiorentina",
+      " atalanta",
+      " olympique",
+      " monaco",
+      " lyon",
+      " marseille",
+      " lille",
+      " nice",
+      " rennes",
+      " strasbourg",
+      " psg",
+      " paris saint",
+      " saint-germain",
+      " sporting",
+      " porto",
+      " benfica",
+      " braga",
+      " vitoria",
+      " gil vicente",
+      " famalicao",
+      " pacos",
+      " tondela",
     ];
 
     // If team name contains club indicators, it's definitely a club team
-    if (clubIndicators.some(indicator => teamNameLower.includes(indicator))) {
+    if (clubIndicators.some((indicator) => teamNameLower.includes(indicator))) {
       return false;
     }
 
     // Comprehensive list of recognized country names for national teams
     const countryNames = [
-      "afghanistan", "albania", "algeria", "andorra", "angola", "argentina", "armenia", "australia",
-      "austria", "azerbaijan", "bahrain", "bangladesh", "belarus", "belgium", "bolivia", "bosnia",
-      "botswana", "brazil", "bulgaria", "burkina faso", "burundi", "cambodia", "cameroon", "canada",
-      "chile", "china", "colombia", "congo", "costa rica", "croatia", "cuba", "cyprus", "czech",
-      "denmark", "djibouti", "dominican", "ecuador", "egypt", "el salvador", "england", "estonia",
-      "ethiopia", "finland", "france", "gabon", "gambia", "georgia", "germany", "ghana", "greece",
-      "guatemala", "guinea", "honduras", "hong kong", "hungary", "iceland", "india", "indonesia",
-      "iran", "iraq", "ireland", "israel", "italy", "ivory coast", "jamaica", "japan", "jordan",
-      "kazakhstan", "kenya", "kuwait", "kyrgyzstan", "laos", "latvia", "lebanon", "libya",
-      "lithuania", "luxembourg", "macedonia", "madagascar", "malawi", "malaysia", "mali", "malta",
-      "mauritania", "mauritius", "mexico", "moldova", "mongolia", "montenegro", "morocco", "myanmar",
-      "namibia", "nepal", "netherlands", "new zealand", "nicaragua", "niger", "nigeria", "north korea",
-      "norway", "oman", "pakistan", "palestine", "panama", "paraguay", "peru", "philippines", "poland",
-      "portugal", "qatar", "romania", "russia", "rwanda", "saudi arabia", "scotland", "senegal",
-      "serbia", "singapore", "slovakia", "slovenia", "somalia", "south africa", "south korea", "spain",
-      "sri lanka", "sudan", "sweden", "switzerland", "syria", "tajikistan", "tanzania", "thailand",
-      "tunisia", "turkey", "turkmenistan", "uganda", "ukraine", "united arab emirates", "uruguay",
-      "uzbekistan", "venezuela", "vietnam", "wales", "yemen", "zambia", "zimbabwe", "chinese taipei",
-      "northern mariana islands", "fyр macedonia", "north macedonia", "uae", "usa", "united states"
+      "afghanistan",
+      "albania",
+      "algeria",
+      "andorra",
+      "angola",
+      "argentina",
+      "armenia",
+      "australia",
+      "austria",
+      "azerbaijan",
+      "bahrain",
+      "bangladesh",
+      "belarus",
+      "belgium",
+      "bolivia",
+      "bosnia",
+      "botswana",
+      "brazil",
+      "bulgaria",
+      "burkina faso",
+      "burundi",
+      "cambodia",
+      "cameroon",
+      "canada",
+      "chile",
+      "china",
+      "colombia",
+      "congo",
+      "costa rica",
+      "croatia",
+      "cuba",
+      "cyprus",
+      "czech",
+      "denmark",
+      "djibouti",
+      "dominican",
+      "ecuador",
+      "egypt",
+      "el salvador",
+      "england",
+      "estonia",
+      "ethiopia",
+      "finland",
+      "france",
+      "gabon",
+      "gambia",
+      "georgia",
+      "germany",
+      "ghana",
+      "greece",
+      "guatemala",
+      "guinea",
+      "honduras",
+      "hong kong",
+      "hungary",
+      "iceland",
+      "india",
+      "indonesia",
+      "iran",
+      "iraq",
+      "ireland",
+      "israel",
+      "italy",
+      "ivory coast",
+      "jamaica",
+      "japan",
+      "jordan",
+      "kazakhstan",
+      "kenya",
+      "kuwait",
+      "kyrgyzstan",
+      "laos",
+      "latvia",
+      "lebanon",
+      "libya",
+      "lithuania",
+      "luxembourg",
+      "macedonia",
+      "madagascar",
+      "malawi",
+      "malaysia",
+      "mali",
+      "malta",
+      "mauritania",
+      "mauritius",
+      "mexico",
+      "moldova",
+      "mongolia",
+      "montenegro",
+      "morocco",
+      "myanmar",
+      "namibia",
+      "nepal",
+      "netherlands",
+      "new zealand",
+      "nicaragua",
+      "niger",
+      "nigeria",
+      "north korea",
+      "norway",
+      "oman",
+      "pakistan",
+      "palestine",
+      "panama",
+      "paraguay",
+      "peru",
+      "philippines",
+      "poland",
+      "portugal",
+      "qatar",
+      "romania",
+      "russia",
+      "rwanda",
+      "saudi arabia",
+      "scotland",
+      "senegal",
+      "serbia",
+      "singapore",
+      "slovakia",
+      "slovenia",
+      "somalia",
+      "south africa",
+      "south korea",
+      "spain",
+      "sri lanka",
+      "sudan",
+      "sweden",
+      "switzerland",
+      "syria",
+      "tajikistan",
+      "tanzania",
+      "thailand",
+      "tunisia",
+      "turkey",
+      "turkmenistan",
+      "uganda",
+      "ukraine",
+      "united arab emirates",
+      "uruguay",
+      "uzbekistan",
+      "venezuela",
+      "vietnam",
+      "wales",
+      "yemen",
+      "zambia",
+      "zimbabwe",
+      "chinese taipei",
+      "northern mariana islands",
+      "fyр macedonia",
+      "north macedonia",
+      "uae",
+      "usa",
+      "united states",
     ];
 
     // Check if team name matches a country name (for national teams in friendlies)
@@ -215,16 +400,41 @@ const isNationalTeam = (
 
   // Known national leagues that are not explicitly national teams but often treated as such for logos
   const nationalLeagues = [
-    "World Cup", "UEFA Euro", "Copa America", "Gold Cup", "Africa Cup of Nations", "AFC Asian Cup",
-    "UEFA Nations League", "FIFA World Cup Qualification", "CONMEBOL Copa America", "CONCACAF Gold Cup",
-    "CAF Africa Cup of Nations", "AFC Asian Cup Qualification", "UEFA Nations League Finals",
-    "UEFA Nations League Qualification", "FIFA Club World Cup", "Olympic Games", "Copa Libertadores",
-    "Copa Sudamericana", "AFC Champions League", "CAF Champions League", "CONCACAF Champions League",
-    "UEFA Champions League", "UEFA Europa League", "UEFA Conference League", "European Championship",
+    "World Cup",
+    "UEFA Euro",
+    "Copa America",
+    "Gold Cup",
+    "Africa Cup of Nations",
+    "AFC Asian Cup",
+    "UEFA Nations League",
+    "FIFA World Cup Qualification",
+    "CONMEBOL Copa America",
+    "CONCACAF Gold Cup",
+    "CAF Africa Cup of Nations",
+    "AFC Asian Cup Qualification",
+    "UEFA Nations League Finals",
+    "UEFA Nations League Qualification",
+    "FIFA Club World Cup",
+    "Olympic Games",
+    "Copa Libertadores",
+    "Copa Sudamericana",
+    "AFC Champions League",
+    "CAF Champions League",
+    "CONCACAF Champions League",
+    "UEFA Champions League",
+    "UEFA Europa League",
+    "UEFA Conference League",
+    "European Championship",
   ];
 
   // Check if the league name suggests a national team competition
-  if (league && league.name && nationalLeagues.some((nl) => league.name.toLowerCase().includes(nl.toLowerCase()))) {
+  if (
+    league &&
+    league.name &&
+    nationalLeagues.some((nl) =>
+      league.name.toLowerCase().includes(nl.toLowerCase()),
+    )
+  ) {
     return true;
   }
 
@@ -281,14 +491,19 @@ const isNationalTeam = (
   }
 
   // If country is explicitly 'World' and not part of a specific national league, assume club team
-  if (league && league.country?.toLowerCase() === "world" && !nationalLeagues.some((nl) => league.name.toLowerCase().includes(nl.toLowerCase()))) {
-      return false;
+  if (
+    league &&
+    league.country?.toLowerCase() === "world" &&
+    !nationalLeagues.some((nl) =>
+      league.name.toLowerCase().includes(nl.toLowerCase()),
+    )
+  ) {
+    return false;
   }
 
   // Default to false for club teams unless identified as national
   return false;
 };
-
 
 // Main component that loads data
 const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
@@ -406,9 +621,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
   // League IDs without any filtering - removed duplicates
   const leagueIds = [
-    38, 15, 2, 4, 10, 11, 848, 886, 1022, 772, 71, 3, 5, 531, 22, 72, 73, 75,
-    76, 233, 667, 940, 908, 1169, 23, 253, 850, 893, 921, 130, 128, 493, 239,
-    265, 237, 235, 743,
+    32, 38, 15, 2, 4, 10, 11, 848, 886, 1022, 772, 71, 3, 5, 531, 22, 72, 73,
+    75, 76, 233, 667, 940, 908, 1169, 23, 253, 850, 893, 921, 130, 128, 493,
+    239, 265, 237, 235, 743,
   ];
 
   // Helper function to add delay between requests
@@ -2105,8 +2320,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         .sort(([aId], [bId]) => {
           // Define priority order - same as MyNewLeague
           const priorityOrder = [
-            38, 15, 2, 5, 22, 10, 11, 1022, 772, 71, 72, 667, 3, 848, 73, 75,
-            239, 233, 253,
+            32, 38, 15, 2, 5, 22, 10, 11, 1022, 772, 71, 72, 667, 3, 848, 73,
+            75, 239, 233, 253,
           ];
 
           const aIndex = priorityOrder.indexOf(Number(aId));
@@ -2457,11 +2672,12 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
                       // Only use mapping as fallback for missing/invalid country data
                       const leagueCountryMap: { [key: number]: string } = {
+                        32: "World", // World Cup europe
                         38: "England", // Premier League
                         15: "England", // Championship
                         2: "Germany", // Bundesliga
                         4: "Spain", // La Liga
-                        10: "World", // UEFA Nations League
+                        10: "World", // Friendlies International
                         11: "World", // UEFA Euro
                         848: "World", // UEFA Euro U21
                         886: "World", // UEFA Champions League Qualifiers
@@ -2477,7 +2693,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         75: "England", // League Two
                         76: "England", // National League
                         233: "Egypt", // Premier League Egypt
-                        667: "Spain", // Segunda Division
+                        667: "Friendlies Clubs", // Segunda Division
                         940: "World", // UEFA Conference League
                         908: "World", // UEFA Europa League
                         1169: "World", // UEFA Nations League Women
@@ -2903,7 +3119,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   {
                                     name: league.name,
                                     country: league.country,
-                                  }
+                                  },
                                 ) ? (
                                   <MyWorldTeamLogo
                                     teamName={fixture.teams.home.name}
@@ -3131,7 +3347,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                   {
                                     name: league.name,
                                     country: league.country,
-                                  }
+                                  },
                                 ) ? (
                                   <MyWorldTeamLogo
                                     teamName={fixture.teams.away.name}
