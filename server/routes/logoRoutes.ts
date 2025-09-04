@@ -209,4 +209,114 @@ router.get('/team-logo/:teamId', async (req, res) => {
   }
 });
 
+// Square team logo proxy endpoint
+router.get('/team-logo/square/:teamId', async (req, res) => {
+  const { teamId } = req.params;
+  const { size = '64', sport = 'football' } = req.query;
+
+  try {
+    console.log(`🔲 [Logo Proxy] Fetching square team logo for ID: ${teamId}, sport: ${sport}`);
+
+    const sportPath = sport === 'basketball' ? 'basketball' : 'football';
+    const apiSportsUrl = `https://media.api-sports.io/${sportPath}/teams/${teamId}.png`;
+
+    const logoData = await new Promise<Buffer>((resolve, reject) => {
+      const request = https.get(apiSportsUrl, {
+        timeout: 10000,
+        headers: {
+          'User-Agent': 'CS-Sport-App/1.0',
+          'Accept': 'image/png,image/jpeg,image/*,*/*'
+        }
+      }, (response) => {
+        if (response.statusCode !== 200) {
+          reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
+          return;
+        }
+
+        const chunks: Buffer[] = [];
+        response.on('data', (chunk) => chunks.push(chunk));
+        response.on('end', () => {
+          const buffer = Buffer.concat(chunks);
+          resolve(buffer);
+        });
+      });
+
+      request.on('error', reject);
+      request.on('timeout', () => {
+        request.destroy();
+        reject(new Error('Request timeout'));
+      });
+    });
+
+    res.set({
+      'Content-Type': 'image/png',
+      'Cache-Control': 'public, max-age=86400',
+      'Content-Length': logoData.length,
+      'Access-Control-Allow-Origin': '*'
+    });
+
+    res.send(logoData);
+    console.log(`✅ [Logo Proxy] Successfully proxied square team logo for ID: ${teamId}`);
+
+  } catch (error) {
+    console.error(`❌ [Logo Proxy] Failed to fetch square team logo for ID: ${teamId}:`, error);
+    res.redirect('/assets/fallback-logo.svg');
+  }
+});
+
+// Circular team logo proxy endpoint
+router.get('/team-logo/circular/:teamId', async (req, res) => {
+  const { teamId } = req.params;
+  const { size = '32', sport = 'football' } = req.query;
+
+  try {
+    console.log(`⭕ [Logo Proxy] Fetching circular team logo for ID: ${teamId}, sport: ${sport}`);
+
+    const sportPath = sport === 'basketball' ? 'basketball' : 'football';
+    const apiSportsUrl = `https://media.api-sports.io/${sportPath}/teams/${teamId}.png`;
+
+    const logoData = await new Promise<Buffer>((resolve, reject) => {
+      const request = https.get(apiSportsUrl, {
+        timeout: 10000,
+        headers: {
+          'User-Agent': 'CS-Sport-App/1.0',
+          'Accept': 'image/png,image/jpeg,image/*,*/*'
+        }
+      }, (response) => {
+        if (response.statusCode !== 200) {
+          reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
+          return;
+        }
+
+        const chunks: Buffer[] = [];
+        response.on('data', (chunk) => chunks.push(chunk));
+        response.on('end', () => {
+          const buffer = Buffer.concat(chunks);
+          resolve(buffer);
+        });
+      });
+
+      request.on('error', reject);
+      request.on('timeout', () => {
+        request.destroy();
+        reject(new Error('Request timeout'));
+      });
+    });
+
+    res.set({
+      'Content-Type': 'image/png',
+      'Cache-Control': 'public, max-age=86400',
+      'Content-Length': logoData.length,
+      'Access-Control-Allow-Origin': '*'
+    });
+
+    res.send(logoData);
+    console.log(`✅ [Logo Proxy] Successfully proxied circular team logo for ID: ${teamId}`);
+
+  } catch (error) {
+    console.error(`❌ [Logo Proxy] Failed to fetch circular team logo for ID: ${teamId}:`, error);
+    res.redirect('/assets/fallback-logo.svg');
+  }
+});
+
 export default router;

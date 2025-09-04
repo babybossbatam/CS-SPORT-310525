@@ -69,6 +69,11 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       return "https://hatscripts.github.io/circle-flags/flags/gb-eng.svg";
     }
 
+    // For national teams, prioritize circular flag over team logo
+    if (isNational && !isKnownClubTeam) {
+      return getCircleFlagUrl(teamName, fallbackUrl);
+    }
+
     return getCircleFlagUrl(teamName, fallbackUrl);
   };
 
@@ -277,20 +282,21 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
             ? "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)"
             : "none", // No filter for club logos
         }}
-        onError={
-          !isNational && teamId
-            ? createTeamLogoErrorHandler(
-                { id: teamId, name: teamName },
-                false,
-                "football",
-              )
-            : (e) => {
-                const target = e.target as HTMLImageElement;
-                if (!target.src.includes("/assets/fallback-logo.svg")) {
-                  target.src = fallbackUrl || "/assets/fallback-logo.svg";
-                }
-              }
-        }
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          console.warn(`⚠️ [MyCircularFlag] Image error for ${teamName}:`, target.src);
+          
+          if (!isNational && teamId && !target.src.includes("/api/team-logo/")) {
+            // Try server proxy for club teams
+            const fallbackUrl = `/api/team-logo/square/${teamId}?size=32`;
+            console.log(`🔄 [MyCircularFlag] Trying server proxy: ${fallbackUrl}`);
+            target.src = fallbackUrl;
+          } else if (!target.src.includes("/assets/fallback-logo.svg")) {
+            // Final fallback
+            console.log(`🚫 [MyCircularFlag] Using final fallback for ${teamName}`);
+            target.src = fallbackUrl || "/assets/fallback-logo.svg";
+          }
+        }}
       />
       <div className="gloss"></div>
 
