@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useDeviceInfo } from "@/hooks/use-mobile";
 import { getTeamLogoSources, TeamData } from '@/lib/teamLogoSources';
+import { isNationalTeam as checkIsNationalTeam, transformLeagueContextForNationalTeams } from '@/lib/internationalTeamMapping';
 import MyWorldTeamLogo from "./MyWorldTeamLogo";
 import MyCircularFlag from "./MyCircularFlag";
 
@@ -346,53 +347,30 @@ const LazyImage: React.FC<LazyImageProps> = ({
   }, [currentSrc, alt, loadAttempt, imageError, onLoad, teamName, teamId]); // Add teamName and teamId for completeness
 
 
-  // Special handling for league 667 (Friendlies Clubs) - detect national teams and use MyCircularFlag
-  // Check if this is from league 667 using leagueContext.name since leagueId doesn't exist in leagueContext
-  const isFriendliesClubs = leagueContext?.name?.toLowerCase().includes('friendlies') && 
-                           leagueContext?.country?.toLowerCase() === 'world';
+  // Special handling for Friendlies Clubs league - detect national teams and transform context
+  const originalLeagueContext = leagueContext;
+  const transformedLeagueContext = transformLeagueContextForNationalTeams(leagueContext, teamName || '');
+  
+  // Check if this is from Friendlies Clubs league
+  const isFriendliesClubs = originalLeagueContext?.name?.toLowerCase().includes('friendlies clubs') ||
+                           originalLeagueContext?.name?.toLowerCase().includes('friendlies club') ||
+                           originalLeagueContext?.name?.toLowerCase() === 'friendlies clubs';
   
   console.log(`🔍 [LazyImage] Checking league context:`, {
-    leagueContextName: leagueContext?.name,
-    leagueContextCountry: leagueContext?.country,
+    originalLeagueContextName: originalLeagueContext?.name,
+    originalLeagueContextCountry: originalLeagueContext?.country,
+    transformedLeagueContextName: transformedLeagueContext?.name,
+    transformedLeagueContextCountry: transformedLeagueContext?.country,
     teamName: teamName,
     isFriendliesClubs: isFriendliesClubs
   });
 
   if (isFriendliesClubs && teamName) {
-    // List of common national team names for Friendlies Clubs league
-    const nationalTeamNames = [
-      'Afghanistan', 'Albania', 'Algeria', 'Argentina', 'Armenia', 'Australia', 
-      'Austria', 'Azerbaijan', 'Bahrain', 'Bangladesh', 'Belarus', 'Belgium', 
-      'Bolivia', 'Bosnia and Herzegovina', 'Brazil', 'Bulgaria', 'Cambodia', 
-      'Canada', 'Chile', 'China', 'Colombia', 'Croatia', 'Czech Republic', 
-      'Denmark', 'Ecuador', 'Egypt', 'England', 'Estonia', 'Finland', 'France', 
-      'Georgia', 'Germany', 'Ghana', 'Greece', 'Hong Kong', 'Hungary', 'Iceland', 
-      'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 
-      'Japan', 'Jordan', 'Kazakhstan', 'Kuwait', 'Kyrgyzstan', 'Latvia', 
-      'Lebanon', 'Lithuania', 'Luxembourg', 'Malaysia', 'Mexico', 'Moldova', 
-      'Montenegro', 'Morocco', 'Myanmar', 'Netherlands', 'New Zealand', 'Nigeria', 
-      'North Macedonia', 'Norway', 'Oman', 'Pakistan', 'Palestine', 'Peru', 
-      'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 
-      'Saudi Arabia', 'Scotland', 'Serbia', 'Singapore', 'Slovakia', 'Slovenia', 
-      'South Korea', 'Spain', 'Sri Lanka', 'Sweden', 'Switzerland', 'Syria', 
-      'Tajikistan', 'Thailand', 'Tunisia', 'Turkey', 'Turkmenistan', 'Ukraine', 
-      'United Arab Emirates', 'Uruguay', 'Uzbekistan', 'Venezuela', 'Vietnam', 
-      'Wales', 'Yemen'
-    ];
+    // Use the international team mapping to check if this is a national team
+    const isTeamNational = checkIsNationalTeam(teamName);
 
-    // Improved national team detection - exact match or team name is exactly a country name
-    const isNationalTeam = nationalTeamNames.some(country => {
-      const teamNameLower = teamName.toLowerCase().trim();
-      const countryLower = country.toLowerCase();
-      
-      // Exact match or team name equals country name
-      return teamNameLower === countryLower || 
-             teamNameLower.includes(countryLower) ||
-             countryLower.includes(teamNameLower);
-    });
-
-    if (isNationalTeam) {
-      console.log(`🏆 [LazyImage] Friendlies Clubs national team detected: ${teamName}, using MyCircularFlag`);
+    if (isTeamNational) {
+      console.log(`🏆 [LazyImage] Friendlies Clubs national team detected: ${teamName}, using MyCircularFlag with transformed league context`);
       return (
         <MyCircularFlag
           teamName={teamName}
@@ -402,6 +380,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
           size={style?.width || style?.height || "32px"}
           className={className}
           countryName={teamName}
+          // Pass transformed league context that changes "Friendlies Clubs" to "Friendlies International"
+          leagueContext={transformedLeagueContext}
         />
       );
     } else {
