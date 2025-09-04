@@ -528,15 +528,10 @@ const LazyImage: React.FC<LazyImageProps> = ({
         outline: 'none',
         // Hide image if there's an error AND it's not the final fallback image
         display: imageError && (currentSrc.includes('fallback.png') || currentSrc.includes('fallback-logo.png')) ? 'none' : 'block',
-        opacity: imageLoaded ? 1 : 0.7,
-        transition: 'opacity 0.2s ease-in-out',
-        // Don't apply filter to flags and team logos to keep them crisp
-        filter: (currentSrc.includes('flagsapi.com') || 
-                currentSrc.includes('countryflags.io') || 
-                currentSrc.includes('/api/team-logo/') ||
-                currentSrc.includes('media.api-sports.io/football/teams/') ||
-                useTeamLogo) ? 'none' : 
-                (darkMode ? 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.3))' : 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.3))'),
+        opacity: imageLoaded ? 1 : 0.8,
+        transition: 'opacity 0.3s ease-in-out',
+        // Don't apply any filters to team logos and flags to maintain clarity and contrast
+        filter: 'none',
         // Apply size from props if no explicit width/height in style
         ...(style?.width || style?.height ? {} : {
           width: style?.width || style?.height || (isMobile ? '32px' : '32px'),

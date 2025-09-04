@@ -744,6 +744,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       objectFit: "contain" as const,
       borderRadius: "0%",
       transform: "scale(0.9)",
+      filter: "none",
+      imageRendering: "auto" as const,
     }),
     [],
   );
