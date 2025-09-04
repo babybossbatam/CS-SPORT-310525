@@ -565,7 +565,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
           "Nepal",
           "Qatar",
           "Brunei",
-          "UAE",
           "Guam",
           "Saudi Arabia",
           "FYR Macedonia",
