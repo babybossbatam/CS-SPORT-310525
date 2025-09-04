@@ -2670,22 +2670,30 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         return contextTranslateLeagueName(originalCountry);
                       }
 
-                      // Only use mapping as fallback for missing/invalid country data
+                      // Critical fallback mapping for leagues with missing/invalid country data
+                      // This ensures consistent display and translation functionality
+                      // DO NOT REMOVE - System depends on this for proper league categorization
                       const leagueCountryMap: { [key: number]: string } = {
-                        32: "World", // World Cup europe
+                        // World Competitions
+                        32: "World", // World Cup
+                        10: "World", // Friendlies International
+                        11: "World", // UEFA Euro
+                        848: "World", // UEFA Conference League
+                        886: "World", // UEFA Champions League Qualifiers
+                        1022: "World", // FIFA Club World Cup
+                        772: "World", // FIFA World Cup Qualification
+                        531: "World", // UEFA Super Cup
+                        
+                        // Major European Leagues
                         38: "England", // Premier League
                         15: "England", // Championship
                         2: "Germany", // Bundesliga
                         4: "Spain", // La Liga
-                        10: "World", // Friendlies International
-                        11: "World", // UEFA Euro
-                        848: "World", // UEFA Euro U21
-                        886: "World", // UEFA Champions League Qualifiers
-                        1022: "World", // FIFA Club World Cup
-                        772: "World", // FIFA World Cup Qualification
-                        71: "Brazil", // Serie A Brazil
                         3: "Netherlands", // Eredivisie
                         5: "France", // Ligue 1
+                        
+                        // Other Important Leagues
+                        71: "Brazil", // Serie A Brazil
                         531: "World", // CONMEBOL Copa America
                         22: "Argentina", // Primera Division
                         72: "Brazil", // Serie B Brazil
