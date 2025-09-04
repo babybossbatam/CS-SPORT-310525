@@ -61,7 +61,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       "Hong Kong": "HK",
       Syria: "SY",
       Finland: "FI",
-      "San Marino": "SM",
+      "San Marino": "sm",
       Belarus: "BY",
       Belgium: "BE",
       Malaysia: "MY",
