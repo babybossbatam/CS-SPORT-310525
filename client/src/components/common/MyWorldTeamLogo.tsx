@@ -95,6 +95,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       'republic of congo', 'gabon', 'equatorial guinea', 'sao tome and principe',
       'angola', 'namibia', 'botswana', 'lesotho', 'swaziland', 'malawi',
       'mozambique', 'tanzania', 'kenya', 'uganda', 'rwanda', 'burundi',
+      'sierra leone', 'liberia', 'guinea-bissau', 'gambia', 'senegal',
       'china', 'india', 'indonesia', 'thailand', 'vietnam', 'philippines',
       'myanmar', 'laos', 'cambodia', 'brunei', 'taiwan', 'hong kong', 'macau', 
       'north korea', 'mongolia', 'bangladesh', 'sri lanka', 'maldives', 'nepal', 
@@ -130,6 +131,20 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                                           teamLower.endsWith(' ' + country) ||
                                           (country.includes(' ') && teamLower.includes(country));
                                  });
+
+    // Debug logging for Sierra Leone specifically
+    if (teamName?.toLowerCase().includes('sierra leone')) {
+      console.log(`🔍 [MyWorldTeamLogo] Sierra Leone Detection:`, {
+        teamName,
+        leagueName,
+        isActualNationalTeam,
+        foundInCountryNames: countryNames.includes('sierra leone'),
+        teamNameLower: teamName?.toLowerCase(),
+        matchesPattern: countryNames.some(country => 
+          teamName?.toLowerCase().includes(country.toLowerCase())
+        )
+      });
+    }
 
     // Define missing variables that were causing the error (moved after isActualNationalTeam)
     const isClubYouthTeam = (teamId === 532 && teamName?.includes("Valencia U20")) ||
