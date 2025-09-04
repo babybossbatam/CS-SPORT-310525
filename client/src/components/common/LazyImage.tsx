@@ -435,8 +435,25 @@ const LazyImage: React.FC<LazyImageProps> = ({
   if (!useTeamLogo && teamId && teamName && !currentSrc.includes('fallback.png')) {
     console.log(`🔍 [LazyImage] Enhanced handling for club team: ${teamName} (ID: ${teamId}), current src: ${currentSrc}`);
     
-    // Always try server proxy first for club teams when useTeamLogo=false
-    if (!currentSrc.includes('/api/team-logo/') && !currentSrc.includes('api/team-logo')) {
+    // Check if current src is still the original and not a proper team logo URL
+    const isOriginalSrc = currentSrc === src;
+    const isProperTeamLogoUrl = currentSrc.includes('/api/team-logo/') || 
+                               currentSrc.includes('api/team-logo') ||
+                               currentSrc.includes('media.api-sports.io/football/teams/');
+    
+    // If we have original src and it's not a proper team logo URL, get better sources
+    if (isOriginalSrc && !isProperTeamLogoUrl) {
+      console.log(`🔄 [LazyImage] Original src detected for ${teamName}, trying server proxy first`);
+      const serverProxyUrl = `/api/team-logo/square/${teamId}?size=64`;
+      setCurrentSrc(serverProxyUrl);
+      setImageLoaded(false);
+      setImageError(false);
+      setImageState('loading');
+      return; // Return early to prevent rendering with old src
+    }
+    
+    // Always try server proxy first for club teams when useTeamLogo=false and current src is not team logo
+    if (!currentSrc.includes('/api/team-logo/') && !currentSrc.includes('api/team-logo') && !currentSrc.includes('media.api-sports.io/football/teams/')) {
       const serverProxyUrl = `/api/team-logo/square/${teamId}?size=64`;
       console.log(`🔄 [LazyImage] Trying server proxy for club team ${teamName}: ${serverProxyUrl}`);
       setCurrentSrc(serverProxyUrl);
@@ -447,7 +464,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
     }
     
     // If server proxy is already being used but not loaded/errored, let it continue
-    if (currentSrc.includes('/api/team-logo/') && !imageLoaded && !imageError) {
+    if (currentSrc.includes('/api/team-logo/') && !imageLoaded && !imageError && imageState === 'loading') {
       console.log(`⏳ [LazyImage] Server proxy loading for ${teamName}: ${currentSrc}`);
       // Let it continue loading
     }
