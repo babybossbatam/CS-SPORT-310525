@@ -492,6 +492,24 @@ const LazyImage: React.FC<LazyImageProps> = ({
     }
   }
 
+  // Additional check: if we're still showing a placeholder/empty logo and have team info, try server proxy
+  if (!useTeamLogo && teamId && teamName && imageLoaded && !imageError) {
+    // Check if the current image looks like a placeholder (often very small or empty)
+    const isPotentialPlaceholder = currentSrc.includes('placeholder') || 
+                                  currentSrc.includes('fallback') ||
+                                  currentSrc === src; // Still showing original potentially bad src
+    
+    if (isPotentialPlaceholder && !currentSrc.includes('/api/team-logo/')) {
+      console.log(`🔄 [LazyImage] Detected potential placeholder for ${teamName}, switching to server proxy`);
+      const serverProxyUrl = `/api/team-logo/square/${teamId}?size=64`;
+      setCurrentSrc(serverProxyUrl);
+      setImageLoaded(false);
+      setImageError(false);
+      setImageState('loading');
+      return;
+    }
+  }
+
   // Special handling for national teams that should use flags directly via MyWorldTeamLogo
   // This block is now implicitly handled by the `useTeamLogo` check above,
   // as the `nationalTeamNames` logic inside `handleError` leads to `useTeamLogo` being true
