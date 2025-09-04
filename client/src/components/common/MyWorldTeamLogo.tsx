@@ -749,10 +749,10 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       objectFit: "contain" as const,
       borderRadius: "0%",
       transform: "scale(0.9)",
-      // Add theme-aware shadows for better contrast and visibility
+      // Add theme-aware shadows for better contrast and visibility (lg shadow)
       filter: darkMode 
-        ? "drop-shadow(0 1px 3px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 8px rgba(255, 255, 255, 0.1))" 
-        : "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 8px rgba(0, 0, 0, 0.15))",
+        ? "drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.2))" 
+        : "drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 16px rgba(0, 0, 0, 0.25))",
       imageRendering: "auto" as const,
     }),
     [darkMode],
