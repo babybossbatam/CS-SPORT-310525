@@ -675,9 +675,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     isLoading,
     error,
     isFetching,
-  } = useQuery<FixtureData[] | undefined, Error>({
+  } = useQuery({
     queryKey: ["myNewLeague2", "allFixtures", selectedDate],
-    queryFn: async (): Promise<FixtureData[] | undefined> => {
+    queryFn: async (): Promise<FixtureData[]> => {
       console.log(
         `🎯 [MyNewLeague2] Fetching fixtures for ${leagueIds.length} leagues on ${selectedDate}:`,
         leagueIds,
@@ -915,7 +915,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       return finalFixtures;
     },
     // Apply dynamic cache configuration
-    ...dynamicCacheConfig,
+    staleTime: dynamicCacheConfig.staleTime,
+    refetchInterval: dynamicCacheConfig.refetchInterval,
+    refetchOnWindowFocus: dynamicCacheConfig.refetchOnWindowFocus,
+    refetchOnReconnect: dynamicCacheConfig.refetchOnReconnect,
     // Additional configuration for better UX
     retry: (failureCount: number, error: Error): boolean => {
       // Don't retry too aggressively for historical data (no refetchInterval)
@@ -924,7 +927,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       return failureCount < 3;
     },
     retryDelay: (attemptIndex: number): number => Math.min(1000 * 2 ** attemptIndex, 30000),
-  });
+  } as const);
 
   // Smart cache adjustment based on live match detection and proximity to kickoff
   useEffect(() => {
