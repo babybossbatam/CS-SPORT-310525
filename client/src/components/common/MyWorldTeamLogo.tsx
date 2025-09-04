@@ -144,6 +144,11 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       leagueCountry === "brazil" &&
       (leagueName.includes("serie") || leagueName.includes("brasileiro"));
 
+    // Enhanced Brazilian Serie B detection
+    const isBrazilianSerieB = 
+      leagueCountry === "brazil" && 
+      (leagueName.includes("serie b") || leagueName.includes("série b"));</old_str>
+
     // Check if this is FIFA Club World Cup (club competition, not national teams)
     const isFifaClubWorldCup =
       leagueName.includes("fifa club world cup") ||
@@ -232,17 +237,20 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         teamName?.toLowerCase().includes("alboraya") ||
         teamName?.toLowerCase().includes("club") ||
         teamName?.toLowerCase().includes("ud ") ||
-        // Brazilian club teams detection
+        // Brazilian club teams detection (including Serie B)
         (leagueContext?.country?.toLowerCase() === "brazil" &&
-          (leagueName.includes("serie") || leagueName.includes("brasileiro"))) ||
+          (leagueName.includes("serie") || leagueName.includes("brasileiro") || leagueName.includes("série"))) ||
+        // Force Brazilian Serie B teams to use club logos
+        isBrazilianSerieB ||
         // Common Brazilian club name patterns
         teamName?.toLowerCase().includes("america") ||
         teamName?.toLowerCase().includes("avai") ||
+        teamName?.toLowerCase().includes("avaí") ||
         teamName?.toLowerCase().includes("mineiro") ||
         teamName?.toLowerCase().includes("monastirienne") ||
         teamName?.toLowerCase().includes("agadir") ||
         teamName?.toLowerCase().includes("dcheïra") ||
-        teamName?.toLowerCase().includes("kerkennah"));
+        teamName?.toLowerCase().includes("kerkennah"));</old_str>
 
     // Enhanced national team detection for youth and women's teams
     const isWomensNationalTeam =
@@ -370,13 +378,14 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       !isStandingsContext &&
       !isClubYouthTeam &&
       !isKnownClubTeam &&
+      !isBrazilianSerieB &&
       (isActualNationalTeam || isRecognizedCountryName) &&
       !isFifaClubWorldCup &&
       !isFriendliesClub &&
       !isUefaEuropaLeague &&
       !isUefaConferenceLeague &&
       !isUefaChampionsLeague &&
-      !isConmebolSudamericana;
+      !isConmebolSudamericana;</old_str>
 
     // Cache the result
     circularFlagCache.set(cacheKey, {
