@@ -665,25 +665,32 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
       const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
-      let expectedLabel: string;
-      if (selectedDate === today) {
-        expectedLabel = 'today';
-      } else if (selectedDate === tomorrow) {
-        expectedLabel = 'tomorrow';
-      } else if (selectedDate === yesterday) {
-        expectedLabel = 'yesterday';
-      } else {
-        expectedLabel = 'custom';
-      }
-
-      const shouldInclude = smartResult.label === expectedLabel && smartResult.isWithinTimeRange;
+      // Check if this match should be included based on the selected date
+      const shouldInclude = (() => {
+        if (selectedDate === today) {
+          return smartResult.label === 'today' && smartResult.isWithinTimeRange;
+        }
+        if (selectedDate === tomorrow) {
+          return smartResult.label === 'tomorrow' && smartResult.isWithinTimeRange;
+        }
+        if (selectedDate === yesterday) {
+          return smartResult.label === 'yesterday' && smartResult.isWithinTimeRange;
+        }
+        
+        // Handle custom dates
+        if (selectedDate !== today && selectedDate !== tomorrow && selectedDate !== yesterday) {
+          return smartResult.label === 'custom' && smartResult.isWithinTimeRange;
+        }
+        
+        return false;
+      })();
 
       // Debug logging for problematic matches
       if (!shouldInclude && (fixture.teams?.home?.name?.includes('Norway') || fixture.teams?.away?.name?.includes('Finland'))) {
         console.log(`🚫 [TodaysMatchesByCountryNew] Filtered out match:`, {
           teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
           selectedDate,
-          expectedLabel,
+          expectedLabel: selectedDate === today ? 'today' : selectedDate === tomorrow ? 'tomorrow' : selectedDate === yesterday ? 'yesterday' : 'custom',
           smartResult: {
             label: smartResult.label,
             isWithinTimeRange: smartResult.isWithinTimeRange,
@@ -695,7 +702,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         console.log(`✅ [TodaysMatchesByCountryNew] Included match:`, {
           teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
           selectedDate,
-          expectedLabel,
+          expectedLabel: selectedDate === today ? 'today' : selectedDate === tomorrow ? 'tomorrow' : selectedDate === yesterday ? 'yesterday' : 'custom',
           smartResult: {
             label: smartResult.label,
             isWithinTimeRange: smartResult.isWithinTimeRange,
