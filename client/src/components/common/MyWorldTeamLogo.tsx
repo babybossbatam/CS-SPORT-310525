@@ -77,8 +77,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
     const leagueName = leagueContext?.name?.toLowerCase() || "";
     const leagueCountry = leagueContext?.country?.toLowerCase() || "";
-    
-    // Comprehensive country name detection for actual national teams
+
+    // Enhanced country name detection for actual national teams
     const countryNames = [
       'malaysia', 'singapore', 'saudi arabia', 'fyr macedonia', 'united arab emirates', 'syria',
       'argentina', 'brazil', 'spain', 'france', 'germany', 'italy', 'england',
@@ -111,6 +111,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       'samoa', 'tonga', 'cook islands', 'niue', 'palau', 'marshall islands',
       'micronesia', 'nauru', 'kiribati', 'tuvalu'
     ];
+
+    // Additional country team names for enhanced detection
+    const countryTeamNames = countryNames;
 
     // Check if this is actually a national team regardless of league name
     const isActualNationalTeam = teamName?.match(/\b(u20|u21|u23|u-20|u-21|u-23)\b/i) ||
@@ -266,7 +269,25 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     }
 
     // Friendlies Clubs National Team detection
-    const isFriendliesClubsNationalTeam = leagueName.includes("friendlies clubs") && isActualNationalTeam;
+    const isFriendliesClubsNationalTeam = leagueName.includes("friendlies") && isActualNationalTeam && !isKnownClubTeam && !isYouthTeam;
+    // Determine if it's UEFA Nations League
+    const isUefaNationsLeague = leagueName.includes("uefa nations league");
+    // Determine if it's World Cup Qualification
+    const isWorldCupQualification = leagueName.includes("world cup qualification") || leagueName.includes("wc qualification");
+    // Determine if it's AFC U20 Asian Cup
+    const isAfcU20AsianCup = leagueName.includes("afc u20 asian cup") ||
+                             leagueName.includes("afc u-20 asian cup") ||
+                             leagueName.includes("asian cup u20") ||
+                             leagueName.includes("asian cup u-20");
+    // Determine if it's UEFA Europa League
+    const isUefaEuropaLeague = leagueName.includes("europa league");
+    // Determine if it's UEFA Conference League
+    const isUefaConferenceLeague = leagueName.includes("conference league");
+    // Determine if it's UEFA Champions League
+    const isUefaChampionsLeague = leagueName.includes("champions league");
+    // Determine if it's CONMEBOL Sudamericana
+    const isConmebolSudamericana = leagueName.includes("sudamericana");
+
 
     // Use circular flag for national teams in international competitions
     // BUT: Force club teams to ALWAYS use club logos regardless of league context
