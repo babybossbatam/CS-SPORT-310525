@@ -696,7 +696,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
       // Process leagues in optimized batches
       const batchSize = 5; // Increase concurrent requests for priority leagues
-      const results: Array<{ leagueId: number; fixtures: FixtureData[]; error?: string; networkError?: boolean; rateLimited?: boolean; timeout?: boolean }> = [];
+      const results: Array<{
+        leagueId: number;
+        fixtures: FixtureData[];
+        error?: string;
+        networkError?: boolean;
+        rateLimited?: boolean;
+        timeout?: boolean;
+      }> = [];
 
       for (let i = 0; i < leagueIds.length; i += batchSize) {
         const batch = leagueIds.slice(i, i + batchSize);
@@ -894,11 +901,16 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       // Log detailed results
       console.log(`🔄 [MyNewLeague2] Fetch results:`, {
         totalBatches: Math.ceil(leagueIds.length / batchSize),
-        successfulFetches: results.filter((r) => !r.error && r.fixtures.length > 0).length,
+        successfulFetches: results.filter(
+          (r) => !r.error && r.fixtures.length > 0,
+        ).length,
         failedFetches: results.filter((r) => r.error).length,
         cachedEndedMatches: cachedEndedMatches.length,
         totalFixtures: finalFixtures.length,
-        fixturesFetchedInBatches: results.reduce((sum, r) => sum + r.fixtures.length, 0),
+        fixturesFetchedInBatches: results.reduce(
+          (sum, r) => sum + r.fixtures.length,
+          0,
+        ),
         duplicatesRemoved:
           results.reduce((sum, r) => sum + r.fixtures.length, 0) +
           cachedEndedMatches.length -
@@ -927,7 +939,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       // For live data, allow more retries
       return failureCount < 3;
     },
-    retryDelay: (attemptIndex: number): number => Math.min(1000 * 2 ** attemptIndex, 30000),
+    retryDelay: (attemptIndex: number): number =>
+      Math.min(1000 * 2 ** attemptIndex, 30000),
   } as const);
 
   // Smart cache adjustment based on live match detection and proximity to kickoff
@@ -2725,34 +2738,19 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 className="home-team-logo-container"
                                 style={{ padding: "0 0.6rem" }}
                               >
-                                {fixture.league.id === 10 ? (
-                                  <MyCircularFlag
-                                    teamName={fixture.teams.home.name || ""}
-                                    teamId={fixture.teams.home.id}
-                                    fallbackUrl={
-                                      fixture.teams.home.id
-                                        ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
-                                        : "/assets/fallback-logo.svg"
-                                    }
-                                    alt={fixture.teams.home.name}
-                                    size="34px"
-                                    className="popular-leagues-size"
-                                  />
-                                ) : (
-                                  <MyWorldTeamLogo
-                                    teamName={fixture.teams.home.name || ""}
-                                    teamId={fixture.teams.home.id}
-                                    teamLogo={
-                                      fixture.teams.home.id
-                                        ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
-                                        : "/assets/fallback-logo.svg"
-                                    }
-                                    alt={fixture.teams.home.name}
-                                    size="34px"
-                                    className="popular-leagues-size"
-                                    leagueContext={leagueContext}
-                                  />
-                                )}
+                                <MyWorldTeamLogo
+                                  teamName={fixture.teams.home.name || ""}
+                                  teamId={fixture.teams.home.id}
+                                  teamLogo={
+                                    fixture.teams.home.id
+                                      ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
+                                      : "/assets/fallback-logo.svg"
+                                  }
+                                  alt={fixture.teams.home.name}
+                                  size="34px"
+                                  className="popular-leagues-size"
+                                  leagueContext={leagueContext}
+                                />
                               </div>
 
                               {/* Score/Time Center */}
@@ -2946,34 +2944,19 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 className="away-team-logo-container"
                                 style={{ padding: "0 0.5rem" }}
                               >
-                                {fixture.league.id === 10 ? (
-                                  <MyCircularFlag
-                                    teamName={fixture.teams.away.name || ""}
-                                    teamId={fixture.teams.away.id}
-                                    fallbackUrl={
-                                      fixture.teams.away.id
-                                        ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
-                                        : "/assets/fallback-logo.svg"
-                                    }
-                                    alt={fixture.teams.away.name}
-                                    size="34px"
-                                    className="popular-leagues-size"
-                                  />
-                                ) : (
-                                  <MyWorldTeamLogo
-                                    teamName={fixture.teams.away.name || ""}
-                                    teamId={fixture.teams.away.id}
-                                    teamLogo={
-                                      fixture.teams.away.id
-                                        ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
-                                        : "/assets/fallback-logo.svg"
-                                    }
-                                    alt={fixture.teams.away.name}
-                                    size="34px"
-                                    className="popular-leagues-size"
-                                    leagueContext={leagueContext}
-                                  />
-                                )}
+                                <MyWorldTeamLogo
+                                  teamName={fixture.teams.away.name || ""}
+                                  teamId={fixture.teams.away.id}
+                                  teamLogo={
+                                    fixture.teams.away.id
+                                      ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
+                                      : "/assets/fallback-logo.svg"
+                                  }
+                                  alt={fixture.teams.away.name}
+                                  size="34px"
+                                  className="popular-leagues-size"
+                                  leagueContext={leagueContext}
+                                />
                               </div>
 
                               {/* Away Team Name */}
