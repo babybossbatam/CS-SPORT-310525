@@ -56,13 +56,17 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
   // Simplified team context analysis for circular flag decision
   const shouldUseCircularFlag = useMemo(() => {
+    // Clean team name for consistent processing
+    const cleanTeamName = teamName?.trim() || '';
+    
     // Create cache key for this specific combination
-    const cacheKey = `${teamName}-${leagueContext?.name || 'unknown'}-${leagueContext?.id || 'unknown'}`;
+    const cacheKey = `${cleanTeamName}-${leagueContext?.name || 'unknown'}-${leagueContext?.id || 'unknown'}`;
 
     // Check cache first
     const now = Date.now();
     const cached = circularFlagCache.get(cacheKey);
     if (cached && (now - cached.timestamp) < CACHE_TTL) {
+      console.log(`💾 [MyWorldTeamLogo] Cache hit for shouldUseCircularFlag: ${cleanTeamName} -> ${cached.result}`);
       return cached.result;
     }
 
@@ -70,7 +74,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     const leagueId = leagueContext?.leagueId || leagueContext?.id;
 
     console.log(`🔍 [MyWorldTeamLogo] Analyzing team for circular flag:`, {
-      teamName,
+      teamName: cleanTeamName,
       teamId,
       leagueName,
       leagueId,
@@ -85,11 +89,14 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
       // Common national team patterns
       const nationalTeamPatterns = [
-        // Single word countries
-        /^(Afghanistan|Albania|Algeria|Argentina|Australia|Austria|Bahrain|Bangladesh|Belarus|Belgium|Bolivia|Brazil|Bulgaria|Cambodia|Cameroon|Canada|Chile|China|Colombia|Croatia|Denmark|Ecuador|Egypt|England|Estonia|Ethiopia|Finland|France|Germany|Ghana|Greece|Hungary|Iceland|India|Indonesia|Iran|Iraq|Ireland|Israel|Italy|Jamaica|Japan|Jordan|Kazakhstan|Kenya|Kuwait|Latvia|Lebanon|Libya|Lithuania|Luxembourg|Malaysia|Mali|Malta|Mexico|Morocco|Nepal|Netherlands|Nigeria|Norway|Oman|Pakistan|Panama|Paraguay|Peru|Philippines|Poland|Portugal|Qatar|Romania|Russia|Scotland|Senegal|Serbia|Singapore|Slovakia|Slovenia|Somalia|Spain|Sweden|Switzerland|Syria|Tajikistan|Thailand|Tunisia|Turkey|Ukraine|Uruguay|Venezuela|Vietnam|Wales|Yemen|Zimbabwe)$/i,
+        // Single word countries (including Chad and other missing African countries)
+        /^(Afghanistan|Albania|Algeria|Angola|Argentina|Australia|Austria|Bahrain|Bangladesh|Belarus|Belgium|Bolivia|Brazil|Bulgaria|Cambodia|Cameroon|Canada|Chad|Chile|China|Colombia|Croatia|Denmark|Ecuador|Egypt|England|Estonia|Ethiopia|Finland|France|Germany|Ghana|Greece|Hungary|Iceland|India|Indonesia|Iran|Iraq|Ireland|Israel|Italy|Jamaica|Japan|Jordan|Kazakhstan|Kenya|Kuwait|Latvia|Lebanon|Libya|Lithuania|Luxembourg|Madagascar|Malaysia|Mali|Malta|Mauritius|Mexico|Morocco|Nepal|Netherlands|Nigeria|Norway|Oman|Pakistan|Panama|Paraguay|Peru|Philippines|Poland|Portugal|Qatar|Romania|Russia|Scotland|Senegal|Serbia|Singapore|Slovakia|Slovenia|Somalia|Spain|Sweden|Switzerland|Syria|Tajikistan|Thailand|Tunisia|Turkey|Ukraine|Uruguay|Venezuela|Vietnam|Wales|Yemen|Zimbabwe)$/i,
 
-        // Multi-word countries and regions
-        /^(Saudi Arabia|South Africa|South Korea|North Korea|New Zealand|Costa Rica|El Salvador|United States|United Kingdom|Czech Republic|Bosnia and Herzegovina|North Macedonia|FYR Macedonia|Sierra Leone|Ivory Coast|Burkina Faso|Cape Verde|Central African Republic|Equatorial Guinea|Dominican Republic|Puerto Rico|Trinidad and Tobago|United Arab Emirates|Hong Kong|Chinese Taipei)$/i,
+        // Multi-word countries and regions (including African countries)
+        /^(Saudi Arabia|South Africa|South Korea|North Korea|New Zealand|Costa Rica|El Salvador|United States|United Kingdom|Czech Republic|Bosnia and Herzegovina|North Macedonia|FYR Macedonia|Sierra Leone|Ivory Coast|Burkina Faso|Cape Verde|Central African Republic|Equatorial Guinea|Dominican Republic|Puerto Rico|Trinidad and Tobago|United Arab Emirates|Hong Kong|Chinese Taipei|Guinea-Bissau|Guinea-Bis|Sao Tome and Principe|Equatorial Guinea)$/i,
+
+        // African countries with common alternative spellings
+        /^(Guinea.?Bissau|Guinea.?Bis|Central.?Africa|Central.?African.?Republic|Sao.?Tome|Equatorial.?Guinea)$/i,
 
         // Youth teams
         /^(.*)\s+(U17|U19|U20|U21|U23)$/i,
@@ -98,24 +105,31 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         /^(.*)\s+W$/i
       ];
 
-      return nationalTeamPatterns.some(pattern => pattern.test(cleanName));
+      const isMatch = nationalTeamPatterns.some(pattern => pattern.test(cleanName));
+      
+      // Additional logging for debugging
+      if (!isMatch && (cleanName.toLowerCase().includes('chad') || cleanName.toLowerCase().includes('guinea') || cleanName.toLowerCase().includes('africa'))) {
+        console.log(`🔍 [MyWorldTeamLogo] Team "${cleanName}" not matched as national team - check patterns`);
+      }
+
+      return isMatch;
     };
 
     let result = false;
 
     // Check for Friendlies Clubs (ID 667) - use MyCircularFlag for national teams
     if (leagueId === 667 || (leagueName.includes('friendlies') && leagueName.includes('clubs'))) {
-      if (isNationalTeam(teamName)) {
-        console.log(`🌍 [MyWorldTeamLogo] Friendlies Clubs + National team: Using MyCircularFlag for ${teamName}`);
+      if (isNationalTeam(cleanTeamName)) {
+        console.log(`🌍 [MyWorldTeamLogo] Friendlies Clubs + National team: Using MyCircularFlag for ${cleanTeamName}`);
         result = true;
       } else {
-        console.log(`⚽ [MyWorldTeamLogo] Friendlies Clubs + Club team: Using LazyImage for ${teamName}`);
+        console.log(`⚽ [MyWorldTeamLogo] Friendlies Clubs + Club team: Using LazyImage for ${cleanTeamName}`);
         result = false;
       }
     }
     // Check for regular Friendlies (ID 10) - always use LazyImage for club teams
     else if (leagueId === 10 || (leagueName.includes('friendlies') && !leagueName.includes('clubs'))) {
-      console.log(`⚽ [MyWorldTeamLogo] Regular Friendlies: Using LazyImage for ${teamName}`);
+      console.log(`⚽ [MyWorldTeamLogo] Regular Friendlies: Using LazyImage for ${cleanTeamName}`);
       result = false;
     }
     // Check for other international competitions with national teams
@@ -123,17 +137,17 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
              leagueContext?.country === 'Europe' ||
              leagueContext?.country === 'International' ||
              /\b(world cup|qualification africa|nations league|euro|championship|copa america|olympics|fifa|uefa|conmebol|caf|afc|concacaf|ofc)\b/i.test(leagueName)) {
-      if (isNationalTeam(teamName)) {
-        console.log(`🏆 [MyWorldTeamLogo] International competition + National team: Using MyCircularFlag for ${teamName}`);
+      if (isNationalTeam(cleanTeamName)) {
+        console.log(`🏆 [MyWorldTeamLogo] International competition + National team: Using MyCircularFlag for ${cleanTeamName}`);
         result = true;
       } else {
-        console.log(`⚽ [MyWorldTeamLogo] International competition + Club team: Using LazyImage for ${teamName}`);
+        console.log(`⚽ [MyWorldTeamLogo] International competition + Club team: Using LazyImage for ${cleanTeamName}`);
         result = false;
       }
     }
     // All other cases - use LazyImage for club teams
     else {
-      console.log(`⚽ [MyWorldTeamLogo] Regular league: Using LazyImage for ${teamName}`);
+      console.log(`⚽ [MyWorldTeamLogo] Regular league: Using LazyImage for ${cleanTeamName}`);
       result = false;
     }
 
