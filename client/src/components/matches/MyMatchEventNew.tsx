@@ -87,6 +87,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   const [events, setEvents] = useState<MatchEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Debug logging for props
+  console.log(`🔍 [MyMatchEventNew] Component initialized with props:`, {
+    fixtureId,
+    homeTeam,
+    awayTeam,
+    hasMatchData: !!matchData,
+    theme,
+    refreshInterval,
+    showErrors,
+    showLogos
+  });
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [playerImages, setPlayerImages] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState<"all" | "top" | "commentary">(
@@ -103,7 +115,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   const fetchMatchEvents = useCallback(async (retryCount = 0) => {
     if (!fixtureId) {
+      console.error(`❌ [MyMatchEventNew] No fixture ID provided`);
       setError("No fixture ID provided");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!homeTeam || !awayTeam) {
+      console.error(`❌ [MyMatchEventNew] Missing team data - homeTeam: "${homeTeam}", awayTeam: "${awayTeam}"`);
+      setError("Missing team data");
       setIsLoading(false);
       return;
     }
@@ -204,10 +224,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   useEffect(() => {
     // Debug team data availability
     console.log(`🏠 [Team Data] Home: "${homeTeam}", Away: "${awayTeam}", Events: ${events.length}`);
+    console.log(`🏠 [Fixture Data] fixtureId: ${fixtureId}, isLoading: ${isLoading}, error: ${error}`);
 
     // Only fetch if we have team data or no events yet
-    if (homeTeam && awayTeam) {
-      console.log(`✅ [Team Data] Team data ready, fetching events for fixture ${fixtureId}`);
+    if (homeTeam && awayTeam && fixtureId) {
+      console.log(`✅ [Team Data] All required props ready, fetching events for fixture ${fixtureId}`);
 
       // Add small delay to prevent rapid mounting/unmounting issues
       const timeoutId = setTimeout(() => {
@@ -229,9 +250,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         }
       };
     } else {
-      console.warn(`⚠️ [Team Data] Missing team data - Home: "${homeTeam}", Away: "${awayTeam}"`);
+      console.warn(`⚠️ [Team Data] Missing required props - Home: "${homeTeam}", Away: "${awayTeam}", fixtureId: "${fixtureId}"`);
+      setIsLoading(false);
     }
-  }, [homeTeam, awayTeam, fetchMatchEvents, refreshInterval]);
+  }, [homeTeam, awayTeam, fixtureId, fetchMatchEvents, refreshInterval]);
 
   const formatTime = (elapsed: number, extra?: number) => {
     if (extra) {
@@ -591,7 +613,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   }
 
   // Wait for essential data before rendering - prevent premature rendering
-  if (!homeTeam || !awayTeam) {
+  if (!homeTeam || !awayTeam || !fixtureId) {
+    console.log(`⏳ [Rendering] Waiting for required data - homeTeam: ${!!homeTeam}, awayTeam: ${!!awayTeam}, fixtureId: ${!!fixtureId}`);
     return (
       <Card
         className={`${className} ${isDarkTheme ? "bg-gray-800 text-white border-gray-700" : "bg-white border-gray-200"}`}
@@ -601,7 +624,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             <div className="text-center">
               <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
               <p className="text-gray-600">
-                {!homeTeam || !awayTeam ? "Loading team data..." : "Loading match events..."}
+                {!fixtureId ? "Loading fixture data..." : 
+                 !homeTeam || !awayTeam ? "Loading team data..." : "Loading match events..."}
+              </p>
+              <p className="text-xs text-gray-400 mt-2">
+                Fixture: {fixtureId ? '✓' : '✗'}, Home: {homeTeam ? '✓' : '✗'}, Away: {awayTeam ? '✓' : '✗'}
               </p>
             </div>
           </div>
@@ -1240,6 +1267,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             <div className="text-center text-gray-500">
               <p>No events recorded yet</p>
               <p className="text-sm">Events will appear as they happen</p>
+              <div className="text-xs text-gray-400 mt-2 space-y-1">
+                <p>Debug Info:</p>
+                <p>Fixture ID: {fixtureId}</p>
+                <p>Home Team: {homeTeam}</p>
+                <p>Away Team: {awayTeam}</p>
+                <p>Loading: {isLoading ? 'Yes' : 'No'}</p>
+                <p>Error: {error || 'None'}</p>
+                <p>Match Status: {matchData?.fixture?.status?.short || 'Unknown'}</p>
+              </div>
             </div>
           </div>
         ) : (
