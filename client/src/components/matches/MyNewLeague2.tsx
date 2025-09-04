@@ -137,33 +137,90 @@ const isNationalTeam = (
 ): boolean => {
   if (!team || !team.name) return false;
 
+  const teamNameLower = team.name.toLowerCase();
+  const leagueName = league?.name?.toLowerCase() || "";
+
+  // Special handling for Friendlies Clubs league (ID 667)
+  if (leagueName.includes("friendlies clubs") || leagueName.includes("friendlies club")) {
+    // Known club indicators that should NEVER use circular flags
+    const clubIndicators = [
+      " fc", " cf", " ac", " sc", " rc", " ud", " cd", " club", " united", " city",
+      " athletic", " real ", " barcelona", " valencia", " sevilla", " arsenal",
+      " liverpool", " chelsea", " juventus", " milan", " napoli", " roma",
+      " ajax", " psv", " feyenoord", " bayern", " dortmund", " leipzig",
+      " manchester", " tottenham", " atletico", " borussia", " eintracht",
+      " inter", " lazio", " fiorentina", " atalanta", " olympique", " monaco",
+      " lyon", " marseille", " lille", " nice", " rennes", " strasbourg",
+      " psg", " paris saint", " saint-germain", " sporting", " porto", " benfica",
+      " braga", " vitoria", " gil vicente", " famalicao", " pacos", " tondela"
+    ];
+
+    // If team name contains club indicators, it's definitely a club team
+    if (clubIndicators.some(indicator => teamNameLower.includes(indicator))) {
+      return false;
+    }
+
+    // Comprehensive list of recognized country names for national teams
+    const countryNames = [
+      "afghanistan", "albania", "algeria", "andorra", "angola", "argentina", "armenia", "australia",
+      "austria", "azerbaijan", "bahrain", "bangladesh", "belarus", "belgium", "bolivia", "bosnia",
+      "botswana", "brazil", "bulgaria", "burkina faso", "burundi", "cambodia", "cameroon", "canada",
+      "chile", "china", "colombia", "congo", "costa rica", "croatia", "cuba", "cyprus", "czech",
+      "denmark", "djibouti", "dominican", "ecuador", "egypt", "el salvador", "england", "estonia",
+      "ethiopia", "finland", "france", "gabon", "gambia", "georgia", "germany", "ghana", "greece",
+      "guatemala", "guinea", "honduras", "hong kong", "hungary", "iceland", "india", "indonesia",
+      "iran", "iraq", "ireland", "israel", "italy", "ivory coast", "jamaica", "japan", "jordan",
+      "kazakhstan", "kenya", "kuwait", "kyrgyzstan", "laos", "latvia", "lebanon", "libya",
+      "lithuania", "luxembourg", "macedonia", "madagascar", "malawi", "malaysia", "mali", "malta",
+      "mauritania", "mauritius", "mexico", "moldova", "mongolia", "montenegro", "morocco", "myanmar",
+      "namibia", "nepal", "netherlands", "new zealand", "nicaragua", "niger", "nigeria", "north korea",
+      "norway", "oman", "pakistan", "palestine", "panama", "paraguay", "peru", "philippines", "poland",
+      "portugal", "qatar", "romania", "russia", "rwanda", "saudi arabia", "scotland", "senegal",
+      "serbia", "singapore", "slovakia", "slovenia", "somalia", "south africa", "south korea", "spain",
+      "sri lanka", "sudan", "sweden", "switzerland", "syria", "tajikistan", "tanzania", "thailand",
+      "tunisia", "turkey", "turkmenistan", "uganda", "ukraine", "united arab emirates", "uruguay",
+      "uzbekistan", "venezuela", "vietnam", "wales", "yemen", "zambia", "zimbabwe", "chinese taipei",
+      "northern mariana islands", "fyр macedonia", "north macedonia", "uae", "usa", "united states"
+    ];
+
+    // Check if team name matches a country name (for national teams in friendlies)
+    const teamNameForCountryCheck = teamNameLower
+      .replace(/\s+u\d+$/, "") // Remove youth indicators like U21, U20, etc.
+      .replace(/\s+women?$/, "") // Remove women indicators
+      .trim();
+
+    if (countryNames.includes(teamNameForCountryCheck)) {
+      return true;
+    }
+
+    // Check for youth national teams (U17, U19, U20, U21, U23)
+    if (/\s+u(17|19|20|21|23)$/.test(teamNameLower)) {
+      const baseCountryName = teamNameLower.replace(/\s+u\d+$/, "").trim();
+      if (countryNames.includes(baseCountryName)) {
+        return true;
+      }
+    }
+
+    // Check for women's national teams
+    if (/\s+women?$/.test(teamNameLower)) {
+      const baseCountryName = teamNameLower.replace(/\s+women?$/, "").trim();
+      if (countryNames.includes(baseCountryName)) {
+        return true;
+      }
+    }
+
+    // Default to false for Friendlies Clubs if not identified as national team
+    return false;
+  }
+
   // Known national leagues that are not explicitly national teams but often treated as such for logos
   const nationalLeagues = [
-    "World Cup",
-    "UEFA Euro",
-    "Copa America",
-    "Gold Cup",
-    "Africa Cup of Nations",
-    "AFC Asian Cup",
-    "UEFA Nations League",
-    "FIFA World Cup Qualification",
-    "CONMEBOL Copa America",
-    "CONCACAF Gold Cup",
-    "CAF Africa Cup of Nations",
-    "AFC Asian Cup Qualification",
-    "UEFA Nations League Finals",
-    "UEFA Nations League Qualification",
-    "FIFA Club World Cup",
-    "Olympic Games",
-    "Copa Libertadores",
-    "Copa Sudamericana",
-    "AFC Champions League",
-    "CAF Champions League",
-    "CONCACAF Champions League",
-    "UEFA Champions League",
-    "UEFA Europa League",
-    "UEFA Conference League",
-    "European Championship",
+    "World Cup", "UEFA Euro", "Copa America", "Gold Cup", "Africa Cup of Nations", "AFC Asian Cup",
+    "UEFA Nations League", "FIFA World Cup Qualification", "CONMEBOL Copa America", "CONCACAF Gold Cup",
+    "CAF Africa Cup of Nations", "AFC Asian Cup Qualification", "UEFA Nations League Finals",
+    "UEFA Nations League Qualification", "FIFA Club World Cup", "Olympic Games", "Copa Libertadores",
+    "Copa Sudamericana", "AFC Champions League", "CAF Champions League", "CONCACAF Champions League",
+    "UEFA Champions League", "UEFA Europa League", "UEFA Conference League", "European Championship",
   ];
 
   // Check if the league name suggests a national team competition
@@ -172,7 +229,6 @@ const isNationalTeam = (
   }
 
   // Check for common national team prefixes/suffixes (can be expanded)
-  const teamNameLower = team.name.toLowerCase();
   if (
     teamNameLower.includes("national team") ||
     teamNameLower.includes(" u21") ||
