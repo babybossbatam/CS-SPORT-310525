@@ -549,9 +549,28 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       )
         continue;
 
-      // Date validation (optimized)
+      // Enhanced date validation with timezone awareness
       const fixtureDate = fixture.fixture.date;
-      if (!fixtureDate || !fixtureDate.startsWith(selectedDate)) continue;
+      if (!fixtureDate) continue;
+      
+      // Convert to local timezone and check date
+      const fixtureDateTime = new Date(fixtureDate);
+      const fixtureDateString = format(fixtureDateTime, "yyyy-MM-dd");
+      
+      // Ensure the fixture is on the selected date in user's timezone
+      if (fixtureDateString !== selectedDate) continue;
+      
+      // Additional check for today's matches to prevent tomorrow leakage
+      if (selectedDate === new Date().toISOString().slice(0, 10)) {
+        const now = new Date();
+        const todayString = format(now, "yyyy-MM-dd");
+        const tomorrowString = format(new Date(now.getTime() + 24 * 60 * 60 * 1000), "yyyy-MM-dd");
+        
+        // Skip if this fixture is actually tomorrow's match
+        if (fixtureDateString === tomorrowString && fixtureDateString !== todayString) {
+          continue;
+        }
+      }
 
       const country = fixture.league.country;
       if (!country) continue;
@@ -632,7 +651,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     data: any[];
   } | null>(null);
 
-  // Memoized filtering with performance optimizations
+  // Memoized filtering with performance optimizations and timezone awareness
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length || !selectedDate) {
       return [];
@@ -652,9 +671,33 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         return false;
       }
 
+      // Convert UTC fixture date to user's local timezone for accurate date comparison
       const fixtureDate = new Date(fixture.fixture.date);
+      
+      // Get the local date string in user's timezone
       const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
-      return fixtureDateString === selectedDate;
+      
+      // Additional check: ensure the fixture is actually on the selected date
+      // by comparing with the selected date in the user's timezone
+      const selectedDateObj = new Date(selectedDate + 'T00:00:00');
+      const selectedDateString = format(selectedDateObj, "yyyy-MM-dd");
+      
+      // Only include fixtures that are actually on the selected date in user's timezone
+      const isOnSelectedDate = fixtureDateString === selectedDateString;
+      
+      // Extra validation: check if it's truly today's match vs tomorrow's
+      if (selectedDate === new Date().toISOString().slice(0, 10)) {
+        const now = new Date();
+        const todayString = format(now, "yyyy-MM-dd");
+        const tomorrowString = format(new Date(now.getTime() + 24 * 60 * 60 * 1000), "yyyy-MM-dd");
+        
+        // If fixture date string matches tomorrow, exclude it from today's view
+        if (fixtureDateString === tomorrowString && fixtureDateString !== todayString) {
+          return false;
+        }
+      }
+      
+      return isOnSelectedDate;
     });
 
     // Update cache
