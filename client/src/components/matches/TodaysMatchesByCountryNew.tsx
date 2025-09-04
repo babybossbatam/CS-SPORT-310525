@@ -1306,7 +1306,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     if (!dateString || typeof dateString !== "string") return "--:--";
 
     try {
-      // Parse UTC time and convert to user's local timezone automatically
+      // Parse UTC date and convert to user's local timezone automatically
       const utcDate = parseISO(dateString);
       if (!isValid(utcDate)) return "--:--";
 
@@ -1760,6 +1760,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   match={match}
                   leagueData={leagueData}
                   starredMatches={starredMatches}
+                  hiddenMatches={hiddenMatches}
                   halftimeFlashMatches={halftimeFlashMatches}
                   fulltimeFlashMatches={fulltimeFlashMatches}
                   goalFlashMatches={goalFlashMatches}
@@ -1788,6 +1789,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       match: any;
       leagueData: any;
       starredMatches: Set<number>;
+      hiddenMatches: Set<number>;
       halftimeFlashMatches: Set<number>;
       fulltimeFlashMatches: Set<number>;
       goalFlashMatches: Set<number>;
@@ -2198,78 +2200,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             <div className="match-score-container">
               {(() => {
                 const status = match.fixture.status.short;
-                const fixtureDate = parseISO(match.fixture.date);
-
-                const matchDateTime = new Date(match.fixture.date);
-                const hoursOld =
-                  (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
-                const isStaleFinishedMatch =
-                  (["FT", "AET", "PEN"].includes(status) && hoursOld > 4) ||
-                  ([
-                    "FT",
-                    "AET",
-                    "PEN",
-                    "AWD",
-                    "WO",
-                    "ABD",
-                    "CANC",
-                    "SUSP",
-                  ].includes(status) &&
-                    hoursOld > 4) ||
-                  (hoursOld > 4 &&
-                    ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(
-                      status,
-                    ));
-
-                // Finished matches - show final score
-                if (
-                  [
-                    "FT",
-                    "AET",
-                    "PEN",
-                    "AWD",
-                    "WO",
-                    "ABD",
-                    "CANC",
-                    "SUSP",
-                  ].includes(status) ||
-                  isStaleFinishedMatch
-                ) {
-                  const homeScore = match.goals.home;
-                  const awayScore = match.goals.away;
-                  const hasValidScores =
-                    homeScore !== null &&
-                    homeScore !== undefined &&
-                    awayScore !== null &&
-                    awayScore !== undefined &&
-                    !isNaN(Number(homeScore)) &&
-                    !isNaN(Number(awayScore));
-
-                  if (hasValidScores) {
-                    return (
-                      <div className="match-score-display">
-                        <span className="score-number">{homeScore}</span>
-                        <span className="score-separator">-</span>
-                        <span className="score-number">{awayScore}</span>
-                      </div>
-                    );
-                  } else {
-                    // Show time if score data is missing
-                    return (
-                      <div
-                        className="match-time-display"
-                        style={{ fontSize: "0.882em" }}
-                      >
-                        {format(fixtureDate, "HH:mm")}
-                      </div>
-                    );
-                  }
-                }
 
                 // Live matches - show current score
                 if (
-                  !isStaleFinishedMatch &&
-                  hoursOld <= 4 &&
                   [
                     "LIVE",
                     "LIV",
@@ -2280,65 +2213,170 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                     "BT",
                     "P",
                     "INT",
+                    "45",
+                    "90",
                   ].includes(status)
                 ) {
-                  const homeScore = match.goals.home;
-                  const awayScore = match.goals.away;
-                  const hasValidScores =
-                    homeScore !== null &&
-                    homeScore !== undefined &&
-                    awayScore !== null &&
-                    awayScore !== undefined &&
-                    !isNaN(Number(homeScore)) &&
-                    !isNaN(Number(awayScore));
+                  // Use fulltime score if available, otherwise use goals
+                  const homeScore =
+                    match.score?.fulltime?.home ??
+                    match.goals?.home ??
+                    0;
+                  const awayScore =
+                    match.score?.fulltime?.away ??
+                    match.goals?.away ??
+                    0;
 
-                  if (hasValidScores) {
-                    return (
-                      <div className="match-score-display">
-                        <span className="score-number">{homeScore}</span>
-                        <span className="score-separator">-</span>
-                        <span className="score-number">{awayScore}</span>
-                      </div>
-                    );
-                  }
-                }
-
-                // Postponed/Cancelled matches - show kick-off time
-                if (
-                  ["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)
-                ) {
                   return (
-                    <div className="match-time-display">
-                      {format(fixtureDate, "HH:mm")}
+                    <div className="match-score-display">
+                      <span className="score-number">
+                        {homeScore}
+                      </span>
+                      <span className="score-separator">
+                        -
+                      </span>
+                      <span className="score-number">
+                        {awayScore}
+                      </span>
                     </div>
                   );
                 }
 
-                // Upcoming matches - show kick-off time
-                if (status === "NS" || status === "TBD") {
-                  const matchTime = new Date(match.fixture.date);
+                // Ended matches - show final score
+                if (
+                  [
+                    "FT",
+                    "AET",
+                    "PEN",
+                    "AWD",
+                    "WO",
+                    "ABD",
+                    "CANC",
+                    "SUSP",
+                  ].includes(status)
+                ) {
+                  // Use fulltime score if available, otherwise use goals
+                  const homeScore =
+                    match.score?.fulltime?.home ??
+                    match.goals?.home ??
+                    0;
+                  const awayScore =
+                    match.score?.fulltime?.away ??
+                    match.goals?.away ??
+                    0;
+
+                  return (
+                    <div className="match-score-display">
+                      <span className="score-number">
+                        {homeScore}
+                      </span>
+                      <span className="score-separator">
+                        -
+                      </span>
+                      <span className="score-number">
+                        {awayScore}
+                      </span>
+                    </div>
+                  );
+                }
+
+                // For postponed matches and upcoming matches - show kick-off time
+                if (
+                  status === "NS" ||
+                  status === "TBD" ||
+                  [
+                    "PST",
+                    "CANC",
+                    "ABD",
+                    "SUSP",
+                    "AWD",
+                    "WO",
+                  ].includes(status)
+                ) {
+                  const matchTime = new Date(
+                    match.fixture.date,
+                  );
+
+                  // For postponed/cancelled matches, still show the kick-off time
+                  if (
+                    [
+                      "PST",
+                      "CANC",
+                      "ABD",
+                      "SUSP",
+                      "AWD",
+                      "WO",
+                    ].includes(status)
+                  ) {
+                    const localTime =
+                      matchTime.toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false,
+                      });
+
+                    return (
+                      <div
+                        className="match-time-display"
+                        style={{ fontSize: "0.882em" }}
+                      >
+                        {localTime}
+                      </div>
+                    );
+                  }
+
+                  // Check if match should have started already (more than 2 hours ago) for NS/TBD
                   const now = new Date();
                   const hoursAgo =
-                    (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+                    (now.getTime() - matchTime.getTime()) /
+                    (1000 * 60 * 60);
 
+                  // If match is more than 2 hours overdue, show kick-off time but with postponed styling
                   if (hoursAgo > 2) {
+                    const localTime =
+                      matchTime.toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false,
+                      });
+
                     return (
-                      <div className="match-time-display">
-                        {format(fixtureDate, "HH:mm")}
+                      <div
+                        className="match-time-display text-orange-600"
+                        style={{ fontSize: "0.8em" }}
+                      >
+                        {localTime}
                       </div>
                     );
                   }
-                  if (status === "TBD") {
-                    return <div className="match-time-display">TBD</div>;
-                  }
+
+                  // Use simplified local time formatting for regular upcoming matches
+                  const localTime =
+                    matchTime.toLocaleTimeString("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    });
+
                   return (
-                    <div className="match-time-display">
-                      {format(fixtureDate, "HH:mm")}
+                    <div
+                      className="match-time-display"
+                      style={{ fontSize: "0.882em" }}
+                    >
+                      {status === "TBD" ? "TBD" : localTime}
                     </div>
                   );
                 }
 
-                return null;
+                // Last resort - show match time
+                return (
+                  <div
+                    className="match-time-display"
+                    style={{ fontSize: "0.882em" }}
+                  >
+                    {formatMatchTime(match.fixture.date)}
+                  </div>
+                );
               })()}
             </div>
 
