@@ -86,7 +86,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       // Common national team patterns
       const nationalTeamPatterns = [
         // Single word countries
-        /^(Afghanistan|Albania|Algeria|Argentina|Australia|Austria|Bahrain|Bangladesh|Belarus|Belgium|Bolivia|Brazil|Bulgaria|Cambodia|Cameroon|Canada|Chile|China|Colombia|Croatia|Denmark|Ecuador|Egypt|England|Estonia|Ethiopia|Finland|France|Germany|Ghana|Greece|Hungary|Iceland|India|Indonesia|Iran|Iraq|Ireland|Israel|Italy|Jamaica|Japan|Jordan|Kazakhstan|Kenya|Kuwait|Latvia|Lebanon|Libya|Lithuania|Luxembourg|Malaysia|Mali|Malta|Mexico|Morocco|Nepal|Netherlands|Nigeria|Norway|Oman|Pakistan|Panama|Paraguay|Peru|Philippines|Poland|Portugal|Qatar|Romania|Russia|Scotland|Senegal|Serbia|Singapore|Slovakia|Slovenia|Somalia|Spain|Sweden|Switzerland|Syria|Thailand|Tunisia|Turkey|Ukraine|Uruguay|Venezuela|Vietnam|Wales|Yemen|Zimbabwe)$/i,
+        /^(Afghanistan|Albania|Algeria|Argentina|Australia|Austria|Bahrain|Bangladesh|Belarus|Belgium|Bolivia|Brazil|Bulgaria|Cambodia|Cameroon|Canada|Chile|China|Colombia|Croatia|Denmark|Ecuador|Egypt|England|Estonia|Ethiopia|Finland|France|Germany|Ghana|Greece|Hungary|Iceland|India|Indonesia|Iran|Iraq|Ireland|Israel|Italy|Jamaica|Japan|Jordan|Kazakhstan|Kenya|Kuwait|Latvia|Lebanon|Libya|Lithuania|Luxembourg|Malaysia|Mali|Malta|Mexico|Morocco|Nepal|Netherlands|Nigeria|Norway|Oman|Pakistan|Panama|Paraguay|Peru|Philippines|Poland|Portugal|Qatar|Romania|Russia|Scotland|Senegal|Serbia|Singapore|Slovakia|Slovenia|Somalia|Spain|Sweden|Switzerland|Syria|Tajikistan|Thailand|Tunisia|Turkey|Ukraine|Uruguay|Venezuela|Vietnam|Wales|Yemen|Zimbabwe)$/i,
 
         // Multi-word countries and regions
         /^(Saudi Arabia|South Africa|South Korea|North Korea|New Zealand|Costa Rica|El Salvador|United States|United Kingdom|Czech Republic|Bosnia and Herzegovina|North Macedonia|FYR Macedonia|Sierra Leone|Ivory Coast|Burkina Faso|Cape Verde|Central African Republic|Equatorial Guinea|Dominican Republic|Puerto Rico|Trinidad and Tobago|United Arab Emirates|Hong Kong|Chinese Taipei)$/i,
@@ -119,7 +119,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       result = false;
     }
     // Check for other international competitions with national teams
-    else if (leagueContext?.country === 'World' || 
+    else if (leagueContext?.country === 'World' ||
              leagueContext?.country === 'Europe' ||
              leagueContext?.country === 'International' ||
              /\b(world cup|nations league|euro|championship|copa america|olympics|fifa|uefa|conmebol|caf|afc|concacaf|ofc)\b/i.test(leagueName)) {
