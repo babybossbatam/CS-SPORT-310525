@@ -675,9 +675,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     isLoading,
     error,
     isFetching,
-  } = useQuery({
+  } = useQuery<FixtureData[] | undefined, Error>({
     queryKey: ["myNewLeague2", "allFixtures", selectedDate],
-    queryFn: async () => {
+    queryFn: async (): Promise<FixtureData[] | undefined> => {
       console.log(
         `🎯 [MyNewLeague2] Fetching fixtures for ${leagueIds.length} leagues on ${selectedDate}:`,
         leagueIds,
@@ -696,7 +696,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
       // Process leagues in optimized batches
       const batchSize = 5; // Increase concurrent requests for priority leagues
-      const results: any[] = [];
+      const results: Array<{ leagueId: number; fixtures: FixtureData[]; error?: string; networkError?: boolean; rateLimited?: boolean; timeout?: boolean }> = [];
 
       for (let i = 0; i < leagueIds.length; i += batchSize) {
         const batch = leagueIds.slice(i, i + batchSize);
@@ -829,20 +829,20 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             result.status === "fulfilled"
               ? result.value
               : {
-                  leagueId: 0,
+                  leagueId: 0, // Placeholder for leagueId if promise rejected
                   fixtures: [],
                   error: "Promise rejected",
                   networkError: true,
                 },
           );
-          results.push(processedResults);
+          results.push(...processedResults);
         } catch (batchError) {
           console.warn(
             `⚠️ [MyNewLeague2] Batch processing error: ${batchError}`,
           );
           // Continue with empty results for this batch
           results.push(
-            batch.map((leagueId) => ({
+            ...batch.map((leagueId) => ({
               leagueId,
               fixtures: [],
               error: "Batch processing failed",
@@ -860,9 +860,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
       // Learn teams from fixtures before processing
       smartTeamTranslation.learnTeamsFromFixtures(
-        results.flatMap((batch: any[]) =>
-          batch.flatMap((res: any) => res.fixtures),
-        ),
+        results.flatMap((res) => res.fixtures),
       );
 
       // Combine fresh fixtures with cached ended matches
@@ -876,19 +874,17 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       });
 
       // Add fresh fixtures (this will overwrite cached ones if they exist in fresh data)
-      results.forEach((batchResults) => {
-        batchResults.forEach((result: any) => {
-          result.fixtures.forEach((fixture: FixtureData) => {
-            if (fixture?.fixture?.id) {
-              // Only add if not cached or if it's not an old ended match
-              if (
-                !allFixturesMap.has(fixture.fixture.id) ||
-                !isMatchOldEnded(fixture)
-              ) {
-                allFixturesMap.set(fixture.fixture.id, fixture);
-              }
+      results.forEach((result) => {
+        result.fixtures.forEach((fixture: FixtureData) => {
+          if (fixture?.fixture?.id) {
+            // Only add if not cached or if it's not an old ended match
+            if (
+              !allFixturesMap.has(fixture.fixture.id) ||
+              !isMatchOldEnded(fixture)
+            ) {
+              allFixturesMap.set(fixture.fixture.id, fixture);
             }
-          });
+          }
         });
       });
 
@@ -896,34 +892,24 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
       // Log detailed results
       console.log(`🔄 [MyNewLeague2] Fetch results:`, {
-        totalBatches: results.length,
-        successfulFetches: results.reduce(
-          (sum, batch) =>
-            sum + batch.filter((r: any) => r.fixtures.length > 0).length,
-          0,
-        ),
+        totalBatches: Math.ceil(leagueIds.length / batchSize),
+        successfulFetches: results.filter((r) => !r.error && r.fixtures.length > 0).length,
+        failedFetches: results.filter((r) => r.error).length,
         cachedEndedMatches: cachedEndedMatches.length,
         totalFixtures: finalFixtures.length,
-        fixturesFetchedInBatches: results.reduce(
-          (sum, batch) =>
-            sum + batch.reduce((bSum, r: any) => bSum + r.fixtures.length, 0),
-          0,
-        ),
+        fixturesFetchedInBatches: results.reduce((sum, r) => sum + r.fixtures.length, 0),
         duplicatesRemoved:
-          results.reduce(
-            (sum, batch) =>
-              sum + batch.reduce((bSum, r: any) => bSum + r.fixtures.length, 0),
-            0,
-          ) +
+          results.reduce((sum, r) => sum + r.fixtures.length, 0) +
           cachedEndedMatches.length -
           finalFixtures.length,
-        leagueBreakdown: results.flatMap((batch) =>
-          batch.map((r: any) => ({
-            league: r.leagueId,
-            fixtures: r.fixtures.length,
-            error: r.error,
-          })),
-        ),
+        leagueBreakdown: results.map((r) => ({
+          league: r.leagueId,
+          fixtures: r.fixtures.length,
+          error: r.error,
+          networkError: r.networkError,
+          rateLimited: r.rateLimited,
+          timeout: r.timeout,
+        })),
       });
 
       return finalFixtures;
@@ -931,12 +917,13 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     // Apply dynamic cache configuration
     ...dynamicCacheConfig,
     // Additional configuration for better UX
-    retry: (failureCount, error) => {
+    retry: (failureCount: number, error: Error): boolean => {
       // Don't retry too aggressively for historical data (no refetchInterval)
       if (!dynamicCacheConfig.refetchInterval) return failureCount < 2;
       // For live data, allow more retries
       return failureCount < 3;
     },
+    retryDelay: (attemptIndex: number): number => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   // Smart cache adjustment based on live match detection and proximity to kickoff
