@@ -21,6 +21,7 @@ interface LazyImageProps {
   leagueContext?: {
     name?: string;
     country?: string;
+    id?: number; // Add league ID for detection
   };
   priority?: 'high' | 'medium' | 'low';
 }
@@ -536,6 +537,76 @@ const LazyImage: React.FC<LazyImageProps> = ({
         leagueContext={leagueContext}
       />
     );
+  }
+
+  // Enhanced Friendlies Clubs detection with MyCircularFlag for national teams
+  if (alt && teamName) {
+    // Check if this is Friendlies Clubs context (league ID 667)
+    const isFriendliesClubs = leagueContext?.name?.toLowerCase().includes('friendlies') &&
+                             leagueContext?.name?.toLowerCase().includes('clubs') ||
+                             title?.toLowerCase().includes('friendlies clubs') ||
+                             alt.toLowerCase().includes('friendlies clubs');
+
+    // Enhanced national team detection for Friendlies Clubs
+    const isNationalTeamInFriendlies = (teamName: string): boolean => {
+      const cleanName = teamName.trim();
+      
+      // Common national team patterns
+      const nationalTeamPatterns = [
+        // Single word countries
+        /^(Afghanistan|Albania|Algeria|Argentina|Australia|Austria|Bahrain|Bangladesh|Belarus|Belgium|Bolivia|Brazil|Bulgaria|Cambodia|Cameroon|Canada|Chile|China|Colombia|Croatia|Denmark|Ecuador|Egypt|England|Estonia|Ethiopia|Finland|France|Germany|Ghana|Greece|Hungary|Iceland|India|Indonesia|Iran|Iraq|Ireland|Israel|Italy|Jamaica|Japan|Jordan|Kazakhstan|Kenya|Kuwait|Latvia|Lebanon|Libya|Lithuania|Luxembourg|Malaysia|Mali|Malta|Mexico|Morocco|Nepal|Netherlands|Nigeria|Norway|Oman|Pakistan|Panama|Paraguay|Peru|Philippines|Poland|Portugal|Qatar|Romania|Russia|Scotland|Senegal|Serbia|Singapore|Slovakia|Slovenia|Somalia|Spain|Sweden|Switzerland|Syria|Thailand|Tunisia|Turkey|Ukraine|Uruguay|Venezuela|Vietnam|Wales|Yemen|Zimbabwe)$/i,
+        
+        // Multi-word countries and regions
+        /^(Saudi Arabia|South Africa|South Korea|North Korea|New Zealand|Costa Rica|El Salvador|United States|United Kingdom|Czech Republic|Bosnia and Herzegovina|North Macedonia|FYR Macedonia|Sierra Leone|Ivory Coast|Burkina Faso|Cape Verde|Central African Republic|Equatorial Guinea|Dominican Republic|Puerto Rico|Trinidad and Tobago|United Arab Emirates|Hong Kong|Chinese Taipei)$/i,
+        
+        // Youth teams
+        /^(.*)\s+(U17|U19|U20|U21|U23)$/i,
+        
+        // Women's teams
+        /^(.*)\s+W$/i
+      ];
+      
+      return nationalTeamPatterns.some(pattern => pattern.test(cleanName));
+    };
+
+    if (isFriendliesClubs && isNationalTeamInFriendlies(teamName)) {
+      console.log(`🌍 [LazyImage] Friendlies Clubs: Using MyCircularFlag for national team: ${teamName}`);
+      
+      // Import and use MyCircularFlag dynamically
+      const MyCircularFlag = React.lazy(() => import('./MyCircularFlag'));
+      
+      return (
+        <React.Suspense fallback={
+          <img
+            src={fallbackUrl}
+            alt={alt}
+            className={className}
+            style={{
+              ...style,
+              border: 'none',
+              outline: 'none',
+              display: 'block',
+              opacity: 1,
+              filter: darkMode ? 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))' : 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.8))',
+              ...(style?.width || style?.height ? {} : {
+                width: style?.width || style?.height || (isMobile ? '32px' : '32px'),
+                height: style?.height || style?.width || (isMobile ? '32px' : '32px')
+              })
+            }}
+            loading={shouldPreload ? 'eager' : 'lazy'}
+            decoding="async"
+          />
+        }>
+          <MyCircularFlag
+            teamName={teamName}
+            fallbackUrl={imageSrc}
+            alt={alt}
+            size={style?.width || style?.height || "32px"}
+            className={className}
+          />
+        </React.Suspense>
+      );
+    }
   }
 
   // Enhanced player image detection and prevention
