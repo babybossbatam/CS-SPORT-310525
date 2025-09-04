@@ -161,6 +161,218 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         leagueName.includes("international")) ||
       (leagueName === "friendlies" && !isFriendliesClub);
 
+    // Special handling for "Friendlies Clubs" - distinguish between national and club teams
+    if (isFriendliesClub) {
+      console.log(
+        `🏆 [MyWorldTeamLogo] Friendlies Clubs detected for team: ${teamName}`,
+      );
+
+      // Enhanced club team detection patterns
+      const isDefinitelyClubTeam =
+        teamName &&
+        (teamName.toLowerCase().includes("fc ") ||
+          teamName.toLowerCase().includes("cf ") ||
+          teamName.toLowerCase().includes("ac ") ||
+          teamName.toLowerCase().includes("sc ") ||
+          teamName.toLowerCase().includes("united") ||
+          teamName.toLowerCase().includes("city") ||
+          teamName.toLowerCase().includes("athletic") ||
+          teamName.toLowerCase().includes("real ") ||
+          teamName.toLowerCase().includes("club ") ||
+          teamName.toLowerCase().includes("ud ") ||
+          teamName.toLowerCase().includes("arsenal") ||
+          teamName.toLowerCase().includes("liverpool") ||
+          teamName.toLowerCase().includes("chelsea") ||
+          teamName.toLowerCase().includes("manchester") ||
+          teamName.toLowerCase().includes("tottenham") ||
+          teamName.toLowerCase().includes("bayern") ||
+          teamName.toLowerCase().includes("dortmund") ||
+          teamName.toLowerCase().includes("juventus") ||
+          teamName.toLowerCase().includes("milan") ||
+          teamName.toLowerCase().includes("inter") ||
+          teamName.toLowerCase().includes("napoli") ||
+          teamName.toLowerCase().includes("roma") ||
+          teamName.toLowerCase().includes("psg") ||
+          teamName.toLowerCase().includes("olympique") ||
+          teamName.toLowerCase().includes("atletico") ||
+          teamName.toLowerCase().includes("barcelona") ||
+          teamName.toLowerCase().includes("valencia") ||
+          teamName.toLowerCase().includes("sevilla") ||
+          teamName.toLowerCase().includes("villarreal") ||
+          teamName.toLowerCase().includes(" ff") ||
+          teamName.toLowerCase().includes("hammarby") ||
+          teamName.toLowerCase().includes("brommapojkarna") ||
+          teamName.toLowerCase().includes("aik") ||
+          teamName.toLowerCase().includes("djurgarden") ||
+          teamName.toLowerCase().includes("malmo"));
+
+      // Enhanced national team detection - check against known countries
+      const isDefinitelyNationalTeam =
+        teamName &&
+        ([
+          "Malaysia",
+          "Singapore", 
+          "Saudi Arabia",
+          "FYR Macedonia",
+          "North Macedonia",
+          "Macedonia",
+          "United Arab Emirates",
+          "UAE",
+          "Finland",
+          "San Marino",
+          "Belarus",
+          "Belgium",
+          "Iraq",
+          "Pakistan",
+          "Australia",
+          "Yemen",
+          "Lebanon",
+          "Kuwait",
+          "Myanmar",
+          "Uzbekistan",
+          "Sri Lanka",
+          "Vietnam",
+          "Bangladesh",
+          "Afghanistan",
+          "India",
+          "Iran",
+          "Japan",
+          "Thailand",
+          "Mongolia",
+          "Indonesia",
+          "Laos",
+          "Syria",
+          "Philippines",
+          "Turkmenistan",
+          "Chinese Taipei",
+          "Palestine",
+          "Kyrgyz Republic",
+          "Hong Kong",
+          "Bahrain",
+          "Jordan",
+          "Bhutan",
+          "Tajikistan",
+          "Nepal",
+          "Qatar",
+          "Brunei",
+          "Guam",
+          "Spain",
+          "France",
+          "Germany",
+          "Italy",
+          "England",
+          "Brazil",
+          "Argentina",
+          "Colombia",
+          "Chile",
+          "Peru",
+          "Uruguay",
+          "Ecuador",
+          "Bolivia",
+          "Paraguay",
+          "Venezuela"
+        ].includes(teamName.trim()) ||
+        [
+          "Malaysia",
+          "Singapore", 
+          "Saudi Arabia",
+          "FYR Macedonia",
+          "North Macedonia",
+          "Macedonia",
+          "United Arab Emirates",
+          "UAE",
+          "Finland",
+          "San Marino",
+          "Belarus",
+          "Belgium",
+          "Iraq",
+          "Pakistan",
+          "Australia",
+          "Yemen",
+          "Lebanon",
+          "Kuwait",
+          "Myanmar",
+          "Uzbekistan",
+          "Sri Lanka",
+          "Vietnam",
+          "Bangladesh",
+          "Afghanistan",
+          "India",
+          "Iran",
+          "Japan",
+          "Thailand",
+          "Mongolia",
+          "Indonesia",
+          "Laos",
+          "Syria",
+          "Philippines",
+          "Turkmenistan",
+          "Chinese Taipei",
+          "Palestine",
+          "Kyrgyz Republic",
+          "Hong Kong",
+          "Bahrain",
+          "Jordan",
+          "Bhutan",
+          "Tajikistan",
+          "Nepal",
+          "Qatar",
+          "Brunei",
+          "Guam",
+          "Spain",
+          "France",
+          "Germany",
+          "Italy",
+          "England",
+          "Brazil",
+          "Argentina",
+          "Colombia",
+          "Chile",
+          "Peru",
+          "Uruguay",
+          "Ecuador",
+          "Bolivia",
+          "Paraguay",
+          "Venezuela"
+        ].includes(teamName.replace(/\s+U\d+$/, "").trim()));
+
+      if (isDefinitelyClubTeam && !isDefinitelyNationalTeam) {
+        console.log(
+          `🏟️ [MyWorldTeamLogo] Friendlies Clubs: ${teamName} identified as club team - using club logo`,
+        );
+        const result = false; // Use club logo format
+        circularFlagCache.set(cacheKey, { result, timestamp: now });
+        return result;
+      }
+
+      if (isDefinitelyNationalTeam && !isDefinitelyClubTeam) {
+        console.log(
+          `🇺🇳 [MyWorldTeamLogo] Friendlies Clubs: ${teamName} identified as national team - using circular flag`,
+        );
+        const result = true; // Use circular flag format
+        circularFlagCache.set(cacheKey, { result, timestamp: now });
+        return result;
+      }
+
+      // If uncertain, check if it's a recognizable national team
+      if (isActualNationalTeam) {
+        console.log(
+          `🌍 [MyWorldTeamLogo] Friendlies Clubs: ${teamName} identified as national team by isNationalTeam - using circular flag`,
+        );
+        const result = true;
+        circularFlagCache.set(cacheKey, { result, timestamp: now });
+        return result;
+      }
+
+      // Default for unclear cases in Friendlies Clubs - use club logo
+      console.log(
+        `❓ [MyWorldTeamLogo] Friendlies Clubs: ${teamName} unclear classification - defaulting to club logo`,
+      );
+      const result = false;
+      circularFlagCache.set(cacheKey, { result, timestamp: now });
+      return result;
+    }
+
     const isUefaEuropaLeague =
       leagueName.includes("uefa europa league") ||
       leagueName.includes("europa league");
