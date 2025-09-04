@@ -226,11 +226,18 @@ const LazyImage: React.FC<LazyImageProps> = ({
     }
 
     // Standard error handling for non-team logos or when team-specific fallbacks are exhausted
+    if (fallbackSrc && !target.src.includes(fallbackSrc) && !fallbackAttempted) {
+      console.log(`🔄 [LazyImage] Using provided fallback: ${fallbackSrc}`);
+      setCurrentSrc(fallbackSrc);
+      setFallbackAttempted(true);
+      return;
+    }
+
     if (onError) {
       onError(e);
     } else {
       // Use fallback image as a last resort
-      console.log(`🔄 [LazyImage] Using fallback image`);
+      console.log(`🔄 [LazyImage] Using default fallback image`);
       // Ensure not to override with fallback if it's already the fallback
       if (!target.src.includes('fallback.png') && !target.src.includes('fallback-logo.png')) {
         setCurrentSrc('/assets/matchdetaillogo/fallback.png');

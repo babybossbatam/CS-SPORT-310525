@@ -363,8 +363,39 @@ router.get('/team-logo/square/:teamId', async (req, res) => {
     console.log(`✅ [Logo Proxy] Successfully proxied square team logo for ID: ${teamId}`);
 
   } catch (error) {
-    console.error(`❌ [Logo Proxy] Failed to fetch square team logo for ID: ${teamId}:`, error);
-    res.redirect('/assets/fallback-logo.svg');
+    console.error(`❌ [Logo Proxy] Failed to fetch square team logo for ID: ${teamId}:`, error?.message || 'Unknown error');
+    
+    // Try alternative API-Sports URL format with different endpoint
+    try {
+      console.log(`🔄 [Logo Proxy] Trying alternative endpoint for team ${teamId}`);
+      const altApiUrl = `https://media.api-sports.io/${sportPath}/teams/${teamId}.png`;
+      
+      const response = await fetch(altApiUrl, {
+        method: 'GET',
+        headers: {
+          'User-Agent': 'CS-Sport-App/1.0',
+          'Accept': 'image/png,image/jpeg,image/*,*/*'
+        },
+        signal: AbortSignal.timeout(5000)
+      });
+
+      if (response.ok) {
+        const buffer = await response.arrayBuffer();
+        res.set({
+          'Content-Type': 'image/png',
+          'Cache-Control': 'public, max-age=86400',
+          'Access-Control-Allow-Origin': '*'
+        });
+        res.send(Buffer.from(buffer));
+        console.log(`✅ [Logo Proxy] Alternative endpoint worked for team ${teamId}`);
+        return;
+      }
+    } catch (altError) {
+      console.error(`❌ [Logo Proxy] Alternative endpoint also failed for team ${teamId}:`, altError?.message);
+    }
+    
+    // Final fallback
+    res.redirect('/assets/matchdetaillogo/fallback.png');
   }
 });
 
