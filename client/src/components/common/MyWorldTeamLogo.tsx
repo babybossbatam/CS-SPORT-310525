@@ -11,7 +11,6 @@ interface MyWorldTeamLogoProps {
   size?: string;
   className?: string;
   teamId?: number | string;
-  sport?: string; // Add sport parameter
   leagueContext?: {
     name?: string;
     country?: string;
@@ -43,7 +42,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   size = "64px",
   className = "",
   moveLeft = false,
-  sport = "football", // Default to football
   leagueContext,
   nextMatchInfo,
   showNextMatchOverlay = false,
@@ -285,7 +283,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
       return logoResponse.url;
     } else if (teamId) {
-       const logoSources = getTeamLogoSources({ id: teamId, name: teamName, logo: teamLogo }, shouldUseCircularFlag, sport);
+       const logoSources = getTeamLogoSources({ id: teamId, name: teamName, logo: teamLogo }, shouldUseCircularFlag);
         if (logoSources.length > 0) {
           return logoSources[0].url;
         }
@@ -366,7 +364,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         size={size}
         className={className}
         moveLeft={moveLeft}
-        sport={sport}
         nextMatchInfo={nextMatchInfo}
         showNextMatchOverlay={showNextMatchOverlay}
       />
