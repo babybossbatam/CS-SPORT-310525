@@ -709,23 +709,10 @@
   }
 }
 
-/* Collapse and expand animations for league sections */
+/* Smooth collapse and expand animations for league sections */
 .league-section {
   transition: all 0.3s ease-in-out;
   overflow: hidden;
-}
-
-.league-section.collapsed {
-  max-height: 0;
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-.league-section.expanded {
-  max-height: 2000px;
-  /* Large enough to accommodate content */
-  opacity: 1;
-  transform: translateY(0);
 }
 
 /* Country header collapse/expand button animation */
@@ -747,51 +734,28 @@
   transform: rotate(180deg);
 }
 
-/* League content slide animation */
+/* League content smooth transition */
 .league-content {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-origin: top;
-}
-
-.league-content.collapsed {
-  transform: scaleY(0);
-  opacity: 0;
-}
-
-.league-content.expanded {
-  transform: scaleY(1);
-  opacity: 1;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  overflow: hidden;
 }
 
 /* Smooth height transition for country sections */
 .country-section {
-  transition: max-height 0.4s ease-in-out, padding 0.3s ease-in-out;
-  overflow: hidden;
-}
-
-.country-section.collapsed {
-  max-height: 60px;
-  /* Height of just the header */
-  padding-bottom: 0;
-}
-
-.country-section.expanded {
-  max-height: none;
-  padding-bottom: 0;
-}
-
-/* CardContent wrapper for matches */
-.league-matches-container {
-  overflow: hidden;
   transition: all 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+/* League matches container smooth transition */
+.league-matches-container {
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  overflow: hidden;
 }
 
 /* Ensure proper spacing for match cards within CardContent */
 .match-cards-wrapper {
   display: flex;
   flex-direction: column;
-
-  /* 16px spacing between match cards */
 }
 
 .match-cards-wrapper>.match-card-container {
@@ -806,35 +770,6 @@
 
 .league-card-spacing:last-child {
   margin-bottom: 0;
-}
-
-/* Keyframe animations for league expand/collapse */
-@keyframes slideDown {
-  from {
-    max-height: 0;
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-
-  to {
-    max-height: 1000px;
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    max-height: 1000px;
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  to {
-    max-height: 0;
-    opacity: 0;
-    transform: translateY(-10px);
-  }
 }
 
 /* League header hover effects */

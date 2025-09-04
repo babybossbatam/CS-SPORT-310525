@@ -1556,43 +1556,46 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               />
             )}
           </button>
-          {isExpanded && (
-            <div
-              className={`bg-gray-50 dark:bg-gray-900 border-t border-stone-200 dark:border-gray-700 league-content ${
-                isExpanded ? "expanded" : "collapsed"
-              }`}
-            >
-              {/* Leagues content */}
-              {Object.values(countryData.leagues)
-                .sort((a: any, b: any) => {
-                  if (a.isPopular && !b.isPopular) return -1;
-                  if (!a.isPopular && b.isPopular) return 1;
-                  return a.league.name.localeCompare(b.league.name);
-                })
-                .map((leagueData: any, leagueIndex: number) => {
-                  const leagueKey = `${countryData.country}-${leagueData.league.id}`;
-                  const isLeagueExpanded = expandedLeagues.has(leagueKey);
+          <div
+            className={`bg-gray-50 dark:bg-gray-900 border-t border-stone-200 dark:border-gray-700 league-content overflow-hidden transition-all duration-300 ease-in-out ${
+              isExpanded ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+            }`}
+            style={{
+              transitionProperty: "max-height, opacity",
+              transitionDuration: "300ms",
+              transitionTimingFunction: "ease-in-out"
+            }}
+          >
+            {/* Leagues content */}
+            {Object.values(countryData.leagues)
+              .sort((a: any, b: any) => {
+                if (a.isPopular && !b.isPopular) return -1;
+                if (!a.isPopular && b.isPopular) return 1;
+                return a.league.name.localeCompare(b.league.name);
+              })
+              .map((leagueData: any, leagueIndex: number) => {
+                const leagueKey = `${countryData.country}-${leagueData.league.id}`;
+                const isLeagueExpanded = expandedLeagues.has(leagueKey);
 
-                  return (
-                    <LeagueSection
-                      key={leagueData.league.id}
-                      leagueData={leagueData}
-                      countryData={countryData}
-                      leagueKey={leagueKey}
-                      isLeagueExpanded={isLeagueExpanded}
-                      starredMatches={starredMatches}
-                      hiddenMatches={hiddenMatches}
-                      halftimeFlashMatches={halftimeFlashMatches}
-                      fulltimeFlashMatches={fulltimeFlashMatches}
-                      goalFlashMatches={goalFlashMatches}
-                      onToggleLeague={onToggleLeague}
-                      onStarMatch={onStarMatch}
-                      onMatchClick={onMatchClick}
-                    />
-                  );
-                })}
-            </div>
-          )}
+                return (
+                  <LeagueSection
+                    key={leagueData.league.id}
+                    leagueData={leagueData}
+                    countryData={countryData}
+                    leagueKey={leagueKey}
+                    isLeagueExpanded={isLeagueExpanded}
+                    starredMatches={starredMatches}
+                    hiddenMatches={hiddenMatches}
+                    halftimeFlashMatches={halftimeFlashMatches}
+                    fulltimeFlashMatches={fulltimeFlashMatches}
+                    goalFlashMatches={goalFlashMatches}
+                    onToggleLeague={onToggleLeague}
+                    onStarMatch={onStarMatch}
+                    onMatchClick={onMatchClick}
+                  />
+                );
+              })}
+          </div>
         </div>
       );
     },
@@ -1738,33 +1741,33 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             </div>
           </button>
 
-          {/* Matches - Show only when league is explicitly expanded */}
-          {isLeagueExpanded && (
-            <div
-              className="space-y-0 league-matches-container"
-              style={{
-                animation: isLeagueExpanded
-                  ? "slideDown 0.3s ease-out"
-                  : "slideUp 0.3s ease-out",
-              }}
-            >
-              {leagueData.matches
-                .filter((match: any) => !hiddenMatches.has(match.fixture.id))
-                .map((match: any, matchIndex: number) => (
-                  <MatchCard
-                    key={`${match.fixture.id}-${countryData.country}-${leagueData.league.id}-${matchIndex}`}
-                    match={match}
-                    leagueData={leagueData}
-                    starredMatches={starredMatches}
-                    halftimeFlashMatches={halftimeFlashMatches}
-                    fulltimeFlashMatches={fulltimeFlashMatches}
-                    goalFlashMatches={goalFlashMatches}
-                    onStarMatch={onStarMatch}
-                    onMatchClick={onMatchClick}
-                  />
-                ))}
-            </div>
-          )}
+          {/* Matches - Show with smooth transition */}
+          <div
+            className={`space-y-0 league-matches-container overflow-hidden transition-all duration-300 ease-in-out ${
+              isLeagueExpanded ? "max-h-[1500px] opacity-100" : "max-h-0 opacity-0"
+            }`}
+            style={{
+              transitionProperty: "max-height, opacity",
+              transitionDuration: "300ms",
+              transitionTimingFunction: "ease-in-out"
+            }}
+          >
+            {leagueData.matches
+              .filter((match: any) => !hiddenMatches.has(match.fixture.id))
+              .map((match: any, matchIndex: number) => (
+                <MatchCard
+                  key={`${match.fixture.id}-${countryData.country}-${leagueData.league.id}-${matchIndex}`}
+                  match={match}
+                  leagueData={leagueData}
+                  starredMatches={starredMatches}
+                  halftimeFlashMatches={halftimeFlashMatches}
+                  fulltimeFlashMatches={fulltimeFlashMatches}
+                  goalFlashMatches={goalFlashMatches}
+                  onStarMatch={onStarMatch}
+                  onMatchClick={onMatchClick}
+                />
+              ))}
+          </div>
         </div>
       );
     },
