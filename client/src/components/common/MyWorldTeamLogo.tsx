@@ -211,7 +211,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         teamName &&
         ([
           "Malaysia",
-          "Singapore", 
+          "Singapore",
           "Saudi Arabia",
           "FYR Macedonia",
           "North Macedonia",
@@ -274,7 +274,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         ].includes(teamName.trim()) ||
         [
           "Malaysia",
-          "Singapore", 
+          "Singapore",
           "Saudi Arabia",
           "FYR Macedonia",
           "North Macedonia",
@@ -435,7 +435,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         teamName.toLowerCase().includes("united") ||
         teamName.toLowerCase().includes("city") ||
         teamName.toLowerCase().includes("athletic") ||
-        teamName.toLowerCase().includes("real madrid") ||
+        teamName.toLowerCase().includes("realmadrid") ||
         teamName.toLowerCase().includes("barcelona") ||
         teamName.toLowerCase().includes("valencia") ||
         teamName.toLowerCase().includes("alboraya") ||
@@ -838,6 +838,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         teamName={teamName}
         leagueContext={leagueContext}
         priority="medium"
+        fallbackSrc={`/api/team-logo/square/${teamId}?size=32`}
       />
     </div>
   );

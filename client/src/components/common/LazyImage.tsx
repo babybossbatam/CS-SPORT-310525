@@ -431,6 +431,22 @@ const LazyImage: React.FC<LazyImageProps> = ({
     );
   }
 
+  // Enhanced team logo handling when useTeamLogo is false but we have team info
+  // This handles cases where MyWorldTeamLogo calls LazyImage with useTeamLogo=false
+  if (!useTeamLogo && teamId && teamName && !currentSrc.includes('fallback.png')) {
+    // Check if we need better logo sources for this team
+    const logoSources = getTeamLogoSources({ id: teamId, name: teamName });
+    
+    // If current source is not in our logo sources and we have alternatives, try them
+    if (logoSources.length > 0 && !logoSources.some(source => source.url === currentSrc)) {
+      const bestSource = logoSources[0];
+      if (bestSource && bestSource.url !== currentSrc) {
+        console.log(`🔄 [LazyImage] Using better logo source for ${teamName}: ${bestSource.source}`);
+        setCurrentSrc(bestSource.url);
+      }
+    }
+  }
+
   // Special handling for national teams that should use flags directly via MyWorldTeamLogo
   // This block is now implicitly handled by the `useTeamLogo` check above,
   // as the `nationalTeamNames` logic inside `handleError` leads to `useTeamLogo` being true
