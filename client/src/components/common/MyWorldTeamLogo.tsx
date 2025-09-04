@@ -1,8 +1,218 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { isNationalTeam, getTeamLogoSources, createTeamLogoErrorHandler } from '../../lib/teamLogoSources';
 import { enhancedLogoManager } from '../../lib/enhancedLogoManager';
 import MyCircularFlag from './MyCircularFlag';
 import LazyImage from './LazyImage';
+
+interface MyWorldTeamLogoProps {
+  teamName: string;
+  teamId?: number;
+  teamLogo?: string;
+  logoUrl?: string;
+  alt?: string;
+  size?: string;
+  className?: string;
+  moveLeft?: boolean;
+  leagueContext?: {
+    name?: string;
+    country?: string;
+  };
+  onLoad?: () => void;
+  onError?: (error: any) => void;
+  imageState?: string;
+  nextMatchInfo?: {
+    opponent: string;
+    date: string;
+    venue: string;
+  };
+  showNextMatchOverlay?: boolean;
+}
+
+const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
+  teamName,
+  teamId,
+  teamLogo,
+  logoUrl,
+  alt,
+  size = "34px",
+  className = "",
+  moveLeft = false,
+  leagueContext,
+  onLoad,
+  onError,
+  imageState,
+  nextMatchInfo,
+  showNextMatchOverlay = false,
+}) => {
+  const [resolvedLogoUrl, setResolvedLogoUrl] = useState<string>(teamLogo || logoUrl || "/assets/fallback-logo.png");
+  
+  // Cache for shouldUseCircularFlag results
+  const circularFlagCache = useRef<Map<string, { result: boolean; timestamp: number }>>(new Map());
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+  // Generate cache key for circular flag decision
+  const generateCacheKey = useCallback((teamName: string, leagueCountry?: string): string => {
+    return `${teamName}_${leagueCountry || 'unknown'}`;
+  }, []);
+
+  // Memoized computation for shouldUseCircularFlag
+  const shouldUseCircularFlag = useMemo(() => {
+    const cacheKey = generateCacheKey(teamName, leagueContext?.country);
+
+    // Check cache first
+    const cached = circularFlagCache.current.get(cacheKey);
+    const now = Date.now();
+
+    if (cached && (now - cached.timestamp) < CACHE_DURATION) {
+      console.log(`💾 [MyWorldTeamLogo] Cache hit for shouldUseCircularFlag: ${teamName}`);
+      return cached.result;
+    }
+
+    // Compute the result if not cached or expired
+    console.log(`🔄 [MyWorldTeamLogo] Computing shouldUseCircularFlag for: ${teamName}`);
+    
+    const isInternationalLeague = leagueContext?.country === "World" || 
+                                 leagueContext?.country === "International" ||
+                                 leagueContext?.name?.toLowerCase().includes("world cup") ||
+                                 leagueContext?.name?.toLowerCase().includes("uefa") ||
+                                 leagueContext?.name?.toLowerCase().includes("euro") ||
+                                 leagueContext?.name?.toLowerCase().includes("copa america") ||
+                                 leagueContext?.name?.toLowerCase().includes("nations league") ||
+                                 leagueContext?.name?.toLowerCase().includes("friendlies");
+
+    const isNationalTeamCheck = isNationalTeam({ id: teamId, name: teamName }, leagueContext);
+    
+    // Use circular flag for:
+    // 1. International leagues/competitions (World/International country)
+    // 2. National teams detected by isNationalTeam function
+    const result = isInternationalLeague || isNationalTeamCheck;
+
+    // Cache the result
+    circularFlagCache.current.set(cacheKey, {
+      result,
+      timestamp: now
+    });
+
+    console.log(`🌍 [MyWorldTeamLogo] shouldUseCircularFlag for ${teamName}: ${result}`, {
+      isInternationalLeague,
+      isNationalTeamCheck,
+      leagueCountry: leagueContext?.country,
+      leagueName: leagueContext?.name
+    });
+
+    return result;
+  }, [teamName, teamId, leagueContext, generateCacheKey]);
+
+  // Enhanced logo URL resolution
+  useEffect(() => {
+    const loadEnhancedLogo = async () => {
+      if (teamId && teamName) {
+        try {
+          console.log(`🔍 [MyWorldTeamLogo] Loading enhanced logo for ${teamName} (${teamId})`);
+          const enhancedUrl = await enhancedLogoManager.getTeamLogo(teamId, teamName);
+          
+          if (enhancedUrl && enhancedUrl !== resolvedLogoUrl) {
+            console.log(`✅ [MyWorldTeamLogo] Enhanced logo loaded for ${teamName}: ${enhancedUrl}`);
+            setResolvedLogoUrl(enhancedUrl);
+          }
+        } catch (error) {
+          console.log(`⚠️ [MyWorldTeamLogo] Enhanced logo failed for ${teamName}, using fallback:`, error);
+
+          // For national teams, don't try server proxy fallback
+          if (shouldUseCircularFlag) {
+            console.log(`🌍 [MyWorldTeamLogo] National team fallback for ${teamName}, using original logoUrl`);
+            setResolvedLogoUrl(teamLogo || logoUrl || "/assets/fallback-logo.png");
+          } else {
+            console.log(`🔄 [MyWorldTeamLogo] Trying direct server proxy for ${teamName}`);
+            const directFallback = teamId ? `/api/team-logo/square/${teamId}?size=64` : "/assets/fallback-logo.png";
+            setResolvedLogoUrl(directFallback);
+          }
+        }
+      } else {
+        console.log(`❌ [MyWorldTeamLogo] Missing teamId or teamName: ${teamName} (${teamId})`);
+        setResolvedLogoUrl(teamLogo || logoUrl || "/assets/fallback-logo.png");
+      }
+    };
+
+    loadEnhancedLogo();
+  }, [teamId, teamName, teamLogo, logoUrl, shouldUseCircularFlag]);
+
+  // Memoized inline styles
+  const containerStyle = useMemo(() => ({
+    width: size,
+    height: size,
+    position: "relative" as const,
+    left: moveLeft ? "-16px" : "4px",
+  }), [size, moveLeft]);
+
+  const imageStyle = useMemo(() => ({ 
+    backgroundColor: "transparent",
+    width: "100%",
+    height: "100%",
+    objectFit: "contain" as const,
+    borderRadius: "0%",
+    transform: "scale(0.9)"
+  }), []);
+
+  const handleImageError = useCallback(() => {
+    console.warn(`⚠️ [MyWorldTeamLogo] Image error for ${teamName}:`, {
+      currentUrl: resolvedLogoUrl,
+      teamId: teamId,
+      hasTeamId: !!teamId,
+    });
+
+    if (onError) {
+      onError(new Error(`Failed to load logo for ${teamName}`));
+    }
+
+    // Set fallback
+    setResolvedLogoUrl('/assets/matchdetaillogo/fallback.png');
+  }, [teamId, teamName, resolvedLogoUrl, onError]);
+
+  if (shouldUseCircularFlag) {
+    return (
+      <MyCircularFlag
+        teamName={teamName}
+        fallbackUrl={resolvedLogoUrl}
+        alt={alt || teamName}
+        size={size}
+        className={className}
+        moveLeft={moveLeft}
+        nextMatchInfo={nextMatchInfo}
+        showNextMatchOverlay={showNextMatchOverlay}
+      />
+    );
+  }
+
+  // For non-national teams (club teams), use regular LazyImage with cached URL
+  return (
+    <div
+      className={`team-logo-container ${className}`}
+      style={{
+        ...containerStyle,
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none'
+      }}
+    >
+      <LazyImage
+        src={resolvedLogoUrl}
+        alt={alt || teamName}
+        title={teamName}
+        className="team-logo"
+        style={imageStyle}
+        onError={handleImageError}
+        onLoad={onLoad}
+        useTeamLogo={false}
+        teamId={teamId}
+        teamName={teamName}
+        leagueContext={leagueContext}
+      />
+    </div>
+  );
+};
+
+export default MyWorldTeamLogo;
 
 interface MyWorldTeamLogoProps {
   teamName: string;

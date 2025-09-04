@@ -1476,41 +1476,21 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                                 {/* Home team logo - grid area */}
                                 <div className="home-team-logo-container">
-                                  {match.league.country === "World" ||
-                                  match.league.country === "International" ? (
-                                    <MyWorldTeamLogo
-                                      teamName={match.teams.home.name}
-                                      teamLogo={match.teams.home.logo}
-                                      alt={match.teams.home.name}
-                                      size="34px"
-                                      leagueContext={{
-                                        name: match.league.name,
-                                        country: match.league.country,
-                                      }}
-                                    />
-                                  ) : isNationalTeam(match.teams.home, match.league) ? (
-                                    <MyCircularFlag
-                                      teamName={match.teams.home.name}
-                                      fallbackUrl={match.teams.home.logo}
-                                      alt={match.teams.home.name}
-                                      size="34px"
-                                    />
-                                  ) : (
-                                    <img
-                                      src={match.teams.home.id 
+                                  <MyWorldTeamLogo
+                                    teamName={match.teams.home.name}
+                                    teamId={match.teams.home.id}
+                                    teamLogo={
+                                      match.teams.home.id 
                                         ? `/api/team-logo/square/${match.teams.home.id}?size=64`
                                         : match.teams.home.logo || "/assets/fallback-logo.png"
-                                      }
-                                      alt={match.teams.home.name}
-                                      className="team-logo"
-                                      style={{
-                                        filter: "brightness(100%) contrast(105%) saturate(100%) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))"
-                                      }}
-                                      onError={(e) => {
-                                        e.currentTarget.src = "/assets/fallback-logo.png";
-                                      }}
-                                    />
-                                  )}
+                                    }
+                                    alt={match.teams.home.name}
+                                    size="34px"
+                                    leagueContext={{
+                                      name: match.league.name,
+                                      country: match.league.country,
+                                    }}
+                                  />
                                 </div>
 
                                 {/* Score/Time Center - Fixed width and centered */}
@@ -1640,7 +1620,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 <div className="away-team-logo-container">
                                   <MyWorldTeamLogo
                                     teamName={match.teams.away.name}
-                                    teamLogo={match.teams.away.logo}
+                                    teamId={match.teams.away.id}
+                                    teamLogo={
+                                      match.teams.away.id 
+                                        ? `/api/team-logo/square/${match.teams.away.id}?size=64`
+                                        : match.teams.away.logo || "/assets/fallback-logo.png"
+                                    }
                                     alt={match.teams.away.name}
                                     size="34px"
                                     leagueContext={{
