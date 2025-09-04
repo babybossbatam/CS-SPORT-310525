@@ -347,6 +347,53 @@ const LazyImage: React.FC<LazyImageProps> = ({
   }, [currentSrc, alt, loadAttempt, imageError, onLoad, teamName, teamId]); // Add teamName and teamId for completeness
 
 
+  // Special handling for league 667 - detect national teams and use MyCircularFlag
+  if (leagueContext?.leagueId === 667 || (teamId && leagueContext && String(leagueContext.leagueId) === '667')) {
+    // List of common national team names for league 667
+    const nationalTeamNames = [
+      'Afghanistan', 'Albania', 'Algeria', 'Argentina', 'Armenia', 'Australia', 
+      'Austria', 'Azerbaijan', 'Bahrain', 'Bangladesh', 'Belarus', 'Belgium', 
+      'Bolivia', 'Bosnia and Herzegovina', 'Brazil', 'Bulgaria', 'Cambodia', 
+      'Canada', 'Chile', 'China', 'Colombia', 'Croatia', 'Czech Republic', 
+      'Denmark', 'Ecuador', 'Egypt', 'England', 'Estonia', 'Finland', 'France', 
+      'Georgia', 'Germany', 'Ghana', 'Greece', 'Hong Kong', 'Hungary', 'Iceland', 
+      'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 
+      'Japan', 'Jordan', 'Kazakhstan', 'Kuwait', 'Kyrgyzstan', 'Latvia', 
+      'Lebanon', 'Lithuania', 'Luxembourg', 'Malaysia', 'Mexico', 'Moldova', 
+      'Montenegro', 'Morocco', 'Myanmar', 'Netherlands', 'New Zealand', 'Nigeria', 
+      'North Macedonia', 'Norway', 'Oman', 'Pakistan', 'Palestine', 'Peru', 
+      'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 
+      'Saudi Arabia', 'Scotland', 'Serbia', 'Singapore', 'Slovakia', 'Slovenia', 
+      'South Korea', 'Spain', 'Sri Lanka', 'Sweden', 'Switzerland', 'Syria', 
+      'Tajikistan', 'Thailand', 'Tunisia', 'Turkey', 'Turkmenistan', 'Ukraine', 
+      'United Arab Emirates', 'Uruguay', 'Uzbekistan', 'Venezuela', 'Vietnam', 
+      'Wales', 'Yemen'
+    ];
+
+    const isNationalTeam = nationalTeamNames.some(country => 
+      teamName?.toLowerCase().includes(country.toLowerCase()) ||
+      country.toLowerCase().includes(teamName?.toLowerCase() || '')
+    );
+
+    if (isNationalTeam && teamName) {
+      console.log(`🏆 [LazyImage] League 667 national team detected: ${teamName}, using MyCircularFlag`);
+      return (
+        <MyCircularFlag
+          teamName={teamName}
+          teamId={teamId}
+          fallbackUrl={currentSrc}
+          alt={alt}
+          size={style?.width || style?.height || "32px"}
+          className={className}
+          countryName={teamName}
+        />
+      );
+    } else {
+      console.log(`⚽ [LazyImage] League 667 club team detected: ${teamName}, using LazyImage`);
+      // Continue with regular LazyImage logic for club teams
+    }
+  }
+
   // Use MyWorldTeamLogo if team information is provided and useTeamLogo is true
   // Also render MyWorldTeamLogo if it's a detected national team, even if useTeamLogo is false
   if (useTeamLogo && teamId && teamName) {
