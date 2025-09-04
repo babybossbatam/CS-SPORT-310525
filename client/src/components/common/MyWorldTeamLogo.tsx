@@ -11,6 +11,7 @@ interface MyWorldTeamLogoProps {
   size?: string;
   className?: string;
   teamId?: number | string;
+  moveLeft?: boolean;
   leagueContext?: {
     name?: string;
     country?: string;
@@ -261,32 +262,13 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     return result;
   }, [teamName, leagueContext]);
 
-  // Memoized logo URL resolution using enhancedLogoManager
-  const logoUrl = useMemo(async () => {
-    if (teamId && teamName) {
-      console.log(`🎯 [MyWorldTeamLogo] Fetching logo for team: ${teamName} (ID: ${teamId})`);
-
-      const logoResponse = await enhancedLogoManager.getTeamLogo('MyWorldTeamLogo', {
-        type: 'team',
-        shape: shouldUseCircularFlag ? 'circular' : 'normal',
-        teamId: teamId,
-        teamName: teamName,
-        fallbackUrl: teamLogo || "/assets/matchdetaillogo/fallback.png"
-      });
-
-      console.log(`✅ [MyWorldTeamLogo] Logo resolved for ${teamName}:`, {
-        url: logoResponse.url,
-        cached: logoResponse.cached,
-        fallbackUsed: logoResponse.fallbackUsed,
-        loadTime: logoResponse.loadTime + 'ms'
-      });
-
-      return logoResponse.url;
-    } else if (teamId) {
-       const logoSources = getTeamLogoSources({ id: teamId, name: teamName, logo: teamLogo }, shouldUseCircularFlag);
-        if (logoSources.length > 0) {
-          return logoSources[0].url;
-        }
+  // Synchronous logo URL resolution
+  const logoUrl = useMemo(() => {
+    if (teamId) {
+      const logoSources = getTeamLogoSources({ id: teamId, name: teamName, logo: teamLogo }, shouldUseCircularFlag);
+      if (logoSources.length > 0) {
+        return logoSources[0].url;
+      }
     }
 
     // Fallback to original teamLogo if no teamId
@@ -295,16 +277,42 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     return safeLogo;
   }, [teamId, teamName, teamLogo, shouldUseCircularFlag]);
 
-  // Use React.Suspense pattern for async logo loading
-  const [resolvedLogoUrl, setResolvedLogoUrl] = React.useState<string>(teamLogo || "/assets/matchdetaillogo/fallback.png");
+  // Enhanced logo URL with async loading fallback
+  const [resolvedLogoUrl, setResolvedLogoUrl] = React.useState<string>(logoUrl);
 
   React.useEffect(() => {
-    if (logoUrl instanceof Promise) {
-      logoUrl.then(setResolvedLogoUrl);
-    } else {
-      setResolvedLogoUrl(logoUrl);
-    }
-  }, [logoUrl]);
+    const loadEnhancedLogo = async () => {
+      if (teamId && teamName) {
+        try {
+          console.log(`🎯 [MyWorldTeamLogo] Fetching enhanced logo for team: ${teamName} (ID: ${teamId})`);
+
+          const logoResponse = await enhancedLogoManager.getTeamLogo('MyWorldTeamLogo', {
+            type: 'team',
+            shape: shouldUseCircularFlag ? 'circular' : 'normal',
+            teamId: teamId,
+            teamName: teamName,
+            fallbackUrl: logoUrl
+          });
+
+          console.log(`✅ [MyWorldTeamLogo] Enhanced logo resolved for ${teamName}:`, {
+            url: logoResponse.url,
+            cached: logoResponse.cached,
+            fallbackUsed: logoResponse.fallbackUsed,
+            loadTime: logoResponse.loadTime + 'ms'
+          });
+
+          setResolvedLogoUrl(logoResponse.url);
+        } catch (error) {
+          console.warn(`⚠️ [MyWorldTeamLogo] Enhanced logo failed for ${teamName}, using fallback:`, error);
+          setResolvedLogoUrl(logoUrl);
+        }
+      } else {
+        setResolvedLogoUrl(logoUrl);
+      }
+    };
+
+    loadEnhancedLogo();
+  }, [teamId, teamName, logoUrl, shouldUseCircularFlag]);
 
   // Memoized inline styles
   const containerStyle = useMemo(() => ({
@@ -323,37 +331,21 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     transform: "scale(0.9)"
   }), []);
 
-    const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    // Safety check to prevent undefined target errors
-    if (!e || !e.target) {
-      console.warn('⚠️ [MyWorldTeamLogo] Image error event has no target');
-      return;
-    }
-
-    const target = e.target as HTMLImageElement;
-
-    // Additional safety check for target properties
-    if (!target || typeof target.src !== 'string') {
-      console.warn('⚠️ [MyWorldTeamLogo] Invalid image target');
-      return;
-    }
-
-    const currentSrc = target.src;
-
-    // Don't retry if already showing fallback
-    if (currentSrc.includes('/assets/fallback-logo')) {
-      return;
-    }
-
+    const handleImageError = useCallback(() => {
+    console.warn(`⚠️ [MyWorldTeamLogo] Image error for ${teamName}, trying fallback`);
+    
     // Try different logo sources if teamId is available
-    if (teamId && !currentSrc.includes('/api/team-logo/')) {
-      target.src = `/api/team-logo/square/${teamId}?size=32`;
+    if (teamId && !resolvedLogoUrl.includes('/api/team-logo/')) {
+      const fallbackUrl = `/api/team-logo/square/${teamId}?size=32`;
+      console.log(`🔄 [MyWorldTeamLogo] Trying API fallback: ${fallbackUrl}`);
+      setResolvedLogoUrl(fallbackUrl);
       return;
     }
 
-    // Set fallback image as last resort
-    target.src = '/assets/matchdetaillogo/fallback.png';
-  }, [teamId]);
+    // Set final fallback image
+    console.log(`🚫 [MyWorldTeamLogo] Using final fallback for ${teamName}`);
+    setResolvedLogoUrl('/assets/matchdetaillogo/fallback.png');
+  }, [teamId, teamName, resolvedLogoUrl]);
 
   if (shouldUseCircularFlag) {
     return (
@@ -387,8 +379,12 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         title={teamName}
         className="team-logo"
         style={imageStyle}
-        fallbackSrc="/assets/matchdetaillogo/fallback.png"
         onError={handleImageError}
+        useTeamLogo={false}
+        teamId={teamId}
+        teamName={teamName}
+        leagueContext={leagueContext}
+        priority="medium"
       />
     </div>
   );

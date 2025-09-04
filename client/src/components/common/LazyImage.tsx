@@ -13,6 +13,7 @@ interface LazyImageProps {
   loading?: "lazy" | "eager";
   onLoad?: () => void;
   onError?: () => void;
+  fallbackSrc?: string;
   // Team logo specific props
   useTeamLogo?: boolean;
   teamId?: number | string;
@@ -33,6 +34,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   loading = "lazy",
   onLoad,
   onError,
+  fallbackSrc,
   useTeamLogo = false,
   teamId,
   teamName,
@@ -263,7 +265,14 @@ const LazyImage: React.FC<LazyImageProps> = ({
             `🚫 [LazyImage] All league logo retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
           );
           setHasError(true);
-          setImageSrc("/assets/matchdetaillogo/fallback.png");
+          setImageSrc(fallbackSrc || "/assets/matchdetaillogo/fallback.png");
+          onError?.();
+      } else if (!hasError && retryCount >= 3) { // For non-league images
+          console.warn(
+            `🚫 [LazyImage] All retries failed for: ${src} (${retryCount + 1} attempts), using fallback`,
+          );
+          setHasError(true);
+          setImageSrc(fallbackSrc || "/assets/matchdetaillogo/fallback.png");
           onError?.();
       }
     } catch (error) {
