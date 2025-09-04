@@ -158,6 +158,8 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     Sweden: "se",
     Norway: "no",
     Finland: "fi",
+    "San Marino": "sm",
+    "san marino": "sm",
     Russia: "ru",
     Serbia: "rs",
     // South American teams
@@ -375,7 +377,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
               target.src = smallerUrl;
               return;
             }
-            
+
             if (!target.src.includes('/api/team-logo/')) {
               const apiUrl = `/api/team-logo/square/${teamId}?size=32`;
               console.log(`🔄 [MyCircularFlag] Trying API endpoint: ${apiUrl}`);
@@ -389,7 +391,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
               source.url !== target.src && 
               !source.url.includes('/assets/fallback-logo.svg')
             );
-            
+
             if (nextSource) {
               console.log(`🔄 [MyCircularFlag] Trying source: ${nextSource.source} - ${nextSource.url}`);
               target.src = nextSource.url;
