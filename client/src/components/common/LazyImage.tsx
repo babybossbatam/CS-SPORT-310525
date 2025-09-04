@@ -432,30 +432,46 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   // Enhanced team logo handling when useTeamLogo is false but we have team info
   // This handles cases where MyWorldTeamLogo calls LazyImage with useTeamLogo=false
-  if (!useTeamLogo && teamId && teamName && !currentSrc.includes('fallback.png') && !imageLoaded && !imageError) {
-    // Check if we need better logo sources for this team
-    const logoSources = getTeamLogoSources({ id: teamId, name: teamName });
+  if (!useTeamLogo && teamId && teamName && !currentSrc.includes('fallback.png')) {
+    console.log(`🔍 [LazyImage] Enhanced handling for club team: ${teamName} (ID: ${teamId}), current src: ${currentSrc}`);
     
-    // If current source is not in our logo sources and we have alternatives, try them
-    if (logoSources.length > 0 && !logoSources.some(source => source.url === currentSrc)) {
-      const bestSource = logoSources[0];
-      if (bestSource && bestSource.url !== currentSrc) {
-        console.log(`🔄 [LazyImage] Using better logo source for ${teamName}: ${bestSource.source}`);
-        setCurrentSrc(bestSource.url);
-        setImageLoaded(false);
-        setImageError(false);
-        setImageState('loading');
-        return; // Return early to prevent rendering with old src
-      }
-    } else if (logoSources.length === 0 && !currentSrc.includes('/api/team-logo/')) {
-      // If no logo sources found, try server proxy as fallback
-      const serverProxyUrl = `/api/team-logo/square/${teamId}?size=32`;
-      console.log(`🔄 [LazyImage] No logo sources for ${teamName}, trying server proxy: ${serverProxyUrl}`);
+    // Always try server proxy first for club teams when useTeamLogo=false
+    if (!currentSrc.includes('/api/team-logo/') && !currentSrc.includes('api/team-logo')) {
+      const serverProxyUrl = `/api/team-logo/square/${teamId}?size=64`;
+      console.log(`🔄 [LazyImage] Trying server proxy for club team ${teamName}: ${serverProxyUrl}`);
       setCurrentSrc(serverProxyUrl);
       setImageLoaded(false);
       setImageError(false);
       setImageState('loading');
       return; // Return early to prevent rendering with old src
+    }
+    
+    // If server proxy is already being used but not loaded/errored, let it continue
+    if (currentSrc.includes('/api/team-logo/') && !imageLoaded && !imageError) {
+      console.log(`⏳ [LazyImage] Server proxy loading for ${teamName}: ${currentSrc}`);
+      // Let it continue loading
+    }
+    
+    // Check if we need better logo sources for this team (fallback option)
+    if (imageError || (imageLoaded && currentSrc.includes('fallback'))) {
+      const logoSources = getTeamLogoSources({ id: teamId, name: teamName });
+      
+      if (logoSources.length > 0) {
+        const bestSource = logoSources.find(source => 
+          source.url !== currentSrc && 
+          !source.url.includes('/api/team-logo/') &&
+          !source.url.includes('fallback')
+        );
+        
+        if (bestSource) {
+          console.log(`🔄 [LazyImage] Using alternative logo source for ${teamName}: ${bestSource.source}`);
+          setCurrentSrc(bestSource.url);
+          setImageLoaded(false);
+          setImageError(false);
+          setImageState('loading');
+          return;
+        }
+      }
     }
   }
 
