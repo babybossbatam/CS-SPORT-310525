@@ -97,7 +97,7 @@ interface ErrorCategory {
   action: 'suppress' | 'fix' | 'monitor';
 }
 
-export const categorizeError = (error: any): ErrorCategory => {
+const categorizeError = (error: any): ErrorCategory => {
   const errorStr = error?.message || error?.toString?.() || String(error);
 
   // AbortError and signal aborted errors - suppress
@@ -190,48 +190,6 @@ export const categorizeError = (error: any): ErrorCategory => {
     };
   }
 
-  // Browser feature and CSP warnings - these are environment-specific and not actionable
-  if (errorStr.includes('Unrecognized feature') ||
-      errorStr.includes('Allow attribute will take precedence') ||
-      errorStr.includes('sandbox') ||
-      errorStr.includes('Content Security Policy') ||
-      errorStr.includes('Content-Security-Policy') ||
-      errorStr.includes('CSP') ||
-      errorStr.includes('unsafe-dynamic') ||
-      errorStr.includes('report-uri') ||
-      errorStr.includes('Invalid or unexpected token') ||
-      errorStr.includes('SyntaxError') && errorStr.includes('background.js') ||
-      errorStr.includes('allowfullscreen') ||
-      errorStr.includes('allowpaymentrequest') ||
-      errorStr.includes('ambient-light-sensor') ||
-      errorStr.includes('battery') ||
-      errorStr.includes('execution-while-not-rendered') ||
-      errorStr.includes('execution-while-out-of-viewport') ||
-      errorStr.includes('layout-animations') ||
-      errorStr.includes('legacy-image-formats') ||
-      errorStr.includes('navigation-override') ||
-      errorStr.includes('oversized-images') ||
-      errorStr.includes('publickey-credentials') ||
-      errorStr.includes('speaker-selection') ||
-      errorStr.includes('unoptimized-images') ||
-      errorStr.includes('unsized-media') ||
-      errorStr.includes('pointer-lock') ||
-      errorStr.includes('allow-downloads-without-user-activation') ||
-      errorStr.includes('workspace_iframe.html') ||
-      errorStr.includes('riker.replit.dev') ||
-      errorStr.includes('Invalid or unexpected token') && errorStr.includes('background.js') ||
-      errorStr.includes('LaunchDarkly') ||
-      errorStr.includes('Adding extension') ||
-      errorStr.includes('portkiller') ||
-      errorStr.includes('Icon Generator')) {
-    return {
-      name: 'Browser/CSP Environment',
-      shouldSuppress: true,
-      shouldReport: false,
-      action: 'suppress'
-    };
-  }
-
   // Browser extension and background script errors
   if (errorStr.includes('background.js') ||
       errorStr.includes('extension') ||
@@ -277,19 +235,6 @@ export const categorizeError = (error: any): ErrorCategory => {
       shouldSuppress: true,
       shouldReport: false,
       action: 'monitor'
-    };
-  }
-
-  // React hooks errors - specific handling
-  if (errorStr.includes('Rendered more hooks than during the previous render') ||
-      errorStr.includes('Rendered fewer hooks than expected') ||
-      errorStr.includes('Invalid hook call') ||
-      errorStr.includes('hooks can only be called inside the body of a function component')) {
-    return {
-      name: 'react-hooks',
-      shouldSuppress: false,
-      shouldReport: true,
-      action: 'fix'
     };
   }
 
@@ -343,7 +288,7 @@ export const categorizeError = (error: any): ErrorCategory => {
 };
 
 // Enhanced error reporting system
-export const reportError = (error: any, category: any, source: string) => {
+const reportError = (error: any, category: any, source: string) => {
   if (!import.meta.env.DEV) return;
 
   const errorData = {
@@ -416,39 +361,13 @@ export const setupGlobalErrorHandlers = () => {
       message.includes('fileClean listeners') ||
       message.includes('commitStart listeners') ||
       message.includes('promptUserReconnect listeners') ||
-      message.includes('graphql_subscriptions') ||
+      message.includes('replit.com/graphql_subscriptions') ||
       message.includes('logs.browser-intake') ||
       message.includes('events.launchdarkly.com') ||
       message.includes('api.sorryapp.com') ||
       message.includes('r.stripe.com') ||
-      message.includes('Content Security Policy') ||
-      message.includes('Content-Security-Policy') ||
-      message.includes('unsafe-dynamic') ||
-      message.includes('Unrecognized feature') ||
-      message.includes('sandbox attribute') ||
-      message.includes('allow-downloads-without-user-activation') ||
-      message.includes('allowfullscreen') ||
-      message.includes('allowpaymentrequest') ||
-      message.includes('ambient-light-sensor') ||
-      message.includes('battery') ||
-      message.includes('execution-while-not-rendered') ||
-      message.includes('execution-while-out-of-viewport') ||
-      message.includes('layout-animations') ||
-      message.includes('legacy-image-formats') ||
-      message.includes('navigation-override') ||
-      message.includes('oversized-images') ||
-      message.includes('publickey-credentials') ||
-      message.includes('speaker-selection') ||
-      message.includes('unoptimized-images') ||
-      message.includes('unsized-media') ||
-      message.includes('pointer-lock') ||
-      message.includes('workspace_iframe.html') ||
-      message.includes('riker.replit.dev') ||
-      message.includes('background.js') && message.includes('Invalid or unexpected token') ||
-      message.includes('LaunchDarkly') ||
-      message.includes('Adding extension') ||
-      message.includes('portkiller') ||
-      message.includes('Icon Generator')
+      message.includes('eval.riker.platform.replit.com') ||
+      message.includes('482be3e5-72e0-4aaf-ab33-69660b136cf5')
     ) {
       return;
     }

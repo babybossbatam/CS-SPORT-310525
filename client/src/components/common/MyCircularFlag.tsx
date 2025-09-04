@@ -125,13 +125,9 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     Brunei: "bn",
     Cambodia: "kh",
     China: "cn",
-    "Cape Verde": "cv",
     Dominican: "do",
     Estonia: "ee",
-    Eswatini: "sz",
     Guadeloupe: "gp",
-    Georgia: "ge",
-    Hungary: "hu",
     India: "in",
     Iran: "ir",
     Jordan: "jo",
@@ -139,9 +135,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     Lebanon: "lb",
     Latvia: "lv",
     Lithuania: "lt",
-    Liberia: "lr",
     "Saudi Arabia": "sa",
-    "Sierra Leone": "sl",
     Tanzania: "tz",
     Turkmenistan: "tm",
     "Timor-Leste": "tl",
@@ -177,7 +171,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     Singapore: "sg",
     Senegal: "sn",
     Syria: "sy",
-    Scotland: "gb-sct",
     "Hong Kong": "hk",
     Australia: "au",
     "Chinese Taipei": "tw",
@@ -192,53 +185,35 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       return fallbackUrl || "/assets/fallback-logo.svg";
     }
 
-    // Clean team name by removing common suffixes for better country matching
-    const cleanTeamName = teamName
-      .replace(/\s+(W|Women|U21|U20|U19|U18|U17|U16|Youth|Reserve|B)(\s|$)/gi, ' ')
-      .replace(/\s+(Under|U)-?\d+/gi, ' ')
-      .trim();
-
-    console.log(`🔍 [MyCircularFlag] Original: "${teamName}" -> Cleaned: "${cleanTeamName}"`);
-
     // Special case for England first
-    if (cleanTeamName.toLowerCase() === "england") {
+    if (teamName.toLowerCase() === "england") {
       console.log(`🏴󠁧󠁢󠁥󠁮󠁧󠁿 [MyCircularFlag] Using England flag: gb-eng`);
       return "https://hatscripts.github.io/circle-flags/flags/gb-eng.svg";
     }
 
-    // Extract country from cleaned team name or use direct country mapping
-    const countryCode = getCountryCode(cleanTeamName);
+    // Extract country from team name or use direct country mapping
+    const countryCode = getCountryCode(teamName);
 
     if (countryCode) {
       console.log(
-        `🎯 [MyCircularFlag] Using country code ${countryCode} for ${teamName} (cleaned: ${cleanTeamName})`,
+        `🎯 [MyCircularFlag] Using country code ${countryCode} for ${teamName}`,
       );
       // Use Circle Flags from hatscripts.github.io
       return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
     }
 
-    // Try to find a pattern match in the cleaned team name
-    for (const [country, code] of Object.entries(teamCountryPatterns)) {
-      if (cleanTeamName.toLowerCase().includes(country.toLowerCase())) {
-        console.log(
-          `🔍 [MyCircularFlag] Pattern match: ${country} -> ${code} for ${teamName} (cleaned: ${cleanTeamName})`,
-        );
-        return `https://hatscripts.github.io/circle-flags/flags/${code}.svg`;
-      }
-    }
-
-    // Also try with original team name as fallback
+    // Try to find a pattern match in the team name
     for (const [country, code] of Object.entries(teamCountryPatterns)) {
       if (teamName.toLowerCase().includes(country.toLowerCase())) {
         console.log(
-          `🔍 [MyCircularFlag] Fallback pattern match: ${country} -> ${code} for ${teamName}`,
+          `🔍 [MyCircularFlag] Pattern match: ${country} -> ${code} for ${teamName}`,
         );
         return `https://hatscripts.github.io/circle-flags/flags/${code}.svg`;
       }
     }
 
     console.log(
-      `❌ [MyCircularFlag] No match found for ${teamName} (cleaned: ${cleanTeamName}), using fallback`,
+      `❌ [MyCircularFlag] No match found for ${teamName}, using fallback`,
     );
     // Final fallback
     return fallbackUrl || "/assets/fallback-logo.svg";

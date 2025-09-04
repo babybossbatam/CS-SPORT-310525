@@ -22,77 +22,27 @@ const MyRightContent: React.FC = () => {
   const { isMobile } = useDeviceInfo();
 
   return (
-    <div className={cn(
-      "h-full min-h-0 overflow-y-auto",
-      isMobile
-        ? "space-y-3 py-2"
-        : "space-y-4 pb-4"
-    )}>
+    <div className="h-full min-h-0 overflow-y-auto space-y-4 pb-4">
       {/* Featured Match Section - Hidden on mobile */}
       {!isMobile && (
         <MyHomeFeaturedMatchNew selectedDate={selectedDate} maxMatches={8} />
       )}
 
-      {/* Top Scorers - Consistent spacing */}
-      {isMobile ? (
-        <HomeTopScorersList />
-      ) : (
-        <div>
-          <HomeTopScorersList />
+      <HomeTopScorersList />
+
+      <LeagueStandingsFilter />
+
+      {/* CS SPORT Information Card */}
+      <MyInfo />
+
+      {/* Popular Leagues and All League List sections */}
+      <div className="grid grid-cols-2 gap-4 ">
+        <div className="space-y-4">
+          <PopularLeaguesList />
+          <PopularTeamsList />
         </div>
-      )}
-
-      {/* League Standings - Consistent spacing */}
-      <div className={cn(
-        isMobile
-          ? "rounded-lg bg-white dark:bg-gray-800 shadow-sm mx-0"
-          : ""
-      )}>
-        <LeagueStandingsFilter />
+        <MyAllLeague />
       </div>
-
-      {/* CS SPORT Information Card - Consistent spacing */}
-      <div className={cn(
-        isMobile
-          ? "rounded-lg bg-white dark:bg-gray-800 shadow-sm mx-0"
-          : ""
-      )}>
-        <MyInfo />
-      </div>
-
-      {/* Popular Leagues and Teams sections - Balanced mobile layout */}
-      <div className={cn(
-        isMobile
-          ? "flex flex-col space-y-3"
-          : "grid grid-cols-2 gap-4"
-      )}>
-        <div className="space-y-3">
-          <div className={cn(
-            isMobile
-              ? "rounded-lg bg-white dark:bg-gray-800 shadow-sm mx-0"
-              : ""
-          )}>
-            <PopularLeaguesList />
-          </div>
-          <div className={cn(
-            isMobile
-              ? "rounded-lg bg-white dark:bg-gray-800 shadow-sm mx-0"
-              : ""
-          )}>
-            <PopularTeamsList />
-          </div>
-        </div>
-        <div className={cn(
-          isMobile
-            ? "rounded-lg bg-white dark:bg-gray-800 shadow-sm mx-0"
-            : ""
-        )}>
-          <MyAllLeague />
-        </div>
-      </div>
-
-      {/* Mobile bottom safe area */}
-      {isMobile && <div className="h-6" />}
     </div>
   );
 };

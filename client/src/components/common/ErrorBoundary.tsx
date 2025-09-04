@@ -91,38 +91,12 @@ export default class ErrorBoundary extends Component<Props, State> {
 
     // Log other errors for debugging
     console.error('Error caught by boundary:', error, errorInfo);
-
-    // Report error for monitoring
-    // Assuming reportError and categorizeError are defined elsewhere and available in scope
-    // reportError(error, categorizeError(error), 'error-boundary'); 
-
-    // Handle specific error types
-    if (error.message.includes('Network') || 
-        error.message.includes('Failed to fetch')) {
-      this.handleNetworkError();
-    }
-
-    // Handle React hooks errors
-    if (error.message.includes('Rendered more hooks than during the previous render') ||
-        error.message.includes('Invalid hook call')) {
-      console.warn('React hooks error detected - component will remount');
-      // Force a clean remount by clearing component state
-      setTimeout(() => {
-        this.setState({
-          hasError: false,
-          error: null,
-          errorInfo: null,
-          isRecovering: false
-        });
-      }, 100);
-    } else {
-      // For other errors, update the state to show the error UI
-      this.setState({
-        hasError: true,
-        error,
-        errorInfo
-      });
-    }
+    
+    this.setState({
+      hasError: true,
+      error,
+      errorInfo
+    });
   }
 
   handleNetworkError = async () => {

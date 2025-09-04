@@ -7,9 +7,6 @@ import { debugLogger } from "./lib/debugLogger";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import BrandedLoading from "@/components/common/BrandedLoading";
-import ErrorBoundary from './components/common/ErrorBoundary';
-import ReactHooksErrorBoundary from './components/common/ReactHooksErrorBoundary';
-
 
 import React from "react";
 import { Provider } from "react-redux";
@@ -56,15 +53,13 @@ const AppWithLanguageRouting = () => {
       <LanguageProvider initialLanguage={urlLanguage}>
         <CentralDataProvider>
           <TooltipProvider>
-            <ReactHooksErrorBoundary>
-              <div className="App">
-                <Suspense fallback={<BrandedLoading />}>
-                  <AppRoutes />
-                </Suspense>
-                <Toaster />
-                <LanguageToast />
-              </div>
-            </ReactHooksErrorBoundary>
+            <div className="App">
+              <Suspense fallback={<BrandedLoading />}>
+                <AppRoutes />
+              </Suspense>
+              <Toaster />
+              <LanguageToast />
+            </div>
           </TooltipProvider>
         </CentralDataProvider>
       </LanguageProvider>
@@ -229,7 +224,7 @@ function App() {
         '[data-vite-error]',
         '.vite-error-overlay'
       ];
-
+      
       selectors.forEach(selector => {
         const elements = document.querySelectorAll(selector);
         elements.forEach(element => {
@@ -258,9 +253,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ErrorBoundary>
-        <AppWithLanguageRouting />
-      </ErrorBoundary>
+      <AppWithLanguageRouting />
     </QueryClientProvider>
   );
 }

@@ -4,9 +4,9 @@ export const getTeamLogoClassName = (
   leagueName?: string
 ): string => {
   // Check if this is a country/international competition
-  const isCountryTeam = countryContext === 'World' ||
-                       countryContext === 'Europe' ||
-                       countryContext === 'South America' ||
+  const isCountryTeam = countryContext === 'World' || 
+                       countryContext === 'Europe' || 
+                       countryContext === 'South America' || 
                        countryContext === 'International' ||
                        leagueName?.toLowerCase().includes('international') ||
                        leagueName?.toLowerCase().includes('friendlies') ||
@@ -87,7 +87,7 @@ export function getTeamLogoCacheStats(): void {
 
 // Cache for computed shouldUseCircularFlag results
 const circularFlagCache = new Map<string, { result: boolean; timestamp: number }>();
-const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours - reduced for better data freshness
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 // UTC date utilities (no timezone conversion)
 export function formatUTCDate(date: Date | string, formatType = 'date'): string {
@@ -121,135 +121,6 @@ export function clearMyWorldTeamLogoCache(): void {
       }
     };
   }
-}
-
-/**
- * Get the best team logo URL with proper fallbacks
- */
-export function getBestTeamLogoUrl(teamId: number | string, teamName: string, size: number = 32): string {
-  const teamNameLower = teamName.toLowerCase();
-
-  // Special handling for problematic teams
-  if (teamNameLower.includes("al-nassr") || teamNameLower.includes("al nassr")) {
-    // Use direct API Sports URL for Al-Nassr
-    return `https://media.api-sports.io/football/teams/2939.png`;
-  }
-
-  // Special handling for Al-Ittihad team - try multiple logo sources
-  if (teamNameLower.includes("al-ittihad") || teamNameLower.includes("al ittihad")) {
-    // Use direct API Sports URL for Al-Ittihad
-    return `https://media.api-sports.io/football/teams/2940.png`;
-  }
-
-  // Special handling for Al-Qadisiyah FC
-  if (teamNameLower.includes("al-qadisiyah") || teamNameLower.includes("al qadisiyah")) {
-    return `https://media.api-sports.io/football/teams/2942.png`;
-  }
-
-  // Special handling for Al-Ahli Jeddah
-  if ((teamNameLower.includes("al-ahli") || teamNameLower.includes("al ahli")) && teamNameLower.includes("jeddah")) {
-    return `https://media.api-sports.io/football/teams/2941.png`;
-  }
-
-  // Special handling for Al-Hilal
-  if (teamNameLower.includes("al-hilal") || teamNameLower.includes("al hilal")) {
-    return `https://media.api-sports.io/football/teams/2938.png`;
-  }
-
-  // Special handling for Al-Shabab
-  if (teamNameLower.includes("al-shabab") || teamNameLower.includes("al shabab")) {
-    return `https://media.api-sports.io/football/teams/2943.png`;
-  }
-
-  // Special handling for Al-Taawoun
-  if (teamNameLower.includes("al-taawoun") || teamNameLower.includes("al taawoun")) {
-    return `https://media.api-sports.io/football/teams/2944.png`;
-  }
-
-  // Special handling for Al-Fateh
-  if (teamNameLower.includes("al-fateh") || teamNameLower.includes("al fateh")) {
-    return `https://media.api-sports.io/football/teams/2945.png`;
-  }
-
-  // Special handling for Real Madrid
-  if (teamNameLower.includes("real madrid") && (teamId === 541 || teamId === "541")) {
-    return `https://media.api-sports.io/football/teams/541.png`;
-  }
-
-  // Special handling for Osasuna
-  if (teamNameLower.includes("osasuna") && (teamId === 547 || teamId === "547")) {
-    return `https://media.api-sports.io/football/teams/547.png`;
-  }
-
-  // Special handling for Valencia
-  if (teamNameLower.includes("valencia") && (teamId === 532 || teamId === "532")) {
-    return `https://media.api-sports.io/football/teams/532.png`;
-  }
-
-  // Special handling for Barcelona
-  if (teamNameLower.includes("barcelona") && (teamId === 529 || teamId === "529")) {
-    return `https://media.api-sports.io/football/teams/529.png`;
-  }
-
-  // Primary: Use our API endpoint for better reliability
-  if (teamId && teamId !== 'fallback') {
-    return `/api/team-logo/square/${teamId}?size=${size}`;
-  }
-
-  // Secondary: Use API Sports logo if teamId is available
-  if (teamId && teamId !== 'fallback') {
-    return `https://media.api-sports.io/football/teams/${teamId}.png`;
-  }
-
-  // Fallback: Use default logo
-  return "/assets/fallback.png";
-}
-
-/**
- * Create team logo error handler with proper fallback chain
- */
-export function createTeamLogoErrorHandler(teamId: number | string, teamName: string) {
-  return (e: any) => {
-    const target = e.target as HTMLImageElement;
-    const currentSrc = target.src;
-
-    console.log(`🚫 [TeamLogo Error] Failed to load: ${currentSrc} for ${teamName}`);
-
-    // Try fallback URLs in order
-    if (currentSrc.includes('api-sports.io') && teamId && teamId !== 'fallback') {
-      console.log(`🔄 [TeamLogo] Trying API endpoint for ${teamName}`);
-      target.src = `/api/team-logo/square/${teamId}?size=32`;
-    } else if (currentSrc.includes('/api/team-logo/') && !currentSrc.includes('fallback')) {
-      console.log(`🔄 [TeamLogo] Trying fallback logo for ${teamName}`);
-      target.src = "/assets/fallback.png";
-    }
-    // If already on fallback, don't change anymore to prevent infinite loop
-  };
-}
-
-/**
- * Debug team logo loading issues
- */
-export function debugTeamLogoIssues(teamId: number | string, teamName: string): void {
-  console.log(`🔍 [TeamLogo Debug] Analyzing logo issues for ${teamName} (ID: ${teamId})`);
-
-  const possibleUrls = [
-    `https://media.api-sports.io/football/teams/${teamId}.png`,
-    `/api/team-logo/square/${teamId}?size=32`,
-    `/api/team-logo/circular/${teamId}?size=32`,
-    `/assets/fallback-logo.svg`
-  ];
-
-  possibleUrls.forEach((url, index) => {
-    const img = new Image();
-    img.onload = () => {
-      console.log(`✅ [TeamLogo Debug] URL ${index + 1} works: ${url}`);
-    };
-    img.onerror = () => {
-      console.log(`❌ [TeamLogo Debug] URL ${index + 1} failed: ${url}`);
-    };
-    img.src = url;
-  });
 }
 
 /**

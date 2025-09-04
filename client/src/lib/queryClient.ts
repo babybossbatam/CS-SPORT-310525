@@ -37,21 +37,11 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const controller = new AbortController();
-  // Increase timeout for fixture requests with all=true parameter
-  const isLargeFixtureRequest = url.includes('/fixtures/date/') && url.includes('all=true');
-  const timeoutDuration = isLargeFixtureRequest ? 60000 : 15000; // 60s for large requests, 15s for others
-  const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
-
   try {
-    // Ensure URL is properly formatted with fallback
-    let apiUrl: string;
-    if (url.startsWith("/")) {
-      const origin = window.location.origin || 'http://localhost:5000';
-      apiUrl = `${origin}${url}`;
-    } else {
-      apiUrl = url;
-    }
+    // Ensure URL is properly formatted
+    const apiUrl = url.startsWith("/")
+      ? `${window.location.origin}${url}`
+      : url;
 
     console.log(`📡 [apiRequest] Making ${method} request to: ${apiUrl}`);
 
@@ -64,28 +54,21 @@ export async function apiRequest(
       body: data ? JSON.stringify(data) : undefined,
       credentials: "include",
       mode: "cors",
-      signal: controller.signal,
     });
-
-    clearTimeout(timeoutId);
 
     console.log(`📡 [apiRequest] Response status: ${response.status} for ${method} ${url}`);
 
     await throwIfResNotOk(response);
     return response;
   } catch (error) {
-    clearTimeout(timeoutId);
-    
     const errorMessage =
-      error instanceof Error ? error.message : String(error);
+      error instanceof Error ? error.message : "Unknown error";
 
-    // Handle abort/timeout errors
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.error(`⏰ [apiRequest] Request timeout for ${method} ${url} after ${timeoutDuration}ms`);
-      throw new Error(`Request timeout: The server took too long to respond (${timeoutDuration/1000}s). Please try again.`);
-    }
-
-    console.error(`❌ [apiRequest] Error for ${method} ${url}:`, errorMessage);
+    console.error(`❌ [apiRequest] Error for ${method} ${url}:`, {
+      error: errorMessage,
+      url: url,
+      timestamp: new Date().toISOString()
+    });
 
     // Handle specific error types with more detailed messages
     if (
@@ -144,84 +127,51 @@ export const getQueryFn: <T>(options: {
       return null as any;
     }
 
-    const maxRetries = 2;
-    let lastError: any;
+    try {
+      const url = queryKey[0] as string;
+      const apiUrl = url.startsWith("/")
+        ? `${window.location.origin}${url}`
+        : url;
 
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        const url = queryKey[0] as string;
-        const apiUrl = url.startsWith("/")
-          ? `${window.location.origin}${url}`
-          : url;
+      const res = await fetch(apiUrl, {
+        credentials: "include",
+        signal: signal,
+        headers: {
+          Accept: "application/json",
+        },
+        mode: "cors",
+      });
 
-        // Increase timeout for large fixture requests
-        const isLargeFixtureRequest = url.includes('/fixtures/date/') && url.includes('all=true');
-        const controller = new AbortController();
-        const timeoutDuration = isLargeFixtureRequest ? 60000 : 15000;
-        
-        // Don't set timeout if query is already being cancelled
-        let timeoutId: NodeJS.Timeout | null = null;
-        if (!signal?.aborted) {
-          timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
-        }
-
-        const res = await fetch(apiUrl, {
-          credentials: "include",
-          signal: signal?.aborted ? signal : controller.signal,
-          headers: {
-            Accept: "application/json",
-          },
-          mode: "cors",
-        });
-
-        if (timeoutId) clearTimeout(timeoutId);
-
-        if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-          return null;
-        }
-
-        await throwIfResNotOk(res);
-        return await res.json();
-      } catch (error) {
-        lastError = error;
-        
-        // If this is the last attempt or not a timeout error, break
-        if (attempt === maxRetries || 
-            !(error instanceof Error && error.name === 'AbortError') ||
-            signal?.aborted) {
-          break;
-        }
-
-        console.warn(`🔄 Query retry ${attempt}/${maxRetries} for ${queryKey[0]} after timeout`);
-        // Wait before retrying (1s, 2s)
-        await new Promise(resolve => setTimeout(resolve, attempt * 1000));
+      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+        return null;
       }
+
+      await throwIfResNotOk(res);
+      return await res.json();
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+
+      // Handle AbortError specifically
+      if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes('signal is aborted'))) {
+        console.log(`🛑 Query aborted for ${queryKey[0]}: ${errorMessage}`);
+        return null as any; // Return null for aborted queries
+      }
+
+      if (
+        errorMessage.includes("Failed to fetch") ||
+        errorMessage.includes("NetworkError") ||
+        errorMessage.includes("fetch")
+      ) {
+        console.warn(
+          `🌐 Network issue for query ${queryKey[0]}: ${errorMessage}`,
+        );
+        return null as any; // Return null for network issues in queries
+      }
+
+      console.error(`Query error for ${queryKey[0]}:`, error);
+      throw error;
     }
-
-    // Handle the final error
-    const error = lastError;
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
-
-    // Handle AbortError specifically
-    if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes('signal is aborted'))) {
-      console.log(`🛑 Query aborted for ${queryKey[0]}: ${errorMessage}`);
-      return null as any; // Return null for aborted queries
-    }
-
-    if (
-      errorMessage.includes("Failed to fetch") ||
-      errorMessage.includes("NetworkError") ||
-      errorMessage.includes("fetch")
-    ) {
-      console.warn(
-        `🌐 Network issue for query ${queryKey[0]}: ${errorMessage}`,
-      );
-      return null as any; // Return null for network issues in queries
-    }
-
-    console.error(`Query error for ${queryKey[0]}:`, error);
-    throw error;
   };
 
 // Query client with configurations
@@ -236,26 +186,17 @@ export const queryClient = new QueryClient({
       staleTime: CACHE_DURATIONS.ONE_HOUR, // Data stays fresh for 60 minutes
       gcTime: CACHE_DURATIONS.SIX_HOURS, // 6 hours
       retry: (failureCount, error) => {
-        // Don't retry timeout errors from our custom query function (already retried there)
+        // Don't retry timeout errors
         if (
           error?.message?.includes("timeout") ||
-          error?.message?.includes("timed out") ||
-          error?.name === 'AbortError'
+          error?.message?.includes("timed out")
         ) {
           return false;
         }
-        // Retry network errors up to 2 times
-        if (
-          error?.message?.includes("Failed to fetch") ||
-          error?.message?.includes("NetworkError") ||
-          error?.message?.includes("fetch")
-        ) {
-          return failureCount < 2;
-        }
-        // Don't retry other errors
-        return false;
+        // Retry other errors up to 2 times
+        return failureCount < 2;
       },
-      retryDelay: (attemptIndex) => Math.min(2000 * 2 ** attemptIndex, 10000),
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
       refetchOnMount: false,
       refetchOnReconnect: false,
       // Prevent memory leaks

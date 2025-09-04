@@ -9,7 +9,7 @@ interface CachedPlayerImage {
   verified: boolean;
   playerId: number;
   playerName: string;
-  source: 'api' | 'fallback';
+  source: 'api' | 'fallback' | 'initials';
 }
 
 class PlayerImageCache {
@@ -117,15 +117,24 @@ class PlayerImageCache {
       }
     }
 
-    // Final: Use static fallback image
-    const fallbackUrl = "/assets/matchdetaillogo/player_fallback.png";
+    // Final: Generate initials fallback
+    const initials = this.generateInitials(playerName);
+    const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=128&background=4F46E5&color=fff&bold=true&format=svg`;
 
-    this.setCachedImage(playerId, playerName, fallbackUrl, 'fallback');
-    console.log(`🎨 [PlayerImageCache] Using static fallback for ${playerName}: ${fallbackUrl}`);
+    this.setCachedImage(playerId, playerName, fallbackUrl, 'initials');
+    console.log(`🎨 [PlayerImageCache] Using initials fallback for ${playerName}: ${fallbackUrl}`);
     return fallbackUrl;
   }
 
-  
+  private generateInitials(playerName?: string): string {
+    if (!playerName) return 'P';
+    return playerName
+      .split(' ')
+      .map(name => name[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2) || 'P';
+  }
 
   // Simplified validation - only test what we can control
   private async validateImageUrl(url: string): Promise<boolean> {
@@ -191,20 +200,6 @@ class PlayerImageCache {
     this.cache.delete(key);
     console.log(`🔄 [PlayerImageCache] Force refreshed cache for player: ${playerName} (${playerId})`);
   }
-
-  async preloadPlayerImages(players: Array<{ id?: number; name?: string }>): Promise<void> {
-    console.log(`🔄 [PlayerImageCache] Preloading ${players.length} player images`);
-    
-    const promises = players.map(player => 
-      this.getPlayerImageWithFallback(player.id, player.name).catch(error => {
-        console.log(`⚠️ [PlayerImageCache] Failed to preload player ${player.name}:`, error);
-        return "";
-      })
-    );
-    
-    await Promise.allSettled(promises);
-    console.log(`✅ [PlayerImageCache] Completed preloading player images`);
-  }
 }
 
 // Export singleton instance
@@ -257,15 +252,13 @@ export const forceRefreshPlayerFunc = (playerId?: number, playerName?: string): 
 };
 
 export const refreshPlayerImageFunc = async (playerId?: number, playerName?: string, teamId?: number): Promise<string> => {
-    playerImageCache.forceRefresh(playerId, playerName);
-    return playerImageCache.getPlayerImageWithFallback(playerId, playerName, teamId);
+    return playerImageCache.getPlayerImageWithFallback(playerId, playerName, teamId, true);
 };
 
 export const batchLoadPlayerImagesFunc = async (teamId?: number, leagueId?: number): Promise<void> => {
-    // Simple batch loading - implement if needed
-    console.log(`🔄 [PlayerImageCache] Batch loading requested for team: ${teamId}, league: ${leagueId}`);
+    return playerImageCache.batchLoadPlayerImages(teamId, leagueId);
 };
 
 export const clearWrongPlayerImageFunc = (playerId?: number, playerName?: string): void => {
-    return playerImageCache.forceRefresh(playerId, playerName);
+    return playerImageCache.clearWrongPlayerImage(playerId, playerName);
 };

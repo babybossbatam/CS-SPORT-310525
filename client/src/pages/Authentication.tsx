@@ -22,16 +22,8 @@ const loginSchema = z.object({
   password: z.string().min(6, 'Password is required')
 });
 
-// Extend the insertUserSchema with password confirmation and phone number
+// Extend the insertUserSchema with password confirmation
 const registerSchema = insertUserSchema.extend({
-  phoneNumber: z.string().optional().refine((phone) => {
-    if (!phone) return true; // Allow empty phone number
-    // Basic phone number validation (adjust regex as needed)
-    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-    return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''));
-  }, {
-    message: "Please enter a valid phone number",
-  }),
   passwordConfirm: z.string().min(6, 'Password confirmation is required'),
 }).refine((data) => data.password === data.passwordConfirm, {
   message: "Passwords don't match",
@@ -66,7 +58,6 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
     defaultValues: {
       username: '',
       email: '',
-      phoneNumber: '',
       password: '',
       passwordConfirm: '',
       fullName: ''
@@ -253,23 +244,6 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                           <FormControl>
                             <Input type="email" placeholder="john.doe@example.com" {...field} />
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={registerForm.control}
-                      name="phoneNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Phone Number (Optional)</FormLabel>
-                          <FormControl>
-                            <Input type="tel" placeholder="+1 (555) 123-4567" {...field} />
-                          </FormControl>
-                          <FormDescription>
-                            For match notifications via SMS
-                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}

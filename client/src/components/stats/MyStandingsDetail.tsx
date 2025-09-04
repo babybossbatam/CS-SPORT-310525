@@ -12,7 +12,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import MyCircularFlag from '@/components/common/MyCircularFlag';
-import MyWorldTeamLogo from '@/components/common/MyWorldTeamLogo';
 import { isNationalTeam } from '@/lib/teamLogoSources';
 
 interface Team {
@@ -339,16 +338,16 @@ const MyStandingsDetail: React.FC<MyStandingsDetailProps> = ({ leagueId, season 
                                     className="flex-shrink-0"
                                   />
                                 ) : (
-                                    <img
-                                      src={standing.team.nextMatch.logo}
-                                      alt={standing.team.nextMatch.name}
-                                      className="w-5 h-5 object-contain rounded flex-shrink-0"
-                                      onError={(e) => {
-                                        const target = e.target as HTMLImageElement;
-                                        if (!target.src.includes("/assets/fallback-logo.svg")) {
-                                          target.src = "/assets/fallback-logo.svg";
-                                        }
-                                      }}
+                                  <img
+                                    src={standing.team.nextMatch.logo}
+                                    alt={standing.team.nextMatch.name}
+                                    className="w-5 h-5 object-contain rounded flex-shrink-0"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      if (!target.src.includes("/assets/fallback-logo.svg")) {
+                                        target.src = "/assets/fallback-logo.svg";
+                                      }
+                                    }}
                                   />
                                 )}
                               </div>

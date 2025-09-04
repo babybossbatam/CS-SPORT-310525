@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLocation, Link } from "wouter";
 import LeagueTabs from "./LeagueTabs";
 import { Search, Star, Settings, ChevronDown } from "lucide-react";
@@ -30,7 +30,6 @@ import MyCircularFlag from "../common/MyCircularFlag";
 import { useLanguage, useTranslation } from "@/contexts/LanguageContext";
 import LanguageIndicator from "../common/LanguageIndicator";
 import { useLanguageNavigation } from "@/hooks/useLanguageNavigation";
-import NotificationCenter from '@/components/common/NotificationCenter';
 
 interface HeaderProps {
   showTextOnMobile?: boolean;
@@ -56,7 +55,6 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
     (state: RootState) => state.user.isAuthenticated,
   );
   const username = useSelector((state: RootState) => state.user.username);
-  const currentUser = useSelector((state: RootState) => state.user.currentUser);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,69 +64,6 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
     setSearchOpen(false);
     navigateWithLanguage(`/search?q=${encodeURIComponent(searchQuery)}`);
     setSearchQuery("");
-  };
-
-  // Fetch notification preferences on component mount
-  useEffect(() => {
-    const fetchNotificationPreferences = async () => {
-      if (!currentUser?.id) return;
-      
-      try {
-        const response = await fetch(`/api/notification-preferences/${currentUser.id}`);
-        if (response.ok) {
-          const prefs = await response.json();
-          setNotificationsEnabled(prefs.emailNotifications && prefs.smsNotifications);
-        }
-      } catch (error) {
-        console.error('Failed to fetch notification preferences:', error);
-      }
-    };
-
-    if (isAuthenticated && currentUser?.id) {
-      fetchNotificationPreferences();
-    }
-  }, [isAuthenticated, currentUser?.id]);
-
-  const handleNotificationToggle = async (enabled: boolean) => {
-    if (!currentUser?.id) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to manage notification preferences.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/notification-preferences/${currentUser.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          emailNotifications: enabled,
-          smsNotifications: enabled,
-          pushNotifications: enabled
-        }),
-      });
-
-      if (response.ok) {
-        setNotificationsEnabled(enabled);
-        toast({
-          title: "Preferences Updated",
-          description: `All notifications ${enabled ? 'enabled' : 'disabled'} successfully.`,
-        });
-      } else {
-        throw new Error('Failed to update preferences');
-      }
-    } catch (error) {
-      console.error('Error updating notification preferences:', error);
-      toast({
-        title: "Update Failed",
-        description: "Failed to update notification preferences. Please try again.",
-        variant: "destructive"
-      });
-    }
   };
 
   const handleLogout = () => {
@@ -164,13 +99,13 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
   const handleLanguageChange = (languageCode: string) => {
     const currentPath = getPathWithoutLanguage();
     const newPath = `/${languageCode}${currentPath === '/' ? '' : currentPath}`;
-
+    
     // Update the language context first
     setLanguage(languageCode);
-
+    
     // Navigate to new URL with updated language
     window.location.href = newPath;
-
+    
     toast({
       title: "Language Changed", 
       description: `Language switched to ${getLanguageDisplayName(languageCode)}`,
@@ -180,11 +115,11 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
   const getPathWithoutLanguage = (): string => {
     const supportedLanguages = ['en', 'es', 'zh-hk', 'zh', 'de', 'it', 'pt'];
     const pathParts = location.split('/').filter(part => part);
-
+    
     console.log('🔍 [Header] Current location:', location);
     console.log('🔍 [Header] Path parts:', pathParts);
     console.log('🔍 [Header] Current language from context:', currentLanguage);
-
+    
     if (pathParts.length > 0 && supportedLanguages.includes(pathParts[0])) {
       const remainingPath = pathParts.slice(1).join('/');
       return remainingPath ? `/${remainingPath}` : '/';
@@ -232,7 +167,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
         >
           <img
             src="/CSSPORT_1_updated.png"
-            alt="CSSPORT Logo"
+            alt="CS SPORT Logo"
             className={cn(
               "w-auto mr-2 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]",
               isMobile ? "h-8 max-h-8" : "h-full max-h-[57px]",
@@ -323,60 +258,26 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
             >
               <DropdownMenuLabel
                 className={cn(
-                  "text-gray-600 dark:text-gray-400 font-medium uppercase tracking-wide",
-                  isMobile ? "px-4 py-3 text-xs" : "px-3 py-2 text-xs",
+                  "text-gray-600 dark:text-gray-400 font-medium",
+                  isMobile ? "px-4 py-2 text-sm" : "text-sm",
                 )}
               >
-                {currentLanguage === 'zh-hk' ? '通知' : 
-                 currentLanguage === 'zh-tw' ? '通知' : 
-                 currentLanguage === 'zh' ? '通知' : 
-                 currentLanguage === 'es' ? 'NOTIFICACIONES' : 
-                 currentLanguage === 'de' ? 'BENACHRICHTIGUNGEN' : 
-                 currentLanguage === 'it' ? 'NOTIFICHE' : 
-                 currentLanguage === 'pt' ? 'NOTIFICAÇÕES' : 
-                 'NOTIFICATIONS'}
+                NOTIFICATIONS
               </DropdownMenuLabel>
 
               <DropdownMenuItem
                 className={cn(
-                  "flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-200",
-                  isMobile ? "min-h-[56px] px-4 py-4 gap-4" : "min-h-[44px] px-3 py-3 gap-3",
+                  "flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
+                  isMobile ? "min-h-[48px] px-4 py-3" : "px-3 py-2",
                 )}
               >
-                <div className="flex-1">
-                  <span className={cn(
-                    "font-medium text-gray-900 dark:text-white",
-                    isMobile ? "text-base leading-tight" : "text-sm"
-                  )}>
-                    {currentLanguage === 'zh-hk' ? '啟用所有通知' : 
-                     currentLanguage === 'zh-tw' ? '啟用所有通知' : 
-                     currentLanguage === 'zh' ? '启用所有通知' : 
-                     currentLanguage === 'es' ? 'Habilitar todas las notificaciones' : 
-                     currentLanguage === 'de' ? 'Alle Benachrichtigungen aktivieren' : 
-                     currentLanguage === 'it' ? 'Abilita tutte le notifiche' : 
-                     currentLanguage === 'pt' ? 'Habilitar todas as notificações' : 
-                     'Enable all Notifications'}
-                  </span>
-                  {isMobile && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      {currentLanguage === 'zh-hk' ? '包括電子郵件和短信' : 
-                       currentLanguage === 'zh-tw' ? '包括電子郵件和簡訊' : 
-                       currentLanguage === 'zh' ? '包括电子邮件和短信' : 
-                       currentLanguage === 'es' ? 'Incluye email y SMS' : 
-                       currentLanguage === 'de' ? 'Einschließlich E-Mail und SMS' : 
-                       currentLanguage === 'it' ? 'Include email e SMS' : 
-                       currentLanguage === 'pt' ? 'Inclui email e SMS' : 
-                       'Includes email and SMS'}
-                    </p>
-                  )}
-                </div>
+                <span className={cn(isMobile ? "text-base" : "text-sm")}>
+                  Enable all Notifications
+                </span>
                 <Switch
                   checked={notificationsEnabled}
-                  onCheckedChange={handleNotificationToggle}
-                  className={cn(
-                    "data-[state=checked]:bg-blue-500 transition-colors duration-200",
-                    isMobile ? "scale-110" : ""
-                  )}
+                  onCheckedChange={setNotificationsEnabled}
+                  className="data-[state=checked]:bg-blue-500"
                 />
               </DropdownMenuItem>
 
@@ -388,14 +289,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                   isMobile ? "px-4 py-2 text-sm" : "text-sm",
                 )}
               >
-                {currentLanguage === 'zh-hk' ? '主題' : 
-                 currentLanguage === 'zh-tw' ? '主題' : 
-                 currentLanguage === 'zh' ? '主题' : 
-                 currentLanguage === 'es' ? 'TEMAS' : 
-                 currentLanguage === 'de' ? 'THEMEN' : 
-                 currentLanguage === 'it' ? 'TEMI' : 
-                 currentLanguage === 'pt' ? 'TEMAS' : 
-                 'THEMES'}
+                THEMES
               </DropdownMenuLabel>
 
               <DropdownMenuItem
@@ -405,14 +299,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                 )}
               >
                 <span className={cn(isMobile ? "text-base" : "text-sm")}>
-                  {currentLanguage === 'zh-hk' ? '設置深色主題' : 
-                   currentLanguage === 'zh-tw' ? '設置深色主題' : 
-                   currentLanguage === 'zh' ? '设置暗黑主题' : 
-                   currentLanguage === 'es' ? 'Establecer tema oscuro' : 
-                   currentLanguage === 'de' ? 'Dunkles Theme festlegen' : 
-                   currentLanguage === 'it' ? 'Imposta tema scuro' : 
-                   currentLanguage === 'pt' ? 'Definir tema escuro' : 
-                   'Set Dark Theme'}
+                  Set Dark Theme
                 </span>
                 <Switch
                   checked={darkMode}
@@ -431,14 +318,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                   isMobile ? "px-4 py-2 text-sm" : "text-sm",
                 )}
               >
-                {currentLanguage === 'zh-hk' ? '語言' : 
-                 currentLanguage === 'zh-tw' ? '語言' : 
-                 currentLanguage === 'zh' ? '语言' : 
-                 currentLanguage === 'es' ? 'IDIOMA' : 
-                 currentLanguage === 'de' ? 'SPRACHE' : 
-                 currentLanguage === 'it' ? 'LINGUA' : 
-                 currentLanguage === 'pt' ? 'IDIOMA' : 
-                 'LANGUAGE'}
+                LANGUAGE
               </DropdownMenuLabel>
 
               <DropdownMenu>
@@ -600,91 +480,82 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                 )}
                 onClick={() => setPrivacyModalOpen(true)}
               >
-                {currentLanguage === 'zh-hk' ? '私隱設置' : 
-                 currentLanguage === 'zh-tw' ? '隱私設定' : 
-                 currentLanguage === 'zh' ? '隐私设置' : 
-                 currentLanguage === 'es' ? 'Configuración de privacidad' : 
-                 currentLanguage === 'de' ? 'Datenschutzeinstellungen' : 
-                 currentLanguage === 'it' ? 'Impostazioni privacy' : 
-                 currentLanguage === 'pt' ? 'Configurações de privacidade' : 
-                 'Privacy Settings'}
+                Privacy Settings
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <NotificationCenter />
-        </div>
-        
-        {isAuthenticated && (
-          <div
-            className={cn(
-              "flex items-center font-semibold text-white transition-colors duration-200 cursor-pointer",
-              isMobile ? "text-xs ml-2" : "text-sm ml-4",
-            )}
-          >
-            {isMobile ? (
-              // Mobile: Show avatar circle with initials
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-8 h-8 bg-gradient-to-br from-amber-300 via-yellow-500 to-orange-500 rounded-full flex items-center justify-center text-black text-xs font-bold transition-all duration-200 hover:scale-105"
-                  title={
-                    username
-                      ? username.charAt(0).toUpperCase() + username.slice(1)
-                      : ""
-                  }
-                >
-                  {username ? username.charAt(0).toUpperCase() : "U"}
-                </div>
-                <span
-                  className={`cursor-pointer transition-colors duration-200 ${
-                    activeHover === "logout"
-                      ? "text-amber-300"
-                      : "hover:text-amber-300"
-                  }`}
-                  onClick={handleLogout}
-                  onMouseEnter={() => setActiveHover("logout")}
-                  onMouseLeave={() => setActiveHover(null)}
-                >
-                  Logout
-                </span>
-              </div>
-            ) : (
-              // Desktop: Show full username
-              <>
-                <span
-                  className={`transition-colors duration-200 ${
-                    activeHover === "username"
-                      ? "text-amber-400"
-                      : activeHover === "logout"
-                        ? "text-white"
-                        : "hover:text-amber-400"
-                  }`}
-                  onMouseEnter={() => setActiveHover("username")}
-                  onMouseLeave={() => setActiveHover(null)}
-                >
-                  {username
-                    ? username.charAt(0).toUpperCase() + username.slice(1)
-                    : ""}
-                </span>
-                <span>, </span>
-                <span
-                  className={`cursor-pointer transition-colors duration-200 ${
-                    activeHover === "logout"
-                      ? "text-amber-300"
-                      : activeHover === "username"
-                        ? "text-white"
+          {isAuthenticated && (
+            <div
+              className={cn(
+                "flex items-center font-semibold text-white transition-colors duration-200 cursor-pointer",
+                isMobile ? "text-xs ml-2" : "text-sm ml-4",
+              )}
+            >
+              {isMobile ? (
+                // Mobile: Show avatar circle with initials
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-8 h-8 bg-gradient-to-br from-amber-300 via-yellow-500 to-orange-500 rounded-full flex items-center justify-center text-black text-xs font-bold transition-all duration-200 hover:scale-105"
+                    title={
+                      username
+                        ? username.charAt(0).toUpperCase() + username.slice(1)
+                        : ""
+                    }
+                  >
+                    {username ? username.charAt(0).toUpperCase() : "U"}
+                  </div>
+                  <span
+                    className={`cursor-pointer transition-colors duration-200 ${
+                      activeHover === "logout"
+                        ? "text-amber-300"
                         : "hover:text-amber-300"
-                  }`}
-                  onClick={handleLogout}
-                  onMouseEnter={() => setActiveHover("logout")}
-                  onMouseLeave={() => setActiveHover(null)}
-                >
-                  Logout
-                </span>
-              </>
-            )}
-          </div>
-        )}
+                    }`}
+                    onClick={handleLogout}
+                    onMouseEnter={() => setActiveHover("logout")}
+                    onMouseLeave={() => setActiveHover(null)}
+                  >
+                    Logout
+                  </span>
+                </div>
+              ) : (
+                // Desktop: Show full username
+                <>
+                  <span
+                    className={`transition-colors duration-200 ${
+                      activeHover === "username"
+                        ? "text-amber-400"
+                        : activeHover === "logout"
+                          ? "text-white"
+                          : "hover:text-amber-400"
+                    }`}
+                    onMouseEnter={() => setActiveHover("username")}
+                    onMouseLeave={() => setActiveHover(null)}
+                  >
+                    {username
+                      ? username.charAt(0).toUpperCase() + username.slice(1)
+                      : ""}
+                  </span>
+                  <span>, </span>
+                  <span
+                    className={`cursor-pointer transition-colors duration-200 ${
+                      activeHover === "logout"
+                        ? "text-amber-300"
+                        : activeHover === "username"
+                          ? "text-white"
+                          : "hover:text-amber-300"
+                    }`}
+                    onClick={handleLogout}
+                    onMouseEnter={() => setActiveHover("logout")}
+                    onMouseLeave={() => setActiveHover(null)}
+                  >
+                    Logout
+                  </span>
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Search Dialog */}

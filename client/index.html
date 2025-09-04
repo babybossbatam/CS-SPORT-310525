@@ -4,17 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <meta http-equiv="Content-Security-Policy" content="
-      default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: wss: ws: http: https:;
-      script-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: http: https: *.replit.com *.replit.dev;
-      style-src 'self' 'unsafe-inline' data: blob: http: https: *.googleapis.com *.gstatic.com;
-      img-src 'self' data: blob: http: https: *.api-sports.io *.media.api-sports.io;
-      connect-src 'self' wss: ws: http: https: *.api-sports.io *.rapidapi.com *.replit.com *.replit.dev;
-      font-src 'self' data: http: https: *.googleapis.com *.gstatic.com;
-      media-src 'self' data: blob: http: https:;
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://replit.com https://feed.mikle.com https://www.scorebat.com https://cdn.jsdelivr.net https://unpkg.com https://www.youtube.com https://youtube.com https://player.vimeo.com https://vimeo.com https://www.dailymotion.com https://player.twitch.tv https://twitch.tv https://s.ytimg.com https://www.gstatic.com https://widgets.media.sportradar.com https://widgets.api-sports.io;
+      script-src-elem 'self' 'unsafe-inline' https://replit.com https://feed.mikle.com https://www.scorebat.com https://cdn.jsdelivr.net https://unpkg.com https://www.youtube.com https://youtube.com https://player.vimeo.com https://vimeo.com https://www.dailymotion.com https://player.twitch.tv https://twitch.tv https://s.ytimg.com https://www.gstatic.com https://widgets.media.sportradar.com https://widgets.api-sports.io;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://www.youtube.com https://youtube.com https://widgets.media.sportradar.com https://widgets.api-sports.io;
+      img-src 'self' data: blob: https: http: https://media.api-sports.io https://hatscripts.github.io https://imagecache.365scores.com https://logos.api-sports.io https://via.placeholder.com https://feed.mikle.com https://www.scorebat.com https://i.ytimg.com https://yt3.ggpht.com https://www.youtube.com https://youtube.com https://widgets.media.sportradar.com https://widgets.api-sports.io;
+      font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com data: https://widgets.media.sportradar.com https://widgets.api-sports.io;
+      connect-src 'self' https: wss: https://api-sports.io https://feed.mikle.com https://www.scorebat.com https://webws.365scores.com https://www.youtube.com https://youtube.com https://googlevideo.com https://player.vimeo.com https://vimeo.com https://www.dailymotion.com https://player.twitch.tv https://twitch.tv https://widgets.media.sportradar.com https://widgets.api-sports.io;
+      frame-src 'self' https://feed.mikle.com https://www.scorebat.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://vimeo.com https://www.dailymotion.com https://geo.dailymotion.com https://player.twitch.tv https://twitch.tv https://replit.com https://widgets.media.sportradar.com https://widgets.api-sports.io;
+      media-src 'self' https: data: blob: https://www.youtube.com https://youtube.com https://googlevideo.com https://player.vimeo.com https://vimeo.com https://www.dailymotion.com https://player.twitch.tv https://twitch.tv;
       object-src 'none';
       base-uri 'self';
       form-action 'self';
-      frame-ancestors 'self';
     ">
     <title>CSSPORT | 潮勝體育</title>
 

@@ -197,80 +197,150 @@ const HomeTopScorersList = () => {
   // Simplified - no need to check which leagues have data, just show all
   const isLoadingLeagues = false;
 
-  // Optimized league availability check with parallel fetching
+  // Update available leagues when data is loaded - filter by data availability
   useEffect(() => {
     const checkLeaguesWithData = async () => {
-      // Start with a subset of most popular leagues for faster initial load
-      const priorityLeagues = POPULAR_LEAGUES.slice(0, 8); // Load first 8 leagues immediately
-      
-      // Auto-learn from available leagues list first
+      const leaguesWithData = [];
+      const leagueDataForLearning: any[] = [];
+
+      for (const league of POPULAR_LEAGUES) {
+        try {
+          const response = await fetch(`/api/leagues/${league.id}/topscorers`, {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              "Cache-Control": "max-age=3600",
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+
+            // Filter for current/recent season data
+            const freshData = data.filter((scorer: any) => {
+              const seasonYear = scorer.statistics[0]?.league?.season;
+              if (!seasonYear) return false;
+
+              const currentYear = new Date().getFullYear();
+              const currentMonth = new Date().getMonth() + 1;
+
+              // For World Cup Qualification cycles
+              if (league.id === 34) {
+                return seasonYear >= 2024 && seasonYear <= 2026;
+              }
+
+              // For other competitions
+              let currentSeason;
+              if (currentMonth >= 8) {
+                currentSeason = currentYear;
+              } else {
+                currentSeason = currentYear - 1;
+              }
+
+              return (
+                seasonYear >= currentSeason && seasonYear <= currentYear + 1
+              );
+            });
+
+            if (freshData.length > 0) {
+              leaguesWithData.push(league);
+
+              // Collect league data for learning
+              freshData.forEach((scorer: any) => {
+                if (scorer.statistics[0]?.league) {
+                  leagueDataForLearning.push({
+                    league: scorer.statistics[0].league
+                  });
+                }
+              });
+
+              // Auto-learn player names, positions, and countries from the fresh data
+              const playersForLearning: any[] = [];
+              freshData.forEach((scorer: any) => {
+                if (scorer.player?.name) {
+                  // Extract country from league country data
+                  const leagueCountry = scorer.statistics[0]?.league?.country;
+
+                  // Intelligent country extraction based on team/league
+                  const extractPlayerCountry = (teamName: string, leagueCountry: string, leagueName: string) => {
+                    // If it's a national team league, the country is obvious
+                    if (leagueName?.toLowerCase().includes('world cup') || 
+                        leagueName?.toLowerCase().includes('nations league') ||
+                        leagueName?.toLowerCase().includes('euro') ||
+                        leagueName?.toLowerCase().includes('copa america')) {
+                      return teamName; // Team name is likely the country
+                    }
+
+                    // For club competitions, we can make educated guesses
+                    if (leagueCountry && leagueCountry !== 'World') {
+                      // Many players in domestic leagues are from that country
+                      return leagueCountry;
+                    }
+
+                    return null;
+                  };
+
+                  const teamName = scorer.statistics[0]?.team?.name;
+                  const leagueName = scorer.statistics[0]?.league?.name;
+                  const playerCountry = extractPlayerCountry(teamName, leagueCountry, leagueName);
+
+                  playersForLearning.push({
+                    id: scorer.player.id,
+                    name: scorer.player.name,
+                    // Prioritize games.position if available, otherwise use player.position
+                    position: scorer.statistics[0]?.games?.position || scorer.player.position,
+                    team: teamName,
+                    league: leagueName,
+                    country: playerCountry,
+                    nationality: playerCountry // Alias for country
+                  });
+                }
+              });
+
+              // Learn from collected player data
+              if (playersForLearning.length > 0) {
+                learnFromPlayerData(playersForLearning);
+                console.log(`🎯 [HomeTopScorers] Auto-learned ${playersForLearning.length} players with positions and countries for translation`);
+              }
+            }
+          }
+        } catch (error) {
+          console.warn(`Failed to check data for league ${league.id}`);
+        }
+      }
+
+      // Also auto-learn from available leagues list
       POPULAR_LEAGUES.forEach(league => {
         smartLeagueCountryTranslation.autoLearnFromAnyLeagueName(league.name, {
           leagueId: league.id
         });
       });
 
-      // Set priority leagues immediately for faster UI response
-      setAvailableLeagues(priorityLeagues);
-      
-      // Set initial selected league immediately
-      if (!selectedLeague) {
-        const preferredLeague = priorityLeagues.find((l) => l.id === 34);
-        const initialLeague = preferredLeague ? preferredLeague.id : priorityLeagues[0].id;
-        
+      setAvailableLeagues(leaguesWithData);
+
+      // Set initial selected league from available leagues with data
+      if (!selectedLeague && leaguesWithData.length > 0) {
+        // Try to find World Cup Qualification South America first
+        const preferredLeague = leaguesWithData.find((l) => l.id === 34);
+        const initialLeague = preferredLeague
+          ? preferredLeague.id
+          : leaguesWithData[0].id;
+
+        console.log(`🎯 [HomeTopScorers] Setting initial league:`, {
+          initialLeagueId: initialLeague,
+          initialLeagueName: leaguesWithData.find((l) => l.id === initialLeague)
+            ?.name,
+          availableLeaguesCount: leaguesWithData.length,
+        });
+
         setSelectedLeague(initialLeague);
-        sessionStorage.setItem("homeTopScorers_selectedLeague", initialLeague.toString());
+
+        // Store in sessionStorage to persist across refreshes
+        sessionStorage.setItem(
+          "homeTopScorers_selectedLeague",
+          initialLeague.toString(),
+        );
       }
-
-      // Background validation of leagues with data (non-blocking)
-      setTimeout(async () => {
-        try {
-          // Use Promise.allSettled for parallel requests with error handling
-          const leagueChecks = POPULAR_LEAGUES.map(async (league) => {
-            try {
-              const response = await fetch(`/api/leagues/${league.id}/topscorers`, {
-                headers: {
-                  Accept: "application/json",
-                  "Content-Type": "application/json",
-                  "Cache-Control": "max-age=7200", // Longer cache for faster subsequent loads
-                },
-              });
-
-              if (response.ok) {
-                const data = await response.json();
-                
-                // Quick validation - just check if we have any recent data
-                const hasRecentData = data.some((scorer: any) => {
-                  const seasonYear = scorer.statistics[0]?.league?.season;
-                  if (!seasonYear) return false;
-                  
-                  const currentYear = new Date().getFullYear();
-                  return league.id === 34 ? 
-                    (seasonYear >= 2024 && seasonYear <= 2026) :
-                    (seasonYear >= currentYear - 1);
-                });
-
-                return hasRecentData ? league : null;
-              }
-            } catch (error) {
-              console.warn(`Failed to check league ${league.id}:`, error);
-            }
-            return null;
-          });
-
-          const results = await Promise.allSettled(leagueChecks);
-          const validLeagues = results
-            .map(result => result.status === 'fulfilled' ? result.value : null)
-            .filter(Boolean);
-
-          // Only update if we found different leagues than priority ones
-          if (validLeagues.length !== priorityLeagues.length) {
-            setAvailableLeagues(validLeagues);
-          }
-        } catch (error) {
-          console.warn("Background league validation failed:", error);
-        }
-      }, 100); // Small delay to not block initial render
     };
 
     checkLeaguesWithData();
@@ -332,57 +402,96 @@ const HomeTopScorersList = () => {
     async () => {
       if (!selectedLeague) return [];
 
+      console.log(
+        `🎯 [HomeTopScorers] Fetching top scorers for selected league ${selectedLeague}`,
+      );
+
       const response = await fetch(
         `/api/leagues/${selectedLeague}/topscorers`,
         {
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
-            "Cache-Control": "max-age=7200", // 2 hour cache for faster loading
+            "Cache-Control": "max-age=3600", // 1 hour cache
           },
         },
       );
 
       if (!response.ok) {
+        console.warn(
+          `Failed to fetch top scorers for league ${selectedLeague}: ${response.status}`,
+        );
         return [];
       }
 
       const data: PlayerStatistics[] = await response.json();
 
-      // Simplified and faster filtering
-      const currentYear = new Date().getFullYear();
-      const currentMonth = new Date().getMonth() + 1;
-      
+      // Filter for current/recent season data AND ensure players actually played in the selected league
       const freshData = data.filter((scorer) => {
         const playerStats = scorer.statistics[0];
         const seasonYear = playerStats?.league?.season;
         const playerLeagueId = playerStats?.league?.id;
 
-        // Fast validation - only essential checks
-        if (!seasonYear || playerLeagueId !== selectedLeague) return false;
-
-        // Simplified season validation
-        if (selectedLeague === 34) {
-          return seasonYear >= 2024 && seasonYear <= 2026;
+        // Must have valid season and league data
+        if (!seasonYear || !playerLeagueId) {
+          console.log(`❌ [HomeTopScorers] Filtering out player ${scorer.player?.name} - missing season/league data:`, {
+            seasonYear,
+            playerLeagueId,
+            selectedLeague
+          });
+          return false;
         }
 
-        const currentSeason = currentMonth >= 8 ? currentYear : currentYear - 1;
-        return seasonYear >= currentSeason;
-      });
+        // CRITICAL: Only include players who actually played in the selected league
+        if (playerLeagueId !== selectedLeague) {
+          console.log(`❌ [HomeTopScorers] Filtering out player ${scorer.player?.name} - wrong league:`, {
+            playerLeagueId,
+            selectedLeague,
+            playerLeagueName: playerStats?.league?.name,
+            selectedLeagueName: availableLeagues.find(l => l.id === selectedLeague)?.name
+          });
+          return false;
+        }
 
-      // Pre-learn player data in background (non-blocking)
-      if (freshData.length > 0) {
-        setTimeout(() => {
-          const playersForLearning = freshData.slice(0, 10).map(scorer => ({
-            id: scorer.player.id,
-            name: scorer.player.name,
-            position: scorer.statistics[0]?.games?.position || scorer.player.position,
-            team: scorer.statistics[0]?.team?.name,
-            league: scorer.statistics[0]?.league?.name,
-          }));
-          learnFromPlayerData(playersForLearning);
-        }, 0);
-      }
+        const currentYear = new Date().getFullYear();
+
+        // For World Cup Qualification cycles, include current and next year
+        // CONMEBOL WC Qualification runs for 2026 World Cup
+        if (selectedLeague === 34) {
+          // CONMEBOL WC Qualification
+          const isValidSeason = seasonYear >= 2024 && seasonYear <= 2026;
+          console.log(`🔍 [HomeTopScorers] CONMEBOL WC Qualification season check for ${scorer.player?.name}:`, {
+            seasonYear,
+            isValidSeason
+          });
+          return isValidSeason;
+        }
+
+        // For other competitions, use standard season logic
+        const currentMonth = new Date().getMonth() + 1; // 1-12
+
+        // Determine current season based on typical football calendar
+        let currentSeason;
+        if (currentMonth >= 8) {
+          currentSeason = currentYear; // Aug-Dec: use current year
+        } else {
+          currentSeason = currentYear - 1; // Jan-July: use previous year
+        }
+
+        // Include current season and next season for ongoing competitions
+        const isValidSeason = seasonYear >= currentSeason && seasonYear <= currentYear + 1;
+
+        console.log(`🔍 [HomeTopScorers] Season validation for ${scorer.player?.name} in ${playerStats?.league?.name}:`, {
+          seasonYear,
+          currentSeason,
+          currentYear,
+          isValidSeason,
+          playerLeagueId,
+          selectedLeague
+        });
+
+        return isValidSeason;
+      });
 
       return freshData.sort((a, b) => {
         const goalsA = a.statistics[0]?.goals?.total || 0;
@@ -392,13 +501,12 @@ const HomeTopScorersList = () => {
     },
     {
       enabled: !!selectedLeague,
-      maxAge: 8 * 60 * 60 * 1000, // 8 hours cache - much longer for better performance
-      backgroundRefresh: false,
+      maxAge: 4 * 60 * 60 * 1000, // 4 hours cache for better performance
+      backgroundRefresh: false, // Disable background refresh to reduce API calls
       retry: 1,
-      staleTime: 4 * 60 * 60 * 1000, // 4 hour stale time
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      placeholderData: [], // Show empty state instead of loading
+      staleTime: 2 * 60 * 60 * 1000, // 2 hour stale time - use cached data longer
+      refetchOnWindowFocus: false, // Prevent unnecessary refetches
+      refetchOnMount: false, // Use cached data on mount
     },
   );
 
@@ -1116,20 +1224,11 @@ const HomeTopScorersList = () => {
               })}
             </div>
           ) : (
-            <div className="space-y-3">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
-                  <div className="flex-1 space-y-1">
-                    <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
-                    <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
-                  </div>
-                  <div className="text-right">
-                    <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-full" />
-                    <div className="h-3 w-8 bg-gray-200 dark:bg-gray-700 animate-pulse rounded mt-1" />
-                  </div>
-                </div>
-              ))}
+            <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+              <p className="text-sm">No top scorer data available</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                for {getCurrentLeague()?.name || "Selected League"}
+              </p>
             </div>
           )}
 

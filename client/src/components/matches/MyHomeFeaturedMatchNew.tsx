@@ -27,8 +27,6 @@ import { useTranslation, useLanguage } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
 import { RoundBadge } from "@/components/ui/round-badge";
-import { isNationalTeam } from '../../lib/teamLogoSources';
-import { getBestTeamLogoUrl, createTeamLogoErrorHandler } from '../../lib/teamLogoUtils';
 
 // Import popular teams data from the same source as PopularTeamsList
 const POPULAR_TEAMS_DATA = [
@@ -162,7 +160,7 @@ const isPopularTeamMatch = (
 
   // Fallback to name matching
   const homeTeamLower = homeTeam.toLowerCase();
-  const awayTeamLower = awayTeam.toLowerCase(); // Corrected from 'away.toLowerCase()'
+  const awayTeamLower = awayTeam.toLowerCase();
 
   const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(
     (popularTeam) =>
@@ -209,18 +207,14 @@ const POPULAR_LEAGUES = [
 
 // Define featured leagues (UEFA Europa Conference League ID 848 and Regionalliga - Bayern ID 169 explicitly excluded)
 const FEATURED_MATCH_LEAGUE_IDS = [
-  39, 140, 135, 137, 78, 61, 826, 2, 3, 5, 1, 4, 15, 38, 9, 16, 45, 550, 531, 702, 871,
+  39, 140, 135, 78, 61, 2, 3, 5, 1, 4, 15, 38, 9, 16, 45, 550, 531,
 ];
 
 // Explicitly excluded leagues
 const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [
-  848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62, 931, 703, 59, 60, 74, 81, 488, 137, 58, 57, 742, 56, 55, 54, 705, 42,
-  // Italian Campionato leagues (youth competitions)
-  505, 506, 507, 508, 509, 510, 511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 525,
-  // Additional League Two variations and lower divisions
-  46, 47, 48, 49, 50, 51, 52, 53, // Additional English lower league IDs
-]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2, Non League Premier - Southern Central, League 703, League 59, League 60, Campionato Primavera - 1, DFB Cup, League 488, Italian Cup, Spring Championship leagues, additional Italian youth leagues, Italian Campionato leagues, League Two and additional lower divisions, League 705, League 42
-const PRIORITY_LEAGUE_IDS = [39, 140, 61, 147, 2, 15, 826, 38, 22, 45, 550, 531, 702, 871]; // UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531, Premier League 2 Division One, Premier League Cup
+  848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62, 931, 59, 60,
+]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2, Non League Premier - Southern Central, League 59, League 60
+const PRIORITY_LEAGUE_IDS = [2, 15, 38, 22, 45, 550, 531]; // UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531
 
 interface FeaturedMatch {
   fixture: {
@@ -749,25 +743,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       "P",
                       "INT",
                     ].includes(status);
-
+                    
                     // Exclude women's competitions and Oberliga leagues
                     const leagueName =
                       fixture.league?.name?.toLowerCase() || "";
                     const country =
                       fixture.league?.country?.toLowerCase() || "";
 
-                    // EXPLICIT EXCLUSION: Check league ID against exclusion list
+                    // EXPLICIT EXCLUSION: UEFA Europa Conference League and Regionalliga - Bayern
                     const isExplicitlyExcluded =
                       EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(
                         fixture.league?.id,
                       );
-
-                    if (isExplicitlyExcluded) {
-                      console.log(
-                        `🚫 [PRIORITY LEAGUE EXCLUSION] League ${fixture.league.id} (${fixture.league.name}) excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                      );
-                      return false;
-                    }
 
                     // Exclude women's competitions
                     const isWomensCompetition =
@@ -1272,19 +1259,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       return false;
                     };
 
-                    // Check explicit exclusion first
-                    const isExplicitlyExcluded =
-                      EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(
-                        fixture.league?.id,
-                      );
-
-                    if (isExplicitlyExcluded) {
-                      console.log(
-                        `🚫 [DATE-BASED EXCLUSION] League ${fixture.league.id} (${fixture.league.name}) excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                      );
-                      return false;
-                    }
-
                     return (
                       hasValidTeams &&
                       isNotLive &&
@@ -1496,19 +1470,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         return false;
                       }
 
-                      // Check Check explicit exclusion first
-                      const isExplicitlyExcluded =
-                        EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(
-                          fixture.league?.id,
-                        );
-
-                      if (isExplicitlyExcluded) {
-                        console.log(
-                          `🚫 [EXPANDED SEARCH EXCLUSION] League ${fixture.league.id} (${fixture.league.name}) excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                        );
-                        return false;
-                      }
-
                       return (
                         hasValidTeams &&
                         isNotLive &&
@@ -1656,10 +1617,112 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         for (const dateInfo of dates) {
           const fixturesForDay = uniqueFixtures
             .filter((fixture) => {
-              // EXPLICIT EXCLUSION: Check against all explicitly excluded league IDs
-              if (EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league.id)) {
+              // EXPLICIT EXCLUSION: Never show UEFA Europa Conference League (ID 848), Regionalliga - Bayern (ID 169), League 940, or Ligue 2 (ID 62)
+              if (fixture.league.id === 848) {
                 console.log(
-                  `🚫 [EXPLICIT EXCLUSION] League ${fixture.league.id} (${fixture.league.name}) match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                  `🚫 [EXPLICIT EXCLUSION] UEFA Europa Conference League match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 169) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - Bayern match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 940) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] League 940 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 85) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - Nordost match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 80) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] 3. Liga match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 84) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - Nord match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 87) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - West match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+              if (fixture.league.id === 41) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - SudWest match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+              if (fixture.league.id === 183) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - SudWest match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+              if (fixture.league.id === 86) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - SudWest match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 772) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] League 772 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 62) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Ligue 2 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 58) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Non League Premier - Isthmian match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 931) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Non League Premier - Southern Central match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 59) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] League 59 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 60) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] League 60 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
                 );
                 return false;
               }
@@ -2867,7 +2930,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               right: "-15px",
                             }}
                           >
-                            <div className="home-team-logo-container">
+                            {currentMatch?.teams?.home && (
                               <div
                                 className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out"
                                 style={{
@@ -2885,10 +2948,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                   teamName={
                                     currentMatch.teams.home.name || "Home Team"
                                   }
-                                  teamId={currentMatch.teams.home.id}
                                   teamLogo={
-                                    currentMatch.teams.home.logo ||
-                                    "/assets/fallback.png"
+                                    currentMatch.teams.home.id
+                                      ? `/api/team-logo/square/${currentMatch.teams.home.id}?size=64`
+                                      : currentMatch.teams.home.logo ||
+                                        "/assets/fallback-logo.svg"
                                   }
                                   alt={
                                     currentMatch.teams.home.name || "Home Team"
@@ -2899,10 +2963,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                     name: currentMatch.league.name,
                                     country: currentMatch.league.country,
                                   }}
-                                  sport="football"
                                 />
                               </div>
-                            </div>
+                            )}
                           </div>
 
                           <div
@@ -3078,19 +3141,21 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               teamName={
                                 currentMatch?.teams?.away?.name || "Away Team"
                               }
-                              teamId={currentMatch.teams.away.id}
                               teamLogo={
-                                currentMatch?.teams?.away?.logo ||
-                                "/assets/fallback.png"
+                                currentMatch.teams.away.id
+                                  ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=70`
+                                  : currentMatch?.teams?.away?.logo ||
+                                    `/assets/fallback-logo.svg`
                               }
-                              alt={currentMatch?.teams?.away?.name || "Away Team"}
-                              size="70px"
-                              className="w-full h-full object-contain"
+                              alt={
+                                currentMatch?.teams?.away?.name || "Away Team"
+                              }
+                              size="75px"
+                              className="w-full hull object-contain"
                               leagueContext={{
                                 name: currentMatch.league.name,
                                 country: currentMatch.league.country,
                               }}
-                              sport="football"
                             />
                           </div>
                         </div>

@@ -3,7 +3,6 @@ import logoRoutes from './routes/logoRoutes';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
-import cors from 'cors';
 
 const app = express();
 app.use(express.json());
@@ -25,11 +24,11 @@ let memoryWarningCount = 0;
 const monitorMemory = () => {
   const usage = process.memoryUsage();
   const heapUsedMB = usage.heapUsed / 1024 / 1024;
-
+  
   if (heapUsedMB > 1500) { // Warning at 1.5GB
     memoryWarningCount++;
     console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB (Warning #${memoryWarningCount})`);
-
+    
     if (memoryWarningCount > 5) {
       console.log('🧹 Forcing garbage collection...');
       if (global.gc) {
@@ -123,24 +122,6 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
-  app.use(cors({
-    origin: process.env.NODE_ENV === 'production' 
-      ? ['https://scores.cssport.world'] 
-      : true, // Allow all origins in development for Replit
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Cache-Control', 'Pragma'],
-    optionsSuccessStatus: 200
-  }));
-
-  // Add a middleware to handle pre-flight requests
-  app.options('*', (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Cache-Control, Pragma');
-    res.sendStatus(200);
-  });
-
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
@@ -177,11 +158,10 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const PORT = process.env.PORT || 5000;
-  const HOST = "0.0.0.0"; // Bind to all interfaces for Replit
+  const port = process.env.PORT || 5000;
   const tryListen = (retryPort: number) => {
-    server.listen(retryPort, HOST, () => {
-      console.log(`Server running on ${HOST}:${retryPort}`);
+    server.listen(retryPort, "0.0.0.0", () => {
+      log(`serving on port ${retryPort}`);
     }).on('error', (err: any) => {
       if (err.code === 'EADDRINUSE' && retryPort < 5010) {
         log(`Port ${retryPort} in use, trying ${retryPort + 1}`);
@@ -199,5 +179,5 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
       }
     });
   };
-  tryListen(Number(PORT));
+  tryListen(Number(port));
 })();

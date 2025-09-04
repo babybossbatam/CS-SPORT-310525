@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useRef,
-} from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronDown, ChevronUp, Calendar, Star } from "lucide-react";
@@ -39,7 +33,10 @@ import {
   getCountryCode,
 } from "@/lib/flagUtils";
 import { getCachedCountryName, setCachedCountryName } from "@/lib/countryCache";
-import { useLanguage, useTranslation } from "@/contexts/LanguageContext";
+import {
+  useLanguage,
+  useTranslation,
+} from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
 
@@ -190,10 +187,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   };
 
   // Add smart team translation function
-  const translateTeamNameSmart = (
-    originalTeam: string,
-    leagueInfo?: any,
-  ): string => {
+  const translateTeamNameSmart = (originalTeam: string, leagueInfo?: any): string => {
     if (!originalTeam) return "";
 
     // Use smart team translation
@@ -218,26 +212,16 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   const [hiddenMatches, setHiddenMatches] = useState<Set<number>>(new Set());
   // Flash animation states
-  const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(
-    new Set(),
-  );
-  const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(
-    new Set(),
-  );
-  const [previousMatchStatuses, setPreviousMatchStatuses] = useState<
-    Map<number, string>
-  >(new Map());
-  const [goalFlashMatches, setGoalFlashMatches] = useState<Set<number>>(
-    new Set(),
-  );
-  const [previousMatchScores, setPreviousMatchScores] = useState<
-    Map<number, { home: number; away: number }>
-  >(new Map());
+  const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
+  const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
+  const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
+  const [goalFlashMatches, setGoalFlashMatches] = useState<Set<number>>(new Set());
+  const [previousMatchScores, setPreviousMatchScores] = useState<Map<number, {home: number, away: number}>>(new Map());
 
   // Test flash effect buttons (remove after testing)
   const [showTestButtons, setShowTestButtons] = useState(false);
   // Initialize flagMap with immediate synchronous values for better rendering
-  const [flagMap, setFlagMap] = useState<{ [country: string]: string }>(() => {
+ const [flagMap, setFlagMap] = useState<{ [country: string]: string }>(() => {
     // Pre-populate with synchronous flag URLs to prevent initial undefined state
     const initialMap: { [country: string]: string } = {};
     // Let World flag be fetched through the normal caching system
@@ -247,96 +231,25 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Popular leagues for prioritization - Significantly expanded to include more leagues worldwide
   const POPULAR_LEAGUES = [
     // UEFA Competitions
-    2,
-    3,
-    848,
-    15,
-    5,
-    8,
-    16,
+    2, 3, 848, 15, 5, 8, 16,
     // Top European Leagues
-    39,
-    140,
-    135,
-    78,
-    61,
-    94,
-    88,
-    179,
-    218,
+    39, 140, 135, 78, 61, 94, 88, 179, 218,
     // Major International Competitions
-    22,
-    9,
-    13,
-    4,
-    21,
-    914,
+    22, 9, 13, 4, 21, 914,
     // European Second Tier Leagues
-    144,
-    103,
-    106,
-    119,
-    113,
-    203,
-    345,
-    384,
-    317,
-    244,
+    144, 103, 106, 119, 113, 203, 345, 384, 317, 244,
     // Major American Leagues
-    253,
-    71,
-    72,
-    73,
-    128,
-    274,
-    556,
+    253, 71, 72, 73, 128, 274, 556,
     // Asian Leagues
-    292,
-    301,
-    188,
-    169,
-    271,
-    294,
-    279,
-    290,
+    292, 301, 188, 169, 271, 294, 279, 290,
     // African & Middle Eastern Leagues
-    307,
-    233,
-    239,
-    302,
-    383,
-    551,
-    332,
-    556,
+    307, 233, 239, 302, 383, 551, 332, 556,
     // South American Leagues
-    71,
-    72,
-    325,
-    265,
-    267,
-    268,
-    269,
-    270,
+    71, 72, 325, 265, 267, 268, 269, 270,
     // European Third Tier Leagues
-    327,
-    329,
-    361,
-    365,
-    218,
-    319,
-    373,
-    380,
+    327, 329, 361, 365, 218, 319, 373, 380,
     // Additional Regional Leagues
-    114,
-    116,
-    120,
-    121,
-    122,
-    123,
-    124,
-    125,
-    126,
-    127,
+    114, 116, 120, 121, 122, 123, 124, 125, 126, 127,
     // Club Friendlies
     667, // Friendlies Clubs
   ]; // Significantly expanded to include major leagues from all continents
@@ -350,30 +263,24 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     if (!isToday) {
       // Historical or future dates - show cached data immediately
       return {
-        staleTime: 24 * 60 * 60 * 1000, // 24 hours - consider data fresh for longer
+        staleTime: 0, // Always consider data fresh to show immediately
         refetchInterval: false,
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
-        networkMode: "online",
-        retry: 1,
       };
     }
 
     // Today's matches - show cached data immediately, refresh in background
     return {
-      staleTime: 5 * 60 * 1000, // 5 minutes - show cached data immediately
+      staleTime: 0, // Show cached data immediately
       refetchInterval: 30 * 1000, // 30 seconds background refresh
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
-      networkMode: "online",
-      retry: 2,
     };
   };
 
   // Show all countries immediately - no lazy loading
-  const [visibleCountries, setVisibleCountries] = useState<Set<string>>(
-    new Set(),
-  );
+  const [visibleCountries, setVisibleCountries] = useState<Set<string>>(new Set());
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // Use smart cached query
@@ -381,15 +288,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     data: fixtures = [],
     isLoading,
     error: queryError,
-    refetch,
+    refetch
   } = useCachedQuery(
-    ["all-fixtures-by-date", selectedDate],
+    ['all-fixtures-by-date', selectedDate],
     async () => {
       if (!selectedDate) return [];
 
-      console.log(
-        `🔍 [TodaysMatchesByCountryNew] Smart fetch for date: ${selectedDate}`,
-      );
+      console.log(`🔍 [TodaysMatchesByCountryNew] Smart fetch for date: ${selectedDate}`);
 
       const response = await apiRequest(
         "GET",
@@ -402,9 +307,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       const data = await response.json();
 
-      console.log(
-        `✅ [TodaysMatchesByCountryNew] Smart cached: ${data?.length || 0} fixtures`,
-      );
+      console.log(`✅ [TodaysMatchesByCountryNew] Smart cached: ${data?.length || 0} fixtures`);
 
       return Array.isArray(data) ? data : [];
     },
@@ -418,41 +321,32 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         return failureCount < 3;
       },
       onError: (err: any) => {
-        const errorMessage =
-          err instanceof Error ? err.message : "Unknown error";
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
 
-        if (
-          errorMessage.includes("Failed to fetch") ||
-          errorMessage.includes("NetworkError")
-        ) {
-          console.warn(
-            `🌐 [TodaysMatchesByCountryNew] Network issue for date: ${selectedDate}`,
-          );
-        } else if (errorMessage.includes("timeout")) {
-          console.warn(
-            `⏱️ [TodaysMatchesByCountryNew] Request timeout for date: ${selectedDate}`,
-          );
+        if (errorMessage.includes('Failed to fetch') || 
+            errorMessage.includes('NetworkError')) {
+          console.warn(`🌐 [TodaysMatchesByCountryNew] Network issue for date: ${selectedDate}`);
+        } else if (errorMessage.includes('timeout')) {
+          console.warn(`⏱️ [TodaysMatchesByCountryNew] Request timeout for date: ${selectedDate}`);
         } else {
-          console.error(
-            `💥 [TodaysMatchesByCountryNew] Smart cache error for date: ${selectedDate}:`,
-            err,
-          );
+          console.error(`💥 [TodaysMatchesByCountryNew] Smart cache error for date: ${selectedDate}:`, err);
         }
       },
-    },
+    }
   );
 
+
+
   // Error handling with user-friendly messages
-  const error = queryError
-    ? queryError instanceof Error
-      ? queryError.message.includes("Failed to fetch") ||
-        queryError.message.includes("NetworkError")
-        ? "Network connection issue. Please check your internet connection and try again."
-        : queryError.message.includes("timeout")
-          ? "Request timeout. The server took too long to respond."
-          : "Failed to load fixtures. Please try again later."
-      : "Unknown error occurred"
-    : null;
+  const error = queryError ? (
+    queryError instanceof Error ? 
+      queryError.message.includes('Failed to fetch') || queryError.message.includes('NetworkError') ?
+        "Network connection issue. Please check your internet connection and try again." :
+      queryError.message.includes('timeout') ?
+        "Request timeout. The server took too long to respond." :
+        "Failed to load fixtures. Please try again later."
+      : 'Unknown error occurred'
+  ) : null;
 
   // Smart cache adjustment based on live match detection and proximity to kickoff - like MyNewLeague2
   useEffect(() => {
@@ -468,39 +362,27 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     const upcomingMatches = fixtures.filter((match: any) => {
       if (match.fixture?.status?.short !== "NS") return false;
       const matchTime = new Date(match.fixture.date);
-      const hoursUntilKickoff =
-        (matchTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+      const hoursUntilKickoff = (matchTime.getTime() - now.getTime()) / (1000 * 60 * 60);
       return hoursUntilKickoff > 0 && hoursUntilKickoff <= 2; // Within 2 hours
     });
 
     const imminentMatches = fixtures.filter((match: any) => {
       if (match.fixture?.status?.short !== "NS") return false;
       const matchTime = new Date(match.fixture.date);
-      const minutesUntilKickoff =
-        (matchTime.getTime() - now.getTime()) / (1000 * 60);
+      const minutesUntilKickoff = (matchTime.getTime() - now.getTime()) / (1000 * 60);
       return minutesUntilKickoff > 0 && minutesUntilKickoff <= 30; // Within 30 minutes
     });
 
     if (liveMatches.length > 0 && isToday) {
-      console.log(
-        `🔴 [TodaysMatchesByCountryNew] ${liveMatches.length} live matches detected - using most aggressive cache (30s refresh)`,
-      );
+      console.log(`🔴 [TodaysMatchesByCountryNew] ${liveMatches.length} live matches detected - using most aggressive cache (30s refresh)`);
     } else if (imminentMatches.length > 0 && isToday) {
-      console.log(
-        `🟡 [TodaysMatchesByCountryNew] ${imminentMatches.length} matches starting within 30min - using aggressive cache`,
-      );
+      console.log(`🟡 [TodaysMatchesByCountryNew] ${imminentMatches.length} matches starting within 30min - using aggressive cache`);
     } else if (upcomingMatches.length > 0 && isToday) {
-      console.log(
-        `🟠 [TodaysMatchesByCountryNew] ${upcomingMatches.length} matches starting within 2h - using moderate cache`,
-      );
+      console.log(`🟠 [TodaysMatchesByCountryNew] ${upcomingMatches.length} matches starting within 2h - using moderate cache`);
     } else if (isToday && liveMatches.length === 0) {
-      console.log(
-        `🔵 [TodaysMatchesByCountryNew] Today but no live/imminent matches - using standard cache`,
-      );
+      console.log(`🔵 [TodaysMatchesByCountryNew] Today but no live/imminent matches - using standard cache`);
     } else {
-      console.log(
-        `⚫ [TodaysMatchesByCountryNew] Non-today date - using extended cache`,
-      );
+      console.log(`⚫ [TodaysMatchesByCountryNew] Non-today date - using extended cache`);
     }
 
     // Log cache status
@@ -513,21 +395,16 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       upcomingMatches: upcomingMatches.length,
     };
     console.log(`📊 [TodaysMatchesByCountryNew] Cache stats:`, cacheStats);
+
   }, [fixtures, selectedDate, isToday]);
 
   // Optimized data processing with immediate cache return
   const processedCountryData = useMemo(() => {
     const cacheKey = `processed-country-data-${selectedDate}`;
-
-    // Return cached data immediately if available - longer cache for better UX
-    const cached = CacheManager.getCachedData(
-      [cacheKey],
-      isToday ? 10 * 60 * 1000 : 60 * 60 * 1000,
-    );
+    
+    // Return cached data immediately if available
+    const cached = CacheManager.getCachedData([cacheKey], 30 * 60 * 1000);
     if (cached) {
-      console.log(
-        `📦 [Cache Hit] Returning cached processed data for ${selectedDate} with ${Object.keys(cached).length} countries`,
-      );
       return cached;
     }
 
@@ -541,13 +418,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Single pass processing
     for (const fixture of fixtures) {
       // Quick validation
-      if (
-        !fixture?.fixture?.id ||
-        !fixture?.teams ||
-        !fixture?.league ||
-        seenFixtures.has(fixture.fixture.id)
-      )
-        continue;
+      if (!fixture?.fixture?.id || !fixture?.teams || !fixture?.league || 
+          seenFixtures.has(fixture.fixture.id)) continue;
 
       // Date validation (optimized)
       const fixtureDate = fixture.fixture.date;
@@ -561,16 +433,15 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Skip exclusions for faster processing
       const leagueId = fixture.league.id;
       const leagueName = fixture.league.name || "";
-
-      if (shouldExcludeMatchByCountry(leagueName, "", "", false, country))
-        continue;
+      
+      if (shouldExcludeMatchByCountry(leagueName, "", "", false, country)) continue;
 
       // Build country data structure
       if (!countryMap.has(country)) {
         countryMap.set(country, {
           country,
           leagues: {},
-          hasPopularLeague: false,
+          hasPopularLeague: false
         });
       }
 
@@ -580,7 +451,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         countryData.leagues[leagueId] = {
           league: fixture.league,
           matches: [],
-          isPopular,
+          isPopular
         };
         if (isPopular) countryData.hasPopularLeague = true;
       }
@@ -590,10 +461,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // Convert to object
     const result = Object.fromEntries(countryMap);
-
+    
     // Cache result
     CacheManager.setCachedData([cacheKey], result);
-
+    
     return result;
   }, [fixtures, selectedDate]);
 
@@ -622,7 +493,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     return {
       validFixtures: allValidFixtures,
-      countryList: sortedCountries,
+      countryList: sortedCountries
     };
   }, [processedCountryData]);
 
@@ -632,7 +503,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     data: any[];
   } | null>(null);
 
-  // Memoized filtering with performance optimizations
+// Memoized filtering with performance optimizations
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length || !selectedDate) {
       return [];
@@ -640,10 +511,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // Early return for cached results
     const cacheKey = `filtered_${selectedDate}_${fixtures.length}`;
-    if (
-      lastFilterCache?.current?.key === cacheKey &&
-      lastFilterCache?.current?.data
-    ) {
+    if (lastFilterCache?.current?.key === cacheKey && lastFilterCache?.current?.data) {
       return lastFilterCache.current.data;
     }
 
@@ -795,17 +663,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     if (countryList.length > 50) {
       const batchSize = 20;
       let currentIndex = 0;
-
+      
       const addBatch = () => {
         const batch = countryList.slice(currentIndex, currentIndex + batchSize);
-        setVisibleCountries((prev) => new Set([...prev, ...batch]));
+        setVisibleCountries(prev => new Set([...prev, ...batch]));
         currentIndex += batchSize;
-
+        
         if (currentIndex < countryList.length) {
           requestAnimationFrame(addBatch);
         }
       };
-
+      
       addBatch();
     } else {
       // For smaller lists, show all immediately
@@ -813,12 +681,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [countryList]);
 
-  const getCountryData = useCallback(
-    (country: string) => {
-      return processedCountryData[country];
-    },
-    [processedCountryData],
-  );
+  const getCountryData = useCallback((country: string) => {
+    return processedCountryData[country];
+  }, [processedCountryData]);
 
   // No additional initialization needed - handled above
 
@@ -827,9 +692,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     if (isLoadingMore) return;
 
     setIsLoadingMore(true);
-    const remainingCountries = countryList.filter(
-      (country) => !visibleCountries.has(country),
-    );
+    const remainingCountries = countryList.filter(country => !visibleCountries.has(country));
 
     if (remainingCountries.length > 0) {
       // Progressive loading in smaller chunks to prevent UI blocking
@@ -841,47 +704,33 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       // Load all chunks with micro-delays
       for (const chunk of chunks) {
-        setVisibleCountries((prev) => new Set([...prev, ...chunk]));
+        setVisibleCountries(prev => new Set([...prev, ...chunk]));
         if (chunks.length > 1) {
-          await new Promise((resolve) => setTimeout(resolve, 10));
+          await new Promise(resolve => setTimeout(resolve, 10));
         }
       }
 
-      console.log(
-        `📈 [TodaysMatchesByCountryNew] Progressively loaded ${remainingCountries.length} countries`,
-      );
+      console.log(`📈 [TodaysMatchesByCountryNew] Progressively loaded ${remainingCountries.length} countries`);
     }
 
     setIsLoadingMore(false);
   }, [countryList, visibleCountries, isLoadingMore]);
 
   // Lightweight analysis - only when needed
-  const analysisStats = useMemo(
-    () => ({
-      selectedDate,
-      totalCountries: countryList.length,
-      totalMatches: validFixtures.length,
-      visibleCountries: visibleCountries.size,
-      cachedCountries: Object.keys(processedCountryData).length,
-    }),
-    [
-      selectedDate,
-      countryList.length,
-      validFixtures.length,
-      visibleCountries.size,
-      processedCountryData,
-    ],
-  );
+  const analysisStats = useMemo(() => ({
+    selectedDate,
+    totalCountries: countryList.length,
+    totalMatches: validFixtures.length,
+    visibleCountries: visibleCountries.size,
+    cachedCountries: Object.keys(processedCountryData).length
+  }), [selectedDate, countryList.length, validFixtures.length, visibleCountries.size, processedCountryData]);
 
-  console.log(
-    `⚡ [TodaysMatchesByCountryNew] Lightweight Analysis:`,
-    analysisStats,
-  );
+  console.log(`⚡ [TodaysMatchesByCountryNew] Lightweight Analysis:`, analysisStats);
 
   // No need for heavy sorting - countries are already sorted in countryList
-  const visibleCountriesList = useMemo(
-    () => countryList.filter((country) => visibleCountries.has(country)),
-    [countryList, Array.from(visibleCountries).join(",")],
+  const visibleCountriesList = useMemo(() => 
+    countryList.filter(country => visibleCountries.has(country)),
+    [countryList, Array.from(visibleCountries).join(',')]
   );
 
   // No auto-expansion - all countries start collapsed
@@ -890,31 +739,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     setExpandedCountries(new Set<string>());
     setExpandedLeagues(new Set<string>());
 
-    console.log(
-      `📦 [No Auto-expand] All ${countryList.length} countries start collapsed - manual expansion required`,
-    );
-  }, [
-    selectedDate,
-    countryList.join(","),
-    Object.keys(processedCountryData).length,
-  ]);
+    console.log(`📦 [No Auto-expand] All ${countryList.length} countries start collapsed - manual expansion required`);
+  }, [selectedDate, countryList.join(','), Object.keys(processedCountryData).length]);
 
   // Invalidate processed data cache when date changes
   useEffect(() => {
     const previousCacheKey = `processed-country-data-${selectedDate}`;
     // The cache will automatically check if data is stale, but we log the cache strategy
-    console.log(
-      `🔄 [Cache Strategy] Date changed to ${selectedDate}, will use cached processed data if available`,
-    );
+    console.log(`🔄 [Cache Strategy] Date changed to ${selectedDate}, will use cached processed data if available`);
   }, [selectedDate]);
 
   // Simplified flag loading - load all flags immediately for better UX
   const preloadFlags = useCallback(() => {
     if (!countryList.length) return;
-
+    
     const flagsToLoad: { [country: string]: string } = {};
-
-    countryList.forEach((country) => {
+    
+    countryList.forEach(country => {
       if (!flagMap[country]) {
         const syncFlag = getCountryFlagWithFallbackSync(country);
         if (syncFlag) {
@@ -924,7 +765,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     });
 
     if (Object.keys(flagsToLoad).length > 0) {
-      setFlagMap((prev) => ({ ...prev, ...flagsToLoad }));
+      setFlagMap(prev => ({ ...prev, ...flagsToLoad }));
     }
   }, [countryList, flagMap]);
 
@@ -934,61 +775,21 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   }, [preloadFlags]);
 
   // Simplified observe function (no-op for compatibility)
-  const observeCountryElement = useCallback(
-    (_element: HTMLElement | null, _country: string) => {
-      // No-op - flags are loaded immediately now
-    },
-    [],
-  );
+  const observeCountryElement = useCallback((_element: HTMLElement | null, _country: string) => {
+    // No-op - flags are loaded immediately now
+  }, []);
 
-  const toggleCountry = useCallback(
-    (country: string) => {
-      setExpandedCountries((prev) => {
-        const newExpanded = new Set(prev);
-        if (newExpanded.has(country)) {
-          newExpanded.delete(country);
-          // When collapsing country, also collapse all its leagues
-          setExpandedLeagues((prevLeagues) => {
-            const newExpandedLeagues = new Set(prevLeagues);
-            const countryData = getCountryData(country);
-            if (countryData) {
-              Object.keys(countryData.leagues).forEach((leagueId) => {
-                const leagueKey = `${country}-${leagueId}`;
-                newExpandedLeagues.delete(leagueKey);
-              });
-            }
-            return newExpandedLeagues;
-          });
-        } else {
-          newExpanded.add(country);
-          // When expanding country, auto-expand the first league
-          setExpandedLeagues((prevLeagues) => {
-            const newExpandedLeagues = new Set(prevLeagues);
-            const countryData = getCountryData(country);
-            if (countryData) {
-              // Get the first league (sorted by popularity, then name)
-              const sortedLeagues = Object.values(countryData.leagues).sort(
-                (a: any, b: any) => {
-                  if (a.isPopular && !b.isPopular) return -1;
-                  if (!a.isPopular && b.isPopular) return 1;
-                  return a.league.name.localeCompare(b.league.name);
-                },
-              );
-
-              if (sortedLeagues.length > 0) {
-                const firstLeague = sortedLeagues[0] as any;
-                const leagueKey = `${country}-${firstLeague.league.id}`;
-                newExpandedLeagues.add(leagueKey);
-              }
-            }
-            return newExpandedLeagues;
-          });
-        }
-        return newExpanded;
-      });
-    },
-    [getCountryData],
-  );
+  const toggleCountry = useCallback((country: string) => {
+    setExpandedCountries((prev) => {
+      const newExpanded = new Set(prev);
+      if (newExpanded.has(country)) {
+        newExpanded.delete(country);
+      } else {
+        newExpanded.add(country);
+      }
+      return newExpanded;
+    });
+  }, []);
 
   const toggleStarMatch = (matchId: number) => {
     setStarredMatches((prev) => {
@@ -1013,6 +814,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return newHidden;
     });
   };
+
+
 
   const toggleLeague = (country: string, leagueId: number) => {
     const leagueKey = `${country}-${leagueId}`;
@@ -1093,7 +896,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     const selectedDateObj = new Date(selectedDate);
 
     if (isDateStringToday(selectedDate)) {
-      return t("today_matches_by_country");
+      return "Today's Football Matches by Country";
     } else if (isDateStringYesterday(selectedDate)) {
       return "Yesterday's Football Matches by Country";
     } else if (isDateStringTomorrow(selectedDate)) {
@@ -1121,7 +924,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     const newFulltimeMatches = new Set<number>();
     const newGoalMatches = new Set<number>();
     const currentStatuses = new Map<number, string>();
-    const currentScores = new Map<number, { home: number; away: number }>();
+    const currentScores = new Map<number, {home: number, away: number}>();
 
     validFixtures.forEach((fixture) => {
       const matchId = fixture.fixture.id;
@@ -1129,7 +932,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       const previousStatus = previousMatchStatuses.get(matchId);
       const currentScore = {
         home: fixture.goals.home ?? 0,
-        away: fixture.goals.away ?? 0,
+        away: fixture.goals.away ?? 0
       };
       const previousScore = previousMatchScores.get(matchId);
 
@@ -1139,43 +942,38 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Only check for changes if we have a previous status (not on first load)
       if (previousStatus && previousStatus !== currentStatus) {
         // Check if status just changed to halftime
-        if (currentStatus === "HT") {
-          console.log(
-            `🟠 [HALFTIME FLASH] Match ${matchId} just went to halftime!`,
-            {
-              home: fixture.teams?.home?.name,
-              away: fixture.teams?.away?.name,
-              previousStatus,
-              currentStatus,
-            },
-          );
+        if (currentStatus === 'HT') {
+          console.log(`🟠 [HALFTIME FLASH] Match ${matchId} just went to halftime!`, {
+            home: fixture.teams?.home?.name,
+            away: fixture.teams?.away?.name,
+            previousStatus,
+            currentStatus
+          });
           newHalftimeMatches.add(matchId);
         }
 
         // Check if status just changed to fulltime
-        if (currentStatus === "FT") {
+        if (currentStatus === 'FT') {
           console.log(`🔵 [FULLTIME FLASH] Match ${matchId} just finished!`, {
             home: fixture.teams?.home?.name,
             away: fixture.teams?.away?.name,
             previousStatus,
-            currentStatus,
+            currentStatus
           });
           newFulltimeMatches.add(matchId);
         }
       }
 
       // Check for goal changes (when score changes but status stays the same or during live matches)
-      if (previousScore && ["1H", "2H", "LIVE"].includes(currentStatus)) {
-        const scoreChanged =
-          currentScore.home !== previousScore.home ||
-          currentScore.away !== previousScore.away;
+      if (previousScore && ['1H', '2H', 'LIVE'].includes(currentStatus)) {
+        const scoreChanged = currentScore.home !== previousScore.home || currentScore.away !== previousScore.away;
         if (scoreChanged) {
           console.log(`⚽ [GOAL FLASH] Match ${matchId} score changed!`, {
             home: fixture.teams?.home?.name,
             away: fixture.teams?.away?.name,
             previousScore: `${previousScore.home}-${previousScore.away}`,
             currentScore: `${currentScore.home}-${currentScore.away}`,
-            status: currentStatus,
+            status: currentStatus
           });
           newGoalMatches.add(matchId);
         }
@@ -1249,12 +1047,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Only show loading if we're actually loading, have no data, and no cached processed data
-  if (
-    isLoading &&
-    !fixtures.length &&
-    Object.keys(processedCountryData).length === 0
-  ) {
+  // Show loading only if we're actually loading and have no data
+  if (isLoading && !fixtures.length) {
     return (
       <Card className="mt-4">
         <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
@@ -1292,12 +1086,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Only return null if we have no fixtures AND no processed data AND not loading
-  if (
-    !validFixtures.length &&
-    Object.keys(processedCountryData).length === 0 &&
-    !isLoading
-  ) {
+  if (!validFixtures.length) {
     return null; // Let parent component handle empty state
   }
 
@@ -1351,220 +1140,194 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   };
 
   // Optimized country section with stable props
-  const CountrySection = React.memo(
-    ({
-      country,
-      countryData,
-      isExpanded,
-      expandedLeagues,
-      starredMatches,
-      hiddenMatches,
-      halftimeFlashMatches,
-      fulltimeFlashMatches,
-      goalFlashMatches,
-      onToggleCountry,
-      onToggleLeague,
-      onStarMatch,
-      onMatchClick,
-      observeCountryElement,
-    }: {
-      country: string;
-      countryData: any;
-      isExpanded: boolean;
-      expandedLeagues: Set<string>;
-      starredMatches: Set<number>;
-      hiddenMatches: Set<number>;
-      halftimeFlashMatches: Set<number>;
-      fulltimeFlashMatches: Set<number>;
-      goalFlashMatches: Set<number>;
-      onToggleCountry: (country: string) => void;
-      onToggleLeague: (country: string, leagueId: number) => void;
-      onStarMatch: (matchId: number) => void;
-      onMatchClick?: (fixture: any) => void;
-      observeCountryElement: (
-        element: HTMLElement | null,
-        country: string,
-      ) => void;
-    }) => {
-      const totalMatches = Object.values(countryData.leagues).reduce(
-        (sum: number, league: any) => sum + league.matches.length,
-        0,
-      );
+  const CountrySection = React.memo(({ 
+    country, 
+    countryData, 
+    isExpanded, 
+    expandedLeagues,
+    starredMatches,
+    hiddenMatches,
+    halftimeFlashMatches,
+    fulltimeFlashMatches,
+    goalFlashMatches,
+    onToggleCountry,
+    onToggleLeague,
+    onStarMatch,
+    onMatchClick,
+    observeCountryElement
+  }: {
+    country: string;
+    countryData: any;
+    isExpanded: boolean;
+    expandedLeagues: Set<string>;
+    starredMatches: Set<number>;
+    hiddenMatches: Set<number>;
+    halftimeFlashMatches: Set<number>;
+    fulltimeFlashMatches: Set<number>;
+    goalFlashMatches: Set<number>;
+    onToggleCountry: (country: string) => void;
+    onToggleLeague: (country: string, leagueId: number) => void;
+    onStarMatch: (matchId: number) => void;
+    onMatchClick?: (fixture: any) => void;
+    observeCountryElement: (element: HTMLElement | null, country: string) => void;
+  }) => {
+    const totalMatches = Object.values(countryData.leagues).reduce(
+      (sum: number, league: any) => sum + league.matches.length,
+      0,
+    );
 
-      // Count live matches for badge
-      const liveMatches = Object.values(countryData.leagues).reduce(
-        (count: number, league: any) => {
-          return (
-            count +
-            league.matches.filter((match: any) => {
-              const status = match.fixture.status.short;
-              const matchDateTime = new Date(match.fixture.date);
-              const hoursOld =
-                (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
-              const isStaleFinishedMatch =
-                (["FT", "AET", "PEN"].includes(status) && hoursOld > 4) ||
-                ([
-                  "FT",
-                  "AET",
-                  "PEN",
-                  "AWD",
-                  "WO",
-                  "ABD",
-                  "CANC",
-                  "SUSP",
-                ].includes(status) &&
-                  hoursOld > 4) ||
-                (hoursOld > 4 &&
-                  ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(
-                    status,
-                  ));
+    // Count live matches for badge
+    const liveMatches = Object.values(countryData.leagues).reduce(
+      (count: number, league: any) => {
+        return (
+          count +
+          league.matches.filter((match: any) => {
+            const status = match.fixture.status.short;
+            const matchDateTime = new Date(match.fixture.date);
+            const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
+            const isStaleFinishedMatch =
+              (["FT", "AET", "PEN"].includes(status) && hoursOld > 4) ||
+              (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursOld > 4) ||
+              (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
 
-              return (
-                ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-                  status,
-                ) &&
-                !isStaleFinishedMatch &&
-                hoursOld <= 4
-              );
-            }).length
-          );
-        },
-        0,
-      );
+            return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) && 
+                   !isStaleFinishedMatch && 
+                   hoursOld <= 4;
+          }).length
+        );
+      },
+      0,
+    );
 
-      const recentMatches = Object.values(countryData.leagues).reduce(
-        (count: number, league: any) => {
-          return (
-            count +
-            league.matches.filter((match: any) => {
-              const status = match.fixture.status.short;
-              const hoursAgo = differenceInHours(
-                new Date(),
-                new Date(match.fixture.date),
-              );
-              return ["FT", "AET", "PEN"].includes(status) && hoursAgo <= 3;
-            }).length
-          );
-        },
-        0,
-      );
+    const recentMatches = Object.values(countryData.leagues).reduce(
+      (count: number, league: any) => {
+        return (
+          count +
+          league.matches.filter((match: any) => {
+            const status = match.fixture.status.short;
+            const hoursAgo = differenceInHours(
+              new Date(),
+              new Date(match.fixture.date),
+            );
+            return (
+              ["FT", "AET", "PEN"].includes(status) && hoursAgo <= 3
+            );
+          }).length
+        );
+      },
+      0,
+    );
 
-      return (
-        <div
-          className={`border-b border-gray-100 last:border-b-0 country-section ${
-            isExpanded ? "expanded" : "collapsed"
+    return (
+      <div
+        className={`border-b border-gray-100 last:border-b-0 country-section ${
+          isExpanded ? "expanded" : "collapsed"
+        }`}
+      >
+        <button
+          ref={(el) => observeCountryElement(el, countryData.country)}
+          onClick={() => onToggleCountry(
+            typeof countryData.country === "string"
+              ? countryData.country
+              : countryData.country?.name || "Unknown",
+          )}
+          className={`w-full p-4 flex items-center justify-between transition-colors pt-[12px] pb-[12px] font-normal text-[14.7px] country-header-button border-b border-stone-200 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 ${
+            isExpanded ? "expanded" : ""
           }`}
         >
-          <button
-            ref={(el) => observeCountryElement(el, countryData.country)}
-            onClick={() =>
-              onToggleCountry(
+          <div className="flex items-center gap-3 font-normal text-[14px]">
+            {(() => {
+              const countryName =
                 typeof countryData.country === "string"
                   ? countryData.country
-                  : countryData.country?.name || "Unknown",
-              )
-            }
-            className={`w-full p-4 flex items-center justify-between transition-colors pt-[12px] pb-[12px] font-normal text-[14.7px] country-header-button border-b border-stone-200 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 ${
-              isExpanded ? "expanded" : ""
-            }`}
-          >
-            <div className="flex items-center gap-3 font-normal text-[14px]">
-              {(() => {
-                const countryName =
-                  typeof countryData.country === "string"
-                    ? countryData.country
-                    : countryData.country?.name || "Unknown";
+                  : countryData.country?.name || "Unknown";
 
-                if (countryName === "World") {
-                  return (
-                    <MyCountryGroupFlag
-                      teamName="World"
-                      fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
-                      alt="World"
-                      className="country-group-flag-header"
-                    />
-                  );
-                }
-
+              if (countryName === "World") {
                 return (
                   <MyCountryGroupFlag
-                    teamName={countryName}
-                    fallbackUrl="/assets/matchdetaillogo/fallback.png"
-                    alt={countryName}
+                    teamName="World"
+                    fallbackUrl="/assets/matchdetaillogo/cotif tournament.png"
+                    alt="World"
                     className="country-group-flag-header"
                   />
                 );
-              })()}
-              <span
-                className="font-medium text-gray-900 dark:text-white"
-                style={{
-                  fontFamily:
-                    "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                  fontSize: "13.3px",
-                }}
-              >
-                {translateCountryName(
-                  typeof countryData.country === "string"
-                    ? countryData.country
-                    : countryData.country?.name || "Unknown",
-                )}
-              </span>
-              <span
-                className="text-gray-500 dark:text-white"
-                style={{
-                  fontFamily:
-                    "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                  fontSize: "13.3px",
-                }}
-              >
-                ({totalMatches})
-              </span>
+              }
 
-              {/* Live/Recent badges */}
-              {liveMatches > 0 && (
-                <span
-                  className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 px-2 py-1 rounded-full font-medium"
-                  style={{
-                    fontFamily:
-                      "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                    fontSize: "13.3px",
-                  }}
-                >
-                  {liveMatches} LIVE
-                </span>
+              return (
+                <MyCountryGroupFlag
+                  teamName={countryName}
+                  fallbackUrl="/assets/fallback-logo.svg"
+                  alt={countryName}
+                  className="country-group-flag-header"
+                />
+              );
+            })()}
+            <span
+              className="font-medium text-gray-900 dark:text-white"
+              style={{
+                fontFamily:
+                  "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                fontSize: "13.3px",
+              }}
+            >
+              {translateCountryName(
+                typeof countryData.country === "string"
+                  ? countryData.country
+                  : countryData.country?.name || "Unknown"
               )}
-              {recentMatches > 0 && !liveMatches && (
-                <span
-                  className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 px-2 py-1 rounded-full font-medium"
-                  style={{
-                    fontFamily:
-                      "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                    fontSize: "13.3px",
-                  }}
-                >
-                  {recentMatches} Recent
-                </span>
-              )}
-            </div>
-            {isExpanded ? (
-              <ChevronUp
-                className={`h-4 w-4 text-gray-500 dark:text-gray-400 chevron-icon rotated`}
-              />
-            ) : (
-              <ChevronDown
-                className={`h-4 w-4 text-gray-500 dark:text-gray-400 chevron-icon`}
-              />
+            </span>
+            <span
+              className="text-gray-500 dark:text-white"
+              style={{
+                fontFamily:
+                  "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                fontSize: "13.3px",
+              }}
+            >
+              ({totalMatches})
+            </span>
+
+            {/* Live/Recent badges */}
+            {liveMatches > 0 && (
+              <span
+                className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 px-2 py-1 rounded-full font-medium"
+                style={{
+                  fontFamily:
+                    "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                  fontSize: "13.3px",
+                }}
+              >
+                {liveMatches} LIVE
+              </span>
             )}
-          </button>
+            {recentMatches > 0 && !liveMatches && (
+              <span
+                className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 px-2 py-1 rounded-full font-medium"
+                style={{
+                  fontFamily:
+                    "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                  fontSize: "13.3px",
+                }}
+              >
+                {recentMatches} Recent
+              </span>
+            )}
+          </div>
+          {isExpanded ? (
+            <ChevronUp
+              className={`h-4 w-4 text-gray-500 dark:text-gray-400 chevron-icon rotated`}
+            />
+          ) : (
+            <ChevronDown
+              className={`h-4 w-4 text-gray-500 dark:text-gray-400 chevron-icon`}
+            />
+          )}
+        </button>
+        {isExpanded && (
           <div
-            className={`bg-gray-50 dark:bg-gray-900 border-t border-stone-200 dark:border-gray-700 league-content overflow-hidden transition-all duration-300 ease-in-out ${
-              isExpanded ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+            className={`bg-gray-50 dark:bg-gray-900 border-t border-stone-200 dark:border-gray-700 league-content ${
+              isExpanded ? "expanded" : "collapsed"
             }`}
-            style={{
-              transitionProperty: "max-height, opacity",
-              transitionDuration: "300ms",
-              transitionTimingFunction: "ease-in-out"
-            }}
           >
             {/* Leagues content */}
             {Object.values(countryData.leagues)
@@ -1596,160 +1359,134 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 );
               })}
           </div>
-        </div>
-      );
-    },
-    (prevProps, nextProps) => {
-      // Custom comparison for better memoization
-      return (
-        prevProps.country === nextProps.country &&
-        prevProps.isExpanded === nextProps.isExpanded &&
-        prevProps.countryData === nextProps.countryData &&
-        prevProps.expandedLeagues === nextProps.expandedLeagues &&
-        prevProps.starredMatches === nextProps.starredMatches &&
-        prevProps.hiddenMatches === nextProps.hiddenMatches &&
-        prevProps.halftimeFlashMatches === nextProps.halftimeFlashMatches &&
-        prevProps.fulltimeFlashMatches === nextProps.fulltimeFlashMatches &&
-        prevProps.goalFlashMatches === nextProps.goalFlashMatches
-      );
-    },
-  );
+        )}
+      </div>
+    );
+  }, (prevProps, nextProps) => {
+    // Custom comparison for better memoization
+    return (
+      prevProps.country === nextProps.country &&
+      prevProps.isExpanded === nextProps.isExpanded &&
+      prevProps.countryData === nextProps.countryData &&
+      prevProps.expandedLeagues === nextProps.expandedLeagues &&
+      prevProps.starredMatches === nextProps.starredMatches &&
+      prevProps.hiddenMatches === nextProps.hiddenMatches &&
+      prevProps.halftimeFlashMatches === nextProps.halftimeFlashMatches &&
+      prevProps.fulltimeFlashMatches === nextProps.fulltimeFlashMatches &&
+      prevProps.goalFlashMatches === nextProps.goalFlashMatches
+    );
+  });
 
   // Optimized league section component
-  const LeagueSection = React.memo(
-    ({
-      leagueData,
-      countryData,
-      leagueKey,
-      isLeagueExpanded,
-      starredMatches,
-      hiddenMatches,
-      halftimeFlashMatches,
-      fulltimeFlashMatches,
-      goalFlashMatches,
-      onToggleLeague,
-      onStarMatch,
-      onMatchClick,
-    }: {
-      leagueData: any;
-      countryData: any;
-      leagueKey: string;
-      isLeagueExpanded: boolean;
-      starredMatches: Set<number>;
-      hiddenMatches: Set<number>;
-      halftimeFlashMatches: Set<number>;
-      fulltimeFlashMatches: Set<number>;
-      goalFlashMatches: Set<number>;
-      onToggleLeague: (country: string, leagueId: number) => void;
-      onStarMatch: (matchId: number) => void;
-      onMatchClick?: (fixture: any) => void;
-    }) => {
-      const liveMatchesInLeague = leagueData.matches.filter((match: any) => {
-        const status = match.fixture.status.short;
-        const matchDateTime = new Date(match.fixture.date);
-        const hoursOld =
-          (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
-        const isStaleFinishedMatch =
-          (["FT", "AET", "PEN"].includes(status) && hoursOld > 4) ||
-          (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(
-            status,
-          ) &&
-            hoursOld > 4) ||
-          (hoursOld > 4 &&
-            ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(
-              status,
-            ));
+  const LeagueSection = React.memo(({ 
+    leagueData, 
+    countryData, 
+    leagueKey, 
+    isLeagueExpanded,
+    starredMatches,
+    hiddenMatches,
+    halftimeFlashMatches,
+    fulltimeFlashMatches,
+    goalFlashMatches,
+    onToggleLeague,
+    onStarMatch,
+    onMatchClick
+  }: {
+    leagueData: any;
+    countryData: any;
+    leagueKey: string;
+    isLeagueExpanded: boolean;
+    starredMatches: Set<number>;
+    hiddenMatches: Set<number>;
+    halftimeFlashMatches: Set<number>;
+    fulltimeFlashMatches: Set<number>;
+    goalFlashMatches: Set<number>;
+    onToggleLeague: (country: string, leagueId: number) => void;
+    onStarMatch: (matchId: number) => void;
+    onMatchClick?: (fixture: any) => void;
+  }) => {
+    const liveMatchesInLeague = leagueData.matches.filter((match: any) => {
+      const status = match.fixture.status.short;
+      const matchDateTime = new Date(match.fixture.date);
+      const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
+      const isStaleFinishedMatch =
+        (["FT", "AET", "PEN"].includes(status) && hoursOld > 4) ||
+        (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursOld > 4) ||
+        (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
 
-        return (
-          ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) &&
-          !isStaleFinishedMatch &&
-          hoursOld <= 4
-        );
-      }).length;
+      return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) && 
+             !isStaleFinishedMatch && 
+             hoursOld <= 4;
+    }).length;
 
-      return (
-        <div className="border-b border-stone-200 dark:border-gray-700 last:border-b-0">
-          <button
-            onClick={() =>
-              onToggleLeague(countryData.country, leagueData.league.id)
-            }
-            className={`w-full flex items-center gap-2 p-2 bg-white dark:bg-gray-800 border-b border-stone-200 dark:border-gray-700 transition-colors cursor-pointer group hover:bg-gray-50 dark:hover:bg-gray-700`}
-          >
-            <img
-              src={(() => {
-                const leagueName = leagueData.league.name?.toLowerCase() || "";
-                if (leagueName.includes("cotif")) {
-                  return "/assets/matchdetaillogo/cotif tournament.png";
-                }
-                return (
-                  leagueData.league.logo ||
-                  "/assets/matchdetaillogo/fallback.png"
-                );
-              })()}
-              alt={leagueData.league.name || "Unknown League"}
-              className="w-6 h-6 object-contain rounded-full"
-              style={{ backgroundColor: "transparent" }}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                const leagueName = leagueData.league.name?.toLowerCase() || "";
-                if (
-                  leagueName.includes("cotif") &&
-                  !target.src.includes("fallback.png")
-                ) {
-                  target.src = "/assets/matchdetaillogo/fallback.png";
-                } else if (!target.src.includes("fallback.png")) {
-                  target.src = "/assets/matchdetaillogo/fallback.png";
-                }
-              }}
-            />
-            <div className="flex flex-col flex-1 text-left">
-              <div className="flex items-center gap-2">
-                <span
-                  className="font-semibold text-gray-800 dark:text-gray-100 group-hover:underline transition-all duration-200"
-                  style={{
-                    fontFamily:
-                      "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                    fontSize: "13.3px",
-                  }}
-                >
-                  {translateLeagueName(
-                    safeSubstring(leagueData.league.name, 0) ||
-                      "Unknown League",
-                  )}
-                </span>
-                <span
-                  className="text-gray-500 dark:text-white"
-                  style={{
-                    fontFamily:
-                      "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                    fontSize: "13.3px",
-                  }}
-                >
-                  ({leagueData.matches.length})
-                </span>
-                {liveMatchesInLeague > 0 && (
-                  <span className="text-xs bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 px-2 py-0.5 rounded-full font-semibold">
-                    {liveMatchesInLeague} LIVE
-                  </span>
-                )}
-              </div>
-              <span className="text-xs text-gray-600 dark:text-gray-400">
-                {translateCountryName(
-                  leagueData.league.country || "Unknown Country",
-                )}
+    return (
+      <div className="border-b border-stone-200 dark:border-gray-700 last:border-b-0">
+        <button
+          onClick={() => onToggleLeague(countryData.country, leagueData.league.id)}
+          className={`w-full flex items-center gap-2 p-2 bg-white dark:bg-gray-800 border-b border-stone-200 dark:border-gray-700 transition-colors cursor-pointer group hover:bg-gray-50 dark:hover:bg-gray-700`}
+        >
+          <img
+            src={(() => {
+              const leagueName = leagueData.league.name?.toLowerCase() || "";
+              if (leagueName.includes("cotif")) {
+                return "/assets/matchdetaillogo/cotif tournament.png";
+              }
+              return leagueData.league.logo || "/assets/fallback-logo.svg";
+            })()}
+            alt={leagueData.league.name || "Unknown League"}
+            className="w-6 h-6 object-contain rounded-full"
+            style={{ backgroundColor: "transparent" }}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              const leagueName = leagueData.league.name?.toLowerCase() || "";
+              if (leagueName.includes("cotif") && !target.src.includes("fallback-logo.svg")) {
+                target.src = "/assets/fallback-logo.svg";
+              } else if (!target.src.includes("fallback-logo.svg")) {
+                target.src = "/assets/fallback-logo.svg";
+              }
+            }}
+          />
+          <div className="flex flex-col flex-1 text-left">
+            <div className="flex items-center gap-2">
+              <span
+                className="font-semibold text-gray-800 dark:text-gray-100 group-hover:underline transition-all duration-200"
+                style={{
+                  fontFamily:
+                    "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                  fontSize: "13.3px",
+                }}
+              >
+                {translateLeagueName(safeSubstring(leagueData.league.name, 0) || "Unknown League")}
               </span>
+              <span
+                className="text-gray-500 dark:text-white"
+                style={{
+                  fontFamily:
+                    "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                  fontSize: "13.3px",
+                }}
+              >
+                ({leagueData.matches.length})
+              </span>
+              {liveMatchesInLeague > 0 && (
+                <span className="text-xs bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 px-2 py-0.5 rounded-full font-semibold">
+                  {liveMatchesInLeague} LIVE
+                </span>
+              )}
             </div>
-          </button>
+            <span className="text-xs text-gray-600 dark:text-gray-400">
+              {translateCountryName(leagueData.league.country || "Unknown Country")}
+            </span>
+          </div>
+        </button>
 
-          {/* Matches - Show with smooth transition */}
+        {isLeagueExpanded && (
           <div
-            className={`space-y-0 league-matches-container overflow-hidden transition-all duration-300 ease-in-out ${
-              isLeagueExpanded ? "max-h-[1500px] opacity-100" : "max-h-0 opacity-0"
-            }`}
+            className="space-y-0 league-matches-container"
             style={{
-              transitionProperty: "max-height, opacity",
-              transitionDuration: "300ms",
-              transitionTimingFunction: "ease-in-out"
+              animation: isLeagueExpanded
+                ? "slideDown 0.3s ease-out"
+                : "slideUp 0.3s ease-out",
             }}
           >
             {leagueData.matches
@@ -1768,712 +1505,469 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 />
               ))}
           </div>
-        </div>
-      );
-    },
-  );
+        )}
+      </div>
+    );
+  });
 
   // Memoized match card component
-  const MatchCard = React.memo(
-    ({
-      match,
-      leagueData,
-      starredMatches,
-      halftimeFlashMatches,
-      fulltimeFlashMatches,
-      goalFlashMatches,
-      onStarMatch,
-      onMatchClick,
-    }: {
-      match: any;
-      leagueData: any;
-      starredMatches: Set<number>;
-      halftimeFlashMatches: Set<number>;
-      fulltimeFlashMatches: Set<number>;
-      goalFlashMatches: Set<number>;
-      onStarMatch: (matchId: number) => void;
-      onMatchClick?: (fixture: any) => void;
-    }) => (
-      <div
-        className={`match-card-container group ${
-          halftimeFlashMatches.has(match.fixture.id) ? "halftime-flash" : ""
-        } ${
-          fulltimeFlashMatches.has(match.fixture.id) ? "fulltime-flash" : ""
-        } ${goalFlashMatches.has(match.fixture.id) ? "goal-flash" : ""}`}
-        onClick={() => {
-          console.log(`🔍 [MATCH DEBUG] Clicked match:`, {
-            fixtureId: match.fixture.id,
-            fixtureDate: match.fixture.date,
-            teams: `${match.teams.home.name} vs ${match.teams.away.name}`,
-            status: match.fixture.status.short,
-            dataSource: "TodaysMatchesByCountryNew",
-          });
-          onMatchClick?.(match);
+  const MatchCard = React.memo(({ 
+    match, 
+    leagueData, 
+    starredMatches,
+    halftimeFlashMatches,
+    fulltimeFlashMatches,
+    goalFlashMatches,
+    onStarMatch,
+    onMatchClick 
+  }: {
+    match: any;
+    leagueData: any;
+    starredMatches: Set<number>;
+    halftimeFlashMatches: Set<number>;
+    fulltimeFlashMatches: Set<number>;
+    goalFlashMatches: Set<number>;
+    onStarMatch: (matchId: number) => void;
+    onMatchClick?: (fixture: any) => void;
+  }) => (
+    <div
+      className={`match-card-container group ${
+        halftimeFlashMatches.has(match.fixture.id) ? 'halftime-flash' : ''
+      } ${
+        fulltimeFlashMatches.has(match.fixture.id) ? 'fulltime-flash' : ''
+      } ${
+        goalFlashMatches.has(match.fixture.id) ? 'goal-flash' : ''
+      }`}
+      onClick={() => {
+        console.log(`🔍 [MATCH DEBUG] Clicked match:`, {
+          fixtureId: match.fixture.id,
+          fixtureDate: match.fixture.date,
+          teams: `${match.teams.home.name} vs ${match.teams.away.name}`,
+          status: match.fixture.status.short,
+          dataSource: 'TodaysMatchesByCountryNew'
+        });
+        onMatchClick?.(match);
+      }}
+      style={{
+        cursor: onMatchClick ? "pointer" : "default",
+      }}
+    >
+      {/* Star Button */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onStarMatch(match.fixture.id);
         }}
-        style={{
-          cursor: onMatchClick ? "pointer" : "default",
+        className="match-star-button"
+        title="Add to favorites"
+        onMouseEnter={(e) => {
+          e.currentTarget.closest(".group")?.classList.add("disable-hover");
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.closest(".group")?.classList.remove("disable-hover");
         }}
       >
-        {/* Star Button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onStarMatch(match.fixture.id);
-          }}
-          className="match-star-button"
-          title="Add to favorites"
-          onMouseEnter={(e) => {
-            e.currentTarget.closest(".group")?.classList.add("disable-hover");
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget
-              .closest(".group")
-              ?.classList.remove("disable-hover");
-          }}
-        >
-          <Star
-            className={`match-star-icon ${
-              starredMatches.has(match.fixture.id) ? "starred" : ""
-            }`}
-          />
-        </button>
+        <Star
+          className={`match-star-icon ${
+            starredMatches.has(match.fixture.id) ? "starred" : ""
+          }`}
+        />
+      </button>
 
-        {/* Match content - updated to use proper grid positioning like MyNewLeague2 */}
-        <div className="match-three-grid-container">
-          {/* Top Grid: Match Status and Elapsed Time */}
-          <div className="match-status-top">
-            {(() => {
-              const status = match.fixture.status.short;
-              const elapsed = match.fixture.status.elapsed;
+      {/* Match content - updated to use proper grid positioning like MyNewLeague2 */}
+      <div className="match-three-grid-container">
+        {/* Top Grid: Match Status and Elapsed Time */}
+        <div className="match-status-top">
+          {(() => {
+            const status = match.fixture.status.short;
+            const elapsed = match.fixture.status.elapsed;
 
-              // Check if match finished more than 4 hours ago for stale status
-              const matchDateTime = new Date(match.fixture.date);
-              const hoursOld =
-                (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
-              const isStaleFinishedMatch =
-                (["FT", "AET", "PEN"].includes(status) && hoursOld > 4) ||
-                ([
-                  "FT",
-                  "AET",
-                  "PEN",
-                  "AWD",
-                  "WO",
-                  "ABD",
-                  "CANC",
-                  "SUSP",
-                ].includes(status) &&
-                  hoursOld > 4) ||
-                (hoursOld > 4 &&
-                  ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(
-                    status,
-                  ));
+            // Check if match finished more than 4 hours ago for stale status
+            const matchDateTime = new Date(match.fixture.date);
+            const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
+            const isStaleFinishedMatch =
+              (["FT", "AET", "PEN"].includes(status) && hoursOld > 4) ||
+              (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursOld > 4) ||
+              (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
 
-              // Function to translate match status
-              const translateMatchStatus = (statusText: string): string => {
-                if (currentLanguage === "en") return statusText;
-
-                const statusTranslations: Record<
-                  string,
-                  Record<string, string>
-                > = {
-                  Halftime: {
-                    zh: "中场休息",
-                    "zh-hk": "中場休息",
-                    "zh-tw": "中場休息",
-                    es: "Descanso",
-                    de: "Halbzeit",
-                    it: "Intervallo",
-                    pt: "Intervalo",
-                  },
-                  Penalties: {
-                    zh: "点球",
-                    "zh-hk": "點球",
-                    "zh-tw": "點球",
-                    es: "Penales",
-                    de: "Elfmeterschießen",
-                    it: "Rigori",
-                    pt: "Pênaltis",
-                  },
-                  "Break Time": {
-                    zh: "休息时间",
-                    "zh-hk": "休息時間",
-                    "zh-tw": "休息時間",
-                    es: "Descanso",
-                    de: "Pause",
-                    it: "Pausa",
-                    pt: "Intervalo",
-                  },
-                  Interrupted: {
-                    zh: "中断",
-                    "zh-hk": "中斷",
-                    "zh-tw": "中斷",
-                    es: "Interrumpido",
-                    de: "Unterbrochen",
-                    it: "Interrotto",
-                    pt: "Interrompido",
-                  },
-                  LIVE: {
-                    zh: "直播",
-                    "zh-hk": "直播",
-                    "zh-tw": "直播",
-                    es: "En Vivo",
-                    de: "Live",
-                    it: "Live",
-                    pt: "Ao Vivo",
-                  },
-                  Ended: {
-                    zh: "结束",
-                    "zh-hk": "結束",
-                    "zh-tw": "結束",
-                    es: "Finalizado",
-                    de: "Beendet",
-                    it: "Finito",
-                    pt: "Terminado",
-                  },
-                  "After ET": {
-                    zh: "加时后",
-                    "zh-hk": "加時後",
-                    "zh-tw": "延長賽後",
-                    es: "Después de ET",
-                    de: "Nach Verl.",
-                    it: "Dopo i TS",
-                    pt: "Após Prorr.",
-                  },
-                  Awarded: {
-                    zh: "判定",
-                    "zh-hk": "判定",
-                    "zh-tw": "判定",
-                    es: "Otorgado",
-                    de: "Zuerkannt",
-                    it: "Assegnato",
-                    pt: "Atribuído",
-                  },
-                  Walkover: {
-                    zh: "不战而胜",
-                    "zh-hk": "不戰而勝",
-                    "zh-tw": "不戰而勝",
-                    es: "WO",
-                    de: "Kampflos",
-                    it: "A tavolino",
-                    pt: "WO",
-                  },
-                  Abandoned: {
-                    zh: "放弃",
-                    "zh-hk": "放棄",
-                    "zh-tw": "放棄",
-                    es: "Abandonado",
-                    de: "Abgebrochen",
-                    it: "Abbandonato",
-                    pt: "Abandonado",
-                  },
-                  Cancelled: {
-                    zh: "取消",
-                    "zh-hk": "取消",
-                    "zh-tw": "取消",
-                    es: "Cancelado",
-                    de: "Abgesagt",
-                    it: "Annullato",
-                    pt: "Cancelado",
-                  },
-                  Suspended: {
-                    zh: "暂停",
-                    "zh-hk": "暫停",
-                    "zh-tw": "暫停",
-                    es: "Suspendido",
-                    de: "Unterbrochen",
-                    it: "Sospeso",
-                    pt: "Suspenso",
-                  },
-                  Postponed: {
-                    zh: "推迟",
-                    "zh-hk": "推遲",
-                    "zh-tw": "延期",
-                    es: "Pospuesto",
-                    de: "Verschoben",
-                    it: "Rinviato",
-                    pt: "Adiado",
-                  },
-                  "Time TBD": {
-                    zh: "时间待定",
-                    "zh-hk": "時間待定",
-                    "zh-tw": "時間待定",
-                    es: "Hora por confirmar",
-                    de: "Zeit offen",
-                    it: "Orario da definire",
-                    pt: "Horário a definir",
-                  },
-                };
-
-                return (
-                  statusTranslations[statusText]?.[currentLanguage] ||
-                  statusText
-                );
+            // Function to translate match status
+            const translateMatchStatus = (statusText: string): string => {
+              if (currentLanguage === 'en') return statusText;
+              
+              const statusTranslations: Record<string, Record<string, string>> = {
+                'Halftime': { 'zh': '中场休息', 'zh-hk': '中場休息', 'zh-tw': '中場休息', 'es': 'Descanso', 'de': 'Halbzeit', 'it': 'Intervallo', 'pt': 'Intervalo' },
+                'Penalties': { 'zh': '点球', 'zh-hk': '點球', 'zh-tw': '點球', 'es': 'Penales', 'de': 'Elfmeterschießen', 'it': 'Rigori', 'pt': 'Pênaltis' },
+                'Break Time': { 'zh': '休息时间', 'zh-hk': '休息時間', 'zh-tw': '休息時間', 'es': 'Descanso', 'de': 'Pause', 'it': 'Pausa', 'pt': 'Intervalo' },
+                'Interrupted': { 'zh': '中断', 'zh-hk': '中斷', 'zh-tw': '中斷', 'es': 'Interrumpido', 'de': 'Unterbrochen', 'it': 'Interrotto', 'pt': 'Interrompido' },
+                'LIVE': { 'zh': '直播', 'zh-hk': '直播', 'zh-tw': '直播', 'es': 'En Vivo', 'de': 'Live', 'it': 'Live', 'pt': 'Ao Vivo' },
+                'Ended': { 'zh': '结束', 'zh-hk': '結束', 'zh-tw': '結束', 'es': 'Finalizado', 'de': 'Beendet', 'it': 'Finito', 'pt': 'Terminado' },
+                'After ET': { 'zh': '加时后', 'zh-hk': '加時後', 'zh-tw': '延長賽後', 'es': 'Después de ET', 'de': 'Nach Verl.', 'it': 'Dopo i TS', 'pt': 'Após Prorr.' },
+                'Awarded': { 'zh': '判定', 'zh-hk': '判定', 'zh-tw': '判定', 'es': 'Otorgado', 'de': 'Zuerkannt', 'it': 'Assegnato', 'pt': 'Atribuído' },
+                'Walkover': { 'zh': '不战而胜', 'zh-hk': '不戰而勝', 'zh-tw': '不戰而勝', 'es': 'WO', 'de': 'Kampflos', 'it': 'A tavolino', 'pt': 'WO' },
+                'Abandoned': { 'zh': '放弃', 'zh-hk': '放棄', 'zh-tw': '放棄', 'es': 'Abandonado', 'de': 'Abgebrochen', 'it': 'Abbandonato', 'pt': 'Abandonado' },
+                'Cancelled': { 'zh': '取消', 'zh-hk': '取消', 'zh-tw': '取消', 'es': 'Cancelado', 'de': 'Abgesagt', 'it': 'Annullato', 'pt': 'Cancelado' },
+                'Suspended': { 'zh': '暂停', 'zh-hk': '暫停', 'zh-tw': '暫停', 'es': 'Suspendido', 'de': 'Unterbrochen', 'it': 'Sospeso', 'pt': 'Suspenso' },
+                'Postponed': { 'zh': '推迟', 'zh-hk': '推遲', 'zh-tw': '延期', 'es': 'Pospuesto', 'de': 'Verschoben', 'it': 'Rinviato', 'pt': 'Adiado' },
+                'Time TBD': { 'zh': '时间待定', 'zh-hk': '時間待定', 'zh-tw': '時間待定', 'es': 'Hora por confirmar', 'de': 'Zeit offen', 'it': 'Orario da definire', 'pt': 'Horário a definir' }
               };
 
-              // Live status and elapsed time
-              if (
-                ![
-                  "FT",
-                  "AET",
-                  "PEN",
-                  "AWD",
-                  "WO",
-                  "ABD",
-                  "CANC",
-                  "SUSP",
-                ].includes(status) &&
-                !isStaleFinishedMatch &&
-                hoursOld <= 4 &&
-                [
-                  "LIVE",
-                  "LIV",
-                  "1H",
-                  "HT",
-                  "2H",
-                  "ET",
-                  "BT",
-                  "P",
-                  "INT",
-                ].includes(status)
-              ) {
-                let displayText = "";
-                if (status === "HT") {
-                  displayText = translateMatchStatus("Halftime");
-                } else if (status === "P") {
-                  displayText = translateMatchStatus("Penalties");
-                } else if (status === "ET") {
-                  const extraTime = elapsed ? elapsed - 90 : 0;
-                  displayText =
-                    extraTime > 0 ? `90' + ${extraTime}'` : `${elapsed}'`;
-                } else if (status === "BT") {
-                  displayText = translateMatchStatus("Break Time");
-                } else if (status === "INT") {
-                  displayText = translateMatchStatus("Interrupted");
-                } else {
-                  displayText = elapsed
-                    ? `${elapsed}'`
-                    : translateMatchStatus("LIVE");
-                }
-                return (
-                  <div className="match-status-label status-live-elapsed">
-                    {displayText}
-                  </div>
-                );
+              return statusTranslations[statusText]?.[currentLanguage] || statusText;
+            };
+
+            // Live status and elapsed time
+            if (
+              !["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) &&
+              !isStaleFinishedMatch &&
+              hoursOld <= 4 &&
+              ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
+            ) {
+              let displayText = "";
+              if (status === "HT") {
+                displayText = translateMatchStatus("Halftime");
+              } else if (status === "P") {
+                displayText = translateMatchStatus("Penalties");
+              } else if (status === "ET") {
+                const extraTime = elapsed ? elapsed - 90 : 0;
+                displayText = extraTime > 0 ? `90' + ${extraTime}'` : `${elapsed}'`;
+              } else if (status === "BT") {
+                displayText = translateMatchStatus("Break Time");
+              } else if (status === "INT") {
+                displayText = translateMatchStatus("Interrupted");
+              } else {
+                displayText = elapsed ? `${elapsed}'` : translateMatchStatus("LIVE");
               }
+              return (
+                <div className="match-status-label status-live-elapsed">
+                  {displayText}
+                </div>
+              );
+            }
 
-              // Finished matches - show final status
-              if (
-                [
-                  "FT",
-                  "AET",
-                  "PEN",
-                  "AWD",
-                  "WO",
-                  "ABD",
-                  "CANC",
-                  "SUSP",
-                ].includes(status) ||
-                isStaleFinishedMatch
-              ) {
-                const statusText =
-                  status === "FT"
-                    ? "Ended"
-                    : status === "AET"
-                      ? "After ET"
-                      : status === "PEN"
-                        ? "Penalties"
-                        : status === "AWD"
-                          ? "Awarded"
-                          : status === "WO"
-                            ? "Walkover"
-                            : status === "ABD"
-                              ? "Abandoned"
-                              : status === "CANC"
-                                ? "Cancelled"
-                                : status === "SUSP"
-                                  ? "Suspended"
-                                  : status;
+            // Finished matches - show final status
+            if (
+              ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) ||
+              isStaleFinishedMatch
+            ) {
+              const statusText = status === "FT" ? "Ended" : 
+                               status === "AET" ? "After ET" :
+                               status === "PEN" ? "Penalties" :
+                               status === "AWD" ? "Awarded" :
+                               status === "WO" ? "Walkover" :
+                               status === "ABD" ? "Abandoned" :
+                               status === "CANC" ? "Cancelled" :
+                               status === "SUSP" ? "Suspended" : status;
+              
+              return (
+                <div className="match-status-label status-finished">
+                  {translateMatchStatus(statusText)}
+                </div>
+              );
+            }
 
-                return (
-                  <div className="match-status-label status-finished">
-                    {translateMatchStatus(statusText)}
-                  </div>
-                );
-              }
+            // Postponed/Cancelled matches
+            if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
+              const statusText = status === "PST" ? "Postponed" :
+                               status === "CANC" ? "Cancelled" :
+                               status === "ABD" ? "Abandoned" :
+                               status === "SUSP" ? "Suspended" :
+                               status === "AWD" ? "Awarded" :
+                               status === "WO" ? "Walkover" : status;
+              
+              return (
+                <div className="match-status-label status-postponed">
+                  {translateMatchStatus(statusText)}
+                </div>
+              );
+            }
 
-              // Postponed/Cancelled matches
-              if (
-                ["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)
-              ) {
-                const statusText =
-                  status === "PST"
-                    ? "Postponed"
-                    : status === "CANC"
-                      ? "Cancelled"
-                      : status === "ABD"
-                        ? "Abandoned"
-                        : status === "SUSP"
-                          ? "Suspended"
-                          : status === "AWD"
-                            ? "Awarded"
-                            : status === "WO"
-                              ? "Walkover"
-                              : status;
+            // Overdue matches that should be marked as postponed
+            if (status === "NS" || status === "TBD") {
+              const matchTime = new Date(match.fixture.date);
+              const now = new Date();
+              const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
 
+              if (hoursAgo > 2) {
                 return (
                   <div className="match-status-label status-postponed">
-                    {translateMatchStatus(statusText)}
+                    {translateMatchStatus("Postponed")}
+                  </div>
+                );
+              }
+              if (status === "TBD") {
+                return (
+                  <div className="match-status-label status-upcoming">
+                    {translateMatchStatus("Time TBD")}
+                  </div>
+                );
+              }
+              // For NS status, don't show any status label - only show kick-off time in the center
+              return null;
+            }
+
+            return null;
+          })()}
+        </div>
+
+        {/* Main Grid: Match Content with proper grid positioning */}
+        <div className="match-content-container">
+          {/* Home Team Name */}
+          <div
+            className={`home-team-name ${
+              match.goals.home !== null &&
+              match.goals.away !== null &&
+              match.goals.home > match.goals.away
+                ? "winner"
+                : ""
+            }`}
+          >
+            {(() => {
+              const originalName = match.teams.home.name || "Unknown Team";
+              const translatedName = translateTeamNameSmart(originalName, {
+                name: leagueData.league.name,
+                country: leagueData.league.country,
+              });
+              return shortenTeamName(translatedName);
+            })()}
+          </div>
+
+          {/* Home team logo */}
+          <div className="home-team-logo-container">
+            <MyWorldTeamLogo
+              teamName={match.teams.home.name || ""}
+              teamId={match.teams.home.id}
+              teamLogo={
+                match.teams.home.id
+                  ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                  : "/assets/fallback-logo.svg"
+              }
+              alt={match.teams.home.name}
+              size="34px"
+              className="popular-leagues-size"
+              leagueContext={{
+                name: leagueData.league.name,
+                country: leagueData.league.country,
+              }}
+            />
+          </div>
+
+          {/* Score/Time Center */}
+          <div className="match-score-container">
+          {(() => {
+              const status = match.fixture.status.short;
+              const fixtureDate = parseISO(match.fixture.date);
+
+              const matchDateTime = new Date(match.fixture.date);
+              const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
+              const isStaleFinishedMatch =
+                (["FT", "AET", "PEN"].includes(status) && hoursOld > 4) ||
+                (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursOld > 4) ||
+                (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
+
+              // Finished matches - show final score
+              if (
+                ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) ||
+                isStaleFinishedMatch
+              ) {
+                const homeScore = match.goals.home;
+                const awayScore = match.goals.away;
+                const hasValidScores =
+                  homeScore !== null &&
+                  homeScore !== undefined &&
+                  awayScore !== null &&
+                  awayScore !== undefined &&
+                  !isNaN(Number(homeScore)) &&
+                  !isNaN(Number(awayScore));
+
+                if (hasValidScores) {
+                  return (
+                    <div className="match-score-display">
+                      <span className="score-number">{homeScore}</span>
+                      <span className="score-separator">-</span>
+                      <span className="score-number">{awayScore}</span>
+                    </div>
+                  );
+                } else {
+                  // Show time if score data is missing
+                  return (
+                    <div className="match-time-display" style={{ fontSize: "0.882em" }}>
+                      {format(fixtureDate, "HH:mm")}
+                    </div>
+                  );
+                }
+              }
+
+              // Live matches - show current score
+              if (
+                !isStaleFinishedMatch &&
+                hoursOld <= 4 &&
+                ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
+              ) {
+                const homeScore = match.goals.home;
+                const awayScore = match.goals.away;
+                const hasValidScores =
+                  homeScore !== null &&
+                  homeScore !== undefined &&
+                  awayScore !== null &&
+                  awayScore !== undefined &&
+                  !isNaN(Number(homeScore)) &&
+                  !isNaN(Number(awayScore));
+
+                if (hasValidScores) {
+                  return (
+                    <div className="match-score-display">
+                      <span className="score-number">{homeScore}</span>
+                      <span className="score-separator">-</span>
+                      <span className="score-number">{awayScore}</span>
+                    </div>
+                  );
+                }
+              }
+
+              // Postponed/Cancelled matches - show kick-off time
+              if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
+                return (
+                  <div className="match-time-display">
+                    {format(fixtureDate, "HH:mm")}
                   </div>
                 );
               }
 
-              // Overdue matches that should be marked as postponed
+              // Upcoming matches - show kick-off time
               if (status === "NS" || status === "TBD") {
                 const matchTime = new Date(match.fixture.date);
                 const now = new Date();
-                const hoursAgo =
-                  (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+                const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
 
                 if (hoursAgo > 2) {
                   return (
-                    <div className="match-status-label status-postponed">
-                      {translateMatchStatus("Postponed")}
+                    <div className="match-time-display">
+                      {format(fixtureDate, "HH:mm")}
                     </div>
                   );
                 }
                 if (status === "TBD") {
                   return (
-                    <div className="match-status-label status-upcoming">
-                      {translateMatchStatus("Time TBD")}
-                    </div>
-                  );
-                }
-                // For NS status, don't show any status label - only show kick-off time in the center
-                return null;
-              }
-
-              return null;
-            })()}
-          </div>
-
-          {/* Main Grid: Match Content with proper grid positioning */}
-          <div className="match-content-container">
-            {/* Home Team Name */}
-            <div
-              className={`home-team-name ${
-                match.goals.home !== null &&
-                match.goals.away !== null &&
-                match.goals.home > match.goals.away
-                  ? "winner"
-                  : ""
-              }`}
-            >
-              {(() => {
-                const originalName = match.teams.home.name || "Unknown Team";
-                const translatedName = translateTeamNameSmart(originalName, {
-                  name: leagueData.league.name,
-                  country: leagueData.league.country,
-                });
-                return shortenTeamName(translatedName);
-              })()}
-            </div>
-
-            {/* Home team logo */}
-            <div className="home-team-logo-container">
-              <MyWorldTeamLogo
-                teamName={match.teams.home.name || "Home Team"}
-                teamId={match.teams.home.id}
-                teamLogo={match.teams.home.logo || `/api/team-logo/square/${match.teams.home.id}?size=32`}
-                alt={match.teams.home.name || "Home Team"}
-                size="34px"
-                className="popular-leagues-size"
-                leagueContext={{
-                  name: leagueData.league.name,
-                  country: leagueData.league.country,
-                }}
-              />
-            </div>
-
-            {/* Score/Time Center */}
-            <div className="match-score-container">
-              {(() => {
-                const status = match.fixture.status.short;
-                const fixtureDate = parseISO(match.fixture.date);
-
-                const matchDateTime = new Date(match.fixture.date);
-                const hoursOld =
-                  (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
-                const isStaleFinishedMatch =
-                  (["FT", "AET", "PEN"].includes(status) && hoursOld > 4) ||
-                  ([
-                    "FT",
-                    "AET",
-                    "PEN",
-                    "AWD",
-                    "WO",
-                    "ABD",
-                    "CANC",
-                    "SUSP",
-                  ].includes(status) &&
-                    hoursOld > 4) ||
-                  (hoursOld > 4 &&
-                    ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(
-                      status,
-                    ));
-
-                // Finished matches - show final score
-                if (
-                  [
-                    "FT",
-                    "AET",
-                    "PEN",
-                    "AWD",
-                    "WO",
-                    "ABD",
-                    "CANC",
-                    "SUSP",
-                  ].includes(status) ||
-                  isStaleFinishedMatch
-                ) {
-                  const homeScore = match.goals.home;
-                  const awayScore = match.goals.away;
-                  const hasValidScores =
-                    homeScore !== null &&
-                    homeScore !== undefined &&
-                    awayScore !== null &&
-                    awayScore !== undefined &&
-                    !isNaN(Number(homeScore)) &&
-                    !isNaN(Number(awayScore));
-
-                  if (hasValidScores) {
-                    return (
-                      <div className="match-score-display">
-                        <span className="score-number">{homeScore}</span>
-                        <span className="score-separator">-</span>
-                        <span className="score-number">{awayScore}</span>
-                      </div>
-                    );
-                  } else {
-                    // Show time if score data is missing
-                    return (
-                      <div
-                        className="match-time-display"
-                        style={{ fontSize: "0.882em" }}
-                      >
-                        {format(fixtureDate, "HH:mm")}
-                      </div>
-                    );
-                  }
-                }
-
-                // Live matches - show current score
-                if (
-                  !isStaleFinishedMatch &&
-                  hoursOld <= 4 &&
-                  [
-                    "LIVE",
-                    "LIV",
-                    "1H",
-                    "HT",
-                    "2H",
-                    "ET",
-                    "BT",
-                    "P",
-                    "INT",
-                  ].includes(status)
-                ) {
-                  const homeScore = match.goals.home;
-                  const awayScore = match.goals.away;
-                  const hasValidScores =
-                    homeScore !== null &&
-                    homeScore !== undefined &&
-                    awayScore !== null &&
-                    awayScore !== undefined &&
-                    !isNaN(Number(homeScore)) &&
-                    !isNaN(Number(awayScore));
-
-                  if (hasValidScores) {
-                    return (
-                      <div className="match-score-display">
-                        <span className="score-number">{homeScore}</span>
-                        <span className="score-separator">-</span>
-                        <span className="score-number">{awayScore}</span>
-                      </div>
-                    );
-                  }
-                }
-
-                // Postponed/Cancelled matches - show kick-off time
-                if (
-                  ["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)
-                ) {
-                  return (
                     <div className="match-time-display">
-                      {format(fixtureDate, "HH:mm")}
+                      TBD
                     </div>
                   );
                 }
-
-                // Upcoming matches - show kick-off time
-                if (status === "NS" || status === "TBD") {
-                  const matchTime = new Date(match.fixture.date);
-                  const now = new Date();
-                  const hoursAgo =
-                    (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
-
-                  if (hoursAgo > 2) {
-                    return (
-                      <div className="match-time-display">
-                        {format(fixtureDate, "HH:mm")}
-                      </div>
-                    );
-                  }
-                  if (status === "TBD") {
-                    return <div className="match-time-display">TBD</div>;
-                  }
-                  return (
-                    <div className="match-time-display">
-                      {format(fixtureDate, "HH:mm")}
-                    </div>
-                  );
-                }
-
-                return null;
-              })()}
-            </div>
-
-            {/* Away team logo */}
-            <div className="away-team-logo-container">
-              <MyWorldTeamLogo
-                teamName={match.teams.away.name || "Away Team"}
-                teamId={match.teams.away.id}
-                teamLogo={match.teams.away.logo || `/api/team-logo/square/${match.teams.away.id}?size=32`}
-                alt={match.teams.away.name || "Away Team"}
-                size="34px"
-                className="popular-leagues-size"
-                leagueContext={{
-                  name: leagueData.league.name,
-                  country: leagueData.league.country,
-                }}
-              />
-            </div>
-
-            {/* Away Team Name */}
-            <div
-              className={`away-team-name ${
-                match.goals.home !== null &&
-                match.goals.away !== null &&
-                match.goals.away > match.goals.home
-                  ? "winner"
-                  : ""
-              }`}
-            >
-              {(() => {
-                const originalName = match.teams.away.name || "Unknown Team";
-                const translatedName = translateTeamNameSmart(originalName, {
-                  name: leagueData.league.name,
-                  country: leagueData.league.country,
-                });
-                return shortenTeamName(translatedName);
-              })()}
-            </div>
-          </div>
-
-          {/* Bottom Grid: Penalty Result Status */}
-          <div className="match-penalty-bottom">
-            {(() => {
-              const status = match.fixture.status.short;
-              const isPenaltyMatch = status === "PEN";
-              const penaltyHome = match.score?.penalty?.home;
-              const penaltyAway = match.score?.penalty?.away;
-              const hasPenaltyScores =
-                penaltyHome !== null &&
-                penaltyHome !== undefined &&
-                penaltyAway !== null &&
-                penaltyAway !== undefined;
-
-              if (isPenaltyMatch && hasPenaltyScores) {
-                // Function to translate penalty text
-                const translatePenaltyText = (text: string): string => {
-                  if (currentLanguage === "en") return text;
-
-                  const penaltyTranslations: Record<
-                    string,
-                    Record<string, string>
-                  > = {
-                    won: {
-                      zh: "获胜",
-                      "zh-hk": "獲勝",
-                      "zh-tw": "獲勝",
-                      es: "ganó",
-                      de: "gewann",
-                      it: "ha vinto",
-                      pt: "venceu",
-                    },
-                    "on penalties": {
-                      zh: "点球",
-                      "zh-hk": "點球",
-                      "zh-tw": "點球決勝",
-                      es: "en penales",
-                      de: "im Elfmeterschießen",
-                      it: "ai rigori",
-                      pt: "nos pênaltis",
-                    },
-                  };
-
-                  let translatedText = text;
-                  Object.entries(penaltyTranslations).forEach(
-                    ([english, translations]) => {
-                      if (translations[currentLanguage]) {
-                        translatedText = translatedText.replace(
-                          english,
-                          translations[currentLanguage],
-                        );
-                      }
-                    },
-                  );
-
-                  return translatedText;
-                };
-
-                const homeTeamTranslated = translateTeamNameSmart(
-                  match.teams.home.name,
-                  {
-                    name: leagueData.league.name,
-                    country: leagueData.league.country,
-                  },
-                );
-                const awayTeamTranslated = translateTeamNameSmart(
-                  match.teams.away.name,
-                  {
-                    name: leagueData.league.name,
-                    country: leagueData.league.country,
-                  },
-                );
-
-                const winnerText =
-                  penaltyHome > penaltyAway
-                    ? `${shortenTeamName(homeTeamTranslated)} won ${penaltyHome}-${penaltyAway} on penalties`
-                    : `${shortenTeamName(awayTeamTranslated)} won ${penaltyAway}-${penaltyHome} on penalties`;
-
                 return (
-                  <div className="penalty-result-display">
-                    <span
-                      className="penalty-winner"
-                      style={{ backgroundColor: "transparent" }}
-                    >
-                      {translatePenaltyText(winnerText)}
-                    </span>
+                  <div className="match-time-display">
+                    {format(fixtureDate, "HH:mm")}
                   </div>
                 );
               }
+
               return null;
             })()}
           </div>
+
+          {/* Away team logo */}
+          <div className="away-team-logo-container">
+            <MyWorldTeamLogo
+              teamName={match.teams.away.name || ""}
+              teamId={match.teams.away.id}
+              teamLogo={
+                match.teams.away.id
+                  ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                  : "/assets/fallback-logo.svg"
+              }
+              alt={match.teams.away.name}
+              size="34px"
+              className="popular-leagues-size"
+              leagueContext={{
+                name: leagueData.league.name,
+                country: leagueData.league.country,
+              }}
+            />
+          </div>
+
+          {/* Away Team Name */}
+          <div
+            className={`away-team-name ${
+              match.goals.home !== null &&
+              match.goals.away !== null &&
+              match.goals.away > match.goals.home
+                ? "winner"
+                : ""
+            }`}
+          >
+            {(() => {
+              const originalName = match.teams.away.name || "Unknown Team";
+              const translatedName = translateTeamNameSmart(originalName, {
+                name: leagueData.league.name,
+                country: leagueData.league.country,
+              });
+              return shortenTeamName(translatedName);
+            })()}
+          </div>
+        </div>
+
+        {/* Bottom Grid: Penalty Result Status */}
+        <div className="match-penalty-bottom">
+          {(() => {
+            const status = match.fixture.status.short;
+            const isPenaltyMatch = status === "PEN";
+            const penaltyHome = match.score?.penalty?.home;
+            const penaltyAway = match.score?.penalty?.away;
+            const hasPenaltyScores =
+              penaltyHome !== null &&
+              penaltyHome !== undefined &&
+              penaltyAway !== null &&
+              penaltyAway !== undefined;
+
+            if (
+              isPenaltyMatch &&
+              hasPenaltyScores
+            ) {
+              // Function to translate penalty text
+              const translatePenaltyText = (text: string): string => {
+                if (currentLanguage === 'en') return text;
+                
+                const penaltyTranslations: Record<string, Record<string, string>> = {
+                  'won': { 'zh': '获胜', 'zh-hk': '獲勝', 'zh-tw': '獲勝', 'es': 'ganó', 'de': 'gewann', 'it': 'ha vinto', 'pt': 'venceu' },
+                  'on penalties': { 'zh': '点球', 'zh-hk': '點球', 'zh-tw': '點球決勝', 'es': 'en penales', 'de': 'im Elfmeterschießen', 'it': 'ai rigori', 'pt': 'nos pênaltis' }
+                };
+                
+                let translatedText = text;
+                Object.entries(penaltyTranslations).forEach(([english, translations]) => {
+                  if (translations[currentLanguage]) {
+                    translatedText = translatedText.replace(english, translations[currentLanguage]);
+                  }
+                });
+                
+                return translatedText;
+              };
+
+              const homeTeamTranslated = translateTeamNameSmart(match.teams.home.name, {
+                name: leagueData.league.name,
+                country: leagueData.league.country,
+              });
+              const awayTeamTranslated = translateTeamNameSmart(match.teams.away.name, {
+                name: leagueData.league.name,
+                country: leagueData.league.country,
+              });
+
+              const winnerText =
+                penaltyHome > penaltyAway
+                  ? `${shortenTeamName(homeTeamTranslated)} won ${penaltyHome}-${penaltyAway} on penalties`
+                  : `${shortenTeamName(awayTeamTranslated)} won ${penaltyAway}-${penaltyHome} on penalties`;
+
+              return (
+                <div className="penalty-result-display">
+                  <span className="penalty-winner" style={{ backgroundColor: 'transparent' }}>
+                    {translatePenaltyText(winnerText)}
+                  </span>
+                </div>
+              );
+            }
+            return null;
+          })()}
         </div>
       </div>
-    ),
-  );
+    </div>
+  ));
 
   return (
     <Card className="mt-4 dark:bg-gray-800 dark:border-gray-700">
@@ -2489,10 +1983,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           >
             {getHeaderTitle()}
           </h3>
-          {/* Show subtle loading indicator when refreshing in background */}
-          {isLoading && validFixtures.length > 0 && (
-            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-          )}
         </div>
       </CardHeader>
       <CardContent className="p-0 dark:bg-gray-800">

@@ -27,7 +27,7 @@
 .dark .match-card-container:hover {
   background-color: rgb(55 65 81) !important;
   /* bg-gray-700 for dark mode hover - matches league header */
-
+ 
 }
 
 /* Ensure all match cards have borders */
@@ -101,15 +101,15 @@
 /* Main match content container - Grid-based like 365scores */
 .match-content-container {
   display: grid;
-  grid-template-columns: 1fr 36px 90px 36px 1fr;
-  grid-template-rows: 48px;
+  grid-template-columns: 1fr 32px 80px 32px 1fr;
   grid-template-areas: "home-team-name home-team-logo score away-team-logo away-team-name";
+  grid-template-rows: 42px;
   align-items: center;
   justify-items: center;
   align-content: center;
   width: 100%;
-  padding: 0 12px;
-  gap: 0;
+  padding: 0 8px;
+
 }
 
 /* Bottom grid for penalty results */
@@ -157,8 +157,7 @@
   font-size: 13.3px;
   font-weight: 400;
   color: #1a1a1a;
-  padding-right: 0.75rem;
-  margin-right: 4px;
+  padding-right: 0.5rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -174,7 +173,7 @@
   font-size: 13.3px;
   font-weight: 400;
   color: #1a1a1a;
-  padding-left: 0.50rem;
+  padding-left: 0.5rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -281,8 +280,8 @@
 
 /* Size variant for TodayPopularFootballLeaguesNew - smaller flags */
 .flag-circle.popular-leagues-size {
-  width: 24px;
-  height: 24px;
+  width: 34px;
+  height: 34px;
 }
 
 /* Size variant for MyHomeFeaturedMatchNew - larger flags */
@@ -294,8 +293,8 @@
 /* Responsive flag circle sizes */
 @media (max-width: 640px) {
   .flag-circle.popular-leagues-size {
-    width: 20px;
-    height: 20px;
+    width: 28px;
+    height: 28px;
   }
 
   .flag-circle.featured-match-size {
@@ -314,10 +313,10 @@
 }
 
 .team-logo {
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
-  min-height: 24px;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  min-height: 34px;
   object-fit: cover;
   filter: brightness(100%) contrast(105%) saturate(100%) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
   background: none !important;
@@ -481,66 +480,37 @@
 /* Responsive grid adjustments */
 @media (max-width: 640px) {
   .match-content-container {
-    grid-template-columns: 1fr 30px 76px 30px 1fr;
-    grid-template-rows: 40px;
-    padding: 0 8px;
-
-    gap: 4px;
+    grid-template-columns: 1fr 28px 70px 28px 1fr;
+    grid-template-rows: 36px;
+    padding: 0.25rem;
   }
 
   .home-team-name,
   .away-team-name {
-    padding: 0;
-    font-size: 11px;
-    display: flex;
-    align-items: center;
-  }
-
-  .home-team-name {
-    justify-content: flex-end;
-    padding-right: 6px;
-    margin-right: 6px;
-  }
-
-  .away-team-name {
-    justify-content: flex-start;
-    padding-left: 4px;
-    margin-left: -3px;
-  }
-
-  .home-team-logo-container,
-  .away-team-logo-container {
-    width: 30px;
-    height: 30px;
-    min-width: 30px;
-    min-height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 0.25rem;
+    font-size: 10px;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
   }
 
   .team-logo {
-    width: 22px;
-    height: 22px;
-    min-width: 22px;
-    min-height: 22px;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
   }
 
   .match-score-container {
-    width: 76px;
-    min-width: 76px;
-    max-width: 76px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 70px;
+    padding: 0 0.125rem;
   }
 
   .match-score-display {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
 
   .match-time-display {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
   }
 }
 
@@ -680,9 +650,9 @@
   /* bg-gray-100 */
 }
 
-/* Selected match state */
-.dark .match-card-container.selected-match {
-  background-color: rgb(55 65 81) !important;
+  /* Selected match state */
+  .dark .match-card-container.selected-match {
+    background-color: rgb(55 65 81) !important;
 
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15) !important;
 }
@@ -698,21 +668,31 @@
 }
 
 @keyframes halftimeFlash {
-
-  0%,
-  100% {
+  0%, 100% {
     background-color: inherit;
   }
-
   50% {
     background-color: rgba(59, 130, 246, 0.1);
   }
 }
 
-/* Smooth collapse and expand animations for league sections */
+/* Collapse and expand animations for league sections */
 .league-section {
   transition: all 0.3s ease-in-out;
   overflow: hidden;
+}
+
+.league-section.collapsed {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.league-section.expanded {
+  max-height: 2000px;
+  /* Large enough to accommodate content */
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Country header collapse/expand button animation */
@@ -734,28 +714,51 @@
   transform: rotate(180deg);
 }
 
-/* League content smooth transition */
+/* League content slide animation */
 .league-content {
-  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
-  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top;
+}
+
+.league-content.collapsed {
+  transform: scaleY(0);
+  opacity: 0;
+}
+
+.league-content.expanded {
+  transform: scaleY(1);
+  opacity: 1;
 }
 
 /* Smooth height transition for country sections */
 .country-section {
-  transition: all 0.3s ease-in-out;
+  transition: max-height 0.4s ease-in-out, padding 0.3s ease-in-out;
   overflow: hidden;
 }
 
-/* League matches container smooth transition */
+.country-section.collapsed {
+  max-height: 60px;
+  /* Height of just the header */
+  padding-bottom: 0;
+}
+
+.country-section.expanded {
+  max-height: none;
+  padding-bottom: 0;
+}
+
+/* CardContent wrapper for matches */
 .league-matches-container {
-  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
   overflow: hidden;
+  transition: all 0.3s ease-in-out;
 }
 
 /* Ensure proper spacing for match cards within CardContent */
 .match-cards-wrapper {
   display: flex;
   flex-direction: column;
+
+  /* 16px spacing between match cards */
 }
 
 .match-cards-wrapper>.match-card-container {
@@ -770,6 +773,35 @@
 
 .league-card-spacing:last-child {
   margin-bottom: 0;
+}
+
+/* Keyframe animations for league expand/collapse */
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    max-height: 1000px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    max-height: 1000px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
 }
 
 /* League header hover effects */
@@ -900,62 +932,21 @@
 
 /* Ensure hover effect works correctly in both light and dark modes */
 .country-matches-container .match-card-container:hover:not(.disable-hover) {
-  background-color: rgb(243 244 246) !important;
-  /* gray-100 */
+  background-color: rgb(243 244 246) !important; /* gray-100 */
 }
 
 /* Dark mode hover for country matches container */
 .dark .country-matches-container .match-card-container:hover:not(.disable-hover) {
-  background-color: rgb(55 65 81) !important;
-  /* gray-700 */
-
+  background-color: rgb(55 65 81) !important; /* gray-700 */
 }
 
 /* Additional dark mode hover overrides to ensure proper styling */
 .dark .match-card-container:hover {
-  background-color: rgb(55 65 81) !important;
-  /* bg-gray-700 for dark mode hover */
+  background-color: rgb(55 65 81) !important; /* bg-gray-700 for dark mode hover */
 }
 
 /* Ensure country matches container dark mode hover takes priority */
 .dark .country-matches-container .match-card-container:hover {
-  background-color: rgb(55 65 81) !important;
-  /* gray-700 */
+  background-color: rgb(55 65 81) !important; /* gray-700 */
 
-}
-
-/* Specific styles for league standings tables */
-.league-standings-table .team-logo,
-.league-standings-table .flag-circle,
-table .team-logo,
-table .flag-circle {
-  width: 28px !important;
-  height: 28px !important;
-  min-width: 28px !important;
-  min-height: 28px !important;
-}
-
-/* Ensure popular-leagues-size class in tables is smaller */
-table .popular-leagues-size,
-.league-standings-table .popular-leagues-size {
-  width: 24px !important;
-  height: 24px !important;
-  min-width: 24px !important;
-  min-height: 24px !important;
-}
-
-/* Responsive adjustments for mobile in tables */
-@media (max-width: 640px) {
-
-  .league-standings-table .team-logo,
-  .league-standings-table .flag-circle,
-  table .team-logo,
-  table .flag-circle,
-  table .popular-leagues-size,
-  .league-standings-table .popular-leagues-size {
-    width: 20px !important;
-    height: 20px !important;
-    min-width: 20px !important;
-    min-height: 20px !important;
-  }
 }

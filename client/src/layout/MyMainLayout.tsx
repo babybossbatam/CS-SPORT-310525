@@ -39,24 +39,20 @@ const isValidDate = (dateString: string): boolean => {
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
   if (!dateRegex.test(dateString)) return false;
 
-  try {
-    // Parse the date and check if it's valid
-    const [year, month, day] = dateString.split('-').map(Number);
-    const date = new Date(year, month - 1, day);
-    
-    // Check if the parsed date components match the input
-    const isValidParsedDate = date.getFullYear() === year &&
-                             date.getMonth() === month - 1 &&
-                             date.getDate() === day;
-    
-    // Allow reasonable date ranges (not too far in past/future)
-    const currentYear = new Date().getFullYear();
-    const isReasonableYear = year >= currentYear - 2 && year <= currentYear + 2;
-    
-    return isValidParsedDate && isReasonableYear;
-  } catch (error) {
-    return false;
-  }
+  // Check if it's a valid date
+  const date = new Date(dateString + 'T00:00:00.000Z');
+  const [year, month, day] = dateString.split('-').map(Number);
+
+  // Allow reasonable date ranges (not too far in past/future)
+  const currentYear = new Date().getFullYear();
+  const isReasonableYear = year >= currentYear - 5 && year <= currentYear + 5;
+
+  return date instanceof Date &&
+         !isNaN(date.getTime()) &&
+         date.getUTCFullYear() === year &&
+         date.getUTCMonth() === month - 1 &&
+         date.getUTCDate() === day &&
+         isReasonableYear;
 };
 
 const MyMainLayout: React.FC<MyMainLayoutProps> = ({
@@ -68,8 +64,8 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   selectedDate
 }) => {
   // Validate selectedDate prop - only warn for clearly invalid formats
-  if (selectedDate && selectedDate !== 'today' && !isValidDate(selectedDate)) {
-    console.warn(`🚨 [MyMainLayout] Invalid selectedDate: ${selectedDate}. Expected format: YYYY-MM-DD or 'today'`);
+  if (selectedDate && selectedDate !== 'today' && selectedDate && !/^\d{4}-\d{2}-\d{2}$/.test(selectedDate)) {
+    console.warn(`🚨 [MyMainLayout] Invalid selectedDate format: ${selectedDate}`);
   }
 
   const [internalActiveTab, setInternalActiveTab] = useState<string>("match");

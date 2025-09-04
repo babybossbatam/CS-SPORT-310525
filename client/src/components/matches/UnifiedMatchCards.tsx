@@ -4,7 +4,6 @@ import { Star } from "lucide-react";
 import { format, parseISO, isValid } from "date-fns";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import LazyImage from "../common/LazyImage";
-import MyWorldTeamLogo from "../common/MyWorldTeamLogo"; // Assuming MyWorldTeamLogo is imported from here
 import LazyMatchItem from "./LazyMatchItem";
 import "../../styles/MyLogoPositioning.css";
 
@@ -182,24 +181,30 @@ const UnifiedMatchCards: React.FC<UnifiedMatchCardsProps> = ({
                     <div className="home-team-logo-container">
                       {isNationalTeam(match.teams.home, match.league) ? (
                         <div className="flag-circle">
-                          <MyWorldTeamLogo
-                            teamName={match.teams.home.name}
-                            teamId={match.teams.home.id}
-                            teamLogo={`/api/team-logo/square/${match.teams.home.id}?size=32`}
+                          <LazyImage
+                            src={
+                              match.teams.home.id
+                                ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                : "/assets/fallback-logo.svg"
+                            }
                             alt={match.teams.home.name}
-                            size="32px"
+                            title={match.teams.home.name}
                             className="team-logo"
+                            style={{ backgroundColor: "transparent" }}
                           />
                           <div className="gloss"></div>
                         </div>
                       ) : (
-                        <MyWorldTeamLogo
-                          teamName={match.teams.home.name}
-                          teamId={match.teams.home.id}
-                          teamLogo={`/api/team-logo/square/${match.teams.home.id}?size=32`}
+                        <LazyImage
+                          src={
+                            match.teams.home.id
+                              ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                              : "/assets/fallback-logo.svg"
+                          }
                           alt={match.teams.home.name}
-                          size="32px"
+                          title={match.teams.home.name}
                           className="team-logo"
+                          style={{ backgroundColor: "transparent" }}
                         />
                       )}
                     </div>
@@ -295,24 +300,30 @@ const UnifiedMatchCards: React.FC<UnifiedMatchCardsProps> = ({
                     <div className="away-team-logo-container">
                       {isNationalTeam(match.teams.away, match.league) ? (
                         <div className="flag-circle">
-                          <MyWorldTeamLogo
-                            teamName={match.teams.away.name}
-                            teamId={match.teams.away.id}
-                            teamLogo={`/api/team-logo/square/${match.teams.away.id}?size=32`}
+                          <LazyImage
+                            src={
+                              match.teams.away.id
+                                ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                                : "/assets/fallback-logo.svg"
+                            }
                             alt={match.teams.away.name}
-                            size="32px"
+                            title={match.teams.away.name}
                             className="team-logo"
+                            style={{ backgroundColor: "transparent" }}
                           />
                           <div className="gloss"></div>
                         </div>
                       ) : (
-                        <MyWorldTeamLogo
-                          teamName={match.teams.away.name}
-                          teamId={match.teams.away.id}
-                          teamLogo={`/api/team-logo/square/${match.teams.away.id}?size=32`}
+                        <LazyImage
+                          src={
+                            match.teams.away.id
+                              ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                              : "/assets/fallback-logo.svg"
+                          }
                           alt={match.teams.away.name}
-                          size="32px"
+                          title={match.teams.away.name}
                           className="team-logo"
+                          style={{ backgroundColor: "transparent" }}
                         />
                       )}
                     </div>

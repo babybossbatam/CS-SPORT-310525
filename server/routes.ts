@@ -39,9 +39,9 @@ import basketballRoutes from './routes/basketballRoutes';
 import basketballStandingsRoutes from './routes/basketballStandingsRoutes';
 import basketballGamesRoutes from './routes/basketballGamesRoutes';
 import playerVerificationRoutes from './routes/playerVerificationRoutes';
-import { RapidAPI } from './utils/rapidapi'; // corrected rapidApi import
+import { RapidAPI } from './utils/rapidApi'; // corrected rapidApi import
 import translationRoutes from "./routes/translationRoutes";
-import notificationRoutes from './routes/notificationRoutes';
+
 
 // Cache duration constants
 const LIVE_DATA_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes for live data
@@ -56,44 +56,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const apiRouter = express.Router();
   app.use("/api", apiRouter);
 
-  // Health check endpoint
-  apiRouter.get("/health", async (_req: Request, res: Response) => {
-    try {
-      // Test database connection
-      await storage.getCachedFixturesByDate(
-        new Date().toISOString().split("T")[0],
-      );
-
-      // Check API key availability
-      const hasRapidApiKey = !!process.env.RAPID_API_KEY;
-
-      res.json({
-        status: "healthy",
-        database: "connected",
-        apiKey: hasRapidApiKey ? "configured" : "missing",
-        server: "operational",
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-        memory: process.memoryUsage(),
-      });
-    } catch (error) {
-      console.error("Health check failed:", error);
-      res.status(500).json({
-        status: "unhealthy",
-        database: "disconnected",
-        error: error instanceof Error ? error.message : "Unknown error",
-        timestamp: new Date().toISOString(),
-      });
-    }
-  });
-
-  // Memory monitoring middleware
-  apiRouter.use((req, res, next) => {
-    const memoryUsage = process.memoryUsage();
-    const heapUsedMB = memoryUsage.heapUsed / 1024 / 1024;
-    next();
-  });
-
   // Featured match routes for MyHomeFeaturedMatch component
   apiRouter.use("/api/featured-match", featuredMatchRoutes);
   app.use("/api/featured-match", featuredMatchRoutes);
@@ -103,9 +65,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.use('/api', playerDataRoutes);
   apiRouter.use('/api', playerVerificationRoutes);
 
-  // Register notification routes
-  app.use(notificationRoutes);
-
   // Health check endpoint
   apiRouter.get("/health", async (_req: Request, res: Response) => {
     try {
@@ -113,18 +72,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.getCachedFixturesByDate(
         new Date().toISOString().split("T")[0],
       );
-
-      // Check API key availability
-      const hasRapidApiKey = !!process.env.RAPID_API_KEY;
-
       res.json({
         status: "healthy",
         database: "connected",
-        apiKey: hasRapidApiKey ? "configured" : "missing",
-        server: "operational",
         timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-        memory: process.memoryUsage(),
       });
     } catch (error) {
       console.error("Health check failed:", error);
@@ -423,142 +374,238 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate date format first
       if (!date || date === 'undefined' || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
         console.log(`❌ [Routes] Invalid date format: ${date} (type: ${typeof date})`);
-        return res.status(400).json({ error: "Invalid date format. Use YYYY-MM-DD" });
+        console.log(`❌ [Routes] Request URL: ${req.url}`);
+        console.log(`❌ [Routes] Request params:`, req.params);
+        return res
+          .status(400)
+          .json({ error: "Invalid date format. Use YYYY-MM-DD" });
       }
 
       // Additional date validation - ensure it's a valid date
       const dateObj = new Date(date);
-      if (isNaN(dateObj.getTime()) || dateObj.toISOString().split("T")[0] !== date) {
+      if (
+        isNaN(dateObj.getTime()) ||
+        dateObj.toISOString().split("T")[0] !== date
+      ) {
         console.log(`❌ [Routes] Invalid date value: ${date}`);
         return res.status(400).json({ error: "Invalid date value" });
       }
 
-      console.log(`🎯 [Routes] Processing request for date: ${date} (all=${all})`);
+      console.log(
+        `🎯 [Routes] Processing multi-timezone request for date: ${date} (all=${all})`,
+      );
+      console.log(
+        `🎯 [Routes] Current server date: ${new Date().toISOString()}, requested date: ${date}`,
+      );
 
-      // Check cache first with more aggressive caching
-      const cacheKey = all === "true" ? `multi-tz-all:${date}` : `multi-tz:${date}`;
+      // Enhanced cache checking - check multiple cache layers
+      const cacheKey =
+        all === "true" ? `multi-tz-all:${date}` : `multi-tz:${date}`;
+      const simpleCacheKey = `fixtures-date:${date}`;
 
-      // Check in-memory cache first
-      const cached = fixturesCache.get(cacheKey);
-      const currentTime = Date.now();
+      // First check dedicated multi-timezone cache
+      let cachedFixtures = await storage.getCachedFixturesByLeague(cacheKey);
 
-      // Determine cache duration based on date
-      const today = new Date().toISOString().split("T")[0];
-      const isPastDate = date < today;
-      const isToday = date === today;
-
-      // More aggressive caching to prevent timeouts
-      const maxAge = isPastDate
-        ? 24 * 60 * 60 * 1000  // 24 hours for past dates
-        : isToday
-          ? 5 * 60 * 1000      // 5 minutes for today
-          : 6 * 60 * 60 * 1000; // 6 hours for future dates
-
-      // Return cached data if available and not expired
-      if (cached && currentTime - cached.timestamp < maxAge) {
-        console.log(`📦 [Routes] Using cached fixtures for ${date} (age: ${Math.floor((currentTime - cached.timestamp) / 60000)}min)`);
-        return res.json(cached.data);
+      // If not found, check simple date-based cache
+      if (!cachedFixtures || cachedFixtures.length === 0) {
+        cachedFixtures = await storage.getCachedFixturesByDate(date);
+        console.log(
+          `🔄 [Routes] Fallback to date cache for ${date}: ${cachedFixtures.length} fixtures found`,
+        );
       }
 
-      // Check database cache as fallback
-      let cachedFixtures = await storage.getCachedFixturesByDate(date);
       if (cachedFixtures && cachedFixtures.length > 0) {
+        const now = new Date();
         const cacheTime = new Date(cachedFixtures[0].timestamp);
-        const cacheAge = currentTime - cacheTime.getTime();
+        const cacheAge = now.getTime() - cacheTime.getTime();
 
-        // Use database cache if it's relatively fresh
-        if (cacheAge < maxAge * 2) {
-          console.log(`📦 [Routes] Using database cached fixtures for ${date} (age: ${Math.floor(cacheAge / 60000)}min)`);
-          const fixtures = cachedFixtures.map(f => f.data);
+        // Use smart cache durations based on date - EXTENDED CACHE TIMES
+        const today = new Date().toISOString().split("T")[0];
+        const isPastDate = date < today;
+        const isToday = date === today;
 
-          // Update in-memory cache
-          fixturesCache.set(cacheKey, {
-            data: fixtures,
-            timestamp: currentTime
-          });
+        // Past dates: 7 days cache (matches are finished and stable)
+        // Today: 2 hours cache (only live matches need frequent updates)
+        // Future dates: 12 hours cache cache (schedules rarely change)
+        const maxCacheAge = isPastDate
+          ? 7 * 24 * 60 * 60 * 1000
+          : isToday
+            ? 2 * 60 * 60 * 1000
+            : 12 * 60 * 60 * 1000;
 
-          return res.json(fixtures);
+        // Check if we have cached data that's not too old
+        const cached = fixturesCache.get(cacheKey);
+        const currentTime = Date.now();
+        const maxAge = isToday ? LIVE_DATA_CACHE_DURATION : isPast ? PAST_DATA_CACHE_DURATION : FUTURE_DATA_CACHE_DURATION;
+
+        // For timeout prevention, return slightly stale cache if available
+        const emergencyMaxAge = maxAge * 2; // Double the max age for emergency fallback
+
+        if (cached && currentTime - cached.timestamp < maxAge) {
+          console.log(`📦 [Routes] Using cached fixtures for ${date} (age: ${Math.floor((currentTime - cached.timestamp) / 60000)}min, maxAge: ${Math.floor(maxAge / 60000)}min)`);
+          return res.json(cached.data);
+        }
+
+        // Emergency fallback: if we have cached data within emergency max age, use it to prevent timeouts
+        if (cached && currentTime - cached.timestamp < emergencyMaxAge) {
+          console.log(`⚡ [Routes] Using emergency cached fixtures for ${date} (age: ${Math.floor((currentTime - cached.timestamp) / 60000)}min) to prevent timeout`);
+
+          // Return cached data immediately but trigger background refresh
+          setTimeout(() => {
+            console.log(`🔄 [Routes] Background refresh triggered for ${date}`);
+            // This will update cache for next request
+          }, 100);
+
+          return res.json(cached.data);
+        } else {
+          console.log(
+            `⏰ [Routes] Cache expired for date ${date} (age: ${Math.round(cacheAge / 60000)}min > maxAge: ${Math.round(maxAge / 60000)}min)`,
+          );
         }
       }
 
-      // If we reach here, we need fresh data - but use timeout protection
-      const fetchPromise = fetchFixturesWithTimeout(date, all === "true");
+      let fetchedFreshData = false;
 
-      try {
-        const uniqueFixtures = await Promise.race([
-          fetchPromise,
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Timeout')), 45000) // 45 second timeout
-          )
-        ]);
+      // Calculate date ranges for multiple timezones
+      const targetDate = new Date(date + "T00:00:00Z");
+      const previousDay = new Date(targetDate);
+      previousDay.setDate(previousDay.getDate() - 1);
+      const nextDay = new Date(targetDate);
+      nextDay.setDate(nextDay.getDate() + 1);
 
-        // Cache the results
-        fixturesCache.set(cacheKey, {
-          data: uniqueFixtures,
-          timestamp: currentTime
-        });
+      // Format dates for API calls
+      const datesToFetch = [
+        previousDay.toISOString().split("T")[0],
+        date,
+        nextDay.toISOString().split("T")[0],
+      ];
 
-        console.log(`✅ [Routes] Returning ${uniqueFixtures.length} fresh fixtures for ${date}`);
-        return res.json(uniqueFixtures);
+      console.log(
+        `🌍 [Routes] Fetching fixtures for multi-timezone coverage:`,
+        datesToFetch,
+      );
 
-      } catch (timeoutError) {
-        console.log(`⏰ [Routes] Request timed out, returning stale cache for ${date}`);
+      let allFixtures: any[] = [];
 
-        // Return any available cached data, even if stale
-        if (cachedFixtures && cachedFixtures.length > 0) {
-          const fixtures = cachedFixtures.map(f => f.data);
-          return res.json(fixtures);
+      // Fetch fixtures for each date to cover all timezones
+      for (const fetchDate of datesToFetch) {
+        try {
+          let dateFixtures: any[] = [];
+
+          if (all === "true") {
+            dateFixtures = await rapidApiService.getFixturesByDate(
+              fetchDate,
+              true,
+            );
+            fetchedFreshData = true;
+          } else {
+            const popularLeagues = [2, 3, 15, 39, 140, 135, 78, 848];
+            dateFixtures = await rapidApiService.getFixturesByDate(
+              fetchDate,
+              false,
+            );
+            dateFixtures = dateFixtures.filter((fixture) =>
+              popularLeagues.includes(fixture.league.id),
+            );
+            fetchedFreshData = true;
+          }
+
+          console.log(
+            `📅 [Routes] Got ${dateFixtures.length} fixtures for ${fetchDate}`,
+          );
+          allFixtures = [...allFixtures, ...dateFixtures];
+        } catch (error) {
+          console.error(`Error fetching fixtures for ${fetchDate}:`, error);
+          continue;
         }
-
-        // Last resort: return empty array
-        return res.json([]);
       }
 
+      // Remove duplicates based on fixture ID
+      const uniqueFixtures = allFixtures.filter(
+        (fixture, index, self) =>
+          index === self.findIndex((f) => f.fixture.id === fixture.fixture.id),
+      );
+
+      console.log(
+        `📊 [Routes] Multi-timezone fetch results: ${allFixtures.length} total, ${uniqueFixtures.length} unique fixtures`,
+      );
+
+      // Cache the multi-timezone fixtures with World competition priority (only for fresh data)
+      if (fetchedFreshData && allFixtures.length > 0) {
+        // Only cache if we fetched fresh data
+        for (const fixture of uniqueFixtures) {
+          try {
+            const fixtureId = `${cacheKey}:${fixture.fixture.id}`;
+            const isWorldFixture =
+              fixture.league?.country === "World" ||
+              fixture.league?.country === "Europe" ||
+              fixture.league?.name?.toLowerCase().includes("fifa") ||
+              fixture.league?.name?.toLowerCase().includes("uefa");
+
+            const existingFixture = await storage.getCachedFixture(fixtureId);
+
+            if (existingFixture) {
+              await storage.updateCachedFixture(fixtureId, fixture);
+              // Only log World competition updates for LIVE matches to reduce noise
+              if (
+                isWorldFixture &&
+                ["LIVE", "1H", "HT", "2H", "ET", "BT", "P"].includes(
+                  fixture.fixture?.status?.short,
+                )
+              ) {
+                console.log(
+                  `🌍 [Routes] Updated LIVE World competition fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${fixture.fixture.status.short})`,
+                );
+              }
+            } else {
+              await storage.createCachedFixture({
+                fixtureId: fixtureId,
+                data: fixture,
+                league: cacheKey,
+                date: date,
+              });
+              // Only log new World fixtures on first cache, not every refresh
+              if (isWorldFixture) {
+                console.log(
+                  `🌍 [Routes] Cached new World competition fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+              }
+            }
+          } catch (error) {
+            const individualError = error as Error;
+            console.error(
+              `Error caching fixture ${fixture.fixture.id}:`,
+              individualError.message,
+            );
+          }
+        }
+      } else if (!fetchedFreshData) {
+        console.log(
+          `📦 [Routes] Skipped caching - using existing cached data for ${date}`,
+        );
+      }
+
+      console.log(
+        `✅ [Routes] Returning ${uniqueFixtures.length} multi-timezone fixtures for ${date}`,
+      );
+      return res.json(uniqueFixtures);
+      // Fallback to cached fixtures if API fails
+      if (cachedFixtures && cachedFixtures.length > 0) {
+        console.log(
+          `📦 [Routes] Returning ${cachedFixtures.length} stale cached fixtures for ${date}`,
+        );
+        return res.json(cachedFixtures.map((fixture) => fixture.data));
+      }
+
+      console.log(
+        `📭 [Routes] No fixtures found for multi-timezone request: ${date}`,
+      );
+      return res.json([]);
     } catch (error) {
-      console.error("Error fetching fixtures:", error);
+      console.error("Error fetching multi-timezone fixtures:", error);
       return res.json([]);
     }
   });
-
-  // Helper function to fetch fixtures with better error handling
-  async function fetchFixturesWithTimeout(date: string, allLeagues: boolean) {
-    const targetDate = new Date(date + "T00:00:00Z");
-    const previousDay = new Date(targetDate);
-    previousDay.setDate(previousDay.getDate() - 1);
-    const nextDay = new Date(targetDate);
-    nextDay.setDate(nextDay.getDate() + 1);
-
-    const datesToFetch = [
-      previousDay.toISOString().split("T")[0],
-      date,
-      nextDay.toISOString().split("T")[0],
-    ];
-
-    let allFixtures: any[] = [];
-
-    // Fetch with Promise.all but with individual timeout handling
-    const fetchPromises = datesToFetch.map(async (fetchDate) => {
-      try {
-        const fixtures = await rapidApiService.getFixturesByDate(fetchDate, allLeagues);
-        console.log(`📅 [Routes] Got ${fixtures.length} fixtures for ${fetchDate}`);
-        return fixtures;
-      } catch (error) {
-        console.error(`Error fetching fixtures for ${fetchDate}:`, error);
-        return [];
-      }
-    });
-
-    const results = await Promise.all(fetchPromises);
-    allFixtures = results.flat();
-
-    // Remove duplicates based on fixture ID
-    const uniqueFixtures = allFixtures.filter(
-      (fixture, index, self) =>
-        index === self.findIndex((f) => f.fixture.id === fixture.fixture.id),
-    );
-
-    return uniqueFixtures;
-  }
 
   apiRouter.get("/fixtures/:id", async (req: Request, res: Response) => {
     try {
@@ -789,13 +836,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
               id: 39,
               name: "Premier League",
               type: "League",
-              logo: "https://media.api.sports.io/football/leagues/39.png",
+              logo: "https://media.api-sports.io/football/leagues/39.png",
               country: "England",
             },
             country: {
               name: "England",
               code: "GB",
-              flag: "https://media.api.sports.io/flags/gb.svg",
+              flag: "https://media.api-sports.io/flags/gb.svg",
             },
           },
           {
@@ -804,13 +851,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 name: "Bundesliga",
               type: "League",
-              logo: "https://media.api.sports.io/football/leagues/78.png",
+              logo: "https://media.api-sports.io/football/leagues/78.png",
               country: "Germany",
             },
             country: {
               name: "Germany",
               code: "DE",
-              flag: "https://media.api.sports.io/flags/de.svg",
+              flag: "https://media.api-sports.io/flags/de.svg",
             },
           },
           {
@@ -818,13 +865,13 @@ name: "Bundesliga",
               id: 2,
               name: "UEFA Champions League",
               type: "Cup",
-              logo: "https://media.api.sports.io/football/leagues/2.png",
+              logo: "https://media.api-sports.io/football/leagues/2.png",
               country: "World",
             },
             country: {
               name: "World",
               code: "WO",
-              flag: "https://media.api.sports.io/flags/wo.svg",
+              flag: "https://media.api-sports.io/flags/wo.svg",
             },
           },
         ]);
@@ -981,92 +1028,88 @@ name: "Bundesliga",
 
 
 // Popular teams endpoint
-  app.get('/api/teams/popular', async (req, res) => {
-    try {
-      console.log('API: Fetching popular teams');
+app.get('/api/teams/popular', async (req, res) => {
+  try {
+    // Set proper JSON content type header
+    res.setHeader('Content-Type', 'application/json');
 
-      // Set proper content type header
-      res.setHeader('Content-Type', 'application/json');
+    // Return popular teams with correct structure
+    const popularTeams = [
+      {
+        team: { id: 33, name: "Manchester United", logo: "https://media.api-sports.io/football/teams/33.png" },
+        country: { name: "England" },
+        popularity: 95,
+      },
+      {
+        team: { id: 40, name: "Liverpool", logo: "https://media.api-sports.io/football/teams/40.png" },
+        country: { name: "England" },
+        popularity: 92,
+      },
+      {
+        team: { id: 50, name: "Manchester City", logo: "https://media.api-sports.io/football/teams/50.png" },
+        country: { name: "England" },
+        popularity: 90,
+      },
+      {
+        team: { id: 541, name: "Real Madrid", logo: "https://media.api-sports.io/football/teams/541.png" },
+        country: { name: "Spain" },
+        popularity: 88,
+      },
+      {
+        team: { id: 529, name: "FC Barcelona", logo: "https://media.api-sports.io/football/teams/529.png" },
+        country: { name: "Spain" },
+        popularity: 85,
+      },
+      {
+        team: { id: 42, name: "Arsenal", logo: "https://media.api-sports.io/football/teams/42.png" },
+        country: { name: "England" },
+        popularity: 83,
+      },
+      {
+        team: { id: 49, name: "Chelsea", logo: "https://media.api-sports.io/football/teams/49.png" },
+        country: { name: "England" },
+        popularity: 80,
+      },
+      {
+        team: { id: 157, name: "Bayern Munich", logo: "https://media.api-sports.io/football/teams/157.png" },
+        country: { name: "Germany" },
+        popularity: 78,
+      },
+      {
+        team: { id: 47, name: "Tottenham", logo: "https://media.api-sports.io/football/teams/47.png" },
+        country: { name: "England" },
+        popularity: 75,
+      },
+      {
+        team: { id: 489, name: "AC Milan", logo: "https://media.api-sports.io/football/teams/489.png" },
+        country: { name: "Italy" },
+        popularity: 68,
+      },
+      {
+        team: { id: 496, name: "Juventus", logo: "https://media.api-sports.io/football/teams/496.png" },
+        country: { name: "Italy" },
+        popularity: 65,
+      },
+      {
+        team: { id: 165, name: "Borussia Dortmund", logo: "https://media.api-sports.io/football/teams/165.png" },
+        country: { name: "Germany" },
+        popularity: 62,
+      },
+      {
+        team: { id: 85, name: "Paris Saint Germain", logo: "https://media.api-sports.io/football/teams/85.png" },
+        country: { name: "France" },
+        popularity: 60,
+      }
+    ];
 
-      // Return popular teams with correct structure
-      const popularTeams = [
-        {
-          team: { id: 33, name: "Manchester United", logo: "https://media.api.sports.io/football/teams/33.png" },
-          country: { name: "England" },
-          popularity: 95,
-        },
-        {
-          team: { id: 40, name: "Liverpool", logo: "https://media.api.sports.io/football/teams/40.png" },
-          country: { name: "England" },
-          popularity: 92,
-        },
-        {
-          team: { id: 50, name: "Manchester City", logo: "https://media.api.sports.io/football/teams/50.png" },
-          country: { name: "England" },
-          popularity: 90,
-        },
-        {
-          team: { id: 541, name: "Real Madrid", logo: "https://media.api.sports.io/football/teams/541.png" },
-          country: { name: "Spain" },
-          popularity: 88,
-        },
-        {
-          team: { id: 529, name: "FC Barcelona", logo: "https://media.api.sports.io/football/teams/529.png" },
-          country: { name: "Spain" },
-          popularity: 85,
-        },
-        {
-          team: { id: 42, name: "Arsenal", logo: "https://media.api.sports.io/football/teams/42.png" },
-          country: { name: "England" },
-          popularity: 83,
-        },
-        {
-          team: { id: 49, name: "Chelsea", logo: "https://media.api.sports.io/football/teams/49.png" },
-          country: { name: "England" },
-          popularity: 80,
-        },
-        {
-          team: { id: 157, name: "Bayern Munich", logo: "https://media.api.sports.io/football/teams/157.png" },
-          country: { name: "Germany" },
-          popularity: 78,
-        },
-        {
-          team: { id: 47, name: "Tottenham", logo: "https://media.api.sports.io/football/teams/47.png" },
-          country: { name: "England" },
-          popularity: 75,
-        },
-        {
-          team: { id: 489, name: "AC Milan", logo: "https://media.api.sports.io/football/teams/489.png" },
-          country: { name: "Italy" },
-          popularity: 68,
-        },
-        {
-          team: { id: 496, name: "Juventus", logo: "https://media.api.sports.io/football/teams/496.png" },
-          country: { name: "Italy" },
-          popularity: 65,
-        },
-        {
-          team: { id: 165, name: "Borussia Dortmund", logo: "https://media.api.sports.io/football/teams/165.png" },
-          country: { name: "Germany" },
-          popularity: 62,
-        },
-        {
-          team: { id: 85, name: "Paris Saint Germain", logo: "https://media.api.sports.io/football/teams/85.png" },
-          country: { name: "France" },
-          popularity: 60,
-        }
-      ];
-
-      console.log(`API: Returning ${popularTeams.length} popular teams`);
-      res.status(200).json(popularTeams);
-    } catch (error) {
-      console.error('Error fetching popular teams:', error);
-      res.status(500).json({
-        error: 'Failed to fetch popular teams',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-    });
+    console.log(`✅ [API] Returning ${popularTeams.length} popular teams`);
+    res.json(popularTeams);
+  } catch (error) {
+    console.error('❌ [API] Error fetching popular teams:', error);
+    res.setHeader('Content-Type', 'application/json');
+    res.status(500).json({ error: 'Failed to fetch popular teams' });
+  }
+});
 
 
         if (cachedTopScorers) {
@@ -1902,7 +1945,7 @@ name: "Bundesliga",
 
         // Try multiple logo sources
         const logoUrls = [
-          `https://media.api.sports.io/football/teams/${teamId}.png`,
+          `https://media.api-sports.io/football/teams/${teamId}.png`,
           `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${teamId}`,
           `https://api.sportradar.com/soccer-images/production/competitors/${teamId}/logo.png`,
         ];
@@ -2164,7 +2207,9 @@ name: "Bundesliga",
         res.status(500).json({
           success: false,
           error:
-            error instanceof Error ? error.message : "Failed to fetch fixtures by country",
+            error instanceof Error
+              ? error.message
+              : "Failed to fetch fixtures by country",
         });
       }
     },
@@ -2440,7 +2485,7 @@ name: "Bundesliga",
             {
               headers: {
                 "X-RapidAPI-Key": process.env.RAPID_API_KEY || "",
-                "X-RapidAPI-Host": "v3.football.api-sports.io",
+                "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
               },
             },
           );
@@ -3171,7 +3216,7 @@ error) {
           id: fixtureId
         },
         headers: {
-          'X-RapidAPI-Key': RAPID_API_KEY,
+          'X-RapidAPI-Key': RAPIDAPI_KEY,
           'X-RapidAPI-Host': 'v3.football.api-sports.io'
         }
       });
@@ -3291,7 +3336,7 @@ error) {
   app.get('/api/players/:playerId/heatmap', async (req, res) => {
     try {
       const { playerId } = req.params;
-      const { eventId, playerName, teamName, matchDate } = req.query;
+      const { eventId, playerName, teamName, homeTeam, awayTeam, matchDate } = req.query;
 
       let sofaScorePlayerId = parseInt(playerId);
       let sofaScoreEventId = eventId ? parseInt(eventId as string) : null;

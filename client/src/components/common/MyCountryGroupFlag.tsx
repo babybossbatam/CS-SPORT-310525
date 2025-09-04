@@ -140,7 +140,7 @@ const MyCountryGroupFlag: React.FC<MyCountryGroupFlagProps> = ({
     
     if (!isNational && teamId) {
       const logoSources = getTeamLogoSources({ id: teamId, name: teamName }, false);
-      return logoSources[0]?.url || fallbackUrl || "/assets/fallback.png";
+      return logoSources[0]?.url || fallbackUrl || "/assets/fallback-logo.svg";
     }
     return getCircleFlagUrl(teamName, fallbackUrl);
   };
@@ -167,7 +167,7 @@ const MyCountryGroupFlag: React.FC<MyCountryGroupFlagProps> = ({
     }
 
     // Final fallback
-    return fallbackUrl || "/assets/fallback.png";
+    return fallbackUrl || "/assets/fallback-logo.svg";
   };
 
   // Fetch next match info if not provided

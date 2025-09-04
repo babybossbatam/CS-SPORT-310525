@@ -618,7 +618,6 @@ const manualRoundTranslations = {
 const translations = {
   en: {
     today_matches: "Today's Matches",
-    today_matches_by_country: "Today's Football Matches by Country",
     yesterday_matches: "Yesterday's Matches",
     tomorrow_matches: "Tomorrow's Matches",
     live_matches: "Live Matches",
@@ -685,14 +684,6 @@ const translations = {
     leagues_cup: "Leagues Cup",
     world: "World",
     ended: "Ended",
-    friendlies_clubs: "Club Friendlies",
-    uefa_europa_league: "UEFA Europa League",
-    uefa_europa_conference_league: "UEFA Europa Conference League",
-    uefa_champions_league: "UEFA Champions League",
-    copa_do_brasil: "Copa do Brasil",
-    primera_a_colombia: "Primera A Colombia",
-    bayern_münchen: "Bayern Munich",
-    tottenham: "Tottenham",
     won_on_penalties: "won on penalties",
     on_penalties: "on penalties",
     tomorrow: "Tomorrow",
@@ -728,6 +719,9 @@ const translations = {
     pre_season: "Pre-Season",
     club_friendlies: "Club Friendlies",
     after_extra_time: "After Extra Time",
+    starting_now: "Starting now",
+    day: "Day",
+    days: "Days",
     match_page: "Match Page",
     lineups: "Lineups",
     stats: "Stats",
@@ -735,7 +729,6 @@ const translations = {
   },
   "en-us": {
     today_matches: "Today's Games",
-    today_matches_by_country: "Today's Football Games by Country",
     yesterday_matches: "Yesterday's Games",
     tomorrow_matches: "Tomorrow's Games",
     live_matches: "Live Games",
@@ -835,7 +828,6 @@ const translations = {
   },
   es: {
     today_matches: "Partidos de Hoy",
-    today_matches_by_country: "Partidos de Fútbol de Hoy por País",
     yesterday_matches: "Partidos de Ayer",
     tomorrow_matches: "Partidos de Mañana",
     live_matches: "Partidos en Vivo",
@@ -954,7 +946,6 @@ const translations = {
   },
   "zh-hk": {
     today_matches: "今天的比賽",
-    today_matches_by_country: "今天按國家分類的足球比賽",
     yesterday_matches: "昨天的比賽",
     tomorrow_matches: "明天的比賽",
     live_matches: "即時比賽",
@@ -1017,7 +1008,9 @@ const translations = {
     november: "十一月",
     december: "十二月",
     popular_football_leagues: "熱門足球聯賽",
+
     popular_football_teams: "熱門足球隊",
+
     leagues_cup: "聯賽盃",
     world: "世界",
     ended: "已結束",
@@ -1071,7 +1064,6 @@ const translations = {
   },
   zh: {
     today_matches: "今天的比赛",
-    today_matches_by_country: "今天按国家分类的足球比赛",
     yesterday_matches: "昨天的比赛",
     tomorrow_matches: "明天的比赛",
     live_matches: "直播比赛",
@@ -1177,7 +1169,6 @@ const translations = {
   },
   de: {
     today_matches: "Heutige Spiele",
-    today_matches_by_country: "Heutige Fußballspiele nach Land",
     yesterday_matches: "Gestrige Spiele",
     tomorrow_matches: "Morgige Spiele",
     live_matches: "Live-Spiele",
@@ -1296,7 +1287,6 @@ const translations = {
   },
   it: {
     today_matches: "Partite di Oggi",
-    today_matches_by_country: "Partite di Calcio di Oggi per Paese",
     yesterday_matches: "Partite di Ieri",
     tomorrow_matches: "Partite di Domani",
     live_matches: "Partite in Diretta",
@@ -1364,7 +1354,7 @@ const translations = {
     ended: "Finita",
     no_matches_available: "Nessuna partita disponibile",
     no_live_matches_main:
-      "Non succede spesso, but al momento non ci sono partite in diretta.",
+      "Non succede spesso, ma al momento non ci sono partite in diretta.",
     check_later: "Controlla più tardi",
     see_all_matches: "Vedi Tutte le Partite",
     friendlies_clubs: "Amichevoli di Club",
@@ -1415,7 +1405,6 @@ const translations = {
   },
   pt: {
     today_matches: "Jogos de Hoje",
-    today_matches_by_country: "Jogos de Futebol de Hoje por País",
     yesterday_matches: "Jogos de Ontem",
     tomorrow_matches: "Jogos de Amanhã",
     live_matches: "Jogos ao Vivo",
@@ -1534,7 +1523,6 @@ const translations = {
   },
   "zh-tw": {
     today_matches: "今天的比賽",
-    today_matches_by_country: "今天依國家分類的足球比賽",
     yesterday_matches: "昨天的比賽",
     tomorrow_matches: "明天的比賽",
     live_matches: "即時比賽",
@@ -1551,11 +1539,11 @@ const translations = {
     basketball: "籃球",
     tv: "電視",
     horse_racing: "賽馬",
-    snooker: "撞球",
+    snooker: "桌球",
     esports: "電子競技",
     handball: "手球",
     volleyball: "排球",
-    rugby: "橄欖球",
+    rugby: "欖球",
     hockey: "曲棍球",
     american_football: "美式足球",
     settings: "設定",
@@ -1564,7 +1552,7 @@ const translations = {
     finished: "結束",
     not_started: "未開始",
     featured_match: "精選比賽",
-    by_time: "依時間",
+    by_time: "按時間",
     sun: "日",
     mon: "一",
     tue: "二",

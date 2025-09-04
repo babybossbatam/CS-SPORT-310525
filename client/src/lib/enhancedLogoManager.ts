@@ -79,7 +79,7 @@ class EnhancedLogoManager {
         logoUrl = getCachedTeamLogo(request.teamId, sport) || `/api/team-logo/square/${request.teamId}?size=64&sport=${sport}`;
       }
 
-      if (!logoUrl || logoUrl.includes('fallback') || logoUrl.includes('placeholder.com') || logoUrl.includes('placeholder')) {
+      if (!logoUrl || logoUrl.includes('fallback') || logoUrl.includes('placeholder.com')) {
         logoUrl = request.fallbackUrl || '/assets/fallback-logo.svg';
         fallbackUsed = true;
       }

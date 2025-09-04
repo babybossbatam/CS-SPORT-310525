@@ -158,11 +158,6 @@ class SmartLeagueTranslation {
 
     return leagueName;
   }
-
-  clearCache(): void {
-    this.leagueCache.clear();
-    console.log('🧹 [SmartLeagueTranslation] Cache cleared');
-  }
 }
 
 // Create singleton instance

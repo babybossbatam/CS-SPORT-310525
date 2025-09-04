@@ -28,9 +28,8 @@ export function getTeamLogoSources(team: TeamData, isNationalTeam = false, sport
     });
   }
 
-  // Original team logo - only if it's not a placeholder
-  if (team?.logo && typeof team.logo === 'string' && team.logo.trim() !== '' && 
-      !team.logo.includes('placeholder') && !team.logo.includes('fallback')) {
+  // Original team logo
+  if (team?.logo && typeof team.logo === 'string' && team.logo.trim() !== '') {
     sources.push({
       url: team.logo,
       source: 'api-sports-original',
@@ -82,7 +81,7 @@ export function getTeamLogoSources(team: TeamData, isNationalTeam = false, sport
 
   // Final fallback
   sources.push({
-    url: '/assets/fallback.png',
+    url: '/assets/fallback-logo.png',
     source: 'fallback',
     priority: 999
   });

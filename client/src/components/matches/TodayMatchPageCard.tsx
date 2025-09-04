@@ -27,8 +27,6 @@ import {
   isRestrictedUSLeague,
 } from "@/lib/MyPopularLeagueExclusion";
 
-// Import MyRightContent
-import MyRightContent from "../layout/MyRightContent";
 
 
 interface TodayMatchPageCardProps {
@@ -158,7 +156,7 @@ export const TodayMatchPageCard = ({
         const dayOfWeek = format(date, 'EEEE');
         const dayKey = dayOfWeek.toLowerCase();
         const translatedDay = t(dayKey) !== dayKey ? t(dayKey) : dayOfWeek;
-
+        
         // Format as "週五, 8月8日" style
         return `${translatedDay}, ${format(date, 'M月d日')}`;
       } else {
@@ -498,11 +496,6 @@ export const TodayMatchPageCard = ({
             timeFilterActive={timeFilterActive}
             onMatchCardClick={onMatchCardClick}
           />
-
-          {/* Render MyRightContent below TodaysMatchesByCountryNew on mobile */}
-          <div className="md:hidden">
-            <MyRightContent />
-          </div>
 
         </>
       )

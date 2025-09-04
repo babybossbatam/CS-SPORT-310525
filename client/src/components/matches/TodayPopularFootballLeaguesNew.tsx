@@ -375,7 +375,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     }
   };
 
-  // Simple cache detection
+  // Smart cache detection
   const shouldUseCache = (date: string): boolean => {
     const today = getCurrentUTCDateString();
     const isPastDate = date < today;
@@ -604,7 +604,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       const isPopularLeague = POPULAR_LEAGUE_IDS.includes(leagueId);
 
       // Check if country is excluded
-      const isExcludedCountry = EXCLUDED_COUNTRIES.some(excludedCountry =>
+      const isExcludedCountry = EXCLUDED_COUNTRIES.some(excludedCountry => 
         country.includes(excludedCountry.toLowerCase())
       );
 
