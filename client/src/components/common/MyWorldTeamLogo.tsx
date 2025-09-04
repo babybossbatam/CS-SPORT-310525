@@ -296,7 +296,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       if (teamId && teamName) {
         try {
           console.log(`🎯 [MyWorldTeamLogo] Fetching enhanced logo for team: ${teamName} (ID: ${teamId}), shouldUseCircularFlag: ${shouldUseCircularFlag}`);
-          
+
           // For national teams that should use circular flags, don't use enhanced manager
           if (shouldUseCircularFlag) {
             console.log(`🌍 [MyWorldTeamLogo] Skipping enhanced manager for national team: ${teamName}`);
@@ -328,7 +328,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
           setResolvedLogoUrl(logoResponse.url);
         } catch (error) {
           console.warn(`⚠️ [MyWorldTeamLogo] Enhanced logo failed for ${teamName}, using fallback:`, error);
-          
+
           // For national teams, don't try server proxy fallback
           if (shouldUseCircularFlag) {
             console.log(`🌍 [MyWorldTeamLogo] National team fallback for ${teamName}, using original logoUrl`);
@@ -372,7 +372,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       hasTeamId: !!teamId,
       isServerProxy: resolvedLogoUrl.includes('/api/team-logo/')
     });
-    
+
     // Try different logo sources if teamId is available
     if (teamId && !resolvedLogoUrl.includes('/api/team-logo/')) {
       const fallbackUrl = `/api/team-logo/square/${teamId}?size=32`;
