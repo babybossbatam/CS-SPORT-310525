@@ -523,57 +523,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
 
 
-  // Enhanced international competition detection for Friendlies Clubs and other competitions
-  const isInternationalCompetition = (leagueName?: string, leagueId?: number | string) => {
-    if (!leagueName && !leagueId) return false;
-    
-    const leagueNameLower = leagueName?.toLowerCase() || '';
-    const numericLeagueId = typeof leagueId === 'string' ? parseInt(leagueId) : leagueId;
-    
-    // Direct league ID checks for international competitions
-    const internationalLeagueIds = [
-      667, // Friendlies Clubs
-      1, 2, 3, 4, 5, 15, 16, 17, // Major international tournaments
-      38, 848, 914, 1038, 940, 1169, // Various international competitions
-      9, 11, 13, // CONMEBOL competitions (Copa America, Libertadores, Sudamericana)
-      128, 129, 130, // More CONMEBOL
-      536, 858, 859, // CONCACAF competitions
-      531, 533, 534, // Other continental competitions
-    ];
-    
-    if (numericLeagueId && internationalLeagueIds.includes(numericLeagueId)) {
-      return true;
-    }
-    
-    // Name-based detection for international competitions
-    return leagueNameLower.includes('friendlies') ||
-           leagueNameLower.includes('international') ||
-           leagueNameLower.includes('champions league') ||
-           leagueNameLower.includes('europa league') ||
-           leagueNameLower.includes('conference league') ||
-           leagueNameLower.includes('uefa') ||
-           leagueNameLower.includes('world cup') ||
-           leagueNameLower.includes('fifa') ||
-           leagueNameLower.includes('conmebol') ||
-           leagueNameLower.includes('copa america') ||
-           leagueNameLower.includes('copa libertadores') ||
-           leagueNameLower.includes('copa sudamericana') ||
-           leagueNameLower.includes('libertadores') ||
-           leagueNameLower.includes('sudamericana') ||
-           leagueNameLower.includes('concacaf') ||
-           leagueNameLower.includes('gold cup') ||
-           leagueNameLower.includes('nations league') ||
-           leagueNameLower.includes('confederations') ||
-           leagueNameLower.includes('olympics') ||
-           leagueContext?.country?.toLowerCase().includes('world') ||
-           leagueContext?.country?.toLowerCase().includes('europe') ||
-           leagueContext?.country?.toLowerCase().includes('international');
-  };
-
   // Use MyWorldTeamLogo if team information is provided and useTeamLogo is true
-  // Also use it for international competitions (especially Friendlies Clubs)
-  if ((useTeamLogo && teamId && teamName) || 
-      (teamId && teamName && isInternationalCompetition(leagueContext?.name, teamId))) {
+  if (useTeamLogo && teamId && teamName) {
     return (
       <MyWorldTeamLogo
         teamName={teamName}
