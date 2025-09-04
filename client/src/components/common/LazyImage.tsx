@@ -5,16 +5,7 @@ import { useDeviceInfo } from "@/hooks/use-mobile";
 import { getTeamLogoSources, TeamData } from '@/lib/teamLogoSources';
 import MyWorldTeamLogo from "./MyWorldTeamLogo";
 
-// Assuming getTeamLogoSources is defined elsewhere and imported
-// For the purpose of this example, let's define a placeholder if it's not in the provided snippet
-const getTeamLogoSources = ({ id, name }): { source: string; url: string }[] => {
-  // Placeholder implementation
-  console.log(`Placeholder getTeamLogoSources called for: ${name} (ID: ${id})`);
-  return [
-    { source: 'external-api', url: `https://example.com/logos/${id}.png` },
-    { source: 'cdn', url: `https://cdn.example.com/teams/${id}.jpg` },
-  ];
-};
+
 
 
 interface LazyImageProps {
