@@ -29,7 +29,7 @@ const circularFlagCache = new Map<string, { result: boolean; timestamp: number }
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 // Generate cache key for shouldUseCircularFlag computation
-function generateCacheKey(teamName: string, leagueContext?: { name: string; country: string }): string {
+function generateCacheKey(teamName: string, leagueContext?: { name?: string; country?: string }): string {
   const leagueName = leagueContext?.name?.toLowerCase() || "";
   const leagueCountry = leagueContext?.country || "";
   return `${teamName}_${leagueName}_${leagueCountry}`;
