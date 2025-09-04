@@ -14,6 +14,7 @@ interface MyCircularFlagProps {
   size?: string;
   className?: string;
   moveLeft?: boolean;
+  sport?: string; // Add sport parameter
   nextMatchInfo?: {
     opponent: string;
     date: string;
@@ -30,6 +31,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   size = "51px",
   className = "",
   moveLeft = false,
+  sport = "football", // Default to football
   nextMatchInfo,
   showNextMatchOverlay = false,
 }) => {
@@ -60,6 +62,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       const logoSources = getTeamLogoSources(
         { id: teamId, name: teamName },
         false,
+        sport
       );
       return logoSources[0]?.url || fallbackUrl || "/assets/fallback-logo.svg";
     }
@@ -282,7 +285,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
             ? createTeamLogoErrorHandler(
                 { id: teamId, name: teamName },
                 false,
-                "football",
+                sport,
               )
             : (e) => {
                 const target = e.target as HTMLImageElement;
