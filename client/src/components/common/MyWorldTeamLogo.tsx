@@ -285,6 +285,10 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       if (teamId && teamName) {
         try {
           console.log(`🎯 [MyWorldTeamLogo] Fetching enhanced logo for team: ${teamName} (ID: ${teamId})`);
+          
+          // Check direct endpoint first
+          const directEndpoint = `/api/team-logo/square/${teamId}?size=64`;
+          console.log(`🔍 [MyWorldTeamLogo] Testing direct endpoint: ${directEndpoint}`);
 
           const logoResponse = await enhancedLogoManager.getTeamLogo('MyWorldTeamLogo', {
             type: 'team',
@@ -298,15 +302,20 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
             url: logoResponse.url,
             cached: logoResponse.cached,
             fallbackUsed: logoResponse.fallbackUsed,
-            loadTime: logoResponse.loadTime + 'ms'
+            loadTime: logoResponse.loadTime + 'ms',
+            isServerProxy: logoResponse.url.includes('/api/team-logo/'),
+            directEndpoint: directEndpoint
           });
 
           setResolvedLogoUrl(logoResponse.url);
         } catch (error) {
           console.warn(`⚠️ [MyWorldTeamLogo] Enhanced logo failed for ${teamName}, using fallback:`, error);
-          setResolvedLogoUrl(logoUrl);
+          console.log(`🔄 [MyWorldTeamLogo] Trying direct server proxy for ${teamName}`);
+          const directFallback = `/api/team-logo/square/${teamId}?size=64`;
+          setResolvedLogoUrl(directFallback);
         }
       } else {
+        console.log(`❌ [MyWorldTeamLogo] Missing teamId or teamName: ${teamName} (${teamId})`);
         setResolvedLogoUrl(logoUrl);
       }
     };
@@ -332,14 +341,38 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   }), []);
 
     const handleImageError = useCallback(() => {
-    console.warn(`⚠️ [MyWorldTeamLogo] Image error for ${teamName}, trying fallback`);
+    console.warn(`⚠️ [MyWorldTeamLogo] Image error for ${teamName}:`, {
+      currentUrl: resolvedLogoUrl,
+      teamId: teamId,
+      hasTeamId: !!teamId,
+      isServerProxy: resolvedLogoUrl.includes('/api/team-logo/')
+    });
     
     // Try different logo sources if teamId is available
     if (teamId && !resolvedLogoUrl.includes('/api/team-logo/')) {
       const fallbackUrl = `/api/team-logo/square/${teamId}?size=32`;
-      console.log(`🔄 [MyWorldTeamLogo] Trying API fallback: ${fallbackUrl}`);
+      console.log(`🔄 [MyWorldTeamLogo] Trying server proxy fallback: ${fallbackUrl}`);
       setResolvedLogoUrl(fallbackUrl);
       return;
+    }
+
+    // Try alternative server proxy sizes
+    if (teamId && resolvedLogoUrl.includes('size=64')) {
+      const smallerFallback = `/api/team-logo/square/${teamId}?size=32`;
+      console.log(`🔄 [MyWorldTeamLogo] Trying smaller size fallback: ${smallerFallback}`);
+      setResolvedLogoUrl(smallerFallback);
+      return;
+    }
+
+    // Try the teamLogoSources alternatives
+    if (teamId && resolvedLogoUrl.includes('/api/team-logo/')) {
+      const sources = getTeamLogoSources({ id: teamId, name: teamName }, false);
+      const nextSource = sources.find(source => source.url !== resolvedLogoUrl);
+      if (nextSource) {
+        console.log(`🔄 [MyWorldTeamLogo] Trying next source: ${nextSource.source} - ${nextSource.url}`);
+        setResolvedLogoUrl(nextSource.url);
+        return;
+      }
     }
 
     // Set final fallback image
