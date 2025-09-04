@@ -268,8 +268,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       });
     }
 
-    // Friendlies Clubs National Team detection
-    const isFriendliesClubsNationalTeam = leagueName.includes("friendlies") && isActualNationalTeam && !isKnownClubTeam && !isYouthTeam;
+    // Friendlies Clubs National Team detection - includes both senior and youth national teams
+    const isFriendliesClubsNationalTeam = leagueName.includes("friendlies") && isActualNationalTeam && !isKnownClubTeam;
     // Determine if it's UEFA Nations League
     const isUefaNationsLeague = leagueName.includes("uefa nations league");
     // Determine if it's World Cup Qualification
@@ -295,8 +295,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                    !isClubYouthTeam &&
                    !isKnownClubTeam &&
                    isActualNationalTeam &&
-                   (isNationalYouthTeam || isWomensNationalTeam || (!isYouthTeam && !teamName?.endsWith(" W"))) && // Allow national youth and women's teams
-                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || isWorldCupQualification || isFriendliesClubsNationalTeam) && // Added isFriendliesClubsNationalTeam
+                   (isNationalYouthTeam || isWomensNationalTeam || (!isYouthTeam && !teamName?.endsWith(" W")) || isFriendliesClubsNationalTeam) && // Allow national youth, women's teams, and friendlies clubs national teams
+                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || isWorldCupQualification || isFriendliesClubsNationalTeam) &&
                    !isFifaClubWorldCup &&
                    !isFriendliesClub &&
                    !isUefaEuropaLeague &&
