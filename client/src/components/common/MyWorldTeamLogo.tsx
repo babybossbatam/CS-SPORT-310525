@@ -266,20 +266,62 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                                   leagueName.includes("sudamericana");
 
 
-    // Use circular flag for national teams in international competitions
-    // BUT: Force club teams to ALWAYS use club logos regardless of league context
-    const result = !isStandingsContext &&
-                   !isClubYouthTeam &&
-                   !isKnownClubTeam &&
-                   isActualNationalTeam &&
-                   (isNationalYouthTeam || isWomensNationalTeam || (!isYouthTeam && !teamName?.endsWith(" W")) || isFriendliesClubsNationalTeam) && // Allow national youth, women's teams, and friendlies clubs national teams
-                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || isWorldCupQualification || isFriendliesClubsNationalTeam || isKingsCup || isCAFANationsCup || isUefaU21Qualification || isWorldCupQualificationAfrica || isWorldCupQualificationEurope || isWorldCupQualificationSouthAmerica) &&
-                   !isFifaClubWorldCup &&
-                   !isFriendliesClub &&
-                   !isUefaEuropaLeague &&
-                   !isUefaConferenceLeague &&
-                   !isUefaChampionsLeague &&
-                   !isConmebolSudamericana;
+    // Simplified logic: Use circular flag for national teams in international competitions
+    // First check: Is this actually a national team?
+    if (!isActualNationalTeam) {
+      console.log(`🏟️ [MyWorldTeamLogo] ${teamName} is not a national team - using club logo`);
+      const result = false;
+      circularFlagCache.set(cacheKey, { result, timestamp: now });
+      return result;
+    }
+
+    // Second check: Is this a known club team? (Force club teams to use club logos)
+    if (isKnownClubTeam || isClubYouthTeam) {
+      console.log(`🏟️ [MyWorldTeamLogo] ${teamName} is a known club team - using club logo`);
+      const result = false;
+      circularFlagCache.set(cacheKey, { result, timestamp: now });
+      return result;
+    }
+
+    // Third check: Is this in a standings context?
+    if (isStandingsContext) {
+      console.log(`📊 [MyWorldTeamLogo] ${teamName} in standings context - using club logo`);
+      const result = false;
+      circularFlagCache.set(cacheKey, { result, timestamp: now });
+      return result;
+    }
+
+    // Fourth check: Is this in a club competition?
+    if (isFifaClubWorldCup || isUefaChampionsLeague || isUefaEuropaLeague || isUefaConferenceLeague || isConmebolSudamericana || isFriendliesClub) {
+      console.log(`🏆 [MyWorldTeamLogo] ${teamName} in club competition - using club logo`);
+      const result = false;
+      circularFlagCache.set(cacheKey, { result, timestamp: now });
+      return result;
+    }
+
+    // Fifth check: Is this in an international competition?
+    const isInternationalCompetition = isFriendliesInternational || 
+                                      isUefaNationsLeague || 
+                                      isAfcU20AsianCup || 
+                                      isWorldCupQualification || 
+                                      isFriendliesClubsNationalTeam || 
+                                      isKingsCup || 
+                                      isCAFANationsCup || 
+                                      isUefaU21Qualification || 
+                                      isWorldCupQualificationAfrica || 
+                                      isWorldCupQualificationEurope || 
+                                      isWorldCupQualificationSouthAmerica;
+
+    if (!isInternationalCompetition) {
+      console.log(`🌍 [MyWorldTeamLogo] ${teamName} not in international competition - using club logo`);
+      const result = false;
+      circularFlagCache.set(cacheKey, { result, timestamp: now });
+      return result;
+    }
+
+    // If we reach here: it's a national team in an international competition
+    console.log(`🇺🇳 [MyWorldTeamLogo] ${teamName} is national team in international competition - using circular flag`);
+    const result = true;
 
     // Cache the result
     circularFlagCache.set(cacheKey, {
