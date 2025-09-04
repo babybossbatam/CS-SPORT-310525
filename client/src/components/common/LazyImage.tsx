@@ -21,7 +21,6 @@ interface LazyImageProps {
   leagueContext?: {
     name?: string;
     country?: string;
-    id?: number; // Add league ID for detection
   };
   priority?: 'high' | 'medium' | 'low';
 }
@@ -539,86 +538,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
     );
   }
 
-  // Enhanced national team detection for proper MyCircularFlag delegation
-  if (alt && teamName) {
-    // Enhanced national team detection - use the same patterns as MyWorldTeamLogo
-    const isNationalTeamForCircularFlag = (teamName: string): boolean => {
-      const cleanName = teamName.trim();
-      
-      // Common national team patterns - comprehensive list
-      const nationalTeamPatterns = [
-        // Single word countries (including Chad and other African countries)
-        /^(Afghanistan|Albania|Algeria|Angola|Argentina|Australia|Austria|Bahrain|Bangladesh|Belarus|Belgium|Bolivia|Brazil|Bulgaria|Cambodia|Cameroon|Canada|Chad|Chile|China|Colombia|Croatia|Denmark|Ecuador|Egypt|England|Estonia|Ethiopia|Finland|France|Germany|Ghana|Greece|Hungary|Iceland|India|Indonesia|Iran|Iraq|Ireland|Israel|Italy|Jamaica|Japan|Jordan|Kazakhstan|Kenya|Kuwait|Latvia|Lebanon|Libya|Lithuania|Luxembourg|Madagascar|Malaysia|Mali|Malta|Mauritius|Mexico|Morocco|Nepal|Netherlands|Nigeria|Norway|Oman|Pakistan|Panama|Paraguay|Peru|Philippines|Poland|Portugal|Qatar|Romania|Russia|Scotland|Senegal|Serbia|Singapore|Slovakia|Slovenia|Somalia|Spain|Sweden|Switzerland|Syria|Tajikistan|Thailand|Tunisia|Turkey|Ukraine|Uruguay|Venezuela|Vietnam|Wales|Yemen|Zimbabwe)$/i,
-        
-        // Multi-word countries and regions (including African countries)
-        /^(Saudi Arabia|South Africa|South Korea|North Korea|New Zealand|Costa Rica|El Salvador|United States|United Kingdom|Czech Republic|Bosnia and Herzegovina|North Macedonia|FYR Macedonia|Sierra Leone|Ivory Coast|Burkina Faso|Cape Verde|Central African Republic|Equatorial Guinea|Dominican Republic|Puerto Rico|Trinidad and Tobago|United Arab Emirates|Hong Kong|Chinese Taipei|Guinea-Bissau|Guinea-Bis|Sao Tome and Principe|Equatorial Guinea)$/i,
-        
-        // African countries with common alternative spellings
-        /^(Guinea.?Bissau|Guinea.?Bis|Central.?Africa|Central.?African.?Republic|Sao.?Tome|Equatorial.?Guinea)$/i,
-        
-        // Youth teams
-        /^(.*)\s+(U17|U19|U20|U21|U23)$/i,
-        
-        // Women's teams
-        /^(.*)\s+W$/i
-      ];
-      
-      return nationalTeamPatterns.some(pattern => pattern.test(cleanName));
-    };
-
-    // Check for contexts where national teams should use MyCircularFlag
-    const isInternationalContext = leagueContext?.country === 'World' ||
-                                   leagueContext?.country === 'Europe' ||
-                                   leagueContext?.country === 'International' ||
-                                   (leagueContext?.name && /\b(world cup|qualification|nations league|euro|championship|copa america|olympics|fifa|uefa|conmebol|caf|afc|concacaf|ofc|king's cup|cafa nations)\b/i.test(leagueContext.name));
-
-    const isFriendliesClubs = leagueContext?.id === 667 || 
-                             (leagueContext?.name?.toLowerCase().includes('friendlies') && 
-                              leagueContext?.name?.toLowerCase().includes('clubs'));
-
-    const shouldUseCircularFlag = isNationalTeamForCircularFlag(teamName) && 
-                                 (isInternationalContext || isFriendliesClubs);
-
-    if (shouldUseCircularFlag) {
-      console.log(`🌍 [LazyImage] Delegating to MyCircularFlag for national team: ${teamName} in context: ${leagueContext?.name}`);
-      
-      // Import and use MyCircularFlag dynamically
-      const MyCircularFlag = React.lazy(() => import('./MyCircularFlag'));
-      
-      return (
-        <React.Suspense fallback={
-          <img
-            src={fallbackUrl}
-            alt={alt}
-            className={className}
-            style={{
-              ...style,
-              border: 'none',
-              outline: 'none',
-              display: 'block',
-              opacity: 1,
-              filter: darkMode ? 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))' : 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.8))',
-              ...(style?.width || style?.height ? {} : {
-                width: style?.width || style?.height || (isMobile ? '32px' : '32px'),
-                height: style?.height || style?.width || (isMobile ? '32px' : '32px')
-              })
-            }}
-            loading={shouldPreload ? 'eager' : 'lazy'}
-            decoding="async"
-          />
-        }>
-          <MyCircularFlag
-            teamName={teamName}
-            fallbackUrl={imageSrc}
-            alt={alt}
-            size={style?.width || style?.height || "32px"}
-            className={className}
-          />
-        </React.Suspense>
-      );
-    }
-  }
-
   // Enhanced player image detection and prevention
   if (alt && imageSrc) {
     // Comprehensive player photo URL patterns
@@ -666,9 +585,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
                          alt.toLowerCase().includes('usl') ||
                          alt.toLowerCase().includes('mls') ||
                          alt.toLowerCase().includes('league') ||
-                         // Friendlies contexts
-                         alt.toLowerCase().includes('friendlies') ||
-                         alt.toLowerCase().includes('friendly') ||
                          // Generic team indicators
                          className?.includes('team') ||
                          className?.includes('logo') ||
@@ -681,27 +597,13 @@ const LazyImage: React.FC<LazyImageProps> = ({
                       className?.includes('w-6') || className?.includes('h-6') ||
                       className?.includes('w-8') || className?.includes('h-8');
     
-    // Special handling for Friendlies Clubs - allow national team flags
-    const isFriendliesContext = title?.toLowerCase().includes('friendlies') ||
-                               alt.toLowerCase().includes('friendlies') ||
-                               className?.includes('friendlies');
-    
-    // For Friendlies, check if it's likely a national team
-    const isLikelyNationalTeam = isFriendliesContext && (
-      alt.match(/^[A-Z][a-z]+$/) || // Single word country names like "Brazil", "Spain"
-      alt.includes('U21') || alt.includes('U20') || alt.includes('U19') ||
-      alt.includes(' U21') || alt.includes(' U20') || alt.includes(' U19')
-    );
-    
-    if (isPlayerPhoto && (isTeamContext || isLogoSize) && !isLikelyNationalTeam) {
+    if (isPlayerPhoto && (isTeamContext || isLogoSize)) {
       console.warn(`🚨 [LazyImage] Player photo blocked in team/logo context:`, {
         alt,
         imageSrc,
         originalSrc: src,
         isTeamContext,
         isLogoSize,
-        isFriendliesContext,
-        isLikelyNationalTeam,
         playerPhotoPatterns: {
           playersPath: imageSrc.includes('/players/'),
           athletes: imageSrc.includes('Athletes/'),

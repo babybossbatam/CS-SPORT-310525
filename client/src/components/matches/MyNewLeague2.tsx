@@ -575,31 +575,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   // Get query client for cache management
   const queryClient = useQueryClient();
 
-  // Emergency cache clear function for stuck states
-  const clearEmergencyCache = useCallback(() => {
-    try {
-      // Clear all MyNewLeague2 related queries
-      queryClient.removeQueries({
-        queryKey: ["myNewLeague2"]
-      });
-      
-      // Clear browser cache for this date
-      const cacheKey = `myNewLeague2_${selectedDate}`;
-      localStorage.removeItem(cacheKey);
-      
-      console.log('🧹 [MyNewLeague2] Emergency cache cleared');
-    } catch (error) {
-      console.error('🚨 [MyNewLeague2] Emergency cache clear failed:', error);
-    }
-  }, [queryClient, selectedDate]);
-
-  // Make emergency cache clear available globally for debugging
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      (window as any).clearMyNewLeague2Cache = clearEmergencyCache;
-    }
-  }, [clearEmergencyCache]);
-
   // Cleanup old cache entries on mount to prevent quota issues
   useEffect(() => {
     const cleanupOldCache = () => {
@@ -701,31 +676,24 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     isLoading,
     error,
     isFetching,
-    isError,
   } = useQuery({
     queryKey: ["myNewLeague2", "allFixtures", selectedDate],
-    queryFn: async ({ signal }) => {
-      // Add timeout to prevent infinite loading
-      const timeoutId = setTimeout(() => {
-        signal?.abort?.();
-      }, 30000); // 30 second timeout
-      
-      try {
+    queryFn: async () => {
       console.log(
-          `🎯 [MyNewLeague2] Fetching fixtures for ${leagueIds.length} leagues on ${selectedDate}:`,
-          leagueIds,
-        );
+        `🎯 [MyNewLeague2] Fetching fixtures for ${leagueIds.length} leagues on ${selectedDate}:`,
+        leagueIds,
+      );
 
-        // First, get cached ended matches for all leagues
-        const cachedEndedMatches: FixtureData[] = [];
-        leagueIds.forEach((leagueId) => {
-          const cached = getCachedEndedMatches(selectedDate, leagueId);
-          cachedEndedMatches.push(...cached);
-        });
+      // First, get cached ended matches for all leagues
+      const cachedEndedMatches: FixtureData[] = [];
+      leagueIds.forEach((leagueId) => {
+        const cached = getCachedEndedMatches(selectedDate, leagueId);
+        cachedEndedMatches.push(...cached);
+      });
 
-        console.log(
-          `💾 [MyNewLeague2] Retrieved ${cachedEndedMatches.length} cached ended matches`,
-        );
+      console.log(
+        `💾 [MyNewLeague2] Retrieved ${cachedEndedMatches.length} cached ended matches`,
+      );
 
       // Process leagues in optimized batches
       const batchSize = 5; // Increase concurrent requests for priority leagues
@@ -960,19 +928,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       });
 
       return finalFixtures;
-      } catch (error) {
-        console.error(`🚨 [MyNewLeague2] Query function error:`, error);
-        clearTimeout(timeoutId);
-        throw error;
-      } finally {
-        clearTimeout(timeoutId);
-      }
     },
-    // Apply dynamic cache configuration with timeout
+    // Apply dynamic cache configuration
     ...dynamicCacheConfig,
-    // Add timeout to prevent infinite loading
-    gcTime: 5 * 60 * 1000, // 5 minutes
-    networkMode: 'online',
     // Additional configuration for better UX
     retry: (failureCount, error) => {
       // Don't retry too aggressively for historical data (no refetchInterval)
@@ -1774,12 +1732,11 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   const hasCachedData =
     cachedData && Array.isArray(cachedData) && cachedData.length > 0;
 
-  // Show loading with better error handling - be more specific about loading conditions
+  // Show loading with better error handling
   if (
-    (isLoading || isFetching) && 
+    isLoading && 
     !allFixtures &&
-    !hasCachedData &&
-    !error
+    !hasCachedData
   ) {
     return (
       <>
@@ -1894,32 +1851,15 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     );
   }
 
-  // Add timeout check for stuck loading
-  const [loadingTimeout, setLoadingTimeout] = React.useState(false);
-  
-  React.useEffect(() => {
-    if (isLoading || isFetching) {
-      const timeout = setTimeout(() => {
-        setLoadingTimeout(true);
-        console.warn('🚨 [MyNewLeague2] Loading timeout reached, forcing error state');
-      }, 15000); // 15 second timeout for UI
-      
-      return () => clearTimeout(timeout);
-    } else {
-      setLoadingTimeout(false);
-    }
-  }, [isLoading, isFetching]);
-
-  if ((error || loadingTimeout) && !hasCachedData && Object.keys(fixturesByLeague).length === 0) {
+  if (error && !hasCachedData && Object.keys(fixturesByLeague).length === 0) {
     const isRateLimit =
-      error?.message?.toLowerCase().includes("429") ||
-      error?.message?.toLowerCase().includes("rate limit") ||
-      error?.message?.toLowerCase().includes("too many requests");
+      error.message?.toLowerCase().includes("429") ||
+      error.message?.toLowerCase().includes("rate limit") ||
+      error.message?.toLowerCase().includes("too many requests");
 
     const isNetworkError =
-      error?.message?.toLowerCase().includes("fetch") ||
-      error?.message?.toLowerCase().includes("network") ||
-      loadingTimeout;
+      error.message?.toLowerCase().includes("fetch") ||
+      error.message?.toLowerCase().includes("network");
 
     return (
       <>
@@ -1953,33 +1893,17 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               <div className="text-xs mt-2 text-gray-600">
                 {isRateLimit
                   ? "Too many requests to the API. Please wait a moment and the data will refresh automatically."
-                  : loadingTimeout
-                    ? "Loading is taking longer than expected. The page will retry automatically."
-                    : isNetworkError
-                      ? "Unable to connect to the server. Please check your internet connection."
-                      : "There was an issue loading the match data. Please try again later."}
+                  : isNetworkError
+                    ? "Unable to connect to the server. Please check your internet connection."
+                    : "There was an issue loading the match data. Please try again later."}
               </div>
               <div className="text-xs mt-2 text-gray-500">
-                Error: {loadingTimeout ? "Loading timeout" : error?.message || "Unknown error"}
+                Error: {error.message || "Unknown error"}
               </div>
-              {(isRateLimit || isNetworkError || loadingTimeout) && (
+              {(isRateLimit || isNetworkError) && (
                 <div className="text-xs mt-2 text-blue-600">
                   The page will automatically retry in a moment...
                 </div>
-              )}
-              {loadingTimeout && (
-                <button
-                  onClick={() => {
-                    setLoadingTimeout(false);
-                    // Force refetch
-                    queryClient.invalidateQueries({
-                      queryKey: ["myNewLeague2", "allFixtures", selectedDate]
-                    });
-                  }}
-                  className="mt-2 px-4 py-2 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  Try Again
-                </button>
               )}
             </div>
           </CardContent>

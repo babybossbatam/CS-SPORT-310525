@@ -125,7 +125,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     Brunei: "bn",
     Cambodia: "kh",
     China: "cn",
-    Chad: "td",
     Dominican: "do",
     Estonia: "ee",
     Guadeloupe: "gp",
@@ -191,16 +190,11 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 
     // Clean team name by removing common suffixes for better country matching
     const cleanTeamName = teamName
-      .replace(
-        /\s+(W|Women|U21|U20|U19|U18|U17|U16|Youth|Reserve|B)(\s|$)/gi,
-        " ",
-      )
-      .replace(/\s+(Under|U)-?\d+/gi, " ")
+      .replace(/\s+(W|Women|U21|U20|U19|U18|U17|U16|Youth|Reserve|B)(\s|$)/gi, ' ')
+      .replace(/\s+(Under|U)-?\d+/gi, ' ')
       .trim();
 
-    console.log(
-      `🔍 [MyCircularFlag] Original: "${teamName}" -> Cleaned: "${cleanTeamName}"`,
-    );
+    console.log(`🔍 [MyCircularFlag] Original: "${teamName}" -> Cleaned: "${cleanTeamName}"`);
 
     // Special case for England first
     if (cleanTeamName.toLowerCase() === "england") {
