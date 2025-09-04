@@ -773,6 +773,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         leagueContext={leagueContext}
         priority="medium"
         fallbackSrc={`/api/team-logo/square/${teamId}?size=32`}
+        moveLeft={moveLeft}
       />
     </div>
   );
