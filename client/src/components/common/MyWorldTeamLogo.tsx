@@ -199,96 +199,56 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         isFriendliesInternational,
         isFriendliesClub,
         isActualNationalTeam,
-        isYouthTeam
+        isKnownClubTeam
       });
     }
 
-    // Check if this is being used in a standings context (club competition)
-    const isStandingsContext = leagueName.includes("standing") ||
-                               leagueName.includes("table") ||
-                               // Popular domestic leagues that should always use club logos
-                               leagueName.includes("premier league") ||
-                               leagueName.includes("la liga") ||
-                               leagueName.includes("serie a") ||
-                               leagueName.includes("bundesliga") ||
-                               leagueName.includes("ligue 1") ||
-                               leagueName.includes("primeira liga") ||
-                               leagueName.includes("eredivisie");
+    // Club youth team detection
+    const isFriendliesClubsNationalTeam = leagueName.includes("friendlies") && 
+                                         leagueName.includes("clubs") && 
+                                         leagueName.includes("national");
 
-    // Force specific club youth teams to ALWAYS use club logos
-    const isClubYouthTeam = (teamName?.includes("Valencia U20") && teamId === 532) ||
-                           (teamName?.includes("Alboraya U20") && teamId === 19922);
-
-    // Additional check for known club teams that should NEVER use circular flags
-    const isKnownClubTeam = teamName && (
-      teamName.toLowerCase().includes("fc") ||
-      teamName.toLowerCase().includes("cf") ||
-      teamName.toLowerCase().includes("united") ||
-      teamName.toLowerCase().includes("city") ||
-      teamName.toLowerCase().includes("athletic") ||
-      teamName.toLowerCase().includes("real madrid") ||
-      teamName.toLowerCase().includes("barcelona") ||
-      teamName.toLowerCase().includes("valencia") ||
-      teamName.toLowerCase().includes("alboraya") ||
-      teamName.toLowerCase().includes("club") ||
-      teamName.toLowerCase().includes("ud ") ||
-      teamName.toLowerCase().includes("arsenal") ||
-      teamName.toLowerCase().includes("liverpool") ||
-      teamName.toLowerCase().includes("chelsea") ||
-      teamName.toLowerCase().includes("manchester") ||
-      teamName.toLowerCase().includes("tottenham") ||
-      teamName.toLowerCase().includes("bayern") ||
-      teamName.toLowerCase().includes("dortmund") ||
-      teamName.toLowerCase().includes("juventus") ||
-      teamName.toLowerCase().includes("milan") ||
-      teamName.toLowerCase().includes("inter") ||
-      teamName.toLowerCase().includes("napoli") ||
-      teamName.toLowerCase().includes("roma") ||
-      teamName.toLowerCase().includes("psg") ||
-      teamName.toLowerCase().includes("olympique") ||
-      teamName.toLowerCase().includes("atletico")
-    );
-
-    // Enhanced national team detection for youth and women's teams
-    const isWomensNationalTeam = teamName?.endsWith(" W") && isActualNationalTeam && !isKnownClubTeam;
-    const isNationalYouthTeam = isYouthTeam && isActualNationalTeam && !isKnownClubTeam;
-
-    // Debug logging for AFC competitions
-    if (leagueName.includes("afc") || leagueName.includes("asian cup")) {
-      console.log("🏆 [MyWorldTeamLogo] AFC Competition Detection:", {
-        teamName,
-        leagueName,
-        isAfcU20AsianCup: leagueName.includes("afc u20 asian cup") ||
-                         leagueName.includes("afc u-20 asian cup") ||
-                         leagueName.includes("asian cup u20") ||
-                         leagueName.includes("asian cup u-20"),
-        isActualNationalTeam,
-        isYouthTeam,
-        isWomensNationalTeam
-      });
-    }
-
-    // Friendlies Clubs National Team detection - includes both senior and youth national teams
-    const isFriendliesClubsNationalTeam = leagueName.includes("friendlies") && isActualNationalTeam && !isKnownClubTeam;
-    // Determine if it's UEFA Nations League
+    // Additional international competitions detection
     const isUefaNationsLeague = leagueName.includes("uefa nations league");
-    // Determine if it's World Cup Qualification
-    const isWorldCupQualification = leagueName.includes("world cup qualification") || leagueName.includes("wc qualification");
-    // Determine if it's AFC U20 Asian Cup
-    const isAfcU20AsianCup = leagueName.includes("afc u20 asian cup") ||
-                             leagueName.includes("afc u-20 asian cup") ||
-                             leagueName.includes("asian cup u20") ||
-                             leagueName.includes("asian cup u-20");
-    // Determine if it's King's Cup (international tournament)
+    const isAfcU20AsianCup = leagueName.includes("afc u20 asian cup");
+    const isWorldCupQualification = leagueName.includes("world cup") && 
+                                   leagueName.includes("qualification");
     const isKingsCup = leagueName.includes("king's cup") || leagueName.includes("kings cup");
-    // Determine if it's UEFA Europa League
-    const isUefaEuropaLeague = leagueName.includes("europa league");
-    // Determine if it's UEFA Conference League
-    const isUefaConferenceLeague = leagueName.includes("conference league");
-    // Determine if it's UEFA Champions League
-    const isUefaChampionsLeague = leagueName.includes("champions league");
-    // Determine if it's CONMEBOL Sudamericana
-    const isConmebolSudamericana = leagueName.includes("sudamericana");
+
+    // CAFA Nations Cup
+    const isCAFANationsCup = leagueName.includes("cafa nations cup");
+
+    // UEFA Under-21 Championship - Qualification
+    const isUefaU21Qualification = leagueName.includes("uefa under-21 championship") && 
+                                  leagueName.includes("qualification");
+
+    // World Cup Qualification by region
+    const isWorldCupQualificationAfrica = leagueName.includes("world cup - qualification africa") ||
+                                         (leagueName.includes("world cup") && 
+                                          leagueName.includes("qualification") && 
+                                          leagueName.includes("africa"));
+
+    const isWorldCupQualificationEurope = leagueName.includes("world cup - qualification europe") ||
+                                         (leagueName.includes("world cup") && 
+                                          leagueName.includes("qualification") && 
+                                          leagueName.includes("europe"));
+
+    const isWorldCupQualificationSouthAmerica = leagueName.includes("world cup - qualification south america") ||
+                                               (leagueName.includes("world cup") && 
+                                                leagueName.includes("qualification") && 
+                                                leagueName.includes("south america"));
+
+    // Additional UEFA competitions
+    const isUefaChampionsLeague = leagueName.includes("uefa champions league") ||
+                                 leagueName.includes("champions league");
+    const isUefaEuropaLeague = leagueName.includes("uefa europa league") ||
+                              leagueName.includes("europa league");
+    const isUefaConferenceLeague = leagueName.includes("uefa europa conference league") ||
+                                  leagueName.includes("europa conference league");
+
+    // CONMEBOL competitions
+    const isConmebolSudamericana = leagueName.includes("conmebol sudamericana") ||
+                                  leagueName.includes("sudamericana");
 
 
     // Use circular flag for national teams in international competitions
@@ -298,7 +258,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                    !isKnownClubTeam &&
                    isActualNationalTeam &&
                    (isNationalYouthTeam || isWomensNationalTeam || (!isYouthTeam && !teamName?.endsWith(" W")) || isFriendliesClubsNationalTeam) && // Allow national youth, women's teams, and friendlies clubs national teams
-                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || isWorldCupQualification || isFriendliesClubsNationalTeam || isKingsCup) &&
+                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || isWorldCupQualification || isFriendliesClubsNationalTeam || isKingsCup || isCAFANationsCup || isUefaU21Qualification || isWorldCupQualificationAfrica || isWorldCupQualificationEurope || isWorldCupQualificationSouthAmerica) &&
                    !isFifaClubWorldCup &&
                    !isFriendliesClub &&
                    !isUefaEuropaLeague &&
