@@ -122,7 +122,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     else if (leagueContext?.country === 'World' ||
              leagueContext?.country === 'Europe' ||
              leagueContext?.country === 'International' ||
-             /\b(world cup|nations league|euro|championship|copa america|olympics|fifa|uefa|conmebol|caf|afc|concacaf|ofc)\b/i.test(leagueName)) {
+             /\b(world cup|qualification africa|nations league|euro|championship|copa america|olympics|fifa|uefa|conmebol|caf|afc|concacaf|ofc)\b/i.test(leagueName)) {
       if (isNationalTeam(teamName)) {
         console.log(`🏆 [MyWorldTeamLogo] International competition + National team: Using MyCircularFlag for ${teamName}`);
         result = true;
