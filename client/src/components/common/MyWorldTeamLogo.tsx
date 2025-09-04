@@ -282,7 +282,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   // Synchronous logo URL resolution
   const logoUrl = useMemo(() => {
     if (teamId) {
-      const logoSources = getTeamLogoSources({ id: teamId, name: teamName, logo: teamLogo }, shouldUseCircularFlag);
+      const logoSources = getTeamLogoSources({ id: teamId, name: teamName, logo: teamLogo }, shouldUseCircularFlag, 'football');
       if (logoSources.length > 0) {
         return logoSources[0].url;
       }
@@ -397,7 +397,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
     // Try the teamLogoSources alternatives
     if (teamId && resolvedLogoUrl.includes('/api/team-logo/')) {
-      const sources = getTeamLogoSources({ id: teamId, name: teamName }, false);
+      const sources = getTeamLogoSources({ id: teamId, name: teamName }, false, 'football');
       const nextSource = sources.find(source => source.url !== resolvedLogoUrl);
       if (nextSource) {
         console.log(`🔄 [MyWorldTeamLogo] Trying next source: ${nextSource.source} - ${nextSource.url}`);
