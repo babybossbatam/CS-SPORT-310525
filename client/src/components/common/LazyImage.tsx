@@ -528,8 +528,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
         outline: 'none',
         // Hide image if there's an error AND it's not the final fallback image
         display: imageError && (currentSrc.includes('fallback.png') || currentSrc.includes('fallback-logo.png')) ? 'none' : 'block',
-        opacity: imageLoaded ? 1 : 0.8,
-        transition: 'opacity 0.3s ease-in-out',
+        opacity: imageLoaded ? 1 : 0.95,
+        transition: 'opacity 0.15s ease-in-out',
         // Add theme-aware shadows for better contrast and visibility (lg shadow)
         filter: darkMode 
           ? 'drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.2))' 
