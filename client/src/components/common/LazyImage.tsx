@@ -585,6 +585,9 @@ const LazyImage: React.FC<LazyImageProps> = ({
                          alt.toLowerCase().includes('usl') ||
                          alt.toLowerCase().includes('mls') ||
                          alt.toLowerCase().includes('league') ||
+                         // Friendlies contexts
+                         alt.toLowerCase().includes('friendlies') ||
+                         alt.toLowerCase().includes('friendly') ||
                          // Generic team indicators
                          className?.includes('team') ||
                          className?.includes('logo') ||
@@ -597,13 +600,27 @@ const LazyImage: React.FC<LazyImageProps> = ({
                       className?.includes('w-6') || className?.includes('h-6') ||
                       className?.includes('w-8') || className?.includes('h-8');
     
-    if (isPlayerPhoto && (isTeamContext || isLogoSize)) {
+    // Special handling for Friendlies Clubs - allow national team flags
+    const isFriendliesContext = title?.toLowerCase().includes('friendlies') ||
+                               alt.toLowerCase().includes('friendlies') ||
+                               className?.includes('friendlies');
+    
+    // For Friendlies, check if it's likely a national team
+    const isLikelyNationalTeam = isFriendliesContext && (
+      alt.match(/^[A-Z][a-z]+$/) || // Single word country names like "Brazil", "Spain"
+      alt.includes('U21') || alt.includes('U20') || alt.includes('U19') ||
+      alt.includes(' U21') || alt.includes(' U20') || alt.includes(' U19')
+    );
+    
+    if (isPlayerPhoto && (isTeamContext || isLogoSize) && !isLikelyNationalTeam) {
       console.warn(`🚨 [LazyImage] Player photo blocked in team/logo context:`, {
         alt,
         imageSrc,
         originalSrc: src,
         isTeamContext,
         isLogoSize,
+        isFriendliesContext,
+        isLikelyNationalTeam,
         playerPhotoPatterns: {
           playersPath: imageSrc.includes('/players/'),
           athletes: imageSrc.includes('Athletes/'),

@@ -94,17 +94,17 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       'angola', 'namibia', 'botswana', 'lesotho', 'swaziland', 'malawi',
       'mozambique', 'tanzania', 'kenya', 'uganda', 'rwanda', 'burundi',
       'china', 'india', 'indonesia', 'thailand', 'vietnam', 'philippines',
-      'myanmar', 'laos', 'cambodia', 'brunei', 'taiwan', 'hong kong', 'macau', 
-      'north korea', 'mongolia', 'bangladesh', 'sri lanka', 'maldives', 'nepal', 
-      'bhutan', 'afghanistan', 'pakistan', 'iran', 'iraq', 'lebanon', 'jordan', 
-      'palestine', 'israel', 'turkey', 'cyprus', 'armenia', 'georgia', 'azerbaijan', 
+      'myanmar', 'laos', 'cambodia', 'brunei', 'taiwan', 'hong kong', 'macau',
+      'north korea', 'mongolia', 'bangladesh', 'sri lanka', 'maldives', 'nepal',
+      'bhutan', 'afghanistan', 'pakistan', 'iran', 'iraq', 'lebanon', 'jordan',
+      'palestine', 'israel', 'turkey', 'cyprus', 'armenia', 'georgia', 'azerbaijan',
       'kazakhstan', 'uzbekistan', 'turkmenistan', 'kyrgyzstan', 'tajikistan', 'russia',
       'ukraine', 'belarus', 'moldova', 'romania', 'bulgaria', 'serbia',
       'bosnia and herzegovina', 'montenegro', 'kosovo', 'albania', 'north macedonia',
-      'greece', 'malta', 'san marino', 'vatican', 'monaco', 'andorra', 'liechtenstein', 
-      'switzerland', 'austria', 'czech republic', 'slovakia', 'poland', 'hungary', 
-      'slovenia', 'latvia', 'lithuania', 'estonia', 'finland', 'sweden', 'norway', 
-      'denmark', 'iceland', 'faroe islands', 'greenland', 'ireland', 'united kingdom', 
+      'greece', 'malta', 'san marino', 'vatican', 'monaco', 'andorra', 'liechtenstein',
+      'switzerland', 'austria', 'czech republic', 'slovakia', 'poland', 'hungary',
+      'slovenia', 'latvia', 'lithuania', 'estonia', 'finland', 'sweden', 'norway',
+      'denmark', 'iceland', 'faroe islands', 'greenland', 'ireland', 'united kingdom',
       'scotland', 'wales', 'northern ireland', 'gibraltar', 'jersey', 'guernsey',
       'isle of man', 'luxembourg', 'new zealand', 'fiji', 'papua new guinea',
       'solomon islands', 'vanuatu', 'new caledonia', 'french polynesia',
@@ -117,13 +117,13 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
     // Check if this is actually a national team regardless of league name
     const isActualNationalTeam = teamName?.match(/\b(u20|u21|u23|u-20|u-21|u-23)\b/i) ||
-                                 countryNames.some(country => 
+                                 countryNames.some(country =>
                                    teamName?.toLowerCase().includes(country.toLowerCase())
                                  ) ||
                                  // Enhanced country team detection
                                  countryTeamNames.some(country => {
                                    const teamLower = teamName?.toLowerCase() || '';
-                                   return teamLower === country || 
+                                   return teamLower === country ||
                                           teamLower.startsWith(country + ' ') ||
                                           teamLower.endsWith(' ' + country) ||
                                           (country.includes(' ') && teamLower.includes(country));
@@ -184,11 +184,11 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                               leagueName.includes("fifa club wc");
 
     // Enhanced Friendlies detection with more specific logic
-    const isFriendliesInternational = leagueName.includes("friendlies") && 
+    const isFriendliesInternational = leagueName.includes("friendlies") &&
                                      !leagueName.includes("club") &&
                                      !leagueName.includes("youth");
 
-    const isFriendliesClub = leagueName.includes("friendlies") && 
+    const isFriendliesClub = leagueName.includes("friendlies") &&
                             leagueName.includes("club");
 
     // Use these for debugging friendlies
@@ -269,7 +269,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     }
 
     // Friendlies Clubs National Team detection - includes both senior and youth national teams
-    const isFriendliesClubsNationalTeam = leagueName.includes("friendlies") && isActualNationalTeam && !isKnownClubTeam;
+    const isFriendliesClubsNationalTeam = leagueName.includes("friendlies") && isActualNationalTeam && !isKnownClubTeam && leagueName.includes("club");
     // Determine if it's UEFA Nations League
     const isUefaNationsLeague = leagueName.includes("uefa nations league");
     // Determine if it's World Cup Qualification
