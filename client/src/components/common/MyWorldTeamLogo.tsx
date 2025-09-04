@@ -168,13 +168,14 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                             leagueName.includes("asian cup u20") ||
                             leagueName.includes("asian cup u-20");
 
-    // Debug logging for Friendlies International
+    // Debug logging for Friendlies International and Clubs
     if (leagueName.includes("friendlies")) {
       console.log("🔍 [MyWorldTeamLogo] Friendlies Detection:", {
         teamName,
         leagueName,
         isFriendliesInternational,
         isFriendliesClub,
+        isFriendliesClubsNationalTeam,
         isActualNationalTeam,
         isYouthTeam
       });
@@ -242,8 +243,11 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       });
     }
 
-    // Friendlies Clubs National Team detection
-    const isFriendliesClubsNationalTeam = leagueName.includes("friendlies clubs") && isActualNationalTeam;
+    // Friendlies Clubs National Team detection - enhanced to catch more variations
+    const isFriendliesClubsNationalTeam = (leagueName.includes("friendlies clubs") || 
+                                          leagueName.includes("friendlies club") ||
+                                          leagueName === "friendlies clubs") && 
+                                          isActualNationalTeam;
 
     // Use circular flag for national teams in international competitions
     // BUT: Force club teams to ALWAYS use club logos regardless of league context
