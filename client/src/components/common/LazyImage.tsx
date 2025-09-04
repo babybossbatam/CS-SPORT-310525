@@ -437,6 +437,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
           className={className}
           countryName={teamName}
           leagueContext={transformedLeagueContext}
+          moveLeft={moveLeft}
         />
       );
     } else {
