@@ -1202,7 +1202,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           "ET",
                           "BT",
                           "P",
-                          "INT",
+"INT",
                         ].includes(aStatus);
                         const bLive = [
                           "LIVE",
@@ -1478,17 +1478,17 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 <div className="home-team-logo-container">
                                   <MyWorldTeamLogo
                                     teamName={match.teams.home.name}
-                                    teamId={match.teams.home.id}
                                     teamLogo={
-                                      match.teams.home.id 
-                                        ? `/api/team-logo/square/${match.teams.home.id}?size=64`
-                                        : match.teams.home.logo || "/assets/fallback-logo.png"
+                                      match.teams.home.id
+                                        ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                        : "/assets/fallback-logo.svg"
                                     }
                                     alt={match.teams.home.name}
                                     size="34px"
+                                    className="popular-leagues-size"
                                     leagueContext={{
-                                      name: match.league.name,
-                                      country: match.league.country,
+                                      name: leagueData.league.name,
+                                      country: leagueData.league.country,
                                     }}
                                   />
                                 </div>
@@ -1620,17 +1620,17 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 <div className="away-team-logo-container">
                                   <MyWorldTeamLogo
                                     teamName={match.teams.away.name}
-                                    teamId={match.teams.away.id}
                                     teamLogo={
-                                      match.teams.away.id 
-                                        ? `/api/team-logo/square/${match.teams.away.id}?size=64`
-                                        : match.teams.away.logo || "/assets/fallback-logo.png"
+                                      match.teams.away.id
+                                        ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                                        : "/assets/fallback-logo.svg"
                                     }
                                     alt={match.teams.away.name}
                                     size="34px"
+                                    className="popular-leagues-size"
                                     leagueContext={{
-                                      name: match.league.name,
-                                      country: match.league.country,
+                                      name: leagueData.league.name,
+                                      country: leagueData.league.country,
                                     }}
                                   />
                                 </div>

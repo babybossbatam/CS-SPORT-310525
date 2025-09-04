@@ -2734,22 +2734,34 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 className="home-team-logo-container"
                                 style={{ padding: "0 0.6rem" }}
                               >
-                                <MyWorldTeamLogo
-                                  teamName={fixture.teams.home.name}
-                                  teamId={fixture.teams.home.id}
-                                  teamLogo={
-                                    fixture.teams.home.id
-                                      ? `/api/team-logo/square/${fixture.teams.home.id}?size=64`
-                                      : fixture.teams.home.logo ||
-                                        "/assets/fallback-logo.png"
-                                  }
-                                  alt={fixture.teams.home.name}
-                                  size="34px"
-                                  leagueContext={{
-                                    name: fixture.league.name,
-                                    country: fixture.league.country,
-                                  }}
-                                />
+                                {fixture.league.id === 10 ? (
+                                  <MyCircularFlag
+                                    teamName={fixture.teams.home.name || ""}
+                                    teamId={fixture.teams.home.id}
+                                    fallbackUrl={
+                                      fixture.teams.home.id
+                                        ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
+                                        : "/assets/fallback-logo.svg"
+                                    }
+                                    alt={fixture.teams.home.name}
+                                    size="34px"
+                                    className="popular-leagues-size"
+                                  />
+                                ) : (
+                                  <MyWorldTeamLogo
+                                    teamName={fixture.teams.home.name || ""}
+                                    teamId={fixture.teams.home.id}
+                                    teamLogo={
+                                      fixture.teams.home.id
+                                        ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
+                                        : "/assets/fallback-logo.svg"
+                                    }
+                                    alt={fixture.teams.home.name}
+                                    size="34px"
+                                    className="popular-leagues-size"
+                                    leagueContext={leagueContext}
+                                  />
+                                )}
                               </div>
 
                               {/* Score/Time Center */}
@@ -2943,22 +2955,34 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 className="away-team-logo-container"
                                 style={{ padding: "0 0.5rem" }}
                               >
-                                <MyWorldTeamLogo
-                                  teamName={fixture.teams.away.name}
-                                  teamId={fixture.teams.away.id}
-                                  teamLogo={
-                                    fixture.teams.away.id
-                                      ? `/api/team-logo/square/${fixture.teams.away.id}?size=64`
-                                      : fixture.teams.away.logo ||
-                                        "/assets/fallback-logo.png"
-                                  }
-                                  alt={fixture.teams.away.name}
-                                  size="34px"
-                                  leagueContext={{
-                                    name: fixture.league.name,
-                                    country: fixture.league.country,
-                                  }}
-                                />
+                                {fixture.league.id === 10 ? (
+                                  <MyCircularFlag
+                                    teamName={fixture.teams.away.name || ""}
+                                    teamId={fixture.teams.away.id}
+                                    fallbackUrl={
+                                      fixture.teams.away.id
+                                        ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
+                                        : "/assets/fallback-logo.svg"
+                                    }
+                                    alt={fixture.teams.away.name}
+                                    size="34px"
+                                    className="popular-leagues-size"
+                                  />
+                                ) : (
+                                  <MyWorldTeamLogo
+                                    teamName={fixture.teams.away.name || ""}
+                                    teamId={fixture.teams.away.id}
+                                    teamLogo={
+                                      fixture.teams.away.id
+                                        ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
+                                        : "/assets/fallback-logo.svg"
+                                    }
+                                    alt={fixture.teams.away.name}
+                                    size="34px"
+                                    className="popular-leagues-size"
+                                    leagueContext={leagueContext}
+                                  />
+                                )}
                               </div>
 
                               {/* Away Team Name */}
