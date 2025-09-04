@@ -2308,7 +2308,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         1022: "World", // FIFA Club World Cup
                         772: "World", // FIFA World Cup Qualification
                         71: "Brazil", // Serie A Brazil
-                        3: "Netherlands", // Eredivivsie
+                        3: "Netherlands", // Eredivisie
                         5: "France", // Ligue 1
                         531: "World", // CONMEBOL Copa America
                         22: "Argentina", // Primera Division
@@ -2739,14 +2739,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 style={{ padding: "0 0.6rem" }}
                               >
                                 <MyWorldTeamLogo
-                                  teamName={fixture.teams.home.name || "Home Team"}
+                                  teamName={fixture.teams.home.name || ""}
                                   teamId={fixture.teams.home.id}
                                   teamLogo={
                                     fixture.teams.home.id
                                       ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
                                       : "/assets/matchdetaillogo/fallback.png"
                                   }
-                                  alt={fixture.teams.home.name || "Home Team"}
+                                  alt={fixture.teams.home.name}
                                   size="34px"
                                   className="popular-leagues-size"
                                   leagueContext={leagueContext}
@@ -2945,14 +2945,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 style={{ padding: "0 0.5rem" }}
                               >
                                 <MyWorldTeamLogo
-                                  teamName={fixture.teams.away.name || "Away Team"}
+                                  teamName={fixture.teams.away.name || ""}
                                   teamId={fixture.teams.away.id}
                                   teamLogo={
                                     fixture.teams.away.id
                                       ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
                                       : "/assets/matchdetaillogo/fallback.png"
                                   }
-                                  alt={fixture.teams.away.name || "Away Team"}
+                                  alt={fixture.teams.away.name}
                                   size="34px"
                                   className="popular-leagues-size"
                                   leagueContext={leagueContext}
