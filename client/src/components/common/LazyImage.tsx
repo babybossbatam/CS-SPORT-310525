@@ -23,7 +23,6 @@ interface LazyImageProps {
   useTeamLogo?: boolean;
   teamId?: number | string;
   teamName?: string;
-  moveLeft?: boolean;
   leagueContext?: {
     name?: string;
     country?: string;
@@ -47,7 +46,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
   useTeamLogo = false,
   teamId,
   teamName,
-  moveLeft = false,
   leagueContext,
   priority = 'low',
 }) => {
@@ -437,7 +435,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
           className={className}
           countryName={teamName}
           leagueContext={transformedLeagueContext}
-          moveLeft={moveLeft}
         />
       );
     } else {
