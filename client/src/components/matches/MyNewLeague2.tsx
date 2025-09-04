@@ -2734,20 +2734,18 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 className="home-team-logo-container"
                                 style={{ padding: "0 0.6rem" }}
                               >
-                                <LazyImage
-                                  src={
+                                <MyWorldTeamLogo
+                                  teamName={fixture.teams.home.name || ""}
+                                  teamId={fixture.teams.home.id}
+                                  teamLogo={
                                     fixture.teams.home.id
                                       ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
                                       : "/assets/fallback-logo.svg"
                                   }
-                                  alt={fixture.teams.home.name || ""}
-                                  className="team-logo popular-leagues-size"
-                                  style={{ width: "34px", height: "34px" }}
-                                  useTeamLogo={true}
-                                  teamId={fixture.teams.home.id}
-                                  teamName={fixture.teams.home.name}
+                                  alt={fixture.teams.home.name}
+                                  size="34px"
+                                  className="popular-leagues-size"
                                   leagueContext={leagueContext}
-                                  priority="medium"
                                 />
                               </div>
 
@@ -2942,20 +2940,18 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 className="away-team-logo-container"
                                 style={{ padding: "0 0.5rem" }}
                               >
-                                <LazyImage
-                                  src={
+                                <MyWorldTeamLogo
+                                  teamName={fixture.teams.away.name || ""}
+                                  teamId={fixture.teams.away.id}
+                                  teamLogo={
                                     fixture.teams.away.id
                                       ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
                                       : "/assets/fallback-logo.svg"
                                   }
-                                  alt={fixture.teams.away.name || ""}
-                                  className="team-logo popular-leagues-size"
-                                  style={{ width: "34px", height: "34px" }}
-                                  useTeamLogo={true}
-                                  teamId={fixture.teams.away.id}
-                                  teamName={fixture.teams.away.name}
+                                  alt={fixture.teams.away.name}
+                                  size="34px"
+                                  className="popular-leagues-size"
                                   leagueContext={leagueContext}
-                                  priority="medium"
                                 />
                               </div>
 
