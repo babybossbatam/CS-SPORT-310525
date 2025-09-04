@@ -130,6 +130,110 @@ interface MyNewLeague2Props {
   useUTCOnly?: boolean;
 }
 
+// Helper function to determine if a team is a national team
+const isNationalTeam = (
+  team: { name: string },
+  league: { name: string; country: string },
+): boolean => {
+  if (!team || !team.name) return false;
+
+  // Known national leagues that are not explicitly national teams but often treated as such for logos
+  const nationalLeagues = [
+    "World Cup",
+    "UEFA Euro",
+    "Copa America",
+    "Gold Cup",
+    "Africa Cup of Nations",
+    "AFC Asian Cup",
+    "UEFA Nations League",
+    "FIFA World Cup Qualification",
+    "CONMEBOL Copa America",
+    "CONCACAF Gold Cup",
+    "CAF Africa Cup of Nations",
+    "AFC Asian Cup Qualification",
+    "UEFA Nations League Finals",
+    "UEFA Nations League Qualification",
+    "FIFA Club World Cup",
+    "Olympic Games",
+    "Copa Libertadores",
+    "Copa Sudamericana",
+    "AFC Champions League",
+    "CAF Champions League",
+    "CONCACAF Champions League",
+    "UEFA Champions League",
+    "UEFA Europa League",
+    "UEFA Conference League",
+    "European Championship",
+  ];
+
+  // Check if the league name suggests a national team competition
+  if (league && league.name && nationalLeagues.some((nl) => league.name.toLowerCase().includes(nl.toLowerCase()))) {
+    return true;
+  }
+
+  // Check for common national team prefixes/suffixes (can be expanded)
+  const teamNameLower = team.name.toLowerCase();
+  if (
+    teamNameLower.includes("national team") ||
+    teamNameLower.includes(" u21") ||
+    teamNameLower.includes(" u23") ||
+    teamNameLower.includes(" women") ||
+    teamNameLower.includes(" fc") || // FC usually indicates club team
+    teamNameLower.includes(" club") || // Explicitly club teams
+    teamNameLower.includes(" sv ") || // SV usually indicates club team
+    teamNameLower.includes(" sk ") || // SK usually indicates club team
+    teamNameLower.includes(" fk ") || // FK usually indicates club team
+    teamNameLower.includes(" cf ") || // CF usually indicates club team
+    teamNameLower.includes(" ac ") || // AC usually indicates club team
+    teamNameLower.includes(" rc ") || // RC usually indicates club team
+    teamNameLower.includes(" bsc ") || // BSC usually indicates club team
+    teamNameLower.includes(" eintracht ") ||
+    teamNameLower.includes(" borussia ") ||
+    teamNameLower.includes(" bayern ") ||
+    teamNameLower.includes(" real madrid") ||
+    teamNameLower.includes(" fc barcelona") ||
+    teamNameLower.includes(" manchester united") ||
+    teamNameLower.includes(" liverpool") ||
+    teamNameLower.includes(" arsenal") ||
+    teamNameLower.includes(" chelsea") ||
+    teamNameLower.includes(" juventus") ||
+    teamNameLower.includes(" inter milan") ||
+    teamNameLower.includes(" ac milan") ||
+    teamNameLower.includes(" ss lazio") ||
+    teamNameLower.includes(" as roma") ||
+    teamNameLower.includes(" napoli") ||
+    teamNameLower.includes(" fiorentina") ||
+    teamNameLower.includes(" atlético madrid") ||
+    teamNameLower.includes(" sevilla") ||
+    teamNameLower.includes(" valencia") ||
+    teamNameLower.includes(" real sociedad") ||
+    teamNameLower.includes(" villarreal") ||
+    teamNameLower.includes(" real betis") ||
+    teamNameLower.includes(" girona") ||
+    teamNameLower.includes(" real mallorca") ||
+    teamNameLower.includes(" getafe") ||
+    teamNameLower.includes(" rayo vallecano") ||
+    teamNameLower.includes(" cádiz") ||
+    teamNameLower.includes(" almería") ||
+    teamNameLower.includes(" elche") ||
+    teamNameLower.includes(" valladolid") ||
+    teamNameLower.includes(" espanyol") ||
+    teamNameLower.includes(" celta vigo") ||
+    teamNameLower.includes(" osasuna")
+  ) {
+    return true;
+  }
+
+  // If country is explicitly 'World' and not part of a specific national league, assume club team
+  if (league && league.country?.toLowerCase() === "world" && !nationalLeagues.some((nl) => league.name.toLowerCase().includes(nl.toLowerCase()))) {
+      return false;
+  }
+
+  // Default to false for club teams unless identified as national
+  return false;
+};
+
+
 // Main component that loads data
 const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   selectedDate,
@@ -2738,19 +2842,41 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 className="home-team-logo-container"
                                 style={{ padding: "0 0.6rem" }}
                               >
-                                <MyWorldTeamLogo
-                                  teamName={fixture.teams.home.name || ""}
-                                  teamId={fixture.teams.home.id}
-                                  teamLogo={
-                                    fixture.teams.home.id
-                                      ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
-                                      : "/assets/matchdetaillogo/fallback.png"
+                                {isNationalTeam(
+                                  { name: fixture.teams.home.name },
+                                  {
+                                    name: league.name,
+                                    country: league.country,
                                   }
-                                  alt={fixture.teams.home.name}
-                                  size="34px"
-                                  className="popular-leagues-size"
-                                  leagueContext={leagueContext}
-                                />
+                                ) ? (
+                                  <MyWorldTeamLogo
+                                    teamName={fixture.teams.home.name}
+                                    teamId={fixture.teams.home.id}
+                                    teamLogo={
+                                      fixture.teams.home.id
+                                        ? `/api/team-logo/square/${fixture.teams.home.id}?size=32`
+                                        : "/assets/matchdetaillogo/fallback.png"
+                                    }
+                                    alt={`${fixture.teams.home.name} logo`}
+                                    size="34px"
+                                    className="popular-leagues-size"
+                                    leagueContext={leagueContext}
+                                  />
+                                ) : (
+                                  <LazyImage
+                                    src={fixture.teams.home.logo}
+                                    alt={`${fixture.teams.home.name} logo`}
+                                    className="team-logo"
+                                    style={{
+                                      width: "34px",
+                                      height: "34px",
+                                      objectFit: "contain",
+                                      borderRadius: "0%",
+                                    }}
+                                    useTeamLogo={false}
+                                    priority="medium"
+                                  />
+                                )}
                               </div>
 
                               {/* Score/Time Center */}
@@ -2944,19 +3070,41 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                 className="away-team-logo-container"
                                 style={{ padding: "0 0.5rem" }}
                               >
-                                <MyWorldTeamLogo
-                                  teamName={fixture.teams.away.name || ""}
-                                  teamId={fixture.teams.away.id}
-                                  teamLogo={
-                                    fixture.teams.away.id
-                                      ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
-                                      : "/assets/matchdetaillogo/fallback.png"
+                                {isNationalTeam(
+                                  { name: fixture.teams.away.name },
+                                  {
+                                    name: league.name,
+                                    country: league.country,
                                   }
-                                  alt={fixture.teams.away.name}
-                                  size="34px"
-                                  className="popular-leagues-size"
-                                  leagueContext={leagueContext}
-                                />
+                                ) ? (
+                                  <MyWorldTeamLogo
+                                    teamName={fixture.teams.away.name}
+                                    teamId={fixture.teams.away.id}
+                                    teamLogo={
+                                      fixture.teams.away.id
+                                        ? `/api/team-logo/square/${fixture.teams.away.id}?size=32`
+                                        : "/assets/matchdetaillogo/fallback.png"
+                                    }
+                                    alt={`${fixture.teams.away.name} logo`}
+                                    size="34px"
+                                    className="popular-leagues-size"
+                                    leagueContext={leagueContext}
+                                  />
+                                ) : (
+                                  <LazyImage
+                                    src={fixture.teams.away.logo}
+                                    alt={`${fixture.teams.away.name} logo`}
+                                    className="team-logo"
+                                    style={{
+                                      width: "34px",
+                                      height: "34px",
+                                      objectFit: "contain",
+                                      borderRadius: "0%",
+                                    }}
+                                    useTeamLogo={false}
+                                    priority="medium"
+                                  />
+                                )}
                               </div>
 
                               {/* Away Team Name */}
