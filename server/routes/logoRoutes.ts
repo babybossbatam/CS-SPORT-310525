@@ -213,8 +213,24 @@ router.get('/team-logo/:teamId', async (req, res) => {
       return res.json({ logoUrl: cachedLogo, cached: true });
     }
 
-    // For national teams, don't try RapidAPI - go straight to flag
-    if (isNationalTeam === 'true' && teamName) {
+    // Enhanced national team detection
+    const knownNationalTeams = [
+      'Malaysia', 'Singapore', 'Saudi Arabia', 'FYR Macedonia', 'North Macedonia', 'Macedonia',
+      'United Arab Emirates', 'UAE', 'Syria', 'Finland U21', 'San Marino U21', 
+      'Belarus U21', 'Belgium U21', 'Iraq', 'Pakistan', 'Australia', 'Yemen',
+      'Lebanon', 'Kuwait', 'Myanmar', 'Uzbekistan', 'Sri Lanka', 'Vietnam', 
+      'Bangladesh', 'Afghanistan', 'India', 'Iran', 'Japan', 'Thailand',
+      'Mongolia', 'Indonesia', 'Laos', 'Philippines', 'Turkmenistan',
+      'Chinese Taipei', 'Palestine', 'Kyrgyz Republic', 'Hong Kong', 'Bahrain',
+      'Jordan', 'Bhutan', 'Tajikistan', 'Nepal', 'Qatar', 'Brunei', 'Guam'
+    ];
+
+    const isKnownNationalTeam = teamName && knownNationalTeams.some(country => 
+      teamName.toString().includes(country) || teamName.toString().replace(/\s*(U21|U20|U19|U18|U17)\s*/gi, '').trim() === country
+    );
+
+    // For national teams, use flag regardless of isNationalTeam parameter
+    if (isNationalTeam === 'true' || isKnownNationalTeam) {
       console.log(`🏳️ [Logo Routes] National team detected: ${teamName}, using flag`);
       const flagUrl = getCountryFlagUrl(teamName as string);
       logoCache.set(cacheKey, flagUrl);
@@ -252,7 +268,7 @@ router.get('/team-logo/:teamId', async (req, res) => {
 
       const isLikelyNationalTeam = nationalTeamPatterns.some(pattern =>
         pattern.test(teamName as string)
-      );
+      ) || isKnownNationalTeam;
 
       if (isLikelyNationalTeam) {
         console.log(`🏳️ [Logo Routes] Detected likely national team: ${teamName}`);
@@ -411,7 +427,7 @@ router.get('/team-logo/circular/:teamId', async (req, res) => {
 function getCountryFlagUrl(countryName: string): string {
   const cleanName = countryName.replace(/\s*(U21|U20|U19|U18|U17)\s*/gi, '').trim();
 
-  // Country code mapping
+  // Comprehensive country code mapping
   const countryCodeMap: { [key: string]: string } = {
     'Iraq': 'IQ',
     'Hong Kong': 'HK',
@@ -427,10 +443,42 @@ function getCountryFlagUrl(countryName: string): string {
     'FYR Macedonia': 'MK',
     'Macedonia': 'MK',
     'United Arab Emirates': 'AE',
-    'UAE': 'AE'
+    'UAE': 'AE',
+    'Pakistan': 'PK',
+    'Australia': 'AU',
+    'Yemen': 'YE',
+    'Lebanon': 'LB',
+    'Kuwait': 'KW',
+    'Myanmar': 'MM',
+    'Uzbekistan': 'UZ',
+    'Sri Lanka': 'LK',
+    'Vietnam': 'VN',
+    'Bangladesh': 'BD',
+    'Afghanistan': 'AF',
+    'India': 'IN',
+    'Iran': 'IR',
+    'Japan': 'JP',
+    'Thailand': 'TH',
+    'Mongolia': 'MN',
+    'Indonesia': 'ID',
+    'Laos': 'LA',
+    'Philippines': 'PH',
+    'Turkmenistan': 'TM',
+    'Chinese Taipei': 'TW',
+    'Palestine': 'PS',
+    'Kyrgyz Republic': 'KG',
+    'Bahrain': 'BH',
+    'Jordan': 'JO',
+    'Bhutan': 'BT',
+    'Tajikistan': 'TJ',
+    'Nepal': 'NP',
+    'Qatar': 'QA',
+    'Brunei': 'BN',
+    'Guam': 'GU'
   };
 
   const countryCode = countryCodeMap[cleanName] || 'XX';
+  console.log(`🏁 [Flag URL] ${cleanName} -> ${countryCode} -> https://flagsapi.com/${countryCode}/flat/64.png`);
   return `https://flagsapi.com/${countryCode}/flat/64.png`;
 }
 

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { getCountryCode } from "@/lib/flagUtils";
+import React, { useState, useEffect, useCallback } from "react";
+import { getCountryCode as getLibCountryCode } from "@/lib/flagUtils"; // Renamed to avoid conflict
 import {
   isNationalTeam,
   getTeamLogoSources,
@@ -53,6 +53,60 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       teamName?.toLowerCase().includes("alboraya") ||
       teamName?.toLowerCase().includes("club") ||
       teamName?.toLowerCase().includes("ud "));
+
+  // Get country code for the team
+  const getCountryCode = useCallback((country: string): string => {
+    const countryMap: { [key: string]: string } = {
+      'Iraq': 'IQ',
+      'Hong Kong': 'HK',
+      'Syria': 'SY',
+      'Finland': 'FI',
+      'San Marino': 'SM',
+      'Belarus': 'BY',
+      'Belgium': 'BE',
+      'Malaysia': 'MY',
+      'Singapore': 'SG',
+      'Saudi Arabia': 'SA',
+      'North Macedonia': 'MK',
+      'FYR Macedonia': 'MK',
+      'Macedonia': 'MK',
+      'United Arab Emirates': 'AE',
+      'UAE': 'AE',
+      'Pakistan': 'PK',
+      'Australia': 'AU',
+      'Yemen': 'YE',
+      'Lebanon': 'LB',
+      'Kuwait': 'KW',
+      'Myanmar': 'MM',
+      'Uzbekistan': 'UZ',
+      'Sri Lanka': 'LK',
+      'Vietnam': 'VN',
+      'Bangladesh': 'BD',
+      'Afghanistan': 'AF',
+      'India': 'IN',
+      'Iran': 'IR',
+      'Japan': 'JP',
+      'Thailand': 'TH',
+      'Mongolia': 'MN',
+      'Indonesia': 'ID',
+      'Laos': 'LA',
+      'Philippines': 'PH',
+      'Turkmenistan': 'TM',
+      'Chinese Taipei': 'TW',
+      'Palestine': 'PS',
+      'Kyrgyz Republic': 'KG',
+      'Bahrain': 'BH',
+      'Jordan': 'JO',
+      'Bhutan': 'BT',
+      'Tajikistan': 'TJ',
+      'Nepal': 'NP',
+      'Qatar': 'QA',
+      'Brunei': 'BN',
+      'Guam': 'GU'
+    };
+
+    return countryMap[country] || 'XX';
+  }, []);
 
   // For club teams, use team logo sources
   const getLogoUrl = () => {
@@ -126,6 +180,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     Brunei: "bn",
     Cambodia: "kh",
     China: "cn",
+    "Cape Verde": "au-nsw",
     India: "in",
     Iran: "ir",
     Jordan: "jo",
@@ -206,15 +261,24 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       return "https://hatscripts.github.io/circle-flags/flags/gb-eng.svg";
     }
 
-    // Extract country from team name or use direct country mapping
-    const countryCode = getCountryCode(teamName);
-
-    if (countryCode) {
+    // Use the locally defined getCountryCode first
+    const localCountryCode = getCountryCode(teamName);
+    if (localCountryCode !== 'XX') {
       console.log(
-        `🎯 [MyCircularFlag] Using country code ${countryCode} for ${teamName}`,
+        `🎯 [MyCircularFlag] Using local country code ${localCountryCode} for ${teamName}`,
+      );
+      return `https://hatscripts.github.io/circle-flags/flags/${localCountryCode.toLowerCase()}.svg`;
+    }
+
+    // Fallback to the imported getCountryCode from flagUtils
+    const libCountryCode = getLibCountryCode(teamName);
+
+    if (libCountryCode) {
+      console.log(
+        `🎯 [MyCircularFlag] Using library country code ${libCountryCode} for ${teamName}`,
       );
       // Use Circle Flags from hatscripts.github.io
-      return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
+      return `https://hatscripts.github.io/circle-flags/flags/${libCountryCode.toLowerCase()}.svg`;
     }
 
     // Try to find a pattern match in the team name

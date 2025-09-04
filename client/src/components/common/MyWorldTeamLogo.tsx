@@ -224,25 +224,31 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       });
     }
 
-    // Simplified and more reliable national team detection
-    // Priority: If it's a recognized country name, use circular flag regardless of league context
+    // Comprehensive recognized country names list
     const isRecognizedCountryName = teamName && (
       ['Iraq', 'Pakistan', 'Australia', 'Northern Mariana Islands', 'Yemen', 'Singapore', 
        'Malaysia', 'Lebanon', 'Kuwait', 'Myanmar', 'Uzbekistan', 'Sri Lanka', 
        'Vietnam', 'Bangladesh', 'Afghanistan', 'India', 'Iran', 'Japan', 'Thailand',
        'Mongolia', 'Indonesia', 'Laos', 'Syria', 'Philippines', 'Turkmenistan',
        'Chinese Taipei', 'Palestine', 'Kyrgyz Republic', 'Hong Kong', 'Bahrain',
-       'Jordan', 'Bhutan', 'Tajikistan', 'Nepal', 'Qatar', 'Brunei', 'UAE', 'Guam'].includes(teamName.replace(/\s+U\d+$/, '').trim())
+       'Jordan', 'Bhutan', 'Tajikistan', 'Nepal', 'Qatar', 'Brunei', 'UAE', 'Guam',
+       'Saudi Arabia', 'FYR Macedonia', 'North Macedonia', 'Macedonia', 'United Arab Emirates',
+       'Finland', 'San Marino', 'Belarus', 'Belgium'].includes(teamName.replace(/\s+U\d+$/, '').trim()) ||
+      ['Iraq', 'Pakistan', 'Australia', 'Northern Mariana Islands', 'Yemen', 'Singapore', 
+       'Malaysia', 'Lebanon', 'Kuwait', 'Myanmar', 'Uzbekistan', 'Sri Lanka', 
+       'Vietnam', 'Bangladesh', 'Afghanistan', 'India', 'Iran', 'Japan', 'Thailand',
+       'Mongolia', 'Indonesia', 'Laos', 'Syria', 'Philippines', 'Turkmenistan',
+       'Chinese Taipei', 'Palestine', 'Kyrgyz Republic', 'Hong Kong', 'Bahrain',
+       'Jordan', 'Bhutan', 'Tajikistan', 'Nepal', 'Qatar', 'Brunei', 'UAE', 'Guam',
+       'Saudi Arabia', 'FYR Macedonia', 'North Macedonia', 'Macedonia', 'United Arab Emirates',
+       'Finland', 'San Marino', 'Belarus', 'Belgium'].includes(teamName)
     );
 
-    // Use circular flag for national teams in international competitions
-    // BUT: Force club teams to ALWAYS use club logos regardless of league context
+    // Force circular flag for all recognized national teams
     const result = !isStandingsContext &&
                    !isClubYouthTeam &&
                    !isKnownClubTeam &&
                    (isActualNationalTeam || isRecognizedCountryName) && 
-                   (isNationalYouthTeam || isWomensNationalTeam || (!isYouthTeam && !teamName?.endsWith(" W")) || isRecognizedCountryName) && // Allow national youth and women's teams + recognized countries
-                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || leagueName.includes('cup') || leagueName.includes('nations') || isRecognizedCountryName) && 
                    !isFifaClubWorldCup && 
                    !isFriendliesClub && 
                    !isUefaEuropaLeague && 
