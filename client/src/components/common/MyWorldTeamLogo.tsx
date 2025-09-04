@@ -243,10 +243,23 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       });
     }
 
+    // Debug logging for Friendlies Clubs competitions
+    if (leagueName.includes("friendlies clubs") || leagueName.includes("club friendlies")) {
+      console.log("🤝 [MyWorldTeamLogo] Friendlies Clubs Detection:", {
+        teamName,
+        leagueName,
+        isFriendliesClubsNationalTeam,
+        isActualNationalTeam,
+        isKnownClubTeam,
+        shouldUseCircularFlag: isFriendliesClubsNationalTeam
+      });
+    }
+
     // Friendlies Clubs National Team detection - enhanced to catch more variations
     const isFriendliesClubsNationalTeam = (leagueName.includes("friendlies clubs") || 
                                           leagueName.includes("friendlies club") ||
-                                          leagueName === "friendlies clubs") && 
+                                          leagueName === "friendlies clubs" ||
+                                          leagueName.includes("club friendlies")) && 
                                           isActualNationalTeam;
 
     // Use circular flag for national teams in international competitions
