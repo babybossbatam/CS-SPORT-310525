@@ -159,107 +159,20 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
     // Enhanced fallback logic for team logos
     if (useTeamLogo && teamId && teamName) {
-      // Enhanced national team detection with Friendlies Clubs support
-      const isNationalTeamInFriendliesClubs = (team: string, league?: any): boolean => {
-        const teamNameLower = team.toLowerCase();
-        const leagueName = league?.name?.toLowerCase() || leagueContext?.leagueName?.toLowerCase() || "";
+      // Check if this might be a national team that should use flag
+      const nationalTeamNames = [
+        'Malaysia', 'Singapore', 'Saudi Arabia', 'FYR Macedonia', 'North Macedonia', 'Macedonia',
+        'United Arab Emirates', 'UAE', 'Syria', 'Finland', 'San Marino',
+        'Belarus', 'Belgium', 'Iraq', 'Pakistan', 'Australia', 'Yemen',
+        'Lebanon', 'Kuwait', 'Myanmar', 'Uzbekistan', 'Sri Lanka', 'Vietnam',
+        'Bangladesh', 'Afghanistan', 'India', 'Iran', 'Japan', 'Thailand'
+      ];
 
-        // Special handling for Friendlies Clubs league
-        if (leagueName.includes("friendlies clubs") || leagueName.includes("friendlies club")) {
-          console.log(`🏆 [LazyImage] Friendlies Clubs detected for team: ${team}`);
+      // A more robust check for national teams, considering variations and country codes if available
+      const isNationalTeam = nationalTeamNames.some(country =>
+        teamName.includes(country) || teamName.replace(/\s*(U21|U20|U19|U18|U17)\s*/gi, '').trim() === country
+      );
 
-          // Known club indicators that should NEVER use circular flags
-          const clubIndicators = [
-            " fc", " cf", " ac", " sc", " rc", " ud", " cd", " club", " united", " city",
-            " athletic", " real ", " barcelona", " valencia", " sevilla", " arsenal",
-            " liverpool", " chelsea", " juventus", " milan", " napoli", " roma",
-            " ajax", " psv", " feyenoord", " bayern", " dortmund", " leipzig",
-            " manchester", " tottenham", " atletico", " borussia", " eintracht",
-            " inter", " lazio", " fiorentina", " atalanta", " olympique", " monaco",
-            " lyon", " marseille", " lille", " nice", " rennes", " strasbourg",
-            " psg", " paris saint", " saint-germain", " sporting", " porto", " benfica",
-            " braga", " vitoria", " gil vicente", " famalicao", " pacos", " tondela",
-            " if ", " ff"
-          ];
-
-          // If team name contains club indicators, it's definitely a club team
-          if (clubIndicators.some(indicator => teamNameLower.includes(indicator))) {
-            console.log(`🏟️ [LazyImage] Friendlies Clubs: ${team} identified as club team - using team logo`);
-            return false;
-          }
-
-          // Comprehensive list of recognized country names for national teams
-          const countryNames = [
-            "afghanistan", "albania", "algeria", "andorra", "angola", "argentina", "armenia", "australia",
-            "austria", "azerbaijan", "bahrain", "bangladesh", "belarus", "belgium", "bolivia", "bosnia",
-            "botswana", "brazil", "bulgaria", "burkina faso", "burundi", "cambodia", "cameroon", "canada",
-            "chile", "china", "colombia", "congo", "costa rica", "croatia", "cuba", "cyprus", "czech",
-            "denmark", "djibouti", "dominican", "ecuador", "egypt", "el salvador", "england", "estonia",
-            "ethiopia", "finland", "france", "gabon", "gambia", "georgia", "germany", "ghana", "greece",
-            "guatemala", "guinea", "honduras", "hong kong", "hungary", "iceland", "india", "indonesia",
-            "iran", "iraq", "ireland", "israel", "italy", "ivory coast", "jamaica", "japan", "jordan",
-            "kazakhstan", "kenya", "kuwait", "kyrgyzstan", "laos", "latvia", "lebanon", "libya",
-            "lithuania", "luxembourg", "macedonia", "madagascar", "malawi", "malaysia", "mali", "malta",
-            "mauritania", "mauritius", "mexico", "moldova", "mongolia", "montenegro", "morocco", "myanmar",
-            "namibia", "nepal", "netherlands", "new zealand", "nicaragua", "niger", "nigeria", "north korea",
-            "norway", "oman", "pakistan", "palestine", "panama", "paraguay", "peru", "philippines", "poland",
-            "portugal", "qatar", "romania", "russia", "rwanda", "saudi arabia", "scotland", "senegal",
-            "serbia", "singapore", "slovakia", "slovenia", "somalia", "south africa", "south korea", "spain",
-            "sri lanka", "sudan", "sweden", "switzerland", "syria", "tajikistan", "tanzania", "thailand",
-            "tunisia", "turkey", "turkmenistan", "uganda", "ukraine", "united arab emirates", "uruguay",
-            "uzbekistan", "venezuela", "vietnam", "wales", "yemen", "zambia", "zimbabwe", "chinese taipei",
-            "northern mariana islands", "fyр macedonia", "north macedonia", "uae", "usa", "united states"
-          ];
-
-          // Check if team name matches a country name (for national teams in friendlies)
-          const teamNameForCountryCheck = teamNameLower
-            .replace(/\s+u\d+$/, "") // Remove youth indicators like U21, U20, etc.
-            .replace(/\s+women?$/, "") // Remove women indicators
-            .trim();
-
-          if (countryNames.includes(teamNameForCountryCheck)) {
-            console.log(`🇺🇳 [LazyImage] Friendlies Clubs: ${team} identified as national team - should use circular flag`);
-            return true;
-          }
-
-          // Check for youth national teams (U17, U19, U20, U21, U23)
-          if (/\s+u(17|19|20|21|23)$/i.test(teamNameLower)) {
-            const baseCountryName = teamNameLower.replace(/\s+u\d+$/i, "").trim();
-            if (countryNames.includes(baseCountryName)) {
-              console.log(`🇺🇳 [LazyImage] Friendlies Clubs: ${team} identified as national youth team - should use circular flag`);
-              return true;
-            }
-          }
-
-          // Check for women's national teams
-          if (/\s+women?$/i.test(teamNameLower)) {
-            const baseCountryName = teamNameLower.replace(/\s+women?$/i, "").trim();
-            if (countryNames.includes(baseCountryName)) {
-              console.log(`🇺🇳 [LazyImage] Friendlies Clubs: ${team} identified as women's national team - should use circular flag`);
-              return true;
-            }
-          }
-
-          // Default to false for Friendlies Clubs if not identified as national team
-          console.log(`🏟️ [LazyImage] Friendlies Clubs: ${team} defaulting to club team - using team logo`);
-          return false;
-        }
-
-        // For other leagues, use basic national team detection
-        const basicNationalTeamNames = [
-          'Malaysia', 'Singapore', 'Saudi Arabia', 'FYR Macedonia', 'North Macedonia', 'Macedonia',
-          'United Arab Emirates', 'UAE', 'Syria', 'Finland', 'San Marino',
-          'Belarus', 'Belgium', 'Iraq', 'Pakistan', 'Australia', 'Yemen',
-          'Lebanon', 'Kuwait', 'Myanmar', 'Uzbekistan', 'Sri Lanka', 'Vietnam',
-          'Bangladesh', 'Afghanistan', 'India', 'Iran', 'Japan', 'Thailand'
-        ];
-
-        return basicNationalTeamNames.some(country =>
-          team.includes(country) || team.replace(/\s*(U21|U20|U19|U18|U17)\s*/gi, '').trim() === country
-        );
-      };
-
-      const isNationalTeam = isNationalTeamInFriendliesClubs(teamName, leagueContext);
 
       if (isNationalTeam && !target.src.includes('flagsapi.com') && !target.src.includes('countryflags.io')) {
         // For national teams, if the current src is not a flag, try to render MyWorldTeamLogo which handles flags
