@@ -517,23 +517,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
   // it needs to be explicitly handled here or `useTeamLogo` should be set to true.
   // For now, relying on `useTeamLogo` being true for national teams to trigger MyWorldTeamLogo.
 
-  // Check if this should be rendered as a circular flag (for national teams)
-  const isNationalTeam = teamName && teamName !== "World" && leagueContext?.country?.toLowerCase() === 'world';
-  
-  if (isNationalTeam) {
-    return (
-      <MyCircularFlag
-        teamName={teamName}
-        teamId={teamId}
-        fallbackUrl={currentSrc}
-        alt={alt}
-        size={style?.width || style?.height || (isMobile ? '32px' : '32px')}
-        className={className}
-        countryName={teamName}
-      />
-    );
-  }
-
   return (
     <img
       src={currentSrc}
@@ -555,12 +538,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         ...(style?.width || style?.height ? {} : {
           width: style?.width || style?.height || (isMobile ? '32px' : '32px'),
           height: style?.height || style?.width || (isMobile ? '32px' : '32px')
-        }),
-        // Add circular styling for national teams/flags
-        borderRadius: (teamName && leagueContext?.country?.toLowerCase() === 'world') || alt?.toLowerCase().includes('flag') ? '50%' : '0',
-        objectFit: 'cover',
-        // Add circular styling for flags
-        borderRadius: teamName && (leagueContext?.country?.toLowerCase() === 'world' || alt?.toLowerCase().includes('flag')) ? '50%' : '0'
+        })
       }}
       loading={shouldPreload ? 'eager' : 'lazy'}
       decoding="async"
