@@ -75,7 +75,61 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     // Compute the result if not cached or expired
     console.log(`🔄 [MyWorldTeamLogo] Computing shouldUseCircularFlag for: ${teamName}`);
 
-    const isActualNationalTeam = isNationalTeam({ name: teamName }, leagueContext);
+    const leagueName = leagueContext?.name?.toLowerCase() || "";
+    const leagueCountry = leagueContext?.country?.toLowerCase() || "";
+
+    // Enhanced country name detection for actual national teams
+    const countryNames = [
+      'malaysia', 'singapore', 'saudi arabia', 'fyr macedonia', 'united arab emirates', 'syria',
+      'argentina', 'brazil', 'spain', 'france', 'germany', 'italy', 'england',
+      'portugal', 'netherlands', 'belgium', 'croatia', 'morocco', 'japan',
+      'south korea', 'australia', 'mexico', 'usa', 'united states', 'canada', 'chile',
+      'colombia', 'uruguay', 'peru', 'ecuador', 'venezuela', 'bolivia',
+      'paraguay', 'ghana', 'nigeria', 'senegal', 'cameroon', 'tunisia',
+      'algeria', 'egypt', 'south africa', 'ivory coast', 'mali', 'burkina faso',
+      'cape verde', 'guinea', 'zambia', 'zimbabwe', 'madagascar', 'comoros',
+      'mauritius', 'seychelles', 'djibouti', 'somalia', 'eritrea', 'ethiopia',
+      'sudan', 'libya', 'chad', 'central african republic', 'democratic republic of congo',
+      'republic of congo', 'gabon', 'equatorial guinea', 'sao tome and principe',
+      'angola', 'namibia', 'botswana', 'lesotho', 'swaziland', 'malawi',
+      'mozambique', 'tanzania', 'kenya', 'uganda', 'rwanda', 'burundi',
+      'china', 'india', 'indonesia', 'thailand', 'vietnam', 'philippines',
+      'myanmar', 'laos', 'cambodia', 'brunei', 'taiwan', 'hong kong', 'macau', 
+      'north korea', 'mongolia', 'bangladesh', 'sri lanka', 'maldives', 'nepal', 
+      'bhutan', 'afghanistan', 'pakistan', 'iran', 'iraq', 'lebanon', 'jordan', 
+      'palestine', 'israel', 'turkey', 'cyprus', 'armenia', 'georgia', 'azerbaijan', 
+      'kazakhstan', 'uzbekistan', 'turkmenistan', 'kyrgyzstan', 'tajikistan', 'russia',
+      'ukraine', 'belarus', 'moldova', 'romania', 'bulgaria', 'serbia',
+      'bosnia and herzegovina', 'montenegro', 'kosovo', 'albania', 'north macedonia',
+      'greece', 'malta', 'san marino', 'vatican', 'monaco', 'andorra', 'liechtenstein', 
+      'switzerland', 'austria', 'czech republic', 'slovakia', 'poland', 'hungary', 
+      'slovenia', 'latvia', 'lithuania', 'estonia', 'finland', 'sweden', 'norway', 
+      'denmark', 'iceland', 'faroe islands', 'greenland', 'ireland', 'united kingdom', 
+      'scotland', 'wales', 'northern ireland', 'gibraltar', 'jersey', 'guernsey',
+      'isle of man', 'luxembourg', 'new zealand', 'fiji', 'papua new guinea',
+      'solomon islands', 'vanuatu', 'new caledonia', 'french polynesia',
+      'samoa', 'tonga', 'cook islands', 'niue', 'palau', 'marshall islands',
+      'micronesia', 'nauru', 'kiribati', 'tuvalu'
+    ];
+
+    // Additional country team names for enhanced detection
+    const countryTeamNames = countryNames;
+
+    // Check if this is actually a national team regardless of league name
+    const isActualNationalTeam = teamName?.match(/\b(u20|u21|u23|u-20|u-21|u-23)\b/i) ||
+                                 countryNames.some(country => 
+                                   teamName?.toLowerCase().includes(country.toLowerCase())
+                                 ) ||
+                                 // Enhanced country team detection
+                                 countryTeamNames.some(country => {
+                                   const teamLower = teamName?.toLowerCase() || '';
+                                   return teamLower === country || 
+                                          teamLower.startsWith(country + ' ') ||
+                                          teamLower.endsWith(' ' + country) ||
+                                          (country.includes(' ') && teamLower.includes(country));
+                                 });
+
+
     const isYouthTeam = teamName?.includes("U17") ||
                        teamName?.includes("U19") ||
                        teamName?.includes("U20") ||
@@ -83,7 +137,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                        teamName?.includes("U23");
 
     // Special handling for COTIF Tournament - detect club vs national teams
-    const leagueName = leagueContext?.name?.toLowerCase() || "";
     const isCOTIFTournament = leagueName.includes("cotif");
 
     // For COTIF Tournament, we need to distinguish between club and national teams
@@ -125,50 +178,20 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       }
     }
 
-    const leagueCountry = leagueContext?.country?.toLowerCase() || "";
-
     // Check if this is FIFA Club World Cup (club competition, not national teams)
     const isFifaClubWorldCup = leagueName.includes("fifa club world cup") ||
                               leagueName.includes("club world cup") ||
                               leagueName.includes("fifa club wc");
 
-    // More specific friendlies detection
-    const isFriendliesClub = leagueName.includes("friendlies clubs") ||
-                            leagueName.includes("friendlies club") ||
-                            leagueName.includes("club friendlies");
+    // Enhanced Friendlies detection with more specific logic
+    const isFriendliesInternational = leagueName.includes("friendlies") && 
+                                     !leagueName.includes("club") &&
+                                     !leagueName.includes("youth");
 
-    // Friendlies International (league ID 10) should be treated as national team competition
-    const isFriendliesInternational = leagueName === "friendlies international" ||
-                                     leagueName === "international friendlies" ||
-                                     (leagueName.includes("friendlies") &&
-                                      leagueName.includes("international")) ||
-                                     (leagueName === "friendlies" && !isFriendliesClub);
+    const isFriendliesClub = leagueName.includes("friendlies") && 
+                            leagueName.includes("club");
 
-    const isUefaEuropaLeague = leagueName.includes("uefa europa league") ||
-                              leagueName.includes("europa league");
-    const isUefaConferenceLeague = leagueName.includes("uefa europa conference league") ||
-                                  leagueName.includes("europa conference league");
-    const isUefaChampionsLeague = leagueName.includes("uefa champions league") ||
-                                 leagueName.includes("champions league");
-    const isConmebolSudamericana = leagueName.includes("conmebol sudamericana") ||
-                                  leagueName.includes("copa sudamericana");
-
-    const isUefaNationsLeague = leagueName.includes("uefa nations league") ||
-                               leagueName.includes("nations league");
-
-    // World Cup qualifications and tournaments with national teams
-    const isWorldCupQualification = leagueName.includes("world cup") &&
-                                   (leagueName.includes("qualification") ||
-                                    leagueName.includes("qualifier") ||
-                                    leagueName.includes("women"));
-
-    // AFC competitions with national teams
-    const isAfcU20AsianCup = leagueName.includes("afc u20 asian cup") ||
-                            leagueName.includes("afc u-20 asian cup") ||
-                            leagueName.includes("asian cup u20") ||
-                            leagueName.includes("asian cup u-20");
-
-    // Debug logging for Friendlies International
+    // Use these for debugging friendlies
     if (leagueName.includes("friendlies")) {
       console.log("🔍 [MyWorldTeamLogo] Friendlies Detection:", {
         teamName,
@@ -235,15 +258,38 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       console.log("🏆 [MyWorldTeamLogo] AFC Competition Detection:", {
         teamName,
         leagueName,
-        isAfcU20AsianCup,
+        isAfcU20AsianCup: leagueName.includes("afc u20 asian cup") ||
+                         leagueName.includes("afc u-20 asian cup") ||
+                         leagueName.includes("asian cup u20") ||
+                         leagueName.includes("asian cup u-20"),
         isActualNationalTeam,
         isYouthTeam,
         isWomensNationalTeam
       });
     }
 
-    // Friendlies Clubs National Team detection
-    const isFriendliesClubsNationalTeam = leagueName.includes("friendlies clubs") && isActualNationalTeam;
+    // Friendlies Clubs National Team detection - includes both senior and youth national teams
+    const isFriendliesClubsNationalTeam = leagueName.includes("friendlies") && isActualNationalTeam && !isKnownClubTeam;
+    // Determine if it's UEFA Nations League
+    const isUefaNationsLeague = leagueName.includes("uefa nations league");
+    // Determine if it's World Cup Qualification
+    const isWorldCupQualification = leagueName.includes("world cup qualification") || leagueName.includes("wc qualification");
+    // Determine if it's AFC U20 Asian Cup
+    const isAfcU20AsianCup = leagueName.includes("afc u20 asian cup") ||
+                             leagueName.includes("afc u-20 asian cup") ||
+                             leagueName.includes("asian cup u20") ||
+                             leagueName.includes("asian cup u-20");
+    // Determine if it's King's Cup (international tournament)
+    const isKingsCup = leagueName.includes("king's cup") || leagueName.includes("kings cup");
+    // Determine if it's UEFA Europa League
+    const isUefaEuropaLeague = leagueName.includes("europa league");
+    // Determine if it's UEFA Conference League
+    const isUefaConferenceLeague = leagueName.includes("conference league");
+    // Determine if it's UEFA Champions League
+    const isUefaChampionsLeague = leagueName.includes("champions league");
+    // Determine if it's CONMEBOL Sudamericana
+    const isConmebolSudamericana = leagueName.includes("sudamericana");
+
 
     // Use circular flag for national teams in international competitions
     // BUT: Force club teams to ALWAYS use club logos regardless of league context
@@ -251,8 +297,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                    !isClubYouthTeam &&
                    !isKnownClubTeam &&
                    isActualNationalTeam &&
-                   (isNationalYouthTeam || isWomensNationalTeam || (!isYouthTeam && !teamName?.endsWith(" W"))) && // Allow national youth and women's teams
-                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || isWorldCupQualification || isFriendliesClubsNationalTeam) && // Added isFriendliesClubsNationalTeam
+                   (isNationalYouthTeam || isWomensNationalTeam || (!isYouthTeam && !teamName?.endsWith(" W")) || isFriendliesClubsNationalTeam) && // Allow national youth, women's teams, and friendlies clubs national teams
+                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || isWorldCupQualification || isFriendliesClubsNationalTeam || isKingsCup) &&
                    !isFifaClubWorldCup &&
                    !isFriendliesClub &&
                    !isUefaEuropaLeague &&
@@ -281,7 +327,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
     console.log(`💾 [MyWorldTeamLogo] Cached shouldUseCircularFlag result for ${teamName}: ${result}`);
     return result;
-  }, [teamName, leagueContext]);
+  }, [teamName, leagueContext]); // leagueContext is now a dependency
 
   // Memoized logo URL resolution using enhancedLogoManager
   const logoUrl = useMemo(() => {
@@ -430,7 +476,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         isMounted = false; // Cleanup flag
       };
     }
-  }, [teamId, teamName, teamLogo, shouldUseCircularFlag]); // Removed imageSrc from dependencies to prevent loops
+  }, [teamId, teamName, teamLogo, shouldUseCircularFlag, imageSrc, hasError]); // Added imageSrc and hasError
 
 
   const handleLoad = () => {
