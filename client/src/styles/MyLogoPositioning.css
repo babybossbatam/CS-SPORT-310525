@@ -438,45 +438,6 @@
   color: white !important;
 }
 
-/* Desktop enhanced grid alignment - matches mobile precision */
-@media (min-width: 641px) {
-  .match-content-container {
-    grid-template-columns: 1fr 36px 90px 36px 1fr;
-    grid-template-rows: 48px;
-    padding: 0 12px;
-    gap: 0;
-  }
-
-  .home-team-logo-container,
-  .away-team-logo-container {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
-  }
-
-  .team-logo {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
-  }
-
-  .match-score-container {
-    width: 90px;
-    min-width: 90px;
-    max-width: 90px;
-  }
-
-  .match-score-display {
-    font-size: 1.125rem;
-  }
-
-  .match-time-display {
-    font-size: 1rem;
-  }
-}
-
 /* Responsive grid adjustments */
 @media (max-width: 640px) {
   .match-content-container {
