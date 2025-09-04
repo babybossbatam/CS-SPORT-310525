@@ -530,8 +530,10 @@ const LazyImage: React.FC<LazyImageProps> = ({
         display: imageError && (currentSrc.includes('fallback.png') || currentSrc.includes('fallback-logo.png')) ? 'none' : 'block',
         opacity: imageLoaded ? 1 : 0.8,
         transition: 'opacity 0.3s ease-in-out',
-        // Don't apply any filters to team logos and flags to maintain clarity and contrast
-        filter: 'none',
+        // Add theme-aware shadows for better contrast and visibility
+        filter: darkMode 
+          ? 'drop-shadow(0 1px 3px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 8px rgba(255, 255, 255, 0.1))' 
+          : 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 8px rgba(0, 0, 0, 0.15))',
         // Apply size from props if no explicit width/height in style
         ...(style?.width || style?.height ? {} : {
           width: style?.width || style?.height || (isMobile ? '32px' : '32px'),

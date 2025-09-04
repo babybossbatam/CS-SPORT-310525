@@ -1,4 +1,6 @@
 import React, { useState, useRef, useCallback, useMemo } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
 import {
   isNationalTeam,
   getTeamLogoSources,
@@ -57,6 +59,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   nextMatchInfo,
   showNextMatchOverlay = false,
 }) => {
+  // Get dark mode state from Redux store
+  const darkMode = useSelector((state: RootState) => state.ui.darkMode);
+
   // Memoized computation with caching for shouldUseCircularFlag
   const shouldUseCircularFlag = useMemo(() => {
     const cacheKey = generateCacheKey(teamName, leagueContext);
@@ -744,10 +749,13 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       objectFit: "contain" as const,
       borderRadius: "0%",
       transform: "scale(0.9)",
-      filter: "none",
+      // Add theme-aware shadows for better contrast and visibility
+      filter: darkMode 
+        ? "drop-shadow(0 1px 3px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 8px rgba(255, 255, 255, 0.1))" 
+        : "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 8px rgba(0, 0, 0, 0.15))",
       imageRendering: "auto" as const,
     }),
-    [],
+    [darkMode],
   );
 
   const handleImageError = useCallback(() => {
