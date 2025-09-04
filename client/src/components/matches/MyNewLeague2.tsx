@@ -835,7 +835,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                   networkError: true,
                 },
           );
-          results.push(...processedResults);
+          // Type assertion to resolve compatibility issue
+          results.push(...(processedResults as any));
         } catch (batchError) {
           console.warn(
             `⚠️ [MyNewLeague2] Batch processing error: ${batchError}`,
