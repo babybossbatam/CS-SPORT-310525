@@ -140,6 +140,8 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     Myanmar: "mm",
     Nepal: "np",
     "North Korea": "kp",
+    "Northern Mariana": "mp",
+    Oman: "om",
     Korea: "kr",
     Palestine: "ps",
     Philippines: "ph",
@@ -292,16 +294,27 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
         }}
         onError={(e) => {
           const target = e.target as HTMLImageElement;
-          console.warn(`⚠️ [MyCircularFlag] Image error for ${teamName}:`, target.src);
-          
-          if (!isNational && teamId && !target.src.includes("/api/team-logo/")) {
+          console.warn(
+            `⚠️ [MyCircularFlag] Image error for ${teamName}:`,
+            target.src,
+          );
+
+          if (
+            !isNational &&
+            teamId &&
+            !target.src.includes("/api/team-logo/")
+          ) {
             // Try server proxy for club teams
             const fallbackUrl = `/api/team-logo/square/${teamId}?size=32`;
-            console.log(`🔄 [MyCircularFlag] Trying server proxy: ${fallbackUrl}`);
+            console.log(
+              `🔄 [MyCircularFlag] Trying server proxy: ${fallbackUrl}`,
+            );
             target.src = fallbackUrl;
           } else if (!target.src.includes("/assets/fallback-logo.svg")) {
             // Final fallback
-            console.log(`🚫 [MyCircularFlag] Using final fallback for ${teamName}`);
+            console.log(
+              `🚫 [MyCircularFlag] Using final fallback for ${teamName}`,
+            );
             target.src = fallbackUrl || "/assets/fallback-logo.svg";
           }
         }}
