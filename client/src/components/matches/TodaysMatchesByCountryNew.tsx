@@ -632,7 +632,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     data: any[];
   } | null>(null);
 
-  // Memoized filtering with performance optimizations
+  // Memoized filtering with smart time classification like MyNewLeague2
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length || !selectedDate) {
       return [];
@@ -647,14 +647,65 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return lastFilterCache.current.data;
     }
 
+    // Use smart time filtering like MyNewLeague2
     const filtered = fixtures.filter((fixture) => {
-      if (!fixture?.fixture?.date) {
+      if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) {
         return false;
       }
 
-      const fixtureDate = new Date(fixture.fixture.date);
-      const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
-      return fixtureDateString === selectedDate;
+      // Use MySmartTimeFilter for proper classification
+      const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+        fixture.fixture.date,
+        fixture.fixture.status.short,
+        selectedDate + 'T12:00:00Z' // Convert date to datetime for comparison
+      );
+
+      // Determine what we're looking for based on selected date
+      const today = new Date().toISOString().slice(0, 10);
+      const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+      let expectedLabel: string;
+      if (selectedDate === today) {
+        expectedLabel = 'today';
+      } else if (selectedDate === tomorrow) {
+        expectedLabel = 'tomorrow';
+      } else if (selectedDate === yesterday) {
+        expectedLabel = 'yesterday';
+      } else {
+        expectedLabel = 'custom';
+      }
+
+      const shouldInclude = smartResult.label === expectedLabel && smartResult.isWithinTimeRange;
+
+      // Debug logging for problematic matches
+      if (!shouldInclude && (fixture.teams?.home?.name?.includes('Norway') || fixture.teams?.away?.name?.includes('Finland'))) {
+        console.log(`🚫 [TodaysMatchesByCountryNew] Filtered out match:`, {
+          teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+          selectedDate,
+          expectedLabel,
+          smartResult: {
+            label: smartResult.label,
+            isWithinTimeRange: smartResult.isWithinTimeRange,
+            reason: smartResult.reason
+          },
+          fixtureTime: smartResult.fixtureTime
+        });
+      } else if (shouldInclude) {
+        console.log(`✅ [TodaysMatchesByCountryNew] Included match:`, {
+          teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+          selectedDate,
+          expectedLabel,
+          smartResult: {
+            label: smartResult.label,
+            isWithinTimeRange: smartResult.isWithinTimeRange,
+            reason: smartResult.reason
+          },
+          fixtureTime: smartResult.fixtureTime
+        });
+      }
+
+      return shouldInclude;
     });
 
     // Update cache
