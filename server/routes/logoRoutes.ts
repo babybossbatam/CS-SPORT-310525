@@ -160,9 +160,18 @@ router.get('/league-logo/square/:leagueId', async (req, res) => {
 // Team logo proxy endpoint
 router.get('/team-logo/:teamId', async (req, res) => {
   const { teamId } = req.params;
+  const { teamName } = req.query;
 
   try {
-    console.log(`🔍 [Logo Proxy] Fetching team logo for ID: ${teamId}`);
+    console.log(`🔍 [Logo Proxy] Fetching team logo for ID: ${teamId}${teamName ? ` (${teamName})` : ''}`);
+
+    // Check if this appears to be a national team that shouldn't use this endpoint
+    const nationalTeamNames = ['Iraq', 'Pakistan', 'Australia', 'Yemen', 'Singapore', 'Malaysia', 'Lebanon', 'Kuwait', 'Myanmar', 'Uzbekistan', 'Sri Lanka', 'Vietnam', 'Bangladesh'];
+    if (teamName && nationalTeamNames.some(country => teamName.toString().includes(country))) {
+      console.log(`🌍 [Logo Proxy] Detected national team ${teamName}, redirecting to fallback`);
+      res.redirect('/assets/fallback-logo.svg');
+      return;
+    }
 
     const apiSportsUrl = `https://media.api-sports.io/football/teams/${teamId}.png`;
 
@@ -212,10 +221,18 @@ router.get('/team-logo/:teamId', async (req, res) => {
 // Square team logo proxy endpoint
 router.get('/team-logo/square/:teamId', async (req, res) => {
   const { teamId } = req.params;
-  const { size = '64', sport = 'football' } = req.query;
+  const { size = '64', sport = 'football', teamName } = req.query;
 
   try {
-    console.log(`🔲 [Logo Proxy] Fetching square team logo for ID: ${teamId}, sport: ${sport}`);
+    console.log(`🔲 [Logo Proxy] Fetching square team logo for ID: ${teamId}, sport: ${sport}${teamName ? ` (${teamName})` : ''}`);
+
+    // Check if this appears to be a national team that shouldn't use this endpoint
+    const nationalTeamNames = ['Iraq', 'Pakistan', 'Australia', 'Yemen', 'Singapore', 'Malaysia', 'Lebanon', 'Kuwait', 'Myanmar', 'Uzbekistan', 'Sri Lanka', 'Vietnam', 'Bangladesh'];
+    if (teamName && nationalTeamNames.some(country => teamName.toString().includes(country))) {
+      console.log(`🌍 [Logo Proxy] Square endpoint detected national team ${teamName}, redirecting to fallback`);
+      res.redirect('/assets/fallback-logo.svg');
+      return;
+    }
 
     const sportPath = sport === 'basketball' ? 'basketball' : 'football';
     const apiSportsUrl = `https://media.api-sports.io/${sportPath}/teams/${teamId}.png`;

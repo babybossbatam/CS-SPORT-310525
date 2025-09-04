@@ -224,14 +224,25 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       });
     }
 
+    // Simplified and more reliable national team detection
+    // Priority: If it's a recognized country name, use circular flag regardless of league context
+    const isRecognizedCountryName = teamName && (
+      ['Iraq', 'Pakistan', 'Australia', 'Northern Mariana Islands', 'Yemen', 'Singapore', 
+       'Malaysia', 'Lebanon', 'Kuwait', 'Myanmar', 'Uzbekistan', 'Sri Lanka', 
+       'Vietnam', 'Bangladesh', 'Afghanistan', 'India', 'Iran', 'Japan', 'Thailand',
+       'Mongolia', 'Indonesia', 'Laos', 'Syria', 'Philippines', 'Turkmenistan',
+       'Chinese Taipei', 'Palestine', 'Kyrgyz Republic', 'Hong Kong', 'Bahrain',
+       'Jordan', 'Bhutan', 'Tajikistan', 'Nepal', 'Qatar', 'Brunei', 'UAE', 'Guam'].includes(teamName.replace(/\s+U\d+$/, '').trim())
+    );
+
     // Use circular flag for national teams in international competitions
     // BUT: Force club teams to ALWAYS use club logos regardless of league context
     const result = !isStandingsContext &&
                    !isClubYouthTeam &&
                    !isKnownClubTeam &&
-                   isActualNationalTeam && 
-                   (isNationalYouthTeam || isWomensNationalTeam || (!isYouthTeam && !teamName?.endsWith(" W"))) && // Allow national youth and women's teams
-                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup) && 
+                   (isActualNationalTeam || isRecognizedCountryName) && 
+                   (isNationalYouthTeam || isWomensNationalTeam || (!isYouthTeam && !teamName?.endsWith(" W")) || isRecognizedCountryName) && // Allow national youth and women's teams + recognized countries
+                   (isFriendliesInternational || isUefaNationsLeague || isAfcU20AsianCup || leagueName.includes('cup') || leagueName.includes('nations') || isRecognizedCountryName) && 
                    !isFifaClubWorldCup && 
                    !isFriendliesClub && 
                    !isUefaEuropaLeague && 
@@ -284,8 +295,15 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     const loadEnhancedLogo = async () => {
       if (teamId && teamName) {
         try {
-          console.log(`🎯 [MyWorldTeamLogo] Fetching enhanced logo for team: ${teamName} (ID: ${teamId})`);
+          console.log(`🎯 [MyWorldTeamLogo] Fetching enhanced logo for team: ${teamName} (ID: ${teamId}), shouldUseCircularFlag: ${shouldUseCircularFlag}`);
           
+          // For national teams that should use circular flags, don't use enhanced manager
+          if (shouldUseCircularFlag) {
+            console.log(`🌍 [MyWorldTeamLogo] Skipping enhanced manager for national team: ${teamName}`);
+            setResolvedLogoUrl(logoUrl);
+            return;
+          }
+
           // Check direct endpoint first
           const directEndpoint = `/api/team-logo/square/${teamId}?size=64`;
           console.log(`🔍 [MyWorldTeamLogo] Testing direct endpoint: ${directEndpoint}`);
@@ -310,9 +328,16 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
           setResolvedLogoUrl(logoResponse.url);
         } catch (error) {
           console.warn(`⚠️ [MyWorldTeamLogo] Enhanced logo failed for ${teamName}, using fallback:`, error);
-          console.log(`🔄 [MyWorldTeamLogo] Trying direct server proxy for ${teamName}`);
-          const directFallback = `/api/team-logo/square/${teamId}?size=64`;
-          setResolvedLogoUrl(directFallback);
+          
+          // For national teams, don't try server proxy fallback
+          if (shouldUseCircularFlag) {
+            console.log(`🌍 [MyWorldTeamLogo] National team fallback for ${teamName}, using original logoUrl`);
+            setResolvedLogoUrl(logoUrl);
+          } else {
+            console.log(`🔄 [MyWorldTeamLogo] Trying direct server proxy for ${teamName}`);
+            const directFallback = `/api/team-logo/square/${teamId}?size=64`;
+            setResolvedLogoUrl(directFallback);
+          }
         }
       } else {
         console.log(`❌ [MyWorldTeamLogo] Missing teamId or teamName: ${teamName} (${teamId})`);

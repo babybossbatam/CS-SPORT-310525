@@ -162,6 +162,22 @@ const LazyImage: React.FC<LazyImageProps> = ({
         imageSrc.includes("media.api-sports.io/football/leagues/") ||
         imageSrc.includes("imagecache.365scores.com");
 
+      // Check if this is a national team flag that should not use server proxy
+      const isNationalTeamFlag = 
+        imageSrc.includes("hatscripts.github.io/circle-flags/") ||
+        imageSrc.includes("flagpedia.net") ||
+        (alt && ['Iraq', 'Pakistan', 'Australia', 'Northern Mariana Islands', 'Yemen', 'Singapore', 
+                 'Malaysia', 'Lebanon', 'Kuwait', 'Myanmar', 'Uzbekistan', 'Sri Lanka', 
+                 'Vietnam', 'Bangladesh'].some(country => alt.toLowerCase().includes(country.toLowerCase())));
+
+      if (isNationalTeamFlag) {
+        console.log(`🌍 [LazyImage] National team flag error - not retrying with server proxy: ${alt}`);
+        setHasError(true);
+        setImageSrc(fallbackSrc || "/assets/matchdetaillogo/fallback.png");
+        onError?.();
+        return;
+      }
+
       if (isLeagueLogo) {
         // Extract league ID for better debugging
         let leagueId = "unknown";
