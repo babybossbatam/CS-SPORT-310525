@@ -380,18 +380,26 @@ const LazyImage: React.FC<LazyImageProps> = ({
       'Wales', 'Yemen'
     ];
 
-    // Improved national team detection - exact match or team name is exactly a country name
+    // Enhanced national team detection for Friendlies Clubs
     const isNationalTeam = nationalTeamNames.some(country => {
-      const teamNameLower = teamName.toLowerCase().trim();
+      const teamNameClean = teamName.replace(/\s*(U\d+|U-\d+)\s*/gi, '').trim().toLowerCase();
       const countryLower = country.toLowerCase();
       
-      // Exact match or team name equals country name
-      return teamNameLower === countryLower || 
-             teamNameLower.includes(countryLower) ||
-             countryLower.includes(teamNameLower);
+      // Multiple matching strategies
+      return teamNameClean === countryLower || 
+             teamNameClean.startsWith(countryLower) ||
+             teamNameClean.endsWith(countryLower) ||
+             (teamNameClean.includes(countryLower) && teamNameClean.length - countryLower.length <= 5) ||
+             (countryLower.includes(teamNameClean) && countryLower.length - teamNameClean.length <= 5);
     });
 
-    if (isNationalTeam) {
+    // Additional check for common national team patterns
+    const hasNationalTeamPattern = teamName.match(/^[A-Z][a-z]+(\s+U\d+)?$/) && 
+                                  !teamName.toLowerCase().includes('fc') &&
+                                  !teamName.toLowerCase().includes('cf') &&
+                                  !teamName.toLowerCase().includes('club');
+
+    if (isNationalTeam || hasNationalTeamPattern) {
       console.log(`🏆 [LazyImage] Friendlies Clubs national team detected: ${teamName}, using MyCircularFlag`);
       return (
         <MyCircularFlag
@@ -401,7 +409,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
           alt={alt}
           size={style?.width || style?.height || "32px"}
           className={className}
-          countryName={teamName}
+          countryName={teamName.replace(/\s*(U\d+|U-\d+)\s*/gi, '').trim()}
         />
       );
     } else {
