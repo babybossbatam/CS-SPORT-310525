@@ -29,6 +29,7 @@ interface MyWorldTeamLogoProps {
   };
   showNextMatchOverlay?: boolean;
   onLoad?: () => void; // Added for potential use in handleLoad
+  isStandingsContext?: boolean; // Added to fix undefined variable error
 }
 
 // Cache for computed shouldUseCircularFlag results
@@ -54,6 +55,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   nextMatchInfo,
   showNextMatchOverlay = false,
   onLoad, // Added for potential use
+  isStandingsContext = false, // Added with default value
 }) => {
   const [imageSrc, setImageSrc] = useState<string>(teamLogo || "/assets/fallback.png");
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -77,6 +79,20 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
     const leagueName = leagueContext?.name?.toLowerCase() || "";
     const leagueCountry = leagueContext?.country?.toLowerCase() || "";
+
+    // Define missing variables that were causing the error
+    const isClubYouthTeam = (teamId === 532 && teamName?.includes("Valencia U20")) ||
+                           (teamId === 19922 && teamName?.includes("Alboraya U20"));
+    
+    const isKnownClubTeam = teamName?.toLowerCase().includes("valencia") ||
+                           teamName?.toLowerCase().includes("alboraya") ||
+                           teamName?.toLowerCase().includes("ud ") ||
+                           teamName?.toLowerCase().includes("fc ") ||
+                           teamName?.toLowerCase().includes("cf ") ||
+                           teamName?.toLowerCase().includes("club ");
+
+    const isNationalYouthTeam = teamName?.match(/\b(u20|u21|u23|u-20|u-21|u-23)\b/i) && isActualNationalTeam;
+    const isWomensNationalTeam = teamName?.endsWith(" W") && isActualNationalTeam;
 
     // Enhanced country name detection for actual national teams
     const countryNames = [
