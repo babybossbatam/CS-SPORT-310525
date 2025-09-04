@@ -158,8 +158,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
     setLoadAttempt(prev => prev + 1);
 
-    // Enhanced fallback logic for team logos
-    if (useTeamLogo && teamId && teamName) {
+    // Enhanced fallback logic for team logos (works for both useTeamLogo=true and false)
+    if ((useTeamLogo || (!useTeamLogo && teamId && teamName)) && teamId && teamName) {
       // Check if this might be a national team that should use flag
       const nationalTeamNames = [
         'Malaysia', 'Singapore', 'Saudi Arabia', 'FYR Macedonia', 'North Macedonia', 'Macedonia',
@@ -174,8 +174,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         teamName.includes(country) || teamName.replace(/\s*(U21|U20|U19|U18|U17)\s*/gi, '').trim() === country
       );
 
-
-      if (isNationalTeam && !target.src.includes('flagsapi.com') && !target.src.includes('countryflags.io')) {
+      if (isNationalTeam && !target.src.includes('flagsapi.com') && !target.src.includes('countryflags.io') && useTeamLogo) {
         // For national teams, if the current src is not a flag, try to render MyWorldTeamLogo which handles flags
         console.log(`🏳️ [LazyImage] National team detected: ${teamName}. Will attempt to use MyWorldTeamLogo for flag.`);
         // Setting a generic fallback for the img tag itself, MyWorldTeamLogo will be rendered in the JSX
@@ -433,7 +432,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   // Enhanced team logo handling when useTeamLogo is false but we have team info
   // This handles cases where MyWorldTeamLogo calls LazyImage with useTeamLogo=false
-  if (!useTeamLogo && teamId && teamName && !currentSrc.includes('fallback.png')) {
+  if (!useTeamLogo && teamId && teamName && !currentSrc.includes('fallback.png') && !imageLoaded) {
     // Check if we need better logo sources for this team
     const logoSources = getTeamLogoSources({ id: teamId, name: teamName });
     
@@ -443,7 +442,18 @@ const LazyImage: React.FC<LazyImageProps> = ({
       if (bestSource && bestSource.url !== currentSrc) {
         console.log(`🔄 [LazyImage] Using better logo source for ${teamName}: ${bestSource.source}`);
         setCurrentSrc(bestSource.url);
+        setImageLoaded(false);
+        setImageError(false);
+        setImageState('loading');
       }
+    } else if (logoSources.length === 0 && !currentSrc.includes('/api/team-logo/')) {
+      // If no logo sources found, try server proxy as fallback
+      const serverProxyUrl = `/api/team-logo/square/${teamId}?size=32`;
+      console.log(`🔄 [LazyImage] No logo sources for ${teamName}, trying server proxy: ${serverProxyUrl}`);
+      setCurrentSrc(serverProxyUrl);
+      setImageLoaded(false);
+      setImageError(false);
+      setImageState('loading');
     }
   }
 
