@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useDeviceInfo } from "@/hooks/use-mobile";
+import { getTeamLogoSources, TeamData } from '@/lib/teamLogoSources';
 import MyWorldTeamLogo from "./MyWorldTeamLogo";
 
 // Assuming getTeamLogoSources is defined elsewhere and imported
