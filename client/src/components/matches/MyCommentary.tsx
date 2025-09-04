@@ -1186,7 +1186,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                           <div className="flex flex-col gap-2">
                             <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium">
                               <img
-                                src="/assets/matchdetaillogo/var-logo.svg"
+                                src="/assets/matchdetaillogo/missed-penalty.svg"
                                 alt="VAR"
                                 className="w-4 h-4 opacity-80 flex-shrink-0"
                               />
