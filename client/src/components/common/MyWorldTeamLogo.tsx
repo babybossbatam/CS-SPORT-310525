@@ -21,6 +21,7 @@ interface MyWorldTeamLogoProps {
   leagueContext?: {
     name?: string;
     country?: string;
+    originalName?: string; // Added to preserve original league name if transformed
   };
   nextMatchInfo?: {
     opponent: string;
@@ -172,174 +173,82 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         `🏆 [MyWorldTeamLogo] Friendlies Clubs detected for team: ${teamName}`,
       );
 
-      // Enhanced club team detection patterns
-      const isDefinitelyClubTeam =
-        teamName &&
-        (teamName.toLowerCase().includes("fc ") ||
-          teamName.toLowerCase().includes("cf ") ||
-          teamName.toLowerCase().includes("ac ") ||
-          teamName.toLowerCase().includes("sc ") ||
-          teamName.toLowerCase().includes("united") ||
-          teamName.toLowerCase().includes("city") ||
-          teamName.toLowerCase().includes("athletic") ||
-          teamName.toLowerCase().includes("real ") ||
-          teamName.toLowerCase().includes("club ") ||
-          teamName.toLowerCase().includes("ud ") ||
-          teamName.toLowerCase().includes("arsenal") ||
-          teamName.toLowerCase().includes("liverpool") ||
-          teamName.toLowerCase().includes("chelsea") ||
-          teamName.toLowerCase().includes("manchester") ||
-          teamName.toLowerCase().includes("tottenham") ||
-          teamName.toLowerCase().includes("bayern") ||
-          teamName.toLowerCase().includes("dortmund") ||
-          teamName.toLowerCase().includes("juventus") ||
-          teamName.toLowerCase().includes("milan") ||
-          teamName.toLowerCase().includes("inter") ||
-          teamName.toLowerCase().includes("napoli") ||
-          teamName.toLowerCase().includes("roma") ||
-          teamName.toLowerCase().includes("psg") ||
-          teamName.toLowerCase().includes("olympique") ||
-          teamName.toLowerCase().includes("atletico") ||
-          teamName.toLowerCase().includes("barcelona") ||
-          teamName.toLowerCase().includes("valencia") ||
-          teamName.toLowerCase().includes("sevilla") ||
-          teamName.toLowerCase().includes("villarreal") ||
-          teamName.toLowerCase().includes(" ff") ||
-          teamName.toLowerCase().includes("hammarby") ||
-          teamName.toLowerCase().includes("brommapojkarna") ||
-          teamName.toLowerCase().includes("aik") ||
-          teamName.toLowerCase().includes("djurgarden") ||
-          teamName.toLowerCase().includes("malmo"));
+      // Comprehensive international team names from circle-flags gallery
+      const internationalTeamNames = [
+        'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda',
+        'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas',
+        'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize',
+        'Benin', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil',
+        'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon',
+        'Canada', 'Cape Verde', 'Central African Republic', 'Chad', 'Chile', 'China',
+        'Colombia', 'Comoros', 'Congo', 'Costa Rica', 'Croatia', 'Cuba',
+        'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic',
+        'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia',
+        'Eswatini', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon',
+        'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada',
+        'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras',
+        'Hong Kong', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran',
+        'Iraq', 'Ireland', 'Israel', 'Italy', 'Jamaica', 'Japan',
+        'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'Kuwait', 'Kyrgyzstan',
+        'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya',
+        'Liechtenstein', 'Lithuania', 'Luxembourg', 'Madagascar', 'Malawi', 'Malaysia',
+        'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius',
+        'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro',
+        'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal',
+        'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'North Korea',
+        'North Macedonia', 'Norway', 'Oman', 'Pakistan', 'Palau', 'Palestine',
+        'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland',
+        'Portugal', 'Qatar', 'Romania', 'Russia', 'Rwanda', 'Saint Kitts and Nevis',
+        'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino',
+        'Sao Tome and Principe', 'Saudi Arabia', 'Scotland', 'Senegal', 'Serbia',
+        'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands',
+        'Somalia', 'South Africa', 'South Korea', 'South Sudan', 'Spain', 'Sri Lanka',
+        'Sudan', 'Suriname', 'Sweden', 'Switzerland', 'Syria', 'Taiwan',
+        'Tajikistan', 'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga',
+        'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda',
+        'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay',
+        'Uzbekistan', 'Vanuatu', 'Vatican City', 'Venezuela', 'Vietnam', 'Wales',
+        'Yemen', 'Zambia', 'Zimbabwe', 'England', 'FYR Macedonia', 'UAE', 'USA', 'UK'
+      ];
 
-      // Enhanced national team detection - check against known countries
-      const isDefinitelyNationalTeam =
-        teamName &&
-        ([
-          "Malaysia",
-          "Singapore",
-          "Saudi Arabia",
-          "FYR Macedonia",
-          "North Macedonia",
-          "Macedonia",
-          "United Arab Emirates",
-          "UAE",
-          "Finland",
-          "San Marino",
-          "Belarus",
-          "Belgium",
-          "Iraq",
-          "Pakistan",
-          "Australia",
-          "Yemen",
-          "Lebanon",
-          "Kuwait",
-          "Myanmar",
-          "Uzbekistan",
-          "Sri Lanka",
-          "Vietnam",
-          "Bangladesh",
-          "Afghanistan",
-          "India",
-          "Iran",
-          "Japan",
-          "Thailand",
-          "Mongolia",
-          "Indonesia",
-          "Laos",
-          "Syria",
-          "Philippines",
-          "Turkmenistan",
-          "Chinese Taipei",
-          "Palestine",
-          "Kyrgyz Republic",
-          "Hong Kong",
-          "Bahrain",
-          "Jordan",
-          "Bhutan",
-          "Tajikistan",
-          "Nepal",
-          "Qatar",
-          "Brunei",
-          "Guam",
-          "Spain",
-          "France",
-          "Germany",
-          "Italy",
-          "England",
-          "Brazil",
-          "Argentina",
-          "Colombia",
-          "Chile",
-          "Peru",
-          "Uruguay",
-          "Ecuador",
-          "Bolivia",
-          "Paraguay",
-          "Venezuela"
-        ].includes(teamName.trim()) ||
-        [
-          "Malaysia",
-          "Singapore",
-          "Saudi Arabia",
-          "FYR Macedonia",
-          "North Macedonia",
-          "Macedonia",
-          "United Arab Emirates",
-          "UAE",
-          "Finland",
-          "San Marino",
-          "Belarus",
-          "Belgium",
-          "Iraq",
-          "Pakistan",
-          "Australia",
-          "Yemen",
-          "Lebanon",
-          "Kuwait",
-          "Myanmar",
-          "Uzbekistan",
-          "Sri Lanka",
-          "Vietnam",
-          "Bangladesh",
-          "Afghanistan",
-          "India",
-          "Iran",
-          "Japan",
-          "Thailand",
-          "Mongolia",
-          "Indonesia",
-          "Laos",
-          "Syria",
-          "Philippines",
-          "Turkmenistan",
-          "Chinese Taipei",
-          "Palestine",
-          "Kyrgyz Republic",
-          "Hong Kong",
-          "Bahrain",
-          "Jordan",
-          "Bhutan",
-          "Tajikistan",
-          "Nepal",
-          "Qatar",
-          "Brunei",
-          "Guam",
-          "Spain",
-          "France",
-          "Germany",
-          "Italy",
-          "England",
-          "Brazil",
-          "Argentina",
-          "Colombia",
-          "Chile",
-          "Peru",
-          "Uruguay",
-          "Ecuador",
-          "Bolivia",
-          "Paraguay",
-          "Venezuela"
-        ].includes(teamName.replace(/\s+U\d+$/, "").trim()));
+      // Known club team patterns
+      const isDefinitelyClubTeam =
+        teamName.toLowerCase().includes("fc ") ||
+        teamName.toLowerCase().includes(" fc") ||
+        teamName.toLowerCase().includes("cf ") ||
+        teamName.toLowerCase().includes(" cf") ||
+        teamName.toLowerCase().includes("sc ") ||
+        teamName.toLowerCase().includes(" sc") ||
+        teamName.toLowerCase().includes("ac ") ||
+        teamName.toLowerCase().includes(" ac") ||
+        teamName.toLowerCase().includes("real ") ||
+        teamName.toLowerCase().includes("club ") ||
+        teamName.toLowerCase().includes(" club") ||
+        teamName.toLowerCase().includes("united") ||
+        teamName.toLowerCase().includes("city") ||
+        teamName.toLowerCase().includes("town") ||
+        teamName.toLowerCase().includes("rovers") ||
+        teamName.toLowerCase().includes("athletic") ||
+        teamName.toLowerCase().includes("sporting") ||
+        teamName.toLowerCase().includes("dynamo") ||
+        teamName.toLowerCase().includes("lokomotiv") ||
+        teamName.toLowerCase().includes("olympiakos") ||
+        teamName.toLowerCase().includes("panathinaikos");
+
+      // Enhanced national team detection using comprehensive list
+      const isDefinitelyNationalTeam = internationalTeamNames.some(country => {
+        const teamNameLower = teamName.toLowerCase().trim();
+        const countryLower = country.toLowerCase();
+
+        // Exact match
+        if (teamNameLower === countryLower) return true;
+
+        // Remove common suffixes for comparison
+        const cleanTeamName = teamNameLower.replace(/\s+(u21|u20|u19|u23|national team)$/i, '').trim();
+        const cleanCountry = countryLower.replace(/\s+(u21|u20|u19|u23|national team)$/i, '').trim();
+
+        return cleanTeamName === cleanCountry;
+      });
 
       if (isDefinitelyClubTeam && !isDefinitelyNationalTeam) {
         console.log(
@@ -352,8 +261,16 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
       if (isDefinitelyNationalTeam && !isDefinitelyClubTeam) {
         console.log(
-          `🇺🇳 [MyWorldTeamLogo] Friendlies Clubs: ${teamName} identified as national team - using circular flag`,
+          `🇺🇳 [MyWorldTeamLogo] Friendlies Clubs: ${teamName} identified as national team - transforming to Friendlies International`,
         );
+
+        // Transform league context to indicate it's international
+        if (leagueContext && leagueContext.name === 'Friendlies Clubs') {
+          // Ensure leagueContext is mutable and has name property
+          leagueContext.name = 'Friendlies International';
+          leagueContext.originalName = 'Friendlies Clubs'; // Store original name
+        }
+
         const result = true; // Use circular flag format
         circularFlagCache.set(cacheKey, { result, timestamp: now });
         return result;
@@ -362,8 +279,15 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       // If uncertain, check if it's a recognizable national team
       if (isActualNationalTeam) {
         console.log(
-          `🌍 [MyWorldTeamLogo] Friendlies Clubs: ${teamName} identified as national team by isNationalTeam - using circular flag`,
+          `🌍 [MyWorldTeamLogo] Friendlies Clubs: ${teamName} identified as national team by isNationalTeam - transforming to Friendlies International`,
         );
+
+        // Transform league context to indicate it's international
+        if (leagueContext && leagueContext.name === 'Friendlies Clubs') {
+          leagueContext.name = 'Friendlies International';
+          leagueContext.originalName = 'Friendlies Clubs';
+        }
+
         const result = true;
         circularFlagCache.set(cacheKey, { result, timestamp: now });
         return result;
@@ -750,8 +674,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       borderRadius: "0%",
       transform: "scale(0.9)",
       // Add theme-aware shadows for better contrast and visibility (lg shadow)
-      filter: darkMode 
-        ? "drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.2))" 
+      filter: darkMode
+        ? "drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.2))"
         : "drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 16px rgba(0, 0, 0, 0.25))",
       imageRendering: "auto" as const,
     }),

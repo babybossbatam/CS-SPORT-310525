@@ -359,40 +359,72 @@ const LazyImage: React.FC<LazyImageProps> = ({
   });
 
   if (isFriendliesClubs && teamName) {
-    // List of common national team names for Friendlies Clubs league
-    const nationalTeamNames = [
-      'Afghanistan', 'Albania', 'Algeria', 'Argentina', 'Armenia', 'Australia', 
-      'Austria', 'Azerbaijan', 'Bahrain', 'Bangladesh', 'Belarus', 'Belgium', 
-      'Bolivia', 'Bosnia and Herzegovina', 'Brazil', 'Bulgaria', 'Cambodia', 
-      'Canada', 'Chile', 'China', 'Colombia', 'Croatia', 'Czech Republic', 
-      'Denmark', 'Ecuador', 'Egypt', 'England', 'Estonia', 'Finland', 'France', 
-      'Georgia', 'Germany', 'Ghana', 'Greece', 'Hong Kong', 'Hungary', 'Iceland', 
-      'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 
-      'Japan', 'Jordan', 'Kazakhstan', 'Kuwait', 'Kyrgyzstan', 'Latvia', 
-      'Lebanon', 'Lithuania', 'Luxembourg', 'Malaysia', 'Mexico', 'Moldova', 
-      'Montenegro', 'Morocco', 'Myanmar', 'Netherlands', 'New Zealand', 'Nigeria', 
-      'North Macedonia', 'Norway', 'Oman', 'Pakistan', 'Palestine', 'Peru', 
-      'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 
-      'Saudi Arabia', 'Scotland', 'Serbia', 'Singapore', 'Slovakia', 'Slovenia', 
-      'South Korea', 'Spain', 'Sri Lanka', 'Sweden', 'Switzerland', 'Syria', 
-      'Tajikistan', 'Thailand', 'Tunisia', 'Turkey', 'Turkmenistan', 'Ukraine', 
-      'United Arab Emirates', 'Uruguay', 'Uzbekistan', 'Venezuela', 'Vietnam', 
-      'Wales', 'Yemen'
+    // Comprehensive list of international team names based on circle-flags gallery
+    const internationalTeamNames = [
+      // From circle-flags gallery - comprehensive list
+      'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda',
+      'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas',
+      'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize',
+      'Benin', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil',
+      'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon',
+      'Canada', 'Cape Verde', 'Central African Republic', 'Chad', 'Chile', 'China',
+      'Colombia', 'Comoros', 'Congo', 'Costa Rica', 'Croatia', 'Cuba',
+      'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic',
+      'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia',
+      'Eswatini', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon',
+      'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada',
+      'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras',
+      'Hong Kong', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran',
+      'Iraq', 'Ireland', 'Israel', 'Italy', 'Jamaica', 'Japan',
+      'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'Kuwait', 'Kyrgyzstan',
+      'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya',
+      'Liechtenstein', 'Lithuania', 'Luxembourg', 'Madagascar', 'Malawi', 'Malaysia',
+      'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius',
+      'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro',
+      'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal',
+      'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'North Korea',
+      'North Macedonia', 'Norway', 'Oman', 'Pakistan', 'Palau', 'Palestine',
+      'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland',
+      'Portugal', 'Qatar', 'Romania', 'Russia', 'Rwanda', 'Saint Kitts and Nevis',
+      'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino',
+      'Sao Tome and Principe', 'Saudi Arabia', 'Scotland', 'Senegal', 'Serbia',
+      'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands',
+      'Somalia', 'South Africa', 'South Korea', 'South Sudan', 'Spain', 'Sri Lanka',
+      'Sudan', 'Suriname', 'Sweden', 'Switzerland', 'Syria', 'Taiwan',
+      'Tajikistan', 'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga',
+      'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda',
+      'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay',
+      'Uzbekistan', 'Vanuatu', 'Vatican City', 'Venezuela', 'Vietnam', 'Wales',
+      'Yemen', 'Zambia', 'Zimbabwe',
+      // Additional variations
+      'England', 'FYR Macedonia', 'UAE', 'USA', 'UK'
     ];
 
-    // Improved national team detection - exact match or team name is exactly a country name
-    const isNationalTeam = nationalTeamNames.some(country => {
+    // Enhanced national team detection - exact match or close variations
+    const isNationalTeam = internationalTeamNames.some(country => {
       const teamNameLower = teamName.toLowerCase().trim();
       const countryLower = country.toLowerCase();
       
-      // Exact match or team name equals country name
-      return teamNameLower === countryLower || 
-             teamNameLower.includes(countryLower) ||
-             countryLower.includes(teamNameLower);
+      // Exact match
+      if (teamNameLower === countryLower) return true;
+      
+      // Remove common suffixes for comparison
+      const cleanTeamName = teamNameLower.replace(/\s+(u21|u20|u19|u23|national team)$/i, '').trim();
+      const cleanCountry = countryLower.replace(/\s+(u21|u20|u19|u23|national team)$/i, '').trim();
+      
+      return cleanTeamName === cleanCountry;
     });
 
     if (isNationalTeam) {
-      console.log(`🏆 [LazyImage] Friendlies Clubs national team detected: ${teamName}, using MyCircularFlag`);
+      console.log(`🏆 [LazyImage] Friendlies Clubs national team detected: ${teamName}, transforming to Friendlies International and using MyCircularFlag`);
+      
+      // Transform league context to indicate it's now international
+      const transformedLeagueContext = {
+        ...leagueContext,
+        name: 'Friendlies International',
+        originalName: leagueContext?.name // Keep original for reference
+      };
+      
       return (
         <MyCircularFlag
           teamName={teamName}
@@ -402,6 +434,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
           size={style?.width || style?.height || "32px"}
           className={className}
           countryName={teamName}
+          leagueContext={transformedLeagueContext}
         />
       );
     } else {

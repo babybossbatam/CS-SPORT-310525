@@ -13,13 +13,14 @@ interface MyCircularFlagProps {
   alt?: string;
   size?: string;
   className?: string;
-  moveLeft?: boolean;
-  nextMatchInfo?: {
-    opponent: string;
-    date: string;
-    venue?: string;
-  };
+  countryName?: string;
   showNextMatchOverlay?: boolean;
+  nextMatchInfo?: any;
+  leagueContext?: {
+    name?: string;
+    country?: string;
+    originalName?: string;
+  };
 }
 
 const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
@@ -27,12 +28,19 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   teamId,
   fallbackUrl,
   alt,
-  size = "51px",
+  size = "32px",
   className = "",
-  moveLeft = false,
-  nextMatchInfo,
+  countryName,
   showNextMatchOverlay = false,
+  nextMatchInfo,
+  leagueContext
 }) => {
+
+  // Log if this is a transformed league context
+  if (leagueContext?.originalName === 'Friendlies Clubs' && leagueContext?.name === 'Friendlies International') {
+    console.log(`🔄 [MyCircularFlag] League transformed from "${leagueContext.originalName}" to "${leagueContext.name}" for team: ${teamName}`);
+  }
+
   const [isHovered, setIsHovered] = useState(false);
   const [nextMatch, setNextMatch] = useState(nextMatchInfo);
 
@@ -260,6 +268,19 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       return fallbackUrl || "/assets/fallback-logo.svg";
     }
 
+    // Check if the league context dictates using a circular flag
+    const useCircularFlagForLeague =
+      leagueContext?.name === "Friendlies International" &&
+      leagueContext?.originalName === "Friendlies Clubs";
+
+    // For club teams that should not use circular flags, prioritize their logo
+    if (isKnownClubTeam) {
+      if (teamId) {
+        return `/api/team-logo/square/${teamId}?size=64`;
+      }
+      return fallbackUrl || "/assets/fallback-logo.svg";
+    }
+
     // Special case for England first
     if (teamName.toLowerCase() === "england") {
       console.log(`🏴󠁧󠁢󠁥󠁮󠁧󠁿 [MyCircularFlag] Using England flag: gb-eng`);
@@ -305,7 +326,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 
   // Fetch next match info if not provided
   useEffect(() => {
-    if (!nextMatchInfo && isNationalTeam(teamName)) {
+    if (!nextMatchInfo && (isNational || leagueContext?.name === "Friendlies International")) {
       // Fetch next match from API
       const fetchNextMatch = async () => {
         try {
@@ -322,7 +343,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       };
       fetchNextMatch();
     }
-  }, [teamName, nextMatchInfo]);
+  }, [teamName, nextMatchInfo, isNational, leagueContext?.name]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -333,7 +354,10 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     });
   };
 
-  // For national teams, use the circular flag format
+  // Determine if we should use a circular flag
+  const shouldUseCircularFlag = isNational || leagueContext?.name === "Friendlies International";
+
+  // For national teams or transformed international friendlies, use the circular flag format
   return (
     <div
       className={`flag-circle ${className}`}
@@ -347,17 +371,17 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       onMouseLeave={() => showNextMatchOverlay && setIsHovered(false)}
     >
       <img
-        src={getLogoUrl()}
+        src={shouldUseCircularFlag ? getLogoUrl() : `/api/team-logo/square/${teamId}?size=64`}
         alt={alt || teamName}
         className="team-logo"
         style={{
           width: size,
           height: size,
           objectFit: "cover",
-          borderRadius: isNational ? "50%" : "50%", // Keep circular for both, but club logos will show as regular logos
+          borderRadius: shouldUseCircularFlag ? "50%" : "50%", // Keep circular for both, but club logos will show as regular logos
           position: "relative",
           zIndex: 1,
-          filter: isNational
+          filter: shouldUseCircularFlag
             ? "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)"
             : "none", // No filter for club logos
         }}
@@ -399,8 +423,8 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
             }
           }
 
-          // For national teams, ensure we're using the correct flag
-          if (isNational && !isKnownClubTeam && !target.src.includes('circle-flags')) {
+          // For national teams or transformed international friendlies, ensure we're using the correct flag
+          if (shouldUseCircularFlag && !target.src.includes('circle-flags')) {
             const flagUrl = getCircleFlagUrl(teamName, fallbackUrl);
             if (flagUrl !== target.src) {
               console.log(`🔄 [MyCircularFlag] Trying correct flag: ${flagUrl}`);
