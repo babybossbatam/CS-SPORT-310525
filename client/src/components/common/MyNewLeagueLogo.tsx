@@ -48,21 +48,6 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
       if (leagueName) {
         const leagueNameLower = leagueName.toLowerCase();
 
-        // UEFA Under-21 Championship gets its own specific logo
-        if (leagueNameLower.includes("under-21") || leagueNameLower.includes("u21") || 
-            leagueNameLower.includes("uefa under-21 championship")) {
-          console.log(`🏆 [MyNewLeagueLogo] Using local UEFA Under-21 Championship logo for: ${leagueName}`);
-          return "/assets/matchdetaillogo/uefa-under-21.png";
-        }
-
-        // Other UEFA competitions (Champions League, Europa League, etc.)
-        if (leagueNameLower.includes("uefa") || leagueNameLower.includes("champions league") || 
-            leagueNameLower.includes("europa league") || leagueNameLower.includes("qualification")) {
-          const uefaLogo = "/assets/matchdetaillogo/uefa.png"; // Standard UEFA logo for other competitions
-          console.log(`🏆 [MyNewLeagueLogo] Using local UEFA logo for: ${leagueName}`);
-          return uefaLogo;
-        }
-
         // COTIF Tournament league
         if (leagueNameLower.includes("cotif") || leagueNameLower.includes("cotif tournament")) {
           console.log(`🏆 [MyNewLeagueLogo] Using local COTIF Tournament logo from start`);
@@ -118,21 +103,6 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
           const shouldUseLocalAssetOnError = () => {
             if (leagueName) {
               const leagueNameLower = leagueName.toLowerCase();
-
-              // UEFA Under-21 Championship gets its own specific logo after error
-              if (leagueNameLower.includes("under-21") || leagueNameLower.includes("u21") || 
-                  leagueNameLower.includes("uefa under-21 championship")) {
-                console.log(`🏆 [MyNewLeagueLogo] Using local UEFA Under-21 Championship logo after error for: ${leagueName}`);
-                return "/assets/matchdetaillogo/uefa-under-21.png";
-              }
-
-              // Other UEFA competitions after error
-              if (leagueNameLower.includes("uefa") || leagueNameLower.includes("champions league") || 
-                  leagueNameLower.includes("europa league") || leagueNameLower.includes("qualification")) {
-                const uefaLogo = "/assets/matchdetaillogo/uefa.png";
-                console.log(`🏆 [MyNewLeagueLogo] Using local UEFA logo after error for: ${leagueName}`);
-                return uefaLogo;
-              }
 
               // COTIF Tournament league
               if (leagueNameLower.includes("cotif") || leagueNameLower.includes("cotif tournament")) {
