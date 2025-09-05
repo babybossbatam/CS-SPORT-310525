@@ -174,16 +174,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         teamName.includes(country) || teamName.replace(/\s*(U21|U20|U19|U18|U17)\s*/gi, '').trim() === country
       );
 
-      if (isNationalTeam && !target.src.includes('flagsapi.com') && !target.src.includes('countryflags.io') && useTeamLogo) {
-        // For national teams, if the current src is not a flag, try to render MyWorldTeamLogo which handles flags
-        console.log(`🏳️ [LazyImage] National team detected: ${teamName}. Will attempt to use MyWorldTeamLogo for flag.`);
-        // Setting a generic fallback for the img tag itself, MyWorldTeamLogo will be rendered in the JSX
-        setCurrentSrc('/assets/matchdetaillogo/fallback.png');
-        setImageState('error'); // Mark as error so MyWorldTeamLogo gets a chance
-        return;
-      }
-
-      // Try different logo sources progressively for club teams or national teams if flag attempt fails
+      // Try different logo sources progressively for club teams
       if (!target.src.includes('/api/team-logo/') && !target.src.includes('api/team-logo')) { // Added common variations
         // Try server proxy endpoint first
         const serverProxyUrl = `/api/team-logo/square/${teamId}?size=64`;
@@ -410,8 +401,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
     }
   }
 
-  // Use MyWorldTeamLogo if team information is provided and useTeamLogo is true
-  // Also render MyWorldTeamLogo if it's a detected national team, even if useTeamLogo is false
+  // Use MyWorldTeamLogo only if explicitly requested with useTeamLogo=true
   if (useTeamLogo && teamId && teamName) {
     // Pass the currentSrc to MyWorldTeamLogo, it will handle its own loading/fallback
     return (
@@ -423,8 +413,6 @@ const LazyImage: React.FC<LazyImageProps> = ({
         size={style?.width || style?.height || "32px"}
         className={className}
         leagueContext={leagueContext}
-        onLoad={onLoad} // Pass down load handler
-        onError={onError} // Pass down error handler
         imageState={imageState} // Pass image state
       />
     );

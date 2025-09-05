@@ -4,7 +4,6 @@ import { RootState } from "@/lib/store";
 import {
   isNationalTeam,
   getTeamLogoSources,
-  createTeamLogoErrorHandler,
 } from "../../lib/teamLogoSources";
 import { enhancedLogoManager } from "../../lib/enhancedLogoManager";
 import MyCircularFlag from "./MyCircularFlag";
@@ -82,10 +81,15 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       `🔄 [MyWorldTeamLogo] Computing shouldUseCircularFlag for: ${teamName}`,
     );
 
+    const leagueName = leagueContext?.name?.toLowerCase() || "";
+
+    // Check if this is a national team
     const isActualNationalTeam = isNationalTeam(
       { name: teamName },
       leagueContext,
     );
+
+    // Youth team detection
     const isYouthTeam =
       teamName?.includes("U17") ||
       teamName?.includes("U19") ||
@@ -93,359 +97,22 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       teamName?.includes("U21") ||
       teamName?.includes("U23");
 
-    // Special handling for COTIF Tournament - detect club vs national teams
-    const leagueName = leagueContext?.name?.toLowerCase() || "";
-    const isCOTIFTournament = leagueName.includes("cotif");
-
-    // For COTIF Tournament, we need to distinguish between club and national teams
-    if (isCOTIFTournament) {
-      console.log(
-        `🏆 [MyWorldTeamLogo] COTIF Tournament detected for team: ${teamName}`,
-      );
-
-      // Known club teams in COTIF (Valencia, Alboraya, etc.)
-      const isKnownClubTeam =
-        (teamId === 532 && teamName.toLowerCase().includes("valencia")) ||
-        (teamId === 19922 && teamName.toLowerCase().includes("alboraya")) ||
-        teamName.toLowerCase().includes("valencia") ||
-        teamName.toLowerCase().includes("alboraya") ||
-        teamName.toLowerCase().includes("ud ") ||
-        teamName.toLowerCase().includes("fc ") ||
-        teamName.toLowerCase().includes("cf ") ||
-        teamName.toLowerCase().includes("club ");
-
-      if (isKnownClubTeam) {
-        console.log(
-          `🏟️ [MyWorldTeamLogo] COTIF: ${teamName} identified as club team - using club logo`,
-        );
-        const result = false; // Use club logo format
-        circularFlagCache.set(cacheKey, { result, timestamp: now });
-        return result;
-      }
-
-      // For youth teams in COTIF that are national teams
-      if (isYouthTeam && isActualNationalTeam) {
-        console.log(
-          `🇺🇳 [MyWorldTeamLogo] COTIF: ${teamName} identified as national youth team - using circular flag`,
-        );
-        const result = true; // Use circular flag format
-        circularFlagCache.set(cacheKey, { result, timestamp: now });
-        return result;
-      }
-
-      // Default for COTIF: if it's a recognizable country name, use circular flag
-      if (isActualNationalTeam) {
-        console.log(
-          `🌍 [MyWorldTeamLogo] COTIF: ${teamName} identified as national team - using circular flag`,
-        );
-        const result = true;
-        circularFlagCache.set(cacheKey, { result, timestamp: now });
-        return result;
-      }
-    }
-
-    const leagueCountry = leagueContext?.country?.toLowerCase() || "";
-
-    // Check if this is FIFA Club World Cup (club competition, not national teams)
-    const isFifaClubWorldCup =
-      leagueName.includes("fifa club world cup") ||
-      leagueName.includes("club world cup") ||
-      leagueName.includes("fifa club wc");
-
-    // More specific friendlies detection
-    const isFriendliesClub =
-      leagueName.includes("friendlies clubs") ||
-      leagueName.includes("friendlies club") ||
-      leagueName.includes("club friendlies");
-
-    // Friendlies International (league ID 10) should be treated as national team competition
-    const isFriendliesInternational =
-      leagueName === "friendlies international" ||
-      leagueName === "international friendlies" ||
-      (leagueName.includes("friendlies") &&
-        leagueName.includes("international")) ||
-      (leagueName === "friendlies" && !isFriendliesClub);
-
-    // Special handling for "Friendlies Clubs" - distinguish between national and club teams
-    if (isFriendliesClub) {
-      console.log(
-        `🏆 [MyWorldTeamLogo] Friendlies Clubs detected for team: ${teamName}`,
-      );
-
-      // Enhanced club team detection patterns
-      const isDefinitelyClubTeam =
-        teamName &&
-        (teamName.toLowerCase().includes("fc ") ||
-          teamName.toLowerCase().includes("cf ") ||
-          teamName.toLowerCase().includes("ac ") ||
-          teamName.toLowerCase().includes("sc ") ||
-          teamName.toLowerCase().includes("united") ||
-          teamName.toLowerCase().includes("city") ||
-          teamName.toLowerCase().includes("athletic") ||
-          teamName.toLowerCase().includes("real ") ||
-          teamName.toLowerCase().includes("club ") ||
-          teamName.toLowerCase().includes("ud ") ||
-          teamName.toLowerCase().includes("arsenal") ||
-          teamName.toLowerCase().includes("liverpool") ||
-          teamName.toLowerCase().includes("chelsea") ||
-          teamName.toLowerCase().includes("manchester") ||
-          teamName.toLowerCase().includes("tottenham") ||
-          teamName.toLowerCase().includes("bayern") ||
-          teamName.toLowerCase().includes("dortmund") ||
-          teamName.toLowerCase().includes("juventus") ||
-          teamName.toLowerCase().includes("milan") ||
-          teamName.toLowerCase().includes("inter") ||
-          teamName.toLowerCase().includes("napoli") ||
-          teamName.toLowerCase().includes("roma") ||
-          teamName.toLowerCase().includes("psg") ||
-          teamName.toLowerCase().includes("olympique") ||
-          teamName.toLowerCase().includes("atletico") ||
-          teamName.toLowerCase().includes("barcelona") ||
-          teamName.toLowerCase().includes("valencia") ||
-          teamName.toLowerCase().includes("sevilla") ||
-          teamName.toLowerCase().includes("villarreal") ||
-          teamName.toLowerCase().includes(" ff") ||
-          teamName.toLowerCase().includes("hammarby") ||
-          teamName.toLowerCase().includes("brommapojkarna") ||
-          teamName.toLowerCase().includes("aik") ||
-          teamName.toLowerCase().includes("djurgarden") ||
-          teamName.toLowerCase().includes("malmo"));
-
-      // Enhanced national team detection - check against known countries
-      const isDefinitelyNationalTeam =
-        teamName &&
-        ([
-          "Malaysia",
-          "Singapore",
-          "Saudi Arabia",
-          "FYR Macedonia",
-          "North Macedonia",
-          "Macedonia",
-          "United Arab Emirates",
-          "UAE",
-          "Finland",
-          "San Marino",
-          "Belarus",
-          "Belgium",
-          "Iraq",
-          "Pakistan",
-          "Australia",
-          "Yemen",
-          "Lebanon",
-          "Kuwait",
-          "Myanmar",
-          "Uzbekistan",
-          "Sri Lanka",
-          "Vietnam",
-          "Bangladesh",
-          "Afghanistan",
-          "India",
-          "Iran",
-          "Japan",
-          "Thailand",
-          "Mongolia",
-          "Indonesia",
-          "Laos",
-          "Syria",
-          "Philippines",
-          "Turkmenistan",
-          "Chinese Taipei",
-          "Palestine",
-          "Kyrgyz Republic",
-          "Hong Kong",
-          "Bahrain",
-          "Jordan",
-          "Bhutan",
-          "Tajikistan",
-          "Nepal",
-          "Qatar",
-          "Brunei",
-          "Guam",
-          "Spain",
-          "France",
-          "Germany",
-          "Italy",
-          "England",
-          "Brazil",
-          "Argentina",
-          "Colombia",
-          "Chile",
-          "Peru",
-          "Uruguay",
-          "Ecuador",
-          "Bolivia",
-          "Paraguay",
-          "Venezuela"
-        ].includes(teamName.trim()) ||
-        [
-          "Malaysia",
-          "Singapore",
-          "Saudi Arabia",
-          "FYR Macedonia",
-          "North Macedonia",
-          "Macedonia",
-          "United Arab Emirates",
-          "UAE",
-          "Finland",
-          "San Marino",
-          "Belarus",
-          "Belgium",
-          "Iraq",
-          "Pakistan",
-          "Australia",
-          "Yemen",
-          "Lebanon",
-          "Kuwait",
-          "Myanmar",
-          "Uzbekistan",
-          "Sri Lanka",
-          "Vietnam",
-          "Bangladesh",
-          "Afghanistan",
-          "India",
-          "Iran",
-          "Japan",
-          "Thailand",
-          "Mongolia",
-          "Indonesia",
-          "Laos",
-          "Syria",
-          "Philippines",
-          "Turkmenistan",
-          "Chinese Taipei",
-          "Palestine",
-          "Kyrgyz Republic",
-          "Hong Kong",
-          "Bahrain",
-          "Jordan",
-          "Bhutan",
-          "Tajikistan",
-          "Nepal",
-          "Qatar",
-          "Brunei",
-          "Guam",
-          "Spain",
-          "France",
-          "Germany",
-          "Italy",
-          "England",
-          "Brazil",
-          "Argentina",
-          "Colombia",
-          "Chile",
-          "Peru",
-          "Uruguay",
-          "Ecuador",
-          "Bolivia",
-          "Paraguay",
-          "Venezuela"
-        ].includes(teamName.replace(/\s+U\d+$/, "").trim()));
-
-      if (isDefinitelyClubTeam && !isDefinitelyNationalTeam) {
-        console.log(
-          `🏟️ [MyWorldTeamLogo] Friendlies Clubs: ${teamName} identified as club team - using club logo`,
-        );
-        const result = false; // Use club logo format
-        circularFlagCache.set(cacheKey, { result, timestamp: now });
-        return result;
-      }
-
-      if (isDefinitelyNationalTeam && !isDefinitelyClubTeam) {
-        console.log(
-          `🇺🇳 [MyWorldTeamLogo] Friendlies Clubs: ${teamName} identified as national team - using circular flag`,
-        );
-        const result = true; // Use circular flag format
-        circularFlagCache.set(cacheKey, { result, timestamp: now });
-        return result;
-      }
-
-      // If uncertain, check if it's a recognizable national team
-      if (isActualNationalTeam) {
-        console.log(
-          `🌍 [MyWorldTeamLogo] Friendlies Clubs: ${teamName} identified as national team by isNationalTeam - using circular flag`,
-        );
-        const result = true;
-        circularFlagCache.set(cacheKey, { result, timestamp: now });
-        return result;
-      }
-
-      // Default for unclear cases in Friendlies Clubs - use club logo
-      console.log(
-        `❓ [MyWorldTeamLogo] Friendlies Clubs: ${teamName} unclear classification - defaulting to club logo`,
-      );
-      const result = false;
-      circularFlagCache.set(cacheKey, { result, timestamp: now });
-      return result;
-    }
-
-    const isUefaEuropaLeague =
-      leagueName.includes("uefa europa league") ||
-      leagueName.includes("europa league");
-    const isUefaConferenceLeague =
-      leagueName.includes("uefa europa conference league") ||
-      leagueName.includes("europa conference league");
-    const isUefaChampionsLeague =
-      leagueName.includes("uefa champions league") ||
-      leagueName.includes("champions league");
-    const isConmebolSudamericana =
-      leagueName.includes("conmebol sudamericana") ||
-      leagueName.includes("copa sudamericana");
-
-    const isUefaNationsLeague =
-      leagueName.includes("uefa nations league") ||
-      leagueName.includes("nations league");
-
-    // AFC competitions with national teams
-    const isAfcU20AsianCup =
-      leagueName.includes("afc u20 asian cup") ||
-      leagueName.includes("afc u-20 asian cup") ||
-      leagueName.includes("asian cup u20") ||
-      leagueName.includes("asian cup u-20");
-
-    // Debug logging for Friendlies International
-    if (leagueName.includes("friendlies")) {
-      console.log("🔍 [MyWorldTeamLogo] Friendlies Detection:", {
-        teamName,
-        leagueName,
-        isFriendliesInternational,
-        isFriendliesClub,
-        isActualNationalTeam,
-        isYouthTeam,
-      });
-    }
-
-    // Check if this is being used in a standings context (club competition)
-    const isStandingsContext =
-      leagueName.includes("standing") ||
-      leagueName.includes("table") ||
-      // Popular domestic leagues that should always use club logos
-      leagueName.includes("premier league") ||
-      leagueName.includes("la liga") ||
-      leagueName.includes("serie a") ||
-      leagueName.includes("bundesliga") ||
-      leagueName.includes("ligue 1") ||
-      leagueName.includes("primeira liga") ||
-      leagueName.includes("eredivisie");
-
-    // Force specific club youth teams to ALWAYS use club logos
-    const isClubYouthTeam =
-      (teamName?.includes("Valencia U20") && teamId === 532) ||
-      (teamName?.includes("Alboraya U20") && teamId === 19922);
-
-    // Additional check for known club teams that should NEVER use circular flags
+    // Known club team patterns - these should NEVER use circular flags
     const isKnownClubTeam =
       teamName &&
-      (teamName.toLowerCase().includes("fc") ||
-        teamName.toLowerCase().includes("cf") ||
+      (teamName.toLowerCase().includes("fc ") ||
+        teamName.toLowerCase().includes("cf ") ||
+        teamName.toLowerCase().includes("ac ") ||
+        teamName.toLowerCase().includes("sc ") ||
         teamName.toLowerCase().includes("united") ||
         teamName.toLowerCase().includes("city") ||
         teamName.toLowerCase().includes("athletic") ||
-        teamName.toLowerCase().includes("realmadrid") ||
-        teamName.toLowerCase().includes("barcelona") ||
+        teamName.toLowerCase().includes("real ") ||
+        teamName.toLowerCase().includes("club ") ||
+        teamName.toLowerCase().includes("ud ") ||
         teamName.toLowerCase().includes("valencia") ||
         teamName.toLowerCase().includes("alboraya") ||
-        teamName.toLowerCase().includes("club") ||
-        teamName.toLowerCase().includes("ud ") ||
+        // Add more specific club patterns
         teamName.toLowerCase().includes("arsenal") ||
         teamName.toLowerCase().includes("liverpool") ||
         teamName.toLowerCase().includes("chelsea") ||
@@ -460,155 +127,109 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         teamName.toLowerCase().includes("roma") ||
         teamName.toLowerCase().includes("psg") ||
         teamName.toLowerCase().includes("olympique") ||
-        teamName.toLowerCase().includes("atletico"));
+        teamName.toLowerCase().includes("atletico") ||
+        teamName.toLowerCase().includes("barcelona") ||
+        teamName.toLowerCase().includes("sevilla") ||
+        teamName.toLowerCase().includes("villarreal"));
 
-    // Enhanced national team detection for youth and women's teams
-    const isWomensNationalTeam =
-      teamName?.endsWith(" W") && isActualNationalTeam && !isKnownClubTeam;
-    const isNationalYouthTeam =
-      isYouthTeam && isActualNationalTeam && !isKnownClubTeam;
+    // Force specific club youth teams to ALWAYS use club logos (never circular flags)
+    const isClubYouthTeam =
+      (teamName?.includes("Valencia U20") && teamId === 532) ||
+      (teamName?.includes("Alboraya U20") && teamId === 19922);
 
-    // Debug logging for AFC competitions
-    if (leagueName.includes("afc") || leagueName.includes("asian cup")) {
-      console.log("🏆 [MyWorldTeamLogo] AFC Competition Detection:", {
-        teamName,
-        leagueName,
-        isAfcU20AsianCup,
-        isActualNationalTeam,
-        isYouthTeam,
-        isWomensNationalTeam,
-      });
-    }
+    // League patterns that typically use club teams
+    const isClubCompetition =
+      leagueName.includes("premier league") ||
+      leagueName.includes("la liga") ||
+      leagueName.includes("serie a") ||
+      leagueName.includes("bundesliga") ||
+      leagueName.includes("ligue 1") ||
+      leagueName.includes("primeira liga") ||
+      leagueName.includes("eredivisie") ||
+      leagueName.includes("uefa champions league") ||
+      leagueName.includes("uefa europa league") ||
+      leagueName.includes("uefa europa conference league") ||
+      leagueName.includes("conmebol sudamericana") ||
+      leagueName.includes("fifa club world cup") ||
+      leagueName.includes("club world cup") ||
+      leagueName.includes("standing") ||
+      leagueName.includes("table");
 
-    // Comprehensive recognized country names list
-    const isRecognizedCountryName =
-      teamName &&
-      ([
-        "Iraq",
-        "Pakistan",
-        "Australia",
-        "Northern Mariana Islands",
-        "Yemen",
-        "Singapore",
-        "San Marino",
-        "Malaysia",
-        "Lebanon",
-        "Kuwait",
-        "Myanmar",
-        "Uzbekistan",
-        "Sri Lanka",
-        "Vietnam",
-        "Bangladesh",
-        "Afghanistan",
-        "India",
-        "Iran",
-        "Japan",
-        "Thailand",
-        "Mongolia",
-        "Indonesia",
-        "Laos",
-        "Syria",
-        "Philippines",
-        "Turkmenistan",
-        "Chinese Taipei",
-        "Palestine",
-        "Kyrgyz Republic",
-        "Hong Kong",
-        "Bahrain",
-        "Jordan",
-        "Bhutan",
-        "Tajikistan",
-        "Nepal",
-        "Qatar",
-        "Brunei",
-        "UAE",
-        "Guam",
-        "Saudi Arabia",
-        "FYR Macedonia",
-        "North Macedonia",
-        "Macedonia",
-        "United Arab Emirates",
-        "Finland",
-
-        "Belarus",
-        "Belgium",
-      ].includes(teamName.replace(/\s+U\d+$/, "").trim()) ||
-        [
-          "Iraq",
-          "Pakistan",
-          "Australia",
-          "Northern Mariana Islands",
-          "Yemen",
-          "Singapore",
-          "Malaysia",
-          "Lebanon",
-          "Kuwait",
-          "Myanmar",
-          "Uzbekistan",
-          "Sri Lanka",
-          "Vietnam",
-          "Bangladesh",
-          "Afghanistan",
-          "India",
-          "Iran",
-          "Japan",
-          "Thailand",
-          "Mongolia",
-          "Indonesia",
-          "Laos",
-          "Syria",
-          "Philippines",
-          "Turkmenistan",
-          "Chinese Taipei",
-          "Palestine",
-          "Kyrgyz Republic",
-          "Hong Kong",
-          "Bahrain",
-          "Jordan",
-          "Bhutan",
-          "Tajikistan",
-          "Nepal",
-          "Qatar",
-          "Brunei",
-          "Guam",
-          "Saudi Arabia",
-          "FYR Macedonia",
-          "North Macedonia",
-          "Macedonia",
-          "United Arab Emirates",
-          "Finland",
-
-          "Belarus",
-          "Belgium",
-        ].includes(teamName));
-
-    // Check for youth international competitions (should use flags)
-    const isYouthInternationalCompetition =
+    // League patterns that typically use national teams
+    const isNationalTeamCompetition =
+      leagueName.includes("friendlies international") ||
+      leagueName.includes("international friendlies") ||
+      leagueName.includes("uefa nations league") ||
+      leagueName.includes("nations league") ||
+      leagueName.includes("world cup") ||
+      leagueName.includes("euro") ||
+      leagueName.includes("copa america") ||
+      leagueName.includes("afc u20 asian cup") ||
+      leagueName.includes("afc u-20 asian cup") ||
+      leagueName.includes("asian cup u20") ||
+      leagueName.includes("asian cup u-20") ||
+      leagueName.includes("olympic") ||
+      leagueName.includes("cotif") ||
+      leagueName.includes("uefa under-21 championship") ||
+      (leagueName.includes("uefa") && leagueName.includes("under-21")) ||
       leagueName.includes("u20") ||
       leagueName.includes("u21") ||
       leagueName.includes("u23") ||
       leagueName.includes("under-20") ||
       leagueName.includes("under-21") ||
       leagueName.includes("under-23") ||
-      leagueName.includes("youth") ||
-      (leagueName.includes("euro") && (leagueName.includes("u21") || leagueName.includes("u20"))) ||
-      leagueName.includes("olympic") ||
-      leagueName.includes("cotif") ||
-      leagueName.includes("uefa under-21 championship") ||
-      (leagueName.includes("uefa") && leagueName.includes("under-21"));
+      leagueName.includes("youth");
 
-    // Force circular flag for all recognized national teams
-    const result =
-      !isStandingsContext &&
-      !isClubYouthTeam &&
-      !isKnownClubTeam &&
-      (isActualNationalTeam || isRecognizedCountryName || isYouthInternationalCompetition) &&
-      !isFifaClubWorldCup &&
-      !isFriendliesClub &&
-      !isUefaEuropaLeague &&
-      !isUefaConferenceLeague &&
-      !isUefaChampionsLeague &&
-      !isConmebolSudamericana;
+    // Special handling for mixed competitions like COTIF and Friendlies Clubs
+    const isMixedCompetition =
+      leagueName.includes("cotif") ||
+      leagueName.includes("friendlies clubs") ||
+      leagueName.includes("friendlies club") ||
+      leagueName.includes("club friendlies");
+
+    // Decision logic
+    let result = false;
+
+    // 1. Known club teams should never use circular flags
+    if (isKnownClubTeam || isClubYouthTeam) {
+      result = false;
+      console.log(`🏟️ [MyWorldTeamLogo] ${teamName} identified as club team - using club logo`);
+    }
+    // 2. Club competitions should use club logos
+    else if (isClubCompetition) {
+      result = false;
+      console.log(`🏆 [MyWorldTeamLogo] ${teamName} in club competition - using club logo`);
+    }
+    // 3. National team competitions should use circular flags
+    else if (isNationalTeamCompetition && isActualNationalTeam) {
+      result = true;
+      console.log(`🇺🇳 [MyWorldTeamLogo] ${teamName} in national team competition - using circular flag`);
+    }
+    // 4. Mixed competitions - need to distinguish
+    else if (isMixedCompetition) {
+      // In mixed competitions, prioritize actual detection
+      if (isKnownClubTeam) {
+        result = false;
+        console.log(`🏟️ [MyWorldTeamLogo] Mixed competition: ${teamName} identified as club team - using club logo`);
+      } else if (isActualNationalTeam) {
+        result = true;
+        console.log(`🇺🇳 [MyWorldTeamLogo] Mixed competition: ${teamName} identified as national team - using circular flag`);
+      } else {
+        // Default for unclear cases
+        result = false;
+        console.log(`❓ [MyWorldTeamLogo] Mixed competition: ${teamName} unclear classification - defaulting to club logo`);
+      }
+    }
+    // 5. Default case - use national team detection
+    else if (isActualNationalTeam && !isKnownClubTeam) {
+      result = true;
+      console.log(`🌍 [MyWorldTeamLogo] ${teamName} identified as national team - using circular flag`);
+    }
+    // 6. Default to club logo for everything else
+    else {
+      result = false;
+      console.log(`🏟️ [MyWorldTeamLogo] ${teamName} defaulting to club logo`);
+    }
 
     // Cache the result
     circularFlagCache.set(cacheKey, {
@@ -616,36 +237,24 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       timestamp: now,
     });
 
-    // Debug logging for specific club youth teams
-    if (
-      teamName?.includes("Valencia U20") ||
-      teamName?.includes("Alboraya U20")
-    ) {
-      console.log(
-        `🏟️ [MyWorldTeamLogo] Club Youth Team Detection for ${teamName}:`,
-        {
-          teamId: teamId,
-          isClubYouthTeam:
-            (teamName?.includes("Valencia U20") && teamId === 532) ||
-            (teamName?.includes("Alboraya U20") && teamId === 19922),
-          shouldUseCircularFlag: result,
-          leagueName: leagueName,
-        },
-      );
-    }
-
     console.log(
       `💾 [MyWorldTeamLogo] Cached shouldUseCircularFlag result for ${teamName}: ${result}`,
     );
     return result;
-  }, [teamName, leagueContext]);
+  }, [teamName, leagueContext, teamId]);
 
-  // Synchronous logo URL resolution
+  // Synchronous logo URL resolution for club teams
   const logoUrl = useMemo(() => {
+    if (shouldUseCircularFlag) {
+      // For national teams, MyCircularFlag will handle the URL
+      return teamLogo || "/assets/matchdetaillogo/fallback.png";
+    }
+
+    // For club teams, get the best available logo URL
     if (teamId) {
       const logoSources = getTeamLogoSources(
         { id: teamId, name: teamName, logo: teamLogo },
-        shouldUseCircularFlag || false,
+        false, // Never use circular flag sources for club teams
         "football",
       );
       if (logoSources.length > 0) {
@@ -663,87 +272,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         : "/assets/matchdetaillogo/fallback.png";
     return safeLogo;
   }, [teamId, teamName, teamLogo, shouldUseCircularFlag]);
-
-  // Enhanced logo URL with async loading fallback
-  const [resolvedLogoUrl, setResolvedLogoUrl] = React.useState<string>(logoUrl);
-
-  React.useEffect(() => {
-    const loadEnhancedLogo = async () => {
-      if (teamId && teamName) {
-        try {
-          console.log(
-            `🎯 [MyWorldTeamLogo] Fetching enhanced logo for team: ${teamName} (ID: ${teamId}), shouldUseCircularFlag: ${shouldUseCircularFlag}`,
-          );
-
-          // For national teams that should use circular flags, don't use enhanced manager
-          if (shouldUseCircularFlag) {
-            console.log(
-              `🌍 [MyWorldTeamLogo] Skipping enhanced manager for national team: ${teamName}`,
-            );
-            setResolvedLogoUrl(logoUrl);
-            return;
-          }
-
-          // Check direct endpoint first
-          const directEndpoint = `/api/team-logo/square/${teamId}?size=64`;
-          console.log(
-            `🔍 [MyWorldTeamLogo] Testing direct endpoint: ${directEndpoint}`,
-          );
-
-          const logoResponse = await enhancedLogoManager.getTeamLogo(
-            "MyWorldTeamLogo",
-            {
-              type: "team",
-              shape: shouldUseCircularFlag ? "circular" : "normal",
-              teamId: teamId,
-              teamName: teamName,
-              fallbackUrl: logoUrl,
-            },
-          );
-
-          console.log(
-            `✅ [MyWorldTeamLogo] Enhanced logo resolved for ${teamName}:`,
-            {
-              url: logoResponse.url,
-              cached: logoResponse.cached,
-              fallbackUsed: logoResponse.fallbackUsed,
-              loadTime: logoResponse.loadTime + "ms",
-              isServerProxy: logoResponse.url.includes("/api/team-logo/"),
-              directEndpoint: directEndpoint,
-            },
-          );
-
-          setResolvedLogoUrl(logoResponse.url);
-        } catch (error) {
-          console.warn(
-            `⚠️ [MyWorldTeamLogo] Enhanced logo failed for ${teamName}, using fallback:`,
-            error,
-          );
-
-          // For national teams, don't try server proxy fallback
-          if (shouldUseCircularFlag) {
-            console.log(
-              `🌍 [MyWorldTeamLogo] National team fallback for ${teamName}, using original logoUrl`,
-            );
-            setResolvedLogoUrl(logoUrl);
-          } else {
-            console.log(
-              `🔄 [MyWorldTeamLogo] Trying direct server proxy for ${teamName}`,
-            );
-            const directFallback = `/api/team-logo/square/${teamId}?size=64`;
-            setResolvedLogoUrl(directFallback);
-          }
-        }
-      } else {
-        console.log(
-          `❌ [MyWorldTeamLogo] Missing teamId or teamName: ${teamName} (${teamId})`,
-        );
-        setResolvedLogoUrl(logoUrl);
-      }
-    };
-
-    loadEnhancedLogo();
-  }, [teamId, teamName, logoUrl, shouldUseCircularFlag]);
 
   // Memoized inline styles
   const containerStyle = useMemo(
@@ -764,7 +292,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       objectFit: "contain" as const,
       borderRadius: "0%",
       transform: "scale(0.9)",
-      // Add theme-aware shadows for better contrast and visibility (lg shadow)
+      // Add theme-aware shadows for better contrast and visibility
       filter: darkMode
         ? "drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.2))"
         : "drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 16px rgba(0, 0, 0, 0.25))",
@@ -773,63 +301,13 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     [darkMode],
   );
 
-  const handleImageError = useCallback(() => {
-    console.warn(`⚠️ [MyWorldTeamLogo] Image error for ${teamName}:`, {
-      currentUrl: resolvedLogoUrl,
-      teamId: teamId,
-      hasTeamId: !!teamId,
-      isServerProxy: resolvedLogoUrl.includes("/api/team-logo/"),
-    });
-
-    // Try different logo sources if teamId is available
-    if (teamId && !resolvedLogoUrl.includes("/api/team-logo/")) {
-      const fallbackUrl = `/api/team-logo/square/${teamId}?size=32`;
-      console.log(
-        `🔄 [MyWorldTeamLogo] Trying server proxy fallback: ${fallbackUrl}`,
-      );
-      setResolvedLogoUrl(fallbackUrl);
-      return;
-    }
-
-    // Try alternative server proxy sizes
-    if (teamId && resolvedLogoUrl.includes("size=64")) {
-      const smallerFallback = `/api/team-logo/square/${teamId}?size=32`;
-      console.log(
-        `🔄 [MyWorldTeamLogo] Trying smaller size fallback: ${smallerFallback}`,
-      );
-      setResolvedLogoUrl(smallerFallback);
-      return;
-    }
-
-    // Try the teamLogoSources alternatives
-    if (teamId && resolvedLogoUrl.includes("/api/team-logo/")) {
-      const sources = getTeamLogoSources(
-        { id: teamId, name: teamName },
-        false,
-        "football",
-      );
-      const nextSource = sources.find(
-        (source) => source.url !== resolvedLogoUrl,
-      );
-      if (nextSource) {
-        console.log(
-          `🔄 [MyWorldTeamLogo] Trying next source: ${nextSource.source} - ${nextSource.url}`,
-        );
-        setResolvedLogoUrl(nextSource.url);
-        return;
-      }
-    }
-
-    // Set final fallback image
-    console.log(`🚫 [MyWorldTeamLogo] Using final fallback for ${teamName}`);
-    setResolvedLogoUrl("/assets/matchdetaillogo/fallback.png");
-  }, [teamId, teamName, resolvedLogoUrl]);
-
+  // DECISION POINT: Use MyCircularFlag for national teams, LazyImage for club teams
   if (shouldUseCircularFlag) {
+    console.log(`🌍 [MyWorldTeamLogo] Rendering MyCircularFlag for national team: ${teamName}`);
     return (
       <MyCircularFlag
         teamName={teamName}
-        fallbackUrl={resolvedLogoUrl}
+        fallbackUrl={logoUrl}
         alt={alt || teamName}
         size={size}
         className={className}
@@ -840,7 +318,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     );
   }
 
-  // For non-national teams (club teams), use regular LazyImage with cached URL
+  // For club teams, use LazyImage
+  console.log(`🏟️ [MyWorldTeamLogo] Rendering LazyImage for club team: ${teamName}`);
   return (
     <div
       className={`team-logo-container ${className}`}
@@ -852,13 +331,12 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       }}
     >
       <LazyImage
-        src={resolvedLogoUrl}
+        src={logoUrl}
         alt={alt || teamName}
         title={teamName}
         className="team-logo"
         style={imageStyle}
-        onError={handleImageError}
-        useTeamLogo={false}
+        useTeamLogo={false} // Important: LazyImage should NOT do team logo detection
         teamId={teamId}
         teamName={teamName}
         leagueContext={leagueContext}
