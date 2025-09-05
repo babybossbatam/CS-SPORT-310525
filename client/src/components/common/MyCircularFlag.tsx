@@ -103,6 +103,10 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       Qatar: "QA",
       Brunei: "BN",
       Guam: "GU",
+      // Add missing countries from your images
+      Gibraltar: "GI",
+      Russia: "RU",
+      "Russian Federation": "RU",
     };
 
     return countryMap[country] || "XX";
@@ -161,6 +165,8 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     "San Marino": "sm",
     "san marino": "sm",
     Russia: "ru",
+    "Russian Federation": "ru",
+    Gibraltar: "gi",
     Serbia: "rs",
     // South American teams
     Brazil: "br",
@@ -373,7 +379,32 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
             target.src,
           );
 
-          // Enhanced fallback logic for club teams
+          // For national teams, ALWAYS prioritize flag sources first
+          if (isNational && !isKnownClubTeam) {
+            // If not already trying circle-flags, try the correct flag first
+            if (!target.src.includes('circle-flags')) {
+              const flagUrl = getCircleFlagUrl(teamName, fallbackUrl);
+              if (flagUrl !== target.src && !flagUrl.includes('/assets/fallback-logo.svg')) {
+                console.log(`🏳️ [MyCircularFlag] Prioritizing flag for national team ${teamName}: ${flagUrl}`);
+                target.src = flagUrl;
+                return;
+              }
+            }
+            
+            // Try alternative flag sources for national teams
+            if (target.src.includes('circle-flags')) {
+              // Try different flag providers
+              const countryCode = getCountryCode(teamName);
+              if (countryCode && countryCode !== "XX") {
+                const altFlagUrl = `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
+                console.log(`🔄 [MyCircularFlag] Trying alternative flag source: ${altFlagUrl}`);
+                target.src = altFlagUrl;
+                return;
+              }
+            }
+          }
+
+          // Enhanced fallback logic for club teams ONLY
           if (teamId && (!isNational || isKnownClubTeam)) {
             // Try different sizes and sources
             if (target.src.includes('size=64')) {
@@ -390,7 +421,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
               return;
             }
 
-            // Try team logo sources as final attempt
+            // Try team logo sources as final attempt for club teams
             const logoSources = getTeamLogoSources({ id: teamId, name: teamName }, false);
             const nextSource = logoSources.find(source => 
               source.url !== target.src && 
@@ -400,16 +431,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
             if (nextSource) {
               console.log(`🔄 [MyCircularFlag] Trying source: ${nextSource.source} - ${nextSource.url}`);
               target.src = nextSource.url;
-              return;
-            }
-          }
-
-          // For national teams, ensure we're using the correct flag
-          if (isNational && !isKnownClubTeam && !target.src.includes('circle-flags')) {
-            const flagUrl = getCircleFlagUrl(teamName, fallbackUrl);
-            if (flagUrl !== target.src) {
-              console.log(`🔄 [MyCircularFlag] Trying correct flag: ${flagUrl}`);
-              target.src = flagUrl;
               return;
             }
           }
