@@ -172,7 +172,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         `🏆 [MyWorldTeamLogo] Friendlies Clubs detected for team: ${teamName}`,
       );
 
-      // Enhanced club team detection patterns with more comprehensive coverage
+      // Enhanced club team detection patterns
       const isDefinitelyClubTeam =
         teamName &&
         (teamName.toLowerCase().includes("fc ") ||
@@ -205,26 +205,11 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
           teamName.toLowerCase().includes("sevilla") ||
           teamName.toLowerCase().includes("villarreal") ||
           teamName.toLowerCase().includes(" ff") ||
-          teamName.toLowerCase().includes(" if") ||
           teamName.toLowerCase().includes("hammarby") ||
           teamName.toLowerCase().includes("brommapojkarna") ||
           teamName.toLowerCase().includes("aik") ||
           teamName.toLowerCase().includes("djurgarden") ||
-          teamName.toLowerCase().includes("malmo") ||
-          teamName.toLowerCase().includes("fk ") ||
-          teamName.toLowerCase().includes("bk ") ||
-          teamName.toLowerCase().includes("ik ") ||
-          teamName.toLowerCase().includes("sk ") ||
-          teamName.toLowerCase().includes("sporting") ||
-          teamName.toLowerCase().includes("dynamo") ||
-          teamName.toLowerCase().includes("borussia") ||
-          // Additional patterns for Scandinavian clubs
-          teamName.toLowerCase().endsWith(" ff") ||
-          teamName.toLowerCase().endsWith(" if") ||
-          teamName.toLowerCase().endsWith(" bk") ||
-          teamName.toLowerCase().endsWith(" fk") ||
-          teamName.toLowerCase().endsWith(" sk") ||
-          teamName.toLowerCase().endsWith(" ik"));
+          teamName.toLowerCase().includes("malmo"));
 
       // Enhanced national team detection - check against known countries
       const isDefinitelyNationalTeam =
