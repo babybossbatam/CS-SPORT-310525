@@ -371,13 +371,11 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   );
 
   // DECISION POINT: Use MyCircularFlag for national teams, LazyImage for club teams
-  // National teams should ALWAYS use MyCircularFlag regardless of useTeamLogo prop
   if (shouldUseCircularFlag) {
     console.log(`🌍 [MyWorldTeamLogo] Rendering MyCircularFlag for national team: ${teamName}`);
     return (
       <MyCircularFlag
         teamName={teamName}
-        teamId={teamId} // Pass teamId to MyCircularFlag for better fallback handling
         fallbackUrl={logoUrl}
         alt={alt || teamName}
         size={size}
