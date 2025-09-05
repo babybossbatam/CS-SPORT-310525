@@ -379,10 +379,10 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     }
 
     const isUefaEuropaLeague =
-      leagueName.includes("uefa europa league") ||
+      leagueName.includes("uefaeuropa league") ||
       leagueName.includes("europa league");
     const isUefaConferenceLeague =
-      leagueName.includes("uefa europa conference league") ||
+      leagueName.includes("uefaeuropa conference league") ||
       leagueName.includes("europa conference league");
     const isUefaChampionsLeague =
       leagueName.includes("uefa champions league") ||
@@ -677,7 +677,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         console.log(`🔧 [MyWorldTeamLogo] Club team detected: ${teamName}, using server proxy first`);
         return `/api/team-logo/square/${teamId}?size=64`;
       }
-      
+
       // For national teams, use the logo sources as before
       const logoSources = getTeamLogoSources(
         { id: teamId, name: teamName, logo: teamLogo },

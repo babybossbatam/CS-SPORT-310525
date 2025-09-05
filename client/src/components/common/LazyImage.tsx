@@ -349,9 +349,35 @@ const LazyImage: React.FC<LazyImageProps> = ({
   // Note: National team detection is now handled by MyWorldTeamLogo upstream
   // LazyImage should focus on image loading, not team type detection
 
+  // Enhanced detection for UEFA Under-21 teams that should always use MyWorldTeamLogo
+  const isUefaU21Team = useMemo(() => {
+    if (!leagueContext?.name || !teamName) return false;
+    
+    const leagueName = leagueContext.name.toLowerCase();
+    const teamNameLower = teamName.toLowerCase();
+    
+    // Check if this is UEFA Under-21 Championship
+    const isUefaU21League = leagueName.includes('uefa') && 
+                           (leagueName.includes('under-21') || leagueName.includes('u21') || leagueName.includes('u-21'));
+    
+    if (!isUefaU21League) return false;
+    
+    // These teams should always use circular flags
+    const uefaU21Teams = [
+      'romania', 'kosovo', 'moldova', 'iceland', 'faroe islands', 'republic of ireland',
+      'ireland', 'spain', 'england', 'italy', 'france', 'germany', 'portugal',
+      'netherlands', 'belgium', 'switzerland', 'austria', 'croatia', 'serbia'
+    ];
+    
+    return uefaU21Teams.some(country => 
+      teamNameLower.includes(country) || 
+      teamNameLower.replace(/\s*(u21|u-21|under-21)\s*/gi, '').trim() === country
+    );
+  }, [teamName, leagueContext, alt]);
+
   // Use MyWorldTeamLogo if team information is provided and useTeamLogo is true
-  // Also render MyWorldTeamLogo if it's a detected national team, even if useTeamLogo is false
-  if (useTeamLogo && teamId && teamName) {
+  // OR if it's a detected UEFA Under-21 team (force circular flags)
+  if ((useTeamLogo && teamId && teamName) || isUefaU21Team) {
     // Pass the currentSrc to MyWorldTeamLogo, it will handle its own loading/fallback
     return (
       <MyWorldTeamLogo
