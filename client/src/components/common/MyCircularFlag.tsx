@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { getCountryCode as getLibCountryCode } from "@/lib/flagUtils"; // Renamed to avoid conflict
+import { ALL_COUNTRIES } from "@/lib/constants/countriesAndLeagues";
 import {
   isNationalTeam,
   getTeamLogoSources,
@@ -36,12 +37,32 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [nextMatch, setNextMatch] = useState(nextMatchInfo);
 
-  // Check if this is a national team or club team
+  // Enhanced national team detection including U21, youth teams, and specific patterns
   const isNational = isNationalTeam({ name: teamName });
+  
+  // Additional patterns for national teams (including youth teams)
+  const isYouthNationalTeam = teamName?.toLowerCase().match(/\b(u\d+|u-\d+|under[-\s]?\d+)\b/) && 
+    !teamName?.toLowerCase().includes("club") && 
+    !teamName?.toLowerCase().includes("fc") &&
+    !teamName?.toLowerCase().includes("united");
+
+  // Check for specific national team patterns
+  const hasNationalPattern = teamName && (
+    teamName.toLowerCase().includes("national") ||
+    teamName.toLowerCase().match(/\b(republic|democratic|federation|kingdom)\b/) ||
+    // Check against known countries from our constants
+    ALL_COUNTRIES.some(country => 
+      teamName.toLowerCase().includes(country.name.toLowerCase()) ||
+      teamName.toLowerCase().includes(country.name.toLowerCase().replace(/\s+/g, ''))
+    )
+  );
+
+  // Combined national team detection
+  const isActualNationalTeam = isNational || isYouthNationalTeam || hasNationalPattern;
 
   // Additional check for known club teams that should never use circular flags
   const isKnownClubTeam =
-    !isNational &&
+    !isActualNationalTeam &&
     (teamName?.toLowerCase().includes("fc") ||
       teamName?.toLowerCase().includes("cf") ||
       teamName?.toLowerCase().includes("united") ||
@@ -108,22 +129,23 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     return countryMap[country] || "XX";
   }, []);
 
-  // For club teams, use team logo sources
+  // Enhanced logo URL logic with better national team handling
   const getLogoUrl = () => {
-    // Always prioritize team ID based logos for club teams
-    if (teamId && (!isNational || isKnownClubTeam)) {
-      // Try server proxy first for club teams
-      return `/api/team-logo/square/${teamId}?size=64`;
-    }
-
     // Force England to use correct circular flag
     if (teamName?.toLowerCase() === "england") {
       return "https://hatscripts.github.io/circle-flags/flags/gb-eng.svg";
     }
 
-    // For national teams, prioritize circular flag over team logo
-    if (isNational && !isKnownClubTeam) {
+    // For national teams (including youth teams), always prioritize circular flag
+    if (isActualNationalTeam && !isKnownClubTeam) {
+      console.log(`🏴 [MyCircularFlag] Using circular flag for national team: ${teamName}`);
       return getCircleFlagUrl(teamName, fallbackUrl);
+    }
+
+    // For club teams, use team logo sources
+    if (teamId && (!isActualNationalTeam || isKnownClubTeam)) {
+      // Try server proxy first for club teams
+      return `/api/team-logo/square/${teamId}?size=64`;
     }
 
     // Fallback for teams without ID
@@ -260,35 +282,40 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       return fallbackUrl || "/assets/fallback-logo.svg";
     }
 
+    // Clean team name for youth teams (remove U21, U19, etc.)
+    const cleanedName = teamName.replace(/\s*(U\d+|U-\d+|Under[-\s]?\d+)\s*/gi, '').trim();
+    
     // Special case for England first
-    if (teamName.toLowerCase() === "england") {
+    if (cleanedName.toLowerCase() === "england" || teamName.toLowerCase().includes("england")) {
       console.log(`🏴󠁧󠁢󠁥󠁮󠁧󠁿 [MyCircularFlag] Using England flag: gb-eng`);
       return "https://hatscripts.github.io/circle-flags/flags/gb-eng.svg";
     }
 
+    // Try with cleaned name first for youth teams
+    let targetName = cleanedName || teamName;
+    
     // Use the locally defined getCountryCode first
-    const localCountryCode = getCountryCode(teamName);
+    const localCountryCode = getCountryCode(targetName);
     if (localCountryCode !== "XX") {
       console.log(
-        `🎯 [MyCircularFlag] Using local country code ${localCountryCode} for ${teamName}`,
+        `🎯 [MyCircularFlag] Using local country code ${localCountryCode} for ${teamName} (cleaned: ${targetName})`,
       );
       return `https://hatscripts.github.io/circle-flags/flags/${localCountryCode.toLowerCase()}.svg`;
     }
 
     // Fallback to the imported getCountryCode from flagUtils
-    const libCountryCode = getLibCountryCode(teamName);
-
+    const libCountryCode = getLibCountryCode(targetName);
     if (libCountryCode) {
       console.log(
-        `🎯 [MyCircularFlag] Using library country code ${libCountryCode} for ${teamName}`,
+        `🎯 [MyCircularFlag] Using library country code ${libCountryCode} for ${teamName} (cleaned: ${targetName})`,
       );
-      // Use Circle Flags from hatscripts.github.io
       return `https://hatscripts.github.io/circle-flags/flags/${libCountryCode.toLowerCase()}.svg`;
     }
 
-    // Try to find a pattern match in the team name
+    // Try to find a pattern match in the team name (try both original and cleaned)
     for (const [country, code] of Object.entries(teamCountryPatterns)) {
-      if (teamName.toLowerCase().includes(country.toLowerCase())) {
+      if (targetName.toLowerCase().includes(country.toLowerCase()) || 
+          teamName.toLowerCase().includes(country.toLowerCase())) {
         console.log(
           `🔍 [MyCircularFlag] Pattern match: ${country} -> ${code} for ${teamName}`,
         );
@@ -296,8 +323,27 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       }
     }
 
+    // Special handling for common youth team patterns
+    const youthPatterns = {
+      "kosovo": "xk",
+      "faroe islands": "fo", 
+      "republic of ireland": "ie",
+      "northern ireland": "gb-nir",
+      "scotland": "gb-sct",
+      "wales": "gb-wls"
+    };
+
+    for (const [country, code] of Object.entries(youthPatterns)) {
+      if (targetName.toLowerCase().includes(country) || teamName.toLowerCase().includes(country)) {
+        console.log(
+          `🔍 [MyCircularFlag] Youth team pattern match: ${country} -> ${code} for ${teamName}`,
+        );
+        return `https://hatscripts.github.io/circle-flags/flags/${code}.svg`;
+      }
+    }
+
     console.log(
-      `❌ [MyCircularFlag] No match found for ${teamName}, using fallback`,
+      `❌ [MyCircularFlag] No match found for ${teamName} (cleaned: ${targetName}), using fallback`,
     );
     // Final fallback
     return fallbackUrl || "/assets/fallback-logo.svg";
@@ -369,7 +415,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
           );
 
           // Enhanced fallback logic for club teams
-          if (teamId && (!isNational || isKnownClubTeam)) {
+          if (teamId && (!isActualNationalTeam || isKnownClubTeam)) {
             // Try different sizes and sources
             if (target.src.includes('size=64')) {
               const smallerUrl = `/api/team-logo/square/${teamId}?size=32`;
@@ -399,13 +445,29 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
             }
           }
 
-          // For national teams, ensure we're using the correct flag
-          if (isNational && !isKnownClubTeam && !target.src.includes('circle-flags')) {
-            const flagUrl = getCircleFlagUrl(teamName, fallbackUrl);
-            if (flagUrl !== target.src) {
-              console.log(`🔄 [MyCircularFlag] Trying correct flag: ${flagUrl}`);
-              target.src = flagUrl;
-              return;
+          // For national teams, try alternative flag sources
+          if (isActualNationalTeam && !isKnownClubTeam) {
+            if (!target.src.includes('circle-flags')) {
+              const flagUrl = getCircleFlagUrl(teamName, fallbackUrl);
+              if (flagUrl !== target.src && !flagUrl.includes('/assets/fallback-logo.svg')) {
+                console.log(`🔄 [MyCircularFlag] Trying correct flag: ${flagUrl}`);
+                target.src = flagUrl;
+                return;
+              }
+            }
+            
+            // Try alternative flag sources for national teams
+            if (target.src.includes('circle-flags')) {
+              // Try with cleaned name for youth teams
+              const cleanedName = teamName.replace(/\s*(U\d+|U-\d+|Under[-\s]?\d+)\s*/gi, '').trim();
+              if (cleanedName && cleanedName !== teamName) {
+                const alternativeFlag = getCircleFlagUrl(cleanedName, fallbackUrl);
+                if (alternativeFlag !== target.src && !alternativeFlag.includes('/assets/fallback-logo.svg')) {
+                  console.log(`🔄 [MyCircularFlag] Trying alternative flag with cleaned name: ${alternativeFlag}`);
+                  target.src = alternativeFlag;
+                  return;
+                }
+              }
             }
           }
 
