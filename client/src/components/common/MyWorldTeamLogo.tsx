@@ -582,12 +582,27 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
           "Belgium",
         ].includes(teamName));
 
+    // Check for youth international competitions (should use flags)
+    const isYouthInternationalCompetition =
+      leagueName.includes("u20") ||
+      leagueName.includes("u21") ||
+      leagueName.includes("u23") ||
+      leagueName.includes("under-20") ||
+      leagueName.includes("under-21") ||
+      leagueName.includes("under-23") ||
+      leagueName.includes("youth") ||
+      (leagueName.includes("euro") && (leagueName.includes("u21") || leagueName.includes("u20"))) ||
+      leagueName.includes("olympic") ||
+      leagueName.includes("cotif") ||
+      leagueName.includes("uefa under-21 championship") ||
+      (leagueName.includes("uefa") && leagueName.includes("under-21"));
+
     // Force circular flag for all recognized national teams
     const result =
       !isStandingsContext &&
       !isClubYouthTeam &&
       !isKnownClubTeam &&
-      (isActualNationalTeam || isRecognizedCountryName) &&
+      (isActualNationalTeam || isRecognizedCountryName || isYouthInternationalCompetition) &&
       !isFifaClubWorldCup &&
       !isFriendliesClub &&
       !isUefaEuropaLeague &&
@@ -750,8 +765,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       borderRadius: "0%",
       transform: "scale(0.9)",
       // Add theme-aware shadows for better contrast and visibility (lg shadow)
-      filter: darkMode 
-        ? "drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.2))" 
+      filter: darkMode
+        ? "drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.2))"
         : "drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 16px rgba(0, 0, 0, 0.25))",
       imageRendering: "auto" as const,
     }),
