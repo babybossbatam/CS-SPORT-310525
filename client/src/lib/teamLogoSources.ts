@@ -116,25 +116,122 @@ export function createTeamLogoErrorHandler(team: TeamData, isNationalTeam = fals
 /**
  * Check if team is likely a national team
  */
-export function isNationalTeam(team: TeamData, league?: any): boolean {
-  const teamName = team?.name?.toLowerCase() || '';
-  const leagueName = league?.name?.toLowerCase() || '';
-  const country = league?.country?.toLowerCase() || '';
+export function isNationalTeam(
+  team: { name: string },
+  leagueContext?: { name?: string; country?: string }
+): boolean {
+  if (!team?.name) return false;
 
-  return (
-    teamName.includes('national') ||
-    teamName.includes(' u20') ||
-    teamName.includes(' u21') ||
-    teamName.includes(' u23') ||
-    teamName.endsWith(' w') || // Women's teams
-    country === 'world' ||
-    country === 'europe' ||
-    leagueName.includes('international') ||
-    leagueName.includes('world cup') ||
-    leagueName.includes('euro') ||
-    leagueName.includes('copa america') ||
-    leagueName.includes('uefa') ||
-    leagueName.includes('conmebol') ||
-    leagueName.includes('nations league')
-  );
+  const teamName = team.name.toLowerCase();
+  const leagueName = leagueContext?.name?.toLowerCase() || '';
+
+  // Enhanced national team detection patterns
+  const nationalTeamPatterns = [
+    // Direct country names
+    'argentina', 'brazil', 'france', 'germany', 'spain', 'italy', 'england', 'portugal',
+    'netherlands', 'belgium', 'croatia', 'mexico', 'colombia', 'uruguay', 'chile',
+    'peru', 'ecuador', 'venezuela', 'bolivia', 'paraguay', 'costa rica', 'panama',
+    'honduras', 'guatemala', 'el salvador', 'nicaragua', 'jamaica', 'haiti',
+    'trinidad and tobago', 'barbados', 'grenada', 'dominican republic', 'cuba',
+    'canada', 'usa', 'united states', 'poland', 'czech republic', 'slovakia',
+    'hungary', 'romania', 'bulgaria', 'serbia', 'montenegro', 'bosnia', 'albania',
+    'north macedonia', 'macedonia', 'fyр macedonia', 'slovenia', 'kosovo', 'moldova',
+    'ukraine', 'belarus', 'lithuania', 'latvia', 'estonia', 'finland', 'sweden',
+    'norway', 'denmark', 'iceland', 'ireland', 'wales', 'scotland', 'northern ireland',
+    'switzerland', 'austria', 'luxembourg', 'liechtenstein', 'malta', 'cyprus',
+    'georgia', 'armenia', 'azerbaijan', 'kazakhstan', 'uzbekistan', 'kyrgyzstan',
+    'tajikistan', 'turkmenistan', 'afghanistan', 'pakistan', 'india', 'bangladesh',
+    'sri lanka', 'maldives', 'nepal', 'bhutan', 'myanmar', 'thailand', 'laos',
+    'cambodia', 'vietnam', 'malaysia', 'singapore', 'brunei', 'philippines',
+    'indonesia', 'timor-leste', 'papua new guinea', 'fiji', 'vanuatu', 'samoa',
+    'tonga', 'solomon islands', 'new zealand', 'australia', 'japan', 'south korea',
+    'north korea', 'china', 'hong kong', 'macau', 'chinese taipei', 'mongolia',
+    'iran', 'iraq', 'jordan', 'lebanon', 'syria', 'palestine', 'israel',
+    'saudi arabia', 'uae', 'united arab emirates', 'qatar', 'bahrain', 'kuwait',
+    'oman', 'yemen', 'turkey', 'egypt', 'libya', 'tunisia', 'algeria', 'morocco',
+    'sudan', 'south sudan', 'ethiopia', 'eritrea', 'djibouti', 'somalia',
+    'kenya', 'uganda', 'tanzania', 'rwanda', 'burundi', 'democratic republic of the congo',
+    'republic of the congo', 'central african republic', 'chad', 'cameroon',
+    'equatorial guinea', 'gabon', 'sao tome and principe', 'nigeria', 'niger',
+    'mali', 'burkina faso', 'ghana', 'togo', 'benin', 'ivory coast', 'liberia',
+    'sierra leone', 'guinea', 'guinea-bissau', 'senegal', 'gambia', 'mauritania',
+    'cape verde', 'south africa', 'namibia', 'botswana', 'zimbabwe', 'zambia',
+    'malawi', 'mozambique', 'madagascar', 'mauritius', 'seychelles', 'comoros',
+    'lesotho', 'eswatini', 'swaziland', 'angola', 'faroe islands'
+  ];
+
+  // Check if the team name directly matches a country
+  if (nationalTeamPatterns.some(pattern => teamName === pattern || teamName.startsWith(pattern + ' ') || teamName.endsWith(' ' + pattern))) {
+    console.log(`✅ [isNationalTeam] Direct country name match: "${teamName}"`);
+    return true;
+  }
+
+  // Enhanced youth team detection for U17, U19, U20, U21, U23
+  const youthTeamMatch = teamName.match(/^(.+?)\s+(u|under)[-\s]?(17|19|20|21|23)$/i);
+  if (youthTeamMatch) {
+    const baseCountry = youthTeamMatch[1].trim();
+    console.log(`🔍 [isNationalTeam] Youth team detected: "${teamName}" -> base country: "${baseCountry}"`);
+
+    // Check if base country matches any national team pattern
+    const isBaseCountryNational = nationalTeamPatterns.some(pattern => 
+      baseCountry === pattern || baseCountry.includes(pattern) || pattern.includes(baseCountry)
+    );
+
+    if (isBaseCountryNational) {
+      console.log(`✅ [isNationalTeam] Youth team "${teamName}" confirmed as national team`);
+      return true;
+    }
+  }
+
+  // Additional specific checks for problematic teams from your screenshot
+  const specificNationalTeams = [
+    'romania u21', 'kosovo u21', 'iceland u21', 'faroe islands u21',
+    'moldova u21', 'republic of ireland u21', 'northern ireland u21'
+  ];
+
+  if (specificNationalTeams.includes(teamName)) {
+    console.log(`✅ [isNationalTeam] Specific national team detected: "${teamName}"`);
+    return true;
+  }
+
+  // Check for league context
+  if (leagueName) {
+    // Check if the league name itself implies a national team competition
+    const nationalCompetitionIndicators = [
+      'world cup', 'euro', 'uefa euro', 'copa america', 'gold cup',
+      'africa cup of nations', 'asian cup', 'nations league', 'uefa nations league',
+      'friendlies international', 'international friendlies', 'olympic',
+      'uefa under-21', 'u21 championship', 'youth championship', 'under-21 championship'
+    ];
+
+    const isNationalCompetition = nationalCompetitionIndicators.some(indicator => 
+      leagueName.includes(indicator)
+    );
+
+    if (isNationalCompetition) {
+      console.log(`🏆 [isNationalTeam] National competition context: "${leagueName}" for team "${teamName}"`);
+
+      // Special handling for UEFA Under-21 Championship and similar youth tournaments
+      if (leagueName.includes('uefa under-21') || leagueName.includes('under-21 championship')) {
+        console.log(`🇪🇺 [isNationalTeam] UEFA Under-21 Championship detected for: "${teamName}"`);
+        // All teams in UEFA Under-21 are national teams by definition
+        return true;
+      }
+
+      // In national competitions, assume teams are national unless clearly club teams
+      const clubIndicators = ['fc', 'club', 'united', 'city', 'real ', 'ac ', 'sc '];
+      const hasClubIndicators = clubIndicators.some(indicator => 
+        teamName.includes(indicator)
+      );
+
+      if (!hasClubIndicators) {
+        console.log(`✅ [isNationalTeam] Team in national competition without club indicators: "${teamName}"`);
+        return true;
+      }
+    }
+  }
+  
+  // Fallback: If none of the above, assume it's not a national team
+  console.log(`❌ [isNationalTeam] No national team indicators found for: "${teamName}" in league "${leagueName}"`);
+  return false;
 }
