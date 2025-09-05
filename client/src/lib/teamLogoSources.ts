@@ -134,12 +134,12 @@ export function isNationalTeam(
     'honduras', 'guatemala', 'el salvador', 'nicaragua', 'jamaica', 'haiti',
     'trinidad and tobago', 'barbados', 'grenada', 'dominican republic', 'cuba',
     'canada', 'usa', 'united states', 'poland', 'czech republic', 'slovakia',
-    'hungary', 'romania', 'rusia', 'bulgaria', 'serbia', 'montenegro', 'bosnia', 'albania',
+    'hungary', 'romania', 'russia', 'rusia', 'bulgaria', 'serbia', 'montenegro', 'bosnia', 'albania',
     'north macedonia', 'macedonia', 'fyр macedonia', 'slovenia', 'kosovo', 'moldova',
     'ukraine', 'belarus', 'lithuania', 'latvia', 'estonia', 'finland', 'sweden',
     'norway', 'denmark', 'iceland', 'ireland', 'wales', 'scotland', 'northern ireland',
     'switzerland', 'austria', 'luxembourg', 'liechtenstein', 'malta', 'cyprus',
-    'georgia', 'gibraitar', 'armenia', 'azerbaijan', 'kazakhstan', 'uzbekistan', 'kyrgyzstan',
+    'georgia', 'gibraltar', 'gibraitar', 'armenia', 'azerbaijan', 'kazakhstan', 'uzbekistan', 'kyrgyzstan',
     'tajikistan', 'turkmenistan', 'afghanistan', 'pakistan', 'india', 'bangladesh',
     'sri lanka', 'maldives', 'nepal', 'bhutan', 'myanmar', 'thailand', 'laos',
     'cambodia', 'vietnam', 'malaysia', 'singapore', 'brunei', 'philippines',
@@ -161,9 +161,26 @@ export function isNationalTeam(
   ];
 
   // Check if the team name directly matches a country
-  if (nationalTeamPatterns.some(pattern => teamName === pattern || teamName.startsWith(pattern + ' ') || teamName.endsWith(' ' + pattern))) {
+  const directMatch = nationalTeamPatterns.some(pattern => 
+    teamName === pattern || teamName.startsWith(pattern + ' ') || teamName.endsWith(' ' + pattern)
+  );
+  
+  if (directMatch) {
     console.log(`✅ [isNationalTeam] Direct country name match: "${teamName}"`);
     return true;
+  }
+
+  // SPECIFIC DEBUG for problematic teams
+  if (teamName.toLowerCase().includes('gibraltar') || teamName.toLowerCase().includes('russia')) {
+    console.log(`🔍 [isNationalTeam] SPECIFIC DEBUG for ${teamName}:`, {
+      teamNameLower: teamName.toLowerCase(),
+      includesGibraltar: teamName.toLowerCase().includes('gibraltar'),
+      includesRussia: teamName.toLowerCase().includes('russia'),
+      leagueName: leagueName,
+      nationalTeamPatternsChecked: nationalTeamPatterns.filter(p => 
+        teamName.toLowerCase().includes(p) || p.includes(teamName.toLowerCase())
+      )
+    });
   }
 
   // Enhanced youth team detection for U17, U19, U20, U21, U23
