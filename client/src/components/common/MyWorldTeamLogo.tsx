@@ -190,6 +190,18 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     // Decision logic
     let result = false;
 
+    // Enhanced debugging for your specific case
+    console.log(`🔍 [MyWorldTeamLogo] DECISION ANALYSIS for ${teamName}:`, {
+      isKnownClubTeam,
+      isClubYouthTeam,
+      isClubCompetition,
+      isNationalTeamCompetition,
+      isActualNationalTeam,
+      isMixedCompetition,
+      leagueName,
+      teamName
+    });
+
     // 1. Known club teams should never use circular flags
     if (isKnownClubTeam || isClubYouthTeam) {
       result = false;
@@ -228,7 +240,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     // 6. Default to club logo for everything else
     else {
       result = false;
-      console.log(`🏟️ [MyWorldTeamLogo] ${teamName} defaulting to club logo`);
+      console.log(`🏟️ [MyWorldTeamLogo] ${teamName} defaulting to club logo - LIKELY THE ISSUE!`);
     }
 
     // Cache the result
