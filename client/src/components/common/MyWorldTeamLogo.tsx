@@ -97,14 +97,59 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       teamName?.includes("U21") ||
       teamName?.includes("U23");
 
+    // Get list of known national team names for better detection
+    const nationalTeamNames = [
+      'Argentina', 'Brazil', 'France', 'Germany', 'Spain', 'Italy', 'England', 'Portugal',
+      'Netherlands', 'Belgium', 'Croatia', 'Mexico', 'Colombia', 'Uruguay', 'Chile',
+      'Peru', 'Ecuador', 'Venezuela', 'Bolivia', 'Paraguay', 'Costa Rica', 'Panama',
+      'Honduras', 'Guatemala', 'El Salvador', 'Nicaragua', 'Jamaica', 'Haiti',
+      'Trinidad and Tobago', 'Barbados', 'Grenada', 'Dominican Republic', 'Cuba',
+      'Canada', 'USA', 'United States', 'Poland', 'Czech Republic', 'Slovakia',
+      'Hungary', 'Romania', 'Russia', 'Bulgaria', 'Serbia', 'Montenegro', 'Bosnia', 'Albania',
+      'North Macedonia', 'Macedonia', 'FYR Macedonia', 'Slovenia', 'Kosovo', 'Moldova',
+      'Ukraine', 'Belarus', 'Lithuania', 'Latvia', 'Estonia', 'Finland', 'Sweden',
+      'Norway', 'Denmark', 'Iceland', 'Ireland', 'Wales', 'Scotland', 'Northern Ireland',
+      'Switzerland', 'Austria', 'Luxembourg', 'Liechtenstein', 'Malta', 'Cyprus',
+      'Georgia', 'Gibraltar', 'Armenia', 'Azerbaijan', 'Kazakhstan', 'Uzbekistan', 'Kyrgyzstan',
+      'Tajikistan', 'Turkmenistan', 'Afghanistan', 'Pakistan', 'India', 'Bangladesh',
+      'Sri Lanka', 'Maldives', 'Nepal', 'Bhutan', 'Myanmar', 'Thailand', 'Laos',
+      'Cambodia', 'Vietnam', 'Malaysia', 'Singapore', 'Brunei', 'Philippines',
+      'Indonesia', 'Timor-Leste', 'Papua New Guinea', 'Fiji', 'Vanuatu', 'Samoa',
+      'Tonga', 'Solomon Islands', 'New Zealand', 'Australia', 'Japan', 'South Korea',
+      'North Korea', 'China', 'Hong Kong', 'Macau', 'Chinese Taipei', 'Mongolia',
+      'Iran', 'Iraq', 'Jordan', 'Lebanon', 'Syria', 'Palestine', 'Israel',
+      'Saudi Arabia', 'UAE', 'United Arab Emirates', 'Qatar', 'Bahrain', 'Kuwait',
+      'Oman', 'Yemen', 'Turkey', 'Egypt', 'Libya', 'Tunisia', 'Algeria', 'Morocco',
+      'Sudan', 'South Sudan', 'Ethiopia', 'Eritrea', 'Djibouti', 'Somalia',
+      'Kenya', 'Uganda', 'Tanzania', 'Rwanda', 'Burundi', 'DR Congo', 'Congo',
+      'Central African Republic', 'Chad', 'Cameroon', 'Equatorial Guinea', 'Gabon',
+      'São Tomé and Príncipe', 'Nigeria', 'Niger', 'Mali', 'Burkina Faso', 'Ghana',
+      'Togo', 'Benin', 'Ivory Coast', 'Liberia', 'Sierra Leone', 'Guinea', 'Guinea-Bissau',
+      'Senegal', 'Gambia', 'Mauritania', 'Cape Verde', 'South Africa', 'Namibia',
+      'Botswana', 'Zimbabwe', 'Zambia', 'Malawi', 'Mozambique', 'Madagascar',
+      'Mauritius', 'Seychelles', 'Comoros', 'Lesotho', 'Eswatini', 'Angola',
+      'Faroe Islands'
+    ];
+
+    // Check if team name matches a country (considering youth teams)
+    const baseTeamName = teamName?.replace(/\s*(U21|U20|U19|U18|U17)\s*/gi, '').trim();
+    const isCountryName = nationalTeamNames.some(country =>
+      baseTeamName === country || 
+      teamName?.includes(country) ||
+      // Handle special cases
+      (country === 'United Arab Emirates' && (teamName?.includes('UAE') || teamName?.includes('United Arab Emirates'))) ||
+      (country === 'United States' && (teamName?.includes('USA') || teamName?.includes('United States')))
+    );
+
     // Known club team patterns - these should NEVER use circular flags
+    // BUT exclude if it's actually a country name
     const isKnownClubTeam =
-      teamName &&
+      teamName && !isCountryName &&
       (teamName.toLowerCase().includes("fc ") ||
         teamName.toLowerCase().includes("cf ") ||
         teamName.toLowerCase().includes("ac ") ||
         teamName.toLowerCase().includes("sc ") ||
-        teamName.toLowerCase().includes("united") ||
+        (teamName.toLowerCase().includes("united") && !teamName.toLowerCase().includes("united arab emirates") && !teamName.toLowerCase().includes("united states")) ||
         teamName.toLowerCase().includes("city") ||
         teamName.toLowerCase().includes("athletic") ||
         teamName.toLowerCase().includes("real ") ||
@@ -202,45 +247,57 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       teamName
     });
 
-    // 1. Known club teams should never use circular flags
-    if (isKnownClubTeam || isClubYouthTeam) {
-      result = false;
-      console.log(`🏟️ [MyWorldTeamLogo] ${teamName} identified as club team - using club logo`);
+    // PRIORITY 1: If it's a confirmed national team, prioritize that over club keywords
+    if (isActualNationalTeam && !isClubYouthTeam) {
+      // Additional check: even if club keywords exist, verify it's not actually a national team
+      if (isNationalTeamCompetition || isMixedCompetition) {
+        result = true;
+        console.log(`🇺🇳 [MyWorldTeamLogo] PRIORITY: ${teamName} confirmed as national team - using circular flag`);
+      } else if (!isClubCompetition) {
+        result = true;
+        console.log(`🌍 [MyWorldTeamLogo] PRIORITY: ${teamName} is national team outside club competition - using circular flag`);
+      } else {
+        // National team name but in club competition - check more carefully
+        if (isKnownClubTeam && !nationalTeamNames.some(country => 
+          teamName.includes(country) || teamName.replace(/\s*(U21|U20|U19|U18|U17)\s*/gi, '').trim() === country
+        )) {
+          result = false;
+          console.log(`🏟️ [MyWorldTeamLogo] ${teamName} has club patterns and no clear country match - using club logo`);
+        } else {
+          result = true;
+          console.log(`🇺🇳 [MyWorldTeamLogo] ${teamName} confirmed country name overrides club keywords - using circular flag`);
+        }
+      }
     }
-    // 2. Club competitions should use club logos
-    else if (isClubCompetition) {
+    // PRIORITY 2: Clear club teams that are NOT national teams
+    else if (isKnownClubTeam && !isActualNationalTeam) {
       result = false;
-      console.log(`🏆 [MyWorldTeamLogo] ${teamName} in club competition - using club logo`);
+      console.log(`🏟️ [MyWorldTeamLogo] ${teamName} confirmed as club team - using club logo`);
     }
-    // 3. National team competitions should use circular flags
-    else if (isNationalTeamCompetition && isActualNationalTeam) {
+    // PRIORITY 3: Club youth teams
+    else if (isClubYouthTeam) {
+      result = false;
+      console.log(`🏟️ [MyWorldTeamLogo] ${teamName} confirmed as club youth team - using club logo`);
+    }
+    // PRIORITY 4: Club competitions (but double-check for national teams)
+    else if (isClubCompetition && !isActualNationalTeam) {
+      result = false;
+      console.log(`🏆 [MyWorldTeamLogo] ${teamName} in club competition and not national team - using club logo`);
+    }
+    // PRIORITY 5: National team competitions
+    else if (isNationalTeamCompetition) {
       result = true;
       console.log(`🇺🇳 [MyWorldTeamLogo] ${teamName} in national team competition - using circular flag`);
     }
-    // 4. Mixed competitions - need to distinguish
+    // PRIORITY 6: Mixed competitions - use detection
     else if (isMixedCompetition) {
-      // In mixed competitions, prioritize actual detection
-      if (isKnownClubTeam) {
-        result = false;
-        console.log(`🏟️ [MyWorldTeamLogo] Mixed competition: ${teamName} identified as club team - using club logo`);
-      } else if (isActualNationalTeam) {
-        result = true;
-        console.log(`🇺🇳 [MyWorldTeamLogo] Mixed competition: ${teamName} identified as national team - using circular flag`);
-      } else {
-        // Default for unclear cases
-        result = false;
-        console.log(`❓ [MyWorldTeamLogo] Mixed competition: ${teamName} unclear classification - defaulting to club logo`);
-      }
+      result = isActualNationalTeam;
+      console.log(`🔄 [MyWorldTeamLogo] Mixed competition: ${teamName} using detection result: ${result}`);
     }
-    // 5. Default case - use national team detection
-    else if (isActualNationalTeam && !isKnownClubTeam) {
-      result = true;
-      console.log(`🌍 [MyWorldTeamLogo] ${teamName} identified as national team - using circular flag`);
-    }
-    // 6. Default to club logo for everything else
+    // PRIORITY 7: Default fallback
     else {
-      result = false;
-      console.log(`🏟️ [MyWorldTeamLogo] ${teamName} defaulting to club logo - LIKELY THE ISSUE!`);
+      result = isActualNationalTeam;
+      console.log(`❓ [MyWorldTeamLogo] ${teamName} using default national team detection: ${result}`);
     }
 
     // Cache the result
