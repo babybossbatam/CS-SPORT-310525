@@ -346,38 +346,73 @@ const LazyImage: React.FC<LazyImageProps> = ({
   }, [currentSrc, alt, loadAttempt, imageError, onLoad, teamName, teamId]); // Add teamName and teamId for completeness
 
 
-  // Note: National team detection is now handled by MyWorldTeamLogo upstream
-  // LazyImage should focus on image loading, not team type detection
+  // Special handling for league 667 (Friendlies Clubs) - detect national teams and use MyCircularFlag
+  // Check if this is from league 667 using leagueContext.name since leagueId doesn't exist in leagueContext
+  const isFriendliesClubs = leagueContext?.name?.toLowerCase().includes('friendlies') && 
+                           leagueContext?.country?.toLowerCase() === 'world';
+  
+  console.log(`🔍 [LazyImage] Checking league context:`, {
+    leagueContextName: leagueContext?.name,
+    leagueContextCountry: leagueContext?.country,
+    teamName: teamName,
+    isFriendliesClubs: isFriendliesClubs
+  });
 
-  // Enhanced detection for UEFA Under-21 teams that should always use MyWorldTeamLogo
-  const isUefaU21Team = useMemo(() => {
-    if (!leagueContext?.name || !teamName) return false;
-    
-    const leagueName = leagueContext.name.toLowerCase();
-    const teamNameLower = teamName.toLowerCase();
-    
-    // Check if this is UEFA Under-21 Championship
-    const isUefaU21League = leagueName.includes('uefa') && 
-                           (leagueName.includes('under-21') || leagueName.includes('u21') || leagueName.includes('u-21'));
-    
-    if (!isUefaU21League) return false;
-    
-    // These teams should always use circular flags
-    const uefaU21Teams = [
-      'romania', 'kosovo', 'moldova', 'iceland', 'faroe islands', 'republic of ireland',
-      'ireland', 'spain', 'england', 'italy', 'france', 'germany', 'portugal',
-      'netherlands', 'belgium', 'switzerland', 'austria', 'croatia', 'serbia'
+  if (isFriendliesClubs && teamName) {
+    // List of common national team names for Friendlies Clubs league
+    const nationalTeamNames = [
+      'Afghanistan', 'Albania', 'Algeria', 'Argentina', 'Armenia', 'Australia', 
+      'Austria', 'Azerbaijan', 'Bahrain', 'Bangladesh', 'Belarus', 'Belgium', 
+      'Bolivia', 'Bosnia and Herzegovina', 'Brazil', 'Bulgaria', 'Cambodia', 
+      'Canada', 'Chile', 'China', 'Colombia', 'Croatia', 'Czech Republic', 
+      'Denmark', 'Ecuador', 'Egypt', 'England', 'Estonia', 'Finland', 'France', 
+      'Georgia', 'Germany', 'Ghana', 'Greece', 'Hong Kong', 'Hungary', 'Iceland', 
+      'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 
+      'Japan', 'Jordan', 'Kazakhstan', 'Kuwait', 'Kyrgyzstan', 'Latvia', 
+      'Lebanon', 'Lithuania', 'Luxembourg', 'Malaysia', 'Mexico', 'Moldova', 
+      'Montenegro', 'Morocco', 'Myanmar', 'Netherlands', 'New Zealand', 'Nigeria', 
+      'North Macedonia', 'Norway', 'Oman', 'Pakistan', 'Palestine', 'Peru', 
+      'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 
+      'Saudi Arabia', 'Scotland', 'Serbia', 'Singapore', 'Slovakia', 'Slovenia', 
+      'South Korea', 'Spain', 'Sri Lanka', 'Sweden', 'Switzerland', 'Syria', 
+      'Tajikistan', 'Thailand', 'Tunisia', 'Turkey', 'Turkmenistan', 'Ukraine', 
+      'United Arab Emirates', 'Uruguay', 'Uzbekistan', 'Venezuela', 'Vietnam', 
+      'Wales', 'Yemen'
     ];
-    
-    return uefaU21Teams.some(country => 
-      teamNameLower.includes(country) || 
-      teamNameLower.replace(/\s*(u21|u-21|under-21)\s*/gi, '').trim() === country
-    );
-  }, [teamName, leagueContext, alt]);
+
+    // Improved national team detection - exact match or team name is exactly a country name
+    const isNationalTeam = nationalTeamNames.some(country => {
+      const teamNameLower = teamName.toLowerCase().trim();
+      const countryLower = country.toLowerCase();
+      
+      // Exact match or team name equals country name
+      return teamNameLower === countryLower || 
+             teamNameLower.includes(countryLower) ||
+             countryLower.includes(teamNameLower);
+    });
+
+    if (isNationalTeam) {
+      console.log(`🏆 [LazyImage] Friendlies Clubs national team detected: ${teamName}, using MyCircularFlag`);
+      return (
+        <MyCircularFlag
+          teamName={teamName}
+          teamId={teamId}
+          fallbackUrl={currentSrc}
+          alt={alt}
+          size={style?.width || style?.height || "32px"}
+          className={className}
+          countryName={teamName}
+        />
+      );
+    } else {
+      console.log(`⚽ [LazyImage] Friendlies Clubs club team detected: ${teamName}, continuing with LazyImage`);
+      // Continue with regular LazyImage logic for club teams
+    }
+  }
 
   // Use MyWorldTeamLogo if team information is provided and useTeamLogo is true
-  // OR if it's a detected UEFA Under-21 team (force circular flags)
-  if ((useTeamLogo && teamId && teamName) || isUefaU21Team) {
+  // Also render MyWorldTeamLogo if it's a detected national team, even if useTeamLogo is false
+  if (useTeamLogo && teamId && teamName) {
     // Pass the currentSrc to MyWorldTeamLogo, it will handle its own loading/fallback
     return (
       <MyWorldTeamLogo
@@ -397,71 +432,81 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   // Enhanced team logo handling when useTeamLogo is false but we have team info
   // This handles cases where MyWorldTeamLogo calls LazyImage with useTeamLogo=false
-  // ONLY do this enhancement if the image has already failed to load or we detect a clear problem
   if (!useTeamLogo && teamId && teamName && !currentSrc.includes('fallback.png')) {
-    // Only enhance if there's already been an error or the current src is clearly inadequate
-    const needsEnhancement = imageError || 
-                           (imageLoaded && (currentSrc.includes('placeholder') || currentSrc.includes('fallback'))) ||
-                           (!imageLoaded && !currentSrc.includes('/api/team-logo/') && !currentSrc.includes('media.api-sports.io/football/teams/') && currentSrc === src);
-
-    if (needsEnhancement) {
-      console.log(`🔍 [LazyImage] Enhanced handling needed for club team: ${teamName} (ID: ${teamId}), current src: ${currentSrc}`);
-
-      // Check if current src is still the original and not a proper team logo URL
-      const isOriginalSrc = currentSrc === src;
-      const isProperTeamLogoUrl = currentSrc.includes('/api/team-logo/') || 
-                                 currentSrc.includes('api/team-logo') ||
-                                 currentSrc.includes('media.api-sports.io/football/teams/');
-
-      // If we have original src and it's not a proper team logo URL, get better sources
-      if (isOriginalSrc && !isProperTeamLogoUrl) {
-        console.log(`🔄 [LazyImage] Original src detected for ${teamName}, trying server proxy first`);
-        const serverProxyUrl = `/api/team-logo/square/${teamId}?size=64`;
-        setCurrentSrc(serverProxyUrl);
-        setImageLoaded(false);
-        setImageError(false);
-        setImageState('loading');
-        return; // Return early to prevent rendering with old src
-      }
-
-      // Try server proxy first for club teams when current src is not team logo
-      if (!currentSrc.includes('/api/team-logo/') && !currentSrc.includes('api/team-logo') && !currentSrc.includes('media.api-sports.io/football/teams/')) {
-        const serverProxyUrl = `/api/team-logo/square/${teamId}?size=64`;
-        console.log(`🔄 [LazyImage] Trying server proxy for club team ${teamName}: ${serverProxyUrl}`);
-        setCurrentSrc(serverProxyUrl);
-        setImageLoaded(false);
-        setImageError(false);
-        setImageState('loading');
-        return; // Return early to prevent rendering with old src
-      }
-
-      // Check if we need better logo sources for this team (fallback option)
-      if (imageError || (imageLoaded && currentSrc.includes('fallback'))) {
-        const logoSources = getTeamLogoSources({ id: teamId, name: teamName });
-
-        if (logoSources.length > 0) {
-          const bestSource = logoSources.find(source => 
-            source.url !== currentSrc && 
-            !source.url.includes('/api/team-logo/') &&
-            !source.url.includes('fallback')
-          );
-
-          if (bestSource) {
-            console.log(`🔄 [LazyImage] Using alternative logo source for ${teamName}: ${bestSource.source}`);
-            setCurrentSrc(bestSource.url);
-            setImageLoaded(false);
-            setImageError(false);
-            setImageState('loading');
-            return;
-          }
+    console.log(`🔍 [LazyImage] Enhanced handling for club team: ${teamName} (ID: ${teamId}), current src: ${currentSrc}`);
+    
+    // Check if current src is still the original and not a proper team logo URL
+    const isOriginalSrc = currentSrc === src;
+    const isProperTeamLogoUrl = currentSrc.includes('/api/team-logo/') || 
+                               currentSrc.includes('api/team-logo') ||
+                               currentSrc.includes('media.api-sports.io/football/teams/');
+    
+    // If we have original src and it's not a proper team logo URL, get better sources
+    if (isOriginalSrc && !isProperTeamLogoUrl) {
+      console.log(`🔄 [LazyImage] Original src detected for ${teamName}, trying server proxy first`);
+      const serverProxyUrl = `/api/team-logo/square/${teamId}?size=64`;
+      setCurrentSrc(serverProxyUrl);
+      setImageLoaded(false);
+      setImageError(false);
+      setImageState('loading');
+      return; // Return early to prevent rendering with old src
+    }
+    
+    // Always try server proxy first for club teams when useTeamLogo=false and current src is not team logo
+    if (!currentSrc.includes('/api/team-logo/') && !currentSrc.includes('api/team-logo') && !currentSrc.includes('media.api-sports.io/football/teams/')) {
+      const serverProxyUrl = `/api/team-logo/square/${teamId}?size=64`;
+      console.log(`🔄 [LazyImage] Trying server proxy for club team ${teamName}: ${serverProxyUrl}`);
+      setCurrentSrc(serverProxyUrl);
+      setImageLoaded(false);
+      setImageError(false);
+      setImageState('loading');
+      return; // Return early to prevent rendering with old src
+    }
+    
+    // If server proxy is already being used but not loaded/errored, let it continue
+    if (currentSrc.includes('/api/team-logo/') && !imageLoaded && !imageError && imageState === 'loading') {
+      console.log(`⏳ [LazyImage] Server proxy loading for ${teamName}: ${currentSrc}`);
+      // Let it continue loading
+    }
+    
+    // Check if we need better logo sources for this team (fallback option)
+    if (imageError || (imageLoaded && currentSrc.includes('fallback'))) {
+      const logoSources = getTeamLogoSources({ id: teamId, name: teamName });
+      
+      if (logoSources.length > 0) {
+        const bestSource = logoSources.find(source => 
+          source.url !== currentSrc && 
+          !source.url.includes('/api/team-logo/') &&
+          !source.url.includes('fallback')
+        );
+        
+        if (bestSource) {
+          console.log(`🔄 [LazyImage] Using alternative logo source for ${teamName}: ${bestSource.source}`);
+          setCurrentSrc(bestSource.url);
+          setImageLoaded(false);
+          setImageError(false);
+          setImageState('loading');
+          return;
         }
       }
-    } else {
-      // If server proxy is already being used but not loaded/errored, let it continue
-      if (currentSrc.includes('/api/team-logo/') && !imageLoaded && !imageError && imageState === 'loading') {
-        console.log(`⏳ [LazyImage] Server proxy loading for ${teamName}: ${currentSrc}`);
-        // Let it continue loading normally
-      }
+    }
+  }
+
+  // Additional check: if we're still showing a placeholder/empty logo and have team info, try server proxy
+  if (!useTeamLogo && teamId && teamName && imageLoaded && !imageError) {
+    // Check if the current image looks like a placeholder (often very small or empty)
+    const isPotentialPlaceholder = currentSrc.includes('placeholder') || 
+                                  currentSrc.includes('fallback') ||
+                                  currentSrc === src; // Still showing original potentially bad src
+    
+    if (isPotentialPlaceholder && !currentSrc.includes('/api/team-logo/')) {
+      console.log(`🔄 [LazyImage] Detected potential placeholder for ${teamName}, switching to server proxy`);
+      const serverProxyUrl = `/api/team-logo/square/${teamId}?size=64`;
+      setCurrentSrc(serverProxyUrl);
+      setImageLoaded(false);
+      setImageError(false);
+      setImageState('loading');
+      return;
     }
   }
 

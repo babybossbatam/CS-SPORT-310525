@@ -379,10 +379,10 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     }
 
     const isUefaEuropaLeague =
-      leagueName.includes("uefaeuropa league") ||
+      leagueName.includes("uefa europa league") ||
       leagueName.includes("europa league");
     const isUefaConferenceLeague =
-      leagueName.includes("uefaeuropa conference league") ||
+      leagueName.includes("uefa europa conference league") ||
       leagueName.includes("europa conference league");
     const isUefaChampionsLeague =
       leagueName.includes("uefa champions league") ||
@@ -582,7 +582,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
           "Belgium",
         ].includes(teamName));
 
-    // Enhanced youth international competitions detection (should use flags)
+    // Check for youth international competitions (should use flags)
     const isYouthInternationalCompetition =
       leagueName.includes("u20") ||
       leagueName.includes("u21") ||
@@ -595,36 +595,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       leagueName.includes("olympic") ||
       leagueName.includes("cotif") ||
       leagueName.includes("uefa under-21 championship") ||
-      leagueName.includes("uefa under-21 championship - qualification") ||
-      leagueName.includes("uefa under-21 championship - qualif") ||
-      leagueName.includes("uefa u21 championship") ||
-      leagueName.includes("uefa u-21 championship") ||
-      leagueName.includes("euro u21") ||
-      leagueName.includes("euro under-21") ||
-      leagueName.includes("world cup - qualification") ||
-      leagueName.includes("world cup qualification") ||
-      (leagueName.includes("uefa") && leagueName.includes("under-21")) ||
-      (leagueName.includes("uefa") && leagueName.includes("u21")) ||
-      (leagueName.includes("uefa") && leagueName.includes("u-21")) ||
-      (leagueName.includes("world cup") && leagueName.includes("qualification"));
-
-    // Special handling for UEFA Under-21 Championship - ALWAYS use circular flags
-    const isUefaU21Championship = 
-      leagueName.includes("uefa under-21 championship") ||
-      leagueName.includes("uefa u21 championship") ||
-      leagueName.includes("uefa u-21 championship") ||
-      leagueName.includes("euro under-21") ||
-      leagueName.includes("euro u21") ||
-      (leagueName.includes("uefa") && leagueName.includes("under-21")) ||
-      (leagueName.includes("uefa") && leagueName.includes("u21")) ||
-      (leagueName.includes("uefa") && leagueName.includes("u-21"));
-
-    if (isUefaU21Championship) {
-      console.log(`🏆 [MyWorldTeamLogo] UEFA Under-21 Championship detected for ${teamName} - FORCE circular flag`);
-      const result = true; // Force circular flag for all UEFA U21 teams
-      circularFlagCache.set(cacheKey, { result, timestamp: now });
-      return result;
-    }
+      (leagueName.includes("uefa") && leagueName.includes("under-21"));
 
     // Force circular flag for all recognized national teams
     const result =
@@ -672,13 +643,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   // Synchronous logo URL resolution
   const logoUrl = useMemo(() => {
     if (teamId) {
-      // For club teams (non-circular flag), prioritize server proxy first
-      if (!shouldUseCircularFlag) {
-        console.log(`🔧 [MyWorldTeamLogo] Club team detected: ${teamName}, using server proxy first`);
-        return `/api/team-logo/square/${teamId}?size=64`;
-      }
-
-      // For national teams, use the logo sources as before
       const logoSources = getTeamLogoSources(
         { id: teamId, name: teamName, logo: teamLogo },
         shouldUseCircularFlag || false,
