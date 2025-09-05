@@ -87,39 +87,11 @@ const LazyImage: React.FC<LazyImageProps> = ({
       if (alt) {
         const altLower = alt.toLowerCase();
 
-        // UEFA Competitions - Enhanced detection
+        // Champions League only - use theme-appropriate logo
         if (altLower.includes("champions league")) {
           const championsLogo = darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
-          console.log(`🏆 [LazyImage] Using local Champions League logo (${darkMode ? 'dark' : 'light'} mode) from start: ${championsLogo}`);
+          console.log(`🏆 [LazyImage] Using local Champions League logo (${darkMode ? 'dark' : 'light'}) mode) from start: ${championsLogo}`);
           return championsLogo;
-        }
-
-        // UEFA Under-21 Championship - Fix double loading
-        if (altLower.includes("uefa under-21") || altLower.includes("under-21 championship")) {
-          const uefaLogo = darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
-          console.log(`🏆 [LazyImage] Using local UEFA Under-21 logo (${darkMode ? 'dark' : 'light'} mode) from start: ${uefaLogo}`);
-          return uefaLogo;
-        }
-
-        // Europa League
-        if (altLower.includes("europa league") || altLower.includes("uefa europa league")) {
-          const uefaLogo = darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
-          console.log(`🏆 [LazyImage] Using local Europa League logo (${darkMode ? 'dark' : 'light'} mode) from start: ${uefaLogo}`);
-          return uefaLogo;
-        }
-
-        // Conference League
-        if (altLower.includes("conference league") || altLower.includes("uefa conference league")) {
-          const uefaLogo = darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
-          console.log(`🏆 [LazyImage] Using local Conference League logo (${darkMode ? 'dark' : 'light'} mode) from start: ${uefaLogo}`);
-          return uefaLogo;
-        }
-
-        // Nations League
-        if (altLower.includes("nations league") || altLower.includes("uefa nations league")) {
-          const uefaLogo = darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
-          console.log(`🏆 [LazyImage] Using local Nations League logo (${darkMode ? 'dark' : 'light'} mode) from start: ${uefaLogo}`);
-          return uefaLogo;
         }
 
         // COTIF Tournament league
@@ -150,12 +122,10 @@ const LazyImage: React.FC<LazyImageProps> = ({
       setImageError(false);
       setLoadAttempt(0);
       setImageState('loaded'); // Assume local assets load successfully
-      console.log(`✅ [LazyImage] Using local asset immediately, bypassing remote fetch: ${localAssetUrl}`);
     } else {
       setCurrentSrc(src);
       setImageError(false);
       setLoadAttempt(0);
-      console.log(`🔄 [LazyImage] Using remote source: ${src}`);
     }
   }, [src, alt, darkMode]); // Add darkMode to trigger re-evaluation when theme changes
 
