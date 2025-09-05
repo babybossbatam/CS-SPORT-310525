@@ -54,6 +54,11 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       teamName?.toLowerCase().includes("club") ||
       teamName?.toLowerCase().includes("ud "));
 
+  // Check for UEFA Under-21 Championship - these are always national teams
+  const isUefaU21 = teamName?.toLowerCase().includes("u21") || 
+                    teamName?.toLowerCase().includes("under-21") ||
+                    teamName?.toLowerCase().includes("u-21");
+
   // Get country code for the team
   const getCountryCode = useCallback((country: string): string => {
     const countryMap: { [key: string]: string } = {
@@ -110,20 +115,26 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 
   // For club teams, use team logo sources
   const getLogoUrl = () => {
-    // Always prioritize team ID based logos for club teams
-    if (teamId && (!isNational || isKnownClubTeam)) {
-      // Try server proxy first for club teams
-      return `/api/team-logo/square/${teamId}?size=64`;
-    }
-
     // Force England to use correct circular flag
     if (teamName?.toLowerCase() === "england") {
       return "https://hatscripts.github.io/circle-flags/flags/gb-eng.svg";
     }
 
+    // For UEFA U21 teams, always use circular flags (these are national teams)
+    if (isUefaU21) {
+      console.log(`🏆 [MyCircularFlag] UEFA U21 team detected: ${teamName}, using circular flag`);
+      return getCircleFlagUrl(teamName, fallbackUrl);
+    }
+
     // For national teams, prioritize circular flag over team logo
     if (isNational && !isKnownClubTeam) {
       return getCircleFlagUrl(teamName, fallbackUrl);
+    }
+
+    // Always prioritize team ID based logos for club teams
+    if (teamId && (!isNational || isKnownClubTeam)) {
+      // Try server proxy first for club teams
+      return `/api/team-logo/square/${teamId}?size=64`;
     }
 
     // Fallback for teams without ID
@@ -354,10 +365,10 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
           width: size,
           height: size,
           objectFit: "cover",
-          borderRadius: isNational ? "50%" : "50%", // Keep circular for both, but club logos will show as regular logos
+          borderRadius: (isNational || isUefaU21) ? "50%" : "50%", // Keep circular for both, but club logos will show as regular logos
           position: "relative",
           zIndex: 1,
-          filter: isNational
+          filter: (isNational || isUefaU21)
             ? "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)"
             : "none", // No filter for club logos
         }}
@@ -399,11 +410,11 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
             }
           }
 
-          // For national teams, ensure we're using the correct flag
-          if (isNational && !isKnownClubTeam && !target.src.includes('circle-flags')) {
+          // For national teams and UEFA U21 teams, ensure we're using the correct flag
+          if ((isNational || isUefaU21) && !isKnownClubTeam && !target.src.includes('circle-flags')) {
             const flagUrl = getCircleFlagUrl(teamName, fallbackUrl);
             if (flagUrl !== target.src) {
-              console.log(`🔄 [MyCircularFlag] Trying correct flag: ${flagUrl}`);
+              console.log(`🔄 [MyCircularFlag] Trying correct flag for ${isUefaU21 ? 'UEFA U21' : 'national'} team: ${flagUrl}`);
               target.src = flagUrl;
               return;
             }
