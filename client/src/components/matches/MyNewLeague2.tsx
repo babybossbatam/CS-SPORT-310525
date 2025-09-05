@@ -456,7 +456,7 @@ const isNationalTeam = (
     teamNameLower.includes(" eintracht ") ||
     teamNameLower.includes(" borussia ") ||
     teamNameLower.includes(" bayern ") ||
-    teamNameLower.includes(" real madrid") ||
+    teamNameLower.includes(" realmadrid") ||
     teamNameLower.includes(" fc barcelona") ||
     teamNameLower.includes(" manchester united") ||
     teamNameLower.includes(" liverpool") ||
@@ -2375,16 +2375,19 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                   />
                 </button>
 
-                <LazyImage
-                  src={
-                    league.logo ||
-                    `/api/league-logo/${leagueIdNum}` ||
-                    "/assets/matchdetaillogo/fallback.png"
+                <MyWorldTeamLogo
+                  teamName={league.name}
+                  teamId={leagueIdNum}
+                  teamLogo={
+                    league.logo || `/api/league-logo/${leagueIdNum}` || "/assets/matchdetaillogo/fallback.png"
                   }
                   alt={league.name || "Unknown League"}
-                  className="w-6 h-6 md:w-7 md:h-7 object-contain rounded-full flex-shrink-0"
-                  style={{ backgroundColor: "transparent" }}
-                  loading="lazy"
+                  size="34px"
+                  className="popular-leagues-size"
+                  leagueContext={{
+                    name: league.name,
+                    country: league.country,
+                  }}
                 />
                 <div className="flex flex-col flex-1 text-left min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -2683,7 +2686,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         1022: "World", // FIFA Club World Cup
                         772: "World", // FIFA World Cup Qualification
                         531: "World", // UEFA Super Cup
-                        
+
                         // Major European Leagues
                         38: "England", // Premier League
                         15: "England", // Championship
@@ -2691,7 +2694,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         4: "Spain", // La Liga
                         3: "Netherlands", // Eredivisie
                         5: "France", // Ligue 1
-                        
+
                         // Other Important Leagues
                         71: "Brazil", // Serie A Brazil
                         531: "World", // CONMEBOL Copa America
