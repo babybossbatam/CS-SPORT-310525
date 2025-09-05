@@ -87,11 +87,11 @@ const LazyImage: React.FC<LazyImageProps> = ({
       if (alt) {
         const altLower = alt.toLowerCase();
 
-        // Champions League only - use theme-appropriate logo
-        if (altLower.includes("champions league")) {
-          const championsLogo = darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
-          console.log(`🏆 [LazyImage] Using local Champions League logo (${darkMode ? 'dark' : 'light'}) mode) from start: ${championsLogo}`);
-          return championsLogo;
+        // Enhanced UEFA competition detection - covers all UEFA competitions
+        if (altLower.includes("uefa") || altLower.includes("champions league") || altLower.includes("europa league") || altLower.includes("under-21")) {
+          const uefaLogo = darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
+          console.log(`🏆 [LazyImage] Using local UEFA logo (${darkMode ? 'dark' : 'light'} mode) for: ${alt}`);
+          return uefaLogo;
         }
 
         // COTIF Tournament league
@@ -133,6 +133,13 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const handleError = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
     const target = e.target as HTMLImageElement;
 
+    // Special handling: NEVER change local assets that are already working
+    const isLocalAsset = currentSrc.includes("/assets/matchdetaillogo/");
+    if (isLocalAsset) {
+      console.log(`🔒 [LazyImage] Local asset error ignored (keeping current): ${currentSrc}`);
+      return; // Don't change local assets
+    }
+
     // Avoid infinite retry loops
     if (loadAttempt >= MAX_LOAD_ATTEMPTS) {
       if (!target.src.includes('fallback.png')) {
@@ -143,6 +150,15 @@ const LazyImage: React.FC<LazyImageProps> = ({
     }
 
     setLoadAttempt(prev => prev + 1);
+
+    // For league logos, try server proxy before fallback
+    if (alt && (alt.toLowerCase().includes("uefa") || alt.toLowerCase().includes("championship") || alt.toLowerCase().includes("league"))) {
+      // Try to extract league ID from context or use server proxy
+      const proxyUrl = `/api/league-logo/square/667?size=64`; // Default league proxy
+      console.log(`🔄 [LazyImage] League logo error, trying server proxy: ${proxyUrl}`);
+      setCurrentSrc(proxyUrl);
+      return;
+    }
 
     // Simplified fallback for team logos
     if (teamId && teamName && !target.src.includes('/api/team-logo/')) {
@@ -163,7 +179,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       setCurrentSrc('/assets/matchdetaillogo/fallback.png');
       setImageState('error');
     }
-  }, [teamId, teamName, loadAttempt, onError, fallbackSrc, fallbackAttempted]);
+  }, [teamId, teamName, loadAttempt, onError, fallbackSrc, fallbackAttempted, currentSrc, alt]);
 
 
   // Handler for successful image load

@@ -48,6 +48,15 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
       if (leagueName) {
         const leagueNameLower = leagueName.toLowerCase();
 
+        // Enhanced UEFA competition detection - all UEFA competitions use UEFA logo
+        if (leagueNameLower.includes("uefa") || leagueNameLower.includes("champions league") || 
+            leagueNameLower.includes("europa league") || leagueNameLower.includes("under-21") ||
+            leagueNameLower.includes("qualification")) {
+          const uefaLogo = "/assets/matchdetaillogo/uefa.png"; // Always use standard UEFA logo for leagues
+          console.log(`🏆 [MyNewLeagueLogo] Using local UEFA logo for: ${leagueName}`);
+          return uefaLogo;
+        }
+
         // COTIF Tournament league
         if (leagueNameLower.includes("cotif") || leagueNameLower.includes("cotif tournament")) {
           console.log(`🏆 [MyNewLeagueLogo] Using local COTIF Tournament logo from start`);
@@ -103,6 +112,15 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
           const shouldUseLocalAssetOnError = () => {
             if (leagueName) {
               const leagueNameLower = leagueName.toLowerCase();
+
+              // Enhanced UEFA competition detection after error
+              if (leagueNameLower.includes("uefa") || leagueNameLower.includes("champions league") || 
+                  leagueNameLower.includes("europa league") || leagueNameLower.includes("under-21") ||
+                  leagueNameLower.includes("qualification")) {
+                const uefaLogo = "/assets/matchdetaillogo/uefa.png";
+                console.log(`🏆 [MyNewLeagueLogo] Using local UEFA logo after error for: ${leagueName}`);
+                return uefaLogo;
+              }
 
               // COTIF Tournament league
               if (leagueNameLower.includes("cotif") || leagueNameLower.includes("cotif tournament")) {
