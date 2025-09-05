@@ -346,69 +346,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
   }, [currentSrc, alt, loadAttempt, imageError, onLoad, teamName, teamId]); // Add teamName and teamId for completeness
 
 
-  // Special handling for league 667 (Friendlies Clubs) - detect national teams and use MyCircularFlag
-  // Check if this is from league 667 using leagueContext.name since leagueId doesn't exist in leagueContext
-  const isFriendliesClubs = leagueContext?.name?.toLowerCase().includes('friendlies') && 
-                           leagueContext?.country?.toLowerCase() === 'world';
-
-  console.log(`🔍 [LazyImage] Checking league context:`, {
-    leagueContextName: leagueContext?.name,
-    leagueContextCountry: leagueContext?.country,
-    teamName: teamName,
-    isFriendliesClubs: isFriendliesClubs
-  });
-
-  if (isFriendliesClubs && teamName) {
-    // List of common national team names for Friendlies Clubs league
-    const nationalTeamNames = [
-      'Afghanistan', 'Albania', 'Algeria', 'Argentina', 'Armenia', 'Australia', 
-      'Austria', 'Azerbaijan', 'Bahrain', 'Bangladesh', 'Belarus', 'Belgium', 
-      'Bolivia', 'Bosnia and Herzegovina', 'Brazil', 'Bulgaria', 'Cambodia', 
-      'Canada', 'Chile', 'China', 'Colombia', 'Croatia', 'Czech Republic', 
-      'Denmark', 'Ecuador', 'Egypt', 'England', 'Estonia', 'Finland', 'France', 
-      'Georgia', 'Germany', 'Ghana', 'Greece', 'Hong Kong', 'Hungary', 'Iceland', 
-      'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 
-      'Japan', 'Jordan', 'Kazakhstan', 'Kuwait', 'Kyrgyzstan', 'Latvia', 
-      'Lebanon', 'Lithuania', 'Luxembourg', 'Malaysia', 'Mexico', 'Moldova', 
-      'Montenegro', 'Morocco', 'Myanmar', 'Netherlands', 'New Zealand', 'Nigeria', 
-      'North Macedonia', 'Norway', 'Oman', 'Pakistan', 'Palestine', 'Peru', 
-      'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 
-      'Saudi Arabia', 'Scotland', 'Serbia', 'Singapore', 'Slovakia', 'Slovenia', 
-      'South Korea', 'Spain', 'Sri Lanka', 'Sweden', 'Switzerland', 'Syria', 
-      'Tajikistan', 'Thailand', 'Tunisia', 'Turkey', 'Turkmenistan', 'Ukraine', 
-      'United Arab Emirates', 'Uruguay', 'Uzbekistan', 'Venezuela', 'Vietnam', 
-      'Wales', 'Yemen'
-    ];
-
-    // Improved national team detection - exact match or team name is exactly a country name
-    const isNationalTeam = nationalTeamNames.some(country => {
-      const teamNameLower = teamName.toLowerCase().trim();
-      const countryLower = country.toLowerCase();
-
-      // Exact match or team name equals country name
-      return teamNameLower === countryLower || 
-             teamNameLower.includes(countryLower) ||
-             countryLower.includes(teamNameLower);
-    });
-
-    if (isNationalTeam) {
-      console.log(`🏆 [LazyImage] Friendlies Clubs national team detected: ${teamName}, using MyCircularFlag`);
-      return (
-        <MyCircularFlag
-          teamName={teamName}
-          teamId={teamId}
-          fallbackUrl={currentSrc}
-          alt={alt}
-          size={style?.width || style?.height || "32px"}
-          className={className}
-          countryName={teamName}
-        />
-      );
-    } else {
-      console.log(`⚽ [LazyImage] Friendlies Clubs club team detected: ${teamName}, continuing with LazyImage`);
-      // Continue with regular LazyImage logic for club teams
-    }
-  }
+  // Note: National team detection is now handled by MyWorldTeamLogo upstream
+  // LazyImage should focus on image loading, not team type detection
 
   // Use MyWorldTeamLogo if team information is provided and useTeamLogo is true
   // Also render MyWorldTeamLogo if it's a detected national team, even if useTeamLogo is false
