@@ -184,7 +184,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     Serbia: "rs",
     Ireland: "ie",
     "Republic of Ireland": "ie",
-    "republic of ireland": "ie",
     Kosovo: "xk",
     "North Macedonia": "mk",
     "FYR Macedonia": "mk",
