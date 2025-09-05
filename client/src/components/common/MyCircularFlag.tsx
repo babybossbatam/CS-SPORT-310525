@@ -110,27 +110,25 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 
   // For club teams, use team logo sources
   const getLogoUrl = () => {
-    // Always prioritize team ID based logos for club teams
-    if (teamId && (!isNational || isKnownClubTeam)) {
-      // Try server proxy first for club teams
-      return `/api/team-logo/square/${teamId}?size=64`;
-    }
-
-    // Force England to use correct circular flag
+    // Force England to use correct circular flag first
     if (teamName?.toLowerCase() === "england") {
       return "https://hatscripts.github.io/circle-flags/flags/gb-eng.svg";
     }
 
-    // For national teams, prioritize circular flag over team logo
+    // For national teams, ALWAYS prioritize circular flag - NEVER use square logos
     if (isNational && !isKnownClubTeam) {
+      console.log(`🏳️ [MyCircularFlag] Using circular flag for national team: ${teamName}`);
       return getCircleFlagUrl(teamName, fallbackUrl);
     }
 
-    // Fallback for teams without ID
-    if (teamId) {
+    // ONLY for confirmed club teams, use team ID based logos
+    if (teamId && isKnownClubTeam) {
+      console.log(`⚽ [MyCircularFlag] Using team logo for club team: ${teamName}`);
       return `/api/team-logo/square/${teamId}?size=64`;
     }
 
+    // Fallback: if we can't determine team type clearly, try flag first
+    console.log(`❓ [MyCircularFlag] Uncertain team type for ${teamName}, defaulting to flag`);
     return getCircleFlagUrl(teamName, fallbackUrl);
   };
 
@@ -373,9 +371,33 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
             target.src,
           );
 
-          // Enhanced fallback logic for club teams
-          if (teamId && (!isNational || isKnownClubTeam)) {
-            // Try different sizes and sources
+          // For national teams, NEVER fall back to square logos - only try other flag sources
+          if (isNational && !isKnownClubTeam) {
+            console.log(`🏳️ [MyCircularFlag] National team error handling for ${teamName}`);
+            
+            // Try alternative flag sources first
+            if (!target.src.includes('circle-flags')) {
+              const flagUrl = getCircleFlagUrl(teamName, fallbackUrl);
+              if (flagUrl !== target.src && !flagUrl.includes('fallback')) {
+                console.log(`🔄 [MyCircularFlag] Trying circle flag: ${flagUrl}`);
+                target.src = flagUrl;
+                return;
+              }
+            }
+
+            // For national teams, use national team fallback, not square logos
+            if (!target.src.includes("/assets/fallback-logo.svg")) {
+              console.log(`🏳️ [MyCircularFlag] Using national team fallback for ${teamName}`);
+              target.src = "/assets/fallback-logo.svg";
+            }
+            return;
+          }
+
+          // Enhanced fallback logic ONLY for confirmed club teams
+          if (teamId && isKnownClubTeam) {
+            console.log(`⚽ [MyCircularFlag] Club team error handling for ${teamName}`);
+            
+            // Try different sizes and sources for club teams only
             if (target.src.includes('size=64')) {
               const smallerUrl = `/api/team-logo/square/${teamId}?size=32`;
               console.log(`🔄 [MyCircularFlag] Trying smaller size: ${smallerUrl}`);
@@ -390,7 +412,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
               return;
             }
 
-            // Try team logo sources as final attempt
+            // Try team logo sources as final attempt for club teams
             const logoSources = getTeamLogoSources({ id: teamId, name: teamName }, false);
             const nextSource = logoSources.find(source => 
               source.url !== target.src && 
@@ -400,16 +422,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
             if (nextSource) {
               console.log(`🔄 [MyCircularFlag] Trying source: ${nextSource.source} - ${nextSource.url}`);
               target.src = nextSource.url;
-              return;
-            }
-          }
-
-          // For national teams, ensure we're using the correct flag
-          if (isNational && !isKnownClubTeam && !target.src.includes('circle-flags')) {
-            const flagUrl = getCircleFlagUrl(teamName, fallbackUrl);
-            if (flagUrl !== target.src) {
-              console.log(`🔄 [MyCircularFlag] Trying correct flag: ${flagUrl}`);
-              target.src = flagUrl;
               return;
             }
           }
