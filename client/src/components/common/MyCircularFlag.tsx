@@ -182,6 +182,16 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     "san marino": "sm",
     Russia: "ru",
     Serbia: "rs",
+    Ireland: "ie",
+    "Republic of Ireland": "ie",
+    "republic of ireland": "ie",
+    Kosovo: "xk",
+    "North Macedonia": "mk",
+    "FYR Macedonia": "mk",
+    Macedonia: "mk",
+    Iceland: "is",
+    Moldova: "md",
+    "Faroe Islands": "fo",
     // South American teams
     Brazil: "br",
     Argentina: "ar",
@@ -285,6 +295,13 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     if (teamName.toLowerCase() === "england") {
       console.log(`🏴󠁧󠁢󠁥󠁮󠁧󠁿 [MyCircularFlag] Using England flag: gb-eng`);
       return "https://hatscripts.github.io/circle-flags/flags/gb-eng.svg";
+    }
+
+    // Special case for Republic of Ireland
+    if (teamName.toLowerCase().includes("republic of ireland") || 
+        teamName.toLowerCase() === "republic of ireland") {
+      console.log(`🇮🇪 [MyCircularFlag] Using Ireland flag for Republic of Ireland`);
+      return "https://hatscripts.github.io/circle-flags/flags/ie.svg";
     }
 
     // Use the locally defined getCountryCode first

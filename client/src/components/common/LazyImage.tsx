@@ -350,7 +350,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   // Check if this is from league 667 using leagueContext.name since leagueId doesn't exist in leagueContext
   const isFriendliesClubs = leagueContext?.name?.toLowerCase().includes('friendlies') && 
                            leagueContext?.country?.toLowerCase() === 'world';
-  
+
   console.log(`🔍 [LazyImage] Checking league context:`, {
     leagueContextName: leagueContext?.name,
     leagueContextCountry: leagueContext?.country,
@@ -384,7 +384,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
     const isNationalTeam = nationalTeamNames.some(country => {
       const teamNameLower = teamName.toLowerCase().trim();
       const countryLower = country.toLowerCase();
-      
+
       // Exact match or team name equals country name
       return teamNameLower === countryLower || 
              teamNameLower.includes(countryLower) ||
@@ -434,13 +434,13 @@ const LazyImage: React.FC<LazyImageProps> = ({
   // This handles cases where MyWorldTeamLogo calls LazyImage with useTeamLogo=false
   if (!useTeamLogo && teamId && teamName && !currentSrc.includes('fallback.png')) {
     console.log(`🔍 [LazyImage] Enhanced handling for club team: ${teamName} (ID: ${teamId}), current src: ${currentSrc}`);
-    
+
     // Check if current src is still the original and not a proper team logo URL
     const isOriginalSrc = currentSrc === src;
     const isProperTeamLogoUrl = currentSrc.includes('/api/team-logo/') || 
                                currentSrc.includes('api/team-logo') ||
                                currentSrc.includes('media.api-sports.io/football/teams/');
-    
+
     // If we have original src and it's not a proper team logo URL, get better sources
     if (isOriginalSrc && !isProperTeamLogoUrl) {
       console.log(`🔄 [LazyImage] Original src detected for ${teamName}, trying server proxy first`);
@@ -451,7 +451,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       setImageState('loading');
       return; // Return early to prevent rendering with old src
     }
-    
+
     // Always try server proxy first for club teams when useTeamLogo=false and current src is not team logo
     if (!currentSrc.includes('/api/team-logo/') && !currentSrc.includes('api/team-logo') && !currentSrc.includes('media.api-sports.io/football/teams/')) {
       const serverProxyUrl = `/api/team-logo/square/${teamId}?size=64`;
@@ -462,24 +462,24 @@ const LazyImage: React.FC<LazyImageProps> = ({
       setImageState('loading');
       return; // Return early to prevent rendering with old src
     }
-    
+
     // If server proxy is already being used but not loaded/errored, let it continue
     if (currentSrc.includes('/api/team-logo/') && !imageLoaded && !imageError && imageState === 'loading') {
       console.log(`⏳ [LazyImage] Server proxy loading for ${teamName}: ${currentSrc}`);
       // Let it continue loading
     }
-    
+
     // Check if we need better logo sources for this team (fallback option)
     if (imageError || (imageLoaded && currentSrc.includes('fallback'))) {
       const logoSources = getTeamLogoSources({ id: teamId, name: teamName });
-      
+
       if (logoSources.length > 0) {
         const bestSource = logoSources.find(source => 
           source.url !== currentSrc && 
           !source.url.includes('/api/team-logo/') &&
           !source.url.includes('fallback')
         );
-        
+
         if (bestSource) {
           console.log(`🔄 [LazyImage] Using alternative logo source for ${teamName}: ${bestSource.source}`);
           setCurrentSrc(bestSource.url);
@@ -498,7 +498,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
     const isPotentialPlaceholder = currentSrc.includes('placeholder') || 
                                   currentSrc.includes('fallback') ||
                                   currentSrc === src; // Still showing original potentially bad src
-    
+
     if (isPotentialPlaceholder && !currentSrc.includes('/api/team-logo/')) {
       console.log(`🔄 [LazyImage] Detected potential placeholder for ${teamName}, switching to server proxy`);
       const serverProxyUrl = `/api/team-logo/square/${teamId}?size=64`;
