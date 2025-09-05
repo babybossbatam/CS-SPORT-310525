@@ -87,8 +87,14 @@ const LazyImage: React.FC<LazyImageProps> = ({
       if (alt) {
         const altLower = alt.toLowerCase();
 
-        // Enhanced UEFA competition detection - covers all UEFA competitions
-        if (altLower.includes("uefa") || altLower.includes("champions league") || altLower.includes("europa league") || altLower.includes("under-21")) {
+        // UEFA Under-21 Championship gets its own specific logo
+        if (altLower.includes("under-21") || altLower.includes("u21") || altLower.includes("uefa under-21 championship")) {
+          console.log(`🏆 [LazyImage] Using local UEFA Under-21 Championship logo for: ${alt}`);
+          return "/assets/matchdetaillogo/uefa-under-21.png";
+        }
+
+        // Other UEFA competitions (Champions League, Europa League, etc.)
+        if (altLower.includes("uefa") || altLower.includes("champions league") || altLower.includes("europa league")) {
           const uefaLogo = darkMode ? "/assets/matchdetaillogo/uefa-white.png" : "/assets/matchdetaillogo/uefa.png";
           console.log(`🏆 [LazyImage] Using local UEFA logo (${darkMode ? 'dark' : 'light'} mode) for: ${alt}`);
           return uefaLogo;
