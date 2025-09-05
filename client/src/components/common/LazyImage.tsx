@@ -346,19 +346,23 @@ const LazyImage: React.FC<LazyImageProps> = ({
   }, [currentSrc, alt, loadAttempt, imageError, onLoad, teamName, teamId]); // Add teamName and teamId for completeness
 
 
-  // Special handling for league 667 (Friendlies Clubs) - detect national teams and use MyCircularFlag
-  // Check if this is from league 667 using leagueContext.name since leagueId doesn't exist in leagueContext
+  // Special handling for leagues with national teams - detect national teams and use MyCircularFlag
   const isFriendliesClubs = leagueContext?.name?.toLowerCase().includes('friendlies') && 
                            leagueContext?.country?.toLowerCase() === 'world';
+  
+  // UEFA Under-21 Championship - Qualif is a national team competition
+  const isUefaU21Qualif = leagueContext?.name?.toLowerCase().includes('uefa under-21 championship') &&
+                         leagueContext?.name?.toLowerCase().includes('qualif');
   
   console.log(`🔍 [LazyImage] Checking league context:`, {
     leagueContextName: leagueContext?.name,
     leagueContextCountry: leagueContext?.country,
     teamName: teamName,
-    isFriendliesClubs: isFriendliesClubs
+    isFriendliesClubs: isFriendliesClubs,
+    isUefaU21Qualif: isUefaU21Qualif
   });
 
-  if (isFriendliesClubs && teamName) {
+  if ((isFriendliesClubs || isUefaU21Qualif) && teamName) {
     // List of common national team names for Friendlies Clubs league
     const nationalTeamNames = [
       'Afghanistan', 'Albania', 'Algeria', 'Argentina', 'Armenia', 'Australia', 
@@ -392,7 +396,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
     });
 
     if (isNationalTeam) {
-      console.log(`🏆 [LazyImage] Friendlies Clubs national team detected: ${teamName}, using MyCircularFlag`);
+      const competitionType = isUefaU21Qualif ? 'UEFA Under-21 Qualif' : 'Friendlies Clubs';
+      console.log(`🏆 [LazyImage] ${competitionType} national team detected: ${teamName}, using MyCircularFlag`);
       return (
         <MyCircularFlag
           teamName={teamName}
@@ -405,7 +410,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
         />
       );
     } else {
-      console.log(`⚽ [LazyImage] Friendlies Clubs club team detected: ${teamName}, continuing with LazyImage`);
+      const competitionType = isUefaU21Qualif ? 'UEFA Under-21 Qualif' : 'Friendlies Clubs';
+      console.log(`⚽ [LazyImage] ${competitionType} club team detected: ${teamName}, continuing with LazyImage`);
       // Continue with regular LazyImage logic for club teams
     }
   }
