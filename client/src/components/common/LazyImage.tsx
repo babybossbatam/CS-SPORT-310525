@@ -371,81 +371,71 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   // Enhanced team logo handling when useTeamLogo is false but we have team info
   // This handles cases where MyWorldTeamLogo calls LazyImage with useTeamLogo=false
+  // ONLY do this enhancement if the image has already failed to load or we detect a clear problem
   if (!useTeamLogo && teamId && teamName && !currentSrc.includes('fallback.png')) {
-    console.log(`🔍 [LazyImage] Enhanced handling for club team: ${teamName} (ID: ${teamId}), current src: ${currentSrc}`);
+    // Only enhance if there's already been an error or the current src is clearly inadequate
+    const needsEnhancement = imageError || 
+                           (imageLoaded && (currentSrc.includes('placeholder') || currentSrc.includes('fallback'))) ||
+                           (!imageLoaded && !currentSrc.includes('/api/team-logo/') && !currentSrc.includes('media.api-sports.io/football/teams/') && currentSrc === src);
 
-    // Check if current src is still the original and not a proper team logo URL
-    const isOriginalSrc = currentSrc === src;
-    const isProperTeamLogoUrl = currentSrc.includes('/api/team-logo/') || 
-                               currentSrc.includes('api/team-logo') ||
-                               currentSrc.includes('media.api-sports.io/football/teams/');
+    if (needsEnhancement) {
+      console.log(`🔍 [LazyImage] Enhanced handling needed for club team: ${teamName} (ID: ${teamId}), current src: ${currentSrc}`);
 
-    // If we have original src and it's not a proper team logo URL, get better sources
-    if (isOriginalSrc && !isProperTeamLogoUrl) {
-      console.log(`🔄 [LazyImage] Original src detected for ${teamName}, trying server proxy first`);
-      const serverProxyUrl = `/api/team-logo/square/${teamId}?size=64`;
-      setCurrentSrc(serverProxyUrl);
-      setImageLoaded(false);
-      setImageError(false);
-      setImageState('loading');
-      return; // Return early to prevent rendering with old src
-    }
+      // Check if current src is still the original and not a proper team logo URL
+      const isOriginalSrc = currentSrc === src;
+      const isProperTeamLogoUrl = currentSrc.includes('/api/team-logo/') || 
+                                 currentSrc.includes('api/team-logo') ||
+                                 currentSrc.includes('media.api-sports.io/football/teams/');
 
-    // Always try server proxy first for club teams when useTeamLogo=false and current src is not team logo
-    if (!currentSrc.includes('/api/team-logo/') && !currentSrc.includes('api/team-logo') && !currentSrc.includes('media.api-sports.io/football/teams/')) {
-      const serverProxyUrl = `/api/team-logo/square/${teamId}?size=64`;
-      console.log(`🔄 [LazyImage] Trying server proxy for club team ${teamName}: ${serverProxyUrl}`);
-      setCurrentSrc(serverProxyUrl);
-      setImageLoaded(false);
-      setImageError(false);
-      setImageState('loading');
-      return; // Return early to prevent rendering with old src
-    }
+      // If we have original src and it's not a proper team logo URL, get better sources
+      if (isOriginalSrc && !isProperTeamLogoUrl) {
+        console.log(`🔄 [LazyImage] Original src detected for ${teamName}, trying server proxy first`);
+        const serverProxyUrl = `/api/team-logo/square/${teamId}?size=64`;
+        setCurrentSrc(serverProxyUrl);
+        setImageLoaded(false);
+        setImageError(false);
+        setImageState('loading');
+        return; // Return early to prevent rendering with old src
+      }
 
-    // If server proxy is already being used but not loaded/errored, let it continue
-    if (currentSrc.includes('/api/team-logo/') && !imageLoaded && !imageError && imageState === 'loading') {
-      console.log(`⏳ [LazyImage] Server proxy loading for ${teamName}: ${currentSrc}`);
-      // Let it continue loading
-    }
+      // Try server proxy first for club teams when current src is not team logo
+      if (!currentSrc.includes('/api/team-logo/') && !currentSrc.includes('api/team-logo') && !currentSrc.includes('media.api-sports.io/football/teams/')) {
+        const serverProxyUrl = `/api/team-logo/square/${teamId}?size=64`;
+        console.log(`🔄 [LazyImage] Trying server proxy for club team ${teamName}: ${serverProxyUrl}`);
+        setCurrentSrc(serverProxyUrl);
+        setImageLoaded(false);
+        setImageError(false);
+        setImageState('loading');
+        return; // Return early to prevent rendering with old src
+      }
 
-    // Check if we need better logo sources for this team (fallback option)
-    if (imageError || (imageLoaded && currentSrc.includes('fallback'))) {
-      const logoSources = getTeamLogoSources({ id: teamId, name: teamName });
+      // Check if we need better logo sources for this team (fallback option)
+      if (imageError || (imageLoaded && currentSrc.includes('fallback'))) {
+        const logoSources = getTeamLogoSources({ id: teamId, name: teamName });
 
-      if (logoSources.length > 0) {
-        const bestSource = logoSources.find(source => 
-          source.url !== currentSrc && 
-          !source.url.includes('/api/team-logo/') &&
-          !source.url.includes('fallback')
-        );
+        if (logoSources.length > 0) {
+          const bestSource = logoSources.find(source => 
+            source.url !== currentSrc && 
+            !source.url.includes('/api/team-logo/') &&
+            !source.url.includes('fallback')
+          );
 
-        if (bestSource) {
-          console.log(`🔄 [LazyImage] Using alternative logo source for ${teamName}: ${bestSource.source}`);
-          setCurrentSrc(bestSource.url);
-          setImageLoaded(false);
-          setImageError(false);
-          setImageState('loading');
-          return;
+          if (bestSource) {
+            console.log(`🔄 [LazyImage] Using alternative logo source for ${teamName}: ${bestSource.source}`);
+            setCurrentSrc(bestSource.url);
+            setImageLoaded(false);
+            setImageError(false);
+            setImageState('loading');
+            return;
+          }
         }
       }
-    }
-  }
-
-  // Additional check: if we're still showing a placeholder/empty logo and have team info, try server proxy
-  if (!useTeamLogo && teamId && teamName && imageLoaded && !imageError) {
-    // Check if the current image looks like a placeholder (often very small or empty)
-    const isPotentialPlaceholder = currentSrc.includes('placeholder') || 
-                                  currentSrc.includes('fallback') ||
-                                  currentSrc === src; // Still showing original potentially bad src
-
-    if (isPotentialPlaceholder && !currentSrc.includes('/api/team-logo/')) {
-      console.log(`🔄 [LazyImage] Detected potential placeholder for ${teamName}, switching to server proxy`);
-      const serverProxyUrl = `/api/team-logo/square/${teamId}?size=64`;
-      setCurrentSrc(serverProxyUrl);
-      setImageLoaded(false);
-      setImageError(false);
-      setImageState('loading');
-      return;
+    } else {
+      // If server proxy is already being used but not loaded/errored, let it continue
+      if (currentSrc.includes('/api/team-logo/') && !imageLoaded && !imageError && imageState === 'loading') {
+        console.log(`⏳ [LazyImage] Server proxy loading for ${teamName}: ${currentSrc}`);
+        // Let it continue loading normally
+      }
     }
   }
 

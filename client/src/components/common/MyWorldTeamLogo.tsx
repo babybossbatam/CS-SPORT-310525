@@ -672,6 +672,13 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   // Synchronous logo URL resolution
   const logoUrl = useMemo(() => {
     if (teamId) {
+      // For club teams (non-circular flag), prioritize server proxy first
+      if (!shouldUseCircularFlag) {
+        console.log(`🔧 [MyWorldTeamLogo] Club team detected: ${teamName}, using server proxy first`);
+        return `/api/team-logo/square/${teamId}?size=64`;
+      }
+      
+      // For national teams, use the logo sources as before
       const logoSources = getTeamLogoSources(
         { id: teamId, name: teamName, logo: teamLogo },
         shouldUseCircularFlag || false,
