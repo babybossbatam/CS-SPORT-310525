@@ -39,9 +39,15 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   // Check if this is a national team or club team
   const isNational = isNationalTeam({ name: teamName });
 
+  // Enhanced youth team detection for U17, U19, U20, U21, U23
+  const isYouthNationalTeam = teamName?.match(/^(.+?)\s+(u|under)[-\s]?(17|19|20|21|23)$/i);
+  
+  // Enhanced national team detection - include youth teams
+  const isDefinitelyNational = isNational || isYouthNationalTeam;
+
   // Additional check for known club teams that should never use circular flags
   const isKnownClubTeam =
-    !isNational &&
+    !isDefinitelyNational &&
     (teamName?.toLowerCase().includes("fc") ||
       teamName?.toLowerCase().includes("cf") ||
       teamName?.toLowerCase().includes("united") ||
@@ -110,20 +116,22 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 
   // For club teams, use team logo sources
   const getLogoUrl = () => {
-    // Always prioritize team ID based logos for club teams
-    if (teamId && (!isNational || isKnownClubTeam)) {
-      // Try server proxy first for club teams
-      return `/api/team-logo/square/${teamId}?size=64`;
-    }
-
     // Force England to use correct circular flag
     if (teamName?.toLowerCase() === "england") {
       return "https://hatscripts.github.io/circle-flags/flags/gb-eng.svg";
     }
 
-    // For national teams, prioritize circular flag over team logo
-    if (isNational && !isKnownClubTeam) {
+    // For national teams (including youth), prioritize circular flag over team logo
+    if (isDefinitelyNational && !isKnownClubTeam) {
+      console.log(`🌍 [MyCircularFlag] Using circular flag for national team: ${teamName}`);
       return getCircleFlagUrl(teamName, fallbackUrl);
+    }
+
+    // Always prioritize team ID based logos for club teams
+    if (teamId && (!isDefinitelyNational || isKnownClubTeam)) {
+      // Try server proxy first for club teams
+      console.log(`🏟️ [MyCircularFlag] Using team logo for club team: ${teamName}`);
+      return `/api/team-logo/square/${teamId}?size=64`;
     }
 
     // Fallback for teams without ID
@@ -362,7 +370,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
           borderRadius: isNational ? "50%" : "50%", // Keep circular for both, but club logos will show as regular logos
           position: "relative",
           zIndex: 1,
-          filter: isNational
+          filter: isDefinitelyNational
             ? "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)"
             : "none", // No filter for club logos
         }}
@@ -374,7 +382,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
           );
 
           // Enhanced fallback logic for club teams
-          if (teamId && (!isNational || isKnownClubTeam)) {
+          if (teamId && (!isDefinitelyNational || isKnownClubTeam)) {
             // Try different sizes and sources
             if (target.src.includes("size=64")) {
               const smallerUrl = `/api/team-logo/square/${teamId}?size=32`;
@@ -414,7 +422,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 
           // For national teams, ensure we're using the correct flag
           if (
-            isNational &&
+            isDefinitelyNational &&
             !isKnownClubTeam &&
             !target.src.includes("circle-flags")
           ) {
