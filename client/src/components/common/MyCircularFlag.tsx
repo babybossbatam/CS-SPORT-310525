@@ -57,7 +57,13 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   // Check for UEFA Under-21 Championship - these are always national teams
   const isUefaU21 = teamName?.toLowerCase().includes("u21") || 
                     teamName?.toLowerCase().includes("under-21") ||
-                    teamName?.toLowerCase().includes("u-21");
+                    teamName?.toLowerCase().includes("u-21") ||
+                    teamName?.toLowerCase().includes("u20") ||
+                    teamName?.toLowerCase().includes("under-20") ||
+                    teamName?.toLowerCase().includes("u-20") ||
+                    teamName?.toLowerCase().includes("u23") ||
+                    teamName?.toLowerCase().includes("under-23") ||
+                    teamName?.toLowerCase().includes("u-23");
 
   // Get country code for the team
   const getCountryCode = useCallback((country: string): string => {

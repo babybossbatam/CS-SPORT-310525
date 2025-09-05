@@ -597,8 +597,16 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       leagueName.includes("uefa under-21 championship") ||
       leagueName.includes("uefa under-21 championship - qualification") ||
       leagueName.includes("uefa under-21 championship - qualif") ||
+      leagueName.includes("uefa u21 championship") ||
+      leagueName.includes("uefa u-21 championship") ||
+      leagueName.includes("euro u21") ||
+      leagueName.includes("euro under-21") ||
+      leagueName.includes("world cup - qualification") ||
+      leagueName.includes("world cup qualification") ||
       (leagueName.includes("uefa") && leagueName.includes("under-21")) ||
-      (leagueName.includes("uefa") && leagueName.includes("u21"));
+      (leagueName.includes("uefa") && leagueName.includes("u21")) ||
+      (leagueName.includes("uefa") && leagueName.includes("u-21")) ||
+      (leagueName.includes("world cup") && leagueName.includes("qualification"));
 
     // Force circular flag for all recognized national teams
     const result =
