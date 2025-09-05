@@ -17,66 +17,34 @@ export interface TeamData {
  * Generate team logo sources with 365scores support
  */
 export function getTeamLogoSources(team: TeamData, isNationalTeam = false, sport: string = 'football'): TeamLogoSource[] {
+  // Optimized: Return only the best source immediately for faster loading
   const sources: TeamLogoSource[] = [];
 
-  // For national teams or international competitions, prioritize 365scores
-  if (isNationalTeam && team?.id) {
-    sources.push({
-      url: `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${team.id}`,
-      source: '365scores',
-      priority: 1
-    });
-  }
-
-  // Original team logo
-  if (team?.logo && typeof team.logo === 'string' && team.logo.trim() !== '') {
-    sources.push({
-      url: team.logo,
-      source: 'api-sports-original',
-      priority: isNationalTeam ? 2 : 1
-    });
-  }
-
-  // Alternative API sources if team ID is available
+  // For teams with ID, prioritize server proxy (most reliable)
   if (team?.id) {
-    // Server proxy as primary source (most reliable)
     sources.push({
       url: `/api/team-logo/square/${team.id}?size=64&sport=${sport}`,
       source: 'server-proxy',
       priority: 1
     });
+  }
 
-    // Server proxy circular version
-    sources.push({
-      url: `/api/team-logo/circular/${team.id}?size=32&sport=${sport}`,
-      source: 'server-proxy-circular',
-      priority: 2
-    });
-
-    // 365scores alternative (lower priority due to rate limiting)
+  // For national teams, add 365scores as secondary
+  if (isNationalTeam && team?.id) {
     sources.push({
       url: `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${team.id}`,
       source: '365scores',
-      priority: 6
+      priority: 2
     });
+  }
 
-    // API-Sports alternative - sport-specific
-    const sportEndpoint = sport === 'basketball' ? 'basketball' : 'football';
+  // Original team logo as fallback
+  if (team?.logo && typeof team.logo === 'string' && team.logo.trim() !== '') {
     sources.push({
-      url: `https://media.api-sports.io/${sportEndpoint}/teams/${team.id}.png`,
-      source: 'api-sports-alternative',
+      url: team.logo,
+      source: 'api-sports-original',
       priority: 3
     });
-
-    // SportMonks alternative - sport-specific
-    const sportPath = sport === 'basketball' ? 'basketball' : 'soccer';
-    sources.push({
-      url: `https://cdn.sportmonks.com/images/${sportPath}/teams/${team.id}.png`,
-      source: 'sportmonks',
-      priority: 4
-    });
-
-    // 365scores fallback removed due to reliability issues
   }
 
   // Final fallback

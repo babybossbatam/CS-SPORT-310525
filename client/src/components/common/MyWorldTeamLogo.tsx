@@ -61,7 +61,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   // Get dark mode state from Redux store
   const darkMode = useSelector((state: RootState) => state.ui.darkMode);
 
-  // Memoized computation with caching for shouldUseCircularFlag
+  // Optimized computation with simplified logic and reduced logging
   const shouldUseCircularFlag = useMemo(() => {
     const cacheKey = generateCacheKey(teamName, leagueContext);
 
@@ -70,234 +70,29 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     const now = Date.now();
 
     if (cached && now - cached.timestamp < CACHE_DURATION) {
-      console.log(
-        `💾 [MyWorldTeamLogo] Cache hit for shouldUseCircularFlag: ${teamName}`,
-      );
       return cached.result;
     }
 
-    // Compute the result if not cached or expired
-    console.log(
-      `🔄 [MyWorldTeamLogo] Computing shouldUseCircularFlag for: ${teamName}`,
-    );
-
     const leagueName = leagueContext?.name?.toLowerCase() || "";
-
-    // Check if this is a national team
-    const isActualNationalTeam = isNationalTeam(
-      { name: teamName },
-      leagueContext,
-    );
-
-    // Youth team detection
-    const isYouthTeam =
-      teamName?.includes("U17") ||
-      teamName?.includes("U19") ||
-      teamName?.includes("U20") ||
-      teamName?.includes("U21") ||
-      teamName?.includes("U23");
-
-    // Get list of known national team names for better detection
-    const nationalTeamNames = [
-      'Argentina', 'Brazil', 'France', 'Germany', 'Spain', 'Italy', 'England', 'Portugal',
-      'Netherlands', 'Belgium', 'Croatia', 'Mexico', 'Colombia', 'Uruguay', 'Chile',
-      'Peru', 'Ecuador', 'Venezuela', 'Bolivia', 'Paraguay', 'Costa Rica', 'Panama',
-      'Honduras', 'Guatemala', 'El Salvador', 'Nicaragua', 'Jamaica', 'Haiti',
-      'Trinidad and Tobago', 'Barbados', 'Grenada', 'Dominican Republic', 'Cuba',
-      'Canada', 'USA', 'United States', 'Poland', 'Czech Republic', 'Slovakia',
-      'Hungary', 'Romania', 'Russia', 'Bulgaria', 'Serbia', 'Montenegro', 'Bosnia', 'Albania',
-      'North Macedonia', 'Macedonia', 'FYR Macedonia', 'Slovenia', 'Kosovo', 'Moldova',
-      'Ukraine', 'Belarus', 'Lithuania', 'Latvia', 'Estonia', 'Finland', 'Sweden',
-      'Norway', 'Denmark', 'Iceland', 'Ireland', 'Wales', 'Scotland', 'Northern Ireland',
-      'Switzerland', 'Austria', 'Luxembourg', 'Liechtenstein', 'Malta', 'Cyprus',
-      'Georgia', 'Gibraltar', 'Armenia', 'Azerbaijan', 'Kazakhstan', 'Uzbekistan', 'Kyrgyzstan',
-      'Tajikistan', 'Turkmenistan', 'Afghanistan', 'Pakistan', 'India', 'Bangladesh',
-      'Sri Lanka', 'Maldives', 'Nepal', 'Bhutan', 'Myanmar', 'Thailand', 'Laos',
-      'Cambodia', 'Vietnam', 'Malaysia', 'Singapore', 'Brunei', 'Philippines',
-      'Indonesia', 'Timor-Leste', 'Papua New Guinea', 'Fiji', 'Vanuatu', 'Samoa',
-      'Tonga', 'Solomon Islands', 'New Zealand', 'Australia', 'Japan', 'South Korea',
-      'North Korea', 'China', 'Hong Kong', 'Macau', 'Chinese Taipei', 'Mongolia',
-      'Iran', 'Iraq', 'Jordan', 'Lebanon', 'Syria', 'Palestine', 'Israel',
-      'Saudi Arabia', 'UAE', 'United Arab Emirates', 'Qatar', 'Bahrain', 'Kuwait',
-      'Oman', 'Yemen', 'Turkey', 'Egypt', 'Libya', 'Tunisia', 'Algeria', 'Morocco',
-      'Sudan', 'South Sudan', 'Ethiopia', 'Eritrea', 'Djibouti', 'Somalia',
-      'Kenya', 'Uganda', 'Tanzania', 'Rwanda', 'Burundi', 'DR Congo', 'Congo',
-      'Central African Republic', 'Chad', 'Cameroon', 'Equatorial Guinea', 'Gabon',
-      'São Tomé and Príncipe', 'Nigeria', 'Niger', 'Mali', 'Burkina Faso', 'Ghana',
-      'Togo', 'Benin', 'Ivory Coast', 'Liberia', 'Sierra Leone', 'Guinea', 'Guinea-Bissau',
-      'Senegal', 'Gambia', 'Mauritania', 'Cape Verde', 'South Africa', 'Namibia',
-      'Botswana', 'Zimbabwe', 'Zambia', 'Malawi', 'Mozambique', 'Madagascar',
-      'Mauritius', 'Seychelles', 'Comoros', 'Lesotho', 'Eswatini', 'Angola',
-      'Faroe Islands'
-    ];
-
-    // Check if team name matches a country (considering youth teams)
-    const baseTeamName = teamName?.replace(/\s*(U21|U20|U19|U18|U17)\s*/gi, '').trim();
-    const isCountryName = nationalTeamNames.some(country =>
-      baseTeamName === country || 
-      teamName?.includes(country) ||
-      // Handle special cases
-      (country === 'United Arab Emirates' && (teamName?.includes('UAE') || teamName?.includes('United Arab Emirates'))) ||
-      (country === 'United States' && (teamName?.includes('USA') || teamName?.includes('United States')))
-    );
-
-    // Known club team patterns - these should NEVER use circular flags
-    // BUT exclude if it's actually a country name
-    const isKnownClubTeam =
-      teamName && !isCountryName &&
-      (teamName.toLowerCase().includes("fc ") ||
-        teamName.toLowerCase().includes("cf ") ||
-        teamName.toLowerCase().includes("ac ") ||
-        teamName.toLowerCase().includes("sc ") ||
-        (teamName.toLowerCase().includes("united") && !teamName.toLowerCase().includes("united arab emirates") && !teamName.toLowerCase().includes("united states")) ||
-        teamName.toLowerCase().includes("city") ||
-        teamName.toLowerCase().includes("athletic") ||
-        teamName.toLowerCase().includes("real ") ||
-        teamName.toLowerCase().includes("club ") ||
-        teamName.toLowerCase().includes("ud ") ||
-        teamName.toLowerCase().includes("valencia") ||
-        teamName.toLowerCase().includes("alboraya") ||
-        // Add more specific club patterns
-        teamName.toLowerCase().includes("arsenal") ||
-        teamName.toLowerCase().includes("liverpool") ||
-        teamName.toLowerCase().includes("chelsea") ||
-        teamName.toLowerCase().includes("manchester") ||
-        teamName.toLowerCase().includes("tottenham") ||
-        teamName.toLowerCase().includes("bayern") ||
-        teamName.toLowerCase().includes("dortmund") ||
-        teamName.toLowerCase().includes("juventus") ||
-        teamName.toLowerCase().includes("milan") ||
-        teamName.toLowerCase().includes("inter") ||
-        teamName.toLowerCase().includes("napoli") ||
-        teamName.toLowerCase().includes("roma") ||
-        teamName.toLowerCase().includes("psg") ||
-        teamName.toLowerCase().includes("olympique") ||
-        teamName.toLowerCase().includes("atletico") ||
-        teamName.toLowerCase().includes("barcelona") ||
-        teamName.toLowerCase().includes("sevilla") ||
-        teamName.toLowerCase().includes("villarreal"));
-
-    // Force specific club youth teams to ALWAYS use club logos (never circular flags)
-    const isClubYouthTeam =
-      (teamName?.includes("Valencia U20") && teamId === 532) ||
-      (teamName?.includes("Alboraya U20") && teamId === 19922);
-
-    // League patterns that typically use club teams
-    const isClubCompetition =
-      leagueName.includes("premier league") ||
-      leagueName.includes("la liga") ||
-      leagueName.includes("serie a") ||
-      leagueName.includes("bundesliga") ||
-      leagueName.includes("ligue 1") ||
-      leagueName.includes("primeira liga") ||
-      leagueName.includes("eredivisie") ||
-      leagueName.includes("uefa champions league") ||
-      leagueName.includes("uefa europa league") ||
-      leagueName.includes("uefa europa conference league") ||
-      leagueName.includes("conmebol sudamericana") ||
-      leagueName.includes("fifa club world cup") ||
-      leagueName.includes("club world cup") ||
-      leagueName.includes("standing") ||
-      leagueName.includes("table");
-
-    // League patterns that typically use national teams
-    const isNationalTeamCompetition =
-      leagueName.includes("friendlies international") ||
-      leagueName.includes("international friendlies") ||
-      leagueName.includes("uefa nations league") ||
-      leagueName.includes("nations league") ||
-      leagueName.includes("world cup") ||
-      leagueName.includes("euro") ||
-      leagueName.includes("copa america") ||
-      leagueName.includes("afc u20 asian cup") ||
-      leagueName.includes("afc u-20 asian cup") ||
-      leagueName.includes("asian cup u20") ||
-      leagueName.includes("asian cup u-20") ||
-      leagueName.includes("olympic") ||
-      leagueName.includes("cotif") ||
-      leagueName.includes("uefa under-21 championship") ||
-      (leagueName.includes("uefa") && leagueName.includes("under-21")) ||
-      leagueName.includes("u20") ||
-      leagueName.includes("u21") ||
-      leagueName.includes("u23") ||
-      leagueName.includes("under-20") ||
-      leagueName.includes("under-21") ||
-      leagueName.includes("under-23") ||
-      leagueName.includes("youth");
-
-    // Special handling for mixed competitions like COTIF and Friendlies Clubs
-    const isMixedCompetition =
-      leagueName.includes("cotif") ||
-      leagueName.includes("friendlies clubs") ||
-      leagueName.includes("friendlies club") ||
-      leagueName.includes("club friendlies");
-
-    // Decision logic
+    
+    // Fast path: Check obvious club patterns first
+    const clubKeywords = ["fc ", "cf ", "ac ", "sc ", "city", "united", "athletic", "real ", "club "];
+    const isObviousClub = clubKeywords.some(keyword => teamName?.toLowerCase().includes(keyword));
+    
+    // Fast path: Check obvious national team competitions
+    const nationalCompetitions = ["nations league", "world cup", "euro", "copa america", "friendlies international", "uefa under-21"];
+    const isNationalCompetition = nationalCompetitions.some(comp => leagueName.includes(comp));
+    
     let result = false;
-
-    // Enhanced debugging for your specific case
-    console.log(`🔍 [MyWorldTeamLogo] DECISION ANALYSIS for ${teamName}:`, {
-      isKnownClubTeam,
-      isClubYouthTeam,
-      isClubCompetition,
-      isNationalTeamCompetition,
-      isActualNationalTeam,
-      isMixedCompetition,
-      leagueName,
-      teamName
-    });
-
-    // PRIORITY 1: If it's a confirmed national team, prioritize that over club keywords
-    if (isActualNationalTeam && !isClubYouthTeam) {
-      // Additional check: even if club keywords exist, verify it's not actually a national team
-      if (isNationalTeamCompetition || isMixedCompetition) {
-        result = true;
-        console.log(`🇺🇳 [MyWorldTeamLogo] PRIORITY: ${teamName} confirmed as national team - using circular flag`);
-      } else if (!isClubCompetition) {
-        result = true;
-        console.log(`🌍 [MyWorldTeamLogo] PRIORITY: ${teamName} is national team outside club competition - using circular flag`);
-      } else {
-        // National team name but in club competition - check more carefully
-        if (isKnownClubTeam && !nationalTeamNames.some(country => 
-          teamName.includes(country) || teamName.replace(/\s*(U21|U20|U19|U18|U17)\s*/gi, '').trim() === country
-        )) {
-          result = false;
-          console.log(`🏟️ [MyWorldTeamLogo] ${teamName} has club patterns and no clear country match - using club logo`);
-        } else {
-          result = true;
-          console.log(`🇺🇳 [MyWorldTeamLogo] ${teamName} confirmed country name overrides club keywords - using circular flag`);
-        }
-      }
-    }
-    // PRIORITY 2: Clear club teams that are NOT national teams
-    else if (isKnownClubTeam && !isActualNationalTeam) {
-      result = false;
-      console.log(`🏟️ [MyWorldTeamLogo] ${teamName} confirmed as club team - using club logo`);
-    }
-    // PRIORITY 3: Club youth teams
-    else if (isClubYouthTeam) {
-      result = false;
-      console.log(`🏟️ [MyWorldTeamLogo] ${teamName} confirmed as club youth team - using club logo`);
-    }
-    // PRIORITY 4: Club competitions (but double-check for national teams)
-    else if (isClubCompetition && !isActualNationalTeam) {
-      result = false;
-      console.log(`🏆 [MyWorldTeamLogo] ${teamName} in club competition and not national team - using club logo`);
-    }
-    // PRIORITY 5: National team competitions
-    else if (isNationalTeamCompetition) {
+    
+    // Simplified decision logic
+    if (isNationalCompetition && !isObviousClub) {
       result = true;
-      console.log(`🇺🇳 [MyWorldTeamLogo] ${teamName} in national team competition - using circular flag`);
-    }
-    // PRIORITY 6: Mixed competitions - use detection
-    else if (isMixedCompetition) {
-      result = isActualNationalTeam;
-      console.log(`🔄 [MyWorldTeamLogo] Mixed competition: ${teamName} using detection result: ${result}`);
-    }
-    // PRIORITY 7: Default fallback
-    else {
-      result = isActualNationalTeam;
-      console.log(`❓ [MyWorldTeamLogo] ${teamName} using default national team detection: ${result}`);
+    } else if (isObviousClub) {
+      result = false;
+    } else {
+      // Only do complex check for ambiguous cases
+      result = isNationalTeam({ name: teamName }, leagueContext);
     }
 
     // Cache the result
@@ -306,9 +101,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       timestamp: now,
     });
 
-    console.log(
-      `💾 [MyWorldTeamLogo] Cached shouldUseCircularFlag result for ${teamName}: ${result}`,
-    );
     return result;
   }, [teamName, leagueContext, teamId]);
 

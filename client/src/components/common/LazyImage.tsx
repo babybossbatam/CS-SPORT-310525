@@ -129,27 +129,13 @@ const LazyImage: React.FC<LazyImageProps> = ({
     }
   }, [src, alt, darkMode]); // Add darkMode to trigger re-evaluation when theme changes
 
-  // Handler for image load errors
+  // Simplified error handler for faster fallback
   const handleError = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
     const target = e.target as HTMLImageElement;
 
-    console.warn(`⚠️ [LazyImage] Image error for src: ${target.src}`, {
-      teamId: teamId,
-      teamName: teamName,
-      leagueContext: leagueContext,
-      useTeamLogo: useTeamLogo,
-      currentAttempt: loadAttempt + 1,
-      maxAttempts: MAX_LOAD_ATTEMPTS,
-      isServerProxy: target.src.includes('/api/team-logo/'),
-      originalSrc: originalSrc.current // Use ref for original source
-    });
-
     // Avoid infinite retry loops
     if (loadAttempt >= MAX_LOAD_ATTEMPTS) {
-      console.error(`🚫 [LazyImage] Max retry attempts reached for: ${target.src}`);
-
-      // Set final fallback image
-      if (!target.src.includes('fallback.png') && !target.src.includes('fallback-logo.png')) {
+      if (!target.src.includes('fallback.png')) {
         setCurrentSrc('/assets/matchdetaillogo/fallback.png');
         setImageState('error');
       }
@@ -158,59 +144,14 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
     setLoadAttempt(prev => prev + 1);
 
-    // Enhanced fallback logic for team logos (works for both useTeamLogo=true and false)
-    if ((useTeamLogo || (!useTeamLogo && teamId && teamName)) && teamId && teamName) {
-      // Check if this might be a national team that should use flag
-      const nationalTeamNames = [
-        'Malaysia', 'Singapore', 'Saudi Arabia', 'FYR Macedonia', 'North Macedonia', 'Macedonia',
-        'United Arab Emirates', 'UAE', 'Syria', 'Finland', 'San Marino',
-        'Belarus', 'Belgium', 'Iraq', 'Pakistan', 'Australia', 'Yemen',
-        'Lebanon', 'Kuwait', 'Myanmar', 'Uzbekistan', 'Sri Lanka', 'Vietnam',
-        'Bangladesh', 'Afghanistan', 'India', 'Iran', 'Japan', 'Thailand'
-      ];
-
-      // A more robust check for national teams, considering variations and country codes if available
-      const isNationalTeam = nationalTeamNames.some(country =>
-        teamName.includes(country) || teamName.replace(/\s*(U21|U20|U19|U18|U17)\s*/gi, '').trim() === country
-      );
-
-      // Try different logo sources progressively for club teams
-      if (!target.src.includes('/api/team-logo/') && !target.src.includes('api/team-logo')) { // Added common variations
-        // Try server proxy endpoint first
-        const serverProxyUrl = `/api/team-logo/square/${teamId}?size=64`;
-        console.log(`🔄 [LazyImage] Trying server proxy: ${serverProxyUrl}`);
-        setCurrentSrc(serverProxyUrl);
-        return;
-      }
-
-      // If server proxy also fails, try alternative size
-      if (target.src.includes('size=64')) {
-        const smallerUrl = `/api/team-logo/square/${teamId}?size=32`;
-        console.log(`🔄 [LazyImage] Trying smaller size: ${smallerUrl}`);
-        setCurrentSrc(smallerUrl);
-        return;
-      }
-
-      // Try team logo sources fallback from getTeamLogoSources
-      if (teamId && teamName) {
-        const sources = getTeamLogoSources({ id: teamId, name: teamName });
-        const nextSource = sources.find(source =>
-          source.url !== target.src &&
-          !source.url.includes('/api/team-logo/') &&
-          !source.url.includes('api/team-logo')
-        );
-
-        if (nextSource) {
-          console.log(`🔄 [LazyImage] Trying next source: ${nextSource.source} - ${nextSource.url}`);
-          setCurrentSrc(nextSource.url);
-          return;
-        }
-      }
+    // Simplified fallback for team logos
+    if (teamId && teamName && !target.src.includes('/api/team-logo/')) {
+      setCurrentSrc(`/api/team-logo/square/${teamId}?size=32`);
+      return;
     }
 
-    // Standard error handling for non-team logos or when team-specific fallbacks are exhausted
-    if (fallbackSrc && !target.src.includes(fallbackSrc) && !fallbackAttempted) {
-      console.log(`🔄 [LazyImage] Using provided fallback: ${fallbackSrc}`);
+    // Use provided fallback or default
+    if (fallbackSrc && !fallbackAttempted) {
       setCurrentSrc(fallbackSrc);
       setFallbackAttempted(true);
       return;
@@ -219,15 +160,10 @@ const LazyImage: React.FC<LazyImageProps> = ({
     if (onError) {
       onError(e);
     } else {
-      // Use fallback image as a last resort
-      console.log(`🔄 [LazyImage] Using default fallback image`);
-      // Ensure not to override with fallback if it's already the fallback
-      if (!target.src.includes('fallback.png') && !target.src.includes('fallback-logo.png')) {
-        setCurrentSrc('/assets/matchdetaillogo/fallback.png');
-      }
+      setCurrentSrc('/assets/matchdetaillogo/fallback.png');
       setImageState('error');
     }
-  }, [teamId, teamName, leagueContext, useTeamLogo, loadAttempt, onError, originalSrc]);
+  }, [teamId, teamName, loadAttempt, onError, fallbackSrc, fallbackAttempted]);
 
 
   // Handler for successful image load
