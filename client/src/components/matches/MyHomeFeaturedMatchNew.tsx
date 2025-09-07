@@ -1614,7 +1614,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // Group fixtures by date
         const allMatches: DayMatches[] = [];
+        const today = new Date();
+        const todayDateString = format(today, "yyyy-MM-dd");
+        
         for (const dateInfo of dates) {
+          const isToday = dateInfo.date === todayDateString;
+          
           const fixturesForDay = uniqueFixtures
             .filter((fixture) => {
               // EXPLICIT EXCLUSION: Never show UEFA Europa Conference League (ID 848), Regionalliga - Bayern (ID 169), League 940, or Ligue 2 (ID 62)
@@ -1751,6 +1756,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 );
                 return false;
               }
+              
               // CRITICAL: Filter out stale "Starting now" matches
               const status = fixture.fixture.status.short;
               const matchDate = new Date(fixture.fixture.date);
@@ -1773,6 +1779,17 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   `🚫 [STATUS EXCLUSION] Removing ${status} match: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
                 );
                 return false;
+              }
+
+              // NEW: For today's matches, apply stricter ended match filtering (12 hours max)
+              if (isToday && ["FT", "AET", "PEN"].includes(status)) {
+                const hoursAgo = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+                if (hoursAgo > 12) {
+                  console.log(
+                    `🕐 [TODAY'S ENDED MATCH EXCLUSION] Removing match older than 12 hours: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(hoursAgo)} hours ago)`,
+                  );
+                  return false;
+                }
               }
 
               const year = matchDate.getFullYear();
@@ -1813,12 +1830,25 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               const aUpcoming = isUpcomingMatch(aStatus);
               const bUpcoming = isUpcomingMatch(bStatus);
 
-              // Primary sort: Live > Ended > Upcoming
+              // NEW: Check if matches are today's matches
+              const aMatchDate = new Date(a.fixture.date);
+              const bMatchDate = new Date(b.fixture.date);
+              const aIsToday = format(aMatchDate, "yyyy-MM-dd") === todayDateString;
+              const bIsToday = format(bMatchDate, "yyyy-MM-dd") === todayDateString;
+
+              // NEW: Today's upcoming matches get highest priority (after live matches)
+              const aTodayUpcoming = aIsToday && aUpcoming;
+              const bTodayUpcoming = bIsToday && bUpcoming;
+
+              // Primary sort: Live > Today's Upcoming > Other Ended > Other Upcoming
               if (aLive && !bLive) return -1;
               if (!aLive && bLive) return 1;
 
-              if (aEnded && !bEnded && !bLive) return -1;
-              if (!aEnded && bEnded && !aLive) return 1;
+              if (aTodayUpcoming && !bTodayUpcoming && !bLive) return -1;
+              if (!aTodayUpcoming && bTodayUpcoming && !aLive) return 1;
+
+              if (aEnded && !bEnded && !bLive && !bTodayUpcoming) return -1;
+              if (!aEnded && bEnded && !aLive && !aTodayUpcoming) return 1;
 
               if (aUpcoming && !bUpcoming && !bLive && !bEnded) return -1;
               if (!aUpcoming && bUpcoming && !aLive && !aEnded) return 1;
