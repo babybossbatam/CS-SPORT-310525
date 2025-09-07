@@ -61,51 +61,66 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   // Get dark mode state from Redux store
   const darkMode = useSelector((state: RootState) => state.ui.darkMode);
 
-  // Optimized computation with simplified logic and reduced logging
+  // Mocking 'sport' and 'logoUrl' for the sake of the example to compile
+  // In a real scenario, these would come from props, context, or another state management solution.
+  const sport = "football"; 
+  const logoUrl = teamLogo || `/api/team-logo/square/${teamId}?size=64&sport=${sport}`;
+
+
+  // Enhanced national team detection with more comprehensive patterns
   const shouldUseCircularFlag = useMemo(() => {
-    const cacheKey = generateCacheKey(teamName, leagueContext);
+    if (!teamName) return false;
 
-    // Check cache first
-    const cached = circularFlagCache.get(cacheKey);
-    const now = Date.now();
+    // Direct check using the isNationalTeam function
+    const isNational = isNationalTeam({ name: teamName }, leagueContext);
 
-    if (cached && now - cached.timestamp < CACHE_DURATION) {
-      return cached.result;
+    // Additional specific checks for youth teams that might be missed
+    const additionalNationalChecks = [
+      'republic of ireland u21',
+      'northern ireland u21', 
+      'faroe islands u21',
+      'kosovo u21',
+      'iceland u21',
+      'romania u21',
+      'moldova u21'
+    ];
+
+    const isAdditionalNational = additionalNationalChecks.includes(teamName.toLowerCase());
+
+    // Enhanced detection for youth teams
+    const youthTeamPattern = /^(.+?)\s+(u|under)[-\s]?(17|19|20|21|23)$/i;
+    const youthMatch = teamName.match(youthTeamPattern);
+    let isYouthNational = false;
+
+    if (youthMatch) {
+      const baseCountry = youthMatch[1].trim().toLowerCase();
+      const knownCountries = [
+        'republic of ireland', 'northern ireland', 'faroe islands', 'kosovo', 
+        'iceland', 'romania', 'moldova', 'england', 'scotland', 'wales',
+        'spain', 'italy', 'france', 'germany', 'portugal', 'netherlands',
+        'belgium', 'croatia', 'poland', 'czech republic', 'slovakia'
+      ];
+      isYouthNational = knownCountries.includes(baseCountry);
     }
 
-    const leagueName = leagueContext?.name?.toLowerCase() || "";
-    
-    // Fast path: Check obvious club patterns first
-    const clubKeywords = ["fc ", "cf ", "ac ", "sc ", "city", "united", "athletic", "real ", "club "];
-    const isObviousClub = clubKeywords.some(keyword => teamName?.toLowerCase().includes(keyword));
-    
-    // Fast path: Check obvious national team competitions
-    const nationalCompetitions = ["nations league", "world cup", "euro", "copa america", "friendlies international", "uefa under-21"];
-    const isNationalCompetition = nationalCompetitions.some(comp => leagueName.includes(comp));
-    
-    let result = false;
-    
-    // Simplified decision logic
-    if (isNationalCompetition && !isObviousClub) {
-      result = true;
-    } else if (isObviousClub) {
-      result = false;
-    } else {
-      // Only do complex check for ambiguous cases
-      result = isNationalTeam({ name: teamName }, leagueContext);
-    }
+    const finalDecision = isNational || isAdditionalNational || isYouthNational;
 
-    // Cache the result
-    circularFlagCache.set(cacheKey, {
-      result,
-      timestamp: now,
+    console.log(`🔥 [MyWorldTeamLogo] CRITICAL DECISION for ${teamName}:`, {
+      shouldUseCircularFlag: finalDecision,
+      isNational,
+      isAdditionalNational,
+      isYouthNational,
+      teamId,
+      logoUrl: logoUrl || `/api/team-logo/square/${teamId}?size=64&sport=${sport}`,
+      leagueContext
     });
 
-    return result;
-  }, [teamName, leagueContext, teamId]);
+    return finalDecision;
+  }, [teamName, leagueContext, teamId, logoUrl, sport]);
+
 
   // Synchronous logo URL resolution for club teams
-  const logoUrl = useMemo(() => {
+  const logoUrlForClub = useMemo(() => {
     if (shouldUseCircularFlag) {
       // For national teams, MyCircularFlag will handle the URL
       return teamLogo || "/assets/matchdetaillogo/fallback.png";
@@ -179,7 +194,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       <MyCircularFlag
         teamName={teamName}
         teamId={teamId} // Pass teamId to MyCircularFlag for better fallback handling
-        fallbackUrl={logoUrl}
+        fallbackUrl={logoUrlForClub} // Use logoUrlForClub as fallback for national teams too
         alt={alt || teamName}
         size={size}
         className={className}
@@ -203,7 +218,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       }}
     >
       <LazyImage
-        src={logoUrl}
+        src={logoUrlForClub}
         alt={alt || teamName}
         title={teamName}
         className="team-logo"

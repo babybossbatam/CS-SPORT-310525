@@ -132,7 +132,7 @@ export function isNationalTeam(
   const directMatch = nationalTeamPatterns.some(pattern => 
     teamName === pattern || teamName.startsWith(pattern + ' ') || teamName.endsWith(' ' + pattern)
   );
-  
+
   if (directMatch) {
     console.log(`✅ [isNationalTeam] Direct country name match: "${teamName}"`);
     return true;
@@ -168,14 +168,23 @@ export function isNationalTeam(
     }
   }
 
-  // Additional specific checks for problematic teams from your screenshot
+  // Additional specific checks for youth teams that might be missed
   const specificNationalTeams = [
     'romania u21', 'kosovo u21', 'iceland u21', 'faroe islands u21',
-    'moldova u21', 'republic of ireland u21', 'northern ireland u21'
+    'moldova u21', 'republic of ireland u21', 'northern ireland u21',
+    'republic of ireland u20', 'republic of ireland u19', 'republic of ireland u17',
+    'northern ireland u20', 'northern ireland u19', 'northern ireland u17'
   ];
 
   if (specificNationalTeams.includes(teamName)) {
     console.log(`✅ [isNationalTeam] Specific national team detected: "${teamName}"`);
+    return true;
+  }
+
+  // Enhanced pattern matching for "Republic of Ireland" variations
+  if (teamName.toLowerCase().includes('republic of ireland') || 
+      teamName.toLowerCase().includes('northern ireland')) {
+    console.log(`✅ [isNationalTeam] Ireland national team detected: "${teamName}"`);
     return true;
   }
 
@@ -215,7 +224,7 @@ export function isNationalTeam(
       }
     }
   }
-  
+
   // Fallback: If none of the above, assume it's not a national team
   console.log(`❌ [isNationalTeam] No national team indicators found for: "${teamName}" in league "${leagueName}"`);
   return false;
