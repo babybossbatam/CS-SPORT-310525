@@ -160,7 +160,7 @@ const isPopularTeamMatch = (
 
   // Fallback to name matching
   const homeTeamLower = homeTeam.toLowerCase();
-  const awayTeamLower = awayTeam.toLowerCase();
+  const awayTeamLower = away.toLowerCase();
 
   const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(
     (popularTeam) =>
@@ -473,55 +473,56 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           setIsLoading(true);
         }
 
-        // Smart cache decision based on current match states
         const now = new Date();
+        // Update cache refresh logic to prioritize live and recently ended matches
         const shouldForceRefresh =
-          forceRefresh ||
-          featuredMatches.some((dayData) =>
-            dayData.matches.some((match) => {
-              const status = match.fixture.status.short;
-              const matchDate = new Date(match.fixture.date);
-              const minutesFromKickoff =
-                (now.getTime() - matchDate.getTime()) / (1000 * 60);
+            forceRefresh ||
+            featuredMatches.some((dayData) =>
+              dayData.matches.some((match) => {
+                const status = match.fixture.status.short;
+                const matchDate = new Date(match.fixture.date);
+                const minutesFromKickoff =
+                  (now.getTime() - matchDate.getTime()) / (1000 * 60);
+                const hoursFromKickoff = minutesFromKickoff / 60;
 
-              // Force refresh if:
-              // 1. Match shows "Starting now" but is old (>30 min past kickoff)
-              // 2. Match is live
-              // 3. Match is within 2 hours of kickoff
-              // 4. Match is more than 12 hours away but shows ended status (conflicting data)
-              const isStaleStartingNow =
-                status === "NS" &&
-                minutesFromKickoff > 30 &&
-                minutesFromKickoff < 120;
-              const isLive = [
-                "LIVE",
-                "1H",
-                "HT",
-                "2H",
-                "ET",
-                "BT",
-                "P",
-                "INT",
-              ].includes(status);
-              const isWithinTwoHours = Math.abs(minutesFromKickoff) <= 120;
-              const hasConflictingStatus =
-                minutesFromKickoff < -720 &&
-                ["FT", "AET", "PEN"].includes(status); // More than 12 hours away but shows ended
+                // Force refresh if:
+                // 1. Match shows "Starting now" but is old (>30 min past kickoff)
+                // 2. Match is live
+                // 3. Match is within 2 hours of kickoff
+                // 4. Match ended recently (within 12 hours) - to get updated stats
+                // 5. Match is more than 12 hours away but shows ended status (conflicting data)
+                const isStaleStartingNow =
+                  status === "NS" &&
+                  minutesFromKickoff > 30 &&
+                  minutesFromKickoff < 120;
+                const isLive = [
+                  "LIVE",
+                  "LIV", 
+                  "1H",
+                  "HT",
+                  "2H",
+                  "ET",
+                  "BT",
+                  "P",
+                  "INT",
+                ].includes(status);
+                const isWithinTwoHours = Math.abs(minutesFromKickoff) <= 120;
+                const isRecentlyEndedMatch = 
+                  ["FT", "AET", "PEN"].includes(status) && 
+                  Math.abs(hoursFromKickoff) <= 12;
+                const hasConflictingStatus =
+                  minutesFromKickoff < -720 &&
+                  ["FT", "AET", "PEN"].includes(status); // More than 12 hours away but shows ended
 
-              return (
-                isStaleStartingNow ||
-                isLive ||
-                (status === "NS" && isWithinTwoHours) ||
-                hasConflictingStatus
-              );
-            }),
-          );
-
-        if (shouldForceRefresh) {
-          console.log(
-            "🔄 [MyHomeFeaturedMatchNew] Smart cache: forcing refresh due to live/imminent matches or stale data",
-          );
-        }
+                return (
+                  isStaleStartingNow ||
+                  isLive ||
+                  (status === "NS" && isWithinTwoHours) ||
+                  isRecentlyEndedMatch ||
+                  hasConflictingStatus
+                );
+              }),
+            );
 
         // Get dates for today and the next 4 days
         const today = new Date();
@@ -557,7 +558,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // Helper function to determine if match is live
         const isLiveMatch = (status: string) => {
-          return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+          return ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
             status,
           );
         };
@@ -735,6 +736,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     // CRITICAL: Never exclude live matches regardless of time discrepancies
                     const isCurrentlyLive = [
                       "LIVE",
+                      "LIV",
                       "1H",
                       "2H",
                       "HT",
@@ -743,7 +745,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       "P",
                       "INT",
                     ].includes(status);
-                    
+
                     // Exclude women's competitions and Oberliga leagues
                     const leagueName =
                       fixture.league?.name?.toLowerCase() || "";
@@ -803,9 +805,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       conflictReason = `not started status (${status}) for overdue match`;
                     }
 
-                    // 3. Ended match that's more than 12 hours old (stale ended matches)
+                    // 3. Ended match that's more than 8 hours old (stale ended matches)
                     if (
-                      hoursFromKickoff > 12 &&
+                      hoursFromKickoff > 8 &&
                       [
                         "FT",
                         "AET",
@@ -818,7 +820,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       ].includes(status)
                     ) {
                       hasConflictingData = true;
-                      conflictReason = `stale ended match (${status}) more than 12 hours old`;
+                      conflictReason = `stale ended match (${status}) more than 8 hours old`;
                     }
 
                     if (hasConflictingData) {
@@ -1075,6 +1077,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     // CRITICAL: Never exclude live matches regardless of time discrepancies
                     const isCurrentlyLive = [
                       "LIVE",
+                      "LIV",
                       "1H",
                       "2H",
                       "HT",
@@ -1353,6 +1356,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       // CRITICAL: Never exclude live matches regardless of time discrepancies
                       const isCurrentlyLive = [
                         "LIVE",
+                        "LIV",
                         "1H",
                         "2H",
                         "HT",
@@ -1615,10 +1619,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         // Group fixtures by date
         const allMatches: DayMatches[] = [];
         const todayDateString = format(today, "yyyy-MM-dd");
-        
+
         for (const dateInfo of dates) {
           const isToday = dateInfo.date === todayDateString;
-          
+
           const fixturesForDay = uniqueFixtures
             .filter((fixture) => {
               // EXPLICIT EXCLUSION: Never show UEFA Europa Conference League (ID 848), Regionalliga - Bayern (ID 169), League 940, or Ligue 2 (ID 62)
@@ -1755,7 +1759,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 );
                 return false;
               }
-              
+
               // CRITICAL: Filter out stale "Starting now" matches
               const status = fixture.fixture.status.short;
               const matchDate = new Date(fixture.fixture.date);
@@ -2091,7 +2095,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
           // Categorize matches
           if (
-            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
+            ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
           ) {
             analysis.liveMatches++;
           } else if (status === "NS") {
@@ -2191,12 +2195,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       };
     }
 
-    if (["1H", "2H", "HT", "ET", "BT", "P", "LIVE"].includes(status)) {
+    if (["LIVE", "LIV", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status)) {
       let displayText = status;
 
       if (status === "HT") {
         displayText = "Half Time";
-      } else if (status === "1H" || status === "2H" || status === "LIVE") {
+      } else if (status === "1H" || status === "2H" || status === "LIVE" || status === "LIV") {
         displayText = elapsed ? `${elapsed}'` : "LIVE";
       } else if (status === "ET") {
         displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
