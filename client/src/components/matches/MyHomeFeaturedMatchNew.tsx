@@ -1614,7 +1614,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // Group fixtures by date
         const allMatches: DayMatches[] = [];
-        const today = new Date();
         const todayDateString = format(today, "yyyy-MM-dd");
         
         for (const dateInfo of dates) {
