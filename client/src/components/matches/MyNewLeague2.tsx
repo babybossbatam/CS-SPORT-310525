@@ -621,8 +621,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
   // League IDs without any filtering - removed duplicates
   const leagueIds = [
-    32, 38, 29, 15, 2, 4, 10, 11, 848, 886, 1022, 772, 71, 3, 5, 531, 22, 72,
-    73, 75, 76, 233, 667, 940, 908, 1169, 23, 253, 850, 893, 921, 130, 128, 493,
+    32, 38, 29, 15, 2, 4, 10, 11, 848, 886, 1022, 772, 71, 3, 5, 531, 22, 72, 73,
+    75, 76, 233, 667, 940, 908, 1169, 23, 253, 850, 893, 921, 130, 128, 493,
     239, 265, 237, 235, 743,
   ];
 
@@ -2320,8 +2320,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         .sort(([aId], [bId]) => {
           // Define priority order - same as MyNewLeague
           const priorityOrder = [
-            32, 38, 29, 850, 15, 2, 5, 22, 10, 11, 1022, 772, 71, 72, 667, 3, 848,
-            73, 75, 239, 233, 253,
+            32, 38, 15, 2, 5, 22, 10, 11, 1022, 772, 71, 72, 667, 3, 848, 73,
+            75, 239, 233, 253,
           ];
 
           const aIndex = priorityOrder.indexOf(Number(aId));
@@ -2683,7 +2683,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         1022: "World", // FIFA Club World Cup
                         772: "World", // FIFA World Cup Qualification
                         531: "World", // UEFA Super Cup
-
+                        
                         // Major European Leagues
                         38: "England", // Premier League
                         15: "England", // Championship
@@ -2691,7 +2691,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         4: "Spain", // La Liga
                         3: "Netherlands", // Eredivisie
                         5: "France", // Ligue 1
-
+                        
                         // Other Important Leagues
                         71: "Brazil", // Serie A Brazil
                         531: "World", // CONMEBOL Copa America
