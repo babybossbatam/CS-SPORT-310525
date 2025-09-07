@@ -1626,118 +1626,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           const fixturesForDay = uniqueFixtures
             .filter((fixture) => {
               // EXPLICIT EXCLUSION: Never show UEFA Europa Conference League (ID 848), Regionalliga - Bayern (ID 169), League 940, or Ligue 2 (ID 62)
-              if (fixture.league.id === 848) {
+              if (EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league.id)) {
                 console.log(
-                  `🚫 [EXPLICIT EXCLUSION] UEFA Europa Conference League match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 169) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - Bayern match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 940) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] League 940 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 85) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - Nordost match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 80) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] 3. Liga match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 84) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - Nord match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 87) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - West match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-              if (fixture.league.id === 41) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - SudWest match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-              if (fixture.league.id === 183) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - SudWest match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-              if (fixture.league.id === 86) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - SudWest match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 772) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] League 772 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 62) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Ligue 2 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 58) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Non League Premier - Isthmian match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 931) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] Non League Premier - Southern Central match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 59) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] League 59 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 60) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] League 60 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-                return false;
-              }
-
-              if (fixture.league.id === 869) {
-                console.log(
-                  `🚫 [EXPLICIT EXCLUSION] CECAFA Club Cup match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                  `🚫 [EXPLICIT EXCLUSION] League ${fixture.league.id} (${fixture.league.name}) match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
                 );
                 return false;
               }
@@ -1745,26 +1636,33 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               // Additional name-based exclusion for Regionalliga leagues and Non League Premier
               const leagueName = fixture.league?.name?.toLowerCase() || "";
               if (
-                leagueName.includes("regionalliga") &&
-                leagueName.includes("bayern")
+                leagueName.includes("regionalliga") ||
+                leagueName.includes("non league premier") ||
+                leagueName.includes("oberliga") ||
+                leagueName.includes("3. liga")
               ) {
                 console.log(
-                  `🚫 [NAME-BASED EXCLUSION] Regionalliga - Bayern match excluded by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`,
-                );
-                return false;
-              }
-              if (leagueName.includes("non league premier")) {
-                console.log(
-                  `🚫 [NAME-BASED EXCLUSION] Non League Premier match excluded by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`,
+                  `🚫 [NAME-BASED EXCLUSION] Regional/lower league match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`,
                 );
                 return false;
               }
 
-              // CRITICAL: Filter out stale "Starting now" matches
               const status = fixture.fixture.status.short;
               const matchDate = new Date(fixture.fixture.date);
-              const minutesFromKickoff =
-                (now.getTime() - matchDate.getTime()) / (1000 * 60);
+              const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
+
+              // ALWAYS allow live matches regardless of time discrepancies
+              if (["LIVE", "LIV", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status)) {
+                console.log(
+                  `🔴 [LIVE MATCH PRESERVED] Including live match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (Status: ${status})`,
+                );
+                // Still check date match for live games
+                const year = matchDate.getFullYear();
+                const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+                const day = String(matchDate.getDate()).padStart(2, "0");
+                const matchDateString = `${year}-${month}-${day}`;
+                return matchDateString === dateInfo.date;
+              }
 
               // Remove matches that show "NS" (Not Started) but are significantly past kickoff time
               if (status === "NS" && minutesFromKickoff > 120) {
@@ -1775,16 +1673,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               }
 
               // Remove matches that are postponed, cancelled, or suspended
-              if (
-                ["PST", "CANC", "SUSP", "ABD", "AWD", "WO"].includes(status)
-              ) {
+              if (["PST", "CANC", "SUSP", "ABD", "AWD", "WO"].includes(status)) {
                 console.log(
                   `🚫 [STATUS EXCLUSION] Removing ${status} match: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
                 );
                 return false;
               }
 
-              // NEW: For today's matches, apply stricter ended match filtering (12 hours max)
+              // For today's matches, be more lenient with ended matches (allow up to 12 hours)
               if (isToday && ["FT", "AET", "PEN"].includes(status)) {
                 const hoursAgo = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
                 if (hoursAgo > 12) {
@@ -1792,34 +1688,29 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     `🕐 [TODAY'S ENDED MATCH EXCLUSION] Removing match older than 12 hours: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(hoursAgo)} hours ago)`,
                   );
                   return false;
+                } else {
+                  console.log(
+                    `✅ [TODAY'S ENDED MATCH INCLUDED] Including recent ended match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(hoursAgo)} hours ago)`,
+                  );
                 }
               }
 
+              // For future matches, check date match
               const year = matchDate.getFullYear();
               const month = String(matchDate.getMonth() + 1).padStart(2, "0");
               const day = String(matchDate.getDate()).padStart(2, "0");
               const matchDateString = `${year}-${month}-${day}`;
-              return matchDateString === dateInfo.date;
+              
+              const dateMatches = matchDateString === dateInfo.date;
+              if (dateMatches && isToday) {
+                console.log(
+                  `✅ [TODAY'S MATCH INCLUDED] Including today's match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (Status: ${status})`,
+                );
+              }
+              
+              return dateMatches;
             })
             .sort((a: FeaturedMatch, b: FeaturedMatch) => {
-              // Special priority for specific FIFA Club World Cup match (Inter vs River Plate)
-              const aIsSpecialMatch =
-                a.league.id === 15 &&
-                ((a.teams.home.name === "Inter" &&
-                  a.teams.away.name === "River Plate") ||
-                  (a.teams.home.name === "River Plate" &&
-                    a.teams.away.name === "Inter"));
-              const bIsSpecialMatch =
-                b.league.id === 15 &&
-                ((b.teams.home.name === "Inter" &&
-                  b.teams.away.name === "River Plate") ||
-                  (b.teams.home.name === "River Plate" &&
-                    b.teams.away.name === "Inter"));
-
-              // Special match always comes first
-              if (aIsSpecialMatch && !bIsSpecialMatch) return -1;
-              if (!aIsSpecialMatch && bIsSpecialMatch) return 1;
-
               // Define match status categories
               const aStatus = a.fixture.status.short;
               const bStatus = b.fixture.status.short;
@@ -1833,28 +1724,38 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               const aUpcoming = isUpcomingMatch(aStatus);
               const bUpcoming = isUpcomingMatch(bStatus);
 
-              // NEW: Check if matches are today's matches
+              // Check if matches are today's matches
               const aMatchDate = new Date(a.fixture.date);
               const bMatchDate = new Date(b.fixture.date);
               const aIsToday = format(aMatchDate, "yyyy-MM-dd") === todayDateString;
               const bIsToday = format(bMatchDate, "yyyy-MM-dd") === todayDateString;
 
-              // NEW: Today's upcoming matches get highest priority (after live matches)
+              // Enhanced priority categories
+              const aTodayLive = aIsToday && aLive;
+              const bTodayLive = bIsToday && bLive;
               const aTodayUpcoming = aIsToday && aUpcoming;
               const bTodayUpcoming = bIsToday && bUpcoming;
+              const aTodayEnded = aIsToday && aEnded;
+              const bTodayEnded = bIsToday && bEnded;
 
-              // Primary sort: Live > Today's Upcoming > Other Ended > Other Upcoming
+              // Enhanced sorting priority: Today's Live > Any Live > Today's Upcoming > Today's Recently Ended > Others
+              if (aTodayLive && !bTodayLive) return -1;
+              if (!aTodayLive && bTodayLive) return 1;
+              
               if (aLive && !bLive) return -1;
               if (!aLive && bLive) return 1;
 
               if (aTodayUpcoming && !bTodayUpcoming && !bLive) return -1;
               if (!aTodayUpcoming && bTodayUpcoming && !aLive) return 1;
 
-              if (aEnded && !bEnded && !bLive && !bTodayUpcoming) return -1;
-              if (!aEnded && bEnded && !aLive && !aTodayUpcoming) return 1;
+              if (aTodayEnded && !bTodayEnded && !bLive && !bTodayUpcoming) return -1;
+              if (!aTodayEnded && bTodayEnded && !aLive && !aTodayUpcoming) return 1;
 
-              if (aUpcoming && !bUpcoming && !bLive && !bEnded) return -1;
-              if (!aUpcoming && bUpcoming && !aLive && !aEnded) return 1;
+              if (aEnded && !bEnded && !bLive && !bTodayUpcoming && !bTodayEnded) return -1;
+              if (!aEnded && bEnded && !aLive && !aTodayUpcoming && !aTodayEnded) return 1;
+
+              if (aUpcoming && !bUpcoming && !bLive && !bEnded && !bTodayEnded) return -1;
+              if (!aUpcoming && bUpcoming && !aLive && !aEnded && !aTodayEnded) return 1;
 
               // Within the same status category, apply additional sorting
               const aLeagueName = a.league.name?.toLowerCase() || "";
