@@ -103,6 +103,11 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       Qatar: "QA",
       Brunei: "BN",
       Guam: "GU",
+      // Ireland mappings
+      "Republic of Ireland": "IE",
+      "republic of ireland": "IE",
+      "Rep. of Ireland": "IE",
+      "Rep of Ireland": "IE",
     };
 
     return countryMap[country] || "XX";
@@ -160,6 +165,11 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     "san marino": "sm",
     Russia: "ru",
     Serbia: "rs",
+    // Ireland specific mappings
+    "Republic of Ireland": "ie",
+    "republic of ireland": "ie",
+    "Rep. of Ireland": "ie",
+    "Rep of Ireland": "ie",
     // South American teams
     Brazil: "br",
     Argentina: "ar",
@@ -206,10 +216,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     Kosovo: "xk",
     Palestine: "ps",
     Philippines: "ph",
-    "Republic of Ireland": "ie",
-    "republic of ireland": "ie",
-    "Rep. of Ireland": "ie",
-    "Rep of Ireland": "ie",
     Thailand: "th",
     Indonesia: "id",
     Iceland: "is",
