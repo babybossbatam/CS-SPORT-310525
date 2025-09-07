@@ -207,14 +207,14 @@ const POPULAR_LEAGUES = [
 
 // Define featured leagues (UEFA Europa Conference League ID 848 and Regionalliga - Bayern ID 169 explicitly excluded)
 const FEATURED_MATCH_LEAGUE_IDS = [
-  39, 140, 135, 78, 61, 2, 3, 5, 1, 4, 15, 38, 9, 16, 45, 550, 531,
+  39, 140, 135, 78, 61, 2, 3, 5, 1, 4, 15, 38, 32, 850, 667, 9, 16, 45, 550, 531,
 ];
 
 // Explicitly excluded leagues
 const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [
   848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62, 931, 59, 60, 869,
 ]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2, Non League Premier - Southern Central, League 59, League 60, CECAFA Club Cup
-const PRIORITY_LEAGUE_IDS = [2, 15, 38, 22, 45, 550, 531]; // UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531
+const PRIORITY_LEAGUE_IDS = [2, 15, 38, 32, 29, 850, 667, 22, 45, 550, 531]; // UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531
 
 interface FeaturedMatch {
   fixture: {
