@@ -3071,7 +3071,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                   return t(monthKey) !== monthKey
                                     ? t(monthKey)
                                     : monthName;
-                            );
                                 })();
 
                                 return `${translatedDayName}, ${dayNumber} ${translatedMonthName}`;
