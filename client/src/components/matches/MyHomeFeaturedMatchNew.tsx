@@ -474,7 +474,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         const now = new Date();
-        // Update cache refresh logic to prioritize live and recently ended matches
+        // ENHANCED cache refresh logic - prioritize live matches and today's ended matches
         const shouldRefresh =
             forceRefresh ||
             featuredMatches.some((dayData) =>
@@ -490,16 +490,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 const todayLocal = format(now, "yyyy-MM-dd");
                 const isToday = matchDateLocal === todayLocal;
 
-                // Force refresh if:
-                // 1. Match shows "Starting now" but is old (>30 min past kickoff)
-                // 2. Match is live
-                // 3. Match is within 3 hours of kickoff (more lenient)
-                // 4. Today's matches with any status
-                // 5. Match ended recently (within 16 hours) - to get updated stats
-                const isStaleStartingNow =
-                  status === "NS" &&
-                  minutesFromKickoff > 30 &&
-                  minutesFromKickoff < 180;
+                // PRIORITY 1: Always refresh for live matches
                 const isLive = [
                   "LIVE",
                   "LIV",
@@ -511,19 +502,39 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   "P",
                   "INT",
                 ].includes(status);
-                const isWithinThreeHours = Math.abs(minutesFromKickoff) <= 180;
-                const isTodaysMatch = isToday; // Include all of today's matches
+
+                // PRIORITY 2: Today's matches (any status)
+                const isTodaysMatch = isToday;
+
+                // PRIORITY 3: Recently ended matches (within 24 hours)
                 const isRecentlyEndedMatch =
                   ["FT", "AET", "PEN"].includes(status) &&
-                  Math.abs(hoursFromKickoff) <= 16;
+                  Math.abs(hoursFromKickoff) <= 24;
 
-                return (
-                  isStaleStartingNow ||
-                  isLive ||
-                  (status === "NS" && isWithinThreeHours) ||
-                  isTodaysMatch ||
-                  isRecentlyEndedMatch
-                );
+                // PRIORITY 4: Upcoming matches within 4 hours
+                const isUpcomingSoon =
+                  status === "NS" && Math.abs(minutesFromKickoff) <= 240;
+
+                // PRIORITY 5: Stale "Starting now" matches
+                const isStaleStartingNow =
+                  status === "NS" &&
+                  minutesFromKickoff > 30 &&
+                  minutesFromKickoff < 180;
+
+                const shouldRefreshMatch = 
+                  isLive || 
+                  isTodaysMatch || 
+                  isRecentlyEndedMatch || 
+                  isUpcomingSoon || 
+                  isStaleStartingNow;
+
+                if (shouldRefreshMatch) {
+                  console.log(
+                    `🔄 [REFRESH TRIGGER] Match: ${match.teams.home.name} vs ${match.teams.away.name} (${status}) - Live: ${isLive}, Today: ${isTodaysMatch}, Recent: ${isRecentlyEndedMatch}`,
+                  );
+                }
+
+                return shouldRefreshMatch;
               }),
             );
 
@@ -1814,14 +1825,29 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return false;
               }
 
-              // NEW: For today's matches, apply stricter ended match filtering (12 hours max)
-              if (isToday && ["FT", "AET", "PEN"].includes(status)) {
-                const hoursAgo = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
-                if (hoursAgo > 12) {
+              // ENHANCED: For today's matches, include all ended matches within 24 hours and all live matches
+              if (isToday) {
+                // Always include live matches
+                if (["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
                   console.log(
-                    `🕐 [TODAY'S ENDED MATCH EXCLUSION] Removing match older than 12 hours: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(hoursAgo)} hours ago)`,
+                    `🔴 [TODAY'S LIVE MATCH INCLUSION] Including live match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${status})`,
                   );
-                  return false;
+                  return true;
+                }
+                
+                // For ended matches today, use 24-hour window instead of 12
+                if (["FT", "AET", "PEN"].includes(status)) {
+                  const hoursAgo = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+                  if (hoursAgo > 24) {
+                    console.log(
+                      `🕐 [TODAY'S ENDED MATCH EXCLUSION] Removing match older than 24 hours: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(hoursAgo)} hours ago)`,
+                    );
+                    return false;
+                  } else {
+                    console.log(
+                      `✅ [TODAY'S ENDED MATCH INCLUSION] Including today's ended match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(hoursAgo)} hours ago)`,
+                    );
+                  }
                 }
               }
 
@@ -1873,18 +1899,25 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               const aTodayUpcoming = aIsToday && aUpcoming;
               const bTodayUpcoming = bIsToday && bUpcoming;
 
-              // Primary sort: Live > Today's Upcoming > Other Ended > Other Upcoming
+              // NEW: Check for today's ended matches
+              const aTodayEnded = aIsToday && aEnded;
+              const bTodayEnded = bIsToday && bEnded;
+
+              // ENHANCED Primary sort: Live > Today's Ended > Today's Upcoming > Other Ended > Other Upcoming
               if (aLive && !bLive) return -1;
               if (!aLive && bLive) return 1;
 
-              if (aTodayUpcoming && !bTodayUpcoming && !bLive) return -1;
-              if (!aTodayUpcoming && bTodayUpcoming && !aLive) return 1;
+              if (aTodayEnded && !bTodayEnded && !bLive) return -1;
+              if (!aTodayEnded && bTodayEnded && !aLive) return 1;
 
-              if (aEnded && !bEnded && !bLive && !bTodayUpcoming) return -1;
-              if (!aEnded && bEnded && !aLive && !aTodayUpcoming) return 1;
+              if (aTodayUpcoming && !bTodayUpcoming && !bLive && !bTodayEnded) return -1;
+              if (!aTodayUpcoming && bTodayUpcoming && !aLive && !aTodayEnded) return 1;
 
-              if (aUpcoming && !bUpcoming && !bLive && !bEnded) return -1;
-              if (!aUpcoming && bUpcoming && !aLive && !aEnded) return 1;
+              if (aEnded && !bEnded && !bLive && !bTodayUpcoming && !bTodayEnded) return -1;
+              if (!aEnded && bEnded && !aLive && !aTodayUpcoming && !aTodayEnded) return 1;
+
+              if (aUpcoming && !bUpcoming && !bLive && !bEnded && !bTodayEnded) return -1;
+              if (!aUpcoming && bUpcoming && !aLive && !aEnded && !aTodayEnded) return 1;
 
               // Within the same status category, apply additional sorting
               const aLeagueName = a.league.name?.toLowerCase() || "";
@@ -2157,13 +2190,32 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       },
     );
 
-    // Determine refresh strategy based on match analysis
+    // Count today's ended matches for enhanced refresh strategy
+    const todayEndedMatches = featuredMatches.reduce((count, dayData) => {
+      return count + dayData.matches.filter(match => {
+        const matchDate = new Date(match.fixture.date);
+        const matchDateString = format(matchDate, "yyyy-MM-dd");
+        const todayString = format(now, "yyyy-MM-dd");
+        const isToday = matchDateString === todayString;
+        const isEnded = ["FT", "AET", "PEN"].includes(match.fixture.status.short);
+        return isToday && isEnded;
+      }).length;
+    }, 0);
+
+    // ENHANCED refresh strategy including today's ended matches
     if (matchAnalysis.liveMatches > 0) {
       // Most aggressive: Live matches detected
+      refreshInterval = 15000; // 15 seconds for live matches
+      shouldRefresh = true;
+      console.log(
+        `🔴 [MyHomeFeaturedMatchNew] ${matchAnalysis.liveMatches} live matches - using most aggressive refresh (15s)`,
+      );
+    } else if (todayEndedMatches > 0) {
+      // Aggressive for today's ended matches to get final stats
       refreshInterval = 30000; // 30 seconds
       shouldRefresh = true;
       console.log(
-        `🔴 [MyHomeFeaturedMatchNew] ${matchAnalysis.liveMatches} live matches - using aggressive refresh (30s)`,
+        `📊 [MyHomeFeaturedMatchNew] ${todayEndedMatches} today's ended matches - using aggressive refresh (30s)`,
       );
     } else if (matchAnalysis.staleMatches > 0) {
       // Aggressive: Stale matches that should have updated
