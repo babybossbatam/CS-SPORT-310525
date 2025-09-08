@@ -1907,17 +1907,22 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               if (aLive && !bLive) return -1;
               if (!aLive && bLive) return 1;
 
-              if (aTodayEnded && !bTodayEnded && !bLive) return -1;
-              if (!aTodayEnded && bTodayEnded && !aLive) return 1;
-
-              if (aTodayUpcoming && !bTodayUpcoming && !bLive && !bTodayEnded) return -1;
-              if (!aTodayUpcoming && bTodayUpcoming && !aLive && !aTodayEnded) return 1;
-
-              if (aEnded && !bEnded && !bLive && !bTodayUpcoming && !bTodayEnded) return -1;
-              if (!aEnded && bEnded && !aLive && !aTodayUpcoming && !aTodayEnded) return 1;
-
-              if (aUpcoming && !bUpcoming && !bLive && !bEnded && !bTodayEnded) return -1;
-              if (!aUpcoming && bUpcoming && !aLive && !aEnded && !aTodayEnded) return 1;
+              // If both are live, continue to secondary sorting
+              if (aLive && bLive) {
+                // Continue to secondary sorting below
+              }
+              // Today's ended matches get priority after live matches
+              else if (aTodayEnded && !bTodayEnded) return -1;
+              else if (!aTodayEnded && bTodayEnded) return 1;
+              // Today's upcoming matches get priority after today's ended matches
+              else if (aTodayUpcoming && !bTodayUpcoming && !aTodayEnded && !bTodayEnded) return -1;
+              else if (!aTodayUpcoming && bTodayUpcoming && !aTodayEnded && !bTodayEnded) return 1;
+              // Other ended matches get priority after today's upcoming matches
+              else if (aEnded && !bEnded && !aTodayUpcoming && !bTodayUpcoming && !aTodayEnded && !bTodayEnded) return -1;
+              else if (!aEnded && bEnded && !aTodayUpcoming && !bTodayUpcoming && !aTodayEnded && !bTodayEnded) return 1;
+              // Other upcoming matches come last
+              else if (aUpcoming && !bUpcoming && !aEnded && !bEnded && !aTodayUpcoming && !bTodayUpcoming && !aTodayEnded && !bTodayEnded) return -1;
+              else if (!aUpcoming && bUpcoming && !aEnded && !bEnded && !aTodayUpcoming && !bTodayUpcoming && !aTodayEnded && !bTodayEnded) return 1;
 
               // Within the same status category, apply additional sorting
               const aLeagueName = a.league.name?.toLowerCase() || "";
