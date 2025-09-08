@@ -343,6 +343,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [liveStatus, setLiveStatus] = useState<string | null>(null);
   const [forceUpdate, setForceUpdate] = useState(0);
   const [roundsCache, setRoundsCache] = useState<Record<string, string[]>>({});
+  const [countdownTimer, setCountdownTimer] = useState<string>("");
   const {
     translateTeamName,
     translateLeagueName,
