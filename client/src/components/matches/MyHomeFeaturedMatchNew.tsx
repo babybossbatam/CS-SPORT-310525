@@ -1766,9 +1766,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return false;
               }
 
-              if (fixture.league.id === 69 {
+              if (fixture.league.id === 69) {
                 console.log(
-                  `🚫 [EXPLICIT EXCLUSION] National 2 - Group C match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,);
+                  `🚫 [EXPLICIT EXCLUSION] National 2 - Group C match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
               // Additional name-based exclusion for Regionalliga leagues and Non League Premier
