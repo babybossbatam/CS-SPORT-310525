@@ -965,10 +965,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             }
           }
 
-          // Fetch popular team friendlies from Friendlies Clubs league (667)
+          // Fetch popular team friendlies and national team friendlies from Friendlies Clubs league (667)
           try {
             console.log(
-              `🔍 [MyHomeFeaturedMatchNew] Fetching Friendlies Clubs fixtures for popular teams`,
+              `🔍 [MyHomeFeaturedMatchNew] Fetching Friendlies Clubs fixtures for popular teams and national teams`,
             );
 
             const friendliesResponse = await apiRequest(
@@ -988,18 +988,36 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     return false;
                   }
 
-                  // Check if it involves popular teams
                   const homeTeamId = fixture.teams?.home?.id;
                   const awayTeamId = fixture.teams?.away?.id;
                   const homeTeam = fixture.teams?.home?.name || "";
                   const awayTeam = fixture.teams?.away?.name || "";
 
+                  // Check if it's a national team match
+                  const homeIsNational = isNationalTeam(
+                    { name: homeTeam },
+                    { name: "Friendlies Clubs", country: "World" }
+                  );
+                  const awayIsNational = isNationalTeam(
+                    { name: awayTeam },
+                    { name: "Friendlies Clubs", country: "World" }
+                  );
+                  const isNationalTeamMatch = homeIsNational || awayIsNational;
+
+                  // Check if it involves popular club teams
                   const isPopular = isPopularTeamMatch(
                     homeTeam,
                     awayTeam,
                     homeTeamId,
                     awayTeamId,
                   );
+
+                  if (isNationalTeamMatch) {
+                    console.log(
+                      `🏳️ [MyHomeFeaturedMatchNew] National team friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                    );
+                    return true;
+                  }
 
                   if (isPopular) {
                     console.log(
@@ -1239,7 +1257,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       country.includes("europe") ||
                       country.includes("international");
 
-                    // Check if it's a club friendly with popular teams using the imported popular teams list
+                    // Check if it's a club friendly with popular teams or national team friendly
                     const isPopularClubFriendly = () => {
                       if (
                         leagueName.includes("club friendlies") ||
@@ -1253,6 +1271,24 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         const awayTeamId = fixture.teams?.away?.id;
                         const homeTeam = fixture.teams?.home?.name || "";
                         const awayTeam = fixture.teams?.away?.name || "";
+
+                        // Check if it's a national team match
+                        const homeIsNational = isNationalTeam(
+                          { name: homeTeam },
+                          { name: fixture.league?.name || "", country: fixture.league?.country || "" }
+                        );
+                        const awayIsNational = isNationalTeam(
+                          { name: awayTeam },
+                          { name: fixture.league?.name || "", country: fixture.league?.country || "" }
+                        );
+                        const isNationalTeamMatch = homeIsNational || awayIsNational;
+
+                        if (isNationalTeamMatch) {
+                          console.log(
+                            `✅ [MyHomeFeaturedMatchNew] National team friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`,
+                          );
+                          return true;
+                        }
 
                         const isPopular = isPopularTeamMatch(
                           homeTeam,
@@ -1269,7 +1305,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         }
 
                         console.log(
-                          `❌ [MyHomeFeaturedMatchNew] Club friendly excluded (no popular teams): ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`,
+                          `❌ [MyHomeFeaturedMatchNew] Club friendly excluded (no popular teams or national teams): ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`,
                         );
                         return false;
                       }
