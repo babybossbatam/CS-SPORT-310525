@@ -66,21 +66,6 @@ const popularLeagues: { [leagueId: number]: string[] } = {
 
 export const rapidApiService = {
   /**
-   * Make a request to the RapidAPI
-   * @param endpoint The API endpoint
-   * @param params The request parameters
-   */
-  async makeRequest(endpoint: string, params: any): Promise<any> {
-    try {
-      const response = await apiClient.get(`/${endpoint}`, { params });
-      return response.data;
-    } catch (error) {
-      console.error(`❌ [RapidAPI] Error making request to ${endpoint}:`, error);
-      throw error; // Re-throw the error to be handled by the caller
-    }
-  },
-
-  /**
    * Get match predictions from RapidAPI
    */
   async getMatchPredictions(fixtureId: number): Promise<any> {
@@ -687,30 +672,6 @@ export const rapidApiService = {
         homeTeamName.includes(term) ||
         awayTeamName.includes(term),
     );
-  },
-
-  /**
-   * Get fixture by ID for selective updates
-   */
-  async getFixtureById(fixtureId: number): Promise<any | null> {
-    try {
-      console.log(`🔍 [RapidAPI] Fetching fixture by ID: ${fixtureId}`);
-
-      const response = await this.makeRequest(`fixtures`, {
-        id: fixtureId.toString()
-      });
-
-      if (response?.response && Array.isArray(response.response) && response.response.length > 0) {
-        console.log(`✅ [RapidAPI] Found fixture ${fixtureId}`);
-        return response.response[0];
-      }
-
-      console.log(`❌ [RapidAPI] Fixture ${fixtureId} not found`);
-      return null;
-    } catch (error) {
-      console.error(`❌ [RapidAPI] Error fetching fixture ${fixtureId}:`, error);
-      return null;
-    }
   },
 
   /**
