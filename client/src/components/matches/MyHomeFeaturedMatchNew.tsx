@@ -2382,7 +2382,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   // Set up selective match updates for live matches
   const selectiveUpdate = useSelectiveMatchUpdate(
     currentMatch?.fixture?.id || 0,
-    currentMatch || {}
+    currentMatch && currentMatch.fixture && currentMatch.fixture.status ? currentMatch : {
+      fixture: { status: { short: 'NS', elapsed: 0 } },
+      goals: { home: null, away: null },
+      teams: { home: { name: '' }, away: { name: '' } }
+    }
   );
 
   // Register for live updates

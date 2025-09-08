@@ -330,8 +330,8 @@ export const selectiveMatchUpdater = new SelectiveMatchUpdater();
 export const useSelectiveMatchUpdate = (matchId: number, initialMatch: any) => {
   // Use refs exclusively to avoid React's state queue
   const matchStateRef = useRef({
-    goals: initialMatch.goals,
-    status: initialMatch.fixture.status
+    goals: initialMatch?.goals || { home: null, away: null },
+    status: initialMatch?.fixture?.status || { short: 'NS', elapsed: 0 }
   });
   
   const isMountedRef = useRef(true);
