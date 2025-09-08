@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,10 +25,9 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation, useLanguage } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
+import { useSelectiveMatchUpdate } from "@/lib/selectiveMatchUpdates";
 
-import { RoundBadge } from "@/components/ui/round-badge";
-
-// Import popular teams data from the same source as PopularTeamsList
+// Popular teams data
 const POPULAR_TEAMS_DATA = [
   { id: 33, name: "Manchester United", country: "England" },
   { id: 40, name: "Liverpool", country: "England" },
@@ -1334,7 +1333,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       if (
                         leagueName.includes("club friendlies") ||
                         leagueName.includes("friendlies clubs") ||
-                        fixture.league?.id === 667 ||
+                        fixture.league.id === 667 ||
                         (leagueName.includes("friendlies") &&
                           !leagueName.includes("international") &&
                           !leagueName.includes("women"))
@@ -2177,7 +2176,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           key.includes("regionalliga") ||
           key.includes("bayern") ||
           key.includes("national 2") ||
-          key.includes("fixtures_date") ||
           key.startsWith("ended_matches_") ||
           key.startsWith("league-fixtures-") ||
           key.startsWith("featured-match-") ||
@@ -2267,15 +2265,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   // Use a ref for the interval timer to manage it across renders
   const refreshTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // Optimized smart refresh logic - only refresh when actually needed
+  // Optimized refresh strategy with selective updates
   useEffect(() => {
     if (featuredMatches.length === 0) return;
 
     const now = new Date();
-    let refreshInterval = 0; // Default: no automatic refresh
+    let refreshInterval = 900000; // Default: 15 minutes (reduced from 5 minutes)
     let shouldRefresh = false;
 
-    // Analyze current match states to determine if refresh is actually needed
+    // Analyze current match states - but with reduced full refresh needs
     const matchAnalysis = featuredMatches.reduce(
       (analysis, dayData) => {
         dayData.matches.forEach((match) => {
@@ -2284,17 +2282,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           const minutesFromKickoff =
             (now.getTime() - matchDate.getTime()) / (1000 * 60);
 
-          // Only categorize matches that actually need updates
-          if (
-            ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
-          ) {
-            analysis.liveMatches++;
-          } else if (status === "NS" && Math.abs(minutesFromKickoff) <= 15) {
-            // Only track matches starting within 15 minutes
-            analysis.imminentMatches++;
-          } else if (status === "NS" && minutesFromKickoff > 15 && minutesFromKickoff < 120) {
-            // Matches that should have started but haven't (potential status change needed)
-            analysis.staleMatches++;
+          // Only count non-live matches for full refresh needs
+          if (status === "NS") {
+            if (Math.abs(minutesFromKickoff) <= 30) {
+              analysis.imminentMatches++; // Starting within 30 minutes
+            }
+
+            // Check for stale "Starting now" matches
+            if (minutesFromKickoff > 30 && minutesFromKickoff < 180) {
+              analysis.staleMatches++;
+            }
           }
         });
         return analysis;
@@ -2302,56 +2299,48 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       {
         liveMatches: 0,
         imminentMatches: 0,
+        upcomingMatches: 0,
         staleMatches: 0,
-      }
+      },
     );
 
-    // Only set up refresh for scenarios that actually need real-time updates
-    if (matchAnalysis.liveMatches > 0) {
-      // ONLY live matches need frequent updates for scores and status changes
-      refreshInterval = 15000; // 15 seconds for live score updates
+    // OPTIMIZED refresh strategy - selective updates handle live matches
+    if (matchAnalysis.staleMatches > 0) {
+      // Only refresh for stale matches that should have updated
+      refreshInterval = 300000; // 5 minutes (reduced from 45 seconds)
       shouldRefresh = true;
-      console.log(`🔴 [MyHomeFeaturedMatchNew] ${matchAnalysis.liveMatches} LIVE matches - refreshing every 15s for scores/status`);
+      console.log(
+        `🟡 [MyHomeFeaturedMatchNew] ${matchAnalysis.staleMatches} stale matches detected - using moderate refresh (5min)`,
+      );
     } else if (matchAnalysis.imminentMatches > 0) {
-      // Matches starting very soon need updates to catch NS → LIVE transition
-      refreshInterval = 30000; // 30 seconds to catch kickoff
+      // Moderate refresh for imminent matches
+      refreshInterval = 600000; // 10 minutes (reduced from 1 minute)
       shouldRefresh = true;
-      console.log(`⏰ [MyHomeFeaturedMatchNew] ${matchAnalysis.imminentMatches} matches starting within 15min - refreshing every 30s`);
-    } else if (matchAnalysis.staleMatches > 0) {
-      // One-time refresh to clean up stale matches, then stop
-      console.log(`🔄 [MyHomeFeaturedMatchNew] ${matchAnalysis.staleMatches} stale matches detected - single refresh to clean up`);
-      fetchFeaturedMatches(true);
-      return; // Don't set up recurring refresh
+      console.log(
+        `🟠 [MyHomeFeaturedMatchNew] ${matchAnalysis.imminentMatches} imminent matches - using moderate refresh (10min)`,
+      );
     } else {
-      // No live or imminent matches - no automatic refresh needed
-      console.log(`💤 [MyHomeFeaturedMatchNew] No live/imminent matches - automatic refresh disabled`);
-      if (refreshTimer.current) {
-        clearInterval(refreshTimer.current);
-        refreshTimer.current = null;
-      }
+      // Standard: No urgent matches - selective updates handle live data
+      refreshInterval = 900000; // 15 minutes
+      shouldRefresh = false;
+      console.log(
+        `⏸️ [MyHomeFeaturedMatchNew] No urgent non-live matches - relying on selective updates for live data`,
+      );
+    }
+
+    if (!shouldRefresh) {
+      console.log(`⭕ [MyHomeFeaturedMatchNew] No full refresh needed - selective updates handling real-time data`);
       return;
     }
 
-    // Clear existing timer
-    if (refreshTimer.current) {
-      clearInterval(refreshTimer.current);
-    }
-
-    // Set up refresh timer only for live/imminent matches
-    refreshTimer.current = setInterval(() => {
-      console.log(`🔄 [MyHomeFeaturedMatchNew] Targeted refresh - live: ${matchAnalysis.liveMatches}, imminent: ${matchAnalysis.imminentMatches}`);
-      fetchFeaturedMatches(true);
+    const interval = setInterval(() => {
+      console.log(
+        `🔄 [MyHomeFeaturedMatchNew] Optimized refresh triggered (interval: ${refreshInterval / 1000}s) - selective updates handle live matches`,
+      );
+      fetchFeaturedMatches(false); // Background refresh without loading state
     }, refreshInterval);
 
-    console.log(`⏰ [MyHomeFeaturedMatchNew] Optimized refresh: ${refreshInterval}ms for analysis:`, matchAnalysis);
-
-    // Cleanup
-    return () => {
-      if (refreshTimer.current) {
-        clearInterval(refreshTimer.current);
-        refreshTimer.current = null;
-      }
-    };
+    return () => clearInterval(interval);
   }, [featuredMatches, fetchFeaturedMatches]);
 
 
@@ -2888,7 +2877,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     {/* League header */}
                     <div
                       className="flex items-center justify-center gap-2 mb-4 p-2"
-                      onClick={() => {
+                      onClick={() =>
                         console.log(
                           `🔍 [LEAGUE HEADER DEBUG] Clicked on league:`,
                           {
@@ -2897,8 +2886,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             LEAGUE_COUNTRY: currentMatch.league.country,
                             LEAGUE_LOGO: currentMatch.league.logo,
                           },
-                        );
-                      }}
+                        )
+                      }
                     >
                       <LazyImage
                         src={
