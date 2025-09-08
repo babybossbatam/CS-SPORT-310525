@@ -1814,15 +1814,17 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return false;
               }
 
-              // NEW: For today's matches, apply stricter ended match filtering (12 hours max)
-              if (isToday && ["FT", "AET", "PEN"].includes(status)) {
+              // Enhanced: Show recently ended matches within 12 hours for all days
+              if (["FT", "AET", "PEN"].includes(status)) {
                 const hoursAgo = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
                 if (hoursAgo > 12) {
                   console.log(
-                    `🕐 [TODAY'S ENDED MATCH EXCLUSION] Removing match older than 12 hours: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(hoursAgo)} hours ago)`,
+                    `🕐 [ENDED MATCH EXCLUSION] Removing match older than 12 hours: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(hoursAgo)} hours ago)`,
                   );
                   return false;
                 }
+                // Mark as recently ended for priority sorting
+                fixture._isRecentlyEnded = hoursAgo <= 12;
               }
 
               const year = matchDate.getFullYear();
@@ -1832,24 +1834,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               return matchDateString === dateInfo.date;
             })
             .sort((a: FeaturedMatch, b: FeaturedMatch) => {
-              // Special priority for specific FIFA Club World Cup match (Inter vs River Plate)
-              const aIsSpecialMatch =
-                a.league.id === 15 &&
-                ((a.teams.home.name === "Inter" &&
-                  a.teams.away.name === "River Plate") ||
-                  (a.teams.home.name === "River Plate" &&
-                    a.teams.away.name === "Inter"));
-              const bIsSpecialMatch =
-                b.league.id === 15 &&
-                ((b.teams.home.name === "Inter" &&
-                  b.teams.away.name === "River Plate") ||
-                  (b.teams.home.name === "River Plate" &&
-                    b.teams.away.name === "Inter"));
-
-              // Special match always comes first
-              if (aIsSpecialMatch && !bIsSpecialMatch) return -1;
-              if (!aIsSpecialMatch && bIsSpecialMatch) return 1;
-
               // Define match status categories
               const aStatus = a.fixture.status.short;
               const bStatus = b.fixture.status.short;
@@ -1863,25 +1847,41 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               const aUpcoming = isUpcomingMatch(aStatus);
               const bUpcoming = isUpcomingMatch(bStatus);
 
-              // NEW: Check if matches are today's matches
+              // Check for recently ended matches (within 12 hours)
               const aMatchDate = new Date(a.fixture.date);
               const bMatchDate = new Date(b.fixture.date);
+              const aHoursAgo = (now.getTime() - aMatchDate.getTime()) / (1000 * 60 * 60);
+              const bHoursAgo = (now.getTime() - bMatchDate.getTime()) / (1000 * 60 * 60);
+              
+              const aRecentlyEnded = aEnded && aHoursAgo <= 12;
+              const bRecentlyEnded = bEnded && bHoursAgo <= 12;
+
+              // Check if matches are today's matches
               const aIsToday = format(aMatchDate, "yyyy-MM-dd") === todayDateString;
               const bIsToday = format(bMatchDate, "yyyy-MM-dd") === todayDateString;
 
-              // NEW: Today's upcoming matches get highest priority (after live matches)
+              // Today's upcoming matches
               const aTodayUpcoming = aIsToday && aUpcoming;
               const bTodayUpcoming = bIsToday && bUpcoming;
 
-              // Primary sort: Live > Today's Upcoming > Other Ended > Other Upcoming
+              // Enhanced priority sort: Live > Recently Ended (12h) > Today's Upcoming > Other Ended > Other Upcoming
               if (aLive && !bLive) return -1;
               if (!aLive && bLive) return 1;
 
-              if (aTodayUpcoming && !bTodayUpcoming && !bLive) return -1;
-              if (!aTodayUpcoming && bTodayUpcoming && !aLive) return 1;
+              // Recently ended matches get high priority after live
+              if (aRecentlyEnded && !bRecentlyEnded && !bLive) return -1;
+              if (!aRecentlyEnded && bRecentlyEnded && !aLive) return 1;
 
-              if (aEnded && !bEnded && !bLive && !bTodayUpcoming) return -1;
-              if (!aEnded && bEnded && !aLive && !aTodayUpcoming) return 1;
+              // Within recently ended matches, sort by most recent first
+              if (aRecentlyEnded && bRecentlyEnded) {
+                return aHoursAgo - bHoursAgo; // Most recent first (lower hours ago)
+              }
+
+              if (aTodayUpcoming && !bTodayUpcoming && !bLive && !bRecentlyEnded) return -1;
+              if (!aTodayUpcoming && bTodayUpcoming && !aLive && !aRecentlyEnded) return 1;
+
+              if (aEnded && !bEnded && !bLive && !bTodayUpcoming && !bRecentlyEnded) return -1;
+              if (!aEnded && bEnded && !aLive && !aTodayUpcoming && !aRecentlyEnded) return 1;
 
               if (aUpcoming && !bUpcoming && !bLive && !bEnded) return -1;
               if (!aUpcoming && bUpcoming && !aLive && !aEnded) return 1;
@@ -1976,7 +1976,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 new Date(b.fixture.date).getTime()
               );
             })
-            .slice(0, Math.max(5, Math.floor(maxMatches / dates.length)));
+            .slice(0, Math.max(3, Math.floor(maxMatches / dates.length)));
 
           console.log(
             `✅ [MyHomeFeaturedMatchNew] Found ${fixturesForDay.length} featured matches for ${dateInfo.label}`,
@@ -2843,12 +2843,27 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             const homeScore = currentMatch.goals.home ?? 0;
                             const awayScore = currentMatch.goals.away ?? 0;
 
+                            // Check if this is a recently ended match (within 12 hours)
+                            const matchDate = new Date(currentMatch.fixture.date);
+                            const hoursAgo = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
+                            const isRecentlyEnded = hoursAgo <= 12;
+
                             return (
                               <div className="space-y-0">
-                                <div className="text-gray-600 dark:text-gray-400 text-sm ">
+                                <div className={`text-sm flex items-center justify-center gap-2 ${
+                                  isRecentlyEnded ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'
+                                }`}>
+                                  {isRecentlyEnded && (
+                                    <span className="inline-block w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                  )}
                                   {getMatchStatusTranslation(
                                     matchStatus,
                                     currentLanguage,
+                                  )}
+                                  {isRecentlyEnded && (
+                                    <span className="text-xs">
+                                      ({Math.round(hoursAgo)}h ago)
+                                    </span>
                                   )}
                                 </div>
                                 <div className="text-3xl font-bold">
