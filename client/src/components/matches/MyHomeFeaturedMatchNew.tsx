@@ -160,7 +160,7 @@ const isPopularTeamMatch = (
 
   // Fallback to name matching
   const homeTeamLower = homeTeam.toLowerCase();
-  const awayTeamLower = away.toLowerCase();
+  const awayTeamLower = awayTeam.toLowerCase();
 
   const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(
     (popularTeam) =>
@@ -475,7 +475,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         const now = new Date();
         // Update cache refresh logic to prioritize live and recently ended matches
-        const shouldForceRefresh =
+        const shouldRefresh =
             forceRefresh ||
             featuredMatches.some((dayData) =>
               dayData.matches.some((match) => {
@@ -485,19 +485,24 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   (now.getTime() - matchDate.getTime()) / (1000 * 60);
                 const hoursFromKickoff = minutesFromKickoff / 60;
 
+                // Check if it's today's match
+                const matchDateLocal = format(matchDate, "yyyy-MM-dd");
+                const todayLocal = format(now, "yyyy-MM-dd");
+                const isToday = matchDateLocal === todayLocal;
+
                 // Force refresh if:
                 // 1. Match shows "Starting now" but is old (>30 min past kickoff)
                 // 2. Match is live
-                // 3. Match is within 2 hours of kickoff
-                // 4. Match ended recently (within 12 hours) - to get updated stats
-                // 5. Match is more than 12 hours away but shows ended status (conflicting data)
+                // 3. Match is within 3 hours of kickoff (more lenient)
+                // 4. Today's matches with any status
+                // 5. Match ended recently (within 16 hours) - to get updated stats
                 const isStaleStartingNow =
                   status === "NS" &&
                   minutesFromKickoff > 30 &&
-                  minutesFromKickoff < 120;
+                  minutesFromKickoff < 180;
                 const isLive = [
                   "LIVE",
-                  "LIV", 
+                  "LIV",
                   "1H",
                   "HT",
                   "2H",
@@ -506,20 +511,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   "P",
                   "INT",
                 ].includes(status);
-                const isWithinTwoHours = Math.abs(minutesFromKickoff) <= 120;
-                const isRecentlyEndedMatch = 
-                  ["FT", "AET", "PEN"].includes(status) && 
-                  Math.abs(hoursFromKickoff) <= 12;
-                const hasConflictingStatus =
-                  minutesFromKickoff < -720 &&
-                  ["FT", "AET", "PEN"].includes(status); // More than 12 hours away but shows ended
+                const isWithinThreeHours = Math.abs(minutesFromKickoff) <= 180;
+                const isTodaysMatch = isToday; // Include all of today's matches
+                const isRecentlyEndedMatch =
+                  ["FT", "AET", "PEN"].includes(status) &&
+                  Math.abs(hoursFromKickoff) <= 16;
 
                 return (
                   isStaleStartingNow ||
                   isLive ||
-                  (status === "NS" && isWithinTwoHours) ||
-                  isRecentlyEndedMatch ||
-                  hasConflictingStatus
+                  (status === "NS" && isWithinThreeHours) ||
+                  isTodaysMatch ||
+                  isRecentlyEndedMatch
                 );
               }),
             );
@@ -590,7 +593,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         // Fetch live matches from API for real-time updates
         let liveFixtures: FeaturedMatch[] = [];
         try {
-          if (shouldForceRefresh) {
+          if (shouldRefresh) {
             console.log(
               "🔴 [MyHomeFeaturedMatchNew] Smart cache: Fetching live matches from dedicated endpoint",
             );
@@ -688,7 +691,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         allFixtures.push(...liveFixtures);
 
         // Fetch non-live matches from cached data with smart refresh logic
-        if (shouldForceRefresh || allFixtures.length === 0) {
+        if (shouldRefresh || allFixtures.length === 0) {
           // Fetch non-live matches from cached data (priority leagues)
           for (const leagueId of priorityLeagueIds) {
             try {
@@ -1097,7 +1100,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           minutesFromKickoff: minutesFromKickoff.toFixed(1),
                         },
                       );
-                      // Skip all time-based filtering for live matches
+                      // Skip all-based filtering for live matches
                       return (
                         hasValidTeams &&
                         !isWomensCompetition &&
