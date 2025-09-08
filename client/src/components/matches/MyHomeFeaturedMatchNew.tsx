@@ -2323,7 +2323,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Selective live updates for current match without full refresh
   useEffect(() => {
-    if (!currentMatch || !isLiveMatch(currentMatch.fixture.status.short)) {
+    if (!currentMatch || !currentMatch.fixture || !isLiveMatch(currentMatch.fixture.status.short)) {
       return;
     }
 
@@ -2444,12 +2444,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   }, [featuredMatches]);
 
   const currentMatch = useMemo(() => {
-    return allMatches[currentMatchIndex];
+    return allMatches[currentMatchIndex] || null;
   }, [allMatches, currentMatchIndex]);
 
   // Fetch rounds data for current match league
   useEffect(() => {
-    if (currentMatch && !roundsCache[`${currentMatch.league.id}-2025`]) {
+    if (currentMatch?.league?.id && !roundsCache[`${currentMatch.league.id}-2025`]) {
       fetchRoundsForLeague(currentMatch.league.id, 2025);
     }
   }, [currentMatch, fetchRoundsForLeague, roundsCache]);
@@ -2557,7 +2557,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Extract colors from team logos when match changes
   useEffect(() => {
-    if (currentMatch?.teams) {
+    if (currentMatch?.teams?.home && currentMatch?.teams?.away) {
       const extractColors = async () => {
         const homeTeamName = currentMatch.teams.home.name;
         const awayTeamName = currentMatch.teams.away.name;
@@ -2595,7 +2595,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Countdown timer effect for upcoming matches
   useEffect(() => {
-    if (!currentMatch) {
+    if (!currentMatch || !currentMatch.fixture) {
       setCountdownTimer("--:--:--");
       return;
     }
