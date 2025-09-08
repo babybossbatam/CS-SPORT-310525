@@ -212,8 +212,8 @@ const FEATURED_MATCH_LEAGUE_IDS = [
 
 // Explicitly excluded leagues
 const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [
-  848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62, 931, 59, 60, 869,
-]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2, Non League Premier - Southern Central, League 59, League 60, CECAFA Club Cup
+  848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62, 931, 59, 60, 869, 180,
+]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2, Non League Premier - Southern Central, League 59, League 60, CECAFA Club Cup, National 2 - Group A
 const PRIORITY_LEAGUE_IDS = [2, 15, 38, 32, 29, 850, 667, 22, 45, 550, 531]; // UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531
 
 interface FeaturedMatch {
@@ -1745,6 +1745,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return false;
               }
 
+              if (fixture.league.id === 180) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] National 2 - Group A match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
               // Additional name-based exclusion for Regionalliga leagues and Non League Premier
               const leagueName = fixture.league?.name?.toLowerCase() || "";
               if (
@@ -1993,9 +2000,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         (key) =>
           key.includes("848") || // UEFA Europa Conference League
           key.includes("169") || // Regionalliga - Bayern
+          key.includes("180") || // National 2 - Group A
           key.includes("conference") ||
           key.includes("regionalliga") ||
           key.includes("bayern") ||
+          key.includes("national 2") ||
           key.includes("fixtures_date") ||
           key.startsWith("ended_matches_") ||
           key.startsWith("league-fixtures-") ||
@@ -2020,9 +2029,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         (key) =>
           key.includes("848") ||
           key.includes("169") ||
+          key.includes("180") ||
           key.includes("conference") ||
           key.includes("regionalliga") ||
           key.includes("bayern") ||
+          key.includes("national 2") ||
           key.startsWith("league-fixtures-") ||
           key.startsWith("featured-match-") ||
           key.includes("62") || // Ligue 2
@@ -2047,9 +2058,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               return (
                 key.includes("848") ||
                 key.includes("169") ||
+                key.includes("180") ||
                 key.includes("conference") ||
                 key.includes("regionalliga") ||
                 key.includes("bayern") ||
+                key.includes("national 2") ||
                 key.includes("62") || // Ligue 2
                 key.includes("ligue 2") ||
                 key.includes("l2")
@@ -2062,7 +2075,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       }
 
       console.log(
-        `🧹 [CacheClean] Cleared ${excludedLeagueKeys.length + sessionExcludedKeys.length} cache entries for excluded leagues (UEFA Europa Conference League, Regionalliga - Bayern, Ligue 2)`,
+        `🧹 [CacheClean] Cleared ${excludedLeagueKeys.length + sessionExcludedKeys.length} cache entries for excluded leagues (UEFA Europa Conference League, Regionalliga - Bayern, National 2 - Group A, Ligue 2)`,
       );
     } catch (error) {
       console.error("Error clearing excluded leagues caches:", error);
