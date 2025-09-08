@@ -212,7 +212,7 @@ const FEATURED_MATCH_LEAGUE_IDS = [
 
 // Explicitly excluded leagues
 const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [
-  848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62, 931, 59, 60, 869, 180,
+  848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62, 931, 59, 60, 869, 180, 67, 68, 69,
 ]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2, Non League Premier - Southern Central, League 59, League 60, CECAFA Club Cup, National 2 - Group A
 const PRIORITY_LEAGUE_IDS = [2, 15, 38, 32, 29, 850, 667, 22, 45, 550, 531]; // UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531
 
@@ -1747,11 +1747,30 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
               if (fixture.league.id === 180) {
                 console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Scotland Championship match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 67) {
+                console.log(
                   `🚫 [EXPLICIT EXCLUSION] National 2 - Group A match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
                 );
                 return false;
               }
 
+              if (fixture.league.id === 68) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] National 2 - Group B match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 69 {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] National 2 - Group C match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,);
+                return false;
+              }
               // Additional name-based exclusion for Regionalliga leagues and Non League Premier
               const leagueName = fixture.league?.name?.toLowerCase() || "";
               if (
