@@ -725,16 +725,22 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       fixture.fixture.status.short,
                     );
 
-                    // CRITICAL: Exclude matches that ended more than 2 hours ago
-                    const isOldEnded = isMatchOldEnded(fixture);
-                    if (isOldEnded) {
+                    // ENHANCED: Include more recent ended matches for featured display
+                    const matchDate = new Date(fixture.fixture.date);
+                    const hoursFromEnd = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+                    const isRecentEnded = ["FT", "AET", "PEN"].includes(fixture.fixture.status.short) && hoursFromEnd <= 48; // Show ended matches up to 48 hours
+                    
+                    // Only exclude very old ended matches (more than 48 hours)
+                    const isVeryOldEnded = ["FT", "AET", "PEN"].includes(fixture.fixture.status.short) && hoursFromEnd > 48;
+                    if (isVeryOldEnded) {
                       console.log(
-                        `⏰ [MyHomeFeaturedMatchNew] Excluding old ended match (${fixture.fixture.status.short}):`,
+                        `⏰ [MyHomeFeaturedMatchNew] Excluding very old ended match (${fixture.fixture.status.short}):`,
                         {
                           home: fixture.teams?.home?.name,
                           away: fixture.teams?.away?.name,
                           league: fixture.league?.name,
                           date: fixture.fixture.date,
+                          hoursAgo: Math.round(hoursFromEnd),
                         },
                       );
                       return false;
@@ -1939,9 +1945,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               const aTodayEnded = aIsToday && aEnded;
               const bTodayEnded = bIsToday && bEnded;
 
-              // ENHANCED Primary sort: Live > Today's Ended > Today's Upcoming > Other Ended > Other Upcoming
+              // ENHANCED Primary sort: Live > Today's Ended > Recent Ended (48h) > Today's Upcoming > Other Ended > Other Upcoming
               if (aLive && !bLive) return -1;
               if (!aLive && bLive) return 1;
+
+              // Calculate recency for ended matches
+              const aIsRecentEnded = aEnded && !aTodayEnded && Math.abs((new Date(a.fixture.date).getTime() - now.getTime()) / (1000 * 60 * 60)) <= 48;
+              const bIsRecentEnded = bEnded && !bTodayEnded && Math.abs((new Date(b.fixture.date).getTime() - now.getTime()) / (1000 * 60 * 60)) <= 48;
 
               // If both are live, continue to secondary sorting
               if (aLive && bLive) {
@@ -1950,15 +1960,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               // Today's ended matches get priority after live matches
               else if (aTodayEnded && !bTodayEnded) return -1;
               else if (!aTodayEnded && bTodayEnded) return 1;
-              // Today's upcoming matches get priority after today's ended matches
-              else if (aTodayUpcoming && !bTodayUpcoming && !aTodayEnded && !bTodayEnded) return -1;
-              else if (!aTodayUpcoming && bTodayUpcoming && !aTodayEnded && !bTodayEnded) return 1;
+              // Recent ended matches (within 48 hours) get priority after today's ended matches
+              else if (aIsRecentEnded && !bIsRecentEnded && !aTodayEnded && !bTodayEnded) return -1;
+              else if (!aIsRecentEnded && bIsRecentEnded && !aTodayEnded && !bTodayEnded) return 1;
+              // Today's upcoming matches get priority after recent ended matches
+              else if (aTodayUpcoming && !bTodayUpcoming && !aTodayEnded && !bTodayEnded && !aIsRecentEnded && !bIsRecentEnded) return -1;
+              else if (!aTodayUpcoming && bTodayUpcoming && !aTodayEnded && !bTodayEnded && !aIsRecentEnded && !bIsRecentEnded) return 1;
               // Other ended matches get priority after today's upcoming matches
-              else if (aEnded && !bEnded && !aTodayUpcoming && !bTodayUpcoming && !aTodayEnded && !bTodayEnded) return -1;
-              else if (!aEnded && bEnded && !aTodayUpcoming && !bTodayUpcoming && !aTodayEnded && !bTodayEnded) return 1;
+              else if (aEnded && !bEnded && !aTodayUpcoming && !bTodayUpcoming && !aTodayEnded && !bTodayEnded && !aIsRecentEnded && !bIsRecentEnded) return -1;
+              else if (!aEnded && bEnded && !aTodayUpcoming && !bTodayUpcoming && !aTodayEnded && !bTodayEnded && !aIsRecentEnded && !bIsRecentEnded) return 1;
               // Other upcoming matches come last
-              else if (aUpcoming && !bUpcoming && !aEnded && !bEnded && !aTodayUpcoming && !bTodayUpcoming && !aTodayEnded && !bTodayEnded) return -1;
-              else if (!aUpcoming && bUpcoming && !aEnded && !bEnded && !aTodayUpcoming && !bTodayUpcoming && !aTodayEnded && !bTodayEnded) return 1;
+              else if (aUpcoming && !bUpcoming && !aEnded && !bEnded && !aTodayUpcoming && !bTodayUpcoming && !aTodayEnded && !bTodayEnded && !aIsRecentEnded && !bIsRecentEnded) return -1;
+              else if (!aUpcoming && bUpcoming && !aEnded && !bEnded && !aTodayUpcoming && !bTodayUpcoming && !aTodayEnded && !bTodayEnded && !aIsRecentEnded && !bIsRecentEnded) return 1;
 
               // Within the same status category, apply additional sorting
               const aLeagueName = a.league.name?.toLowerCase() || "";
