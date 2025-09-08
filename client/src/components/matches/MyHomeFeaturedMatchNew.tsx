@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -287,6 +287,73 @@ interface DayMatches {
   matches: FeaturedMatch[];
 }
 
+// Helper function to check if a team is a national team
+const isNationalTeam = (team: any, league: any): boolean => {
+  const teamName = team.name?.toLowerCase() || "";
+  const leagueName = league.name?.toLowerCase() || "";
+  const leagueCountry = league.country?.toLowerCase() || "";
+
+  // Common national team indicators in league names or countries
+  const nationalLeagueIndicators = [
+    "international",
+    "world cup",
+    "euro",
+    "copa america",
+    "gold cup",
+    "nations league",
+    "fifa",
+    "uefa",
+    "afcon",
+    "asian cup",
+    "olympics",
+    "u20",
+    "u21",
+    "u23",
+    "women",
+  ];
+
+  // Check if league name suggests national competition
+  if (nationalLeagueIndicators.some((indicator) => leagueName.includes(indicator))) {
+    return true;
+  }
+
+  // Check if league country suggests international/world scope
+  if (["world", "europe", "international"].includes(leagueCountry)) {
+    return true;
+  }
+
+  // Specific team name patterns that might indicate national teams
+  if (
+    teamName.includes("national team") ||
+    teamName.includes("select xi") ||
+    teamName.includes("republic of") ||
+    teamName.includes("kingdom") ||
+    teamName.includes("united") && teamName.includes("states") || // USA
+    teamName.includes("canada") ||
+    teamName.includes("mexico") ||
+    teamName.includes("brazil") ||
+    teamName.includes("argentina") ||
+    teamName.includes("france") ||
+    teamName.includes("germany") ||
+    teamName.includes("italy") ||
+    teamName.includes("spain") ||
+    teamName.includes("england") ||
+    teamName.includes("portugal") ||
+    teamName.includes("netherlands") ||
+    teamName.includes("belgium") ||
+    teamName.includes("croatia") ||
+    teamName.includes("sweden") ||
+    teamName.includes("denmark") ||
+    teamName.includes("switzerland")
+  ) {
+    // Add more common national team names if needed
+    return true;
+  }
+
+  return false;
+};
+
+
 const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   maxMatches = 15,
   onMatchSelect,
@@ -521,11 +588,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   minutesFromKickoff > 30 &&
                   minutesFromKickoff < 180;
 
-                const shouldRefreshMatch = 
-                  isLive || 
-                  isTodaysMatch || 
-                  isRecentlyEndedMatch || 
-                  isUpcomingSoon || 
+                const shouldRefreshMatch =
+                  isLive ||
+                  isTodaysMatch ||
+                  isRecentlyEndedMatch ||
+                  isUpcomingSoon ||
                   isStaleStartingNow;
 
                 if (shouldRefreshMatch) {
@@ -729,7 +796,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const matchDate = new Date(fixture.fixture.date);
                     const hoursFromEnd = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
                     const isRecentEnded = ["FT", "AET", "PEN"].includes(fixture.fixture.status.short) && hoursFromEnd <= 48; // Show ended matches up to 48 hours
-                    
+
                     // Only exclude very old ended matches (more than 48 hours)
                     const isVeryOldEnded = ["FT", "AET", "PEN"].includes(fixture.fixture.status.short) && hoursFromEnd > 48;
                     if (isVeryOldEnded) {
@@ -1875,7 +1942,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   );
                   return true;
                 }
-                
+
                 // For ended matches today, use 24-hour window instead of 12
                 if (["FT", "AET", "PEN"].includes(status)) {
                   const hoursAgo = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
@@ -2075,7 +2142,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           });
         }
 
-        // Only update state if data has actually changed
         setFeaturedMatches((prevMatches) => {
           const newMatchesString = JSON.stringify(allMatches);
           const prevMatchesString = JSON.stringify(prevMatches);
@@ -2095,7 +2161,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   );
 
   // Function to clear all related caches for excluded leagues
-  const clearExcludedLeaguesCaches = useCallback(() => {
+  const clearExcludedLeaguesCaches =useCallback(() => {
     try {
       // Clear fixture cache completely
       fixtureCache.clearCache();
@@ -2198,15 +2264,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }, 100);
   }, []); // Only run once on mount
 
-  // Smart cache interval management based on match states
+  // Use a ref for the interval timer to manage it across renders
+  const refreshTimer = useRef<NodeJS.Timeout | null>(null);
+
+  // Optimized smart refresh logic - only refresh when actually needed
   useEffect(() => {
     if (featuredMatches.length === 0) return;
 
     const now = new Date();
-    let refreshInterval = 300000; // Default: 5 minutes
+    let refreshInterval = 0; // Default: no automatic refresh
     let shouldRefresh = false;
 
-    // Analyze current match states to determine optimal refresh strategy
+    // Analyze current match states to determine if refresh is actually needed
     const matchAnalysis = featuredMatches.reduce(
       (analysis, dayData) => {
         dayData.matches.forEach((match) => {
@@ -2215,22 +2284,17 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           const minutesFromKickoff =
             (now.getTime() - matchDate.getTime()) / (1000 * 60);
 
-          // Categorize matches
+          // Only categorize matches that actually need updates
           if (
             ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
           ) {
             analysis.liveMatches++;
-          } else if (status === "NS") {
-            if (Math.abs(minutesFromKickoff) <= 30) {
-              analysis.imminentMatches++; // Starting within 30 minutes
-            } else if (Math.abs(minutesFromKickoff) <= 120) {
-              analysis.upcomingMatches++; // Starting within 2 hours
-            }
-
-            // Check for stale "Starting now" matches
-            if (minutesFromKickoff > 30 && minutesFromKickoff < 180) {
-              analysis.staleMatches++;
-            }
+          } else if (status === "NS" && Math.abs(minutesFromKickoff) <= 15) {
+            // Only track matches starting within 15 minutes
+            analysis.imminentMatches++;
+          } else if (status === "NS" && minutesFromKickoff > 15 && minutesFromKickoff < 120) {
+            // Matches that should have started but haven't (potential status change needed)
+            analysis.staleMatches++;
           }
         });
         return analysis;
@@ -2238,82 +2302,107 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       {
         liveMatches: 0,
         imminentMatches: 0,
-        upcomingMatches: 0,
         staleMatches: 0,
-      },
+      }
     );
 
-    // Count today's ended matches for enhanced refresh strategy
-    const todayEndedMatches = featuredMatches.reduce((count, dayData) => {
-      return count + dayData.matches.filter(match => {
-        const matchDate = new Date(match.fixture.date);
-        const matchDateString = format(matchDate, "yyyy-MM-dd");
-        const todayString = format(now, "yyyy-MM-dd");
-        const isToday = matchDateString === todayString;
-        const isEnded = ["FT", "AET", "PEN"].includes(match.fixture.status.short);
-        return isToday && isEnded;
-      }).length;
-    }, 0);
-
-    // ENHANCED refresh strategy including today's ended matches
+    // Only set up refresh for scenarios that actually need real-time updates
     if (matchAnalysis.liveMatches > 0) {
-      // Most aggressive: Live matches detected
-      refreshInterval = 15000; // 15 seconds for live matches
+      // ONLY live matches need frequent updates for scores and status changes
+      refreshInterval = 15000; // 15 seconds for live score updates
       shouldRefresh = true;
-      console.log(
-        `🔴 [MyHomeFeaturedMatchNew] ${matchAnalysis.liveMatches} live matches - using most aggressive refresh (15s)`,
-      );
-    } else if (todayEndedMatches > 0) {
-      // Aggressive for today's ended matches to get final stats
-      refreshInterval = 30000; // 30 seconds
-      shouldRefresh = true;
-      console.log(
-        `📊 [MyHomeFeaturedMatchNew] ${todayEndedMatches} today's ended matches - using aggressive refresh (30s)`,
-      );
-    } else if (matchAnalysis.staleMatches > 0) {
-      // Aggressive: Stale matches that should have updated
-      refreshInterval = 45000; // 45 seconds
-      shouldRefresh = true;
-      console.log(
-        `🟡 [MyHomeFeaturedMatchNew] ${matchAnalysis.staleMatches} stale matches detected - using aggressive refresh (45s)`,
-      );
+      console.log(`🔴 [MyHomeFeaturedMatchNew] ${matchAnalysis.liveMatches} LIVE matches - refreshing every 15s for scores/status`);
     } else if (matchAnalysis.imminentMatches > 0) {
-      // Very frequent: Matches starting within 30 minutes
-      refreshInterval = 60000; // 1 minute
+      // Matches starting very soon need updates to catch NS → LIVE transition
+      refreshInterval = 30000; // 30 seconds to catch kickoff
       shouldRefresh = true;
-      console.log(
-        `🟠 [MyHomeFeaturedMatchNew] ${matchAnalysis.imminentMatches} imminent matches - using frequent refresh (1min)`,
-      );
-    } else if (matchAnalysis.upcomingMatches > 0) {
-      // Moderate: Matches starting within 2 hours
-      refreshInterval = 120000; // 2 minutes
-      shouldRefresh = true;
-      console.log(
-        `🟢 [MyHomeFeaturedMatchNew] ${matchAnalysis.upcomingMatches} upcoming matches - using moderate refresh (2min)`,
-      );
+      console.log(`⏰ [MyHomeFeaturedMatchNew] ${matchAnalysis.imminentMatches} matches starting within 15min - refreshing every 30s`);
+    } else if (matchAnalysis.staleMatches > 0) {
+      // One-time refresh to clean up stale matches, then stop
+      console.log(`🔄 [MyHomeFeaturedMatchNew] ${matchAnalysis.staleMatches} stale matches detected - single refresh to clean up`);
+      fetchFeaturedMatches(true);
+      return; // Don't set up recurring refresh
     } else {
-      // Standard: No urgent matches
-      refreshInterval = 300000; // 5 minutes
-      shouldRefresh = false;
-      console.log(
-        `⏸️ [MyHomeFeaturedMatchNew] No urgent matches - using standard refresh (5min)`,
-      );
-    }
-
-    if (!shouldRefresh) {
-      console.log(`⭕ [MyHomeFeaturedMatchNew] No active refresh needed`);
+      // No live or imminent matches - no automatic refresh needed
+      console.log(`💤 [MyHomeFeaturedMatchNew] No live/imminent matches - automatic refresh disabled`);
+      if (refreshTimer.current) {
+        clearInterval(refreshTimer.current);
+        refreshTimer.current = null;
+      }
       return;
     }
 
-    const interval = setInterval(() => {
-      console.log(
-        `🔄 [MyHomeFeaturedMatchNew] Smart refresh triggered (interval: ${refreshInterval / 1000}s)`,
-      );
-      fetchFeaturedMatches(false); // Background refresh without loading state
+    // Clear existing timer
+    if (refreshTimer.current) {
+      clearInterval(refreshTimer.current);
+    }
+
+    // Set up refresh timer only for live/imminent matches
+    refreshTimer.current = setInterval(() => {
+      console.log(`🔄 [MyHomeFeaturedMatchNew] Targeted refresh - live: ${matchAnalysis.liveMatches}, imminent: ${matchAnalysis.imminentMatches}`);
+      fetchFeaturedMatches(true);
     }, refreshInterval);
 
-    return () => clearInterval(interval);
+    console.log(`⏰ [MyHomeFeaturedMatchNew] Optimized refresh: ${refreshInterval}ms for analysis:`, matchAnalysis);
+
+    // Cleanup
+    return () => {
+      if (refreshTimer.current) {
+        clearInterval(refreshTimer.current);
+        refreshTimer.current = null;
+      }
+    };
   }, [featuredMatches, fetchFeaturedMatches]);
+
+
+  // Navigation handlers
+  const handlePrevious = () => {
+    if (allMatches.length <= 1) return;
+    setCurrentMatchIndex(prev => (prev === 0 ? allMatches.length - 1 : prev - 1));
+  };
+
+  const handleNext = () => {
+    if (allMatches.length <= 1) return;
+    setCurrentMatchIndex(prev => (prev === allMatches.length - 1 ? 0 : prev + 1));
+  };
+
+  // Selective live updates for current match without full refresh
+  useEffect(() => {
+    if (!currentMatch || !isLiveMatch(currentMatch.fixture.status.short)) {
+      return;
+    }
+
+    console.log(`🎯 [MyHomeFeaturedMatchNew] Setting up selective updates for live match: ${currentMatch.fixture.id}`);
+
+    // Use existing selective update system for live score updates
+    const updateLiveMatch = async () => {
+      try {
+        const response = await fetch('/api/fixtures/live');
+        const liveMatches = await response.json();
+        const updatedMatch = liveMatches.find((match: any) => match.fixture.id === currentMatch.fixture.id);
+
+        if (updatedMatch) {
+          // Update only the current match in state without full refresh
+          setFeaturedMatches(prev =>
+            prev.map(dayData => ({
+              ...dayData,
+              matches: dayData.matches.map(match =>
+                match.fixture.id === currentMatch.fixture.id ? updatedMatch : match
+              )
+            }))
+          );
+          console.log(`✅ [MyHomeFeaturedMatchNew] Updated live match ${currentMatch.fixture.id} without full refresh`);
+        }
+      } catch (error) {
+        console.warn(`⚠️ [MyHomeFeaturedMatchNew] Selective update failed:`, error);
+      }
+    };
+
+    // Update every 10 seconds for live matches only
+    const liveUpdateInterval = setInterval(updateLiveMatch, 10000);
+
+    return () => clearInterval(liveUpdateInterval);
+  }, [currentMatch?.fixture.id, currentMatch?.fixture.status.short]);
 
   const formatMatchTime = (dateString: string) => {
     try {
@@ -2409,22 +2498,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       fetchRoundsForLeague(currentMatch.league.id, 2025);
     }
   }, [currentMatch, fetchRoundsForLeague, roundsCache]);
-
-  const handlePrevious = useCallback(() => {
-    if (allMatches.length > 0) {
-      setCurrentMatchIndex((prev) =>
-        prev === 0 ? allMatches.length - 1 : prev - 1,
-      );
-    }
-  }, [allMatches.length]);
-
-  const handleNext = useCallback(() => {
-    if (allMatches.length > 0) {
-      setCurrentMatchIndex((prev) =>
-        prev === allMatches.length - 1 ? 0 : prev + 1,
-      );
-    }
-  }, [allMatches.length]);
 
   // State for storing extracted logo colors
   const [teamLogoColors, setTeamLogoColors] = useState<Record<string, string>>(
