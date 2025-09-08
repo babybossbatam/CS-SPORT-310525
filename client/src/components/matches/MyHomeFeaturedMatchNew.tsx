@@ -25,6 +25,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation, useLanguage } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
+import { useSelectiveMatchUpdate } from "@/lib/selectiveMatchUpdates";
 
 import { RoundBadge } from "@/components/ui/round-badge";
 
