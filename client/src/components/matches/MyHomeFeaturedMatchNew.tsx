@@ -287,6 +287,24 @@ interface DayMatches {
   matches: FeaturedMatch[];
 }
 
+// Mock FixtureResponse for useSelectiveMatchUpdate hook
+interface FixtureResponse {
+  fixture: {
+    id: number;
+    date: string;
+    status: {
+      short: string;
+      elapsed?: number;
+    };
+  };
+  teams: {
+    home: { name: string; id: number; logo: string };
+    away: { name: string; id: number; logo: string };
+  };
+  goals: { home: number | null; away: number | null };
+  league: { id: number; name: string; country: string; logo: string };
+}
+
 const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   maxMatches = 15,
   onMatchSelect,
@@ -317,8 +335,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [featuredMatches, setFeaturedMatches] = useState<DayMatches[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState(0);
-  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
-  const [countdownTimer, setCountdownTimer] = useState<string>("Loading...");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
+  const [matchType, setMatchType] = useState<'live' | 'upcoming' | 'ended'>('upcoming');
+  const [liveScores, setLiveScores] = useState<{home: number | null, away: number | null} | null>(null);
+  const [liveStatus, setLiveStatus] = useState<string | null>(null);
+  const [forceUpdate, setForceUpdate] = useState(0);
   const [roundsCache, setRoundsCache] = useState<Record<string, string[]>>({});
   const {
     translateTeamName,
@@ -740,7 +762,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       return false;
                     }
 
-                    // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
+                    // ENHANCED: Exclude matches with conflicting data (but preserve live matches)
                     const matchDate = new Date(fixture.fixture.date);
                     const minutesFromKickoff =
                       (now.getTime() - matchDate.getTime()) / (1000 * 60);
@@ -1081,7 +1103,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       fixture.league?.id,
                     );
 
-                    // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
+                    // ENHANCED: Exclude matches with conflicting data (but preserve live matches)
                     const matchDate = new Date(fixture.fixture.date);
                     const minutesFromKickoff =
                       (now.getTime() - matchDate.getTime()) / (1000 * 60);
@@ -1360,7 +1382,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           existing.fixture.id === fixture.fixture.id,
                       );
 
-                      // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
+                      // ENHANCED: Exclude matches with conflicting data (but preserve live matches)
                       const matchDate = new Date(fixture.fixture.date);
                       const minutesFromKickoff =
                         (now.getTime() - matchDate.getTime()) / (1000 * 60);
@@ -1834,7 +1856,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   );
                   return true;
                 }
-                
+
                 // For ended matches today, use 24-hour window instead of 12
                 if (["FT", "AET", "PEN"].includes(status)) {
                   const hoursAgo = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
@@ -2166,6 +2188,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           const matchDate = new Date(match.fixture.date);
           const minutesFromKickoff =
             (now.getTime() - matchDate.getTime()) / (1000 * 60);
+          const hoursFromKickoff = minutesFromKickoff / 60;
 
           // Categorize matches
           if (
@@ -2352,8 +2375,37 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   }, [featuredMatches]);
 
   const currentMatch = useMemo(() => {
-    return allMatches[currentMatchIndex];
-  }, [allMatches, currentMatchIndex]);
+    return allMatches[currentIndex];
+  }, [allMatches, currentIndex]);
+
+  // Set up selective match updates for live matches
+  const selectiveUpdate = useSelectiveMatchUpdate(
+    currentMatch?.fixture?.id || 0,
+    currentMatch || {}
+  );
+
+  // Register for live updates
+  useEffect(() => {
+    if (!currentMatch?.fixture?.id) return;
+
+    const isLive = ['1H', '2H', 'HT', 'LIVE', 'ET', 'P'].includes(currentMatch.fixture.status.short);
+
+    if (isLive && selectiveUpdate) {
+      const unregister = selectiveUpdate.registerUpdateCallback(() => {
+        const state = selectiveUpdate.getState();
+        if (state.goals) {
+          setLiveScores(state.goals);
+        }
+        if (state.status) {
+          setLiveStatus(state.status.short);
+          setLiveElapsed(state.status.elapsed || null);
+        }
+        setForceUpdate(prev => prev + 1);
+      });
+
+      return unregister;
+    }
+  }, [currentMatch?.fixture?.id, selectiveUpdate]);
 
   // Fetch rounds data for current match league
   useEffect(() => {
@@ -2364,7 +2416,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   const handlePrevious = useCallback(() => {
     if (allMatches.length > 0) {
-      setCurrentMatchIndex((prev) =>
+      setCurrentIndex((prev) =>
         prev === 0 ? allMatches.length - 1 : prev - 1,
       );
     }
@@ -2372,7 +2424,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   const handleNext = useCallback(() => {
     if (allMatches.length > 0) {
-      setCurrentMatchIndex((prev) =>
+      setCurrentIndex((prev) =>
         prev === allMatches.length - 1 ? 0 : prev + 1,
       );
     }
@@ -2606,6 +2658,47 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     [teamLogoColors, getTeamColor],
   );
 
+  // Get match status label (Live, Upcoming, etc.)
+  const getMatchStatusLabel = () => {
+    if (!currentMatch) return '';
+
+    const { fixture } = currentMatch;
+    const currentStatus = liveStatus || fixture.status.short;
+
+    if (['1H', '2H', 'HT', 'LIVE'].includes(currentStatus)) {
+      return 'LIVE';
+    } else if (currentStatus === 'FT') {
+      return 'FINISHED';
+    } else {
+      return 'UPCOMING';
+    }
+  };
+
+  // Format match time/status display text
+  const getMatchStatusText = (match: FixtureResponse | undefined) => {
+    if (!match) return 'Match Information';
+
+    const { fixture } = match;
+    const currentStatus = liveStatus || fixture.status.short;
+    const currentElapsed = liveElapsed || fixture.status.elapsed || 0;
+
+    if (currentStatus === 'FT') {
+      return 'Full Time';
+    } else if (['1H', '2H', 'HT', 'LIVE'].includes(currentStatus)) {
+      return currentStatus === 'HT' 
+        ? 'Half Time' 
+        : `${currentElapsed}'`;
+    } else {
+      // For upcoming matches, show scheduled time
+      try {
+        const matchDate = new Date(fixture.date);
+        return format(matchDate, 'dd MMM yyyy - HH:mm');
+      } catch (e) {
+        return 'Upcoming';
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <Card className="px-0 pt-0 pb-2 relative shadow-md mb-4">
@@ -2726,7 +2819,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               <AnimatePresence mode="wait">
                 {currentMatch && (
                   <motion.div
-                    key={`match-${currentMatch.fixture.id}-${currentMatchIndex}`}
+                    key={`match-${currentMatch.fixture.id}-${currentIndex}`}
                     initial={{ x: 100, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     exit={{ x: -100, opacity: 0 }}
@@ -2851,13 +2944,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           // Live matches - show elapsed time and live score
                           if (statusInfo.isLive) {
                             const elapsed = currentMatch.fixture.status.elapsed;
-                            const homeScore = currentMatch.goals.home ?? 0;
-                            const awayScore = currentMatch.goals.away ?? 0;
+                            const homeScore = liveScores?.home ?? currentMatch?.score?.home ?? 0;
+                            const awayScore = liveScores?.away ?? currentMatch?.score?.away ?? 0;
 
                             return (
                               <div className="space-y-1">
                                 <div className="text-red-600 text-sm flex items-center justify-center gap-2">
-                                  {elapsed && (
+                                  {liveElapsed !== null && (
                                     <span
                                       className="animate-pulse"
                                       style={{
@@ -2866,10 +2959,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                       }}
                                     >
                                       {" "}
-                                      {elapsed}'
+                                      {liveElapsed}'
                                     </span>
                                   )}
-                                  {!elapsed && (
+                                  {!liveElapsed && (
                                     <span
                                       className="animate-pulse"
                                       style={{
@@ -3406,10 +3499,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             key={index}
                             onClick={(e) => {
                               e.stopPropagation();
-                              setCurrentMatchIndex(index);
+                              setCurrentIndex(index);
                             }}
                             className={`w-1 h-1 rounded-sm transition-colors ${
-                              index === currentMatchIndex
+                              index === currentIndex
                                 ? "bg-gray-500"
                                 : "bg-gray-300"
                             }`}
