@@ -595,49 +595,23 @@
 
 
 
-/* Optimized keyframe animations for smooth expand/collapse without flickering */
-@keyframes slideDown {
-  from {
-    max-height: 0;
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-
-  to {
-    max-height: 1000px;
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    max-height: 1000px;
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  to {
-    max-height: 0;
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-}
-
-/* Stable league content animation - prevents content jumping */
+/* Simplified expand/collapse without complex animations to prevent flickering */
 .country-matches-container .league-content {
   overflow: hidden;
-  transition: none;
+  transition: max-height 0.2s ease-out, opacity 0.2s ease-out;
   will-change: auto;
 }
 
 .country-matches-container .league-content.collapsed {
-  display: none;
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .country-matches-container .league-content.expanded {
-  display: block;
-  animation: slideDown 0.3s ease-out;
+  max-height: none;
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* Stable league matches container - prevents layout shifts */

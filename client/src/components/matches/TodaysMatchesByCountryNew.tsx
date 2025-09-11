@@ -1045,7 +1045,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     
     setExpandedLeagues((prev) => {
       const newExpanded = new Set(prev);
-      if (newExpanded.has(leagueKey)) {
+      const isCurrentlyExpanded = newExpanded.has(leagueKey);
+      
+      if (isCurrentlyExpanded) {
         newExpanded.delete(leagueKey);
         console.log(`🔽 [League Toggle] Collapsing league: ${leagueKey}`);
       } else {
