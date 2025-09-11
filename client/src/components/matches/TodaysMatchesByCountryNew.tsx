@@ -570,40 +570,61 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       const leagueName = fixture.league.name || "";
       if (leagueName.toLowerCase().includes('test')) return;
 
-      // 🔍 DEBUG: Check for suspicious Leicester City vs Juventus match
+      // 🔍 ENHANCED DATA VALIDATION: Filter out incorrectly classified matches
       const homeTeam = fixture.teams?.home?.name || "";
       const awayTeam = fixture.teams?.away?.name || "";
-      const isLeicesterJuventusMatch = 
-        (homeTeam.toLowerCase().includes('leicester') && awayTeam.toLowerCase().includes('juventus')) ||
-        (homeTeam.toLowerCase().includes('juventus') && awayTeam.toLowerCase().includes('leicester'));
+      
+      // Check for data inconsistencies that should be excluded
+      const isDataInconsistent = () => {
+        // Premier League should only be in England, not World
+        if (leagueName.toLowerCase().includes('premier league') && country === "World") {
+          console.warn(`🚨 [DATA VALIDATION] Excluding incorrectly classified Premier League match in World country:`, {
+            fixtureId: fixture.fixture.id,
+            homeTeam,
+            awayTeam,
+            leagueName,
+            country
+          });
+          return true;
+        }
 
-      if (isLeicesterJuventusMatch) {
-        const debugInfo = {
-          fixtureId: fixture.fixture.id,
-          homeTeam,
-          awayTeam,
-          leagueName: fixture.league.name,
-          leagueId: fixture.league.id,
-          leagueCountry: fixture.league.country,
-          fixtureDate: fixture.fixture.date,
-          status: fixture.fixture.status?.short,
-          rawFixture: fixture
-        };
-        console.error(`🚨 [SUSPICIOUS MATCH DEBUG] Leicester City vs Juventus found:`, debugInfo);
-        suspiciousMatches.push(debugInfo);
-      }
+        // Leicester City vs Juventus should never be Premier League (they're from different countries)
+        const isLeicesterJuventusMatch = 
+          (homeTeam.toLowerCase().includes('leicester') && awayTeam.toLowerCase().includes('juventus')) ||
+          (homeTeam.toLowerCase().includes('juventus') && awayTeam.toLowerCase().includes('leicester'));
+        
+        if (isLeicesterJuventusMatch && leagueName.toLowerCase().includes('premier league')) {
+          console.warn(`🚨 [DATA VALIDATION] Excluding Leicester vs Juventus incorrectly classified as Premier League:`, {
+            fixtureId: fixture.fixture.id,
+            homeTeam,
+            awayTeam,
+            leagueName,
+            country
+          });
+          return true;
+        }
 
-      // 🔍 DEBUG: Check for Premier League matches in World country
-      if (country === "World" && leagueName.toLowerCase().includes('premier league')) {
-        console.error(`🚨 [WORLD PREMIER LEAGUE DEBUG] Premier League match in World country:`, {
-          fixtureId: fixture.fixture.id,
-          homeTeam,
-          awayTeam,
-          leagueName,
-          leagueId: fixture.league.id,
-          country,
-          rawLeague: fixture.league
-        });
+        // Check for other major league misclassifications
+        const majorLeagues = ['premier league', 'la liga', 'serie a', 'bundesliga', 'ligue 1'];
+        const isMajorLeague = majorLeagues.some(league => leagueName.toLowerCase().includes(league));
+        
+        if (isMajorLeague && country === "World") {
+          console.warn(`🚨 [DATA VALIDATION] Excluding major league incorrectly classified in World country:`, {
+            fixtureId: fixture.fixture.id,
+            homeTeam,
+            awayTeam,
+            leagueName,
+            country
+          });
+          return true;
+        }
+
+        return false;
+      };
+
+      // Skip fixtures with data inconsistencies
+      if (isDataInconsistent()) {
+        return;
       }
 
       // 🔍 DEBUG: Check for any match with Leicester City or Juventus
