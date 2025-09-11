@@ -353,18 +353,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Optimized cache configuration with shorter timeouts
+  // Improved cache configuration with better timeout and stale time handling
   const getDynamicCacheConfig = () => {
     const baseConfig = {
-      staleTime: isToday ? 15 * 1000 : 5 * 60 * 1000, // 15s for today, 5min for other dates
+      staleTime: isToday ? 30 * 1000 : 10 * 60 * 1000, // 30s for today, 10min for other dates
+      gcTime: isToday ? 5 * 60 * 1000 : 30 * 60 * 1000, // 5min for today, 30min for others
       refetchOnWindowFocus: false,
       refetchOnReconnect: isToday,
-      timeout: 8000, // 8 second timeout
-      retry: (failureCount: number, error: any) => {
-        if (error?.message?.includes('timeout')) return failureCount < 2;
-        return failureCount < (isToday ? 3 : 1);
-      },
-      retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 5000),
     };
 
     if (!isToday) {
@@ -376,11 +371,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     return {
       ...baseConfig,
-      refetchInterval: 30 * 1000, // 30 seconds for today only
+      refetchInterval: 45 * 1000, // 45 seconds for today only - less aggressive
     };
   };
 
-  // Use optimized cached query with timeout handling
+  // Use optimized cached query with extended timeout and better error handling
   const {
     data: fixtures = [],
     isLoading,
@@ -392,7 +387,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       if (!selectedDate) return [];
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // Extended to 30 seconds
 
       try {
         console.log(`🔍 [TodaysMatchesByCountryNew] Fetching for date: ${selectedDate}`);
@@ -417,7 +412,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       } catch (error: any) {
         clearTimeout(timeoutId);
         if (error.name === 'AbortError') {
-          throw new Error('Request timeout after 8 seconds');
+          throw new Error('Request timeout after 30 seconds');
         }
         throw error;
       }
@@ -425,6 +420,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     {
       ...getDynamicCacheConfig(),
       enabled: !!selectedDate,
+      retry: (failureCount: number, error: any) => {
+        console.log(`🔄 [Retry] Attempt ${failureCount} for ${selectedDate}: ${error?.message}`);
+        if (error?.message?.includes('timeout')) return failureCount < 2;
+        return failureCount < 1;
+      },
+      retryDelay: (attemptIndex: number) => Math.min(2000 * (attemptIndex + 1), 10000),
       onError: (err: any) => {
         const errorMessage = err instanceof Error ? err.message : "Unknown error";
         console.error(`💥 [TodaysMatchesByCountryNew] Error for ${selectedDate}: ${errorMessage}`);
@@ -510,7 +511,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const [processingProgress, setProcessingProgress] = useState(0);
   const processingRef = useRef<number>(0);
 
-  // Process data in chunks to avoid blocking UI
+  // Optimized synchronous processing without artificial delays
   useEffect(() => {
     if (!fixtures?.length) {
       setProcessedCountryData({});
@@ -528,87 +529,73 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return;
     }
 
-    // Process in chunks to prevent UI blocking
-    const processChunks = async () => {
+    // Synchronous processing for faster results
+    const processData = () => {
+      setProcessingProgress(10);
       const countryMap = new Map<string, any>();
       const seenFixtures = new Set<number>();
-      const chunkSize = 100; // Process 100 fixtures at a time
       
-      setProcessingProgress(1);
-      processingRef.current++;
-      const currentProcessingId = processingRef.current;
+      console.log(`🔄 [Processing] Starting to process ${fixtures.length} fixtures for ${selectedDate}`);
 
-      for (let i = 0; i < fixtures.length; i += chunkSize) {
-        // Check if a newer processing task started
-        if (processingRef.current !== currentProcessingId) return;
+      for (const fixture of fixtures) {
+        if (
+          !fixture?.fixture?.id ||
+          !fixture?.teams ||
+          !fixture?.league ||
+          seenFixtures.has(fixture.fixture.id)
+        ) continue;
 
-        const chunk = fixtures.slice(i, i + chunkSize);
-        
-        // Process chunk
-        for (const fixture of chunk) {
-          if (
-            !fixture?.fixture?.id ||
-            !fixture?.teams ||
-            !fixture?.league ||
-            seenFixtures.has(fixture.fixture.id)
-          ) continue;
+        const fixtureDate = fixture.fixture.date;
+        if (!fixtureDate || !fixtureDate.startsWith(selectedDate)) continue;
 
-          const fixtureDate = fixture.fixture.date;
-          if (!fixtureDate || !fixtureDate.startsWith(selectedDate)) continue;
+        const country = fixture.league.country;
+        if (!country) continue;
 
-          const country = fixture.league.country;
-          if (!country) continue;
+        seenFixtures.add(fixture.fixture.id);
 
-          seenFixtures.add(fixture.fixture.id);
+        const leagueId = fixture.league.id;
+        const leagueName = fixture.league.name || "";
 
-          const leagueId = fixture.league.id;
-          const leagueName = fixture.league.name || "";
+        if (shouldExcludeMatchByCountry(leagueName, "", "", false, country)) continue;
 
-          if (shouldExcludeMatchByCountry(leagueName, "", "", false, country)) continue;
-
-          if (!countryMap.has(country)) {
-            countryMap.set(country, {
-              country,
-              leagues: {},
-              hasPopularLeague: false,
-            });
-          }
-
-          const countryData = countryMap.get(country);
-          if (!countryData.leagues[leagueId]) {
-            const isPopular = POPULAR_LEAGUES.includes(leagueId);
-            countryData.leagues[leagueId] = {
-              league: fixture.league,
-              matches: [],
-              isPopular,
-            };
-            if (isPopular) countryData.hasPopularLeague = true;
-          }
-
-          countryData.leagues[leagueId].matches.push(fixture);
+        if (!countryMap.has(country)) {
+          countryMap.set(country, {
+            country,
+            leagues: {},
+            hasPopularLeague: false,
+          });
         }
 
-        // Update progress
-        const progress = Math.min(((i + chunkSize) / fixtures.length) * 100, 100);
-        setProcessingProgress(progress);
+        const countryData = countryMap.get(country);
+        if (!countryData.leagues[leagueId]) {
+          const isPopular = POPULAR_LEAGUES.includes(leagueId);
+          countryData.leagues[leagueId] = {
+            league: fixture.league,
+            matches: [],
+            isPopular,
+          };
+          if (isPopular) countryData.hasPopularLeague = true;
+        }
 
-        // Yield to main thread
-        await new Promise(resolve => setTimeout(resolve, 0));
+        countryData.leagues[leagueId].matches.push(fixture);
       }
 
-      if (processingRef.current === currentProcessingId) {
-        const result = Object.fromEntries(countryMap);
-        setProcessedCountryData(result);
-        setProcessingProgress(100);
-        
-        // Cache result
-        CacheManager.setCachedData([cacheKey], result);
-        
-        console.log(`📊 [Performance] Processed ${fixtures.length} fixtures in chunks`);
-      }
+      const result = Object.fromEntries(countryMap);
+      setProcessedCountryData(result);
+      setProcessingProgress(100);
+      
+      // Cache result
+      CacheManager.setCachedData([cacheKey], result);
+      
+      console.log(`✅ [Processing] Completed processing ${fixtures.length} fixtures into ${countryMap.size} countries`);
     };
 
-    processChunks();
+    // Use requestIdleCallback if available, otherwise process immediately
+    if (window.requestIdleCallback) {
+      window.requestIdleCallback(() => processData(), { timeout: 1000 });
+    } else {
+      processData();
+    }
   }, [fixtures, selectedDate]);
 
   // Extract valid fixtures and country list from processed data
