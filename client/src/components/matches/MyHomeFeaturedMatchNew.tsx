@@ -160,7 +160,7 @@ const isPopularTeamMatch = (
 
   // Fallback to name matching
   const homeTeamLower = homeTeam.toLowerCase();
-  const awayTeamLower = awayTeam.toLowerCase();
+  const awayTeamLower = away.toLowerCase();
 
   const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(
     (popularTeam) =>
@@ -788,6 +788,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       leagueName.includes("3. liga") ||
                       leagueName.includes("3 liga");
 
+                    // Exclude Tercera División RFEF leagues (Spanish regional/lower leagues)
+                    const isTerceraRFEF = 
+                      leagueName.includes("tercera división rfef") ||
+                      leagueName.includes("tercera division rfef") ||
+                      leagueName.includes("tercera rfef");
+
                     // Check for various types of conflicting data (excluding live matches)
                     let hasConflictingData = false;
                     let conflictReason = "";
@@ -864,6 +870,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       !isOberligaLeague &&
                       !isRegionalligaLeague &&
                       !is3Liga &&
+                      !isTerceraRFEF &&
                       !isExplicitlyExcluded &&
                       !isNonLeaguePremier;
 
@@ -905,6 +912,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     } else if (is3Liga) {
                       console.log(
                         `❌ [MyHomeFeaturedMatchNew] Excluding 3. Liga league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isTerceraRFEF) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Tercera División RFEF league:`,
                         {
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
@@ -1117,7 +1132,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         !isWomensCompetition &&
                         !isOberligaLeague &&
                         !isRegionalligaLeague &&
-                        !is3Liga
+                        !is3Liga &&
+                        !isTerceraRFEF
                       );
                     }
 
@@ -1142,6 +1158,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const is3Liga =
                       leagueName.includes("3. liga") ||
                       leagueName.includes("3 liga");
+
+                    // Exclude Tercera División RFEF leagues (Spanish regional/lower leagues)
+                    const isTerceraRFEF = 
+                      leagueName.includes("tercera división rfef") ||
+                      leagueName.includes("tercera division rfef") ||
+                      leagueName.includes("tercera rfef");
 
                     // Check for various types of conflicting data (excluding live matches)
                     let hasConflictingData = false;
@@ -1284,6 +1306,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       !isOberligaLeague &&
                       !isRegionalligaLeague &&
                       !is3Liga &&
+                      !isTerceraRFEF &&
                       (isPopularLeague ||
                         isFromPopularCountry ||
                         isInternationalCompetition ||
@@ -1397,7 +1420,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           !isWomensCompetition &&
                           !isOberligaLeague &&
                           !isRegionalligaLeague &&
-                          !is3Liga
+                          !is3Liga &&
+                          !isTerceraRFEF
                         );
                       }
 
@@ -1422,6 +1446,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       const is3Liga =
                         leagueName.includes("3. liga") ||
                         leagueName.includes("3 liga");
+
+                      // Exclude Tercera División RFEF leagues (Spanish regional/lower leagues)
+                      const isTerceraRFEF = 
+                        leagueName.includes("tercera división rfef") ||
+                        leagueName.includes("tercera division rfef") ||
+                        leagueName.includes("tercera rfef");
 
                       // Check for various types of conflicting data (excluding live matches)
                       let hasConflictingData = false;
@@ -1495,7 +1525,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         !isWomensCompetition &&
                         !isOberligaLeague &&
                         !isRegionalligaLeague &&
-                        !is3Liga
+                        !is3Liga &&
+                        !isTerceraRFEF
                       );
                     })
                     .slice(0, 5) // Limit to prevent overwhelming
@@ -1834,7 +1865,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   );
                   return true;
                 }
-                
+
                 // For ended matches today, use 24-hour window instead of 12
                 if (["FT", "AET", "PEN"].includes(status)) {
                   const hoursAgo = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
