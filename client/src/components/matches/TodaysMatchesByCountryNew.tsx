@@ -1047,8 +1047,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       const newExpanded = new Set(prev);
       if (newExpanded.has(leagueKey)) {
         newExpanded.delete(leagueKey);
+        console.log(`🔽 [League Toggle] Collapsing league: ${leagueKey}`);
       } else {
         newExpanded.add(leagueKey);
+        console.log(`🔼 [League Toggle] Expanding league: ${leagueKey}`);
       }
       return newExpanded;
     });
@@ -1592,9 +1594,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           </button>
           {isExpanded && (
             <div
-              className={`bg-gray-50 dark:bg-gray-900 border-t border-stone-200 dark:border-gray-700 league-content ${
-                isExpanded ? "expanded" : "collapsed"
-              }`}
+              className="bg-gray-50 dark:bg-gray-900 border-t border-stone-200 dark:border-gray-700 league-content expanded"
             >
               {/* Leagues content */}
               {Object.values(countryData.leagues)
@@ -1770,14 +1770,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           </button>
 
           {isLeagueExpanded && (
-            <div
-              className="space-y-0 league-matches-container"
-              style={{
-                animation: isLeagueExpanded
-                  ? "slideDown 0.3s ease-out"
-                  : "slideUp 0.3s ease-out",
-              }}
-            >
+            <div className="space-y-0 league-matches-container">
               {leagueData.matches.map((match: any, matchIndex: number) => {
                 // Check if match is hidden - use more efficient lookup
                 if (hiddenMatches.has(match.fixture.id)) {

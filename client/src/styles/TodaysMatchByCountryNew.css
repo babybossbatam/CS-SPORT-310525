@@ -600,49 +600,51 @@
   from {
     max-height: 0;
     opacity: 0;
+    transform: translateY(-10px);
   }
 
   to {
-    max-height: 2000px;
+    max-height: 1000px;
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @keyframes slideUp {
   from {
-    max-height: 2000px;
+    max-height: 1000px;
     opacity: 1;
+    transform: translateY(0);
   }
 
   to {
     max-height: 0;
     opacity: 0;
+    transform: translateY(-10px);
   }
 }
 
 /* Stable league content animation - prevents content jumping */
 .country-matches-container .league-content {
-  transition: max-height 0.25s ease-out, opacity 0.25s ease-out;
-  transform-origin: top;
   overflow: hidden;
-  will-change: max-height, opacity;
+  transition: none;
+  will-change: auto;
 }
 
 .country-matches-container .league-content.collapsed {
-  max-height: 0;
-  opacity: 0;
+  display: none;
 }
 
 .country-matches-container .league-content.expanded {
-  max-height: 2000px;
-  opacity: 1;
+  display: block;
+  animation: slideDown 0.3s ease-out;
 }
 
 /* Stable league matches container - prevents layout shifts */
 .country-matches-container .league-matches-container {
   overflow: hidden;
-  transition: max-height 0.25s ease-out;
-  will-change: max-height;
+  transition: none;
+  will-change: auto;
 }
 
 /* Smooth chevron icon rotation without affecting layout */
