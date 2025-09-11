@@ -385,26 +385,35 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   } = useCachedQuery(
     ["all-fixtures-by-date", selectedDate],
     async () => {
-      if (!selectedDate) return [];
+      if (!selectedDate) {
+        console.log(`❌ [QUERY] No selectedDate provided`);
+        return [];
+      }
 
+      console.log(`📡 [QUERY] Fetching fixtures for ${selectedDate}`);
       const response = await apiRequest(
         "GET",
         `/api/fixtures/date/${selectedDate}?all=true`,
       );
 
       if (!response.ok) {
+        console.error(`❌ [QUERY] HTTP error for ${selectedDate}:`, response.status);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      return Array.isArray(data) ? data : [];
+      const result = Array.isArray(data) ? data : [];
+      console.log(`✅ [QUERY] Received ${result.length} fixtures for ${selectedDate}`);
+      return result;
     },
     {
       ...getDynamicCacheConfig(),
       enabled: !!selectedDate,
       retry: 1, // Minimal retries for speed
       networkMode: 'offlineFirst', // Use cache first
-      onError: () => {}, // Minimal error handling for speed
+      onError: (error) => {
+        console.error(`❌ [QUERY ERROR] Failed to fetch fixtures for ${selectedDate}:`, error);
+      },
     },
   );
 
@@ -494,6 +503,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // Early return for empty data with empty structure
     if (!fixtures?.length) {
+      console.log(`⚠️ [PROCESSING] No fixtures available for ${selectedDate}, fixtures:`, fixtures);
       const emptyResult = {};
       CacheManager.setCachedData([cacheKey], emptyResult);
       return emptyResult;
@@ -507,17 +517,47 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // Ultra-fast single pass with minimal operations
     let processedCount = 0;
+    let dateFilteredCount = 0;
+    
     for (let i = 0; i < fixtures.length; i++) {
       const fixture = fixtures[i];
       
       // Ultra-fast validation
-      if (!fixture?.fixture?.id || !fixture.teams || !fixture.league || seenFixtures.has(fixture.fixture.id)) continue;
+      if (!fixture?.fixture?.id || !fixture.teams || !fixture.league || seenFixtures.has(fixture.fixture.id)) {
+        console.log(`⚠️ [PROCESSING] Skipping invalid fixture:`, {
+          hasId: !!fixture?.fixture?.id,
+          hasTeams: !!fixture.teams,
+          hasLeague: !!fixture.league,
+          isDuplicate: seenFixtures.has(fixture.fixture?.id)
+        });
+        continue;
+      }
 
-      // Quick date check (optimized string comparison)
-      if (!fixture.fixture.date?.startsWith(selectedDate)) continue;
+      // More flexible date check - handle timezone differences
+      const fixtureDate = fixture.fixture.date;
+      if (fixtureDate) {
+        const fixtureDateStr = fixtureDate.substring(0, 10); // Extract YYYY-MM-DD
+        if (fixtureDateStr !== selectedDate) {
+          // Also check if it's within 24 hours of selected date for timezone tolerance
+          const fixtureTime = new Date(fixtureDate);
+          const selectedTime = new Date(selectedDate + 'T12:00:00Z');
+          const hoursDiff = Math.abs((fixtureTime.getTime() - selectedTime.getTime()) / (1000 * 60 * 60));
+          
+          if (hoursDiff > 18) { // Allow 18 hour tolerance for timezones
+            dateFilteredCount++;
+            continue;
+          }
+        }
+      } else {
+        console.log(`⚠️ [PROCESSING] Fixture missing date:`, fixture.fixture.id);
+        continue;
+      }
 
       const country = fixture.league.country;
-      if (!country) continue;
+      if (!country) {
+        console.log(`⚠️ [PROCESSING] Fixture missing country:`, fixture.fixture.id, fixture.league);
+        continue;
+      }
 
       seenFixtures.add(fixture.fixture.id);
       processedCount++;
@@ -527,7 +567,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       const leagueName = fixture.league.name || "";
       
       // Only exclude obvious test/invalid leagues
-      if (leagueName.includes('test') || leagueName.includes('Test')) continue;
+      if (leagueName.toLowerCase().includes('test')) continue;
 
       // Get or create country data
       let countryData = countryMap.get(country);
@@ -560,10 +600,16 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Cache with longer duration for performance
     CacheManager.setCachedData([cacheKey], result);
 
-    console.log(`✅ [FAST PROCESSING] Processed ${processedCount}/${fixtures.length} fixtures into ${countryMap.size} countries`);
+    console.log(`✅ [FAST PROCESSING] Processed ${processedCount}/${fixtures.length} fixtures into ${countryMap.size} countries`, {
+      dateFiltered: dateFilteredCount,
+      selectedDate,
+      totalInput: fixtures.length,
+      processedOutput: processedCount,
+      countries: countryMap.size
+    });
     
     return result;
-  }, [fixtures?.length, selectedDate]); // Simplified dependencies
+  }, [fixtures?.length, selectedDate, fixtures]); // Include fixtures array for proper reactivity
 
   // Lightning-fast country list and fixtures extraction
   const { validFixtures, countryList } = useMemo(() => {
@@ -1150,6 +1196,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Show loading only if we're actually loading and have no data
   if (isLoading && !fixtures.length) {
+    console.log(`🔄 [LOADING] Showing loading state for ${selectedDate}`);
     return (
       <Card className="mt-4">
         <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
@@ -1187,8 +1234,42 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
+  // Debug empty state
   if (!validFixtures.length) {
-    return null; // Let parent component handle empty state
+    console.log(`❌ [EMPTY] No valid fixtures found for ${selectedDate}`, {
+      fixturesReceived: fixtures?.length || 0,
+      processedCountries: Object.keys(processedCountryData).length,
+      selectedDate,
+      isLoading,
+      error
+    });
+    
+    // Show empty state instead of returning null
+    return (
+      <Card className="mt-4">
+        <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
+          <div className="flex justify-between items-center w-full">
+            <h3
+              className="font-semibold"
+              style={{
+                fontFamily:
+                  "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                fontSize: "13.3px",
+              }}
+            >
+              {getHeaderTitle()}
+            </h3>
+          </div>
+        </CardHeader>
+        <CardContent className="p-6 text-center">
+          <div className="text-gray-500">
+            <Calendar className="h-8 w-8 mx-auto mb-2" />
+            <p>No matches found for this date</p>
+            <p className="text-sm mt-1">Try selecting a different date</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   // Format the time for display in user's local timezone
