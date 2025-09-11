@@ -287,6 +287,54 @@ interface DayMatches {
   matches: FeaturedMatch[];
 }
 
+// State for tracking recent updates and animating changes
+const [recentUpdates, setRecentUpdates] = useState({});
+const [liveMatchData, setLiveMatchData] = useState({}); // To store the latest live match data
+
+// Function to get the current state of a match, applying live updates
+const getCurrentMatchState = useCallback((match: FeaturedMatch): FeaturedMatch => {
+  const liveData = liveMatchData[match.fixture.id];
+  if (liveData) {
+    // Check if any critical fields have changed
+    const statusChanged = liveData.fixture.status.short !== match.fixture.status.short;
+    const elapsedChanged = liveData.fixture.status.elapsed !== match.fixture.status.elapsed;
+    const scoreChanged = liveData.goals.home !== match.goals.home || liveData.goals.away !== match.goals.away;
+
+    // Update state for visual feedback
+    if (statusChanged || elapsedChanged || scoreChanged) {
+      setRecentUpdates((prev) => ({
+        ...prev,
+        [match.fixture.id]: {
+          statusUpdated: statusChanged || elapsedChanged,
+          scoreUpdated: scoreChanged,
+          timestamp: Date.now(),
+        },
+      }));
+    }
+
+    // Return the live data, merging relevant fields
+    return {
+      ...match,
+      fixture: {
+        ...match.fixture,
+        status: {
+          ...match.fixture.status,
+          short: liveData.fixture.status.short,
+          long: liveData.fixture.status.long,
+          elapsed: liveData.fixture.status.elapsed,
+        },
+      },
+      goals: {
+        home: liveData.goals.home ?? match.goals.home,
+        away: liveData.goals.away ?? match.goals.away,
+      },
+      score: liveData.score ?? match.score, // Include full score object if available
+    };
+  }
+  return match; // Return original match if no live data
+}, [liveMatchData]);
+
+
 const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   maxMatches = 15,
   onMatchSelect,
@@ -300,6 +348,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       50% {
         opacity: 0.5;
       }
+    }
+    .status-updating {
+      animation: pulse-color-change 0.5s ease-in-out forwards;
+    }
+    @keyframes pulse-color-change {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.7; }
+      100% { transform: scale(1); opacity: 1; }
     }
   `;
 
@@ -465,6 +521,27 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     [getCacheKey, isMatchOldEnded],
   );
 
+  // Function to fetch live match updates
+  const fetchLiveMatchUpdates = useCallback(async () => {
+    try {
+      console.log("🔄 [MyHomeFeaturedMatchNew] Fetching live match updates...");
+      const response = await apiRequest("GET", "/api/featured-match/live?skipFilter=true");
+      const liveData = await response.json();
+
+      if (Array.isArray(liveData)) {
+        const newLiveMatchData = {};
+        liveData.forEach((match) => {
+          newLiveMatchData[match.fixture.id] = match;
+        });
+        setLiveMatchData(newLiveMatchData);
+        console.log(`✅ [MyHomeFeaturedMatchNew] Fetched ${liveData.length} live match updates.`);
+      }
+    } catch (error) {
+      console.error("❌ [MyHomeFeaturedMatchNew] Error fetching live match updates:", error);
+    }
+  }, []);
+
+
   const fetchFeaturedMatches = useCallback(
     async (forceRefresh = false) => {
       try {
@@ -521,11 +598,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   minutesFromKickoff > 30 &&
                   minutesFromKickoff < 180;
 
-                const shouldRefreshMatch = 
-                  isLive || 
-                  isTodaysMatch || 
-                  isRecentlyEndedMatch || 
-                  isUpcomingSoon || 
+                const shouldRefreshMatch =
+                  isLive ||
+                  isTodaysMatch ||
+                  isRecentlyEndedMatch ||
+                  isUpcomingSoon ||
                   isStaleStartingNow;
 
                 if (shouldRefreshMatch) {
@@ -740,7 +817,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       return false;
                     }
 
-                    // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
+                    // ENHANCED: Exclude matches with conflicting data (but preserve live matches)
                     const matchDate = new Date(fixture.fixture.date);
                     const minutesFromKickoff =
                       (now.getTime() - matchDate.getTime()) / (1000 * 60);
@@ -1081,7 +1158,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       fixture.league?.id,
                     );
 
-                    // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
+                    // ENHANCED: Exclude matches with conflicting data (but preserve live matches)
                     const matchDate = new Date(fixture.fixture.date);
                     const minutesFromKickoff =
                       (now.getTime() - matchDate.getTime()) / (1000 * 60);
@@ -1360,7 +1437,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           existing.fixture.id === fixture.fixture.id,
                       );
 
-                      // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
+                      // ENHANCED: Exclude matches with conflicting data (but preserve live matches)
                       const matchDate = new Date(fixture.fixture.date);
                       const minutesFromKickoff =
                         (now.getTime() - matchDate.getTime()) / (1000 * 60);
@@ -1834,7 +1911,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   );
                   return true;
                 }
-                
+
                 // For ended matches today, use 24-hour window instead of 12
                 if (["FT", "AET", "PEN"].includes(status)) {
                   const hoursAgo = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
@@ -2027,38 +2104,34 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           });
         }
 
-        // Only update state if data has actually changed
-        setFeaturedMatches((prevMatches) => {
-          const newMatchesString = JSON.stringify(allMatches);
-          const prevMatchesString = JSON.stringify(prevMatches);
+        // Update state with the fetched and sorted matches
+        setFeaturedMatches(allMatches);
 
-          if (newMatchesString !== prevMatchesString) {
-            return allMatches;
-          }
-          return prevMatches;
-        });
+        // If we have matches, start fetching live updates
+        if (allMatches.length > 0) {
+          fetchLiveMatchUpdates();
+        }
+
       } catch (error) {
         console.error("❌ [MyHomeFeaturedMatchNew] Error:", error);
       } finally {
         setIsLoading(false);
       }
     },
-    [maxMatches],
+    [maxMatches, featuredMatches.length, fetchLiveMatchUpdates], // Include fetchLiveMatchUpdates in dependencies
   );
 
-  // Function to clear all related caches for excluded leagues
+  // Clear caches for excluded leagues
   const clearExcludedLeaguesCaches = useCallback(() => {
     try {
-      // Clear fixture cache completely
-      fixtureCache.clearCache();
+      fixtureCache.clearCache(); // Clear fixture cache completely
 
-      // Clear all localStorage entries that might contain excluded league data
       const keys = Object.keys(localStorage);
       const excludedLeagueKeys = keys.filter(
         (key) =>
-          key.includes("848") || // UEFA Europa Conference League
-          key.includes("169") || // Regionalliga - Bayern
-          key.includes("180") || // National 2 - Group A
+          key.includes("848") ||
+          key.includes("169") ||
+          key.includes("180") ||
           key.includes("conference") ||
           key.includes("regionalliga") ||
           key.includes("bayern") ||
@@ -2068,20 +2141,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           key.startsWith("league-fixtures-") ||
           key.startsWith("featured-match-") ||
           key.startsWith("all-fixtures-by-date") ||
-          key.includes("62") || // Ligue 2
+          key.includes("62") ||
           key.includes("ligue 2") ||
           key.includes("l2"),
       );
 
       excludedLeagueKeys.forEach((key) => {
-        try {
-          localStorage.removeItem(key);
-        } catch (error) {
-          console.warn(`Failed to clear cache key: ${key}`, error);
-        }
+        try { localStorage.removeItem(key); } catch (error) { console.warn(`Failed to clear cache key: ${key}`, error); }
       });
 
-      // Clear sessionStorage as well
       const sessionKeys = Object.keys(sessionStorage);
       const sessionExcludedKeys = sessionKeys.filter(
         (key) =>
@@ -2094,20 +2162,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           key.includes("national 2") ||
           key.startsWith("league-fixtures-") ||
           key.startsWith("featured-match-") ||
-          key.includes("62") || // Ligue 2
+          key.includes("62") ||
           key.includes("ligue 2") ||
           key.includes("l2"),
       );
 
       sessionExcludedKeys.forEach((key) => {
-        try {
-          sessionStorage.removeItem(key);
-        } catch (error) {
-          console.warn(`Failed to clear session cache key: ${key}`, error);
-        }
+        try { sessionStorage.removeItem(key); } catch (error) { console.warn(`Failed to clear session cache key: ${key}`, error); }
       });
 
-      // Also clear React Query cache for these specific leagues
       if (typeof window !== "undefined" && window.queryClient) {
         try {
           window.queryClient.removeQueries({
@@ -2121,19 +2184,17 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 key.includes("regionalliga") ||
                 key.includes("bayern") ||
                 key.includes("national 2") ||
-                key.includes("62") || // Ligue 2
+                key.includes("62") ||
                 key.includes("ligue 2") ||
                 key.includes("l2")
               );
             },
           });
-        } catch (error) {
-          console.warn("Failed to clear React Query cache:", error);
-        }
+        } catch (error) { console.warn("Failed to clear React Query cache:", error); }
       }
 
       console.log(
-        `🧹 [CacheClean] Cleared ${excludedLeagueKeys.length + sessionExcludedKeys.length} cache entries for excluded leagues (UEFA Europa Conference League, Regionalliga - Bayern, National 2 - Group A, Ligue 2)`,
+        `🧹 [CacheClean] Cleared cache entries for excluded leagues`,
       );
     } catch (error) {
       console.error("Error clearing excluded leagues caches:", error);
@@ -2141,14 +2202,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   }, []);
 
   useEffect(() => {
-    // Clear caches first to ensure we don't show stale data
     clearExcludedLeaguesCaches();
-
-    // Initial fetch with force refresh after clearing caches
-    setTimeout(() => {
+    // Use setTimeout to ensure cache clearing completes before fetching
+    const timer = setTimeout(() => {
       fetchFeaturedMatches(true);
-    }, 100);
-  }, []); // Only run once on mount
+    }, 100); // Small delay
+    return () => clearTimeout(timer); // Cleanup timeout
+  }, []); // Run only once on mount
 
   // Smart cache interval management based on match states
   useEffect(() => {
@@ -2158,7 +2218,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     let refreshInterval = 300000; // Default: 5 minutes
     let shouldRefresh = false;
 
-    // Analyze current match states to determine optimal refresh strategy
     const matchAnalysis = featuredMatches.reduce(
       (analysis, dayData) => {
         dayData.matches.forEach((match) => {
@@ -2167,19 +2226,17 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           const minutesFromKickoff =
             (now.getTime() - matchDate.getTime()) / (1000 * 60);
 
-          // Categorize matches
           if (
             ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
           ) {
             analysis.liveMatches++;
           } else if (status === "NS") {
             if (Math.abs(minutesFromKickoff) <= 30) {
-              analysis.imminentMatches++; // Starting within 30 minutes
+              analysis.imminentMatches++;
             } else if (Math.abs(minutesFromKickoff) <= 120) {
-              analysis.upcomingMatches++; // Starting within 2 hours
+              analysis.upcomingMatches++;
             }
 
-            // Check for stale "Starting now" matches
             if (minutesFromKickoff > 30 && minutesFromKickoff < 180) {
               analysis.staleMatches++;
             }
@@ -2195,7 +2252,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       },
     );
 
-    // Count today's ended matches for enhanced refresh strategy
     const todayEndedMatches = featuredMatches.reduce((count, dayData) => {
       return count + dayData.matches.filter(match => {
         const matchDate = new Date(match.fixture.date);
@@ -2207,45 +2263,38 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       }).length;
     }, 0);
 
-    // ENHANCED refresh strategy including today's ended matches
     if (matchAnalysis.liveMatches > 0) {
-      // Most aggressive: Live matches detected
-      refreshInterval = 15000; // 15 seconds for live matches
+      refreshInterval = 15000;
       shouldRefresh = true;
       console.log(
         `🔴 [MyHomeFeaturedMatchNew] ${matchAnalysis.liveMatches} live matches - using most aggressive refresh (15s)`,
       );
     } else if (todayEndedMatches > 0) {
-      // Aggressive for today's ended matches to get final stats
-      refreshInterval = 30000; // 30 seconds
+      refreshInterval = 30000;
       shouldRefresh = true;
       console.log(
         `📊 [MyHomeFeaturedMatchNew] ${todayEndedMatches} today's ended matches - using aggressive refresh (30s)`,
       );
     } else if (matchAnalysis.staleMatches > 0) {
-      // Aggressive: Stale matches that should have updated
-      refreshInterval = 45000; // 45 seconds
+      refreshInterval = 45000;
       shouldRefresh = true;
       console.log(
         `🟡 [MyHomeFeaturedMatchNew] ${matchAnalysis.staleMatches} stale matches detected - using aggressive refresh (45s)`,
       );
     } else if (matchAnalysis.imminentMatches > 0) {
-      // Very frequent: Matches starting within 30 minutes
-      refreshInterval = 60000; // 1 minute
+      refreshInterval = 60000;
       shouldRefresh = true;
       console.log(
         `🟠 [MyHomeFeaturedMatchNew] ${matchAnalysis.imminentMatches} imminent matches - using frequent refresh (1min)`,
       );
     } else if (matchAnalysis.upcomingMatches > 0) {
-      // Moderate: Matches starting within 2 hours
-      refreshInterval = 120000; // 2 minutes
+      refreshInterval = 120000;
       shouldRefresh = true;
       console.log(
         `🟢 [MyHomeFeaturedMatchNew] ${matchAnalysis.upcomingMatches} upcoming matches - using moderate refresh (2min)`,
       );
     } else {
-      // Standard: No urgent matches
-      refreshInterval = 300000; // 5 minutes
+      refreshInterval = 300000;
       shouldRefresh = false;
       console.log(
         `⏸️ [MyHomeFeaturedMatchNew] No urgent matches - using standard refresh (5min)`,
@@ -2262,10 +2311,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         `🔄 [MyHomeFeaturedMatchNew] Smart refresh triggered (interval: ${refreshInterval / 1000}s)`,
       );
       fetchFeaturedMatches(false); // Background refresh without loading state
+      fetchLiveMatchUpdates(); // Also fetch live updates periodically
     }, refreshInterval);
 
     return () => clearInterval(interval);
-  }, [featuredMatches, fetchFeaturedMatches]);
+  }, [featuredMatches, fetchFeaturedMatches, fetchLiveMatchUpdates]);
 
   const formatMatchTime = (dateString: string) => {
     try {
@@ -2344,16 +2394,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     };
   };
 
-  // Memoize expensive calculations
+  // Memoize all matches for easier access
   const allMatches = useMemo(() => {
     return featuredMatches.reduce((acc, dayData) => {
       return [...acc, ...dayData.matches];
     }, [] as FeaturedMatch[]);
   }, [featuredMatches]);
 
+  // Get current match with live updates applied
   const currentMatch = useMemo(() => {
-    return allMatches[currentMatchIndex];
-  }, [allMatches, currentMatchIndex]);
+    const baseMatch = allMatches[currentMatchIndex];
+    return baseMatch ? getCurrentMatchState(baseMatch) : undefined;
+  }, [allMatches, currentMatchIndex, getCurrentMatchState]);
 
   // Fetch rounds data for current match league
   useEffect(() => {
@@ -2367,16 +2419,30 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       setCurrentMatchIndex((prev) =>
         prev === 0 ? allMatches.length - 1 : prev - 1,
       );
+      // Reset recent updates for the new match when navigating
+      if (allMatches[currentMatchIndex]) {
+        setRecentUpdates((prev) => {
+          const { [allMatches[currentMatchIndex].fixture.id]: _, ...rest } = prev;
+          return rest;
+        });
+      }
     }
-  }, [allMatches.length]);
+  }, [allMatches.length, currentMatchIndex]);
 
   const handleNext = useCallback(() => {
     if (allMatches.length > 0) {
       setCurrentMatchIndex((prev) =>
         prev === allMatches.length - 1 ? 0 : prev + 1,
       );
+      // Reset recent updates for the new match when navigating
+      if (allMatches[currentMatchIndex]) {
+        setRecentUpdates((prev) => {
+          const { [allMatches[currentMatchIndex].fixture.id]: _, ...rest } = prev;
+          return rest;
+        });
+      }
     }
-  }, [allMatches.length]);
+  }, [allMatches.length, currentMatchIndex]);
 
   // State for storing extracted logo colors
   const [teamLogoColors, setTeamLogoColors] = useState<Record<string, string>>(
@@ -2536,7 +2602,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       try {
         const targetDate = parseISO(currentMatch.fixture.date);
 
-        // Use current real time for accurate countdown
         const now = new Date();
 
         const diff = targetDate.getTime() - now.getTime();
@@ -2546,24 +2611,20 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           return;
         }
 
-        // Calculate time components
         const totalHours = Math.floor(diff / (1000 * 60 * 60));
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-        // Only show countdown if match is within 12 hours
         if (totalHours > 12) {
           setCountdownTimer("");
           return;
         }
 
-        // If more than 99 hours, show days and hours
         if (totalHours > 99) {
           const days = Math.floor(totalHours / 24);
           const remainingHours = totalHours % 24;
           setCountdownTimer(`${days}d ${remainingHours}h`);
         } else {
-          // Format with leading zeros for HH:mm:ss format
           const formattedHours = totalHours.toString().padStart(2, "0");
           const formattedMinutes = minutes.toString().padStart(2, "0");
           const formattedSeconds = seconds.toString().padStart(2, "0");
@@ -2578,13 +2639,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       }
     }
 
-    // Calculate initial time
     updateTimer();
 
-    // Set interval to update every second
     const interval = setInterval(updateTimer, 1000);
 
-    // Cleanup interval on unmount
     return () => {
       if (interval) {
         clearInterval(interval);
@@ -2594,13 +2652,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   const getEnhancedTeamColor = useCallback(
     (teamName: string, isHome: boolean = false) => {
-      // Use extracted logo color if available, otherwise fallback to team color
       const extractedColor = teamLogoColors[teamName];
       if (extractedColor) {
         return extractedColor;
       }
 
-      // Fallback to existing color extraction
       return getTeamColor(teamName, isHome);
     },
     [teamLogoColors, getTeamColor],
@@ -2624,28 +2680,23 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         </CardHeader>
         <CardContent className="pt-0">
           <div className="space-y-4">
-            {/* Match status skeleton */}
             <div className="text-center">
               <Skeleton className="h-4 w-20 mx-auto mb-2" />
               <Skeleton className="h-8 w-16 mx-auto" />
             </div>
 
-            {/* Teams display skeleton */}
             <div className="relative mt-4">
               <div className="flex relative h-[53px] rounded-md mb-8">
                 <div className="w-full h-full flex justify-between relative">
-                  {/* Home team section */}
                   <div className="flex items-center w-[45%]">
                     <Skeleton className="h-16 w-16 rounded-full" />
                     <Skeleton className="h-6 w-24 ml-4" />
                   </div>
 
-                  {/* VS section */}
                   <div className="flex items-center justify-center">
                     <Skeleton className="h-12 w-12 rounded-full" />
                   </div>
 
-                  {/* Away team section */}
                   <div className="flex items-center justify-end w-[45%]">
                     <Skeleton className="h-6 w-24 mr-4" />
                     <Skeleton className="h-16 w-16 rounded-full" />
@@ -2653,13 +2704,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </div>
               </div>
 
-              {/* Match details skeleton */}
               <div className="text-center">
                 <Skeleton className="h-4 w-64 mx-auto" />
               </div>
             </div>
 
-            {/* Action buttons skeleton */}
             <div className="flex justify-around border-t border-gray-200 pt-4">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="flex flex-col items-center">
@@ -2669,7 +2718,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               ))}
             </div>
 
-            {/* Navigation indicators skeleton */}
             <div className="flex justify-center mt-4 gap-1">
               {[1, 2, 3].map((i) => (
                 <Skeleton key={i} className="w-1.5 h-1.5 rounded-full" />
@@ -2703,7 +2751,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             </div>
           ) : (
             <div className="relative">
-              {/* Navigation arrows */}
               {allMatches.length > 1 && (
                 <>
                   <button
@@ -2722,7 +2769,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </>
               )}
 
-              {/* Single match display */}
               <AnimatePresence mode="wait">
                 {currentMatch && (
                   <motion.div
@@ -2737,7 +2783,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     }}
                     className="cursor-pointer"
                     onClick={() => {
-                      // Debug logging for league identification
                       console.log(
                         `🔍 [FEATURED MATCH DEBUG] League ID Debug:`,
                         {
@@ -2751,7 +2796,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         },
                       );
 
-                      // Call onMatchSelect if provided (for Details tab)
                       if (onMatchSelect) {
                         console.log(
                           `🎯 [MyHomeFeaturedMatchNew] Selecting match for Details tab:`,
@@ -2759,12 +2803,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         );
                         onMatchSelect(currentMatch.fixture.id);
                       } else {
-                        // Navigate to match details page if no callback provided
                         navigate(`/match/${currentMatch.fixture.id}`);
                       }
                     }}
                   >
-                    {/* League header */}
                     <div
                       className="flex items-center justify-center gap-2 mb-4 p-2"
                       onClick={() => {
@@ -2796,14 +2838,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         title={`League ID: ${currentMatch.league.id} | ${currentMatch.league.name} | ${currentMatch.league.country}`}
                       >
                         {(() => {
-                          // First try smart league translation
                           const smartTranslation =
                             smartLeagueCountryTranslation.translateLeagueName(
                               currentMatch.league.name,
                               currentLanguage,
                             );
 
-                          // If smart translation worked (different from original), use it
                           if (smartTranslation !== currentMatch.league.name) {
                             console.log(
                               `🎯 [League Translation] Smart: "${currentMatch.league.name}" → "${smartTranslation}"`,
@@ -2811,7 +2851,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             return smartTranslation;
                           }
 
-                          // Fallback to context translation
                           const contextTranslation = translateLeagueName(
                             currentMatch.league.name,
                           );
@@ -2822,7 +2861,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         })()}
                       </span>
 
-                      {/* Round/Bracket Status Display using RoundBadge component */}
                       <RoundBadge
                         leagueId={currentMatch.league.id}
                         currentRound={currentMatch.league?.round}
@@ -2831,214 +2869,200 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       />
                     </div>
 
-                    {/* Match day indicator */}
                     <div className="text-center mb-4 ">
-                      <div className="text-lg font-bold text-gray-800 dark:text-gray-200 ">
-                        {(() => {
-                          const statusInfo = getStatusDisplay(currentMatch);
-                          const matchStatus = currentMatch.fixture.status.short;
-                          const matchDate = new Date(currentMatch.fixture.date);
-                          const today = new Date();
-                          const tomorrow = addDays(today, 1);
+                      <div className={`text-lg font-bold text-gray-800 dark:text-gray-200 ${
+                        recentUpdates[currentMatch.fixture.id]?.statusUpdated ? 'status-updating' : ''
+                      }`}>{(() => {
+                        const statusInfo = getStatusDisplay(currentMatch);
+                        const matchStatus = currentMatch.fixture.status.short;
+                        const matchDate = new Date(currentMatch.fixture.date);
+                        const today = new Date();
+                        const tomorrow = addDays(today, 1);
 
-                          const matchDateString = format(
-                            matchDate,
-                            "yyyy-MM-dd",
-                          );
-                          const todayString = format(today, "yyyy-MM-dd");
-                          const tomorrowString = format(tomorrow, "yyyy-MM-dd");
+                        const matchDateString = format(
+                          matchDate,
+                          "yyyy-MM-dd",
+                        );
+                        const todayString = format(today, "yyyy-MM-dd");
+                        const tomorrowString = format(tomorrow, "yyyy-MM-dd");
 
-                          // Live matches - show elapsed time and live score
-                          if (statusInfo.isLive) {
-                            const elapsed = currentMatch.fixture.status.elapsed;
-                            const homeScore = currentMatch.goals.home ?? 0;
-                            const awayScore = currentMatch.goals.away ?? 0;
-
-                            return (
-                              <div className="space-y-1">
-                                <div className="text-red-600 text-sm flex items-center justify-center gap-2">
-                                  {elapsed && (
-                                    <span
-                                      className="animate-pulse"
-                                      style={{
-                                        animation:
-                                          "truePulse 2s infinite ease-in-out",
-                                      }}
-                                    >
-                                      {" "}
-                                      {elapsed}'
-                                    </span>
-                                  )}
-                                  {!elapsed && (
-                                    <span
-                                      className="animate-pulse"
-                                      style={{
-                                        animation:
-                                          "truePulse 2s infinite ease-in-out",
-                                      }}
-                                    >
-                                      {getMatchStatusTranslation(
-                                        "LIVE",
-                                        currentLanguage,
-                                      )}
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="text-2xl font-md">
-                                  {homeScore} - {awayScore}
-                                </div>
-                              </div>
-                            );
-                          }
-
-                          // Ended matches - show final score
-                          if (
-                            matchStatus === "FT" ||
-                            matchStatus === "AET" ||
-                            matchStatus === "PEN"
-                          ) {
-                            const homeScore = currentMatch.goals.home ?? 0;
-                            const awayScore = currentMatch.goals.away ?? 0;
-
-                            return (
-                              <div className="space-y-0">
-                                <div className="text-gray-600 dark:text-gray-400 text-sm ">
-                                  {getMatchStatusTranslation(
-                                    matchStatus,
-                                    currentLanguage,
-                                  )}
-                                </div>
-                                <div className="text-3xl font-bold">
-                                  {homeScore} - {awayScore}
-                                </div>
-                                {/* Show penalty scores if match ended in penalties */}
-                                {matchStatus === "PEN" &&
-                                  currentMatch.score?.penalty && (
-                                    <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                      {t("penalties")}:{" "}
-                                      {currentMatch.score.penalty.home} -{" "}
-                                      {currentMatch.score.penalty.away}
-                                    </div>
-                                  )}
-                              </div>
-                            );
-                          }
-
-                          // Upcoming matches - show countdown timer if within 8 hours, otherwise date
-                          const upcomingContent = (() => {
-                            // Show countdown timer if available and not empty
-                            if (
-                              countdownTimer &&
-                              countdownTimer !== "" &&
-                              countdownTimer !== "Loading..." &&
-                              countdownTimer !== "--:--:--"
-                            ) {
-                              // Check if countdown shows "Starting now" and translate it
-                              if (countdownTimer === "Starting now") {
-                                return getMatchStatusTranslation(
-                                  "NS",
-                                  currentLanguage,
-                                );
-                              }
-                              return countdownTimer;
-                            }
-
-                            // Fallback to date labeling with translations
-                            if (matchDateString === todayString) {
-                              return t("today");
-                            } else if (matchDateString === tomorrowString) {
-                              return t("tomorrow") || "Tomorrow";
-                            } else {
-                              // Calculate days difference for upcoming matches using date-only comparison
-                              const matchDateOnly = new Date(
-                                matchDate.getFullYear(),
-                                matchDate.getMonth(),
-                                matchDate.getDate(),
-                              );
-                              const todayDateOnly = new Date(
-                                today.getFullYear(),
-                                today.getMonth(),
-                                today.getDate(),
-                              );
-                              const daysDiff = Math.round(
-                                (matchDateOnly.getTime() -
-                                  todayDateOnly.getTime()) /
-                                  (1000 * 60 * 60 * 24),
-                              );
-
-                              if (daysDiff > 0 && daysDiff <= 7) {
-                                // For matches within a week, show just the number of days with translation
-                                const dayText =
-                                  daysDiff === 1
-                                    ? t("day") !== "day"
-                                      ? t("day")
-                                      : "Day"
-                                    : t("days") !== "days"
-                                      ? t("days")
-                                      : "Days";
-                                return `${daysDiff} ${dayText}`;
-                              } else if (daysDiff > 7) {
-                                // For matches more than a week away, show translated date
-                                const dayName = format(matchDate, "EEEE");
-                                const monthName = format(matchDate, "MMMM");
-                                const dayNumber = format(matchDate, "do");
-
-                                const translatedDayName = (() => {
-                                  const dayKey = dayName.toLowerCase();
-                                  return t(dayKey) !== dayKey
-                                    ? t(dayKey)
-                                    : dayName;
-                                })();
-
-                                const translatedMonthName = (() => {
-                                  const monthKey = monthName.toLowerCase();
-                                  return t(monthKey) !== monthKey
-                                    ? t(monthKey)
-                                    : monthName;
-                                })();
-
-                                return `${translatedDayName}, ${dayNumber} ${translatedMonthName}`;
-                              } else {
-                                // For past matches that aren't ended (edge case)
-                                const dayName = format(matchDate, "EEEE");
-                                const monthName = format(matchDate, "MMM");
-                                const dayNumber = format(matchDate, "d");
-
-                                const translatedDayName = (() => {
-                                  const dayKey = dayName.toLowerCase();
-                                  return t(dayKey) !== dayKey
-                                    ? t(dayKey)
-                                    : dayName;
-                                })();
-
-                                const translatedMonthName = (() => {
-                                  const monthKey = monthName.toLowerCase();
-                                  return t(monthKey) !== monthKey
-                                    ? t(monthKey)
-                                    : monthName;
-                                })();
-
-                                return `${translatedDayName}, ${translatedMonthName} ${dayNumber}`;
-                              }
-                            }
-                          })();
+                        if (statusInfo.isLive) {
+                          const elapsed = currentMatch.fixture.status.elapsed;
+                          const homeScore = currentMatch.goals.home ?? 0;
+                          const awayScore = currentMatch.goals.away ?? 0;
 
                           return (
                             <div className="space-y-1">
-                              <div className="text-sm text-gray-600 dark:text-gray-400 invisible">
-                                {/* // Hidden status placeholder to maintain spacing */}
-                                Ended
+                              <div className="text-red-600 text-sm flex items-center justify-center gap-2">
+                                {elapsed && (
+                                  <span
+                                    className="animate-pulse"
+                                    style={{
+                                      animation:
+                                        "truePulse 2s infinite ease-in-out",
+                                    }}
+                                  >
+                                    {" "}
+                                    {elapsed}'
+                                  </span>
+                                )}
+                                {!elapsed && (
+                                  <span
+                                    className="animate-pulse"
+                                    style={{
+                                      animation:
+                                        "truePulse 2s infinite ease-in-out",
+                                    }}
+                                  >
+                                    {getMatchStatusTranslation(
+                                      "LIVE",
+                                      currentLanguage,
+                                    )}
+                                  </span>
+                                )}
                               </div>
-                              <div className="text-2xl font-md min-h-[1rem] flex items-center justify-center">
-                                {upcomingContent}
+                              <div className="text-2xl font-md">
+                                {homeScore} - {awayScore}
                               </div>
                             </div>
                           );
-                        })()}
-                      </div>
+                        }
+
+                        if (
+                          matchStatus === "FT" ||
+                          matchStatus === "AET" ||
+                          matchStatus === "PEN"
+                        ) {
+                          const homeScore = currentMatch.goals.home ?? 0;
+                          const awayScore = currentMatch.goals.away ?? 0;
+
+                          return (
+                            <div className="space-y-0">
+                              <div className="text-gray-600 dark:text-gray-400 text-sm ">
+                                {getMatchStatusTranslation(
+                                  matchStatus,
+                                  currentLanguage,
+                                )}
+                              </div>
+                              <div className="text-3xl font-bold">
+                                {homeScore} - {awayScore}
+                              </div>
+                              {matchStatus === "PEN" &&
+                                currentMatch.score?.penalty && (
+                                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    {t("penalties")}:{" "}
+                                    {currentMatch.score.penalty.home} -{" "}
+                                    {currentMatch.score.penalty.away}
+                                  </div>
+                                )}
+                            </div>
+                          );
+                        }
+
+                        const upcomingContent = (() => {
+                          if (
+                            countdownTimer &&
+                            countdownTimer !== "" &&
+                            countdownTimer !== "Loading..." &&
+                            countdownTimer !== "--:--:--"
+                          ) {
+                            if (countdownTimer === "Starting now") {
+                              return getMatchStatusTranslation(
+                                "NS",
+                                currentLanguage,
+                              );
+                            }
+                            return countdownTimer;
+                          }
+
+                          if (matchDateString === todayString) {
+                            return t("today");
+                          } else if (matchDateString === tomorrowString) {
+                            return t("tomorrow") || "Tomorrow";
+                          } else {
+                            const matchDateOnly = new Date(
+                              matchDate.getFullYear(),
+                              matchDate.getMonth(),
+                              matchDate.getDate(),
+                            );
+                            const todayDateOnly = new Date(
+                              today.getFullYear(),
+                              today.getMonth(),
+                              today.getDate(),
+                            );
+                            const daysDiff = Math.round(
+                              (matchDateOnly.getTime() -
+                                todayDateOnly.getTime()) /
+                                (1000 * 60 * 60 * 24),
+                            );
+
+                            if (daysDiff > 0 && daysDiff <= 7) {
+                              const dayText =
+                                daysDiff === 1
+                                  ? t("day") !== "day"
+                                    ? t("day")
+                                    : "Day"
+                                  : t("days") !== "days"
+                                    ? t("days")
+                                    : "Days";
+                              return `${daysDiff} ${dayText}`;
+                            } else if (daysDiff > 7) {
+                              const dayName = format(matchDate, "EEEE");
+                              const monthName = format(matchDate, "MMMM");
+                              const dayNumber = format(matchDate, "do");
+
+                              const translatedDayName = (() => {
+                                const dayKey = dayName.toLowerCase();
+                                return t(dayKey) !== dayKey
+                                  ? t(dayKey)
+                                  : dayName;
+                              })();
+
+                              const translatedMonthName = (() => {
+                                const monthKey = monthName.toLowerCase();
+                                return t(monthKey) !== monthKey
+                                  ? t(monthKey)
+                                  : monthName;
+                              })();
+
+                              return `${translatedDayName}, ${dayNumber} ${translatedMonthName}`;
+                            } else {
+                              const dayName = format(matchDate, "EEEE");
+                              const monthName = format(matchDate, "MMM");
+                              const dayNumber = format(matchDate, "d");
+
+                              const translatedDayName = (() => {
+                                const dayKey = dayName.toLowerCase();
+                                return t(dayKey) !== dayKey
+                                  ? t(dayKey)
+                                  : dayName;
+                              })();
+
+                              const translatedMonthName = (() => {
+                                const monthKey = monthName.toLowerCase();
+                                return t(monthKey) !== monthKey
+                                  ? t(monthKey)
+                                  : monthName;
+                              })();
+
+                              return `${translatedDayName}, ${translatedMonthName} ${dayNumber}`;
+                            }
+                          }
+                        })();
+
+                        return (
+                          <div className="space-y-1">
+                            <div className="text-sm text-gray-600 dark:text-gray-400 invisible">
+                              Ended
+                            </div>
+                            <div className="text-2xl font-md min-h-[1rem] flex items-center justify-center">
+                              {upcomingContent}
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
 
-                    {/* Teams display using colored bar like FixedScoreboard */}
                     <div className="relative mt-2">
                       <div
                         className="flex relative h-[53px] rounded-md mb-8"
@@ -3048,8 +3072,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         style={{ cursor: "pointer" }}
                       >
                         <div className="w-full h-full flex justify-between relative">
-                          {/* Home team colored bar and logo */}
-
                           <div
                             className="h-full w-[calc(50%+20px)] ml-[25px] transition-all duration-500 ease-in-out opacity-100 relative "
                             style={{
@@ -3117,7 +3139,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             })()}
                           </div>
 
-                          {/* VS circle */}
                           <div
                             className="absolute text-white font-md text-3xl  h-[52px] w-[52px] flex items-center justify-center z-30 overflow-hidden"
                             style={{
@@ -3130,7 +3151,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             <span className="vs-text font-bold">VS</span>
                           </div>
 
-                          {/* Match date and venue - centered below VS */}
                           <div
                             className=" absolute text-center text-xs text-black dark:text-gray-300 font-medium"
                             style={{
@@ -3155,7 +3175,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                 const statusInfo =
                                   getStatusDisplay(currentMatch);
 
-                                // Get day name and translate it
                                 const dayName = format(matchDate, "EEEE");
                                 const translatedDayName = (() => {
                                   const dayKey = dayName.toLowerCase();
@@ -3164,7 +3183,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                     : dayName;
                                 })();
 
-                                // Get month name and translate it
                                 const monthName = format(matchDate, "MMMM");
                                 const translatedMonthName = (() => {
                                   const monthKey = monthName.toLowerCase();
@@ -3173,20 +3191,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                     : monthName;
                                 })();
 
-                                // Get day number with ordinal
                                 const dayNumber = format(matchDate, "do");
                                 const timeOnly = format(matchDate, "HH:mm");
 
-                                // Build translated date string
                                 const translatedDate = `${translatedDayName}, ${dayNumber} ${translatedMonthName}`;
 
-                                // Safely get venue with proper fallbacks - SHOW FOR ALL MATCH TYPES
                                 let displayVenue =
                                   currentMatch.fixture?.venue?.name ||
                                   currentMatch.venue?.name ||
                                   null;
 
-                                // Check if venue is missing or has placeholder values
                                 if (
                                   !displayVenue ||
                                   displayVenue === "TBD" ||
@@ -3196,17 +3210,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                   displayVenue === "null" ||
                                   displayVenue.trim() === ""
                                 ) {
-                                  displayVenue = null; // No valid venue found
+                                  displayVenue = null;
                                 }
 
-                                // Format venue name with proper capitalization
                                 const formattedVenue = displayVenue
                                   ? displayVenue
                                       .toLowerCase()
                                       .replace(/\b\w/g, (l) => l.toUpperCase())
                                   : null;
 
-                                // Show date, time, and venue for ALL match types (upcoming, live, ended)
                                 return (
                                   <>
                                     {translatedDate} | {timeOnly}
@@ -3225,7 +3237,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             })()}
                           </div>
 
-                          {/* Away team colored bar and logo */}
                           <div
                             className="h-full w-[calc(50%+16px)] mr-[45px] transition-all duration-500 ease-in-out opacity-100"
                             style={{
@@ -3295,7 +3306,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       </div>
                     </div>
 
-                    {/* Action Buttons */}
                     <div className="flex justify-around border-t border-gray-200 dark:border-gray-700 pt-4 mt-20">
                       <button
                         className="flex flex-col items-center cursor-pointer"
@@ -3398,7 +3408,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       </button>
                     </div>
 
-                    {/* Slide indicators */}
                     {allMatches.length > 1 && (
                       <div className="flex justify-center mt-4 gap-1">
                         {allMatches.map((_, index) => (
