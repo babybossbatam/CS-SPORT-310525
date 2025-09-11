@@ -673,7 +673,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       if (chunkIndex % 5 === 0 && chunkIndex > 0) {
         // Use scheduler if available, otherwise setTimeout
         if (typeof scheduler !== 'undefined' && scheduler.postTask) {
-          await scheduler.postTask(() => {}, { priority: 'background' });
+          scheduler.postTask(() => {}, { priority: 'background' });
         }
       }
     }
