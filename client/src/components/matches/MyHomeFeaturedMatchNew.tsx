@@ -160,7 +160,7 @@ const isPopularTeamMatch = (
 
   // Fallback to name matching
   const homeTeamLower = homeTeam.toLowerCase();
-  const awayTeamLower = away.toLowerCase();
+  const awayTeamLower = awayTeam.toLowerCase();
 
   const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(
     (popularTeam) =>
@@ -799,6 +799,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       leagueName.includes("segunda division rfef") ||
                       leagueName.includes("segunda rfef");
 
+                    // Exclude Serie D leagues (Italian regional/lower leagues)
+                    const isSerieD = 
+                      leagueName.includes("serie d") ||
+                      leagueName.includes("serie d -") ||
+                      leagueName.includes("serie d girone");
+
+                    // Exclude Primera División RFEF leagues (Spanish regional/lower leagues)
+                    const isPrimeraRFEF = 
+                      leagueName.includes("primera división rfef") ||
+                      leagueName.includes("primera division rfef") ||
+                      leagueName.includes("primera rfef");
+
                     // Check for various types of conflicting data (excluding live matches)
                     let hasConflictingData = false;
                     let conflictReason = "";
@@ -877,6 +889,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       !is3Liga &&
                       !isTerceraRFEF &&
                       !isSegundaRFEF &&
+                      !isSerieD &&
+                      !isPrimeraRFEF &&
                       !isExplicitlyExcluded &&
                       !isNonLeaguePremier;
 
@@ -934,6 +948,22 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     } else if (isSegundaRFEF) {
                       console.log(
                         `❌ [MyHomeFeaturedMatchNew] Excluding Segunda División RFEF league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isSerieD) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Serie D league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isPrimeraRFEF) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Primera División RFEF league:`,
                         {
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
@@ -1148,7 +1178,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         !isRegionalligaLeague &&
                         !is3Liga &&
                         !isTerceraRFEF &&
-                        !isSegundaRFEF
+                        !isSegundaRFEF &&
+                        !isSerieD &&
+                        !isPrimeraRFEF
                       );
                     }
 
@@ -1184,6 +1216,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       leagueName.includes("segunda división rfef") ||
                       leagueName.includes("segunda division rfef") ||
                       leagueName.includes("segunda rfef");
+
+                    // Exclude Serie D leagues (Italian regional/lower leagues)
+                    const isSerieD = 
+                      leagueName.includes("serie d") ||
+                      leagueName.includes("serie d -") ||
+                      leagueName.includes("serie d girone");
+
+                    // Exclude Primera División RFEF leagues (Spanish regional/lower leagues)
+                    const isPrimeraRFEF = 
+                      leagueName.includes("primera división rfef") ||
+                      leagueName.includes("primera division rfef") ||
+                      leagueName.includes("primera rfef");
 
                     // Check for various types of conflicting data (excluding live matches)
                     let hasConflictingData = false;
@@ -1328,6 +1372,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       !is3Liga &&
                       !isTerceraRFEF &&
                       !isSegundaRFEF &&
+                      !isSerieD &&
+                      !isPrimeraRFEF &&
                       (isPopularLeague ||
                         isFromPopularCountry ||
                         isInternationalCompetition ||
@@ -1443,7 +1489,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           !isRegionalligaLeague &&
                           !is3Liga &&
                           !isTerceraRFEF &&
-                          !isSegundaRFEF
+                          !isSegundaRFEF &&
+                          !isSerieD &&
+                          !isPrimeraRFEF
                         );
                       }
 
@@ -1479,6 +1527,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         leagueName.includes("segunda división rfef") ||
                         leagueName.includes("segunda division rfef") ||
                         leagueName.includes("segunda rfef");
+
+                      // Exclude Serie D leagues (Italian regional/lower leagues)
+                      const isSerieD = 
+                        leagueName.includes("serie d") ||
+                        leagueName.includes("serie d -") ||
+                        leagueName.includes("serie d girone");
+
+                      // Exclude Primera División RFEF leagues (Spanish regional/lower leagues)
+                      const isPrimeraRFEF = 
+                        leagueName.includes("primera división rfef") ||
+                        leagueName.includes("primera division rfef") ||
+                        leagueName.includes("primera rfef");
 
                       // Check for various types of conflicting data (excluding live matches)
                       let hasConflictingData = false;
@@ -1554,7 +1614,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         !isRegionalligaLeague &&
                         !is3Liga &&
                         !isTerceraRFEF &&
-                        !isSegundaRFEF
+                        !isSegundaRFEF &&
+                        !isSerieD &&
+                        !isPrimeraRFEF
                       );
                     })
                     .slice(0, 5) // Limit to prevent overwhelming
@@ -2136,6 +2198,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           key.includes("tercera") || // Tercera División RFEF
           key.includes("segunda") || // Segunda División RFEF
           key.includes("rfef") ||
+          key.includes("serie d") || // Serie D leagues
+          key.includes("primera rfef") || // Primera División RFEF leagues
           key.includes("fixtures_date") ||
           key.startsWith("ended_matches_") ||
           key.startsWith("league-fixtures-") ||
@@ -2181,6 +2245,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           key.includes("tercera") || // Tercera División RFEF
           key.includes("segunda") || // Segunda División RFEF
           key.includes("rfef") ||
+          key.includes("serie d") || // Serie D leagues
+          key.includes("primera rfef") || // Primera División RFEF leagues
           key.startsWith("league-fixtures-") ||
           key.startsWith("featured-match-"),
       );
@@ -2225,7 +2291,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 key.includes("869") || // CECAFA Club Cup
                 key.includes("tercera") || // Tercera División RFEF
                 key.includes("segunda") || // Segunda División RFEF
-                key.includes("rfef")
+                key.includes("rfef") ||
+                key.includes("serie d") || // Serie D leagues
+                key.includes("primera rfef") // Primera División RFEF leagues
               );
             },
           });
@@ -2235,7 +2303,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       }
 
       console.log(
-        `🧹 [CacheClean] Cleared cache entries for excluded leagues (UEFA Europa Conference League, Regionalliga - Bayern, National 2 - Group A, Ligue 2, etc.)`,
+        `🧹 [CacheClean] Cleared cache entries for excluded leagues (UEFA Europa Conference League, Regionalliga - Bayern, National 2 - Group A, Ligue 2, Serie D, Primera División RFEF etc.)`,
       );
     } catch (error) {
       console.error("Error clearing excluded leagues caches:", error);
