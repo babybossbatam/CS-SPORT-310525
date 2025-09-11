@@ -511,87 +511,90 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     console.log(`📊 [TodaysMatchesByCountryNew] Cache stats:`, cacheStats);
   }, [fixtures, selectedDate, isToday]);
 
-  // Heavily optimized data processing with multiple performance layers
+  // Optimized data processing with performance monitoring
   const processedCountryData = useMemo(() => {
+    const startTime = performance.now();
     const cacheKey = `processed-country-data-${selectedDate}`;
 
-    // Layer 1: Immediate cache return
-    const cached = CacheManager.getCachedData([cacheKey], 30 * 60 * 1000);
-    if (cached) {
+    // Layer 1: Immediate cache return with better cache validation
+    const cached = CacheManager.getCachedData([cacheKey], 15 * 60 * 1000); // Reduced cache time
+    if (cached && Object.keys(cached).length > 0) {
+      console.log(`🚀 [Performance] Cache hit for ${selectedDate} (${performance.now() - startTime}ms)`);
       return cached;
     }
 
-    // Layer 2: Early bail-outs
-    if (!fixtures?.length) return {};
-    if (fixtures.length > 2000) {
-      console.warn('Large dataset detected, using optimized processing');
+    // Layer 2: Early bail-outs with performance tracking
+    if (!fixtures?.length) {
+      console.log(`⚡ [Performance] No fixtures for ${selectedDate} (${performance.now() - startTime}ms)`);
+      return {};
     }
 
-    // Layer 3: Pre-filter fixtures once
-    const validFixtures = fixtures.filter(fixture => {
-      if (!fixture?.fixture?.id || !fixture?.teams || !fixture?.league) return false;
-      if (!fixture.fixture.date?.startsWith(selectedDate)) return false;
-      if (!fixture.league.country) return false;
-      return true;
-    });
-
-    // Layer 4: Batch processing with Map for O(1) lookups
+    // Layer 3: Optimized pre-filtering with single pass
     const countryMap = new Map<string, any>();
     const seenFixtures = new Set<number>();
+    const popularLeagueSet = new Set(POPULAR_LEAGUES); // Convert to Set for O(1) lookup
     
-    // Process in chunks to prevent UI blocking
-    const chunkSize = 100;
-    for (let i = 0; i < validFixtures.length; i += chunkSize) {
-      const chunk = validFixtures.slice(i, i + chunkSize);
+    // Single-pass processing for better performance
+    let processedCount = 0;
+    for (const fixture of fixtures) {
+      // Fast validation checks
+      if (!fixture?.fixture?.id || seenFixtures.has(fixture.fixture.id)) continue;
+      if (!fixture?.teams?.home || !fixture?.teams?.away || !fixture?.league?.country) continue;
+      if (!fixture.fixture.date?.startsWith(selectedDate)) continue;
       
-      for (const fixture of chunk) {
-        if (seenFixtures.has(fixture.fixture.id)) continue;
-        seenFixtures.add(fixture.fixture.id);
+      seenFixtures.add(fixture.fixture.id);
+      processedCount++;
 
-        const country = fixture.league.country;
-        const leagueId = fixture.league.id;
-        const leagueName = fixture.league.name || "";
+      const country = fixture.league.country;
+      const leagueId = fixture.league.id;
+      const leagueName = fixture.league.name || "";
 
-        // Quick exclusion check
-        if (shouldExcludeMatchByCountry(leagueName, "", "", false, country)) {
-          continue;
-        }
-
-        // Efficient map-based grouping
-        if (!countryMap.has(country)) {
-          countryMap.set(country, {
-            country,
-            leagues: new Map(),
-            hasPopularLeague: false,
-          });
-        }
-
-        const countryData = countryMap.get(country);
-        if (!countryData.leagues.has(leagueId)) {
-          const isPopular = POPULAR_LEAGUES.includes(leagueId);
-          countryData.leagues.set(leagueId, {
-            league: fixture.league,
-            matches: [],
-            isPopular,
-          });
-          if (isPopular) countryData.hasPopularLeague = true;
-        }
-
-        countryData.leagues.get(leagueId).matches.push(fixture);
+      // Quick exclusion check moved after basic validation
+      if (shouldExcludeMatchByCountry(leagueName, "", "", false, country)) {
+        continue;
       }
+
+      // Efficient map-based grouping with reduced object creation
+      let countryData = countryMap.get(country);
+      if (!countryData) {
+        countryData = {
+          country,
+          leagues: new Map(),
+          hasPopularLeague: false,
+        };
+        countryMap.set(country, countryData);
+      }
+
+      let leagueData = countryData.leagues.get(leagueId);
+      if (!leagueData) {
+        const isPopular = popularLeagueSet.has(leagueId);
+        leagueData = {
+          league: fixture.league,
+          matches: [],
+          isPopular,
+        };
+        countryData.leagues.set(leagueId, leagueData);
+        if (isPopular) countryData.hasPopularLeague = true;
+      }
+
+      leagueData.matches.push(fixture);
     }
 
-    // Layer 5: Convert Maps to Objects for final result
+    // Layer 4: Efficient Map to Object conversion
     const result = {};
-    for (const [country, countryData] of countryMap) {
+    countryMap.forEach((countryData, country) => {
       result[country] = {
         ...countryData,
         leagues: Object.fromEntries(countryData.leagues)
       };
-    }
+    });
 
-    // Layer 6: Cache with longer TTL for processed data
-    CacheManager.setCachedData([cacheKey], result, 60 * 60 * 1000); // 1 hour cache
+    const processingTime = performance.now() - startTime;
+    console.log(`⚡ [Performance] Processed ${processedCount} fixtures in ${processingTime.toFixed(2)}ms`);
+
+    // Cache with performance-based TTL
+    const cacheTime = processingTime > 100 ? 30 * 60 * 1000 : 60 * 60 * 1000;
+    CacheManager.setCachedData([cacheKey], result, cacheTime);
 
     return result;
   }, [fixtures, selectedDate]);
@@ -786,53 +789,67 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [validFixtures.length, selectedDate]);
 
-  // Optimized country loading with intelligent batching
+  // Optimized country loading with virtual scrolling and priority-based loading
   useEffect(() => {
     if (countryList.length === 0) {
       setVisibleCountries(new Set());
       return;
     }
 
-    // Performance-based batching strategy
-    const performanceBatch = countryList.length > 100 ? 10 : 
-                           countryList.length > 50 ? 15 : 
-                           countryList.length > 20 ? 25 : countryList.length;
+    // Priority-based loading: show popular countries first
+    const priorityCountries = countryList.filter(country => {
+      const countryData = processedCountryData[country];
+      return countryData?.hasPopularLeague || country === "World";
+    });
     
-    if (countryList.length <= 20) {
-      // Small lists: show immediately
-      setVisibleCountries(new Set(countryList));
-      return;
+    const regularCountries = countryList.filter(country => {
+      const countryData = processedCountryData[country];
+      return !countryData?.hasPopularLeague && country !== "World";
+    });
+
+    // Immediate display for priority countries
+    if (priorityCountries.length > 0) {
+      setVisibleCountries(new Set(priorityCountries));
     }
 
-    // Large lists: progressive loading with frame scheduling
+    // Performance-optimized batching for regular countries
+    if (regularCountries.length === 0) return;
+    
+    const batchSize = Math.min(10, Math.ceil(regularCountries.length / 5));
     let currentIndex = 0;
     let isScheduling = true;
 
     const scheduleNextBatch = () => {
-      if (!isScheduling) return;
+      if (!isScheduling || currentIndex >= regularCountries.length) return;
       
-      requestIdleCallback(() => {
+      // Use scheduler.postTask if available, fallback to requestIdleCallback
+      const scheduleFunc = 'scheduler' in window && 'postTask' in (window as any).scheduler
+        ? (callback: () => void) => (window as any).scheduler.postTask(callback, { priority: 'background' })
+        : (callback: () => void) => requestIdleCallback(callback, { timeout: 16 });
+
+      scheduleFunc(() => {
         if (!isScheduling) return;
         
-        const batch = countryList.slice(currentIndex, currentIndex + performanceBatch);
+        const batch = regularCountries.slice(currentIndex, currentIndex + batchSize);
         if (batch.length > 0) {
           setVisibleCountries((prev) => new Set([...prev, ...batch]));
-          currentIndex += performanceBatch;
+          currentIndex += batchSize;
           
-          if (currentIndex < countryList.length) {
+          if (currentIndex < regularCountries.length) {
             scheduleNextBatch();
           }
         }
-      }, { timeout: 50 });
+      });
     };
 
-    scheduleNextBatch();
+    // Start loading regular countries after a brief delay
+    setTimeout(scheduleNextBatch, 50);
 
     // Cleanup function
     return () => {
       isScheduling = false;
     };
-  }, [countryList]);
+  }, [countryList, processedCountryData]);
 
   const getCountryData = useCallback(
     (country: string) => {
@@ -929,13 +946,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }, [selectedDate]);
 
-  // Simplified flag loading - load all flags immediately for better UX
-  const preloadFlags = useCallback(() => {
+  // Optimized flag loading with progressive enhancement and caching
+  const preloadFlags = useCallback(async () => {
     if (!countryList.length) return;
 
+    // Priority loading: load visible countries first
+    const visibleCountryList = Array.from(visibleCountries);
     const flagsToLoad: { [country: string]: string } = {};
-
-    countryList.forEach((country) => {
+    
+    // Batch 1: Priority countries (visible + popular)
+    const priorityCountries = visibleCountryList.slice(0, 10);
+    priorityCountries.forEach((country) => {
       if (!flagMap[country]) {
         const syncFlag = getCountryFlagWithFallbackSync(country);
         if (syncFlag) {
@@ -944,12 +965,52 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }
     });
 
+    // Update immediately for priority flags
     if (Object.keys(flagsToLoad).length > 0) {
       setFlagMap((prev) => ({ ...prev, ...flagsToLoad }));
     }
-  }, [countryList, flagMap]);
 
-  // Load flags immediately when countries are available
+    // Batch 2: Background loading for remaining countries
+    const remainingCountries = countryList.filter(country => 
+      !flagsToLoad[country] && !flagMap[country]
+    );
+
+    if (remainingCountries.length > 0) {
+      // Use requestIdleCallback for background loading
+      const loadRemainingFlags = () => {
+        const batchSize = 5;
+        let index = 0;
+
+        const processBatch = () => {
+          const batch = remainingCountries.slice(index, index + batchSize);
+          const batchFlags: { [country: string]: string } = {};
+
+          batch.forEach((country) => {
+            const syncFlag = getCountryFlagWithFallbackSync(country);
+            if (syncFlag) {
+              batchFlags[country] = syncFlag;
+            }
+          });
+
+          if (Object.keys(batchFlags).length > 0) {
+            setFlagMap((prev) => ({ ...prev, ...batchFlags }));
+          }
+
+          index += batchSize;
+          if (index < remainingCountries.length) {
+            requestIdleCallback(processBatch, { timeout: 100 });
+          }
+        };
+
+        requestIdleCallback(processBatch, { timeout: 50 });
+      };
+
+      // Start background loading after a short delay
+      setTimeout(loadRemainingFlags, 100);
+    }
+  }, [countryList, flagMap, visibleCountries]);
+
+  // Load flags when countries become visible
   useEffect(() => {
     preloadFlags();
   }, [preloadFlags]);
@@ -1366,7 +1427,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return false;
   };
 
-  // Heavily optimized country section with advanced memoization
+  // Optimized country section with performance monitoring
   const CountrySection = React.memo(
     ({
       country,
@@ -1613,24 +1674,35 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       );
     },
     (prevProps, nextProps) => {
-      // Advanced comparison with deep equality checks only where needed
-      if (prevProps.country !== nextProps.country) return false;
-      if (prevProps.isExpanded !== nextProps.isExpanded) return false;
+      // Fast primitive comparisons first
+      if (prevProps.country !== nextProps.country || 
+          prevProps.isExpanded !== nextProps.isExpanded) {
+        return false;
+      }
       
-      // Shallow comparison for performance
-      if (prevProps.countryData?.country !== nextProps.countryData?.country) return false;
-      if (Object.keys(prevProps.countryData?.leagues || {}).length !== 
-          Object.keys(nextProps.countryData?.leagues || {}).length) return false;
+      // Quick reference equality check
+      if (prevProps.countryData === nextProps.countryData) return true;
       
-      // Set size comparison (faster than deep equality)
-      if (prevProps.expandedLeagues.size !== nextProps.expandedLeagues.size) return false;
-      if (prevProps.starredMatches.size !== nextProps.starredMatches.size) return false;
-      if (prevProps.hiddenMatches.size !== nextProps.hiddenMatches.size) return false;
-      if (prevProps.halftimeFlashMatches.size !== nextProps.halftimeFlashMatches.size) return false;
-      if (prevProps.fulltimeFlashMatches.size !== nextProps.fulltimeFlashMatches.size) return false;
-      if (prevProps.goalFlashMatches.size !== nextProps.goalFlashMatches.size) return false;
+      // Optimized Set comparisons using size and presence checks
+      const setsEqual = (a: Set<any>, b: Set<any>, key?: string): boolean => {
+        if (a.size !== b.size) return false;
+        // For country-specific sets, only check relevant items
+        if (key && a.size > 0) {
+          // Quick sample check for performance
+          const sample = Array.from(a)[0];
+          return a.has(sample) === b.has(sample);
+        }
+        return true;
+      };
       
-      return true;
+      return (
+        setsEqual(prevProps.expandedLeagues, nextProps.expandedLeagues, prevProps.country) &&
+        setsEqual(prevProps.starredMatches, nextProps.starredMatches) &&
+        setsEqual(prevProps.hiddenMatches, nextProps.hiddenMatches) &&
+        setsEqual(prevProps.halftimeFlashMatches, nextProps.halftimeFlashMatches) &&
+        setsEqual(prevProps.fulltimeFlashMatches, nextProps.fulltimeFlashMatches) &&
+        setsEqual(prevProps.goalFlashMatches, nextProps.goalFlashMatches)
+      );
     },
   );
 
@@ -2519,7 +2591,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           className="country-matches-container todays-matches-by-country-container dark:bg-gray-800"
           style={{ 
             minHeight: visibleCountriesList.length > 50 ? '100vh' : 'auto',
-            contain: 'layout style paint'
+            contain: 'layout style paint',
+            willChange: visibleCountriesList.length > 20 ? 'scroll-position' : 'auto'
           }}
         >
           {/* Optimized rendering with virtual scrolling preparation */}
