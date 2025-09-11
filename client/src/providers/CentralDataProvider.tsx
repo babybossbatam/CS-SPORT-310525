@@ -50,12 +50,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           throw new Error('No internet connection');
         }
 
-        // Set up timeout that only aborts if request is still pending - reduced to 10 seconds for faster recovery
+        // Set up timeout that only aborts if request is still pending - reduced to 15 seconds for better reliability
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 10 seconds');
+            controller.abort('Request timeout after 15 seconds');
           }
-        }, 10000);
+        }, 15000);
 
         const response = await fetch(`/api/fixtures/date/${validDate}?all=true`, {
           signal: controller.signal,
@@ -108,23 +108,47 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           timeoutId = null;
         }
 
+        // Enhanced error object handling
+        let errorMessage = 'Unknown error';
+        let errorName = 'UnknownError';
+        let isNetworkError = false;
+
+        // Handle different error types more robustly
+        if (error && typeof error === 'object') {
+          errorMessage = error.message || error.toString() || 'Unknown error';
+          errorName = error.name || 'UnknownError';
+        } else if (typeof error === 'string') {
+          errorMessage = error;
+          errorName = 'StringError';
+        }
+
+        // Classify network errors
+        isNetworkError = (
+          errorName === 'AbortError' ||
+          errorMessage.includes('Failed to fetch') ||
+          errorMessage.includes('timeout') ||
+          errorMessage.includes('network') ||
+          errorMessage.includes('Network') ||
+          errorName === 'TypeError' ||
+          errorName === 'NetworkError'
+        );
+
         // Check for cached data first for any error type
         const cachedData = queryClient.getQueryData(['central-date-fixtures', validDate]);
 
-        if (error.name === 'AbortError') {
-          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate} after 10 seconds`);
-        } else if (error.message === 'Failed to fetch') {
+        if (errorName === 'AbortError' || errorMessage.includes('timeout')) {
+          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate} after 15 seconds`);
+        } else if (errorMessage.includes('Failed to fetch')) {
           console.warn(`🌐 [CentralDataProvider] Network error for ${validDate}: Server unreachable or connection lost`);
-        } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
-          console.warn(`🔌 [CentralDataProvider] Fetch API error for ${validDate}: ${error.message}`);
-        } else if (error.message?.includes('timeout')) {
-          console.warn(`⏰ [CentralDataProvider] Network timeout for ${validDate}: ${error.message}`);
+        } else if (isNetworkError) {
+          console.warn(`🔌 [CentralDataProvider] Network-related error for ${validDate}: ${errorMessage}`);
         } else {
           console.error(`❌ [CentralDataProvider] Unexpected error fetching fixtures for ${validDate}:`, {
-            message: error?.message || 'Unknown error',
-            name: error?.name || 'UnknownError',
+            message: errorMessage,
+            name: errorName,
             stack: error?.stack?.substring(0, 200) || 'No stack trace',
             errorType: typeof error,
+            isNetworkError,
             fullError: error
           });
         }
@@ -177,21 +201,35 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     gcTime: CACHE_DURATIONS.SIX_HOURS,
     refetchOnWindowFocus: false,
     retry: (failureCount, error: any) => {
+      // Enhanced error classification for retries
+      let errorMessage = 'Unknown error';
+      let errorName = 'UnknownError';
+
+      if (error && typeof error === 'object') {
+        errorMessage = error.message || error.toString() || 'Unknown error';
+        errorName = error.name || 'UnknownError';
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+        errorName = 'StringError';
+      }
+
       // Retry on network errors, but with more specific conditions
       const isNetworkError = (
-        error?.message === 'Failed to fetch' ||
-        error?.message?.includes('timeout') ||
-        error?.message?.includes('fetch') ||
-        error?.name === 'AbortError' ||
-        error?.name === 'TypeError' ||
+        errorMessage.includes('Failed to fetch') ||
+        errorMessage.includes('timeout') ||
+        errorMessage.includes('fetch') ||
+        errorMessage.includes('network') ||
+        errorName === 'AbortError' ||
+        errorName === 'TypeError' ||
+        errorName === 'NetworkError' ||
         error?.code === 'NETWORK_ERROR'
       );
 
-      const shouldRetry = isNetworkError && failureCount < 3; // Increased to 3 retries
+      const shouldRetry = isNetworkError && failureCount < 2; // Reduced to 2 retries for faster recovery
 
       if (shouldRetry) {
-        const delay = Math.min(1000 * Math.pow(2, failureCount), 8000); // Exponential backoff with max 8s
-        console.log(`🔄 [CentralDataProvider] Retry attempt ${failureCount + 1}/3 for ${validDate} in ${delay}ms (reason: ${error?.message || error?.name || 'unknown'})`);
+        const delay = Math.min(2000 * Math.pow(2, failureCount), 10000); // Exponential backoff with max 10s
+        console.log(`🔄 [CentralDataProvider] Retry attempt ${failureCount + 1}/2 for ${validDate} in ${delay}ms (reason: ${errorMessage || errorName || 'unknown'})`);
         return true;
       }
 

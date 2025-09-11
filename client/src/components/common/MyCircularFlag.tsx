@@ -41,7 +41,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     if (!teamName) return false;
 
     // CRITICAL: Always check the main isNationalTeam function first
-    const mainDetection = isNationalTeam({ name: teamName }, leagueContext);
+    const mainDetection = isNationalTeam({ name: teamName });
 
     // Specific check for European microstates
     const isMicrostate = ['andorra', 'san marino', 'monaco', 'liechtenstein', 'vatican city', 'malta']
@@ -55,7 +55,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
         mainDetection,
         isMicrostate,
         finalResult,
-        leagueContextName: leagueContext?.name,
         teamName
       });
     }
@@ -64,12 +63,11 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       mainDetection,
       isMicrostate,
       finalResult,
-      leagueContextName: leagueContext?.name,
       teamName
     });
 
     return finalResult;
-  }, [teamName, leagueContext]);
+  }, [teamName]);
 
   // Additional check for known club teams that should never use circular flags
   const isKnownClubTeam =
