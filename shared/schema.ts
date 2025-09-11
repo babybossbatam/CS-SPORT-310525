@@ -77,6 +77,10 @@ export const teamTranslations = pgTable("team_translations", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+export type UserPreference = typeof userPreferences.$inferSelect;
+export type NewUserPreference = typeof userPreferences.$inferInsert;
 export type LeagueTranslation = typeof leagueTranslations.$inferSelect;
 export type NewLeagueTranslation = typeof leagueTranslations.$inferInsert;
 export type CountryTranslation = typeof countryTranslations.$inferSelect;
@@ -123,10 +127,6 @@ export const newsArticles = pgTable("news_articles", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export type User = typeof users.$inferSelect;
-export type InsertUser = typeof users.$inferInsert;
-export type UserPreferences = typeof userPreferences.$inferSelect;
-export type InsertUserPreferences = typeof userPreferences.$inferInsert;
 export type CachedFixture = typeof cachedFixtures.$inferSelect;
 export type InsertCachedFixture = typeof cachedFixtures.$inferInsert;
 export type CachedLeague = typeof cachedLeagues.$inferSelect;
