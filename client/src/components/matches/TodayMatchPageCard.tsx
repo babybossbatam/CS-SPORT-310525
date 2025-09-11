@@ -494,7 +494,7 @@ export const TodayMatchPageCard = ({
             selectedDate={selectedDate}
             liveFilterActive={liveFilterActive}
             timeFilterActive={timeFilterActive}
-            onMatchCardClick={onMatchCardClick}
+            onMatchCardClick={handleMatchCardClick}
           />
 
         </>

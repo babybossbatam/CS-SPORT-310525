@@ -40,71 +40,29 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   
   console.log(`🌐 [MyMainLayout] Translation language: ${translationLanguage}`);
 
-  // Optimized UTC date filtering with memoization
+  // Simplified fixture filtering
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length || !selectedDate || selectedDate === 'undefined') {
-      console.warn('🚨 [MyMainLayout] Invalid selectedDate:', selectedDate);
+      console.warn('🚨 [MyMainLayout] Invalid data:', { fixturesLength: fixtures?.length, selectedDate });
       return [];
     }
 
-    // Performance monitoring
-    const startTime = performance.now();
-
-    console.log(
-      `🔍 [MyMainLayout UTC] Processing ${fixtures.length} fixtures for date: ${selectedDate}`,
-    );
+    console.log(`🔍 [MyMainLayout] Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
 
     const filtered = fixtures.filter((fixture) => {
-      if (fixture.fixture.date && fixture.fixture.status?.short) {
-        // Extract UTC date from fixture date (no timezone conversion)
-        const fixtureUTCDate = new Date(fixture.fixture.date);
-        const fixtureDateString = fixtureUTCDate.toISOString().split("T")[0]; // YYYY-MM-DD in UTC
-
-        // Simple UTC date matching
-        const shouldInclude = fixtureDateString === selectedDate;
-
-        if (!shouldInclude) {
-          console.log(
-            `❌ [MyMainLayout UTC FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-            {
-              fixtureUTCDate: fixture.fixture.date,
-              extractedUTCDate: fixtureDateString,
-              selectedDate,
-              status: fixture.fixture.status.short,
-              reason: "UTC date mismatch",
-            },
-          );
-          return false;
-        }
-
-        console.log(
-          `✅ [MyMainLayout UTC FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-          {
-            fixtureUTCDate: fixture.fixture.date,
-            extractedUTCDate: fixtureDateString,
-            selectedDate,
-            status: fixture.fixture.status.short,
-          },
-        );
-
-        return true;
+      if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) {
+        return false;
       }
 
-      return false;
+      // Extract UTC date from fixture date
+      const fixtureUTCDate = new Date(fixture.fixture.date);
+      const fixtureDateString = fixtureUTCDate.toISOString().split("T")[0];
+
+      return fixtureDateString === selectedDate;
     });
 
-    const endTime = performance.now();
-    const processingTime = endTime - startTime;
-
-    if (processingTime > 50) {
-      console.warn(
-        `⚠️ [MyMainLayout Performance] Filtering took ${processingTime.toFixed(2)}ms`,
-      );
-    }
-
-    console.log(
-      `✅ [MyMainLayout UTC] After UTC filtering: ${filtered.length} matches for ${selectedDate} (${processingTime.toFixed(2)}ms)`,
-    );
+    console.log(`✅ [MyMainLayout] Filtered to ${filtered.length} matches for ${selectedDate}`);
+    
     return filtered;
   }, [fixtures, selectedDate]);
 
