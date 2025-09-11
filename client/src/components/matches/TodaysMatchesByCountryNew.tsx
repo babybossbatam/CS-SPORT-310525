@@ -403,6 +403,53 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       
       console.log(`📊 [TodaysMatchesByCountryNew] Received ${result.length} fixtures for ${selectedDate}`);
       
+      // 🔍 DEBUG: Check raw API response for Leicester vs Juventus
+      const leicesterJuventusMatches = result.filter((fixture: any) => {
+        const homeTeam = fixture.teams?.home?.name || "";
+        const awayTeam = fixture.teams?.away?.name || "";
+        return (homeTeam.toLowerCase().includes('leicester') && awayTeam.toLowerCase().includes('juventus')) ||
+               (homeTeam.toLowerCase().includes('juventus') && awayTeam.toLowerCase().includes('leicester'));
+      });
+
+      if (leicesterJuventusMatches.length > 0) {
+        console.error(`🚨 [API RAW DATA DEBUG] Leicester vs Juventus found in API response:`, {
+          matchCount: leicesterJuventusMatches.length,
+          matches: leicesterJuventusMatches.map((fixture: any) => ({
+            fixtureId: fixture.fixture?.id,
+            homeTeam: fixture.teams?.home?.name,
+            awayTeam: fixture.teams?.away?.name,
+            leagueName: fixture.league?.name,
+            leagueId: fixture.league?.id,
+            leagueCountry: fixture.league?.country,
+            date: fixture.fixture?.date,
+            status: fixture.fixture?.status?.short,
+            // Log the entire fixture object to see all data
+            rawFixtureLeague: fixture.league,
+            rawFixtureTeams: fixture.teams
+          }))
+        });
+      }
+
+      // 🔍 DEBUG: Check for Premier League matches in World country from API
+      const worldPremierLeagueMatches = result.filter((fixture: any) => 
+        fixture.league?.country === "World" && 
+        fixture.league?.name?.toLowerCase().includes('premier league')
+      );
+
+      if (worldPremierLeagueMatches.length > 0) {
+        console.error(`🚨 [API WORLD PREMIER LEAGUE DEBUG] Premier League matches in World country from API:`, {
+          matchCount: worldPremierLeagueMatches.length,
+          matches: worldPremierLeagueMatches.slice(0, 5).map((fixture: any) => ({
+            fixtureId: fixture.fixture?.id,
+            homeTeam: fixture.teams?.home?.name,
+            awayTeam: fixture.teams?.away?.name,
+            leagueName: fixture.league?.name,
+            leagueId: fixture.league?.id,
+            country: fixture.league?.country
+          }))
+        });
+      }
+      
       return result;
     },
     {
@@ -504,6 +551,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     const seenFixtures = new Set<number>();
 
     let processedCount = 0;
+    const suspiciousMatches: any[] = [];
     
     fixtures.forEach((fixture) => {
       // Basic validation
@@ -521,6 +569,57 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Skip obvious test leagues
       const leagueName = fixture.league.name || "";
       if (leagueName.toLowerCase().includes('test')) return;
+
+      // 🔍 DEBUG: Check for suspicious Leicester City vs Juventus match
+      const homeTeam = fixture.teams?.home?.name || "";
+      const awayTeam = fixture.teams?.away?.name || "";
+      const isLeicesterJuventusMatch = 
+        (homeTeam.toLowerCase().includes('leicester') && awayTeam.toLowerCase().includes('juventus')) ||
+        (homeTeam.toLowerCase().includes('juventus') && awayTeam.toLowerCase().includes('leicester'));
+
+      if (isLeicesterJuventusMatch) {
+        const debugInfo = {
+          fixtureId: fixture.fixture.id,
+          homeTeam,
+          awayTeam,
+          leagueName: fixture.league.name,
+          leagueId: fixture.league.id,
+          leagueCountry: fixture.league.country,
+          fixtureDate: fixture.fixture.date,
+          status: fixture.fixture.status?.short,
+          rawFixture: fixture
+        };
+        console.error(`🚨 [SUSPICIOUS MATCH DEBUG] Leicester City vs Juventus found:`, debugInfo);
+        suspiciousMatches.push(debugInfo);
+      }
+
+      // 🔍 DEBUG: Check for Premier League matches in World country
+      if (country === "World" && leagueName.toLowerCase().includes('premier league')) {
+        console.error(`🚨 [WORLD PREMIER LEAGUE DEBUG] Premier League match in World country:`, {
+          fixtureId: fixture.fixture.id,
+          homeTeam,
+          awayTeam,
+          leagueName,
+          leagueId: fixture.league.id,
+          country,
+          rawLeague: fixture.league
+        });
+      }
+
+      // 🔍 DEBUG: Check for any match with Leicester City or Juventus
+      if (homeTeam.toLowerCase().includes('leicester') || awayTeam.toLowerCase().includes('leicester') ||
+          homeTeam.toLowerCase().includes('juventus') || awayTeam.toLowerCase().includes('juventus')) {
+        console.warn(`🔍 [TEAM DEBUG] Leicester/Juventus team found:`, {
+          fixtureId: fixture.fixture.id,
+          homeTeam,
+          awayTeam,
+          leagueName,
+          leagueId: fixture.league.id,
+          country,
+          date: fixture.fixture.date,
+          status: fixture.fixture.status?.short
+        });
+      }
 
       // Get or create country data
       if (!countryMap.has(country)) {
@@ -551,6 +650,28 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     const result = Object.fromEntries(countryMap);
     
     console.log(`✅ [TodaysMatchesByCountryNew] Processed ${processedCount} fixtures into ${countryMap.size} countries`);
+    
+    // 🔍 DEBUG: Log suspicious matches summary
+    if (suspiciousMatches.length > 0) {
+      console.error(`🚨 [SUSPICIOUS MATCHES SUMMARY] Found ${suspiciousMatches.length} Leicester vs Juventus matches:`, suspiciousMatches);
+    }
+
+    // 🔍 DEBUG: Log all countries and their leagues for World country
+    if (result["World"]) {
+      console.warn(`🌍 [WORLD COUNTRY DEBUG] World country leagues:`, {
+        totalLeagues: Object.keys(result["World"].leagues).length,
+        leagues: Object.values(result["World"].leagues).map((league: any) => ({
+          id: league.league.id,
+          name: league.league.name,
+          country: league.league.country,
+          matchCount: league.matches.length,
+          firstMatch: league.matches[0] ? {
+            home: league.matches[0].teams?.home?.name,
+            away: league.matches[0].teams?.away?.name
+          } : null
+        }))
+      });
+    }
     
     return result;
   }, [fixtures, selectedDate]);
