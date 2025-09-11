@@ -91,8 +91,7 @@ export class MemStorage implements IStorage {
     const user: User = { 
       ...insertUser, 
       id, 
-      createdAt: new Date(),
-      fullName: insertUser.fullName || null 
+      createdAt: new Date()
     };
     this.users.set(id, user);
     return user;
@@ -108,12 +107,14 @@ export class MemStorage implements IStorage {
   async createUserPreferences(insertPrefs: InsertUserPreferences): Promise<UserPreferences> {
     const id = this.prefIdCounter++;
     const prefs: UserPreferences = { 
-      ...insertPrefs, 
       id,
-      favoriteTeams: insertPrefs.favoriteTeams || [],
-      favoriteLeagues: insertPrefs.favoriteLeagues || [],
-      favoriteMatches: insertPrefs.favoriteMatches || [],
-      region: insertPrefs.region || 'global'
+      userId: insertPrefs.userId || null,
+      favoriteTeams: insertPrefs.favoriteTeams || null,
+      favoriteLeagues: insertPrefs.favoriteLeagues || null,
+      language: insertPrefs.language || null,
+      timezone: insertPrefs.timezone || null,
+      theme: insertPrefs.theme || null,
+      updatedAt: new Date()
     };
     this.preferences.set(id, prefs);
     return prefs;
@@ -238,8 +239,15 @@ export class MemStorage implements IStorage {
     const now = new Date();
     const newsArticle: NewsArticle = {
       id: this.newsArticleIdCounter++,
-      ...article,
-      publishedAt: now,
+      title: article.title,
+      content: article.content ?? null,
+      author: article.author ?? null,
+      source: article.source ?? null,
+      url: article.url ?? null,
+      imageUrl: article.imageUrl ?? null,
+      category: article.category ?? null,
+      tags: article.tags ?? null,
+      publishedAt: article.publishedAt,
       createdAt: now,
       updatedAt: now
     };
@@ -313,7 +321,6 @@ export class DatabaseStorage implements IStorage {
     try {
       const result = await db.insert(users).values({
         ...user,
-        fullName: user.fullName || null,
         createdAt: new Date()
       }).returning();
 
@@ -340,17 +347,11 @@ export class DatabaseStorage implements IStorage {
 
   async createUserPreferences(preferences: InsertUserPreferences): Promise<UserPreferences> {
     try {
-      // Ensure the arrays are properly initialized
-      const prefsToInsert = {
-        userId: preferences.userId,
-        favoriteTeams: preferences.favoriteTeams || [],
-        favoriteLeagues: preferences.favoriteLeagues || [],
-        favoriteMatches: preferences.favoriteMatches || [],
-        region: preferences.region || 'global'
-      };
-
       const result = await db.insert(userPreferences)
-        .values(prefsToInsert)
+        .values({
+          ...preferences,
+          updatedAt: new Date()
+        })
         .returning();
 
       if (!result[0]) throw new Error('Failed to create user preferences');
@@ -374,23 +375,10 @@ export class DatabaseStorage implements IStorage {
       }
 
       // Prepare the updates with proper type handling
-      const updates: Record<string, any> = {};
-
-      if (updatedFields.favoriteTeams !== undefined) {
-        updates.favoriteTeams = updatedFields.favoriteTeams || [];
-      }
-
-      if (updatedFields.favoriteLeagues !== undefined) {
-        updates.favoriteLeagues = updatedFields.favoriteLeagues || [];
-      }
-
-      if (updatedFields.favoriteMatches !== undefined) {
-        updates.favoriteMatches = updatedFields.favoriteMatches || [];
-      }
-
-      if (updatedFields.region !== undefined) {
-        updates.region = updatedFields.region || 'global';
-      }
+      const updates: Record<string, any> = {
+        ...updatedFields,
+        updatedAt: new Date()
+      };
 
       // Update preferences
       const result = await db.update(userPreferences)
@@ -465,6 +453,13 @@ export class DatabaseStorage implements IStorage {
         .values({
           ...fixture,
           timestamp: new Date()
+        })
+        .onConflictDoUpdate({
+          target: cachedFixtures.fixtureId,
+          set: {
+            data: fixture.data,
+            timestamp: new Date()
+          }
         })
         .returning();
 
