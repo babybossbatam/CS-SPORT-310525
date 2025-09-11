@@ -356,17 +356,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
         refetchOnMount: false,
+        networkMode: 'offlineFirst', // Use cache first
       };
     }
 
     // Today's matches - show cached immediately, minimal background refresh
     return {
-      staleTime: 5 * 60 * 1000, // 5 minutes fresh for today
+      staleTime: 0, // Always consider cache fresh for immediate display
       cacheTime: 60 * 60 * 1000, // 1 hour in memory
-      refetchInterval: 60 * 1000, // 1 minute background refresh (reduced from 30s)
+      refetchInterval: 30 * 1000, // Background refresh every 30s
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       refetchOnMount: false, // Don't refetch on mount - use cache
+      networkMode: 'offlineFirst', // Use cache first, then network
     };
   };
 
@@ -403,8 +405,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       ...getDynamicCacheConfig(),
       enabled: !!selectedDate,
       retry: 1, // Minimal retries for speed
-      networkMode: 'offlineFirst', // Use cache first
+      keepPreviousData: true, // Keep previous data while loading new data
       onError: () => {}, // Minimal error handling for speed
+      initialData: [], // Provide initial empty data to prevent undefined
+      placeholderData: [], // Show placeholder data immediately
     },
   );
 
@@ -1148,48 +1152,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Show loading only if we're actually loading and have no data
-  if (isLoading && !fixtures.length) {
-    return (
-      <Card className="mt-4">
-        <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
-          <div className="flex justify-between items-center w-full">
-            <h3
-              className="font-semibold"
-              style={{
-                fontFamily:
-                  "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                fontSize: "13.3px",
-              }}
-            >
-              {getHeaderTitle()}
-            </h3>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="space-y-0">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="border-b border-gray-100 last:border-b-0">
-                <div className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="w-6 h-4 rounded-sm" />
-                    <Skeleton className="h-4 w-28" />
-                    <Skeleton className="h-4 w-8" />
-                    <Skeleton className="h-5 w-12 rounded-full" />
-                  </div>
-                  <Skeleton className="h-4 w-4" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Show minimal loading only when absolutely no data is available
+  // This allows cached data to show immediately while fresh data loads in background
 
-  if (!validFixtures.length) {
-    return null; // Let parent component handle empty state
-  }
+  // Always render the component structure, even if no data yet
+  const hasData = validFixtures.length > 0;
 
   // Format the time for display in user's local timezone
   const formatMatchTime = (dateString: string | null | undefined) => {
@@ -2380,36 +2347,62 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           >
             {getHeaderTitle()}
           </h3>
+          {/* Show subtle loading indicator when loading in background */}
+          {isLoading && (
+            <div className="flex items-center text-xs text-gray-500">
+              <div className="animate-spin h-3 w-3 border border-gray-300 border-t-transparent rounded-full mr-1"></div>
+              Updating...
+            </div>
+          )}
         </div>
       </CardHeader>
-      <CardContent className="p-0 dark:bg-gray-800">
-        <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
-          {/* Use optimized visible countries list */}
-          {visibleCountriesList.map((country: string) => {
-            const countryData = getCountryData(country);
-            const isExpanded = expandedCountries.has(countryData.country);
+      <CardContent className="p-0 dark:bg-gray-800 relative">
+        {/* Show content immediately if we have data */}
+        {hasData ? (
+          <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
+            {visibleCountriesList.map((country: string) => {
+              const countryData = getCountryData(country);
+              const isExpanded = expandedCountries.has(countryData.country);
 
-            return (
-              <CountrySection
-                key={countryData.country}
-                country={countryData.country}
-                countryData={countryData}
-                isExpanded={isExpanded}
-                expandedLeagues={expandedLeagues}
-                starredMatches={starredMatches}
-                hiddenMatches={hiddenMatches}
-                halftimeFlashMatches={halftimeFlashMatches}
-                fulltimeFlashMatches={fulltimeFlashMatches}
-                goalFlashMatches={goalFlashMatches}
-                onToggleCountry={toggleCountry}
-                onToggleLeague={toggleLeague}
-                onStarMatch={toggleStarMatch}
-                onMatchClick={onMatchCardClick}
-                observeCountryElement={observeCountryElement}
-              />
-            );
-          })}
-        </div>
+              return (
+                <CountrySection
+                  key={countryData.country}
+                  country={countryData.country}
+                  countryData={countryData}
+                  isExpanded={isExpanded}
+                  expandedLeagues={expandedLeagues}
+                  starredMatches={starredMatches}
+                  hiddenMatches={hiddenMatches}
+                  halftimeFlashMatches={halftimeFlashMatches}
+                  fulltimeFlashMatches={fulltimeFlashMatches}
+                  goalFlashMatches={goalFlashMatches}
+                  onToggleCountry={toggleCountry}
+                  onToggleLeague={toggleLeague}
+                  onStarMatch={toggleStarMatch}
+                  onMatchClick={onMatchCardClick}
+                  observeCountryElement={observeCountryElement}
+                />
+              );
+            })}
+          </div>
+        ) : (
+          // Show minimal skeleton only when no data at all
+          <div className="space-y-0">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="border-b border-gray-100 last:border-b-0">
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="w-6 h-4 rounded-sm" />
+                    <Skeleton className="h-4 w-28" />
+                    <Skeleton className="h-4 w-8" />
+                    <Skeleton className="h-5 w-12 rounded-full" />
+                  </div>
+                  <Skeleton className="h-4 w-4" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
