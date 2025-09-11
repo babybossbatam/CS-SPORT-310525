@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { getCountryCode as getLibCountryCode } from "@/lib/flagUtils"; // Renamed to avoid conflict
 import {
   isNationalTeam,
@@ -36,8 +36,40 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [nextMatch, setNextMatch] = useState(nextMatchInfo);
 
-  // Check if this is a national team or club team
-  const isNational = isNationalTeam({ name: teamName });
+  // Enhanced national team detection with more comprehensive patterns and league context
+  const isNational = useMemo(() => {
+    if (!teamName) return false;
+
+    // CRITICAL: Always check the main isNationalTeam function first
+    const mainDetection = isNationalTeam({ name: teamName }, leagueContext);
+
+    // Specific check for European microstates
+    const isMicrostate = ['andorra', 'san marino', 'monaco', 'liechtenstein', 'vatican city', 'malta']
+      .includes(teamName.toLowerCase());
+
+    const finalResult = mainDetection || isMicrostate;
+
+    // Debug logging for problematic teams
+    if (teamName.toLowerCase().includes('andorra') || teamName.toLowerCase().includes('san marino')) {
+      console.log(`🚨 [MyCircularFlag] MICROSTATE DEBUG for ${teamName}:`, {
+        mainDetection,
+        isMicrostate,
+        finalResult,
+        leagueContextName: leagueContext?.name,
+        teamName
+      });
+    }
+
+    console.log(`🔍 [MyCircularFlag] National team detection for ${teamName}:`, {
+      mainDetection,
+      isMicrostate,
+      finalResult,
+      leagueContextName: leagueContext?.name,
+      teamName
+    });
+
+    return finalResult;
+  }, [teamName, leagueContext]);
 
   // Additional check for known club teams that should never use circular flags
   const isKnownClubTeam =

@@ -98,18 +98,39 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         'republic of ireland', 'northern ireland', 'faroe islands', 'kosovo', 
         'iceland', 'romania', 'moldova', 'england', 'scotland', 'wales',
         'spain', 'italy', 'france', 'germany', 'portugal', 'netherlands',
-        'belgium', 'croatia', 'poland', 'czech republic', 'slovakia'
+        'belgium', 'croatia', 'poland', 'czech republic', 'slovakia',
+        'andorra', 'san marino', 'monaco', 'liechtenstein'
       ];
       isYouthNational = knownCountries.includes(baseCountry);
     }
 
-    const finalDecision = isNational || isAdditionalNational || isYouthNational;
+    // Specific check for European microstates
+    const isMicrostate = ['andorra', 'san marino', 'monaco', 'liechtenstein', 'vatican city']
+      .includes(teamName.toLowerCase());
+
+    const finalDecision = isNational || isAdditionalNational || isYouthNational || isMicrostate;
+
+    // Additional debug for specific problematic teams
+    if (teamName.toLowerCase().includes('andorra') || teamName.toLowerCase().includes('san marino')) {
+      console.log(`🚨 [MyWorldTeamLogo] MICROSTATE DEBUG for ${teamName}:`, {
+        teamNameLower: teamName.toLowerCase(),
+        isNational,
+        isAdditionalNational,
+        isYouthNational,
+        isMicrostate: ['andorra', 'san marino', 'monaco', 'liechtenstein', 'vatican city']
+          .includes(teamName.toLowerCase()),
+        finalDecision,
+        leagueContext: leagueContext?.name
+      });
+    }
 
     console.log(`🔥 [MyWorldTeamLogo] CRITICAL DECISION for ${teamName}:`, {
       shouldUseCircularFlag: finalDecision,
       isNational,
       isAdditionalNational,
       isYouthNational,
+      isMicrostate: ['andorra', 'san marino', 'monaco', 'liechtenstein', 'vatican city']
+        .includes(teamName.toLowerCase()),
       teamId,
       logoUrl: logoUrl || `/api/team-logo/square/${teamId}?size=64&sport=${sport}`,
       leagueContext

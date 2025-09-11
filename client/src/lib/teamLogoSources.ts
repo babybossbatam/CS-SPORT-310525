@@ -108,6 +108,8 @@ export function isNationalTeam(
     'norway', 'denmark', 'iceland', 'ireland', 'wales', 'scotland', 'northern ireland',
     'switzerland', 'austria', 'luxembourg', 'liechtenstein', 'malta', 'cyprus',
     'georgia', 'gibraltar', 'gibraitar', 'armenia', 'azerbaijan', 'kazakhstan', 'uzbekistan', 'kyrgyzstan',
+    // Add missing European microstates
+    'andorra', 'san marino', 'vatican', 'monaco', 'vatican city', 'holy see',
     'tajikistan', 'turkmenistan', 'afghanistan', 'pakistan', 'india', 'bangladesh',
     'sri lanka', 'maldives', 'nepal', 'bhutan', 'myanmar', 'thailand', 'laos',
     'cambodia', 'vietnam', 'malaysia', 'singapore', 'brunei', 'philippines',
@@ -139,11 +141,14 @@ export function isNationalTeam(
   }
 
   // SPECIFIC DEBUG for problematic teams
-  if (teamName.toLowerCase().includes('gibraltar') || teamName.toLowerCase().includes('russia')) {
+  if (teamName.toLowerCase().includes('gibraltar') || teamName.toLowerCase().includes('russia') || 
+      teamName.toLowerCase().includes('andorra') || teamName.toLowerCase().includes('san marino')) {
     console.log(`🔍 [isNationalTeam] SPECIFIC DEBUG for ${teamName}:`, {
       teamNameLower: teamName.toLowerCase(),
       includesGibraltar: teamName.toLowerCase().includes('gibraltar'),
       includesRussia: teamName.toLowerCase().includes('russia'),
+      includesAndorra: teamName.toLowerCase().includes('andorra'),
+      includesSanMarino: teamName.toLowerCase().includes('san marino'),
       leagueName: leagueName,
       nationalTeamPatternsChecked: nationalTeamPatterns.filter(p => 
         teamName.toLowerCase().includes(p) || p.includes(teamName.toLowerCase())
@@ -168,12 +173,14 @@ export function isNationalTeam(
     }
   }
 
-  // Additional specific checks for youth teams that might be missed
+  // Additional specific checks for youth teams and microstates that might be missed
   const specificNationalTeams = [
     'romania u21', 'kosovo u21', 'iceland u21', 'faroe islands u21',
     'moldova u21', 'republic of ireland u21', 'northern ireland u21',
     'republic of ireland u20', 'republic of ireland u19', 'republic of ireland u17',
-    'northern ireland u20', 'northern ireland u19', 'northern ireland u17'
+    'northern ireland u20', 'northern ireland u19', 'northern ireland u17',
+    // European microstates
+    'andorra', 'san marino', 'monaco', 'vatican city', 'liechtenstein'
   ];
 
   if (specificNationalTeams.includes(teamName)) {
