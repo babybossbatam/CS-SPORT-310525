@@ -345,28 +345,24 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const today = new Date().toISOString().slice(0, 10);
   const isToday = selectedDate === today;
 
-  // Ultra-aggressive caching for immediate loading
+  // Immediate display cache configuration - show cached data instantly
   const getDynamicCacheConfig = () => {
     if (!isToday) {
-      // Historical or future dates - cache aggressively, no refetch
+      // Historical or future dates - show cached data immediately
       return {
-        staleTime: 24 * 60 * 60 * 1000, // 24 hours fresh
-        cacheTime: 48 * 60 * 60 * 1000, // 48 hours in memory
+        staleTime: 0, // Always consider data fresh to show immediately
         refetchInterval: false,
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
-        refetchOnMount: false,
       };
     }
 
-    // Today's matches - show cached immediately, minimal background refresh
+    // Today's matches - show cached data immediately, refresh in background
     return {
-      staleTime: 5 * 60 * 1000, // 5 minutes fresh for today
-      cacheTime: 60 * 60 * 1000, // 1 hour in memory
-      refetchInterval: 60 * 1000, // 1 minute background refresh (reduced from 30s)
+      staleTime: 0, // Show cached data immediately
+      refetchInterval: 30 * 1000, // 30 seconds background refresh
       refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      refetchOnMount: false, // Don't refetch on mount - use cache
+      refetchOnReconnect: true,
     };
   };
 
@@ -376,7 +372,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   );
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  // Ultra-fast cached query with immediate return
+  // Use smart cached query
   const {
     data: fixtures = [],
     isLoading,
@@ -386,6 +382,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     ["all-fixtures-by-date", selectedDate],
     async () => {
       if (!selectedDate) return [];
+
+      console.log(
+        `🔍 [TodaysMatchesByCountryNew] Smart fetch for date: ${selectedDate}`,
+      );
 
       const response = await apiRequest(
         "GET",
@@ -397,14 +397,44 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }
 
       const data = await response.json();
+
+      console.log(
+        `✅ [TodaysMatchesByCountryNew] Smart cached: ${data?.length || 0} fixtures`,
+      );
+
       return Array.isArray(data) ? data : [];
     },
     {
       ...getDynamicCacheConfig(),
       enabled: !!selectedDate,
-      retry: 1, // Minimal retries for speed
-      networkMode: 'offlineFirst', // Use cache first
-      onError: () => {}, // Minimal error handling for speed
+      retry: (failureCount, error) => {
+        // Don't retry too aggressively for historical data
+        if (!isToday) return failureCount < 2;
+        // For today's data, allow more retries
+        return failureCount < 3;
+      },
+      onError: (err: any) => {
+        const errorMessage =
+          err instanceof Error ? err.message : "Unknown error";
+
+        if (
+          errorMessage.includes("Failed to fetch") ||
+          errorMessage.includes("NetworkError")
+        ) {
+          console.warn(
+            `🌐 [TodaysMatchesByCountryNew] Network issue for date: ${selectedDate}`,
+          );
+        } else if (errorMessage.includes("timeout")) {
+          console.warn(
+            `⏱️ [TodaysMatchesByCountryNew] Request timeout for date: ${selectedDate}`,
+          );
+        } else {
+          console.error(
+            `💥 [TodaysMatchesByCountryNew] Smart cache error for date: ${selectedDate}:`,
+            err,
+          );
+        }
+      },
     },
   );
 
@@ -481,66 +511,60 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     console.log(`📊 [TodaysMatchesByCountryNew] Cache stats:`, cacheStats);
   }, [fixtures, selectedDate, isToday]);
 
-  // Ultra-fast data processing with immediate return
+  // Optimized data processing with immediate cache return
   const processedCountryData = useMemo(() => {
     const cacheKey = `processed-country-data-${selectedDate}`;
 
-    // Return cached data immediately if available (extended cache time)
-    const cached = CacheManager.getCachedData([cacheKey], 2 * 60 * 60 * 1000); // 2 hours cache
+    // Return cached data immediately if available
+    const cached = CacheManager.getCachedData([cacheKey], 30 * 60 * 1000);
     if (cached) {
-      console.log(`⚡ [IMMEDIATE CACHE HIT] Returning cached data for ${selectedDate}`);
       return cached;
     }
 
-    // Early return for empty data with empty structure
-    if (!fixtures?.length) {
-      const emptyResult = {};
-      CacheManager.setCachedData([cacheKey], emptyResult);
-      return emptyResult;
-    }
+    // Early return for empty data
+    if (!fixtures?.length) return {};
 
-    console.log(`🚀 [FAST PROCESSING] Processing ${fixtures.length} fixtures for ${selectedDate}`);
+    // Optimized processing with reduced operations
+    const countryMap = new Map<string, any>();
+    const seenFixtures = new Set<number>();
 
-    // Pre-allocate maps for better performance
-    const countryMap = new Map<string, any>(50); // Pre-allocate for ~50 countries
-    const seenFixtures = new Set<number>(fixtures.length);
+    // Single pass processing
+    for (const fixture of fixtures) {
+      // Quick validation
+      if (
+        !fixture?.fixture?.id ||
+        !fixture?.teams ||
+        !fixture?.league ||
+        seenFixtures.has(fixture.fixture.id)
+      )
+        continue;
 
-    // Ultra-fast single pass with minimal operations
-    let processedCount = 0;
-    for (let i = 0; i < fixtures.length; i++) {
-      const fixture = fixtures[i];
-      
-      // Ultra-fast validation
-      if (!fixture?.fixture?.id || !fixture.teams || !fixture.league || seenFixtures.has(fixture.fixture.id)) continue;
-
-      // Quick date check (optimized string comparison)
-      if (!fixture.fixture.date?.startsWith(selectedDate)) continue;
+      // Date validation (optimized)
+      const fixtureDate = fixture.fixture.date;
+      if (!fixtureDate || !fixtureDate.startsWith(selectedDate)) continue;
 
       const country = fixture.league.country;
       if (!country) continue;
 
       seenFixtures.add(fixture.fixture.id);
-      processedCount++;
 
-      // Skip complex exclusions for speed - only essential filtering
+      // Skip exclusions for faster processing
       const leagueId = fixture.league.id;
       const leagueName = fixture.league.name || "";
-      
-      // Only exclude obvious test/invalid leagues
-      if (leagueName.includes('test') || leagueName.includes('Test')) continue;
 
-      // Get or create country data
-      let countryData = countryMap.get(country);
-      if (!countryData) {
-        countryData = {
+      if (shouldExcludeMatchByCountry(leagueName, "", "", false, country))
+        continue;
+
+      // Build country data structure
+      if (!countryMap.has(country)) {
+        countryMap.set(country, {
           country,
           leagues: {},
           hasPopularLeague: false,
-        };
-        countryMap.set(country, countryData);
+        });
       }
 
-      // Get or create league data
+      const countryData = countryMap.get(country);
       if (!countryData.leagues[leagueId]) {
         const isPopular = POPULAR_LEAGUES.includes(leagueId);
         countryData.leagues[leagueId] = {
@@ -554,53 +578,37 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       countryData.leagues[leagueId].matches.push(fixture);
     }
 
-    // Ultra-fast conversion
+    // Convert to object
     const result = Object.fromEntries(countryMap);
 
-    // Cache with longer duration for performance
+    // Cache result
     CacheManager.setCachedData([cacheKey], result);
 
-    console.log(`✅ [FAST PROCESSING] Processed ${processedCount}/${fixtures.length} fixtures into ${countryMap.size} countries`);
-    
     return result;
-  }, [fixtures?.length, selectedDate]); // Simplified dependencies
+  }, [fixtures, selectedDate]);
 
-  // Lightning-fast country list and fixtures extraction
+  // Extract valid fixtures and country list from processed data
   const { validFixtures, countryList } = useMemo(() => {
-    const countries = Object.keys(processedCountryData);
-    
-    if (countries.length === 0) {
-      return { validFixtures: [], countryList: [] };
-    }
+    const allValidFixtures: any[] = [];
+    const countries: string[] = [];
 
-    // Pre-calculate fixtures count for performance
-    let fixtureCount = 0;
     Object.values(processedCountryData).forEach((countryData: any) => {
-      Object.values(countryData.leagues).forEach((leagueData: any) => {
-        fixtureCount += leagueData.matches.length;
-      });
+      if (countryData.country) {
+        countries.push(countryData.country);
+
+        // Extract all matches from all leagues in this country
+        Object.values(countryData.leagues).forEach((leagueData: any) => {
+          allValidFixtures.push(...leagueData.matches);
+        });
+      }
     });
 
-    // Pre-allocate arrays for better performance
-    const allValidFixtures: any[] = new Array(fixtureCount);
-    let fixtureIndex = 0;
-
-    // Ultra-fast extraction with minimal operations
-    Object.values(processedCountryData).forEach((countryData: any) => {
-      Object.values(countryData.leagues).forEach((leagueData: any) => {
-        for (let i = 0; i < leagueData.matches.length; i++) {
-          allValidFixtures[fixtureIndex++] = leagueData.matches[i];
-        }
-      });
+    // Sort countries with World first
+    const sortedCountries = countries.sort((a, b) => {
+      if (a === "World") return -1;
+      if (b === "World") return 1;
+      return a.localeCompare(b);
     });
-
-    // Optimized sorting - World first, then alphabetical
-    const sortedCountries = countries.length > 1 ? 
-      countries.sort((a, b) => {
-        if (a === "World") return -1;
-        if (b === "World") return 1;
-        return a < b ? -1 : a > b ? 1 : 0; // Faster than localeCompare
-      }) : countries;
 
     return {
       validFixtures: allValidFixtures,
@@ -608,8 +616,45 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     };
   }, [processedCountryData]);
 
-  // Simplified filtering - just use validFixtures directly
-  const filteredFixtures = validFixtures; // Already filtered in processedCountryData
+  // Cache the last filter results
+  const lastFilterCache = useRef<{
+    key: string;
+    data: any[];
+  } | null>(null);
+
+  // Memoized filtering with performance optimizations
+  const filteredFixtures = useMemo(() => {
+    if (!fixtures?.length || !selectedDate) {
+      return [];
+    }
+
+    // Early return for cached results
+    const cacheKey = `filtered_${selectedDate}_${fixtures.length}`;
+    if (
+      lastFilterCache?.current?.key === cacheKey &&
+      lastFilterCache?.current?.data
+    ) {
+      return lastFilterCache.current.data;
+    }
+
+    const filtered = fixtures.filter((fixture) => {
+      if (!fixture?.fixture?.date) {
+        return false;
+      }
+
+      const fixtureDate = new Date(fixture.fixture.date);
+      const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
+      return fixtureDateString === selectedDate;
+    });
+
+    // Update cache
+    lastFilterCache.current = {
+      key: cacheKey,
+      data: filtered,
+    };
+
+    return filtered;
+  }, [fixtures, selectedDate]);
 
   // Now validate after all hooks are called
   if (!selectedDate) {
@@ -717,26 +762,46 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, "yyyy-MM-dd");
   };
 
-  // Minimal logging for performance
+  // Simplified logging for performance
   useEffect(() => {
-    if (validFixtures.length > 0) {
-      console.log(`⚡ [INSTANT] ${validFixtures.length} fixtures loaded for ${selectedDate}`);
-    }
-  }, [validFixtures.length]);
+    if (validFixtures && validFixtures.length > 0) {
+      const liveMatches = validFixtures.filter((fixture: any) =>
+        ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+          fixture.fixture?.status?.short,
+        ),
+      );
 
-  // Show ALL countries immediately - no batching delays
+      console.log(
+        `⚡ [TodaysMatchesByCountryNew] Processed ${validFixtures.length} fixtures (${liveMatches.length} live) for ${selectedDate}`,
+      );
+    }
+  }, [validFixtures.length, selectedDate]);
+
+  // Show countries immediately with batching for large lists
   useEffect(() => {
-    if (countryList.length === 0) {
-      setVisibleCountries(new Set());
-      return;
-    }
+    if (countryList.length === 0) return;
 
-    // IMMEDIATE display - no delays or batching
-    const visibleSet = new Set(countryList);
-    setVisibleCountries(visibleSet);
-    
-    console.log(`⚡ [IMMEDIATE DISPLAY] Showing ${countryList.length} countries instantly`);
-  }, [countryList.join(',')]); // Optimized dependency
+    // For large lists, batch the updates to prevent UI blocking
+    if (countryList.length > 50) {
+      const batchSize = 20;
+      let currentIndex = 0;
+
+      const addBatch = () => {
+        const batch = countryList.slice(currentIndex, currentIndex + batchSize);
+        setVisibleCountries((prev) => new Set([...prev, ...batch]));
+        currentIndex += batchSize;
+
+        if (currentIndex < countryList.length) {
+          requestAnimationFrame(addBatch);
+        }
+      };
+
+      addBatch();
+    } else {
+      // For smaller lists, show all immediately
+      setVisibleCountries(new Set(countryList));
+    }
+  }, [countryList]);
 
   const getCountryData = useCallback(
     (country: string) => {
@@ -780,7 +845,28 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     setIsLoadingMore(false);
   }, [countryList, visibleCountries, isLoadingMore]);
 
-  // No analysis stats for maximum performance
+  // Lightweight analysis - only when needed
+  const analysisStats = useMemo(
+    () => ({
+      selectedDate,
+      totalCountries: countryList.length,
+      totalMatches: validFixtures.length,
+      visibleCountries: visibleCountries.size,
+      cachedCountries: Object.keys(processedCountryData).length,
+    }),
+    [
+      selectedDate,
+      countryList.length,
+      validFixtures.length,
+      visibleCountries.size,
+      processedCountryData,
+    ],
+  );
+
+  console.log(
+    `⚡ [TodaysMatchesByCountryNew] Lightweight Analysis:`,
+    analysisStats,
+  );
 
   // No need for heavy sorting - countries are already sorted in countryList
   const visibleCountriesList = useMemo(
@@ -788,12 +874,20 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     [countryList, Array.from(visibleCountries).join(",")],
   );
 
-  // Minimal expansion logic - no heavy operations
+  // No auto-expansion - all countries start collapsed
   useEffect(() => {
-    // Simple reset - no complex operations
+    // Start with all countries collapsed - users must manually expand
     setExpandedCountries(new Set<string>());
     setExpandedLeagues(new Set<string>());
-  }, [selectedDate]);
+
+    console.log(
+      `📦 [No Auto-expand] All ${countryList.length} countries start collapsed - manual expansion required`,
+    );
+  }, [
+    selectedDate,
+    countryList.join(","),
+    Object.keys(processedCountryData).length,
+  ]);
 
   // Invalidate processed data cache when date changes
   useEffect(() => {
@@ -804,15 +898,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }, [selectedDate]);
 
-  // Lazy flag loading - only load when needed
+  // Simplified flag loading - load all flags immediately for better UX
   const preloadFlags = useCallback(() => {
     if (!countryList.length) return;
 
-    // Only preload first 10 countries for immediate display
-    const priorityCountries = countryList.slice(0, 10);
     const flagsToLoad: { [country: string]: string } = {};
 
-    priorityCountries.forEach((country) => {
+    countryList.forEach((country) => {
       if (!flagMap[country]) {
         const syncFlag = getCountryFlagWithFallbackSync(country);
         if (syncFlag) {
@@ -824,7 +916,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     if (Object.keys(flagsToLoad).length > 0) {
       setFlagMap((prev) => ({ ...prev, ...flagsToLoad }));
     }
-  }, [countryList.slice(0, 10).join(','), Object.keys(flagMap).length]);
+  }, [countryList, flagMap]);
 
   // Load flags immediately when countries are available
   useEffect(() => {
