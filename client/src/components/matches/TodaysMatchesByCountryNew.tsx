@@ -388,7 +388,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       if (!selectedDate) return [];
 
       console.log(`🚀 [TodaysMatchesByCountryNew] Fetching fixtures for: ${selectedDate}`);
-      
+
       const response = await apiRequest(
         "GET",
         `/api/fixtures/date/${selectedDate}?all=true`,
@@ -400,9 +400,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       const data = await response.json();
       const result = Array.isArray(data) ? data : [];
-      
+
       console.log(`📊 [TodaysMatchesByCountryNew] Received ${result.length} fixtures for ${selectedDate}`);
-      
+
       // 🔍 DEBUG: Check raw API response for Leicester vs Juventus
       const leicesterJuventusMatches = result.filter((fixture: any) => {
         const homeTeam = fixture.teams?.home?.name || "";
@@ -449,7 +449,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           }))
         });
       }
-      
+
       return result;
     },
     {
@@ -552,7 +552,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     let processedCount = 0;
     const suspiciousMatches: any[] = [];
-    
+
     fixtures.forEach((fixture) => {
       // Basic validation
       if (!fixture?.fixture?.id || !fixture.teams || !fixture.league || 
@@ -573,7 +573,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // 🔍 ENHANCED DATA VALIDATION: Filter out incorrectly classified matches
       const homeTeam = fixture.teams?.home?.name || "";
       const awayTeam = fixture.teams?.away?.name || "";
-      
+
       // Check for data inconsistencies that should be excluded
       const isDataInconsistent = () => {
         // Premier League should only be in England, not World
@@ -592,7 +592,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         const isLeicesterJuventusMatch = 
           (homeTeam.toLowerCase().includes('leicester') && awayTeam.toLowerCase().includes('juventus')) ||
           (homeTeam.toLowerCase().includes('juventus') && awayTeam.toLowerCase().includes('leicester'));
-        
+
         if (isLeicesterJuventusMatch && leagueName.toLowerCase().includes('premier league')) {
           console.warn(`🚨 [DATA VALIDATION] Excluding Leicester vs Juventus incorrectly classified as Premier League:`, {
             fixtureId: fixture.fixture.id,
@@ -607,7 +607,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         // Check for other major league misclassifications
         const majorLeagues = ['premier league', 'la liga', 'serie a', 'bundesliga', 'ligue 1'];
         const isMajorLeague = majorLeagues.some(league => leagueName.toLowerCase().includes(league));
-        
+
         if (isMajorLeague && country === "World") {
           console.warn(`🚨 [DATA VALIDATION] Excluding major league incorrectly classified in World country:`, {
             fixtureId: fixture.fixture.id,
@@ -669,9 +669,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     });
 
     const result = Object.fromEntries(countryMap);
-    
+
     console.log(`✅ [TodaysMatchesByCountryNew] Processed ${processedCount} fixtures into ${countryMap.size} countries`);
-    
+
     // 🔍 DEBUG: Log suspicious matches summary
     if (suspiciousMatches.length > 0) {
       console.error(`🚨 [SUSPICIOUS MATCHES SUMMARY] Found ${suspiciousMatches.length} Leicester vs Juventus matches:`, suspiciousMatches);
@@ -693,14 +693,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         }))
       });
     }
-    
+
     return result;
   }, [fixtures, selectedDate]);
 
   // Lightning-fast country list and fixtures extraction
   const { validFixtures, countryList } = useMemo(() => {
     const countries = Object.keys(processedCountryData);
-    
+
     if (countries.length === 0) {
       return { validFixtures: [], countryList: [] };
     }
@@ -859,7 +859,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Show countries immediately without complex batching
   useEffect(() => {
     setVisibleCountries(new Set(countryList));
-    
+
     if (countryList.length > 0) {
       console.log(`⚡ [TodaysMatchesByCountryNew] Displaying ${countryList.length} countries for ${selectedDate}`);
     }
@@ -1028,7 +1028,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     });
   };
 
-  const toggleHideMatch = (matchId: number) => {
+  const toggleHideMatch = useCallback((matchId: number) => {
     setHiddenMatches((prev) => {
       const newHidden = new Set(prev);
       if (newHidden.has(matchId)) {
@@ -1038,7 +1038,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }
       return newHidden;
     });
-  };
+  }, []);
 
   const toggleLeague = (country: string, leagueId: number) => {
     const leagueKey = `${country}-${leagueId}`;
@@ -1775,21 +1775,28 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   : "slideUp 0.3s ease-out",
               }}
             >
-              {leagueData.matches
-                .filter((match: any) => !hiddenMatches.has(match.fixture.id))
-                .map((match: any, matchIndex: number) => (
+              {leagueData.matches.map((match: any, matchIndex: number) => {
+                // Check if match is hidden - use more efficient lookup
+                if (hiddenMatches.has(match.fixture.id)) {
+                  return null; // Don't render hidden matches
+                }
+
+                return (
                   <MatchCard
-                    key={`${match.fixture.id}-${countryData.country}-${leagueData.league.id}-${matchIndex}`}
+                    key={`match-${match.fixture.id}`}
                     match={match}
                     leagueData={leagueData}
                     starredMatches={starredMatches}
+                    hiddenMatches={hiddenMatches}
                     halftimeFlashMatches={halftimeFlashMatches}
                     fulltimeFlashMatches={fulltimeFlashMatches}
                     goalFlashMatches={goalFlashMatches}
                     onStarMatch={onStarMatch}
                     onMatchClick={onMatchClick}
+                    toggleHideMatch={toggleHideMatch}
                   />
-                ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -1803,20 +1810,24 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       match,
       leagueData,
       starredMatches,
+      hiddenMatches,
       halftimeFlashMatches,
       fulltimeFlashMatches,
       goalFlashMatches,
       onStarMatch,
       onMatchClick,
+      toggleHideMatch,
     }: {
       match: any;
       leagueData: any;
       starredMatches: Set<number>;
+      hiddenMatches: Set<number>;
       halftimeFlashMatches: Set<number>;
       fulltimeFlashMatches: Set<number>;
       goalFlashMatches: Set<number>;
       onStarMatch: (matchId: number) => void;
       onMatchClick?: (fixture: any) => void;
+      toggleHideMatch: (matchId: number) => void;
     }) => (
       <div
         className={`match-card-container group ${
@@ -1860,6 +1871,22 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               starredMatches.has(match.fixture.id) ? "starred" : ""
             }`}
           />
+        </button>
+
+        {/* Hide/Show Match Button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleHideMatch(match.fixture.id);
+          }}
+          className="match-hide-button"
+          title={hiddenMatches.has(match.fixture.id) ? "Show Match" : "Hide Match"}
+        >
+          {hiddenMatches.has(match.fixture.id) ? (
+            <ChevronDown className="h-4 w-4 text-gray-500" />
+          ) : (
+            <ChevronUp className="h-4 w-4 text-gray-500" />
+          )}
         </button>
 
         {/* Match content - updated to use proper grid positioning like MyNewLeague2 */}
