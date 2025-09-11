@@ -579,13 +579,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Layer 1: Immediate cache return
     const cached = CacheManager.getCachedData([cacheKey], 30 * 60 * 1000);
     if (cached) {
-      setProcessingProgress(100);
       return cached;
     }
 
     // Layer 2: Early bail-outs
     if (!fixtures?.length) {
-      setProcessingProgress(0);
       return {};
     }
 
@@ -604,84 +602,55 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     if (isProcessingCancelled) {
       console.log('🚫 Processing cancelled during filtering');
-      setProcessingProgress(0);
       return {};
     }
 
-    // Layer 4: Enhanced batch processing with progress tracking
+    // Layer 4: Enhanced batch processing
     const countryMap = new Map<string, any>();
     const seenFixtures = new Set<number>();
     const chunkSize = 100;
-    const totalChunks = Math.ceil(validFixtures.length / chunkSize);
     
-    // Process in chunks with progress updates and cancellation checks
-    for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
-      // Check for cancellation between chunks
-      if (isProcessingCancelled) {
-        console.log(`🚫 Processing cancelled at chunk ${chunkIndex}/${totalChunks}`);
-        setProcessingProgress(0);
-        return {};
+    // Process fixtures without state updates
+    for (const fixture of validFixtures) {
+      if (isProcessingCancelled) break;
+      if (seenFixtures.has(fixture.fixture.id)) continue;
+      seenFixtures.add(fixture.fixture.id);
+
+      const country = fixture.league.country;
+      const leagueId = fixture.league.id;
+      const leagueName = fixture.league.name || "";
+
+      // Quick exclusion check
+      if (shouldExcludeMatchByCountry(leagueName, "", "", false, country)) {
+        continue;
       }
 
-      const startIdx = chunkIndex * chunkSize;
-      const endIdx = Math.min(startIdx + chunkSize, validFixtures.length);
-      const chunk = validFixtures.slice(startIdx, endIdx);
-      
-      // Process chunk with micro-task yielding for better performance
-      for (const fixture of chunk) {
-        if (isProcessingCancelled) break;
-        if (seenFixtures.has(fixture.fixture.id)) continue;
-        seenFixtures.add(fixture.fixture.id);
-
-        const country = fixture.league.country;
-        const leagueId = fixture.league.id;
-        const leagueName = fixture.league.name || "";
-
-        // Quick exclusion check
-        if (shouldExcludeMatchByCountry(leagueName, "", "", false, country)) {
-          continue;
-        }
-
-        // Efficient map-based grouping
-        if (!countryMap.has(country)) {
-          countryMap.set(country, {
-            country,
-            leagues: new Map(),
-            hasPopularLeague: false,
-          });
-        }
-
-        const countryData = countryMap.get(country);
-        if (!countryData.leagues.has(leagueId)) {
-          const isPopular = POPULAR_LEAGUES.includes(leagueId);
-          countryData.leagues.set(leagueId, {
-            league: fixture.league,
-            matches: [],
-            isPopular,
-          });
-          if (isPopular) countryData.hasPopularLeague = true;
-        }
-
-        countryData.leagues.get(leagueId).matches.push(fixture);
+      // Efficient map-based grouping
+      if (!countryMap.has(country)) {
+        countryMap.set(country, {
+          country,
+          leagues: new Map(),
+          hasPopularLeague: false,
+        });
       }
 
-      // Update progress after each chunk
-      const progress = Math.round(((chunkIndex + 1) / totalChunks) * 100);
-      setProcessingProgress(progress);
-
-      // Yield to main thread every 5 chunks for better responsiveness
-      if (chunkIndex % 5 === 0 && chunkIndex > 0) {
-        // Use scheduler if available, otherwise setTimeout
-        if (typeof scheduler !== 'undefined' && scheduler.postTask) {
-          scheduler.postTask(() => {}, { priority: 'background' });
-        }
+      const countryData = countryMap.get(country);
+      if (!countryData.leagues.has(leagueId)) {
+        const isPopular = POPULAR_LEAGUES.includes(leagueId);
+        countryData.leagues.set(leagueId, {
+          league: fixture.league,
+          matches: [],
+          isPopular,
+        });
+        if (isPopular) countryData.hasPopularLeague = true;
       }
+
+      countryData.leagues.get(leagueId).matches.push(fixture);
     }
 
     // Final cancellation check
     if (isProcessingCancelled) {
       console.log('🚫 Processing cancelled during final conversion');
-      setProcessingProgress(0);
       return {};
     }
 
@@ -696,11 +665,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // Layer 6: Cache with longer TTL for processed data
     CacheManager.setCachedData([cacheKey], result, 60 * 60 * 1000); // 1 hour cache
-    setProcessingProgress(100);
 
     console.log(`✅ Processing completed: ${Object.keys(result).length} countries processed`);
     return result;
   }, [fixtures, selectedDate, isProcessingCancelled]);
+
+  // Handle progress updates in a separate effect to avoid re-render loops
+  useEffect(() => {
+    if (fixtures?.length && Object.keys(processedCountryData).length > 0) {
+      setProcessingProgress(100);
+    } else if (!fixtures?.length) {
+      setProcessingProgress(0);
+    }
+  }, [fixtures?.length, Object.keys(processedCountryData).length]);
 
   // Extract valid fixtures and country list from processed data
   const { validFixtures, countryList } = useMemo(() => {
