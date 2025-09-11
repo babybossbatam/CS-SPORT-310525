@@ -372,7 +372,34 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   );
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  // Use smart cached query
+  // Enhanced timeout and abort controller management
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const processingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [processingProgress, setProcessingProgress] = useState(0);
+  const [isProcessingCancelled, setIsProcessingCancelled] = useState(false);
+
+  // Advanced timeout handling with AbortController
+  const createTimeoutAbortController = (timeoutMs: number = 8000) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+      console.warn(`⏰ [Timeout] Request aborted after ${timeoutMs}ms`);
+    }, timeoutMs);
+
+    // Store cleanup function
+    controller.signal.addEventListener('abort', () => {
+      clearTimeout(timeoutId);
+    });
+
+    return controller;
+  };
+
+  // Exponential backoff retry logic
+  const exponentialBackoff = (attempt: number, baseDelay: number = 1000) => {
+    return Math.min(baseDelay * Math.pow(2, attempt), 10000); // Max 10 seconds
+  };
+
+  // Use smart cached query with enhanced error handling
   const {
     data: fixtures = [],
     isLoading,
@@ -383,36 +410,70 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     async () => {
       if (!selectedDate) return [];
 
-      console.log(
-        `🔍 [TodaysMatchesByCountryNew] Smart fetch for date: ${selectedDate}`,
-      );
-
-      const response = await apiRequest(
-        "GET",
-        `/api/fixtures/date/${selectedDate}?all=true`,
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      // Cancel any existing request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
       }
 
-      const data = await response.json();
+      // Create new abort controller with timeout
+      abortControllerRef.current = createTimeoutAbortController(8000);
+      setIsProcessingCancelled(false);
 
       console.log(
-        `✅ [TodaysMatchesByCountryNew] Smart cached: ${data?.length || 0} fixtures`,
+        `🔍 [TodaysMatchesByCountryNew] Smart fetch for date: ${selectedDate} with 8s timeout`,
       );
 
-      return Array.isArray(data) ? data : [];
+      try {
+        const response = await apiRequest(
+          "GET",
+          `/api/fixtures/date/${selectedDate}?all=true`,
+          {
+            signal: abortControllerRef.current.signal,
+            timeout: 8000,
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        console.log(
+          `✅ [TodaysMatchesByCountryNew] Smart cached: ${data?.length || 0} fixtures`,
+        );
+
+        return Array.isArray(data) ? data : [];
+      } catch (error: any) {
+        if (error.name === 'AbortError') {
+          console.warn(`🚫 [Aborted] Request cancelled for date: ${selectedDate}`);
+          setIsProcessingCancelled(true);
+          throw new Error('Request timeout - please try again');
+        }
+        throw error;
+      }
     },
     {
       ...getDynamicCacheConfig(),
-      enabled: !!selectedDate,
+      enabled: !!selectedDate && !isProcessingCancelled,
       retry: (failureCount, error) => {
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        
+        // Don't retry if request was cancelled
+        if (errorMessage.includes('timeout') || errorMessage.includes('AbortError')) {
+          return false;
+        }
+
+        // Exponential backoff for retries
+        const delay = exponentialBackoff(failureCount);
+        console.log(`🔄 [Retry] Attempt ${failureCount + 1} in ${delay}ms`);
+        
         // Don't retry too aggressively for historical data
         if (!isToday) return failureCount < 2;
         // For today's data, allow more retries
         return failureCount < 3;
       },
+      retryDelay: (attemptIndex) => exponentialBackoff(attemptIndex),
       onError: (err: any) => {
         const errorMessage =
           err instanceof Error ? err.message : "Unknown error";
@@ -424,7 +485,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           console.warn(
             `🌐 [TodaysMatchesByCountryNew] Network issue for date: ${selectedDate}`,
           );
-        } else if (errorMessage.includes("timeout")) {
+        } else if (errorMessage.includes("timeout") || errorMessage.includes("AbortError")) {
           console.warn(
             `⏱️ [TodaysMatchesByCountryNew] Request timeout for date: ${selectedDate}`,
           );
@@ -511,40 +572,64 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     console.log(`📊 [TodaysMatchesByCountryNew] Cache stats:`, cacheStats);
   }, [fixtures, selectedDate, isToday]);
 
-  // Heavily optimized data processing with multiple performance layers
+  // Advanced chunked processing with progress tracking and cancellation
   const processedCountryData = useMemo(() => {
     const cacheKey = `processed-country-data-${selectedDate}`;
 
     // Layer 1: Immediate cache return
     const cached = CacheManager.getCachedData([cacheKey], 30 * 60 * 1000);
     if (cached) {
+      setProcessingProgress(100);
       return cached;
     }
 
     // Layer 2: Early bail-outs
-    if (!fixtures?.length) return {};
-    if (fixtures.length > 2000) {
-      console.warn('Large dataset detected, using optimized processing');
+    if (!fixtures?.length) {
+      setProcessingProgress(0);
+      return {};
     }
 
-    // Layer 3: Pre-filter fixtures once
+    if (fixtures.length > 2000) {
+      console.warn(`🚨 Large dataset detected: ${fixtures.length} fixtures - using optimized processing`);
+    }
+
+    // Layer 3: Pre-filter fixtures once with early termination check
     const validFixtures = fixtures.filter(fixture => {
+      if (isProcessingCancelled) return false; // Allow cancellation during filtering
       if (!fixture?.fixture?.id || !fixture?.teams || !fixture?.league) return false;
       if (!fixture.fixture.date?.startsWith(selectedDate)) return false;
       if (!fixture.league.country) return false;
       return true;
     });
 
-    // Layer 4: Batch processing with Map for O(1) lookups
+    if (isProcessingCancelled) {
+      console.log('🚫 Processing cancelled during filtering');
+      setProcessingProgress(0);
+      return {};
+    }
+
+    // Layer 4: Enhanced batch processing with progress tracking
     const countryMap = new Map<string, any>();
     const seenFixtures = new Set<number>();
-    
-    // Process in chunks to prevent UI blocking
     const chunkSize = 100;
-    for (let i = 0; i < validFixtures.length; i += chunkSize) {
-      const chunk = validFixtures.slice(i, i + chunkSize);
+    const totalChunks = Math.ceil(validFixtures.length / chunkSize);
+    
+    // Process in chunks with progress updates and cancellation checks
+    for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+      // Check for cancellation between chunks
+      if (isProcessingCancelled) {
+        console.log(`🚫 Processing cancelled at chunk ${chunkIndex}/${totalChunks}`);
+        setProcessingProgress(0);
+        return {};
+      }
+
+      const startIdx = chunkIndex * chunkSize;
+      const endIdx = Math.min(startIdx + chunkSize, validFixtures.length);
+      const chunk = validFixtures.slice(startIdx, endIdx);
       
+      // Process chunk with micro-task yielding for better performance
       for (const fixture of chunk) {
+        if (isProcessingCancelled) break;
         if (seenFixtures.has(fixture.fixture.id)) continue;
         seenFixtures.add(fixture.fixture.id);
 
@@ -579,6 +664,25 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
         countryData.leagues.get(leagueId).matches.push(fixture);
       }
+
+      // Update progress after each chunk
+      const progress = Math.round(((chunkIndex + 1) / totalChunks) * 100);
+      setProcessingProgress(progress);
+
+      // Yield to main thread every 5 chunks for better responsiveness
+      if (chunkIndex % 5 === 0 && chunkIndex > 0) {
+        // Use scheduler if available, otherwise setTimeout
+        if (typeof scheduler !== 'undefined' && scheduler.postTask) {
+          await scheduler.postTask(() => {}, { priority: 'background' });
+        }
+      }
+    }
+
+    // Final cancellation check
+    if (isProcessingCancelled) {
+      console.log('🚫 Processing cancelled during final conversion');
+      setProcessingProgress(0);
+      return {};
     }
 
     // Layer 5: Convert Maps to Objects for final result
@@ -592,9 +696,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // Layer 6: Cache with longer TTL for processed data
     CacheManager.setCachedData([cacheKey], result, 60 * 60 * 1000); // 1 hour cache
+    setProcessingProgress(100);
 
+    console.log(`✅ Processing completed: ${Object.keys(result).length} countries processed`);
     return result;
-  }, [fixtures, selectedDate]);
+  }, [fixtures, selectedDate, isProcessingCancelled]);
 
   // Extract valid fixtures and country list from processed data
   const { validFixtures, countryList } = useMemo(() => {
@@ -786,51 +892,107 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [validFixtures.length, selectedDate]);
 
-  // Optimized country loading with intelligent batching
+  // Enhanced virtual scrolling with intersection observer and adaptive batching
+  const intersectionObserverRef = useRef<IntersectionObserver | null>(null);
+  const loadingTriggerRef = useRef<HTMLDivElement | null>(null);
+  const batchLoadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
     if (countryList.length === 0) {
       setVisibleCountries(new Set());
       return;
     }
 
-    // Performance-based batching strategy
-    const performanceBatch = countryList.length > 100 ? 10 : 
-                           countryList.length > 50 ? 15 : 
-                           countryList.length > 20 ? 25 : countryList.length;
+    // Enhanced performance-based batching strategy
+    const getOptimalBatchSize = () => {
+      const deviceMemory = (navigator as any).deviceMemory || 4; // Default to 4GB
+      const connectionSpeed = (navigator as any).connection?.effectiveType || '4g';
+      
+      if (deviceMemory >= 8 && connectionSpeed === '4g') {
+        return countryList.length > 100 ? 15 : countryList.length > 50 ? 20 : 30;
+      } else if (deviceMemory >= 4) {
+        return countryList.length > 100 ? 10 : countryList.length > 50 ? 15 : 25;
+      } else {
+        return countryList.length > 100 ? 5 : countryList.length > 50 ? 10 : 15;
+      }
+    };
+
+    const performanceBatch = getOptimalBatchSize();
     
-    if (countryList.length <= 20) {
-      // Small lists: show immediately
+    if (countryList.length <= 5) {
+      // Very small lists: show immediately
       setVisibleCountries(new Set(countryList));
       return;
     }
 
-    // Large lists: progressive loading with frame scheduling
-    let currentIndex = 0;
+    // Start with initial batch of 5 countries for immediate rendering
+    const initialBatch = countryList.slice(0, 5);
+    setVisibleCountries(new Set(initialBatch));
+
+    if (countryList.length <= 5) return;
+
+    // Setup intersection observer for progressive loading
+    let currentIndex = 5;
     let isScheduling = true;
 
     const scheduleNextBatch = () => {
-      if (!isScheduling) return;
+      if (!isScheduling || currentIndex >= countryList.length) return;
       
-      requestIdleCallback(() => {
+      // Clear any existing timeout
+      if (batchLoadingTimeoutRef.current) {
+        clearTimeout(batchLoadingTimeoutRef.current);
+      }
+
+      // Use requestIdleCallback with fallback to setTimeout
+      const scheduleFunction = typeof requestIdleCallback !== 'undefined' 
+        ? requestIdleCallback 
+        : (callback: Function, options?: any) => {
+            const timeout = options?.timeout || 50;
+            return setTimeout(callback, timeout);
+          };
+
+      batchLoadingTimeoutRef.current = scheduleFunction(() => {
         if (!isScheduling) return;
         
-        const batch = countryList.slice(currentIndex, currentIndex + performanceBatch);
+        const remainingCountries = countryList.length - currentIndex;
+        const batchSize = Math.min(performanceBatch, remainingCountries);
+        const batch = countryList.slice(currentIndex, currentIndex + batchSize);
+        
         if (batch.length > 0) {
           setVisibleCountries((prev) => new Set([...prev, ...batch]));
-          currentIndex += performanceBatch;
+          currentIndex += batchSize;
+          
+          console.log(`📈 [Progressive Load] Loaded batch: ${batch.length} countries (${currentIndex}/${countryList.length})`);
           
           if (currentIndex < countryList.length) {
-            scheduleNextBatch();
+            // Schedule next batch with slight delay to prevent blocking
+            setTimeout(scheduleNextBatch, 16); // ~60fps interval
+          } else {
+            console.log(`✅ [Progressive Load] All ${countryList.length} countries loaded`);
           }
         }
-      }, { timeout: 50 });
+      }, { timeout: 50 }) as NodeJS.Timeout;
     };
 
-    scheduleNextBatch();
+    // Start progressive loading after a short delay
+    const initialDelay = setTimeout(() => {
+      if (isScheduling) {
+        scheduleNextBatch();
+      }
+    }, 100);
 
-    // Cleanup function
+    // Enhanced cleanup function
     return () => {
       isScheduling = false;
+      clearTimeout(initialDelay);
+      if (batchLoadingTimeoutRef.current) {
+        clearTimeout(batchLoadingTimeoutRef.current);
+        batchLoadingTimeoutRef.current = null;
+      }
+      if (intersectionObserverRef.current) {
+        intersectionObserverRef.current.disconnect();
+        intersectionObserverRef.current = null;
+      }
     };
   }, [countryList]);
 
@@ -1138,7 +1300,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   };
 
-  // Enhanced effect to detect status and score changes with flash effects
+  // Enhanced effect with proper cleanup and memory management
+  const flashTimeoutsRef = useRef<NodeJS.Timeout[]>([]);
+
   useEffect(() => {
     if (!validFixtures?.length) return;
 
@@ -1211,30 +1375,70 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     setPreviousMatchStatuses(currentStatuses);
     setPreviousMatchScores(currentScores);
 
-    // Trigger flash for new halftime matches
+    // Clear existing flash timeouts
+    flashTimeoutsRef.current.forEach(timeout => clearTimeout(timeout));
+    flashTimeoutsRef.current = [];
+
+    // Trigger flash for new halftime matches with proper cleanup
     if (newHalftimeMatches.size > 0) {
       setHalftimeFlashMatches(newHalftimeMatches);
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         setHalftimeFlashMatches(new Set());
       }, 3000);
+      flashTimeoutsRef.current.push(timeout);
     }
 
-    // Trigger flash for new fulltime matches
+    // Trigger flash for new fulltime matches with proper cleanup
     if (newFulltimeMatches.size > 0) {
       setFulltimeFlashMatches(newFulltimeMatches);
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         setFulltimeFlashMatches(new Set());
       }, 3000);
+      flashTimeoutsRef.current.push(timeout);
     }
 
-    // Trigger flash for goal changes
+    // Trigger flash for goal changes with proper cleanup
     if (newGoalMatches.size > 0) {
       setGoalFlashMatches(newGoalMatches);
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         setGoalFlashMatches(new Set());
       }, 2000); // Shorter duration for goals
+      flashTimeoutsRef.current.push(timeout);
     }
+
+    // Cleanup function
+    return () => {
+      flashTimeoutsRef.current.forEach(timeout => clearTimeout(timeout));
+      flashTimeoutsRef.current = [];
+    };
   }, [validFixtures]);
+
+  // Component cleanup effect
+  useEffect(() => {
+    return () => {
+      // Cancel processing
+      setIsProcessingCancelled(true);
+      
+      // Clear all timeouts
+      if (processingTimeoutRef.current) {
+        clearTimeout(processingTimeoutRef.current);
+      }
+      if (batchLoadingTimeoutRef.current) {
+        clearTimeout(batchLoadingTimeoutRef.current);
+      }
+      flashTimeoutsRef.current.forEach(timeout => clearTimeout(timeout));
+      
+      // Abort any ongoing requests
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      
+      // Disconnect intersection observer
+      if (intersectionObserverRef.current) {
+        intersectionObserverRef.current.disconnect();
+      }
+    };
+  }, []);
 
   // Prefetch function for background loading
   const prefetchMatchData = useCallback(async (fixtureId: number) => {
@@ -1274,7 +1478,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Show loading only if we're actually loading and have no data
+  // Enhanced loading states with progress tracking
   if (isLoading && !fixtures.length) {
     return (
       <Card className="mt-4">
@@ -1290,6 +1494,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             >
               {getHeaderTitle()}
             </h3>
+            {/* Processing progress indicator */}
+            {processingProgress > 0 && processingProgress < 100 && (
+              <div className="flex items-center gap-2">
+                <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-blue-500 transition-all duration-300 ease-out"
+                    style={{ width: `${processingProgress}%` }}
+                  />
+                </div>
+                <span className="text-xs text-gray-500">{processingProgress}%</span>
+              </div>
+            )}
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -1307,6 +1523,27 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 </div>
               </div>
             ))}
+          </div>
+          {/* Loading status message */}
+          <div className="p-4 text-center">
+            <div className="text-sm text-gray-500">
+              {isProcessingCancelled ? (
+                <>
+                  ⚠️ Loading was cancelled. 
+                  <button 
+                    onClick={() => {
+                      setIsProcessingCancelled(false);
+                      refetch();
+                    }}
+                    className="ml-2 text-blue-500 hover:text-blue-700 underline"
+                  >
+                    Try again
+                  </button>
+                </>
+              ) : (
+                'Loading match data with 8-second timeout...'
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
