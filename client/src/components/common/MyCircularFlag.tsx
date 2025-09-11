@@ -252,6 +252,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     UAE: "ae",
     Laos: "la",
     Mongolia: "mn",
+    Macao: "mo",
     Malaysia: "my",
     Myanmar: "mm",
     Moldova: "md",
