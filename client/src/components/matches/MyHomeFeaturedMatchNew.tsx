@@ -788,11 +788,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       leagueName.includes("3. liga") ||
                       leagueName.includes("3 liga");
 
-                    // Exclude Tercera División RFEF leagues (Spanish regional/lower leagues)
+                    // Exclude Tercera División RFEF and Segunda División RFEF leagues (Spanish regional/lower leagues)
                     const isTerceraRFEF = 
                       leagueName.includes("tercera división rfef") ||
                       leagueName.includes("tercera division rfef") ||
                       leagueName.includes("tercera rfef");
+
+                    const isSegundaRFEF = 
+                      leagueName.includes("segunda división rfef") ||
+                      leagueName.includes("segunda division rfef") ||
+                      leagueName.includes("segunda rfef");
 
                     // Check for various types of conflicting data (excluding live matches)
                     let hasConflictingData = false;
@@ -871,6 +876,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       !isRegionalligaLeague &&
                       !is3Liga &&
                       !isTerceraRFEF &&
+                      !isSegundaRFEF &&
                       !isExplicitlyExcluded &&
                       !isNonLeaguePremier;
 
@@ -920,6 +926,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     } else if (isTerceraRFEF) {
                       console.log(
                         `❌ [MyHomeFeaturedMatchNew] Excluding Tercera División RFEF league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isSegundaRFEF) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Segunda División RFEF league:`,
                         {
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
@@ -1133,7 +1147,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         !isOberligaLeague &&
                         !isRegionalligaLeague &&
                         !is3Liga &&
-                        !isTerceraRFEF
+                        !isTerceraRFEF &&
+                        !isSegundaRFEF
                       );
                     }
 
@@ -1159,11 +1174,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       leagueName.includes("3. liga") ||
                       leagueName.includes("3 liga");
 
-                    // Exclude Tercera División RFEF leagues (Spanish regional/lower leagues)
+                    // Exclude Tercera División RFEF and Segunda División RFEF leagues (Spanish regional/lower leagues)
                     const isTerceraRFEF = 
                       leagueName.includes("tercera división rfef") ||
                       leagueName.includes("tercera division rfef") ||
                       leagueName.includes("tercera rfef");
+
+                    const isSegundaRFEF = 
+                      leagueName.includes("segunda división rfef") ||
+                      leagueName.includes("segunda division rfef") ||
+                      leagueName.includes("segunda rfef");
 
                     // Check for various types of conflicting data (excluding live matches)
                     let hasConflictingData = false;
@@ -1307,6 +1327,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       !isRegionalligaLeague &&
                       !is3Liga &&
                       !isTerceraRFEF &&
+                      !isSegundaRFEF &&
                       (isPopularLeague ||
                         isFromPopularCountry ||
                         isInternationalCompetition ||
@@ -1421,7 +1442,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           !isOberligaLeague &&
                           !isRegionalligaLeague &&
                           !is3Liga &&
-                          !isTerceraRFEF
+                          !isTerceraRFEF &&
+                          !isSegundaRFEF
                         );
                       }
 
@@ -1447,11 +1469,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         leagueName.includes("3. liga") ||
                         leagueName.includes("3 liga");
 
-                      // Exclude Tercera División RFEF leagues (Spanish regional/lower leagues)
+                      // Exclude Tercera División RFEF and Segunda División RFEF leagues (Spanish regional/lower leagues)
                       const isTerceraRFEF = 
                         leagueName.includes("tercera división rfef") ||
                         leagueName.includes("tercera division rfef") ||
                         leagueName.includes("tercera rfef");
+
+                      const isSegundaRFEF = 
+                        leagueName.includes("segunda división rfef") ||
+                        leagueName.includes("segunda division rfef") ||
+                        leagueName.includes("segunda rfef");
 
                       // Check for various types of conflicting data (excluding live matches)
                       let hasConflictingData = false;
@@ -1526,7 +1553,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         !isOberligaLeague &&
                         !isRegionalligaLeague &&
                         !is3Liga &&
-                        !isTerceraRFEF
+                        !isTerceraRFEF &&
+                        !isSegundaRFEF
                       );
                     })
                     .slice(0, 5) // Limit to prevent overwhelming
@@ -2089,14 +2117,30 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           key.includes("regionalliga") ||
           key.includes("bayern") ||
           key.includes("national 2") ||
+          key.includes("62") || // Ligue 2
+          key.includes("ligue 2") ||
+          key.includes("l2") ||
+          key.includes("940") || // League 940
+          key.includes("85") || // Regionalliga - Nordost
+          key.includes("80") || // 3. Liga
+          key.includes("84") || // Regionalliga - Nord
+          key.includes("87") || // Regionalliga - West
+          key.includes("41") || // Regionalliga - SudWest
+          key.includes("86") || // Regionalliga - SudWest (another ID)
+          key.includes("772") || // League 772
+          key.includes("58") || // Non League Premier - Isthmian
+          key.includes("931") || // Non League Premier - Southern Central
+          key.includes("59") || // League 59
+          key.includes("60") || // League 60
+          key.includes("869") || // CECAFA Club Cup
+          key.includes("tercera") || // Tercera División RFEF
+          key.includes("segunda") || // Segunda División RFEF
+          key.includes("rfef") ||
           key.includes("fixtures_date") ||
           key.startsWith("ended_matches_") ||
           key.startsWith("league-fixtures-") ||
           key.startsWith("featured-match-") ||
-          key.startsWith("all-fixtures-by-date") ||
-          key.includes("62") || // Ligue 2
-          key.includes("ligue 2") ||
-          key.includes("l2"),
+          key.startsWith("all-fixtures-by-date"),
       );
 
       excludedLeagueKeys.forEach((key) => {
@@ -2118,11 +2162,27 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           key.includes("regionalliga") ||
           key.includes("bayern") ||
           key.includes("national 2") ||
-          key.startsWith("league-fixtures-") ||
-          key.startsWith("featured-match-") ||
           key.includes("62") || // Ligue 2
           key.includes("ligue 2") ||
-          key.includes("l2"),
+          key.includes("l2") ||
+          key.includes("940") || // League 940
+          key.includes("85") || // Regionalliga - Nordost
+          key.includes("80") || // 3. Liga
+          key.includes("84") || // Regionalliga - Nord
+          key.includes("87") || // Regionalliga - West
+          key.includes("41") || // Regionalliga - SudWest
+          key.includes("86") || // Regionalliga - SudWest (another ID)
+          key.includes("772") || // League 772
+          key.includes("58") || // Non League Premier - Isthmian
+          key.includes("931") || // Non League Premier - Southern Central
+          key.includes("59") || // League 59
+          key.includes("60") || // League 60
+          key.includes("869") || // CECAFA Club Cup
+          key.includes("tercera") || // Tercera División RFEF
+          key.includes("segunda") || // Segunda División RFEF
+          key.includes("rfef") ||
+          key.startsWith("league-fixtures-") ||
+          key.startsWith("featured-match-"),
       );
 
       sessionExcludedKeys.forEach((key) => {
@@ -2149,7 +2209,23 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 key.includes("national 2") ||
                 key.includes("62") || // Ligue 2
                 key.includes("ligue 2") ||
-                key.includes("l2")
+                key.includes("l2") ||
+                key.includes("940") || // League 940
+                key.includes("85") || // Regionalliga - Nordost
+                key.includes("80") || // 3. Liga
+                key.includes("84") || // Regionalliga - Nord
+                key.includes("87") || // Regionalliga - West
+                key.includes("41") || // Regionalliga - SudWest
+                key.includes("86") || // Regionalliga - SudWest (another ID)
+                key.includes("772") || // League 772
+                key.includes("58") || // Non League Premier - Isthmian
+                key.includes("931") || // Non League Premier - Southern Central
+                key.includes("59") || // League 59
+                key.includes("60") || // League 60
+                key.includes("869") || // CECAFA Club Cup
+                key.includes("tercera") || // Tercera División RFEF
+                key.includes("segunda") || // Segunda División RFEF
+                key.includes("rfef")
               );
             },
           });
@@ -2159,7 +2235,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       }
 
       console.log(
-        `🧹 [CacheClean] Cleared ${excludedLeagueKeys.length + sessionExcludedKeys.length} cache entries for excluded leagues (UEFA Europa Conference League, Regionalliga - Bayern, National 2 - Group A, Ligue 2)`,
+        `🧹 [CacheClean] Cleared cache entries for excluded leagues (UEFA Europa Conference League, Regionalliga - Bayern, National 2 - Group A, Ligue 2, etc.)`,
       );
     } catch (error) {
       console.error("Error clearing excluded leagues caches:", error);
@@ -2185,7 +2261,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     let shouldRefresh = false;
 
     // Analyze current match states to determine optimal refresh strategy
-    const matchAnalysis = featuredMatches.reduce(
+    const analysis = featuredMatches.reduce(
       (analysis, dayData) => {
         dayData.matches.forEach((match) => {
           const status = match.fixture.status.short;
@@ -2234,12 +2310,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }, 0);
 
     // ENHANCED refresh strategy including today's ended matches
-    if (matchAnalysis.liveMatches > 0) {
+    if (analysis.liveMatches > 0) {
       // Most aggressive: Live matches detected
       refreshInterval = 15000; // 15 seconds for live matches
       shouldRefresh = true;
       console.log(
-        `🔴 [MyHomeFeaturedMatchNew] ${matchAnalysis.liveMatches} live matches - using most aggressive refresh (15s)`,
+        `🔴 [MyHomeFeaturedMatchNew] ${analysis.liveMatches} live matches - using most aggressive refresh (15s)`,
       );
     } else if (todayEndedMatches > 0) {
       // Aggressive for today's ended matches to get final stats
@@ -2248,26 +2324,26 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       console.log(
         `📊 [MyHomeFeaturedMatchNew] ${todayEndedMatches} today's ended matches - using aggressive refresh (30s)`,
       );
-    } else if (matchAnalysis.staleMatches > 0) {
+    } else if (analysis.staleMatches > 0) {
       // Aggressive: Stale matches that should have updated
       refreshInterval = 45000; // 45 seconds
       shouldRefresh = true;
       console.log(
-        `🟡 [MyHomeFeaturedMatchNew] ${matchAnalysis.staleMatches} stale matches detected - using aggressive refresh (45s)`,
+        `🟡 [MyHomeFeaturedMatchNew] ${analysis.staleMatches} stale matches detected - using aggressive refresh (45s)`,
       );
-    } else if (matchAnalysis.imminentMatches > 0) {
+    } else if (analysis.imminentMatches > 0) {
       // Very frequent: Matches starting within 30 minutes
       refreshInterval = 60000; // 1 minute
       shouldRefresh = true;
       console.log(
-        `🟠 [MyHomeFeaturedMatchNew] ${matchAnalysis.imminentMatches} imminent matches - using frequent refresh (1min)`,
+        `🟠 [MyHomeFeaturedMatchNew] ${analysis.imminentMatches} imminent matches - using frequent refresh (1min)`,
       );
-    } else if (matchAnalysis.upcomingMatches > 0) {
+    } else if (analysis.upcomingMatches > 0) {
       // Moderate: Matches starting within 2 hours
       refreshInterval = 120000; // 2 minutes
       shouldRefresh = true;
       console.log(
-        `🟢 [MyHomeFeaturedMatchNew] ${matchAnalysis.upcomingMatches} upcoming matches - using moderate refresh (2min)`,
+        `🟢 [MyHomeFeaturedMatchNew] ${analysis.upcomingMatches} upcoming matches - using moderate refresh (2min)`,
       );
     } else {
       // Standard: No urgent matches
