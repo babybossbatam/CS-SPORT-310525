@@ -1330,7 +1330,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       if (
                         leagueName.includes("club friendlies") ||
                         leagueName.includes("friendlies clubs") ||
-                        fixture.league?.id === 667 ||
+                        fixture.league.id === 667 ||
                         (leagueName.includes("friendlies") &&
                           !leagueName.includes("international") &&
                           !leagueName.includes("women"))
