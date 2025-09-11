@@ -122,18 +122,24 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 
     // For national teams, ALWAYS prioritize circular flag - NEVER use square logos
     if (isNational && !isKnownClubTeam) {
-      console.log(`🏳️ [MyCircularFlag] Using circular flag for national team: ${teamName}`);
+      console.log(
+        `🏳️ [MyCircularFlag] Using circular flag for national team: ${teamName}`,
+      );
       return getCircleFlagUrl(teamName, fallbackUrl);
     }
 
     // ONLY for confirmed club teams, use team ID based logos
     if (teamId && isKnownClubTeam) {
-      console.log(`⚽ [MyCircularFlag] Using team logo for club team: ${teamName}`);
+      console.log(
+        `⚽ [MyCircularFlag] Using team logo for club team: ${teamName}`,
+      );
       return `/api/team-logo/square/${teamId}?size=64`;
     }
 
     // Fallback: if we can't determine team type clearly, try flag first
-    console.log(`❓ [MyCircularFlag] Uncertain team type for ${teamName}, defaulting to flag`);
+    console.log(
+      `❓ [MyCircularFlag] Uncertain team type for ${teamName}, defaulting to flag`,
+    );
     return getCircleFlagUrl(teamName, fallbackUrl);
   };
 
@@ -145,10 +151,13 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     Spain: "es",
     Italy: "it",
     Germany: "de",
+    Georgia: "us-ga",
     England: "gb-eng",
     Netherlands: "nl",
+    "North Macedonia": "mk",
     Belgium: "be",
     Croatia: "hr",
+    Cyprus: "cy",
     Poland: "pl",
     Romania: "ro",
     Ukraine: "ua",
@@ -156,10 +165,17 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     Türkiye: "tr",
     Switzerland: "ch",
     Austria: "at",
+    Andorra: "ad",
     "Czech Republic": "cz",
+
     Denmark: "dk",
     Sweden: "se",
+    Scotland: "gb-sct",
+    Slovakia: "sk",
+    Montenegro: "me",
+    Malta: "mt",
     Norway: "no",
+    "Northern Ireland": "gb-nir",
     Finland: "fi",
     "San Marino": "sm",
     "san marino": "sm",
@@ -195,6 +211,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     China: "cn",
     "Cape Verde": "cv",
     "Faroe Islands": "fo",
+    Hungary: "hu",
     India: "in",
     Iran: "ir",
     Jordan: "jo",
@@ -237,6 +254,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     // Others
     Algeria: "dz",
     Angola: "ao",
+
     Belarus: "by",
     Dominican: "do",
     Estonia: "ee",
@@ -261,6 +279,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     Canada: "ca",
     Japan: "jp",
     Senegal: "sn",
+    Slovenia: "si",
     Australia: "au",
     Zambia: "zm",
     Zimbabwe: "zw",
@@ -382,13 +401,17 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 
           // For national teams, NEVER fall back to square logos - only try other flag sources
           if (isNational && !isKnownClubTeam) {
-            console.log(`🏳️ [MyCircularFlag] National team error handling for ${teamName}`);
-            
+            console.log(
+              `🏳️ [MyCircularFlag] National team error handling for ${teamName}`,
+            );
+
             // Try alternative flag sources first
-            if (!target.src.includes('circle-flags')) {
+            if (!target.src.includes("circle-flags")) {
               const flagUrl = getCircleFlagUrl(teamName, fallbackUrl);
-              if (flagUrl !== target.src && !flagUrl.includes('fallback')) {
-                console.log(`🔄 [MyCircularFlag] Trying circle flag: ${flagUrl}`);
+              if (flagUrl !== target.src && !flagUrl.includes("fallback")) {
+                console.log(
+                  `🔄 [MyCircularFlag] Trying circle flag: ${flagUrl}`,
+                );
                 target.src = flagUrl;
                 return;
               }
@@ -396,7 +419,9 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 
             // For national teams, use national team fallback, not square logos
             if (!target.src.includes("/assets/fallback-logo.svg")) {
-              console.log(`🏳️ [MyCircularFlag] Using national team fallback for ${teamName}`);
+              console.log(
+                `🏳️ [MyCircularFlag] Using national team fallback for ${teamName}`,
+              );
               target.src = "/assets/fallback-logo.svg";
             }
             return;
@@ -404,17 +429,21 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 
           // Enhanced fallback logic ONLY for confirmed club teams
           if (teamId && isKnownClubTeam) {
-            console.log(`⚽ [MyCircularFlag] Club team error handling for ${teamName}`);
-            
+            console.log(
+              `⚽ [MyCircularFlag] Club team error handling for ${teamName}`,
+            );
+
             // Try different sizes and sources for club teams only
-            if (target.src.includes('size=64')) {
+            if (target.src.includes("size=64")) {
               const smallerUrl = `/api/team-logo/square/${teamId}?size=32`;
-              console.log(`🔄 [MyCircularFlag] Trying smaller size: ${smallerUrl}`);
+              console.log(
+                `🔄 [MyCircularFlag] Trying smaller size: ${smallerUrl}`,
+              );
               target.src = smallerUrl;
               return;
             }
 
-            if (!target.src.includes('/api/team-logo/')) {
+            if (!target.src.includes("/api/team-logo/")) {
               const apiUrl = `/api/team-logo/square/${teamId}?size=32`;
               console.log(`🔄 [MyCircularFlag] Trying API endpoint: ${apiUrl}`);
               target.src = apiUrl;
@@ -422,14 +451,20 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
             }
 
             // Try team logo sources as final attempt for club teams
-            const logoSources = getTeamLogoSources({ id: teamId, name: teamName }, false);
-            const nextSource = logoSources.find(source => 
-              source.url !== target.src && 
-              !source.url.includes('/assets/fallback-logo.svg')
+            const logoSources = getTeamLogoSources(
+              { id: teamId, name: teamName },
+              false,
+            );
+            const nextSource = logoSources.find(
+              (source) =>
+                source.url !== target.src &&
+                !source.url.includes("/assets/fallback-logo.svg"),
             );
 
             if (nextSource) {
-              console.log(`🔄 [MyCircularFlag] Trying source: ${nextSource.source} - ${nextSource.url}`);
+              console.log(
+                `🔄 [MyCircularFlag] Trying source: ${nextSource.source} - ${nextSource.url}`,
+              );
               target.src = nextSource.url;
               return;
             }
@@ -437,7 +472,9 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 
           // Final fallback only if we've exhausted all options
           if (!target.src.includes("/assets/fallback-logo.svg")) {
-            console.log(`🚫 [MyCircularFlag] Using final fallback for ${teamName}`);
+            console.log(
+              `🚫 [MyCircularFlag] Using final fallback for ${teamName}`,
+            );
             target.src = "/assets/fallback-logo.svg";
           }
         }}
