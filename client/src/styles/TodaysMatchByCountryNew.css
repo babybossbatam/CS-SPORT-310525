@@ -595,64 +595,83 @@
 
 
 
-/* Keyframe animations for league expand/collapse - EXACTLY like MyLogoPositioning */
+/* Optimized keyframe animations for smooth expand/collapse without flickering */
 @keyframes slideDown {
   from {
     max-height: 0;
     opacity: 0;
-    transform: translateY(-10px);
   }
 
   to {
-    max-height: 1000px;
+    max-height: 2000px;
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 @keyframes slideUp {
   from {
-    max-height: 1000px;
+    max-height: 2000px;
     opacity: 1;
-    transform: translateY(0);
   }
 
   to {
     max-height: 0;
     opacity: 0;
-    transform: translateY(-10px);
   }
 }
 
-/* League content slide animation - EXACTLY like MyLogoPositioning */
+/* Stable league content animation - prevents content jumping */
 .country-matches-container .league-content {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: max-height 0.25s ease-out, opacity 0.25s ease-out;
   transform-origin: top;
+  overflow: hidden;
+  will-change: max-height, opacity;
 }
 
 .country-matches-container .league-content.collapsed {
-  transform: scaleY(0);
+  max-height: 0;
   opacity: 0;
 }
 
 .country-matches-container .league-content.expanded {
-  transform: scaleY(1);
+  max-height: 2000px;
   opacity: 1;
 }
 
-/* League matches container animation - EXACTLY like MyLogoPositioning */
+/* Stable league matches container - prevents layout shifts */
 .country-matches-container .league-matches-container {
   overflow: hidden;
-  transition: all 0.3s ease-in-out;
+  transition: max-height 0.25s ease-out;
+  will-change: max-height;
 }
 
-/* Chevron icon rotation animation - EXACTLY like MyLogoPositioning */
+/* Smooth chevron icon rotation without affecting layout */
 .country-matches-container .chevron-icon {
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.2s ease-out;
+  will-change: transform;
 }
 
 .country-matches-container .chevron-icon.rotated {
   transform: rotate(180deg);
+}
+
+/* Prevent layout shifts during animations */
+.country-matches-container .league-content,
+.country-matches-container .league-matches-container {
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Stable positioning for expanded content */
+.country-matches-container .league-content.expanded {
+  position: relative;
+  z-index: 1;
+}
+
+/* Prevent flickering during state transitions */
+.country-matches-container .match-card-container {
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* Penalty result display styles - EXACTLY like TodayPopularFootballLeaguesNew */

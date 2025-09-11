@@ -1040,16 +1040,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     });
   }, []);
 
-  const toggleLeague = (country: string, leagueId: number) => {
+  const toggleLeague = useCallback((country: string, leagueId: number) => {
     const leagueKey = `${country}-${leagueId}`;
-    const newExpanded = new Set(expandedLeagues);
-    if (newExpanded.has(leagueKey)) {
-      newExpanded.delete(leagueKey);
-    } else {
-      newExpanded.add(leagueKey);
-    }
-    setExpandedLeagues(newExpanded);
-  };
+    
+    setExpandedLeagues((prev) => {
+      const newExpanded = new Set(prev);
+      if (newExpanded.has(leagueKey)) {
+        newExpanded.delete(leagueKey);
+      } else {
+        newExpanded.add(leagueKey);
+      }
+      return newExpanded;
+    });
+  }, []);
 
   // Enhanced match status logic
   const getMatchStatus = (fixture: any) => {
