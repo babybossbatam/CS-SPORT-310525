@@ -345,30 +345,16 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const today = new Date().toISOString().slice(0, 10);
   const isToday = selectedDate === today;
 
-  // Ultra-aggressive caching for immediate loading
+  // Simplified cache config for instant display
   const getDynamicCacheConfig = () => {
-    if (!isToday) {
-      // Historical or future dates - cache aggressively, no refetch
-      return {
-        staleTime: 24 * 60 * 60 * 1000, // 24 hours fresh
-        cacheTime: 48 * 60 * 60 * 1000, // 48 hours in memory
-        refetchInterval: false,
-        refetchOnWindowFocus: false,
-        refetchOnReconnect: false,
-        refetchOnMount: false,
-        networkMode: 'offlineFirst', // Use cache first
-      };
-    }
-
-    // Today's matches - show cached immediately, minimal background refresh
     return {
-      staleTime: 0, // Always consider cache fresh for immediate display
+      staleTime: 0, // Always show cached data immediately
       cacheTime: 60 * 60 * 1000, // 1 hour in memory
-      refetchInterval: 30 * 1000, // Background refresh every 30s
+      refetchInterval: isToday ? 30 * 1000 : false, // Only refetch for today
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
-      refetchOnMount: false, // Don't refetch on mount - use cache
-      networkMode: 'offlineFirst', // Use cache first, then network
+      refetchOnMount: false, // Never wait for mount - use cache
+      networkMode: 'offlineFirst', // Cache first always
     };
   };
 
@@ -1152,11 +1138,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Show minimal loading only when absolutely no data is available
-  // This allows cached data to show immediately while fresh data loads in background
-
-  // Always render the component structure, even if no data yet
-  const hasData = validFixtures.length > 0;
+  // Always show content immediately - no loading states
+  const hasData = true; // Always render content structure
 
   // Format the time for display in user's local timezone
   const formatMatchTime = (dateString: string | null | undefined) => {
@@ -2357,10 +2340,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         </div>
       </CardHeader>
       <CardContent className="p-0 dark:bg-gray-800 relative">
-        {/* Show content immediately if we have data */}
-        {hasData ? (
-          <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
-            {visibleCountriesList.map((country: string) => {
+        {/* Always show content immediately - no conditional loading */}
+        <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
+          {visibleCountriesList.length > 0 ? (
+            visibleCountriesList.map((country: string) => {
               const countryData = getCountryData(country);
               const isExpanded = expandedCountries.has(countryData.country);
 
@@ -2383,26 +2366,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   observeCountryElement={observeCountryElement}
                 />
               );
-            })}
-          </div>
-        ) : (
-          // Show minimal skeleton only when no data at all
-          <div className="space-y-0">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="border-b border-gray-100 last:border-b-0">
-                <div className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="w-6 h-4 rounded-sm" />
-                    <Skeleton className="h-4 w-28" />
-                    <Skeleton className="h-4 w-8" />
-                    <Skeleton className="h-5 w-12 rounded-full" />
-                  </div>
-                  <Skeleton className="h-4 w-4" />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+            })
+          ) : (
+            // Show a simple message instead of skeleton loading
+            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+              <p>Loading today's matches...</p>
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
