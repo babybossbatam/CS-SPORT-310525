@@ -503,13 +503,47 @@
   }
 }
 
+/* Background loading indicator styles */
+.background-loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+}
+
+.background-loading-spinner {
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.instant-ready-indicator {
+  font-size: 0.75rem;
+  color: #059669;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
 /* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
 
   .mobile-modal,
   .mobile-modal-backdrop,
   .mobile-btn,
-  .mobile-skeleton {
+  .mobile-skeleton,
+  .background-loading-spinner {
     animation: none !important;
     transition: none !important;
   }

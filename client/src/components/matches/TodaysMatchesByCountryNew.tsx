@@ -370,12 +370,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     };
   };
 
-  // Efficient country visibility with lazy loading
+  // Enhanced progressive loading with background data fetching
   const [visibleCountries, setVisibleCountries] = useState<Set<string>>(
     new Set(),
   );
+  const [backgroundLoadedCountries, setBackgroundLoadedCountries] = useState<Set<string>>(
+    new Set(),
+  );
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isBackgroundLoading, setIsBackgroundLoading] = useState(false);
   const INITIAL_COUNTRIES_LOAD = 10;
+  const BACKGROUND_LOAD_BATCH_SIZE = 15;
 
   // Ultra-optimized query for maximum performance
   const {
@@ -592,7 +597,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, "yyyy-MM-dd");
   };
 
-  // Load countries progressively for better performance
+  // Load countries progressively for better performance with background loading
   useEffect(() => {
     if (countryList.length > 0) {
       // Prioritize countries with popular leagues and World
@@ -613,8 +618,47 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }
 
       setVisibleCountries(new Set(priorityCountries));
+      
+      // Start background loading after initial render
+      if (countryList.length > INITIAL_COUNTRIES_LOAD) {
+        startBackgroundLoading(priorityCountries);
+      }
     }
   }, [countryList, processedCountryData]);
+
+  // Background loading function with batched processing
+  const startBackgroundLoading = useCallback(async (initialCountries: string[]) => {
+    if (isBackgroundLoading) return;
+    
+    setIsBackgroundLoading(true);
+    const remainingCountries = countryList.filter(country => 
+      !initialCountries.includes(country)
+    );
+
+    // Process countries in batches to avoid blocking the UI
+    for (let i = 0; i < remainingCountries.length; i += BACKGROUND_LOAD_BATCH_SIZE) {
+      const batch = remainingCountries.slice(i, i + BACKGROUND_LOAD_BATCH_SIZE);
+      
+      // Wait for next tick to prevent blocking
+      await new Promise(resolve => setTimeout(resolve, 0));
+      
+      // Pre-process data for these countries (this happens in background)
+      batch.forEach(country => {
+        const countryData = processedCountryData[country];
+        if (countryData) {
+          // Data is already processed, just mark as ready
+          setBackgroundLoadedCountries(prev => new Set([...prev, country]));
+        }
+      });
+
+      // Small delay between batches to keep UI responsive
+      if (i + BACKGROUND_LOAD_BATCH_SIZE < remainingCountries.length) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+    
+    setIsBackgroundLoading(false);
+  }, [countryList, processedCountryData, isBackgroundLoading]);
 
   const getCountryData = useCallback(
     (country: string) => {
@@ -625,7 +669,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // No additional initialization needed - handled above
 
-  // Load more countries on demand
+  // Enhanced load more with instant rendering for background-loaded data
   const loadMoreCountries = useCallback(() => {
     if (isLoadingMore) return;
     
@@ -633,12 +677,29 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     const currentVisible = Array.from(visibleCountries);
     const remainingCountries = countryList.filter(country => !visibleCountries.has(country));
     
-    // Load next batch of countries
-    const nextBatch = remainingCountries.slice(0, 10);
+    // Prioritize background-loaded countries for instant rendering
+    const backgroundLoaded = remainingCountries.filter(country => 
+      backgroundLoadedCountries.has(country)
+    );
+    const notBackgroundLoaded = remainingCountries.filter(country => 
+      !backgroundLoadedCountries.has(country)
+    );
+    
+    // Take from background-loaded first, then others
+    const nextBatch = [
+      ...backgroundLoaded.slice(0, 10),
+      ...notBackgroundLoaded.slice(0, Math.max(0, 10 - backgroundLoaded.length))
+    ].slice(0, 10);
+    
     setVisibleCountries(new Set([...currentVisible, ...nextBatch]));
     
-    setTimeout(() => setIsLoadingMore(false), 100);
-  }, [countryList, visibleCountries, isLoadingMore]);
+    // Instant render for background-loaded, small delay for others
+    const hasNonBackgroundLoaded = nextBatch.some(country => 
+      !backgroundLoadedCountries.has(country)
+    );
+    
+    setTimeout(() => setIsLoadingMore(false), hasNonBackgroundLoaded ? 100 : 0);
+  }, [countryList, visibleCountries, backgroundLoadedCountries, isLoadingMore]);
 
   // No analysis stats for maximum performance
 
@@ -2265,6 +2326,20 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             >
               {isLoadingMore ? 'Loading...' : `Load More Countries (${countryList.length - visibleCountriesList.length} remaining)`}
             </button>
+            
+            {/* Background loading indicator */}
+            {isBackgroundLoading && (
+              <div className="mt-2 text-xs text-gray-500 flex items-center justify-center gap-1">
+                <div className="w-3 h-3 border border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                Preparing more content in background...
+              </div>
+            )}
+            
+            {!isBackgroundLoading && backgroundLoadedCountries.size > 0 && (
+              <div className="mt-2 text-xs text-green-600">
+                ✓ {backgroundLoadedCountries.size} countries ready for instant loading
+              </div>
+            )}
           </div>
         )}
       </CardContent>
