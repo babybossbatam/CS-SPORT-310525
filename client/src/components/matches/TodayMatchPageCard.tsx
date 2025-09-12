@@ -508,7 +508,9 @@ export const TodayMatchPageCard = ({
             timeFilterActive={timeFilterActive}
             onMatchCardClick={handleMatchCardClick}
           />
-          <MyRightContent />
+          {isMobile && (
+            <MyRightContent />
+          )}
         </>
       )
     }
