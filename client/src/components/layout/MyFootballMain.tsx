@@ -234,30 +234,52 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
             </div>
           </div>
 
-          {/* Right column (7 columns) - Hidden on mobile when no selection */}
-          <div className={`
-            ${isMobile ? (selectedFixture ? 'w-full' : 'hidden' ) : 'lg:col-span-7'}
-            ${isMobile ? 'space-y-2' : 'space-y-4'}
-          `}>
-            {selectedFixture ? (
-              <>
-                <MyMainLayoutRight
-                  selectedFixture={selectedFixture}
-                  onClose={handleCloseDetails}
-                />
+          {/* Right column (7 columns) - Hidden on mobile when fixture is selected */}
+          {!isMobile && (
+            <div className="lg:col-span-7 space-y-4">
+              {selectedFixture ? (
+                <>
+                  <MyMainLayoutRight
+                    selectedFixture={selectedFixture}
+                    onClose={handleCloseDetails}
+                  />
 
-                <MyMatchEvents
-                  homeTeam={selectedFixture?.teams?.home?.name}
-                  awayTeam={selectedFixture?.teams?.away?.name}
-                  matchStatus={selectedFixture?.fixture?.status?.short}
-                  match={selectedFixture}
-                />
-              </>
-            ) : (
-              !isMobile && <MyRightContent />
-            )}
-          </div>
+                  <MyMatchEvents
+                    homeTeam={selectedFixture?.teams?.home?.name}
+                    awayTeam={selectedFixture?.teams?.away?.name}
+                    matchStatus={selectedFixture?.fixture?.status?.short}
+                    match={selectedFixture}
+                  />
+                </>
+              ) : (
+                <MyRightContent />
+              )}
+            </div>
+          )}
         </div>
+
+        {/* Mobile: Show MyRightContent after left content when no fixture is selected */}
+        {isMobile && !selectedFixture && (
+          <div className="w-full px-2 space-y-4 mt-4">
+            <MyRightContent />
+          </div>
+        )}
+
+        {/* Mobile: Show fixture details in overlay when selected */}
+        {isMobile && selectedFixture && (
+          <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
+            <MyMainLayoutRight
+              selectedFixture={selectedFixture}
+              onClose={handleCloseDetails}
+            />
+            <MyMatchEvents
+              homeTeam={selectedFixture?.teams?.home?.name}
+              awayTeam={selectedFixture?.teams?.away?.name}
+              matchStatus={selectedFixture?.fixture?.status?.short}
+              match={selectedFixture}
+            />
+          </div>
+        )}
 
         {/* Mobile bottom padding for safe area */}
         {isMobile && <div className="pb-safe-bottom" />}
