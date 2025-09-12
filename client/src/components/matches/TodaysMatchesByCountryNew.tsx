@@ -378,7 +378,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const countryRefs = useRef<Map<string, HTMLElement>>(new Map());
   const INITIAL_COUNTRIES_LOAD = 10; // Show more initially for better UX
 
-  // Optimized query with immediate cache access and faster network settings
+  // Ultra-fast query with aggressive caching and immediate data display
   const {
     data: fixtures = [],
     isLoading,
@@ -404,16 +404,25 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return Array.isArray(data) ? data : [];
     },
     {
-      staleTime: isToday ? 2 * 60 * 1000 : 30 * 60 * 1000, // Reduced stale time for faster updates
-      cacheTime: isToday ? 10 * 60 * 1000 : 60 * 60 * 1000, // Reduced cache time
+      staleTime: isToday ? 30 * 60 * 1000 : 24 * 60 * 60 * 1000, // Extended stale time for instant loading
+      cacheTime: isToday ? 60 * 60 * 1000 : 48 * 60 * 60 * 1000, // Extended cache time
       refetchInterval: false,
       enabled: !!selectedDate,
-      retry: 0, // Reduced retry attempts
+      retry: 1, // Minimal retry
       networkMode: 'online',
       refetchOnMount: false,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       keepPreviousData: true,
+      // Show cached data immediately, fetch in background
+      initialData: () => {
+        const queryClient = window.__REACT_QUERY_CLIENT__;
+        if (queryClient) {
+          const cachedData = queryClient.getQueryData(["all-fixtures-by-date", selectedDate]);
+          return cachedData || [];
+        }
+        return [];
+      },
     },
   );
 
@@ -440,51 +449,76 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Removed logging for better performance
   }, [fixtures?.length, selectedDate]);
 
-  // Ultra-fast data processing - no chunking, direct processing
-  const processedCountryData = useMemo(() => {
-    if (!fixtures?.length || !selectedDate) return {};
+  // Async chunked data processing to prevent UI blocking
+  const [processedCountryData, setProcessedCountryData] = useState<Record<string, any>>({});
+  const [isProcessing, setIsProcessing] = useState(false);
 
-    const countryMap: Record<string, any> = {};
-    const popularLeagueSet = new Set(POPULAR_LEAGUES);
-
-    // Direct processing without chunking for better performance
-    for (const fixture of fixtures) {
-      // Essential validation only
-      if (!fixture?.fixture?.id || !fixture.teams || !fixture.league?.country) continue;
-
-      // Quick date check
-      const fixtureDate = getFixtureClientDate(fixture.fixture.date);
-      if (fixtureDate !== selectedDate) continue;
-
-      const country = fixture.league.country;
-      const leagueId = fixture.league.id;
-
-      // Initialize country
-      if (!countryMap[country]) {
-        countryMap[country] = {
-          country,
-          leagues: {},
-          hasPopularLeague: false,
-        };
-      }
-
-      const countryData = countryMap[country];
-
-      // Initialize league
-      if (!countryData.leagues[leagueId]) {
-        const isPopular = popularLeagueSet.has(leagueId);
-        countryData.leagues[leagueId] = {
-          league: fixture.league,
-          matches: [],
-          isPopular,
-        };
-        if (isPopular) countryData.hasPopularLeague = true;
-      }
-
-      countryData.leagues[leagueId].matches.push(fixture);
+  useEffect(() => {
+    if (!fixtures?.length || !selectedDate) {
+      setProcessedCountryData({});
+      return;
     }
 
-    return countryMap;
+    setIsProcessing(true);
+    
+    // Use requestIdleCallback for non-blocking processing
+    const processData = async () => {
+      const countryMap: Record<string, any> = {};
+      const popularLeagueSet = new Set(POPULAR_LEAGUES);
+      const CHUNK_SIZE = 100; // Process in chunks of 100 fixtures
+
+      // Process fixtures in chunks to prevent UI blocking
+      for (let i = 0; i < fixtures.length; i += CHUNK_SIZE) {
+        const chunk = fixtures.slice(i, i + CHUNK_SIZE);
+        
+        // Process chunk
+        for (const fixture of chunk) {
+          // Essential validation only
+          if (!fixture?.fixture?.id || !fixture.teams || !fixture.league?.country) continue;
+
+          // Quick date check
+          const fixtureDate = getFixtureClientDate(fixture.fixture.date);
+          if (fixtureDate !== selectedDate) continue;
+
+          const country = fixture.league.country;
+          const leagueId = fixture.league.id;
+
+          // Initialize country
+          if (!countryMap[country]) {
+            countryMap[country] = {
+              country,
+              leagues: {},
+              hasPopularLeague: false,
+            };
+          }
+
+          const countryData = countryMap[country];
+
+          // Initialize league
+          if (!countryData.leagues[leagueId]) {
+            const isPopular = popularLeagueSet.has(leagueId);
+            countryData.leagues[leagueId] = {
+              league: fixture.league,
+              matches: [],
+              isPopular,
+            };
+            if (isPopular) countryData.hasPopularLeague = true;
+          }
+
+          countryData.leagues[leagueId].matches.push(fixture);
+        }
+
+        // Yield control back to browser after each chunk
+        if (i + CHUNK_SIZE < fixtures.length) {
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
+      }
+
+      setProcessedCountryData(countryMap);
+      setIsProcessing(false);
+    };
+
+    processData();
   }, [fixtures, selectedDate]);
 
   // Ultra-lightweight country list processing with alphabetical sorting
@@ -609,31 +643,38 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, "yyyy-MM-dd");
   };
 
-  // Simplified lazy loading setup
+  // Progressive loading: Show popular countries immediately, others progressively
   useEffect(() => {
     if (countryList.length === 0) return;
 
-    // Load more countries initially for better UX
-    const INITIAL_LOAD = Math.min(15, countryList.length); // Increased from 10 to 15
-    
-    // Prioritize World and popular countries
-    const priorityCountries = countryList
-      .filter(country => {
-        const countryData = processedCountryData[country];
-        return country === "World" || countryData?.hasPopularLeague;
-      })
-      .slice(0, INITIAL_LOAD);
+    // Phase 1: Immediately show World and popular countries (no delay)
+    const popularCountries = countryList.filter(country => {
+      const countryData = processedCountryData[country];
+      return country === "World" || countryData?.hasPopularLeague;
+    });
 
-    // Fill remaining slots with other countries
-    const remainingSlots = INITIAL_LOAD - priorityCountries.length;
-    if (remainingSlots > 0) {
-      const otherCountries = countryList
-        .filter(country => !priorityCountries.includes(country))
-        .slice(0, remainingSlots);
-      priorityCountries.push(...otherCountries);
-    }
+    // Phase 2: Add major football countries
+    const majorCountries = countryList.filter(country => 
+      ['England', 'Spain', 'Germany', 'Italy', 'France', 'Brazil', 'Argentina'].includes(country) &&
+      !popularCountries.includes(country)
+    );
 
-    setVisibleCountries(new Set(priorityCountries));
+    // Phase 3: Other countries
+    const otherCountries = countryList.filter(country => 
+      !popularCountries.includes(country) && !majorCountries.includes(country)
+    );
+
+    // Immediately show popular countries
+    setVisibleCountries(new Set(popularCountries));
+
+    // Progressive loading of remaining countries
+    setTimeout(() => {
+      setVisibleCountries(prev => new Set([...prev, ...majorCountries.slice(0, 10)]));
+    }, 100);
+
+    setTimeout(() => {
+      setVisibleCountries(prev => new Set([...prev, ...otherCountries.slice(0, 15)]));
+    }, 300);
 
     return () => {
       if (observerRef.current) {
@@ -1089,10 +1130,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Simplified loading logic - show content immediately or loading state quickly
+  // Smart loading: Show cached data immediately, minimal loading states
   const hasAnyData = fixtures?.length > 0 || Object.keys(processedCountryData).length > 0;
-  const shouldShowLoading = isLoading && !hasAnyData && !isPreviousData;
+  const hasProcessedData = Object.keys(processedCountryData).length > 0;
+  const shouldShowLoading = isLoading && !hasAnyData && !isPreviousData && !isProcessing;
 
+  // Show skeleton only for true first-time loading
   if (shouldShowLoading) {
     return (
       <Card className="mt-4">
@@ -1106,6 +1149,27 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             <div className="flex items-center justify-center gap-2">
               <div className="w-4 h-4 border border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
               <span className="text-sm text-gray-600">Loading matches...</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show processing indicator for data transformation
+  if (isProcessing && fixtures?.length > 0 && !hasProcessedData) {
+    return (
+      <Card className="mt-4">
+        <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
+          <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
+            {getHeaderTitle()}
+          </h3>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="p-4 text-center">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-4 h-4 border border-gray-300 border-t-green-500 rounded-full animate-spin"></div>
+              <span className="text-sm text-gray-600">Processing matches...</span>
             </div>
           </div>
         </CardContent>
@@ -2334,10 +2398,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           >
             {getHeaderTitle()}
           </h3>
+          {/* Show processing indicator */}
+          {isProcessing && (
+            <div className="flex items-center gap-1 text-xs text-gray-500">
+              <div className="w-3 h-3 border border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+              <span>Processing...</span>
+            </div>
+          )}
           {/* Show subtle background loading indicator when updating cached data */}
-          {isLoading && hasAnyData && (
-            <div className="background-loading-indicator">
-              <div className="background-loading-spinner"></div>
+          {(isLoading || isFetching) && hasAnyData && !isProcessing && (
+            <div className="flex items-center gap-1 text-xs text-gray-500">
+              <div className="w-3 h-3 border border-gray-300 border-t-green-500 rounded-full animate-spin"></div>
               <span>Updating...</span>
             </div>
           )}
@@ -2345,7 +2416,16 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       </CardHeader>
       <CardContent className="p-0 dark:bg-gray-800">
         <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
-          {/* Simplified and faster country rendering */}
+          {/* Progressive rendering with processing feedback */}
+          {isProcessing && fixtures?.length > 0 && (
+            <div className="p-4 border-b border-gray-100">
+              <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                <div className="w-3 h-3 border border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                <span>Processing {fixtures.length} matches...</span>
+              </div>
+            </div>
+          )}
+          
           {visibleCountriesList.length > 0 ? (
             visibleCountriesList.map((country: string) => {
               const countryData = getCountryData(country);
@@ -2373,14 +2453,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 />
               );
             })
-          ) : (
+          ) : !isProcessing && hasAnyData ? (
             <div className="p-4 text-center">
               <div className="text-gray-500">
                 <p className="mb-2">No matches found for {selectedDate}</p>
                 <p className="text-sm">Try selecting a different date</p>
               </div>
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Load more trigger for remaining countries */}
