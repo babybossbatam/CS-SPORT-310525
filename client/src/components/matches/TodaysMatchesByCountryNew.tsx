@@ -491,14 +491,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Pre-filter fixtures with detailed logging
       const relevantFixtures = fixtures.filter(fixture => {
         if (!fixture?.fixture?.id || !fixture.teams || !fixture.league?.country) return false;
-        const fixtureDate = getFixtureClientDate(fixture.fixture.date);
-        const isRelevant = fixtureDate === selectedDate;
+        
+        // Use UTC date extraction for consistent filtering
+        const fixtureUTCDate = new Date(fixture.fixture.date);
+        const fixtureDateString = fixtureUTCDate.toISOString().split("T")[0]; // YYYY-MM-DD in UTC
+        const isRelevant = fixtureDateString === selectedDate;
         
         // Log first few fixtures for debugging
         if (fixtures.indexOf(fixture) < 5) {
           console.log(`🔍 [Date Filter] Fixture ${fixture.fixture.id}: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
-          console.log(`   Original date: ${fixture.fixture.date}`);
-          console.log(`   Client date: ${fixtureDate}`);
+          console.log(`   Original UTC date: ${fixture.fixture.date}`);
+          console.log(`   Extracted UTC date: ${fixtureDateString}`);
           console.log(`   Selected date: ${selectedDate}`);
           console.log(`   Match: ${isRelevant ? '✅' : '❌'}`);
         }
