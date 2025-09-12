@@ -382,16 +382,20 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const INITIAL_COUNTRIES_LOAD = 2; // Reduced to 2 for immediate display
   const BACKGROUND_LOAD_BATCH_SIZE = 5; // Reduced from 15 to 5 for smaller chunks
 
-  // Ultra-optimized query for maximum performance
+  // Ultra-optimized query for maximum performance with immediate cache access
   const {
     data: fixtures = [],
     isLoading,
     error: queryError,
     refetch,
+    isFetching,
+    isPreviousData,
   } = useCachedQuery(
     ["all-fixtures-by-date", selectedDate],
     async () => {
       if (!selectedDate) return [];
+
+      console.log(`🔄 [TodaysMatchesByCountryNew] Fetching fixtures for ${selectedDate}`);
 
       const response = await apiRequest(
         "GET",
@@ -403,11 +407,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }
 
       const data = await response.json();
+      console.log(`✅ [TodaysMatchesByCountryNew] Received ${data.length} fixtures for ${selectedDate}`);
       return Array.isArray(data) ? data : [];
     },
     {
-      staleTime: isToday ? 5 * 60 * 1000 : 24 * 60 * 60 * 1000,
-      cacheTime: isToday ? 60 * 60 * 1000 : 48 * 60 * 60 * 1000,
+      staleTime: isToday ? 5 * 60 * 1000 : 60 * 60 * 1000, // 5min for today, 1hr for other dates
+      cacheTime: isToday ? 30 * 60 * 1000 : 24 * 60 * 60 * 1000, // 30min for today, 24hr for others
       refetchInterval: false,
       enabled: !!selectedDate,
       retry: 1,
@@ -415,6 +420,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       refetchOnMount: false,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
+      keepPreviousData: true, // Keep previous data while loading new data
       // Remove onError callback to reduce overhead
     },
   );
@@ -427,7 +433,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         ? "Network connection issue. Please check your internet connection and try again."
         : queryError.message.includes("timeout")
           ? "Request timeout. The server took too long to respond."
-          : "Failed to load fixtures. Please try again later."
+          : queryError.message.includes("404")
+            ? "No fixtures found for this date. Please select another date."
+            : "Failed to load fixtures. Please try again later."
       : "Unknown error occurred"
     : null;
 
@@ -623,7 +631,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // Show content immediately with more countries for faster perceived loading
     const ENHANCED_INITIAL_LOAD = Math.min(5, countryList.length); // Show 5 countries initially
-    
+
     const priorityCountries = countryList
       .filter(country => {
         const countryData = processedCountryData[country];
@@ -641,8 +649,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
 
     // Fallback: if no priority countries found, just show first few
-    const finalCountries = priorityCountries.length > 0 
-      ? priorityCountries 
+    const finalCountries = priorityCountries.length > 0
+      ? priorityCountries
       : countryList.slice(0, ENHANCED_INITIAL_LOAD);
 
     // Set visible countries immediately - no waiting
@@ -659,7 +667,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     if (isBackgroundLoading) return;
 
     setIsBackgroundLoading(true);
-    const remainingCountries = countryList.filter(country => 
+    const remainingCountries = countryList.filter(country =>
       !initialCountries.includes(country)
     );
 
@@ -716,10 +724,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     const LOAD_MORE_BATCH_SIZE = 3; // Reduced from 10 to 3
 
     // Prioritize background-loaded countries for instant rendering
-    const backgroundLoaded = remainingCountries.filter(country => 
+    const backgroundLoaded = remainingCountries.filter(country =>
       backgroundLoadedCountries.has(country)
     );
-    const notBackgroundLoaded = remainingCountries.filter(country => 
+    const notBackgroundLoaded = remainingCountries.filter(country =>
       !backgroundLoadedCountries.has(country)
     );
 
@@ -1094,14 +1102,34 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Show minimal loading only if no data at all is available
-  if (isLoading && !fixtures.length && !Object.keys(processedCountryData).length) {
+  // Only show loading when there's absolutely no data available and we're fetching for the first time
+  const hasFixtureData = fixtures && fixtures.length > 0;
+  const hasProcessedData = Object.keys(processedCountryData).length > 0;
+  const hasAnyData = hasFixtureData || hasProcessedData;
+
+  // Only show loading if we have no data at all AND we're in initial loading state (not using previous data)
+  const shouldShowLoading = isLoading && !hasAnyData && !isPreviousData;
+
+  console.log(`🔍 [TodaysMatchesByCountryNew] Loading state check:`, {
+    selectedDate,
+    isLoading,
+    hasFixtureData,
+    hasProcessedData,
+    hasAnyData,
+    isPreviousData,
+    shouldShowLoading,
+    fixturesLength: fixtures?.length || 0,
+    processedCountriesCount: Object.keys(processedCountryData).length
+  });
+
+  if (shouldShowLoading) {
+    console.log(`⏳ [TodaysMatchesByCountryNew] Showing loading screen for ${selectedDate}`);
     return (
       <Card className="mt-4">
         <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
           <div className="flex justify-between items-center w-full">
             <h3
-              className="font-semibold"
+              className="font-semibold text-gray-900 dark:text-white"
               style={{
                 fontFamily:
                   "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
@@ -2352,8 +2380,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           {/* Show countries immediately - always prefer showing content over empty state */}
           {(() => {
             // Always show content - use visible countries if available, otherwise show first available
-            const countriesToRender = visibleCountriesList.length > 0 
-              ? visibleCountriesList 
+            const countriesToRender = visibleCountriesList.length > 0
+              ? visibleCountriesList
               : countryList.slice(0, Math.min(5, countryList.length));
 
             if (countriesToRender.length === 0) {
@@ -2401,7 +2429,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           <div className="p-4 text-center border-t border-gray-100">
             {/* Invisible trigger for auto-loading */}
             <div ref={loadMoreTriggerRef} className="h-1" />
-            
+
             {/* Loading status */}
             {isLoadingMore && (
               <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
