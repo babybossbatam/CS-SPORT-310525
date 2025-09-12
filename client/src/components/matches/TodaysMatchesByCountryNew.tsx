@@ -483,11 +483,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return countries.sort((a, b) => a === "World" ? -1 : b === "World" ? 1 : 0);
   }, [processedCountryData]);
 
-  // Remove validFixtures calculation as it's not used
-  const filteredFixtures = fixtures || [];
-
-  // Simplified filtering - just use validFixtures directly
-  const filteredFixtures = validFixtures; // Already filtered in processedCountryData
+  // Use fixtures directly - they're already filtered by the API
+  const validFixtures = fixtures || [];
 
   // Now validate after all hooks are called
   if (!selectedDate) {
