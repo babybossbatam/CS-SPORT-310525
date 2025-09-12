@@ -258,12 +258,7 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
           )}
         </div>
 
-        {/* Mobile: Show MyRightContent after left content when no fixture is selected */}
-        {isMobile && !selectedFixture && (
-          <div className="w-full px-2 space-y-4 mt-4">
-            <MyRightContent />
-          </div>
-        )}
+        
 
         {/* Mobile: Show fixture details in overlay when selected */}
         {isMobile && selectedFixture && (

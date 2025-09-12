@@ -26,7 +26,8 @@ import {
   shouldExcludeFromPopularLeagues,
   isRestrictedUSLeague,
 } from "@/lib/MyPopularLeagueExclusion";
-
+import { useDeviceInfo } from '@/hooks/use-mobile';
+import MyRightContent from '@/components/layout/MyRightContent';
 
 
 interface TodayMatchPageCardProps {
@@ -47,6 +48,7 @@ export const TodayMatchPageCard = ({
   const calendarRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
   const { currentLanguage } = useLanguage();
+  const { isMobile } = useDeviceInfo();
 
   // Calendar translation helpers
   const getMonthName = (monthIndex: number): string => {
@@ -506,7 +508,9 @@ export const TodayMatchPageCard = ({
             timeFilterActive={timeFilterActive}
             onMatchCardClick={handleMatchCardClick}
           />
-
+          {isMobile && (
+            <MyRightContent />
+          )}
         </>
       )
     }
