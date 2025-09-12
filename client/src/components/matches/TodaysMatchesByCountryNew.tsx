@@ -925,7 +925,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return "All Matches by Time";
     }
 
-    // Always show "Football Matches by Country" regardless of date
+    // Show "Today's Football Matches by Country" for today, otherwise just "Football Matches by Country"
+    if (isDateStringToday(selectedDate)) {
+      return "Today's Football Matches by Country";
+    }
+    
     return "Football Matches by Country";
   };
 
