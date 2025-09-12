@@ -623,9 +623,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
   // League IDs without any filtering - removed duplicates
   const leagueIds = [
-    32, 38, 39, 29, 15, 78, 79, 61, 2, 4, 10, 11, 848, 886, 1022, 772, 307, 71, 3, 5, 531, 22,
-    72, 73, 75, 76, 233, 667, 301, 908, 1169, 23, 253, 850, 893, 921, 130,
-    128, 493, 239, 265, 237, 235, 743,
+    32, 38, 39, 29, 140, 15, 78, 79, 61, 2, 4, 10, 11, 848, 886, 1022, 772, 307,
+    71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 301, 908, 1169, 23, 253, 850,
+    893, 921, 130, 128, 493, 239, 265, 237, 235, 743,
   ];
 
   // Helper function to add delay between requests
@@ -2327,8 +2327,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         .sort(([aId], [bId]) => {
           // Define priority order - same as MyNewLeague
           const priorityOrder = [
-            32, 38, 39, 29, 850, 15, 78, 79, 61, 2, 5, 22, 10, 11, 1022, 772, 307, 71, 72, 667,
-            301, 3, 848, 73, 75, 239, 233, 253,
+            32, 38, 39, 29, 140, 850, 15, 78, 79, 61, 2, 5, 22, 10, 11, 1022,
+            772, 307, 71, 72, 667, 301, 3, 848, 73, 75, 239, 233, 253,
           ];
 
           const aIndex = priorityOrder.indexOf(Number(aId));
