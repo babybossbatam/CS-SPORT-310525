@@ -671,9 +671,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Preload critical cache data immediately
   useEffect(() => {
-    // Initialize cache with common data immediately
-    const cacheKey = `processed-country-data-${selectedDate}`;
-    CacheManager.warmupCache(cacheKey);
+    // Cache will be warmed up naturally through the useCachedQuery
+    console.log(`🔄 [Cache Strategy] Prepared cache warming for ${selectedDate}`);
   }, [selectedDate]);
 
   const getCountryData = useCallback(
