@@ -622,7 +622,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   // League IDs without any filtering - removed duplicates
   const leagueIds = [
     32, 38, 29, 15, 2, 4, 10, 11, 848, 886, 1022, 772, 307, 71, 3, 5, 531, 22,
-    72, 73, 75, 76, 233, 667, 301, 940, 908, 1169, 23, 253, 850, 893, 921, 130,
+    72, 73, 75, 76, 233, 667, 301, 908, 1169, 23, 253, 850, 893, 921, 130,
     128, 493, 239, 265, 237, 235, 743,
   ];
 
@@ -741,7 +741,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
         if (!cached) return [];
 
-        const parsedCache = JSON.parse(cached);
+        const parsedCache = JSON.JSON.parse(cached);
 
         // Handle both old and new cache formats
         const fixtures = parsedCache.fixtures || parsedCache.f || [];
