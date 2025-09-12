@@ -435,7 +435,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           ? "Request timeout. The server took too long to respond."
           : queryError.message.includes("404")
             ? "No fixtures found for this date. Please select another date."
-            : "Failed to load fixtures. Please try again later."
+            : queryError.message.includes("429")
+              ? "Too many requests. Please try again later."
+              : queryError.message.includes("500")
+                ? "Server error. Please try again later."
+                : queryError.message
       : "Unknown error occurred"
     : null;
 
@@ -2373,6 +2377,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           >
             {getHeaderTitle()}
           </h3>
+          {/* Show subtle background loading indicator when updating cached data */}
+          {isLoading && hasAnyData && (
+            <div className="background-loading-indicator">
+              <div className="background-loading-spinner"></div>
+              <span>Updating...</span>
+            </div>
+          )}
         </div>
       </CardHeader>
       <CardContent className="p-0 dark:bg-gray-800">
