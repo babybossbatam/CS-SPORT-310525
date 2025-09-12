@@ -543,7 +543,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Set initial data immediately (first 8 countries)
       setProcessedCountryData(initialCountryData);
       setProcessedCountries(new Set(initialCountries));
-      setIsProcessing(false);
+      
+      // Keep processing flag until initial batch is complete
+      if (initialCountries.length >= 8) {
+        setIsProcessing(false);
+      }
 
       // Process remaining countries progressively in background
       const remainingCountries = sortedCountries.slice(8);
@@ -726,26 +730,45 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, "yyyy-MM-dd");
   };
 
-  // Update visible countries as they get processed
+  // Update visible countries - show initial 8 countries immediately when processed
   useEffect(() => {
     if (countryList.length === 0) return;
 
-    // Show all processed countries immediately since they're loaded progressively
-    setVisibleCountries(new Set(countryList));
+    // Show first 8 countries immediately once they're processed
+    const initialCountries = countryList.slice(0, 8);
+    const allInitialProcessed = initialCountries.every(country => processedCountries.has(country));
+    
+    if (allInitialProcessed && initialCountries.length > 0) {
+      // Show all 8 initial countries at once
+      setVisibleCountries(new Set(initialCountries));
+    } else if (processedCountries.size > 0) {
+      // Fallback: show processed countries individually if not all 8 are ready
+      const processedFromList = countryList.filter(country => processedCountries.has(country));
+      setVisibleCountries(new Set(processedFromList));
+    }
 
     return () => {
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
     };
-  }, [countryList.length, processedCountries.size]);
+  }, [countryList.length, processedCountries.size, Array.from(processedCountries).join(',')]);
 
-  // Load more is handled automatically by progressive processing
+  // Load more countries on demand (for remaining countries after initial 8)
   const loadMoreCountries = useCallback(() => {
-    // Countries are loaded automatically in background
-    // This function is kept for compatibility but does nothing
-    // since progressive processing handles loading automatically
-  }, []);
+    const remainingCountries = countryList.filter(country => !visibleCountries.has(country));
+    const LOAD_MORE_BATCH_SIZE = 5;
+    
+    const nextBatch = remainingCountries.slice(0, LOAD_MORE_BATCH_SIZE);
+    
+    if (nextBatch.length > 0) {
+      setVisibleCountries(prev => {
+        const newVisible = new Set(prev);
+        nextBatch.forEach(country => newVisible.add(country));
+        return newVisible;
+      });
+    }
+  }, [countryList, visibleCountries]);
 
   const getCountryData = useCallback(
     (country: string) => {
