@@ -713,7 +713,7 @@
 }
 
 .country-matches-container .match-card-container:hover .match-hide-button {
-  opacity: 1;
+  display: none;
 }
 
 .country-matches-container .match-hide-icon {
