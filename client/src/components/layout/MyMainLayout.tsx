@@ -84,28 +84,38 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
       <Header showTextOnMobile={true} />
       <div
         className={cn(
-          "  py-4 mobile-main-layout overflow-y-auto ",
-          isMobile ? "mx-2" : "",
+          "py-4 mobile-main-layout overflow-y-auto overflow-x-auto",
+          isMobile ? "px-2" : "px-0",
         )}
         style={{
-          marginLeft: isMobile ? "8px" : "150px",
-          marginRight: isMobile ? "8px" : "150px",
+          marginLeft: isMobile ? "0" : "150px",
+          marginRight: isMobile ? "0" : "150px",
           marginTop: isMobile ? "60px" : "80px",
+          width: isMobile ? "100vw" : "auto",
+          maxWidth: isMobile ? "100vw" : "none",
         }}
       >
         <div
           className={cn(
             "grid gap-4",
-            isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12",
+            isMobile ? "grid-cols-1 w-full" : "grid-cols-1 lg:grid-cols-12",
           )}
+          style={{
+            width: isMobile ? "100%" : "auto",
+            minWidth: isMobile ? "100%" : "auto",
+          }}
         >
           {/* Left column (5 columns on desktop, full width on mobile) - Hide on mobile when match is selected */}
           {(!isMobile || !selectedFixture) && (
             <div
               className={cn(
-                " space-y-4",
-                isMobile ? "w-full col-span-1" : "lg:col-span-5",
+                "space-y-4",
+                isMobile ? "w-full col-span-1 px-2" : "lg:col-span-5",
               )}
+              style={{
+                width: isMobile ? "100%" : "auto",
+                maxWidth: isMobile ? "100%" : "none",
+              }}
             >
               {/* Render children if provided, otherwise show TodayMatchPageCard */}
               {children ? (
