@@ -484,12 +484,29 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     const processDataProgressively = async () => {
       const popularLeagueSet = new Set(POPULAR_LEAGUES);
       
-      // Pre-filter fixtures
+      // Debug logging for date filtering
+      console.log(`🗓️ [TodaysMatchesByCountryNew] Processing fixtures for selected date: ${selectedDate}`);
+      console.log(`📊 [TodaysMatchesByCountryNew] Total fixtures received: ${fixtures.length}`);
+      
+      // Pre-filter fixtures with detailed logging
       const relevantFixtures = fixtures.filter(fixture => {
         if (!fixture?.fixture?.id || !fixture.teams || !fixture.league?.country) return false;
         const fixtureDate = getFixtureClientDate(fixture.fixture.date);
-        return fixtureDate === selectedDate;
+        const isRelevant = fixtureDate === selectedDate;
+        
+        // Log first few fixtures for debugging
+        if (fixtures.indexOf(fixture) < 5) {
+          console.log(`🔍 [Date Filter] Fixture ${fixture.fixture.id}: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+          console.log(`   Original date: ${fixture.fixture.date}`);
+          console.log(`   Client date: ${fixtureDate}`);
+          console.log(`   Selected date: ${selectedDate}`);
+          console.log(`   Match: ${isRelevant ? '✅' : '❌'}`);
+        }
+        
+        return isRelevant;
       });
+      
+      console.log(`✅ [TodaysMatchesByCountryNew] Filtered to ${relevantFixtures.length} relevant fixtures`);
 
       // Group fixtures by country first (lightweight operation)
       const fixturesByCountry: Record<string, any[]> = {};
@@ -755,6 +772,21 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const getFixtureLocalDate = (utcDateString: string): string => {
     const utcDate = parseISO(utcDateString);
     return format(utcDate, "yyyy-MM-dd");
+  };
+
+  // Debug helper to trace date conversion issues
+  const debugFixtureDate = (fixture: any) => {
+    if (fixture?.teams?.home?.name === "Nottingham Forest" || fixture?.teams?.away?.name === "Nottingham Forest") {
+      console.log(`🏴󠁧󠁢󠁥󠁮󠁧󠁿 [DEBUG Nottingham] Fixture details:`, {
+        fixtureId: fixture.fixture.id,
+        originalDate: fixture.fixture.date,
+        clientDate: getFixtureClientDate(fixture.fixture.date),
+        selectedDate: selectedDate,
+        homeTeam: fixture.teams.home.name,
+        awayTeam: fixture.teams.away.name,
+        country: fixture.league.country
+      });
+    }
   };
 
   // Enhanced visibility logic with background-processed countries support
