@@ -1106,12 +1106,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Only show loading when there's absolutely no data available and we're fetching for the first time
+  // Show content immediately if we have any cached data, only show loading if absolutely no data exists
   const hasFixtureData = fixtures && fixtures.length > 0;
   const hasProcessedData = Object.keys(processedCountryData).length > 0;
-  const hasAnyData = hasFixtureData || hasProcessedData;
+  const hasVisibleCountries = visibleCountriesList.length > 0;
+  const hasAnyData = hasFixtureData || hasProcessedData || hasVisibleCountries;
 
-  // Only show loading if we have no data at all AND we're in initial loading state (not using previous data)
+  // Only show loading if we have absolutely no data AND we're in initial loading state
   const shouldShowLoading = isLoading && !hasAnyData && !isPreviousData;
 
   console.log(`🔍 [TodaysMatchesByCountryNew] Loading state check:`, {
@@ -1119,15 +1120,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     isLoading,
     hasFixtureData,
     hasProcessedData,
+    hasVisibleCountries,
     hasAnyData,
     isPreviousData,
     shouldShowLoading,
     fixturesLength: fixtures?.length || 0,
-    processedCountriesCount: Object.keys(processedCountryData).length
+    processedCountriesCount: Object.keys(processedCountryData).length,
+    visibleCountriesCount: visibleCountriesList.length
   });
 
   if (shouldShowLoading) {
-    console.log(`⏳ [TodaysMatchesByCountryNew] Showing loading screen for ${selectedDate}`);
+    console.log(`⏳ [TodaysMatchesByCountryNew] Showing loading screen for ${selectedDate} - truly no data available`);
     return (
       <Card className="mt-4">
         <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
@@ -2388,27 +2391,57 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       </CardHeader>
       <CardContent className="p-0 dark:bg-gray-800">
         <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
-          {/* Show countries immediately - always prefer showing content over empty state */}
+          {/* Show countries immediately - prioritize any available data */}
           {(() => {
-            // Always show content - use visible countries if available, otherwise show first available
-            const countriesToRender = visibleCountriesList.length > 0
-              ? visibleCountriesList
-              : countryList.slice(0, Math.min(5, countryList.length));
+            // Smart content rendering: use any available data source
+            let countriesToRender = [];
+
+            if (visibleCountriesList.length > 0) {
+              // Primary: use visible countries list
+              countriesToRender = visibleCountriesList;
+              console.log(`📊 [TodaysMatchesByCountryNew] Rendering ${countriesToRender.length} visible countries`);
+            } else if (countryList.length > 0) {
+              // Fallback: use first few countries from the full list
+              countriesToRender = countryList.slice(0, Math.min(3, countryList.length));
+              console.log(`🔄 [TodaysMatchesByCountryNew] Fallback: rendering first ${countriesToRender.length} countries from full list`);
+            } else if (fixtures && fixtures.length > 0) {
+              // Emergency fallback: try to extract countries from raw fixtures
+              const emergencyCountries = [...new Set(fixtures.map(f => f.league?.country).filter(Boolean))].slice(0, 2);
+              countriesToRender = emergencyCountries;
+              console.log(`🚨 [TodaysMatchesByCountryNew] Emergency: extracted ${countriesToRender.length} countries from raw fixtures`);
+            }
 
             if (countriesToRender.length === 0) {
-              return (
-                <div className="p-4 text-center">
-                  <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-                    <div className="w-4 h-4 border border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
-                    Processing matches...
+              // Only show processing if we truly have no way to show content
+              const showProcessing = isLoading && !fixtures?.length;
+              if (showProcessing) {
+                return (
+                  <div className="p-4 text-center">
+                    <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+                      <div className="w-4 h-4 border border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                      Processing matches...
+                    </div>
                   </div>
-                </div>
-              );
+                );
+              } else {
+                // Show "no matches" instead of loading when we have processed but found nothing
+                return (
+                  <div className="p-4 text-center">
+                    <div className="text-gray-500">
+                      <p className="mb-2">No matches found for {selectedDate}</p>
+                      <p className="text-sm">Try selecting a different date</p>
+                    </div>
+                  </div>
+                );
+              }
             }
 
             return countriesToRender.map((country: string) => {
               const countryData = getCountryData(country);
-              if (!countryData) return null;
+              if (!countryData) {
+                console.warn(`⚠️ [TodaysMatchesByCountryNew] No country data found for: ${country}`);
+                return null;
+              }
 
               const isExpanded = expandedCountries.has(countryData.country);
 
