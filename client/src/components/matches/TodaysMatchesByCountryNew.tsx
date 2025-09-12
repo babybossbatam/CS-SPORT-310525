@@ -638,12 +638,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       priorityCountries.push(...otherCountries);
     }
 
+    // Fallback: if no priority countries found, just show first few
+    const finalCountries = priorityCountries.length > 0 
+      ? priorityCountries 
+      : countryList.slice(0, INITIAL_COUNTRIES_LOAD);
+
     // Set visible countries immediately - no waiting
-    setVisibleCountries(new Set(priorityCountries));
+    setVisibleCountries(new Set(finalCountries));
 
     // Start background loading immediately in parallel
-    if (countryList.length > INITIAL_COUNTRIES_LOAD) {
-      startBackgroundLoading(priorityCountries);
+    if (countryList.length > finalCountries.length) {
+      startBackgroundLoading(finalCountries);
     }
   }, [countryList, processedCountryData]);
 
@@ -2352,13 +2357,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       <CardContent className="p-0 dark:bg-gray-800">
         <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
           {/* Show countries immediately - always prefer showing content over empty state */}
-          {(() => {
-            // Always show content immediately - use the first available countries
-            const countriesToShow = visibleCountriesList.length > 0 
-              ? visibleCountriesList 
-              : countryList.slice(0, Math.max(5, INITIAL_COUNTRIES_LOAD));
-            
-            return countriesToShow.map((country: string) => {
+          {visibleCountriesList.length > 0 ? (
+            // Show visible countries when available
+            visibleCountriesList.map((country: string) => {
               const countryData = getCountryData(country);
               if (!countryData) return null;
 
@@ -2383,8 +2384,36 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   observeCountryElement={observeCountryElement}
                 />
               );
-            });
-          })()}
+            })
+          ) : (
+            // Fallback: show first countries immediately while loading
+            countryList.slice(0, INITIAL_COUNTRIES_LOAD).map((country: string) => {
+              const countryData = getCountryData(country);
+              if (!countryData) return null;
+
+              const isExpanded = expandedCountries.has(countryData.country);
+
+              return (
+                <CountrySection
+                  key={countryData.country}
+                  country={countryData.country}
+                  countryData={countryData}
+                  isExpanded={isExpanded}
+                  expandedLeagues={expandedLeagues}
+                  starredMatches={starredMatches}
+                  hiddenMatches={hiddenMatches}
+                  halftimeFlashMatches={halftimeFlashMatches}
+                  fulltimeFlashMatches={fulltimeFlashMatches}
+                  goalFlashMatches={goalFlashMatches}
+                  onToggleCountry={toggleCountry}
+                  onToggleLeague={toggleLeague}
+                  onStarMatch={toggleStarMatch}
+                  onMatchClick={onMatchCardClick}
+                  observeCountryElement={observeCountryElement}
+                />
+              );
+            })
+          )}
         </div>
 
         {/* Auto-loading trigger and status */}
