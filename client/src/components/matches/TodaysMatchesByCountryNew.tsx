@@ -436,9 +436,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Removed logging for better performance
   }, [fixtures?.length, selectedDate]);
 
-  // Optimized data processing with reduced operations
+  // Optimized data processing with reduced operations and selectedDate filtering
   const processedCountryData = useMemo(() => {
-    if (!fixtures?.length) return {};
+    if (!fixtures?.length || !selectedDate) return {};
 
     const countryMap: Record<string, any> = {};
     const popularLeagueSet = new Set(POPULAR_LEAGUES);
@@ -456,6 +456,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       for (const fixture of chunk) {
         // Minimal validation - only check essential fields
         if (!fixture?.fixture?.id || !fixture.teams || !fixture.league?.country) continue;
+
+        // Filter by selected date - ensure fixture date matches selected date
+        const fixtureDate = getFixtureClientDate(fixture.fixture.date);
+        if (fixtureDate !== selectedDate) {
+          continue; // Skip fixtures that don't match the selected date
+        }
 
         const country = fixture.league.country;
         const leagueId = fixture.league.id;
@@ -487,7 +493,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
 
     return countryMap;
-  }, [fixtures]);
+  }, [fixtures, selectedDate]);
 
   // Ultra-lightweight country list processing
   const countryList = useMemo(() => {
