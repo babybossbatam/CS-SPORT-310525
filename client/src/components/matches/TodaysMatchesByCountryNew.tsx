@@ -734,6 +734,34 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [countryList, visibleCountries, backgroundLoadedCountries, isLoadingMore]);
 
+  // Auto-loading with intersection observer
+  const loadMoreTriggerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const trigger = loadMoreTriggerRef.current;
+    if (!trigger) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && !isLoadingMore && visibleCountriesList.length < countryList.length) {
+          loadMoreCountries();
+        }
+      },
+      {
+        root: null,
+        rootMargin: '100px', // Start loading when 100px away from trigger
+        threshold: 0.1,
+      }
+    );
+
+    observer.observe(trigger);
+
+    return () => {
+      observer.unobserve(trigger);
+    };
+  }, [loadMoreCountries, isLoadingMore, visibleCountriesList.length, countryList.length]);
+
   // No analysis stats for maximum performance
 
   // No need for heavy sorting - countries are already sorted in countryList
@@ -2351,16 +2379,29 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           })}
         </div>
 
-        {/* Load More Countries Button */}
+        {/* Auto-loading trigger and status */}
         {visibleCountriesList.length < countryList.length && (
           <div className="p-4 text-center border-t border-gray-100">
-            <button
-              onClick={loadMoreCountries}
-              disabled={isLoadingMore}
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 transition-colors text-sm"
-            >
-              {isLoadingMore ? 'Loading...' : `Load More Countries (${countryList.length - visibleCountriesList.length} remaining)`}
-            </button>
+            {/* Invisible trigger for auto-loading */}
+            <div ref={loadMoreTriggerRef} className="h-1" />
+            
+            {/* Loading status */}
+            {isLoadingMore && (
+              <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                <div className="w-4 h-4 border border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                Loading more countries...
+              </div>
+            )}
+
+            {/* Manual load button as fallback */}
+            {!isLoadingMore && (
+              <button
+                onClick={loadMoreCountries}
+                className="px-4 py-2 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors text-sm"
+              >
+                Load More ({countryList.length - visibleCountriesList.length} remaining)
+              </button>
+            )}
 
             {/* Background loading indicator */}
             {isBackgroundLoading && (
