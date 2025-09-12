@@ -90,7 +90,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
         style={{
           marginLeft: isMobile ? "0" : "150px",
           marginRight: isMobile ? "0" : "150px",
-          marginTop: isMobile ? "60px" : "80px",
+          marginTop: isMobile ? "100px" : "80px",
           width: isMobile ? "100vw" : "auto",
           maxWidth: isMobile ? "100vw" : "none",
         }}
