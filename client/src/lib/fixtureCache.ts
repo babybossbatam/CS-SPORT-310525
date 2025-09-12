@@ -709,6 +709,9 @@ class FixtureCache {
       return true;
     }
 
+    // For better UX, serve cached data immediately and fetch fresh data in background
+    // Only force immediate refresh for critical live data scenarios
+
     // CRITICAL: Validate all cached fixtures actually belong to the requested date
     const dateMatchedFixtures = cached.filter(fixture => {
       const fixtureDate = new Date(fixture.fixture.date);
