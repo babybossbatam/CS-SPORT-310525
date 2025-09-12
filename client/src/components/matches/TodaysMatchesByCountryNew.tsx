@@ -734,12 +734,20 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [countryList, visibleCountries, backgroundLoadedCountries, isLoadingMore]);
 
+  // No analysis stats for maximum performance
+
+  // No need for heavy sorting - countries are already sorted in countryList
+  const visibleCountriesList = useMemo(
+    () => countryList.filter((country) => visibleCountries.has(country)),
+    [countryList, Array.from(visibleCountries).join(",")],
+  );
+
   // Auto-loading with intersection observer
   const loadMoreTriggerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const trigger = loadMoreTriggerRef.current;
-    if (!trigger) return;
+    if (!trigger || !visibleCountriesList.length) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -761,14 +769,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       observer.unobserve(trigger);
     };
   }, [loadMoreCountries, isLoadingMore, visibleCountriesList.length, countryList.length]);
-
-  // No analysis stats for maximum performance
-
-  // No need for heavy sorting - countries are already sorted in countryList
-  const visibleCountriesList = useMemo(
-    () => countryList.filter((country) => visibleCountries.has(country)),
-    [countryList, Array.from(visibleCountries).join(",")],
-  );
 
   // Minimal expansion logic - no heavy operations
   useEffect(() => {
