@@ -379,8 +379,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   );
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isBackgroundLoading, setIsBackgroundLoading] = useState(false);
-  const INITIAL_COUNTRIES_LOAD = 10;
-  const BACKGROUND_LOAD_BATCH_SIZE = 15;
+  const INITIAL_COUNTRIES_LOAD = 3; // Reduced from 10 to 3 for faster initial render
+  const BACKGROUND_LOAD_BATCH_SIZE = 5; // Reduced from 15 to 5 for smaller chunks
 
   // Ultra-optimized query for maximum performance
   const {
@@ -436,44 +436,54 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Removed logging for better performance
   }, [fixtures?.length, selectedDate]);
 
-  // Lightweight data processing with minimal operations
+  // Optimized data processing with reduced operations
   const processedCountryData = useMemo(() => {
     if (!fixtures?.length) return {};
 
     const countryMap: Record<string, any> = {};
     const popularLeagueSet = new Set(POPULAR_LEAGUES);
 
-    // Single pass processing with minimal validations
-    for (let i = 0; i < fixtures.length; i++) {
-      const fixture = fixtures[i];
-      
-      // Minimal validation - only check essential fields
-      if (!fixture?.fixture?.id || !fixture.teams || !fixture.league?.country) continue;
+    // Process in chunks to avoid blocking
+    const chunkSize = 100;
+    const chunks = [];
+    
+    for (let i = 0; i < fixtures.length; i += chunkSize) {
+      chunks.push(fixtures.slice(i, i + chunkSize));
+    }
 
-      const country = fixture.league.country;
-      const leagueId = fixture.league.id;
+    // Process each chunk
+    for (const chunk of chunks) {
+      for (const fixture of chunk) {
+        // Minimal validation - only check essential fields
+        if (!fixture?.fixture?.id || !fixture.teams || !fixture.league?.country) continue;
 
-      // Initialize country if needed
-      if (!countryMap[country]) {
-        countryMap[country] = {
-          country,
-          leagues: {},
-          hasPopularLeague: false,
-        };
+        const country = fixture.league.country;
+        const leagueId = fixture.league.id;
+
+        // Initialize country if needed (reduced object creation)
+        if (!countryMap[country]) {
+          countryMap[country] = {
+            country,
+            leagues: {},
+            hasPopularLeague: false,
+          };
+        }
+
+        const countryData = countryMap[country];
+
+        // Initialize league if needed
+        if (!countryData.leagues[leagueId]) {
+          const isPopular = popularLeagueSet.has(leagueId);
+          countryData.leagues[leagueId] = {
+            league: fixture.league,
+            matches: [],
+            isPopular,
+          };
+          if (isPopular) countryData.hasPopularLeague = true;
+        }
+
+        countryData.leagues[leagueId].matches.push(fixture);
       }
-
-      // Initialize league if needed
-      if (!countryMap[country].leagues[leagueId]) {
-        const isPopular = popularLeagueSet.has(leagueId);
-        countryMap[country].leagues[leagueId] = {
-          league: fixture.league,
-          matches: [],
-          isPopular,
-        };
-        if (isPopular) countryMap[country].hasPopularLeague = true;
-      }
-
-      countryMap[country].leagues[leagueId].matches.push(fixture);
     }
 
     return countryMap;
@@ -599,7 +609,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Load countries progressively for better performance with background loading
   useEffect(() => {
-    if (countryList.length > 0) {
+    if (countryList.length === 0) return;
+
+    // Use requestIdleCallback or setTimeout to avoid blocking
+    const loadInitialCountries = () => {
       // Prioritize countries with popular leagues and World
       const priorityCountries = countryList
         .filter(country => {
@@ -619,10 +632,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       setVisibleCountries(new Set(priorityCountries));
       
-      // Start background loading after initial render
+      // Start background loading after initial render with delay
       if (countryList.length > INITIAL_COUNTRIES_LOAD) {
-        startBackgroundLoading(priorityCountries);
+        setTimeout(() => startBackgroundLoading(priorityCountries), 100);
       }
+    };
+
+    // Use requestIdleCallback if available, otherwise setTimeout
+    if (typeof requestIdleCallback !== 'undefined') {
+      requestIdleCallback(loadInitialCountries, { timeout: 50 });
+    } else {
+      setTimeout(loadInitialCountries, 0);
     }
   }, [countryList, processedCountryData]);
 
@@ -635,25 +655,32 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       !initialCountries.includes(country)
     );
 
-    // Process countries in batches to avoid blocking the UI
+    // Process countries in smaller batches to avoid blocking the UI
     for (let i = 0; i < remainingCountries.length; i += BACKGROUND_LOAD_BATCH_SIZE) {
       const batch = remainingCountries.slice(i, i + BACKGROUND_LOAD_BATCH_SIZE);
       
-      // Wait for next tick to prevent blocking
-      await new Promise(resolve => setTimeout(resolve, 0));
-      
-      // Pre-process data for these countries (this happens in background)
-      batch.forEach(country => {
-        const countryData = processedCountryData[country];
-        if (countryData) {
-          // Data is already processed, just mark as ready
-          setBackgroundLoadedCountries(prev => new Set([...prev, country]));
+      // Use requestIdleCallback for better yielding
+      await new Promise(resolve => {
+        const processData = () => {
+          batch.forEach(country => {
+            const countryData = processedCountryData[country];
+            if (countryData) {
+              setBackgroundLoadedCountries(prev => new Set([...prev, country]));
+            }
+          });
+          resolve(undefined);
+        };
+
+        if (typeof requestIdleCallback !== 'undefined') {
+          requestIdleCallback(processData, { timeout: 50 });
+        } else {
+          setTimeout(processData, 0);
         }
       });
 
-      // Small delay between batches to keep UI responsive
+      // Longer delay between batches for better responsiveness
       if (i + BACKGROUND_LOAD_BATCH_SIZE < remainingCountries.length) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 200));
       }
     }
     
@@ -669,13 +696,16 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // No additional initialization needed - handled above
 
-  // Enhanced load more with instant rendering for background-loaded data
+  // Enhanced load more with smaller increments for better responsiveness
   const loadMoreCountries = useCallback(() => {
     if (isLoadingMore) return;
     
     setIsLoadingMore(true);
     const currentVisible = Array.from(visibleCountries);
     const remainingCountries = countryList.filter(country => !visibleCountries.has(country));
+    
+    // Smaller batch size for better performance
+    const LOAD_MORE_BATCH_SIZE = 3; // Reduced from 10 to 3
     
     // Prioritize background-loaded countries for instant rendering
     const backgroundLoaded = remainingCountries.filter(country => 
@@ -687,18 +717,21 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     
     // Take from background-loaded first, then others
     const nextBatch = [
-      ...backgroundLoaded.slice(0, 10),
-      ...notBackgroundLoaded.slice(0, Math.max(0, 10 - backgroundLoaded.length))
-    ].slice(0, 10);
+      ...backgroundLoaded.slice(0, LOAD_MORE_BATCH_SIZE),
+      ...notBackgroundLoaded.slice(0, Math.max(0, LOAD_MORE_BATCH_SIZE - backgroundLoaded.length))
+    ].slice(0, LOAD_MORE_BATCH_SIZE);
     
-    setVisibleCountries(new Set([...currentVisible, ...nextBatch]));
+    // Use requestIdleCallback for non-blocking state update
+    const updateState = () => {
+      setVisibleCountries(new Set([...currentVisible, ...nextBatch]));
+      setIsLoadingMore(false);
+    };
     
-    // Instant render for background-loaded, small delay for others
-    const hasNonBackgroundLoaded = nextBatch.some(country => 
-      !backgroundLoadedCountries.has(country)
-    );
-    
-    setTimeout(() => setIsLoadingMore(false), hasNonBackgroundLoaded ? 100 : 0);
+    if (typeof requestIdleCallback !== 'undefined') {
+      requestIdleCallback(updateState, { timeout: 50 });
+    } else {
+      setTimeout(updateState, 0);
+    }
   }, [countryList, visibleCountries, backgroundLoadedCountries, isLoadingMore]);
 
   // No analysis stats for maximum performance
