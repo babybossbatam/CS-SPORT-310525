@@ -461,7 +461,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Removed logging for better performance
   }, [fixtures?.length, selectedDate]);
 
-  // Ultra-fast data processing with streaming and incremental updates
+  // Optimized data processing with chunking and prioritization
   const [processedCountryData, setProcessedCountryData] = useState<Record<string, any>>({});
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -473,46 +473,68 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     setIsProcessing(true);
     
-    // Immediate processing for first batch (top countries)
-    const processDataStreaming = () => {
+    const processDataOptimized = async () => {
       const countryMap: Record<string, any> = {};
       const popularLeagueSet = new Set(POPULAR_LEAGUES);
       
-      // Pre-filter fixtures to only relevant ones (much faster)
+      // Pre-filter fixtures with early return
       const relevantFixtures = fixtures.filter(fixture => {
         if (!fixture?.fixture?.id || !fixture.teams || !fixture.league?.country) return false;
         const fixtureDate = getFixtureClientDate(fixture.fixture.date);
         return fixtureDate === selectedDate;
       });
 
-      // Process all fixtures synchronously (much faster than chunking for smaller datasets)
-      for (const fixture of relevantFixtures) {
-        const country = fixture.league.country;
-        const leagueId = fixture.league.id;
+      // Process in chunks to prevent UI blocking
+      const CHUNK_SIZE = 50;
+      const chunks = [];
+      for (let i = 0; i < relevantFixtures.length; i += CHUNK_SIZE) {
+        chunks.push(relevantFixtures.slice(i, i + CHUNK_SIZE));
+      }
 
-        // Initialize country efficiently
-        if (!countryMap[country]) {
-          countryMap[country] = {
-            country,
-            leagues: {},
-            hasPopularLeague: false,
-          };
-        }
+      // Process priority countries first (popular leagues)
+      const priorityCountries = new Set<string>();
+      const normalCountries = new Set<string>();
 
-        const countryData = countryMap[country];
-
-        // Initialize league efficiently
-        if (!countryData.leagues[leagueId]) {
+      for (const chunk of chunks) {
+        for (const fixture of chunk) {
+          const country = fixture.league.country;
+          const leagueId = fixture.league.id;
           const isPopular = popularLeagueSet.has(leagueId);
-          countryData.leagues[leagueId] = {
-            league: fixture.league,
-            matches: [],
-            isPopular,
-          };
+
+          if (isPopular) {
+            priorityCountries.add(country);
+          } else {
+            normalCountries.add(country);
+          }
+
+          // Initialize country efficiently
+          if (!countryMap[country]) {
+            countryMap[country] = {
+              country,
+              leagues: {},
+              hasPopularLeague: isPopular,
+            };
+          }
+
+          const countryData = countryMap[country];
           if (isPopular) countryData.hasPopularLeague = true;
+
+          // Initialize league efficiently
+          if (!countryData.leagues[leagueId]) {
+            countryData.leagues[leagueId] = {
+              league: fixture.league,
+              matches: [],
+              isPopular,
+            };
+          }
+
+          countryData.leagues[leagueId].matches.push(fixture);
         }
 
-        countryData.leagues[leagueId].matches.push(fixture);
+        // Yield control back to browser between chunks
+        if (chunks.indexOf(chunk) % 3 === 0) {
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
       }
 
       // Set processed data immediately
@@ -520,22 +542,37 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       setIsProcessing(false);
     };
 
-    // Use immediate processing for better UX
-    processDataStreaming();
+    // Use async processing to prevent blocking
+    processDataOptimized();
   }, [fixtures, selectedDate]);
 
-  // Ultra-lightweight country list processing with alphabetical sorting
+  // Optimized country list with stable sorting
   const countryList = useMemo(() => {
     const countries = Object.keys(processedCountryData);
     if (countries.length === 0) return [];
 
-    // Sort alphabetically with World first
-    return countries.sort((a, b) => {
-      if (a === "World") return -1;
-      if (b === "World") return 1;
-      return a.localeCompare(b);
-    });
-  }, [processedCountryData]);
+    // Pre-sort with priority order to reduce computation
+    const worldCountries = countries.filter(c => c === "World");
+    const popularCountries = countries.filter(c => 
+      c !== "World" && processedCountryData[c]?.hasPopularLeague
+    );
+    const majorCountries = countries.filter(c => 
+      c !== "World" && !processedCountryData[c]?.hasPopularLeague &&
+      ['England', 'Spain', 'Germany', 'Italy', 'France', 'Brazil', 'Argentina'].includes(c)
+    );
+    const otherCountries = countries.filter(c => 
+      c !== "World" && !processedCountryData[c]?.hasPopularLeague &&
+      !['England', 'Spain', 'Germany', 'Italy', 'France', 'Brazil', 'Argentina'].includes(c)
+    );
+
+    // Return pre-sorted array
+    return [
+      ...worldCountries,
+      ...popularCountries.sort(),
+      ...majorCountries.sort(),
+      ...otherCountries.sort()
+    ];
+  }, [Object.keys(processedCountryData).join(','), Object.values(processedCountryData).some(d => d?.hasPopularLeague)]);
 
   // Use fixtures directly - they're already filtered by the API
   const validFixtures = fixtures || [];
@@ -646,43 +683,32 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, "yyyy-MM-dd");
   };
 
-  // Instant display: Show all countries immediately for fastest UX
+  // Progressive loading strategy - show critical countries first
   useEffect(() => {
     if (countryList.length === 0) return;
 
-    // Show all countries at once for instant loading
-    // Priority order: World, popular leagues, major countries, then alphabetical
-    const sortedCountries = countryList.sort((a, b) => {
-      if (a === "World") return -1;
-      if (b === "World") return 1;
-      
-      const aData = processedCountryData[a];
-      const bData = processedCountryData[b];
-      const aHasPopular = aData?.hasPopularLeague;
-      const bHasPopular = bData?.hasPopularLeague;
-      
-      if (aHasPopular && !bHasPopular) return -1;
-      if (!aHasPopular && bHasPopular) return 1;
-      
-      const majorCountries = ['England', 'Spain', 'Germany', 'Italy', 'France', 'Brazil', 'Argentina'];
-      const aIsMajor = majorCountries.includes(a);
-      const bIsMajor = majorCountries.includes(b);
-      
-      if (aIsMajor && !bIsMajor) return -1;
-      if (!aIsMajor && bIsMajor) return 1;
-      
-      return a.localeCompare(b);
-    });
+    // Immediate display of top priority countries (no sorting needed - already sorted)
+    const initialBatch = countryList.slice(0, 8); // Show fewer initially for faster render
+    setVisibleCountries(new Set(initialBatch));
 
-    // Show top 25 countries immediately (covers most important matches)
-    setVisibleCountries(new Set(sortedCountries.slice(0, 25)));
+    // Progressive loading of remaining countries
+    const loadRemainingCountries = () => {
+      const nextBatch = countryList.slice(8, 20); // Load next batch
+      if (nextBatch.length > 0) {
+        setVisibleCountries(prev => new Set([...prev, ...nextBatch]));
+      }
+    };
+
+    // Delay loading of non-critical countries
+    const timer = setTimeout(loadRemainingCountries, 100);
 
     return () => {
+      clearTimeout(timer);
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
     };
-  }, [countryList, processedCountryData]);
+  }, [countryList.length]);
 
   // Simplified load more function - no complex virtual DOM operations
   const loadMoreCountries = useCallback(() => {
@@ -1076,7 +1102,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const hasProcessedData = Object.keys(processedCountryData).length > 0;
   const shouldShowLoading = isLoading && !hasAnyData && !isPreviousData;
 
-  // Only show loading for completely empty state
+  // Show loading with skeleton for better UX
   if (shouldShowLoading) {
     return (
       <Card className="mt-4">
@@ -1086,9 +1112,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           </h3>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="p-4 text-center">
-            <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
-            <span className="text-sm text-gray-500">Loading...</span>
+          {/* Skeleton loading */}
+          <div className="space-y-0">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="p-4 border-b border-gray-100 animate-pulse">
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
+                  <div className="h-4 bg-gray-200 rounded w-32"></div>
+                  <div className="h-4 bg-gray-200 rounded w-8 ml-auto"></div>
+                </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -1162,7 +1196,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return false;
   };
 
-  // Optimized country section with stable props
+  // Optimized country section with better memo
   const CountrySection = React.memo(
     ({
       country,
@@ -1407,14 +1441,15 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       );
     },
     (prevProps, nextProps) => {
-      // Optimized comparison - only check essential props
-      return (
-        prevProps.country === nextProps.country &&
-        prevProps.isExpanded === nextProps.isExpanded &&
-        prevProps.countryData.leagues === nextProps.countryData.leagues &&
-        prevProps.expandedLeagues.size === nextProps.expandedLeagues.size &&
-        prevProps.starredMatches.size === nextProps.starredMatches.size
-      );
+      // Fast shallow comparison for critical props only
+      if (prevProps.country !== nextProps.country) return false;
+      if (prevProps.isExpanded !== nextProps.isExpanded) return false;
+      
+      // Only check if country data reference changed (not deep comparison)
+      if (prevProps.countryData !== nextProps.countryData) return false;
+      
+      // Skip expensive Set comparisons - let React handle updates
+      return true;
     },
   );
 
