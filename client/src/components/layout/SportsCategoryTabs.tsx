@@ -85,7 +85,7 @@ const SportsCategoryTabs = () => {
                     ? 'text-[#15222A] dark:text-white'
                     : 'text-[#6B7173] hover:text-[#15222A] dark:text-gray-300 dark:hover:text-white'
                 )}
-                style={{ marginLeft: '-20px' }}
+                style={{ marginLeft: '-200px' }}
               >
                 <Icon className="h-[1.1rem] w-[1.1rem]" />
                 <span className="text-[0.94rem] font-normal whitespace-nowrap">{label}</span>
