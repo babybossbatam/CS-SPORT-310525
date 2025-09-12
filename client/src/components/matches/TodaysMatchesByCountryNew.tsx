@@ -1139,28 +1139,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return "All Matches by Time";
     }
 
-    // Default behavior based on selected date (client timezone)
-    const selectedDateObj = new Date(selectedDate);
-
-    if (isDateStringToday(selectedDate)) {
-      return "Today's Football Matches by Country";
-    } else if (isDateStringYesterday(selectedDate)) {
-      return "Yesterday's Football Matches by Country";
-    } else if (isDateStringTomorrow(selectedDate)) {
-      return "Tomorrow's Football Matches by Country";
-    } else {
-      // Custom date - format it nicely
-      try {
-        const customDate = parseISO(selectedDate);
-        if (isValid(customDate)) {
-          return `${format(customDate, "EEEE, MMMM do")} Football Matches by Country`;
-        } else {
-          return "Football Matches by Country";
-        }
-      } catch {
-        return "Football Matches by Country";
-      }
-    }
+    // Always show "Football Matches by Country" regardless of date
+    return "Football Matches by Country";
   };
 
   // Enhanced effect to detect status and score changes with flash effects
