@@ -2176,14 +2176,39 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           });
         }
 
-        // Only update state if data has actually changed
+        // Only update state if data has actually changed - more efficient comparison
         setFeaturedMatches((prevMatches) => {
-          const newMatchesString = JSON.stringify(allMatches);
-          const prevMatchesString = JSON.stringify(prevMatches);
-
-          if (newMatchesString !== prevMatchesString) {
+          // Quick length check first
+          if (prevMatches.length !== allMatches.length) {
+            console.log(`📊 [MyHomeFeaturedMatchNew] Match count changed: ${prevMatches.length} → ${allMatches.length}`);
             return allMatches;
           }
+
+          // Compare match IDs for efficiency instead of full JSON stringify
+          const prevIds = prevMatches.flatMap(day => day.matches.map(m => m.fixture.id)).sort();
+          const newIds = allMatches.flatMap(day => day.matches.map(m => m.fixture.id)).sort();
+          
+          if (prevIds.join(',') !== newIds.join(',')) {
+            console.log(`🔄 [MyHomeFeaturedMatchNew] Match IDs changed, updating state`);
+            return allMatches;
+          }
+
+          // Check for status changes in existing matches
+          const hasStatusChanges = allMatches.some(dayData => 
+            dayData.matches.some(match => {
+              const prevMatch = prevMatches
+                .flatMap(day => day.matches)
+                .find(m => m.fixture.id === match.fixture.id);
+              return prevMatch && prevMatch.fixture.status.short !== match.fixture.status.short;
+            })
+          );
+
+          if (hasStatusChanges) {
+            console.log(`⚽ [MyHomeFeaturedMatchNew] Match status changes detected, updating state`);
+            return allMatches;
+          }
+
+          console.log(`✅ [MyHomeFeaturedMatchNew] No changes detected, keeping existing state`);
           return prevMatches;
         });
       } catch (error) {
@@ -2354,9 +2379,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     clearExcludedLeaguesCaches();
 
     // Initial fetch with force refresh after clearing caches
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       fetchFeaturedMatches(true);
     }, 100);
+
+    return () => clearTimeout(timeoutId);
   }, []); // Only run once on mount
 
   // Smart cache interval management based on match states
@@ -2419,38 +2446,38 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     // ENHANCED refresh strategy including today's ended matches
     if (analysis.liveMatches > 0) {
       // Most aggressive: Live matches detected
-      refreshInterval = 15000; // 15 seconds for live matches
+      refreshInterval = 30000; // 30 seconds for live matches (reduced from 15s)
       shouldRefresh = true;
       console.log(
-        `🔴 [MyHomeFeaturedMatchNew] ${analysis.liveMatches} live matches - using most aggressive refresh (15s)`,
+        `🔴 [MyHomeFeaturedMatchNew] ${analysis.liveMatches} live matches - using aggressive refresh (30s)`,
       );
     } else if (todayEndedMatches > 0) {
       // Aggressive for today's ended matches to get final stats
-      refreshInterval = 30000; // 30 seconds
+      refreshInterval = 60000; // 1 minute (reduced from 30s)
       shouldRefresh = true;
       console.log(
-        `📊 [MyHomeFeaturedMatchNew] ${todayEndedMatches} today's ended matches - using aggressive refresh (30s)`,
+        `📊 [MyHomeFeaturedMatchNew] ${todayEndedMatches} today's ended matches - using moderate refresh (1min)`,
       );
     } else if (analysis.staleMatches > 0) {
       // Aggressive: Stale matches that should have updated
-      refreshInterval = 45000; // 45 seconds
+      refreshInterval = 90000; // 1.5 minutes (reduced from 45s)
       shouldRefresh = true;
       console.log(
-        `🟡 [MyHomeFeaturedMatchNew] ${analysis.staleMatches} stale matches detected - using aggressive refresh (45s)`,
+        `🟡 [MyHomeFeaturedMatchNew] ${analysis.staleMatches} stale matches detected - using moderate refresh (1.5min)`,
       );
     } else if (analysis.imminentMatches > 0) {
       // Very frequent: Matches starting within 30 minutes
-      refreshInterval = 60000; // 1 minute
+      refreshInterval = 120000; // 2 minutes (reduced from 1min)
       shouldRefresh = true;
       console.log(
-        `🟠 [MyHomeFeaturedMatchNew] ${analysis.imminentMatches} imminent matches - using frequent refresh (1min)`,
+        `🟠 [MyHomeFeaturedMatchNew] ${analysis.imminentMatches} imminent matches - using moderate refresh (2min)`,
       );
     } else if (analysis.upcomingMatches > 0) {
       // Moderate: Matches starting within 2 hours
-      refreshInterval = 120000; // 2 minutes
+      refreshInterval = 180000; // 3 minutes (reduced from 2min)
       shouldRefresh = true;
       console.log(
-        `🟢 [MyHomeFeaturedMatchNew] ${analysis.upcomingMatches} upcoming matches - using moderate refresh (2min)`,
+        `🟢 [MyHomeFeaturedMatchNew] ${analysis.upcomingMatches} upcoming matches - using standard refresh (3min)`,
       );
     } else {
       // Standard: No urgent matches
@@ -2466,15 +2493,19 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       return;
     }
 
-    const interval = setInterval(() => {
+    // Prevent double intervals by checking if one is already running
+    const intervalId = setInterval(() => {
       console.log(
         `🔄 [MyHomeFeaturedMatchNew] Smart refresh triggered (interval: ${refreshInterval / 1000}s)`,
       );
       fetchFeaturedMatches(false); // Background refresh without loading state
     }, refreshInterval);
 
-    return () => clearInterval(interval);
-  }, [featuredMatches, fetchFeaturedMatches]);
+    return () => {
+      clearInterval(intervalId);
+      console.log(`🧹 [MyHomeFeaturedMatchNew] Cleaned up refresh interval`);
+    };
+  }, [featuredMatches.length]); // Only depend on matches length, not the entire array
 
   const formatMatchTime = (dateString: string) => {
     try {
@@ -2935,7 +2966,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               <AnimatePresence mode="wait">
                 {currentMatch && (
                   <motion.div
-                    key={`match-${currentMatch.fixture.id}-${currentMatchIndex}`}
+                    key={`match-${currentMatch.fixture.id}-${currentMatch.fixture.status.short}`}
                     initial={{ x: 100, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     exit={{ x: -100, opacity: 0 }}
