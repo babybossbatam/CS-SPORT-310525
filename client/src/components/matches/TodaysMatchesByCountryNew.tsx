@@ -495,13 +495,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return countryMap;
   }, [fixtures, selectedDate]);
 
-  // Ultra-lightweight country list processing
+  // Ultra-lightweight country list processing with alphabetical sorting
   const countryList = useMemo(() => {
     const countries = Object.keys(processedCountryData);
     if (countries.length === 0) return [];
 
-    // Minimal sorting - just put World first
-    return countries.sort((a, b) => a === "World" ? -1 : b === "World" ? 1 : 0);
+    // Sort alphabetically with World first
+    return countries.sort((a, b) => {
+      if (a === "World") return -1;
+      if (b === "World") return 1;
+      return a.localeCompare(b);
+    });
   }, [processedCountryData]);
 
   // Use fixtures directly - they're already filtered by the API
