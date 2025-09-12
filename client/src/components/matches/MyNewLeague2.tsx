@@ -2327,7 +2327,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         .sort(([aId], [bId]) => {
           // Define priority order - same as MyNewLeague
           const priorityOrder = [
-            32, 38, 29, 850, 15, 2, 5, 22, 10, 11, 1022, 772, 307, 71, 72, 667,
+            32, 38, 39, 29, 850, 15, 2, 5, 22, 10, 11, 1022, 772, 307, 71, 72, 667,
             301, 3, 848, 73, 75, 239, 233, 253,
           ];
 
