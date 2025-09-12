@@ -379,7 +379,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   );
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isBackgroundLoading, setIsBackgroundLoading] = useState(false);
-  const INITIAL_COUNTRIES_LOAD = 3; // Reduced from 10 to 3 for faster initial render
+  const INITIAL_COUNTRIES_LOAD = 2; // Reduced to 2 for immediate display
   const BACKGROUND_LOAD_BATCH_SIZE = 5; // Reduced from 15 to 5 for smaller chunks
 
   // Ultra-optimized query for maximum performance
@@ -611,38 +611,29 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   useEffect(() => {
     if (countryList.length === 0) return;
 
-    // Use requestIdleCallback or setTimeout to avoid blocking
-    const loadInitialCountries = () => {
-      // Prioritize countries with popular leagues and World
-      const priorityCountries = countryList
-        .filter(country => {
-          const countryData = processedCountryData[country];
-          return country === "World" || countryData?.hasPopularLeague;
-        })
-        .slice(0, INITIAL_COUNTRIES_LOAD);
+    // Show content immediately - no delays
+    const priorityCountries = countryList
+      .filter(country => {
+        const countryData = processedCountryData[country];
+        return country === "World" || countryData?.hasPopularLeague;
+      })
+      .slice(0, INITIAL_COUNTRIES_LOAD);
 
-      // Add remaining countries up to initial load limit
-      const remainingSlots = INITIAL_COUNTRIES_LOAD - priorityCountries.length;
-      if (remainingSlots > 0) {
-        const otherCountries = countryList
-          .filter(country => !priorityCountries.includes(country))
-          .slice(0, remainingSlots);
-        priorityCountries.push(...otherCountries);
-      }
+    // Add remaining countries up to initial load limit
+    const remainingSlots = INITIAL_COUNTRIES_LOAD - priorityCountries.length;
+    if (remainingSlots > 0) {
+      const otherCountries = countryList
+        .filter(country => !priorityCountries.includes(country))
+        .slice(0, remainingSlots);
+      priorityCountries.push(...otherCountries);
+    }
 
-      setVisibleCountries(new Set(priorityCountries));
+    // Set visible countries immediately - no waiting
+    setVisibleCountries(new Set(priorityCountries));
 
-      // Start background loading after initial render with delay
-      if (countryList.length > INITIAL_COUNTRIES_LOAD) {
-        setTimeout(() => startBackgroundLoading(priorityCountries), 100);
-      }
-    };
-
-    // Use requestIdleCallback if available, otherwise setTimeout
-    if (typeof requestIdleCallback !== 'undefined') {
-      requestIdleCallback(loadInitialCountries, { timeout: 50 });
-    } else {
-      setTimeout(loadInitialCountries, 0);
+    // Start background loading immediately in parallel
+    if (countryList.length > INITIAL_COUNTRIES_LOAD) {
+      startBackgroundLoading(priorityCountries);
     }
   }, [countryList, processedCountryData]);
 
@@ -1086,8 +1077,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Show loading only if we're actually loading and have no data
-  if (isLoading && !fixtures.length) {
+  // Only show loading for the first few seconds, then show content even if loading
+  if (isLoading && !fixtures.length && countryList.length === 0) {
     return (
       <Card className="mt-4">
         <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
@@ -1106,7 +1097,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         </CardHeader>
         <CardContent className="p-0">
           <div className="space-y-0">
-            {[1, 2, 3].map((i) => (
+            {[1, 2].map((i) => (
               <div key={i} className="border-b border-gray-100 last:border-b-0">
                 <div className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -2350,33 +2341,40 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       </CardHeader>
       <CardContent className="p-0 dark:bg-gray-800">
         <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
-          {/* Show countries - fallback to all if progressive loading fails */}
-          {(visibleCountriesList.length > 0 ? visibleCountriesList : countryList.slice(0, 10)).map((country: string) => {
-            const countryData = getCountryData(country);
-            if (!countryData) return null;
+          {/* Show countries immediately - always prefer showing content over empty state */}
+          {(() => {
+            // Always show content immediately - use the first available countries
+            const countriesToShow = visibleCountriesList.length > 0 
+              ? visibleCountriesList 
+              : countryList.slice(0, Math.max(5, INITIAL_COUNTRIES_LOAD));
+            
+            return countriesToShow.map((country: string) => {
+              const countryData = getCountryData(country);
+              if (!countryData) return null;
 
-            const isExpanded = expandedCountries.has(countryData.country);
+              const isExpanded = expandedCountries.has(countryData.country);
 
-            return (
-              <CountrySection
-                key={countryData.country}
-                country={countryData.country}
-                countryData={countryData}
-                isExpanded={isExpanded}
-                expandedLeagues={expandedLeagues}
-                starredMatches={starredMatches}
-                hiddenMatches={hiddenMatches}
-                halftimeFlashMatches={halftimeFlashMatches}
-                fulltimeFlashMatches={fulltimeFlashMatches}
-                goalFlashMatches={goalFlashMatches}
-                onToggleCountry={toggleCountry}
-                onToggleLeague={toggleLeague}
-                onStarMatch={toggleStarMatch}
-                onMatchClick={onMatchCardClick}
-                observeCountryElement={observeCountryElement}
-              />
-            );
-          })}
+              return (
+                <CountrySection
+                  key={countryData.country}
+                  country={countryData.country}
+                  countryData={countryData}
+                  isExpanded={isExpanded}
+                  expandedLeagues={expandedLeagues}
+                  starredMatches={starredMatches}
+                  hiddenMatches={hiddenMatches}
+                  halftimeFlashMatches={halftimeFlashMatches}
+                  fulltimeFlashMatches={fulltimeFlashMatches}
+                  goalFlashMatches={goalFlashMatches}
+                  onToggleCountry={toggleCountry}
+                  onToggleLeague={toggleLeague}
+                  onStarMatch={toggleStarMatch}
+                  onMatchClick={onMatchCardClick}
+                  observeCountryElement={observeCountryElement}
+                />
+              );
+            });
+          })()}
         </div>
 
         {/* Auto-loading trigger and status */}
