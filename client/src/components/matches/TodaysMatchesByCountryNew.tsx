@@ -466,11 +466,16 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedCountries, setProcessedCountries] = useState<Set<string>>(new Set());
 
-  // Progressive data processing - process countries on demand
+  // Enhanced progressive data processing with background loading + lazy loading
+  const [allProcessedCountries, setAllProcessedCountries] = useState<string[]>([]);
+  const [backgroundProcessingComplete, setBackgroundProcessingComplete] = useState(false);
+  
   useEffect(() => {
     if (!fixtures?.length || !selectedDate) {
       setProcessedCountryData({});
       setProcessedCountries(new Set());
+      setAllProcessedCountries([]);
+      setBackgroundProcessingComplete(false);
       return;
     }
 
@@ -511,6 +516,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         ...countryNames.filter(c => c !== "World" && !countryPriority[c]).sort()
       ];
 
+      // Store all countries for lazy loading reference
+      setAllProcessedCountries(sortedCountries);
+
       // Process first 8 countries immediately for instant display
       const initialCountries = sortedCountries.slice(0, 8);
       const initialCountryData: Record<string, any> = {};
@@ -544,19 +552,27 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       setProcessedCountryData(initialCountryData);
       setProcessedCountries(new Set(initialCountries));
       
-      // Keep processing flag until initial batch is complete
-      if (initialCountries.length >= 8) {
-        setIsProcessing(false);
-      }
+      // Finish initial processing
+      setIsProcessing(false);
 
-      // Process remaining countries progressively in background
+      // Process ALL remaining countries in background (for immediate availability)
       const remainingCountries = sortedCountries.slice(8);
       if (remainingCountries.length > 0) {
-        // Use setTimeout to process remaining countries without blocking UI
-        setTimeout(async () => {
-          const batchSize = 10;
-          for (let i = 0; i < remainingCountries.length; i += batchSize) {
-            const batch = remainingCountries.slice(i, i + batchSize);
+        console.log(`🔄 [TodaysMatchesByCountryNew] Starting background processing of ${remainingCountries.length} remaining countries`);
+        
+        // Use requestIdleCallback for better performance, fallback to setTimeout
+        const processInBackground = () => {
+          const batchSize = 15; // Larger batches since it's background processing
+          let currentIndex = 0;
+          
+          const processBatch = async () => {
+            if (currentIndex >= remainingCountries.length) {
+              setBackgroundProcessingComplete(true);
+              console.log(`✅ [TodaysMatchesByCountryNew] Background processing completed for all ${remainingCountries.length} countries`);
+              return;
+            }
+
+            const batch = remainingCountries.slice(currentIndex, currentIndex + batchSize);
             const batchData: Record<string, any> = {};
             
             for (const country of batch) {
@@ -587,12 +603,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             setProcessedCountryData(prev => ({ ...prev, ...batchData }));
             setProcessedCountries(prev => new Set([...prev, ...batch]));
 
-            // Small delay between batches to keep UI responsive
-            if (i + batchSize < remainingCountries.length) {
-              await new Promise(resolve => setTimeout(resolve, 50));
+            currentIndex += batchSize;
+            
+            // Continue with next batch using requestIdleCallback for better performance
+            if (window.requestIdleCallback) {
+              window.requestIdleCallback(processBatch, { timeout: 100 });
+            } else {
+              setTimeout(processBatch, 10);
             }
-          }
-        }, 100);
+          };
+
+          processBatch();
+        };
+
+        // Start background processing after a short delay to let initial render complete
+        setTimeout(processInBackground, 200);
+      } else {
+        setBackgroundProcessingComplete(true);
       }
     };
 
@@ -730,7 +757,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, "yyyy-MM-dd");
   };
 
-  // Update visible countries - show initial 8 countries immediately when processed
+  // Enhanced visibility logic with background-processed countries support
   useEffect(() => {
     if (countryList.length === 0) return;
 
@@ -741,6 +768,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     if (allInitialProcessed && initialCountries.length > 0) {
       // Show all 8 initial countries at once
       setVisibleCountries(new Set(initialCountries));
+      console.log(`✅ [TodaysMatchesByCountryNew] Showing initial ${initialCountries.length} countries`);
     } else if (processedCountries.size > 0) {
       // Fallback: show processed countries individually if not all 8 are ready
       const processedFromList = countryList.filter(country => processedCountries.has(country));
@@ -754,11 +782,15 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     };
   }, [countryList.length, processedCountries.size, Array.from(processedCountries).join(',')]);
 
-  // Load more countries on demand (for remaining countries after initial 8)
+  // Enhanced load more with background-processed countries support
   const loadMoreCountries = useCallback(() => {
-    const remainingCountries = countryList.filter(country => !visibleCountries.has(country));
-    const LOAD_MORE_BATCH_SIZE = 5;
+    const currentlyVisible = Array.from(visibleCountries);
+    const availableCountries = allProcessedCountries.length > 0 ? allProcessedCountries : countryList;
+    const remainingCountries = availableCountries.filter(country => 
+      !visibleCountries.has(country) && processedCountries.has(country)
+    );
     
+    const LOAD_MORE_BATCH_SIZE = backgroundProcessingComplete ? 8 : 5; // Larger batches when background processing is done
     const nextBatch = remainingCountries.slice(0, LOAD_MORE_BATCH_SIZE);
     
     if (nextBatch.length > 0) {
@@ -767,8 +799,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         nextBatch.forEach(country => newVisible.add(country));
         return newVisible;
       });
+      
+      console.log(`🔄 [TodaysMatchesByCountryNew] Loaded ${nextBatch.length} more countries via lazy loading (${nextBatch.length + currentlyVisible.length}/${availableCountries.length} total)`);
     }
-  }, [countryList, visibleCountries]);
+  }, [countryList, allProcessedCountries, visibleCountries, processedCountries, backgroundProcessingComplete]);
 
   const getCountryData = useCallback(
     (country: string) => {
@@ -802,23 +836,27 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     setExpandedLeagues(new Set<string>());
   }, [selectedDate]);
 
-  // Automatic scroll-based lazy loading
+  // Enhanced automatic scroll-based lazy loading with background processing awareness
   useEffect(() => {
-    if (!loadMoreTriggerRef.current || visibleCountriesList.length >= countryList.length) {
+    const availableCountries = allProcessedCountries.length > 0 ? allProcessedCountries : countryList;
+    const hasMoreToShow = visibleCountriesList.length < availableCountries.length;
+    const hasProcessedMoreCountries = Array.from(processedCountries).some(country => !visibleCountries.has(country));
+    
+    if (!loadMoreTriggerRef.current || (!hasMoreToShow && !hasProcessedMoreCountries)) {
       return;
     }
 
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting && (hasMoreToShow || hasProcessedMoreCountries)) {
           console.log('🔄 [TodaysMatchesByCountryNew] Trigger visible, loading more countries automatically');
           loadMoreCountries();
         }
       },
       {
         root: null,
-        rootMargin: '100px', // Start loading when 100px away from the trigger
+        rootMargin: '200px', // Increased margin for better UX with background processing
         threshold: 0.1,
       }
     );
@@ -828,7 +866,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return () => {
       observer.disconnect();
     };
-  }, [loadMoreCountries, visibleCountriesList.length, countryList.length]);
+  }, [loadMoreCountries, visibleCountriesList.length, countryList.length, allProcessedCountries.length, processedCountries.size, visibleCountries]);
 
   // Invalidate processed data cache when date changes
   useEffect(() => {
@@ -2443,15 +2481,61 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           ) : null}
         </div>
 
-        {/* Progressive loading indicator */}
-        {processedCountries.size > 0 && processedCountries.size < (fixtures?.length > 0 ? Math.ceil(fixtures.length / 50) : 0) && (
-          <div className="p-4 text-center border-t border-gray-100">
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-4 h-4 border border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
-              <span className="text-sm text-gray-600">Loading more countries...</span>
-            </div>
-          </div>
-        )}
+        {/* Enhanced loading indicators */}
+        {(() => {
+          const availableTotal = allProcessedCountries.length || countryList.length;
+          const processedTotal = processedCountries.size;
+          const visibleTotal = visibleCountriesList.length;
+          const hasMoreProcessed = processedTotal > visibleTotal;
+          const isBackgroundProcessing = !backgroundProcessingComplete && processedTotal < availableTotal;
+          
+          // Show load more trigger when there are processed countries not yet visible
+          if (hasMoreProcessed) {
+            return (
+              <div 
+                ref={loadMoreTriggerRef}
+                className="p-4 text-center border-t border-gray-100 cursor-pointer hover:bg-gray-50"
+                onClick={loadMoreCountries}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border border-gray-300 border-t-green-500 rounded-full animate-spin"></div>
+                  <span className="text-sm text-gray-600">
+                    Load more countries ({visibleTotal}/{processedTotal} shown)
+                  </span>
+                </div>
+              </div>
+            );
+          }
+          
+          // Show background processing indicator
+          if (isBackgroundProcessing) {
+            return (
+              <div className="p-3 text-center border-t border-gray-100 bg-blue-50">
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-3 h-3 border border-blue-300 border-t-blue-500 rounded-full animate-spin"></div>
+                  <span className="text-xs text-blue-600">
+                    Processing countries in background ({processedTotal}/{availableTotal})
+                  </span>
+                </div>
+              </div>
+            );
+          }
+          
+          // Show scroll trigger for potential lazy loading
+          if (visibleTotal < availableTotal) {
+            return (
+              <div 
+                ref={loadMoreTriggerRef}
+                className="p-2 text-center border-t border-gray-100 opacity-0"
+                style={{ height: '1px' }}
+              >
+                {/* Invisible trigger for intersection observer */}
+              </div>
+            );
+          }
+          
+          return null;
+        })()}
       </CardContent>
     </Card>
   );
