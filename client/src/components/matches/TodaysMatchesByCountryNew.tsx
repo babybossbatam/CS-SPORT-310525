@@ -446,7 +446,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Process in chunks to avoid blocking
     const chunkSize = 100;
     const chunks = [];
-    
+
     for (let i = 0; i < fixtures.length; i += chunkSize) {
       chunks.push(fixtures.slice(i, i + chunkSize));
     }
@@ -493,7 +493,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const countryList = useMemo(() => {
     const countries = Object.keys(processedCountryData);
     if (countries.length === 0) return [];
-    
+
     // Minimal sorting - just put World first
     return countries.sort((a, b) => a === "World" ? -1 : b === "World" ? 1 : 0);
   }, [processedCountryData]);
@@ -631,7 +631,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }
 
       setVisibleCountries(new Set(priorityCountries));
-      
+
       // Start background loading after initial render with delay
       if (countryList.length > INITIAL_COUNTRIES_LOAD) {
         setTimeout(() => startBackgroundLoading(priorityCountries), 100);
@@ -649,7 +649,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Background loading function with batched processing
   const startBackgroundLoading = useCallback(async (initialCountries: string[]) => {
     if (isBackgroundLoading) return;
-    
+
     setIsBackgroundLoading(true);
     const remainingCountries = countryList.filter(country => 
       !initialCountries.includes(country)
@@ -658,7 +658,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Process countries in smaller batches to avoid blocking the UI
     for (let i = 0; i < remainingCountries.length; i += BACKGROUND_LOAD_BATCH_SIZE) {
       const batch = remainingCountries.slice(i, i + BACKGROUND_LOAD_BATCH_SIZE);
-      
+
       // Use requestIdleCallback for better yielding
       await new Promise(resolve => {
         const processData = () => {
@@ -683,7 +683,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         await new Promise(resolve => setTimeout(resolve, 200));
       }
     }
-    
+
     setIsBackgroundLoading(false);
   }, [countryList, processedCountryData, isBackgroundLoading]);
 
@@ -699,14 +699,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Enhanced load more with smaller increments for better responsiveness
   const loadMoreCountries = useCallback(() => {
     if (isLoadingMore) return;
-    
+
     setIsLoadingMore(true);
     const currentVisible = Array.from(visibleCountries);
     const remainingCountries = countryList.filter(country => !visibleCountries.has(country));
-    
+
     // Smaller batch size for better performance
     const LOAD_MORE_BATCH_SIZE = 3; // Reduced from 10 to 3
-    
+
     // Prioritize background-loaded countries for instant rendering
     const backgroundLoaded = remainingCountries.filter(country => 
       backgroundLoadedCountries.has(country)
@@ -714,19 +714,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     const notBackgroundLoaded = remainingCountries.filter(country => 
       !backgroundLoadedCountries.has(country)
     );
-    
+
     // Take from background-loaded first, then others
     const nextBatch = [
       ...backgroundLoaded.slice(0, LOAD_MORE_BATCH_SIZE),
       ...notBackgroundLoaded.slice(0, Math.max(0, LOAD_MORE_BATCH_SIZE - backgroundLoaded.length))
     ].slice(0, LOAD_MORE_BATCH_SIZE);
-    
+
     // Use requestIdleCallback for non-blocking state update
     const updateState = () => {
       setVisibleCountries(new Set([...currentVisible, ...nextBatch]));
       setIsLoadingMore(false);
     };
-    
+
     if (typeof requestIdleCallback !== 'undefined') {
       requestIdleCallback(updateState, { timeout: 50 });
     } else {
@@ -838,7 +838,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   const toggleLeague = useCallback((country: string, leagueId: number) => {
     const leagueKey = `${country}-${leagueId}`;
-    
+
     setExpandedLeagues((prev) => {
       const newExpanded = new Set(prev);
       if (newExpanded.has(leagueKey)) {
@@ -918,7 +918,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     if (isDateStringToday(selectedDate)) {
       return "Today's Football Matches by Country";
     }
-    
+
     return "Football Matches by Country";
   };
 
@@ -2322,9 +2322,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       </CardHeader>
       <CardContent className="p-0 dark:bg-gray-800">
         <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
-          {/* Use optimized visible countries list */}
-          {visibleCountriesList.map((country: string) => {
+          {/* Show countries - fallback to all if progressive loading fails */}
+          {(visibleCountriesList.length > 0 ? visibleCountriesList : countryList.slice(0, 10)).map((country: string) => {
             const countryData = getCountryData(country);
+            if (!countryData) return null;
+
             const isExpanded = expandedCountries.has(countryData.country);
 
             return (
@@ -2348,7 +2350,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             );
           })}
         </div>
-        
+
         {/* Load More Countries Button */}
         {visibleCountriesList.length < countryList.length && (
           <div className="p-4 text-center border-t border-gray-100">
@@ -2359,7 +2361,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             >
               {isLoadingMore ? 'Loading...' : `Load More Countries (${countryList.length - visibleCountriesList.length} remaining)`}
             </button>
-            
+
             {/* Background loading indicator */}
             {isBackgroundLoading && (
               <div className="mt-2 text-xs text-gray-500 flex items-center justify-center gap-1">
@@ -2367,7 +2369,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 Preparing more content in background...
               </div>
             )}
-            
+
             {!isBackgroundLoading && backgroundLoadedCountries.size > 0 && (
               <div className="mt-2 text-xs text-green-600">
                 ✓ {backgroundLoadedCountries.size} countries ready for instant loading
