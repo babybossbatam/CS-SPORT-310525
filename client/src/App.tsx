@@ -8,7 +8,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import BrandedLoading from "@/components/common/BrandedLoading";
 
-import React from "react";
+import React, { useEffect } from 'react';
 import { Provider } from "react-redux";
 import { store } from "@/lib/store";
 import { setupGlobalErrorHandlers } from "./lib/errorHandler";
@@ -17,6 +17,7 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import LanguageToast from "./components/common/LanguageToast";
 import { BrowserRouter } from "react-router-dom"; // Import BrowserRouter
 import "./lib/eventEmitterUtils"; // Initialize EventEmitter limits
+import { clearAllLogoCaches } from './lib/logoCache';
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
@@ -149,6 +150,9 @@ function App() {
     setupGlobalErrorHandlers();
     const refreshInterval = setupCacheRefresh();
 
+    // Clear all logo caches on app initialization
+    clearAllLogoCaches();
+
     // Start performance monitoring
     console.log('🚀 Starting performance monitoring...');
 
@@ -224,7 +228,7 @@ function App() {
         '[data-vite-error]',
         '.vite-error-overlay'
       ];
-      
+
       selectors.forEach(selector => {
         const elements = document.querySelectorAll(selector);
         elements.forEach(element => {

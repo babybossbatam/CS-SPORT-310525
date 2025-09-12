@@ -337,4 +337,13 @@ export function clearTeamLogoCache(teamId?: number | string, teamName?: string):
   }
 }
 
+// Function to clear all caches for deployment
+export function clearAllLogoCaches(): void {
+  console.log('🧹 [logoCache.ts] Clearing all logo caches for deployment');
+  teamLogoCache.clear();
+  leagueLogoCache.clear();
+  flagCache.clear();
+  console.log('✅ [logoCache.ts] All logo caches cleared');
+}
+
 export default { teamLogoCache, leagueLogoCache, flagCache };

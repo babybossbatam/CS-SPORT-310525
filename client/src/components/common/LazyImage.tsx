@@ -75,7 +75,11 @@ const LazyImage: React.FC<LazyImageProps> = ({
   // Effect to update the image source when the original src prop changes
   useEffect(() => {
     originalSrc.current = src; // Store the original src
-    setCurrentSrc(src);
+    
+    // Clear cache-busting: Add timestamp to prevent deployment caching issues
+    const cacheBustedSrc = src.includes('?') ? `${src}&t=${Date.now()}` : `${src}?t=${Date.now()}`;
+    
+    setCurrentSrc(cacheBustedSrc);
     setImageLoaded(false);
     setImageError(false);
     setLoadAttempt(0); // Reset attempt count
@@ -123,7 +127,9 @@ const LazyImage: React.FC<LazyImageProps> = ({
       setLoadAttempt(0);
       setImageState('loaded'); // Assume local assets load successfully
     } else {
-      setCurrentSrc(src);
+      // For deployment, log the team info for debugging
+      console.log(`🔍 [LazyImage] DEPLOYMENT DEBUG - Team: ${alt}, Src: ${src}, CacheBusted: ${cacheBustedSrc}`);
+      setCurrentSrc(cacheBustedSrc);
       setImageError(false);
       setLoadAttempt(0);
     }
@@ -132,10 +138,13 @@ const LazyImage: React.FC<LazyImageProps> = ({
   // Simplified error handler for faster fallback
   const handleError = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
     const target = e.target as HTMLImageElement;
+    
+    console.log(`❌ [LazyImage] DEPLOYMENT ERROR - Team: ${alt}, Failed URL: ${target.src}, Attempt: ${loadAttempt + 1}`);
 
     // Avoid infinite retry loops
     if (loadAttempt >= MAX_LOAD_ATTEMPTS) {
       if (!target.src.includes('fallback.png')) {
+        console.log(`🚫 [LazyImage] Max attempts reached for ${alt}, using fallback`);
         setCurrentSrc('/assets/matchdetaillogo/fallback.png');
         setImageState('error');
       }
@@ -143,15 +152,26 @@ const LazyImage: React.FC<LazyImageProps> = ({
     }
 
     setLoadAttempt(prev => prev + 1);
+    setImageError(true);
 
-    // Simplified fallback for team logos
+    // For deployment: Try our API endpoint without cache-busting first
     if (teamId && teamName && !target.src.includes('/api/team-logo/')) {
-      setCurrentSrc(`/api/team-logo/square/${teamId}?size=32`);
+      const apiUrl = `/api/team-logo/square/${teamId}?size=32&t=${Date.now()}`;
+      console.log(`🔄 [LazyImage] DEPLOYMENT RETRY - Trying API endpoint: ${apiUrl}`);
+      setCurrentSrc(apiUrl);
+      return;
+    }
+
+    // Try original src without cache-busting
+    if (target.src.includes('?t=') && originalSrc.current) {
+      console.log(`🔄 [LazyImage] DEPLOYMENT RETRY - Trying original URL: ${originalSrc.current}`);
+      setCurrentSrc(originalSrc.current);
       return;
     }
 
     // Use provided fallback or default
     if (fallbackSrc && !fallbackAttempted) {
+      console.log(`🔄 [LazyImage] DEPLOYMENT RETRY - Trying fallback: ${fallbackSrc}`);
       setCurrentSrc(fallbackSrc);
       setFallbackAttempted(true);
       return;
@@ -160,10 +180,11 @@ const LazyImage: React.FC<LazyImageProps> = ({
     if (onError) {
       onError(e);
     } else {
+      console.log(`🚫 [LazyImage] DEPLOYMENT FINAL FALLBACK for ${alt}`);
       setCurrentSrc('/assets/matchdetaillogo/fallback.png');
       setImageState('error');
     }
-  }, [teamId, teamName, loadAttempt, onError, fallbackSrc, fallbackAttempted]);
+  }, [teamId, teamName, loadAttempt, onError, fallbackSrc, fallbackAttempted, alt]);
 
 
   // Handler for successful image load
