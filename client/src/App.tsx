@@ -18,23 +18,28 @@ import LanguageToast from "./components/common/LanguageToast";
 import { BrowserRouter } from "react-router-dom"; // Import BrowserRouter
 import "./lib/eventEmitterUtils"; // Initialize EventEmitter limits
 import { clearAllLogoCaches } from './lib/logoCache';
+import { usePagePreload } from './hooks/usePagePreload';
 
-const NotFound = lazy(() => import("@/pages/not-found"));
-const Home = lazy(() => import("@/pages/Home"));
-const Football = lazy(() => import("@/pages/Football"));
-const Basketball = lazy(() => import("@/pages/Basketball"));
-const TV = lazy(() => import("@/pages/TV"));
-const HorseRacing = lazy(() => import("@/pages/HorseRacing"));
-const Snooker = lazy(() => import("@/pages/Snooker"));
-const Esport = lazy(() => import("@/pages/Esport"));
-const MatchDetails = lazy(() => import("@/pages/MatchDetails"));
-const Authentication = lazy(() => import("@/pages/Authentication"));
-const LeagueDetails = lazy(() => import("@/pages/LeagueDetails"));
-const MyScores = lazy(() => import("@/pages/MyScores"));
+// Preload critical pages
+const Home = lazy(() => import(/* webpackChunkName: "home" */ "@/pages/Home"));
+const Football = lazy(() => import(/* webpackChunkName: "football" */ "@/pages/Football"));
+
+// Lazy load less critical pages
+const NotFound = lazy(() => import(/* webpackChunkName: "not-found" */ "@/pages/not-found"));
+const Basketball = lazy(() => import(/* webpackChunkName: "basketball" */ "@/pages/Basketball"));
+const TV = lazy(() => import(/* webpackChunkName: "tv" */ "@/pages/TV"));
+const HorseRacing = lazy(() => import(/* webpackChunkName: "horse-racing" */ "@/pages/HorseRacing"));
+const Snooker = lazy(() => import(/* webpackChunkName: "snooker" */ "@/pages/Snooker"));
+const Esport = lazy(() => import(/* webpackChunkName: "esport" */ "@/pages/Esport"));
+const MatchDetails = lazy(() => import(/* webpackChunkName: "match-details" */ "@/pages/MatchDetails"));
+const Authentication = lazy(() => import(/* webpackChunkName: "auth" */ "@/pages/Authentication"));
+const LeagueDetails = lazy(() => import(/* webpackChunkName: "league-details" */ "@/pages/LeagueDetails"));
+const MyScores = lazy(() => import(/* webpackChunkName: "my-scores" */ "@/pages/MyScores"));
 
 // Component to extract language from URL and provide it to LanguageProvider
 const AppWithLanguageRouting = () => {
   const [location] = useLocation();
+  const { prefetchPage } = usePagePreload();
 
   // Extract language from URL
   const extractLanguageFromUrl = (): string | null => {

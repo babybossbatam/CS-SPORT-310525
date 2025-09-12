@@ -4,6 +4,7 @@ import { Provider } from 'react-redux'
 import { store } from './lib/store'
 import App from './App.tsx'
 import './index.css'
+import PerformanceMonitor from './components/common/PerformanceMonitor'
 import './lib/networkErrorHandler'
 import { setupGlobalErrorHandlers } from './lib/errorHandler.ts'
 import { createRoot } from "react-dom/client";
@@ -203,6 +204,7 @@ createRoot(document.getElementById("root")!).render(
       <QueryClientProvider client={queryClient}>
         <ThemeProvider attribute="class" defaultTheme="light">
           <ErrorBoundary>
+            <PerformanceMonitor />
             <App />
           </ErrorBoundary>
         </ThemeProvider>

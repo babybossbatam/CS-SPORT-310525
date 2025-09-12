@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useDeviceInfo } from "@/hooks/use-mobile";
@@ -75,10 +75,10 @@ const LazyImage: React.FC<LazyImageProps> = ({
   // Effect to update the image source when the original src prop changes
   useEffect(() => {
     originalSrc.current = src; // Store the original src
-    
+
     // Clear cache-busting: Add timestamp to prevent deployment caching issues
     const cacheBustedSrc = src.includes('?') ? `${src}&t=${Date.now()}` : `${src}?t=${Date.now()}`;
-    
+
     setCurrentSrc(cacheBustedSrc);
     setImageLoaded(false);
     setImageError(false);
@@ -138,7 +138,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   // Simplified error handler for faster fallback
   const handleError = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
     const target = e.target as HTMLImageElement;
-    
+
     console.log(`❌ [LazyImage] DEPLOYMENT ERROR - Team: ${alt}, Failed URL: ${target.src}, Attempt: ${loadAttempt + 1}`);
 
     // Avoid infinite retry loops
@@ -323,7 +323,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   // When useTeamLogo=false, LazyImage should ONLY handle image loading, not team decisions
   // MyWorldTeamLogo has already made the decision about team type and logo handling
   console.log(`🖼️ [LazyImage] Pure image loading mode (useTeamLogo=false) for: ${teamName || 'unknown'}`);
-  
+
   // Only minimal fallback handling when explicitly requested and image fails
   if (!useTeamLogo && teamId && teamName && imageError && !currentSrc.includes('/api/team-logo/')) {
     console.log(`🔄 [LazyImage] Image failed, trying server proxy as fallback for ${teamName}`);
@@ -356,8 +356,8 @@ const LazyImage: React.FC<LazyImageProps> = ({
         opacity: imageLoaded ? 2 : 1.95,
         transition: 'opacity 0.05s ease-in-out',
         // Add theme-aware shadows for better contrast and visibility (lg shadow)
-        filter: darkMode 
-          ? 'drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.2))' 
+        filter: darkMode
+          ? 'drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.2))'
           : 'drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 10px rgba(0, 0, 0, 0.65))',
         // Apply size from props if no explicit width/height in style
         ...(style?.width || style?.height ? {} : {
