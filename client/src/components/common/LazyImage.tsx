@@ -75,6 +75,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   // Effect to update the image source when the original src prop changes
   useEffect(() => {
     originalSrc.current = src; // Store the original src
+    setCurrentSrc(src);
     setImageLoaded(false);
     setImageError(false);
     setLoadAttempt(0); // Reset attempt count
@@ -122,51 +123,19 @@ const LazyImage: React.FC<LazyImageProps> = ({
       setLoadAttempt(0);
       setImageState('loaded'); // Assume local assets load successfully
     } else {
-      // Add cache-busting for production team logos
-      let finalSrc = src;
-      if (src.includes('/api/team-logo/') && process.env.NODE_ENV === 'production') {
-        const separator = src.includes('?') ? '&' : '?';
-        finalSrc = `${src}${separator}v=${Date.now()}`;
-        console.log(`🔄 [LazyImage] PRODUCTION: Adding cache-buster to team logo: ${finalSrc}`);
-      }
-      
-      // Enhanced debugging for team logos
-      if (teamId && teamName && (src.includes('/api/team-logo/') || src.includes('api-sports.io'))) {
-        console.log(`🔍 [LazyImage] TEAM LOGO DEBUG:`, {
-          teamName,
-          teamId,
-          originalSrc: src,
-          finalSrc,
-          isProduction: process.env.NODE_ENV === 'production',
-          alt,
-          component: 'LazyImage'
-        });
-      }
-      
-      setCurrentSrc(finalSrc);
+      setCurrentSrc(src);
       setImageError(false);
       setLoadAttempt(0);
     }
-  }, [src, alt, darkMode, teamId, teamName]); // Add teamId and teamName to trigger re-evaluation
+  }, [src, alt, darkMode]); // Add darkMode to trigger re-evaluation when theme changes
 
-  // Enhanced error handler with production-specific logic
+  // Simplified error handler for faster fallback
   const handleError = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
     const target = e.target as HTMLImageElement;
-    const failedUrl = target.src;
-
-    console.log(`❌ [LazyImage] Image failed to load:`, {
-      teamName: teamName || 'unknown',
-      teamId,
-      failedUrl,
-      attempt: loadAttempt + 1,
-      alt,
-      isProduction: process.env.NODE_ENV === 'production'
-    });
 
     // Avoid infinite retry loops
     if (loadAttempt >= MAX_LOAD_ATTEMPTS) {
       if (!target.src.includes('fallback.png')) {
-        console.log(`🚫 [LazyImage] Max attempts reached, using fallback for ${teamName || alt}`);
         setCurrentSrc('/assets/matchdetaillogo/fallback.png');
         setImageState('error');
       }
@@ -175,27 +144,14 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
     setLoadAttempt(prev => prev + 1);
 
-    // Enhanced team logo fallback strategy
-    if (teamId && teamName) {
-      // Try different API endpoints in order
-      if (!failedUrl.includes('/api/team-logo/square/')) {
-        const fallbackUrl = `/api/team-logo/square/${teamId}?size=64&attempt=${loadAttempt + 1}`;
-        console.log(`🔄 [LazyImage] Trying API endpoint for ${teamName}: ${fallbackUrl}`);
-        setCurrentSrc(fallbackUrl);
-        return;
-      }
-      
-      // If API endpoint also failed, try original API-Sports URL without cache-buster
-      if (originalSrc.current.includes('api-sports.io') && !failedUrl.includes('v=')) {
-        console.log(`🔄 [LazyImage] Trying original API-Sports URL for ${teamName}: ${originalSrc.current}`);
-        setCurrentSrc(originalSrc.current);
-        return;
-      }
+    // Simplified fallback for team logos
+    if (teamId && teamName && !target.src.includes('/api/team-logo/')) {
+      setCurrentSrc(`/api/team-logo/square/${teamId}?size=32`);
+      return;
     }
 
     // Use provided fallback or default
     if (fallbackSrc && !fallbackAttempted) {
-      console.log(`🔄 [LazyImage] Using provided fallback: ${fallbackSrc}`);
       setCurrentSrc(fallbackSrc);
       setFallbackAttempted(true);
       return;
@@ -204,11 +160,10 @@ const LazyImage: React.FC<LazyImageProps> = ({
     if (onError) {
       onError(e);
     } else {
-      console.log(`🚫 [LazyImage] Final fallback for ${teamName || alt}`);
       setCurrentSrc('/assets/matchdetaillogo/fallback.png');
       setImageState('error');
     }
-  }, [teamId, teamName, loadAttempt, onError, fallbackSrc, fallbackAttempted, alt]);
+  }, [teamId, teamName, loadAttempt, onError, fallbackSrc, fallbackAttempted]);
 
 
   // Handler for successful image load

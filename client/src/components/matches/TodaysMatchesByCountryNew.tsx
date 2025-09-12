@@ -433,109 +433,52 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       : "Unknown error occurred"
     : null;
 
-  // Cache warmup and data validation
+  // Minimal cache adjustment - removed heavy logging for faster performance
   useEffect(() => {
+    // Minimal logging for performance optimization
     if (fixtures?.length > 0) {
-      console.log(`⚡ [TodaysMatchesByCountryNew] ${fixtures.length} fixtures received for ${selectedDate}`);
-      
-      // Warm up cache if the function exists
-      if (typeof CacheManager?.warmupCache === 'function') {
-        try {
-          CacheManager.warmupCache();
-        } catch (error) {
-          console.warn(`⚠️ [TodaysMatchesByCountryNew] Cache warmup failed:`, error);
-        }
-      }
-      
-      // Debug first few fixtures to check data structure
-      if (fixtures.length > 0) {
-        const sampleFixture = fixtures[0];
-        console.log(`🔍 [TodaysMatchesByCountryNew] Sample fixture:`, {
-          id: sampleFixture?.fixture?.id,
-          date: sampleFixture?.fixture?.date,
-          country: sampleFixture?.league?.country,
-          leagueName: sampleFixture?.league?.name,
-          homeTeam: sampleFixture?.teams?.home?.name,
-          awayTeam: sampleFixture?.teams?.away?.name
-        });
-      }
-    } else if (fixtures && fixtures.length === 0) {
-      console.warn(`⚠️ [TodaysMatchesByCountryNew] Empty fixtures array received for ${selectedDate}`);
+      console.log(`⚡ [TodaysMatchesByCountryNew] ${fixtures.length} fixtures processed for ${selectedDate}`);
     }
   }, [fixtures?.length, selectedDate]);
 
-  // Optimized data processing with better date handling
+  // Optimized data processing with minimal logging for faster performance
   const processedCountryData = useMemo(() => {
     if (!fixtures?.length) {
-      console.log(`📊 [TodaysMatchesByCountryNew] No fixtures available for processing`);
       return {};
     }
 
-    console.log(`📊 [TodaysMatchesByCountryNew] Processing ${fixtures.length} fixtures for ${selectedDate}`);
-
     const countryMap = new Map<string, any>();
     const seenFixtures = new Set<number>();
-    let processedCount = 0;
-    let skippedCount = 0;
 
-    // Process fixtures with better validation
+    // Fast processing without excessive logging
     for (let i = 0; i < fixtures.length; i++) {
       const fixture = fixtures[i];
       
       // Basic validation - early returns for performance
       if (!fixture?.fixture?.id || !fixture.teams || !fixture.league || 
           seenFixtures.has(fixture.fixture.id)) {
-        skippedCount++;
         continue;
       }
 
       const country = fixture.league.country;
-      if (!country) {
-        skippedCount++;
-        continue;
-      }
+      if (!country) continue;
 
       seenFixtures.add(fixture.fixture.id);
 
       // Skip test leagues
       const leagueName = fixture.league.name || "";
-      if (leagueName.toLowerCase().includes('test')) {
-        skippedCount++;
-        continue;
-      }
+      if (leagueName.toLowerCase().includes('test')) continue;
 
-      // Better date validation - handle different date formats
-      try {
-        const fixtureDate = parseISO(fixture.fixture.date);
-        if (!isValid(fixtureDate)) {
-          console.warn(`⚠️ [TodaysMatchesByCountryNew] Invalid fixture date: ${fixture.fixture.date}`);
-          skippedCount++;
-          continue;
-        }
-
-        // Compare dates properly - convert UTC to local date
-        const fixtureLocalDate = format(fixtureDate, 'yyyy-MM-dd');
-        
-        // More lenient date matching - check if fixture is on the selected date
-        if (fixtureLocalDate !== selectedDate) {
-          // Allow fixtures that are close to the selected date (timezone issues)
-          const selectedDateObj = parseISO(selectedDate);
-          const daysDiff = Math.abs((fixtureDate.getTime() - selectedDateObj.getTime()) / (1000 * 60 * 60 * 24));
-          
-          if (daysDiff > 1) {
-            skippedCount++;
-            continue;
-          }
-        }
-      } catch (error) {
-        console.error(`❌ [TodaysMatchesByCountryNew] Date parsing error for fixture ${fixture.fixture.id}:`, error);
-        skippedCount++;
+      // Simple date validation without excessive logging
+      const fixtureDate = parseISO(fixture.fixture.date);
+      const fixtureLocalDate = format(fixtureDate, 'yyyy-MM-dd');
+      
+      if (fixtureLocalDate !== selectedDate) {
         continue;
       }
 
       // Simplified data consistency check
       if (leagueName.toLowerCase().includes('premier league') && country === "World") {
-        skippedCount++;
         continue;
       }
 
@@ -563,20 +506,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }
 
       countryData.leagues[leagueId].matches.push(fixture);
-      processedCount++;
-    }
-
-    const countriesCount = countryMap.size;
-    console.log(`📊 [TodaysMatchesByCountryNew] Processing complete:`, {
-      totalFixtures: fixtures.length,
-      processedFixtures: processedCount,
-      skippedFixtures: skippedCount,
-      countriesFound: countriesCount,
-      selectedDate
-    });
-
-    if (countriesCount === 0) {
-      console.warn(`⚠️ [TodaysMatchesByCountryNew] No countries found after processing - this might indicate a data issue`);
     }
 
     return Object.fromEntries(countryMap);
@@ -1180,15 +1109,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   }
 
   if (!validFixtures.length) {
-    console.log(`📊 [TodaysMatchesByCountryNew] No valid fixtures found:`, {
-      selectedDate,
-      fixturesLength: fixtures?.length || 0,
-      countryListLength: countryList.length,
-      processedCountryDataKeys: Object.keys(processedCountryData).length,
-      isLoading,
-      error
-    });
-
     return (
       <Card className="mt-4">
         <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
@@ -1200,11 +1120,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           <div className="text-gray-500">
             <p className="mb-2">No matches found for {selectedDate}</p>
             <p className="text-sm">Try selecting a different date</p>
-            {fixtures?.length > 0 && (
-              <p className="text-xs mt-2 text-blue-600">
-                Debug: {fixtures.length} fixtures received but none matched the date filter
-              </p>
-            )}
           </div>
         </CardContent>
       </Card>

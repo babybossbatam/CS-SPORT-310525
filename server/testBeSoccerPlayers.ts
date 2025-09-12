@@ -1,5 +1,5 @@
 
-// Using native fetch API available in Node.js 18+
+import fetch from 'node-fetch';
 
 interface PlayerTestResult {
   playerId: number;
