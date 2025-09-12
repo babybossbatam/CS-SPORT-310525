@@ -461,118 +461,161 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Removed logging for better performance
   }, [fixtures?.length, selectedDate]);
 
-  // Optimized data processing with chunking and prioritization
+  // Progressive rendering state - process countries incrementally
   const [processedCountryData, setProcessedCountryData] = useState<Record<string, any>>({});
   const [isProcessing, setIsProcessing] = useState(false);
+  const [processedCountries, setProcessedCountries] = useState<Set<string>>(new Set());
 
+  // Progressive data processing - process countries on demand
   useEffect(() => {
     if (!fixtures?.length || !selectedDate) {
       setProcessedCountryData({});
+      setProcessedCountries(new Set());
       return;
     }
 
     setIsProcessing(true);
     
-    const processDataOptimized = async () => {
-      const countryMap: Record<string, any> = {};
+    const processDataProgressively = async () => {
       const popularLeagueSet = new Set(POPULAR_LEAGUES);
       
-      // Pre-filter fixtures with early return
+      // Pre-filter fixtures
       const relevantFixtures = fixtures.filter(fixture => {
         if (!fixture?.fixture?.id || !fixture.teams || !fixture.league?.country) return false;
         const fixtureDate = getFixtureClientDate(fixture.fixture.date);
         return fixtureDate === selectedDate;
       });
 
-      // Process in chunks to prevent UI blocking
-      const CHUNK_SIZE = 50;
-      const chunks = [];
-      for (let i = 0; i < relevantFixtures.length; i += CHUNK_SIZE) {
-        chunks.push(relevantFixtures.slice(i, i + CHUNK_SIZE));
-      }
+      // Group fixtures by country first (lightweight operation)
+      const fixturesByCountry: Record<string, any[]> = {};
+      const countryPriority: Record<string, boolean> = {};
 
-      // Process priority countries first (popular leagues)
-      const priorityCountries = new Set<string>();
-      const normalCountries = new Set<string>();
+      relevantFixtures.forEach(fixture => {
+        const country = fixture.league.country;
+        const isPopular = popularLeagueSet.has(fixture.league.id);
+        
+        if (!fixturesByCountry[country]) {
+          fixturesByCountry[country] = [];
+          countryPriority[country] = false;
+        }
+        
+        fixturesByCountry[country].push(fixture);
+        if (isPopular) countryPriority[country] = true;
+      });
 
-      for (const chunk of chunks) {
-        for (const fixture of chunk) {
-          const country = fixture.league.country;
+      // Sort countries by priority for processing order
+      const countryNames = Object.keys(fixturesByCountry);
+      const sortedCountries = [
+        ...countryNames.filter(c => c === "World"),
+        ...countryNames.filter(c => c !== "World" && countryPriority[c]).sort(),
+        ...countryNames.filter(c => c !== "World" && !countryPriority[c]).sort()
+      ];
+
+      // Process first 8 countries immediately for instant display
+      const initialCountries = sortedCountries.slice(0, 8);
+      const initialCountryData: Record<string, any> = {};
+      
+      for (const country of initialCountries) {
+        const countryFixtures = fixturesByCountry[country];
+        initialCountryData[country] = {
+          country,
+          leagues: {},
+          hasPopularLeague: countryPriority[country],
+        };
+
+        // Process leagues for this country
+        countryFixtures.forEach(fixture => {
           const leagueId = fixture.league.id;
           const isPopular = popularLeagueSet.has(leagueId);
 
-          if (isPopular) {
-            priorityCountries.add(country);
-          } else {
-            normalCountries.add(country);
-          }
-
-          // Initialize country efficiently
-          if (!countryMap[country]) {
-            countryMap[country] = {
-              country,
-              leagues: {},
-              hasPopularLeague: isPopular,
-            };
-          }
-
-          const countryData = countryMap[country];
-          if (isPopular) countryData.hasPopularLeague = true;
-
-          // Initialize league efficiently
-          if (!countryData.leagues[leagueId]) {
-            countryData.leagues[leagueId] = {
+          if (!initialCountryData[country].leagues[leagueId]) {
+            initialCountryData[country].leagues[leagueId] = {
               league: fixture.league,
               matches: [],
               isPopular,
             };
           }
 
-          countryData.leagues[leagueId].matches.push(fixture);
-        }
-
-        // Yield control back to browser between chunks
-        if (chunks.indexOf(chunk) % 3 === 0) {
-          await new Promise(resolve => setTimeout(resolve, 0));
-        }
+          initialCountryData[country].leagues[leagueId].matches.push(fixture);
+        });
       }
 
-      // Set processed data immediately
-      setProcessedCountryData(countryMap);
+      // Set initial data immediately (first 8 countries)
+      setProcessedCountryData(initialCountryData);
+      setProcessedCountries(new Set(initialCountries));
       setIsProcessing(false);
+
+      // Process remaining countries progressively in background
+      const remainingCountries = sortedCountries.slice(8);
+      if (remainingCountries.length > 0) {
+        // Use setTimeout to process remaining countries without blocking UI
+        setTimeout(async () => {
+          const batchSize = 10;
+          for (let i = 0; i < remainingCountries.length; i += batchSize) {
+            const batch = remainingCountries.slice(i, i + batchSize);
+            const batchData: Record<string, any> = {};
+            
+            for (const country of batch) {
+              const countryFixtures = fixturesByCountry[country];
+              batchData[country] = {
+                country,
+                leagues: {},
+                hasPopularLeague: countryPriority[country],
+              };
+
+              countryFixtures.forEach(fixture => {
+                const leagueId = fixture.league.id;
+                const isPopular = popularLeagueSet.has(leagueId);
+
+                if (!batchData[country].leagues[leagueId]) {
+                  batchData[country].leagues[leagueId] = {
+                    league: fixture.league,
+                    matches: [],
+                    isPopular,
+                  };
+                }
+
+                batchData[country].leagues[leagueId].matches.push(fixture);
+              });
+            }
+
+            // Merge batch data with existing data
+            setProcessedCountryData(prev => ({ ...prev, ...batchData }));
+            setProcessedCountries(prev => new Set([...prev, ...batch]));
+
+            // Small delay between batches to keep UI responsive
+            if (i + batchSize < remainingCountries.length) {
+              await new Promise(resolve => setTimeout(resolve, 50));
+            }
+          }
+        }, 100);
+      }
     };
 
-    // Use async processing to prevent blocking
-    processDataOptimized();
+    processDataProgressively();
   }, [fixtures, selectedDate]);
 
-  // Optimized country list with stable sorting
+  // Country list based on processed countries (maintains order from progressive processing)
   const countryList = useMemo(() => {
     const countries = Object.keys(processedCountryData);
     if (countries.length === 0) return [];
 
-    // Pre-sort with priority order to reduce computation
+    // Countries are already sorted by priority during processing
+    // Just maintain the processing order for consistent display
     const worldCountries = countries.filter(c => c === "World");
     const popularCountries = countries.filter(c => 
       c !== "World" && processedCountryData[c]?.hasPopularLeague
     );
-    const majorCountries = countries.filter(c => 
-      c !== "World" && !processedCountryData[c]?.hasPopularLeague &&
-      ['England', 'Spain', 'Germany', 'Italy', 'France', 'Brazil', 'Argentina'].includes(c)
-    );
     const otherCountries = countries.filter(c => 
-      c !== "World" && !processedCountryData[c]?.hasPopularLeague &&
-      !['England', 'Spain', 'Germany', 'Italy', 'France', 'Brazil', 'Argentina'].includes(c)
+      c !== "World" && !processedCountryData[c]?.hasPopularLeague
     );
 
-    // Return pre-sorted array
     return [
       ...worldCountries,
       ...popularCountries.sort(),
-      ...majorCountries.sort(),
       ...otherCountries.sort()
     ];
-  }, [Object.keys(processedCountryData).join(','), Object.values(processedCountryData).some(d => d?.hasPopularLeague)]);
+  }, [Object.keys(processedCountryData).join(','), processedCountries.size]);
 
   // Use fixtures directly - they're already filtered by the API
   const validFixtures = fixtures || [];
@@ -683,48 +726,26 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, "yyyy-MM-dd");
   };
 
-  // Progressive loading strategy - show critical countries first
+  // Update visible countries as they get processed
   useEffect(() => {
     if (countryList.length === 0) return;
 
-    // Immediate display of top priority countries (no sorting needed - already sorted)
-    const initialBatch = countryList.slice(0, 8); // Show fewer initially for faster render
-    setVisibleCountries(new Set(initialBatch));
-
-    // Progressive loading of remaining countries
-    const loadRemainingCountries = () => {
-      const nextBatch = countryList.slice(8, 20); // Load next batch
-      if (nextBatch.length > 0) {
-        setVisibleCountries(prev => new Set([...prev, ...nextBatch]));
-      }
-    };
-
-    // Delay loading of non-critical countries
-    const timer = setTimeout(loadRemainingCountries, 100);
+    // Show all processed countries immediately since they're loaded progressively
+    setVisibleCountries(new Set(countryList));
 
     return () => {
-      clearTimeout(timer);
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
     };
-  }, [countryList.length]);
+  }, [countryList.length, processedCountries.size]);
 
-  // Simplified load more function - no complex virtual DOM operations
+  // Load more is handled automatically by progressive processing
   const loadMoreCountries = useCallback(() => {
-    const remainingCountries = countryList.filter(country => !visibleCountries.has(country));
-    const LOAD_MORE_BATCH_SIZE = 10; // Increased batch size
-
-    const nextBatch = remainingCountries.slice(0, LOAD_MORE_BATCH_SIZE);
-
-    if (nextBatch.length > 0) {
-      setVisibleCountries(prev => {
-        const newVisible = new Set(prev);
-        nextBatch.forEach(country => newVisible.add(country));
-        return newVisible;
-      });
-    }
-  }, [countryList, visibleCountries]);
+    // Countries are loaded automatically in background
+    // This function is kept for compatibility but does nothing
+    // since progressive processing handles loading automatically
+  }, []);
 
   const getCountryData = useCallback(
     (country: string) => {
@@ -1097,10 +1118,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Minimal loading states - show data as soon as possible
+  // Progressive loading states - show loading only when no countries are processed yet
   const hasAnyData = fixtures?.length > 0 || Object.keys(processedCountryData).length > 0;
   const hasProcessedData = Object.keys(processedCountryData).length > 0;
-  const shouldShowLoading = isLoading && !hasAnyData && !isPreviousData;
+  const shouldShowLoading = (isLoading && !hasAnyData && !isPreviousData) || (isProcessing && processedCountries.size === 0);
 
   // Show loading with skeleton for better UX
   if (shouldShowLoading) {
@@ -2399,16 +2420,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           ) : null}
         </div>
 
-        {/* Load more trigger for remaining countries */}
-        {visibleCountriesList.length < countryList.length && (
+        {/* Progressive loading indicator */}
+        {processedCountries.size > 0 && processedCountries.size < (fixtures?.length > 0 ? Math.ceil(fixtures.length / 50) : 0) && (
           <div className="p-4 text-center border-t border-gray-100">
-            <div ref={loadMoreTriggerRef} className="h-1" />
-            <button
-              onClick={loadMoreCountries}
-              className="px-4 py-2 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors text-sm"
-            >
-              Load More ({countryList.length - visibleCountriesList.length} remaining)
-            </button>
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-4 h-4 border border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+              <span className="text-sm text-gray-600">Loading more countries...</span>
+            </div>
           </div>
         )}
       </CardContent>
