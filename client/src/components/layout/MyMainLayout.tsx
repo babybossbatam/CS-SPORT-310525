@@ -85,7 +85,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
       <div
         className={cn(
           "py-4 mobile-main-layout overflow-y-auto overflow-x-auto",
-          isMobile ? "px-2" : "px-0",
+          isMobile ? "px-0" : "px-0",
         )}
         style={{
           marginLeft: isMobile ? "0" : "150px",
@@ -103,6 +103,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           style={{
             width: isMobile ? "100%" : "auto",
             minWidth: isMobile ? "100%" : "auto",
+            padding: isMobile ? "0" : "auto",
           }}
         >
           {/* Left column (5 columns on desktop, full width on mobile) - Hide on mobile when match is selected */}
@@ -110,7 +111,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
             <div
               className={cn(
                 "space-y-4",
-                isMobile ? "w-full col-span-1 px-2" : "lg:col-span-5",
+                isMobile ? "w-full col-span-1 px-0" : "lg:col-span-5",
               )}
               style={{
                 width: isMobile ? "100%" : "auto",
