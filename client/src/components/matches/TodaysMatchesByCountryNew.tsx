@@ -574,6 +574,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       const homeTeam = fixture.teams?.home?.name || "";
       const awayTeam = fixture.teams?.away?.name || "";
 
+      // 🗓️ CRITICAL DATE VALIDATION: Ensure fixture date matches selectedDate
+      const fixtureDate = parseISO(fixture.fixture.date);
+      const fixtureLocalDate = format(fixtureDate, 'yyyy-MM-dd');
+      
+      if (fixtureLocalDate !== selectedDate) {
+        console.warn(`🚨 [DATE VALIDATION] Excluding fixture with wrong date:`, {
+          fixtureId: fixture.fixture.id,
+          homeTeam,
+          awayTeam,
+          fixtureDate: fixture.fixture.date,
+          fixtureLocalDate,
+          selectedDate,
+          reason: 'Date mismatch - fixture not for selected date'
+        });
+        return;
+      }
+
       // Check for data inconsistencies that should be excluded
       const isDataInconsistent = () => {
         // Premier League should only be in England, not World
