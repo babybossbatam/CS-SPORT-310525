@@ -761,7 +761,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       "INT",
                     ].includes(status);
 
-                    // Get league and country info first
+                    // Exclude women's competitions and Oberliga leagues
                     const leagueName =
                       fixture.league?.name?.toLowerCase() || "";
                     const country =
@@ -820,10 +820,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       leagueName.includes("primera división rfef") ||
                       leagueName.includes("primera division rfef") ||
                       leagueName.includes("primera rfef");
-
-                    // Exclude Non League Premier leagues
-                    const isNonLeaguePremier =
-                      leagueName.includes("non league premier");
 
                     // Check for various types of conflicting data (excluding live matches)
                     let hasConflictingData = false;
@@ -889,6 +885,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       );
                       return false;
                     }
+
+                    // Exclude Non League Premier leagues
+                    const isNonLeaguePremier =
+                      leagueName.includes("non league premier");
 
                     const shouldInclude =
                       hasValidTeams &&

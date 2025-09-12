@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 /**
@@ -17,17 +16,6 @@ interface SelectiveMatchUpdate {
     elapsed?: number;
   };
   timestamp: number;
-}
-
-interface MatchState {
-  goals: {
-    home: number | null;
-    away: number | null;
-  };
-  status: {
-    short: string;
-    elapsed?: number;
-  };
 }
 
 interface MatchUpdateSubscriber {

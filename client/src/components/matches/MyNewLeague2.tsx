@@ -28,7 +28,6 @@ import { teamMappingExtractor } from "@/lib/teamMappingExtractor";
 import { generateCompleteTeamMapping } from "@/lib/generateCompleteTeamMapping";
 import { smartLeagueTranslation } from "@/lib/leagueNameMapping";
 import { smartCountryTranslation } from "@/lib/countryNameMapping";
-import { useSelectiveMatchUpdate } from "@/lib/selectiveMatchUpdates"; // Import the hook
 
 // Intersection Observer Hook for lazy loading
 const useIntersectionObserver = (
@@ -458,7 +457,7 @@ const isNationalTeam = (
     teamNameLower.includes(" eintracht ") ||
     teamNameLower.includes(" borussia ") ||
     teamNameLower.includes(" bayern ") ||
-    teamNameLower.includes(" realmadrid") ||
+    teamNameLower.includes(" real madrid") ||
     teamNameLower.includes(" fc barcelona") ||
     teamNameLower.includes(" manchester united") ||
     teamNameLower.includes(" liverpool") ||
@@ -624,9 +623,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
   // League IDs without any filtering - removed duplicates
   const leagueIds = [
-    32, 38, 39, 29, 140, 15, 78, 79, 61, 2, 4, 10, 11, 848, 886, 1022, 772, 307,
-    71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 301, 908, 1169, 23, 253, 850,
-    893, 921, 130, 128, 493, 239, 265, 237, 235, 743,
+    32, 38, 39, 29, 15, 78, 79, 61, 2, 4, 10, 11, 848, 886, 1022, 772, 307, 71, 3, 5, 531, 22,
+    72, 73, 75, 76, 233, 667, 301, 908, 1169, 23, 253, 850, 893, 921, 130,
+    128, 493, 239, 265, 237, 235, 743,
   ];
 
   // Helper function to add delay between requests
@@ -2328,8 +2327,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         .sort(([aId], [bId]) => {
           // Define priority order - same as MyNewLeague
           const priorityOrder = [
-            32, 38, 39, 29, 140, 850, 15, 78, 79, 61, 2, 5, 22, 10, 11, 1022,
-            772, 307, 71, 72, 667, 301, 3, 848, 73, 75, 239, 233, 253,
+            32, 38, 39, 29, 850, 15, 78, 79, 61, 2, 5, 22, 10, 11, 1022, 772, 307, 71, 72, 667,
+            301, 3, 848, 73, 75, 239, 233, 253,
           ];
 
           const aIndex = priorityOrder.indexOf(Number(aId));
@@ -2697,7 +2696,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         15: "England", // Championship
                         2: "Germany", // Bundesliga
                         4: "Spain", // La Liga
-                        3: "Netherlands", // Eredivivisie
+                        3: "Netherlands", // Eredivisie
                         5: "France", // Ligue 1
 
                         // Other Important Leagues
@@ -2776,33 +2775,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                     const isKickoffFlash = kickoffFlashMatches.has(matchId);
                     const isFinishFlash = finishFlashMatches.has(matchId);
                     const isStarred = starredMatches.has(matchId);
-
-                    // Use selective updates only for live matches to prevent unnecessary re-renders
-                    const isLiveMatch = [
-                      "LIVE",
-                      "LIV",
-                      "1H",
-                      "HT",
-                      "2H",
-                      "ET",
-                      "BT",
-                      "P",
-                      "INT",
-                    ].includes(fixture.fixture.status.short);
-
-                    const selectiveUpdate = useSelectiveMatchUpdate(
-                      matchId,
-                      fixture,
-                      isLiveMatch,
-                    );
-
-                    // Get current data from selective updates or use initial data
-                    const currentGoals = selectiveUpdate
-                      ? selectiveUpdate.goals
-                      : fixture.goals;
-                    const currentStatus = selectiveUpdate
-                      ? selectiveUpdate.status
-                      : fixture.fixture.status;
 
                     return (
                       <div key={matchId} className="country-matches-container ">
@@ -2919,8 +2891,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                               }}
                             >
                               {(() => {
-                                const status = currentStatus.short; // Use currentStatus
-                                const elapsed = currentStatus.elapsed; // Use currentStatus
+                                const status = fixture.fixture.status.short;
+                                const elapsed = fixture.fixture.status.elapsed;
 
                                 // Check if match finished more than 4 hours ago
                                 const matchDateTime = new Date(
@@ -3121,11 +3093,11 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                               {/* Home Team Name */}
                               <div
                                 className={`home-team-name ${
-                                  currentGoals.home !== null &&
-                                  currentGoals.away !== null &&
-                                  currentGoals.home > currentGoals.away &&
+                                  fixture.goals.home !== null &&
+                                  fixture.goals.away !== null &&
+                                  fixture.goals.home > fixture.goals.away &&
                                   ["FT", "AET", "PEN"].includes(
-                                    currentStatus.short, // Use currentStatus
+                                    fixture.fixture.status.short,
                                   )
                                     ? "winner"
                                     : ""
@@ -3174,7 +3146,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                               {/* Score/Time Center */}
                               <div className="match-score-container">
                                 {(() => {
-                                  const status = currentStatus.short; // Use currentStatus
+                                  const status = fixture.fixture.status.short;
 
                                   // Live matches - show current score
                                   if (
@@ -3195,11 +3167,11 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     // Use fulltime score if available, otherwise use goals
                                     const homeScore =
                                       fixture.score?.fulltime?.home ??
-                                      currentGoals.home ?? // Use currentGoals
+                                      fixture.goals?.home ??
                                       0;
                                     const awayScore =
                                       fixture.score?.fulltime?.away ??
-                                      currentGoals.away ?? // Use currentGoals
+                                      fixture.goals?.away ??
                                       0;
 
                                     return (
@@ -3233,11 +3205,11 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                     // Use fulltime score if available, otherwise use goals
                                     const homeScore =
                                       fixture.score?.fulltime?.home ??
-                                      currentGoals.home ?? // Use currentGoals
+                                      fixture.goals?.home ??
                                       0;
                                     const awayScore =
                                       fixture.score?.fulltime?.away ??
-                                      currentGoals.away ?? // Use currentGoals
+                                      fixture.goals?.away ??
                                       0;
 
                                     return (
@@ -3379,11 +3351,11 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                               {/* Away Team Name */}
                               <div
                                 className={`away-team-name ${
-                                  currentGoals.home !== null &&
-                                  currentGoals.away !== null &&
-                                  currentGoals.away > currentGoals.home &&
+                                  fixture.goals.home !== null &&
+                                  fixture.goals.away !== null &&
+                                  fixture.goals.away > fixture.goals.home &&
                                   ["FT", "AET", "PEN"].includes(
-                                    currentStatus.short, // Use currentStatus
+                                    fixture.fixture.status.short,
                                   )
                                     ? "winner"
                                     : ""
@@ -3416,7 +3388,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                             <div className="match-penalty-bottom">
                               {(() => {
                                 const isPenaltyMatch =
-                                  currentStatus.short === "PEN"; // Use currentStatus
+                                  fixture.fixture.status.short === "PEN";
                                 const penaltyHome =
                                   fixture.score?.penalty?.home;
                                 const penaltyAway =
