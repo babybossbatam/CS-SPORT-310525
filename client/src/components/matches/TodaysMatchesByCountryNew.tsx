@@ -376,7 +376,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   );
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  // Optimized query with aggressive caching for faster loading
+  // Ultra-optimized query for maximum performance
   const {
     data: fixtures = [],
     isLoading,
@@ -386,8 +386,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     ["all-fixtures-by-date", selectedDate],
     async () => {
       if (!selectedDate) return [];
-
-      console.log(`🚀 [TodaysMatchesByCountryNew] Fetching fixtures for: ${selectedDate}`);
 
       const response = await apiRequest(
         "GET",
@@ -399,25 +397,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }
 
       const data = await response.json();
-      const result = Array.isArray(data) ? data : [];
-
-      console.log(`📊 [TodaysMatchesByCountryNew] Received ${result.length} fixtures for ${selectedDate}`);
-
-      return result;
+      return Array.isArray(data) ? data : [];
     },
     {
-      staleTime: isToday ? 10 * 60 * 1000 : 24 * 60 * 60 * 1000, // Increased stale time
-      cacheTime: isToday ? 2 * 60 * 60 * 1000 : 48 * 60 * 60 * 1000, // Increased cache time
-      refetchInterval: false, // Disable auto-refresh for faster performance
+      staleTime: isToday ? 5 * 60 * 1000 : 24 * 60 * 60 * 1000,
+      cacheTime: isToday ? 60 * 60 * 1000 : 48 * 60 * 60 * 1000,
+      refetchInterval: false,
       enabled: !!selectedDate,
-      retry: 1, // Reduced retries for faster failure handling
+      retry: 1,
       networkMode: 'online',
-      refetchOnMount: false, // Don't refetch on mount - use cache first
+      refetchOnMount: false,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
-      onError: (error) => {
-        console.error(`❌ [TodaysMatchesByCountryNew] Query error:`, error);
-      },
+      // Remove onError callback to reduce overhead
     },
   );
 
@@ -433,29 +425,29 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       : "Unknown error occurred"
     : null;
 
-  // Minimal cache adjustment - removed heavy logging for faster performance
+  // Minimal cache adjustment for performance
   useEffect(() => {
-    // Minimal logging for performance optimization
-    if (fixtures?.length > 0) {
-      console.log(`⚡ [TodaysMatchesByCountryNew] ${fixtures.length} fixtures processed for ${selectedDate}`);
+    // Only log in development for debugging
+    if (process.env.NODE_ENV === 'development' && fixtures?.length > 0) {
+      console.log(`⚡ [TodaysMatchesByCountryNew] ${fixtures.length} fixtures processed`);
     }
   }, [fixtures?.length, selectedDate]);
 
-  // Optimized data processing with minimal logging for faster performance
+  // Optimized data processing for maximum performance
   const processedCountryData = useMemo(() => {
     if (!fixtures?.length) {
       return {};
     }
 
-    const countryMap = new Map<string, any>();
+    const countryMap: Record<string, any> = {};
     const seenFixtures = new Set<number>();
 
-    // Fast processing without excessive logging
-    for (let i = 0; i < fixtures.length; i++) {
-      const fixture = fixtures[i];
-      
-      // Basic validation - early returns for performance
-      if (!fixture?.fixture?.id || !fixture.teams || !fixture.league || 
+    // Ultra-fast processing with minimal operations
+    for (const fixture of fixtures) {
+      // Early validation - skip invalid fixtures immediately
+      if (!fixture?.fixture?.id || 
+          !fixture.teams || 
+          !fixture.league || 
           seenFixtures.has(fixture.fixture.id)) {
         continue;
       }
@@ -465,36 +457,32 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       seenFixtures.add(fixture.fixture.id);
 
-      // Skip test leagues
-      const leagueName = fixture.league.name || "";
-      if (leagueName.toLowerCase().includes('test')) continue;
+      // Skip test leagues quickly
+      const leagueName = fixture.league.name;
+      if (leagueName && leagueName.toLowerCase().includes('test')) continue;
 
-      // Simple date validation without excessive logging
-      const fixtureDate = parseISO(fixture.fixture.date);
-      const fixtureLocalDate = format(fixtureDate, 'yyyy-MM-dd');
-      
-      if (fixtureLocalDate !== selectedDate) {
+      // Quick date validation
+      const fixtureLocalDate = fixture.fixture.date.slice(0, 10);
+      if (fixtureLocalDate !== selectedDate) continue;
+
+      // Skip inconsistent data
+      if (leagueName && leagueName.toLowerCase().includes('premier league') && country === "World") {
         continue;
       }
 
-      // Simplified data consistency check
-      if (leagueName.toLowerCase().includes('premier league') && country === "World") {
-        continue;
-      }
-
-      // Get or create country data
-      if (!countryMap.has(country)) {
-        countryMap.set(country, {
+      // Initialize country data if needed
+      if (!countryMap[country]) {
+        countryMap[country] = {
           country,
           leagues: {},
           hasPopularLeague: false,
-        });
+        };
       }
 
-      const countryData = countryMap.get(country);
+      const countryData = countryMap[country];
       const leagueId = fixture.league.id;
 
-      // Get or create league data
+      // Initialize league data if needed
       if (!countryData.leagues[leagueId]) {
         const isPopular = POPULAR_LEAGUES.includes(leagueId);
         countryData.leagues[leagueId] = {
@@ -508,10 +496,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       countryData.leagues[leagueId].matches.push(fixture);
     }
 
-    return Object.fromEntries(countryMap);
+    return countryMap;
   }, [fixtures, selectedDate]);
 
-  // Lightning-fast country list and fixtures extraction
+  // Simplified country list processing
   const { validFixtures, countryList } = useMemo(() => {
     const countries = Object.keys(processedCountryData);
 
@@ -519,34 +507,21 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return { validFixtures: [], countryList: [] };
     }
 
-    // Pre-calculate fixtures count for performance
-    let fixtureCount = 0;
-    Object.values(processedCountryData).forEach((countryData: any) => {
-      Object.values(countryData.leagues).forEach((leagueData: any) => {
-        fixtureCount += leagueData.matches.length;
-      });
+    // Simple fixture extraction without pre-allocation
+    const allValidFixtures: any[] = [];
+    
+    for (const countryData of Object.values(processedCountryData)) {
+      for (const leagueData of Object.values((countryData as any).leagues)) {
+        allValidFixtures.push(...(leagueData as any).matches);
+      }
+    }
+
+    // Fast sorting - World first, then alphabetical
+    const sortedCountries = countries.sort((a, b) => {
+      if (a === "World") return -1;
+      if (b === "World") return 1;
+      return a.localeCompare(b);
     });
-
-    // Pre-allocate arrays for better performance
-    const allValidFixtures: any[] = new Array(fixtureCount);
-    let fixtureIndex = 0;
-
-    // Ultra-fast extraction with minimal operations
-    Object.values(processedCountryData).forEach((countryData: any) => {
-      Object.values(countryData.leagues).forEach((leagueData: any) => {
-        for (let i = 0; i < leagueData.matches.length; i++) {
-          allValidFixtures[fixtureIndex++] = leagueData.matches[i];
-        }
-      });
-    });
-
-    // Optimized sorting - World first, then alphabetical
-    const sortedCountries = countries.length > 1 ? 
-      countries.sort((a, b) => {
-        if (a === "World") return -1;
-        if (b === "World") return 1;
-        return a < b ? -1 : a > b ? 1 : 0; // Faster than localeCompare
-      }) : countries;
 
     return {
       validFixtures: allValidFixtures,
@@ -663,9 +638,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, "yyyy-MM-dd");
   };
 
-  // Show countries immediately without logging for maximum performance
+  // Show all countries immediately for maximum performance
   useEffect(() => {
-    setVisibleCountries(new Set(countryList));
+    if (countryList.length > 0) {
+      setVisibleCountries(new Set(countryList));
+    }
   }, [countryList]);
 
   const getCountryData = useCallback(
@@ -677,38 +654,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // No additional initialization needed - handled above
 
-  // Optimized batch loading with progressive enhancement
-  const loadMoreCountries = useCallback(async () => {
-    if (isLoadingMore) return;
-
-    setIsLoadingMore(true);
-    const remainingCountries = countryList.filter(
-      (country) => !visibleCountries.has(country),
-    );
-
-    if (remainingCountries.length > 0) {
-      // Progressive loading in smaller chunks to prevent UI blocking
-      const chunkSize = 10;
-      const chunks = [];
-      for (let i = 0; i < remainingCountries.length; i += chunkSize) {
-        chunks.push(remainingCountries.slice(i, i + chunkSize));
-      }
-
-      // Load all chunks with micro-delays
-      for (const chunk of chunks) {
-        setVisibleCountries((prev) => new Set([...prev, ...chunk]));
-        if (chunks.length > 1) {
-          await new Promise((resolve) => setTimeout(resolve, 10));
-        }
-      }
-
-      console.log(
-        `📈 [TodaysMatchesByCountryNew] Progressively loaded ${remainingCountries.length} countries`,
-      );
-    }
-
-    setIsLoadingMore(false);
-  }, [countryList, visibleCountries, isLoadingMore]);
+  // Simplified loading - show all countries immediately
+  const loadMoreCountries = useCallback(() => {
+    // No-op - all countries are shown immediately now
+  }, []);
 
   // No analysis stats for maximum performance
 
@@ -734,32 +683,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }, [selectedDate]);
 
-  // Simplified flag preloading
-  const preloadFlags = useCallback(() => {
-    if (!countryList.length) return;
-
-    // Preload flags for first few countries only
-    const priorityCountries = countryList.slice(0, 5);
-    const newFlags: { [country: string]: string } = {};
-
-    priorityCountries.forEach((country) => {
-      if (!flagMap[country]) {
-        const flag = getCountryFlagWithFallbackSync(country);
-        if (flag) {
-          newFlags[country] = flag;
-        }
-      }
-    });
-
-    if (Object.keys(newFlags).length > 0) {
-      setFlagMap((prev) => ({ ...prev, ...newFlags }));
-    }
-  }, [countryList.slice(0, 5)]);
-
-  // Load flags immediately when countries are available
-  useEffect(() => {
-    preloadFlags();
-  }, [preloadFlags]);
+  // Remove complex flag preloading - flags load on-demand now for better performance
 
   // Simplified observe function (no-op for compatibility)
   const observeCountryElement = useCallback(
@@ -794,7 +718,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           if (countryData) {
             const leagues = Object.values(countryData.leagues);
             if (leagues.length > 0) {
-              // Sort leagues to get the first one (same sorting as in render)
+              // Sort leagues to get the first one
               const sortedLeagues = leagues.sort((a: any, b: any) => {
                 if (a.isPopular && !b.isPopular) return -1;
                 if (!a.isPopular && b.isPopular) return 1;
@@ -804,8 +728,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               const firstLeague = sortedLeagues[0] as any;
               const firstLeagueKey = `${country}-${firstLeague.league.id}`;
 
-              console.log(`🔄 [Auto-expand] Expanding first league in ${country}: ${firstLeague.league.name} (${firstLeagueKey})`);
-
               setExpandedLeagues((prevLeagues) => {
                 const newExpandedLeagues = new Set(prevLeagues);
                 newExpandedLeagues.add(firstLeagueKey);
@@ -813,7 +735,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               });
             }
           }
-        }, 100); // Small delay to ensure country expansion is complete
+        }, 50); // Reduced delay
       }
       return newExpanded;
     });
@@ -848,14 +770,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     
     setExpandedLeagues((prev) => {
       const newExpanded = new Set(prev);
-      const isCurrentlyExpanded = newExpanded.has(leagueKey);
-      
-      if (isCurrentlyExpanded) {
+      if (newExpanded.has(leagueKey)) {
         newExpanded.delete(leagueKey);
-        console.log(`🔽 [League Toggle] Collapsing league: ${leagueKey}`);
       } else {
         newExpanded.add(leagueKey);
-        console.log(`🔼 [League Toggle] Expanding league: ${leagueKey}`);
       }
       return newExpanded;
     });
