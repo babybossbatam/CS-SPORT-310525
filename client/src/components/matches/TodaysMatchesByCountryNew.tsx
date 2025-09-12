@@ -621,16 +621,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   useEffect(() => {
     if (countryList.length === 0) return;
 
-    // Show content immediately - no delays
+    // Show content immediately with more countries for faster perceived loading
+    const ENHANCED_INITIAL_LOAD = Math.min(5, countryList.length); // Show 5 countries initially
+    
     const priorityCountries = countryList
       .filter(country => {
         const countryData = processedCountryData[country];
         return country === "World" || countryData?.hasPopularLeague;
       })
-      .slice(0, INITIAL_COUNTRIES_LOAD);
+      .slice(0, ENHANCED_INITIAL_LOAD);
 
     // Add remaining countries up to initial load limit
-    const remainingSlots = INITIAL_COUNTRIES_LOAD - priorityCountries.length;
+    const remainingSlots = ENHANCED_INITIAL_LOAD - priorityCountries.length;
     if (remainingSlots > 0) {
       const otherCountries = countryList
         .filter(country => !priorityCountries.includes(country))
@@ -641,7 +643,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Fallback: if no priority countries found, just show first few
     const finalCountries = priorityCountries.length > 0 
       ? priorityCountries 
-      : countryList.slice(0, INITIAL_COUNTRIES_LOAD);
+      : countryList.slice(0, ENHANCED_INITIAL_LOAD);
 
     // Set visible countries immediately - no waiting
     setVisibleCountries(new Set(finalCountries));
@@ -1092,8 +1094,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Only show loading for the first few seconds, then show content even if loading
-  if (isLoading && !fixtures.length && countryList.length === 0) {
+  // Show minimal loading only if no data at all is available
+  if (isLoading && !fixtures.length && !Object.keys(processedCountryData).length) {
     return (
       <Card className="mt-4">
         <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
@@ -1111,20 +1113,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="space-y-0">
-            {[1, 2].map((i) => (
-              <div key={i} className="border-b border-gray-100 last:border-b-0">
-                <div className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="w-6 h-4 rounded-sm" />
-                    <Skeleton className="h-4 w-28" />
-                    <Skeleton className="h-4 w-8" />
-                    <Skeleton className="h-5 w-12 rounded-full" />
-                  </div>
-                  <Skeleton className="h-4 w-4" />
-                </div>
-              </div>
-            ))}
+          <div className="p-4 text-center">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-4 h-4 border border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+              <span className="text-sm text-gray-600">Loading matches...</span>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -2357,9 +2350,24 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       <CardContent className="p-0 dark:bg-gray-800">
         <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
           {/* Show countries immediately - always prefer showing content over empty state */}
-          {visibleCountriesList.length > 0 ? (
-            // Show visible countries when available
-            visibleCountriesList.map((country: string) => {
+          {(() => {
+            // Always show content - use visible countries if available, otherwise show first available
+            const countriesToRender = visibleCountriesList.length > 0 
+              ? visibleCountriesList 
+              : countryList.slice(0, Math.min(5, countryList.length));
+
+            if (countriesToRender.length === 0) {
+              return (
+                <div className="p-4 text-center">
+                  <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+                    <div className="w-4 h-4 border border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                    Processing matches...
+                  </div>
+                </div>
+              );
+            }
+
+            return countriesToRender.map((country: string) => {
               const countryData = getCountryData(country);
               if (!countryData) return null;
 
@@ -2384,36 +2392,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   observeCountryElement={observeCountryElement}
                 />
               );
-            })
-          ) : (
-            // Fallback: show first countries immediately while loading
-            countryList.slice(0, INITIAL_COUNTRIES_LOAD).map((country: string) => {
-              const countryData = getCountryData(country);
-              if (!countryData) return null;
-
-              const isExpanded = expandedCountries.has(countryData.country);
-
-              return (
-                <CountrySection
-                  key={countryData.country}
-                  country={countryData.country}
-                  countryData={countryData}
-                  isExpanded={isExpanded}
-                  expandedLeagues={expandedLeagues}
-                  starredMatches={starredMatches}
-                  hiddenMatches={hiddenMatches}
-                  halftimeFlashMatches={halftimeFlashMatches}
-                  fulltimeFlashMatches={fulltimeFlashMatches}
-                  goalFlashMatches={goalFlashMatches}
-                  onToggleCountry={toggleCountry}
-                  onToggleLeague={toggleLeague}
-                  onStarMatch={toggleStarMatch}
-                  onMatchClick={onMatchCardClick}
-                  observeCountryElement={observeCountryElement}
-                />
-              );
-            })
-          )}
+            });
+          })()}
         </div>
 
         {/* Auto-loading trigger and status */}
