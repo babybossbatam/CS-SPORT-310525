@@ -681,7 +681,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     observerRef.current = new IntersectionObserver(
       (entries) => {
         const countriesToLoad: string[] = [];
-        
+
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const country = entry.target.getAttribute('data-country');
@@ -723,11 +723,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         sentinel.style.height = '1px';
         sentinel.style.position = 'absolute';
         sentinel.style.top = `${(loadedCountries.length + index) * 200}px`; // Approximate position
-        
+
         // Add to DOM temporarily for observation
         document.body.appendChild(sentinel);
         countryRefs.current.set(country, sentinel);
-        
+
         if (observerRef.current) {
           observerRef.current.observe(sentinel);
         }
@@ -821,9 +821,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const loadMoreCountries = useCallback(() => {
     const remainingCountries = countryList.filter(country => !visibleCountries.has(country));
     const LOAD_MORE_BATCH_SIZE = 5;
-    
+
     const nextBatch = remainingCountries.slice(0, LOAD_MORE_BATCH_SIZE);
-    
+
     if (nextBatch.length > 0) {
       setVisibleCountries(prev => {
         const newVisible = new Set(prev);
@@ -850,6 +850,34 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     setExpandedCountries(new Set<string>());
     setExpandedLeagues(new Set<string>());
   }, [selectedDate]);
+
+  // Automatic scroll-based lazy loading
+  useEffect(() => {
+    if (!loadMoreTriggerRef.current || visibleCountriesList.length >= countryList.length) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting) {
+          console.log('🔄 [TodaysMatchesByCountryNew] Trigger visible, loading more countries automatically');
+          loadMoreCountries();
+        }
+      },
+      {
+        root: null,
+        rootMargin: '100px', // Start loading when 100px away from the trigger
+        threshold: 0.1,
+      }
+    );
+
+    observer.observe(loadMoreTriggerRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [loadMoreCountries, visibleCountriesList.length, countryList.length]);
 
   // Invalidate processed data cache when date changes
   useEffect(() => {
