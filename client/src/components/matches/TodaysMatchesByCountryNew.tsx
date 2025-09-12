@@ -732,23 +732,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return Object.keys(processedCountryData);
   }, [processedCountryData]);
 
-
-  // Load more countries on demand (fallback for manual loading)
-  const loadMoreCountries = useCallback(() => {
-    const remainingCountries = countryList.filter(country => !visibleCountries.has(country));
-    const LOAD_MORE_BATCH_SIZE = 5;
-
-    const nextBatch = remainingCountries.slice(0, LOAD_MORE_BATCH_SIZE);
-
-    if (nextBatch.length > 0) {
-      setVisibleCountries(prev => {
-        const newVisible = new Set(prev);
-        nextBatch.forEach(country => newVisible.add(country));
-        return newVisible;
-      });
-    }
-  }, [countryList, visibleCountries]);
-
   // No analysis stats for maximum performance
 
   // No need for heavy sorting - countries are already sorted in countryList
