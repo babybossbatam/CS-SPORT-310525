@@ -370,17 +370,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     };
   };
 
-  // Enhanced progressive loading with background data fetching
+  // Lazy loading with Intersection Observer
   const [visibleCountries, setVisibleCountries] = useState<Set<string>>(
     new Set(),
   );
-  const [backgroundLoadedCountries, setBackgroundLoadedCountries] = useState<Set<string>>(
-    new Set(),
-  );
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [isBackgroundLoading, setIsBackgroundLoading] = useState(false);
-  const INITIAL_COUNTRIES_LOAD = 2; // Reduced to 2 for immediate display
-  const BACKGROUND_LOAD_BATCH_SIZE = 5; // Reduced from 15 to 5 for smaller chunks
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const countryRefs = useRef<Map<string, HTMLElement>>(new Map());
+  const INITIAL_COUNTRIES_LOAD = 10; // Show more initially for better UX
 
   // Ultra-optimized query for maximum performance with immediate cache access
   const {
@@ -629,22 +625,20 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, "yyyy-MM-dd");
   };
 
-  // Load countries progressively for better performance with background loading
+  // Setup lazy loading with Intersection Observer
   useEffect(() => {
     if (countryList.length === 0) return;
 
-    // Show content immediately with more countries for faster perceived loading
-    const ENHANCED_INITIAL_LOAD = Math.min(5, countryList.length); // Show 5 countries initially
-
+    // Load initial countries (priority + popular leagues first)
     const priorityCountries = countryList
       .filter(country => {
         const countryData = processedCountryData[country];
         return country === "World" || countryData?.hasPopularLeague;
       })
-      .slice(0, ENHANCED_INITIAL_LOAD);
+      .slice(0, INITIAL_COUNTRIES_LOAD);
 
     // Add remaining countries up to initial load limit
-    const remainingSlots = ENHANCED_INITIAL_LOAD - priorityCountries.length;
+    const remainingSlots = INITIAL_COUNTRIES_LOAD - priorityCountries.length;
     if (remainingSlots > 0) {
       const otherCountries = countryList
         .filter(country => !priorityCountries.includes(country))
@@ -652,60 +646,101 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       priorityCountries.push(...otherCountries);
     }
 
-    // Fallback: if no priority countries found, just show first few
-    const finalCountries = priorityCountries.length > 0
+    const initialCountries = priorityCountries.length > 0
       ? priorityCountries
-      : countryList.slice(0, ENHANCED_INITIAL_LOAD);
+      : countryList.slice(0, INITIAL_COUNTRIES_LOAD);
 
-    // Set visible countries immediately - no waiting
-    setVisibleCountries(new Set(finalCountries));
+    setVisibleCountries(new Set(initialCountries));
 
-    // Start background loading immediately in parallel
-    if (countryList.length > finalCountries.length) {
-      startBackgroundLoading(finalCountries);
+    // Setup Intersection Observer for lazy loading remaining countries
+    if (countryList.length > initialCountries.length) {
+      setupLazyLoading(initialCountries);
     }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
   }, [countryList, processedCountryData]);
 
-  // Background loading function with batched processing
-  const startBackgroundLoading = useCallback(async (initialCountries: string[]) => {
-    if (isBackgroundLoading) return;
-
-    setIsBackgroundLoading(true);
+  // Setup lazy loading with Intersection Observer
+  const setupLazyLoading = useCallback((loadedCountries: string[]) => {
     const remainingCountries = countryList.filter(country =>
-      !initialCountries.includes(country)
+      !loadedCountries.includes(country)
     );
 
-    // Process countries in smaller batches to avoid blocking the UI
-    for (let i = 0; i < remainingCountries.length; i += BACKGROUND_LOAD_BATCH_SIZE) {
-      const batch = remainingCountries.slice(i, i + BACKGROUND_LOAD_BATCH_SIZE);
+    if (remainingCountries.length === 0) return;
 
-      // Use requestIdleCallback for better yielding
-      await new Promise(resolve => {
-        const processData = () => {
-          batch.forEach(country => {
-            const countryData = processedCountryData[country];
-            if (countryData) {
-              setBackgroundLoadedCountries(prev => new Set([...prev, country]));
-            }
-          });
-          resolve(undefined);
-        };
-
-        if (typeof requestIdleCallback !== 'undefined') {
-          requestIdleCallback(processData, { timeout: 50 });
-        } else {
-          setTimeout(processData, 0);
-        }
-      });
-
-      // Longer delay between batches for better responsiveness
-      if (i + BACKGROUND_LOAD_BATCH_SIZE < remainingCountries.length) {
-        await new Promise(resolve => setTimeout(resolve, 200));
-      }
+    // Disconnect existing observer
+    if (observerRef.current) {
+      observerRef.current.disconnect();
     }
 
-    setIsBackgroundLoading(false);
-  }, [countryList, processedCountryData, isBackgroundLoading]);
+    // Create new intersection observer
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        const countriesToLoad: string[] = [];
+        
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const country = entry.target.getAttribute('data-country');
+            if (country && remainingCountries.includes(country)) {
+              countriesToLoad.push(country);
+            }
+          }
+        });
+
+        if (countriesToLoad.length > 0) {
+          setVisibleCountries(prev => {
+            const newVisible = new Set(prev);
+            countriesToLoad.forEach(country => newVisible.add(country));
+            return newVisible;
+          });
+
+          // Unobserve loaded countries
+          countriesToLoad.forEach(country => {
+            const element = countryRefs.current.get(country);
+            if (element && observerRef.current) {
+              observerRef.current.unobserve(element);
+            }
+          });
+        }
+      },
+      {
+        root: null,
+        rootMargin: '200px', // Start loading when 200px away
+        threshold: 0.1,
+      }
+    );
+
+    // Create sentinel elements for remaining countries and observe them
+    remainingCountries.forEach((country, index) => {
+      // Create a virtual sentinel element for each unloaded country
+      requestIdleCallback(() => {
+        const sentinel = document.createElement('div');
+        sentinel.setAttribute('data-country', country);
+        sentinel.style.height = '1px';
+        sentinel.style.position = 'absolute';
+        sentinel.style.top = `${(loadedCountries.length + index) * 200}px`; // Approximate position
+        
+        // Add to DOM temporarily for observation
+        document.body.appendChild(sentinel);
+        countryRefs.current.set(country, sentinel);
+        
+        if (observerRef.current) {
+          observerRef.current.observe(sentinel);
+        }
+
+        // Remove sentinel after short delay to keep DOM clean
+        setTimeout(() => {
+          if (document.body.contains(sentinel)) {
+            document.body.removeChild(sentinel);
+          }
+        }, 100);
+      });
+    });
+  }, [countryList]);
 
   const getCountryData = useCallback(
     (country: string) => {
@@ -782,43 +817,21 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   }, [processedCountryData]);
 
 
-  // Enhanced load more with smaller increments for better responsiveness
+  // Load more countries on demand (fallback for manual loading)
   const loadMoreCountries = useCallback(() => {
-    if (isLoadingMore) return;
-
-    setIsLoadingMore(true);
-    const currentVisible = Array.from(visibleCountries);
     const remainingCountries = countryList.filter(country => !visibleCountries.has(country));
-
-    // Smaller batch size for better performance
-    const LOAD_MORE_BATCH_SIZE = 3; // Reduced from 10 to 3
-
-    // Prioritize background-loaded countries for instant rendering
-    const backgroundLoaded = remainingCountries.filter(country =>
-      backgroundLoadedCountries.has(country)
-    );
-    const notBackgroundLoaded = remainingCountries.filter(country =>
-      !backgroundLoadedCountries.has(country)
-    );
-
-    // Take from background-loaded first, then others
-    const nextBatch = [
-      ...backgroundLoaded.slice(0, LOAD_MORE_BATCH_SIZE),
-      ...notBackgroundLoaded.slice(0, Math.max(0, LOAD_MORE_BATCH_SIZE - backgroundLoaded.length))
-    ].slice(0, LOAD_MORE_BATCH_SIZE);
-
-    // Use requestIdleCallback for non-blocking state update
-    const updateState = () => {
-      setVisibleCountries(new Set([...currentVisible, ...nextBatch]));
-      setIsLoadingMore(false);
-    };
-
-    if (typeof requestIdleCallback !== 'undefined') {
-      requestIdleCallback(updateState, { timeout: 50 });
-    } else {
-      setTimeout(updateState, 0);
+    const LOAD_MORE_BATCH_SIZE = 5;
+    
+    const nextBatch = remainingCountries.slice(0, LOAD_MORE_BATCH_SIZE);
+    
+    if (nextBatch.length > 0) {
+      setVisibleCountries(prev => {
+        const newVisible = new Set(prev);
+        nextBatch.forEach(country => newVisible.add(country));
+        return newVisible;
+      });
     }
-  }, [countryList, visibleCountries, backgroundLoadedCountries, isLoadingMore]);
+  }, [countryList, visibleCountries]);
 
   // No analysis stats for maximum performance
 
@@ -828,33 +841,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     [countryList, Array.from(visibleCountries).join(",")],
   );
 
-  // Auto-loading with intersection observer
+  // Simple trigger for remaining countries
   const loadMoreTriggerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const trigger = loadMoreTriggerRef.current;
-    if (!trigger || !visibleCountriesList.length) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        if (entry.isIntersecting && !isLoadingMore && visibleCountriesList.length < countryList.length) {
-          loadMoreCountries();
-        }
-      },
-      {
-        root: null,
-        rootMargin: '100px', // Start loading when 100px away from trigger
-        threshold: 0.1,
-      }
-    );
-
-    observer.observe(trigger);
-
-    return () => {
-      observer.unobserve(trigger);
-    };
-  }, [loadMoreCountries, isLoadingMore, visibleCountriesList.length, countryList.length]);
 
   // Minimal expansion logic - no heavy operations
   useEffect(() => {
@@ -870,10 +858,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Remove complex flag preloading - flags load on-demand now for better performance
 
-  // Simplified observe function (no-op for compatibility)
+  // Register country elements for potential lazy loading
   const observeCountryElement = useCallback(
-    (_element: HTMLElement | null, _country: string) => {
-      // No-op - flags are loaded immediately now
+    (element: HTMLElement | null, country: string) => {
+      if (element) {
+        countryRefs.current.set(country, element);
+      }
     },
     [],
   );
@@ -2550,43 +2540,16 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           })()}
         </div>
 
-        {/* Auto-loading trigger and status */}
+        {/* Load more trigger for remaining countries */}
         {visibleCountriesList.length < countryList.length && (
           <div className="p-4 text-center border-t border-gray-100">
-            {/* Invisible trigger for auto-loading */}
             <div ref={loadMoreTriggerRef} className="h-1" />
-
-            {/* Loading status */}
-            {isLoadingMore && (
-              <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                <div className="w-4 h-4 border border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
-                Loading more countries...
-              </div>
-            )}
-
-            {/* Manual load button as fallback */}
-            {!isLoadingMore && (
-              <button
-                onClick={loadMoreCountries}
-                className="px-4 py-2 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors text-sm"
-              >
-                Load More ({countryList.length - visibleCountriesList.length} remaining)
-              </button>
-            )}
-
-            {/* Background loading indicator */}
-            {isBackgroundLoading && (
-              <div className="mt-2 text-xs text-gray-500 flex items-center justify-center gap-1">
-                <div className="w-3 h-3 border border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
-                Preparing more content in background...
-              </div>
-            )}
-
-            {!isBackgroundLoading && backgroundLoadedCountries.size > 0 && (
-              <div className="mt-2 text-xs text-green-600">
-                ✓ {backgroundLoadedCountries.size} countries ready for instant loading
-              </div>
-            )}
+            <button
+              onClick={loadMoreCountries}
+              className="px-4 py-2 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors text-sm"
+            >
+              Load More ({countryList.length - visibleCountriesList.length} remaining)
+            </button>
           </div>
         )}
       </CardContent>
