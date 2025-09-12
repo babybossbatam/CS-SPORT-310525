@@ -382,7 +382,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const INITIAL_COUNTRIES_LOAD = 2; // Reduced to 2 for immediate display
   const BACKGROUND_LOAD_BATCH_SIZE = 5; // Reduced from 15 to 5 for smaller chunks
 
-  // Ultra-optimized query for maximum performance with immediate cache access
+  // Ultra-optimized query with immediate cache access and optimistic loading
   const {
     data: fixtures = [],
     isLoading,
@@ -390,6 +390,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     refetch,
     isFetching,
     isPreviousData,
+    isSuccess,
   } = useCachedQuery(
     ["all-fixtures-by-date", selectedDate],
     async () => {
@@ -411,17 +412,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return Array.isArray(data) ? data : [];
     },
     {
-      staleTime: isToday ? 5 * 60 * 1000 : 60 * 60 * 1000, // 5min for today, 1hr for other dates
-      cacheTime: isToday ? 30 * 60 * 1000 : 24 * 60 * 60 * 1000, // 30min for today, 24hr for others
+      staleTime: isToday ? 10 * 60 * 1000 : 2 * 60 * 60 * 1000, // Increased stale time
+      cacheTime: isToday ? 60 * 60 * 1000 : 24 * 60 * 60 * 1000, // Longer cache time
       refetchInterval: false,
       enabled: !!selectedDate,
-      retry: 1,
+      retry: 2, // More retries for reliability
       networkMode: 'online',
       refetchOnMount: false,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
-      keepPreviousData: true, // Keep previous data while loading new data
-      // Remove onError callback to reduce overhead
+      keepPreviousData: true,
+      initialData: [], // Provide initial data to prevent loading state
+      placeholderData: [], // Show empty state instead of loading
     },
   );
 
@@ -444,37 +446,43 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Removed logging for better performance
   }, [fixtures?.length, selectedDate]);
 
-  // Optimized data processing with reduced operations and selectedDate filtering
-  const processedCountryData = useMemo(() => {
-    if (!fixtures?.length || !selectedDate) return {};
+  // Lazy processing with immediate rendering for better UX
+  const [processedCountryData, setProcessedCountryData] = useState<Record<string, any>>({});
+  const [isProcessing, setIsProcessing] = useState(false);
 
+  // Process data in background with immediate partial results
+  useEffect(() => {
+    if (!fixtures?.length || !selectedDate) {
+      setProcessedCountryData({});
+      return;
+    }
+
+    setIsProcessing(true);
     const countryMap: Record<string, any> = {};
     const popularLeagueSet = new Set(POPULAR_LEAGUES);
 
-    // Process in chunks to avoid blocking
-    const chunkSize = 100;
-    const chunks = [];
+    // Process in smaller chunks with yielding to prevent blocking
+    const chunkSize = 50; // Reduced chunk size
+    let processedCount = 0;
 
-    for (let i = 0; i < fixtures.length; i += chunkSize) {
-      chunks.push(fixtures.slice(i, i + chunkSize));
-    }
-
-    // Process each chunk
-    for (const chunk of chunks) {
-      for (const fixture of chunk) {
-        // Minimal validation - only check essential fields
+    const processChunk = () => {
+      const startIndex = processedCount;
+      const endIndex = Math.min(startIndex + chunkSize, fixtures.length);
+      
+      for (let i = startIndex; i < endIndex; i++) {
+        const fixture = fixtures[i];
+        
+        // Skip invalid fixtures
         if (!fixture?.fixture?.id || !fixture.teams || !fixture.league?.country) continue;
 
-        // Filter by selected date - ensure fixture date matches selected date
+        // Quick date filter
         const fixtureDate = getFixtureClientDate(fixture.fixture.date);
-        if (fixtureDate !== selectedDate) {
-          continue; // Skip fixtures that don't match the selected date
-        }
+        if (fixtureDate !== selectedDate) continue;
 
         const country = fixture.league.country;
         const leagueId = fixture.league.id;
 
-        // Initialize country if needed (reduced object creation)
+        // Initialize country
         if (!countryMap[country]) {
           countryMap[country] = {
             country,
@@ -485,7 +493,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
         const countryData = countryMap[country];
 
-        // Initialize league if needed
+        // Initialize league
         if (!countryData.leagues[leagueId]) {
           const isPopular = popularLeagueSet.has(leagueId);
           countryData.leagues[leagueId] = {
@@ -498,9 +506,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
         countryData.leagues[leagueId].matches.push(fixture);
       }
-    }
 
-    return countryMap;
+      processedCount = endIndex;
+
+      // Update UI with partial results for immediate feedback
+      setProcessedCountryData({ ...countryMap });
+
+      // Continue processing or finish
+      if (processedCount < fixtures.length) {
+        // Use setTimeout to yield control back to the browser
+        setTimeout(processChunk, 0);
+      } else {
+        setIsProcessing(false);
+      }
+    };
+
+    // Start processing
+    setTimeout(processChunk, 0);
   }, [fixtures, selectedDate]);
 
   // Ultra-lightweight country list processing with alphabetical sorting
@@ -1102,50 +1124,40 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Only show loading when there's absolutely no data available and we're fetching for the first time
+  // Show content immediately, even while loading/processing
   const hasFixtureData = fixtures && fixtures.length > 0;
   const hasProcessedData = Object.keys(processedCountryData).length > 0;
   const hasAnyData = hasFixtureData || hasProcessedData;
 
-  // Only show loading if we have no data at all AND we're in initial loading state (not using previous data)
-  const shouldShowLoading = isLoading && !hasAnyData && !isPreviousData;
+  // Only show loading for absolute first load with no cache
+  const shouldShowMinimalLoading = isLoading && !hasAnyData && !isPreviousData && !isSuccess;
 
-  console.log(`🔍 [TodaysMatchesByCountryNew] Loading state check:`, {
+  console.log(`🔍 [TodaysMatchesByCountryNew] Optimistic loading:`, {
     selectedDate,
     isLoading,
     hasFixtureData,
     hasProcessedData,
     hasAnyData,
     isPreviousData,
-    shouldShowLoading,
+    shouldShowMinimalLoading,
     fixturesLength: fixtures?.length || 0,
-    processedCountriesCount: Object.keys(processedCountryData).length
+    processedCountriesCount: Object.keys(processedCountryData).length,
+    isProcessing
   });
 
-  if (shouldShowLoading) {
-    console.log(`⏳ [TodaysMatchesByCountryNew] Showing loading screen for ${selectedDate}`);
+  // Only show loading as absolutely last resort
+  if (shouldShowMinimalLoading) {
     return (
       <Card className="mt-4">
         <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
-          <div className="flex justify-between items-center w-full">
-            <h3
-              className="font-semibold text-gray-900 dark:text-white"
-              style={{
-                fontFamily:
-                  "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                fontSize: "13.3px",
-              }}
-            >
-              {getHeaderTitle()}
-            </h3>
-          </div>
+          <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
+            {getHeaderTitle()}
+          </h3>
         </CardHeader>
-        <CardContent className="p-0">
-          <div className="p-4 text-center">
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-4 h-4 border border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
-              <span className="text-sm text-gray-600">Loading matches...</span>
-            </div>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+            <div className="w-4 h-4 border border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+            <span>Loading matches...</span>
           </div>
         </CardContent>
       </Card>
@@ -2424,28 +2436,40 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           })()}
         </div>
 
-        {/* Auto-loading trigger and status */}
-        {visibleCountriesList.length < countryList.length && (
+        {/* Processing and loading indicators */}
+        {(isProcessing || isLoadingMore || visibleCountriesList.length < countryList.length) && (
           <div className="p-4 text-center border-t border-gray-100">
-            {/* Invisible trigger for auto-loading */}
-            <div ref={loadMoreTriggerRef} className="h-1" />
-
-            {/* Loading status */}
-            {isLoadingMore && (
-              <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                <div className="w-4 h-4 border border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
-                Loading more countries...
+            {/* Processing indicator */}
+            {isProcessing && (
+              <div className="mb-2 flex items-center justify-center gap-2 text-xs text-blue-600">
+                <div className="w-3 h-3 border border-blue-300 border-t-blue-600 rounded-full animate-spin"></div>
+                Processing matches... ({Object.keys(processedCountryData).length} countries ready)
               </div>
             )}
 
-            {/* Manual load button as fallback */}
-            {!isLoadingMore && (
-              <button
-                onClick={loadMoreCountries}
-                className="px-4 py-2 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors text-sm"
-              >
-                Load More ({countryList.length - visibleCountriesList.length} remaining)
-              </button>
+            {/* Auto-loading trigger */}
+            {visibleCountriesList.length < countryList.length && (
+              <>
+                <div ref={loadMoreTriggerRef} className="h-1" />
+                
+                {/* Loading status */}
+                {isLoadingMore && (
+                  <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                    <div className="w-4 h-4 border border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                    Loading more countries...
+                  </div>
+                )}
+
+                {/* Manual load button as fallback */}
+                {!isLoadingMore && (
+                  <button
+                    onClick={loadMoreCountries}
+                    className="px-4 py-2 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors text-sm"
+                  >
+                    Load More ({countryList.length - visibleCountriesList.length} remaining)
+                  </button>
+                )}
+              </>
             )}
 
             {/* Background loading indicator */}
