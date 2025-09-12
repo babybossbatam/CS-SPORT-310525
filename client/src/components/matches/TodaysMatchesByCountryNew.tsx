@@ -714,7 +714,73 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     [processedCountryData],
   );
 
-  // No additional initialization needed - handled above
+  // Skeleton component for countries before data is loaded
+  const SkeletonCountrySection = React.memo(
+    ({
+      country,
+      onToggleCountry,
+      observeCountryElement,
+    }: {
+      country: string;
+      onToggleCountry: (country: string) => void;
+      observeCountryElement: (
+        element: HTMLElement | null,
+        country: string,
+      ) => void;
+    }) => {
+      // Mock data for skeleton loaders
+      const mockLeagues = Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map((_, i) => ({
+        id: i,
+        name: `Skeleton League ${i + 1}`,
+        logo: "/assets/fallback-logo.svg",
+        country: country,
+        matches: Array.from({ length: Math.floor(Math.random() * 5) + 1 }).map((_, j) => ({
+          fixture: { id: `skel-${country}-${i}-${j}` },
+          teams: { home: { name: "Home Team" }, away: { name: "Away Team" } },
+          goals: { home: null, away: null },
+          league: { name: `Skeleton League ${i + 1}`, id: i },
+          score: { penalty: { home: null, away: null } },
+        })),
+      }));
+
+      const totalMockMatches = mockLeagues.reduce((sum, league) => sum + league.matches.length, 0);
+
+      return (
+        <div
+          ref={(el) => observeCountryElement(el, country)}
+          className={`border-b border-gray-100 last:border-b-0 country-section skeleton-country`}
+        >
+          <button
+            onClick={() => onToggleCountry(country)}
+            className={`w-full p-4 flex items-center justify-between transition-colors pt-[12px] pb-[12px] font-normal text-[14.7px] country-header-button border-b border-stone-200 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700`}
+          >
+            <div className="flex items-center gap-3 font-normal text-[14px]">
+              <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-4 w-12 text-gray-500" />
+            </div>
+            <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400 chevron-icon" />
+          </button>
+          {/* Render skeleton leagues if country is expanded */}
+          <div className="bg-gray-50 dark:bg-gray-900 border-t border-stone-200 dark:border-gray-700 league-content expanded">
+            {mockLeagues.map((league, index) => (
+              <div key={`skeleton-league-${index}`} className="border-b border-stone-200 dark:border-gray-700 p-3 flex items-center gap-2">
+                <Skeleton className="w-6 h-6 rounded-full shrink-0" />
+                <Skeleton className="h-3 w-48" />
+                <Skeleton className="h-3 w-16 text-gray-500" />
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    },
+  );
+
+  // Get a list of all country names from the processed data, even if not yet fully visible
+  const availableCountries = useMemo(() => {
+    return Object.keys(processedCountryData);
+  }, [processedCountryData]);
+
 
   // Enhanced load more with smaller increments for better responsiveness
   const loadMoreCountries = useCallback(() => {
@@ -2391,24 +2457,27 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       </CardHeader>
       <CardContent className="p-0 dark:bg-gray-800">
         <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
-          {/* Show countries immediately - prioritize any available data */}
+          {/* Show countries immediately - prioritize immediate availability */}
           {(() => {
-            // Smart content rendering: use any available data source
+            // Smart content rendering: prioritize immediate data sources
             let countriesToRender = [];
+            let renderMode = 'processed'; // 'processed', 'skeleton', or 'empty'
 
-            if (visibleCountriesList.length > 0) {
-              // Primary: use visible countries list
+            if (visibleCountriesList.length > 0 && Object.keys(processedCountryData).length > 0) {
+              // Best case: use fully processed visible countries
               countriesToRender = visibleCountriesList;
-              console.log(`📊 [TodaysMatchesByCountryNew] Rendering ${countriesToRender.length} visible countries`);
+              renderMode = 'processed';
+              console.log(`📊 [TodaysMatchesByCountryNew] Rendering ${countriesToRender.length} processed countries`);
+            } else if (availableCountries.length > 0) {
+              // Fast fallback: show country structure immediately with skeleton content
+              countriesToRender = availableCountries.slice(0, Math.min(5, availableCountries.length));
+              renderMode = 'skeleton';
+              console.log(`⚡ [TodaysMatchesByCountryNew] Fast rendering ${countriesToRender.length} countries with skeleton content`);
             } else if (countryList.length > 0) {
-              // Fallback: use first few countries from the full list
+              // Processed fallback: use first few from processed list
               countriesToRender = countryList.slice(0, Math.min(3, countryList.length));
-              console.log(`🔄 [TodaysMatchesByCountryNew] Fallback: rendering first ${countriesToRender.length} countries from full list`);
-            } else if (fixtures && fixtures.length > 0) {
-              // Emergency fallback: try to extract countries from raw fixtures
-              const emergencyCountries = [...new Set(fixtures.map(f => f.league?.country).filter(Boolean))].slice(0, 2);
-              countriesToRender = emergencyCountries;
-              console.log(`🚨 [TodaysMatchesByCountryNew] Emergency: extracted ${countriesToRender.length} countries from raw fixtures`);
+              renderMode = 'processed';
+              console.log(`🔄 [TodaysMatchesByCountryNew] Fallback: rendering ${countriesToRender.length} countries from processed list`);
             }
 
             if (countriesToRender.length === 0) {
@@ -2437,33 +2506,46 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             }
 
             return countriesToRender.map((country: string) => {
-              const countryData = getCountryData(country);
-              if (!countryData) {
-                console.warn(`⚠️ [TodaysMatchesByCountryNew] No country data found for: ${country}`);
-                return null;
+              if (renderMode === 'skeleton') {
+                // Render skeleton country section while data loads
+                return (
+                  <SkeletonCountrySection
+                    key={country}
+                    country={country}
+                    onToggleCountry={toggleCountry}
+                    observeCountryElement={observeCountryElement}
+                  />
+                );
+              } else {
+                // Render fully processed country section
+                const countryData = getCountryData(country);
+                if (!countryData) {
+                  console.warn(`⚠️ [TodaysMatchesByCountryNew] No country data found for: ${country}`);
+                  return null;
+                }
+
+                const isExpanded = expandedCountries.has(countryData.country);
+
+                return (
+                  <CountrySection
+                    key={countryData.country}
+                    country={countryData.country}
+                    countryData={countryData}
+                    isExpanded={isExpanded}
+                    expandedLeagues={expandedLeagues}
+                    starredMatches={starredMatches}
+                    hiddenMatches={hiddenMatches}
+                    halftimeFlashMatches={halftimeFlashMatches}
+                    fulltimeFlashMatches={fulltimeFlashMatches}
+                    goalFlashMatches={goalFlashMatches}
+                    onToggleCountry={toggleCountry}
+                    onToggleLeague={toggleLeague}
+                    onStarMatch={toggleStarMatch}
+                    onMatchClick={onMatchCardClick}
+                    observeCountryElement={observeCountryElement}
+                  />
+                );
               }
-
-              const isExpanded = expandedCountries.has(countryData.country);
-
-              return (
-                <CountrySection
-                  key={countryData.country}
-                  country={countryData.country}
-                  countryData={countryData}
-                  isExpanded={isExpanded}
-                  expandedLeagues={expandedLeagues}
-                  starredMatches={starredMatches}
-                  hiddenMatches={hiddenMatches}
-                  halftimeFlashMatches={halftimeFlashMatches}
-                  fulltimeFlashMatches={fulltimeFlashMatches}
-                  goalFlashMatches={goalFlashMatches}
-                  onToggleCountry={toggleCountry}
-                  onToggleLeague={toggleLeague}
-                  onStarMatch={toggleStarMatch}
-                  onMatchClick={onMatchCardClick}
-                  observeCountryElement={observeCountryElement}
-                />
-              );
             });
           })()}
         </div>
