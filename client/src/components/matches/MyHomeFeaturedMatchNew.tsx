@@ -805,6 +805,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       leagueName.includes("serie d -") ||
                       leagueName.includes("serie d girone");
 
+                    // Exclude Serie C leagues (Italian lower division leagues)
+                    const isSerieC = 
+                      leagueName.includes("serie c") ||
+                      leagueName.includes("serie c -") ||
+                      leagueName.includes("serie c girone") ||
+                      leagueName.includes("girone a") ||
+                      leagueName.includes("girone b") ||
+                      leagueName.includes("girone c");
+
                     // Exclude Primera División RFEF leagues (Spanish regional/lower leagues)
                     const isPrimeraRFEF = 
                       leagueName.includes("primera división rfef") ||
@@ -890,6 +899,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       !isTerceraRFEF &&
                       !isSegundaRFEF &&
                       !isSerieD &&
+                      !isSerieC &&
                       !isPrimeraRFEF &&
                       !isExplicitlyExcluded &&
                       !isNonLeaguePremier;
@@ -956,6 +966,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     } else if (isSerieD) {
                       console.log(
                         `❌ [MyHomeFeaturedMatchNew] Excluding Serie D league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isSerieC) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Serie C league:`,
                         {
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
@@ -1180,6 +1198,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         !isTerceraRFEF &&
                         !isSegundaRFEF &&
                         !isSerieD &&
+                        !isSerieC &&
                         !isPrimeraRFEF
                       );
                     }
@@ -1222,6 +1241,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       leagueName.includes("serie d") ||
                       leagueName.includes("serie d -") ||
                       leagueName.includes("serie d girone");
+
+                    // Exclude Serie C leagues (Italian lower division leagues)
+                    const isSerieC = 
+                      leagueName.includes("serie c") ||
+                      leagueName.includes("serie c -") ||
+                      leagueName.includes("serie c girone") ||
+                      leagueName.includes("girone a") ||
+                      leagueName.includes("girone b") ||
+                      leagueName.includes("girone c");
 
                     // Exclude Primera División RFEF leagues (Spanish regional/lower leagues)
                     const isPrimeraRFEF = 
@@ -1373,6 +1401,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       !isTerceraRFEF &&
                       !isSegundaRFEF &&
                       !isSerieD &&
+                      !isSerieC &&
                       !isPrimeraRFEF &&
                       (isPopularLeague ||
                         isFromPopularCountry ||
@@ -1491,6 +1520,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           !isTerceraRFEF &&
                           !isSegundaRFEF &&
                           !isSerieD &&
+                          !isSerieC &&
                           !isPrimeraRFEF
                         );
                       }
@@ -1533,6 +1563,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         leagueName.includes("serie d") ||
                         leagueName.includes("serie d -") ||
                         leagueName.includes("serie d girone");
+
+                      // Exclude Serie C leagues (Italian lower division leagues)
+                      const isSerieC = 
+                        leagueName.includes("serie c") ||
+                        leagueName.includes("serie c -") ||
+                        leagueName.includes("serie c girone") ||
+                        leagueName.includes("girone a") ||
+                        leagueName.includes("girone b") ||
+                        leagueName.includes("girone c");
 
                       // Exclude Primera División RFEF leagues (Spanish regional/lower leagues)
                       const isPrimeraRFEF = 
@@ -1616,6 +1655,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         !isTerceraRFEF &&
                         !isSegundaRFEF &&
                         !isSerieD &&
+                        !isSerieC &&
                         !isPrimeraRFEF
                       );
                     })
@@ -2085,21 +2125,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               if (aIsPopularFriendly && !bIsPopularFriendly) return -1;
               if (!aIsPopularFriendly && bIsPopularFriendly) return 1;
 
-              // Calculate popular team score for additional sorting within friendlies
-              const getPopularTeamScore = (match: FeaturedMatch) => {
-                let score = 0;
-                if (POPULAR_TEAM_IDS.includes(match.teams.home.id)) score += 1;
-                if (POPULAR_TEAM_IDS.includes(match.teams.away.id)) score += 1;
-                return score;
-              };
-
-              // If both are popular friendlies, prioritize by number of popular teams
-              if (aIsPopularFriendly && bIsPopularFriendly) {
-                const aScore = getPopularTeamScore(a);
-                const bScore = getPopularTeamScore(b);
-                if (aScore !== bScore) return bScore - aScore; // Higher score first
-              }
-
               // Finally sort by time based on status
               if (aLive && bLive) {
                 // For live matches, sort by elapsed time (shortest first)
@@ -2199,6 +2224,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           key.includes("segunda") || // Segunda División RFEF
           key.includes("rfef") ||
           key.includes("serie d") || // Serie D leagues
+          key.includes("serie c") || // Serie C leagues
+          key.includes("girone") || // Serie C Girone leagues
           key.includes("primera rfef") || // Primera División RFEF leagues
           key.includes("fixtures_date") ||
           key.startsWith("ended_matches_") ||
@@ -2246,6 +2273,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           key.includes("segunda") || // Segunda División RFEF
           key.includes("rfef") ||
           key.includes("serie d") || // Serie D leagues
+          key.includes("serie c") || // Serie C leagues
+          key.includes("girone") || // Serie C Girone leagues
           key.includes("primera rfef") || // Primera División RFEF leagues
           key.startsWith("league-fixtures-") ||
           key.startsWith("featured-match-"),
@@ -2293,6 +2322,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 key.includes("segunda") || // Segunda División RFEF
                 key.includes("rfef") ||
                 key.includes("serie d") || // Serie D leagues
+                key.includes("serie c") || // Serie C leagues
+                key.includes("girone") || // Serie C Girone leagues
                 key.includes("primera rfef") // Primera División RFEF leagues
               );
             },
@@ -2303,7 +2334,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       }
 
       console.log(
-        `🧹 [CacheClean] Cleared cache entries for excluded leagues (UEFA Europa Conference League, Regionalliga - Bayern, National 2 - Group A, Ligue 2, Serie D, Primera División RFEF etc.)`,
+        `🧹 [CacheClean] Cleared cache entries for excluded leagues (UEFA Europa Conference League, Regionalliga - Bayern, National 2 - Group A, Ligue 2, Serie D, Serie C, Primera División RFEF etc.)`,
       );
     } catch (error) {
       console.error("Error clearing excluded leagues caches:", error);
