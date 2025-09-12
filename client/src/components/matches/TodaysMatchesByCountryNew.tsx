@@ -345,7 +345,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const today = new Date().toISOString().slice(0, 10);
   const isToday = selectedDate === today;
 
-  // Ultra-aggressive caching for immediate loading
+  // Ultra-aggressive caching for immediate loading - optimized
   const getDynamicCacheConfig = () => {
     if (!isToday) {
       // Historical or future dates - cache aggressively, no refetch
@@ -361,9 +361,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // Today's matches - show cached immediately, minimal background refresh
     return {
-      staleTime: 5 * 60 * 1000, // 5 minutes fresh for today
-      cacheTime: 60 * 60 * 1000, // 1 hour in memory
-      refetchInterval: 60 * 1000, // 1 minute background refresh (reduced from 30s)
+      staleTime: 10 * 60 * 1000, // 10 minutes fresh for today (increased from 5min)
+      cacheTime: 2 * 60 * 60 * 1000, // 2 hours in memory (increased)
+      refetchInterval: false, // Disable auto-refresh to prevent slowdowns
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       refetchOnMount: false, // Don't refetch on mount - use cache
@@ -376,7 +376,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   );
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  // Simplified query with better error handling
+  // Optimized query with aggressive caching for faster loading
   const {
     data: fixtures = [],
     isLoading,
@@ -403,62 +403,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       console.log(`📊 [TodaysMatchesByCountryNew] Received ${result.length} fixtures for ${selectedDate}`);
 
-      // 🔍 DEBUG: Check raw API response for Leicester vs Juventus
-      const leicesterJuventusMatches = result.filter((fixture: any) => {
-        const homeTeam = fixture.teams?.home?.name || "";
-        const awayTeam = fixture.teams?.away?.name || "";
-        return (homeTeam.toLowerCase().includes('leicester') && awayTeam.toLowerCase().includes('juventus')) ||
-               (homeTeam.toLowerCase().includes('juventus') && awayTeam.toLowerCase().includes('leicester'));
-      });
-
-      if (leicesterJuventusMatches.length > 0) {
-        console.error(`🚨 [API RAW DATA DEBUG] Leicester vs Juventus found in API response:`, {
-          matchCount: leicesterJuventusMatches.length,
-          matches: leicesterJuventusMatches.map((fixture: any) => ({
-            fixtureId: fixture.fixture?.id,
-            homeTeam: fixture.teams?.home?.name,
-            awayTeam: fixture.teams?.away?.name,
-            leagueName: fixture.league?.name,
-            leagueId: fixture.league?.id,
-            leagueCountry: fixture.league?.country,
-            date: fixture.fixture?.date,
-            status: fixture.fixture?.status?.short,
-            // Log the entire fixture object to see all data
-            rawFixtureLeague: fixture.league,
-            rawFixtureTeams: fixture.teams
-          }))
-        });
-      }
-
-      // 🔍 DEBUG: Check for Premier League matches in World country from API
-      const worldPremierLeagueMatches = result.filter((fixture: any) => 
-        fixture.league?.country === "World" && 
-        fixture.league?.name?.toLowerCase().includes('premier league')
-      );
-
-      if (worldPremierLeagueMatches.length > 0) {
-        console.error(`🚨 [API WORLD PREMIER LEAGUE DEBUG] Premier League matches in World country from API:`, {
-          matchCount: worldPremierLeagueMatches.length,
-          matches: worldPremierLeagueMatches.slice(0, 5).map((fixture: any) => ({
-            fixtureId: fixture.fixture?.id,
-            homeTeam: fixture.teams?.home?.name,
-            awayTeam: fixture.teams?.away?.name,
-            leagueName: fixture.league?.name,
-            leagueId: fixture.league?.id,
-            country: fixture.league?.country
-          }))
-        });
-      }
-
       return result;
     },
     {
-      staleTime: isToday ? 5 * 60 * 1000 : 24 * 60 * 60 * 1000,
-      cacheTime: isToday ? 60 * 60 * 1000 : 48 * 60 * 60 * 1000,
-      refetchInterval: isToday ? 60 * 1000 : false,
+      staleTime: isToday ? 10 * 60 * 1000 : 24 * 60 * 60 * 1000, // Increased stale time
+      cacheTime: isToday ? 2 * 60 * 60 * 1000 : 48 * 60 * 60 * 1000, // Increased cache time
+      refetchInterval: false, // Disable auto-refresh for faster performance
       enabled: !!selectedDate,
-      retry: 2,
+      retry: 1, // Reduced retries for faster failure handling
       networkMode: 'online',
+      refetchOnMount: false, // Don't refetch on mount - use cache first
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
       onError: (error) => {
         console.error(`❌ [TodaysMatchesByCountryNew] Query error:`, error);
       },
@@ -477,186 +433,53 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       : "Unknown error occurred"
     : null;
 
-  // Smart cache adjustment based on live match detection and proximity to kickoff - like MyNewLeague2
+  // Minimal cache adjustment - removed heavy logging for faster performance
   useEffect(() => {
-    if (!fixtures || fixtures.length === 0) return;
-
-    const now = new Date();
-    const liveMatches = fixtures.filter((match: any) =>
-      ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(
-        match.fixture?.status?.short,
-      ),
-    );
-
-    const upcomingMatches = fixtures.filter((match: any) => {
-      if (match.fixture?.status?.short !== "NS") return false;
-      const matchTime = new Date(match.fixture.date);
-      const hoursUntilKickoff =
-        (matchTime.getTime() - now.getTime()) / (1000 * 60 * 60);
-      return hoursUntilKickoff > 0 && hoursUntilKickoff <= 2; // Within 2 hours
-    });
-
-    const imminentMatches = fixtures.filter((match: any) => {
-      if (match.fixture?.status?.short !== "NS") return false;
-      const matchTime = new Date(match.fixture.date);
-      const minutesUntilKickoff =
-        (matchTime.getTime() - now.getTime()) / (1000 * 60);
-      return minutesUntilKickoff > 0 && minutesUntilKickoff <= 30; // Within 30 minutes
-    });
-
-    if (liveMatches.length > 0 && isToday) {
-      console.log(
-        `🔴 [TodaysMatchesByCountryNew] ${liveMatches.length} live matches detected - using most aggressive cache (30s refresh)`,
-      );
-    } else if (imminentMatches.length > 0 && isToday) {
-      console.log(
-        `🟡 [TodaysMatchesByCountryNew] ${imminentMatches.length} matches starting within 30min - using aggressive cache`,
-      );
-    } else if (upcomingMatches.length > 0 && isToday) {
-      console.log(
-        `🟠 [TodaysMatchesByCountryNew] ${upcomingMatches.length} matches starting within 2h - using moderate cache`,
-      );
-    } else if (isToday && liveMatches.length === 0) {
-      console.log(
-        `🔵 [TodaysMatchesByCountryNew] Today but no live/imminent matches - using standard cache`,
-      );
-    } else {
-      console.log(
-        `⚫ [TodaysMatchesByCountryNew] Non-today date - using extended cache`,
-      );
+    // Minimal logging for performance optimization
+    if (fixtures?.length > 0) {
+      console.log(`⚡ [TodaysMatchesByCountryNew] ${fixtures.length} fixtures processed for ${selectedDate}`);
     }
+  }, [fixtures?.length, selectedDate]);
 
-    // Log cache status
-    const cacheStats = {
-      date: selectedDate,
-      isToday,
-      totalFixtures: fixtures.length,
-      liveMatches: liveMatches.length,
-      imminentMatches: imminentMatches.length,
-      upcomingMatches: upcomingMatches.length,
-    };
-    console.log(`📊 [TodaysMatchesByCountryNew] Cache stats:`, cacheStats);
-  }, [fixtures, selectedDate, isToday]);
-
-  // Optimized data processing without heavy caching
+  // Optimized data processing with minimal logging for faster performance
   const processedCountryData = useMemo(() => {
     if (!fixtures?.length) {
-      console.log(`⚠️ [TodaysMatchesByCountryNew] No fixtures available for ${selectedDate}`);
       return {};
     }
-
-    console.log(`🚀 [TodaysMatchesByCountryNew] Processing ${fixtures.length} fixtures for ${selectedDate}`);
 
     const countryMap = new Map<string, any>();
     const seenFixtures = new Set<number>();
 
-    let processedCount = 0;
-    const suspiciousMatches: any[] = [];
-
-    fixtures.forEach((fixture) => {
-      // Basic validation
+    // Fast processing without excessive logging
+    for (let i = 0; i < fixtures.length; i++) {
+      const fixture = fixtures[i];
+      
+      // Basic validation - early returns for performance
       if (!fixture?.fixture?.id || !fixture.teams || !fixture.league || 
           seenFixtures.has(fixture.fixture.id)) {
-        return;
+        continue;
       }
 
       const country = fixture.league.country;
-      if (!country) return;
+      if (!country) continue;
 
       seenFixtures.add(fixture.fixture.id);
-      processedCount++;
 
-      // Skip obvious test leagues
+      // Skip test leagues
       const leagueName = fixture.league.name || "";
-      if (leagueName.toLowerCase().includes('test')) return;
+      if (leagueName.toLowerCase().includes('test')) continue;
 
-      // 🔍 ENHANCED DATA VALIDATION: Filter out incorrectly classified matches
-      const homeTeam = fixture.teams?.home?.name || "";
-      const awayTeam = fixture.teams?.away?.name || "";
-
-      // 🗓️ CRITICAL DATE VALIDATION: Ensure fixture date matches selectedDate
+      // Simple date validation without excessive logging
       const fixtureDate = parseISO(fixture.fixture.date);
       const fixtureLocalDate = format(fixtureDate, 'yyyy-MM-dd');
       
       if (fixtureLocalDate !== selectedDate) {
-        console.warn(`🚨 [DATE VALIDATION] Excluding fixture with wrong date:`, {
-          fixtureId: fixture.fixture.id,
-          homeTeam,
-          awayTeam,
-          fixtureDate: fixture.fixture.date,
-          fixtureLocalDate,
-          selectedDate,
-          reason: 'Date mismatch - fixture not for selected date'
-        });
-        return;
+        continue;
       }
 
-      // Check for data inconsistencies that should be excluded
-      const isDataInconsistent = () => {
-        // Premier League should only be in England, not World
-        if (leagueName.toLowerCase().includes('premier league') && country === "World") {
-          console.warn(`🚨 [DATA VALIDATION] Excluding incorrectly classified Premier League match in World country:`, {
-            fixtureId: fixture.fixture.id,
-            homeTeam,
-            awayTeam,
-            leagueName,
-            country
-          });
-          return true;
-        }
-
-        // Leicester City vs Juventus should never be Premier League (they're from different countries)
-        const isLeicesterJuventusMatch = 
-          (homeTeam.toLowerCase().includes('leicester') && awayTeam.toLowerCase().includes('juventus')) ||
-          (homeTeam.toLowerCase().includes('juventus') && awayTeam.toLowerCase().includes('leicester'));
-
-        if (isLeicesterJuventusMatch && leagueName.toLowerCase().includes('premier league')) {
-          console.warn(`🚨 [DATA VALIDATION] Excluding Leicester vs Juventus incorrectly classified as Premier League:`, {
-            fixtureId: fixture.fixture.id,
-            homeTeam,
-            awayTeam,
-            leagueName,
-            country
-          });
-          return true;
-        }
-
-        // Check for other major league misclassifications
-        const majorLeagues = ['premier league', 'la liga', 'serie a', 'bundesliga', 'ligue 1'];
-        const isMajorLeague = majorLeagues.some(league => leagueName.toLowerCase().includes(league));
-
-        if (isMajorLeague && country === "World") {
-          console.warn(`🚨 [DATA VALIDATION] Excluding major league incorrectly classified in World country:`, {
-            fixtureId: fixture.fixture.id,
-            homeTeam,
-            awayTeam,
-            leagueName,
-            country
-          });
-          return true;
-        }
-
-        return false;
-      };
-
-      // Skip fixtures with data inconsistencies
-      if (isDataInconsistent()) {
-        return;
-      }
-
-      // 🔍 DEBUG: Check for any match with Leicester City or Juventus
-      if (homeTeam.toLowerCase().includes('leicester') || awayTeam.toLowerCase().includes('leicester') ||
-          homeTeam.toLowerCase().includes('juventus') || awayTeam.toLowerCase().includes('juventus')) {
-        console.warn(`🔍 [TEAM DEBUG] Leicester/Juventus team found:`, {
-          fixtureId: fixture.fixture.id,
-          homeTeam,
-          awayTeam,
-          leagueName,
-          leagueId: fixture.league.id,
-          country,
-          date: fixture.fixture.date,
-          status: fixture.fixture.status?.short
-        });
+      // Simplified data consistency check
+      if (leagueName.toLowerCase().includes('premier league') && country === "World") {
+        continue;
       }
 
       // Get or create country data
@@ -683,35 +506,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }
 
       countryData.leagues[leagueId].matches.push(fixture);
-    });
-
-    const result = Object.fromEntries(countryMap);
-
-    console.log(`✅ [TodaysMatchesByCountryNew] Processed ${processedCount} fixtures into ${countryMap.size} countries`);
-
-    // 🔍 DEBUG: Log suspicious matches summary
-    if (suspiciousMatches.length > 0) {
-      console.error(`🚨 [SUSPICIOUS MATCHES SUMMARY] Found ${suspiciousMatches.length} Leicester vs Juventus matches:`, suspiciousMatches);
     }
 
-    // 🔍 DEBUG: Log all countries and their leagues for World country
-    if (result["World"]) {
-      console.warn(`🌍 [WORLD COUNTRY DEBUG] World country leagues:`, {
-        totalLeagues: Object.keys(result["World"].leagues).length,
-        leagues: Object.values(result["World"].leagues).map((league: any) => ({
-          id: league.league.id,
-          name: league.league.name,
-          country: league.league.country,
-          matchCount: league.matches.length,
-          firstMatch: league.matches[0] ? {
-            home: league.matches[0].teams?.home?.name,
-            away: league.matches[0].teams?.away?.name
-          } : null
-        }))
-      });
-    }
-
-    return result;
+    return Object.fromEntries(countryMap);
   }, [fixtures, selectedDate]);
 
   // Lightning-fast country list and fixtures extraction
@@ -866,20 +663,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, "yyyy-MM-dd");
   };
 
-  // Minimal logging for performance
-  useEffect(() => {
-    if (validFixtures.length > 0) {
-      console.log(`⚡ [INSTANT] ${validFixtures.length} fixtures loaded for ${selectedDate}`);
-    }
-  }, [validFixtures.length]);
-
-  // Show countries immediately without complex batching
+  // Show countries immediately without logging for maximum performance
   useEffect(() => {
     setVisibleCountries(new Set(countryList));
-
-    if (countryList.length > 0) {
-      console.log(`⚡ [TodaysMatchesByCountryNew] Displaying ${countryList.length} countries for ${selectedDate}`);
-    }
   }, [countryList]);
 
   const getCountryData = useCallback(
