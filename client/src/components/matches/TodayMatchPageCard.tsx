@@ -160,7 +160,12 @@ export const TodayMatchPageCard = ({
         // Format as "週五, 8月8日" style
         return `${translatedDay}, ${format(date, 'M月d日')}`;
       } else {
-        return format(date, 'MMM d');
+        // Format as "Wed, 10th Sep"
+        const dayOfWeek = format(date, 'EEE');
+        const day = date.getDate();
+        const ordinalSuffix = getOrdinalSuffix(day);
+        const month = format(date, 'MMM');
+        return `${dayOfWeek}, ${day}${ordinalSuffix} ${month}`;
       }
     }
   };
