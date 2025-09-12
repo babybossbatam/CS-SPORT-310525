@@ -156,7 +156,7 @@ export const TodayMatchPageCard = ({
         const dayOfWeek = format(date, 'EEEE');
         const dayKey = dayOfWeek.toLowerCase();
         const translatedDay = t(dayKey) !== dayKey ? t(dayKey) : dayOfWeek;
-        
+
         // Format as "週五, 8月8日" style
         return `${translatedDay}, ${format(date, 'M月d日')}`;
       } else {
@@ -245,6 +245,9 @@ export const TodayMatchPageCard = ({
       return "--:--";
     }
   };
+
+  // State to share fixtures from MyNewLeague2
+  const [sharedAllFixtures, setSharedAllFixtures] = useState<any[]>([]);
 
 
   return (
@@ -482,6 +485,7 @@ export const TodayMatchPageCard = ({
           selectedDate={selectedDate}
           timeFilterActive={timeFilterActive}
           liveFilterActive={liveFilterActive}
+          fixtures={sharedAllFixtures} // Pass shared fixtures
         />
       ) : (
         // Neither filter active - show default view
@@ -492,6 +496,7 @@ export const TodayMatchPageCard = ({
             showTop10={false}
             liveFilterActive={liveFilterActive}
             onMatchCardClick={handleMatchCardClick}
+            onFixturesLoad={setSharedAllFixtures} // Pass callback to receive fixtures
             useUTCOnly={true}
           />
 

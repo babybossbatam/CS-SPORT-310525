@@ -275,6 +275,7 @@ export const MyLeftDetailsCard = ({
           selectedDate={selectedDate}
           timeFilterActive={timeFilterActive}
           liveFilterActive={liveFilterActive}
+          fixtures={[]} // TODO: Get fixtures from MyNewLeague2 if available
         />
 
       ) : (

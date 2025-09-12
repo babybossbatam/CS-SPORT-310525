@@ -128,6 +128,7 @@ interface MyNewLeague2Props {
   onMatchCardClick?: (fixture: any | null) => void; // Callback to pass match data to parent (for MyMatchdetailsScoreboard)
   match?: any; // Current match data (used for sample display)
   useUTCOnly?: boolean;
+  onFixturesLoad?: (fixtures: FixtureData[]) => void; // Callback to share fixtures with parent
 }
 
 // Helper function to determine if a team is a national team
@@ -510,6 +511,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   selectedDate,
   onMatchCardClick,
   match,
+  onFixturesLoad,
 }) => {
   const {
     translateLeagueName: contextTranslateLeagueName,
@@ -1433,6 +1435,11 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         })),
       },
     );
+
+    // Share fixtures with parent component
+    if (onFixturesLoad && allFixtures) {
+      onFixturesLoad(allFixtures);
+    }
 
     if (!allFixtures?.length) {
       console.log(`❌ [MyNewLeague2] No fixtures available`);
