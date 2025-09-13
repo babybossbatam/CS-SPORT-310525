@@ -1330,7 +1330,7 @@ const LeagueStandingsFilter = () => {
                               {stats.lose}
                             </TableCell>
                             <TableCell className="text-left py-2 px-1 ">
-                              <div className="flex gap-1 justify-center mr-12">
+                              <div className="flex gap-1 justify-start">
                                 {standing.form
                                   ?.split("")
                                   .slice(-5)
