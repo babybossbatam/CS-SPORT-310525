@@ -100,24 +100,24 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({
   );
 
   // Use shared fixtures when available, otherwise use API fixtures
-  const fixtures = sharedFixtures.length > 0 ? sharedFixtures : apiFixtures;
+  const effectiveFixtures = sharedFixtures.length > 0 ? sharedFixtures : apiFixtures;
 
   // Update local state when fixtures data changes (optimized)
   useEffect(() => {
-    if (fixtures) {
-      setFixtures(fixtures);
+    if (effectiveFixtures) {
+      setFixtures(effectiveFixtures);
 
       // Defer translation learning to avoid blocking UI
-      if (fixtures.length > 0) {
+      if (effectiveFixtures.length > 0) {
         // Use setTimeout to defer heavy operations
         const timeoutId = setTimeout(() => {
-          console.log(`🎓 [Auto-Learning] Processing ${fixtures.length} fixtures for automatic translation learning...`);
+          console.log(`🎓 [Auto-Learning] Processing ${effectiveFixtures.length} fixtures for automatic translation learning...`);
 
           // Learn from fixtures in background
-          smartLeagueCountryTranslation.learnFromFixtures(fixtures);
-          smartLeagueCountryTranslation.massLearnMixedLanguageLeagues(fixtures);
+          smartLeagueCountryTranslation.learnFromFixtures(effectiveFixtures);
+          smartLeagueCountryTranslation.massLearnMixedLanguageLeagues(effectiveFixtures);
 
-          console.log(`✅ [Auto-Learning] Completed learning from ${fixtures.length} fixtures`);
+          console.log(`✅ [Auto-Learning] Completed learning from ${effectiveFixtures.length} fixtures`);
         }, 100); // Small delay to let UI render first
 
         return () => clearTimeout(timeoutId);
@@ -127,7 +127,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({
     setError(
       queryError ? "Failed to load fixtures. Please try again later." : null,
     );
-  }, [fixtures, isQueryLoading, queryError]);
+  }, [effectiveFixtures, isQueryLoading, queryError]);
 
   // Optimized: Group leagues by country using static data + fixtures
   const leaguesByCountry = useMemo(() => {
@@ -448,7 +448,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({
   // Dynamic countries with actual match data (when fixtures are loaded)
   const sortedCountries = useMemo(() => {
     // If no fixtures loaded yet, return static list
-    if (!fixtures || fixtures.length === 0) {
+    if (!effectiveFixtures || effectiveFixtures.length === 0) {
       return staticCountriesList;
     }
 
@@ -558,7 +558,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({
     );
 
     return worldCountry ? [worldCountry, ...otherCountries] : otherCountries;
-  }, [leaguesByCountry, countriesWithMatches, allAvailableCountries, getCountryDisplayName, countryToLanguageMap, fixtures, staticCountriesList]);
+  }, [leaguesByCountry, countriesWithMatches, allAvailableCountries, getCountryDisplayName, countryToLanguageMap, effectiveFixtures, staticCountriesList]);
 
   if (!selectedDate) {
     return (
