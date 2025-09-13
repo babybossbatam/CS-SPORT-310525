@@ -456,6 +456,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const [processedCountryData, setProcessedCountryData] = useState<Record<string, any>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedCountries, setProcessedCountries] = useState<Set<string>>(new Set());
+  const [backgroundProcessingComplete, setBackgroundProcessingComplete] = useState(false);
 
   // Simplified progressive rendering - process all data at once for faster performance
   const [allProcessedCountries, setAllProcessedCountries] = useState<string[]>([]);
@@ -465,6 +466,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       setProcessedCountryData({});
       setProcessedCountries(new Set());
       setAllProcessedCountries([]);
+      setBackgroundProcessingComplete(false);
       return;
     }
 
@@ -547,6 +549,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       setProcessedCountryData(allCountryData);
       setProcessedCountries(new Set(sortedCountries));
       setIsProcessing(false);
+      setBackgroundProcessingComplete(true);
       
       console.log(`✅ [TodaysMatchesByCountryNew] Processed all ${sortedCountries.length} countries at once`);
     };
