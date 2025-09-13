@@ -26,6 +26,7 @@ import {
 } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 import { LEAGUES_BY_COUNTRY, getLeaguesForCountry, mergeStaticWithDynamicLeagues, LeagueInfo } from "@/lib/constants/leaguesByCountry";
+import { getCachedFixtures, storeFixtures } from "@/lib/sharedFixturesCache";
 
 interface MyAllLeagueListProps {
   selectedDate: string;
@@ -48,29 +49,40 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   const { currentLanguage, setLanguage } = useLanguage();
   const { t } = useTranslation();
 
-  // Fetch fixtures data with caching (league data is derived from fixtures)
-  const {
-    data: fixturesData,
-    isLoading: isFixturesLoading,
-    error: fixturesError,
-  } = useCachedQuery(
+  // Fetch fixtures for the selected date using shared cache
+  const { data: fixturesData, isLoading: isFixturesLoading, error: fixturesError } = useCachedQuery(
     ["all-fixtures-by-date", selectedDate],
     async () => {
-      if (!selectedDate) return [];
-
-      performanceMonitor.startMeasure("fixtures-fetch");
-      const response = await apiRequest(
-        "GET",
-        `/api/fixtures/date/${selectedDate}?all=true`,
-      );
+      console.log(`🔄 [MyAllLeagueList] Fetching fixtures for ${selectedDate}`);
+      const response = await apiRequest("GET", `/api/fixtures/date/${selectedDate}?all=true`);
       const data = await response.json();
-      performanceMonitor.endMeasure("fixtures-fetch");
-      return Array.isArray(data) ? data : [];
+      const fixtures = Array.isArray(data) ? data : [];
+
+      // Store in shared cache for immediate reuse by other components
+      if (fixtures.length > 0) {
+        storeFixtures(selectedDate, fixtures);
+        console.log(`💾 [MyAllLeagueList] Stored ${fixtures.length} fixtures in shared cache for ${selectedDate}`);
+      }
+
+      console.log(`✅ [MyAllLeagueList] Received ${fixtures.length} fixtures for ${selectedDate}`);
+      return fixtures;
     },
     {
       enabled: !!selectedDate,
-      staleTime: 5 * 60 * 1000, // 5 minutes for fixtures
-      maxAge: 30 * 60 * 1000,
+      staleTime: 10 * 60 * 1000, // 10 minutes
+      gcTime: 60 * 60 * 1000, // 1 hour
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      // Use shared cache for immediate data access
+      initialData: () => {
+        const cachedFixtures = getCachedFixtures(selectedDate);
+        if (cachedFixtures) {
+          console.log(`⚡ [MyAllLeagueList] Using shared cache for ${selectedDate} (${cachedFixtures.length} fixtures)`);
+          return cachedFixtures;
+        }
+        return [];
+      },
     },
   );
 
@@ -104,7 +116,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
   // Optimized: Group leagues by country using static data + fixtures
   const leaguesByCountry = useMemo(() => {
     const allFixtures = fixtures || [];
-    
+
     // Initialize with static league data
     const grouped: {
       [key: string]: {
@@ -184,7 +196,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
       }
 
       const countryData = grouped[country];
-      
+
       // Initialize league if not in static data
       if (!countryData.leagues[leagueId]) {
         countryData.leagues[leagueId] = {
@@ -225,10 +237,10 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
     // Use the smart translation system
     const translation = smartLeagueCountryTranslation.translateCountryName(originalCountry, currentLanguage);
-    
+
     // Log translation for debugging
     console.log(`🌍 [MyAllLeagueList] Translating country: "${originalCountry}" -> "${translation}" (language: ${currentLanguage})`);
-    
+
     // Return translation if available, otherwise return original
     return translation || originalCountry;
   }, [currentLanguage]);
@@ -243,7 +255,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
 
     // Use the smart translation system
     const translation = smartLeagueCountryTranslation.translateLeagueName(originalLeague, currentLanguage);
-    
+
     // Return translation if available, otherwise return original
     return translation || originalLeague;
   }, [currentLanguage]);
@@ -327,12 +339,12 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     }
   }, [user.preferences.favoriteLeagues, user.isAuthenticated, user.id, dispatch]);
 
-  
+
 
   // Get countries that actually have matches for the selected date
   const countriesWithMatches = useMemo(() => {
     const countriesSet = new Set();
-    
+
     // Extract unique countries from fixtures efficiently
     if (fixtures && fixtures.length > 0) {
       fixtures.forEach(fixture => {
@@ -355,37 +367,37 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     const staticCountries = [];
     const seenDisplayNames = new Set(); // Track seen display names to avoid duplicates
     const seenOriginalNames = new Set(); // Track original names that have been translated
-    
+
     // Add main countries from static data first
     allAvailableCountries.forEach(country => {
       // Use the enhanced translation function that includes fallbacks
       const displayName = getCountryDisplayName(country);
-      
+
       // Skip if we've already seen this display name
       if (seenDisplayNames.has(displayName)) {
         console.log(`🚫 [StaticList] Skipping duplicate display name: "${country}" -> "${displayName}"`);
         return;
       }
-      
+
       // If this is a translation (display name differs from original), mark the original as seen
       if (displayName !== country) {
         seenOriginalNames.add(country);
       }
-      
+
       // Skip if this original name was already used for a translation
       if (seenOriginalNames.has(country) && displayName === country) {
         console.log(`🚫 [StaticList] Skipping original name that was already translated: "${country}"`);
         return;
       }
-      
+
       seenDisplayNames.add(displayName);
-      
+
       const mappedData = {
         originalName: country,
         displayName,
         hasLanguageMapping: !!(countryToLanguageMap[country] || countryToLanguageMap[displayName])
       };
-      
+
       staticCountries.push({
         country,
         leagues: getLeaguesForCountry(country).reduce((acc, league) => {
@@ -405,7 +417,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         liveMatches: 0,
         mappedData
       });
-      
+
       console.log(`🏁 [StaticList] Country: "${country}" -> "${displayName}" (${currentLanguage})`);
     });
 
@@ -432,31 +444,31 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
     // Add countries from our static list that have matches
     allAvailableCountries.forEach(country => {
       const countryData = leaguesByCountry[country];
-      
+
       // Only include countries that have matches (filter out zero counts)
       if (countryData && countryData.totalMatches > 0) {
         // Use the enhanced translation function that includes fallbacks
         const displayName = getCountryDisplayName(country);
-        
+
         // Skip if we've already seen this display name
         if (seenDisplayNames.has(displayName)) {
           console.log(`🚫 [DynamicList] Skipping duplicate display name: "${country}" -> "${displayName}"`);
           return;
         }
-        
+
         // If this is a translation (display name differs from original), mark the original as seen
         if (displayName !== country) {
           seenOriginalNames.add(country);
         }
-        
+
         // Skip if this original name was already used for a translation
         if (seenOriginalNames.has(country) && displayName === country) {
           console.log(`🚫 [DynamicList] Skipping original name that was already translated: "${country}"`);
           return;
         }
-        
+
         seenDisplayNames.add(displayName);
-        
+
         countriesWithMatchesData.push({
           ...countryData,
           mappedData: {
@@ -465,7 +477,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
             hasLanguageMapping: !!(countryToLanguageMap[country] || countryToLanguageMap[displayName])
           }
         });
-        
+
         console.log(`🎯 [DynamicList] Static country with matches: "${country}" -> "${displayName}" (${currentLanguage})`);
       }
     });
@@ -478,26 +490,26 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
         if (countryData && countryData.totalMatches > 0) {
           // Use the enhanced translation function that includes fallbacks
           const displayName = getCountryDisplayName(country);
-          
+
           // Skip if we've already seen this display name
           if (seenDisplayNames.has(displayName)) {
             console.log(`🚫 [DynamicList] Skipping duplicate display name: "${country}" -> "${displayName}"`);
             return;
           }
-          
+
           // If this is a translation (display name differs from original), mark the original as seen
           if (displayName !== country) {
             seenOriginalNames.add(country);
           }
-          
+
           // Skip if this original name was already used for a translation
           if (seenOriginalNames.has(country) && displayName === country) {
             console.log(`🚫 [DynamicList] Skipping original name that was already translated: "${country}"`);
             return;
           }
-          
+
           seenDisplayNames.add(displayName);
-          
+
           countriesWithMatchesData.push({
             ...countryData,
             mappedData: {
@@ -506,7 +518,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({ selectedDate }) => {
               hasLanguageMapping: !!(countryToLanguageMap[country] || countryToLanguageMap[displayName])
             }
           });
-          
+
           console.log(`🎯 [DynamicList] Dynamic country with matches: "${country}" -> "${displayName}" (${currentLanguage})`);
         }
       }
