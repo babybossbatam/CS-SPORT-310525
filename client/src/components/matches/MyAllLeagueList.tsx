@@ -64,7 +64,7 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({
   // Fetch all fixtures for the selected date with ultra-aggressive caching
   const {
     data: apiFixtures = [],
-    isLoading,
+    isLoading: isQueryLoading,
     error: queryError,
     refetch,
     isFetching,
@@ -123,11 +123,11 @@ const MyAllLeagueList: React.FC<MyAllLeagueListProps> = ({
         return () => clearTimeout(timeoutId);
       }
     }
-    setIsLoading(isLoading);
+    setIsLoading(isQueryLoading);
     setError(
       queryError ? "Failed to load fixtures. Please try again later." : null,
     );
-  }, [fixtures, isLoading, queryError]);
+  }, [fixtures, isQueryLoading, queryError]);
 
   // Optimized: Group leagues by country using static data + fixtures
   const leaguesByCountry = useMemo(() => {
