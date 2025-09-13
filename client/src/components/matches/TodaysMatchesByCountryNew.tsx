@@ -140,7 +140,6 @@ interface TodaysMatchesByCountryNewProps {
   liveFilterActive?: boolean;
   timeFilterActive?: boolean;
   onMatchCardClick?: (fixture: any) => void;
-  onFixturesLoaded?: (fixtures: any[]) => void; // Add callback to share fixtures
 }
 
 const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
@@ -148,7 +147,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   liveFilterActive = false,
   timeFilterActive = false,
   onMatchCardClick,
-  onFixturesLoaded,
 }) => {
   const {
     translateLeagueName: contextTranslateLeagueName,
@@ -458,21 +456,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       : "Unknown error occurred"
     : null;
 
-  // Share fixtures with parent components to avoid duplicate API calls
+  // Minimal cache adjustment for performance
   useEffect(() => {
-    if (fixtures?.length > 0 && onFixturesLoaded) {
-      onFixturesLoaded(fixtures);
-    }
-  }, [fixtures, onFixturesLoaded]);
+    // Removed logging for better performance
+  }, [fixtures?.length, selectedDate]);
 
   // Progressive rendering state - process countries incrementally
   const [processedCountryData, setProcessedCountryData] = useState<Record<string, any>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedCountries, setProcessedCountries] = useState<Set<string>>(new Set());
-  const [backgroundProcessingComplete, setBackgroundProcessingComplete] = useState(false);
 
   // Enhanced progressive data processing with background loading + lazy loading
   const [allProcessedCountries, setAllProcessedCountries] = useState<string[]>([]);
+  const [backgroundProcessingComplete, setBackgroundProcessingComplete] = useState(false);
 
   useEffect(() => {
     if (!fixtures?.length || !selectedDate) {
