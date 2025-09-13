@@ -1136,8 +1136,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const isInitialLoading = isLoading && !hasAnyData && !isPreviousData;
   const isDataReady = hasProcessedData && !isProcessing;
 
-  // Always show the card with title, hide content until data is ready
-  const shouldShowContent = isDataReady || hasAnyData;
+  // Only show content when data is truly ready and processed
+  const shouldShowContent = isDataReady;
 
   if (!validFixtures.length) {
     return (
