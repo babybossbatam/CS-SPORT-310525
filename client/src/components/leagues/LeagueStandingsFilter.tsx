@@ -931,13 +931,13 @@ const LeagueStandingsFilter = () => {
                             <TableHead className="text-center px-0.5">
                               PTS
                             </TableHead>
-                            <TableHead className="text-center px-0.5">
+                            <TableHead className="text-left px-0.5">
                               W
                             </TableHead>
-                            <TableHead className="text-center px-0.5">
+                            <TableHead className="text-left px-0.5">
                               D
                             </TableHead>
-                            <TableHead className="text-center px-0.5">
+                            <TableHead className="text-left px-0.5">
                               L
                             </TableHead>
                             <TableHead className="text-center  px-1">
@@ -995,13 +995,13 @@ const LeagueStandingsFilter = () => {
                                 <TableCell className="text-center font-regular text-[0.8rem] px-1 py-1 mx-0">
                                   {standing.points}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.8rem] px-1 py-1 mx-0">
+                                <TableCell className="text-left text-[0.8rem] px-1 py-1 mx-0">
                                   {stats.win}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.8rem] font-regular px-1 py-1 mx-0">
+                                <TableCell className="text-left text-[0.8rem] font-regular px-1 py-1 mx-0">
                                   {stats.draw}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.8rem] font-regular px-1 py-1 mx-0">
+                                <TableCell className="text-left text-[0.8rem] font-regular px-1 py-1 mx-0">
                                   {stats.lose}
                                 </TableCell>
                                 <TableCell className="px-1 py-1 mx-0 font-regular">
@@ -1129,13 +1129,13 @@ const LeagueStandingsFilter = () => {
                       <TableHead className="text-center text-xs font-regular text-gray-900  px-2 w-[50px]">
                         PTS
                       </TableHead>
-                      <TableHead className="text-center text-xs font-semi-bold text-gray-400 py-3 px-2 w-[40px]">
+                      <TableHead className="text-left text-xs font-semi-bold text-gray-400 py-3 px-2 w-[40px]">
                         W
                       </TableHead>
-                      <TableHead className="text-center text-xs font-regular text-gray-400  px-2 w-[40px]">
+                      <TableHead className="text-left text-xs font-regular text-gray-400  px-2 w-[40px]">
                         D
                       </TableHead>
-                      <TableHead className="text-center text-xs font-regular text-gray-400  px-2 w-[40px]">
+                      <TableHead className="text-left text-xs font-regular text-gray-400  px-2 w-[40px]">
                         L
                       </TableHead>
                       <TableHead className="text-center text-xs font-semi-bold text-gray-600 px-1 w-[100px]">
@@ -1320,16 +1320,16 @@ const LeagueStandingsFilter = () => {
                             <TableCell className="text-center py-2 px-1 text-xs font-semi-bold text-gray-900">
                               {standing.points}
                             </TableCell>
-                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600">
+                            <TableCell className="text-left py-2 px-1 text-xs text-gray-600">
                               {stats.win}
                             </TableCell>
-                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600">
+                            <TableCell className="text-left py-2 px-1 text-xs text-gray-600">
                               {stats.draw}
                             </TableCell>
-                            <TableCell className="text-center py-2 px-1 text-xs text-gray-600">
+                            <TableCell className="text-left py-2 px-1 text-xs text-gray-600">
                               {stats.lose}
                             </TableCell>
-                            <TableCell className="text-center py-2 px-1 ">
+                            <TableCell className="text-left py-2 px-1 ">
                               <div className="flex gap-1 justify-center mr-12">
                                 {standing.form
                                   ?.split("")
