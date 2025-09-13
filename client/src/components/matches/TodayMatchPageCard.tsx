@@ -49,6 +49,8 @@ export const TodayMatchPageCard = ({
   const { t } = useTranslation();
   const { currentLanguage } = useLanguage();
   const { isMobile } = useDeviceInfo();
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false); // Define isCalendarOpen state
+
 
   // Calendar translation helpers
   const getMonthName = (monthIndex: number): string => {
