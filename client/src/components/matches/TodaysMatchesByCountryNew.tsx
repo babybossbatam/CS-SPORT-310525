@@ -473,7 +473,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Enhanced progressive data processing with background loading + lazy loading
   const [allProcessedCountries, setAllProcessedCountries] = useState<string[]>([]);
-  const [backgroundProcessingComplete, setBackgroundProcessingComplete] = useState(false);
 
   useEffect(() => {
     if (!fixtures?.length || !selectedDate) {
