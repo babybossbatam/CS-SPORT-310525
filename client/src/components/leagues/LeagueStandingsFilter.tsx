@@ -56,6 +56,14 @@ interface Standing {
 
 // Helper function to check if this is a national team competition
 const isNationalTeamCompetition = (leagueName: string): boolean => {
+  const leagueNameLower = leagueName.toLowerCase();
+  
+  // Explicitly exclude FIFA Club World Cup (club competition, not national teams)
+  if (leagueNameLower.includes("fifa club world cup") || 
+      leagueNameLower.includes("club world cup")) {
+    return false;
+  }
+  
   const nationalTeamKeywords = [
     "world cup",
     "uefa nations",
@@ -74,7 +82,7 @@ const isNationalTeamCompetition = (leagueName: string): boolean => {
     "fifa world cup",
   ];
   return nationalTeamKeywords.some((keyword) =>
-    leagueName.toLowerCase().includes(keyword.toLowerCase()),
+    leagueNameLower.includes(keyword.toLowerCase()),
   );
 };
 
