@@ -965,6 +965,7 @@ const LeagueStandingsFilter = () => {
                                       <MyWorldTeamLogo
                                         teamName={standing.team.name}
                                         teamLogo={standing.team.logo}
+                                        teamId={standing.team.id}
                                         alt={standing.team.name}
                                         size="28px"
                                         className="popular-leagues-size"

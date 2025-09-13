@@ -71,6 +71,18 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   const shouldUseCircularFlag = useMemo(() => {
     if (!teamName) return false;
 
+    // PRIORITY CHECK: Explicitly exclude FIFA Club World Cup and other club competitions
+    const isClubCompetition = leagueContext?.name?.toLowerCase().includes('fifa club world cup') ||
+                             leagueContext?.name?.toLowerCase().includes('club world cup') ||
+                             leagueContext?.name?.toLowerCase().includes('champions league') ||
+                             leagueContext?.name?.toLowerCase().includes('europa league') ||
+                             leagueContext?.name?.toLowerCase().includes('conference league');
+
+    if (isClubCompetition) {
+      console.log(`🏟️ [MyWorldTeamLogo] Club competition detected: ${leagueContext?.name} - forcing club logo for ${teamName}`);
+      return false;
+    }
+
     // Direct check using the isNationalTeam function
     const isNational = isNationalTeam({ name: teamName }, leagueContext);
 
