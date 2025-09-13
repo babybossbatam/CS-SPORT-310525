@@ -2386,8 +2386,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           </div>
         )}
 
-        {/* Show content when data is ready */}
-        {shouldShowContent && (
+        {/* Show content only when background processing is complete */}
+        {backgroundProcessingComplete && (
           <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
             {visibleCountriesList.length > 0 ? (
               visibleCountriesList.map((country: string) => {
@@ -2416,16 +2416,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   />
                 );
               })
-            ) : null}
-          </div>
-        )}
-
-        {/* Show no matches message when data is ready but no matches found */}
-        {shouldShowContent && !validFixtures.length && (
-          <div className="p-6 text-center">
-            <div className="text-gray-500">
-              <p>No matches found for {selectedDate}</p>
-            </div>
+            ) : (
+              <div className="p-6 text-center">
+                <div className="text-gray-500">
+                  <p>No matches found for {selectedDate}</p>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
