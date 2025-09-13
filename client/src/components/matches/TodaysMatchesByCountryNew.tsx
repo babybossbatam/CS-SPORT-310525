@@ -792,18 +792,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   };
 
-  // Enhanced visibility logic with background-processed countries support
+  // Show all countries immediately when data is ready
   useEffect(() => {
     if (countryList.length === 0) return;
 
-    // Show first 10 countries immediately to prevent empty state
-    const initialCountries = countryList.slice(0, INITIAL_COUNTRIES_LOAD);
-
-    // Show countries immediately regardless of processing status to prevent empty state
-    if (initialCountries.length > 0) {
-      setVisibleCountries(new Set(initialCountries));
-      console.log(`✅ [TodaysMatchesByCountryNew] Showing initial ${initialCountries.length} countries immediately`);
-    }
+    // Show all available countries immediately
+    setVisibleCountries(new Set(countryList));
+    console.log(`✅ [TodaysMatchesByCountryNew] Showing all ${countryList.length} countries immediately`);
 
     return () => {
       if (observerRef.current) {
@@ -811,28 +806,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }
     };
   }, [countryList.length]);
-
-  // Enhanced load more with background-processed countries support
-  const loadMoreCountries = useCallback(() => {
-    const currentlyVisible = Array.from(visibleCountries);
-    const availableCountries = allProcessedCountries.length > 0 ? allProcessedCountries : countryList;
-    const remainingCountries = availableCountries.filter(country => 
-      !visibleCountries.has(country) && processedCountries.has(country)
-    );
-
-    const LOAD_MORE_BATCH_SIZE = backgroundProcessingComplete ? 8 : 5; // Larger batches when background processing is done
-    const nextBatch = remainingCountries.slice(0, LOAD_MORE_BATCH_SIZE);
-
-    if (nextBatch.length > 0) {
-      setVisibleCountries(prev => {
-        const newVisible = new Set(prev);
-        nextBatch.forEach(country => newVisible.add(country));
-        return newVisible;
-      });
-
-      console.log(`🔄 [TodaysMatchesByCountryNew] Loaded ${nextBatch.length} more countries via lazy loading (${nextBatch.length + currentlyVisible.length}/${availableCountries.length} total)`);
-    }
-  }, [countryList, allProcessedCountries, visibleCountries, processedCountries, backgroundProcessingComplete]);
 
   const getCountryData = useCallback(
     (country: string) => {
@@ -866,37 +839,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     setExpandedLeagues(new Set<string>());
   }, [selectedDate]);
 
-  // Enhanced automatic scroll-based lazy loading with background processing awareness
-  useEffect(() => {
-    const availableCountries = allProcessedCountries.length > 0 ? allProcessedCountries : countryList;
-    const hasMoreToShow = visibleCountriesList.length < availableCountries.length;
-    const hasProcessedMoreCountries = Array.from(processedCountries).some(country => !visibleCountries.has(country));
-
-    if (!loadMoreTriggerRef.current || (!hasMoreToShow && !hasProcessedMoreCountries)) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (entry.isIntersecting && (hasMoreToShow || hasProcessedMoreCountries)) {
-          console.log('🔄 [TodaysMatchesByCountryNew] Trigger visible, loading more countries automatically');
-          loadMoreCountries();
-        }
-      },
-      {
-        root: null,
-        rootMargin: '200px', // Increased margin for better UX with background processing
-        threshold: 0.1,
-      }
-    );
-
-    observer.observe(loadMoreTriggerRef.current);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [loadMoreCountries, visibleCountriesList.length, countryList.length, allProcessedCountries.length, processedCountries.size, visibleCountries]);
+  // No lazy loading - all countries shown immediately when ready
 
   // Invalidate processed data cache when date changes
   useEffect(() => {
@@ -1209,37 +1152,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Progressive loading states - show loading only when no countries are processed yet
+  // Loading states - show CardHeader always, hide CardContent when loading
   const hasAnyData = fixtures?.length > 0 || Object.keys(processedCountryData).length > 0;
   const hasProcessedData = Object.keys(processedCountryData).length > 0;
-  const shouldShowLoading = (isLoading && !hasAnyData && !isPreviousData) || (isProcessing && processedCountries.size === 0);
-
-  // Show loading with skeleton for better UX
-  if (shouldShowLoading) {
-    return (
-      <Card className="mt-4">
-        <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
-          <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
-            {getHeaderTitle()}
-          </h3>
-        </CardHeader>
-        <CardContent className="p-0">
-          {/* Skeleton loading */}
-          <div className="space-y-0">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="p-4 border-b border-gray-100 animate-pulse">
-                <div className="flex items-center gap-3">
-                  <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
-                  <div className="h-4 bg-gray-200 rounded w-32"></div>
-                  <div className="h-4 bg-gray-200 rounded w-8 ml-auto"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  const shouldShowLoadingContent = (isLoading && !hasAnyData && !isPreviousData) || (isProcessing && processedCountries.size === 0);
 
   if (!validFixtures.length) {
     return (
@@ -2466,101 +2382,49 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           )}
         </div>
       </CardHeader>
-      <CardContent className="p-0 dark:bg-gray-800">
-        <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
-          {visibleCountriesList.length > 0 ? (
-            visibleCountriesList.map((country: string) => {
-              const countryData = getCountryData(country);
-              if (!countryData) return null;
+      
+      {/* Only show CardContent when not loading */}
+      {!shouldShowLoadingContent && (
+        <CardContent className="p-0 dark:bg-gray-800">
+          <div className="country-matches-container todays-matches-by-country-container dark:bg-gray-800">
+            {visibleCountriesList.length > 0 ? (
+              visibleCountriesList.map((country: string) => {
+                const countryData = getCountryData(country);
+                if (!countryData) return null;
 
-              const isExpanded = expandedCountries.has(countryData.country);
+                const isExpanded = expandedCountries.has(countryData.country);
 
-              return (
-                <CountrySection
-                  key={countryData.country}
-                  country={countryData.country}
-                  countryData={countryData}
-                  isExpanded={isExpanded}
-                  expandedLeagues={expandedLeagues}
-                  starredMatches={starredMatches}
-                  hiddenMatches={hiddenMatches}
-                  halftimeFlashMatches={halftimeFlashMatches}
-                  fulltimeFlashMatches={fulltimeFlashMatches}
-                  goalFlashMatches={goalFlashMatches}
-                  onToggleCountry={toggleCountry}
-                  onToggleLeague={toggleLeague}
-                  onStarMatch={toggleStarMatch}
-                  onMatchClick={onMatchCardClick}
-                  observeCountryElement={observeCountryElement}
-                />
-              );
-            })
-          ) : !isProcessing && hasAnyData ? (
-            <div className="p-4 text-center">
-              <div className="text-gray-500">
-                <p className="mb-2">No matches found for {selectedDate}</p>
-                <p className="text-sm">Try selecting a different date</p>
-              </div>
-            </div>
-          ) : null}
-        </div>
-
-        {/* Enhanced loading indicators */}
-        {(() => {
-          const availableTotal = allProcessedCountries.length || countryList.length;
-          const processedTotal = processedCountries.size;
-          const visibleTotal = visibleCountriesList.length;
-          const hasMoreProcessed = processedTotal > visibleTotal;
-          const isBackgroundProcessing = !backgroundProcessingComplete && processedTotal < availableTotal;
-
-          // Show load more trigger when there are processed countries not yet visible
-          if (hasMoreProcessed) {
-            return (
-              <div 
-                ref={loadMoreTriggerRef}
-                className="p-4 text-center border-t border-gray-100 cursor-pointer hover:bg-gray-50"
-                onClick={loadMoreCountries}
-              >
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border border-gray-300 border-t-green-500 rounded-full animate-spin"></div>
-                  <span className="text-sm text-gray-600">
-                    Load more countries ({visibleTotal}/{processedTotal} shown)
-                  </span>
+                return (
+                  <CountrySection
+                    key={countryData.country}
+                    country={countryData.country}
+                    countryData={countryData}
+                    isExpanded={isExpanded}
+                    expandedLeagues={expandedLeagues}
+                    starredMatches={starredMatches}
+                    hiddenMatches={hiddenMatches}
+                    halftimeFlashMatches={halftimeFlashMatches}
+                    fulltimeFlashMatches={fulltimeFlashMatches}
+                    goalFlashMatches={goalFlashMatches}
+                    onToggleCountry={toggleCountry}
+                    onToggleLeague={toggleLeague}
+                    onStarMatch={toggleStarMatch}
+                    onMatchClick={onMatchCardClick}
+                    observeCountryElement={observeCountryElement}
+                  />
+                );
+              })
+            ) : hasAnyData ? (
+              <div className="p-4 text-center">
+                <div className="text-gray-500">
+                  <p className="mb-2">No matches found for {selectedDate}</p>
+                  <p className="text-sm">Try selecting a different date</p>
                 </div>
               </div>
-            );
-          }
-
-          // Show background processing indicator
-          if (isBackgroundProcessing) {
-            return (
-              <div className="p-3 text-center border-t border-gray-100 bg-blue-50">
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-3 h-3 border border-blue-300 border-t-blue-500 rounded-full animate-spin"></div>
-                  <span className="text-xs text-blue-600">
-                    Processing countries in background ({processedTotal}/{availableTotal})
-                  </span>
-                </div>
-              </div>
-            );
-          }
-
-          // Show scroll trigger for potential lazy loading
-          if (visibleTotal < availableTotal) {
-            return (
-              <div 
-                ref={loadMoreTriggerRef}
-                className="p-2 text-center border-t border-gray-100 opacity-0"
-                style={{ height: '1px' }}
-              >
-                {/* Invisible trigger for intersection observer */}
-              </div>
-            );
-          }
-
-          return null;
-        })()}
-      </CardContent>
+            ) : null}
+          </div>
+        </CardContent>
+      )}
     </Card>
   );
 };
