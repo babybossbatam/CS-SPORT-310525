@@ -423,7 +423,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           if (cachedData && Array.isArray(cachedData)) {
             return cachedData;
           }
-          
+
           // Try similar dates if exact not found
           const dates = [selectedDate];
           for (const date of dates) {
@@ -469,7 +469,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Enhanced progressive data processing with background loading + lazy loading
   const [allProcessedCountries, setAllProcessedCountries] = useState<string[]>([]);
   const [backgroundProcessingComplete, setBackgroundProcessingComplete] = useState(false);
-  
+
   useEffect(() => {
     if (!fixtures?.length || !selectedDate) {
       setProcessedCountryData({});
@@ -480,23 +480,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
 
     setIsProcessing(true);
-    
+
     const processDataProgressively = async () => {
       const popularLeagueSet = new Set(POPULAR_LEAGUES);
-      
+
       // Debug logging for date filtering
       console.log(`🗓️ [TodaysMatchesByCountryNew] Processing fixtures for selected date: ${selectedDate}`);
       console.log(`📊 [TodaysMatchesByCountryNew] Total fixtures received: ${fixtures.length}`);
-      
+
       // Pre-filter fixtures with detailed logging
       const relevantFixtures = fixtures.filter(fixture => {
         if (!fixture?.fixture?.id || !fixture.teams || !fixture.league?.country) return false;
-        
+
         // Use UTC date extraction for consistent filtering
         const fixtureUTCDate = new Date(fixture.fixture.date);
         const fixtureDateString = fixtureUTCDate.toISOString().split("T")[0]; // YYYY-MM-DD in UTC
         const isRelevant = fixtureDateString === selectedDate;
-        
+
         // Log first few fixtures for debugging
         if (fixtures.indexOf(fixture) < 5) {
           console.log(`🔍 [Date Filter] Fixture ${fixture.fixture.id}: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
@@ -505,10 +505,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           console.log(`   Selected date: ${selectedDate}`);
           console.log(`   Match: ${isRelevant ? '✅' : '❌'}`);
         }
-        
+
         return isRelevant;
       });
-      
+
       console.log(`✅ [TodaysMatchesByCountryNew] Filtered to ${relevantFixtures.length} relevant fixtures`);
 
       // Group fixtures by country first (lightweight operation)
@@ -518,12 +518,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       relevantFixtures.forEach(fixture => {
         const country = fixture.league.country;
         const isPopular = popularLeagueSet.has(fixture.league.id);
-        
+
         if (!fixturesByCountry[country]) {
           fixturesByCountry[country] = [];
           countryPriority[country] = false;
         }
-        
+
         fixturesByCountry[country].push(fixture);
         if (isPopular) countryPriority[country] = true;
       });
@@ -542,7 +542,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Process first 8 countries immediately for instant display
       const initialCountries = sortedCountries.slice(0, 8);
       const initialCountryData: Record<string, any> = {};
-      
+
       for (const country of initialCountries) {
         const countryFixtures = fixturesByCountry[country];
         initialCountryData[country] = {
@@ -571,7 +571,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Set initial data immediately (first 8 countries)
       setProcessedCountryData(initialCountryData);
       setProcessedCountries(new Set(initialCountries));
-      
+
       // Finish initial processing
       setIsProcessing(false);
 
@@ -579,12 +579,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       const remainingCountries = sortedCountries.slice(8);
       if (remainingCountries.length > 0) {
         console.log(`🔄 [TodaysMatchesByCountryNew] Starting background processing of ${remainingCountries.length} remaining countries`);
-        
+
         // Use requestIdleCallback for better performance, fallback to setTimeout
         const processInBackground = () => {
           const batchSize = 15; // Larger batches since it's background processing
           let currentIndex = 0;
-          
+
           const processBatch = async () => {
             if (currentIndex >= remainingCountries.length) {
               setBackgroundProcessingComplete(true);
@@ -594,7 +594,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
             const batch = remainingCountries.slice(currentIndex, currentIndex + batchSize);
             const batchData: Record<string, any> = {};
-            
+
             for (const country of batch) {
               const countryFixtures = fixturesByCountry[country];
               batchData[country] = {
@@ -624,7 +624,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             setProcessedCountries(prev => new Set([...prev, ...batch]));
 
             currentIndex += batchSize;
-            
+
             // Continue with next batch using requestIdleCallback for better performance
             if (window.requestIdleCallback) {
               window.requestIdleCallback(processBatch, { timeout: 100 });
@@ -796,18 +796,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   useEffect(() => {
     if (countryList.length === 0) return;
 
-    // Show first 8 countries immediately once they're processed
-    const initialCountries = countryList.slice(0, 8);
-    const allInitialProcessed = initialCountries.every(country => processedCountries.has(country));
-    
-    if (allInitialProcessed && initialCountries.length > 0) {
-      // Show all 8 initial countries at once
+    // Show first 10 countries immediately to prevent empty state
+    const initialCountries = countryList.slice(0, INITIAL_COUNTRIES_LOAD);
+
+    // Show countries immediately regardless of processing status to prevent empty state
+    if (initialCountries.length > 0) {
       setVisibleCountries(new Set(initialCountries));
-      console.log(`✅ [TodaysMatchesByCountryNew] Showing initial ${initialCountries.length} countries`);
-    } else if (processedCountries.size > 0) {
-      // Fallback: show processed countries individually if not all 8 are ready
-      const processedFromList = countryList.filter(country => processedCountries.has(country));
-      setVisibleCountries(new Set(processedFromList));
+      console.log(`✅ [TodaysMatchesByCountryNew] Showing initial ${initialCountries.length} countries immediately`);
     }
 
     return () => {
@@ -815,7 +810,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         observerRef.current.disconnect();
       }
     };
-  }, [countryList.length, processedCountries.size, Array.from(processedCountries).join(',')]);
+  }, [countryList.length]);
 
   // Enhanced load more with background-processed countries support
   const loadMoreCountries = useCallback(() => {
@@ -824,17 +819,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     const remainingCountries = availableCountries.filter(country => 
       !visibleCountries.has(country) && processedCountries.has(country)
     );
-    
+
     const LOAD_MORE_BATCH_SIZE = backgroundProcessingComplete ? 8 : 5; // Larger batches when background processing is done
     const nextBatch = remainingCountries.slice(0, LOAD_MORE_BATCH_SIZE);
-    
+
     if (nextBatch.length > 0) {
       setVisibleCountries(prev => {
         const newVisible = new Set(prev);
         nextBatch.forEach(country => newVisible.add(country));
         return newVisible;
       });
-      
+
       console.log(`🔄 [TodaysMatchesByCountryNew] Loaded ${nextBatch.length} more countries via lazy loading (${nextBatch.length + currentlyVisible.length}/${availableCountries.length} total)`);
     }
   }, [countryList, allProcessedCountries, visibleCountries, processedCountries, backgroundProcessingComplete]);
@@ -846,7 +841,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     [processedCountryData],
   );
 
-  
+
 
   // Get a list of all country names from the processed data, even if not yet fully visible
   const availableCountries = useMemo(() => {
@@ -876,7 +871,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     const availableCountries = allProcessedCountries.length > 0 ? allProcessedCountries : countryList;
     const hasMoreToShow = visibleCountriesList.length < availableCountries.length;
     const hasProcessedMoreCountries = Array.from(processedCountries).some(country => !visibleCountries.has(country));
-    
+
     if (!loadMoreTriggerRef.current || (!hasMoreToShow && !hasProcessedMoreCountries)) {
       return;
     }
@@ -1561,10 +1556,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Fast shallow comparison for critical props only
       if (prevProps.country !== nextProps.country) return false;
       if (prevProps.isExpanded !== nextProps.isExpanded) return false;
-      
+
       // Only check if country data reference changed (not deep comparison)
       if (prevProps.countryData !== nextProps.countryData) return false;
-      
+
       // Skip expensive Set comparisons - let React handle updates
       return true;
     },
@@ -2523,7 +2518,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           const visibleTotal = visibleCountriesList.length;
           const hasMoreProcessed = processedTotal > visibleTotal;
           const isBackgroundProcessing = !backgroundProcessingComplete && processedTotal < availableTotal;
-          
+
           // Show load more trigger when there are processed countries not yet visible
           if (hasMoreProcessed) {
             return (
@@ -2541,7 +2536,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               </div>
             );
           }
-          
+
           // Show background processing indicator
           if (isBackgroundProcessing) {
             return (
@@ -2555,7 +2550,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               </div>
             );
           }
-          
+
           // Show scroll trigger for potential lazy loading
           if (visibleTotal < availableTotal) {
             return (
@@ -2568,7 +2563,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               </div>
             );
           }
-          
+
           return null;
         })()}
       </CardContent>
