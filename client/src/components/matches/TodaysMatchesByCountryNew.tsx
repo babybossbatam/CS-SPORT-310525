@@ -140,6 +140,7 @@ interface TodaysMatchesByCountryNewProps {
   liveFilterActive?: boolean;
   timeFilterActive?: boolean;
   onMatchCardClick?: (fixture: any) => void;
+  onFixturesLoaded?: (fixtures: any[]) => void; // Add callback to share fixtures
 }
 
 const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
@@ -147,6 +148,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   liveFilterActive = false,
   timeFilterActive = false,
   onMatchCardClick,
+  onFixturesLoaded,
 }) => {
   const {
     translateLeagueName: contextTranslateLeagueName,
@@ -456,10 +458,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       : "Unknown error occurred"
     : null;
 
-  // Minimal cache adjustment for performance
+  // Share fixtures with parent components to avoid duplicate API calls
   useEffect(() => {
-    // Removed logging for better performance
-  }, [fixtures?.length, selectedDate]);
+    if (fixtures?.length > 0 && onFixturesLoaded) {
+      onFixturesLoaded(fixtures);
+    }
+  }, [fixtures, onFixturesLoaded]);
 
   // Progressive rendering state - process countries incrementally
   const [processedCountryData, setProcessedCountryData] = useState<Record<string, any>>({});

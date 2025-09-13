@@ -41,10 +41,10 @@ export const TodayMatchPageCard = ({
   onMatchClick,
   onMatchCardClick,
 }: TodayMatchPageCardProps) => {
-  const [timeFilterActive, setTimeFilterActive] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>(getCurrentUTCDateString());
   const [liveFilterActive, setLiveFilterActive] = useState(false);
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(getCurrentUTCDateString());
+  const [timeFilterActive, setTimeFilterActive] = useState(false);
+  const [sharedFixtures, setSharedFixtures] = useState<any[]>([]); // Shared fixture data
   const calendarRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
   const { currentLanguage } = useLanguage();
@@ -487,7 +487,7 @@ export const TodayMatchPageCard = ({
           selectedDate={selectedDate}
           timeFilterActive={timeFilterActive}
           liveFilterActive={liveFilterActive}
-          fixtures={sharedAllFixtures} // Pass shared fixtures
+          fixtures={sharedFixtures} // Pass shared fixtures
         />
       ) : (
         // Neither filter active - show default view
@@ -507,6 +507,14 @@ export const TodayMatchPageCard = ({
             liveFilterActive={liveFilterActive}
             timeFilterActive={timeFilterActive}
             onMatchCardClick={handleMatchCardClick}
+            onFixturesLoaded={setSharedFixtures}
+          />
+          <MyAllLeagueList
+            selectedDate={selectedDate}
+            liveFilterActive={liveFilterActive}
+            timeFilterActive={timeFilterActive}
+            onMatchCardClick={handleMatchClick}
+            sharedFixtures={sharedFixtures}
           />
           {isMobile && (
             <MyRightContent />
