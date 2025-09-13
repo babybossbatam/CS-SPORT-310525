@@ -153,7 +153,12 @@ const MyNewLeagueLogo: React.FC<MyNewLeagueLogoProps> = ({
         alt={leagueName || `League ${leagueId}`}
         title={leagueName}
         className="league-logo"
-        style={imageStyle}
+        style={{
+          ...imageStyle,
+          borderRadius: '0%',
+          backgroundColor: 'transparent',
+          mixBlendMode: 'multiply'
+        }}
         loading="lazy"
       />
       {isLoading && <div>Loading...</div>}
