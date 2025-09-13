@@ -1249,12 +1249,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             {getHeaderTitle()}
           </h3>
         </CardHeader>
-        <CardContent className="p-6 text-center">
-          <div className="text-gray-500">
-            <p className="mb-2">No matches found for {selectedDate}</p>
-            <p className="text-sm">Try selecting a different date</p>
-          </div>
-        </CardContent>
       </Card>
     );
   }
