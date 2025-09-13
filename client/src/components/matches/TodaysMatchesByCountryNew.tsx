@@ -469,6 +469,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const [processedCountryData, setProcessedCountryData] = useState<Record<string, any>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedCountries, setProcessedCountries] = useState<Set<string>>(new Set());
+  const [backgroundProcessingComplete, setBackgroundProcessingComplete] = useState(false);
 
   // Enhanced progressive data processing with background loading + lazy loading
   const [allProcessedCountries, setAllProcessedCountries] = useState<string[]>([]);
