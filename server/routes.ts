@@ -198,6 +198,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
 
+
+// Optimized fixtures endpoint with server-side grouping
+app.get('/api/fixtures/date/:date', async (req, res) => {
+  const { date } = req.params;
+  const { grouped, popular } = req.query;
+  
+  try {
+    console.log(`📅 [Routes] Fetching fixtures for ${date} (grouped: ${grouped}, popular: ${popular})`);
+    
+    // Get all fixtures for the date
+    const allFixtures = await fetchFixturesForDate(date);
+    
+    if (!allFixtures || allFixtures.length === 0) {
+      return res.json([]);
+    }
+
+    // If grouped flag is set, return pre-processed data structure
+    if (grouped === 'true') {
+      const POPULAR_LEAGUES = [2, 3, 848, 15, 5, 8, 16, 39, 140, 135, 78, 61, 94, 88, 179, 218];
+      const popularLeagueSet = new Set(POPULAR_LEAGUES);
+      
+      // Group by country on server side
+      const fixturesByCountry: Record<string, any> = {};
+      
+      allFixtures.forEach((fixture: any) => {
+        if (!fixture?.fixture?.id || !fixture.teams || !fixture.league?.country) return;
+        
+        const country = fixture.league.country;
+        const isPopular = popularLeagueSet.has(fixture.league.id);
+        
+        if (!fixturesByCountry[country]) {
+          fixturesByCountry[country] = {
+            country,
+            leagues: {},
+            hasPopularLeague: false,
+            totalMatches: 0
+          };
+        }
+        
+        const leagueId = fixture.league.id;
+        if (!fixturesByCountry[country].leagues[leagueId]) {
+          fixturesByCountry[country].leagues[leagueId] = {
+            league: fixture.league,
+            matches: [],
+            isPopular
+          };
+        }
+        
+        fixturesByCountry[country].leagues[leagueId].matches.push(fixture);
+        fixturesByCountry[country].totalMatches++;
+        
+        if (isPopular) {
+          fixturesByCountry[country].hasPopularLeague = true;
+        }
+      });
+      
+      // Sort countries by priority
+      const countries = Object.values(fixturesByCountry);
+      const sortedCountries = countries.sort((a: any, b: any) => {
+        if (a.country === "World") return -1;
+        if (b.country === "World") return 1;
+        if (a.hasPopularLeague && !b.hasPopularLeague) return -1;
+        if (!a.hasPopularLeague && b.hasPopularLeague) return 1;
+        return a.country.localeCompare(b.country);
+      });
+      
+      console.log(`✅ [Routes] Returning ${sortedCountries.length} grouped countries for ${date}`);
+      return res.json(sortedCountries);
+    }
+    
+    // Return regular fixtures
+    console.log(`✅ [Routes] Returning ${allFixtures.length} fixtures for ${date}`);
+    res.json(allFixtures);
+    
+  } catch (error) {
+    console.error(`❌ [Routes] Error fetching fixtures for ${date}:`, error);
+    res.status(500).json({ error: 'Failed to fetch fixtures' });
+  }
+});
+
+
+
         res.json(preferences);
       } catch (error) {
         console.error("Error fetching user preferences:", error);
