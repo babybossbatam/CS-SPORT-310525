@@ -454,7 +454,3 @@ export const useSelectiveMatchUpdate = (matchId: number, initialMatch: any) => {
     registerUpdateCallback
   };
 };
-
-// Export the SelectiveMatchUpdater class for direct access
-export { SelectiveMatchUpdater };</old_str>
-</old_str>

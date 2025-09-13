@@ -27,7 +27,6 @@ import { useTranslation, useLanguage } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
 import { RoundBadge } from "@/components/ui/round-badge";
-import { useSelectiveMatchUpdate } from "@/lib/selectiveMatchUpdates";
 
 // Import popular teams data from the same source as PopularTeamsList
 const POPULAR_TEAMS_DATA = [
@@ -331,15 +330,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   } = useLanguage();
   const { t } = useTranslation();
 
-  // Initialize the selective update hook
-  const { getMatchData, updateMatchData, matchesAreLive } = useSelectiveMatchUpdate();
-
-  // Helper function to get current match data from the selective update hook
-  const getCurrentMatchData = useCallback(() => {
-    if (allMatches.length === 0) return null;
-    return getMatchData(allMatches[currentMatchIndex]?.fixture?.id);
-  }, [allMatches, currentMatchIndex, getMatchData]);
-
   const fetchRoundsForLeague = useCallback(
     async (leagueId: number, season: number) => {
       const cacheKey = `${leagueId}-${season}`;
@@ -570,7 +560,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // Use priority leagues from our clean list
         const priorityLeagueIds = PRIORITY_LEAGUE_IDS;
-        let allFixtures: FeaturedMatch[] = [];
+        const allFixtures: FeaturedMatch[] = [];
 
         console.log(
           "🔍 [MyHomeFeaturedMatchNew] Starting fetch with priority leagues:",
@@ -1803,7 +1793,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         // Group fixtures by date
-        const allMatchesGrouped: DayMatches[] = [];
+        const allMatches: DayMatches[] = [];
         const todayDateString = format(today, "yyyy-MM-dd");
 
         for (const dateInfo of dates) {
@@ -2179,29 +2169,55 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             `✅ [MyHomeFeaturedMatchNew] Found ${fixturesForDay.length} featured matches for ${dateInfo.label}`,
           );
 
-          allMatchesGrouped.push({
+          allMatches.push({
             date: dateInfo.date,
             label: dateInfo.label,
             matches: fixturesForDay,
           });
         }
 
-        // Update the state with the new matches
-        setFeaturedMatches(allMatchesGrouped);
+        // Only update state if data has actually changed - more efficient comparison
+        setFeaturedMatches((prevMatches) => {
+          // Quick length check first
+          if (prevMatches.length !== allMatches.length) {
+            console.log(`📊 [MyHomeFeaturedMatchNew] Match count changed: ${prevMatches.length} → ${allMatches.length}`);
+            return allMatches;
+          }
 
-        // Update the selective match data hook
-        if (allMatchesGrouped.length > 0) {
-          const matchesToUpdate = allMatchesGrouped.flatMap(day => day.matches);
-          updateMatchData(matchesToUpdate);
-        }
+          // Compare match IDs for efficiency instead of full JSON stringify
+          const prevIds = prevMatches.flatMap(day => day.matches.map(m => m.fixture.id)).sort();
+          const newIds = allMatches.flatMap(day => day.matches.map(m => m.fixture.id)).sort();
+          
+          if (prevIds.join(',') !== newIds.join(',')) {
+            console.log(`🔄 [MyHomeFeaturedMatchNew] Match IDs changed, updating state`);
+            return allMatches;
+          }
 
+          // Check for status changes in existing matches
+          const hasStatusChanges = allMatches.some(dayData => 
+            dayData.matches.some(match => {
+              const prevMatch = prevMatches
+                .flatMap(day => day.matches)
+                .find(m => m.fixture.id === match.fixture.id);
+              return prevMatch && prevMatch.fixture.status.short !== match.fixture.status.short;
+            })
+          );
+
+          if (hasStatusChanges) {
+            console.log(`⚽ [MyHomeFeaturedMatchNew] Match status changes detected, updating state`);
+            return allMatches;
+          }
+
+          console.log(`✅ [MyHomeFeaturedMatchNew] No changes detected, keeping existing state`);
+          return prevMatches;
+        });
       } catch (error) {
         console.error("❌ [MyHomeFeaturedMatchNew] Error:", error);
       } finally {
         setIsLoading(false);
       }
     },
-    [maxMatches, updateMatchData], // Add updateMatchData to dependencies
+    [maxMatches],
   );
 
   // Function to clear all related caches for excluded leagues
@@ -2244,6 +2260,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           key.includes("serie c") || // Serie C leagues
           key.includes("girone") || // Serie C Girone leagues
           key.includes("primera rfef") || // Primera División RFEF leagues
+          key.includes("fixtures_date") ||
           key.startsWith("ended_matches_") ||
           key.startsWith("league-fixtures-") ||
           key.startsWith("featured-match-") ||
@@ -2303,53 +2320,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           console.warn(`Failed to clear session cache key: ${key}`, error);
         }
       });
-
-      // Also clear sessionStorage as well
-      const sessionKeys2 = Object.keys(sessionStorage);
-      const sessionExcludedKeys2 = sessionKeys2.filter(
-        (key) =>
-          key.includes("848") ||
-          key.includes("169") ||
-          key.includes("180") ||
-          key.includes("conference") ||
-          key.includes("regionalliga") ||
-          key.includes("bayern") ||
-          key.includes("national 2") ||
-          key.includes("62") || // Ligue 2
-          key.includes("ligue 2") ||
-          key.includes("l2") ||
-          key.includes("940") || // League 940
-          key.includes("85") || // Regionalliga - Nordost
-          key.includes("80") || // 3. Liga
-          key.includes("84") || // Regionalliga - Nord
-          key.includes("87") || // Regionalliga - West
-          key.includes("41") || // Regionalliga - SudWest
-          key.includes("86") || // Regionalliga - SudWest (another ID)
-          key.includes("772") || // League 772
-          key.includes("58") || // Non League Premier - Isthmian
-          key.includes("931") || // Non League Premier - Southern Central
-          key.includes("59") || // League 59
-          key.includes("60") || // League 60
-          key.includes("869") || // CECAFA Club Cup
-          key.includes("tercera") || // Tercera División RFEF
-          key.includes("segunda") || // Segunda División RFEF
-          key.includes("rfef") ||
-          key.includes("serie d") || // Serie D leagues
-          key.includes("serie c") || // Serie C leagues
-          key.includes("girone") || // Serie C Girone leagues
-          key.includes("primera rfef") || // Primera División RFEF leagues
-          key.startsWith("league-fixtures-") ||
-          key.startsWith("featured-match-"),
-      );
-
-      sessionExcludedKeys2.forEach((key) => {
-        try {
-          sessionStorage.removeItem(key);
-        } catch (error) {
-          console.warn(`Failed to clear session cache key: ${key}`, error);
-        }
-      });
-
 
       // Also clear React Query cache for these specific leagues
       if (typeof window !== "undefined" && window.queryClient) {
@@ -2535,7 +2505,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       clearInterval(intervalId);
       console.log(`🧹 [MyHomeFeaturedMatchNew] Cleaned up refresh interval`);
     };
-  }, [featuredMatches.length, fetchFeaturedMatches]); // Add fetchFeaturedMatches dependency
+  }, [featuredMatches.length]); // Only depend on matches length, not the entire array
 
   const formatMatchTime = (dateString: string) => {
     try {
@@ -2621,17 +2591,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }, [] as FeaturedMatch[]);
   }, [featuredMatches]);
 
-  // const currentMatch = useMemo(() => {
-  //   return allMatches[currentMatchIndex];
-  // }, [allMatches, currentMatchIndex]);
+  const currentMatch = useMemo(() => {
+    return allMatches[currentMatchIndex];
+  }, [allMatches, currentMatchIndex]);
 
   // Fetch rounds data for current match league
   useEffect(() => {
-    const matchData = getCurrentMatchData();
-    if (matchData && !roundsCache[`${matchData.league.id}-2025`]) {
-      fetchRoundsForLeague(matchData.league.id, 2025);
+    if (currentMatch && !roundsCache[`${currentMatch.league.id}-2025`]) {
+      fetchRoundsForLeague(currentMatch.league.id, 2025);
     }
-  }, [getCurrentMatchData, fetchRoundsForLeague, roundsCache]);
+  }, [currentMatch, fetchRoundsForLeague, roundsCache]);
 
   const handlePrevious = useCallback(() => {
     if (allMatches.length > 0) {
@@ -2752,21 +2721,20 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Extract colors from team logos when match changes
   useEffect(() => {
-    const matchData = getCurrentMatchData();
-    if (matchData?.teams) {
+    if (currentMatch?.teams) {
       const extractColors = async () => {
-        const homeTeamName = matchData.teams.home.name;
-        const awayTeamName = matchData.teams.away.name;
+        const homeTeamName = currentMatch.teams.home.name;
+        const awayTeamName = currentMatch.teams.away.name;
 
         // Only extract if we don't already have the colors cached
         if (!teamLogoColors[homeTeamName] || !teamLogoColors[awayTeamName]) {
-          const homeLogoUrl = matchData.teams.home.id
-            ? `/api/team-logo/square/${matchData.teams.home.id}?size=64`
-            : matchData.teams.home.logo;
+          const homeLogoUrl = currentMatch.teams.home.id
+            ? `/api/team-logo/square/${currentMatch.teams.home.id}?size=64`
+            : currentMatch.teams.home.logo;
 
-          const awayLogoUrl = matchData.teams.away.id
-            ? `/api/team-logo/square/${matchData.teams.away.id}?size=64`
-            : matchData.teams.away.logo;
+          const awayLogoUrl = currentMatch.teams.away.id
+            ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=64`
+            : currentMatch.teams.away.logo;
 
           try {
             const [homeColor, awayColor] = await Promise.all([
@@ -2787,17 +2755,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
       extractColors();
     }
-  }, [getCurrentMatchData, extractDominantColorFromLogo, teamLogoColors]);
+  }, [currentMatch, extractDominantColorFromLogo, teamLogoColors]);
 
   // Countdown timer effect for upcoming matches
   useEffect(() => {
-    const matchData = getCurrentMatchData();
-    if (!matchData) {
+    if (!currentMatch) {
       setCountdownTimer("--:--:--");
       return;
     }
 
-    const statusInfo = getStatusDisplay(matchData);
+    const statusInfo = getStatusDisplay(currentMatch);
 
     // Only show countdown for upcoming matches
     if (!statusInfo.isUpcoming) {
@@ -2807,7 +2774,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
     function updateTimer() {
       try {
-        const targetDate = parseISO(matchData.fixture.date);
+        const targetDate = parseISO(currentMatch.fixture.date);
 
         // Use current real time for accurate countdown
         const now = new Date();
@@ -2863,7 +2830,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         clearInterval(interval);
       }
     };
-  }, [getCurrentMatchData]); // Re-run if currentMatch changes
+  }, [currentMatch]);
 
   const getEnhancedTeamColor = useCallback(
     (teamName: string, isHome: boolean = false) => {
@@ -2997,9 +2964,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
               {/* Single match display */}
               <AnimatePresence mode="wait">
-                {getCurrentMatchData() && (
+                {currentMatch && (
                   <motion.div
-                    key={`match-${getCurrentMatchData()?.fixture?.id}-${getCurrentMatchData()?.fixture?.status?.short}`}
+                    key={`match-${currentMatch.fixture.id}-${currentMatch.fixture.status.short}`}
                     initial={{ x: 100, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     exit={{ x: -100, opacity: 0 }}
@@ -3014,13 +2981,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       console.log(
                         `🔍 [FEATURED MATCH DEBUG] League ID Debug:`,
                         {
-                          leagueId: getCurrentMatchData()?.league?.id,
-                          leagueName: getCurrentMatchData()?.league?.name,
-                          leagueCountry: getCurrentMatchData()?.league?.country,
-                          matchId: getCurrentMatchData()?.fixture?.id,
-                          homeTeam: getCurrentMatchData()?.teams?.home?.name,
-                          awayTeam: getCurrentMatchData()?.teams?.away?.name,
-                          fixtureStatus: getCurrentMatchData()?.fixture?.status?.short,
+                          leagueId: currentMatch.league.id,
+                          leagueName: currentMatch.league.name,
+                          leagueCountry: currentMatch.league.country,
+                          matchId: currentMatch.fixture.id,
+                          homeTeam: currentMatch.teams.home.name,
+                          awayTeam: currentMatch.teams.away.name,
+                          fixtureStatus: currentMatch.fixture.status.short,
                         },
                       );
 
@@ -3028,68 +2995,68 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       if (onMatchSelect) {
                         console.log(
                           `🎯 [MyHomeFeaturedMatchNew] Selecting match for Details tab:`,
-                          getCurrentMatchData()?.fixture?.id,
+                          currentMatch.fixture.id,
                         );
-                        onMatchSelect(getCurrentMatchData()!.fixture!.id);
+                        onMatchSelect(currentMatch.fixture.id);
                       } else {
                         // Navigate to match details page if no callback provided
-                        navigate(`/match/${getCurrentMatchData()?.fixture?.id}`);
+                        navigate(`/match/${currentMatch.fixture.id}`);
                       }
                     }}
                   >
                     {/* League header */}
                     <div
                       className="flex items-center justify-center gap-2 mb-4 p-2"
-                      onClick={() =>
+                      onClick={() => {
                         console.log(
                           `🔍 [LEAGUE HEADER DEBUG] Clicked on league:`,
                           {
-                            LEAGUE_ID: getCurrentMatchData()?.league?.id,
-                            LEAGUE_NAME: getCurrentMatchData()?.league?.name,
-                            LEAGUE_COUNTRY: getCurrentMatchData()?.league?.country,
-                            LEAGUE_LOGO: getCurrentMatchData()?.league?.logo,
+                            LEAGUE_ID: currentMatch.league.id,
+                            LEAGUE_NAME: currentMatch.league.name,
+                            LEAGUE_COUNTRY: currentMatch.league.country,
+                            LEAGUE_LOGO: currentMatch.league.logo,
                           },
-                        )
-                      }
+                        );
+                      }}
                     >
                       <LazyImage
                         src={
-                          getCurrentMatchData()?.league?.name
+                          currentMatch.league.name
                             ?.toLowerCase()
                             .includes("cotif")
                             ? "/assets/matchdetaillogo/SGCUNl9j-zkh3mv3i.png"
-                            : getCurrentMatchData()?.league?.logo
+                            : currentMatch.league.logo
                         }
-                        alt={getCurrentMatchData()?.league?.name || "League Logo"}
+                        alt={currentMatch.league.name}
                         className="w-6 h-6"
                         fallbackSrc="/assets/fallback.png"
                       />
                       <span
                         className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center"
-                        title={`League ID: ${getCurrentMatchData()?.league?.id} | ${getCurrentMatchData()?.league?.name} | ${getCurrentMatchData()?.league?.country}`}
+                        title={`League ID: ${currentMatch.league.id} | ${currentMatch.league.name} | ${currentMatch.league.country}`}
                       >
                         {(() => {
                           // First try smart league translation
                           const smartTranslation =
                             smartLeagueCountryTranslation.translateLeagueName(
-                              getCurrentMatchData()?.league?.name || "",
+                              currentMatch.league.name,
                               currentLanguage,
                             );
 
                           // If smart translation worked (different from original), use it
-                          if (smartTranslation !== getCurrentMatchData()?.league?.name) {
+                          if (smartTranslation !== currentMatch.league.name) {
                             console.log(
-                              `🎯 [League Translation] Smart: "${getCurrentMatchData()?.league?.name}" → "${smartTranslation}"`,
+                              `🎯 [League Translation] Smart: "${currentMatch.league.name}" → "${smartTranslation}"`,
                             );
                             return smartTranslation;
                           }
 
                           // Fallback to context translation
                           const contextTranslation = translateLeagueName(
-                            getCurrentMatchData()?.league?.name || "",
+                            currentMatch.league.name,
                           );
                           console.log(
-                            `🔄 [League Translation] Context: "${getCurrentMatchData()?.league?.name}" → "${contextTranslation}"`,
+                            `🔄 [League Translation] Context: "${currentMatch.league.name}" → "${contextTranslation}"`,
                           );
                           return contextTranslation;
                         })()}
@@ -3097,9 +3064,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                       {/* Round/Bracket Status Display using RoundBadge component */}
                       <RoundBadge
-                        leagueId={getCurrentMatchData()?.league?.id ?? 0}
-                        currentRound={getCurrentMatchData()?.league?.round}
-                        matchStatus={getCurrentMatchData()?.fixture?.status?.short ?? "NS"}
+                        leagueId={currentMatch.league.id}
+                        currentRound={currentMatch.league?.round}
+                        matchStatus={currentMatch.fixture.status.short}
                         className="ml-2"
                       />
                     </div>
@@ -3108,12 +3075,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     <div className="text-center mb-4 ">
                       <div className="text-lg font-bold text-gray-800 dark:text-gray-200 ">
                         {(() => {
-                          const matchData = getCurrentMatchData();
-                          if (!matchData) return null;
-
-                          const statusInfo = getStatusDisplay(matchData);
-                          const matchStatus = matchData.fixture.status.short;
-                          const matchDate = new Date(matchData.fixture.date);
+                          const statusInfo = getStatusDisplay(currentMatch);
+                          const matchStatus = currentMatch.fixture.status.short;
+                          const matchDate = new Date(currentMatch.fixture.date);
                           const today = new Date();
                           const tomorrow = addDays(today, 1);
 
@@ -3126,9 +3090,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                           // Live matches - show elapsed time and live score
                           if (statusInfo.isLive) {
-                            const elapsed = matchData.fixture.status.elapsed;
-                            const homeScore = matchData.goals.home ?? 0;
-                            const awayScore = matchData.goals.away ?? 0;
+                            const elapsed = currentMatch.fixture.status.elapsed;
+                            const homeScore = currentMatch.goals.home ?? 0;
+                            const awayScore = currentMatch.goals.away ?? 0;
 
                             return (
                               <div className="space-y-1">
@@ -3173,8 +3137,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             matchStatus === "AET" ||
                             matchStatus === "PEN"
                           ) {
-                            const homeScore = matchData.goals.home ?? 0;
-                            const awayScore = matchData.goals.away ?? 0;
+                            const homeScore = currentMatch.goals.home ?? 0;
+                            const awayScore = currentMatch.goals.away ?? 0;
 
                             return (
                               <div className="space-y-0">
@@ -3189,11 +3153,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                 </div>
                                 {/* Show penalty scores if match ended in penalties */}
                                 {matchStatus === "PEN" &&
-                                  matchData.score?.penalty && (
+                                  currentMatch.score?.penalty && (
                                     <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                                       {t("penalties")}:{" "}
-                                      {matchData.score.penalty.home} -{" "}
-                                      {matchData.score.penalty.away}
+                                      {currentMatch.score.penalty.home} -{" "}
+                                      {currentMatch.score.penalty.away}
                                     </div>
                                   )}
                               </div>
@@ -3319,7 +3283,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       <div
                         className="flex relative h-[53px] rounded-md mb-8"
                         onClick={() =>
-                          navigate(`/match/${getCurrentMatchData()?.fixture?.id}`)
+                          navigate(`/match/${currentMatch.fixture.id}`)
                         }
                         style={{ cursor: "pointer" }}
                       >
@@ -3330,7 +3294,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             className="h-full w-[calc(50%+20px)] ml-[25px] transition-all duration-500 ease-in-out opacity-100 relative "
                             style={{
                               background: getEnhancedTeamColor(
-                                getCurrentMatchData()?.teams?.home?.name || "Home Team",
+                                currentMatch?.teams?.home?.name || "Home Team",
                                 true,
                               ),
                               transition: "all 0.3s ease-in-out",
@@ -3339,7 +3303,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               right: "-15px",
                             }}
                           >
-                            {getCurrentMatchData()?.teams?.home && (
+                            {currentMatch?.teams?.home && (
                               <div
                                 className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out"
                                 style={{
@@ -3350,27 +3314,27 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                 }}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  navigate(`/match/${getCurrentMatchData()?.fixture?.id}`);
+                                  navigate(`/match/${currentMatch.fixture.id}`);
                                 }}
                               >
                                 <MyWorldTeamLogo
                                   teamName={
-                                    getCurrentMatchData()?.teams?.home?.name || "Home Team"
+                                    currentMatch.teams.home.name || "Home Team"
                                   }
                                   teamLogo={
-                                    getCurrentMatchData()?.teams?.home?.id
-                                      ? `/api/team-logo/square/${getCurrentMatchData()?.teams?.home?.id}?size=64`
-                                      : getCurrentMatchData()?.teams?.home?.logo ||
+                                    currentMatch.teams.home.id
+                                      ? `/api/team-logo/square/${currentMatch.teams.home.id}?size=64`
+                                      : currentMatch.teams.home.logo ||
                                         "/assets/fallback-logo.svg"
                                   }
                                   alt={
-                                    getCurrentMatchData()?.teams?.home?.name || "Home Team"
+                                    currentMatch.teams.home.name || "Home Team"
                                   }
                                   size="70px"
                                   className="w-full h-full object-contain"
                                   leagueContext={{
-                                    name: getCurrentMatchData()?.league?.name || "",
-                                    country: getCurrentMatchData()?.league?.country || "",
+                                    name: currentMatch.league.name,
+                                    country: currentMatch.league.country,
                                   }}
                                 />
                               </div>
@@ -3388,7 +3352,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           >
                             {(() => {
                               const originalName =
-                                getCurrentMatchData()?.teams?.home?.name || "TBD";
+                                currentMatch?.teams?.home?.name || "TBD";
                               return translateTeamName(originalName);
                             })()}
                           </div>
@@ -3424,14 +3388,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             }}
                           >
                             {(() => {
-                              const matchData = getCurrentMatchData();
-                              if (!matchData) return null;
                               try {
                                 const matchDate = new Date(
-                                  matchData.fixture.date,
+                                  currentMatch.fixture.date,
                                 );
                                 const statusInfo =
-                                  getStatusDisplay(matchData);
+                                  getStatusDisplay(currentMatch);
 
                                 // Get day name and translate it
                                 const dayName = format(matchDate, "EEEE");
@@ -3460,8 +3422,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                                 // Safely get venue with proper fallbacks - SHOW FOR ALL MATCH TYPES
                                 let displayVenue =
-                                  matchData.fixture?.venue?.name ||
-                                  matchData.venue?.name ||
+                                  currentMatch.fixture?.venue?.name ||
+                                  currentMatch.venue?.name ||
                                   null;
 
                                 // Check if venue is missing or has placeholder values
@@ -3508,7 +3470,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             className="h-full w-[calc(50%+16px)] mr-[45px] transition-all duration-500 ease-in-out opacity-100"
                             style={{
                               background: getEnhancedTeamColor(
-                                getCurrentMatchData()?.teams?.away?.name || "Away Team",
+                                currentMatch?.teams?.away?.name || "Away Team",
                                 false,
                               ),
                               transition: "all 0.3s ease-in-out",
@@ -3529,7 +3491,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           >
                             {(() => {
                               const originalName =
-                                getCurrentMatchData()?.teams?.away?.name || "Away Team";
+                                currentMatch?.teams?.away?.name || "Away Team";
                               return translateTeamName(originalName);
                             })()}
                           </div>
@@ -3545,27 +3507,27 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             }}
                             onClick={(e) => {
                               e.stopPropagation();
-                              navigate(`/match/${getCurrentMatchData()?.fixture?.id}`);
+                              navigate(`/match/${currentMatch.fixture.id}`);
                             }}
                           >
                             <MyWorldTeamLogo
                               teamName={
-                                getCurrentMatchData()?.teams?.away?.name || "Away Team"
+                                currentMatch?.teams?.away?.name || "Away Team"
                               }
                               teamLogo={
-                                getCurrentMatchData()?.teams?.away?.id
-                                  ? `/api/team-logo/square/${getCurrentMatchData()?.teams?.away?.id}?size=70`
-                                  : getCurrentMatchData()?.teams?.away?.logo ||
+                                currentMatch.teams.away.id
+                                  ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=70`
+                                  : currentMatch?.teams?.away?.logo ||
                                     `/assets/fallback-logo.svg`
                               }
                               alt={
-                                getCurrentMatchData()?.teams?.away?.name || "Away Team"
+                                currentMatch?.teams?.away?.name || "Away Team"
                               }
                               size="75px"
                               className="w-full hull object-contain"
                               leagueContext={{
-                                name: getCurrentMatchData()?.league?.name || "",
-                                country: getCurrentMatchData()?.league?.country || "",
+                                name: currentMatch.league.name,
+                                country: currentMatch.league.country,
                               }}
                             />
                           </div>
@@ -3579,7 +3541,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         className="flex flex-col items-center cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/match/${getCurrentMatchData()?.fixture?.id}`);
+                          navigate(`/match/${currentMatch.fixture.id}`);
                         }}
                       >
                         <svg
