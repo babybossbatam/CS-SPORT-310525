@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronDown, ChevronUp, Calendar, Star } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useCachedQuery, CacheManager } from "@/lib/cachingHelper";
+import { sharedFixtureCache, useSharedFixtureCache } from "@/lib/sharedFixtureCache";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import { shouldExcludeMatchByCountry } from "@/lib/MyMatchByCountryNewExclusion";
@@ -378,7 +379,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const countryRefs = useRef<Map<string, HTMLElement>>(new Map());
   const INITIAL_COUNTRIES_LOAD = 10; // Show more initially for better UX
 
-  // Instant loading with optimized caching strategy
+  // Enhanced caching strategy with immediate cache serving
   const {
     data: fixtures = [],
     isLoading,
@@ -391,6 +392,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     async () => {
       if (!selectedDate) return [];
 
+      console.log(`🔄 [TodaysMatchesByCountryNew] Fetching fresh data for ${selectedDate}`);
+      
       const response = await apiRequest(
         "GET",
         `/api/fixtures/date/${selectedDate}?all=true`,
@@ -401,39 +404,29 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }
 
       const data = await response.json();
-      return Array.isArray(data) ? data : [];
+      const fixtures = Array.isArray(data) ? data : [];
+      
+      console.log(`✅ [TodaysMatchesByCountryNew] Fetched ${fixtures.length} fixtures for ${selectedDate}`);
+      
+      // Store in shared cache for other components to use
+      sharedFixtureCache.setFixtures(selectedDate, fixtures, 'TodaysMatchesByCountryNew');
+      
+      return fixtures;
     },
     {
-      staleTime: 60 * 60 * 1000, // 1 hour - much longer for instant loading
-      cacheTime: 120 * 60 * 1000, // 2 hours - keep in memory longer
+      staleTime: 30 * 60 * 1000, // 30 minutes - balanced for freshness
+      gcTime: 120 * 60 * 1000, // 2 hours - keep in memory longer
       refetchInterval: false,
       enabled: !!selectedDate,
-      retry: 0, // No retry for fastest experience
+      retry: 1,
       networkMode: 'online',
       refetchOnMount: false,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       keepPreviousData: true,
-      // Enhanced initial data strategy
+      // Use shared cache for initial data
       initialData: () => {
-        const queryClient = window.__REACT_QUERY_CLIENT__;
-        if (queryClient) {
-          // Try exact match first
-          let cachedData = queryClient.getQueryData(["all-fixtures-by-date", selectedDate]);
-          if (cachedData && Array.isArray(cachedData)) {
-            return cachedData;
-          }
-
-          // Try similar dates if exact not found
-          const dates = [selectedDate];
-          for (const date of dates) {
-            cachedData = queryClient.getQueryData(["all-fixtures-by-date", date]);
-            if (cachedData && Array.isArray(cachedData)) {
-              return cachedData;
-            }
-          }
-        }
-        return [];
+        return sharedFixtureCache.getFixtures(selectedDate) || [];
       },
     },
   );
