@@ -250,6 +250,7 @@ class SelectiveMatchUpdater {
         } else {
           console.error(`❌ [SelectiveUpdater] API error on attempt ${attempt}/${maxRetries}:`, error);
         }
+        }
 
         // If this is the last attempt, return empty array
         if (attempt === maxRetries) {
