@@ -58,32 +58,66 @@ interface Standing {
 const isNationalTeamCompetition = (leagueName: string): boolean => {
   const leagueNameLower = leagueName.toLowerCase();
   
-  // Explicitly exclude FIFA Club World Cup (club competition, not national teams)
-  if (leagueNameLower.includes("fifa club world cup") || 
-      leagueNameLower.includes("club world cup")) {
+  // Explicitly exclude ALL club competitions first
+  const clubCompetitionKeywords = [
+    "fifa club world cup",
+    "club world cup", 
+    "champions league",
+    "europa league",
+    "conference league",
+    "premier league",
+    "la liga",
+    "serie a",
+    "bundesliga",
+    "ligue 1",
+    "saudi pro league",
+    "mls",
+    "brasileiro",
+    "liga profesional",
+    "copa del rey",
+    "fa cup",
+    "coppa italia",
+    "coupe de france",
+    "club",
+    "fc ",
+    "united",
+    "city fc",
+    "athletic club"
+  ];
+  
+  // If it's a club competition, it's definitely NOT a national team competition
+  const isClubCompetition = clubCompetitionKeywords.some((keyword) =>
+    leagueNameLower.includes(keyword.toLowerCase())
+  );
+  
+  if (isClubCompetition) {
+    console.log(`🏟️ [LeagueStandingsFilter] Club competition detected: ${leagueName} - using club logos`);
     return false;
   }
   
+  // Only then check for national team keywords
   const nationalTeamKeywords = [
-    "world cup",
+    "world cup qualification",
+    "wc qual",
+    "uefa wc qualification", 
+    "fifa world cup",
     "uefa nations",
-    "euro",
+    "euro championship",
     "copa america",
     "african cup",
     "asian cup",
     "gold cup",
     "confederations cup",
-    "qualification",
-    "qualifying",
     "international",
-    "nations league",
-    "wc qual",
-    "uefa wc qualification",
-    "fifa world cup",
+    "nations league"
   ];
-  return nationalTeamKeywords.some((keyword) =>
-    leagueNameLower.includes(keyword.toLowerCase()),
+  
+  const isNationalCompetition = nationalTeamKeywords.some((keyword) =>
+    leagueNameLower.includes(keyword.toLowerCase())
   );
+  
+  console.log(`🌍 [LeagueStandingsFilter] National team competition check for ${leagueName}: ${isNationalCompetition}`);
+  return isNationalCompetition;
 };
 
 const LeagueStandingsFilter = () => {
