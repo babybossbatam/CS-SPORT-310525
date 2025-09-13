@@ -917,30 +917,30 @@ const LeagueStandingsFilter = () => {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead className="w-[30px] text-center px-0.5"></TableHead>
-                            <TableHead className="pl-2 min-w-[160px]"></TableHead>
-                            <TableHead className="text-center px-0.5 w-[35px]">
+                            <TableHead className="w-[40px] text-center px-0.5"></TableHead>
+                            <TableHead className="pl-2 min-w-[200px]"></TableHead>
+                            <TableHead className="text-center px-0.5">
                               P
                             </TableHead>
-                            <TableHead className="text-center px-0.5 w-[50px]">
+                            <TableHead className="text-center px-0.5">
                               F:A
                             </TableHead>
-                            <TableHead className="text-center px-0.5 w-[40px]">
+                            <TableHead className="text-center px-0.5">
                               +/-
                             </TableHead>
-                            <TableHead className="text-center px-0.5 w-[40px]">
+                            <TableHead className="text-center px-0.5">
                               PTS
                             </TableHead>
-                            <TableHead className="text-center px-0.5 w-[30px]">
+                            <TableHead className="text-center px-0.5">
                               W
                             </TableHead>
-                            <TableHead className="text-center px-0.5 w-[30px]">
+                            <TableHead className="text-center px-0.5">
                               D
                             </TableHead>
-                            <TableHead className="text-center px-0.5 w-[30px]">
+                            <TableHead className="text-center px-0.5">
                               L
                             </TableHead>
-                            <TableHead className="text-center px-1 w-[50px]">
+                            <TableHead className="text-center  px-1">
                               Next
                             </TableHead>
                           </TableRow>
