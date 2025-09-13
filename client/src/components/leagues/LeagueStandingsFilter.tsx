@@ -1243,7 +1243,7 @@ const LeagueStandingsFilter = () => {
                                   </span>
                                   {standing.rank <= 3 && (
                                     <span
-                                      className="text-[0.65rem] font-medium truncate"
+                                      className="text-[0.65rem] font-medium leading-tight max-w-[160px] block"
                                       style={{
                                         color:
                                           standing.rank <= 3
