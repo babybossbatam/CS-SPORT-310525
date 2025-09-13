@@ -2416,13 +2416,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                   />
                 );
               })
-            ) : !isProcessing && hasAnyData ? (
-              <div className="p-4 text-center">
-                <div className="text-gray-500">
-                  <p className="mb-2">No matches found for {selectedDate}</p>
-                  <p className="text-sm">Try selecting a different date</p>
-                </div>
-              </div>
             ) : null}
           </div>
         )}
