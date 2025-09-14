@@ -1343,6 +1343,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       return minutesUntilKickoff > 0 && minutesUntilKickoff <= 120; // Within 2 hours
     });
 
+    // Check for matches that should be live but are still NS (time-based detection)
+    const shouldBeLiveMatches = allFixtures.filter((match) => {
+      if (match?.fixture?.status?.short !== "NS") return false;
+      const matchTime = new Date(match.fixture.date);
+      const minutesSinceKickoff = (now.getTime() - matchTime.getTime()) / (1000 * 60);
+      return minutesSinceKickoff >= -2 && minutesSinceKickoff <= 120; // Should be live
+    });
+
     // Check for matches starting very soon (within 30 minutes)
     const imminentMatches = allFixtures.filter((match) => {
       if (match?.fixture?.status?.short !== "NS") return false;
@@ -1354,19 +1362,30 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
     let newCacheConfig;
 
-    if (liveMatches.length > 0 && isToday) {
-      // LIVE matches detected - most aggressive cache
+    if ((liveMatches.length > 0 || shouldBeLiveMatches.length > 0) && isToday) {
+      // LIVE matches detected OR matches that should be live - most aggressive cache
       newCacheConfig = {
-        staleTime: 1 * 60 * 1000, // 1 minute
-        refetchInterval: 30 * 1000, // 30 seconds
-        refetchOnWindowFocus: false,
+        staleTime: 30 * 1000, // 30 seconds - very aggressive
+        refetchInterval: 15 * 1000, // 15 seconds - very frequent updates
+        refetchOnWindowFocus: true,
         refetchOnReconnect: true,
       };
       console.log(
-        `🔴 [MyNewLeague2] ${liveMatches.length} live matches detected - using most aggressive cache (1min/30s)`,
+        `🔴 [MyNewLeague2] ${liveMatches.length} live + ${shouldBeLiveMatches.length} should-be-live matches detected - using most aggressive cache (30s/15s)`,
       );
     } else if (imminentMatches.length > 0 && isToday) {
       // Matches starting within 30 minutes - very aggressive cache
+      newCacheConfig = {
+        staleTime: 1 * 60 * 1000, // 1 minute
+        refetchInterval: 20 * 1000, // 20 seconds
+        refetchOnWindowFocus: true,
+        refetchOnReconnect: true,
+      };
+      console.log(
+        `🟡 [MyNewLeague2] ${imminentMatches.length} matches starting within 30min - using very aggressive cache (1min/20s)`,
+      );
+    } else if (upcomingMatches.length > 0 && isToday) {
+      // Matches starting within 2 hours - aggressive cache
       newCacheConfig = {
         staleTime: 2 * 60 * 1000, // 2 minutes
         refetchInterval: 30 * 1000, // 30 seconds
@@ -1374,18 +1393,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         refetchOnReconnect: true,
       };
       console.log(
-        `🟡 [MyNewLeague2] ${imminentMatches.length} matches starting within 30min - using very aggressive cache (2min/30s)`,
-      );
-    } else if (upcomingMatches.length > 0 && isToday) {
-      // Matches starting within 2 hours - aggressive cache
-      newCacheConfig = {
-        staleTime: 3 * 60 * 1000, // 3 minutes
-        refetchInterval: 45 * 1000, // 45 seconds
-        refetchOnWindowFocus: false,
-        refetchOnReconnect: true,
-      };
-      console.log(
-        `🟠 [MyNewLeague2] ${upcomingMatches.length} matches starting within 2h - using aggressive cache (3min/45s)`,
+        `🟠 [MyNewLeague2] ${upcomingMatches.length} matches starting within 2h - using aggressive cache (2min/30s)`,
       );
     } else if (isToday && liveMatches.length === 0) {
       // Today but no live or imminent matches - moderate cache
@@ -2024,7 +2032,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     [finishFlashMatches],
   );
 
-  // Track status changes for kickoff and finish flash effects
+  // Track status changes and implement time-based NS to live transitions
   useEffect(() => {
     if (!fixturesByLeague || Object.keys(fixturesByLeague).length === 0) return;
 
@@ -2032,18 +2040,43 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     const allFixtures = Object.values(fixturesByLeague).flatMap(
       (group) => group.fixtures,
     );
+    const now = new Date();
 
     allFixtures.forEach((fixture) => {
       const matchId = fixture.fixture.id;
-      const currentStatus = fixture.fixture.status.short;
+      let currentStatus = fixture.fixture.status.short;
       const previousStatus = previousMatchStatuses.get(matchId);
+
+      // **TIME-BASED NS TO LIVE TRANSITION**
+      // If match is still NS but should be live based on time
+      if (currentStatus === "NS" || currentStatus === "TBD") {
+        const matchDateTime = new Date(fixture.fixture.date);
+        const minutesSinceKickoff = (now.getTime() - matchDateTime.getTime()) / (1000 * 60);
+
+        // If match should have started (with 2-minute tolerance), force transition to live
+        if (minutesSinceKickoff >= -2 && minutesSinceKickoff <= 120) {
+          console.log(`⏰ [TIME-BASED TRANSITION] Match ${matchId} should be LIVE: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+            kickoffTime: fixture.fixture.date,
+            currentTime: now.toISOString(),
+            minutesSinceKickoff: minutesSinceKickoff.toFixed(1),
+            originalStatus: currentStatus,
+            forcingStatus: '1H'
+          });
+
+          // Force status to 1H (first half) and set elapsed time
+          currentStatus = "1H";
+          const estimatedElapsed = Math.max(1, Math.min(45, Math.floor(minutesSinceKickoff)));
+          fixture.fixture.status.short = "1H";
+          fixture.fixture.status.elapsed = estimatedElapsed;
+        }
+      }
 
       currentStatuses.set(matchId, currentStatus);
 
       // Check if status just changed from upcoming (NS/TBD) to kickoff (1H)
       if (
         (previousStatus === "NS" || previousStatus === "TBD") &&
-        currentStatus === "1H"
+        (currentStatus === "1H" || currentStatus === "LIVE")
       ) {
         console.log(
           `🟡 [KICKOFF DETECTION] Match ${matchId} transitioned from ${previousStatus} to ${currentStatus}`,
