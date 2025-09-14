@@ -328,6 +328,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       "flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[48px] px-4 py-3" : "px-3 py-2",
                     )}
+                    onSelect={(e) => e.preventDefault()}
                   >
                     <div className="flex items-center">
                       <div className="mr-2">
@@ -353,13 +354,17 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                   )}
                   side={isMobile ? "bottom" : "left"}
                   sideOffset={isMobile ? 4 : 0}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <DropdownMenuItem
                     className={cn(
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => handleLanguageChange("en")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLanguageChange("en");
+                    }}
                   >
                     <div className="mr-2">
                       <MyCircularFlag
@@ -375,7 +380,10 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => handleLanguageChange("es")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLanguageChange("es");
+                    }}
                   >
                     <div className="mr-2">
                       <MyCircularFlag
@@ -391,7 +399,10 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => handleLanguageChange("zh-hk")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLanguageChange("zh-hk");
+                    }}
                   >
                     <div className="mr-2">
                       <MyCircularFlag
@@ -407,7 +418,10 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => handleLanguageChange("zh")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLanguageChange("zh");
+                    }}
                   >
                     <div className="mr-2">
                       <MyCircularFlag
@@ -423,7 +437,10 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => handleLanguageChange("de")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLanguageChange("de");
+                    }}
                   >
                     <div className="mr-2">
                       <MyCircularFlag
@@ -439,7 +456,10 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => handleLanguageChange("it")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLanguageChange("it");
+                    }}
                   >
                     <div className="mr-2">
                       <MyCircularFlag
@@ -455,7 +475,10 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                       "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer",
                       isMobile ? "min-h-[44px] px-3 py-2 text-base" : "text-sm",
                     )}
-                    onClick={() => handleLanguageChange("pt")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLanguageChange("pt");
+                    }}
                   >
                     <div className="mr-2">
                       <MyCircularFlag
