@@ -612,90 +612,83 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           );
           const liveData = await liveResponse.json();
 
-            if (Array.isArray(liveData)) {
-              console.log(
-                "🔍 [MyHomeFeaturedMatchNew] Processing live fixtures:",
-                liveData.length,
-              );
-
-              // First filter by featured leagues, then by valid teams
-              const featuredLiveFixtures = liveData.filter((fixture) =>
-                FEATURED_MATCH_LEAGUE_IDS.includes(fixture.league?.id),
-              );
-
-              console.log(
-                "🔍 [MyHomeFeaturedMatchNew] Featured live fixtures:",
-                featuredLiveFixtures.length,
-              );
-
-              liveFixtures = featuredLiveFixtures
-                .filter((fixture: any) => {
-                  const isValid = isValidMatch(fixture);
-                  if (!isValid) {
-                    console.log(
-                      "❌ [MyHomeFeaturedMatchNew] Filtered out invalid fixture:",
-                      {
-                        home: fixture.teams?.home?.name,
-                        away: fixture.teams?.away?.name,
-                        league: fixture.league?.name,
-                      },
-                    );
-                  } else {
-                    console.log(
-                      "✅ [MyHomeFeaturedMatchNew] Valid featured live fixture:",
-                      {
-                        home: fixture.teams?.home?.name,
-                        away: fixture.teams?.away?.name,
-                        league: fixture.league?.name,
-                        leagueId: fixture.league?.id,
-                      },
-                    );
-                  }
-                  return isValid;
-                })
-                .map((fixture: any) => ({
-                  fixture: {
-                    id: fixture.fixture.id,
-                    date: fixture.fixture.date,
-                    status: fixture.fixture.status,
-                    venue: fixture.fixture.venue,
-                  },
-                  league: {
-                    id: fixture.league.id,
-                    name: fixture.league.name,
-                    country: fixture.league.country,
-                    logo: fixture.league.logo,
-                    round: fixture.league.round,
-                  },
-                  teams: {
-                    home: {
-                      id: fixture.teams.home.id,
-                      name: fixture.teams.home.name,
-                      logo: fixture.teams.home.logo,
-                    },
-                    away: {
-                      id: fixture.teams.away.id,
-                      name: fixture.teams.away.name,
-                      logo: fixture.teams.away.logo,
-                    },
-                  },
-                  goals: {
-                    home: fixture.goals?.home ?? null,
-                    away: fixture.goals?.away ?? null,
-                  },
-                  venue: fixture.venue,
-                }));
-            }
+          if (Array.isArray(liveData)) {
             console.log(
-              `✅ [MyHomeFeaturedMatchNew] Found ${liveFixtures.length} live matches (including all live matches regardless of league)`,
+              "🔍 [MyHomeFeaturedMatchNew] Processing live fixtures:",
+              liveData.length,
             );
-        } catch (error) {
-          console.error(
-            "❌ [MyHomeFeaturedMatchNew] Error fetching live matches:",
-            error,
-          );
-        }
+
+            // First filter by featured leagues, then by valid teams
+            const featuredLiveFixtures = liveData.filter((fixture) =>
+              FEATURED_MATCH_LEAGUE_IDS.includes(fixture.league?.id),
+            );
+
+            console.log(
+              "🔍 [MyHomeFeaturedMatchNew] Featured live fixtures:",
+              featuredLiveFixtures.length,
+            );
+
+            liveFixtures = featuredLiveFixtures
+              .filter((fixture: any) => {
+                const isValid = isValidMatch(fixture);
+                if (!isValid) {
+                  console.log(
+                    "❌ [MyHomeFeaturedMatchNew] Filtered out invalid fixture:",
+                    {
+                      home: fixture.teams?.home?.name,
+                      away: fixture.teams?.away?.name,
+                      league: fixture.league?.name,
+                    },
+                  );
+                } else {
+                  console.log(
+                    "✅ [MyHomeFeaturedMatchNew] Valid featured live fixture:",
+                    {
+                      home: fixture.teams?.home?.name,
+                      away: fixture.teams?.away?.name,
+                      league: fixture.league?.name,
+                      leagueId: fixture.league?.id,
+                    },
+                  );
+                }
+                return isValid;
+              })
+              .map((fixture: any) => ({
+                fixture: {
+                  id: fixture.fixture.id,
+                  date: fixture.fixture.date,
+                  status: fixture.fixture.status,
+                  venue: fixture.fixture.venue,
+                },
+                league: {
+                  id: fixture.league.id,
+                  name: fixture.league.name,
+                  country: fixture.league.country,
+                  logo: fixture.league.logo,
+                  round: fixture.league.round,
+                },
+                teams: {
+                  home: {
+                    id: fixture.teams.home.id,
+                    name: fixture.teams.home.name,
+                    logo: fixture.teams.home.logo,
+                  },
+                  away: {
+                    id: fixture.teams.away.id,
+                    name: fixture.teams.away.name,
+                    logo: fixture.teams.away.logo,
+                  },
+                },
+                goals: {
+                  home: fixture.goals?.home ?? null,
+                  away: fixture.goals?.away ?? null,
+                },
+                venue: fixture.venue,
+              }));
           }
+          console.log(
+            `✅ [MyHomeFeaturedMatchNew] Found ${liveFixtures.length} live matches (including all live matches regardless of league)`,
+          );
         } catch (error) {
           console.error(
             "❌ [MyHomeFeaturedMatchNew] Error fetching live matches:",
