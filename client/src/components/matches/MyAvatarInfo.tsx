@@ -43,7 +43,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
 
   const [imageUrl, setImageUrl] = useState<string>("/assets/matchdetaillogo/fallback_player.png");
   const [isLoading, setIsLoading] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const sizeClasses = {
@@ -85,7 +85,59 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           `🔍 [MyAvatarInfo-${componentId}] Loading image for: ${playerName} (ID: ${playerId})`,
         );
 
-        // Try advanced cache system first (fastest - multiple sources)
+        // Try name-based search first (fastest if available)
+        if (playerName) {
+          try {
+            const nameSearchUrl = `/api/player-photo-by-name?name=${encodeURIComponent(playerName)}`;
+            const response = await fetch(nameSearchUrl, {
+              method: "HEAD",
+              timeout: 3000, // 3 second timeout
+            } as any);
+
+            if (
+              response.ok &&
+              response.url &&
+              !response.url.includes("ui-avatars.com") &&
+              !response.url.includes("default.png") &&
+              !response.url.includes("placeholder")
+            ) {
+              console.log(
+                `✅ [MyAvatarInfo-${componentId}] Found via name search: ${response.url}`,
+              );
+              imageCache.set(cacheKey, response.url);
+              return response.url;
+            }
+          } catch (error) {
+            console.log(
+              `⚠️ [MyAvatarInfo-${componentId}] Name search failed: ${error}`,
+            );
+          }
+        }
+
+        // Try ID-based search as backup
+        if (playerId) {
+          try {
+            const idSearchUrl = `/api/player-photo/${playerId}`;
+            const response = await fetch(idSearchUrl, {
+              method: "HEAD",
+              timeout: 3000,
+            } as any);
+
+            if (response.ok && response.url) {
+              console.log(
+                `✅ [MyAvatarInfo-${componentId}] Found via ID search: ${response.url}`,
+              );
+              imageCache.set(cacheKey, response.url);
+              return response.url;
+            }
+          } catch (error) {
+            console.log(
+              `⚠️ [MyAvatarInfo-${componentId}] ID search failed: ${error}`,
+            );
+          }
+        }
+
+        // Try cached system as final backup (without image validation)
         try {
           const cachedImageUrl = await getPlayerImage(
             playerId,
@@ -106,25 +158,8 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           }
         } catch (error) {
           console.log(
-            `⚠️ [MyAvatarInfo-${componentId}] Cache system failed: ${(error as Error)?.message || error}`,
+            `❌ [MyAvatarInfo-${componentId}] Cache system error: ${(error as Error)?.message || error}`,
           );
-        }
-
-        // Quick fallback - try direct API-Sports URL if ID available
-        if (playerId) {
-          try {
-            const directUrl = `https://media.api-sports.io/football/players/${playerId}.png`;
-            // Don't validate, just use it - faster loading
-            console.log(
-              `🚀 [MyAvatarInfo-${componentId}] Using direct API-Sports: ${directUrl}`,
-            );
-            imageCache.set(cacheKey, directUrl);
-            return directUrl;
-          } catch (error) {
-            console.log(
-              `⚠️ [MyAvatarInfo-${componentId}] Direct API-Sports failed: ${error}`,
-            );
-          }
         }
 
         // All methods failed, cache the fallback to prevent future attempts
@@ -150,9 +185,28 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     return await loadPromise;
   };
 
-  // Load image immediately without waiting for intersection
+  // Intersection Observer for lazy loading
   useEffect(() => {
-    if (!playerId && !playerName) return;
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "100px", threshold: 0.1 }, // Increased rootMargin for earlier loading
+    );
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
+  // Load image when visible
+  useEffect(() => {
+    if (!isVisible || (!playerId && !playerName)) return;
 
     let isCancelled = false;
 
@@ -163,12 +217,6 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         const url = await loadPlayerImage();
         if (!isCancelled) {
           setImageUrl(url);
-          // Preload the image for instant display
-          const preloadLink = document.createElement('link');
-          preloadLink.rel = 'preload';
-          preloadLink.as = 'image';
-          preloadLink.href = url;
-          document.head.appendChild(preloadLink);
         }
       } catch (error) {
         if (!isCancelled) {
@@ -199,8 +247,8 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     }
   };
 
-  // Show loading state only while actually loading
-  if (isLoading) {
+  // Early return for loading state
+  if (!isVisible || isLoading) {
     return (
       <div
         ref={containerRef}
