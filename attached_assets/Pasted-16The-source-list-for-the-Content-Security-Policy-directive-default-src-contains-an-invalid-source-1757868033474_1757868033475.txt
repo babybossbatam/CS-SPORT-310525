@@ -1,0 +1,99 @@
+16The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.Understand this error
+about:blank:1 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.Understand this error
+stripe.js:1 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+value @ stripe.js:1Understand this error
+js?id=AW-11411994397:128 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+Mc @ js?id=AW-11411994397:128Understand this error
+js?id=AW-11411994397:128 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+Mc @ js?id=AW-11411994397:128Understand this error
+js?id=AW-11411994397:497 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+q @ js?id=AW-11411994397:497Understand this error
+recaptcha__en.js:265 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+(anonymous) @ recaptcha__en.js:265Understand this error
+recaptcha__en.js:329 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+(anonymous) @ recaptcha__en.js:329Understand this error
+recaptcha__en.js:329 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+(anonymous) @ recaptcha__en.js:329Understand this error
+stripe.js:1 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+value @ stripe.js:1Understand this error
+framework-2a557c0a29e63696.js:1 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+e @ framework-2a557c0a29e63696.js:1Understand this error
+framework-2a557c0a29e63696.js:1 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+e @ framework-2a557c0a29e63696.js:1Understand this error
+framework-2a557c0a29e63696.js:1 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+e @ framework-2a557c0a29e63696.js:1Understand this error
+recaptcha__en.js:265 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+(anonymous) @ recaptcha__en.js:265Understand this error
+recaptcha__en.js:329 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+(anonymous) @ recaptcha__en.js:329Understand this error
+recaptcha__en.js:329 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+(anonymous) @ recaptcha__en.js:329Understand this error
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.Understand this error
+16The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?Understand this error
+16The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.Understand this error
+/~:1 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.Understand this error
+/~:1 The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?Understand this error
+/~:1 The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.Understand this error
+_app-0a1485399975a697.js:38 
+      /////////////////////
+   ///////////////////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////        Curious and driven?
+  ///////////////@@@@@@@///////        Work with us!
+  ///////////////@@@@@@@///////
+  ///////////////@@@@@@@///////        https://join.replit.com/hack.with.us
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@#//////////////
+   ///////////////////////////
+      /////////////////////
+      
+_app-0a1485399975a697.js:38 [LaunchDarkly] LaunchDarkly client initialized
+_app-0a1485399975a697.js:38 Adding extension: portkiller Object
+_app-0a1485399975a697.js:38 Adding extension: Icon Generator Object
+framework-2a557c0a29e63696.js:1 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+_ @ framework-2a557c0a29e63696.js:1Understand this error
+framework-2a557c0a29e63696.js:1 Unrecognized feature: 'ambient-light-sensor'.
+_ @ framework-2a557c0a29e63696.js:1Understand this warning
+framework-2a557c0a29e63696.js:1 Unrecognized feature: 'battery'.
+_ @ framework-2a557c0a29e63696.js:1Understand this warning
+framework-2a557c0a29e63696.js:1 Unrecognized feature: 'execution-while-not-rendered'.
+_ @ framework-2a557c0a29e63696.js:1Understand this warning
+framework-2a557c0a29e63696.js:1 Unrecognized feature: 'execution-while-out-of-viewport'.
+_ @ framework-2a557c0a29e63696.js:1Understand this warning
+framework-2a557c0a29e63696.js:1 Unrecognized feature: 'layout-animations'.
+_ @ framework-2a557c0a29e63696.js:1Understand this warning
+framework-2a557c0a29e63696.js:1 Unrecognized feature: 'legacy-image-formats'.
+_ @ framework-2a557c0a29e63696.js:1Understand this warning
+framework-2a557c0a29e63696.js:1 Unrecognized feature: 'navigation-override'.
+_ @ framework-2a557c0a29e63696.js:1Understand this warning
+framework-2a557c0a29e63696.js:1 Unrecognized feature: 'oversized-images'.
+_ @ framework-2a557c0a29e63696.js:1Understand this warning
+framework-2a557c0a29e63696.js:1 Unrecognized feature: 'publickey-credentials'.
+_ @ framework-2a557c0a29e63696.js:1Understand this warning
+framework-2a557c0a29e63696.js:1 Unrecognized feature: 'speaker-selection'.
+_ @ framework-2a557c0a29e63696.js:1Understand this warning
+framework-2a557c0a29e63696.js:1 Unrecognized feature: 'unoptimized-images'.
+_ @ framework-2a557c0a29e63696.js:1Understand this warning
+framework-2a557c0a29e63696.js:1 Unrecognized feature: 'unsized-media'.
+_ @ framework-2a557c0a29e63696.js:1Understand this warning
+framework-2a557c0a29e63696.js:1 Unrecognized feature: 'pointer-lock'.
+_ @ framework-2a557c0a29e63696.js:1Understand this warning
+framework-2a557c0a29e63696.js:1 Allow attribute will take precedence over 'allowfullscreen'.
+_ @ framework-2a557c0a29e63696.js:1Understand this warning
+framework-2a557c0a29e63696.js:1 Allow attribute will take precedence over 'allowpaymentrequest'.
+_ @ framework-2a557c0a29e63696.js:1Understand this warning
+background.js:1 Uncaught SyntaxError: Invalid or unexpected tokenUnderstand this error
+framework-2a557c0a29e63696.js:1 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+_ @ framework-2a557c0a29e63696.js:1Understand this error
+stallwart.build.js:1 stallwart: failed ping 1
+stallwart.build.js:1 stallwart: failed ping 2
+stallwart.build.js:1 stallwart: failed ping 3
+stallwart.build.js:1 stallwart: failed ping 1
+stallwart.build.js:1 stallwart: failed ping 2
+stallwart.build.js:1 stallwart: failed ping 3
+stallwart.build.js:1 stallwart: failed ping 4
+stallwart.build.js:1 stallwart: failed ping 5
+stallwart.build.js:1 stallwart: session stalled
+framework-2a557c0a29e63696.js:1 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
