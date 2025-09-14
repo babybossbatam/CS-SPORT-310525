@@ -28,6 +28,7 @@ import { teamMappingExtractor } from "@/lib/teamMappingExtractor";
 import { generateCompleteTeamMapping } from "@/lib/generateCompleteTeamMapping";
 import { smartLeagueTranslation } from "@/lib/leagueNameMapping";
 import { smartCountryTranslation } from "@/lib/countryNameMapping";
+import { apiRequest } from "@/lib/apiService"; // Assuming apiRequest is available
 
 // Intersection Observer Hook for lazy loading
 const useIntersectionObserver = (
@@ -119,6 +120,17 @@ interface FixtureData {
     };
   };
 }
+
+// Mock interface for FeaturedMatch if it's used elsewhere and not defined here
+// In a real scenario, this would be imported or defined properly.
+interface FeaturedMatch {
+  id: number;
+  leagueId: number;
+  homeTeamId: number;
+  awayTeamId: number;
+  // ... other properties
+}
+
 
 interface MyNewLeague2Props {
   selectedDate: string;
@@ -1100,9 +1112,13 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               controller.abort("Request timeout after 10 seconds"); // Adjusted timeout
             }, 10000); // Adjusted to 10 seconds
 
-            const response = await fetch(`/api/leagues/${leagueId}/fixtures`, {
-              signal: controller.signal,
-            }).catch((fetchError) => {
+            const response = await apiRequest(
+              "GET",
+              `/api/leagues/${leagueId}/fixtures`,
+              {
+                signal: controller.signal,
+              }
+            ).catch((fetchError) => {
               clearTimeout(timeoutId);
 
               // Handle specific timeout errors
