@@ -68,58 +68,31 @@ const MyPlayerProfilePicture: React.FC<MyPlayerProfilePictureProps> = ({
   };
 
   useEffect(() => {
-    const loadPlayerImage = async () => {
-      setIsLoading(true);
-      setHasError(false);
+    // Set fallback immediately for instant display
+    setImageUrl(getFallbackAvatarUrl(playerName));
+    setIsLoading(false);
+    setHasError(false);
 
-      // If we have a player ID, try multiple CDN sources
-      if (playerId) {
-        try {
-          const imageUrls = getPlayerImageUrls(playerId);
-          let urlIndex = 0;
+    // Try to load real image in background if we have player ID
+    if (playerId) {
+      const loadRealImage = async () => {
+        const imageUrls = getPlayerImageUrls(playerId);
+        
+        // Try first URL only for speed
+        const img = new Image();
+        img.onload = () => {
+          setImageUrl(imageUrls[0]);
+          console.log(`✅ [MyPlayerProfilePicture] Loaded real image for player ${playerId} (${playerName})`);
+        };
+        img.onerror = () => {
+          // Keep fallback on error
+          console.log(`⚠️ [MyPlayerProfilePicture] Real image failed for player ${playerId}, keeping fallback`);
+        };
+        img.src = imageUrls[0];
+      };
 
-          const tryNextUrl = () => {
-            if (urlIndex >= imageUrls.length) {
-              console.warn(`⚠️ [MyPlayerProfilePicture] All CDN sources failed for player ${playerId} (${playerName}), using fallback`);
-              setImageUrl(getFallbackAvatarUrl(playerName));
-              setHasError(true);
-              setIsLoading(false);
-              return;
-            }
-
-            const currentUrl = imageUrls[urlIndex];
-            const img = new Image();
-            
-            img.onload = () => {
-              setImageUrl(currentUrl);
-              setIsLoading(false);
-              console.log(`✅ [MyPlayerProfilePicture] Successfully loaded image for player ${playerId} (${playerName}) from source ${urlIndex + 1}`);
-            };
-            
-            img.onerror = () => {
-              console.log(`⚠️ [MyPlayerProfilePicture] Source ${urlIndex + 1} failed for player ${playerId}, trying next...`);
-              urlIndex++;
-              tryNextUrl();
-            };
-            
-            img.src = currentUrl;
-          };
-
-          tryNextUrl();
-        } catch (error) {
-          console.error(`❌ [MyPlayerProfilePicture] Error loading image for player ${playerId}:`, error);
-          setImageUrl(getFallbackAvatarUrl(playerName));
-          setHasError(true);
-          setIsLoading(false);
-        }
-      } else {
-        // No player ID, use fallback immediately
-        setImageUrl(getFallbackAvatarUrl(playerName));
-        setIsLoading(false);
-      }
-    };
-
-    loadPlayerImage();
+      loadRealImage();
+    }
   }, [playerId, playerName, teamType]);
 
   const handleImageError = () => {
@@ -136,11 +109,7 @@ const MyPlayerProfilePicture: React.FC<MyPlayerProfilePictureProps> = ({
   return (
     <div className={`player-image-container ${className}`}>
       <Avatar className={`${sizeClasses[size]} ${borderClass} ${teamBgClass} shadow-sm transition-all duration-200 hover:scale-105`}>
-        {isLoading ? (
-          <div className={`${sizeClasses[size]} bg-gray-200 animate-pulse rounded-full flex items-center justify-center`}>
-            <div className="w-4 h-4 bg-gray-400 rounded-full animate-pulse"></div>
-          </div>
-        ) : (
+        {(
           <>
             <AvatarImage
               src={imageUrl}
