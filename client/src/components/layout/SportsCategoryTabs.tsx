@@ -38,7 +38,12 @@ const SportsCategoryTabs = () => {
   };
 
   const sportsList: SportItem[] = [
-    { id: 'football', icon: FootballIcon, label: t('football') }
+    { id: 'tv', icon: TvIcon, label: t('tv') },
+    { id: 'football', icon: FootballIcon, label: t('football') },
+    { id: 'basketball', icon: BasketballIcon, label: t('basketball') },
+    { id: 'horseracing', icon: HorseRacingIcon, label: t('horse_racing') },
+    { id: 'snooker', icon: SnookerIcon, label: t('snooker') },
+    { id: 'esports', icon: EsportsIcon, label: t('esports') }
   ];
 
   return (
@@ -73,21 +78,42 @@ const SportsCategoryTabs = () => {
             ))}
           </div>
         ) : (
-          // Desktop: Simple layout with only football
-          <div className="flex items-center justify-center">
+          // Desktop: Original fixed layout
+          <>
+            {/* Fixed TV tab on the left */}
             <div
-              onClick={() => handleSportSelect('football')}
+              onClick={() => handleSportSelect('tv')}
               className={cn(
-                'flex items-center justify-start gap-2 px-3 py-2 cursor-pointer transition-all duration-200 ease-in-out min-w-fit',
-                selectedSport === 'football'
+                'flex items-center justify-start gap-2 px-3 py-2 cursor-pointer transition-all duration-200 ease-in-out min-w-fit fixed left-[140px]',
+                selectedSport === 'tv'
                   ? 'text-[#15222A] dark:text-white'
                   : 'text-[#6B7173] hover:text-[#15222A] dark:text-gray-300 dark:hover:text-white'
               )}
             >
-              <FootballIcon className="h-[1.1rem] w-[1.1rem]" />
-              <span className="text-[0.94rem] font-normal whitespace-nowrap">{t('football')}</span>
+              <TvIcon className="h-[1.1rem] w-[1.1rem]" />
+              <span className="text-[0.94rem] font-normal whitespace-nowrap">{t('tv')}</span>
             </div>
-          </div>
+
+            {/* Other tabs with consistent spacing based on TV-Football gap */}
+            <div className="flex items-center ml-[30px]" style={{ gap: '5px' }}>
+              {sportsList.slice(1).map(({ id, icon: Icon, label }, index) => (
+                <div
+                  key={id}
+                  onClick={() => handleSportSelect(id)}
+                  className={cn(
+                    'flex items-center justify-start gap-2 px-3 py-2 cursor-pointer transition-all duration-200 ease-in-out min-w-fit',
+                    selectedSport === id
+                      ? 'text-[#15222A] dark:text-white'
+                      : 'text-[#6B7173] hover:text-[#15222A] dark:text-gray-300 dark:hover:text-white',
+                    index === 0 ? 'ml-5' : '' // Add 20px margin to Football (first item)
+                  )}
+                >
+                  <Icon className="h-[1.1rem] w-[1.1rem]" />
+                  <span className="text-[0.94rem] font-normal whitespace-nowrap">{label}</span>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </Card>
