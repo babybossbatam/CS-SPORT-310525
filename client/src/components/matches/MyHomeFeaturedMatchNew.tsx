@@ -689,6 +689,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             console.log(
               `✅ [MyHomeFeaturedMatchNew] Found ${liveFixtures.length} live matches (including all live matches regardless of league)`,
             );
+        } catch (error) {
+          console.error(
+            "❌ [MyHomeFeaturedMatchNew] Error fetching live matches:",
+            error,
+          );
+        }
           }
         } catch (error) {
           console.error(
