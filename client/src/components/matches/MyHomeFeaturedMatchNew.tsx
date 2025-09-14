@@ -475,9 +475,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         const now = new Date();
-        // ENHANCED cache refresh logic - prioritize live matches and today's ended matches
+        // ENHANCED cache refresh logic - prioritize live matches and status transitions
         const shouldRefresh =
             forceRefresh ||
+            featuredMatches.length === 0 || // Always refresh if no matches
             featuredMatches.some((dayData) =>
               dayData.matches.some((match) => {
                 const status = match.fixture.status.short;
@@ -504,34 +505,31 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   "INT",
                 ].includes(status);
 
-                // PRIORITY 2: Today's matches (any status)
+                // PRIORITY 2: Matches that should have started (potential status transition)
+                const shouldHaveStarted = status === "NS" && minutesFromKickoff > 0;
+
+                // PRIORITY 3: Today's matches (any status)
                 const isTodaysMatch = isToday;
 
-                // PRIORITY 3: Recently ended matches (within 24 hours)
+                // PRIORITY 4: Recently ended matches (within 24 hours)
                 const isRecentlyEndedMatch =
                   ["FT", "AET", "PEN"].includes(status) &&
                   Math.abs(hoursFromKickoff) <= 24;
 
-                // PRIORITY 4: Upcoming matches within 4 hours
+                // PRIORITY 5: Upcoming matches within 2 hours (more aggressive)
                 const isUpcomingSoon =
-                  status === "NS" && Math.abs(minutesFromKickoff) <= 240;
-
-                // PRIORITY 5: Stale "Starting now" matches
-                const isStaleStartingNow =
-                  status === "NS" &&
-                  minutesFromKickoff > 30 &&
-                  minutesFromKickoff < 180;
+                  status === "NS" && Math.abs(minutesFromKickoff) <= 120;
 
                 const shouldRefreshMatch = 
                   isLive || 
+                  shouldHaveStarted ||
                   isTodaysMatch || 
                   isRecentlyEndedMatch || 
-                  isUpcomingSoon || 
-                  isStaleStartingNow;
+                  isUpcomingSoon;
 
                 if (shouldRefreshMatch) {
                   console.log(
-                    `🔄 [REFRESH TRIGGER] Match: ${match.teams.home.name} vs ${match.teams.away.name} (${status}) - Live: ${isLive}, Today: ${isTodaysMatch}, Recent: ${isRecentlyEndedMatch}`,
+                    `🔄 [REFRESH TRIGGER] Match: ${match.teams.home.name} vs ${match.teams.away.name} (${status}) - Live: ${isLive}, ShouldStart: ${shouldHaveStarted}, Today: ${isTodaysMatch}`,
                   );
                 }
 
@@ -602,18 +600,17 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           return !!(fixture?.teams?.home?.name && fixture?.teams?.away?.name);
         };
 
-        // Fetch live matches from API for real-time updates
+        // Fetch live matches from API for real-time updates - ALWAYS fetch for status transitions
         let liveFixtures: FeaturedMatch[] = [];
         try {
-          if (shouldRefresh) {
-            console.log(
-              "🔴 [MyHomeFeaturedMatchNew] Smart cache: Fetching live matches from dedicated endpoint",
-            );
-            const liveResponse = await apiRequest(
-              "GET",
-              "/api/featured-match/live?skipFilter=true",
-            );
-            const liveData = await liveResponse.json();
+          console.log(
+            "🔴 [MyHomeFeaturedMatchNew] Fetching live matches for status transitions",
+          );
+          const liveResponse = await apiRequest(
+            "GET",
+            "/api/featured-match/live?skipFilter=true",
+          );
+          const liveData = await liveResponse.json();
 
             if (Array.isArray(liveData)) {
               console.log(
@@ -2415,8 +2412,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               analysis.upcomingMatches++; // Starting within 2 hours
             }
 
-            // Check for stale "Starting now" matches
-            if (minutesFromKickoff > 30 && minutesFromKickoff < 180) {
+            // Check for stale "Starting now" matches (should have started already)
+            if (minutesFromKickoff > 5 && minutesFromKickoff < 180) {
               analysis.staleMatches++;
             }
           }
@@ -2443,41 +2440,41 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       }).length;
     }, 0);
 
-    // ENHANCED refresh strategy including today's ended matches
+    // ENHANCED refresh strategy for live match transitions
     if (analysis.liveMatches > 0) {
       // Most aggressive: Live matches detected
-      refreshInterval = 30000; // 30 seconds for live matches (reduced from 15s)
+      refreshInterval = 15000; // 15 seconds for live matches
       shouldRefresh = true;
       console.log(
-        `🔴 [MyHomeFeaturedMatchNew] ${analysis.liveMatches} live matches - using aggressive refresh (30s)`,
+        `🔴 [MyHomeFeaturedMatchNew] ${analysis.liveMatches} live matches - using aggressive refresh (15s)`,
       );
     } else if (todayEndedMatches > 0) {
       // Aggressive for today's ended matches to get final stats
-      refreshInterval = 60000; // 1 minute (reduced from 30s)
+      refreshInterval = 30000; // 30 seconds
       shouldRefresh = true;
       console.log(
-        `📊 [MyHomeFeaturedMatchNew] ${todayEndedMatches} today's ended matches - using moderate refresh (1min)`,
+        `📊 [MyHomeFeaturedMatchNew] ${todayEndedMatches} today's ended matches - using aggressive refresh (30s)`,
       );
     } else if (analysis.staleMatches > 0) {
-      // Aggressive: Stale matches that should have updated
-      refreshInterval = 90000; // 1.5 minutes (reduced from 45s)
+      // Very aggressive: Stale matches that should have started
+      refreshInterval = 20000; // 20 seconds for status transitions
       shouldRefresh = true;
       console.log(
-        `🟡 [MyHomeFeaturedMatchNew] ${analysis.staleMatches} stale matches detected - using moderate refresh (1.5min)`,
+        `🟡 [MyHomeFeaturedMatchNew] ${analysis.staleMatches} stale matches detected - using very aggressive refresh (20s)`,
       );
     } else if (analysis.imminentMatches > 0) {
-      // Very frequent: Matches starting within 30 minutes
-      refreshInterval = 120000; // 2 minutes (reduced from 1min)
+      // Frequent: Matches starting within 30 minutes
+      refreshInterval = 60000; // 1 minute
       shouldRefresh = true;
       console.log(
-        `🟠 [MyHomeFeaturedMatchNew] ${analysis.imminentMatches} imminent matches - using moderate refresh (2min)`,
+        `🟠 [MyHomeFeaturedMatchNew] ${analysis.imminentMatches} imminent matches - using frequent refresh (1min)`,
       );
     } else if (analysis.upcomingMatches > 0) {
       // Moderate: Matches starting within 2 hours
-      refreshInterval = 180000; // 3 minutes (reduced from 2min)
+      refreshInterval = 120000; // 2 minutes
       shouldRefresh = true;
       console.log(
-        `🟢 [MyHomeFeaturedMatchNew] ${analysis.upcomingMatches} upcoming matches - using standard refresh (3min)`,
+        `🟢 [MyHomeFeaturedMatchNew] ${analysis.upcomingMatches} upcoming matches - using moderate refresh (2min)`,
       );
     } else {
       // Standard: No urgent matches
