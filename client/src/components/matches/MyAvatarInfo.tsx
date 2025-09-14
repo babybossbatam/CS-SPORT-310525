@@ -185,7 +185,53 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     return await loadPromise;
   };
 
-  // Intersection Observer for lazy loading
+  // Immediate image loading without intersection observer
+  useEffect(() => {
+    if (!playerId && !playerName) return;
+
+    let isCancelled = false;
+
+    const loadImageImmediately = async () => {
+      // Check cache first for instant loading
+      if (imageCache.has(cacheKey)) {
+        const cachedUrl = imageCache.get(cacheKey)!;
+        console.log(`⚡ [MyAvatarInfo-${componentId}] Instant cache hit: ${cachedUrl}`);
+        setImageUrl(cachedUrl);
+        setIsLoading(false);
+        setIsVisible(true);
+        return;
+      }
+
+      // If not in cache, start loading immediately
+      setIsLoading(true);
+      setIsVisible(true);
+
+      try {
+        const url = await loadPlayerImage();
+        if (!isCancelled) {
+          setImageUrl(url);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        if (!isCancelled) {
+          console.log(
+            `❌ [MyAvatarInfo-${componentId}] Failed to load: ${error}`,
+          );
+          setImageUrl("/assets/matchdetaillogo/fallback_player.png");
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadImageImmediately();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [cacheKey, playerId, playerName]);
+
+  // Optional: Keep intersection observer for performance on large lists (commented out for immediate loading)
+  /*
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -197,47 +243,13 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           observer.disconnect();
         }
       },
-      { rootMargin: "100px", threshold: 0.1 }, // Increased rootMargin for earlier loading
+      { rootMargin: "100px", threshold: 0.1 },
     );
 
     observer.observe(container);
     return () => observer.disconnect();
   }, []);
-
-  // Load image when visible
-  useEffect(() => {
-    if (!isVisible || (!playerId && !playerName)) return;
-
-    let isCancelled = false;
-
-    const loadImage = async () => {
-      setIsLoading(true);
-
-      try {
-        const url = await loadPlayerImage();
-        if (!isCancelled) {
-          setImageUrl(url);
-        }
-      } catch (error) {
-        if (!isCancelled) {
-          console.log(
-            `❌ [MyAvatarInfo-${componentId}] Failed to load: ${error}`,
-          );
-          setImageUrl("/assets/matchdetaillogo/fallback_player.png");
-        }
-      } finally {
-        if (!isCancelled) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    loadImage();
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [isVisible, cacheKey]);
+  */
 
   const handleClick = () => {
     if (onClick) {
@@ -247,8 +259,8 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     }
   };
 
-  // Early return for loading state
-  if (!isVisible || isLoading) {
+  // Early return for loading state (only show loading if no cached image)
+  if (isLoading && !imageCache.has(cacheKey)) {
     return (
       <div
         ref={containerRef}
