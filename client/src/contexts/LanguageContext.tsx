@@ -747,6 +747,7 @@ const translations = {
     away_team: "Away Team",
     data_from_team_statistics: "Data from Team Statistics",
     official_highlights: "Official Highlights",
+    match_events: "Match Events",
   },
   "en-us": {
     today_matches: "Today's Games",
@@ -867,6 +868,7 @@ const translations = {
     away_team: "Away Team",
     data_from_team_statistics: "Data from Team Statistics",
     official_highlights: "Official Highlights",
+    match_events: "Match Events",
   },
   es: {
     today_matches: "Partidos de Hoy",
@@ -1006,6 +1008,7 @@ const translations = {
     away_team: "Equipo Visitante",
     data_from_team_statistics: "Datos de estadísticas del equipo",
     official_highlights: "Aspectos Destacados Oficiales",
+    match_events: "Eventos del Partido",
   },
   "zh-hk": {
     today_matches: "今天的比賽",
@@ -1143,6 +1146,7 @@ const translations = {
     away_team: "客隊",
     data_from_team_statistics: "來自球隊統計數據",
     official_highlights: "官方精華",
+    match_events: "比賽事件",
   },
   zh: {
     today_matches: "今天的比赛",
@@ -1269,6 +1273,7 @@ const translations = {
     away_team: "客队",
     data_from_team_statistics: "来自球队统计数据",
     official_highlights: "官方精华",
+    match_events: "比赛事件",
   },
   de: {
     today_matches: "Heutige Spiele",
@@ -1408,6 +1413,7 @@ const translations = {
     away_team: "Gastmannschaft",
     data_from_team_statistics: "Daten von Teamstatistiken",
     official_highlights: "Offizielle Highlights",
+    match_events: "Spielereignisse",
   },
   it: {
     today_matches: "Partite di Oggi",
@@ -1547,6 +1553,7 @@ const translations = {
     away_team: "Squadra Ospite",
     data_from_team_statistics: "Dati delle statistiche della squadra",
     official_highlights: "Highlights Ufficiali",
+    match_events: "Eventi della Partita",
   },
   pt: {
     today_matches: "Jogos de Hoje",
@@ -1674,7 +1681,7 @@ const translations = {
     predictions: "Previsões",
     who_will_win: "Quem vai ganhar?",
     whoWillWin: "Quem vai ganhar?",
-    totalVotes: "Votos Totais",
+    totalVotes: "Votos Totales",
     draw: "Empate",
     data_from: "Dados de",
     rapidapi_predictions: "Previsões RapidAPI",
@@ -1686,6 +1693,7 @@ const translations = {
     away_team: "Equipa Visitante",
     data_from_team_statistics: "Dados das estatísticas da equipa",
     official_highlights: "Destaques Oficiais",
+    match_events: "Eventos da Partida",
   },
   "zh-tw": {
     today_matches: "今天的比賽",
@@ -1824,6 +1832,7 @@ const translations = {
     away_team: "客隊",
     data_from_team_statistics: "來自球隊統計數據",
     official_highlights: "官方精華",
+    match_events: "比賽事件",
   },
 };
 

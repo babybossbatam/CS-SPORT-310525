@@ -16,6 +16,7 @@ import MyCommentary from "./MyCommentary";
 import MyPlayerProfilePicture from "./MyPlayerProfilePicture";
 import PlayerProfileModal from "../modals/PlayerProfileModal";
 import MyAvatarInfo from "./MyAvatarInfo";
+import { useTranslation } from "@/contexts/LanguageContext";
 
 interface MyMatchEventNewProps {
   fixtureId: string | number;
@@ -100,6 +101,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     image?: string;
   } | null>(null);
   const [showPlayerModal, setShowPlayerModal] = useState(false);
+  const { t } = useTranslation();
 
   const fetchMatchEvents = useCallback(async (retryCount = 0) => {
     if (!fixtureId) {
@@ -1095,7 +1097,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="text-md font-semibold">Match Events</h3>
+            <h3 className="text-md font-semibold">{t('match_events')}</h3>
           </div>
         </div>
       </CardHeader>
