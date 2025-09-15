@@ -677,9 +677,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               </div>
             )}
           </div>
+        </div>
 
-          {/* Center - Time */}
-          <div className="relative z-10 flex items-center justify-center w-12 h-12 bg-white border-2 border-gray-300 rounded-full">
+        {/* Center - Time */}
+        <div className="relative z-10 flex items-center justify-center w-12 h-12 bg-white border-2 border-gray-300 rounded-full">
           <span className="text-xs font-bold text-gray-700">
             {formatTime(event.time.elapsed, event.time.extra)}
           </span>
