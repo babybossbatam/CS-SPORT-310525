@@ -11,7 +11,7 @@ import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
 import MyMatchStats from "./MyMatchStats";
 import { getTeamColor } from "@/lib/colorExtractor";
-import { useTranslation } from 'react-i18next'; // Assuming useTranslation is available
+import { useLanguage } from '@/contexts/LanguageContext';
 
 
 // Add CSS for cleaner pulse effect
@@ -66,7 +66,12 @@ const MyMatchdetailsScoreboard = ({
   onTabChange,
 }: MyMatchdetailsScoreboardProps) => {
 
-  const { t: getTranslation } = useTranslation(); // Get translation function
+  const { translations, currentLanguage } = useLanguage();
+  
+  // Translation helper function
+  const getTranslation = (key: string): string => {
+    return translations[key]?.[currentLanguage] || key;
+  };
 
   const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
   const [liveScores, setLiveScores] = useState<{home: number | null, away: number | null} | null>(null);
