@@ -801,7 +801,29 @@ const MyMatchdetailsScoreboard = ({
                   {`${displayMatch.goals?.home ?? 0} - ${displayMatch.goals?.away ?? 0}`}
                 </div>
                 <div className="text-sm text-gray-900 font-semi-bold">
-                  {format(new Date(displayMatch.fixture.date), "dd/MM")}
+                  {(() => {
+                    try {
+                      const matchDate = new Date(displayMatch.fixture.date);
+                      
+                      // Format date based on current language
+                      if (currentLanguage.startsWith('zh')) {
+                        // Chinese format: M月d日
+                        return format(matchDate, 'M月d日');
+                      } else if (currentLanguage === 'en-us') {
+                        // US format: MM/dd
+                        return format(matchDate, 'MM/dd');
+                      } else if (['de', 'it', 'pt', 'es'].includes(currentLanguage)) {
+                        // European format: dd.MM or dd/MM
+                        return format(matchDate, 'dd.MM');
+                      } else {
+                        // Default format: dd/MM
+                        return format(matchDate, 'dd/MM');
+                      }
+                    } catch (error) {
+                      console.error('Error formatting match date:', error);
+                      return format(new Date(displayMatch.fixture.date), "dd/MM");
+                    }
+                  })()}
                 </div>
               </div>
             )}
