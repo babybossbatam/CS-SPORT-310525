@@ -503,7 +503,9 @@ const MyMatchdetailsScoreboard = ({
 
     // Check if it's a finished match and determine the appropriate label
     const getFinishedLabel = () => {
-      if (!["FT", "AET", "PEN"].includes(currentStatus)) return "Finished";
+      if (!["FT", "AET", "PEN"].includes(currentStatus)) {
+        return t('finished') || "Finished";
+      }
 
       try {
         const matchDate = new Date(displayMatch.fixture.date);
@@ -512,9 +514,9 @@ const MyMatchdetailsScoreboard = ({
           (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
 
         // If finished less than 1 hour ago, show "Just Finished"
-        return hoursElapsed <= 1 ? "Just Finished" : "Ended";
+        return hoursElapsed <= 1 ? (t('just_finished') || "Just Finished") : (t('ended') || "Ended");
       } catch (error) {
-        return "Ended";
+        return t('ended') || "Ended";
       }
     };
 
@@ -569,11 +571,11 @@ const MyMatchdetailsScoreboard = ({
     }
 
     const statusConfig = {
-      NS: { label: "Upcoming", variant: "default" as const },
+      NS: { label: t('upcoming') || "Upcoming", variant: "default" as const },
       FT: { label: getFinishedLabel(), variant: "default" as const },
       AET: { label: getFinishedLabel(), variant: "default" as const },
       PEN: { label: getFinishedLabel(), variant: "default" as const },
-      HT: { label: "Half Time", variant: "outline" as const },
+      HT: { label: t('halftime') || "Half Time", variant: "outline" as const },
     };
 
     const config = statusConfig[currentStatus as keyof typeof statusConfig] || {
