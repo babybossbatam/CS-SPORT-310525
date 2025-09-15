@@ -251,7 +251,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         return "🔄"; // Substitution
 
       case "Var":
-      case "var": 
+      case "var":
       case "VAR":
         return "📺"; // VAR
 
