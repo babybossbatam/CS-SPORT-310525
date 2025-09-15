@@ -454,7 +454,25 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
 
           {/* Total Votes */}
           <div className="text-sm text-gray-500 mb-4">
-            {t('totalVotes') || 'Total Votes'}: {predictionData?.confidence ? Math.round(predictionData.confidence * 50) : '3,495'}
+            {(() => {
+              const voteCount = predictionData?.confidence ? Math.round(predictionData.confidence * 50) : '3,495';
+              const totalVotesText = t('totalVotes') || 'Total Votes';
+              
+              // Format the translation naturally for each language
+              if (currentLanguage === 'zh' || currentLanguage === 'zh-hk' || currentLanguage === 'zh-tw') {
+                return `${totalVotesText}：${voteCount}`;
+              } else if (currentLanguage === 'es') {
+                return `${totalVotesText}: ${voteCount}`;
+              } else if (currentLanguage === 'de') {
+                return `${totalVotesText}: ${voteCount}`;
+              } else if (currentLanguage === 'it') {
+                return `${totalVotesText}: ${voteCount}`;
+              } else if (currentLanguage === 'pt') {
+                return `${totalVotesText}: ${voteCount}`;
+              } else {
+                return `${totalVotesText}: ${voteCount}`;
+              }
+            })()}
           </div>
 
           {/* Horizontal Prediction Bar */}
