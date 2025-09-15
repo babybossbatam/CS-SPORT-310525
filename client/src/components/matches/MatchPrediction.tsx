@@ -4,6 +4,7 @@ import { Progress } from '@/components/ui/progress';
 import { HelpCircle, Loader2 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslation } from '@/contexts/LanguageContext';
+import { smartTeamTranslation } from '@/lib/smartTeamTranslation';
 
 interface TeamInfo {
   id?: number;
@@ -53,7 +54,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
   leagueId,
   season,
 }) => {
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
   const [predictionData, setPredictionData] = useState<PredictionData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -483,7 +484,10 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
                 <div className="text-lg font-semibold text-blue-600">{homeWinProbability}%</div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-blue-600 truncate max-w-[100px]">
-                    {homeTeam?.name && homeTeam.name.length > 12 ? `${homeTeam.name.substring(0, 12)}...` : homeTeam?.name || t('homeTeam') || 'Home Team'}
+                    {(() => {
+                      const translatedName = homeTeam?.name ? smartTeamTranslation.translateTeamName(homeTeam.name, currentLanguage) : (t('homeTeam') || 'Home Team');
+                      return translatedName && translatedName.length > 12 ? `${translatedName.substring(0, 12)}...` : translatedName;
+                    })()}
                   </span>
                 </div>
               </div>
@@ -499,7 +503,10 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
                 <div className="text-lg font-semibold text-gray-800">{awayWinProbability}%</div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-600 truncate max-w-[100px]">
-                    {awayTeam?.name && awayTeam.name.length > 12 ? `${awayTeam.name.substring(0, 12)}...` : awayTeam?.name || t('awayTeam') || 'Away Team'}
+                    {(() => {
+                      const translatedName = awayTeam?.name ? smartTeamTranslation.translateTeamName(awayTeam.name, currentLanguage) : (t('awayTeam') || 'Away Team');
+                      return translatedName && translatedName.length > 12 ? `${translatedName.substring(0, 12)}...` : translatedName;
+                    })()}
                   </span>
                 </div>
               </div>
