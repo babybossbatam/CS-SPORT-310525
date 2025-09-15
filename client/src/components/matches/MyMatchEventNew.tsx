@@ -253,7 +253,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       case "Var":
       case "var":
       case "VAR":
-        return "📺"; // VAR
+        return "VAR_SVG"; // VAR, marked to use SVG
 
       case "Foul":
         return "🚫"; // Foul
@@ -662,7 +662,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       }
                       className="w-4 h-8"
                     />
-                  ) : event.type?.toLowerCase() === "var" || event.detail?.toLowerCase().includes("var") ? (
+                  ) : getEventIcon(event.type, event.detail) === "VAR_SVG" ? (
                                       <img
                                         src="/assets/matchdetaillogo/var-logo.svg"
                                         alt="VAR"
@@ -674,7 +674,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       </span>
                                     )}
                 </div>
-              </div>
               </div>
             )}
           </div>
@@ -758,7 +757,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       }
                       className="w-4 h-8"
                     />
-                  ) : event.type?.toLowerCase() === "var" || event.detail?.toLowerCase().includes("var") ? (
+                  ) : getEventIcon(event.type, event.detail) === "VAR_SVG" ? (
                                       <img
                                         src="/assets/matchdetaillogo/var-logo.svg"
                                         alt="VAR"
@@ -1582,6 +1581,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         }
                                         className="w-4 h-8 "
                                       />
+                                    ) : getEventIcon(event.type, event.detail) === "VAR_SVG" ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/var-logo.svg"
+                                        alt="VAR"
+                                        className="w-4 h-4"
+                                      />
                                     ) : (
                                       <span className="text-xs">
                                         {getEventIcon(event.type, event.detail)}
@@ -1706,6 +1711,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             : "Red Card"
                                         }
                                         className="w-4 h-4 "
+                                      />
+                                    ) : getEventIcon(event.type, event.detail) === "VAR_SVG" ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/var-logo.svg"
+                                        alt="VAR"
+                                        className="w-4 h-4"
                                       />
                                     ) : (
                                       <span className="text-xs">
@@ -2200,6 +2211,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         }
                                         className="w-4 h-8 "
                                       />
+                                    ) : getEventIcon(event.type, event.detail) === "VAR_SVG" ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/var-logo.svg"
+                                        alt="VAR"
+                                        className="w-4 h-4"
+                                      />
                                     ) : (
                                       <span className="text-xs">
                                         {getEventIcon(event.type, event.detail)}
@@ -2324,6 +2341,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             : "Red Card"
                                         }
                                         className="w-4 h-4 "
+                                      />
+                                    ) : getEventIcon(event.type, event.detail) === "VAR_SVG" ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/var-logo.svg"
+                                        alt="VAR"
+                                        className="w-4 h-4"
                                       />
                                     ) : (
                                       <span className="text-xs">
