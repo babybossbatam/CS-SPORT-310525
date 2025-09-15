@@ -535,11 +535,11 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           <div className="flex justify-center">
             <div className="text-xs text-gray-400">
               {predictionData ?
-                `Data from ${
-                  (predictionData as any).source === 'rapidapi-predictions' ? t('rapidAPIPredictions') || 'RapidAPI Predictions' :
-                  t('teamStatistics') || 'Team Statistics'
+                `${t('data_from') || 'Data from'} ${
+                  (predictionData as any).source === 'rapidapi-predictions' ? t('rapidapi_predictions') || 'RapidAPI Predictions' :
+                  t('team_statistics') || 'Team Statistics'
                 }` :
-                t('dataFromRapidAPIPredictions') || 'Data from RapidAPI Predictions'
+                t('data_from_team_statistics') || 'Data from Team Statistics'
               }
             </div>
           </div>

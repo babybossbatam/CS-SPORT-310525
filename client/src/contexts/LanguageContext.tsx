@@ -745,6 +745,7 @@ const translations = {
     no_prediction_data_found: "No prediction data found from RapidAPI",
     home_team: "Home Team",
     away_team: "Away Team",
+    data_from_team_statistics: "Data from Team Statistics",
   },
   "en-us": {
     today_matches: "Today's Games",
@@ -863,6 +864,7 @@ const translations = {
     no_prediction_data_found: "No prediction data found from RapidAPI",
     home_team: "Home Team",
     away_team: "Away Team",
+    data_from_team_statistics: "Data from Team Statistics",
   },
   es: {
     today_matches: "Partidos de Hoy",
@@ -1000,6 +1002,7 @@ const translations = {
     no_prediction_data_found: "No se encontraron datos de predicción de RapidAPI",
     home_team: "Equipo Local",
     away_team: "Equipo Visitante",
+    data_from_team_statistics: "Datos de estadísticas del equipo",
   },
   "zh-hk": {
     today_matches: "今天的比賽",
@@ -1135,6 +1138,7 @@ const translations = {
     no_prediction_data_found: "未從RapidAPI找到預測數據",
     home_team: "主隊",
     away_team: "客隊",
+    data_from_team_statistics: "來自球隊統計數據",
   },
   zh: {
     today_matches: "今天的比赛",
@@ -1259,6 +1263,7 @@ const translations = {
     no_prediction_data_found: "未从RapidAPI找到预测数据",
     home_team: "主队",
     away_team: "客队",
+    data_from_team_statistics: "来自球队统计数据",
   },
   de: {
     today_matches: "Heutige Spiele",
@@ -1396,6 +1401,7 @@ const translations = {
     no_prediction_data_found: "Keine Vorhersagedaten von RapidAPI gefunden",
     home_team: "Heimmannschaft",
     away_team: "Gastmannschaft",
+    data_from_team_statistics: "Daten von Teamstatistiken",
   },
   it: {
     today_matches: "Partite di Oggi",
@@ -1533,6 +1539,7 @@ const translations = {
     no_prediction_data_found: "Nessun dato di previsione trovato da RapidAPI",
     home_team: "Squadra di Casa",
     away_team: "Squadra Ospite",
+    data_from_team_statistics: "Dati delle statistiche della squadra",
   },
   pt: {
     today_matches: "Jogos de Hoje",
@@ -1670,6 +1677,7 @@ const translations = {
     no_prediction_data_found: "Nenhum dado de previsão encontrado do RapidAPI",
     home_team: "Equipa da Casa",
     away_team: "Equipa Visitante",
+    data_from_team_statistics: "Dados das estatísticas da equipa",
   },
   "zh-tw": {
     today_matches: "今天的比賽",
@@ -1806,6 +1814,7 @@ const translations = {
     no_prediction_data_found: "未從RapidAPI找到預測數據",
     home_team: "主隊",
     away_team: "客隊",
+    data_from_team_statistics: "來自球隊統計數據",
   },
 };
 
