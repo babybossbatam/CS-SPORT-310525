@@ -192,7 +192,7 @@ const Footer: React.FC = () => {
           <div className="lg:col-span-2">
             <div className="flex items-center mb-3 md:mb-4">
               <img src="/CSSPORT_1_updated.png" alt="CS Sport" className="h-6 md:h-8 w-auto mr-2 md:mr-3" />
-              <span className="text-lg md:text-xl font-bold uppercase">{getTranslation('companyName')}</span>
+              <span className="text-lg md:text-xl font-bold uppercase">CS SPORT</span>
             </div>
             
             <span className="text-lg md:text-xl font-bold uppercase ">{getTranslation('companyName')}
