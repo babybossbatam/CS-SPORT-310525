@@ -195,7 +195,7 @@ const Footer: React.FC = () => {
               <span className="text-lg md:text-xl font-bold uppercase">CS SPORT</span>
             </div>
             
-            <span className="text-lg md:text-xl font-bold uppercase ">{getTranslation('companyName')}
+            <span className="text-lg md:text-xl font-bold uppercase ">CS SPORT
             </span>
             <p className="text-gray-300 text-sm leading-relaxed mb-4 md:mb-6 max-w-2xl">
               {getTranslation('description')}
