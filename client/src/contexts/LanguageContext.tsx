@@ -746,6 +746,7 @@ const translations = {
     home_team: "Home Team",
     away_team: "Away Team",
     data_from_team_statistics: "Data from Team Statistics",
+    official_highlights: "Official Highlights",
   },
   "en-us": {
     today_matches: "Today's Games",
@@ -865,6 +866,7 @@ const translations = {
     home_team: "Home Team",
     away_team: "Away Team",
     data_from_team_statistics: "Data from Team Statistics",
+    official_highlights: "Official Highlights",
   },
   es: {
     today_matches: "Partidos de Hoy",
@@ -1003,6 +1005,7 @@ const translations = {
     home_team: "Equipo Local",
     away_team: "Equipo Visitante",
     data_from_team_statistics: "Datos de estadísticas del equipo",
+    official_highlights: "Aspectos Destacados Oficiales",
   },
   "zh-hk": {
     today_matches: "今天的比賽",
@@ -1139,6 +1142,7 @@ const translations = {
     home_team: "主隊",
     away_team: "客隊",
     data_from_team_statistics: "來自球隊統計數據",
+    official_highlights: "官方精華",
   },
   zh: {
     today_matches: "今天的比赛",
@@ -1264,6 +1268,7 @@ const translations = {
     home_team: "主队",
     away_team: "客队",
     data_from_team_statistics: "来自球队统计数据",
+    official_highlights: "官方精华",
   },
   de: {
     today_matches: "Heutige Spiele",
@@ -1402,6 +1407,7 @@ const translations = {
     home_team: "Heimmannschaft",
     away_team: "Gastmannschaft",
     data_from_team_statistics: "Daten von Teamstatistiken",
+    official_highlights: "Offizielle Highlights",
   },
   it: {
     today_matches: "Partite di Oggi",
@@ -1540,6 +1546,7 @@ const translations = {
     home_team: "Squadra di Casa",
     away_team: "Squadra Ospite",
     data_from_team_statistics: "Dati delle statistiche della squadra",
+    official_highlights: "Highlights Ufficiali",
   },
   pt: {
     today_matches: "Jogos de Hoje",
@@ -1678,6 +1685,7 @@ const translations = {
     home_team: "Equipa da Casa",
     away_team: "Equipa Visitante",
     data_from_team_statistics: "Dados das estatísticas da equipa",
+    official_highlights: "Destaques Oficiais",
   },
   "zh-tw": {
     today_matches: "今天的比賽",
@@ -1815,6 +1823,7 @@ const translations = {
     home_team: "主隊",
     away_team: "客隊",
     data_from_team_statistics: "來自球隊統計數據",
+    official_highlights: "官方精華",
   },
 };
 
