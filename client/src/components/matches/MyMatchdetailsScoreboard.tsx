@@ -11,6 +11,10 @@ import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
 import MyMatchStats from "./MyMatchStats";
 import { getTeamColor } from "@/lib/colorExtractor";
+import { useLanguage, useTranslation } from "@/contexts/LanguageContext";
+import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
+import { smartLeagueTranslation } from "@/lib/leagueNameMapping";
+import { smartCountryTranslation } from "@/lib/countryNameMapping";
 
 
 // Add CSS for cleaner pulse effect
@@ -64,6 +68,46 @@ const MyMatchdetailsScoreboard = ({
   activeTab: externalActiveTab,
   onTabChange,
 }: MyMatchdetailsScoreboardProps) => {
+  const {
+    translateLeagueName: contextTranslateLeagueName,
+    translateTeamName,
+    currentLanguage,
+  } = useLanguage();
+  const { t } = useTranslation();
+
+  // Add league name translation (same as MyNewLeague2)
+  const translateLeagueName = (originalLeague: string): string => {
+    if (!originalLeague) return "";
+
+    // Use smart league translation
+    const translated = smartLeagueTranslation.translateLeague(
+      originalLeague,
+      currentLanguage,
+    );
+    if (translated !== originalLeague) {
+      return translated;
+    }
+
+    // Fallback to context translation
+    return contextTranslateLeagueName(originalLeague);
+  };
+
+  // Use the enhanced country translation function (same as MyNewLeague2)
+  const translateEnhancedCountryName = (originalCountry: string): string => {
+    if (!originalCountry) return "";
+
+    // Use smart country translation
+    const translated = smartCountryTranslation.translateCountry(
+      originalCountry,
+      currentLanguage,
+    );
+    if (translated !== originalCountry) {
+      return translated;
+    }
+
+    // Fallback to context translation for untranslated countries
+    return contextTranslateLeagueName(originalCountry);
+  };
 
   const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
   const [liveScores, setLiveScores] = useState<{home: number | null, away: number | null} | null>(null);
@@ -597,9 +641,9 @@ const MyMatchdetailsScoreboard = ({
         </button>
       )}
       <CardTitle className="text-md font-normal text-gray-900 dark:text-white text-center pt-2">
-        {displayMatch.teams.home.name} vs {displayMatch.teams.away.name}
+        {translateTeamName(displayMatch.teams.home.name)} vs {translateTeamName(displayMatch.teams.away.name)}
         <div className="text-xs text-gray-400 dark:text-gray-300 font-normal text-center">
-          {displayMatch.league.country}, {displayMatch.league.name}
+          {translateEnhancedCountryName(displayMatch.league.country)}, {translateLeagueName(displayMatch.league.name)}
         </div>
       </CardTitle>
       <CardHeader className="text-center"></CardHeader>
@@ -644,7 +688,7 @@ const MyMatchdetailsScoreboard = ({
               />
             )}
             <span className="text-md font-medium text-center ">
-              {displayMatch.teams.home.name}
+              {translateTeamName(displayMatch.teams.home.name)}
             </span>
           </div>
 
@@ -798,7 +842,7 @@ const MyMatchdetailsScoreboard = ({
               />
             )}
             <span className="text-md font-medium text-center mb-4">
-              {displayMatch.teams.away.name}
+              {translateTeamName(displayMatch.teams.away.name)}
             </span>
           </div>
         </div>
