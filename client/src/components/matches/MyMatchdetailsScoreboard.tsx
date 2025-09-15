@@ -448,7 +448,7 @@ const MyMatchdetailsScoreboard = ({
     if (liveStatus || currentLiveStatus) {
       const liveStatusToUse = liveStatus || currentLiveStatus;
       // Validate that live status is a reasonable progression from actual status
-      if (actualStatus === liveStatusToUse || 
+      if (actualStatus === liveStatusToUse ||
           (actualStatus === "1H" && liveStatusToUse === "HT") ||
           (actualStatus === "HT" && liveStatusToUse === "2H") ||
           (actualStatus === "2H" && liveStatusToUse === "FT")) {
