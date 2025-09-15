@@ -251,6 +251,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         return "🔄"; // Substitution
 
       case "Var":
+      case "var": 
+      case "VAR":
         return "📺"; // VAR
 
       case "Foul":
@@ -660,11 +662,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       }
                       className="w-4 h-8"
                     />
-                  ) : (
-                    <span className="text-xs">
-                      {getEventIcon(event.type, event.detail)}
-                    </span>
-                  )}
+                  ) : event.type?.toLowerCase() === "var" || event.detail?.toLowerCase().includes("var") ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/var-logo.svg"
+                                        alt="VAR"
+                                        className="w-4 h-4"
+                                      />
+                                    ) : (
+                                      <span className="text-xs">
+                                        {getEventIcon(event.type, event.detail)}
+                                      </span>
+                                    )}
                 </div>
               </div>
               </div>
@@ -750,11 +758,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       }
                       className="w-4 h-8"
                     />
-                  ) : (
-                    <span className="text-xs">
-                      {getEventIcon(event.type, event.detail)}
-                    </span>
-                  )}
+                  ) : event.type?.toLowerCase() === "var" || event.detail?.toLowerCase().includes("var") ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/var-logo.svg"
+                                        alt="VAR"
+                                        className="w-4 h-4"
+                                      />
+                                    ) : (
+                                      <span className="text-xs">
+                                        {getEventIcon(event.type, event.detail)}
+                                      </span>
+                                    )}
                 </div>
               </div>
 
