@@ -878,33 +878,33 @@ const MyMatchdetailsScoreboard = ({
           <button className={`flex-shrink-0 py-2 px-2 sm:px-4 text-xs sm:text-sm font-normal whitespace-nowrap ${activeTab === 'match' ? 'text-gray-900 dark:text-white border-b-2 border-blue-500' : 'text-gray-600 dark:text-white hover:text-gray-800 dark:hover:text-gray-200'} transition-colors duration-200`}
           onClick={() => handleTabChange("match")}
           >
-            Match
+            {t('match_page') || 'Match'}
           </button>
           <button className={`flex-shrink-0 py-2 px-2 sm:px-4 text-xs sm:text-sm font-normal whitespace-nowrap ${activeTab === 'lineups' ? 'text-gray-900 dark:text-white border-b-2 border-blue-500' : 'text-gray-600 dark:text-white hover:text-gray-800 dark:hover:text-gray-200'} transition-colors duration-200`}
            onClick={() => handleTabChange("lineups")}
           >
             <span className="hidden sm:inline">
               {displayMatch.fixture.status.short === "NS"
-                ? "Probable Lineups"
-                : "Lineups"}
+                ? (t('probable_lineups') || 'Probable Lineups')
+                : (t('lineups') || 'Lineups')}
             </span>
-            <span className="sm:hidden">Lineups</span>
+            <span className="sm:hidden">{t('lineups') || 'Lineups'}</span>
           </button>
           <button className={`flex-shrink-0 py-2 px-2 sm:px-4 text-xs sm:text-sm font-normal whitespace-nowrap ${activeTab === 'stats' ? 'text-gray-900 dark:text-white border-b-2 border-blue-500' : 'text-gray-600 dark:text-white hover:text-gray-800 dark:hover:text-gray-200'} transition-colors duration-200`}
            onClick={() => handleTabChange("stats")}
           >
-            Stats
+            {t('stats') || 'Stats'}
           </button>
           <button className={`flex-shrink-0 py-2 px-2 sm:px-4 text-xs sm:text-sm font-normal whitespace-nowrap ${activeTab === 'trends' ? 'text-gray-900 dark:text-white border-b-2 border-blue-500' : 'text-gray-600 dark:text-white hover:text-gray-800 dark:hover:text-gray-200'} transition-colors duration-200`}
            onClick={() => handleTabChange("trends")}
           >
-            Trends
+            {t('trends') || 'Trends'}
           </button>
           <button className={`flex-shrink-0 py-2 px-2 sm:px-4 text-xs sm:text-sm font-normal whitespace-nowrap ${activeTab === 'h2h' ? 'text-gray-900 dark:text-white border-b-2 border-blue-500' : 'text-gray-600 dark:text-white hover:text-gray-800 dark:hover:text-gray-200'} transition-colors duration-200`}
            onClick={() => handleTabChange("h2h")}
           >
-            <span className="hidden sm:inline">Head to Head</span>
-            <span className="sm:hidden">H2H</span>
+            <span className="hidden sm:inline">{t('head_to_head') || 'Head to Head'}</span>
+            <span className="sm:hidden">{t('h2h') || 'H2H'}</span>
           </button>
           {activeTab === 'highlights' && (
               <MyHighlights
