@@ -65,26 +65,26 @@ interface AuthenticationProps {
   mode?: AuthMode;
 }
 
-// Country codes with flags
+// Country codes with flags and typical phone number lengths
 const countryCodes = [
-  { code: "+852", country: "Hong Kong", flag: "🇭🇰" },
-  { code: "+86", country: "China", flag: "🇨🇳" },
-  { code: "+81", country: "Japan", flag: "🇯🇵" },
-  { code: "+82", country: "South Korea", flag: "🇰🇷" },
-  { code: "+63", country: "Philippines", flag: "🇵🇭" },
-  { code: "+855", country: "Cambodia", flag: "🇰🇭" },
-  { code: "+1", country: "United States", flag: "🇺🇸" },
-  { code: "+44", country: "United Kingdom", flag: "🇬🇧" },
-  { code: "+33", country: "France", flag: "🇫🇷" },
-  { code: "+49", country: "Germany", flag: "🇩🇪" },
-  { code: "+39", country: "Italy", flag: "🇮🇹" },
-  { code: "+34", country: "Spain", flag: "🇪🇸" },
-  { code: "+91", country: "India", flag: "🇮🇳" },
-  { code: "+65", country: "Singapore", flag: "🇸🇬" },
-  { code: "+60", country: "Malaysia", flag: "🇲🇾" },
-  { code: "+66", country: "Thailand", flag: "🇹🇭" },
-  { code: "+84", country: "Vietnam", flag: "🇻🇳" },
-  { code: "+62", country: "Indonesia", flag: "🇮🇩" },
+  { code: "+852", country: "Hong Kong", flag: "🇭🇰", digits: 8 },
+  { code: "+86", country: "China", flag: "🇨🇳", digits: 11 },
+  { code: "+81", country: "Japan", flag: "🇯🇵", digits: 10 },
+  { code: "+82", country: "South Korea", flag: "🇰🇷", digits: 10 },
+  { code: "+63", country: "Philippines", flag: "🇵🇭", digits: 10 },
+  { code: "+855", country: "Cambodia", flag: "🇰🇭", digits: 9 },
+  { code: "+1", country: "United States", flag: "🇺🇸", digits: 10 },
+  { code: "+44", country: "United Kingdom", flag: "🇬🇧", digits: 10 },
+  { code: "+33", country: "France", flag: "🇫🇷", digits: 10 },
+  { code: "+49", country: "Germany", flag: "🇩🇪", digits: 11 },
+  { code: "+39", country: "Italy", flag: "🇮🇹", digits: 10 },
+  { code: "+34", country: "Spain", flag: "🇪🇸", digits: 9 },
+  { code: "+91", country: "India", flag: "🇮🇳", digits: 10 },
+  { code: "+65", country: "Singapore", flag: "🇸🇬", digits: 8 },
+  { code: "+60", country: "Malaysia", flag: "🇲🇾", digits: 10 },
+  { code: "+66", country: "Thailand", flag: "🇹🇭", digits: 9 },
+  { code: "+84", country: "Vietnam", flag: "🇻🇳", digits: 9 },
+  { code: "+62", country: "Indonesia", flag: "🇮🇩", digits: 11 },
 ];
 
 const CountryCodeSelect = ({ value, onValueChange }: { value: string; onValueChange: (value: string) => void }) => {
@@ -159,6 +159,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
 
   // Country code state
   const [selectedCountryCode, setSelectedCountryCode] = useState("+852");
+  const [isPhoneInputFocused, setIsPhoneInputFocused] = useState(false);
 
   // Handle login submission
   const onLoginSubmit = async (data: z.infer<typeof loginSchema>) => {
@@ -525,50 +526,64 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                       <FormField
                         control={registerForm.control}
                         name="phoneNumber"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div className="relative">
-                                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center z-0">
-                                        <svg
-                                          className="w-4 h-4 text-white/70"
-                                          fill="currentColor"
-                                          viewBox="0 0 20 20"
-                                        >
-                                          <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                                        </svg>
-                                      </div>
-                                      <CountryCodeSelect 
-                                        value={selectedCountryCode} 
-                                        onValueChange={setSelectedCountryCode}
-                                      />
-                                      <Input
-                                        type="tel"
-                                        placeholder="Phone Number"
-                                        {...field}
-                                        value={field.value || ""}
-                                        onChange={(e) => {
-                                          const fullNumber = selectedCountryCode + e.target.value;
-                                          field.onChange(fullNumber);
-                                        }}
-                                        className="h-14 pl-32 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
-                                        style={{ fontSize: "16px" }}
-                                      />
+                        render={({ field }) => {
+                          const selectedCountry = countryCodes.find(c => c.code === selectedCountryCode);
+                          const expectedDigits = selectedCountry?.digits || 8;
+                          const phoneNumberWithoutCode = field.value?.replace(selectedCountryCode, "") || "";
+                          
+                          return (
+                            <FormItem>
+                              <FormControl>
+                                <div className="relative">
+                                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center z-0">
+                                    <svg
+                                      className="w-4 h-4 text-white/70"
+                                      fill="currentColor"
+                                      viewBox="0 0 20 20"
+                                    >
+                                      <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                                    </svg>
+                                  </div>
+                                  <CountryCodeSelect 
+                                    value={selectedCountryCode} 
+                                    onValueChange={setSelectedCountryCode}
+                                  />
+                                  <Input
+                                    type="tel"
+                                    placeholder="Phone Number"
+                                    {...field}
+                                    value={phoneNumberWithoutCode}
+                                    onFocus={() => setIsPhoneInputFocused(true)}
+                                    onBlur={() => setIsPhoneInputFocused(false)}
+                                    onChange={(e) => {
+                                      const inputValue = e.target.value.replace(/\D/g, ''); // Only allow digits
+                                      if (inputValue.length <= expectedDigits) {
+                                        const fullNumber = selectedCountryCode + inputValue;
+                                        field.onChange(fullNumber);
+                                      }
+                                    }}
+                                    className="h-14 pl-32 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                                    style={{ fontSize: "16px" }}
+                                    maxLength={expectedDigits}
+                                  />
+                                  {/* Helper text that appears on focus */}
+                                  {isPhoneInputFocused && (
+                                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1 text-xs text-white/80 whitespace-nowrap">
+                                      Please enter {expectedDigits} digits
                                     </div>
-                                  </TooltipTrigger>
-                                  <TooltipContent className="bg-gray-800 text-white border-gray-600">
-                                    <p>Enter your phone number without the country code</p>
-                                    <p className="text-xs text-gray-300">Example: 12345678</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            </FormControl>
-                            <FormMessage className="text-red-300" />
-                          </FormItem>
-                        )}
+                                  )}
+                                </div>
+                              </FormControl>
+                              <FormMessage className="text-red-300" />
+                              {/* Additional validation message */}
+                              {phoneNumberWithoutCode.length > 0 && phoneNumberWithoutCode.length !== expectedDigits && (
+                                <p className="text-orange-300 text-xs mt-1">
+                                  {selectedCountry?.country} phone numbers should be {expectedDigits} digits
+                                </p>
+                              )}
+                            </FormItem>
+                          );
+                        }}
                       />
 
                       <div className="relative">
