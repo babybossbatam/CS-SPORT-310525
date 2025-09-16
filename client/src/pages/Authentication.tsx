@@ -348,9 +348,9 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                           <FormItem>
                             <FormControl>
                               <div className="relative">
-                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
+                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
                                   <svg
-                                    className="w-3 h-3 text-white/70"
+                                    className="w-4 h-4 text-white/70"
                                     fill="currentColor"
                                     viewBox="0 0 20 20"
                                   >
@@ -362,9 +362,10 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                   </svg>
                                 </div>
                                 <Input
-                                  placeholder="username"
+                                  placeholder="Username"
                                   {...field}
                                   className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white text-xl placeholder:text-white/60 focus:bg-white/20"
+                                  style={{ fontSize: "16px" }}
                                 />
                               </div>
                             </FormControl>
@@ -380,9 +381,9 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                           <FormItem>
                             <FormControl>
                               <div className="relative">
-                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
+                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
                                   <svg
-                                    className="w-3 h-3 text-white/70"
+                                    className="w-4 h-4 text-white/70"
                                     fill="currentColor"
                                     viewBox="0 0 20 20"
                                   >
@@ -395,9 +396,10 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                 </div>
                                 <Input
                                   type="password"
-                                  placeholder="password"
+                                  placeholder="Password"
                                   {...field}
                                   className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                                  style={{ fontSize: "16px" }}
                                 />
                               </div>
                             </FormControl>
@@ -413,9 +415,9 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                           <FormItem>
                             <FormControl>
                               <div className="relative">
-                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
+                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
                                   <svg
-                                    className="w-3 h-3 text-white/70"
+                                    className="w-4 h-4 text-white/70"
                                     fill="currentColor"
                                     viewBox="0 0 20 20"
                                   >
@@ -431,6 +433,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                   placeholder="Confirm Password"
                                   {...field}
                                   className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                                  style={{ fontSize: "16px" }}
                                 />
                               </div>
                             </FormControl>
@@ -446,9 +449,9 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                           <FormItem>
                             <FormControl>
                               <div className="relative">
-                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
+                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
                                   <svg
-                                    className="w-3 h-3 text-white/70"
+                                    className="w-4 h-4 text-white/70"
                                     fill="currentColor"
                                     viewBox="0 0 20 20"
                                   >
@@ -456,7 +459,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                   </svg>
                                 </div>
                                 <div className="absolute left-14 top-1/2 transform -translate-y-1/2 flex items-center">
-                                  <span className="w-6 h-4 bg-red-500 rounded-sm mr-2 flex items-center justify-center">
+                                  <span className="w-4 h-4 bg-red-500 rounded-sm mr-2 flex items-center justify-center">
                                     <span className="text-white text-xs font-bold">
                                       *
                                     </span>
@@ -478,11 +481,11 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                 </div>
                                 <Input
                                   type="tel"
-                                  placeholder="phone number"
+                                  placeholder="Phone Number"
                                   {...field}
-                                  value={field.value || ''}
+                                  value={field.value || ""}
                                   className="h-14 pl-32 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
-                                  style={{ fontSize: '16px' }}
+                                  style={{ fontSize: "16px" }}
                                 />
                               </div>
                             </FormControl>
@@ -492,9 +495,9 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                       />
 
                       <div className="relative">
-                        <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
+                        <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
                           <svg
-                            className="w-3 h-3 text-white/70"
+                            className="w-4 h-4 text-white/70"
                             fill="currentColor"
                             viewBox="0 0 20 20"
                           >
@@ -506,14 +509,14 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                           </svg>
                         </div>
                         <Input
-                          placeholder="SMS verification code"
+                          placeholder="SMS Verification Code"
                           className="h-14 pl-14 pr-20 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
-                          style={{ fontSize: '16px' }}
+                          style={{ fontSize: "16px" }}
                         />
                         <Button
                           type="button"
                           className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 px-6 rounded-full bg-white/20 hover:bg-white/30 text-white font-large"
-                          style={{ fontSize: '16px' }}
+                          style={{ fontSize: "16px" }}
                         >
                           Get
                         </Button>
@@ -532,10 +535,11 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
 
                       <Button
                         type="submit"
-                        className="w-full h-14 rounded-full bg-gradient-to-r from-pink-200 to-pink-300 hover:from-pink-300 hover:to-pink-400 text-gray-800 font-semibold mt-6"
+                        className="w-full h-14 rounded-full bg-gradient-to-r from-orange-200 to-orange-300 hover:from-pink-300 hover:to-pink-400 text-gray-800 font-semibold mt-6"
+                        style={{ fontSize: '16px' }}
                         disabled={isLoading}
                       >
-                        {isLoading ? "Creating Account..." : "register"}
+                        {isLoading ? "Creating Account..." : "Register"}
                       </Button>
                     </form>
                   </Form>
