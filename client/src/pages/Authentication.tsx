@@ -641,7 +641,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
 
             {/* Helper text for username field */}
             {activeTab === "register" && isUsernameInputFocused && (
-              <div className="absolute left-full ml-4 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 text-sm text-white/90 whitespace-nowrap min-w-max z-50 flex items-center justify-center" style={{ top: '20%', transform: 'translateY(-50%)' }}>
+              <div className="absolute left-full ml-4 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 text-sm text-white/90 whitespace-nowrap min-w-max z-50 flex items-center justify-center" style={{ top: '10%', transform: 'translateY(-50%)' }}>
                 Please enter a 6-13 character number consisting of letters and numbers, excluding Chinese characters
               </div>
             )}
