@@ -60,7 +60,8 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
       email: '',
       password: '',
       passwordConfirm: '',
-      fullName: ''
+      fullName: '',
+      phoneNumber: ''
     }
   });
 
@@ -292,6 +293,20 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                           <FormLabel>Full Name (Optional)</FormLabel>
                           <FormControl>
                             <Input placeholder="John Doe" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={registerForm.control}
+                      name="phoneNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone Number (Optional)</FormLabel>
+                          <FormControl>
+                            <Input type="tel" placeholder="+1 (555) 123-4567" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
