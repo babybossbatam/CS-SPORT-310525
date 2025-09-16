@@ -35,6 +35,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import MyCircularFlag from "@/components/common/MyCircularFlag";
 
 // Extend the user schema with login validation
@@ -522,33 +528,43 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <div className="relative">
-                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center z-0">
-                                  <svg
-                                    className="w-4 h-4 text-white/70"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                  >
-                                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                                  </svg>
-                                </div>
-                                <CountryCodeSelect 
-                                  value={selectedCountryCode} 
-                                  onValueChange={setSelectedCountryCode}
-                                />
-                                <Input
-                                  type="tel"
-                                  placeholder="Phone Number"
-                                  {...field}
-                                  value={field.value || ""}
-                                  onChange={(e) => {
-                                    const fullNumber = selectedCountryCode + e.target.value;
-                                    field.onChange(fullNumber);
-                                  }}
-                                  className="h-14 pl-32 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
-                                  style={{ fontSize: "16px" }}
-                                />
-                              </div>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div className="relative">
+                                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center z-0">
+                                        <svg
+                                          className="w-4 h-4 text-white/70"
+                                          fill="currentColor"
+                                          viewBox="0 0 20 20"
+                                        >
+                                          <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                                        </svg>
+                                      </div>
+                                      <CountryCodeSelect 
+                                        value={selectedCountryCode} 
+                                        onValueChange={setSelectedCountryCode}
+                                      />
+                                      <Input
+                                        type="tel"
+                                        placeholder="Phone Number"
+                                        {...field}
+                                        value={field.value || ""}
+                                        onChange={(e) => {
+                                          const fullNumber = selectedCountryCode + e.target.value;
+                                          field.onChange(fullNumber);
+                                        }}
+                                        className="h-14 pl-32 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                                        style={{ fontSize: "16px" }}
+                                      />
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent className="bg-gray-800 text-white border-gray-600">
+                                    <p>Enter your phone number without the country code</p>
+                                    <p className="text-xs text-gray-300">Example: 12345678</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             </FormControl>
                             <FormMessage className="text-red-300" />
                           </FormItem>
