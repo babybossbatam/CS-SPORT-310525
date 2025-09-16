@@ -177,7 +177,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                 <img
                   src="/CSSPORT_1_updated.png"
                   alt="CS SPORT Logo"
-                  className="h-12 w-auto mr-3 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]"
+                  className="h-16 w-auto mr-4"
                   onError={(e) => {
                     console.log("Logo failed to load, trying fallback");
                     const target = e.target as HTMLImageElement;
@@ -187,7 +187,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                   }}
                 />
                 <span
-                  className="uppercase bg-gradient-to-br from-amber-300 via-yellow-500 to-orange-500 bg-clip-text text-transparent font-bold text-3xl transition-all duration-200 hover:from-white hover:via-yellow-100 hover:to-amber-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]"
+                  className="uppercase bg-gradient-to-br from-amber-300 via-yellow-500 to-orange-500 bg-clip-text text-transparent font-bold text-4xl"
                   style={{
                     fontFamily: "Roboto Condensed, sans-serif",
                     fontStretch: "condensed",
