@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useDispatch } from 'react-redux';
@@ -13,8 +14,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import Header from '@/components/layout/Header';
-import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 
 // Extend the user schema with login validation
 const loginSchema = z.object({
@@ -144,7 +143,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
 
       toast({
         title: 'Registration Successful',
-        description: `Welcome to 365Scores, ${newUser.username}!`
+        description: `Welcome to CS Sport, ${newUser.username}!`
       });
 
       // Extract current language from URL or default to 'en'
@@ -166,210 +165,288 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
   };
 
   return (
-    <>
-      <Header />
-      <SportsCategoryTabs />
+    <div className="fixed inset-0 w-full h-full overflow-hidden">
+      {/* Video Background */}
+      <div className="absolute inset-0 w-full h-full">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="w-full h-full object-cover"
+          style={{ filter: 'brightness(0.7)' }}
+        >
+          <source src="https://www.csbet.vip/assets/videos/football-bg.mp4" type="video/mp4" />
+          {/* Fallback for when video doesn't load */}
+          <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"></div>
+        </video>
+        {/* Dark overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/50"></div>
+      </div>
 
-      <div className="container mx-auto px-4 py-4 max-w-md mt-24 md:mt-28 lg:mt-32">
-        <Card className="w-full p-2">
-          <CardHeader className="pt-0">
-            <div className="flex flex-col items-center mb-4">
-              <div className="flex items-center justify-center mb-4 mt-4">
-                <img
-                  src="/CSSPORT_1_updated.png"
-                  alt="CS SPORT Logo"
-                  className="h-16 w-auto mr-4"
-                  onError={(e) => {
-                    console.log("Logo failed to load, trying fallback");
-                    const target = e.target as HTMLImageElement;
-                    if (target.src !== "/CSSPORT_1_updated.png") {
-                      target.src = "/CSSPORT_1_updated.png";
-                    }
-                  }}
-                />
-                <span
-                  className="uppercase bg-gradient-to-br from-amber-300 via-yellow-500 to-orange-500 bg-clip-text text-transparent font-bold text-4xl"
-                  style={{
-                    fontFamily: "Roboto Condensed, sans-serif",
-                    fontStretch: "condensed",
-                    letterSpacing: "-0.07em",
-                  }}
-                >
-                  CS Sport
-                </span>
-              </div>
-              <CardDescription className="text-center text-gray-600">
+      {/* Content Overlay */}
+      <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
+        <div className="w-full max-w-md">
+          {/* Logo and Title */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-6">
+              <img
+                src="/CSSPORT_1_updated.png"
+                alt="CS SPORT Logo"
+                className="h-20 w-auto mr-4 drop-shadow-2xl"
+                onError={(e) => {
+                  console.log("Logo failed to load, trying fallback");
+                  const target = e.target as HTMLImageElement;
+                  if (target.src !== "/CSSPORT_1_updated.png") {
+                    target.src = "/CSSPORT_1_updated.png";
+                  }
+                }}
+              />
+              <span
+                className="uppercase bg-gradient-to-br from-amber-300 via-yellow-500 to-orange-500 bg-clip-text text-transparent font-bold text-5xl drop-shadow-2xl"
+                style={{
+                  fontFamily: "Roboto Condensed, sans-serif",
+                  fontStretch: "condensed",
+                  letterSpacing: "-0.07em",
+                }}
+              >
+                CS Sport
+              </span>
+            </div>
+          </div>
+
+          {/* Auth Card */}
+          <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
+            <CardHeader className="text-center pb-4">
+              <CardDescription className="text-white/90 text-lg">
                 {activeTab === 'login'
                   ? 'Sign in to your account to access your favorites'
                   : 'Create a new account to personalize your experience'
                 }
               </CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as AuthMode)}>
-              <TabsList className="grid grid-cols-2 mb-8">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="register">Register</TabsTrigger>
-              </TabsList>
+            </CardHeader>
+            
+            <CardContent className="p-6">
+              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as AuthMode)}>
+                <TabsList className="grid grid-cols-2 mb-6 bg-white/20 backdrop-blur-sm">
+                  <TabsTrigger 
+                    value="login" 
+                    className="text-white data-[state=active]:bg-white/30 data-[state=active]:text-white"
+                  >
+                    Login
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="register"
+                    className="text-white data-[state=active]:bg-white/30 data-[state=active]:text-white"
+                  >
+                    Register
+                  </TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="login">
-                <Form {...loginForm}>
-                  <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
-                    <FormField
-                      control={loginForm.control}
-                      name="username"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Username</FormLabel>
-                          <FormControl>
-                            <Input placeholder="johndoe" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                <TabsContent value="login">
+                  <Form {...loginForm}>
+                    <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+                      <FormField
+                        control={loginForm.control}
+                        name="username"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-white">Username</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="johndoe" 
+                                {...field} 
+                                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-300" />
+                          </FormItem>
+                        )}
+                      />
 
-                    <FormField
-                      control={loginForm.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Password</FormLabel>
-                          <FormControl>
-                            <Input type="password" placeholder="••••••••" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                      <FormField
+                        control={loginForm.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-white">Password</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="password" 
+                                placeholder="••••••••" 
+                                {...field} 
+                                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-300" />
+                          </FormItem>
+                        )}
+                      />
 
-                    <Button type="submit" className="w-full bg-[#3182CE]" disabled={isLoading}>
-                      {isLoading ? 'Signing in...' : 'Sign In'}
-                    </Button>
-                  </form>
-                </Form>
-              </TabsContent>
+                      <Button 
+                        type="submit" 
+                        className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold py-3 mt-6" 
+                        disabled={isLoading}
+                      >
+                        {isLoading ? 'Signing in...' : 'Sign In'}
+                      </Button>
+                    </form>
+                  </Form>
+                </TabsContent>
 
-              <TabsContent value="register">
-                <Form {...registerForm}>
-                  <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
-                    <FormField
-                      control={registerForm.control}
-                      name="username"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Username</FormLabel>
-                          <FormControl>
-                            <Input placeholder="johndoe" {...field} />
-                          </FormControl>
-                          <FormDescription>
-                            This will be your display name
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                <TabsContent value="register">
+                  <Form {...registerForm}>
+                    <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
+                      <FormField
+                        control={registerForm.control}
+                        name="username"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-white">Username</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="johndoe" 
+                                {...field} 
+                                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                              />
+                            </FormControl>
+                            <FormDescription className="text-white/70 text-sm">
+                              This will be your display name
+                            </FormDescription>
+                            <FormMessage className="text-red-300" />
+                          </FormItem>
+                        )}
+                      />
 
-                    <FormField
-                      control={registerForm.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input type="email" placeholder="john.doe@example.com" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                      <FormField
+                        control={registerForm.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-white">Email</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="email" 
+                                placeholder="john.doe@example.com" 
+                                {...field} 
+                                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-300" />
+                          </FormItem>
+                        )}
+                      />
 
-                    <FormField
-                      control={registerForm.control}
-                      name="fullName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Full Name (Optional)</FormLabel>
-                          <FormControl>
-                            <Input placeholder="John Doe" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                      <FormField
+                        control={registerForm.control}
+                        name="fullName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-white">Full Name (Optional)</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="John Doe" 
+                                {...field} 
+                                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-300" />
+                          </FormItem>
+                        )}
+                      />
 
-                    <FormField
-                      control={registerForm.control}
-                      name="phoneNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Phone Number (Optional)</FormLabel>
-                          <FormControl>
-                            <Input type="tel" placeholder="+1 (555) 123-4567" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                      <FormField
+                        control={registerForm.control}
+                        name="phoneNumber"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-white">Phone Number (Optional)</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="tel" 
+                                placeholder="+1 (555) 123-4567" 
+                                {...field} 
+                                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-300" />
+                          </FormItem>
+                        )}
+                      />
 
-                    <FormField
-                      control={registerForm.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Password</FormLabel>
-                          <FormControl>
-                            <Input type="password" placeholder="••••••••" {...field} />
-                          </FormControl>
-                          <FormDescription>
-                            Must be at least 6 characters
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                      <FormField
+                        control={registerForm.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-white">Password</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="password" 
+                                placeholder="••••••••" 
+                                {...field} 
+                                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                              />
+                            </FormControl>
+                            <FormDescription className="text-white/70 text-sm">
+                              Must be at least 6 characters
+                            </FormDescription>
+                            <FormMessage className="text-red-300" />
+                          </FormItem>
+                        )}
+                      />
 
-                    <FormField
-                      control={registerForm.control}
-                      name="passwordConfirm"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Confirm Password</FormLabel>
-                          <FormControl>
-                            <Input type="password" placeholder="••••••••" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                      <FormField
+                        control={registerForm.control}
+                        name="passwordConfirm"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-white">Confirm Password</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="password" 
+                                placeholder="••••••••" 
+                                {...field} 
+                                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-300" />
+                          </FormItem>
+                        )}
+                      />
 
-                    <Button type="submit" className="w-full bg-[#3182CE]" disabled={isLoading}>
-                      {isLoading ? 'Creating Account...' : 'Create Account'}
-                    </Button>
-                  </form>
-                </Form>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-          <CardFooter className="flex justify-center">
-            <p className="text-sm text-gray-500">
-              {activeTab === 'login'
-                ? "Don't have an account? "
-                : "Already have an account? "
-              }
-              <Button 
-                variant="link" 
-                className="p-0 text-[#3182CE]" 
-                onClick={() => setActiveTab(activeTab === 'login' ? 'register' : 'login')}
-              >
-                {activeTab === 'login' ? 'Register' : 'Login'}
-              </Button>
-            </p>
-          </CardFooter>
-        </Card>
+                      <Button 
+                        type="submit" 
+                        className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold py-3 mt-6" 
+                        disabled={isLoading}
+                      >
+                        {isLoading ? 'Creating Account...' : 'Create Account'}
+                      </Button>
+                    </form>
+                  </Form>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+            
+            <CardFooter className="flex justify-center pb-6">
+              <p className="text-white/80 text-sm">
+                {activeTab === 'login'
+                  ? "Don't have an account? "
+                  : "Already have an account? "
+                }
+                <Button 
+                  variant="link" 
+                  className="p-0 text-amber-400 hover:text-amber-300" 
+                  onClick={() => setActiveTab(activeTab === 'login' ? 'register' : 'login')}
+                >
+                  {activeTab === 'login' ? 'Register' : 'Login'}
+                </Button>
+              </p>
+            </CardFooter>
+          </Card>
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 
