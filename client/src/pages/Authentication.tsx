@@ -89,7 +89,7 @@ const countryCodes = [
 
 const CountryCodeSelect = ({ value, onValueChange }: { value: string; onValueChange: (value: string) => void }) => {
   const selectedCountry = countryCodes.find(c => c.code === value);
-  
+
   return (
     <div className="absolute left-8 top-1/2 transform -translate-y-1/2 z-10">
       <Select value={value} onValueChange={onValueChange}>
@@ -160,6 +160,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
   // Country code state
   const [selectedCountryCode, setSelectedCountryCode] = useState("+852");
   const [isPhoneInputFocused, setIsPhoneInputFocused] = useState(false);
+  const [isUsernameInputFocused, setIsUsernameInputFocused] = useState(false);
 
   // Handle login submission
   const onLoginSubmit = async (data: z.infer<typeof loginSchema>) => {
@@ -445,6 +446,8 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                 <Input
                                   placeholder="Username"
                                   {...field}
+                                  onFocus={() => setIsUsernameInputFocused(true)}
+                                  onBlur={() => setIsUsernameInputFocused(false)}
                                   className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white text-xl placeholder:text-white/60 focus:bg-white/20"
                                   style={{ fontSize: "16px" }}
                                 />
@@ -530,7 +533,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                           const selectedCountry = countryCodes.find(c => c.code === selectedCountryCode);
                           const expectedDigits = selectedCountry?.digits || 8;
                           const phoneNumberWithoutCode = field.value?.replace(selectedCountryCode, "") || "";
-                          
+
                           return (
                             <FormItem>
                               <FormControl>
@@ -568,7 +571,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                       maxLength={expectedDigits}
                                     />
                                   </div>
-                                  
+
                                 </div>
                               </FormControl>
                               <FormMessage className="text-red-300" />
@@ -636,9 +639,16 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
               </Tabs>
             </CardContent>
 
-            {/* Helper text positioned outside the card */}
+            {/* Helper text for username field */}
+            {activeTab === "register" && isUsernameInputFocused && (
+              <div className="absolute left-full ml-4 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 text-sm text-white/90 whitespace-nowrap min-w-max z-50 flex items-center justify-center" style={{ top: '20%', transform: 'translateY(-50%)' }}>
+                Please enter a 6-12 character number consisting of letters and numbers, excluding Chinese characters
+              </div>
+            )}
+
+            {/* Helper text for phone field */}
             {activeTab === "register" && isPhoneInputFocused && (
-              <div className="absolute left-full ml-4 top-1/2 -mt-2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 text-sm text-white/90 whitespace-nowrap min-w-max z-50">
+              <div className="absolute left-full ml-4 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 text-sm text-white/90 whitespace-nowrap min-w-max z-50 flex items-center justify-center" style={{ top: '50%', transform: 'translateY(-50%)' }}>
                 Please enter {(() => {
                   const selectedCountry = countryCodes.find(c => c.code === selectedCountryCode);
                   return selectedCountry?.digits || 8;
