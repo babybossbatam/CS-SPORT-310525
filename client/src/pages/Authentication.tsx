@@ -780,7 +780,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
             {/* Helper text for password field */}
             {activeTab === "register" && isPasswordInputFocused && (
               <div
-                className="absolute left-full ml-4 bg-white/20 backdrop-blur-sm rounded-lg px-4 py-3 text-sm text-white/90 z-50 flex items-center justify-center -mt-4"
+                className="absolute left-full ml-4 bg-white/20 backdrop-blur-sm rounded-lg px-4 py-3 text-sm text-white/90 z-50 flex items-center justify-center -mt-16"
                 style={{
                   top: "35%",
                   transform: "translateY(-50%)",
