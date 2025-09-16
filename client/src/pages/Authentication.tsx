@@ -167,6 +167,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
   const [selectedCountryCode, setSelectedCountryCode] = useState("+852");
   const [isPhoneInputFocused, setIsPhoneInputFocused] = useState(false);
   const [isUsernameInputFocused, setIsUsernameInputFocused] = useState(false);
+  const [isPasswordInputFocused, setIsPasswordInputFocused] = useState(false); // Added state for password focus
 
   // Handle login submission
   const onLoginSubmit = async (data: z.infer<typeof loginSchema>) => {
@@ -495,6 +496,8 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                   type="password"
                                   placeholder="Password"
                                   {...field}
+                                  onFocus={() => setIsPasswordInputFocused(true)}
+                                  onBlur={() => setIsPasswordInputFocused(false)}
                                   className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
                                   style={{ fontSize: "16px" }}
                                 />
@@ -586,6 +589,8 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                   type="password"
                                   placeholder="Password"
                                   {...field}
+                                  onFocus={() => setIsPasswordInputFocused(true)}
+                                  onBlur={() => setIsPasswordInputFocused(false)}
                                   className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
                                   style={{ fontSize: "16px" }}
                                 />
@@ -769,6 +774,22 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
               >
                 Please enter a 6-13 character number consisting of letters and
                 numbers, excluding Chinese characters
+              </div>
+            )}
+
+            {/* Helper text for password field */}
+            {activeTab === "register" && isPasswordInputFocused && (
+              <div
+                className="absolute left-full ml-4 bg-white/20 backdrop-blur-sm rounded-lg px-4 py-3 text-sm text-white/90 z-50 flex items-center justify-center"
+                style={{
+                  top: "35%",
+                  transform: "translateY(-50%)",
+                  width: "320px",
+                  lineHeight: "1.4",
+                }}
+              >
+                Password must be at least 6 characters long and contain a
+                mix of uppercase and lowercase letters, numbers, and symbols.
               </div>
             )}
 
