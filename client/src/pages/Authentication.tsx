@@ -80,21 +80,19 @@ const countryCodes = [
   { code: "+62", country: "Indonesia", flag: "🇮🇩" },
 ];
 
-const CountryCodeSelect = () => {
-  const [selectedCode, setSelectedCode] = useState("+852");
-
+const CountryCodeSelect = ({ value, onValueChange }: { value: string; onValueChange: (value: string) => void }) => {
   return (
-    <div className="absolute left-14 top-1/2 transform -translate-y-1/2">
-      <Select value={selectedCode} onValueChange={setSelectedCode}>
-        <SelectTrigger className="w-20 h-8 border-none bg-transparent text-white/70 text-sm focus:ring-0 focus:ring-offset-0">
+    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
+      <Select value={value} onValueChange={onValueChange}>
+        <SelectTrigger className="w-24 h-8 border-none bg-transparent text-white/70 text-sm focus:ring-0 focus:ring-offset-0 hover:bg-white/10 cursor-pointer">
           <SelectValue>
             <div className="flex items-center gap-1">
-              <span>{countryCodes.find(c => c.code === selectedCode)?.flag}</span>
-              <span>{selectedCode}</span>
+              <span>{countryCodes.find(c => c.code === value)?.flag}</span>
+              <span>{value}</span>
             </div>
           </SelectValue>
         </SelectTrigger>
-        <SelectContent className="bg-white/95 backdrop-blur-sm border border-white/20 rounded-lg">
+        <SelectContent className="bg-white/95 backdrop-blur-sm border border-white/20 rounded-lg z-50">
           {countryCodes.map((country) => (
             <SelectItem 
               key={country.code} 
@@ -142,6 +140,9 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       phoneNumber: "",
     },
   });
+
+  // Country code state
+  const [selectedCountryCode, setSelectedCountryCode] = useState("+852");
 
   // Handle login submission
   const onLoginSubmit = async (data: z.infer<typeof loginSchema>) => {
@@ -512,7 +513,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                           <FormItem>
                             <FormControl>
                               <div className="relative">
-                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center z-0">
                                   <svg
                                     className="w-4 h-4 text-white/70"
                                     fill="currentColor"
@@ -521,12 +522,19 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                     <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                                   </svg>
                                 </div>
-                                <CountryCodeSelect />
+                                <CountryCodeSelect 
+                                  value={selectedCountryCode} 
+                                  onValueChange={setSelectedCountryCode}
+                                />
                                 <Input
                                   type="tel"
                                   placeholder="Phone Number"
                                   {...field}
                                   value={field.value || ""}
+                                  onChange={(e) => {
+                                    const fullNumber = selectedCountryCode + e.target.value;
+                                    field.onChange(fullNumber);
+                                  }}
                                   className="h-14 pl-32 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
                                   style={{ fontSize: "16px" }}
                                 />
