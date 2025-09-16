@@ -438,6 +438,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                   placeholder="username"
                                   {...field}
                                   className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white text-xl placeholder:text-white/60 focus:bg-white/20"
+                                  style={{ fontSize: "16px" }}
                                 />
                               </div>
                             </FormControl>
@@ -471,6 +472,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                   placeholder="password"
                                   {...field}
                                   className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                                  style={{ fontSize: "16px" }}
                                 />
                               </div>
                             </FormControl>
