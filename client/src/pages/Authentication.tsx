@@ -217,9 +217,6 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
 
           {/* Auth Card */}
           <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl rounded-lg">
-            <CardHeader className="text-center pb-4">
-            </CardHeader>
-            
             <CardContent className="p-6">
               <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as AuthMode)}>
                 <TabsContent value="login">
