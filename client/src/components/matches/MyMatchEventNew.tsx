@@ -660,13 +660,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       }
                       className="w-4 h-8"
                     />
-                  ) : (
-                    <span className="text-xs">
-                      {getEventIcon(event.type, event.detail)}
-                    </span>
-                  )}
+                  ) : event.type?.toLowerCase() === "var" ? (
+                      <img
+                        src="/assets/matchdetaillogo/var-logo.svg"
+                        alt="VAR"
+                        className="w-4 h-4"
+                      />
+                    ) : (
+                      <span className="text-xs">
+                        {getEventIcon(event.type, event.detail)}
+                      </span>
+                    )}
                 </div>
-              </div>
               </div>
             )}
           </div>
@@ -750,11 +755,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       }
                       className="w-4 h-8"
                     />
-                  ) : (
-                    <span className="text-xs">
-                      {getEventIcon(event.type, event.detail)}
-                    </span>
-                  )}
+                  ) : event.type?.toLowerCase() === "var" ? (
+                      <img
+                        src="/assets/matchdetaillogo/var-logo.svg"
+                        alt="VAR"
+                        className="w-4 h-4"
+                      />
+                    ) : (
+                      <span className="text-xs">
+                        {getEventIcon(event.type, event.detail)}
+                      </span>
+                    )}
                 </div>
               </div>
 
@@ -1568,6 +1579,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         }
                                         className="w-4 h-8 "
                                       />
+                                    ) : event.type?.toLowerCase() === "var" ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/var-logo.svg"
+                                        alt="VAR"
+                                        className="w-4 h-4"
+                                      />
                                     ) : (
                                       <span className="text-xs">
                                         {getEventIcon(event.type, event.detail)}
@@ -1692,6 +1709,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             : "Red Card"
                                         }
                                         className="w-4 h-4 "
+                                      />
+                                    ) : event.type?.toLowerCase() === "var" ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/var-logo.svg"
+                                        alt="VAR"
+                                        className="w-4 h-4"
                                       />
                                     ) : (
                                       <span className="text-xs">
@@ -2186,6 +2209,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         }
                                         className="w-4 h-8 "
                                       />
+                                    ) : event.type?.toLowerCase() === "var" ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/var-logo.svg"
+                                        alt="VAR"
+                                        className="w-4 h-4"
+                                      />
                                     ) : (
                                       <span className="text-xs">
                                         {getEventIcon(event.type, event.detail)}
@@ -2310,6 +2339,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             : "Red Card"
                                         }
                                         className="w-4 h-4 "
+                                      />
+                                    ) : event.type?.toLowerCase() === "var" ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/var-logo.svg"
+                                        alt="VAR"
+                                        className="w-4 h-4"
                                       />
                                     ) : (
                                       <span className="text-xs">
