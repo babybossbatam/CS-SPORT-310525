@@ -41,6 +41,7 @@ import basketballGamesRoutes from './routes/basketballGamesRoutes';
 import playerVerificationRoutes from './routes/playerVerificationRoutes';
 import { RapidAPI } from './utils/rapidApi'; // corrected rapidApi import
 import translationRoutes from "./routes/translationRoutes";
+import verificationRoutes from "./routes/verificationRoutes";
 
 
 // Cache duration constants
@@ -64,6 +65,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.use('/api', playerRoutes);
   apiRouter.use('/api', playerDataRoutes);
   apiRouter.use('/api', playerVerificationRoutes);
+  app.use('/api/auth', verificationRoutes);
 
   // Health check endpoint
   apiRouter.get("/health", async (_req: Request, res: Response) => {
@@ -2911,8 +2913,7 @@ error) {
           lineups: null,
         });
       }
-    },
-  );
+    },  );
 
   // Get live fixtures (with B365API fallback)
   apiRouter.get("/fixtures/live", async (_req: Request, res: Response) => {

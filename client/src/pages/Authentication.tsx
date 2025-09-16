@@ -169,6 +169,10 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
   const [isUsernameInputFocused, setIsUsernameInputFocused] = useState(false);
   const [isPasswordInputFocused, setIsPasswordInputFocused] = useState(false); // Added state for password focus
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [isSendingCode, setIsSendingCode] = useState(false);
+  const [codeSent, setCodeSent] = useState(false);
+  const [countdown, setCountdown] = useState(0);
 
   // Handle login submission
   const onLoginSubmit = async (data: z.infer<typeof loginSchema>) => {
@@ -229,6 +233,57 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
     }
   };
 
+  // Countdown timer effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (countdown > 0) {
+      interval = setInterval(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [countdown]);
+
+  // Send verification code function
+  const sendVerificationCode = async () => {
+    const phoneNumber = registerForm.getValues("phoneNumber");
+    if (!phoneNumber) {
+      toast({
+        title: "Error",
+        description: "Please enter a phone number first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSendingCode(true);
+    try {
+      const response = await apiRequest("POST", "/api/auth/send-verification", {
+        phoneNumber: phoneNumber
+      });
+      
+      if (response.ok) {
+        setCodeSent(true);
+        setCountdown(60); // 60 second countdown
+        toast({
+          title: "Verification Code Sent",
+          description: "Please check your phone for the verification code",
+        });
+      } else {
+        throw new Error("Failed to send verification code");
+      }
+    } catch (error) {
+      console.error("Failed to send verification code:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send verification code. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingCode(false);
+    }
+  };
+
   // Check if register form is valid
   const isRegisterFormValid = () => {
     const formData = registerForm.getValues();
@@ -237,6 +292,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       formData.password &&
       formData.passwordConfirm &&
       formData.phoneNumber &&
+      verificationCode &&
       termsAccepted &&
       !Object.keys(registerForm.formState.errors).length
     );
@@ -246,10 +302,21 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
   const onRegisterSubmit = async (data: z.infer<typeof registerSchema>) => {
     setIsLoading(true);
 
-    // Remove passwordConfirm as it's not part of the API model
-    const { passwordConfirm, ...userData } = data;
-
     try {
+      // First verify the SMS code
+      const verifyResponse = await apiRequest("POST", "/api/auth/verify-code", {
+        phoneNumber: data.phoneNumber,
+        code: verificationCode
+      });
+
+      if (!verifyResponse.ok) {
+        const errorData = await verifyResponse.json();
+        throw new Error(errorData.error || "Invalid verification code");
+      }
+
+      // Remove passwordConfirm as it's not part of the API model
+      const { passwordConfirm, ...userData } = data;
+
       const response = await apiRequest("POST", "/api/auth/register", userData);
       const newUser = await response.json();
 
@@ -750,15 +817,25 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                         </div>
                         <Input
                           placeholder="SMS Verification Code"
+                          value={verificationCode}
+                          onChange={(e) => setVerificationCode(e.target.value)}
                           className="h-14 pl-14 pr-20 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
                           style={{ fontSize: "16px" }}
+                          maxLength={6}
                         />
                         <Button
                           type="button"
-                          className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 px-6 rounded-full bg-white/20 hover:bg-white/30 text-white font-large"
-                          style={{ fontSize: "16px" }}
+                          onClick={sendVerificationCode}
+                          disabled={isSendingCode || countdown > 0}
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 px-6 rounded-full bg-white/20 hover:bg-white/30 text-white font-large disabled:opacity-50 disabled:cursor-not-allowed"
+                          style={{ fontSize: "14px" }}
                         >
-                          Get
+                          {isSendingCode 
+                            ? "Sending..." 
+                            : countdown > 0 
+                              ? `${countdown}s` 
+                              : "Get"
+                          }
                         </Button>
                       </div>
 
