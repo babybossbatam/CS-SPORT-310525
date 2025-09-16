@@ -28,6 +28,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Extend the user schema with login validation
 const loginSchema = z.object({
@@ -50,6 +57,62 @@ type AuthMode = "login" | "register";
 interface AuthenticationProps {
   mode?: AuthMode;
 }
+
+// Country codes with flags
+const countryCodes = [
+  { code: "+852", country: "Hong Kong", flag: "🇭🇰" },
+  { code: "+86", country: "China", flag: "🇨🇳" },
+  { code: "+81", country: "Japan", flag: "🇯🇵" },
+  { code: "+82", country: "South Korea", flag: "🇰🇷" },
+  { code: "+63", country: "Philippines", flag: "🇵🇭" },
+  { code: "+855", country: "Cambodia", flag: "🇰🇭" },
+  { code: "+1", country: "United States", flag: "🇺🇸" },
+  { code: "+44", country: "United Kingdom", flag: "🇬🇧" },
+  { code: "+33", country: "France", flag: "🇫🇷" },
+  { code: "+49", country: "Germany", flag: "🇩🇪" },
+  { code: "+39", country: "Italy", flag: "🇮🇹" },
+  { code: "+34", country: "Spain", flag: "🇪🇸" },
+  { code: "+91", country: "India", flag: "🇮🇳" },
+  { code: "+65", country: "Singapore", flag: "🇸🇬" },
+  { code: "+60", country: "Malaysia", flag: "🇲🇾" },
+  { code: "+66", country: "Thailand", flag: "🇹🇭" },
+  { code: "+84", country: "Vietnam", flag: "🇻🇳" },
+  { code: "+62", country: "Indonesia", flag: "🇮🇩" },
+];
+
+const CountryCodeSelect = () => {
+  const [selectedCode, setSelectedCode] = useState("+852");
+
+  return (
+    <div className="absolute left-14 top-1/2 transform -translate-y-1/2">
+      <Select value={selectedCode} onValueChange={setSelectedCode}>
+        <SelectTrigger className="w-20 h-8 border-none bg-transparent text-white/70 text-sm focus:ring-0 focus:ring-offset-0">
+          <SelectValue>
+            <div className="flex items-center gap-1">
+              <span>{countryCodes.find(c => c.code === selectedCode)?.flag}</span>
+              <span>{selectedCode}</span>
+            </div>
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent className="bg-white/95 backdrop-blur-sm border border-white/20 rounded-lg">
+          {countryCodes.map((country) => (
+            <SelectItem 
+              key={country.code} 
+              value={country.code}
+              className="flex items-center gap-2 hover:bg-gray-100 cursor-pointer"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-lg">{country.flag}</span>
+                <span className="text-sm font-medium">{country.code}</span>
+                <span className="text-xs text-gray-600">{country.country}</span>
+              </div>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+};
 
 const Authentication = ({ mode = "login" }: AuthenticationProps) => {
   const [activeTab, setActiveTab] = useState<AuthMode>(mode);
@@ -458,27 +521,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                     <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                                   </svg>
                                 </div>
-                                <div className="absolute left-14 top-1/2 transform -translate-y-1/2 flex items-center">
-                                  <span className="w-4 h-4 bg-red-500 rounded-sm mr-2 flex items-center justify-center">
-                                    <span className="text-white text-xs font-bold">
-                                      *
-                                    </span>
-                                  </span>
-                                  <span className="text-white/70 text-sm">
-                                    +852
-                                  </span>
-                                  <svg
-                                    className="w-3 h-3 text-white/70 ml-1"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                  >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                </div>
+                                <CountryCodeSelect />
                                 <Input
                                   type="tel"
                                   placeholder="Phone Number"
