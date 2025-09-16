@@ -709,7 +709,11 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                         }
                                       }}
                                       className="h-14 pl-32 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
-                                      style={{ fontSize: "16px" }}
+                                      style={{ 
+                                        fontSize: "16px !important",
+                                        fontFamily: "inherit !important",
+                                        fontWeight: "inherit !important"
+                                      }}
                                       maxLength={expectedDigits}
                                     />
                                   </div>
