@@ -416,7 +416,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                           type="checkbox" 
                           className="w-4 h-4 rounded border-white/30 bg-white/10"
                         />
-                        <span className="text-white/80 text-sm">
+                        <span className="text-white/80 text-base">
                           I have read and agreed to the terms and privacy policy.
                         </span>
                       </div>
