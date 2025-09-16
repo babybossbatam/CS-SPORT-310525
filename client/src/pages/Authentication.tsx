@@ -113,7 +113,6 @@ const CountryCodeSelect = ({ value, onValueChange }: { value: string; onValueCha
                   className="flex-shrink-0"
                 />
                 <span className="text-sm font-medium">{country.code}</span>
-                <span className="text-xs text-gray-600">{country.country}</span>
               </div>
             </SelectItem>
           ))}
