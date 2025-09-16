@@ -87,8 +87,14 @@ const countryCodes = [
   { code: "+62", country: "Indonesia", flag: "🇮🇩", digits: 11 },
 ];
 
-const CountryCodeSelect = ({ value, onValueChange }: { value: string; onValueChange: (value: string) => void }) => {
-  const selectedCountry = countryCodes.find(c => c.code === value);
+const CountryCodeSelect = ({
+  value,
+  onValueChange,
+}: {
+  value: string;
+  onValueChange: (value: string) => void;
+}) => {
+  const selectedCountry = countryCodes.find((c) => c.code === value);
 
   return (
     <div className="absolute left-8 top-1/2 transform -translate-y-1/2 z-10">
@@ -96,7 +102,7 @@ const CountryCodeSelect = ({ value, onValueChange }: { value: string; onValueCha
         <SelectTrigger className="w-24 h-8 border-none bg-transparent text-white/70 text-sm focus:ring-0 focus:ring-offset-0 cursor-pointer hover:bg-transparent hover:text-white/70">
           <SelectValue>
             <div className="flex items-center gap-1">
-              <MyCircularFlag 
+              <MyCircularFlag
                 teamName={selectedCountry?.country || "Hong Kong"}
                 size="20px"
                 className="flex-shrink-0"
@@ -107,13 +113,13 @@ const CountryCodeSelect = ({ value, onValueChange }: { value: string; onValueCha
         </SelectTrigger>
         <SelectContent className="bg-white/95 backdrop-blur-sm border border-white/20 rounded-lg z-50">
           {countryCodes.map((country) => (
-            <SelectItem 
-              key={country.code} 
+            <SelectItem
+              key={country.code}
               value={country.code}
               className="flex items-center gap-2 hover:bg-gray-100 cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                <MyCircularFlag 
+                <MyCircularFlag
                   teamName={country.country}
                   size="24px"
                   className="flex-shrink-0"
@@ -284,17 +290,21 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
           muted
           playsInline
           className="absolute w-full h-full object-cover transition-opacity duration-1500"
-          style={{ 
+          style={{
             filter: "brightness(0.7)",
             opacity: 1,
-            zIndex: 1
+            zIndex: 1,
           }}
           onEnded={() => {
-            const video1 = document.getElementById('video1') as HTMLVideoElement;
-            const video2 = document.getElementById('video2') as HTMLVideoElement;
+            const video1 = document.getElementById(
+              "video1",
+            ) as HTMLVideoElement;
+            const video2 = document.getElementById(
+              "video2",
+            ) as HTMLVideoElement;
             if (video1 && video2) {
-              video1.style.opacity = '0';
-              video2.style.opacity = '1';
+              video1.style.opacity = "0";
+              video2.style.opacity = "1";
               video2.currentTime = 0;
               video2.play();
             }
@@ -306,23 +316,27 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
             type="video/mp4"
           />
         </video>
-        
+
         <video
           key="video2"
           muted
           playsInline
           className="absolute w-full h-full object-cover transition-opacity duration-1500"
-          style={{ 
+          style={{
             filter: "brightness(0.7)",
             opacity: 0,
-            zIndex: 1
+            zIndex: 1,
           }}
           onEnded={() => {
-            const video2 = document.getElementById('video2') as HTMLVideoElement;
-            const video3 = document.getElementById('video3') as HTMLVideoElement;
+            const video2 = document.getElementById(
+              "video2",
+            ) as HTMLVideoElement;
+            const video3 = document.getElementById(
+              "video3",
+            ) as HTMLVideoElement;
             if (video2 && video3) {
-              video2.style.opacity = '0';
-              video3.style.opacity = '1';
+              video2.style.opacity = "0";
+              video3.style.opacity = "1";
               video3.currentTime = 0;
               video3.play();
             }
@@ -340,17 +354,21 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
           muted
           playsInline
           className="absolute w-full h-full object-cover transition-opacity duration-1500"
-          style={{ 
+          style={{
             filter: "brightness(0.7)",
             opacity: 0,
-            zIndex: 1
+            zIndex: 1,
           }}
           onEnded={() => {
-            const video3 = document.getElementById('video3') as HTMLVideoElement;
-            const video1 = document.getElementById('video1') as HTMLVideoElement;
+            const video3 = document.getElementById(
+              "video3",
+            ) as HTMLVideoElement;
+            const video1 = document.getElementById(
+              "video1",
+            ) as HTMLVideoElement;
             if (video3 && video1) {
-              video3.style.opacity = '0';
-              video1.style.opacity = '1';
+              video3.style.opacity = "0";
+              video1.style.opacity = "1";
               video1.currentTime = 0;
               video1.play();
             }
@@ -362,12 +380,18 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
             type="video/mp4"
           />
         </video>
-        
+
         {/* Fallback for when videos don't load */}
-        <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" style={{ zIndex: 0 }}></div>
-        
+        <div
+          className="absolute inset-0 w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"
+          style={{ zIndex: 0 }}
+        ></div>
+
         {/* Dark overlay for better text readability */}
-        <div className="absolute inset-0 bg-black/50" style={{ zIndex: 2 }}></div>
+        <div
+          className="absolute inset-0 bg-black/50"
+          style={{ zIndex: 2 }}
+        ></div>
       </div>
 
       {/* Content Overlay */}
@@ -421,9 +445,9 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                           <FormItem>
                             <FormControl>
                               <div className="relative">
-                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
+                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
                                   <svg
-                                    className="w-3 h-3 text-white/70"
+                                    className="w-4 h-4 text-white/70"
                                     fill="currentColor"
                                     viewBox="0 0 20 20"
                                   >
@@ -435,7 +459,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                   </svg>
                                 </div>
                                 <Input
-                                  placeholder="username"
+                                  placeholder="Username"
                                   {...field}
                                   className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white text-xl placeholder:text-white/60 focus:bg-white/20"
                                   style={{ fontSize: "16px" }}
@@ -454,9 +478,9 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                           <FormItem>
                             <FormControl>
                               <div className="relative">
-                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
+                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
                                   <svg
-                                    className="w-3 h-3 text-white/70"
+                                    className="w-4 h-4 text-white/70"
                                     fill="currentColor"
                                     viewBox="0 0 20 20"
                                   >
@@ -469,7 +493,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                 </div>
                                 <Input
                                   type="password"
-                                  placeholder="password"
+                                  placeholder="Password"
                                   {...field}
                                   className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
                                   style={{ fontSize: "16px" }}
@@ -483,7 +507,8 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
 
                       <Button
                         type="submit"
-                        className="w-full h-14 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold mt-6"
+                        className="w-full h-14 rounded-full bg-gradient-to-r from-amber-300 to-orange-400 hover:from-amber-600 hover:to-orange-700 text-white font-semibold mt-6"
+                        style={{ fontSize: "18px" }}
                         disabled={isLoading}
                       >
                         {isLoading ? "Signing in..." : "Sign In"}
@@ -521,8 +546,12 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                 <Input
                                   placeholder="Username"
                                   {...field}
-                                  onFocus={() => setIsUsernameInputFocused(true)}
-                                  onBlur={() => setIsUsernameInputFocused(false)}
+                                  onFocus={() =>
+                                    setIsUsernameInputFocused(true)
+                                  }
+                                  onBlur={() =>
+                                    setIsUsernameInputFocused(false)
+                                  }
                                   className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white text-xl placeholder:text-white/60 focus:bg-white/20"
                                   style={{ fontSize: "16px" }}
                                 />
@@ -605,9 +634,12 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                         control={registerForm.control}
                         name="phoneNumber"
                         render={({ field }) => {
-                          const selectedCountry = countryCodes.find(c => c.code === selectedCountryCode);
+                          const selectedCountry = countryCodes.find(
+                            (c) => c.code === selectedCountryCode,
+                          );
                           const expectedDigits = selectedCountry?.digits || 8;
-                          const phoneNumberWithoutCode = field.value?.replace(selectedCountryCode, "") || "";
+                          const phoneNumberWithoutCode =
+                            field.value?.replace(selectedCountryCode, "") || "";
 
                           return (
                             <FormItem>
@@ -623,8 +655,8 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                         <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                                       </svg>
                                     </div>
-                                    <CountryCodeSelect 
-                                      value={selectedCountryCode} 
+                                    <CountryCodeSelect
+                                      value={selectedCountryCode}
                                       onValueChange={setSelectedCountryCode}
                                     />
                                     <Input
@@ -632,12 +664,20 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                       placeholder="Phone Number"
                                       {...field}
                                       value={phoneNumberWithoutCode}
-                                      onFocus={() => setIsPhoneInputFocused(true)}
-                                      onBlur={() => setIsPhoneInputFocused(false)}
+                                      onFocus={() =>
+                                        setIsPhoneInputFocused(true)
+                                      }
+                                      onBlur={() =>
+                                        setIsPhoneInputFocused(false)
+                                      }
                                       onChange={(e) => {
-                                        const inputValue = e.target.value.replace(/\D/g, ''); // Only allow digits
-                                        if (inputValue.length <= expectedDigits) {
-                                          const fullNumber = selectedCountryCode + inputValue;
+                                        const inputValue =
+                                          e.target.value.replace(/\D/g, ""); // Only allow digits
+                                        if (
+                                          inputValue.length <= expectedDigits
+                                        ) {
+                                          const fullNumber =
+                                            selectedCountryCode + inputValue;
                                           field.onChange(fullNumber);
                                         }
                                       }}
@@ -646,16 +686,18 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                       maxLength={expectedDigits}
                                     />
                                   </div>
-
                                 </div>
                               </FormControl>
                               <FormMessage className="text-red-300" />
                               {/* Additional validation message */}
-                              {phoneNumberWithoutCode.length > 0 && phoneNumberWithoutCode.length !== expectedDigits && (
-                                <p className="text-orange-300 text-xs mt-1">
-                                  {selectedCountry?.country} phone numbers should be {expectedDigits} digits
-                                </p>
-                              )}
+                              {phoneNumberWithoutCode.length > 0 &&
+                                phoneNumberWithoutCode.length !==
+                                  expectedDigits && (
+                                  <p className="text-orange-300 text-xs mt-1">
+                                    {selectedCountry?.country} phone numbers
+                                    should be {expectedDigits} digits
+                                  </p>
+                                )}
                             </FormItem>
                           );
                         }}
@@ -703,7 +745,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                       <Button
                         type="submit"
                         className="w-full h-14 rounded-full bg-gradient-to-r from-orange-200 to-orange-300 hover:from-pink-300 hover:to-pink-400 text-gray-800 font-semibold mt-6"
-                        style={{ fontSize: '16px' }}
+                        style={{ fontSize: "16px" }}
                         disabled={isLoading}
                       >
                         {isLoading ? "Creating Account..." : "Register"}
@@ -716,18 +758,34 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
 
             {/* Helper text for username field */}
             {activeTab === "register" && isUsernameInputFocused && (
-              <div className="absolute left-full ml-4 bg-white/20 backdrop-blur-sm rounded-lg px-4 py-3 text-sm text-white/90 z-50 flex items-center justify-center" style={{ top: '10%', transform: 'translateY(-50%)', width: '320px', lineHeight: '1.4' }}>
-                Please enter a 6-13 character number consisting of letters and numbers, excluding Chinese characters
+              <div
+                className="absolute left-full ml-4 bg-white/20 backdrop-blur-sm rounded-lg px-4 py-3 text-sm text-white/90 z-50 flex items-center justify-center"
+                style={{
+                  top: "10%",
+                  transform: "translateY(-50%)",
+                  width: "320px",
+                  lineHeight: "1.4",
+                }}
+              >
+                Please enter a 6-13 character number consisting of letters and
+                numbers, excluding Chinese characters
               </div>
             )}
 
             {/* Helper text for phone field */}
             {activeTab === "register" && isPhoneInputFocused && (
-              <div className="absolute left-full ml-4 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 text-sm text-white/90 whitespace-nowrap min-w-max z-50 flex items-center justify-center" style={{ top: '50%', transform: 'translateY(-50%)' }}>
-                Please enter {(() => {
-                  const selectedCountry = countryCodes.find(c => c.code === selectedCountryCode);
+              <div
+                className="absolute left-full ml-4 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 text-sm text-white/90 whitespace-nowrap min-w-max z-50 flex items-center justify-center"
+                style={{ top: "50%", transform: "translateY(-50%)" }}
+              >
+                Please enter{" "}
+                {(() => {
+                  const selectedCountry = countryCodes.find(
+                    (c) => c.code === selectedCountryCode,
+                  );
                   return selectedCountry?.digits || 8;
-                })()} digits
+                })()}{" "}
+                digits
               </div>
             )}
 
