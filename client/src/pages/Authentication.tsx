@@ -98,7 +98,12 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
         description: `Welcome back, ${userData.username}!`
       });
 
-      navigate('/');
+      // Extract current language from URL or default to 'en'
+      const currentPath = window.location.pathname;
+      const pathParts = currentPath.split('/').filter(part => part);
+      const currentLang = pathParts[0] || 'en';
+      
+      navigate(`/${currentLang}`);
     } catch (error) {
       console.error('Login failed:', error);
       toast({
@@ -141,7 +146,12 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
         description: `Welcome to 365Scores, ${newUser.username}!`
       });
 
-      navigate('/');
+      // Extract current language from URL or default to 'en'
+      const currentPath = window.location.pathname;
+      const pathParts = currentPath.split('/').filter(part => part);
+      const currentLang = pathParts[0] || 'en';
+      
+      navigate(`/${currentLang}`);
     } catch (error) {
       console.error('Registration failed:', error);
       toast({
