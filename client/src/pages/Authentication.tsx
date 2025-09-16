@@ -481,6 +481,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                   placeholder="phone number"
                                   {...field}
                                   className="h-14 pl-32 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                                  style={{ fontSize: '16px' }}
                                 />
                               </div>
                             </FormControl>
@@ -506,11 +507,12 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                         <Input
                           placeholder="SMS verification code"
                           className="h-14 pl-14 pr-20 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
-                          style={{ fontSize: '20px' }}
+                          style={{ fontSize: '16px' }}
                         />
                         <Button
                           type="button"
                           className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 px-6 rounded-full bg-white/20 hover:bg-white/30 text-white font-large"
+                          style={{ fontSize: '16px' }}
                         >
                           Get
                         </Button>
