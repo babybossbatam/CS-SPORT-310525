@@ -203,7 +203,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                 }}
               />
               <span
-                className="uppercase bg-gradient-to-br from-amber-300 via-yellow-500 to-orange-500 bg-clip-text text-transparent font-bold text-5xl drop-shadow-2xl"
+                className="uppercase bg-gradient-to-br from-amber-300 via-yellow-500 to-orange-500 bg-clip-text text-transparent font-bold text-6xl drop-shadow-2xl"
                 style={{
                   fontFamily: "Roboto Condensed, sans-serif",
                   fontStretch: "condensed",
