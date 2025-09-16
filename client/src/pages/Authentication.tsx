@@ -176,7 +176,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
           className="w-full h-full object-cover"
           style={{ filter: 'brightness(0.7)' }}
         >
-          <source src="https://www.csbet.vip/assets/videos/football-bg.mp4" type="video/mp4" />
+          <source src="/assets/matchdetaillogo/vecteezy_sport-stadium-video-background-flashing-lights-glowing_4213949.mp4" type="video/mp4" />
           {/* Fallback for when video doesn't load */}
           <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"></div>
         </video>
