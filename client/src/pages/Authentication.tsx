@@ -168,6 +168,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
   const [isPhoneInputFocused, setIsPhoneInputFocused] = useState(false);
   const [isUsernameInputFocused, setIsUsernameInputFocused] = useState(false);
   const [isPasswordInputFocused, setIsPasswordInputFocused] = useState(false); // Added state for password focus
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   // Handle login submission
   const onLoginSubmit = async (data: z.infer<typeof loginSchema>) => {
@@ -226,6 +227,19 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Check if register form is valid
+  const isRegisterFormValid = () => {
+    const formData = registerForm.getValues();
+    return (
+      formData.username &&
+      formData.password &&
+      formData.passwordConfirm &&
+      formData.phoneNumber &&
+      termsAccepted &&
+      !Object.keys(registerForm.formState.errors).length
+    );
   };
 
   // Handle register submission
@@ -747,6 +761,8 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                       <div className="flex items-center space-x-3 mt-6">
                         <input
                           type="checkbox"
+                          checked={termsAccepted}
+                          onChange={(e) => setTermsAccepted(e.target.checked)}
                           className="w-4 h-4 rounded border-white/30 bg-white/10"
                         />
                         <span className="text-white/80 text-sm">
@@ -757,9 +773,9 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
 
                       <Button
                         type="submit"
-                        className="w-full h-14 rounded-full bg-gradient-to-r from-orange-200 to-orange-300 hover:from-pink-300 hover:to-pink-400 text-gray-800 font-semibold mt-6"
+                        className="w-full h-14 rounded-full bg-gradient-to-r from-orange-200 to-orange-300 hover:from-pink-300 hover:to-pink-400 text-gray-800 font-semibold mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
                         style={{ fontSize: "16px" }}
-                        disabled={isLoading}
+                        disabled={isLoading || !isRegisterFormValid()}
                       >
                         {isLoading ? "Creating Account..." : "Register"}
                       </Button>
