@@ -505,7 +505,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                         </div>
                         <Input
                           placeholder="SMS verification code"
-                          className="h-14 pl-14 pr-20 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white text-lg placeholder:text-white/60 focus:bg-white/20"
+                          className="h-14 pl-14 pr-20 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white text-xl placeholder:text-white/60 focus:bg-white/20"
                         />
                         <Button
                           type="button"
