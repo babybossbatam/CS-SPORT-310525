@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useDispatch } from 'react-redux';
@@ -102,7 +101,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
       const currentPath = window.location.pathname;
       const pathParts = currentPath.split('/').filter(part => part);
       const currentLang = pathParts[0] || 'en';
-      
+
       navigate(`/${currentLang}`);
     } catch (error) {
       console.error('Login failed:', error);
@@ -150,7 +149,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
       const currentPath = window.location.pathname;
       const pathParts = currentPath.split('/').filter(part => part);
       const currentLang = pathParts[0] || 'en';
-      
+
       navigate(`/${currentLang}`);
     } catch (error) {
       console.error('Registration failed:', error);
@@ -237,7 +236,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                                 <Input 
                                   placeholder="username" 
                                   {...field} 
-                                  className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                                  className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white text-lg placeholder:text-white/60 focus:bg-white/20"
                                 />
                               </div>
                             </FormControl>
@@ -300,7 +299,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                                 <Input 
                                   placeholder="username" 
                                   {...field} 
-                                  className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                                  className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white text-lg placeholder:text-white/60 focus:bg-white/20"
                                 />
                               </div>
                             </FormControl>
@@ -433,7 +432,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                 </TabsContent>
               </Tabs>
             </CardContent>
-            
+
             <CardFooter className="flex justify-center pb-6">
               <p className="text-white/80 text-sm">
                 {activeTab === 'login'
