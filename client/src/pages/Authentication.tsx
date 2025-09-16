@@ -283,7 +283,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
           autoPlay
           muted
           playsInline
-          className="absolute w-full h-full object-cover transition-opacity duration-1000"
+          className="absolute w-full h-full object-cover transition-opacity duration-1500"
           style={{ 
             filter: "brightness(0.7)",
             opacity: 1,
@@ -311,26 +311,54 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
           key="video2"
           muted
           playsInline
-          className="absolute w-full h-full object-cover transition-opacity duration-1000"
+          className="absolute w-full h-full object-cover transition-opacity duration-1500"
           style={{ 
             filter: "brightness(0.7)",
             opacity: 0,
             zIndex: 1
           }}
           onEnded={() => {
-            const video1 = document.getElementById('video1') as HTMLVideoElement;
             const video2 = document.getElementById('video2') as HTMLVideoElement;
-            if (video1 && video2) {
+            const video3 = document.getElementById('video3') as HTMLVideoElement;
+            if (video2 && video3) {
               video2.style.opacity = '0';
-              video1.style.opacity = '1';
-              video1.currentTime = 0;
-              video1.play();
+              video3.style.opacity = '1';
+              video3.currentTime = 0;
+              video3.play();
             }
           }}
           id="video2"
         >
           <source
             src="/assets/matchdetaillogo/vecteezy_beautiful-aerial-view-sijalak-harupat-football-stadium_10886261.mp4"
+            type="video/mp4"
+          />
+        </video>
+
+        <video
+          key="video3"
+          muted
+          playsInline
+          className="absolute w-full h-full object-cover transition-opacity duration-1500"
+          style={{ 
+            filter: "brightness(0.7)",
+            opacity: 0,
+            zIndex: 1
+          }}
+          onEnded={() => {
+            const video3 = document.getElementById('video3') as HTMLVideoElement;
+            const video1 = document.getElementById('video1') as HTMLVideoElement;
+            if (video3 && video1) {
+              video3.style.opacity = '0';
+              video1.style.opacity = '1';
+              video1.currentTime = 0;
+              video1.play();
+            }
+          }}
+          id="video3"
+        >
+          <source
+            src="/assets/matchdetaillogo/vecteezy_sport-stadium-video-background-flashing-lights-glowing_4216354.mp4"
             type="video/mp4"
           />
         </video>
