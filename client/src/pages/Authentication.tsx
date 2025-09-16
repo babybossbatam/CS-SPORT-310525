@@ -228,21 +228,6 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
             
             <CardContent className="p-6">
               <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as AuthMode)}>
-                <TabsList className="grid grid-cols-2 mb-6 bg-white/20 backdrop-blur-sm">
-                  <TabsTrigger 
-                    value="login" 
-                    className="text-white data-[state=active]:bg-white/30 data-[state=active]:text-white"
-                  >
-                    Login
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="register"
-                    className="text-white data-[state=active]:bg-white/30 data-[state=active]:text-white"
-                  >
-                    Register
-                  </TabsTrigger>
-                </TabsList>
-
                 <TabsContent value="login">
                   <Form {...loginForm}>
                     <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
