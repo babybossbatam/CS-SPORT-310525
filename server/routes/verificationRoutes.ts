@@ -1,8 +1,14 @@
 
 import { Router } from 'express';
 import { z } from 'zod';
+import twilio from 'twilio';
 
 const router = Router();
+
+// Initialize Twilio client
+const twilioClient = process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN 
+  ? twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
+  : null;
 
 // In-memory store for verification codes (in production, use Redis or database)
 const verificationCodes = new Map<string, { code: string; expires: Date }>();
@@ -27,20 +33,25 @@ router.post('/send-verification', async (req, res) => {
     // Store the code
     verificationCodes.set(phoneNumber, { code, expires });
 
-    // TODO: Replace with actual SMS service (Twilio, AWS SNS, etc.)
-    console.log(`Verification code for ${phoneNumber}: ${code}`);
-    
-    // For development, we'll just log it. In production, send via SMS:
-    /*
-    const twilio = require('twilio');
-    const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-    
-    await client.messages.create({
-      body: `Your CS Sport verification code is: ${code}`,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: phoneNumber
-    });
-    */
+    // Send SMS using Twilio
+    if (twilioClient && process.env.TWILIO_PHONE_NUMBER) {
+      try {
+        await twilioClient.messages.create({
+          body: `Your CS Sport verification code is: ${code}`,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: phoneNumber
+        });
+        console.log(`SMS sent successfully to ${phoneNumber}`);
+      } catch (twilioError) {
+        console.error('Twilio SMS error:', twilioError);
+        // Fall back to console logging if SMS fails
+        console.log(`Verification code for ${phoneNumber}: ${code}`);
+      }
+    } else {
+      // Development fallback - log to console
+      console.log(`[DEV] Verification code for ${phoneNumber}: ${code}`);
+      console.log('Twilio not configured - using console logging');
+    }
 
     res.json({ success: true, message: 'Verification code sent' });
   } catch (error) {
