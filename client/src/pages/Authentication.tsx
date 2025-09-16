@@ -87,7 +87,7 @@ const CountryCodeSelect = ({ value, onValueChange }: { value: string; onValueCha
   return (
     <div className="absolute left-8 top-1/2 transform -translate-y-1/2 z-10">
       <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger className="w-24 h-8 border-none bg-transparent text-white/70 text-sm focus:ring-0 focus:ring-offset-0 hover:bg-white/10 cursor-pointer">
+        <SelectTrigger className="w-24 h-8 border-none bg-transparent text-white/70 text-sm focus:ring-0 focus:ring-offset-0 cursor-pointer">
           <SelectValue>
             <div className="flex items-center gap-1">
               <MyCircularFlag 
