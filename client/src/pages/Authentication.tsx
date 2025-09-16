@@ -302,7 +302,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
           id="video1"
         >
           <source
-            src="/assets/matchdetaillogo/vecteezy_sport-stadium-video-background-flashing-lights-glowing_4213949.mp4"
+            src="/assets/matchdetaillogo/vecteezy_beautiful-aerial-view-sijalak-harupat-football-stadium_10886261.mp4"
             type="video/mp4"
           />
         </video>
@@ -330,7 +330,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
           id="video2"
         >
           <source
-            src="/assets/matchdetaillogo/vecteezy_beautiful-aerial-view-sijalak-harupat-football-stadium_10886261.mp4"
+            src="/assets/matchdetaillogo/vecteezy_sport-stadium-video-background-flashing-lights-glowing_4216354.mp4"
             type="video/mp4"
           />
         </video>
@@ -358,7 +358,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
           id="video3"
         >
           <source
-            src="/assets/matchdetaillogo/vecteezy_sport-stadium-video-background-flashing-lights-glowing_4216354.mp4"
+            src="/assets/matchdetaillogo/vecteezy_sport-stadium-video-background-flashing-lights-glowing_4213949.mp4"
             type="video/mp4"
           />
         </video>
