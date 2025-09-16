@@ -638,7 +638,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
 
             {/* Helper text positioned outside the card */}
             {activeTab === "register" && isPhoneInputFocused && (
-              <div className="absolute left-full ml-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 text-sm text-white/90 whitespace-nowrap min-w-max z-50 flex items-center justify-center" style={{ top: 'calc(50% + 1px)' }}>
+              <div className="absolute left-full ml-4 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 text-sm text-white/90 whitespace-nowrap min-w-max z-50 flex items-center justify-center" style={{ top: '50%', transform: 'translateY(-50%)' }}>
                 Please enter {(() => {
                   const selectedCountry = countryCodes.find(c => c.code === selectedCountryCode);
                   return selectedCountry?.digits || 8;
