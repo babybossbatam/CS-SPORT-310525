@@ -417,7 +417,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
             <div className="flex items-center justify-center mb-6">
               <img
                 src="/CSSPORT_1_updated.png"
-                alt="CS SPORT Logo"
+                alt="CSsport Logo"
                 className="h-20 w-auto mr-4 drop-shadow-2xl"
                 onError={(e) => {
                   console.log("Logo failed to load, trying fallback");
@@ -647,7 +647,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                   type="password"
                                   placeholder="Confirm Password"
                                   {...field}
-                                  className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                                  className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/10"
                                   style={{ fontSize: "16px" }}
                                 />
                               </div>
