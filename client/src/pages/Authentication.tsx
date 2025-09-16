@@ -236,7 +236,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                                 <Input 
                                   placeholder="username" 
                                   {...field} 
-                                  className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white text-lg placeholder:text-white/60 focus:bg-white/20"
+                                  className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white text-xl placeholder:text-white/60 focus:bg-white/20"
                                 />
                               </div>
                             </FormControl>
@@ -299,7 +299,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                                 <Input 
                                   placeholder="username" 
                                   {...field} 
-                                  className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white text-lg placeholder:text-white/60 focus:bg-white/20"
+                                  className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white text-xl placeholder:text-white/60 focus:bg-white/20"
                                 />
                               </div>
                             </FormControl>
