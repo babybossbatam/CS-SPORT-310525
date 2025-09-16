@@ -279,22 +279,67 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       {/* Video Background */}
       <div className="absolute inset-0 w-full h-full">
         <video
+          key="video1"
           autoPlay
           muted
-          loop
           playsInline
-          className="w-full h-full object-cover"
-          style={{ filter: "brightness(0.7)" }}
+          className="absolute w-full h-full object-cover transition-opacity duration-1000"
+          style={{ 
+            filter: "brightness(0.7)",
+            opacity: 1,
+            zIndex: 1
+          }}
+          onEnded={() => {
+            const video1 = document.getElementById('video1') as HTMLVideoElement;
+            const video2 = document.getElementById('video2') as HTMLVideoElement;
+            if (video1 && video2) {
+              video1.style.opacity = '0';
+              video2.style.opacity = '1';
+              video2.currentTime = 0;
+              video2.play();
+            }
+          }}
+          id="video1"
         >
           <source
             src="/assets/matchdetaillogo/vecteezy_sport-stadium-video-background-flashing-lights-glowing_4213949.mp4"
             type="video/mp4"
           />
-          {/* Fallback for when video doesn't load */}
-          <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"></div>
         </video>
+        
+        <video
+          key="video2"
+          muted
+          playsInline
+          className="absolute w-full h-full object-cover transition-opacity duration-1000"
+          style={{ 
+            filter: "brightness(0.7)",
+            opacity: 0,
+            zIndex: 1
+          }}
+          onEnded={() => {
+            const video1 = document.getElementById('video1') as HTMLVideoElement;
+            const video2 = document.getElementById('video2') as HTMLVideoElement;
+            if (video1 && video2) {
+              video2.style.opacity = '0';
+              video1.style.opacity = '1';
+              video1.currentTime = 0;
+              video1.play();
+            }
+          }}
+          id="video2"
+        >
+          <source
+            src="/assets/matchdetaillogo/vecteezy_beautiful-aerial-view-sijalak-harupat-football-stadium_10886261.mp4"
+            type="video/mp4"
+          />
+        </video>
+        
+        {/* Fallback for when videos don't load */}
+        <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" style={{ zIndex: 0 }}></div>
+        
         {/* Dark overlay for better text readability */}
-        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="absolute inset-0 bg-black/50" style={{ zIndex: 2 }}></div>
       </div>
 
       {/* Content Overlay */}
